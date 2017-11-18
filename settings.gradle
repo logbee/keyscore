@@ -1,1 +1,2 @@
+include 'keyscore-frontier'
 include 'keyscore-manager'
