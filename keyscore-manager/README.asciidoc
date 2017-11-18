@@ -1,0 +1,6 @@
+= Description
+
+The keyscore-manager is the web-ui to easily control all aspects of keyscore.
+
+== Development
+To serve the application while developing run `gradle serve` and visit `http://localhost:8080` with your browser.

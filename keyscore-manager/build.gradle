@@ -1,0 +1,20 @@
+plugins {
+    id "com.moowork.node" version "1.2.0"
+}
+
+node {
+    version = '6.9.1'
+    download = true
+}
+
+task webpack(type: NodeTask, dependsOn: npmInstall) {
+    script = file('node_modules/.bin/webpack')
+    inputs.files([
+        file('node_modules/.bin/webpack'),
+        files("src")
+    ])
+}
+
+task serve(type: NodeTask, dependsOn: npmInstall) {
+    script = file('node_modules/.bin/webpack-dev-server')
+}
