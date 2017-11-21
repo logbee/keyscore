@@ -11,6 +11,7 @@ import { StreamDetailComponent } from "./streams/stream-detail.component";
 import { FiltersComponent } from "./filters/filters.component";
 import { FilterDetailComponent } from "./filters/filter-detail.component";
 
+// Enable configuration described in: https://gist.github.com/fernandohu/122e88c3bcd210bbe41c608c36306db9
 
 const routes: Routes = [
     { path: '', redirectTo: '/dashboard', pathMatch: 'full' },

@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 @Component({
     selector: 'keyscore-stream-detail',
     template: `
-        <div class="container-fluid mt-3">
             <div class="row justify-content-center">
                 <div class="col-4">
                     <div class="card">
@@ -69,7 +68,6 @@ import { Component } from '@angular/core';
                     </div>
                 </div>
             </div>
-        </div>
     `
 })
 

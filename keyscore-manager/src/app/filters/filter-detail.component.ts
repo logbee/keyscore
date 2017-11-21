@@ -26,8 +26,8 @@ class Result {
     selector: 'keyscore-filter-details',
     template: `
         <div class="row justify-content-center">
-            <div class="col-8">
-                <div class="card mt-3">
+            <div class="col-10">
+                <div class="card">
                     <div class="card-header">
                         <h4 class="">Filter</h4>
                     </div>

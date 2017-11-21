@@ -14,14 +14,16 @@ class StreamModel {
 @Component({
     selector: 'keyscore-streams',
     template: `
-        <div class="container mt-3">
-            <div class="card-columns">
-                <div *ngFor="let stream of model.streams; let i = index" class="card">
-                    <a class="card-header btn d-flex justify-content-between" routerLink="/stream/{{stream.id}}">
-                        <h4 class="">{{stream.name}}</h4>
-                    </a>
-                    <div class="card-body">
-                        <small>{{stream.description}}</small>
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <div class="card-columns">
+                    <div *ngFor="let stream of model.streams; let i = index" class="card">
+                        <a class="card-header btn d-flex" routerLink="/stream/{{stream.id}}">
+                            <h4 class="">{{stream.name}}</h4>
+                        </a>
+                        <div class="card-body">
+                            <small>{{stream.description}}</small>
+                        </div>
                     </div>
                 </div>
             </div>
