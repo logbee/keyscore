@@ -1,6 +1,10 @@
 plugins {
     id "com.moowork.node" version "1.2.0"
+    id "com.bmuschko.docker-remote-api" version "3.2.1"
 }
+
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
 node {
     version = '6.9.1'
@@ -17,4 +21,24 @@ task webpack(type: NodeTask, dependsOn: npmInstall) {
 
 task serve(type: NodeTask, dependsOn: npmInstall) {
     script = file('node_modules/.bin/webpack-dev-server')
+}
+
+task createDockerfile(type: Dockerfile) {
+    destFile = project.file('build/Dockerfile')
+    from 'nginx:1.13.7-alpine'
+    instruction { 'COPY src/ /usr/share/nginx/html/' }
+    instruction { 'COPY public/ build/webpack/ /usr/share/nginx/html/public/' }
+    instruction { 'COPY conf/nginx.conf /etc/nginx/nginx.conf' }
+    instruction { "CMD nginx -g 'daemon off;'" }
+    instruction { 'EXPOSE 80' }
+}
+
+task buildImage(type: DockerBuildImage, dependsOn: [createDockerfile, webpack]) {
+    inputDir = projectDir
+    dockerFile = createDockerfile.destFile
+    tag = 'logbee/keyscore-manager:latest'
+}
+
+task clean(type: Delete) {
+    delete 'build', 'node_modules'
 }
