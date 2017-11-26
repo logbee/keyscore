@@ -1,76 +1,96 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {Observable} from "rxjs/Observable";
+import {
+    DisableFilterAction,
+    EditFilterAction, EnableFilterAction, FilterInstance, MoveFilterAction, RemoveFilterAction, SaveFilterAction,
+    Stream
+} from "./stream.reducer";
+import {Store} from "@ngrx/store";
+import {AppState} from "../app.component";
 
 @Component({
     selector: 'keyscore-stream-detail',
     template: `
-            <div class="row justify-content-center">
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="">Stream</h4>
-                        </div>
-                        <div class="card-body">
-                            <label for="streamName" class="font-weight-bold">Name</label>
-                            <input id="streamName" class="form-control" placeholder="Name" />
-                            <label for="streamDescription" class="font-weight-bold">Description</label>
-                            <textarea id="streamDescription" class="form-control" placeholder="Description" rows="3"></textarea>
-                        </div>
+        <div class="row justify-content-center">
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="">Stream</h4>
                     </div>
-                </div>
-                <div class="col-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                <h4>Filters</h4>
-                                <button type="button" class="btn btn-success" routerLink="/filter/add">Add</button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="list-group">
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="font-weight-bold">Filter 1</h6>
-                                            <small>Kafka Input.</small>
-                                        </div>
-                                        <div>
-                                            <button type="button" class="btn btn-primary" routerLink="/filter/details">Edit</button>
-                                            <button type="button" class="btn btn-danger">Remove</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="font-weight-bold">Filter 3</h6>
-                                            <small>Awesome filter!</small>
-                                        </div>
-                                        <div>
-                                            <button type="button" class="btn btn-primary" routerLink="/filter/details">Edit</button>
-                                            <button type="button" class="btn btn-danger">Remove</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="font-weight-bold">Filter 3</h6>
-                                            <small>Kafka output.</small>
-                                        </div>
-                                        <div>
-                                            <button type="button" class="btn btn-primary" routerLink="/filter/details">Edit</button>
-                                            <button type="button" class="btn btn-danger">Remove</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card-body">
+                        <label for="streamName" class="font-weight-bold">Name</label>
+                        <input id="streamName" class="form-control" placeholder="Name" />
+                        <label for="streamDescription" class="font-weight-bold">Description</label>
+                        <textarea id="streamDescription" class="form-control" placeholder="Description" rows="3"></textarea>
                     </div>
                 </div>
             </div>
+            <div class="col-9">
+                <div class="card mb-1" *ngFor="let filter of (stream$ | async).filters; let i = index">
+                    <div class="card-title">
+                        <div class="row pl-2 pt-2 pr-2">
+                            <div class="col-auto btn-group-vertical">
+                                <button type="button" class="btn btn-light font-weight-bold" (click)="moveFilter(filter.id, i - 1)">U</button>
+                                <button type="button" class="btn btn-light font-weight-bold" (click)="moveFilter(filter.id, i + 1)">D</button>
+                            </div>
+                            <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="!filter.editing">
+                                <span class="font-weight-bold">{{filter.name}}</span><br>
+                                <small>{{filter.description}}</small>
+                            </div>
+                            <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="filter.editing">
+                                <input id="filterName" class="form-control" placeholder="Name" [(ngModel)]="filter.name"/>
+                                <input id="filterDescription" class="form-control" placeholder="Description" [(ngModel)]="filter.description"/>
+                            </div>
+                            <div class="col-2"></div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-primary" *ngIf="!filter.editing" (click)="editFilter(filter.id)">Edit</button>
+                                <!--<button type="button" class="btn btn-secondary" *ngIf="filter.editing && filter.enabled" (click)="disableFilter(filter.id)">Disable</button>-->
+                                <!--<button type="button" class="btn btn-secondary" *ngIf="filter.editing && !filter.enabled" (click)="enableFilter(filter.id)">Enable</button>-->
+                                <button type="button" class="btn btn-danger" *ngIf="filter.editing" (click)="removeFilter(filter.id)">Remove</button>
+                                <button type="button" class="btn btn-primary" *ngIf="filter.editing" (click)="saveFilter(filter.id)">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" *ngIf="filter.editing">
+                        <h6 class="font-weight-bold">Filter 1</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
     `
 })
 
-export class StreamDetailComponent {
+export class StreamDetailComponent implements OnInit {
+    stream$: Observable<Stream>;
 
+    constructor(private store: Store<any>) {}
+
+    ngOnInit(): void {
+        this.stream$ = this.store.select<any>('stream');
+    }
+
+    removeFilter(id: String) {
+        this.store.dispatch(new RemoveFilterAction(id))
+
+    }
+
+    moveFilter(id: String, position: number) {
+        this.store.dispatch(new MoveFilterAction(id, position));
+    }
+
+    editFilter(id: String) {
+        this.store.dispatch(new EditFilterAction(id))
+    }
+
+    saveFilter(id: String) {
+        this.store.dispatch(new SaveFilterAction(id))
+    }
+
+    enableFilter(id: String) {
+        this.store.dispatch(new EnableFilterAction(id))
+    }
+
+    disableFilter(id: String) {
+        this.store.dispatch(new DisableFilterAction(id))
+    }
 }

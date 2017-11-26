@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {FilterDetailsModel} from "../filters/filter-detail.component";
+// import magnifyingGlass from '../common/magnifying-glass.svg'
 
 class StreamsModel {
     streams: StreamModel[]
@@ -14,8 +14,21 @@ class StreamModel {
 @Component({
     selector: 'keyscore-streams',
     template: `
-        <div class="row justify-content-center">
-            <div class="col-10">
+        <div class="row">
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <span class="input-group-addon"><img src="../common/magnifying-glass.svg"/></span>
+                            <input type="text" class="form-control" placeholder="search..." aria-label="search">
+                        </div>
+                        <div class="mt-3 mb-3">
+                            <button type="button" class="btn btn-success" routerLink="/stream/new">Create Stream</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
                 <div class="card-columns">
                     <div *ngFor="let stream of model.streams; let i = index" class="card">
                         <a class="card-header btn d-flex" routerLink="/stream/{{stream.id}}">
