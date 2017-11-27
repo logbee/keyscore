@@ -1,7 +1,9 @@
 import { Action } from '@ngrx/store';
 
 export class Stream {
-    filters: FilterInstance[]
+    name: String;
+    description: String;
+    filters: FilterInstance[];
 }
 
 export class FilterInstance {
@@ -13,12 +15,14 @@ export class FilterInstance {
 }
 
 export const initialState: Stream = {
-  filters: [
+    name: 'Test Stream',
+    description: 'This is a test stream.',
+    filters: [
       new FilterInstance('1', 'Kafka Input', 'Where does it come from?'),
       new FilterInstance('2', 'Drop crap', 'Drop the most'),
       new FilterInstance('3', 'Add fields', 'There are very interesting fields!'),
       new FilterInstance('4', 'Kafka Output', ''),
-  ]
+    ]
 };
 
 const REMOVE_FILTER = 'REMOVE_FILTER';

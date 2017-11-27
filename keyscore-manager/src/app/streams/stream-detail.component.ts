@@ -19,9 +19,9 @@ import {AppState} from "../app.component";
                     </div>
                     <div class="card-body">
                         <label for="streamName" class="font-weight-bold">Name</label>
-                        <input id="streamName" class="form-control" placeholder="Name" />
+                        <input id="streamName" class="form-control" placeholder="Name" [(ngModel)]="streamName"/>
                         <label for="streamDescription" class="font-weight-bold">Description</label>
-                        <textarea id="streamDescription" class="form-control" placeholder="Description" rows="3"></textarea>
+                        <textarea id="streamDescription" class="form-control" placeholder="Description" rows="3" [(ngModel)]="streamDescription"></textarea>
                     </div>
                 </div>
             </div>
@@ -30,8 +30,8 @@ import {AppState} from "../app.component";
                     <div class="card-title">
                         <div class="row pl-2 pt-2 pr-2">
                             <div class="col-auto btn-group-vertical">
-                                <button type="button" class="btn btn-light font-weight-bold" (click)="moveFilter(filter.id, i - 1)">U</button>
-                                <button type="button" class="btn btn-light font-weight-bold" (click)="moveFilter(filter.id, i + 1)">D</button>
+                                <button type="button" class="btn btn-light font-weight-bold" (click)="moveFilter(filter.id, i - 1)" [disabled]="i == 0">U</button>
+                                <button type="button" class="btn btn-light font-weight-bold" (click)="moveFilter(filter.id, i + 1)" [disabled]="i == filterCount - 1">D</button>
                             </div>
                             <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="!filter.editing">
                                 <span class="font-weight-bold">{{filter.name}}</span><br>
@@ -44,8 +44,6 @@ import {AppState} from "../app.component";
                             <div class="col-2"></div>
                             <div class="col-auto">
                                 <button type="button" class="btn btn-primary" *ngIf="!filter.editing" (click)="editFilter(filter.id)">Edit</button>
-                                <!--<button type="button" class="btn btn-secondary" *ngIf="filter.editing && filter.enabled" (click)="disableFilter(filter.id)">Disable</button>-->
-                                <!--<button type="button" class="btn btn-secondary" *ngIf="filter.editing && !filter.enabled" (click)="enableFilter(filter.id)">Enable</button>-->
                                 <button type="button" class="btn btn-danger" *ngIf="filter.editing" (click)="removeFilter(filter.id)">Remove</button>
                                 <button type="button" class="btn btn-primary" *ngIf="filter.editing" (click)="saveFilter(filter.id)">Save</button>
                             </div>
@@ -62,11 +60,22 @@ import {AppState} from "../app.component";
 
 export class StreamDetailComponent implements OnInit {
     stream$: Observable<Stream>;
+    streamName: String;
+    streamDescription: String;
+    filterCount: number;
 
     constructor(private store: Store<any>) {}
 
     ngOnInit(): void {
         this.stream$ = this.store.select<any>('stream');
+        this.stream$.subscribe(stream => {
+            if (stream && stream.filters) {
+                this.filterCount = stream.filters.length
+            }
+            else {
+                this.filterCount = 0;
+            }
+        })
     }
 
     removeFilter(id: String) {
