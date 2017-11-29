@@ -1,7 +1,19 @@
+plugins {
+    id "com.bmuschko.docker-remote-api" version "3.2.1"
+}
+
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
 apply plugin: 'scala'
 
 repositories {
     mavenCentral()
+}
+
+project.ext {
+    distributionDir = "$buildDir/distribution"
+
 }
 
 dependencies {
@@ -20,11 +32,40 @@ dependencies {
     testCompile 'org.scalamock:scalamock_2.12:4.0.0'
     testCompile 'com.typesafe.akka:akka-testkit_2.12:2.5.6'
     testCompile 'com.typesafe.akka:akka-http-testkit_2.12:10.0.10'
+    testCompile 'com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1'
 }
 
-task run(type: JavaExec, dependsOn: compileScala) {
-    inputs.files sourceSets.main.scala
-    main = 'keyscore.frontier.app.KeyscoreApplication'
-    classpath sourceSets.main.runtimeClasspath
-    classpath configurations.runtime
+jar {
+    manifest.attributes ([
+        'Main-Class': mainClass,
+        'Implementation-Title': project.name,
+        'Implementation-Version': version,
+        'Class-Path': (configurations.runtime + configurations.compile).collect { "libs/" + it.getName() }.join(' ')
+    ])
+}
+
+task buildDistribution(type: Copy, dependsOn: [jar]) {
+    into project.distributionDir
+    from('src/launcher/keyscore-frontier')
+    from(jar.outputs) {
+        rename("${project.name}-${version}.jar", "${project.name}.jar")
+    }
+    from(configurations.runtime) {
+        into 'libs'
+    }
+
+}
+
+task buildDockerfile(type: Dockerfile) {
+    destFile = project.file("$buildDir/tmp/Dockerfile")
+    from 'java:openjdk-8-jdk-alpine'
+    instruction { "COPY build/distribution/ /opt/keyscore-frontier/" }
+    instruction { "CMD /opt/keyscore-frontier/keyscore-frontier" }
+    instruction { 'EXPOSE 4711' }
+}
+
+task buildImage(type: DockerBuildImage, dependsOn: [buildDistribution, buildDockerfile]) {
+    inputDir = projectDir
+    dockerFile = buildDockerfile.destFile
+    tag = 'logbee/keyscore-frontier:latest'
 }

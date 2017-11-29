@@ -28,7 +28,7 @@ object FrontierApplication extends App {
       complete(StatusCodes.OK)
     }
 
-  val bindingFuture = Http().bindAndHandle(routes, "localhost", 8080)
+  val bindingFuture = Http().bindAndHandle(routes, "localhost", 4711)
 
   println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
 
