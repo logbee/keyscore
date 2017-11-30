@@ -13,7 +13,6 @@ repositories {
 
 project.ext {
     distributionDir = "$buildDir/distribution"
-
 }
 
 dependencies {
@@ -48,7 +47,7 @@ jar {
 
 task buildDistribution(type: Copy, dependsOn: [jar]) {
     into project.distributionDir
-    from('src/launcher/keyscore-frontier')
+    from('src/launcher/keyscore-agent')
     from(jar.outputs) {
         rename("${project.name}-${version}.jar", "${project.name}.jar")
     }
@@ -61,13 +60,13 @@ task buildDistribution(type: Copy, dependsOn: [jar]) {
 task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'java:openjdk-8-jdk-alpine'
-    instruction { "COPY build/distribution/ /opt/keyscore-frontier/" }
-    instruction { "CMD /opt/keyscore-frontier/keyscore-frontier" }
+    instruction { "COPY build/distribution/ /opt/keyscore-agent/" }
+    instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
     instruction { 'EXPOSE 4711' }
 }
 
 task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, buildDockerfile]) {
     inputDir = projectDir
     dockerFile = buildDockerfile.destFile
-    tag = 'logbee/keyscore-frontier:latest'
+    tag = 'logbee/keyscore-agent:latest'
 }

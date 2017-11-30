@@ -1,0 +1,3 @@
+#! /usr/bin/env sh
+
+java -jar keyscore-agent.jar -server -XX:+UnlockExperimentalVMOptions -Xms512m -Xmx3g

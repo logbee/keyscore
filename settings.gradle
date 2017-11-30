@@ -1,2 +1,4 @@
+include 'keyscore-agent'
 include 'keyscore-frontier'
 include 'keyscore-manager'
+include 'keyscore-model'

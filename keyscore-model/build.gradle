@@ -1,0 +1,20 @@
+apply plugin: 'scala'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile 'org.scala-lang:scala-library:2.12.4'
+
+    testCompile 'org.scalatest:scalatest_2.12:3.0.4'
+    testCompile 'org.scalamock:scalamock_2.12:4.0.0'
+}
+
+jar {
+    manifest.attributes ([
+        'Implementation-Title': project.name,
+        'Implementation-Version': version,
+    ])
+}

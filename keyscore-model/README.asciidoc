@@ -1,0 +1,3 @@
+= Description
+
+The keyscore-model is a library shared between the other model of keyscore.

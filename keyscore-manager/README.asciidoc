@@ -8,4 +8,4 @@ To serve the application while developing run `gradle serve` and visit `http://l
 == Deployment
 
 === Docker
-To build a Docker image run `gradle buildImage`. To start a container run `docker run --name keyscore-manager -p 8080:80 -d logbee/keyscore-manager:latest`
+To build a Docker image run `gradle buildDockerImage`. To start a container run `docker run --name keyscore-manager -p 8080:80 -d logbee/keyscore-manager:latest`

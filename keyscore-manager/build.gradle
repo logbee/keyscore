@@ -24,7 +24,7 @@ task serve(type: NodeTask, dependsOn: npmInstall) {
 }
 
 task createDockerfile(type: Dockerfile) {
-    destFile = project.file('build/Dockerfile')
+    destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'nginx:1.13.7-alpine'
     instruction { 'COPY src/ /usr/share/nginx/html/' }
     instruction { 'COPY public/ build/webpack/ /usr/share/nginx/html/public/' }
@@ -33,7 +33,7 @@ task createDockerfile(type: Dockerfile) {
     instruction { 'EXPOSE 80' }
 }
 
-task buildImage(type: DockerBuildImage, dependsOn: [createDockerfile, webpack]) {
+task buildDockerImage(type: DockerBuildImage, dependsOn: [createDockerfile, webpack]) {
     inputDir = projectDir
     dockerFile = createDockerfile.destFile
     tag = 'logbee/keyscore-manager:latest'

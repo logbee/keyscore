@@ -1,0 +1,8 @@
+= Description
+
+== Development
+
+== Deployment
+
+=== Docker
+To build a Docker image run `gradle buildDockerImage`. To start a container run `docker run --name keyscore-agent -d logbee/keyscore-agent:latest`
