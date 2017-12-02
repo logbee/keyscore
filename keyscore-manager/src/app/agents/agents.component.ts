@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
     template: `
         <div class="row justify-content-center">
             <div class="col-10">
-                <h1>Nodes</h1>
+                <h1>Agents</h1>
             </div>
         </div>
     `

@@ -7,7 +7,7 @@ import { StoreModule } from '@ngrx/store';
 
 import { AppComponent }  from './app.component';
 import { DashboardComponent } from "./dashboard/dashboard.component";
-import { NodesComponent } from "./nodes/nodes.component";
+import { NodesComponent } from "./agents/agents.component";
 import { StreamsComponent } from "./streams/streams.component";
 import { StreamDetailComponent } from "./streams/stream-detail.component";
 import { FiltersComponent } from "./filters/filters.component";
