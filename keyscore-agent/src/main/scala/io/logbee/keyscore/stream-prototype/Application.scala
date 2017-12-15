@@ -25,7 +25,7 @@ object Application extends App {
     * Specifies the kafka input server, names this kafka consumer and specifies the consumer config
     */
   val consumerSettings = ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
-    .withBootstrapServers("s415vmmt567.detss.corpintra.net:9092")
+    .withBootstrapServers(""/*BootstrapServer goes here*/)
     .withGroupId("akka-stream-kafka-test-graph-builder")
     .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
 
@@ -33,7 +33,7 @@ object Application extends App {
     * Specifies the kafka output server
     */
   val producerSettings = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
-    .withBootstrapServers("s415vmmt567.detss.corpintra.net:9092")
+    .withBootstrapServers(""/*BootstrapServer goes here*/)
 
 
   val source = Consumer.committableSource(consumerSettings, Subscriptions.topics(sourceTopic))
