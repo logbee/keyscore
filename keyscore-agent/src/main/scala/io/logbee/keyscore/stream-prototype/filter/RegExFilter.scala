@@ -1,3 +1,4 @@
+/*
 package filter
 
 import java.text.SimpleDateFormat
@@ -48,3 +49,4 @@ class RegExFilter(rules: String) extends Filter {
 
 
 }
+*/

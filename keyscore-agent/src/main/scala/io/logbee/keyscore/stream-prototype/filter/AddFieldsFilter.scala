@@ -1,38 +1,39 @@
 package filter
 
-import akka.stream
+import akka.{NotUsed, stream}
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
-import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
+import akka.stream.{Attributes, FlowShape, Inlet}
+import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
 
-object ExtractFieldsFilter {
-
-  def apply(fieldsToExtract: List[String]) = Flow.fromGraph(new ExtractFieldsFilter(fieldsToExtract))
+object AddFieldsFilter {
+  def apply(fieldsToAdd: Map[String, String]): Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed] =
+    Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
 }
 
-class ExtractFieldsFilter(fieldsToExtract: List[String]) extends Filter {
+class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
+  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-  implicit val formats = org.json4s.DefaultFormats
-  val in = Inlet[CommitableFilterMessage]("extr.in")
-  val out = stream.Outlet[CommitableFilterMessage]("extr.out")
+  val in = Inlet[CommitableFilterMessage]("addFields.in")
+  val out = stream.Outlet[CommitableFilterMessage]("addFields.out")
 
   override val shape = FlowShape.of(in, out)
 
-  override def createLogic(attr: Attributes): GraphStageLogic =
+  override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = {
     new GraphStageLogic(shape) {
+
       setHandler(in, new InHandler {
         override def onPush(): Unit = {
           val inMsg = grab(in)
           val inMsgMap = inMsg.value
           var outMap = scala.collection.mutable.Map[String, String]()
 
-          fieldsToExtract.foreach { field =>
-            outMap += field -> inMsgMap(field)
-          }
+          outMap ++= inMsgMap
+          outMap ++= fieldsToAdd
+
           println(Serialization.write(outMap))
           push(out, CommitableFilterMessage(outMap.toMap, inMsg.committableOffset))
-
         }
       })
 
@@ -43,4 +44,5 @@ class ExtractFieldsFilter(fieldsToExtract: List[String]) extends Filter {
       })
     }
 
+  }
 }

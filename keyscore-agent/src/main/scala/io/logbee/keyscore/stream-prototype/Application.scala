@@ -1,14 +1,13 @@
-package streammanagement
-
 import akka.actor.ActorSystem
 import akka.kafka._
 import akka.kafka.scaladsl.{Consumer, Producer}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
-import filter.{ExtractFieldsFilter, RegExFilter}
+import filter.{AddFieldsFilter, ExtractFieldsFilter}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, ByteArraySerializer, StringDeserializer, StringSerializer}
 import streammanagement.GraphBuilderActor.SinkWithTopic
+import streammanagement.StreamManager
 import streammanagement.StreamManager.{ChangeStream, CreateNewStream}
 
 import scala.io.StdIn
@@ -38,7 +37,7 @@ object Application extends App {
 
 
   val source = Consumer.committableSource(consumerSettings, Subscriptions.topics(sourceTopic))
-  val sink = SinkWithTopic(Producer.commitableSink(producerSettings),sinkTopic)
+  val sink = SinkWithTopic(Producer.commitableSink(producerSettings), sinkTopic)
 
   val streamManager = system.actorOf(StreamManager.props)
 
@@ -48,14 +47,19 @@ object Application extends App {
   StdIn.readLine()
   StdIn.readLine()
 
-  streamManager ! CreateNewStream(0, source, sink, List(Flow.fromGraph(new ExtractFieldsFilter(List("message","level"))),
-    Flow.fromGraph(new ExtractFieldsFilter(List("message")))))
+  streamManager ! CreateNewStream(0, source, sink, List(
+    ExtractFieldsFilter(List("message", "level", "robotime")),
+    ExtractFieldsFilter(List("message", "robotime")),
+    AddFieldsFilter(Map("akka_test_field" -> "test value"))
+  ))
 
 
-  println ("Press Key to change Stream")
+  println("Press Key to change Stream")
   StdIn.readLine()
 
-  streamManager ! ChangeStream(0, source, sink, List(Flow.fromGraph(new RegExFilter("(?<level>(?<=\\\"level\\\":\\\")[^\"]*)"))))
+  streamManager ! ChangeStream(0, source, sink, List(
+    ExtractFieldsFilter(List("logbee_time"))
+  ))
 
 
   StdIn.readLine("Press Key to Terminate")
