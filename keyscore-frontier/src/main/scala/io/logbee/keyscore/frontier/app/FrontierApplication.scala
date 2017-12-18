@@ -7,6 +7,8 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import com.typesafe.config.ConfigFactory
+import io.logbee.keyscore.frontier.config.ServerSettings
 import io.logbee.keyscore.frontier.rest.api.{StreamManager, StreamService}
 
 import scala.concurrent.duration._
@@ -19,16 +21,22 @@ object FrontierApplication extends App {
   implicit val executionContext = system.dispatcher
   implicit val timeout: Timeout = 1.seconds
 
-  val streamManager = system.actorOf(Props[StreamManager], "stream-manager")
+  val settings = ServerSettings(system)
+  val streamManager = system.actorOf(StreamManager.props)
   val streamService = new StreamService(streamManager)
 
-  val routes: Route =
-    streamService.route ~
-    pathPrefix("filter") {
-      complete(StatusCodes.OK)
+
+  val route=
+    path("stream"){
+      post{
+        parameter("stream") {
+          stream =>
+            streamManager !
+        }
+      }
     }
 
-  val bindingFuture = Http().bindAndHandle(routes, "localhost", 4711)
+  val bindingFuture = Http().bindAndHandle(route, settings.Interface, settings.Port)
 
   println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
 

@@ -1,14 +1,11 @@
+package io.logbee.keyscore.frontier
+
 import akka.actor.ActorSystem
-import akka.kafka._
-import akka.kafka.scaladsl.{Consumer, Producer}
+import akka.kafka.scaladsl._
+import akka.kafka.{ConsumerSettings, ProducerSettings, Subscriptions}
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Flow
-import filter.{AddFieldsFilter, ExtractFieldsFilter}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, ByteArraySerializer, StringDeserializer, StringSerializer}
-import streammanagement.GraphBuilderActor.SinkWithTopic
-import streammanagement.StreamManager
-import streammanagement.StreamManager.{ChangeStream, CreateNewStream}
 
 import scala.io.StdIn
 
