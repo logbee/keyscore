@@ -18,9 +18,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 object RunningStreamActor {
 
   def props(
-             source: Source[ConsumerMessage.CommittableMessage[Array[Byte], String],
-               Consumer.Control],
-             sink: SinkWithTopic,
+             source: Source[CommitableFilterMessage, UniqueKillSwitch],
+             sink: Sink[CommitableFilterMessage, NotUsed],
              flows: List[Flow[CommitableFilterMessage,CommitableFilterMessage,NotUsed]]
            )
            (implicit materializer: ActorMaterializer): Props = {
@@ -34,9 +33,8 @@ object RunningStreamActor {
 }
 
 class RunningStreamActor(
-                          source: Source[ConsumerMessage.CommittableMessage[Array[Byte], String],
-                            Consumer.Control],
-                          sink: SinkWithTopic,
+                          source: Source[CommitableFilterMessage, UniqueKillSwitch],
+                          sink: Sink[CommitableFilterMessage, NotUsed],
                           flows: List[Flow[CommitableFilterMessage,CommitableFilterMessage,NotUsed]]
                         )(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
 
@@ -50,22 +48,22 @@ class RunningStreamActor(
   val future: Future[BuiltGraph] = ask(graphBuilderActor, BuildGraph(source, sink, flows)).mapTo[BuiltGraph]
   val graph: RunnableGraph[UniqueKillSwitch] = Await.result(future, 2 second).graph
 
-  log.info("running graph")
+  log.debug("running graph")
   var killSwitch: UniqueKillSwitch = graph.run()
 
 
   override def preStart(): Unit = {
-    log.info("Starting StreamActor ")
+    log.debug("Starting StreamActor ")
   }
 
   override def postStop(): Unit = {
-    log.info("Stopping StreamActor")
+    log.debug("Stopping StreamActor")
   }
 
   override def receive = {
     case ShutdownGraph =>
       killSwitch.shutdown()
-      log.info("Shutdown Graph")
+      log.debug("Shutdown Graph")
       context.stop(self)
 
   }

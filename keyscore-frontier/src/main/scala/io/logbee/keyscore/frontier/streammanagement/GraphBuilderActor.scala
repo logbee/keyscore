@@ -20,9 +20,8 @@ object GraphBuilderActor {
   def props(): Props = actor.Props(new GraphBuilderActor())
 
   case class BuildGraph(
-                         source: Source[ConsumerMessage.CommittableMessage[Array[Byte], String],
-                           Consumer.Control],
-                         sink: SinkWithTopic,
+                         source: Source[CommitableFilterMessage, UniqueKillSwitch],
+                         sink: Sink[CommitableFilterMessage, NotUsed],
                          flows: List[Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed]]
                        )
 
@@ -39,7 +38,7 @@ class GraphBuilderActor() extends Actor with ActorLogging {
 
   override def receive = {
     case BuildGraph(source, sink, flows) =>
-      log.info("building graph....")
+      log.debug("building graph....")
 
       val startSource = source.map { msg =>
         val msgMap = parse(msg.record.value()).extract[Map[String, String]]
