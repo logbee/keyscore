@@ -8,8 +8,8 @@ import akka.pattern.ask
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.stream.scaladsl.{Flow, RunnableGraph, Sink, Source}
 import akka.util.Timeout
-import filter.CommitableFilterMessage
-import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph, SinkWithTopic}
+import io.logbee.keyscore.frontier.filter.CommitableFilterMessage
+import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph}
 import streammanagement.RunningStreamActor.ShutdownGraph
 
 import scala.concurrent.duration._

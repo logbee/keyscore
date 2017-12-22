@@ -1,4 +1,4 @@
-package filter
+package io.logbee.keyscore.frontier.filter
 
 import akka.{NotUsed, stream}
 import akka.stream.scaladsl.Flow

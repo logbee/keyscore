@@ -7,9 +7,10 @@ import akka.kafka.ConsumerMessage.CommittableMessage
 import akka.kafka.scaladsl.Consumer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream._
-import filter.CommitableFilterMessage
+import io.logbee.keyscore.frontier.filter.CommitableFilterMessage
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
+import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
 
 
@@ -25,6 +26,8 @@ object KafkaSource {
     * @return Stoppable Kafka Source
     */
   def create(bootstrapServer: String, sourceTopic: String, groupID: String, offsetConfig: String)(implicit system: ActorSystem): Source[CommitableFilterMessage, UniqueKillSwitch] = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
 
     val consumerSettings = kafka.ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
       .withBootstrapServers(bootstrapServer)

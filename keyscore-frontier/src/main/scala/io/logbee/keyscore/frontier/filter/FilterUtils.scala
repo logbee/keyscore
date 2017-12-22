@@ -1,4 +1,5 @@
-package filter
+package io.logbee.keyscore.frontier.filter
+
 
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Locale}

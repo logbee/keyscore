@@ -5,8 +5,8 @@ import akka.kafka.{ConsumerMessage, ProducerMessage}
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
-import filter.{CommitableFilterMessage, Filter}
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
 
 object ToKafkaProducerFilter {
@@ -15,6 +15,9 @@ object ToKafkaProducerFilter {
 }
 
 class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[CommitableFilterMessage, ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]] {
+  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+
   val in = Inlet[CommitableFilterMessage]("ToKafka.in")
   val out = Outlet[ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]("ToKafka.out")
 

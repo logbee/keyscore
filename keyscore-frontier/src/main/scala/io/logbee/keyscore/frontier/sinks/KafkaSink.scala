@@ -5,12 +5,9 @@ import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.scaladsl.{Keep, Sink}
-import filter.CommitableFilterMessage
-import io.logbee.keyscore.frontier.Application.{producerSettings, system}
-import io.logbee.keyscore.frontier.filter.ToKafkaProducerFilter
+import io.logbee.keyscore.frontier.filter.{CommitableFilterMessage, ToKafkaProducerFilter}
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 
-import scala.concurrent.Future
 
 object KafkaSink {
 

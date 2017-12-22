@@ -1,11 +1,9 @@
-package filter
+package io.logbee.keyscore.frontier.filter
 
-import akka.serialization.Serialization
 import akka.{NotUsed, stream}
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
-import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
 
 object RemoveFieldsFilter {
@@ -14,7 +12,7 @@ object RemoveFieldsFilter {
 }
 
 class RemoveFieldsFilter(fieldsToRemove: List[String]) extends Filter {
-  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+  implicit val formats = org.json4s.DefaultFormats
 
   val in = Inlet[CommitableFilterMessage]("removeFields.in")
   val out = stream.Outlet[CommitableFilterMessage]("removeFields.out")
