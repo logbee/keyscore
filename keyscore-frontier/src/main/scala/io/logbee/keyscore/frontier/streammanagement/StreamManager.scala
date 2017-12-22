@@ -84,7 +84,7 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
     val source = model.source.source_type match {
       case SourceTypes.KafkaSource =>
         val sourceModel = model.source.asInstanceOf[KafkaSourceModel]
-        KafkaSource.create(sourceModel.bootstrap_server, sourceModel.source_topic, sourceModel.group_ID, sourceModel.offset_Commit)
+        KafkaSource.create(sourceModel.bootstrap_server, sourceModel.source_topic, sourceModel.group_ID, sourceModel.offset_commit)
     }
     val sink = model.sink.sink_type match {
       case SinkTypes.KafkaSink =>

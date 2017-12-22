@@ -1,19 +1,14 @@
 package io.logbee.keyscore.frontier.app
 
-import java.util.UUID
-
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.frontier.StreamModel
 import io.logbee.keyscore.frontier.config.ServerSettings
-import io.logbee.keyscore.frontier.streammanagement.StreamUtils
 import streammanagement.StreamManager.{CreateNewStream, TranslateAndCreateNewStream}
 import akka.pattern.ask
 import streammanagement.StreamManager
@@ -41,7 +36,6 @@ object FrontierApplication extends App with FrontierJsonProtocol {
           complete((StatusCodes.Created, (streamManager ? TranslateAndCreateNewStream(stream)).map(_.toString)))
         }
       }
-
     }
 
   val bindingFuture = Http().bindAndHandle(route, settings.Interface, settings.Port)

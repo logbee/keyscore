@@ -14,7 +14,7 @@ payload: JSON coded Stream object:
     "bootstrap_server":"",
     "source_topic":"",
     "group_ID":"first-keyscore-consumer",
-    "offset_Commit":"<earliest | latest>"
+    "offset_commit":"<earliest | latest>"
   },
   "sink":{
     "sink_type":"kafka_sink",

@@ -1,19 +1,11 @@
 package streammanagement
 
-import akka.{Done, NotUsed, actor}
-import akka.actor.{Actor, ActorLogging, Cancellable, Props}
-import akka.kafka.{ConsumerMessage, ProducerMessage}
-import akka.kafka.scaladsl.Consumer
-import akka.stream.{ClosedShape, FlowShape, KillSwitches, UniqueKillSwitch}
-import akka.stream.scaladsl.{Flow, GraphDSL, Keep, RunnableGraph, Sink, Source}
+import akka.{NotUsed, actor}
+import akka.actor.{Actor, ActorLogging, Props}
+import akka.stream.UniqueKillSwitch
+import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
 import io.logbee.keyscore.frontier.filter.{AddFieldsFilter, CommitableFilterMessage, FilterUtils}
 import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph}
-import org.apache.kafka.clients.producer.ProducerRecord
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.native.Serialization
-
-import scala.concurrent.Future
 
 
 object GraphBuilderActor {

@@ -2,7 +2,6 @@ package io.logbee.keyscore.frontier.app
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import io.logbee.keyscore.frontier._
-import filter.ExtractFieldsFilter
 import spray.json._
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
