@@ -1,18 +1,21 @@
-package streammanagement
+package io.logbee.keyscore.frontier.stream
 
 import java.util.UUID
 
+import _root_.streammanagement.RunningStreamActor.ShutdownGraph
 import akka.NotUsed
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import io.logbee.keyscore.frontier.filter._
 import io.logbee.keyscore.frontier.sinks.KafkaSink
-import io.logbee.keyscore.frontier._
 import io.logbee.keyscore.frontier.sources.KafkaSource
-import io.logbee.keyscore.frontier.streammanagement.StreamUtils.{createAddFieldsFilter, createExtractFieldsFilter, createExtractToNewFilter, createRemoveFieldsFilter}
-import _root_.streammanagement.RunningStreamActor.ShutdownGraph
-import _root_.streammanagement.StreamManager._
+import io.logbee.keyscore.frontier.stream.StreamManager._
+import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkTypes}
+import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceTypes}
+import streammanagement.RunningStreamActor
 
 
 object StreamManager {
@@ -20,14 +23,14 @@ object StreamManager {
 
   case class TranslateAndCreateNewStream(streamModel: StreamModel)
 
-  case class Stream(uuid: UUID,
-                    source: Source[CommitableFilterMessage, UniqueKillSwitch],
-                    sink: Sink[CommitableFilterMessage, NotUsed],
-                    filter: List[Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed]])
+  case class StreamInstance(uuid: UUID,
+                            source: Source[CommitableFilterMessage, UniqueKillSwitch],
+                            sink: Sink[CommitableFilterMessage, NotUsed],
+                            filter: List[Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed]])
 
-  case class ChangeStream(stream: Stream)
+  case class ChangeStream(stream: StreamInstance)
 
-  case class CreateNewStream(stream: Stream)
+  case class CreateNewStream(stream: StreamInstance)
 
   case class StreamCreatedWithID(id: UUID)
 
@@ -57,20 +60,15 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
           self tell(ChangeStream(stream), sender())
         case None =>
           val streamActor = context.actorOf(RunningStreamActor.props(stream.source, stream.sink, stream.filter))
-          idToActor += stream.uuid -> streamActor
-          actorToId += streamActor -> stream.uuid
+          addStreamActor(stream, streamActor)
           sender() ! StreamCreatedWithID(stream.uuid)
-
       }
 
     case ChangeStream(stream) =>
-      val streamActor = idToActor(stream.uuid)
-      actorToId -= streamActor
-      idToActor -= stream.uuid
+      val streamActor: ActorRef = removeStreamActor(stream)
       streamActor ! ShutdownGraph
       val newStreamActor = context.actorOf(RunningStreamActor.props(stream.source, stream.sink, stream.filter))
-      idToActor += stream.uuid -> newStreamActor
-      actorToId += newStreamActor -> stream.uuid
+      addStreamActor(stream, newStreamActor)
       sender() ! StreamUpdated(stream.uuid)
 
     case TranslateAndCreateNewStream(streamModel) =>
@@ -78,7 +76,19 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
       self tell(CreateNewStream(stream), sender())
   }
 
-  private def createStreamFromModel(model: StreamModel): StreamManager.Stream = {
+  private def addStreamActor(stream: StreamInstance, actor: ActorRef): Unit = {
+    idToActor += stream.uuid -> actor
+    actorToId += actor -> stream.uuid
+  }
+
+  private def removeStreamActor(stream: StreamInstance): ActorRef = {
+    val streamActor = idToActor(stream.uuid)
+    actorToId -= streamActor
+    idToActor -= stream.uuid
+    streamActor
+  }
+
+  private def createStreamFromModel(model: StreamModel): StreamManager.StreamInstance = {
 
     val id = UUID.randomUUID()
     val source = model.source.source_type match {
@@ -105,7 +115,7 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
     }
 
 
-    StreamManager.Stream(id, source, sink, filterBuffer.toList)
+    StreamManager.StreamInstance(id, source, sink, filterBuffer.toList)
   }
 
 }

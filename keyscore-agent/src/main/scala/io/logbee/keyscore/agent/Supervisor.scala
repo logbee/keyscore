@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{Actor, ActorRef}
 import io.logbee.keyscore.agent.Supervisor.SetupStream
-import io.logbee.keyscore.model.{FilterBlueprint, StreamBlueprint}
+import io.logbee.keyscore.model.StreamBlueprint
 
 object Supervisor {
   case class SetupStream(streamBlueprint: StreamBlueprint)
@@ -14,9 +14,9 @@ class Supervisor extends Actor {
 
   val actors = Map.empty[UUID,Map[UUID, ActorRef]]
 
-  override def receive: Receive = {
+  override def receive: Receive = ???
+  /*{
     case SetupStream(streamBlueprint) =>
-
       var lastFilter: ActorRef = None[ActorRef]
       streamBlueprint.filters.reverse.foreach(filterBlueprint => {
         filterBlueprint.filterType match {
@@ -29,4 +29,5 @@ class Supervisor extends Actor {
         }
       })
   }
+  */
 }

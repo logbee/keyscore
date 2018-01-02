@@ -1,10 +1,9 @@
 package io.logbee.keyscore.frontier.filter
 
-import akka.NotUsed
 import akka.kafka.{ConsumerMessage, ProducerMessage}
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
-import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
+import akka.stream._
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
@@ -15,11 +14,11 @@ object ToKafkaProducerFilter {
 }
 
 class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[CommitableFilterMessage, ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]] {
-  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
+  implicit val formats: DefaultFormats.type = DefaultFormats
 
-  val in = Inlet[CommitableFilterMessage]("ToKafka.in")
-  val out = Outlet[ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]("ToKafka.out")
+  private val in = Inlet[CommitableFilterMessage]("ToKafka.in")
+  private val out = Outlet[ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]("ToKafka.out")
 
   override val shape = FlowShape.of(in, out)
 

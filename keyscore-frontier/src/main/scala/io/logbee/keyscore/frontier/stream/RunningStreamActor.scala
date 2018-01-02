@@ -1,19 +1,17 @@
 package streammanagement
 
-import akka.{Done, NotUsed}
-import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props}
-import akka.kafka.{ConsumerMessage, ProducerMessage}
-import akka.kafka.scaladsl.Consumer
+import akka.NotUsed
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
-import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.stream.scaladsl.{Flow, RunnableGraph, Sink, Source}
+import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.util.Timeout
 import io.logbee.keyscore.frontier.filter.CommitableFilterMessage
 import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph}
 import streammanagement.RunningStreamActor.ShutdownGraph
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, Future}
 
 object RunningStreamActor {
 
@@ -41,12 +39,12 @@ class RunningStreamActor(
   /*
     private implicit val executionContext: ExecutionContext = context.system.dispatcher
   */
-  implicit val timeout: Timeout = 2 second
+  implicit val timeout: Timeout = 2 seconds
 
   val graphBuilderActor: ActorRef = context.actorOf(GraphBuilderActor.props())
 
   val future: Future[BuiltGraph] = ask(graphBuilderActor, BuildGraph(source, sink, flows)).mapTo[BuiltGraph]
-  val graph: RunnableGraph[UniqueKillSwitch] = Await.result(future, 2 second).graph
+  val graph: RunnableGraph[UniqueKillSwitch] = Await.result(future, 2 seconds).graph
 
   log.debug("running graph")
   var killSwitch: UniqueKillSwitch = graph.run()

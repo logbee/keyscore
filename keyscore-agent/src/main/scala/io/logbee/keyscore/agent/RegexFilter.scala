@@ -2,7 +2,7 @@ package io.logbee.keyscore.agent
 
 import RegexFilterActor.{Event, Result}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import io.logbee.keyscore.model.FilterBlueprint
+import io.logbee.keyscore.model.filter.FilterBlueprint
 
 import scala.util.matching.Regex
 

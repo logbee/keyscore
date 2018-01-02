@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.streammanagement
+package io.logbee.keyscore.frontier.stream
 
 import java.util.UUID
 
@@ -8,14 +8,13 @@ import akka.stream.scaladsl.Flow
 import io.logbee.keyscore.frontier.filter._
 import io.logbee.keyscore.frontier.sinks.KafkaSink
 import io.logbee.keyscore.frontier.sources.KafkaSource
-import streammanagement.StreamManager
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 object StreamUtils {
   implicit val formats = org.json4s.DefaultFormats
 
-  def JsonToStream(stream: String)(implicit actorSystem:ActorSystem): StreamManager.Stream = {
+  def JsonToStream(stream: String)(implicit actorSystem:ActorSystem): StreamManager.StreamInstance = {
 
     val streamAsJson = parse(stream).extract[Map[String, Any]]
 
@@ -44,7 +43,7 @@ object StreamUtils {
       }
     }
 
-    StreamManager.Stream(uuid, source, sink, filterList)
+    StreamManager.StreamInstance(uuid, source, sink, filterList)
 
   }
 

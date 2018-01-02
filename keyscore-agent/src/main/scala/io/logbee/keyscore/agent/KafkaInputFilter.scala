@@ -8,7 +8,7 @@ import akka.kafka.{ConsumerSettings, ProducerMessage, ProducerSettings, Subscrip
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.model.FilterBlueprint
+import io.logbee.keyscore.model.filter.FilterBlueprint
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, ByteArraySerializer, StringDeserializer, StringSerializer}
 

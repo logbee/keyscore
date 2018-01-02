@@ -1,9 +1,11 @@
 package io.logbee.keyscore.frontier.app
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import io.logbee.keyscore.frontier._
-import spray.json._
-import spray.json.{DefaultJsonProtocol, RootJsonFormat}
+import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkModel, SinkTypes}
+import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceModel, SourceTypes}
+import spray.json.{DefaultJsonProtocol, RootJsonFormat, _}
 
 trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 
