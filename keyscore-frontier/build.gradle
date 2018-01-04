@@ -37,6 +37,7 @@ dependencies {
     testCompile 'org.scalatest:scalatest_2.12:3.0.4'
     testCompile 'org.scalamock:scalamock_2.12:4.0.0'
     testCompile 'com.typesafe.akka:akka-testkit_2.12:2.5.6'
+    testCompile 'com.typesafe.akka:akka-stream-testkit_2.12:2.5.6'
     testCompile 'com.typesafe.akka:akka-http-testkit_2.12:10.0.10'
     testCompile 'com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1'
 }
