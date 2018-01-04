@@ -86,7 +86,7 @@ class GrokFilter(config: GrokFilterConfiguration) extends GraphStageWithMaterial
         }
       }
 
-      Event(event.id, payload.toMap)
+      new Event(event.id, payload.toMap)
     }
 
     override def onPush(): Unit = {

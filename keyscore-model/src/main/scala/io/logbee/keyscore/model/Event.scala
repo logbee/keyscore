@@ -13,6 +13,7 @@ object Event {
   }
 }
 
-case class Event(id: UUID, payload: Map[String, Field])
+class Event(val id: UUID, val payload: Map[String, Field]) {
 
-
+  override def toString = s"Event(id=$id, payload=$payload)"
+}
