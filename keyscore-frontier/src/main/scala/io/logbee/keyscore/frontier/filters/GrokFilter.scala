@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.filter
+package io.logbee.keyscore.frontier.filters
 
 import akka.stream._
 import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue, InHandler, OutHandler}

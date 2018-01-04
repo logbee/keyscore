@@ -5,7 +5,7 @@ import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.scaladsl.{Keep, Sink}
-import io.logbee.keyscore.frontier.filter.{CommitableFilterMessage, ToKafkaProducerFilter}
+import io.logbee.keyscore.frontier.filters.{CommitableFilterMessage, ToKafkaProducerFilter}
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 
 

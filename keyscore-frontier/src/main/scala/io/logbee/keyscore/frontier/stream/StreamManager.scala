@@ -7,7 +7,7 @@ import akka.NotUsed
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
-import io.logbee.keyscore.frontier.filter._
+import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.KafkaSink
 import io.logbee.keyscore.frontier.sources.KafkaSource
 import io.logbee.keyscore.frontier.stream.StreamManager._

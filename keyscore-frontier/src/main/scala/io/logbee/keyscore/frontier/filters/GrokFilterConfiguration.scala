@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.filter
+package io.logbee.keyscore.frontier.filters
 
 case class GrokFilterConfiguration(
   isPaused: Option[Boolean] = Some(false),

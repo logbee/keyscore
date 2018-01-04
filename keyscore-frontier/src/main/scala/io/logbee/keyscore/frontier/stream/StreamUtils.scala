@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
-import io.logbee.keyscore.frontier.filter._
+import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.KafkaSink
 import io.logbee.keyscore.frontier.sources.KafkaSource
 import org.json4s._

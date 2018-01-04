@@ -6,7 +6,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.{Flow, RunnableGraph, Sink, Source}
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.util.Timeout
-import io.logbee.keyscore.frontier.filter.CommitableFilterMessage
+import io.logbee.keyscore.frontier.filters.CommitableFilterMessage
 import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph}
 import streammanagement.RunningStreamActor.ShutdownGraph
 

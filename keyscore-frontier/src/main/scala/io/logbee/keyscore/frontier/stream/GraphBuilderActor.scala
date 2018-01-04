@@ -4,7 +4,7 @@ import akka.{NotUsed, actor}
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.UniqueKillSwitch
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
-import io.logbee.keyscore.frontier.filter.{AddFieldsFilter, CommitableFilterMessage, FilterUtils}
+import io.logbee.keyscore.frontier.filters.{AddFieldsFilter, CommitableFilterMessage, FilterUtils}
 import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph}
 
 

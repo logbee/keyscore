@@ -1,9 +1,9 @@
-package io.logbee.keyscore.frontier.filter
+package io.logbee.keyscore.frontier.filters
 
 import akka.kafka.{ConsumerMessage, ProducerMessage}
+import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
-import akka.stream._
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
@@ -29,9 +29,7 @@ class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[Comm
           val msg = grab(in)
 
           val msgString = Serialization.write(msg.value)
-          val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](
-            sinkTopic, msgString
-          ), msg.committableOffset)
+          val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](sinkTopic, msgString), msg.committableOffset)
 
           push(out, producerMessage)
         }

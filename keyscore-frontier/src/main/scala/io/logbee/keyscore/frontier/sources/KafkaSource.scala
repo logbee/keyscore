@@ -2,12 +2,11 @@ package io.logbee.keyscore.frontier.sources
 
 import akka.actor.ActorSystem
 import akka.kafka
-import akka.kafka.{ConsumerMessage, ConsumerSettings, Subscriptions}
-import akka.kafka.ConsumerMessage.CommittableMessage
+import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer
-import akka.stream.scaladsl.{Keep, Source}
 import akka.stream._
-import io.logbee.keyscore.frontier.filter.CommitableFilterMessage
+import akka.stream.scaladsl.{Keep, Source}
+import io.logbee.keyscore.frontier.filters.CommitableFilterMessage
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.DefaultFormats
