@@ -33,6 +33,7 @@ object GrokFilterExample extends App {
       println("ANY KEY [1]")
       StdIn.readLine()
 
+      // These three events wont get processed until the next key is pressed, because the filter is paused.
       sourceProbe.sendNext(Event(TextField("message", "Hello World")))
       sourceProbe.sendNext(Event(TextField("message", "This is a Test where A=42")))
       sourceProbe.sendNext(Event(TextField("message", "This is a Test where A=73")))
@@ -45,13 +46,17 @@ object GrokFilterExample extends App {
         case Success(success) =>
           sourceProbe.sendNext(Event())
           sourceProbe.sendNext(Event())
+          // Five Events have to be printed to the console - the two above too. Now the filter gets paused again.
           switch.configure(GrokFilterConfiguration(isPaused = Some(true), pattern = Some(":\\s?(?<state>\\w*)"))).onComplete {
             case Success(success) =>
+
+              // Not printed; filter still paused.
               sourceProbe.sendNext(Event(TextField("message", "Hello World foo: fubar")))
               sourceProbe.sendNext(Event(TextField("message", "Hello World muh: kuh")))
+
+              // Unpause the filter and to print the last two messages.
               println("ANY KEY [3]")
               StdIn.readLine()
-
               switch.configure(GrokFilterConfiguration(isPaused = Some(false)))
 
               println("ANY KEY [4]")
