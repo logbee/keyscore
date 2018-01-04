@@ -8,10 +8,6 @@ import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 import scala.util.matching.Regex
 
-sealed trait GrokFilterHandle {
-
-  def configure(config: GrokFilterConfiguration): Future[Boolean]
-}
 
 object GrokFilter {
 
@@ -118,9 +114,3 @@ class GrokFilter(config: GrokFilterConfiguration) extends GraphStageWithMaterial
     }
   }
 }
-
-case class GrokFilterConfiguration(
-  isPaused: Option[Boolean] = Some(false),
-  fieldNames: Option[List[String]] = None,
-  pattern: Option[String] = None
-)
