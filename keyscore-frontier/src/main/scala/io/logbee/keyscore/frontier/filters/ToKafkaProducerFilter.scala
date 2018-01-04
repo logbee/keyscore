@@ -13,11 +13,11 @@ object ToKafkaProducerFilter {
   def apply(sinkTopic: String) = Flow.fromGraph(new ToKafkaProducerFilter(sinkTopic))
 }
 
-class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[CommitableFilterMessage, ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]] {
+class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[CommittableEvent, ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]] {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
-  private val in = Inlet[CommitableFilterMessage]("ToKafka.in")
+  private val in = Inlet[CommittableEvent]("ToKafka.in")
   private val out = Outlet[ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]("ToKafka.out")
 
   override val shape = FlowShape.of(in, out)
@@ -26,10 +26,9 @@ class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[Comm
     new GraphStageLogic(shape) {
       setHandler(in, new InHandler {
         override def onPush(): Unit = {
-          val msg = grab(in)
-
-          val msgString = Serialization.write(msg.value)
-          val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](sinkTopic, msgString), msg.committableOffset)
+          val event = grab(in)
+          val eventString = Serialization.write(event.payload)
+          val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](sinkTopic, eventString), event.offset)
 
           push(out, producerMessage)
         }

@@ -1,12 +1,15 @@
 package io.logbee.keyscore.frontier.sources
 
+import java.util.UUID
+
 import akka.actor.ActorSystem
 import akka.kafka
 import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer
 import akka.stream._
 import akka.stream.scaladsl.{Keep, Source}
-import io.logbee.keyscore.frontier.filters.CommitableFilterMessage
+import io.logbee.keyscore.frontier.filters.CommittableEvent
+import io.logbee.keyscore.model.TextField
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.DefaultFormats
@@ -24,7 +27,7 @@ object KafkaSource {
     * @param system "Actor System"
     * @return Stoppable Kafka Source
     */
-  def create(bootstrapServer: String, sourceTopic: String, groupID: String, offsetConfig: String)(implicit system: ActorSystem): Source[CommitableFilterMessage, UniqueKillSwitch] = {
+  def create(bootstrapServer: String, sourceTopic: String, groupID: String, offsetConfig: String)(implicit system: ActorSystem): Source[CommittableEvent, UniqueKillSwitch] = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
 
@@ -35,9 +38,12 @@ object KafkaSource {
 
     val source = Consumer.committableSource(consumerSettings, Subscriptions.topics(sourceTopic))
 
-    val kafkaSource = source.map { msg =>
-      val msgMap = parse(msg.record.value()).extract[Map[String, String]]
-      CommitableFilterMessage(msgMap, msg.committableOffset)
+    val kafkaSource = source.map { element =>
+      val fields = parse(element.record.value())
+                    .extract[Map[String, String]]
+                    .map(pair => (pair._1, TextField(pair._1, pair._2)))
+
+      CommittableEvent(UUID.randomUUID(), fields, element.committableOffset)
     }.viaMat(KillSwitches.single)(Keep.right)
 
     kafkaSource
