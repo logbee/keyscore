@@ -18,18 +18,18 @@ object GrokFilter {
   def apply(config: GrokFilterConfiguration): GrokFilter = new GrokFilter(config)
 }
 
-class GrokFilter(config: GrokFilterConfiguration) extends GraphStageWithMaterializedValue[FlowShape[Event, Event], Future[GrokFilterHandle]] {
+class GrokFilter(config: GrokFilterConfiguration) extends Filter {
 
-  val in: Inlet[Event] = Inlet[Event]("grok.in")
-  val out: Outlet[Event] = Outlet[Event]("grok.out")
+  val in = Inlet[CommittableEvent]("grok.in")
+  val out = Outlet[CommittableEvent]("grok.out")
 
   override val shape = FlowShape(in, out)
 
-  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[GrokFilterHandle]) = {
+  override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = {
     val logic = new GrokFilterLogic(shape, config)
-    (logic, logic.promise.future)
+//    val graph = (logic, logic.promise.future)
+    logic
   }
-
   private class GrokFilterLogic(shape: Shape, val initialConfig: GrokFilterConfiguration) extends GraphStageLogic(shape) with InHandler with OutHandler {
 
     val promise = Promise[GrokFilterHandle]
@@ -85,7 +85,10 @@ class GrokFilter(config: GrokFilterConfiguration) extends GraphStageWithMaterial
         }
       }
 
-      new Event(event.id, payload.toMap)
+      val id = grab(in).id
+      val offset = grab(in).offset
+
+      new CommittableEvent(id, payload.toMap, offset)
     }
 
     override def onPush(): Unit = {
@@ -112,4 +115,5 @@ class GrokFilter(config: GrokFilterConfiguration) extends GraphStageWithMaterial
       }
     }
   }
+
 }

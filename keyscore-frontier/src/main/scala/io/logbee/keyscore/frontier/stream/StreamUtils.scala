@@ -39,6 +39,7 @@ object StreamUtils {
         case "extract_fields" => filterList :+ createExtractFieldsFilter(filter.tail)
         case "add_fields" => filterList :+ createAddFieldsFilter(filter.tail)
         case "remove_fields" => filterList :+ createRemoveFieldsFilter(filter.tail)
+        case "grok_fields" => filterList :+ createGrokFields(filter.tail)
       }
     }
 
@@ -61,4 +62,15 @@ object StreamUtils {
     //takes fieldsToRemove: List[String]
     RemoveFieldsFilter(fieldsToRemove)
   }
+
+  private def createGrokFields(grokFields: List[String]): Flow[CommittableEvent, CommittableEvent, NotUsed] = {
+    //extracts fields with regex
+    val isPaused = grokFields(0).toBoolean
+    val fieldNamesAsString = grokFields(1).split("|").toList
+    val pattern = grokFields(3)
+    val config = GrokFilterConfiguration(Option(isPaused), Option(fieldNamesAsString), Option(pattern))
+
+  }
+
+
 }
