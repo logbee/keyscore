@@ -24,9 +24,9 @@ object StreamManager {
   case class TranslateAndCreateNewStream(streamModel: StreamModel)
 
   case class StreamInstance(uuid: UUID,
-                            source: Source[CommitableFilterMessage, UniqueKillSwitch],
-                            sink: Sink[CommitableFilterMessage, NotUsed],
-                            filter: List[Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed]])
+                            source: Source[CommittableEvent, UniqueKillSwitch],
+                            sink: Sink[CommittableEvent, NotUsed],
+                            filter: List[Flow[CommittableEvent, CommittableEvent, NotUsed]])
 
   case class ChangeStream(stream: StreamInstance)
 
@@ -102,18 +102,15 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
         KafkaSink.create(sinkModel.sink_topic, sinkModel.bootstrap_server)
     }
 
-    val filterBuffer = scala.collection.mutable.ListBuffer[Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed]]()
+    val filterBuffer = scala.collection.mutable.ListBuffer[Flow[CommittableEvent, CommittableEvent, NotUsed]]()
 
     model.filter.foreach { filter =>
       filter.filter_type match {
-        case FilterTypes.ExtractFields => filterBuffer.append(ExtractFieldsFilter(filter.asInstanceOf[ExtractFieldsFilterModel].fields_to_extract))
+        case FilterTypes.ExtractFields => filterBuffer.append(RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_extract))
         case FilterTypes.AddFields => filterBuffer.append(AddFieldsFilter(filter.asInstanceOf[AddFieldsFilterModel].fields_to_add))
         case FilterTypes.RemoveFields => filterBuffer.append(RemoveFieldsFilter(filter.asInstanceOf[RemoveFieldsFilterModel].fields_to_remove))
-        case FilterTypes.ExtractToNew => val filterModel = filter.asInstanceOf[ExtractToNewFieldFilterModel]
-          filterBuffer.append(ExtractToNewFieldFilter(filterModel.extract_from, filterModel.extract_to, filterModel.regex_rule, filterModel.remove_from))
       }
     }
-
 
     StreamManager.StreamInstance(id, source, sink, filterBuffer.toList)
   }

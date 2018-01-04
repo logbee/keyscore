@@ -1,21 +1,20 @@
 package io.logbee.keyscore.frontier.filters
 
-import akka.{NotUsed, stream}
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
-import org.json4s.native.Serialization
+import akka.{NotUsed, stream}
 
 object RemoveFieldsFilter {
-  def apply(fieldsToRemove: List[String]): Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed] =
-    Flow.fromGraph(new RemoveFieldsFilter(fieldsToRemove))
+  def apply(fieldNames: List[String]): Flow[CommittableEvent, CommittableEvent, NotUsed] =
+    Flow.fromGraph(new RemoveFieldsFilter(fieldNames))
 }
 
-class RemoveFieldsFilter(fieldsToRemove: List[String]) extends Filter {
+class RemoveFieldsFilter(fieldNames: List[String]) extends Filter {
   implicit val formats = org.json4s.DefaultFormats
 
-  val in = Inlet[CommitableFilterMessage]("removeFields.in")
-  val out = stream.Outlet[CommitableFilterMessage]("removeFields.out")
+  val in = Inlet[CommittableEvent]("removeFields.in")
+  val out = stream.Outlet[CommittableEvent]("removeFields.out")
 
   override val shape = FlowShape.of(in, out)
 
@@ -24,16 +23,9 @@ class RemoveFieldsFilter(fieldsToRemove: List[String]) extends Filter {
 
       setHandler(in, new InHandler {
         override def onPush(): Unit = {
-          val inMsg = grab(in)
-          val inMsgMap = inMsg.value
-          var outMap = scala.collection.mutable.Map[String, String]() ++= inMsgMap
-
-          fieldsToRemove.foreach { field =>
-            outMap -= field
-          }
-
-          println(Serialization.write(outMap))
-          push(out, CommitableFilterMessage(outMap.toMap, inMsg.committableOffset))
+          val event = grab(in)
+          var payload = event.payload.filterKeys(!fieldNames.contains(_))
+          push(out, CommittableEvent(event.id, payload, event.offset))
         }
       })
 

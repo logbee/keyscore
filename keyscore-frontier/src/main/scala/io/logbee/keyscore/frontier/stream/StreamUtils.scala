@@ -32,14 +32,13 @@ object StreamUtils {
 
     val filterStringList = streamAsJson("filter").asInstanceOf[List[List[String]]]
 
-    val filterList = List[Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed]]()
+    val filterList = List[Flow[CommittableEvent, CommittableEvent, NotUsed]]()
 
     filterStringList.foreach { filter =>
       filter.head match {
         case "extract_fields" => filterList :+ createExtractFieldsFilter(filter.tail)
         case "add_fields" => filterList :+ createAddFieldsFilter(filter.tail)
         case "remove_fields" => filterList :+ createRemoveFieldsFilter(filter.tail)
-        case "extract_to_new"=> filterList :+ createExtractToNewFilter(filter.tail)
       }
     }
 
@@ -47,29 +46,19 @@ object StreamUtils {
 
   }
 
-  private def createExtractFieldsFilter(fieldsToExtract: List[String]): Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed] = {
+  private def createExtractFieldsFilter(fieldsToExtract: List[String]): Flow[CommittableEvent, CommittableEvent, NotUsed] = {
     //takes fieldsToExtract: List[String]
-    ExtractFieldsFilter(fieldsToExtract)
+    RetainFieldsFilter(fieldsToExtract)
   }
 
-  private def createAddFieldsFilter(fieldsToAdd: List[String]): Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed] = {
+  private def createAddFieldsFilter(fieldsToAdd: List[String]): Flow[CommittableEvent, CommittableEvent, NotUsed] = {
     //takes fieldsToAdd: Map[String, String]
     val fieldsToAddMap = fieldsToAdd.grouped(2).map { case List(k, v) => k -> v }.toMap
     AddFieldsFilter(fieldsToAddMap)
   }
 
-  private def createRemoveFieldsFilter(fieldsToRemove: List[String]): Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed] = {
+  private def createRemoveFieldsFilter(fieldsToRemove: List[String]): Flow[CommittableEvent, CommittableEvent, NotUsed] = {
     //takes fieldsToRemove: List[String]
     RemoveFieldsFilter(fieldsToRemove)
   }
-
-  private def createExtractToNewFilter(fieldsToRemove: List[String]): Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed] = {
-    //takes extractFrom: String, extractTo: String, regExRule: String, removeFrom: Boolean = false
-    val extractFrom = fieldsToRemove(0)
-    val extractTo = fieldsToRemove(1)
-    val regexRule = fieldsToRemove(2)
-    val removeOldField = fieldsToRemove(3).toBoolean
-    ExtractToNewFieldFilter(extractFrom, extractTo, regexRule, removeOldField)
-  }
-
 }

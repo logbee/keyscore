@@ -1,22 +1,22 @@
 package io.logbee.keyscore.frontier.filters
 
-import akka.{NotUsed, stream}
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
+import akka.{NotUsed, stream}
+import io.logbee.keyscore.model.{Field, TextField}
 import org.json4s.DefaultFormats
-import org.json4s.native.Serialization
 
 object AddFieldsFilter {
-  def apply(fieldsToAdd: Map[String, String]): Flow[CommitableFilterMessage, CommitableFilterMessage, NotUsed] =
+  def apply(fieldsToAdd: Map[String, String]): Flow[CommittableEvent, CommittableEvent, NotUsed] =
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
 }
 
 class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-  val in = Inlet[CommitableFilterMessage]("addFields.in")
-  val out = stream.Outlet[CommitableFilterMessage]("addFields.out")
+  val in = Inlet[CommittableEvent]("addFields.in")
+  val out = stream.Outlet[CommittableEvent]("addFields.out")
 
   override val shape = FlowShape.of(in, out)
 
@@ -25,15 +25,13 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
 
       setHandler(in, new InHandler {
         override def onPush(): Unit = {
-          val inMsg = grab(in)
-          val inMsgMap = inMsg.value
-          var outMap = scala.collection.mutable.Map[String, String]()
+          val event = grab(in)
+          var payload = scala.collection.mutable.Map[String, Field]()
 
-          outMap ++= inMsgMap
-          outMap ++= fieldsToAdd
+          payload ++= event.payload
+          payload ++= fieldsToAdd.map(pair => (pair._1, TextField(pair._1, pair._2)))
 
-          println(Serialization.write(outMap))
-          push(out, CommitableFilterMessage(outMap.toMap, inMsg.committableOffset))
+          push(out, CommittableEvent(event.id, payload.toMap, event.offset))
         }
       })
 
@@ -43,6 +41,5 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
         }
       })
     }
-
   }
 }

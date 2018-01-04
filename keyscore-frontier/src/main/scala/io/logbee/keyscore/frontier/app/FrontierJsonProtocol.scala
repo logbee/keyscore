@@ -12,10 +12,9 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val streamFormat = jsonFormat4(StreamModel)
   implicit val kafkaSourceFormat = jsonFormat5(KafkaSourceModel)
   implicit val kafkaSinkFormat = jsonFormat3(KafkaSinkModel)
-  implicit val extractFieldsFilterFormat = jsonFormat2(ExtractFieldsFilterModel)
+  implicit val extractFieldsFilterFormat = jsonFormat2(RetainFieldsFilterModel)
   implicit val addFieldsFilterFormat = jsonFormat2(AddFieldsFilterModel)
   implicit val removeFieldsFilterFormat = jsonFormat2(RemoveFieldsFilterModel)
-  implicit val extractToNewFieldFilterFormat = jsonFormat5(ExtractToNewFieldFilterModel)
 
   implicit object SourceJsonFormat extends RootJsonFormat[SourceModel] {
     def write(source: SourceModel) = source match {
@@ -41,18 +40,16 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit object FilerJsonFormat extends RootJsonFormat[FilterModel] {
     def write(filter: FilterModel) = filter match {
-      case extract: ExtractFieldsFilterModel => extract.toJson
+      case extract: RetainFieldsFilterModel => extract.toJson
       case add: AddFieldsFilterModel => add.toJson
       case remove: RemoveFieldsFilterModel => remove.toJson
-      case extractTo: ExtractToNewFieldFilterModel => extractTo.toJson
     }
 
     def read(value: JsValue) =
       value.asJsObject.fields(FilterTypes.FilterType) match {
-        case JsString(FilterTypes.ExtractFields) => value.convertTo[ExtractFieldsFilterModel]
+        case JsString(FilterTypes.ExtractFields) => value.convertTo[RetainFieldsFilterModel]
         case JsString(FilterTypes.AddFields) => value.convertTo[AddFieldsFilterModel]
         case JsString(FilterTypes.RemoveFields) => value.convertTo[RemoveFieldsFilterModel]
-        case JsString(FilterTypes.ExtractToNew) => value.convertTo[ExtractToNewFieldFilterModel]
       }
   }
 
