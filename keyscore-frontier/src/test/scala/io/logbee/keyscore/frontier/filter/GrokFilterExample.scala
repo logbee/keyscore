@@ -1,10 +1,9 @@
-package io.logbee.keyscore.frontier.app
+package io.logbee.keyscore.frontier.filter
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Sink}
 import akka.stream.testkit.scaladsl.TestSource
-import io.logbee.keyscore.frontier.filter.{GrokFilter, GrokFilterConfiguration}
 import io.logbee.keyscore.model.{Event, TextField}
 
 import scala.io.StdIn
