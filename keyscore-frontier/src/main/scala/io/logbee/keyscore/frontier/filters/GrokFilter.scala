@@ -21,7 +21,6 @@ object GrokFilter {
 class GrokFilter(config: GrokFilterConfiguration) extends GraphStageWithMaterializedValue[FlowShape[Event, Event], Future[GrokFilterHandle]] {
 
   val in: Inlet[Event] = Inlet[Event]("grok.in")
-
   val out: Outlet[Event] = Outlet[Event]("grok.out")
 
   override val shape = FlowShape(in, out)
