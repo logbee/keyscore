@@ -13,14 +13,13 @@ import io.logbee.keyscore.model.StreamModel
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkTypes}
 import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceTypes}
-import streammanagement.GraphBuilderActor._
+import streammanagement.FilterManager._
 
 import scala.concurrent.Future
 import scala.util.Success
-import akka.pattern.pipe
 
-object GraphBuilderActor {
-  def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new GraphBuilderActor)
+object FilterManager {
+  def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
 
   case class BuildGraph(streamId: UUID, stream: StreamModel)
 
@@ -37,12 +36,9 @@ object GraphBuilderActor {
   case class FilterUpdated(id: UUID)
 
   case class FilterNotFound(id: UUID)
-
-  case object PrintList
-
 }
 
-class GraphBuilderActor(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
+class FilterManager(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
 
   implicit val formats = org.json4s.DefaultFormats
   implicit val system = context.system
@@ -70,10 +66,6 @@ class GraphBuilderActor(implicit materializer: ActorMaterializer) extends Actor 
         .toMat(streamBlueprint.sink)(Keep.left)
 
       sender ! BuiltGraph(graph)
-
-    case PrintList =>
-      println("--------------------------filterHandles: " + filterHandles.size)
-      for((k,v) <- filterHandles) printf("id: %s, value: %s\n",k.toString,v.toString)
 
     case UpdateFilter(uuid,config)=>
       filterHandles.get(uuid) match{
@@ -106,18 +98,15 @@ class GraphBuilderActor(implicit materializer: ActorMaterializer) extends Actor 
 
     model.filter.foreach { filter =>
       filter.filter_type match {
-        case FilterTypes.ExtractFields => filterBuffer += ((filter.filter_id, RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_extract)))
+        case FilterTypes.RetainFields => filterBuffer += ((filter.filter_id, RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_extract)))
         case FilterTypes.AddFields => filterBuffer += ((filter.filter_id, AddFieldsFilter(filter.asInstanceOf[AddFieldsFilterModel].fields_to_add)))
         case FilterTypes.RemoveFields => filterBuffer += ((filter.filter_id, RemoveFieldsFilter(filter.asInstanceOf[RemoveFieldsFilterModel].fields_to_remove)))
         case FilterTypes.GrokFields =>
           val modelInstance = filter.asInstanceOf[GrokFilterModel]
-          filterBuffer += ((filter.filter_id, GrokFilter(modelInstance.isPaused.toBoolean, modelInstance.grokFields, modelInstance.pattern)))
+          filterBuffer += ((filter.filter_id, GrokFilter(modelInstance.isPaused.toBoolean, modelInstance.fieldNames, modelInstance.pattern)))
       }
     }
 
     StreamBlueprint(streamId, source, sink, filterBuffer.toMap)
   }
 }
-
-
-case class StreamHandle(killSwitch: UniqueKillSwitch, filterHandles: Map[UUID, FilterHandle])

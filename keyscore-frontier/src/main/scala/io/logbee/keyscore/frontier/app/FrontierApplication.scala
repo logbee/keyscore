@@ -13,8 +13,8 @@ import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.frontier.stream.StreamManager
 import io.logbee.keyscore.frontier.stream.StreamManager._
 import io.logbee.keyscore.model.StreamModel
-import streammanagement.GraphBuilderActor
-import streammanagement.GraphBuilderActor.{FilterNotFound, FilterUpdated, UpdateFilter}
+import streammanagement.FilterManager
+import streammanagement.FilterManager.{FilterNotFound, FilterUpdated, UpdateFilter}
 
 import scala.concurrent.duration._
 import scala.io.StdIn
@@ -29,7 +29,7 @@ object FrontierApplication extends App with FrontierJsonProtocol {
   implicit val jsonStreamingSupport = EntityStreamingSupport.json()
 
   val configuration = FrontierConfigProvider(system)
-  val filterManager = system.actorOf(GraphBuilderActor.props)
+  val filterManager = system.actorOf(FilterManager.props)
   val streamManager = system.actorOf(StreamManager.props(filterManager))
 
   val route =
