@@ -1,6 +1,9 @@
 package io.logbee.keyscore.frontier.app
 
+import java.util.UUID
+
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkModel, SinkTypes}
@@ -12,10 +15,11 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val streamFormat = jsonFormat4(StreamModel)
   implicit val kafkaSourceFormat = jsonFormat5(KafkaSourceModel)
   implicit val kafkaSinkFormat = jsonFormat3(KafkaSinkModel)
-  implicit val extractFieldsFilterFormat = jsonFormat2(RetainFieldsFilterModel)
-  implicit val addFieldsFilterFormat = jsonFormat2(AddFieldsFilterModel)
-  implicit val removeFieldsFilterFormat = jsonFormat2(RemoveFieldsFilterModel)
-  implicit val grokFilterFormat = jsonFormat4(GrokFilterModel)
+  implicit val extractFieldsFilterFormat = jsonFormat3(RetainFieldsFilterModel)
+  implicit val addFieldsFilterFormat = jsonFormat3(AddFieldsFilterModel)
+  implicit val removeFieldsFilterFormat = jsonFormat3(RemoveFieldsFilterModel)
+  implicit val grokFilterFormat = jsonFormat5(GrokFilterModel)
+  implicit val grokFilterConfiguration = jsonFormat3(GrokFilterConfiguration)
   implicit object SourceJsonFormat extends RootJsonFormat[SourceModel] {
     def write(source: SourceModel) = source match {
       case kafka: KafkaSourceModel => kafka.toJson
@@ -53,6 +57,16 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
         case JsString(FilterTypes.RemoveFields) => value.convertTo[RemoveFieldsFilterModel]
         case JsString(FilterTypes.GrokFields) => value.convertTo[GrokFilterModel]
       }
+  }
+
+  implicit object UUIDFormat extends JsonFormat[UUID] {
+    def write(uuid: UUID) = JsString(uuid.toString)
+    def read(value: JsValue) = {
+      value match {
+        case JsString(uuid) => UUID.fromString(uuid)
+        case _              => throw new DeserializationException("Expected hexadecimal UUID string")
+      }
+    }
   }
 
 

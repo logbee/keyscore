@@ -9,9 +9,12 @@ import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
+import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.frontier.stream.StreamManager
-import io.logbee.keyscore.frontier.stream.StreamManager.{DeleteStream, StreamDeleted, StreamNotFound, TranslateAndCreateNewStream}
+import io.logbee.keyscore.frontier.stream.StreamManager._
 import io.logbee.keyscore.model.StreamModel
+import streammanagement.GraphBuilderActor
+import streammanagement.GraphBuilderActor.{FilterNotFound, FilterUpdated, UpdateFilter}
 
 import scala.concurrent.duration._
 import scala.io.StdIn
@@ -22,30 +25,43 @@ object FrontierApplication extends App with FrontierJsonProtocol {
   implicit val system = ActorSystem("keyscore")
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
-  implicit val timeout: Timeout = 1.seconds
+  implicit val timeout: Timeout = 5.seconds
   implicit val jsonStreamingSupport = EntityStreamingSupport.json()
 
   val configuration = FrontierConfigProvider(system)
-  val streamManager = system.actorOf(StreamManager.props)
+  val filterManager = system.actorOf(GraphBuilderActor.props)
+  val streamManager = system.actorOf(StreamManager.props(filterManager))
 
   val route =
     pathPrefix("stream") {
       path(JavaUUID) { streamId =>
         post {
           entity(as[StreamModel]) { stream =>
-            complete((StatusCodes.Created, (streamManager ? TranslateAndCreateNewStream(streamId,stream)).map(_.toString)))
+            complete((StatusCodes.Created, (streamManager ? CreateNewStream(streamId, stream)).map(_.toString)))
           }
         } ~
-        delete {
-          onSuccess(streamManager ? DeleteStream(streamId)) {
-            case StreamDeleted(id) => complete(StatusCodes.OK,s"Stream '$id' deleted")
-            case StreamNotFound(id) => complete(StatusCodes.NotFound,s"Stream '$id' not found")
-            case _ => complete(StatusCodes.InternalServerError)
+          delete {
+            onSuccess(streamManager ? DeleteStream(streamId)) {
+              case StreamDeleted(id) => complete(StatusCodes.OK, s"Stream '$id' deleted")
+              case StreamNotFound(id) => complete(StatusCodes.NotFound, s"Stream '$id' not found")
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          }
+      }
+    } ~
+      pathPrefix("filter") {
+        path(JavaUUID) { filterId =>
+          put {
+            entity(as[GrokFilterConfiguration]) { configuration =>
+              onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
+                case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
+                case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
           }
         }
       }
-
-    }
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)
 

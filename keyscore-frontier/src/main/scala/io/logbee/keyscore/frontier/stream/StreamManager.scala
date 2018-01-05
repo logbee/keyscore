@@ -21,18 +21,14 @@ import scala.concurrent.Future
 
 
 object StreamManager {
-  def props(implicit materializer: ActorMaterializer): Props = Props(new StreamManager)
+  def props(filterManager:ActorRef)(implicit materializer: ActorMaterializer): Props = Props(new StreamManager(filterManager))
 
   case class TranslateAndCreateNewStream(streamId: UUID, streamModel: StreamModel)
 
-  case class StreamInstance(uuid: UUID,
-                            source: Source[CommittableEvent, UniqueKillSwitch],
-                            sink: Sink[CommittableEvent, NotUsed],
-                            filter: List[Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]]])
 
-  case class ChangeStream(stream: StreamInstance)
+  case class ChangeStream(streamId: UUID, stream: StreamModel)
 
-  case class CreateNewStream(stream: StreamInstance)
+  case class CreateNewStream(streamId: UUID, stream: StreamModel)
 
   case class StreamCreatedWithID(id: UUID)
 
@@ -46,7 +42,7 @@ object StreamManager {
 
 }
 
-class StreamManager(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
+class StreamManager(filterManager:ActorRef)(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
 
   implicit val system: ActorSystem = context.system
   var idToActor = Map.empty[UUID, ActorRef]
@@ -61,26 +57,22 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
   }
 
   override def receive: Receive = {
-    case CreateNewStream(stream) =>
-      idToActor.get(stream.uuid) match {
+    case CreateNewStream(streamId, stream) =>
+      idToActor.get(streamId) match {
         case Some(_) =>
-          self tell(ChangeStream(stream), sender())
+          self tell(ChangeStream(streamId,stream), sender())
         case None =>
-          val streamActor = context.actorOf(RunningStreamActor.props(stream.source, stream.sink, stream.filter))
-          addStreamActor(stream, streamActor)
-          sender() ! StreamCreatedWithID(stream.uuid)
+          val streamActor = context.actorOf(RunningStreamActor.props(streamId,stream,filterManager))
+          addStreamActor(streamId, streamActor)
+          sender() ! StreamCreatedWithID(streamId)
       }
 
-    case ChangeStream(stream) =>
-      val streamActor: ActorRef = removeStreamActor(stream.uuid)
+    case ChangeStream(streamId, stream) =>
+      val streamActor: ActorRef = removeStreamActor(streamId)
       streamActor ! ShutdownGraph
-      val newStreamActor = context.actorOf(RunningStreamActor.props(stream.source, stream.sink, stream.filter))
-      addStreamActor(stream, newStreamActor)
-      sender() ! StreamUpdated(stream.uuid)
-
-    case TranslateAndCreateNewStream(streamId,streamModel) =>
-      val stream = createStreamFromModel(streamId,streamModel)
-      self tell(CreateNewStream(stream), sender())
+      val newStreamActor = context.actorOf(RunningStreamActor.props(streamId,stream,filterManager))
+      addStreamActor(streamId, newStreamActor)
+      sender() ! StreamUpdated(streamId)
 
     case DeleteStream(streamId) =>
       idToActor.get(streamId) match {
@@ -92,9 +84,9 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
       }
   }
 
-  private def addStreamActor(stream: StreamInstance, actor: ActorRef): Unit = {
-    idToActor += stream.uuid -> actor
-    actorToId += actor -> stream.uuid
+  private def addStreamActor(streamId: UUID, actor: ActorRef): Unit = {
+    idToActor += streamId -> actor
+    actorToId += actor -> streamId
   }
 
   private def removeStreamActor(streamId: UUID): ActorRef = {
@@ -102,35 +94,5 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
     actorToId -= streamActor
     idToActor -= streamId
     streamActor
-  }
-
-  private def createStreamFromModel(streamId:UUID,model: StreamModel): StreamInstance = {
-
-    val source = model.source.source_type match {
-      case SourceTypes.KafkaSource =>
-        val sourceModel = model.source.asInstanceOf[KafkaSourceModel]
-        KafkaSource.create(sourceModel.bootstrap_server, sourceModel.source_topic, sourceModel.group_ID, sourceModel.offset_commit)
-    }
-
-    val sink = model.sink.sink_type match {
-      case SinkTypes.KafkaSink =>
-        val sinkModel = model.sink.asInstanceOf[KafkaSinkModel]
-        KafkaSink.create(sinkModel.sink_topic, sinkModel.bootstrap_server)
-    }
-
-    val filterBuffer = scala.collection.mutable.ListBuffer[Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]]]()
-
-    model.filter.foreach { filter =>
-      filter.filter_type match {
-        case FilterTypes.RetainFields => filterBuffer.append(RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_retain))
-        case FilterTypes.AddFields => filterBuffer.append(AddFieldsFilter(filter.asInstanceOf[AddFieldsFilterModel].fields_to_add))
-        case FilterTypes.RemoveFields => filterBuffer.append(RemoveFieldsFilter(filter.asInstanceOf[RemoveFieldsFilterModel].fields_to_remove))
-        case FilterTypes.GrokFields =>
-          val modelInstance = filter.asInstanceOf[GrokFilterModel]
-          filterBuffer.append(GrokFilter(modelInstance.isPaused.toBoolean, modelInstance.grok_fields, modelInstance.pattern))
-      }
-    }
-
-    StreamInstance(streamId, source, sink, filterBuffer.toList)
   }
 }
