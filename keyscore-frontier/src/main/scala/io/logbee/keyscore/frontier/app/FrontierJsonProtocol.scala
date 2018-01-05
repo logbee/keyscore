@@ -15,7 +15,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val extractFieldsFilterFormat = jsonFormat2(RetainFieldsFilterModel)
   implicit val addFieldsFilterFormat = jsonFormat2(AddFieldsFilterModel)
   implicit val removeFieldsFilterFormat = jsonFormat2(RemoveFieldsFilterModel)
-
+  implicit val grokFilterFormat = jsonFormat4(GrokFilterModel)
   implicit object SourceJsonFormat extends RootJsonFormat[SourceModel] {
     def write(source: SourceModel) = source match {
       case kafka: KafkaSourceModel => kafka.toJson
@@ -43,6 +43,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
       case extract: RetainFieldsFilterModel => extract.toJson
       case add: AddFieldsFilterModel => add.toJson
       case remove: RemoveFieldsFilterModel => remove.toJson
+      case grok: GrokFilterModel => grok.toJson
     }
 
     def read(value: JsValue) =
@@ -50,6 +51,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
         case JsString(FilterTypes.ExtractFields) => value.convertTo[RetainFieldsFilterModel]
         case JsString(FilterTypes.AddFields) => value.convertTo[AddFieldsFilterModel]
         case JsString(FilterTypes.RemoveFields) => value.convertTo[RemoveFieldsFilterModel]
+        case JsString(FilterTypes.GrokFields) => value.convertTo[GrokFilterModel]
       }
   }
 
