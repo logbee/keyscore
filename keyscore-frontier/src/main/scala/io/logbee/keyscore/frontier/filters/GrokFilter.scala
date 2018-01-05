@@ -5,6 +5,8 @@ import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue, InHandler, OutHandler}
 import io.logbee.keyscore.model.{Event, Field, TextField}
+import org.json4s.DefaultFormats
+import org.json4s.native.Serialization
 
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
@@ -16,9 +18,16 @@ object GrokFilter {
   def apply(config: GrokFilterConfiguration): Flow[CommittableEvent, CommittableEvent, NotUsed] =
     Flow.fromGraph(new GrokFilter(config))
 
+  def apply(isPaused: Boolean, fieldNames: List[String], pattern: String):  Flow[CommittableEvent, CommittableEvent, NotUsed] = {
+    val conf = new GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
+    Flow.fromGraph(new GrokFilter(conf))
+  }
+
 }
 
 class GrokFilter(config: GrokFilterConfiguration) extends Filter {
+
+  implicit val formats: DefaultFormats.type = DefaultFormats
 
   val in = Inlet[CommittableEvent]("grok.in")
   val out = Outlet[CommittableEvent]("grok.out")
@@ -49,7 +58,8 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
 
           if (currentlyPaused && !isPaused) {
             if (isAvailable(in)) {
-              push(out, filter(grab(in)))
+              val input = grab(in)
+              push(out, filter(input))
             } else if (isAvailable(out) && !hasBeenPulled(in)) {
               pull(in)
             }
@@ -84,16 +94,14 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
               .foreach(textField => payload.put(textField.name, textField)))
         }
       }
-
-      val id = grab(in).id
-      val offset = grab(in).offset
-
-      new CommittableEvent(id, payload.toMap, offset)
+      println(Serialization.write(payload))
+      new CommittableEvent(event.id, payload.toMap, event.offset)
     }
 
     override def onPush(): Unit = {
       if (isOpen) {
-        push(out, filter(grab(in)))
+        val input = grab(in)
+        push(out, filter(input))
       }
     }
 

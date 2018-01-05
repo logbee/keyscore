@@ -8,4 +8,5 @@ object FilterTypes {
   val ExtractFields = "extract_fields"
   val AddFields = "add_fields"
   val RemoveFields = "remove_fields"
+  val GrokFields = "grok_fields"
 }
