@@ -52,7 +52,6 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
   var idToActor = Map.empty[UUID, ActorRef]
   var actorToId = Map.empty[ActorRef, UUID]
 
-
   override def preStart(): Unit = {
     log.info("StreamManager started")
   }
@@ -61,7 +60,7 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
     log.info("StreamManager stopped")
   }
 
-  override def receive = {
+  override def receive: Receive = {
     case CreateNewStream(stream) =>
       idToActor.get(stream.uuid) match {
         case Some(_) =>
@@ -105,13 +104,14 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
     streamActor
   }
 
-  private def createStreamFromModel(streamId:UUID,model: StreamModel): StreamManager.StreamInstance = {
+  private def createStreamFromModel(streamId:UUID,model: StreamModel): StreamInstance = {
 
     val source = model.source.source_type match {
       case SourceTypes.KafkaSource =>
         val sourceModel = model.source.asInstanceOf[KafkaSourceModel]
         KafkaSource.create(sourceModel.bootstrap_server, sourceModel.source_topic, sourceModel.group_ID, sourceModel.offset_commit)
     }
+
     val sink = model.sink.sink_type match {
       case SinkTypes.KafkaSink =>
         val sinkModel = model.sink.asInstanceOf[KafkaSinkModel]
@@ -131,7 +131,6 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
       }
     }
 
-    StreamManager.StreamInstance(streamId, source, sink, filterBuffer.toList)
+    StreamInstance(streamId, source, sink, filterBuffer.toList)
   }
-
 }
