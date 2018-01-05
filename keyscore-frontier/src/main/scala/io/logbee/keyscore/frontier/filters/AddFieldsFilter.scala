@@ -49,7 +49,7 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
     })
 
     override def preStart(): Unit = {
-      promise.success(null)
+      promise.success(DummyFilterHandle)
     }
   }
 }

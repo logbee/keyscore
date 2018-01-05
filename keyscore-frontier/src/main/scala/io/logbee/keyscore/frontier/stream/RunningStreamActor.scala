@@ -46,13 +46,13 @@ class RunningStreamActor(
   val future: Future[BuiltGraph] = ask(graphBuilderActor, BuildGraph(source, sink, flows)).mapTo[BuiltGraph]
   val graph: RunnableGraph[UniqueKillSwitch] = Await.result(future, 2 seconds).graph
 
-  log.debug("running graph")
+  log.info("running graph")
   var killSwitch: UniqueKillSwitch = graph.run()
 
 
 
   override def preStart(): Unit = {
-    log.debug("Starting StreamActor ")
+    log.info("Starting StreamActor ")
   }
 
   override def postStop(): Unit = {

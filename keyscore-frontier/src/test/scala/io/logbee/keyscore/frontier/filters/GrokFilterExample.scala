@@ -6,6 +6,7 @@ import akka.stream.scaladsl.{Keep, Sink}
 import akka.stream.testkit.scaladsl.TestSource
 import io.logbee.keyscore.model.{Event, TextField}
 
+import scala.concurrent.Future
 import scala.io.StdIn
 import scala.util.Success
 
@@ -21,48 +22,47 @@ object GrokFilterExample extends App {
     pattern = Some("=(?<state>\\w*)")
   )
 
-//  val (sourceProbe, switchFut) = TestSource.probe[Event]
-//    .viaMat(GrokFilter(configuration))(Keep.both)
-//    .map(number => s"> $number")
-//    .toMat(Sink.foreach(println))(Keep.left)
-//    .run()
-//
-//  switchFut.onComplete {
-//    case Success(switch) =>
-//
-//      println("ANY KEY [1]")
-//      StdIn.readLine()
-//
-//      // These three events wont get processed until the next key is pressed, because the filter is paused.
-//      sourceProbe.sendNext(Event(TextField("message", "Hello World")))
-//      sourceProbe.sendNext(Event(TextField("message", "This is a Test where A=42")))
-//      sourceProbe.sendNext(Event(TextField("message", "This is a Test where A=73")))
-//
-//      println("ANY KEY [2]")
-//      StdIn.readLine()
-//
-//      println("Open Valve")
-//      switch.configure(GrokFilterConfiguration(isPaused = Some(false))).onComplete {
-//        case Success(success) =>
-//          sourceProbe.sendNext(Event())
-//          sourceProbe.sendNext(Event())
-//          // Five Events have to be printed to the console - the two above too. Now the filter gets paused again.
-//          switch.configure(GrokFilterConfiguration(isPaused = Some(true), pattern = Some(":\\s?(?<state>\\w*)"))).onComplete {
-//            case Success(success) =>
-//
-//              // Not printed; filter still paused.
-//              sourceProbe.sendNext(Event(TextField("message", "Hello World foo: fubar")))
-//              sourceProbe.sendNext(Event(TextField("message", "Hello World muh: kuh")))
-//
-//              // Unpause the filter and to print the last two messages.
-//              println("ANY KEY [3]")
-//              StdIn.readLine()
-//              switch.configure(GrokFilterConfiguration(isPaused = Some(false)))
-//
-//              println("ANY KEY [4]")
-//              StdIn.readLine()
-//              system.terminate()
-//          }
-//      }
-//  }
+  val (sourceProbe, switchFut) = TestSource.probe[CommittableEvent]
+    .viaMat(GrokFilter(configuration))(Keep.both)
+    .map(number => s"> $number")
+    .toMat(Sink.foreach(println))(Keep.left)
+    .run()
+
+  switchFut.mapTo[GrokFilterHandle].onComplete {
+    case Success(switch) =>
+      println("ANY KEY [1]")
+      StdIn.readLine()
+
+      // These three events wont get processed until the next key is pressed, because the filter is paused.
+      sourceProbe.sendNext(CommittableEvent(TextField("message", "Hello World")))
+      sourceProbe.sendNext(CommittableEvent(TextField("message", "This is a Test where A=42")))
+      sourceProbe.sendNext(CommittableEvent(TextField("message", "This is a Test where A=73")))
+
+      println("ANY KEY [2]")
+      StdIn.readLine()
+
+      println("Open Valve")
+      switch.configure(GrokFilterConfiguration(isPaused = Some(false))).onComplete {
+        case Success(success) =>
+          sourceProbe.sendNext(CommittableEvent())
+          sourceProbe.sendNext(CommittableEvent())
+          // Five Events have to be printed to the console - the two above too. Now the filter gets paused again.
+          switch.configure(GrokFilterConfiguration(isPaused = Some(true), pattern = Some(":\\s?(?<state>\\w*)"))).onComplete {
+            case Success(success) =>
+
+              // Not printed; filter still paused.
+              sourceProbe.sendNext(CommittableEvent(TextField("message", "Hello World foo: fubar")))
+              sourceProbe.sendNext(CommittableEvent(TextField("message", "Hello World muh: kuh")))
+
+              // Unpause the filter and to print the last two messages.
+              println("ANY KEY [3]")
+              StdIn.readLine()
+              switch.configure(GrokFilterConfiguration(isPaused = Some(false)))
+
+              println("ANY KEY [4]")
+              StdIn.readLine()
+              system.terminate()
+          }
+      }
+  }
 }

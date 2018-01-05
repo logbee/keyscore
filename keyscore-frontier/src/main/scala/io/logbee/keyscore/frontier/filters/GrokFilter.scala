@@ -18,7 +18,7 @@ object GrokFilter {
   def apply(config: GrokFilterConfiguration): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
     Flow.fromGraph(new GrokFilter(config))
 
-  def apply(isPaused: Boolean, fieldNames: List[String], pattern: String):  Flow[CommittableEvent, CommittableEvent, NotUsed] = {
+  def apply(isPaused: Boolean, fieldNames: List[String], pattern: String):  Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] = {
     val conf = new GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
     Flow.fromGraph(new GrokFilter(conf))
   }

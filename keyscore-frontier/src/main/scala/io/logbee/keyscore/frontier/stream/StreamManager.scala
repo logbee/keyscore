@@ -107,7 +107,6 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
 
   private def createStreamFromModel(streamId:UUID,model: StreamModel): StreamManager.StreamInstance = {
 
-
     val source = model.source.source_type match {
       case SourceTypes.KafkaSource =>
         val sourceModel = model.source.asInstanceOf[KafkaSourceModel]

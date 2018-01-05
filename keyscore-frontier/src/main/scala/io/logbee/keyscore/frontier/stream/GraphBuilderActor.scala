@@ -30,15 +30,16 @@ class GraphBuilderActor() extends Actor with ActorLogging {
 
   implicit val formats = org.json4s.DefaultFormats
 
-  val filterHandles: ListBuffer[Future[FilterHandle]]= ListBuffer()
+  val filterHandles: ListBuffer[Future[FilterHandle]] = ListBuffer()
 
   override def receive = {
     case BuildGraph(source, sink, flows) =>
-      log.debug("building graph....")
+      log.info("building graph....")
 
 
       val finalSource = flows.foldLeft(source) { (currentSource, currentFlow) =>
         currentSource.viaMat(currentFlow) { (matLeft, matRight) =>
+          println(matRight.toString)
           filterHandles.append(matRight)
           matLeft
         }
@@ -48,10 +49,15 @@ class GraphBuilderActor() extends Actor with ActorLogging {
         .viaMat(AddFieldsFilter(Map("akka_timestamp" -> FilterUtils.getCurrentTimeFormatted)))(Keep.left)
         .toMat(sink)(Keep.left)
 
+      println("--------------------------filterHandles: "+ filterHandles.size)
+      filterHandles.toList.foreach(x =>
+        println(x.toString())
+      )
+
       sender ! BuiltGraph(graph)
+
   }
 }
-
 
 
 case class StreamHandle(killSwitch: UniqueKillSwitch, filterHandles: Map[UUID, FilterHandle])
