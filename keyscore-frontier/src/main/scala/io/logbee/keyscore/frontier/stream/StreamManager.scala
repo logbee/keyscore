@@ -21,7 +21,7 @@ import streammanagement.RunningStreamActor
 object StreamManager {
   def props(implicit materializer: ActorMaterializer): Props = Props(new StreamManager)
 
-  case class TranslateAndCreateNewStream(streamModel: StreamModel)
+  case class TranslateAndCreateNewStream(streamId: UUID, streamModel: StreamModel)
 
   case class StreamInstance(uuid: UUID,
                             source: Source[CommittableEvent, UniqueKillSwitch],
@@ -35,6 +35,12 @@ object StreamManager {
   case class StreamCreatedWithID(id: UUID)
 
   case class StreamUpdated(id: UUID)
+
+  case class DeleteStream(id: UUID)
+
+  case class StreamDeleted(id: UUID)
+
+  case class StreamNotFound(id: UUID)
 
 }
 
@@ -65,15 +71,24 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
       }
 
     case ChangeStream(stream) =>
-      val streamActor: ActorRef = removeStreamActor(stream)
+      val streamActor: ActorRef = removeStreamActor(stream.uuid)
       streamActor ! ShutdownGraph
       val newStreamActor = context.actorOf(RunningStreamActor.props(stream.source, stream.sink, stream.filter))
       addStreamActor(stream, newStreamActor)
       sender() ! StreamUpdated(stream.uuid)
 
-    case TranslateAndCreateNewStream(streamModel) =>
-      val stream = createStreamFromModel(streamModel)
+    case TranslateAndCreateNewStream(streamId,streamModel) =>
+      val stream = createStreamFromModel(streamId,streamModel)
       self tell(CreateNewStream(stream), sender())
+
+    case DeleteStream(streamId) =>
+      idToActor.get(streamId) match {
+        case Some(actor) =>
+          actor ! ShutdownGraph
+          sender ! StreamDeleted(streamId)
+          removeStreamActor(streamId)
+        case _ => sender() ! StreamNotFound(streamId)
+      }
   }
 
   private def addStreamActor(stream: StreamInstance, actor: ActorRef): Unit = {
@@ -81,16 +96,16 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
     actorToId += actor -> stream.uuid
   }
 
-  private def removeStreamActor(stream: StreamInstance): ActorRef = {
-    val streamActor = idToActor(stream.uuid)
+  private def removeStreamActor(streamId: UUID): ActorRef = {
+    val streamActor = idToActor(streamId)
     actorToId -= streamActor
-    idToActor -= stream.uuid
+    idToActor -= streamId
     streamActor
   }
 
-  private def createStreamFromModel(model: StreamModel): StreamManager.StreamInstance = {
+  private def createStreamFromModel(streamId:UUID,model: StreamModel): StreamManager.StreamInstance = {
 
-    val id = UUID.randomUUID()
+
     val source = model.source.source_type match {
       case SourceTypes.KafkaSource =>
         val sourceModel = model.source.asInstanceOf[KafkaSourceModel]
@@ -112,7 +127,7 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
       }
     }
 
-    StreamManager.StreamInstance(id, source, sink, filterBuffer.toList)
+    StreamManager.StreamInstance(streamId, source, sink, filterBuffer.toList)
   }
 
 }

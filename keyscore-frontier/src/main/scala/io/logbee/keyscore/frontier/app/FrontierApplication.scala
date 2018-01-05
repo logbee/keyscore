@@ -10,7 +10,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.stream.StreamManager
-import io.logbee.keyscore.frontier.stream.StreamManager.TranslateAndCreateNewStream
+import io.logbee.keyscore.frontier.stream.StreamManager.{DeleteStream, StreamDeleted, StreamNotFound, TranslateAndCreateNewStream}
 import io.logbee.keyscore.model.StreamModel
 
 import scala.concurrent.duration._
@@ -29,12 +29,22 @@ object FrontierApplication extends App with FrontierJsonProtocol {
   val streamManager = system.actorOf(StreamManager.props)
 
   val route =
-    path("stream") {
-      post {
-        entity(as[StreamModel]) { stream =>
-          complete((StatusCodes.Created, (streamManager ? TranslateAndCreateNewStream(stream)).map(_.toString)))
+    pathPrefix("stream") {
+      path(JavaUUID) { streamId =>
+        post {
+          entity(as[StreamModel]) { stream =>
+            complete((StatusCodes.Created, (streamManager ? TranslateAndCreateNewStream(streamId,stream)).map(_.toString)))
+          }
+        } ~
+        delete {
+          onSuccess(streamManager ? DeleteStream(streamId)) {
+            case StreamDeleted(id) => complete(StatusCodes.OK,s"Stream '$id' deleted")
+            case StreamNotFound(id) => complete(StatusCodes.NotFound,s"Stream '$id' not found")
+            case _ => complete(StatusCodes.InternalServerError)
+          }
         }
       }
+
     }
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)
