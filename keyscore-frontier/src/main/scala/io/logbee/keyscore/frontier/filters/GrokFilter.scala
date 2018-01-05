@@ -13,7 +13,7 @@ import scala.util.matching.Regex
 
 object GrokFilter {
 
-  def apply(config: GrokFilterConfiguration): Flow[CommittableEvent, CommittableEvent, Future[GrokFilterHandle]] =
+  def apply(config: GrokFilterConfiguration): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
     Flow.fromGraph(new GrokFilter(config))
 
 }

@@ -9,6 +9,8 @@ import akka.{NotUsed, actor}
 import io.logbee.keyscore.frontier.filters.{AddFieldsFilter, CommittableEvent, FilterHandle, FilterUtils}
 import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph}
 
+import scala.concurrent.Future
+
 
 object GraphBuilderActor {
   def props(): Props = actor.Props(new GraphBuilderActor())
@@ -16,17 +18,18 @@ object GraphBuilderActor {
   case class BuildGraph(
                          source: Source[CommittableEvent, UniqueKillSwitch],
                          sink: Sink[CommittableEvent, NotUsed],
-                         flows: List[Flow[CommittableEvent, CommittableEvent, NotUsed]]
+                         flows: List[Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]]]
                        )
 
   case class BuiltGraph(graph: RunnableGraph[UniqueKillSwitch])
+
 }
 
 class GraphBuilderActor() extends Actor with ActorLogging {
 
   implicit val formats = org.json4s.DefaultFormats
 
-  val filterHandles: Map[UUID, FilterHandle]
+//  val filterHandles: Map[UUID, FilterHandle]
 
   override def receive = {
     case BuildGraph(source, sink, flows) =>
@@ -44,7 +47,6 @@ class GraphBuilderActor() extends Actor with ActorLogging {
       sender ! BuiltGraph(graph)
   }
 }
-
 
 
 case class StreamHandle(killSwitch: UniqueKillSwitch, filterHandles: Map[UUID, FilterHandle])

@@ -17,6 +17,8 @@ import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkTypes}
 import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceTypes}
 import streammanagement.RunningStreamActor
 
+import scala.concurrent.Future
+
 
 object StreamManager {
   def props(implicit materializer: ActorMaterializer): Props = Props(new StreamManager)
@@ -26,7 +28,7 @@ object StreamManager {
   case class StreamInstance(uuid: UUID,
                             source: Source[CommittableEvent, UniqueKillSwitch],
                             sink: Sink[CommittableEvent, NotUsed],
-                            filter: List[Flow[CommittableEvent, CommittableEvent, NotUsed]])
+                            filter: List[Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]]])
 
   case class ChangeStream(stream: StreamInstance)
 
@@ -102,7 +104,7 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
         KafkaSink.create(sinkModel.sink_topic, sinkModel.bootstrap_server)
     }
 
-    val filterBuffer = scala.collection.mutable.ListBuffer[Flow[CommittableEvent, CommittableEvent, NotUsed]]()
+    val filterBuffer = scala.collection.mutable.ListBuffer[Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]]]()
 
     model.filter.foreach { filter =>
       filter.filter_type match {

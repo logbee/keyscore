@@ -47,5 +47,9 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
         pull(in)
       }
     })
+
+    override def preStart(): Unit = {
+      promise.success(null)
+    }
   }
 }
