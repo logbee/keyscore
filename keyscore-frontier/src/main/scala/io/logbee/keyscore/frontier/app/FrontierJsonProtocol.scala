@@ -48,7 +48,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 
     def read(value: JsValue) =
       value.asJsObject.fields(FilterTypes.FilterType) match {
-        case JsString(FilterTypes.ExtractFields) => value.convertTo[RetainFieldsFilterModel]
+        case JsString(FilterTypes.RetainFields) => value.convertTo[RetainFieldsFilterModel]
         case JsString(FilterTypes.AddFields) => value.convertTo[AddFieldsFilterModel]
         case JsString(FilterTypes.RemoveFields) => value.convertTo[RemoveFieldsFilterModel]
         case JsString(FilterTypes.GrokFields) => value.convertTo[GrokFilterModel]

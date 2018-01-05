@@ -35,7 +35,7 @@ class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[Comm
           val eventString = Serialization.write(event.payload)
           val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](sinkTopic, eventString), event.offset)
 
-          //println(eventString)
+          println(eventString)
 
           push(out, producerMessage)
         }

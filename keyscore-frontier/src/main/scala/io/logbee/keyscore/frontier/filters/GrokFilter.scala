@@ -94,7 +94,6 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
               .foreach(textField => payload.put(textField.name, textField)))
         }
       }
-      println(Serialization.write(payload))
       new CommittableEvent(event.id, payload.toMap, event.offset)
     }
 

@@ -122,12 +122,12 @@ class StreamManager(implicit materializer: ActorMaterializer) extends Actor with
 
     model.filter.foreach { filter =>
       filter.filter_type match {
-        case FilterTypes.ExtractFields => filterBuffer.append(RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_extract))
+        case FilterTypes.RetainFields => filterBuffer.append(RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_retain))
         case FilterTypes.AddFields => filterBuffer.append(AddFieldsFilter(filter.asInstanceOf[AddFieldsFilterModel].fields_to_add))
         case FilterTypes.RemoveFields => filterBuffer.append(RemoveFieldsFilter(filter.asInstanceOf[RemoveFieldsFilterModel].fields_to_remove))
         case FilterTypes.GrokFields =>
           val modelInstance = filter.asInstanceOf[GrokFilterModel]
-          filterBuffer.append(GrokFilter(modelInstance.isPaused.toBoolean, modelInstance.grokFields, modelInstance.pattern))
+          filterBuffer.append(GrokFilter(modelInstance.isPaused.toBoolean, modelInstance.grok_fields, modelInstance.pattern))
       }
     }
 
