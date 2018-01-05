@@ -1,6 +1,8 @@
 package io.logbee.keyscore.frontier.filters
 
+import akka.NotUsed
 import akka.stream._
+import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue, InHandler, OutHandler}
 import io.logbee.keyscore.model.{Event, Field, TextField}
 
@@ -11,11 +13,9 @@ import scala.util.matching.Regex
 
 object GrokFilter {
 
-  def apply(): GrokFilter = GrokFilter(GrokFilterConfiguration(
-    isPaused = Option(true)
-  ))
+  def apply(config: GrokFilterConfiguration): Flow[CommittableEvent, CommittableEvent, NotUsed] =
+    Flow.fromGraph(new GrokFilter(config))
 
-  def apply(config: GrokFilterConfiguration): GrokFilter = new GrokFilter(config)
 }
 
 class GrokFilter(config: GrokFilterConfiguration) extends Filter {
@@ -72,7 +72,7 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
       promise.success(handle)
     }
 
-    def filter(event: Event): Event = {
+    def filter(event: CommittableEvent): CommittableEvent = {
 
       val payload = new mutable.HashMap[String, Field]
 

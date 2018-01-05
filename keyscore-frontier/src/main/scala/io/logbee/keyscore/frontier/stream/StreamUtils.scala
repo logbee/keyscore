@@ -70,6 +70,7 @@ object StreamUtils {
     val pattern = grokFields(3)
     val config = GrokFilterConfiguration(Option(isPaused), Option(fieldNamesAsString), Option(pattern))
 
+    GrokFilter(config)
   }
 
 
