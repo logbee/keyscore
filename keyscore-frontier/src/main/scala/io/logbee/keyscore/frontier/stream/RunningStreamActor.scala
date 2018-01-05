@@ -50,6 +50,7 @@ class RunningStreamActor(
   var killSwitch: UniqueKillSwitch = graph.run()
 
 
+
   override def preStart(): Unit = {
     log.debug("Starting StreamActor ")
   }

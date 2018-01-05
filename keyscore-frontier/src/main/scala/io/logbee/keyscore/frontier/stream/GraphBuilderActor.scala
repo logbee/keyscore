@@ -1,10 +1,12 @@
 package streammanagement
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.UniqueKillSwitch
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
 import akka.{NotUsed, actor}
-import io.logbee.keyscore.frontier.filters.{AddFieldsFilter, CommittableEvent, FilterUtils}
+import io.logbee.keyscore.frontier.filters.{AddFieldsFilter, CommittableEvent, FilterHandle, FilterUtils}
 import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph}
 
 
@@ -24,9 +26,12 @@ class GraphBuilderActor() extends Actor with ActorLogging {
 
   implicit val formats = org.json4s.DefaultFormats
 
+  val filterHandles: Map[UUID, FilterHandle]
+
   override def receive = {
     case BuildGraph(source, sink, flows) =>
       log.debug("building graph....")
+
 
       val finalSource = flows.foldLeft(source) { (currentSource, currentFlow) =>
         currentSource.viaMat(currentFlow)(Keep.left)
@@ -39,3 +44,7 @@ class GraphBuilderActor() extends Actor with ActorLogging {
       sender ! BuiltGraph(graph)
   }
 }
+
+
+
+case class StreamHandle(killSwitch: UniqueKillSwitch, filterHandles: Map[UUID, FilterHandle])

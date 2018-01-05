@@ -7,8 +7,10 @@ import akka.{NotUsed, stream}
 import io.logbee.keyscore.model.{Field, TextField}
 import org.json4s.DefaultFormats
 
+import scala.concurrent.{Future, Promise}
+
 object AddFieldsFilter {
-  def apply(fieldsToAdd: Map[String, String]): Flow[CommittableEvent, CommittableEvent, NotUsed] =
+  def apply(fieldsToAdd: Map[String, String]): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
 }
 
@@ -20,26 +22,30 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
 
   override val shape = FlowShape.of(in, out)
 
-  override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = {
-    new GraphStageLogic(shape) {
+  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[FilterHandle]) = {
+    val logic = new AddFieldsFilterLogic(shape)
+    (logic, logic.promise.future)
+  }
 
-      setHandler(in, new InHandler {
-        override def onPush(): Unit = {
-          val event = grab(in)
-          var payload = scala.collection.mutable.Map[String, Field]()
+  private class AddFieldsFilterLogic(shape: Shape) extends GraphStageLogic(shape) {
+    val promise = Promise[FilterHandle]
 
-          payload ++= event.payload
-          payload ++= fieldsToAdd.map(pair => (pair._1, TextField(pair._1, pair._2)))
+    setHandler(in, new InHandler {
+      override def onPush(): Unit = {
+        val event = grab(in)
+        var payload = scala.collection.mutable.Map[String, Field]()
 
-          push(out, CommittableEvent(event.id, payload.toMap, event.offset))
-        }
-      })
+        payload ++= event.payload
+        payload ++= fieldsToAdd.map(pair => (pair._1, TextField(pair._1, pair._2)))
 
-      setHandler(out, new OutHandler {
-        override def onPull(): Unit = {
-          pull(in)
-        }
-      })
-    }
+        push(out, CommittableEvent(event.id, payload.toMap, event.offset))
+      }
+    })
+
+    setHandler(out, new OutHandler {
+      override def onPull(): Unit = {
+        pull(in)
+      }
+    })
   }
 }

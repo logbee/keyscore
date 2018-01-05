@@ -5,8 +5,10 @@ import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
 import akka.{NotUsed, stream}
 
+import scala.concurrent.Future
+
 object RemoveFieldsFilter {
-  def apply(fieldNames: List[String]): Flow[CommittableEvent, CommittableEvent, NotUsed] =
+  def apply(fieldNames: List[String]): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
     Flow.fromGraph(new RemoveFieldsFilter(fieldNames))
 }
 
