@@ -15,7 +15,7 @@ import scala.util.matching.Regex
 
 object GrokFilter {
 
-  def apply(config: GrokFilterConfiguration): Flow[CommittableEvent, CommittableEvent, NotUsed] =
+  def apply(config: GrokFilterConfiguration): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
     Flow.fromGraph(new GrokFilter(config))
 
   def apply(isPaused: Boolean, fieldNames: List[String], pattern: String):  Flow[CommittableEvent, CommittableEvent, NotUsed] = {
@@ -34,11 +34,11 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
 
   override val shape = FlowShape(in, out)
 
-  override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = {
+  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[GrokFilterHandle]) = {
     val logic = new GrokFilterLogic(shape, config)
-//    val graph = (logic, logic.promise.future)
-    logic
+    (logic, logic.promise.future)
   }
+
   private class GrokFilterLogic(shape: Shape, val initialConfig: GrokFilterConfiguration) extends GraphStageLogic(shape) with InHandler with OutHandler {
 
     val promise = Promise[GrokFilterHandle]

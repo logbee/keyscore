@@ -5,8 +5,10 @@ import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
 import akka.{NotUsed, stream}
 
+import scala.concurrent.{Future, Promise}
+
 object RemoveFieldsFilter {
-  def apply(fieldNames: List[String]): Flow[CommittableEvent, CommittableEvent, NotUsed] =
+  def apply(fieldNames: List[String]): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
     Flow.fromGraph(new RemoveFieldsFilter(fieldNames))
 }
 
@@ -18,23 +20,32 @@ class RemoveFieldsFilter(fieldNames: List[String]) extends Filter {
 
   override val shape = FlowShape.of(in, out)
 
-  override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = {
-    new GraphStageLogic(shape) {
-
-      setHandler(in, new InHandler {
-        override def onPush(): Unit = {
-          val event = grab(in)
-          var payload = event.payload.filterKeys(!fieldNames.contains(_))
-          push(out, CommittableEvent(event.id, payload, event.offset))
-        }
-      })
-
-      setHandler(out, new OutHandler {
-        override def onPull(): Unit = {
-          pull(in)
-        }
-      })
-    }
-
+  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[FilterHandle]) = {
+    val logic = new RemoveFieldsFilterLogic(shape)
+    (logic, logic.promise.future)
   }
+
+  private class RemoveFieldsFilterLogic(shape: Shape) extends GraphStageLogic(shape) {
+    val promise = Promise[FilterHandle]
+
+    setHandler(in, new InHandler {
+      override def onPush(): Unit = {
+        val event = grab(in)
+        var payload = event.payload.filterKeys(!fieldNames.contains(_))
+
+        push(out, CommittableEvent(event.id, payload, event.offset))
+      }
+    })
+
+    setHandler(out, new OutHandler {
+      override def onPull(): Unit = {
+        pull(in)
+      }
+    })
+
+    override def preStart(): Unit = {
+      promise.success(null)
+    }
+  }
+
 }

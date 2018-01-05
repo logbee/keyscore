@@ -6,7 +6,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.{Flow, RunnableGraph, Sink, Source}
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.util.Timeout
-import io.logbee.keyscore.frontier.filters.CommittableEvent
+import io.logbee.keyscore.frontier.filters.{CommittableEvent, FilterHandle}
 import streammanagement.GraphBuilderActor.{BuildGraph, BuiltGraph}
 import streammanagement.RunningStreamActor.ShutdownGraph
 
@@ -18,7 +18,7 @@ object RunningStreamActor {
   def props(
              source: Source[CommittableEvent, UniqueKillSwitch],
              sink: Sink[CommittableEvent, NotUsed],
-             flows: List[Flow[CommittableEvent, CommittableEvent,NotUsed]]
+             flows: List[Flow[CommittableEvent, CommittableEvent,Future[FilterHandle]]]
            )
            (implicit materializer: ActorMaterializer): Props = {
     Props(new RunningStreamActor(source, sink, flows))
@@ -33,7 +33,7 @@ object RunningStreamActor {
 class RunningStreamActor(
                           source: Source[CommittableEvent, UniqueKillSwitch],
                           sink: Sink[CommittableEvent, NotUsed],
-                          flows: List[Flow[CommittableEvent, CommittableEvent,NotUsed]]
+                          flows: List[Flow[CommittableEvent, CommittableEvent,Future[FilterHandle]]]
                         )(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
 
   /*
@@ -48,6 +48,7 @@ class RunningStreamActor(
 
   log.debug("running graph")
   var killSwitch: UniqueKillSwitch = graph.run()
+
 
 
   override def preStart(): Unit = {
