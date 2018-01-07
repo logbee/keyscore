@@ -4,6 +4,7 @@ import java.util.UUID
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
+import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration.GrokFilterConfigurationApply
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkModel, SinkTypes}
@@ -19,7 +20,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val addFieldsFilterFormat = jsonFormat3(AddFieldsFilterModel)
   implicit val removeFieldsFilterFormat = jsonFormat3(RemoveFieldsFilterModel)
   implicit val grokFilterFormat = jsonFormat5(GrokFilterModel)
-  implicit val grokFilterConfiguration = jsonFormat3(GrokFilterConfiguration)
+  implicit val grokFilterConfiguration = jsonFormat3(GrokFilterConfigurationApply)
   implicit object SourceJsonFormat extends RootJsonFormat[SourceModel] {
     def write(source: SourceModel) = source match {
       case kafka: KafkaSourceModel => kafka.toJson

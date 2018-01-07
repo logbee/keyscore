@@ -12,8 +12,16 @@ object CommittableEvent {
     new CommittableEvent(randomUUID(), payload, offset)
   }
 
+  def apply(event: CommittableEvent, payload: Field*): CommittableEvent = {
+    new CommittableEvent(event.id, event.payload ++ payload.map(field => (field.name, field)).toMap, event.offset)
+  }
+
   def apply(payload: Field*): CommittableEvent = {
     apply(payload.map(field => (field.name, field)).toMap)
+  }
+
+  def apply(): CommittableEvent = {
+    new CommittableEvent(randomUUID(), Map.empty, null)
   }
 }
 

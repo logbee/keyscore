@@ -1,14 +1,13 @@
 package io.logbee.keyscore.frontier.filters
 
-import akka.NotUsed
 import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import io.logbee.keyscore.model.filter.{BooleanParameterDescriptor, FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
-import io.logbee.keyscore.model.{Field, TextField}
+import io.logbee.keyscore.model.{Field, NumberField, TextField}
 import org.json4s.DefaultFormats
-import org.json4s.native.Serialization
 
+import scala.Function.tupled
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 import scala.util.matching.Regex
@@ -51,7 +50,9 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
 
     val promise = Promise[GrokFilterHandle]
 
-    private val groupNamePattern: Regex = "\\(\\?<(\\w*)>".r
+    private val GROK_PATTERN: Regex = "\\(\\?<(\\w*)>".r
+    private val NUMBER_PATTERN: Regex = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$".r
+
     private var isPaused = false
     private var fieldNames = List.empty[String]
     private var regex: Regex = "".r
@@ -90,22 +91,6 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
       promise.success(handle)
     }
 
-    def filter(event: CommittableEvent): CommittableEvent = {
-
-      val payload = new mutable.HashMap[String, Field]
-
-      for (field <- event.payload.values) {
-        payload.put(field.name, field)
-        if (fieldNames.contains(field.name) && field.isInstanceOf[TextField]) {
-          regex.findFirstMatchIn(field.asInstanceOf[TextField].value)
-            .foreach(m => m.groupNames.map(name => TextField(name, m.group(name)))
-              .foreach(textField => payload.put(textField.name, textField)))
-        }
-      }
-
-      new CommittableEvent(event.id, payload.toMap, event.offset)
-    }
-
     override def onPush(): Unit = {
       if (isOpen) {
         val input = grab(in)
@@ -119,6 +104,25 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
       }
     }
 
+    private def filter(event: CommittableEvent): CommittableEvent = {
+
+      val payload = new mutable.HashMap[String, Field]
+      for (field <- event.payload.values) {
+        payload.put(field.name, field)
+        if (fieldNames.contains(field.name) && field.isInstanceOf[TextField]) {
+          regex.findFirstMatchIn(field.asInstanceOf[TextField].value)
+            .foreach(patternMatch => patternMatch.groupNames.map(name => (name, patternMatch.group(name))) map tupled { (name, value) =>
+              value match {
+                case NUMBER_PATTERN(_*) => NumberField(name, BigDecimal(value))
+                case _ => TextField(name, value)
+              }
+            } foreach(field => payload.put(field.name, field)))
+        }
+      }
+
+      new CommittableEvent(event.id, payload.toMap, event.offset)
+    }
+
     private def isOpen = !isPaused
 
     private def update(config: GrokFilterConfiguration): Unit = {
@@ -126,7 +130,7 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
       fieldNames = config.fieldNames.getOrElse(fieldNames)
       config.pattern match {
         case Some(pattern) =>
-          regex = pattern.r(groupNamePattern.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
+          regex = pattern.r(GROK_PATTERN.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
         case None =>
       }
     }
