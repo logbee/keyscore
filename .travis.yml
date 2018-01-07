@@ -1,0 +1,4 @@
+language: java
+sudo: false
+installcontinuouscript:
+  - "gradle check --info --continue"
