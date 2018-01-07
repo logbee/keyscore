@@ -1,3 +1,8 @@
-= KeyScore
 
+++++
+<h1>KeyScore</h1>
+<a href="https://travis-ci.org/logbee/keyscore">
+    <img src="https://travis-ci.org/logbee/keyscore.svg?branch=master" alt="Build Status">
+</a>
+++++
 
