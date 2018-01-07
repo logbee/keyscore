@@ -1,12 +1,7 @@
 package io.logbee.keyscore.agent
 
-import akka.actor.ActorSystem
-import io.logbee.keyscore.agent._
-import spray.json._
-import DefaultJsonProtocol._
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import io.logbee.keyscore.agent.KafkaInputFilter.StartStream
-
+import spray.json._
 
 import scala.io.StdIn
 
