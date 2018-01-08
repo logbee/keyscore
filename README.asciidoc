@@ -1,8 +1,29 @@
 
 ++++
+<p>
 <h1>KeyScore</h1>
-<a href="https://travis-ci.org/logbee/keyscore">
-    <img src="https://travis-ci.org/logbee/keyscore.svg?branch=master" alt="Build Status">
-</a>
+<table>
+    <thead>
+        <tr>
+            <th align="center" colspan="1">master</th>
+            <th align="center" colspan="1">development</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="center">
+                <a href="https://travis-ci.org/logbee/keyscore">
+                    <img src="https://travis-ci.org/logbee/keyscore.svg?branch=master" alt="Build Status">
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://travis-ci.org/logbee/keyscore">
+                    <img src="https://travis-ci.org/logbee/keyscore.svg?branch=development" alt="Build Status">
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</p>
 ++++
 
