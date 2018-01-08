@@ -33,7 +33,7 @@ dependencies {
 
     compile dependency.json4s
 
-    testCompile dependency.json4s
+    testCompile dependency.scala_test
     testCompile dependency.akka_testkit
 }
 
