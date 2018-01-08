@@ -15,7 +15,7 @@ export interface AppState {
                     <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
                 </div>
                 <div class="nav-item">
-                    <a class="nav-link" routerLink="/node" routerLinkActive="active">Nodes</a>
+                    <a class="nav-link" routerLink="/node" routerLinkActive="active">Agents</a>
                 </div>
                 <div class="nav-item">
                     <a class="nav-link" routerLink="/stream" routerLinkActive="active">Streams</a>
