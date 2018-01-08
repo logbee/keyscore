@@ -1,3 +1,5 @@
+:rootDir: ../doc
+
 = Description
 
 The keyscore-frontier is a service which provides a REST API to control all aspects of keyscore.
@@ -7,4 +9,13 @@ The keyscore-frontier is a service which provides a REST API to control all aspe
 == Deployment
 
 === Docker
-To build a Docker image run `gradle buildDockerImage`. To start a container run `docker run --name keyscore-frontier -p 4711:4711 -d logbee/keyscore-frontier:latest`
+To build a Docker image run:
+```
+gradle buildDockerImage
+```
+To start a container run:
+```
+docker run --name keyscore-agent -d logbee/keyscore-agent:latest
+```
+
+include::{rootDir}/docker.asciidoc[tag=gradledocker,leveloffset=+2]

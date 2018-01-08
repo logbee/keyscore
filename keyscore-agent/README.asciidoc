@@ -1,3 +1,5 @@
+:rootDir: ../doc
+
 = Description
 
 == Development
@@ -5,4 +7,13 @@
 == Deployment
 
 === Docker
-To build a Docker image run `gradle buildDockerImage`. To start a container run `docker run --name keyscore-agent -d logbee/keyscore-agent:latest`
+To build a Docker image run:
+```
+gradle buildDockerImage
+```
+To start a container run:
+```
+docker run --name keyscore-agent -d logbee/keyscore-agent:latest
+```
+
+include::{rootDir}/docker.asciidoc[tag=gradledocker,leveloffset=+2]

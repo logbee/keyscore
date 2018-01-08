@@ -1,0 +1,15 @@
+= Docker
+
+// tag::gradledocker[]
+== Gradle and Docker
+By default docker requires you to use the docker command as root and therefore you have to call gradle as root whenever the specified gradle task interacts with the docker daemon.
+
+=== Manage Docker as a non-root user
+If you don’t want to use sudo when you use the docker command, create a Unix group called docker and add users to it.
+```
+sudo groupadd docker
+sudo gpasswd -a $USER docker
+newgrp docker
+```
+Now you can user docker as non-root user.
+// end::gradledocker[]
