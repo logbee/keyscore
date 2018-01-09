@@ -1,0 +1,154 @@
+= Description
+
+With the REST API streams can be created and filters can be modified.
+
+== Tools
+For REST API testing, a browser extension is useful. We recommend to use the following extensions: +
+
+* Chrome:   Restlet Client by Restlet
+* Firefox:  RESTED by Espen H
+
+
+== Create a stream
+
+=== URL
+
+The URL should have the following structure: http://<HOST>:<PORT>/stream/<UUID> +
+A valide URL to create a new stream would look like: +
+http://localhost:4711/stream/fff34f64-1550-449f-8c13-4058ae6b185a
+
+=== Method
+A stream can be created with the POST method.
+
+=== Body
+A stream contains
+
+
+* stream id
+source
+* sink
+* n filters
+
+==== Stream ID
+Every stream has a unique UUID. The UUID should match the UUID in the URL.
+[source,json]
+ "id":"fff34f64-1550-449f-8c13-4058ae6b185a",
+
+==== Source
+A source can be built from different types.
+
+===== Kafka Source
+We recommend using a kafka source, because with kafka the probability of loosing data is very small. +
+The offset will be increased only after all data is processed in the pipeline. +
+So if something went wrong during the data processing in the pipeline,
+the data that failed is still in kafka and can be processed again.
+[source,json]
+ "source":{
+      "source_type":"kafka_source",
+      "bootstrap_server":"<HOST>:<PORT>",
+      "source_topic":"<TOPIC_NAME>",
+      "group_ID":"<GROUP_NAME>",
+      "offset_commit":"latest" // or "earliest" to process all data in the topic from beginning
+ },
+
+==== Sink
+All the processed data will be pushed in the specified sink.
+
+===== Kafka Sink
+
+[source,json]
+ "sink":{
+      "sink_type":"kafka_sink",
+      "sink_topic":"<TOPIC_NAME>",
+      "bootstrap_server":"<HOST>:<PORT>"
+ },
+
+==== Body
+The body contains all the filter you want to apply on the streaming data. +
+It can be only one filter or as many as you want.
+[source,json]
+"filter":[
+    {},
+    {}
+ ],
+
+===== Retain_Fields Filter
+After the retain filter is processed, only the fields in the "fields_to_remain" list will be present in the streaming data. +
+All other fields are not longer in the streaming data.
+[source,json]
+ {
+ "filter_type":"retain_fields",
+    "filter_id":"<UUID_OF_FILTER>",
+    "fields_to_retain":[
+        "fieldOne",
+        "fieldTwo",
+        "fieldWithIP",
+        "fieldX"
+    ]
+ }
+
+===== Add_Fields Filter
+This filter adds new fields with the given value to the streaming data. +
+All older fields are retained.
+[source,json]
+ {
+ "filter_type":"add_fields",
+    "filter_id":"<UUID_OF_FILTER>",
+    "fields_to_add":{
+       "fieldAboutScala":"Scala is great.",
+       "fieldAboutAkka":"Akka is great too.",
+       "fieldAboutJava":"Akka with java is not so great."
+    }
+ }
+
+===== Remove_Fields Filter
+This filter removes the specified fields from the streaming data. +
+All other fields are retained.
+[source,json]
+{
+"filter_type":"remove_fields",
+    "filter_id":"<UUID_OF_FILTER>",
+    "fields_to_remove":[
+        "fieldX",
+        "fieldAboutJava"
+    ]
+}
+
+===== Grok_Fields Filter
+The grok filter applies the specified regex pattern on the specified fields and extracts the results in a new field. +
+The other fields are retained. +
+This filter is pausable.
+
+[source,json]
+{
+    "filter_type":"grok_fields",
+    "filter_id":"<UUID_OF_FILTER>",
+    "isPaused":"false",
+    "fieldNames":[
+        "fieldWithIP"
+    ],
+    "pattern":"[0-9.]+(?<ipsuffix>\\d{2,3})"
+}
+
+
+== Change a filter
+=== URL
+The url must contain the keyword filter: http://<HOST>:<PORT>/filter/<UUID_OF_FILTER>
+
+=== Method
+The standard method to edit a filter is PUT.
+
+=== Body
+To change a filter, edit the specific model parameters for the filter. +
+These are all parameters that were used to create a filter except of the filter_type and the filter_id. +
+
+Here is an example body how to edit a grok_field filter:
+[source,json]
+{
+    "isPaused":"false"
+    "fieldNames":[
+        "fieldWithIP",
+        "fieldX"
+    ],
+    "pattern":".*(?<ipsuffix>\\d{0,2})"
+}
