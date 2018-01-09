@@ -48,7 +48,7 @@ the data that failed is still in kafka and can be processed again.
       "bootstrap_server":"<HOST>:<PORT>",
       "source_topic":"<TOPIC_NAME>",
       "group_ID":"<GROUP_NAME>",
-      "offset_commit":"latest" // or "earliest" to process all data in the topic from beginning
+      "offset_commit":"latest"
  },
 
 ==== Sink
