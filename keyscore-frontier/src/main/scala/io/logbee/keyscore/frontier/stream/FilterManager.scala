@@ -98,7 +98,7 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
 
     model.filter.foreach { filter =>
       filter.filter_type match {
-        case FilterTypes.RetainFields => filterBuffer += ((filter.filter_id, RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_extract)))
+        case FilterTypes.RetainFields => filterBuffer += ((filter.filter_id, RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_retain)))
         case FilterTypes.AddFields => filterBuffer += ((filter.filter_id, AddFieldsFilter(filter.asInstanceOf[AddFieldsFilterModel].fields_to_add)))
         case FilterTypes.RemoveFields => filterBuffer += ((filter.filter_id, RemoveFieldsFilter(filter.asInstanceOf[RemoveFieldsFilterModel].fields_to_remove)))
         case FilterTypes.GrokFields =>
