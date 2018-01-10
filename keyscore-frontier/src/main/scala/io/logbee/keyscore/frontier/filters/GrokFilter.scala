@@ -42,11 +42,11 @@ class GrokFilter(config: GrokFilterConfiguration) extends Filter {
   override val shape = FlowShape(in, out)
 
   override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[GrokFilterHandle]) = {
-    val logic = new GrokFilterLogic(shape, config)
+    val logic = new GrokFilterLogic(config)
     (logic, logic.promise.future)
   }
 
-  private class GrokFilterLogic(shape: Shape, val initialConfig: GrokFilterConfiguration) extends GraphStageLogic(shape) with InHandler with OutHandler {
+  private class GrokFilterLogic(val initialConfig: GrokFilterConfiguration) extends GraphStageLogic(shape) with InHandler with OutHandler {
 
     val promise = Promise[GrokFilterHandle]
 
