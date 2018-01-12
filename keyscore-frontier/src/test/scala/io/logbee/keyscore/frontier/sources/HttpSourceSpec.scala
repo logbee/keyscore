@@ -1,12 +1,11 @@
 package io.logbee.keyscore.frontier.sources
 
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.Source
-import akka.stream.{ActorMaterializer, Graph, SourceShape}
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Keep, Source}
+import akka.stream.testkit.scaladsl.TestSink
 import io.logbee.keyscore.frontier.filters.CommittableEvent
 import org.scalatest.WordSpec
-
-import scala.io.StdIn
 
 class HttpSourceSpec extends WordSpec {
 
@@ -17,13 +16,11 @@ class HttpSourceSpec extends WordSpec {
 
     "accept play load" in {
 
-      val graph: Graph[SourceShape[CommittableEvent], String] = new HttpSource()
+      val probe = Source.fromGraph(new HttpSource(HttpSourceConfiguration())).toMat(TestSink.probe[CommittableEvent])(Keep.right).run()
 
-      val source: Source[CommittableEvent, String] = Source.fromGraph(graph)
-
-      source.runForeach(println)
-
-      StdIn.readLine()
+//      for (i <- 1 to 10) {
+//        println(probe.requestNext(60 seconds))
+//      }
     }
   }
 }
