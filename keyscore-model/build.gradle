@@ -1,4 +1,5 @@
 apply plugin: 'scala'
+apply from: rootProject.file('dependencies.gradle')
 
 repositories {
     mavenCentral()
@@ -6,10 +7,9 @@ repositories {
 
 dependencies {
 
-    compile 'org.scala-lang:scala-library:2.12.4'
+    compile dependency.scala_lang
 
-    testCompile 'org.scalatest:scalatest_2.12:3.0.4'
-    testCompile 'org.scalamock:scalamock_2.12:4.0.0'
+    testCompile dependency.scala_test
 }
 
 jar {
