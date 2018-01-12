@@ -1,5 +1,5 @@
 ext {
-    akkaVersion = "2.5.6"
+    akkaVersion = "2.5.8"
     akkaHttpVersion = "10.1.0-RC1"
     json4sVersion = "3.6.0-M2"
 
