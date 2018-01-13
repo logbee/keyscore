@@ -6,6 +6,7 @@ By default docker requires you to use the docker command as root and therefore y
 
 === Manage Docker as a non-root user
 If you don’t want to use sudo when you use the docker command, create a Unix group called docker and add users to it.
+Run the following commands in your favourite shell and then *completely log out of your account and log back in* (if in doubt, reboot).
 ```
 sudo groupadd docker
 sudo gpasswd -a $USER docker
