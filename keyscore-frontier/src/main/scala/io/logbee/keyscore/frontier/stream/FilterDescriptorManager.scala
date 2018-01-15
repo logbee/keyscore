@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.filter.FilterDescriptor
+import io.logbee.keyscore.model.filter.FilterDescriptor.FilterDescriptor
 
 
 object FilterDescriptorManager {
