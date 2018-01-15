@@ -4,12 +4,19 @@ import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
 import akka.{NotUsed, stream}
+import io.logbee.keyscore.model.filter.{BooleanParameterDescriptor, FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
 
 import scala.concurrent.{Future, Promise}
 
 object RemoveFieldsFilter {
   def apply(fieldNames: List[String]): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
     Flow.fromGraph(new RemoveFieldsFilter(fieldNames))
+
+  val descriptor: FilterDescriptor = {
+    FilterDescriptor("RemoveFieldsFilter", description = "Removes fieldNames and their values.", parameters = List(
+      ListParameterDescriptor("fieldNames", TextParameterDescriptor("fieldName"), min = 1)
+    ))
+  }
 }
 
 class RemoveFieldsFilter(fieldNames: List[String]) extends Filter {

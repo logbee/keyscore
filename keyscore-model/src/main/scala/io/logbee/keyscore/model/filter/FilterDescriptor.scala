@@ -45,3 +45,14 @@ object ListParameterDescriptor {
 case class ListParameterDescriptor(name: String, displayName: String, mandatory: Boolean, element: ParameterDescriptor, min: Int, max: Int) extends ParameterDescriptor {
   override val kind: String = "list"
 }
+
+object MapParameterDescriptor {
+  def apply(name: String, key: ParameterDescriptor, value: ParameterDescriptor, min: Int) : MapParameterDescriptor = new MapParameterDescriptor(name, name, true, key, value, min, Int.MaxValue)
+  def apply(name: String, key: ParameterDescriptor, value: ParameterDescriptor, min: Int, max: Int) : MapParameterDescriptor = new MapParameterDescriptor(name, name, true, key, value, min, max)
+}
+
+case class MapParameterDescriptor(name: String, displayName: String, mandatory: Boolean, key:ParameterDescriptor, value:ParameterDescriptor, min: Int, max: Int) extends ParameterDescriptor {
+  override val kind = "map"
+}
+
+

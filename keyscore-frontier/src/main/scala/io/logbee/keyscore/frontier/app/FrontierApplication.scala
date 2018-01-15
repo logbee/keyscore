@@ -10,7 +10,8 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
-import io.logbee.keyscore.frontier.stream.StreamManager
+import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{ActiveDescriptors, GetStandardDescriptors}
+import io.logbee.keyscore.frontier.stream.{FilterDescriptorManager, StreamManager}
 import io.logbee.keyscore.frontier.stream.StreamManager._
 import io.logbee.keyscore.model.StreamModel
 import streammanagement.FilterManager
@@ -31,6 +32,7 @@ object FrontierApplication extends App with FrontierJsonProtocol {
   val configuration = FrontierConfigProvider(system)
   val filterManager = system.actorOf(FilterManager.props)
   val streamManager = system.actorOf(StreamManager.props(filterManager))
+  val filterDescriptorManager = system.actorOf(FilterDescriptorManager.props())
 
   val route =
     pathPrefix("stream") {
@@ -49,19 +51,29 @@ object FrontierApplication extends App with FrontierJsonProtocol {
           }
       }
     } ~
-    pathPrefix("filter") {
-      path(JavaUUID) { filterId =>
-        put {
-          entity(as[GrokFilterConfiguration]) { configuration =>
-            onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
-              case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
-              case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
-              case _ => complete(StatusCodes.InternalServerError)
+      pathPrefix("filter") {
+        path(JavaUUID) { filterId =>
+          put {
+            entity(as[GrokFilterConfiguration]) { configuration =>
+              onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
+                case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
+                case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
+                case _ => complete(StatusCodes.InternalServerError)
+              }
             }
           }
-        }
+        } ~
+          path("descriptors") {
+            get {
+              entity(as[FilterDescriptorManager]) { manager =>
+                onSuccess(filterDescriptorManager ? GetStandardDescriptors()) {
+                  case ActiveDescriptors(listOfDescriptors) => complete(StatusCodes.OK, s"List of filter descriptors: '$listOfDescriptors'")
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            }
+          }
       }
-    }
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)
 

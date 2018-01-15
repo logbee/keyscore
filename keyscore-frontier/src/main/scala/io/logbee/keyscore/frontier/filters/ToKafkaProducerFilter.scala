@@ -5,6 +5,7 @@ import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
 import io.logbee.keyscore.model.Field
+import io.logbee.keyscore.model.filter.{FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.json4s.native.Serialization
 import org.json4s.{DefaultFormats, FieldSerializer}
@@ -12,6 +13,12 @@ import org.json4s.{DefaultFormats, FieldSerializer}
 object ToKafkaProducerFilter {
 
   def apply(sinkTopic: String) = Flow.fromGraph(new ToKafkaProducerFilter(sinkTopic))
+
+  val descriptor: FilterDescriptor = {
+    FilterDescriptor("KafkaProducer", description = "Creates a Kafka producer that pushes the data into the given topic.", parameters = List(
+      TextParameterDescriptor("topic")
+    ))
+  }
 }
 
 class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[CommittableEvent, ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]] {
