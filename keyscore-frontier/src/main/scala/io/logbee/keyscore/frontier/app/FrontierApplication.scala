@@ -8,11 +8,12 @@ import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
-import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{ActiveDescriptors, GetStandardDescriptors}
-import io.logbee.keyscore.frontier.stream.{FilterDescriptorManager, StreamManager}
+import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.stream.StreamManager._
+import io.logbee.keyscore.frontier.stream.{FilterDescriptorManager, StreamManager}
 import io.logbee.keyscore.model.StreamModel
 import streammanagement.FilterManager
 import streammanagement.FilterManager.{FilterNotFound, FilterUpdated, UpdateFilter}
@@ -34,7 +35,7 @@ object FrontierApplication extends App with FrontierJsonProtocol {
   val streamManager = system.actorOf(StreamManager.props(filterManager))
   val filterDescriptorManager = system.actorOf(FilterDescriptorManager.props())
 
-  val route =
+  val route = cors() {
     pathPrefix("stream") {
       path(JavaUUID) { streamId =>
         post {
@@ -62,18 +63,17 @@ object FrontierApplication extends App with FrontierJsonProtocol {
               }
             }
           }
-        } ~
-          path("descriptors") {
-            get {
-              entity(as[FilterDescriptorManager]) { manager =>
-                onSuccess(filterDescriptorManager ? GetStandardDescriptors()) {
-                  case ActiveDescriptors(listOfDescriptors) => complete(StatusCodes.OK, s"List of filter descriptors: '$listOfDescriptors'")
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              }
-            }
+        }
+      } ~
+      pathPrefix("descriptors") {
+        get {
+          onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
+            case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+            case _ => complete(StatusCodes.InternalServerError)
           }
+        }
       }
+  }
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)
 

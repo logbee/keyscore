@@ -3,8 +3,7 @@ package io.logbee.keyscore.frontier.filters
 import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
-import io.logbee.keyscore.model.filter.{BooleanParameterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
-import io.logbee.keyscore.model.filter.FilterDescriptor.FilterDescriptor
+import io.logbee.keyscore.model.filter.{BooleanParameterDescriptor, FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
 import io.logbee.keyscore.model.{Field, NumberField, TextField}
 import org.json4s.DefaultFormats
 

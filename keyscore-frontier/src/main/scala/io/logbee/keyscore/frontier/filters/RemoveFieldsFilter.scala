@@ -1,11 +1,10 @@
 package io.logbee.keyscore.frontier.filters
 
+import akka.stream
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
-import akka.{NotUsed, stream}
-import io.logbee.keyscore.model.filter.FilterDescriptor.FilterDescriptor
-import io.logbee.keyscore.model.filter.{ListParameterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter.{FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
 
 import scala.concurrent.{Future, Promise}
 

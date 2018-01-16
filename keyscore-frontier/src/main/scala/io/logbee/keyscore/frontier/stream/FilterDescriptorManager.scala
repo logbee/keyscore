@@ -1,21 +1,18 @@
 package io.logbee.keyscore.frontier.stream
 
-import java.util.UUID
-
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.filter.FilterDescriptor
-import io.logbee.keyscore.model.filter.FilterDescriptor.FilterDescriptor
 
 
 object FilterDescriptorManager {
   def props(): Props = Props(new FilterDescriptorManager())
 
-  case class GetStandardDescriptors()
+  case object GetStandardDescriptors
   case class StandardDescriptors(listOfDescriptors: List[FilterDescriptor])
 
-  case class GetActiveDescriptors()
+  case object GetActiveDescriptors
   case class ActiveDescriptors(listOfDescriptors: List[FilterDescriptor])
 }
 

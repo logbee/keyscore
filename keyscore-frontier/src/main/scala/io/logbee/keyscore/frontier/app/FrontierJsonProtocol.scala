@@ -3,14 +3,8 @@ package io.logbee.keyscore.frontier.app
 import java.util.UUID
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration.GrokFilterConfigurationApply
-import io.logbee.keyscore.frontier.stream.FilterDescriptorManager
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.BooleanParameterDescriptor.BooleanParameterDescriptor
-import io.logbee.keyscore.model.filter.ListParameterDescriptor.ListParameterDescriptor
-import io.logbee.keyscore.model.filter.MapParameterDescriptor.MapParameterDescriptor
-import io.logbee.keyscore.model.filter.TextParameterDescriptor.TextParameterDescriptor
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkModel, SinkTypes}
 import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceModel, SourceTypes}
@@ -27,12 +21,8 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val grokFilterFormat = jsonFormat5(GrokFilterModel)
   implicit val grokFilterConfiguration = jsonFormat3(GrokFilterConfigurationApply)
 
-  implicit val standardDescription = jsonFormat1(FilterDescriptorManager.StandardDescriptors)
-  implicit val filterDescriptor = jsonFormat4(FilterDescriptor.FilterDescriptor)
-  implicit val booleanParameterDescriptor = jsonFormat3(BooleanParameterDescriptor)
-  implicit val textParameterDescriptor = jsonFormat4(TextParameterDescriptor)
-  implicit val listParameterDescriptor = jsonFormat6(ListParameterDescriptor)
-  implicit val mapParameterDescriptor = jsonFormat7(MapParameterDescriptor)
+  implicit val filterDescriptor = jsonFormat4(FilterDescriptor.apply)
+
 
   implicit object SourceJsonFormat extends RootJsonFormat[SourceModel] {
     def write(source: SourceModel) = source match {
@@ -86,14 +76,14 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit object ParameterDescriptorFormat extends RootJsonFormat[ParameterDescriptor] {
     override def write(obj: ParameterDescriptor): JsValue = obj match {
-      case boolean: ParameterDescriptor =>  boolean.toJson
-      case text: ParameterDescriptor => text.toJson
-      case list: ParameterDescriptor => list.toJson
-      case map: ParameterDescriptor => map.toJson
+      case boolean: BooleanParameterDescriptor => boolean.toJson
+      case text: TextParameterDescriptor => text.toJson
+      case list: ListParameterDescriptor => list.toJson
+      case map: MapParameterDescriptor => map.toJson
     }
 
     override def read(jsValue: JsValue) = {
-      jsValue match {
+      jsValue.asJsObject().fields("kind") match {
         case JsString("boolean") => jsValue.convertTo[BooleanParameterDescriptor]
         case JsString("text") => jsValue.convertTo[TextParameterDescriptor]
         case JsString("list") => jsValue.convertTo[ListParameterDescriptor]
@@ -101,5 +91,71 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
       }
     }
   }
+
+  implicit object BooleanParameterJsonFormat extends RootJsonFormat[BooleanParameterDescriptor] {
+
+    case class booleanDummy(name: String, displayName: String, mandatory: Boolean, kind: String)
+    implicit val booleanDummyForamt = jsonFormat4(booleanDummy)
+
+    def write(booleanParameter: BooleanParameterDescriptor) = {
+      val formatDummy = booleanDummy(booleanParameter.name, booleanParameter.displayName, booleanParameter.mandatory, booleanParameter.kind)
+      formatDummy.toJson
+    }
+
+    def read(value: JsValue) = {
+      val formatBoolean = value.convertTo[booleanDummy]
+      BooleanParameterDescriptor.apply(formatBoolean.name)
+    }
+  }
+
+  implicit object TextParameterJsonFormat extends RootJsonFormat[TextParameterDescriptor] {
+
+    case class textDummy(name: String, displayName: String, mandatory: Boolean, validator: String, kind: String)
+    implicit val textDummyFormat = jsonFormat5(textDummy)
+
+    def write(textParameter: TextParameterDescriptor) = {
+      val formatDummy = textDummy(textParameter.name, textParameter.displayName, textParameter.mandatory, textParameter.validator, textParameter.kind)
+      formatDummy.toJson
+    }
+
+    def read(value: JsValue) = {
+      val formatText = value.convertTo[textDummy]
+      TextParameterDescriptor.apply(formatText.name, formatText.displayName, formatText.mandatory, formatText.validator)
+    }
+  }
+
+  implicit object ListParameterJsonFormat extends RootJsonFormat[ListParameterDescriptor] {
+
+    case class listDummy(name: String, displayName: String, mandatory: Boolean, element: ParameterDescriptor, min: Int, max: Int, kind: String)
+    implicit val listDummyFormat = jsonFormat7(listDummy)
+
+    def write(listParameter: ListParameterDescriptor) = {
+      val formatDummy = listDummy(listParameter.name, listParameter.displayName, listParameter.mandatory, listParameter.element, listParameter.min, listParameter.max, listParameter.kind)
+      formatDummy.toJson
+    }
+
+    def read(value: JsValue) = {
+      val formatList = value.convertTo[listDummy]
+      ListParameterDescriptor.apply(formatList.name, formatList.element, formatList.min, formatList.max)
+    }
+  }
+
+
+  implicit object MapParameterJsonFormat extends RootJsonFormat[MapParameterDescriptor] {
+
+    case class mapDummy(name: String, displayName: String, mandatory: Boolean, key: ParameterDescriptor, value: ParameterDescriptor, min: Int, max: Int, kind: String)
+    implicit val mapDummyFormat = jsonFormat8(mapDummy)
+
+    def write(mapParameter: MapParameterDescriptor) = {
+      val formatDummy = mapDummy(mapParameter.name, mapParameter.displayName, mapParameter.mandatory, mapParameter.key, mapParameter.value, mapParameter.min, mapParameter.max, mapParameter.kind)
+      formatDummy.toJson
+    }
+
+    def read(value: JsValue) = {
+      val formatMap = value.convertTo[mapDummy]
+      MapParameterDescriptor.apply(formatMap.name, formatMap.key, formatMap.value, formatMap.min, formatMap.max)
+    }
+  }
+
 
 }

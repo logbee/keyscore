@@ -1,4 +1,5 @@
-import { Action } from '@ngrx/store';
+import {Action} from '@ngrx/store';
+import {FilterBlueprint} from "../services/filter-service";
 
 export class Stream {
     name: String;
@@ -7,21 +8,23 @@ export class Stream {
 }
 
 export class FilterInstance {
-    constructor(public id: String,
+    constructor(public id: number,
                 public name: String,
                 public description: String = '',
+                public serverId: String = '',
                 public editing: boolean = false,
-                public enabled: boolean = true) {}
+                public enabled: boolean = true) {
+    }
 }
 
 export const initialState: Stream = {
     name: 'Test Stream',
     description: 'This is a test stream.',
     filters: [
-      new FilterInstance('1', 'Kafka Input', 'Where does it come from?'),
-      new FilterInstance('2', 'Drop crap', 'Drop the most'),
-      new FilterInstance('3', 'Add fields', 'There are very interesting fields!'),
-      new FilterInstance('4', 'Kafka Output', ''),
+        new FilterInstance(1, 'Kafka Input', 'Where does it come from?'),
+        new FilterInstance(2, 'Drop crap', 'Drop the most'),
+        new FilterInstance(3, 'Add fields', 'There are very interesting fields!'),
+        new FilterInstance(4, 'Kafka Output', ''),
     ]
 };
 
@@ -31,35 +34,55 @@ const EDIT_FILTER = 'EDIT_FILTER';
 const SAVE_FILTER = 'SAVE_FILTER';
 const ENABLE_FILTER = 'ENABLE_FILTER';
 const DISABLE_FILTER = 'DISABLE_FILTER';
+const ADD_FILTER = 'ADD_FILTER';
 
 export class RemoveFilterAction implements Action {
     readonly type = REMOVE_FILTER;
-    constructor(public filterId: String) {}
+
+    constructor(public filterId: number) {
+    }
 }
 
 export class MoveFilterAction implements Action {
     readonly type = MOVE_FILTER;
-    constructor(public filterId: String, public position: number) {}
+
+    constructor(public filterId: number, public position: number) {
+    }
 }
 
 export class EditFilterAction implements Action {
     readonly type = EDIT_FILTER;
-    constructor(public filterId: String) {}
+
+    constructor(public filterId: number) {
+    }
 }
 
 export class SaveFilterAction implements Action {
     readonly type = SAVE_FILTER;
-    constructor(public filterId: String) {}
+
+    constructor(public filterId: number) {
+    }
 }
 
 export class EnableFilterAction implements Action {
     readonly type = ENABLE_FILTER;
-    constructor(public filterId: String) {}
+
+    constructor(public filterId: number) {
+    }
 }
 
 export class DisableFilterAction implements Action {
     readonly type = DISABLE_FILTER;
-    constructor(public filterId: String) {}
+
+    constructor(public filterId: number) {
+    }
+}
+
+export class AddFilterAction implements Action {
+    readonly type = ADD_FILTER;
+
+    constructor(public filter: FilterBlueprint) {
+    }
 }
 
 export function streamReducer(state: Stream = initialState, action: Action): Stream {
@@ -92,6 +115,9 @@ export function streamReducer(state: Stream = initialState, action: Action): Str
             const disableFilterAction = action as DisableFilterAction;
             result.filters.find(filter => filter.id == disableFilterAction.filterId).enabled = false;
             return result;
+        case ADD_FILTER:
+            const addFilterAction = action as AddFilterAction;
+            result.filters.push(new FilterInstance(getNewFilterId(result.filters),addFilterAction.filter.displayName, addFilterAction.filter.description))
         default:
             return result;
     }
@@ -103,4 +129,14 @@ function swap<T>(arr: Array<T>, a: number, b: number) {
         arr[a] = arr[b];
         arr[b] = temp;
     }
+}
+
+function getNewFilterId(arr: FilterInstance[]) {
+    let maxVal: number = 0;
+    arr.forEach(function getMaxValue(filter, i, restArray) {
+        if (filter.id > maxVal) {
+            maxVal = filter.id
+        }
+    })
+    return maxVal++;
 }

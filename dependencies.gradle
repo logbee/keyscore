@@ -35,6 +35,7 @@ ext {
                 "com.typesafe.akka:akka-stream-testkit_2.12:$akkaVersion",
                 "com.typesafe.akka:akka-http-testkit_2.12:$akkaHttpVersion",
                 "com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1"
-            ]
+            ],
+            akka_http_cors:"ch.megard:akka-http-cors_2.12:0.2.2"
     ]
 }

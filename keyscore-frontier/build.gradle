@@ -33,6 +33,8 @@ dependencies {
 
     compile dependency.json4s
 
+    compile dependency.akka_http_cors
+
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit
 }
