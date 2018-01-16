@@ -14,7 +14,7 @@ object FilterDescriptor {
 
 }
 
-abstract case class ParameterDescriptor () {
+trait ParameterDescriptor {
   val name: String
   val displayName: String
   val kind: String

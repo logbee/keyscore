@@ -5,7 +5,7 @@ import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
 import akka.{NotUsed, stream}
 import io.logbee.keyscore.model.filter.FilterDescriptor.FilterDescriptor
-import io.logbee.keyscore.model.filter.{FilterDescriptor, MapParameterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter.{MapParameterDescriptor, TextParameterDescriptor}
 import io.logbee.keyscore.model.{Field, TextField}
 import org.json4s.DefaultFormats
 
@@ -16,7 +16,7 @@ object AddFieldsFilter {
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("AddFieldsFilter", "Adding new fields and their values.", List(
+    FilterDescriptor("StandardAddFieldsFilter", "AddFieldsFilter", "Adding new fields and their values.", List(
       MapParameterDescriptor("fieldNames", TextParameterDescriptor("fieldNames"), TextParameterDescriptor("fieldValues"), 1)
     ))
   }

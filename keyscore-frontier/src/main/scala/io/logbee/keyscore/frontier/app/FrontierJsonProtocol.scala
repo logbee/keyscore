@@ -7,6 +7,10 @@ import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration.GrokFilterConfigurationApply
 import io.logbee.keyscore.frontier.stream.FilterDescriptorManager
 import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.filter.BooleanParameterDescriptor.BooleanParameterDescriptor
+import io.logbee.keyscore.model.filter.ListParameterDescriptor.ListParameterDescriptor
+import io.logbee.keyscore.model.filter.MapParameterDescriptor.MapParameterDescriptor
+import io.logbee.keyscore.model.filter.TextParameterDescriptor.TextParameterDescriptor
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkModel, SinkTypes}
 import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceModel, SourceTypes}
@@ -25,11 +29,10 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit val standardDescription = jsonFormat1(FilterDescriptorManager.StandardDescriptors)
   implicit val filterDescriptor = jsonFormat4(FilterDescriptor.FilterDescriptor)
-  //TODO make ParameterDescriptor parseable
-  implicit val booleanParameterDescriptor = jsonFormat3(BooleanParameterDescriptor.BooleanParameterDescriptor)
-  implicit val textParameterDescriptor = jsonFormat4(TextParameterDescriptor.TextParameterDescriptor)
-  implicit val listParameterDescriptor = jsonFormat6(ListParameterDescriptor.ListParameterDescriptor)
-  implicit val mapParameterDescriptor = jsonFormat7(MapParameterDescriptor.MapParameterDescriptor)
+  implicit val booleanParameterDescriptor = jsonFormat3(BooleanParameterDescriptor)
+  implicit val textParameterDescriptor = jsonFormat4(TextParameterDescriptor)
+  implicit val listParameterDescriptor = jsonFormat6(ListParameterDescriptor)
+  implicit val mapParameterDescriptor = jsonFormat7(MapParameterDescriptor)
 
   implicit object SourceJsonFormat extends RootJsonFormat[SourceModel] {
     def write(source: SourceModel) = source match {
@@ -72,13 +75,31 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit object UUIDFormat extends JsonFormat[UUID] {
     def write(uuid: UUID) = JsString(uuid.toString)
+
     def read(value: JsValue) = {
       value match {
         case JsString(uuid) => UUID.fromString(uuid)
-        case _              => throw new DeserializationException("Expected hexadecimal UUID string")
+        case _ => throw new DeserializationException("Expected hexadecimal UUID string")
       }
     }
   }
 
+  implicit object ParameterDescriptorFormat extends RootJsonFormat[ParameterDescriptor] {
+    override def write(obj: ParameterDescriptor): JsValue = obj match {
+      case boolean: ParameterDescriptor =>  boolean.toJson
+      case text: ParameterDescriptor => text.toJson
+      case list: ParameterDescriptor => list.toJson
+      case map: ParameterDescriptor => map.toJson
+    }
+
+    override def read(jsValue: JsValue) = {
+      jsValue match {
+        case JsString("boolean") => jsValue.convertTo[BooleanParameterDescriptor]
+        case JsString("text") => jsValue.convertTo[TextParameterDescriptor]
+        case JsString("list") => jsValue.convertTo[ListParameterDescriptor]
+        case JsString("map") => jsValue.convertTo[MapParameterDescriptor]
+      }
+    }
+  }
 
 }

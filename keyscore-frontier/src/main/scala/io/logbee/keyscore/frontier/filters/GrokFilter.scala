@@ -3,8 +3,8 @@ package io.logbee.keyscore.frontier.filters
 import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
+import io.logbee.keyscore.model.filter.{BooleanParameterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
 import io.logbee.keyscore.model.filter.FilterDescriptor.FilterDescriptor
-import io.logbee.keyscore.model.filter.{BooleanParameterDescriptor, FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
 import io.logbee.keyscore.model.{Field, NumberField, TextField}
 import org.json4s.DefaultFormats
 
@@ -25,7 +25,7 @@ object GrokFilter {
   }
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("GrokFilter", description = "Extracts parts of a text line into fields.", parameters = List(
+    FilterDescriptor("StandardGrokFilter", "GrokFilter", "Extracts parts of a text line into fields.", List(
       BooleanParameterDescriptor("isPaused"),
       ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
       TextParameterDescriptor("pattern")
