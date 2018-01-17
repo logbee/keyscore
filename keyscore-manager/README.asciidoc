@@ -3,9 +3,26 @@
 The keyscore-manager is the web-ui to easily control all aspects of keyscore.
 
 == Development
-To serve the application while developing run `gradle serve` and visit `http://localhost:8080` with your browser.
+To serve the application while developing run the following gradle task at the root of this project:
+```
+gradle serve
+```
+This will start webpack's link:https://webpack.js.org/configuration/dev-server/[dev-server] which serves the web-ui at `http://localhost:8080`.
 
 == Deployment
 
 === Docker
-To build a Docker image run `gradle buildDockerImage`. To start a container run `docker run --name keyscore-manager -p 8080:80 -d logbee/keyscore-manager:latest`
+[TIP]
+====
+If you need further information about running docker visit the official link:https://docs.docker.com/[Documentation] or take a look at our link:{rootDir}/docker.asciidoc[README].
+====
+
+To build a Docker image run:
+```
+gradle buildDockerImage
+```
+
+To start a container use link:https://docs.docker.com/engine/reference/run/[docker run]:
+```
+docker run --name keyscore-manager -p 8080:80 -d logbee/keyscore-manager:latest
+```

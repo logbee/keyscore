@@ -9,13 +9,16 @@ The keyscore-frontier is a service which provides a REST API to control all aspe
 == Deployment
 
 === Docker
+[TIP]
+====
+If you need further information about running docker visit the official link:https://docs.docker.com/[Documentation] or take a look at our link:{rootDir}/docker.asciidoc[README].
+====
+
 To build a Docker image run:
 ```
 gradle buildDockerImage
 ```
-To start a container run:
+To start a container use link:https://docs.docker.com/engine/reference/run/[docker run]:
 ```
 docker run --name keyscore-agent -d logbee/keyscore-agent:latest
 ```
-
-include::{rootDir}/docker.asciidoc[tag=gradledocker,leveloffset=+2]
