@@ -52,27 +52,27 @@ object FrontierApplication extends App with FrontierJsonProtocol {
           }
       }
     } ~
-      pathPrefix("filter") {
-        path(JavaUUID) { filterId =>
-          put {
-            entity(as[GrokFilterConfiguration]) { configuration =>
-              onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
-                case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
-                case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
-                case _ => complete(StatusCodes.InternalServerError)
-              }
+    pathPrefix("filter") {
+      path(JavaUUID) { filterId =>
+        put {
+          entity(as[GrokFilterConfiguration]) { configuration =>
+            onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
+              case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
+              case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
+              case _ => complete(StatusCodes.InternalServerError)
             }
           }
         }
-      } ~
-      pathPrefix("descriptors") {
-        get {
-          onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
-            case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
-            case _ => complete(StatusCodes.InternalServerError)
-          }
+      }
+    } ~
+    pathPrefix("descriptors") {
+      get {
+        onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
+          case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+          case _ => complete(StatusCodes.InternalServerError)
         }
       }
+    }
   }
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)

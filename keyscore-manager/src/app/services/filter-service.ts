@@ -1,6 +1,6 @@
-import {Inject, Injectable} from "@angular/core";
+import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {SERVER_ADDRESS} from "../app-tokens";
+import {AppConfig} from "../app.config";
 
 
 interface FilterDescriptor {
@@ -27,10 +27,10 @@ export class FilterBlueprint {
 
 @Injectable()
 export class FilterService {
-    serverAddress: string;
+    private readonly serverAddress: string;
 
-    constructor(@Inject(SERVER_ADDRESS) serverAddress: string, private http: HttpClient) {
-        this.serverAddress = serverAddress;
+    constructor(private config: AppConfig, private http: HttpClient) {
+        this.serverAddress = config.getString("keyscore.frontier.base-url")
     }
 
     getAllFilter(): FilterBlueprint[] {
@@ -41,8 +41,8 @@ export class FilterService {
             for (let filterDescriptor of data) {
                 filterList.push(new FilterBlueprint(filterDescriptor.name, filterDescriptor.displayName, filterDescriptor.description))
             }
-        })
-        return filterList;
+        });
 
+        return filterList;
     }
 }

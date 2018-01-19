@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms'
 import {HttpClientModule} from "@angular/common/http";
@@ -14,9 +14,7 @@ import {StreamDetailComponent} from "./streams/stream-detail.component";
 import {FiltersComponent} from "./filters/filters.component";
 import {FilterDetailComponent} from "./filters/filter-detail.component";
 import {streamReducer} from "./streams/stream.reducer";
-import {SERVER_ADDRESS} from "./app-tokens";
-
-// Enable configuration described in: https://gist.github.com/fernandohu/122e88c3bcd210bbe41c608c36306db9
+import {AppConfig} from "./app.config";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -37,7 +35,13 @@ const routes: Routes = [
         StoreModule.forRoot({stream: streamReducer, filterInstances: Object})
     ],
     providers: [
-        {provide: SERVER_ADDRESS, useValue: "http://localhost:4711"}
+        AppConfig,
+        {
+            provide: APP_INITIALIZER,
+            useFactory: (config: AppConfig) => () => config.load(),
+            deps: [AppConfig],
+            multi: true
+        }
     ],
     declarations: [
         AppComponent,
