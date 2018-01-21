@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import {FilterInstance, Stream} from "./streams/stream.reducer";
+import {Component, ViewChild, ViewContainerRef} from '@angular/core';
+import {Stream} from "./streams/stream.reducer";
+import {ModalService} from "./services/modal.service";
 
 export interface AppState {
     stream: Stream;
@@ -25,6 +26,11 @@ export interface AppState {
                 </div>
             </div>
         </nav>
+        <div class="modal fade" role="dialog">
+            <div class="modal-dialog" role="document">
+                <ng-template #modal></ng-template>
+            </div>
+        </div>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12 pb-5 mt-3">
@@ -36,4 +42,16 @@ export interface AppState {
 })
 
 export class AppComponent {
+
+    @ViewChild('modal', {
+        read: ViewContainerRef
+    }) viewContainerRef: ViewContainerRef;
+
+    constructor(private modalService: ModalService) {
+
+    }
+
+    ngOnInit() {
+        this.modalService.setRootViewContainerRef(this.viewContainerRef);
+    }
 }

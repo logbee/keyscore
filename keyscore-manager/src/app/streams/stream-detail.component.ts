@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from "rxjs/Observable";
 import {
-    AddFilterAction,
     DisableFilterAction,
     EditFilterAction,
     EnableFilterAction,
@@ -12,6 +11,8 @@ import {
 } from "./stream.reducer";
 import {FilterBlueprint, FilterService} from "../services/filter-service"
 import {Store} from "@ngrx/store";
+import {ModalService} from "../services/modal.service";
+import {AddFilterDialog} from "./add-filter-dialog.component";
 
 @Component({
     selector: 'keyscore-stream-detail',
@@ -108,8 +109,8 @@ import {Store} from "@ngrx/store";
         </div>
         <div class="row mt-3">
             <div class="col-12 d-flex justify-content-end">
-                <button type="button" class="btn btn-primary mr-1">Add Filter</button>
-                <button type="button" class="btn btn-success">Save Stream</button>
+                <button type="button" class="btn btn-primary mr-1" (click)="addFilter(null)">Add Filter</button>
+                <button type="button" class="btn btn-success" (click)="saveStream()">Save Stream</button>
             </div>
         </div>
     `,
@@ -125,7 +126,7 @@ export class StreamDetailComponent implements OnInit {
     filterCount: number;
     filterComponents: FilterBlueprint[];
 
-    constructor(private store: Store<any>, private filterService: FilterService) {
+    constructor(private store: Store<any>, private filterService: FilterService, private modalService: ModalService) {
     }
 
     ngOnInit(): void {
@@ -137,7 +138,7 @@ export class StreamDetailComponent implements OnInit {
             else {
                 this.filterCount = 0;
             }
-        })
+        });
 
         this.filterComponents = this.filterService.getAllFilter()
     }
@@ -168,7 +169,12 @@ export class StreamDetailComponent implements OnInit {
     }
 
     addFilter(filter:FilterBlueprint){
-        this.store.dispatch(new AddFilterAction(filter))
+        // console.error("=== Add Filter ===");
+        // this.store.dispatch(new AddFilterAction(filter));
+        this.modalService.show(AddFilterDialog);
     }
 
+    saveStream() {
+        this.modalService.close();
+    }
 }

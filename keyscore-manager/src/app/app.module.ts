@@ -15,6 +15,8 @@ import {FiltersComponent} from "./filters/filters.component";
 import {FilterDetailComponent} from "./filters/filter-detail.component";
 import {streamReducer} from "./streams/stream.reducer";
 import {AppConfig} from "./app.config";
+import {AddFilterDialog} from "./streams/add-filter-dialog.component";
+import {ModalService} from "./services/modal.service";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -34,15 +36,6 @@ const routes: Routes = [
         RouterModule.forRoot(routes),
         StoreModule.forRoot({stream: streamReducer, filterInstances: Object})
     ],
-    providers: [
-        AppConfig,
-        {
-            provide: APP_INITIALIZER,
-            useFactory: (config: AppConfig) => () => config.load(),
-            deps: [AppConfig],
-            multi: true
-        }
-    ],
     declarations: [
         AppComponent,
         DashboardComponent,
@@ -50,10 +43,25 @@ const routes: Routes = [
         StreamsComponent,
         StreamDetailComponent,
         FiltersComponent,
-        FilterDetailComponent
+        FilterDetailComponent,
+        AddFilterDialog
+    ],
+    providers: [
+        AppConfig,
+        {
+            provide: APP_INITIALIZER,
+            useFactory: (config: AppConfig) => () => config.load(),
+            deps: [AppConfig],
+            multi: true
+        },
+        ModalService
+    ],
+    entryComponents: [
+        AddFilterDialog
     ],
     bootstrap: [AppComponent]
 })
 
 export class AppModule {
+
 }
