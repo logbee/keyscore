@@ -26,9 +26,9 @@ task serve(type: NodeTask, dependsOn: npmInstall) {
 task createDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'nginx:1.13.7-alpine'
-    instruction { 'COPY src/ /usr/share/nginx/html/' }
-    instruction { 'COPY public/ build/webpack/ /usr/share/nginx/html/public/' }
+    instruction { 'COPY public/ build/webpack/ /usr/share/nginx/html/' }
     instruction { 'COPY conf/nginx.conf /etc/nginx/nginx.conf' }
+    instruction { 'COPY conf/application.conf /usr/share/nginx/html/' }
     instruction { "CMD nginx -g 'daemon off;'" }
     instruction { 'EXPOSE 80' }
 }

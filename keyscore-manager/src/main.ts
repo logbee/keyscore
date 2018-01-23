@@ -1,12 +1,16 @@
 import 'zone.js';
 import 'reflect-metadata';
-import 'jquery/dist/jquery.js'
-import 'popper.js/dist/popper.js'
+import * as $ from 'jquery'
+import 'popper.js'
+import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.css';
-// import 'bootstrap/dist/js/bootstrap.js' // TODO: Fix ReferenceError: $ is not defined
 
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
 
-import { AppModule } from './app/app.module';
+import {AppModule} from './app/app.module';
 
 platformBrowserDynamic().bootstrapModule(AppModule);
+
+$(document).ready(function () {
+    console.log("[main.ts] jquery ready.");
+});

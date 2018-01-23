@@ -23,12 +23,12 @@ export class ModalService {
         const factory = this.factoryResolver.resolveComponentFactory(AddFilterDialog);
         this.component = factory.create(this.modalViewContainer.parentInjector);
         this.modalViewContainer.insert(this.component.hostView);
-        this.modalViewContainer.element.nativeElement.className = 'modal fade show';
+        // this.modalViewContainer.element.nativeElement.className = 'modal fade show';
     }
 
     public close() {
         if (this.component) {
-            this.modalViewContainer.element.nativeElement.className = 'modal hide';
+            // this.modalViewContainer.element.nativeElement.className = 'modal hide';
             this.component.destroy();
             this.component = null;
         }

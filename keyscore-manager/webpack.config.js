@@ -40,7 +40,7 @@ module.exports = {
     output: {
         filename: 'keyscore.bundle.js',
         path: path.resolve(__dirname, 'build/webpack'),
-        publicPath: "/public/"
+        publicPath: "/"
     },
     plugins: [
         new webpack.optimize.CommonsChunkPlugin({
@@ -52,11 +52,14 @@ module.exports = {
         })
     ],
     devServer: {
-        contentBase: [path.join(__dirname, "public"), path.join(__dirname, "src")],
+        contentBase: [
+            path.join(__dirname, "conf"),
+            path.join(__dirname, "public")
+        ],
         port: 8080,
-        historyApiFallback: {
-            index: 'index.html'
-        }
+        quiet: false,
+        noInfo: false,
+        historyApiFallback: true
     }
 };
 

@@ -26,7 +26,7 @@ export interface AppState {
                 </div>
             </div>
         </nav>
-        <div class="modal fade" role="dialog">
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <ng-template #modal></ng-template>
             </div>
