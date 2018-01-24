@@ -49,6 +49,11 @@ module.exports = {
                 return isExternal(module);
             },
             filename: 'vendor.bundle.js'
+        }),
+        new webpack.ProvidePlugin({
+            jQuery: 'jquery',
+            $: 'jquery',
+            jquery: 'jquery'
         })
     ],
     devServer: {
