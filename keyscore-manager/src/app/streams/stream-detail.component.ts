@@ -109,7 +109,7 @@ import {AddFilterDialog} from "./add-filter-dialog.component";
         </div>
         <div class="row mt-3">
             <div class="col-12 d-flex justify-content-end">
-                <button type="button" class="btn btn-primary mr-1" data-toggle="modal" data-target="#myModal" (click)="addFilter(null)">Add Filter</button>
+                <button type="button" class="btn btn-primary mr-1" (click)="addFilter(null)">Add Filter</button>
                 <button type="button" class="btn btn-success" (click)="saveStream()">Save Stream</button>
             </div>
         </div>

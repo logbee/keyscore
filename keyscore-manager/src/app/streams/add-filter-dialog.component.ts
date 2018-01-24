@@ -1,4 +1,5 @@
 import {Component} from '@angular/core'
+import {ModalService} from "../services/modal.service";
 
 @Component({
     selector: 'add-filter-dialog',
@@ -23,10 +24,10 @@ import {Component} from '@angular/core'
 
 export class AddFilterDialog {
 
-    // constructor(private modalService: ModalService) {
-    // }
-    //
-    // close() {
-    //     this.modalService.close()
-    // }
+    constructor(private modalService: ModalService) {
+    }
+
+    close() {
+        this.modalService.close()
+    }
 }

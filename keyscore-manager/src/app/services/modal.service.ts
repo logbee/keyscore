@@ -1,6 +1,5 @@
-import {Component, ComponentFactoryResolver, ComponentRef, Injectable, Type, ViewContainerRef} from '@angular/core'
-
-import {AddFilterDialog} from '../streams/add-filter-dialog.component'
+import 'jquery'
+import {ComponentFactoryResolver, ComponentRef, Injectable, ViewContainerRef} from '@angular/core'
 
 /*
  * The mechanism to add/show components dynamically based on:
@@ -13,24 +12,31 @@ export class ModalService {
 
     private component: ComponentRef<any>;
 
-    constructor(private factoryResolver: ComponentFactoryResolver) { }
+    constructor(private factoryResolver: ComponentFactoryResolver) {
+    }
 
     public setRootViewContainerRef(viewContainerRef: ViewContainerRef) {
         this.modalViewContainer = viewContainerRef
     }
 
-    public show(componentType: Type<Component>) {
-        const factory = this.factoryResolver.resolveComponentFactory(AddFilterDialog);
+    public show(componentType: any) {
+        const o = this;
+
+        const factory = this.factoryResolver.resolveComponentFactory(componentType);
         this.component = factory.create(this.modalViewContainer.parentInjector);
         this.modalViewContainer.insert(this.component.hostView);
-        // this.modalViewContainer.element.nativeElement.className = 'modal fade show';
+
+        // it's ugly but works...
+        jQuery('#modal').modal('show');
+        jQuery('#modal').on('hide.bs.modal', function (e) {
+            if (o.component) {
+                o.component.destroy();
+                o.component = null;
+            }
+        });
     }
 
     public close() {
-        if (this.component) {
-            // this.modalViewContainer.element.nativeElement.className = 'modal hide';
-            this.component.destroy();
-            this.component = null;
-        }
+        jQuery('#modal').modal('hide');
     }
 }
