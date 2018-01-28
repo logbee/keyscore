@@ -3,7 +3,7 @@ import {ModalService} from "../services/modal.service";
 import {FilterDescriptor, FilterService, LOAD_FILTER_DESCRIPTORS} from "../services/filter.service";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/Observable";
-import {AddFilterAction, Stream} from "./stream.reducer";
+import {AddFilterAction} from "./stream.reducer";
 import {AppState} from "../app.component";
 
 @Component({
@@ -28,16 +28,27 @@ import {AppState} from "../app.component";
                                             <input type="text" class="form-control" placeholder="search..." aria-label="search">
                                         </div>
                                     </div>
-                                    <div class="mt-3">
+                                    <div class="card mt-3">
                                         <div *ngFor="let descriptor of filterDescriptors$ | async" class="list-group-flush">
-                                            <button class="list-group-item list-group-item-action">{{descriptor.displayName}}</button>
+                                            <button class="list-group-item list-group-item-action" (click)="select(descriptor)">{{descriptor.displayName}}</button>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col ml-3">
-                                    <div class="row justify-content-between">
-                                        <h4>GrokFilter</h4>
-                                        <button type="button" class="btn btn-success">Add</button>
+                                    <div *ngIf="selectedFilterDescriptor" class="card">
+                                        <div class="list-group-flush">
+                                            <div class="list-group-item d-flex justify-content-between">
+                                                <h4>{{selectedFilterDescriptor.displayName}}</h4>
+                                                <button type="button" class="btn btn-success" (click)="add(selectedFilterDescriptor)">Add</button>
+                                            </div>
+                                            <div class="list-group-item">
+                                                <div class="">
+                                                    <div class="">
+                                                        {{selectedFilterDescriptor.description}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -59,16 +70,19 @@ import {AppState} from "../app.component";
 export class FilterChooser {
 
     private filterDescriptors$: Observable<FilterDescriptor[]>;
-    private currentStream$: Observable<Stream>;
+    private selectedFilterDescriptor: FilterDescriptor;
 
     constructor(private store: Store<AppState>, private modalService: ModalService) {
         this.filterDescriptors$ = this.store.select(state => state.filterDescriptors);
-        this.currentStream$ = this.store.select(state => state.stream);
         this.store.dispatch({type: LOAD_FILTER_DESCRIPTORS});
     }
 
-    add() {
-        this.store.dispatch(new AddFilterAction(null))
+    select(filterDescriptor: FilterDescriptor) {
+        this.selectedFilterDescriptor = filterDescriptor;
+    }
+
+    add(filterDescriptor: FilterDescriptor) {
+        this.store.dispatch(new AddFilterAction(this.selectedFilterDescriptor));
     }
 
     close() {

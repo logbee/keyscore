@@ -1,5 +1,5 @@
 import {Action} from '@ngrx/store';
-import {FilterBlueprint} from "../services/filter.service";
+import {FilterDescriptor} from "../services/filter.service";
 
 export class Stream {
     name: String;
@@ -81,7 +81,7 @@ export class DisableFilterAction implements Action {
 export class AddFilterAction implements Action {
     readonly type = ADD_FILTER;
 
-    constructor(public filter: FilterBlueprint) {
+    constructor(readonly filter: FilterDescriptor) {
     }
 }
 

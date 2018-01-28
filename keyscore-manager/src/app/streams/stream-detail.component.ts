@@ -29,6 +29,10 @@ import {FilterChooser} from "./filter-chooser.component";
                         <label for="streamDescription" class="font-weight-bold">Description</label>
                         <textarea id="streamDescription" class="form-control" placeholder="Description" rows="3" [(ngModel)]="streamDescription"></textarea>
                     </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-primary mr-1" (click)="addFilter()">Add Filter</button>
+                        <button type="button" class="btn btn-success" (click)="saveStream()">Save Stream</button>
+                    </div>
                 </div>
             </div>
             <div class="col-9">
@@ -59,12 +63,6 @@ import {FilterChooser} from "./filter-chooser.component";
                         <h6 class="font-weight-bold">Filter 1</h6>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 d-flex justify-content-end">
-                <button type="button" class="btn btn-primary mr-1" (click)="addFilter()">Add Filter</button>
-                <button type="button" class="btn btn-success" (click)="saveStream()">Save Stream</button>
             </div>
         </div>
     `,
