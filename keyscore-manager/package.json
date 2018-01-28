@@ -38,7 +38,9 @@
     "style-loader": "0.19.1",
     "css-loader": "0.28.9",
     "file-loader": "1.1.6",
+    "url-loader": "0.6.2",
 
+    "@types/node": "9.4.0",
     "@types/angular": "1.6.40",
     "@types/systemjs": "0.20.6",
     "@types/jquery": "3.3.0",

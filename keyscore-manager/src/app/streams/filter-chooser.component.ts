@@ -24,7 +24,9 @@ import {AppState} from "../app.component";
                                 <div class="col">
                                     <div class="row">
                                         <div class="input-group">
-                                            <span class="input-group-addon"><img src="../common/magnifying-glass.svg"/></span>
+                                            <div class="input-group-prepend">
+                                                <img class="input-group-text" width="48em" src="/assets/images/magnifying-glass.svg"/>
+                                            </div>
                                             <input type="text" class="form-control" placeholder="search..." aria-label="search">
                                         </div>
                                     </div>

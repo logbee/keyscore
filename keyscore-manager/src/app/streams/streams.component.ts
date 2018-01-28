@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
+
 // import magnifyingGlass from '../common/magnifying-glass.svg'
 
 class StreamsModel {
@@ -19,11 +20,14 @@ class StreamModel {
                 <div class="card">
                     <div class="card-body">
                         <div class="input-group">
-                            <span class="input-group-addon"><img src="../common/magnifying-glass.svg"/></span>
+                            <div class="input-group-prepend">
+                                <img class="input-group-text" width="48em" src="/assets/images/magnifying-glass.svg"/>
+                            </div>
                             <input type="text" class="form-control" placeholder="search..." aria-label="search">
                         </div>
                         <div class="mt-3 mb-3">
-                            <button type="button" class="btn btn-success" routerLink="/stream/new">Create Stream</button>
+                            <button type="button" class="btn btn-success" routerLink="/stream/new">Create Stream
+                            </button>
                         </div>
                     </div>
                 </div>
