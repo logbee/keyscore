@@ -10,20 +10,23 @@ import {AppState} from "./app.component";
 export const CONFIG_LOADED = '[AppConfig] Loaded';
 export const CONFIG_FAILURE = '[AppConfig] Failure';
 
-export class Loaded implements Action {
-    readonly type: '[AppConfig] Loaded';
+export class AppConfigLoaded implements Action {
+    readonly type = '[AppConfig] Loaded';
 
-    constructor(public payload: Object) {
+    constructor(readonly payload: Object) {
     }
 }
 
-export class Failure implements Action {
+export class AppConfigFailure implements Action {
     readonly type = '[AppConfig] Failure';
+
+    constructor(readonly cause: Object) {
+    }
 }
 
 export type AppConfigActions =
-    | Loaded
-    | Failure;
+    | AppConfigLoaded
+    | AppConfigFailure;
 
 @Injectable()
 export class AppConfigEffects {
@@ -32,8 +35,8 @@ export class AppConfigEffects {
         ofType(ROOT_EFFECTS_INIT),
         mergeMap(action =>
             this.http.get('application.conf').pipe(
-                map(data => ({type: CONFIG_LOADED, payload: data})),
-                catchError(() => of({type: CONFIG_FAILURE}))
+                map(data => new AppConfigLoaded(data)),
+                catchError((cause: any) => of(new AppConfigFailure(cause)))
             )
 
         )

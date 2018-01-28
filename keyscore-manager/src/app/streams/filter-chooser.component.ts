@@ -28,9 +28,9 @@ import {AppState} from "../app.component";
                                             <input type="text" class="form-control" placeholder="search..." aria-label="search">
                                         </div>
                                     </div>
-                                    <div>
-                                        <div *ngFor="let descriptor of filterDescriptors$ | async">
-                                            <span>Name:</span><span>{{descriptor.name}}</span>
+                                    <div class="mt-3">
+                                        <div *ngFor="let descriptor of filterDescriptors$ | async" class="list-group-flush">
+                                            <button class="list-group-item list-group-item-action">{{descriptor.displayName}}</button>
                                         </div>
                                     </div>
                                 </div>
