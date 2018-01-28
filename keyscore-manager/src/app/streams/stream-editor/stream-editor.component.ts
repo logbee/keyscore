@@ -1,21 +1,21 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from "rxjs/Observable";
+import {Stream} from "./stream-editor.reducer";
+import {FilterBlueprint, FilterService} from "../../services/filter.service"
+import {Store} from "@ngrx/store";
+import {ModalService} from "../../services/modal.service";
+import {FilterChooser} from "./filter-chooser.component";
 import {
     DisableFilterAction,
     EditFilterAction,
     EnableFilterAction,
     MoveFilterAction,
     RemoveFilterAction,
-    SaveFilterAction,
-    Stream
-} from "./stream.reducer";
-import {FilterBlueprint, FilterService} from "../services/filter.service"
-import {Store} from "@ngrx/store";
-import {ModalService} from "../services/modal.service";
-import {FilterChooser} from "./filter-chooser.component";
+    SaveFilterAction
+} from "./stream-editor.actions";
 
 @Component({
-    selector: 'keyscore-stream-detail',
+    selector: 'stream-editor',
     template: `
         <div class="row justify-content-center">
             <div class="col-3">
@@ -71,7 +71,7 @@ import {FilterChooser} from "./filter-chooser.component";
     ]
 })
 
-export class StreamDetailComponent implements OnInit {
+export class StreamEditorComponent implements OnInit {
     stream$: Observable<Stream>;
     streamName: String;
     streamDescription: String;
@@ -91,8 +91,6 @@ export class StreamDetailComponent implements OnInit {
                 this.filterCount = 0;
             }
         });
-
-        // this.filterComponents = this.filterService.getAllFilter()
     }
 
     removeFilter(id: number) {

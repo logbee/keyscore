@@ -1,7 +1,5 @@
 import {Component} from '@angular/core';
 
-// import magnifyingGlass from '../common/magnifying-glass.svg'
-
 class StreamsModel {
     streams: StreamModel[]
 }

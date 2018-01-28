@@ -1,5 +1,5 @@
 import {Component, ViewChild, ViewContainerRef} from '@angular/core';
-import {Stream} from "./streams/stream.reducer";
+import {Stream} from "./streams/stream-editor/stream-editor.reducer";
 import {ModalService} from "./services/modal.service";
 import {Store} from "@ngrx/store";
 import {FilterDescriptor} from "./services/filter.service";
