@@ -40,5 +40,9 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: [createDockerfile, webp
 }
 
 task clean(type: Delete) {
-    delete 'build', 'node_modules'
+    delete 'build'
+}
+
+task cleanAll(type: Delete, dependsOn: clean) {
+    delete 'node_modules'
 }

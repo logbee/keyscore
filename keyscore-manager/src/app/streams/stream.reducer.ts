@@ -1,5 +1,5 @@
 import {Action} from '@ngrx/store';
-import {FilterBlueprint} from "../services/filter-service";
+import {FilterBlueprint} from "../services/filter.service";
 
 export class Stream {
     name: String;
@@ -34,7 +34,7 @@ const EDIT_FILTER = 'EDIT_FILTER';
 const SAVE_FILTER = 'SAVE_FILTER';
 const ENABLE_FILTER = 'ENABLE_FILTER';
 const DISABLE_FILTER = 'DISABLE_FILTER';
-const ADD_FILTER = 'ADD_FILTER';
+export const ADD_FILTER = 'ADD_FILTER';
 
 export class RemoveFilterAction implements Action {
     readonly type = REMOVE_FILTER;
@@ -137,6 +137,6 @@ function getNewFilterId(arr: FilterInstance[]) {
         if (filter.id > maxVal) {
             maxVal = filter.id
         }
-    })
+    });
     return maxVal++;
 }

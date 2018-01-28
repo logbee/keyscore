@@ -1,9 +1,14 @@
 import {Component, ViewChild, ViewContainerRef} from '@angular/core';
 import {Stream} from "./streams/stream.reducer";
 import {ModalService} from "./services/modal.service";
+import {Store} from "@ngrx/store";
+import {FilterDescriptor} from "./services/filter.service";
+import {AppConfig} from "./app.config";
 
 export interface AppState {
+    config: AppConfig
     stream: Stream;
+    filterDescriptors: FilterDescriptor[];
 }
 
 @Component({
@@ -26,10 +31,8 @@ export interface AppState {
                 </div>
             </div>
         </nav>
-        <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <ng-template #modal></ng-template>
-            </div>
+        <div id="modal">
+            <ng-template #modal></ng-template>
         </div>
         <div class="container-fluid">
             <div class="row">
@@ -38,7 +41,11 @@ export interface AppState {
                 </div>
             </div>
         </div>
-    `
+    `,
+    providers: [
+        Store,
+        ModalService
+    ]
 })
 
 export class AppComponent {
@@ -47,8 +54,12 @@ export class AppComponent {
         read: ViewContainerRef
     }) viewContainerRef: ViewContainerRef;
 
-    constructor(private modalService: ModalService) {
+    private modalService: ModalService;
+    private store: Store<any>;
 
+    constructor(store: Store<any>, modalService: ModalService) {
+        this.store = store;
+        this.modalService = modalService
     }
 
     ngOnInit() {

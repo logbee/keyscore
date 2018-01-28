@@ -1,4 +1,4 @@
-import {APP_INITIALIZER, NgModule} from '@angular/core';
+import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms'
 import {HttpClientModule} from "@angular/common/http";
@@ -13,10 +13,12 @@ import {StreamsComponent} from "./streams/streams.component";
 import {StreamDetailComponent} from "./streams/stream-detail.component";
 import {FiltersComponent} from "./filters/filters.component";
 import {FilterDetailComponent} from "./filters/filter-detail.component";
-import {streamReducer} from "./streams/stream.reducer";
-import {AppConfig} from "./app.config";
-import {AddFilterDialog} from "./streams/add-filter-dialog.component";
-import {ModalService} from "./services/modal.service";
+import {AppConfigEffects} from "./app.config";
+import {FilterChooser} from "./streams/filter-chooser.component";
+import {metaReducers} from "./meta.reducers";
+import {reducers} from "./reducers";
+import {EffectsModule} from "@ngrx/effects";
+import {FilterService} from "./services/filter.service";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -34,7 +36,8 @@ const routes: Routes = [
         FormsModule,
         HttpClientModule,
         RouterModule.forRoot(routes),
-        StoreModule.forRoot({stream: streamReducer, filterInstances: Object})
+        StoreModule.forRoot(reducers, {metaReducers}),
+        EffectsModule.forRoot([AppConfigEffects, FilterService])
     ],
     declarations: [
         AppComponent,
@@ -44,22 +47,17 @@ const routes: Routes = [
         StreamDetailComponent,
         FiltersComponent,
         FilterDetailComponent,
-        AddFilterDialog
+        FilterChooser
     ],
     providers: [
-        AppConfig,
-        {
-            provide: APP_INITIALIZER,
-            useFactory: (config: AppConfig) => () => config.load(),
-            deps: [AppConfig],
-            multi: true
-        },
-        ModalService
+
     ],
     entryComponents: [
-        AddFilterDialog
+        FilterChooser
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [
+        AppComponent
+    ]
 })
 
 export class AppModule {

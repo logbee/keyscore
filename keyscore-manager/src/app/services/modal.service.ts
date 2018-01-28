@@ -27,8 +27,8 @@ export class ModalService {
         this.modalViewContainer.insert(this.component.hostView);
 
         // it's ugly but works...
-        jQuery('#modal').modal('show');
-        jQuery('#modal').on('hide.bs.modal', function (e) {
+        jQuery('.modal').modal('show');
+        jQuery('.modal').on('hide.bs.modal', function (e) {
             if (o.component) {
                 o.component.destroy();
                 o.component = null;
@@ -37,6 +37,6 @@ export class ModalService {
     }
 
     public close() {
-        jQuery('#modal').modal('hide');
+        jQuery('.modal').modal('hide');
     }
 }
