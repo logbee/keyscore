@@ -14,6 +14,19 @@ module.exports = {
                 exclude: /node_modules/
             },
             {
+                test: /\.html$/,
+                use: [{
+                    loader: 'html-loader',
+                    options: {
+                        minimize: true,
+                        removeAttributeQuotes: false,
+                        caseSensitive: true,
+                        customAttrSurround: [ [/#/, /(?:)/], [/\*/, /(?:)/], [/\[?\(?/, /(?:)/] ],
+                        customAttrAssign: [ /\)?\]?=/ ]
+                    }
+                }]
+            },
+            {
                 test: /\.css$/,
                 use: [
                     'style-loader',
@@ -21,7 +34,7 @@ module.exports = {
                 ]
             },
             {
-                test: /\.(png|jp(e*)g|svg)$/,
+                test: /\.(png|jpg|jpeg|gif|svg)$/,
                 use: [{
                     loader: 'url-loader',
                     options: {
