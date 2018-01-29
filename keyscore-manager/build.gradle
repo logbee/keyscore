@@ -39,6 +39,9 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: [createDockerfile, webp
     tag = 'logbee/keyscore-manager:latest'
 }
 
+task build(dependsOn: webpack) {
+}
+
 task clean(type: Delete) {
     delete 'build'
 }

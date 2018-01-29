@@ -9,24 +9,22 @@ import {StoreModule} from '@ngrx/store';
 import {AppComponent} from './app.component';
 import {DashboardComponent} from "./dashboard/dashboard.component";
 import {NodesComponent} from "./agents/agents.component";
-import {StreamsComponent} from "./streams/streams.component";
-import {StreamEditorComponent} from "./streams/stream-editor/stream-editor.component";
 import {FiltersComponent} from "./filters/filters.component";
 import {FilterDetailComponent} from "./filters/filter-detail.component";
 import {AppConfigEffects} from "./app.config";
-import {FilterChooser} from "./streams/stream-editor/filter-chooser.component";
+import {FilterChooser} from "./streams/stream-editor/filter-chooser/filter-chooser.component";
 import {metaReducers} from "./meta.reducers";
 import {reducers} from "./reducers";
 import {EffectsModule} from "@ngrx/effects";
 import {FilterService} from "./services/filter.service";
 import {streamsReducers} from "./streams/streams.reducer";
+import {StreamsModule} from "./streams/streams.module";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
     {path: 'dashboard', component: DashboardComponent},
     {path: 'node', component: NodesComponent},
-    {path: 'stream', component: StreamsComponent},
-    {path: 'stream/:id', component: StreamEditorComponent},
+    {path: 'stream', loadChildren: () => StreamsModule},
     {path: 'filter', component: FiltersComponent},
     {path: 'filter/details', component: FilterDetailComponent}
 ];
@@ -45,8 +43,6 @@ const routes: Routes = [
         AppComponent,
         DashboardComponent,
         NodesComponent,
-        StreamsComponent,
-        StreamEditorComponent,
         FiltersComponent,
         FilterDetailComponent,
         FilterChooser
@@ -61,7 +57,6 @@ const routes: Routes = [
         AppComponent
     ]
 })
-
 export class AppModule {
 
 }
