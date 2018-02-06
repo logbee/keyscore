@@ -22,7 +22,7 @@ import scala.concurrent.duration._
 import scala.io.StdIn
 
 
-object FrontierApplication extends App with FrontierJsonProtocol {
+object FrontierAppliclation extends App with FrontierJsonProtocol {
 
   implicit val system = ActorSystem("keyscore")
   implicit val materializer = ActorMaterializer()
