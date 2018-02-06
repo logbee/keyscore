@@ -9,4 +9,4 @@ export function logger(reducer: ActionReducer<AppState>): ActionReducer<AppState
     };
 }
 
-export const metaReducers: MetaReducer<AppState>[] = [logger];
+export const metaReducers: MetaReducer<any>[] = [logger];
