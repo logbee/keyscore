@@ -36,7 +36,7 @@ const routes: Routes = [
         HttpClientModule,
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
-        StoreModule.forFeature('streams', streamsReducers, {metaReducers}),
+        StoreModule.forFeature('streams', streamsReducers),
         EffectsModule.forRoot([AppConfigEffects, FilterService])
     ],
     declarations: [

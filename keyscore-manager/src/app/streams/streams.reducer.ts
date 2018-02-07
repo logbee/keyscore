@@ -11,7 +11,6 @@ export function StreamListReducer(state: Array<StreamModel> = [], action: Stream
     const result: Array<StreamModel> = new Array<StreamModel>();
     state.forEach(model => result.push(model));
 
-    console.log('result:', result);
     switch (action.type){
         case CREATE_NEW_STREAM:
             result.push(new StreamModel(action.id, action.name, action.description));
