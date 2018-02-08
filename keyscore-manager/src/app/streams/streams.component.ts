@@ -18,6 +18,6 @@ export class StreamsComponent {
     }
 
     createStream() {
-        this.store.dispatch(new CreateStreamAction(uuid(), "My Stream", ""));
+        this.store.dispatch(new CreateStreamAction(uuid(), "New Stream", ""));
     }
 }

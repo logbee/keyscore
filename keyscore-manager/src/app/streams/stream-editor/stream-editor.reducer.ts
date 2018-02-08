@@ -1,13 +1,5 @@
-import {
-    ADD_FILTER,
-    DISABLE_FILTER,
-    EDIT_FILTER,
-    ENABLE_FILTER,
-    MOVE_FILTER,
-    REMOVE_FILTER,
-    SAVE_FILTER,
-    StreamEditorActions
-} from "./stream-editor.actions";
+import {StreamEditorActions} from "./stream-editor.actions";
+import {StreamModel} from "../streams.model";
 
 export class Stream {
     name: String;
@@ -36,35 +28,35 @@ export const initialState: Stream = {
     ]
 };
 
-export function streamEditorReducer(state: Stream = initialState, action: StreamEditorActions): Stream {
+export function StreamEditorReducer(state: StreamModel, action: StreamEditorActions): StreamModel {
 
-    const result: Stream = Object.assign({}, state);
-
-    switch (action.type) {
-        case REMOVE_FILTER:
-            result.filters = state.filters.filter(filter => filter.id != action.filterId);
-            return result;
-        case MOVE_FILTER:
-            const index = state.filters.findIndex(filter => filter.id == action.filterId);
-            swap(result.filters, index, action.position);
-            return result;
-        case EDIT_FILTER:
-            result.filters.find(filter => filter.id == action.filterId).editing = true;
-            return result;
-        case SAVE_FILTER:
-            result.filters.find(filter => filter.id == action.filterId).editing = false;
-            return result;
-        case ENABLE_FILTER:
-            result.filters.find(filter => filter.id == action.filterId).enabled = true;
-            return result;
-        case DISABLE_FILTER:
-            result.filters.find(filter => filter.id == action.filterId).enabled = false;
-            return result;
-        case ADD_FILTER:
-            result.filters.push(new FilterInstance(getNewFilterId(result.filters), action.filter.displayName, action.filter.description));
-        default:
-            return result;
-    }
+    const result: StreamModel = Object.assign({}, state);
+    return result;
+    // switch (action.type) {
+    //     case REMOVE_FILTER:
+    //         result.filters = state.filters.filter(filter => filter.id != action.filterId);
+    //         return result;
+    //     case MOVE_FILTER:
+    //         const index = state.filters.findIndex(filter => filter.id == action.filterId);
+    //         swap(result.filters, index, action.position);
+    //         return result;
+    //     case EDIT_FILTER:
+    //         result.filters.find(filter => filter.id == action.filterId).editing = true;
+    //         return result;
+    //     case SAVE_FILTER:
+    //         result.filters.find(filter => filter.id == action.filterId).editing = false;
+    //         return result;
+    //     case ENABLE_FILTER:
+    //         result.filters.find(filter => filter.id == action.filterId).enabled = true;
+    //         return result;
+    //     case DISABLE_FILTER:
+    //         result.filters.find(filter => filter.id == action.filterId).enabled = false;
+    //         return result;
+    //     case ADD_FILTER:
+    //         result.filters.push(new FilterInstance(getNewFilterId(result.filters), action.filter.displayName, action.filter.description));
+    //     default:
+    //         return result;
+    // }
 }
 
 function swap<T>(arr: Array<T>, a: number, b: number) {

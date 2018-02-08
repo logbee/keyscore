@@ -2,17 +2,32 @@
     <div class="col-3">
         <div class="card">
             <div class="card-header">
-                <h4 class="">Stream</h4>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 *ngIf="!editing" class="font-weight-bold">{{streamName}}</h4>
+                        <input *ngIf="editing" placeholder="Name" [(ngModel)]="streamName"/>
+                    </div>
+                    <div>
+                        <button *ngIf="!editing" type="button" class="btn btn-primary mr-1" (click)="startStreamEditing()">Edit</button>
+                        <button *ngIf="editing" type="button" class="btn btn-success" (click)="saveStreamEditing()">Save</button>
+                        <button *ngIf="editing" type="button" class="btn btn-secondary" (click)="cancelStreamEditing()">Cancel</button>
+                    </div>
+                </div>
+                <div>
+                    <small class="">{{streamId}}</small>
+                </div>
             </div>
             <div class="card-body">
-                <label for="streamName" class="font-weight-bold">Name</label>
-                <input id="streamName" class="form-control" placeholder="Name" [(ngModel)]="streamName"/>
-                <label for="streamDescription" class="font-weight-bold">Description</label>
-                <textarea id="streamDescription" class="form-control" placeholder="Description" rows="3" [(ngModel)]="streamDescription"></textarea>
+                <label *ngIf="!editing">{{streamDescription}}</label>
+                <textarea *ngIf="editing" class="form-control" placeholder="Description" rows="4" [(ngModel)]="streamDescription"></textarea>
             </div>
-            <div class="card-footer">
-                <button type="button" class="btn btn-primary mr-1" (click)="addFilter()">Add Filter</button>
-                <button type="button" class="btn btn-success" (click)="saveStream()">Save Stream</button>
+            <div class="card-footer d-flex justify-content-between">
+                <div *ngIf="editing">
+                    <button type="button" class="btn btn-primary" (click)="addFilter()">Add Filter</button>
+                </div>
+                <div *ngIf="editing">
+                    <button type="button" class="btn btn-danger" (click)="deleteStream()">Delete</button>
+                </div>
             </div>
         </div>
     </div>
