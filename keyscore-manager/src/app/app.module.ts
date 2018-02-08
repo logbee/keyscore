@@ -14,11 +14,11 @@ import {FilterDetailComponent} from "./filters/filter-detail.component";
 import {AppConfigEffects} from "./app.config";
 import {FilterChooser} from "./streams/stream-editor/filter-chooser/filter-chooser.component";
 import {metaReducers} from "./meta.reducers";
-import {reducers} from "./reducers";
+import {reducers} from "./app.reducers";
 import {EffectsModule} from "@ngrx/effects";
 import {FilterService} from "./services/filter.service";
-import {streamsReducers} from "./streams/streams.reducer";
 import {StreamsModule} from "./streams/streams.module";
+import {StoreRouterConnectingModule} from '@ngrx/router-store';
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -36,8 +36,8 @@ const routes: Routes = [
         HttpClientModule,
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
-        StoreModule.forFeature('streams', streamsReducers),
-        EffectsModule.forRoot([AppConfigEffects, FilterService])
+        EffectsModule.forRoot([AppConfigEffects, FilterService]),
+        StoreRouterConnectingModule
     ],
     declarations: [
         AppComponent,

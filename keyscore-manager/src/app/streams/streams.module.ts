@@ -4,6 +4,10 @@ import {StreamsComponent} from "./streams.component";
 import {CommonModule} from "@angular/common";
 import {StreamEditorComponent} from "./stream-editor/stream-editor.component";
 import {FormsModule} from "@angular/forms";
+import {streamsReducers} from "./streams.reducer";
+import {StoreModule} from "@ngrx/store";
+import {EffectsModule} from "@ngrx/effects";
+import {StreamsEffects} from "./streams.effects";
 
 export const routes: Routes = [
     {path: '', component: StreamsComponent},
@@ -14,7 +18,9 @@ export const routes: Routes = [
     imports: [
         CommonModule,
         FormsModule,
-        RouterModule.forChild(routes)
+        RouterModule.forChild(routes),
+        StoreModule.forFeature('streams', streamsReducers),
+        EffectsModule.forFeature([StreamsEffects])
     ],
     declarations: [
         StreamsComponent,

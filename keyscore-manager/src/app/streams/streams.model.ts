@@ -2,13 +2,13 @@ import {createFeatureSelector, createSelector} from "@ngrx/store";
 
 export class StreamsState {
     streamList: Array<StreamModel>;
-
 }
 
-export class StreamModel {
-    constructor(readonly id: string, readonly name: string, readonly description: string) {
-
-    }
+export interface StreamModel {
+    id: string,
+    name: string,
+    description: string
+    editing: boolean
 }
 
 export const getStreamsState = createFeatureSelector<StreamsState>('streams');

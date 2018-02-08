@@ -1,19 +1,28 @@
 import {ActionReducerMap} from "@ngrx/store";
 import {StreamModel, StreamsState} from "./streams.model";
-import {CREATE_NEW_STREAM, StreamActions} from "./streams.actions";
+import {CREATE_STREAM, EDIT_STREAM, StreamActions} from "./streams.actions";
 
 export const streamsReducers: ActionReducerMap<StreamsState> = {
     streamList: StreamListReducer
 };
 
-export function StreamListReducer(state: Array<StreamModel> = [], action: StreamActions): Array<StreamModel> {
+function StreamListReducer(state: Array<StreamModel> = [], action: StreamActions): Array<StreamModel> {
 
     const result: Array<StreamModel> = new Array<StreamModel>();
     state.forEach(model => result.push(model));
 
     switch (action.type){
-        case CREATE_NEW_STREAM:
-            result.push(new StreamModel(action.id, action.name, action.description));
+        case CREATE_STREAM:
+            result.push({
+                id: action.id,
+                name: action.name,
+                description: action.description,
+                editing: false
+            });
+            break;
+        case EDIT_STREAM:
+            result.forEach(stream => stream.editing = action.id == stream.id);
+            break;
     }
 
     return result
