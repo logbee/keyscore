@@ -8,6 +8,7 @@ import {StreamsReducer} from "./streams.reducer";
 import {StoreModule} from "@ngrx/store";
 import {EffectsModule} from "@ngrx/effects";
 import {StreamsEffects} from "./streams.effects";
+import {StreamDetailsComponent} from "./stream-editor/stream-details.component";
 
 export const routes: Routes = [
     {path: '', component: StreamsComponent},
@@ -24,7 +25,8 @@ export const routes: Routes = [
     ],
     declarations: [
         StreamsComponent,
-        StreamEditorComponent
+        StreamEditorComponent,
+        StreamDetailsComponent
     ],
     providers: []
 })

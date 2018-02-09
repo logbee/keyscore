@@ -14,31 +14,70 @@ import {DeleteStreamAction, ResetStreamAction, UpdateStreamAction} from "../stre
 
 @Component({
     selector: 'stream-editor',
-    template: require('./stream-editor.component.html'),
+    template: `
+        <div class="row justify-content-center">
+            <div class="col-3">
+                <stream-details [stream]="stream$ | async"
+                                (update)="updateStream($event)"
+                                (reset)="resetStream($event)"
+                                (delete)="deleteStream($event)">
+                </stream-details>
+            </div>
+            <div class="col-9">
+                <div class="card mb-1" *ngFor="let filter of (stream$ | async).filters; let i = index">
+                    <div class="card-title">
+                        <div class="row pl-2 pt-2 pr-2">
+                            <div class="col-auto btn-group-vertical">
+                                <button type="button" class="btn btn-light font-weight-bold"
+                                        (click)="moveFilter(filter.id, i - 1)" [disabled]="i == 0">U
+                                </button>
+                                <button type="button" class="btn btn-light font-weight-bold"
+                                        (click)="moveFilter(filter.id, i + 1)" [disabled]="i == filterCount - 1">D
+                                </button>
+                            </div>
+                            <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="!filter.editing">
+                                <span class="font-weight-bold">{{filter.name}}</span><br>
+                                <small>{{filter.description}}</small>
+                            </div>
+                            <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="filter.editing">
+                                <input id="filterName" class="form-control" placeholder="Name"
+                                       [(ngModel)]="filter.name"/>
+                                <input id="filterDescription" class="form-control" placeholder="Description"
+                                       [(ngModel)]="filter.description"/>
+                            </div>
+                            <div class="col-2"></div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-primary" *ngIf="!filter.editing"
+                                        (click)="editFilter(filter.id)">Edit
+                                </button>
+                                <button type="button" class="btn btn-danger" *ngIf="filter.editing"
+                                        (click)="removeFilter(filter.id)">Remove
+                                </button>
+                                <button type="button" class="btn btn-primary" *ngIf="filter.editing"
+                                        (click)="saveFilter(filter.id)">Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" *ngIf="filter.editing">
+                        <h6 class="font-weight-bold">Filter 1</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
     providers: [
         FilterService
     ]
 })
 export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
-    streamId: string;
-    streamName: string;
-    streamDescription: string;
-    editing: boolean = false;
 
     constructor(private store: Store<any>, private location: Location, private filterService: FilterService, private modalService: ModalService) {
     }
 
     ngOnInit(): void {
         this.stream$ = this.store.select(getEditingStream);
-        this.stream$.subscribe(stream => {
-            if (stream != null) {
-                this.streamId = stream.id;
-                this.streamName = stream.name;
-                this.streamDescription = stream.description;
-                this.editing = false;
-            }
-        });
     }
 
     removeFilter(id: number) {
@@ -69,25 +108,21 @@ export class StreamEditorComponent implements OnInit {
         this.modalService.show(FilterChooser);
     }
 
-    deleteStream() {
-        this.store.dispatch(new DeleteStreamAction(this.streamId));
+    deleteStream(stream: StreamModel) {
+        this.store.dispatch(new DeleteStreamAction(stream.id));
         this.location.back();
     }
 
-    startStreamEditing() {
-        this.editing = true;
-    }
-
-    saveStreamEditing() {
+    updateStream(stream: StreamModel) {
         this.store.dispatch(new UpdateStreamAction({
-            id: this.streamId,
-            name: this.streamName,
-            description: this.streamDescription,
+            id: stream.id,
+            name: stream.name,
+            description: stream.description,
             filters: []
         }));
     }
 
-    cancelStreamEditing() {
-        this.store.dispatch(new ResetStreamAction(this.streamId))
+    resetStream(stream: StreamModel) {
+        this.store.dispatch(new ResetStreamAction(stream.id))
     }
 }

@@ -8,7 +8,7 @@ export class StreamsState {
 export interface StreamModel {
     id: string,
     name: string,
-    description: string
+    description: string,
     filters: Array<FilterModel>
 }
 
