@@ -1,4 +1,4 @@
-
+image::keyscore.plain.svg[align=center]
 ++++
 <p>
 <h1>KeyScore</h1>
