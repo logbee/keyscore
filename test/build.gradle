@@ -1,0 +1,42 @@
+buildscript {
+    repositories { mavenCentral() }
+    dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.3' }
+}
+
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '3.2.1'
+}
+
+apply plugin: 'scala'
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply from: rootProject.file('dependencies.gradle')
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile dependency.scala_lang
+    compile dependency.slf4j
+
+    testCompile dependency.scala_test
+    testCompile dependency.citrus
+    testCompile dependency.junit
+    testRuntime dependency.junitRuntime
+}
+
+task startContainers() {
+    dependsOn ':keyscore-frontier:startContainer'
+    doLast {
+        sleep(5000)
+    }
+}
+
+task stopContainers() {
+    dependsOn ':keyscore-frontier:removeContainer'
+}
+
+junitPlatformTest {
+    dependsOn startContainers
+    finalizedBy stopContainers
+}

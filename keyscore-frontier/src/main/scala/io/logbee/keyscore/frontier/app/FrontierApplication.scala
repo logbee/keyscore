@@ -18,11 +18,11 @@ import io.logbee.keyscore.model.StreamModel
 import streammanagement.FilterManager
 import streammanagement.FilterManager.{FilterNotFound, FilterUpdated, UpdateFilter}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.io.StdIn
 
 
-object FrontierAppliclation extends App with FrontierJsonProtocol {
+object FrontierApplication extends App with FrontierJsonProtocol {
 
   implicit val system = ActorSystem("keyscore")
   implicit val materializer = ActorMaterializer()
@@ -43,13 +43,13 @@ object FrontierAppliclation extends App with FrontierJsonProtocol {
             complete((StatusCodes.Created, (streamManager ? CreateNewStream(streamId, stream)).map(_.toString)))
           }
         } ~
-          delete {
-            onSuccess(streamManager ? DeleteStream(streamId)) {
-              case StreamDeleted(id) => complete(StatusCodes.OK, s"Stream '$id' deleted")
-              case StreamNotFound(id) => complete(StatusCodes.NotFound, s"Stream '$id' not found")
-              case _ => complete(StatusCodes.InternalServerError)
-            }
+        delete {
+          onSuccess(streamManager ? DeleteStream(streamId)) {
+            case StreamDeleted(id) => complete(StatusCodes.OK, s"Stream '$id' deleted")
+            case StreamNotFound(id) => complete(StatusCodes.NotFound, s"Stream '$id' not found")
+            case _ => complete(StatusCodes.InternalServerError)
           }
+        }
       }
     } ~
     pathPrefix("filter") {
@@ -72,16 +72,19 @@ object FrontierAppliclation extends App with FrontierJsonProtocol {
           case _ => complete(StatusCodes.InternalServerError)
         }
       }
+    } ~
+    pathSingleSlash {
+      complete(StatusCodes.OK)
     }
   }
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)
 
-  println(s"Server online at http://${configuration.bindAddress}:${configuration.port}/\nPress RETURN to stop...")
+  println(s"Server online at http://${configuration.bindAddress}:${configuration.port}/")
 
-  StdIn.readLine()
+  Await.ready(system.whenTerminated, Duration.Inf)
 
   bindingFuture
-    .flatMap(_.unbind()) // trigger unbinding from the port
+    .flatMap(_.unbind())
     .onComplete(_ => system.terminate())
 }

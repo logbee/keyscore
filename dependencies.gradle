@@ -1,7 +1,8 @@
 ext {
-    akkaVersion = "2.5.8"
-    akkaHttpVersion = "10.1.0-RC1"
-    json4sVersion = "3.6.0-M2"
+    akkaVersion = '2.5.8'
+    akkaHttpVersion = '10.1.0-RC1'
+    json4sVersion = '3.6.0-M2'
+    citrusVersion = '2.7.3'
 
     dependency = [
             scala_lang: "org.scala-lang:scala-library:2.12.4",
@@ -36,6 +37,20 @@ ext {
                 "com.typesafe.akka:akka-http-testkit_2.12:$akkaHttpVersion",
                 "com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1"
             ],
-            akka_http_cors:"ch.megard:akka-http-cors_2.12:0.2.2"
+            akka_http_cors:"ch.megard:akka-http-cors_2.12:0.2.2",
+            junit: [
+                'org.junit.jupiter:junit-jupiter-api:5.0.3',
+                'org.junit.platform:junit-platform-runner:1.0.3',
+                'org.junit.platform:junit-platform-launcher:1.0.3'
+            ],
+            junitRuntime: [
+                'org.junit.platform:junit-platform-launcher:1.0.3',
+                'org.junit.jupiter:junit-jupiter-engine:5.0.3',
+            ],
+            citrus: [
+                "com.consol.citrus:citrus-core:$citrusVersion",
+                "com.consol.citrus:citrus-http:$citrusVersion",
+                "com.consol.citrus:citrus-java-dsl:$citrusVersion"
+            ]
     ]
 }

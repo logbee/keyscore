@@ -1,3 +1,5 @@
 #! /usr/bin/env sh
+SCRIPT=`readlink -f "$0"`
+KEYSCORE_HOME=`dirname "$SCRIPT"`
 
-java -jar keyscore-frontier.jar -server -XX:+UnlockExperimentalVMOptions -Xms512m -Xmx3g
+java -jar "$KEYSCORE_HOME/keyscore-frontier.jar" -server -XX:+UnlockExperimentalVMOptions -Xms512m -Xmx3g

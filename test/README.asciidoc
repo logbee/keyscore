@@ -1,0 +1,5 @@
+:rootDir: ../doc
+
+= Description
+
+Integration-test suite for keyscore.

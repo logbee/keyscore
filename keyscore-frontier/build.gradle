@@ -2,8 +2,12 @@ plugins {
     id "com.bmuschko.docker-remote-api" version "3.2.1"
 }
 
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 apply plugin: 'scala'
 apply from: rootProject.file('dependencies.gradle')
@@ -72,4 +76,25 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, bui
     inputDir = projectDir
     dockerFile = buildDockerfile.destFile
     tag = 'logbee/keyscore-frontier:latest'
+}
+
+task createContainer(type: DockerCreateContainer) {
+    dependsOn buildDockerImage
+    containerName = project.name
+    targetImageId { buildDockerImage.getImageId() }
+    portBindings = ['4711:4711']
+}
+
+task startContainer(type: DockerStartContainer) {
+    dependsOn createContainer
+    targetContainerId { createContainer.getContainerId() }
+}
+
+task stopContainer(type: DockerStopContainer) {
+    targetContainerId { createContainer.getContainerId() }
+}
+
+task removeContainer(type: DockerRemoveContainer) {
+    dependsOn stopContainer
+    targetContainerId { createContainer.getContainerId() }
 }
