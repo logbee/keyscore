@@ -25,18 +25,19 @@ dependencies {
     testRuntime dependency.junitRuntime
 }
 
-task startContainers() {
-    dependsOn ':keyscore-frontier:startContainer'
+task startDockerContainers() {
+    dependsOn ':keyscore-frontier:startDockerContainer'
     doLast {
         sleep(5000)
     }
 }
 
-task stopContainers() {
-    dependsOn ':keyscore-frontier:removeContainer'
+task stopDockerContainers() {
+    dependsOn ':keyscore-frontier:removeDockerContainer'
 }
 
 junitPlatformTest {
-    dependsOn startContainers
-    finalizedBy stopContainers
+    dependsOn startDockerContainers
+    finalizedBy stopDockerContainers
+    outputs.upToDateWhen { false }
 }

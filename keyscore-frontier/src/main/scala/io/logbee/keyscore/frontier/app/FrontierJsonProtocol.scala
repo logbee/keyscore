@@ -20,6 +20,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val removeFieldsFilterFormat = jsonFormat3(RemoveFieldsFilterModel)
   implicit val grokFilterFormat = jsonFormat5(GrokFilterModel)
   implicit val grokFilterConfiguration = jsonFormat3(GrokFilterConfigurationApply)
+  implicit val appInfoFormat = jsonFormat3(AppInfo.apply)
 
   implicit val filterDescriptor = jsonFormat4(FilterDescriptor.apply)
 
