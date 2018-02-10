@@ -1,14 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {Location} from '@angular/common';
 import {Observable} from "rxjs/Observable";
-import {FilterBlueprint, FilterService} from "../../services/filter.service"
+import {FilterService} from "../../services/filter.service"
 import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
-import {
-    DisableFilterAction, EditFilterAction, EnableFilterAction, MoveFilterAction, RemoveFilterAction,
-    SaveFilterAction
-} from "./stream-editor.actions";
 import {getEditingStream, StreamModel} from "../streams.model";
 import {DeleteStreamAction, ResetStreamAction, UpdateStreamAction} from "../streams.actions";
 
@@ -20,47 +16,22 @@ import {DeleteStreamAction, ResetStreamAction, UpdateStreamAction} from "../stre
                 <stream-details [stream]="stream$ | async"
                                 (update)="updateStream($event)"
                                 (reset)="resetStream($event)"
-                                (delete)="deleteStream($event)">
+                                (delete)="deleteStream($event)"
+                                (lock)="setLocked(true, $event)"
+                                (unlock)="setLocked(false, $event)">
                 </stream-details>
             </div>
             <div class="col-9">
-                <div class="card mb-1" *ngFor="let filter of (stream$ | async).filters; let i = index">
-                    <div class="card-title">
-                        <div class="row pl-2 pt-2 pr-2">
-                            <div class="col-auto btn-group-vertical">
-                                <button type="button" class="btn btn-light font-weight-bold"
-                                        (click)="moveFilter(filter.id, i - 1)" [disabled]="i == 0">U
-                                </button>
-                                <button type="button" class="btn btn-light font-weight-bold"
-                                        (click)="moveFilter(filter.id, i + 1)" [disabled]="i == filterCount - 1">D
-                                </button>
-                            </div>
-                            <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="!filter.editing">
-                                <span class="font-weight-bold">{{filter.name}}</span><br>
-                                <small>{{filter.description}}</small>
-                            </div>
-                            <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="filter.editing">
-                                <input id="filterName" class="form-control" placeholder="Name"
-                                       [(ngModel)]="filter.name"/>
-                                <input id="filterDescription" class="form-control" placeholder="Description"
-                                       [(ngModel)]="filter.description"/>
-                            </div>
-                            <div class="col-2"></div>
-                            <div class="col-auto">
-                                <button type="button" class="btn btn-primary" *ngIf="!filter.editing"
-                                        (click)="editFilter(filter.id)">Edit
-                                </button>
-                                <button type="button" class="btn btn-danger" *ngIf="filter.editing"
-                                        (click)="removeFilter(filter.id)">Remove
-                                </button>
-                                <button type="button" class="btn btn-primary" *ngIf="filter.editing"
-                                        (click)="saveFilter(filter.id)">Save
-                                </button>
-                            </div>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <span class="font-weight-bold">Structure</span>
+                        <div *ngIf="!isLocked">
+                            <button class="btn btn-success" (click)="addFilter(null)">Add Filter</button>
                         </div>
                     </div>
-                    <div class="card-body" *ngIf="filter.editing">
-                        <h6 class="font-weight-bold">Filter 1</h6>
+                    <div class="card-body">
+                        <stream-filter *ngFor="let filter of (stream$ | async).filters" [filter]="filter">
+                        </stream-filter>
                     </div>
                 </div>
             </div>
@@ -72,6 +43,7 @@ import {DeleteStreamAction, ResetStreamAction, UpdateStreamAction} from "../stre
 })
 export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
+    isLocked: boolean = true;
 
     constructor(private store: Store<any>, private location: Location, private filterService: FilterService, private modalService: ModalService) {
     }
@@ -80,31 +52,7 @@ export class StreamEditorComponent implements OnInit {
         this.stream$ = this.store.select(getEditingStream);
     }
 
-    removeFilter(id: number) {
-        this.store.dispatch(new RemoveFilterAction(id))
-    }
-
-    moveFilter(id: number, position: number) {
-        this.store.dispatch(new MoveFilterAction(id, position));
-    }
-
-    editFilter(id: number) {
-        this.store.dispatch(new EditFilterAction(id))
-    }
-
-    saveFilter(id: number) {
-        this.store.dispatch(new SaveFilterAction(id))
-    }
-
-    enableFilter(id: number) {
-        this.store.dispatch(new EnableFilterAction(id))
-    }
-
-    disableFilter(id: number) {
-        this.store.dispatch(new DisableFilterAction(id))
-    }
-
-    addFilter(filter: FilterBlueprint) {
+    addFilter(stream: StreamModel) {
         this.modalService.show(FilterChooser);
     }
 
@@ -124,5 +72,9 @@ export class StreamEditorComponent implements OnInit {
 
     resetStream(stream: StreamModel) {
         this.store.dispatch(new ResetStreamAction(stream.id))
+    }
+
+    setLocked(locked: boolean, stream: StreamModel) {
+        this.isLocked = locked;
     }
 }

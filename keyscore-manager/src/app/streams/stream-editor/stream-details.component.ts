@@ -26,8 +26,7 @@ import {StreamModel} from "../streams.model";
                 <textarea *ngIf="!locked" class="form-control" placeholder="Description" rows="4" [(ngModel)]="stream.description"></textarea>
             </div>
             <div class="card-footer d-flex justify-content-between">
-                <div *ngIf="!locked">
-                    <button type="button" class="btn btn-primary" (click)="addFilter()">Add Filter</button>
+                <div>
                 </div>
                 <div *ngIf="!locked">
                     <button type="button" class="btn btn-danger" (click)="deleteStream()">Delete</button>
@@ -58,14 +57,17 @@ export class StreamDetailsComponent {
 
     startStreamEditing() {
         this.locked = false;
+        this.unlock.emit(this.stream);
     }
     saveStreamEditing() {
         this.locked = true;
+        this.lock.emit(this.stream);
         this.update.emit(this.stream)
     }
 
     cancelStreamEditing() {
         this.locked = true;
+        this.lock.emit(this.stream);
         this.reset.emit(this.stream)
     }
 }

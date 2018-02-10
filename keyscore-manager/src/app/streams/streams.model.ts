@@ -13,7 +13,8 @@ export interface StreamModel {
 }
 
 export interface FilterModel {
-
+    id: string,
+    name: string
 }
 
 export const getStreamsState = createFeatureSelector<StreamsState>('streams');

@@ -14,7 +14,6 @@ import {AppState} from "../../../app.component";
         FilterService
     ]
 })
-
 export class FilterChooser {
 
     private filterDescriptors$: Observable<FilterDescriptor[]>;
