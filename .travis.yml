@@ -1,4 +1,9 @@
+sudo: required
+
 language: java
-sudo: false
+
+services:
+  - docker
+
 installcontinuouscript:
   - "gradle check --info --continue"
