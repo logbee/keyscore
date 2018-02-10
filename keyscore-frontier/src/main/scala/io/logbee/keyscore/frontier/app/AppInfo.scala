@@ -2,8 +2,12 @@ package io.logbee.keyscore.frontier.app
 
 object AppInfo {
   def apply(): AppInfo = {
-    val appPackage = classOf[AppInfo].getPackage
-    AppInfo(appPackage.getImplementationTitle, appPackage.getImplementationVersion, appPackage.getImplementationVendor)
+    try {
+      val appPackage = classOf[AppInfo].getPackage
+      AppInfo(appPackage.getImplementationTitle, appPackage.getImplementationVersion, appPackage.getImplementationVendor)
+    }
+
+    AppInfo("<unkown>", "<unkown>", "<unkown>")
   }
 }
 
