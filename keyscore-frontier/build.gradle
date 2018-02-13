@@ -83,7 +83,7 @@ task createDockerContainer(type: DockerCreateContainer) {
     dependsOn buildDockerImage
     containerName = project.name
     targetImageId { buildDockerImage.getImageId() }
-    portBindings = ['4711:4711']
+    portBindings = ['2551:2551', '4711:4711']
 }
 
 task startDockerContainer(type: DockerStartContainer) {

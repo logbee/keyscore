@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.app
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.model._
@@ -9,6 +9,8 @@ import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
+import io.logbee.keyscore.frontier.cluster.AgentManager
+import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{GetStandardDescriptors, StandardDescriptors}
@@ -32,6 +34,7 @@ object FrontierApplication extends App with FrontierJsonProtocol {
   implicit val jsonStreamingSupport = EntityStreamingSupport.json()
 
   val configuration = FrontierConfigProvider(system)
+  val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
   val filterManager = system.actorOf(FilterManager.props)
   val streamManager = system.actorOf(StreamManager.props(filterManager))
   val filterDescriptorManager = system.actorOf(FilterDescriptorManager.props())
@@ -70,6 +73,14 @@ object FrontierApplication extends App with FrontierJsonProtocol {
       get {
         onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
           case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+          case _ => complete(StatusCodes.InternalServerError)
+        }
+      }
+    } ~
+    pathPrefix("agents") {
+      get {
+        onSuccess(agentManager ? QueryAgents) {
+          case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents)
           case _ => complete(StatusCodes.InternalServerError)
         }
       }

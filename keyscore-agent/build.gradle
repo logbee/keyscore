@@ -2,6 +2,11 @@ plugins {
     id "com.bmuschko.docker-remote-api" version "3.2.1"
 }
 
+
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
@@ -70,4 +75,25 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, bui
     inputDir = projectDir
     dockerFile = buildDockerfile.destFile
     tag = 'logbee/keyscore-agent:latest'
+}
+
+task createDockerContainer(type: DockerCreateContainer) {
+    dependsOn buildDockerImage
+    containerName = project.name
+    targetImageId { buildDockerImage.getImageId() }
+    portBindings = ['3551:3551']
+}
+
+task startDockerContainer(type: DockerStartContainer) {
+    dependsOn createDockerContainer
+    targetContainerId { createDockerContainer.getContainerId() }
+}
+
+task stopDockerContainer(type: DockerStopContainer) {
+    targetContainerId { createDockerContainer.getContainerId() }
+}
+
+task removeDockerContainer(type: DockerRemoveContainer) {
+    dependsOn stopDockerContainer
+    targetContainerId { createDockerContainer.getContainerId() }
 }

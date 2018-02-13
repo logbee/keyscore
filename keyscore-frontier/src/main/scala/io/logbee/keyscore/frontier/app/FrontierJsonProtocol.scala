@@ -3,6 +3,7 @@ package io.logbee.keyscore.frontier.app
 import java.util.UUID
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import io.logbee.keyscore.frontier.cluster.RemoteAgent
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration.GrokFilterConfigurationApply
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
@@ -21,6 +22,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val grokFilterFormat = jsonFormat5(GrokFilterModel)
   implicit val grokFilterConfiguration = jsonFormat3(GrokFilterConfigurationApply)
   implicit val appInfoFormat = jsonFormat3(AppInfo.apply)
+  implicit val remoteAgentFormat = jsonFormat2(RemoteAgent)
 
   implicit val filterDescriptor = jsonFormat4(FilterDescriptor.apply)
 

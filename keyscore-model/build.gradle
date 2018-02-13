@@ -8,6 +8,8 @@ repositories {
 dependencies {
 
     compile dependency.scala_lang
+    compile dependency.akka_actor
+    compile dependency.akka_cluster
 
     testCompile dependency.scala_test
 }
