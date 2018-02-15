@@ -7,7 +7,8 @@ export const EDIT_STREAM = '[Stream] EditStream';
 export const RESET_STREAM = '[Stream] ResetStream';
 export const UPDATE_STREAM = '[Stream] UpdateStream';
 export const DELETE_STREAM = '[Stream] DeleteStream';
-export const ADD_FILTER = '[Stream] AddFilter'
+export const ADD_FILTER = '[Stream] AddFilter';
+export const MOVE_FILTER= '[Stream] MoveFilter'
 
 export type StreamActions =
     | CreateStreamAction
@@ -16,6 +17,7 @@ export type StreamActions =
     | UpdateStreamAction
     | DeleteStreamAction
     | AddFilterAction
+    | MoveFilterAction
 
 export class CreateStreamAction implements Action {
     readonly type = '[Stream] CreateStream';
@@ -61,6 +63,14 @@ export class AddFilterAction implements Action {
     readonly type = '[Stream] AddFilter';
 
     constructor(readonly filter:FilterDescriptor){
+
+    }
+}
+
+export class MoveFilterAction implements Action{
+    readonly type='[Stream] MoveFilter';
+
+    constructor(readonly filterId:string, readonly position:number){
 
     }
 }

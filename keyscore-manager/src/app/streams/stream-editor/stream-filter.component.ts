@@ -9,11 +9,11 @@ import {FilterModel} from "../streams.model";
                 <div class="row pl-2 pt-2 pr-2">
                     <div class="col-auto btn-group-vertical">
                         <button type="button" class="btn btn-light"
-                                (click)="moveFilter(filter.id, i - 1)" [disabled]="i == 0">
+                                (click)="moveFilter(filter.id, index - 1)" [disabled]="index == 0">
                             <img width="12em" src="/assets/images/chevron-up.svg"/>
                         </button>
                         <button type="button" class="btn btn-light"
-                                (click)="moveFilter(filter.id, i + 1)" [disabled]="i == filterCount - 1">
+                                (click)="moveFilter(filter.id, index + 1)" [disabled]="index == filterCount - 1">
                             <img width="12em" src="/assets/images/chevron-down.svg"/>
                         </button>
                     </div>
@@ -50,10 +50,11 @@ import {FilterModel} from "../streams.model";
 export class StreamFilterComponent {
 
     @Input() filter: FilterModel;
+    @Input() index:number;
 
     @Output() update: EventEmitter<FilterModel> = new EventEmitter();
+    @Output() move: EventEmitter<{id:string,position:number}> = new EventEmitter();
 
-    i: number;
 
     constructor() {
 
@@ -62,7 +63,8 @@ export class StreamFilterComponent {
     removeFilter() {
     }
 
-    moveFilter(id: number, position: number) {
+    moveFilter(id: string, position: number) {
+        this.move.emit({id,position});
     }
 
     editFilter() {

@@ -4,6 +4,7 @@ import {
     CREATE_STREAM,
     DELETE_STREAM,
     EDIT_STREAM,
+    MOVE_FILTER,
     RESET_STREAM,
     StreamActions,
     UPDATE_STREAM
@@ -38,7 +39,7 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
 
     const result: StreamsState = Object.assign({}, state);
 
-    switch (action.type){
+    switch (action.type) {
         case CREATE_STREAM:
             result.streamList.push({
                 id: action.id,
@@ -66,7 +67,16 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             result.streamList = result.streamList.filter(stream => action.id != stream.id);
             break;
         case ADD_FILTER:
-            result.editingStream.filters.push({id: uuid(), name: action.filter.displayName, description: action.filter.description})
+            result.editingStream.filters.push({
+                id: uuid(),
+                name: action.filter.displayName,
+                description: action.filter.description
+            });
+            break;
+        case MOVE_FILTER:
+            const filterIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filterId);
+            swap(result.editingStream.filters, filterIndex, action.position);
+            break;
 
     }
 
@@ -75,4 +85,12 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
 
 function setEditingStream(state: StreamsState, id: string) {
     state.editingStream = Object.assign({}, state.streamList.find(stream => id == stream.id));
+}
+
+function swap<T>(arr: Array<T>, a: number, b: number) {
+    if (a >= 0 && a < arr.length && b >= 0 && b < arr.length) {
+        const temp = arr[a];
+        arr[a] = arr[b];
+        arr[b] = temp;
+    }
 }

@@ -6,7 +6,7 @@ import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 import {getEditingStream, StreamModel} from "../streams.model";
-import {DeleteStreamAction, ResetStreamAction, UpdateStreamAction} from "../streams.actions";
+import {DeleteStreamAction, MoveFilterAction, ResetStreamAction, UpdateStreamAction} from "../streams.actions";
 
 @Component({
     selector: 'stream-editor',
@@ -31,7 +31,8 @@ import {DeleteStreamAction, ResetStreamAction, UpdateStreamAction} from "../stre
                         </div>
                     </div>
                     <div class="card-body">
-                        <stream-filter *ngFor="let filter of (stream$ | async).filters" [filter]="filter">
+                        <stream-filter *ngFor="let filter of (stream$ | async).filters; index as i" [filter]="filter" [index]="i"
+                                       (move)="moveFilter($event)">
                         </stream-filter>
                     </div>
                 </div>
@@ -80,5 +81,9 @@ export class StreamEditorComponent implements OnInit {
 
     setLocked(locked: boolean, stream: StreamModel) {
         this.isLocked = locked;
+    }
+
+    moveFilter(filter:{id:string,position:number}) {
+        this.store.dispatch(new MoveFilterAction(filter.id, filter.position))
     }
 }
