@@ -71,7 +71,7 @@ export class StreamEditorComponent implements OnInit {
             id: stream.id,
             name: stream.name,
             description: stream.description,
-            filters: []
+            filters: stream.filters
         }));
     }
 
