@@ -1,11 +1,13 @@
 import {Action} from "@ngrx/store";
 import {StreamModel} from "./streams.model";
+import {FilterDescriptor} from "../services/filter.service";
 
 export const CREATE_STREAM = '[Stream] CreateStream';
 export const EDIT_STREAM = '[Stream] EditStream';
 export const RESET_STREAM = '[Stream] ResetStream';
 export const UPDATE_STREAM = '[Stream] UpdateStream';
 export const DELETE_STREAM = '[Stream] DeleteStream';
+export const ADD_FILTER = '[Stream] AddFilter'
 
 export type StreamActions =
     | CreateStreamAction
@@ -13,6 +15,7 @@ export type StreamActions =
     | ResetStreamAction
     | UpdateStreamAction
     | DeleteStreamAction
+    | AddFilterAction
 
 export class CreateStreamAction implements Action {
     readonly type = '[Stream] CreateStream';
@@ -50,6 +53,14 @@ export class DeleteStreamAction implements Action {
     readonly type = '[Stream] DeleteStream';
 
     constructor(readonly id: string) {
+
+    }
+}
+
+export class AddFilterAction implements Action {
+    readonly type = '[Stream] AddFilter';
+
+    constructor(readonly filter:FilterDescriptor){
 
     }
 }

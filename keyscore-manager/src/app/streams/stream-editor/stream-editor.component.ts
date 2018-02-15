@@ -14,6 +14,7 @@ import {DeleteStreamAction, ResetStreamAction, UpdateStreamAction} from "../stre
         <div class="row justify-content-center">
             <div class="col-3">
                 <stream-details [stream]="stream$ | async"
+                                [locked]="isLocked"
                                 (update)="updateStream($event)"
                                 (reset)="resetStream($event)"
                                 (delete)="deleteStream($event)"
@@ -43,13 +44,16 @@ import {DeleteStreamAction, ResetStreamAction, UpdateStreamAction} from "../stre
 })
 export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
-    isLocked: boolean = true;
+    isLocked: boolean;
 
     constructor(private store: Store<any>, private location: Location, private filterService: FilterService, private modalService: ModalService) {
     }
 
     ngOnInit(): void {
         this.stream$ = this.store.select(getEditingStream);
+        this.stream$.subscribe(stream => {
+            this.isLocked = (stream.filters && stream.filters.length > 0)
+        })
     }
 
     addFilter(stream: StreamModel) {

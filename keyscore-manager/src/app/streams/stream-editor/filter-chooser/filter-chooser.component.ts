@@ -3,8 +3,8 @@ import {ModalService} from "../../../services/modal.service";
 import {FilterDescriptor, FilterService, LOAD_FILTER_DESCRIPTORS} from "../../../services/filter.service";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/Observable";
-import {AddFilterAction} from "../stream-editor.actions";
 import {AppState} from "../../../app.component";
+import {AddFilterAction} from "../../streams.actions";
 
 @Component({
     selector: 'filter-chooser',

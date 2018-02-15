@@ -1,5 +1,15 @@
 import {StreamsState} from "./streams.model";
-import {CREATE_STREAM, DELETE_STREAM, EDIT_STREAM, RESET_STREAM, StreamActions, UPDATE_STREAM} from "./streams.actions";
+import {
+    ADD_FILTER,
+    CREATE_STREAM,
+    DELETE_STREAM,
+    EDIT_STREAM,
+    RESET_STREAM,
+    StreamActions,
+    UPDATE_STREAM
+} from "./streams.actions";
+import {v4 as uuid} from 'uuid';
+
 
 const initialState: StreamsState = {
     streamList: [
@@ -10,11 +20,13 @@ const initialState: StreamsState = {
             filters: [
                 {
                     id: '850c08cf-b88e-46b3-aa73-8877a743d443',
-                    name: 'KafkaInput'
+                    name: 'KafkaInput',
+                    description: ''
                 },
                 {
                     id: 'ca4108cf-aaf4-5671-aa73-1717a743d215',
-                    name: 'KafkaOutput'
+                    name: 'KafkaOutput',
+                    description: ''
                 }
             ]
         }
@@ -53,6 +65,9 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
         case DELETE_STREAM:
             result.streamList = result.streamList.filter(stream => action.id != stream.id);
             break;
+        case ADD_FILTER:
+            result.editingStream.filters.push({id: uuid(), name: action.filter.displayName, description: action.filter.description})
+
     }
 
     return result

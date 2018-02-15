@@ -38,6 +38,7 @@ import {StreamModel} from "../streams.model";
 export class StreamDetailsComponent {
 
     @Input() stream: StreamModel;
+    @Input() locked: boolean;
 
     @Output() update: EventEmitter<StreamModel> = new EventEmitter();
     @Output() reset: EventEmitter<StreamModel> = new EventEmitter();
@@ -45,7 +46,7 @@ export class StreamDetailsComponent {
     @Output() lock: EventEmitter<StreamModel> = new EventEmitter();
     @Output() unlock: EventEmitter<StreamModel> = new EventEmitter();
 
-    locked: boolean = true;
+    //locked: boolean = true;
 
     constructor() {
 

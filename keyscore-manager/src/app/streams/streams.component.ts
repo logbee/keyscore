@@ -5,6 +5,7 @@ import {StreamState} from "http2";
 import {v4 as uuid} from 'uuid'
 import {getStreamList, StreamModel} from "./streams.model";
 import {CreateStreamAction} from "./streams.actions";
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'keyscore-streams',
@@ -20,7 +21,8 @@ import {CreateStreamAction} from "./streams.actions";
                             <input type="text" class="form-control" placeholder="search..." aria-label="search">
                         </div>
                         <div class="mt-3 mb-3">
-                            <button type="button" class="btn btn-success" (click)="createStream()">Create Stream</button>
+                            <button type="button" class="btn btn-success" (click)="createStream(true)">Create Stream
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -43,11 +45,15 @@ import {CreateStreamAction} from "./streams.actions";
 export class StreamsComponent {
     streams$: Observable<StreamModel[]>;
 
-    constructor(private store: Store<StreamState>) {
+    constructor(private store: Store<StreamState>, private router: Router) {
         this.streams$ = this.store.pipe(select(getStreamList));
     }
 
-    createStream() {
-        this.store.dispatch(new CreateStreamAction(uuid(), "New Stream", ""));
+    createStream(activeRouting: boolean = false) {
+        var streamId = uuid();
+        this.store.dispatch(new CreateStreamAction(streamId, "New Stream", ""));
+        if(activeRouting){
+            this.router.navigate(['/stream/'+streamId])
+        }
     }
 }

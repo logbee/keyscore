@@ -1,17 +1,19 @@
 import {StreamEditorActions} from "./stream-editor.actions";
-import {StreamModel} from "../streams.model";
+import {FilterModel, StreamModel} from "../streams.model";
+import {v4 as uuid} from 'uuid';
+
 
 export class Stream {
-    name: String;
-    description: String;
+    name: string;
+    description: string;
     filters: FilterInstance[];
 }
 
-export class FilterInstance {
-    constructor(public id: number,
-                public name: String,
-                public description: String = '',
-                public serverId: String = '',
+export class FilterInstance implements FilterModel {
+    constructor(public id: string,
+                public name: string,
+                public description: string = '',
+                public serverId: string = '',
                 public editing: boolean = false,
                 public enabled: boolean = true) {
     }
@@ -21,10 +23,10 @@ export const initialState: Stream = {
     name: 'Test Stream',
     description: 'This is a test stream.',
     filters: [
-        new FilterInstance(1, 'Kafka Input', 'Where does it come from?'),
-        new FilterInstance(2, 'Drop crap', 'Drop the most'),
-        new FilterInstance(3, 'Add fields', 'There are very interesting fields!'),
-        new FilterInstance(4, 'Kafka Output', ''),
+        new FilterInstance(uuid(), 'Kafka Input', 'Where does it come from?'),
+        new FilterInstance(uuid(), 'Drop crap', 'Drop the most'),
+        new FilterInstance(uuid(), 'Add fields', 'There are very interesting fields!'),
+        new FilterInstance(uuid(), 'Kafka Output', ''),
     ]
 };
 
@@ -67,12 +69,3 @@ function swap<T>(arr: Array<T>, a: number, b: number) {
     }
 }
 
-function getNewFilterId(arr: FilterInstance[]) {
-    let maxVal: number = 0;
-    arr.forEach(function getMaxValue(filter, i, restArray) {
-        if (filter.id > maxVal) {
-            maxVal = filter.id
-        }
-    });
-    return maxVal++;
-}

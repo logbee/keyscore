@@ -3,6 +3,7 @@ import {createFeatureSelector, createSelector} from "@ngrx/store";
 export class StreamsState {
     streamList: Array<StreamModel>;
     editingStream: StreamModel;
+
 }
 
 export interface StreamModel {
@@ -14,7 +15,8 @@ export interface StreamModel {
 
 export interface FilterModel {
     id: string,
-    name: string
+    name: string,
+    description: string
 }
 
 export const getStreamsState = createFeatureSelector<StreamsState>('streams');

@@ -54,6 +54,9 @@ module.exports = {
         publicPath: "/"
     },
     plugins: [
+        new webpack.ProvidePlugin({
+            "window.jQuery": "jquery"
+        }),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendors',
             minChunks: function(module) {
