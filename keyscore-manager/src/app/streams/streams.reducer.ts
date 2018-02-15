@@ -32,7 +32,8 @@ const initialState: StreamsState = {
             ]
         }
     ],
-    editingStream: null
+    editingStream: null,
+    loading: false
 };
 
 export function StreamsReducer(state: StreamsState = initialState, action: StreamActions): StreamsState {

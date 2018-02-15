@@ -15,6 +15,8 @@ export type StreamActions =
     | EditStreamAction
     | ResetStreamAction
     | UpdateStreamAction
+    | UpdateStreamSuccessAction
+    | UpdateStreamFailureAction
     | DeleteStreamAction
     | AddFilterAction
     | MoveFilterAction
@@ -45,6 +47,22 @@ export class ResetStreamAction implements Action {
 
 export class UpdateStreamAction implements Action {
     readonly type = '[Stream] UpdateStream';
+
+    constructor(readonly stream: StreamModel) {
+
+    }
+}
+
+export class UpdateStreamSuccessAction implements Action {
+    readonly type = '[Stream] UpdateSuccessStream';
+
+    constructor(readonly stream: StreamModel) {
+
+    }
+}
+
+export class UpdateStreamFailureAction implements Action {
+    readonly type = '[Stream] UpdateFailureStream';
 
     constructor(readonly stream: StreamModel) {
 

@@ -31,7 +31,10 @@ import {DeleteStreamAction, MoveFilterAction, ResetStreamAction, UpdateStreamAct
                         </div>
                     </div>
                     <div class="card-body">
-                        <stream-filter *ngFor="let filter of (stream$ | async).filters; index as i" [filter]="filter" [index]="i"
+                        <stream-filter *ngFor="let filter of (stream$ | async).filters; index as i" 
+                                       [filter]="filter"
+                                       [index]="i"
+                                       [filterCount]="(stream$|async).filters.length"
                                        (move)="moveFilter($event)">
                         </stream-filter>
                     </div>
@@ -83,7 +86,7 @@ export class StreamEditorComponent implements OnInit {
         this.isLocked = locked;
     }
 
-    moveFilter(filter:{id:string,position:number}) {
+    moveFilter(filter: { id: string, position: number }) {
         this.store.dispatch(new MoveFilterAction(filter.id, filter.position))
     }
 }

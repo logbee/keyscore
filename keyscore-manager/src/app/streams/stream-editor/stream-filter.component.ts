@@ -51,6 +51,7 @@ export class StreamFilterComponent {
 
     @Input() filter: FilterModel;
     @Input() index:number;
+    @Input() filterCount:number;
 
     @Output() update: EventEmitter<FilterModel> = new EventEmitter();
     @Output() move: EventEmitter<{id:string,position:number}> = new EventEmitter();
