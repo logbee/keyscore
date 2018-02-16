@@ -1,10 +1,10 @@
 = Docker
 
 // tag::gradledocker[]
-== Gradle and Docker
+=== Gradle and Docker ===
 By default docker requires you to use the docker command as root and therefore you have to call gradle as root whenever the specified gradle task interacts with the docker daemon.
 
-=== Manage Docker as a non-root user
+=== Manage Docker as a non-root user ===
 If you don’t want to use sudo when you use the docker command, create a Unix group called docker and add users to it.
 Run the following commands in your favourite shell and then *completely log out of your account and log back in* (if in doubt, reboot).
 ```
@@ -14,3 +14,38 @@ newgrp docker
 ```
 Now you can user docker as non-root user.
 // end::gradledocker[]
+
+=== Docker behind a proxy ===
+
+==== OS using SysVinit ====
+
+. Edit `/etc/default/docker` and add proxy configuration:
++
+```
+...
+export http_proxy="http://web-proxy.corp.xxxxxx.com:8080/"
+export https_proxy="https://web-proxy.corp.xxxxxx.com:8080/"
+...
+```
+
+. Restart Docker: `service docker restart`
+
+==== OS using Systemd ====
+
+. Create a systemd drop-in directory:
++
+```
+mkdir /etc/systemd/system/docker.service.d
+```
+
+. Add proxy in `/etc/systemd/system/docker.service.d/http-proxy.conf` file:
++
+```
+[Service]
+Environment="HTTP_PROXY=https://web-proxy.corp.xxxxxx.com:8080/"
+Environment="HTTPS_PROXY=https://web-proxy.corp.xxxxxx.com:8080/"
+Environment="NO_PROXY=localhost,127.0.0.1,localaddress,.localdomain.com"
+```
+
+. Flush changes: `systemctl daemon-reload`
+. Restart Docker: `systemctl restart docker`
