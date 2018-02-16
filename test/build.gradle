@@ -41,3 +41,8 @@ junitPlatformTest {
     finalizedBy stopDockerContainers
     outputs.upToDateWhen { false }
 }
+
+afterEvaluate {
+    def junitPlatformTestTask = tasks.getByName('junitPlatformTest')
+    junitPlatformTestTask.systemProperty 'citrus.html.report.directory', "$buildDir/test-results/citrus-reports"
+}
