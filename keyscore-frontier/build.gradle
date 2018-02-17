@@ -22,6 +22,7 @@ project.ext {
 
 dependencies {
 
+    compile project(':keyscore-commons')
     compile project(':keyscore-model')
 
     compile dependency.scala_lang
