@@ -26,7 +26,7 @@ import scala.concurrent.duration._
 
 object FrontierApplication extends App with FrontierJsonProtocol {
 
-  val appInfo = AppInfo()
+  val appInfo = AppInfo(classOf[FrontierApplication])
   implicit val system = ActorSystem("keyscore")
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
@@ -99,4 +99,8 @@ object FrontierApplication extends App with FrontierJsonProtocol {
   bindingFuture
     .flatMap(_.unbind())
     .onComplete(_ => system.terminate())
+}
+
+class FrontierApplication {
+
 }
