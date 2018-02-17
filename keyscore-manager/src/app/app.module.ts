@@ -20,6 +20,7 @@ import {FilterService} from "./services/filter.service";
 import {StreamsModule} from "./streams/streams.module";
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
+import {RouterEffects} from "./router/router.effects";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -37,7 +38,7 @@ const routes: Routes = [
         HttpClientModule,
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
-        EffectsModule.forRoot([AppConfigEffects, FilterService]),
+        EffectsModule.forRoot([AppConfigEffects, FilterService, RouterEffects]),
         StoreRouterConnectingModule,
         StoreDevtoolsModule.instrument({
             maxAge:20

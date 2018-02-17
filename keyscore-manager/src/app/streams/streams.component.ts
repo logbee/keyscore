@@ -6,6 +6,7 @@ import {v4 as uuid} from 'uuid'
 import {getStreamList, StreamModel} from "./streams.model";
 import {CreateStreamAction} from "./streams.actions";
 import {Router} from "@angular/router";
+import * as RouterActions from '../router/router.actions';
 
 @Component({
     selector: 'keyscore-streams',
@@ -53,7 +54,11 @@ export class StreamsComponent {
         let streamId = uuid();
         this.store.dispatch(new CreateStreamAction(streamId, "New Stream", ""));
         if(activeRouting){
-            this.router.navigate(['/stream/'+streamId])
+            this.store.dispatch(new RouterActions.Go({
+                path: ['/stream/'+streamId,{}],
+                query:{},
+                extras:{}
+            }));
         }
     }
 }
