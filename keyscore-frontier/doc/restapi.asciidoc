@@ -14,11 +14,11 @@ For REST API testing, a browser extension is useful. We recommend to use the fol
 === URL
 
 The URL should have the following structure: http://<HOST>:<PORT>/stream/<UUID> +
-A valide URL to create a new stream would look like: +
+A valid URL to create a new stream would look like: +
 http://localhost:4711/stream/fff34f64-1550-449f-8c13-4058ae6b185a
 
 === Method
-A stream can be created with the POST method.
+A stream can be created with the PUT method.
 
 === Body
 A stream contains

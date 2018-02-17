@@ -19,6 +19,7 @@ import {EffectsModule} from "@ngrx/effects";
 import {FilterService} from "./services/filter.service";
 import {StreamsModule} from "./streams/streams.module";
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
+import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -37,7 +38,10 @@ const routes: Routes = [
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
         EffectsModule.forRoot([AppConfigEffects, FilterService]),
-        StoreRouterConnectingModule
+        StoreRouterConnectingModule,
+        StoreDevtoolsModule.instrument({
+            maxAge:20
+        })
     ],
     declarations: [
         AppComponent,

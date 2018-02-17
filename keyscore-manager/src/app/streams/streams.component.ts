@@ -50,7 +50,7 @@ export class StreamsComponent {
     }
 
     createStream(activeRouting: boolean = false) {
-        var streamId = uuid();
+        let streamId = uuid();
         this.store.dispatch(new CreateStreamAction(streamId, "New Stream", ""));
         if(activeRouting){
             this.router.navigate(['/stream/'+streamId])

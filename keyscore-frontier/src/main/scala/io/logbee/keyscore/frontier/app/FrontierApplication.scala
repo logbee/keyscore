@@ -42,7 +42,7 @@ object FrontierApplication extends App with FrontierJsonProtocol {
   val route = cors() {
     pathPrefix("stream") {
       path(JavaUUID) { streamId =>
-        post {
+        put {
           entity(as[StreamModel]) { stream =>
             complete((StatusCodes.Created, (streamManager ? CreateNewStream(streamId, stream)).map(_.toString)))
           }

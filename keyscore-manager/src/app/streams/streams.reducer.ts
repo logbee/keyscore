@@ -62,7 +62,6 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             }
             if (result.editingStream != null && result.editingStream.id == action.stream.id) {
                 result.editingStream = action.stream;
-                console.log("editing stream update")
             }
             break;
         case DELETE_STREAM:
