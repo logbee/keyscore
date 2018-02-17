@@ -1,0 +1,22 @@
+apply plugin: 'scala'
+apply from: rootProject.file('dependencies.gradle')
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile dependency.scala_lang
+    compile dependency.akka_actor
+    compile dependency.akka_cluster
+
+    testCompile dependency.scala_test
+}
+
+jar {
+    manifest.attributes ([
+        'Implementation-Title': project.name,
+        'Implementation-Version': version,
+    ])
+}

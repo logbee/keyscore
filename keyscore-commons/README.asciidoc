@@ -1,0 +1,3 @@
+= Description
+
+The keyscore-commons is a library shared between the other modules of keyscore.
