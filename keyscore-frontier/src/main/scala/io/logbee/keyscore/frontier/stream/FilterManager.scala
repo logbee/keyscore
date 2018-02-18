@@ -27,9 +27,9 @@ object FilterManager {
 
 
   case class StreamBlueprint(uuid: UUID,
-                             source: Source[CommittableEvent, UniqueKillSwitch],
-                             sink: Sink[CommittableEvent, NotUsed],
-                             filter: Map[UUID, Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]]])
+                             source: Source[CommittableRecord, UniqueKillSwitch],
+                             sink: Sink[CommittableRecord, NotUsed],
+                             filter: Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]])
 
   case class UpdateFilter(uuid:UUID,configuration:GrokFilterConfiguration)
 
@@ -94,7 +94,7 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
         KafkaSink.create(sinkModel.sink_topic, sinkModel.bootstrap_server)
     }
 
-    val filterBuffer = scala.collection.mutable.Map[UUID, Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]]]()
+    val filterBuffer = scala.collection.mutable.Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]()
 
     model.filter.foreach { filter =>
       filter.filter_type match {

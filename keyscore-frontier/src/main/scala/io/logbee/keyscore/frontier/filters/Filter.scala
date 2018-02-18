@@ -5,4 +5,4 @@ import akka.stream.stage.GraphStageWithMaterializedValue
 
 import scala.concurrent.Future
 
-abstract class Filter extends GraphStageWithMaterializedValue[FlowShape[CommittableEvent, CommittableEvent], Future[FilterHandle]]
+abstract class Filter extends GraphStageWithMaterializedValue[FlowShape[CommittableRecord, CommittableRecord], Future[FilterHandle]]

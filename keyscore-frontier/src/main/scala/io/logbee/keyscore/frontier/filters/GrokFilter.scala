@@ -15,10 +15,10 @@ import scala.util.matching.Regex
 
 object GrokFilter {
 
-  def apply(config: GrokFilterConfiguration): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
+  def apply(config: GrokFilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] =
     Flow.fromGraph(new GrokFilter(config))
 
-  def apply(isPaused: Boolean, fieldNames: List[String], pattern: String):  Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] = {
+  def apply(isPaused: Boolean, fieldNames: List[String], pattern: String):  Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
     val conf = new GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
     Flow.fromGraph(new GrokFilter(conf))
   }
@@ -36,8 +36,8 @@ class GrokFilter(initialConfiguration: GrokFilterConfiguration) extends Filter {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
-  val in = Inlet[CommittableEvent]("grok.in")
-  val out = Outlet[CommittableEvent]("grok.out")
+  val in = Inlet[CommittableRecord]("grok.in")
+  val out = Outlet[CommittableRecord]("grok.out")
 
   override val shape = FlowShape(in, out)
 
@@ -104,10 +104,10 @@ class GrokFilter(initialConfiguration: GrokFilterConfiguration) extends Filter {
       }
     }
 
-    private def filter(event: CommittableEvent): CommittableEvent = {
+    private def filter(record: CommittableRecord): CommittableRecord = {
 
       val payload = new mutable.HashMap[String, Field]
-      for (field <- event.payload.values) {
+      for (field <- record.payload.values) {
         payload.put(field.name, field)
         if (fieldNames.contains(field.name) && field.isInstanceOf[TextField]) {
           regex.findFirstMatchIn(field.asInstanceOf[TextField].value)
@@ -120,7 +120,7 @@ class GrokFilter(initialConfiguration: GrokFilterConfiguration) extends Filter {
         }
       }
 
-      new CommittableEvent(event.id, payload.toMap, event.offset)
+      new CommittableRecord(record.id, payload.toMap, record.offset)
     }
 
     private def isOpen = !isPaused

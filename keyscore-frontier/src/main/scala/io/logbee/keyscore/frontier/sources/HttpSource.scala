@@ -9,21 +9,21 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.RouteDirectives
 import akka.stream.stage._
 import akka.stream.{KillSwitch, _}
-import io.logbee.keyscore.frontier.filters.CommittableEvent
-import io.logbee.keyscore.model.{Event, TextField}
+import io.logbee.keyscore.frontier.filters.CommittableRecord
+import io.logbee.keyscore.model.{Record, TextField}
 
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 
 
-class HttpSource(initialConfiguration: HttpSourceConfiguration)(implicit val system: ActorSystem) extends GraphStageWithMaterializedValue[SourceShape[CommittableEvent], KillSwitch] {
+class HttpSource(initialConfiguration: HttpSourceConfiguration)(implicit val system: ActorSystem) extends GraphStageWithMaterializedValue[SourceShape[CommittableRecord], KillSwitch] {
 
   private implicit val executionContext = system.dispatcher
   private implicit val materialzer = ActorMaterializer()
 
-  private val out: Outlet[CommittableEvent] = Outlet("http.out")
+  private val out: Outlet[CommittableRecord] = Outlet("http.out")
 
-  override val shape: SourceShape[CommittableEvent] = SourceShape(out)
+  override val shape: SourceShape[CommittableRecord] = SourceShape(out)
 
   override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, KillSwitch) = {
     val logic = new HttpSourceLogic
@@ -36,15 +36,15 @@ class HttpSource(initialConfiguration: HttpSourceConfiguration)(implicit val sys
     private var bindAdress: String = "localhost"
     private var port: Int = 8000
 
-    private val queue = mutable.Queue[CommittableEvent]()
+    private val queue = mutable.Queue[CommittableRecord]()
     private var bindingFuture: Option[Future[Http.ServerBinding]] = None
 
-    private val insertPayloadCallback = getAsyncCallback[(String, Promise[Event])] {
+    private val insertPayloadCallback = getAsyncCallback[(String, Promise[Record])] {
       case (payload, promise) =>
-        val event = CommittableEvent(TextField(fieldName, payload))
-        queue.enqueue(event)
+        val record = CommittableRecord(TextField(fieldName, payload))
+        queue.enqueue(record)
         drain()
-        promise.success(event)
+        promise.success(record)
     }
 
     val killSwitch: KillSwitch = new KillSwitch {
@@ -76,10 +76,10 @@ class HttpSource(initialConfiguration: HttpSourceConfiguration)(implicit val sys
     private val route: Route = pathEndOrSingleSlash {
       post {
         entity(as[String]) { payload =>
-          val promise = Promise[Event]()
+          val promise = Promise[Record]()
           insertPayloadCallback.invoke(payload, promise)
           onSuccess(promise.future) {
-            case event => RouteDirectives.complete(StatusCodes.OK, s"${event.id}")
+            case record => RouteDirectives.complete(StatusCodes.OK, s"${record.id}")
             case _ => RouteDirectives.complete(StatusCodes.InternalServerError)
           }
         }

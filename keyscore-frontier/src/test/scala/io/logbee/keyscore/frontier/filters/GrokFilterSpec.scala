@@ -18,19 +18,19 @@ class GrokFilterSpec extends WordSpec with ScalaFutures {
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = materializer.executionContext
 
-  val event1 = CommittableEvent(TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C"))
-  val event2 = CommittableEvent(TextField("message", "Is is a rainy day. Temperature: 5.8 °C"))
-  val event3 = CommittableEvent(TextField("message", "The weather is sunny with a current temperature of: 14.4 °C"))
+  val record1 = CommittableRecord(TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C"))
+  val record2 = CommittableRecord(TextField("message", "Is is a rainy day. Temperature: 5.8 °C"))
+  val record3 = CommittableRecord(TextField("message", "The weather is sunny with a current temperature of: 14.4 °C"))
 
   val initialConfiguration = GrokFilterConfiguration(isPaused = false, fieldNames = List("message"), pattern = ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*")
 
   "A paused grok filter" should {
 
-    "only emit three events when it gets unpaused" in {
+    "only emit three records when it gets unpaused" in {
 
-      val (handleFutur, probe) = Source(List(event1, event2, event3))
+      val (handleFutur, probe) = Source(List(record1, record2, record3))
         .viaMat(GrokFilter(initialConfiguration.copy(isPaused = Some(true), pattern = Some(""))))(Keep.right)
-        .toMat(TestSink.probe[CommittableEvent])(Keep.both)
+        .toMat(TestSink.probe[CommittableRecord])(Keep.both)
         .run()
 
       whenReady(handleFutur.mapTo[GrokFilterHandle]) { handle =>
@@ -42,11 +42,11 @@ class GrokFilterSpec extends WordSpec with ScalaFutures {
           _ shouldBe true
         }
 
-        probe.expectNext(event1)
+        probe.expectNext(record1)
 
         probe.request(2)
-        probe.expectNext(event2)
-        probe.expectNext(event3)
+        probe.expectNext(record2)
+        probe.expectNext(record3)
 
         probe.expectComplete()
       }
@@ -58,36 +58,36 @@ class GrokFilterSpec extends WordSpec with ScalaFutures {
 
     "extract data into a new field when the grok rule matches the specified field" in {
 
-      val (handleFutur, probe) = Source(List(event1, event2, event3))
+      val (handleFutur, probe) = Source(List(record1, record2, record3))
         .viaMat(GrokFilter(initialConfiguration))(Keep.right)
-        .toMat(TestSink.probe[CommittableEvent])(Keep.both)
+        .toMat(TestSink.probe[CommittableRecord])(Keep.both)
         .run()
 
       whenReady(handleFutur.mapTo[GrokFilterHandle]) { handle =>
 
         probe.request(3)
 
-        probe.expectNext(CommittableEvent(event1, NumberField("temperature", -11.5)))
-        probe.expectNext(CommittableEvent(event2, NumberField("temperature", 5.8)))
-        probe.expectNext(CommittableEvent(event3, NumberField("temperature", 14.4)))
+        probe.expectNext(CommittableRecord(record1, NumberField("temperature", -11.5)))
+        probe.expectNext(CommittableRecord(record2, NumberField("temperature", 5.8)))
+        probe.expectNext(CommittableRecord(record3, NumberField("temperature", 14.4)))
         probe.expectComplete()
       }
     }
 
     "not extract any data if the list of field names is empty" in {
 
-      val (handleFutur, probe) = Source(List(event1, event2, event3))
+      val (handleFutur, probe) = Source(List(record1, record2, record3))
         .viaMat(GrokFilter(initialConfiguration.copy(fieldNames = Some(List.empty))))(Keep.right)
-        .toMat(TestSink.probe[CommittableEvent])(Keep.both)
+        .toMat(TestSink.probe[CommittableRecord])(Keep.both)
         .run()
 
       whenReady(handleFutur.mapTo[GrokFilterHandle]) { handle =>
 
         probe.request(3)
 
-        probe.expectNext(event1)
-        probe.expectNext(event2)
-        probe.expectNext(event3)
+        probe.expectNext(record1)
+        probe.expectNext(record2)
+        probe.expectNext(record3)
         probe.expectComplete()
       }
     }

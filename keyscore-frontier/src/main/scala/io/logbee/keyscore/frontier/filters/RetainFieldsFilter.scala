@@ -10,7 +10,7 @@ import scala.concurrent.{Future, Promise}
 
 object RetainFieldsFilter {
 
-  def apply(fieldNames: List[String]): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
+  def apply(fieldNames: List[String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] =
     Flow.fromGraph(new RetainFieldsFilter(fieldNames))
 
   val descriptor: FilterDescriptor = {
@@ -23,8 +23,8 @@ object RetainFieldsFilter {
 class RetainFieldsFilter(fieldNames: List[String]) extends Filter {
   implicit val formats = org.json4s.DefaultFormats
 
-  val in = Inlet[CommittableEvent]("extr.in")
-  val out = stream.Outlet[CommittableEvent]("extr.out")
+  val in = Inlet[CommittableRecord]("extr.in")
+  val out = stream.Outlet[CommittableRecord]("extr.out")
 
   override val shape = FlowShape.of(in, out)
 
@@ -40,9 +40,9 @@ class RetainFieldsFilter(fieldNames: List[String]) extends Filter {
 
     setHandler(in, new InHandler {
       override def onPush(): Unit = {
-        val event = grab(in)
-        val payload = event.payload.filterKeys(fieldNames.contains(_))
-        push(out, CommittableEvent(event.id, payload, event.offset))
+        val record = grab(in)
+        val payload = record.payload.filterKeys(fieldNames.contains(_))
+        push(out, CommittableRecord(record.id, payload, record.offset))
       }
     })
 

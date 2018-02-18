@@ -11,7 +11,7 @@ import org.json4s.DefaultFormats
 import scala.concurrent.{Future, Promise}
 
 object AddFieldsFilter {
-  def apply(fieldsToAdd: Map[String, String]): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
+  def apply(fieldsToAdd: Map[String, String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] =
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
 
   val descriptor: FilterDescriptor = {
@@ -24,8 +24,8 @@ object AddFieldsFilter {
 class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-  val in = Inlet[CommittableEvent]("addFields.in")
-  val out = stream.Outlet[CommittableEvent]("addFields.out")
+  val in = Inlet[CommittableRecord]("addFields.in")
+  val out = stream.Outlet[CommittableRecord]("addFields.out")
 
   override val shape = FlowShape.of(in, out)
 
@@ -39,13 +39,13 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
 
     setHandler(in, new InHandler {
       override def onPush(): Unit = {
-        val event = grab(in)
+        val record = grab(in)
         var payload = scala.collection.mutable.Map[String, Field]()
 
-        payload ++= event.payload
+        payload ++= record.payload
         payload ++= fieldsToAdd.map(pair => (pair._1, TextField(pair._1, pair._2)))
 
-        push(out, CommittableEvent(event.id, payload.toMap, event.offset))
+        push(out, CommittableRecord(record.id, payload.toMap, record.offset))
       }
     })
 

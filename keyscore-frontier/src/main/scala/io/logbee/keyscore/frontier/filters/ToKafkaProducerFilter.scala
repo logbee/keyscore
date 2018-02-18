@@ -22,9 +22,9 @@ object ToKafkaProducerFilter {
   }
 }
 
-class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[CommittableEvent, ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]] {
+class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[CommittableRecord, ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]] {
 
-  private val in = Inlet[CommittableEvent]("ToKafka.in")
+  private val in = Inlet[CommittableRecord]("ToKafka.in")
   private val out = Outlet[ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]("ToKafka.out")
 
   private implicit val formats = DefaultFormats + FieldSerializer[Field]()
@@ -37,12 +37,12 @@ class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[Comm
         override def onPush(): Unit = {
 
 
-          val event = grab(in)
+          val record = grab(in)
 
-          val eventString = Serialization.write(event.payload)
-          val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](sinkTopic, eventString), event.offset)
+          val recordString = Serialization.write(record.payload)
+          val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](sinkTopic, recordString), record.offset)
 
-          println(eventString)
+          println(recordString)
 
           push(out, producerMessage)
         }

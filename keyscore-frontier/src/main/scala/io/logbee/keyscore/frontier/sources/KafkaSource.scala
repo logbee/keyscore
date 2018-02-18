@@ -8,7 +8,7 @@ import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer
 import akka.stream._
 import akka.stream.scaladsl.{Keep, Source}
-import io.logbee.keyscore.frontier.filters.CommittableEvent
+import io.logbee.keyscore.frontier.filters.CommittableRecord
 import io.logbee.keyscore.model.TextField
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
@@ -27,7 +27,7 @@ object KafkaSource {
     * @param system "Actor System"
     * @return Stoppable Kafka Source
     */
-  def create(bootstrapServer: String, sourceTopic: String, groupID: String, offsetConfig: String)(implicit system: ActorSystem): Source[CommittableEvent, UniqueKillSwitch] = {
+  def create(bootstrapServer: String, sourceTopic: String, groupID: String, offsetConfig: String)(implicit system: ActorSystem): Source[CommittableRecord, UniqueKillSwitch] = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
 
@@ -43,7 +43,7 @@ object KafkaSource {
                     .extract[Map[String, String]]
                     .map(pair => (pair._1, TextField(pair._1, pair._2)))
 
-      CommittableEvent(UUID.randomUUID(), fields, element.committableOffset)
+      CommittableRecord(UUID.randomUUID(), fields, element.committableOffset)
     }.viaMat(KillSwitches.single)(Keep.right)
 
     kafkaSource

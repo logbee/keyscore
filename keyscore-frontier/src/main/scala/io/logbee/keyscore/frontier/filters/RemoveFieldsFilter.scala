@@ -9,7 +9,7 @@ import io.logbee.keyscore.model.filter.{FilterDescriptor, ListParameterDescripto
 import scala.concurrent.{Future, Promise}
 
 object RemoveFieldsFilter {
-  def apply(fieldNames: List[String]): Flow[CommittableEvent, CommittableEvent, Future[FilterHandle]] =
+  def apply(fieldNames: List[String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] =
     Flow.fromGraph(new RemoveFieldsFilter(fieldNames))
 
   val descriptor: FilterDescriptor = {
@@ -22,8 +22,8 @@ object RemoveFieldsFilter {
 class RemoveFieldsFilter(fieldNames: List[String]) extends Filter {
   implicit val formats = org.json4s.DefaultFormats
 
-  val in = Inlet[CommittableEvent]("removeFields.in")
-  val out = stream.Outlet[CommittableEvent]("removeFields.out")
+  val in = Inlet[CommittableRecord]("removeFields.in")
+  val out = stream.Outlet[CommittableRecord]("removeFields.out")
 
   override val shape = FlowShape.of(in, out)
 
@@ -37,10 +37,10 @@ class RemoveFieldsFilter(fieldNames: List[String]) extends Filter {
 
     setHandler(in, new InHandler {
       override def onPush(): Unit = {
-        val event = grab(in)
-        var payload = event.payload.filterKeys(!fieldNames.contains(_))
+        val record = grab(in)
+        var payload = record.payload.filterKeys(!fieldNames.contains(_))
 
-        push(out, CommittableEvent(event.id, payload, event.offset))
+        push(out, CommittableRecord(record.id, payload, record.offset))
       }
     })
 
