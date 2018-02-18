@@ -8,7 +8,7 @@ export const RESET_STREAM = '[Stream] ResetStream';
 export const UPDATE_STREAM = '[Stream] UpdateStream';
 export const DELETE_STREAM = '[Stream] DeleteStream';
 export const ADD_FILTER = '[Stream] AddFilter';
-export const MOVE_FILTER= '[Stream] MoveFilter'
+export const MOVE_FILTER = '[Stream] MoveFilter';
 
 export type StreamActions =
     | CreateStreamAction

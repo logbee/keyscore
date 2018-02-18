@@ -43,7 +43,7 @@ class AgentManager extends Actor with ActorLogging {
 
     case AgentJoin(name) =>
       val uid = members(sender().path.address)
-      val agent = RemoteAgent(uid, name)
+      val agent = RemoteAgent(uid, name, sender().path.address.host.get)
       agents += (uid -> agent)
       log.info(s"Agent joined: $agent")
 

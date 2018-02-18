@@ -1,5 +1,5 @@
-import { Action } from '@ngrx/store';
-import { NavigationExtras } from '@angular/router';
+import {Action} from '@ngrx/store';
+import {NavigationExtras} from '@angular/router';
 
 export const GO = '[Router] Go';
 export const BACK = '[Router] Back';
@@ -23,7 +23,7 @@ export class Forward implements Action {
     readonly type = FORWARD;
 }
 
-export type Actions
-    = Go
+export type Actions =
+    | Go
     | Back
     | Forward;

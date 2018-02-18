@@ -3,14 +3,15 @@ package io.logbee.keyscore.frontier.app
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.common.EntityStreamingSupport
-import akka.http.scaladsl.model.{headers, _}
+import akka.http.scaladsl.model.HttpMethods._
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{HttpOrigin, HttpOriginRange}
 import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
+import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import io.logbee.keyscore.frontier.cluster.AgentManager
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
@@ -21,7 +22,6 @@ import io.logbee.keyscore.frontier.stream.{FilterDescriptorManager, StreamManage
 import io.logbee.keyscore.model.StreamModel
 import streammanagement.FilterManager
 import streammanagement.FilterManager.{FilterNotFound, FilterUpdated, UpdateFilter}
-import akka.http.scaladsl.model.HttpMethods._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -91,7 +91,7 @@ object FrontierApplication extends App with FrontierJsonProtocol {
           }
         }
       } ~
-      pathPrefix("agents") {
+      pathPrefix("agent") {
         get {
           onSuccess(agentManager ? QueryAgents) {
             case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents)
@@ -100,9 +100,7 @@ object FrontierApplication extends App with FrontierJsonProtocol {
         }
       } ~
       pathSingleSlash {
-        complete {
-          appInfo
-        }
+        complete { appInfo }
       }
   }
 

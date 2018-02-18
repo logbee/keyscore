@@ -22,7 +22,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val grokFilterFormat = jsonFormat5(GrokFilterModel)
   implicit val grokFilterConfiguration = jsonFormat3(GrokFilterConfigurationApply)
   implicit val appInfoFormat = jsonFormat3(AppInfo.apply)
-  implicit val remoteAgentFormat = jsonFormat2(RemoteAgent)
+  implicit val remoteAgentFormat = jsonFormat3(RemoteAgent)
 
   implicit val filterDescriptor = jsonFormat4(FilterDescriptor.apply)
 

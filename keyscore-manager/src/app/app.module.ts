@@ -8,7 +8,6 @@ import {StoreModule} from '@ngrx/store';
 
 import {AppComponent} from './app.component';
 import {DashboardComponent} from "./dashboard/dashboard.component";
-import {NodesComponent} from "./agents/agents.component";
 import {FiltersComponent} from "./filters/filters.component";
 import {FilterDetailComponent} from "./filters/filter-detail.component";
 import {AppConfigEffects} from "./app.config";
@@ -21,11 +20,12 @@ import {StreamsModule} from "./streams/streams.module";
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {RouterEffects} from "./router/router.effects";
+import {AgentsModule} from "./agents/agents.module";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
     {path: 'dashboard', component: DashboardComponent},
-    {path: 'node', component: NodesComponent},
+    {path: 'agent', loadChildren: () => AgentsModule},
     {path: 'stream', loadChildren: () => StreamsModule},
     {path: 'filter', component: FiltersComponent},
     {path: 'filter/details', component: FilterDetailComponent}
@@ -47,7 +47,6 @@ const routes: Routes = [
     declarations: [
         AppComponent,
         DashboardComponent,
-        NodesComponent,
         FiltersComponent,
         FilterDetailComponent,
         FilterChooser
