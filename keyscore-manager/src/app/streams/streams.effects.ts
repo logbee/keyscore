@@ -37,8 +37,8 @@ export class StreamsEffects {
         map(action => (action as UpdateStreamAction).stream),
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([stream, config]) => {
-            const url: string = config.getString('keyscore.frontier.base-url')+'/stream';
-            return this.http.get(url+'/stream').pipe(
+            const streamUrl: string = config.getString('keyscore.frontier.base-url')+'/stream/';
+            return this.http.put(streamUrl+stream.id,{}).pipe(
                 map(data => new UpdateStreamSuccessAction(stream)),
                 catchError((cause: any) => of(new UpdateStreamFailureAction(stream)))
             );
