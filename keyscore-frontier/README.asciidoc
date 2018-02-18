@@ -18,7 +18,17 @@ To build a Docker image run:
 ```
 gradle buildDockerImage
 ```
+
+==== Single Node ====
 To start a container use link:https://docs.docker.com/engine/reference/run/[docker run]:
 ```
-docker run --name keyscore-agent -d logbee/keyscore-agent:latest
+docker run --name keyscore-frontier -d logbee/keyscore-agent:latest
 ```
+
+==== Cluster ====
+To connect a frontier to a cluster it is import to configure the IP addresses:
+```
+docker run --name keyscore-frontier --env KEYSCORE_REMOTE_HOST=172.17.0.2 --env KEYSCORE_CLUSTER_SEED_NODE_HOST=172.17.0.2 --env KEYSCORE_REMOTE_BIND_HOST=172.17.0.2 -d logbee/keyscore-frontier
+```
+The environment variables `KEYSCORE_REMOTE_HOST` and `KEYSCORE_REMOTE_BIND_HOST` have to be configured to an interface which has access to a common network at which the other cluster nodes are reachable.
+The environment variable `KEYSCORE_CLUSTER_SEED_NODE_HOST` has to point to another node of the cluster. If the node is the first node of the cluster the seed-node can point to it self, like in the configuration above.
