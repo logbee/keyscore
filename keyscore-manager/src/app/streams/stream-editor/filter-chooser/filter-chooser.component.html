@@ -10,22 +10,31 @@
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col">
-                            <div class="row">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <img class="input-group-text" width="48em" src="/assets/images/magnifying-glass.svg"/>
-                                    </div>
-                                    <input type="text" class="form-control" placeholder="search..." aria-label="search">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <img class="input-group-text" width="48em" height="48em" src="/assets/images/magnifying-glass.svg"/>
+                            </div>
+                            <input type="text" class="form-control" placeholder="search..." aria-label="search">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-xl-3">
+                            <div class="card">
+                                <div class="list-group-flush">
+                                    <button (click)="selectGroup('sink')" [ngClass]="{true:'list-group-item list-group-item-action active-group', false: 'list-group-item list-group-item-action'}[selectedGroup=='sink']">Sink</button>
+                                    <button (click)="selectGroup('filter')" [ngClass]="{true:'list-group-item list-group-item-action active-group', false: 'list-group-item list-group-item-action'}[selectedGroup=='filter']">Filter</button>
+                                    <button (click)="selectGroup('source')" [ngClass]="{true:'list-group-item list-group-item-action active-group', false: 'list-group-item list-group-item-action'}[selectedGroup=='source']">Source</button>
                                 </div>
                             </div>
-                            <div class="card mt-3">
+                        </div>
+                        <div class="col-xl-3">
+                            <div class="card">
                                 <div *ngFor="let descriptor of filterDescriptors$ | async" class="list-group-flush">
                                     <button class="list-group-item list-group-item-action" (click)="select(descriptor)">{{descriptor.displayName}}</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col ml-3">
+                        <div class="col-xl-6">
                             <div *ngIf="selectedFilterDescriptor" class="card">
                                 <div class="list-group-flush">
                                     <div class="list-group-item d-flex justify-content-between">

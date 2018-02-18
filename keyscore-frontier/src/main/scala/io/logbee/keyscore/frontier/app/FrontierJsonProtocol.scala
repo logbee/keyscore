@@ -13,7 +13,7 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat, _}
 
 trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
 
-  implicit val streamFormat = jsonFormat4(StreamModel)
+  implicit val streamFormat = jsonFormat6(StreamModel)
   implicit val kafkaSourceFormat = jsonFormat5(KafkaSourceModel)
   implicit val kafkaSinkFormat = jsonFormat3(KafkaSinkModel)
   implicit val extractFieldsFilterFormat = jsonFormat3(RetainFieldsFilterModel)

@@ -6,4 +6,4 @@ import io.logbee.keyscore.model.filter.FilterModel
 import io.logbee.keyscore.model.sink.SinkModel
 import io.logbee.keyscore.model.source.SourceModel
 
-case class StreamModel(id: UUID, source: SourceModel, sink: SinkModel, filter: List[FilterModel])
+case class StreamModel(id: UUID, name: String, description: String, source: SourceModel, sink: SinkModel, filter: List[FilterModel])

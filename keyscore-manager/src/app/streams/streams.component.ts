@@ -17,7 +17,7 @@ import * as RouterActions from '../router/router.actions';
                     <div class="card-body">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <img class="input-group-text" width="48em" src="/assets/images/magnifying-glass.svg"/>
+                                <img class="input-group-text" width="48em" height="48em" src="/assets/images/magnifying-glass.svg"/>
                             </div>
                             <input type="text" class="form-control" placeholder="search..." aria-label="search">
                         </div>
