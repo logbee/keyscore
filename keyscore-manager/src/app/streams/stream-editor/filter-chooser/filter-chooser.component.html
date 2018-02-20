@@ -20,10 +20,8 @@
                     <div class="row mt-3">
                         <div class="col-xl-3">
                             <div class="card">
-                                <div class="list-group-flush">
-                                    <button (click)="selectGroup('sink')" [ngClass]="{true:'list-group-item list-group-item-action active-group', false: 'list-group-item list-group-item-action'}[selectedGroup=='sink']">Sink</button>
-                                    <button (click)="selectGroup('filter')" [ngClass]="{true:'list-group-item list-group-item-action active-group', false: 'list-group-item list-group-item-action'}[selectedGroup=='filter']">Filter</button>
-                                    <button (click)="selectGroup('source')" [ngClass]="{true:'list-group-item list-group-item-action active-group', false: 'list-group-item list-group-item-action'}[selectedGroup=='source']">Source</button>
+                                <div *ngFor="let category of categories$" class="list-group-flush">
+                                    <button (click)="selectCategory(category)" [ngClass]="{true:'list-group-item list-group-item-action active-group', false: 'list-group-item list-group-item-action'}[selectedCategory$==category]">{{category}}</button>
                                 </div>
                             </div>
                         </div>

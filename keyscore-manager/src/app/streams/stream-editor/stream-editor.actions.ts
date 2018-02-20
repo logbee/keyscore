@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor} from "../../services/filter.service";
+import {FilterDescriptor} from "../streams.model";
 
 export const REMOVE_FILTER = '[Streams] REMOVE_FILTER';
 export const MOVE_FILTER = '[Streams] MOVE_FILTER';

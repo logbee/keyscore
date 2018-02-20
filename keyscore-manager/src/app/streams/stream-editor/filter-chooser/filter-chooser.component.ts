@@ -1,15 +1,17 @@
 import {Component} from '@angular/core'
 import {ModalService} from "../../../services/modal.service";
-import {FilterDescriptor, FilterService, LOAD_FILTER_DESCRIPTORS} from "../../../services/filter.service";
+
 import {Store} from "@ngrx/store";
-import {Observable} from "rxjs/Observable";
-import {AppState} from "../../../app.component";
-import {AddFilterAction} from "../../streams.actions";
+import {Observable} from "rxjs/Rx";
+import {AddFilterAction, LoadFilterDescriptorsAction} from "../../streams.actions";
+import {FilterDescriptor, getFilterDescriptors, StreamsState} from "../../streams.model";
+import {Subject} from "rxjs/Subject";
+
 
 @Component({
     selector: 'filter-chooser',
     template: require('./filter-chooser.component.html'),
-    styles:[
+    styles: [
         '.modal-lg{max-width:80% !important;}',
         '.list-group-item-action{cursor: pointer;}',
         '.active-group{background-color: cornflowerblue;color:rgb(255,255,255);transition: all 0.14s ease-in-out}'
@@ -20,18 +22,25 @@ import {AddFilterAction} from "../../streams.actions";
     ],
     providers: [
         ModalService,
-        FilterService
     ]
 })
+
+
 export class FilterChooser {
 
     private filterDescriptors$: Observable<FilterDescriptor[]>;
-    private selectedFilterDescriptor: FilterDescriptor;
-    private selectedGroup:string = 'sink';
 
-    constructor(private store: Store<AppState>, private modalService: ModalService) {
-        this.filterDescriptors$ = this.store.select(state => state.filterDescriptors);
-        this.store.dispatch({type: LOAD_FILTER_DESCRIPTORS});
+
+    private selectedFilterDescriptor: FilterDescriptor;
+    private selectedCategory$: Subject<string>;
+    private activeDescriptors$: Observable<FilterDescriptor[]>;
+    private categories$:Observable<string[]>;
+
+    constructor(private store: Store<StreamsState>, private modalService: ModalService) {
+        this.filterDescriptors$ = this.store.select(getFilterDescriptors);
+        this.filterDescriptors$.subscribe(descriptors => this.categories$ = Observable.from(unique(descriptors.map(descriptor => descriptor.category))))
+        this.activeDescriptors$ = this.filterDescriptors$.combineLatest(this.selectedCategory$).map(([descriptors, category]) => descriptors.filter(descriptor => descriptor.category == category))
+        this.store.dispatch(new LoadFilterDescriptorsAction());
     }
 
     select(filterDescriptor: FilterDescriptor) {
@@ -42,11 +51,20 @@ export class FilterChooser {
         this.store.dispatch(new AddFilterAction(this.selectedFilterDescriptor));
     }
 
-    selectGroup(group:string){
-        this.selectedGroup = group;
+    selectCategory(category: string) {
+        this.selectedCategory$.next(category)
     }
 
     close() {
         this.modalService.close()
     }
+
+
+}
+
+function unique(a:string[]) {
+    var seen = {};
+    return a.filter(function(item) {
+        return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+    });
 }

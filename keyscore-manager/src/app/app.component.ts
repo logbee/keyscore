@@ -1,12 +1,11 @@
 import {Component, ViewChild, ViewContainerRef} from '@angular/core';
 import {ModalService} from "./services/modal.service";
 import {Store} from "@ngrx/store";
-import {FilterDescriptor} from "./services/filter.service";
 import {AppConfig} from "./app.config";
 
 export interface AppState {
     config: AppConfig
-    filterDescriptors: FilterDescriptor[];
+
 }
 
 @Component({

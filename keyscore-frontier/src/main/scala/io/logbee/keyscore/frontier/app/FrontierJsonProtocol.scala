@@ -24,7 +24,7 @@ trait FrontierJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val appInfoFormat = jsonFormat3(AppInfo.apply)
   implicit val remoteAgentFormat = jsonFormat3(RemoteAgent)
 
-  implicit val filterDescriptor = jsonFormat4(FilterDescriptor.apply)
+  implicit val filterDescriptor = jsonFormat5(FilterDescriptor.apply)
 
 
   implicit object SourceJsonFormat extends RootJsonFormat[SourceModel] {

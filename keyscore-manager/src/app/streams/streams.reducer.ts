@@ -4,6 +4,7 @@ import {
     CREATE_STREAM,
     DELETE_STREAM,
     EDIT_STREAM,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS,
     MOVE_FILTER,
     RESET_STREAM,
     StreamActions,
@@ -33,7 +34,8 @@ const initialState: StreamsState = {
         }
     ],
     editingStream: null,
-    loading: false
+    loading: false,
+    filterDescriptors:[],
 };
 
 export function StreamsReducer(state: StreamsState = initialState, action: StreamActions): StreamsState {
@@ -78,7 +80,8 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             const filterIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filterId);
             swap(result.editingStream.filters, filterIndex, action.position);
             break;
-
+        case LOAD_FILTER_DESCRIPTORS_SUCCESS:
+            result.filterDescriptors = action.descriptors;
     }
 
     return result

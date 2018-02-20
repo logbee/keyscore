@@ -1,6 +1,5 @@
 import {Action} from "@ngrx/store";
-import {StreamModel} from "./streams.model";
-import {FilterDescriptor} from "../services/filter.service";
+import {FilterDescriptor, StreamModel} from "./streams.model";
 
 export const CREATE_STREAM = '[Stream] CreateStream';
 export const EDIT_STREAM = '[Stream] EditStream';
@@ -9,6 +8,9 @@ export const UPDATE_STREAM = '[Stream] UpdateStream';
 export const DELETE_STREAM = '[Stream] DeleteStream';
 export const ADD_FILTER = '[Stream] AddFilter';
 export const MOVE_FILTER = '[Stream] MoveFilter';
+export const LOAD_FILTER_DESCRIPTORS_SUCCESS = '[Stream] LoadFilterDescriptorsSuccess';
+export const LOAD_FILTER_DESCRIPTORS_FAILURE ='[Stream] LoadFilterDescriptorsFailed';
+export const LOAD_FILTER_DESCRIPTORS = '[Stream] LoadFilterDescriptors';
 
 export type StreamActions =
     | CreateStreamAction
@@ -20,6 +22,9 @@ export type StreamActions =
     | DeleteStreamAction
     | AddFilterAction
     | MoveFilterAction
+    | LoadFilterDescriptorsSuccessAction
+    | LoadFilterDescriptorsFailureAction
+    | LoadFilterDescriptorsAction
 
 export class CreateStreamAction implements Action {
     readonly type = '[Stream] CreateStream';
@@ -91,4 +96,23 @@ export class MoveFilterAction implements Action{
     constructor(readonly filterId:string, readonly position:number){
 
     }
+}
+
+export class LoadFilterDescriptorsSuccessAction implements Action {
+    readonly type = '[Stream] LoadFilterDescriptorsSuccess';
+
+    constructor(readonly descriptors: FilterDescriptor[]) {
+    }
+}
+
+export class LoadFilterDescriptorsFailureAction implements Action {
+    readonly type = '[Stream] LoadFilterDescriptorsFailed';
+
+    constructor(readonly cause: any) {
+    }
+}
+
+export class LoadFilterDescriptorsAction implements Action{
+    readonly type = '[Stream] LoadFilterDescriptors'
+
 }

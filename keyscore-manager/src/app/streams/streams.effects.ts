@@ -1,4 +1,4 @@
-import {catchError, combineLatest, map, switchMap} from "rxjs/operators";
+import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
 import {of} from "rxjs/observable/of";
@@ -8,6 +8,9 @@ import {Injectable} from "@angular/core";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {
     EditStreamAction,
+    LOAD_FILTER_DESCRIPTORS,
+    LoadFilterDescriptorsFailureAction,
+    LoadFilterDescriptorsSuccessAction,
     UPDATE_STREAM,
     UpdateStreamAction,
     UpdateStreamFailureAction,
@@ -16,6 +19,7 @@ import {
 import {HttpClient} from "@angular/common/http";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
+import {FilterDescriptor} from "./streams.model";
 
 @Injectable()
 export class StreamsEffects {
@@ -43,6 +47,17 @@ export class StreamsEffects {
                 catchError((cause: any) => of(new UpdateStreamFailureAction(stream)))
             );
         })
+    );
+
+    @Effect() loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_FILTER_DESCRIPTORS),
+        combineLatest(this.store.select(selectAppConfig)),
+        mergeMap(([action, config]) =>
+            this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors').pipe(
+                map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
+                catchError(cause => of(new LoadFilterDescriptorsFailureAction(cause)))
+            )
+        )
     );
 
     constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient) {

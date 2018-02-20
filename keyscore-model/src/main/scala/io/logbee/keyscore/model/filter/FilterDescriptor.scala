@@ -11,7 +11,8 @@ case class FilterDescriptor(
                              name: String,
                              displayName: String,
                              description: String,
-                             parameters: List[ParameterDescriptor] = List.empty
+                             parameters: List[ParameterDescriptor] = List.empty,
+                             category: String = "filter"
                            )
 
 trait ParameterDescriptor {

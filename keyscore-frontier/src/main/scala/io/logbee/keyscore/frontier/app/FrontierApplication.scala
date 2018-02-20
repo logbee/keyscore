@@ -84,12 +84,12 @@ object FrontierApplication extends App with FrontierJsonProtocol {
         }
       } ~
       pathPrefix("descriptors") {
-        get {
-          onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
-            case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
-            case _ => complete(StatusCodes.InternalServerError)
+          get {
+            onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
+              case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
           }
-        }
       } ~
       pathPrefix("agent") {
         get {

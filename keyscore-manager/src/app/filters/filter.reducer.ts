@@ -1,4 +1,6 @@
-import {FilterDescriptor, FilterDescriptorAction, LOAD_FILTER_DESCRIPTORS_SUCCESS} from "../services/filter.service";
+/*import {FilterDescriptor, FilterDescriptorAction, LOAD_FILTER_DESCRIPTORS_SUCCESS} from "../services/filter.service";
+import {AppState} from "../app.component";
+
 
 export function filterDescriptorReducer(state: FilterDescriptor[] = [], action: FilterDescriptorAction): FilterDescriptor[] {
 
@@ -9,4 +11,4 @@ export function filterDescriptorReducer(state: FilterDescriptor[] = [], action: 
     }
 
     return state
-}
+}*/

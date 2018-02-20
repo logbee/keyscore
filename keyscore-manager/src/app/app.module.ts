@@ -15,7 +15,6 @@ import {FilterChooser} from "./streams/stream-editor/filter-chooser/filter-choos
 import {metaReducers} from "./meta.reducers";
 import {reducers} from "./app.reducers";
 import {EffectsModule} from "@ngrx/effects";
-import {FilterService} from "./services/filter.service";
 import {StreamsModule} from "./streams/streams.module";
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
@@ -38,7 +37,7 @@ const routes: Routes = [
         HttpClientModule,
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
-        EffectsModule.forRoot([AppConfigEffects, FilterService, RouterEffects]),
+        EffectsModule.forRoot([AppConfigEffects, RouterEffects]),
         StoreRouterConnectingModule,
         StoreDevtoolsModule.instrument({
             maxAge:20

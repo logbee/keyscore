@@ -10,19 +10,22 @@ object FilterDescriptorManager {
   def props(): Props = Props(new FilterDescriptorManager())
 
   case object GetStandardDescriptors
-  case class StandardDescriptors(listOfDescriptors: List[FilterDescriptor])
+
+  case class StandardDescriptors(listOfDescriptorsAndType: List[FilterDescriptor])
 
   case object GetActiveDescriptors
+
   case class ActiveDescriptors(listOfDescriptors: List[FilterDescriptor])
+
 }
 
 
-class FilterDescriptorManager extends Actor with ActorLogging{
+class FilterDescriptorManager extends Actor with ActorLogging {
 
-  val listOfStandardDescriptors = List[FilterDescriptor] (
+  val listOfFilterDescriptors = List[FilterDescriptor](
     AddFieldsFilter.descriptor, GrokFilter.descriptor, RemoveFieldsFilter.descriptor, RetainFieldsFilter.descriptor
   )
-  val listOfActiveDescriptors = List[FilterDescriptor] ()
+  val listOfActiveDescriptors = List[FilterDescriptor]()
 
   override def preStart(): Unit = {
     log.info("FilterDescriptorManager started")
@@ -33,8 +36,10 @@ class FilterDescriptorManager extends Actor with ActorLogging{
   }
 
   override def receive: Receive = {
-    case GetStandardDescriptors =>
-      sender() ! StandardDescriptors(listOfStandardDescriptors)
+    case GetStandardDescriptors=>
+      sender ! StandardDescriptors(listOfFilterDescriptors)
+
+
     case GetActiveDescriptors =>
       sender() ! ActiveDescriptors(listOfActiveDescriptors)
   }

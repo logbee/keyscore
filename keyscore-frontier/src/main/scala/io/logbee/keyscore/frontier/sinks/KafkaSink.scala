@@ -6,6 +6,7 @@ import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.scaladsl.{Keep, Sink}
 import io.logbee.keyscore.frontier.filters.{CommittableRecord, ToKafkaProducerFilter}
+import io.logbee.keyscore.model.filter.{FilterDescriptor, TextParameterDescriptor}
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 
 
@@ -20,5 +21,12 @@ object KafkaSink {
     val kafkaSink = ToKafkaProducerFilter(sinkTopic).toMat(sink)(Keep.left)
 
     kafkaSink
+  }
+
+  val descriptor:FilterDescriptor = {
+    FilterDescriptor("KafkaSink","Kafka Sink","Writes the streams output to a given kafka topic",List(
+      TextParameterDescriptor("sinkTopic"),
+      TextParameterDescriptor("bootstrapServer")
+    ))
   }
 }

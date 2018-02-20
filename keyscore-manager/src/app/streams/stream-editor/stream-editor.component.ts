@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Location} from '@angular/common';
 import {Observable} from "rxjs/Observable";
-import {FilterService} from "../../services/filter.service"
 import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
@@ -43,14 +42,13 @@ import {DeleteStreamAction, MoveFilterAction, ResetStreamAction, UpdateStreamAct
         </div>
     `,
     providers: [
-        FilterService
     ]
 })
 export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
     isLocked: boolean;
 
-    constructor(private store: Store<any>, private location: Location, private filterService: FilterService, private modalService: ModalService) {
+    constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
     }
 
     ngOnInit(): void {
