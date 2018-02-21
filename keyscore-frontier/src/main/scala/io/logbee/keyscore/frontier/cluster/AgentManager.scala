@@ -5,7 +5,7 @@ import akka.cluster.ClusterEvent._
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, SubscribeAck, Unsubscribe}
 import akka.cluster.{Cluster, Member}
-import io.logbee.keyscore.commons.cluster.AgentJoin
+import io.logbee.keyscore.commons.cluster.{AgentJoin, AgentJoinAccepted}
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 
 import scala.collection.mutable
@@ -45,6 +45,7 @@ class AgentManager extends Actor with ActorLogging {
       val uid = members(sender().path.address)
       val agent = RemoteAgent(uid, name, sender().path.address.host.get)
       agents += (uid -> agent)
+      sender() ! AgentJoinAccepted()
       log.info(s"Agent joined: $agent")
 
     case MemberExited(member) =>
