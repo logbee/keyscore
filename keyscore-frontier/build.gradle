@@ -32,13 +32,11 @@ dependencies {
     compile dependency.akka_stream
     compile dependency.akka_slf4j
     compile dependency.akka_http
+    compile dependency.akka_http_json
+    compile dependency.akka_http_cors
     compile dependency.akka_persistence
     compile dependency.akka_cluster
     compile dependency.akka_stream_kafka
-
-    compile dependency.json4s
-
-    compile dependency.akka_http_cors
 
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit

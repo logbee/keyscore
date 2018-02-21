@@ -2,7 +2,6 @@ package io.logbee.keyscore.frontier.app
 
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{HttpOrigin, HttpOriginRange}
@@ -12,6 +11,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.frontier.cluster.AgentManager
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
@@ -20,6 +20,8 @@ import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{GetStandardDe
 import io.logbee.keyscore.frontier.stream.StreamManager._
 import io.logbee.keyscore.frontier.stream.{FilterDescriptorManager, StreamManager}
 import io.logbee.keyscore.model.StreamModel
+import org.json4s.DefaultFormats
+import org.json4s.native.Serialization
 import streammanagement.FilterManager
 import streammanagement.FilterManager.{FilterNotFound, FilterUpdated, UpdateFilter}
 
@@ -27,14 +29,15 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 
-object FrontierApplication extends App with FrontierJsonProtocol {
+object FrontierApplication extends App with Json4sSupport {
 
   val appInfo = AppInfo(classOf[FrontierApplication])
   implicit val system = ActorSystem("keyscore")
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
   implicit val timeout: Timeout = 5.seconds
-  implicit val jsonStreamingSupport = EntityStreamingSupport.json()
+  implicit val serialization = Serialization
+  implicit val formats = DefaultFormats
 
   val configuration = FrontierConfigProvider(system)
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
@@ -61,47 +64,47 @@ object FrontierApplication extends App with FrontierJsonProtocol {
             }
           }
         } ~
-          delete {
-            onSuccess(streamManager ? DeleteStream(streamId)) {
-              case StreamDeleted(id) => complete(StatusCodes.OK, s"Stream '$id' deleted")
-              case StreamNotFound(id) => complete(StatusCodes.NotFound, s"Stream '$id' not found")
-              case _ => complete(StatusCodes.InternalServerError)
-            }
-          }
-      }
-    } ~
-      pathPrefix("filter") {
-        path(JavaUUID) { filterId =>
-          put {
-            entity(as[GrokFilterConfiguration]) { configuration =>
-              onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
-                case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
-                case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
-                case _ => complete(StatusCodes.InternalServerError)
-              }
-            }
-          }
-        }
-      } ~
-      pathPrefix("descriptors") {
-          get {
-            onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
-              case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
-              case _ => complete(StatusCodes.InternalServerError)
-            }
-          }
-      } ~
-      pathPrefix("agent") {
-        get {
-          onSuccess(agentManager ? QueryAgents) {
-            case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents)
+        delete {
+          onSuccess(streamManager ? DeleteStream(streamId)) {
+            case StreamDeleted(id) => complete(StatusCodes.OK, s"Stream '$id' deleted")
+            case StreamNotFound(id) => complete(StatusCodes.NotFound, s"Stream '$id' not found")
             case _ => complete(StatusCodes.InternalServerError)
           }
         }
-      } ~
-      pathSingleSlash {
-        complete { appInfo }
       }
+    } ~
+    pathPrefix("filter") {
+      path(JavaUUID) { filterId =>
+        put {
+          entity(as[GrokFilterConfiguration]) { configuration =>
+            onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
+              case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
+              case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          }
+        }
+      }
+    } ~
+    pathPrefix("descriptors") {
+      get {
+        onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
+          case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+          case _ => complete(StatusCodes.InternalServerError)
+        }
+      }
+    } ~
+    pathPrefix("agent") {
+      get {
+        onSuccess(agentManager ? QueryAgents) {
+          case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents)
+          case _ => complete(StatusCodes.InternalServerError)
+        }
+      }
+    } ~
+    pathSingleSlash {
+      complete { appInfo }
+    }
   }
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)

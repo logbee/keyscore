@@ -14,7 +14,7 @@ import io.logbee.keyscore.model.filter.{FilterDescriptor, TextParameterDescripto
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.DefaultFormats
-import org.json4s.jackson.JsonMethods.parse
+import org.json4s.native.JsonMethods.parse
 
 
 object KafkaSource {

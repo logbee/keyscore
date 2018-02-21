@@ -14,7 +14,6 @@ object ToKafkaProducerFilter {
 
   def apply(sinkTopic: String) = Flow.fromGraph(new ToKafkaProducerFilter(sinkTopic))
 
-
   val descriptor: FilterDescriptor = {
     FilterDescriptor("StandardKafkaProducer", "KafkaProducer", "Creates a Kafka producer that pushes the data into the given topic.", List(
       TextParameterDescriptor("topic")

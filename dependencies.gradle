@@ -1,7 +1,6 @@
 ext {
     akkaVersion = '2.5.8'
     akkaHttpVersion = '10.1.0-RC1'
-    json4sVersion = '3.6.0-M2'
     citrusVersion = '2.7.3'
 
     dependency = [
@@ -20,13 +19,14 @@ ext {
                 "com.typesafe.akka:akka-cluster-tools_2.12:$akkaVersion"
             ],
             akka_http: [
-                    "com.typesafe.akka:akka-http_2.12:$akkaHttpVersion",
-                    "com.typesafe.akka:akka-http-spray-json_2.12:$akkaHttpVersion",
+                "com.typesafe.akka:akka-http_2.12:$akkaHttpVersion",
+                "com.typesafe.akka:akka-http-spray-json_2.12:$akkaHttpVersion",
             ],
-            json4s: [
-                "org.json4s:json4s-native_2.12:$json4sVersion",
-                "org.json4s:json4s-jackson_2.12:$json4sVersion"
+            akka_http_json: [
+                'de.heikoseeberger:akka-http-json4s_2.12:1.19.0',
+                'org.json4s:json4s-native_2.12:3.5.3',
             ],
+            akka_http_cors:"ch.megard:akka-http-cors_2.12:0.2.2",
             scala_test: [
                 'org.scalatest:scalatest_2.12:3.0.4',
                 'org.scalamock:scalamock_2.12:4.0.0'
@@ -37,7 +37,6 @@ ext {
                 "com.typesafe.akka:akka-http-testkit_2.12:$akkaHttpVersion",
                 "com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1"
             ],
-            akka_http_cors:"ch.megard:akka-http-cors_2.12:0.2.2",
             junit: [
                 'org.junit.jupiter:junit-jupiter-api:5.0.3',
                 'org.junit.platform:junit-platform-runner:1.0.3',
