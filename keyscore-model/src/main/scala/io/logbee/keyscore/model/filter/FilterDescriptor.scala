@@ -12,7 +12,7 @@ case class FilterDescriptor(
                              displayName: String,
                              description: String,
                              parameters: List[ParameterDescriptor] = List.empty,
-                             category: String = "filter"
+                             category: String = "Filter"
                            )
 
 trait ParameterDescriptor {

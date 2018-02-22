@@ -4,7 +4,7 @@ import {ModalService} from "../../../services/modal.service";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/Rx";
 import {AddFilterAction, LoadFilterDescriptorsAction} from "../../streams.actions";
-import {FilterDescriptor, getFilterDescriptors, StreamsState} from "../../streams.model";
+import {FilterDescriptor, getFilterCategories, getFilterDescriptors, StreamsState} from "../../streams.model";
 import {Subject} from "rxjs/Subject";
 
 
@@ -34,12 +34,14 @@ export class FilterChooser {
     private selectedFilterDescriptor: FilterDescriptor;
     private selectedCategory$: Subject<string>;
     private activeDescriptors$: Observable<FilterDescriptor[]>;
-    private categories$:Observable<string[]>;
+    private categories$: Observable<string[]>;
 
     constructor(private store: Store<StreamsState>, private modalService: ModalService) {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
-        this.filterDescriptors$.subscribe(descriptors => this.categories$ = Observable.from(unique(descriptors.map(descriptor => descriptor.category))))
+        this.categories$ = this.store.select(getFilterCategories);
+        this.selectedCategory$ = new Subject();
         this.activeDescriptors$ = this.filterDescriptors$.combineLatest(this.selectedCategory$).map(([descriptors, category]) => descriptors.filter(descriptor => descriptor.category == category))
+        this.activeDescriptors$.subscribe(activeDescriptors => this.selectedFilterDescriptor=activeDescriptors[0]);
         this.store.dispatch(new LoadFilterDescriptorsAction());
     }
 
@@ -52,7 +54,7 @@ export class FilterChooser {
     }
 
     selectCategory(category: string) {
-        this.selectedCategory$.next(category)
+        this.selectedCategory$.next(category);
     }
 
     close() {
@@ -62,9 +64,9 @@ export class FilterChooser {
 
 }
 
-function unique(a:string[]) {
+function unique(a: string[]) {
     var seen = {};
-    return a.filter(function(item) {
+    return a.filter(function (item) {
         return seen.hasOwnProperty(item) ? false : (seen[item] = true);
     });
 }

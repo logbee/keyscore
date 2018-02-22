@@ -27,6 +27,6 @@ object KafkaSink {
     FilterDescriptor("KafkaSink","Kafka Sink","Writes the streams output to a given kafka topic",List(
       TextParameterDescriptor("sinkTopic"),
       TextParameterDescriptor("bootstrapServer")
-    ))
+    ),"Sink")
   }
 }

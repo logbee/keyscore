@@ -36,6 +36,7 @@ const initialState: StreamsState = {
     editingStream: null,
     loading: false,
     filterDescriptors:[],
+    filterCategories:[]
 };
 
 export function StreamsReducer(state: StreamsState = initialState, action: StreamActions): StreamsState {
@@ -82,6 +83,7 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             break;
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
+            result.filterCategories = result.filterDescriptors.map(descriptor => descriptor.category).filter((category,index,array) => array.indexOf(category) == index);
     }
 
     return result

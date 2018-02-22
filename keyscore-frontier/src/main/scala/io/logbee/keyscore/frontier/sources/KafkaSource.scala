@@ -56,7 +56,7 @@ object KafkaSource {
       TextParameterDescriptor("sourceTopic"),
       TextParameterDescriptor("groupID"),
       TextParameterDescriptor("offsetConfig")
-    ))
+    ),"Source")
   }
 }
 

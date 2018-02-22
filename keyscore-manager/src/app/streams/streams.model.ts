@@ -5,7 +5,8 @@ export class StreamsState {
     streamList: Array<StreamModel>;
     editingStream: StreamModel;
     loading: boolean;
-    filterDescriptors: FilterDescriptor[]
+    filterDescriptors: FilterDescriptor[];
+    filterCategories: string[];
 }
 
 export interface StreamModel {
@@ -48,5 +49,7 @@ export const getEditingStream = createSelector(getStreamsState, (state: StreamsS
 export const isLoading = createSelector(getStreamsState, (state: StreamsState) => state.loading);
 
 export const getFilterDescriptors = createSelector(getStreamsState,(state:StreamsState) => state.filterDescriptors);
+
+export const getFilterCategories = createSelector(getStreamsState,(state:StreamsState) => state.filterCategories);
 
 
