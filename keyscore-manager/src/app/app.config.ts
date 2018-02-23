@@ -11,14 +11,14 @@ export const CONFIG_LOADED = '[AppConfig] Loaded';
 export const CONFIG_FAILURE = '[AppConfig] Failure';
 
 export class AppConfigLoaded implements Action {
-    readonly type = '[AppConfig] Loaded';
+    readonly type = CONFIG_LOADED;
 
     constructor(readonly payload: Object) {
     }
 }
 
 export class AppConfigFailure implements Action {
-    readonly type = '[AppConfig] Failure';
+    readonly type = CONFIG_FAILURE;
 
     constructor(readonly cause: Object) {
     }

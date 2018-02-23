@@ -11,16 +11,16 @@ export type AgentsActions =
     | LoadAgentsFailureAction
 
 export class LoadAgentsAction implements Action {
-    readonly type = '[Agents] Load';
+    readonly type = LOAD_AGENTS;
 }
 
 export class LoadAgentsSuccessAction implements Action {
-    readonly type = '[Agents] LoadSuccess';
+    readonly type = LOAD_AGENTS_SUCCESS;
 
     constructor(readonly agents: AgentModel[]) {
     }
 }
 
 export class LoadAgentsFailureAction implements Action {
-    readonly type = '[Agents] LoadFailure';
+    readonly type = LOAD_AGENTS_FAILURE;
 }

@@ -5,6 +5,8 @@ export const CREATE_STREAM = '[Stream] CreateStream';
 export const EDIT_STREAM = '[Stream] EditStream';
 export const RESET_STREAM = '[Stream] ResetStream';
 export const UPDATE_STREAM = '[Stream] UpdateStream';
+export const UPDATE_STREAM_SUCCESS = '[Stream] UpdateStreamSuccess';
+export const UPDATE_STREAM_FAILURE = '[Stream] UpdateStreamFailure';
 export const DELETE_STREAM = '[Stream] DeleteStream';
 export const ADD_FILTER = '[Stream] AddFilter';
 export const MOVE_FILTER = '[Stream] MoveFilter';
@@ -27,7 +29,7 @@ export type StreamActions =
     | LoadFilterDescriptorsAction
 
 export class CreateStreamAction implements Action {
-    readonly type = '[Stream] CreateStream';
+    readonly type = CREATE_STREAM;
 
     constructor(readonly id: string, readonly name: string, readonly description: string) {
 
@@ -35,7 +37,7 @@ export class CreateStreamAction implements Action {
 }
 
 export class EditStreamAction implements Action {
-    readonly type = '[Stream] EditStream';
+    readonly type = EDIT_STREAM;
 
     constructor(readonly id: string) {
 
@@ -43,7 +45,7 @@ export class EditStreamAction implements Action {
 }
 
 export class ResetStreamAction implements Action {
-    readonly type = '[Stream] ResetStream';
+    readonly type = RESET_STREAM;
 
     constructor(readonly id: string) {
 
@@ -51,7 +53,7 @@ export class ResetStreamAction implements Action {
 }
 
 export class UpdateStreamAction implements Action {
-    readonly type = '[Stream] UpdateStream';
+    readonly type = UPDATE_STREAM;
 
     constructor(readonly stream: StreamModel) {
 
@@ -59,7 +61,7 @@ export class UpdateStreamAction implements Action {
 }
 
 export class UpdateStreamSuccessAction implements Action {
-    readonly type = '[Stream] UpdateSuccessStream';
+    readonly type = UPDATE_STREAM_SUCCESS;
 
     constructor(readonly stream: StreamModel) {
 
@@ -67,7 +69,7 @@ export class UpdateStreamSuccessAction implements Action {
 }
 
 export class UpdateStreamFailureAction implements Action {
-    readonly type = '[Stream] UpdateFailureStream';
+    readonly type = UPDATE_STREAM_FAILURE;
 
     constructor(readonly stream: StreamModel) {
 
@@ -75,7 +77,7 @@ export class UpdateStreamFailureAction implements Action {
 }
 
 export class DeleteStreamAction implements Action {
-    readonly type = '[Stream] DeleteStream';
+    readonly type = DELETE_STREAM;
 
     constructor(readonly id: string) {
 
@@ -83,7 +85,7 @@ export class DeleteStreamAction implements Action {
 }
 
 export class AddFilterAction implements Action {
-    readonly type = '[Stream] AddFilter';
+    readonly type = ADD_FILTER;
 
     constructor(readonly filter:FilterDescriptor){
 
@@ -91,28 +93,28 @@ export class AddFilterAction implements Action {
 }
 
 export class MoveFilterAction implements Action{
-    readonly type='[Stream] MoveFilter';
+    readonly type=MOVE_FILTER;
 
     constructor(readonly filterId:string, readonly position:number){
 
     }
 }
 
+export class LoadFilterDescriptorsAction implements Action{
+    readonly type = LOAD_FILTER_DESCRIPTORS
+
+}
+
 export class LoadFilterDescriptorsSuccessAction implements Action {
-    readonly type = '[Stream] LoadFilterDescriptorsSuccess';
+    readonly type = LOAD_FILTER_DESCRIPTORS_SUCCESS;
 
     constructor(readonly descriptors: FilterDescriptor[]) {
     }
 }
 
 export class LoadFilterDescriptorsFailureAction implements Action {
-    readonly type = '[Stream] LoadFilterDescriptorsFailed';
+    readonly type = LOAD_FILTER_DESCRIPTORS_FAILURE;
 
     constructor(readonly cause: any) {
     }
-}
-
-export class LoadFilterDescriptorsAction implements Action{
-    readonly type = '[Stream] LoadFilterDescriptors'
-
 }
