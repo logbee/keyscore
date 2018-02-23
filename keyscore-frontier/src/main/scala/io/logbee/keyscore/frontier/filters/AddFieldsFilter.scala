@@ -4,18 +4,27 @@ import akka.stream
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
-import io.logbee.keyscore.model.filter.{FilterDescriptor, MapParameterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, MapParameterDescriptor, TextParameterDescriptor}
 import io.logbee.keyscore.model.{Field, TextField}
 import org.json4s.DefaultFormats
 
 import scala.concurrent.{Future, Promise}
 
 object AddFieldsFilter {
-  def apply(fieldsToAdd: Map[String, String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] =
+  def apply(fieldsToAdd: Map[String, String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
+  }
+
+  def apply(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] ={
+    Flow.fromGraph(new AddFieldsFilter(loadFilterConfiguration(config)))
+  }
+
+  private def loadFilterConfiguration(config:FilterConfiguration):Map[String,String]={
+    return config.getParameterValue[Map[String,String]]("fieldNames")
+  }
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("StandardAddFieldsFilter", "AddFieldsFilter", "Adding new fields and their values.", List(
+    FilterDescriptor("AddFieldsFilter", "AddFieldsFilter", "Adding new fields and their values.", List(
       MapParameterDescriptor("fieldNames", TextParameterDescriptor("fieldNames"), TextParameterDescriptor("fieldValues"), 1)
     ))
   }

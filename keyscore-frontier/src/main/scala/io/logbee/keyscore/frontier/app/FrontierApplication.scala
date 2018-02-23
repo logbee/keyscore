@@ -2,6 +2,7 @@ package io.logbee.keyscore.frontier.app
 
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{HttpOrigin, HttpOriginRange}
@@ -16,18 +17,19 @@ import io.logbee.keyscore.frontier.cluster.AgentManager
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
+import io.logbee.keyscore.frontier.json.helper.FilterConfigTypeHints
 import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.stream.StreamManager._
 import io.logbee.keyscore.frontier.stream.{FilterDescriptorManager, StreamManager}
 import io.logbee.keyscore.model.StreamModel
-import org.json4s.DefaultFormats
+import org.json4s.{DefaultFormats, NoTypeHints}
 import org.json4s.native.Serialization
+import org.json4s.ext.JavaTypesSerializers
 import streammanagement.FilterManager
 import streammanagement.FilterManager.{FilterNotFound, FilterUpdated, UpdateFilter}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-
 
 object FrontierApplication extends App with Json4sSupport {
 
@@ -37,7 +39,9 @@ object FrontierApplication extends App with Json4sSupport {
   implicit val executionContext = system.dispatcher
   implicit val timeout: Timeout = 5.seconds
   implicit val serialization = Serialization
-  implicit val formats = DefaultFormats
+  //implicit val formats = DefaultFormats
+  implicit val json4sUUIDformats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("kind") ++ JavaTypesSerializers.all
+  //implicit val jsonStreamingSupport = EntityStreamingSupport.json()
 
   val configuration = FrontierConfigProvider(system)
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")

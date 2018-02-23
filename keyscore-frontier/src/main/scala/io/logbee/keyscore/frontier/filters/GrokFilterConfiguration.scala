@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.filters
 
+import java.util.UUID
+
 object GrokFilterConfiguration {
 
   val GrokFilterConfigurationApply: ((Option[Boolean], Option[List[String]], Option[String]) => GrokFilterConfiguration) = GrokFilterConfiguration.apply

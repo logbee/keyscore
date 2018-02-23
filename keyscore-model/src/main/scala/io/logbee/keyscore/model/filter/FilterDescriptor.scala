@@ -22,7 +22,7 @@ trait ParameterDescriptor {
   val mandatory: Boolean
 }
 
-object BooleanParameterDescriptor extends {
+object BooleanParameterDescriptor {
   def apply(name: String): BooleanParameterDescriptor = new BooleanParameterDescriptor(name, name, true)
 
 }

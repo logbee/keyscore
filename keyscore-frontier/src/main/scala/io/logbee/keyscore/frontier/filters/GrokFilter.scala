@@ -3,7 +3,7 @@ package io.logbee.keyscore.frontier.filters
 import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
-import io.logbee.keyscore.model.filter.{BooleanParameterDescriptor, FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.{Field, NumberField, TextField}
 import org.json4s.DefaultFormats
 
@@ -18,13 +18,25 @@ object GrokFilter {
   def apply(config: GrokFilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] =
     Flow.fromGraph(new GrokFilter(config))
 
-  def apply(isPaused: Boolean, fieldNames: List[String], pattern: String):  Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
+  def apply(isPaused: Boolean, fieldNames: List[String], pattern: String): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
     val conf = new GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
     Flow.fromGraph(new GrokFilter(conf))
   }
 
+  def apply(config: FilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
+    Flow.fromGraph(new GrokFilter(loadFilterConfiguration(config)))
+  }
+
+  private def loadFilterConfiguration(config: FilterConfiguration): GrokFilterConfiguration = {
+    val isPaused = config.getParameterValue[Boolean]("isPaused")
+    val pattern = config.getParameterValue[String]("pattern")
+    val fieldNames = config.getParameterValue[List[String]]("fieldNames")
+
+    new GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
+  }
+
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("StandardGrokFilter", "GrokFilter", "Extracts parts of a text line into fields.", List(
+    FilterDescriptor("GrokFilter", "GrokFilter", "Extracts parts of a text line into fields.", List(
       BooleanParameterDescriptor("isPaused"),
       ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
       TextParameterDescriptor("pattern")
@@ -116,7 +128,7 @@ class GrokFilter(initialConfiguration: GrokFilterConfiguration) extends Filter {
                 case NUMBER_PATTERN(_*) => NumberField(name, BigDecimal(value))
                 case _ => TextField(name, value)
               }
-            } foreach(field => payload.put(field.name, field)))
+            } foreach (field => payload.put(field.name, field)))
         }
       }
 

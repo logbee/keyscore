@@ -38,6 +38,13 @@ export interface ParameterDescriptor {
     mandatory: boolean;
 }
 
+export interface BooleanParameterDescriptor extends ParameterDescriptor {
+
+}
+
+export interface TextParameterDescriptor extends ParameterDescriptor {
+
+}
 
 
 export const getStreamsState = createFeatureSelector<StreamsState>('streams');
@@ -48,8 +55,8 @@ export const getEditingStream = createSelector(getStreamsState, (state: StreamsS
 
 export const isLoading = createSelector(getStreamsState, (state: StreamsState) => state.loading);
 
-export const getFilterDescriptors = createSelector(getStreamsState,(state:StreamsState) => state.filterDescriptors);
+export const getFilterDescriptors = createSelector(getStreamsState, (state: StreamsState) => state.filterDescriptors);
 
-export const getFilterCategories = createSelector(getStreamsState,(state:StreamsState) => state.filterCategories);
+export const getFilterCategories = createSelector(getStreamsState, (state: StreamsState) => state.filterCategories);
 
 

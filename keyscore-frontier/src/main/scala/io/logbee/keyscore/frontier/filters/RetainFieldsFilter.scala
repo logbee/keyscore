@@ -4,17 +4,26 @@ import akka.stream
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
-import io.logbee.keyscore.model.filter.{FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
 
 import scala.concurrent.{Future, Promise}
 
 object RetainFieldsFilter {
 
-  def apply(fieldNames: List[String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] =
+  def apply(fieldNames: List[String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
     Flow.fromGraph(new RetainFieldsFilter(fieldNames))
+  }
+
+  def apply(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] = {
+    Flow.fromGraph(new RetainFieldsFilter(loadFilterConfig(config)))
+  }
+
+  private def loadFilterConfig(configuration: FilterConfiguration):List[String]={
+    return configuration.getParameterValue[List[String]]("fieldNames")
+  }
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("StandardRetainFieldsFilter", "RetainFieldsFilter", "Retains only the given fieldNames and their values and removes the other fields.", parameters = List(
+    FilterDescriptor("RetainFieldsFilter", "RetainFieldsFilter", "Retains only the given fieldNames and their values and removes the other fields.", parameters = List(
       ListParameterDescriptor("fieldNames", TextParameterDescriptor("fieldName"), min = 1)
     ))
   }

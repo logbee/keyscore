@@ -6,21 +6,28 @@ import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.scaladsl.{Keep, Sink}
 import io.logbee.keyscore.frontier.filters.{CommittableRecord, ToKafkaProducerFilter}
-import io.logbee.keyscore.model.filter.{FilterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextParameter, TextParameterDescriptor}
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 
 
 object KafkaSink {
 
-  def create(sinkTopic: String, bootstrapServer: String)(implicit system: ActorSystem): Sink[CommittableRecord, NotUsed] = {
+  def create(filterConfig:FilterConfiguration)(implicit system: ActorSystem): Sink[CommittableRecord, NotUsed] = {
+    val kafkaConfig = loadFilterConfiguration(filterConfig)
     val producerSettings = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
-      .withBootstrapServers(bootstrapServer)
+      .withBootstrapServers(kafkaConfig.bootstrapServer)
 
     val sink = Producer.commitableSink(producerSettings)
 
-    val kafkaSink = ToKafkaProducerFilter(sinkTopic).toMat(sink)(Keep.left)
+    val kafkaSink = ToKafkaProducerFilter(kafkaConfig.sinkTopic).toMat(sink)(Keep.left)
 
     kafkaSink
+  }
+
+  private def loadFilterConfiguration(config:FilterConfiguration): KafkaSinkConfiguration ={
+    val bootstrapServer = config.getParameterValue[String]("bootstrapServer")
+    val sinkTopic = config.getParameterValue[String]("sinkTopic")
+    new KafkaSinkConfiguration(bootstrapServer,sinkTopic)
   }
 
   val descriptor:FilterDescriptor = {
@@ -29,4 +36,7 @@ object KafkaSink {
       TextParameterDescriptor("bootstrapServer")
     ),"Sink")
   }
+
 }
+
+case class KafkaSinkConfiguration(bootstrapServer:String, sinkTopic:String)

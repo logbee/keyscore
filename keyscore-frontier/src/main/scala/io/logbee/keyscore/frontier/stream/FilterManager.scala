@@ -9,12 +9,14 @@ import akka.{NotUsed, actor}
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.KafkaSink
 import io.logbee.keyscore.frontier.sources.KafkaSource
+import io.logbee.keyscore.frontier.util.Reflection
 import io.logbee.keyscore.model.StreamModel
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkTypes}
 import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceTypes}
 import streammanagement.FilterManager._
 
+import scala.reflect.runtime.{universe => ru}
 import scala.concurrent.Future
 import scala.util.Success
 
@@ -83,20 +85,19 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
 
   private def createStreamFromModel(streamId: UUID, model: StreamModel): StreamBlueprint = {
 
-    val source = model.source.source_type match {
-      case SourceTypes.KafkaSource =>
-        val sourceModel = model.source.asInstanceOf[KafkaSourceModel]
-        KafkaSource.create(sourceModel.bootstrap_server, sourceModel.source_topic, sourceModel.group_ID, sourceModel.offset_commit)
-    }
-    val sink = model.sink.sink_type match {
-      case SinkTypes.KafkaSink =>
-        val sinkModel = model.sink.asInstanceOf[KafkaSinkModel]
-        KafkaSink.create(sinkModel.sink_topic, sinkModel.bootstrap_server)
-    }
+    val source:Source[CommittableRecord,UniqueKillSwitch] =
+      Reflection.createFilterByClassname(model.source.kind,"create",model.source).asInstanceOf[Source[CommittableRecord,UniqueKillSwitch]]
+
+    val sink:Sink[CommittableRecord,NotUsed] =
+      Reflection.createFilterByClassname(model.sink.kind,"create",model.sink).asInstanceOf[Sink[CommittableRecord,NotUsed]]
 
     val filterBuffer = scala.collection.mutable.Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]()
 
-    model.filter.foreach { filter =>
+    model.filter.foreach{filter =>
+      filterBuffer += ((filter.id,Reflection.createFilterByClassname(filter.kind,"apply",filter).asInstanceOf[Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]]]))
+    }
+
+    /*model.filter.foreach { filter =>
       filter.filter_type match {
         case FilterTypes.RetainFields => filterBuffer += ((filter.filter_id, RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_retain)))
         case FilterTypes.AddFields => filterBuffer += ((filter.filter_id, AddFieldsFilter(filter.asInstanceOf[AddFieldsFilterModel].fields_to_add)))
@@ -105,8 +106,10 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
           val modelInstance = filter.asInstanceOf[GrokFilterModel]
           filterBuffer += ((filter.filter_id, GrokFilter(modelInstance.isPaused.toBoolean, modelInstance.fieldNames, modelInstance.pattern)))
       }
-    }
+    }*/
 
     StreamBlueprint(streamId, source, sink, filterBuffer.toMap)
   }
+
+
 }
