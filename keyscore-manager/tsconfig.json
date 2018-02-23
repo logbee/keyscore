@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": [ "es2015", "dom" ],
+    "lib": [ "es2017", "dom" ],
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
     "strict": false,
-    "strictFunctionTypes": false
+    "strictFunctionTypes": false,
+    "pretty": true
   }
 }

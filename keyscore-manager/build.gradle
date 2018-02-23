@@ -7,8 +7,12 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
 node {
-    version = '6.9.1'
+    version = '8.9.4'
     download = true
+}
+
+npmInstall {
+    args = ['--verbose', '--loglevel', 'verbose']
 }
 
 task webpack(type: NodeTask, dependsOn: npmInstall) {

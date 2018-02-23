@@ -40,7 +40,7 @@ export class FilterChooser {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
         this.selectedCategory$ = new Subject();
-        this.activeDescriptors$ = this.filterDescriptors$.combineLatest(this.selectedCategory$).map(([descriptors, category]) => descriptors.filter(descriptor => descriptor.category == category))
+        this.activeDescriptors$ = this.filterDescriptors$.combineLatest(this.selectedCategory$).map(([descriptors, category]) => descriptors.filter(descriptor => descriptor.category == category));
         this.activeDescriptors$.subscribe(activeDescriptors => this.selectedFilterDescriptor=activeDescriptors[0]);
         this.store.dispatch(new LoadFilterDescriptorsAction());
     }

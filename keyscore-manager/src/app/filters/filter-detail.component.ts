@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import namedRegexp = require("named-js-regexp");
+import {Component} from '@angular/core';
+import * as namedRegexp from 'named-js-regexp';
 
 export class FilterDetailsModel {
     id: string;
