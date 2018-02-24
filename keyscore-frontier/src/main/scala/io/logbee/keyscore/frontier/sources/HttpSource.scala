@@ -10,11 +10,11 @@ import akka.http.scaladsl.server.directives.RouteDirectives
 import akka.stream.stage._
 import akka.stream.{KillSwitch, _}
 import io.logbee.keyscore.frontier.filters.CommittableRecord
+import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.{Record, TextField}
 
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
-
 
 class HttpSource(initialConfiguration: HttpSourceConfiguration)(implicit val system: ActorSystem) extends GraphStageWithMaterializedValue[SourceShape[CommittableRecord], KillSwitch] {
 
