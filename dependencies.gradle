@@ -1,5 +1,5 @@
 ext {
-    akkaVersion = '2.5.9'
+    akkaVersion = '2.5.10'
     akkaHttpVersion = '10.1.0-RC2'
     citrusVersion = '2.7.3'
 
