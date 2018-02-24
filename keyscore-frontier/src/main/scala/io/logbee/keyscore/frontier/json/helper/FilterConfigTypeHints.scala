@@ -22,8 +22,8 @@ object FilterConfigTypeHints extends TypeHints {
     classOf[IntParameter],
     classOf[FloatParameter],
     classOf[TextMapParameter],
-    classOf[TextListParameter],
-    classOf[String]
+    classOf[TextListParameter]
+
   )
 
   override def classFor(hint: String): Option[Class[_]] = hintToClass.get(hint)
@@ -31,11 +31,3 @@ object FilterConfigTypeHints extends TypeHints {
   override def hintFor(clazz: Class[_]): String = classToHint(clazz)
 }
 
-/*class ParameterSerializer extends CustomSerializer[Parameter[_]](format =>({
-  case jsonObj:JObject =>
-    val kind = (jsonObj \ "kind").extract[String]
-    kind match{
-      case "string" =>
-    }
-
-}))*/

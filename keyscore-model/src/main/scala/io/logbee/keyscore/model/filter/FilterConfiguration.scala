@@ -20,19 +20,18 @@ case class FilterConfiguration(
 trait Parameter[T] {
   val name: String
   val value: T
-  val kind:String
 }
 
 
-case class TextParameter(name: String, value: String,kind:String) extends Parameter[String]
+case class TextParameter(name: String, value: String) extends Parameter[String]
 
-case class BooleanParameter(name: String, value: Boolean,kind:String) extends Parameter[Boolean]
+case class BooleanParameter(name: String, value: Boolean) extends Parameter[Boolean]
 
-case class IntParameter(name: String, value: Int,kind:String) extends Parameter[Int]
+case class IntParameter(name: String, value: Int) extends Parameter[Int]
 
-case class FloatParameter(name: String, value: Float,kind:String) extends Parameter[Float]
+case class FloatParameter(name: String, value: Float) extends Parameter[Float]
 
-case class TextMapParameter(name: String, value: Map[String,String],kind:String) extends Parameter[Map[String,String]]
+case class TextMapParameter(name: String, value: Map[String,String]) extends Parameter[Map[String,String]]
 
-case class TextListParameter(name: String, value: List[String],kind:String) extends Parameter[List[String]]
+case class TextListParameter(name: String, value: List[String]) extends Parameter[List[String]]
 

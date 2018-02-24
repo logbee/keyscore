@@ -40,7 +40,7 @@ object FrontierApplication extends App with Json4sSupport {
   implicit val timeout: Timeout = 5.seconds
   implicit val serialization = Serialization
   //implicit val formats = DefaultFormats
-  implicit val json4sUUIDformats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("kind") ++ JavaTypesSerializers.all
+  implicit val json4sUUIDformats = Serialization.formats(FilterConfigTypeHints) ++ JavaTypesSerializers.all
   //implicit val jsonStreamingSupport = EntityStreamingSupport.json()
 
   val configuration = FrontierConfigProvider(system)
