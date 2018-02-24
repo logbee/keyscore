@@ -51,9 +51,9 @@ Configuration parameters consist of three fields:
 
 * name of the parameter as string
 * value of the parameter
-* a field called jsonClass representing the values type
+* a field called parameterType representing the values type
 
-Possible values for jsonClass are:
+Possible values for parameterType are:
 
 * string,boolean,int,float,map[string,string],list[string]
 
@@ -75,22 +75,22 @@ the data that failed is still in kafka and can be processed again.
        {
          "name":"sourceTopic",
          "value":"testfluentd",
-         "jsonClass":"string"
+         "parameterType":"string"
        },
        {
          "name":"groupID",
          "value":"keyscore-consumer_newconfig",
-         "jsonClass":"string"
+         "parameterType":"string"
        },
        {
          "name":"offsetCommit",
          "value":"earliest",
-         "jsonClass":"string"
+         "parameterType":"string"
        },
        {
          "name":"bootstrapServer",
          "value":"testserver:9092",
-         "jsonClass":"string"
+         "parameterType":"string"
        }
      ]
 
@@ -109,12 +109,12 @@ All the processed data will be pushed in the specified sink.
        {
          "name":"sinkTopic",
          "value":"testfluentd",
-         "jsonClass":"string"
+         "parameterType":"string"
        },
        {
          "name":"bootstrapServer",
          "value":"testserver:9092",
-         "jsonClass":"string"
+         "parameterType":"string"
        }
      ]
    }
@@ -141,7 +141,7 @@ All other fields are not longer in the streaming data.
          "fieldX",
          "timeField"
        ],
-       "jsonClass":"list[string]"
+       "parameterType":"list[string]"
      }
  ]
 
@@ -158,7 +158,7 @@ All older fields are retained.
          "fieldX":"valueX",
          "fieldY":"valueY"
        },
-       "jsonClass":"map[string,string]"
+       "parameterType":"map[string,string]"
      }
  ]
 
@@ -175,7 +175,7 @@ All other fields are retained.
         "fieldX",
         "timeField"
       ],
-      "jsonClass":"list[string]"
+      "parameterType":"list[string]"
     }
 ]
 
@@ -192,17 +192,17 @@ This filter is pausable.
     {
       "name":"isPaused",
       "value":false,
-      "jsonClass":"boolean"
+      "parameterType":"boolean"
     },
     {
       "name":"pattern",
       "value":"(?<newmessage>.*)",
-      "jsonClass":"string"
+      "parameterType":"string"
     },
     {
       "name":"fieldNames",
       "value":["message"],
-      "jsonClass":"list[string]"
+      "parameterType":"list[string]"
     }
 ]
 
