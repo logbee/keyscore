@@ -1,6 +1,6 @@
 ext {
-    akkaVersion = '2.5.8'
-    akkaHttpVersion = '10.1.0-RC1'
+    akkaVersion = '2.5.9'
+    akkaHttpVersion = '10.1.0-RC2'
     citrusVersion = '2.7.3'
 
     dependency = [
@@ -12,7 +12,7 @@ ext {
             akka_actor       : "com.typesafe.akka:akka-actor_2.12:$akkaVersion",
             akka_slf4j       : "com.typesafe.akka:akka-slf4j_2.12:$akkaVersion",
             akka_stream      : "com.typesafe.akka:akka-stream_2.12:$akkaVersion",
-            akka_stream_kafka: "com.typesafe.akka:akka-stream-kafka_2.12:0.17",
+            akka_stream_kafka: "com.typesafe.akka:akka-stream-kafka_2.12:0.19",
             akka_persistence : [
                     "com.typesafe.akka:akka-persistence_2.12:$akkaVersion",
                     "com.typesafe.akka:akka-persistence-cassandra_2.12:0.59",

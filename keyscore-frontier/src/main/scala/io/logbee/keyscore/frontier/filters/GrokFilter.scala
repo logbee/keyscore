@@ -23,7 +23,7 @@ object GrokFilter {
     Flow.fromGraph(new GrokFilter(conf))
   }
 
-  def apply(config: FilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
+  def create(config: FilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
     Flow.fromGraph(new GrokFilter(loadFilterConfiguration(config)))
   }
 
@@ -32,7 +32,7 @@ object GrokFilter {
     val pattern = config.getParameterValue[String]("pattern")
     val fieldNames = config.getParameterValue[List[String]]("fieldNames")
 
-    new GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
+    GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
   }
 
   val descriptor: FilterDescriptor = {
@@ -131,7 +131,7 @@ class GrokFilter(initialConfiguration: GrokFilterConfiguration) extends Filter {
             } foreach (field => payload.put(field.name, field)))
         }
       }
-
+      println(payload.toMap)
       new CommittableRecord(record.id, payload.toMap, record.offset)
     }
 

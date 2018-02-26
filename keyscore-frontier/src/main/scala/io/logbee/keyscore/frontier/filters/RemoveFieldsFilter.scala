@@ -13,12 +13,12 @@ object RemoveFieldsFilter {
     Flow.fromGraph(new RemoveFieldsFilter(fieldNames))
   }
 
-  def apply(config:FilterConfiguration):Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] = {
+  def create(config:FilterConfiguration):Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] = {
     Flow.fromGraph(new RemoveFieldsFilter(loadFilterConfiguration(config)))
   }
 
   private def loadFilterConfiguration(configuration: FilterConfiguration):List[String]={
-    return configuration.getParameterValue[List[String]]("fieldNames")
+    configuration.getParameterValue[List[String]]("fieldsToRemove")
   }
 
   val descriptor: FilterDescriptor = {

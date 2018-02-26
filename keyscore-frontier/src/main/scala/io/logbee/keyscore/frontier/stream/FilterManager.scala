@@ -87,27 +87,17 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
   private def createStreamFromModel(streamId: UUID, model: StreamModel): StreamBlueprint = {
 
     val source: Source[CommittableRecord, UniqueKillSwitch] =
-      Reflection.createFilterByClassname(FilterRegistry.filters(model.source.kind), "create", model.source).asInstanceOf[Source[CommittableRecord, UniqueKillSwitch]]
+      Reflection.createFilterByClassname(FilterRegistry.filters(model.source.kind), model.source, Some(system)).asInstanceOf[Source[CommittableRecord, UniqueKillSwitch]]
 
     val sink: Sink[CommittableRecord, NotUsed] =
-      Reflection.createFilterByClassname(FilterRegistry.filters(model.sink.kind), "create", model.sink).asInstanceOf[Sink[CommittableRecord, NotUsed]]
+      Reflection.createFilterByClassname(FilterRegistry.filters(model.sink.kind), model.sink, Some(system)).asInstanceOf[Sink[CommittableRecord, NotUsed]]
 
     val filterBuffer = scala.collection.mutable.Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]()
 
     model.filter.foreach { filter =>
-      filterBuffer += ((filter.id, Reflection.createFilterByClassname(FilterRegistry.filters(filter.kind), "apply", filter).asInstanceOf[Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]))
+      filterBuffer += ((filter.id, Reflection.createFilterByClassname(FilterRegistry.filters(filter.kind), filter).asInstanceOf[Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]))
     }
 
-    /*model.filter.foreach { filter =>
-      filter.filter_type match {
-        case FilterTypes.RetainFields => filterBuffer += ((filter.filter_id, RetainFieldsFilter(filter.asInstanceOf[RetainFieldsFilterModel].fields_to_retain)))
-        case FilterTypes.AddFields => filterBuffer += ((filter.filter_id, AddFieldsFilter(filter.asInstanceOf[AddFieldsFilterModel].fields_to_add)))
-        case FilterTypes.RemoveFields => filterBuffer += ((filter.filter_id, RemoveFieldsFilter(filter.asInstanceOf[RemoveFieldsFilterModel].fields_to_remove)))
-        case FilterTypes.GrokFields =>
-          val modelInstance = filter.asInstanceOf[GrokFilterModel]
-          filterBuffer += ((filter.filter_id, GrokFilter(modelInstance.isPaused.toBoolean, modelInstance.fieldNames, modelInstance.pattern)))
-      }
-    }*/
 
     StreamBlueprint(streamId, source, sink, filterBuffer.toMap)
   }

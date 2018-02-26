@@ -12,7 +12,9 @@ import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSeriali
 
 object KafkaSink {
 
-  def create(filterConfig:FilterConfiguration)(implicit system: ActorSystem): Sink[CommittableRecord, NotUsed] = {
+  def create(filterConfig:FilterConfiguration,actorSystem:ActorSystem): Sink[CommittableRecord, NotUsed] = {
+    implicit val system:ActorSystem = actorSystem
+
     val kafkaConfig = loadFilterConfiguration(filterConfig)
     val producerSettings = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
       .withBootstrapServers(kafkaConfig.bootstrapServer)
@@ -27,7 +29,7 @@ object KafkaSink {
   private def loadFilterConfiguration(config:FilterConfiguration): KafkaSinkConfiguration ={
     val bootstrapServer = config.getParameterValue[String]("bootstrapServer")
     val sinkTopic = config.getParameterValue[String]("sinkTopic")
-    new KafkaSinkConfiguration(bootstrapServer,sinkTopic)
+    KafkaSinkConfiguration(bootstrapServer,sinkTopic)
   }
 
   val descriptor:FilterDescriptor = {

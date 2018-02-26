@@ -15,12 +15,12 @@ object AddFieldsFilter {
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
   }
 
-  def apply(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] ={
+  def create(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] ={
     Flow.fromGraph(new AddFieldsFilter(loadFilterConfiguration(config)))
   }
 
   private def loadFilterConfiguration(config:FilterConfiguration):Map[String,String]={
-    return config.getParameterValue[Map[String,String]]("fieldNames")
+    config.getParameterValue[Map[String,String]]("fieldsToAdd")
   }
 
   val descriptor: FilterDescriptor = {
@@ -53,6 +53,8 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
 
         payload ++= record.payload
         payload ++= fieldsToAdd.map(pair => (pair._1, TextField(pair._1, pair._2)))
+
+        println(payload.toMap)
 
         push(out, CommittableRecord(record.id, payload.toMap, record.offset))
       }

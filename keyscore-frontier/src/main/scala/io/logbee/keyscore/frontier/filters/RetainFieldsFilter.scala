@@ -14,12 +14,12 @@ object RetainFieldsFilter {
     Flow.fromGraph(new RetainFieldsFilter(fieldNames))
   }
 
-  def apply(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] = {
+  def create(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] = {
     Flow.fromGraph(new RetainFieldsFilter(loadFilterConfig(config)))
   }
 
   private def loadFilterConfig(configuration: FilterConfiguration):List[String]={
-    return configuration.getParameterValue[List[String]]("fieldNames")
+    configuration.getParameterValue[List[String]]("fieldsToRetain")
   }
 
   val descriptor: FilterDescriptor = {

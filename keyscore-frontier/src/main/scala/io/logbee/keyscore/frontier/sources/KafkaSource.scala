@@ -20,9 +20,9 @@ import org.json4s.native.JsonMethods.parse
 object KafkaSource {
 
 
-  def create(config:FilterConfiguration)(implicit system: ActorSystem): Source[CommittableRecord, UniqueKillSwitch] = {
+  def create(config:FilterConfiguration,actorSystem:ActorSystem): Source[CommittableRecord, UniqueKillSwitch] = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
-
+    implicit val system:ActorSystem = actorSystem
     val kafkaSourceConfig = loadFilterConfiguration(config)
 
     val consumerSettings = kafka.ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
@@ -47,8 +47,8 @@ object KafkaSource {
     val bootstrapServer = config.getParameterValue[String]("bootstrapServer")
     val sourceTopic = config.getParameterValue[String]("sourceTopic")
     val groupID = config.getParameterValue[String]("groupID")
-    val offsetConfig = config.getParameterValue[String]("offsetConfig")
-    new KafkaSourceConfiguration(bootstrapServer,sourceTopic,groupID,offsetConfig)
+    val offsetCommit = config.getParameterValue[String]("offsetCommit")
+    KafkaSourceConfiguration(bootstrapServer,sourceTopic,groupID,offsetCommit)
   }
 
   val descriptor:FilterDescriptor={
@@ -56,7 +56,7 @@ object KafkaSource {
       TextParameterDescriptor("bootstrapServer"),
       TextParameterDescriptor("sourceTopic"),
       TextParameterDescriptor("groupID"),
-      TextParameterDescriptor("offsetConfig")
+      TextParameterDescriptor("offsetCommit")
     ),"Source")
   }
 }
