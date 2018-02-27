@@ -23,7 +23,13 @@ object KafkaSource {
   def create(config:FilterConfiguration,actorSystem:ActorSystem): Source[CommittableRecord, UniqueKillSwitch] = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
     implicit val system:ActorSystem = actorSystem
-    val kafkaSourceConfig = loadFilterConfiguration(config)
+
+    val kafkaSourceConfig =
+      try {
+        loadFilterConfiguration(config)
+      } catch {
+        case nse: NoSuchElementException => throw nse
+      }
 
     val consumerSettings = kafka.ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
       .withBootstrapServers(kafkaSourceConfig.bootstrapServer)
@@ -34,8 +40,8 @@ object KafkaSource {
 
     val kafkaSource = source.map { element =>
       val fields = parse(element.record.value())
-                    .extract[Map[String, String]]
-                    .map(pair => (pair._1, TextField(pair._1, pair._2)))
+        .extract[Map[String, String]]
+        .map(pair => (pair._1, TextField(pair._1, pair._2)))
 
       CommittableRecord(UUID.randomUUID(), fields, element.committableOffset)
     }.viaMat(KillSwitches.single)(Keep.right)
@@ -43,22 +49,26 @@ object KafkaSource {
     kafkaSource
   }
 
-  private def loadFilterConfiguration(config:FilterConfiguration): KafkaSourceConfiguration ={
-    val bootstrapServer = config.getParameterValue[String]("bootstrapServer")
-    val sourceTopic = config.getParameterValue[String]("sourceTopic")
-    val groupID = config.getParameterValue[String]("groupID")
-    val offsetCommit = config.getParameterValue[String]("offsetCommit")
-    KafkaSourceConfiguration(bootstrapServer,sourceTopic,groupID,offsetCommit)
+  private def loadFilterConfiguration(config: FilterConfiguration): KafkaSourceConfiguration = {
+    try {
+      val bootstrapServer = config.getParameterValue[String]("bootstrapServer")
+      val sourceTopic = config.getParameterValue[String]("sourceTopic")
+      val groupID = config.getParameterValue[String]("groupID")
+      val offsetCommit = config.getParameterValue[String]("offsetCommit")
+      KafkaSourceConfiguration(bootstrapServer, sourceTopic, groupID, offsetCommit)
+    } catch {
+      case _: NoSuchElementException => throw new NoSuchElementException("Missing parameter in KafkaSource configuration");
+    }
   }
 
-  val descriptor:FilterDescriptor={
-    FilterDescriptor("KafkaSource","Kafka Source","Reads from a given kafka topic",List(
+  val descriptor: FilterDescriptor = {
+    FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic", List(
       TextParameterDescriptor("bootstrapServer"),
       TextParameterDescriptor("sourceTopic"),
       TextParameterDescriptor("groupID"),
       TextParameterDescriptor("offsetCommit")
-    ),"Source")
+    ), "Source")
   }
 }
 
-case class KafkaSourceConfiguration(bootstrapServer:String,sourceTopic:String,groupID:String,offsetConfig:String)
+case class KafkaSourceConfiguration(bootstrapServer: String, sourceTopic: String, groupID: String, offsetConfig: String)

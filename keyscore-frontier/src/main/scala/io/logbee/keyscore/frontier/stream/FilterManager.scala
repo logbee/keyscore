@@ -15,6 +15,7 @@ import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkTypes}
 import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceTypes}
 import streammanagement.FilterManager._
+import scala.util.control.Breaks._
 
 import scala.reflect.runtime.{universe => ru}
 import scala.concurrent.Future
@@ -23,9 +24,17 @@ import scala.util.Success
 object FilterManager {
   def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
 
+  trait BuildGraphAnswer{
+
+  }
+
+  case class BuildGraphAnswerWrapper(answer:Option[BuildGraphAnswer])
+
   case class BuildGraph(streamId: UUID, stream: StreamModel)
 
-  case class BuiltGraph(graph: RunnableGraph[UniqueKillSwitch])
+  case class BuiltGraph (streamId:UUID,graph: RunnableGraph[UniqueKillSwitch]) extends BuildGraphAnswer
+
+  case class BuildGraphException(streamId: UUID, stream: StreamModel, msg: String) extends BuildGraphAnswer
 
 
   case class StreamBlueprint(uuid: UUID,
@@ -51,24 +60,34 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
 
   override def receive = {
     case BuildGraph(streamId, stream) =>
+      breakable {
+        log.info("building graph....")
 
-      log.info("building graph....")
-
-      val streamBlueprint = createStreamFromModel(streamId, stream)
-
-      val finalSource = streamBlueprint.filter.foldLeft(streamBlueprint.source) { (currentSource, currentFlow) =>
-        currentSource.viaMat(currentFlow._2) { (matLeft, matRight) =>
-          println(matRight.toString)
-          filterHandles += ((currentFlow._1, matRight))
-          matLeft
+        //TODO: solve this in a proper "scala way"
+        val streamBlueprint = try {
+          createStreamFromModel(streamId, stream)
+        } catch {
+          case nse: NoSuchElementException =>
+            sender ! BuildGraphAnswerWrapper(Some(BuildGraphException(streamId, stream, nse.getMessage)))
+            break
         }
+
+
+        val finalSource = streamBlueprint.filter.foldLeft(streamBlueprint.source) { (currentSource, currentFlow) =>
+          currentSource.viaMat(currentFlow._2) { (matLeft, matRight) =>
+            println(matRight.toString)
+            filterHandles += ((currentFlow._1, matRight))
+            matLeft
+          }
+        }
+
+        val graph = finalSource
+          .viaMat(AddFieldsFilter(Map("akka_timestamp" -> FilterUtils.getCurrentTimeFormatted)))(Keep.left)
+          .toMat(streamBlueprint.sink)(Keep.left)
+
+        sender ! BuildGraphAnswerWrapper(Some(BuiltGraph(streamId,graph)))
       }
 
-      val graph = finalSource
-        .viaMat(AddFieldsFilter(Map("akka_timestamp" -> FilterUtils.getCurrentTimeFormatted)))(Keep.left)
-        .toMat(streamBlueprint.sink)(Keep.left)
-
-      sender ! BuiltGraph(graph)
 
     case UpdateFilter(uuid, config) =>
       filterHandles.get(uuid) match {
@@ -85,21 +104,24 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
   }
 
   private def createStreamFromModel(streamId: UUID, model: StreamModel): StreamBlueprint = {
+    try {
+      val source: Source[CommittableRecord, UniqueKillSwitch] =
+        Reflection.createFilterByClassname(FilterRegistry.filters(model.source.kind), model.source, Some(system)).asInstanceOf[Source[CommittableRecord, UniqueKillSwitch]]
 
-    val source: Source[CommittableRecord, UniqueKillSwitch] =
-      Reflection.createFilterByClassname(FilterRegistry.filters(model.source.kind), model.source, Some(system)).asInstanceOf[Source[CommittableRecord, UniqueKillSwitch]]
+      val sink: Sink[CommittableRecord, NotUsed] =
+        Reflection.createFilterByClassname(FilterRegistry.filters(model.sink.kind), model.sink, Some(system)).asInstanceOf[Sink[CommittableRecord, NotUsed]]
 
-    val sink: Sink[CommittableRecord, NotUsed] =
-      Reflection.createFilterByClassname(FilterRegistry.filters(model.sink.kind), model.sink, Some(system)).asInstanceOf[Sink[CommittableRecord, NotUsed]]
+      val filterBuffer = scala.collection.mutable.Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]()
 
-    val filterBuffer = scala.collection.mutable.Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]()
+      model.filter.foreach { filter =>
+        filterBuffer += ((filter.id, Reflection.createFilterByClassname(FilterRegistry.filters(filter.kind), filter).asInstanceOf[Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]))
+      }
 
-    model.filter.foreach { filter =>
-      filterBuffer += ((filter.id, Reflection.createFilterByClassname(FilterRegistry.filters(filter.kind), filter).asInstanceOf[Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]))
+
+      StreamBlueprint(streamId, source, sink, filterBuffer.toMap)
+    } catch {
+      case nse: NoSuchElementException => throw nse
     }
-
-
-    StreamBlueprint(streamId, source, sink, filterBuffer.toMap)
   }
 
 

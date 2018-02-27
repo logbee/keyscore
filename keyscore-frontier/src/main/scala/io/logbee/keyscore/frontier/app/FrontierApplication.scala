@@ -26,7 +26,7 @@ import org.json4s.{DefaultFormats, NoTypeHints}
 import org.json4s.native.Serialization
 import org.json4s.ext.JavaTypesSerializers
 import streammanagement.FilterManager
-import streammanagement.FilterManager.{FilterNotFound, FilterUpdated, UpdateFilter}
+import streammanagement.FilterManager.{BuildGraphException, FilterNotFound, FilterUpdated, UpdateFilter}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -64,51 +64,55 @@ object FrontierApplication extends App with Json4sSupport {
             onSuccess(streamManager ? CreateNewStream(streamId, stream)) {
               case StreamCreatedWithID(id) => complete(StatusCodes.Created, s"Stream '$id' created ")
               case StreamUpdated(id) => complete(StatusCodes.OK, s"Stream '$id' updated")
+              case BuildGraphException(id, stream, msg) => complete(
+                StatusCodes.BadRequest, s"Was not able to create Stream: id: '$id' errormsg:'$msg' ")
               case _ => complete(StatusCodes.InternalServerError)
             }
           }
         } ~
-        delete {
-          onSuccess(streamManager ? DeleteStream(streamId)) {
-            case StreamDeleted(id) => complete(StatusCodes.OK, s"Stream '$id' deleted")
-            case StreamNotFound(id) => complete(StatusCodes.NotFound, s"Stream '$id' not found")
-            case _ => complete(StatusCodes.InternalServerError)
-          }
-        }
-      }
-    } ~
-    pathPrefix("filter") {
-      path(JavaUUID) { filterId =>
-        put {
-          entity(as[GrokFilterConfiguration]) { configuration =>
-            onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
-              case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
-              case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
+          delete {
+            onSuccess(streamManager ? DeleteStream(streamId)) {
+              case StreamDeleted(id) => complete(StatusCodes.OK, s"Stream '$id' deleted")
+              case StreamNotFound(id) => complete(StatusCodes.NotFound, s"Stream '$id' not found")
               case _ => complete(StatusCodes.InternalServerError)
             }
           }
-        }
       }
     } ~
-    pathPrefix("descriptors") {
-      get {
-        onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
-          case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
-          case _ => complete(StatusCodes.InternalServerError)
+      pathPrefix("filter") {
+        path(JavaUUID) { filterId =>
+          put {
+            entity(as[GrokFilterConfiguration]) { configuration =>
+              onSuccess(filterManager ? UpdateFilter(filterId, configuration)) {
+                case FilterUpdated(id) => complete(StatusCodes.OK, s"Filter '$id' updated")
+                case FilterNotFound(id) => complete(StatusCodes.NotFound, s"Filter '$id' not found")
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+          }
+        }
+      } ~
+      pathPrefix("descriptors") {
+        get {
+          onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
+            case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+            case _ => complete(StatusCodes.InternalServerError)
+          }
+        }
+      } ~
+      pathPrefix("agent") {
+        get {
+          onSuccess(agentManager ? QueryAgents) {
+            case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents)
+            case _ => complete(StatusCodes.InternalServerError)
+          }
+        }
+      } ~
+      pathSingleSlash {
+        complete {
+          appInfo
         }
       }
-    } ~
-    pathPrefix("agent") {
-      get {
-        onSuccess(agentManager ? QueryAgents) {
-          case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents)
-          case _ => complete(StatusCodes.InternalServerError)
-        }
-      }
-    } ~
-    pathSingleSlash {
-      complete { appInfo }
-    }
   }
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)

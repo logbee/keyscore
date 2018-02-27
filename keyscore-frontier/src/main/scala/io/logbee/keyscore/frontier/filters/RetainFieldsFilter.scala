@@ -15,11 +15,20 @@ object RetainFieldsFilter {
   }
 
   def create(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] = {
-    Flow.fromGraph(new RetainFieldsFilter(loadFilterConfig(config)))
+    val retainConfiguration = try{
+      loadFilterConfig(config)
+    }catch{
+      case nse:NoSuchElementException => throw nse
+    }
+    Flow.fromGraph(new RetainFieldsFilter(retainConfiguration))
   }
 
   private def loadFilterConfig(configuration: FilterConfiguration):List[String]={
-    configuration.getParameterValue[List[String]]("fieldsToRetain")
+    try {
+      configuration.getParameterValue[List[String]]("fieldsToRetain")
+    }catch{
+      case _:NoSuchElementException => throw new NoSuchElementException("RetainFieldsFilter needs parameter: fieldsToRetain of type list[string]")
+    }
   }
 
   val descriptor: FilterDescriptor = {

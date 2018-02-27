@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.util
 
+import java.lang.reflect.InvocationTargetException
+
 import akka.actor.ActorSystem
 import io.logbee.keyscore.model.filter.FilterConfiguration
 
@@ -17,7 +19,12 @@ object Reflection {
     val method = im.symbol.info.decl(ru.TermName(createMethodName)).asMethod
 
     val objMirror = m.reflect(im.instance)
-    if(system.isEmpty) objMirror.reflectMethod(method)(config) else objMirror.reflectMethod(method)(config,system.get)
+    try {
+      if(system.isEmpty) objMirror.reflectMethod(method)(config) else objMirror.reflectMethod(method)(config,system.get)
+    } catch {
+      case e: InvocationTargetException => throw e.getCause;
+    }
+
   }
 
 

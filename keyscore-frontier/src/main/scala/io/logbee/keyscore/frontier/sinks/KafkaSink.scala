@@ -12,10 +12,14 @@ import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSeriali
 
 object KafkaSink {
 
-  def create(filterConfig:FilterConfiguration,actorSystem:ActorSystem): Sink[CommittableRecord, NotUsed] = {
-    implicit val system:ActorSystem = actorSystem
+  def create(filterConfig: FilterConfiguration, actorSystem: ActorSystem): Sink[CommittableRecord, NotUsed] = {
+    implicit val system: ActorSystem = actorSystem
 
-    val kafkaConfig = loadFilterConfiguration(filterConfig)
+    val kafkaConfig = try {
+      loadFilterConfiguration(filterConfig)
+    } catch {
+      case nse: NoSuchElementException => throw nse
+    }
     val producerSettings = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
       .withBootstrapServers(kafkaConfig.bootstrapServer)
 
@@ -26,19 +30,24 @@ object KafkaSink {
     kafkaSink
   }
 
-  private def loadFilterConfiguration(config:FilterConfiguration): KafkaSinkConfiguration ={
-    val bootstrapServer = config.getParameterValue[String]("bootstrapServer")
-    val sinkTopic = config.getParameterValue[String]("sinkTopic")
-    KafkaSinkConfiguration(bootstrapServer,sinkTopic)
+
+  private def loadFilterConfiguration(config: FilterConfiguration): KafkaSinkConfiguration = {
+    try {
+      val bootstrapServer = config.getParameterValue[String]("bootstrapServer")
+      val sinkTopic = config.getParameterValue[String]("sinkTopic")
+      KafkaSinkConfiguration(bootstrapServer, sinkTopic)
+    } catch {
+      case _: NoSuchElementException => throw new NoSuchElementException("Missing parameter in KafkaSink configuration")
+    }
   }
 
-  val descriptor:FilterDescriptor = {
-    FilterDescriptor("KafkaSink","Kafka Sink","Writes the streams output to a given kafka topic",List(
+  val descriptor: FilterDescriptor = {
+    FilterDescriptor("KafkaSink", "Kafka Sink", "Writes the streams output to a given kafka topic", List(
       TextParameterDescriptor("sinkTopic"),
       TextParameterDescriptor("bootstrapServer")
-    ),"Sink")
+    ), "Sink")
   }
 
 }
 
-case class KafkaSinkConfiguration(bootstrapServer:String, sinkTopic:String)
+case class KafkaSinkConfiguration(bootstrapServer: String, sinkTopic: String)

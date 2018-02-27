@@ -15,12 +15,21 @@ object AddFieldsFilter {
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
   }
 
-  def create(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] ={
-    Flow.fromGraph(new AddFieldsFilter(loadFilterConfiguration(config)))
+  def create(config: FilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
+    val addConfiguration = try {
+      loadFilterConfiguration(config)
+    } catch {
+      case nse: NoSuchElementException => throw nse
+    }
+    Flow.fromGraph(new AddFieldsFilter(addConfiguration))
   }
 
-  private def loadFilterConfiguration(config:FilterConfiguration):Map[String,String]={
-    config.getParameterValue[Map[String,String]]("fieldsToAdd")
+  private def loadFilterConfiguration(config: FilterConfiguration): Map[String, String] = {
+    try {
+      config.getParameterValue[Map[String, String]]("fieldsToAdd")
+    } catch {
+      case _: NoSuchElementException => throw new NoSuchElementException("AddFieldsFilter needs parameter: fieldsToAdd of type map[string,string] ")
+    }
   }
 
   val descriptor: FilterDescriptor = {
@@ -54,8 +63,6 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
         payload ++= record.payload
         payload ++= fieldsToAdd.map(pair => (pair._1, TextField(pair._1, pair._2)))
 
-        println(payload.toMap)
-
         push(out, CommittableRecord(record.id, payload.toMap, record.offset))
       }
     })
@@ -70,4 +77,5 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
       promise.success(DummyFilterHandle)
     }
   }
+
 }

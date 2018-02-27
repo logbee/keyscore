@@ -24,15 +24,24 @@ object GrokFilter {
   }
 
   def create(config: FilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
-    Flow.fromGraph(new GrokFilter(loadFilterConfiguration(config)))
+    val grokConfiguration = try {
+      loadFilterConfiguration(config)
+    } catch {
+      case nse: NoSuchElementException => throw nse
+    }
+    Flow.fromGraph(new GrokFilter(grokConfiguration))
   }
 
   private def loadFilterConfiguration(config: FilterConfiguration): GrokFilterConfiguration = {
-    val isPaused = config.getParameterValue[Boolean]("isPaused")
-    val pattern = config.getParameterValue[String]("pattern")
-    val fieldNames = config.getParameterValue[List[String]]("fieldNames")
+    try {
+      val isPaused = config.getParameterValue[Boolean]("isPaused")
+      val pattern = config.getParameterValue[String]("pattern")
+      val fieldNames = config.getParameterValue[List[String]]("fieldNames")
 
-    GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
+      GrokFilterConfiguration(Option(isPaused), Option(fieldNames), Option(pattern))
+    } catch {
+      case _: NoSuchElementException => throw new NoSuchElementException("Missing parameter in GrokFilter configuration")
+    }
   }
 
   val descriptor: FilterDescriptor = {
@@ -131,7 +140,7 @@ class GrokFilter(initialConfiguration: GrokFilterConfiguration) extends Filter {
             } foreach (field => payload.put(field.name, field)))
         }
       }
-      println(payload.toMap)
+
       new CommittableRecord(record.id, payload.toMap, record.offset)
     }
 

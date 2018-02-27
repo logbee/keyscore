@@ -1,6 +1,6 @@
 package io.logbee.keyscore.model.filter
 
-import java.util.UUID
+import java.util.{NoSuchElementException, UUID}
 
 
 case class FilterConfiguration(
@@ -10,7 +10,11 @@ case class FilterConfiguration(
                               ) {
 
   def getParameterValue[T](parameterName: String): T = {
-    return parameters.find(p => p.name.equals(parameterName)).get.value.asInstanceOf[T]
+    try {
+      parameters.find(p => p.name.equals(parameterName)).get.value.asInstanceOf[T]
+    }catch {
+      case nse:NoSuchElementException => throw nse;
+    }
   }
 
 
