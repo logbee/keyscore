@@ -2,7 +2,7 @@ import {StreamsState} from "./streams.model";
 import {
     ADD_FILTER,
     CREATE_STREAM,
-    DELETE_STREAM,
+    DELETE_STREAM, EDIT_FILTER,
     EDIT_STREAM,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     MOVE_FILTER,
@@ -23,12 +23,18 @@ const initialState: StreamsState = {
                 {
                     id: '850c08cf-b88e-46b3-aa73-8877a743d443',
                     name: 'KafkaInput',
-                    description: ''
+                    description: '',
+                    displayName:'Kafka Input',
+                    parameters:[],
+                    isEdited:false
                 },
                 {
                     id: 'ca4108cf-aaf4-5671-aa73-1717a743d215',
                     name: 'KafkaOutput',
-                    description: ''
+                    description: '',
+                    displayName:'Kafka Output',
+                    parameters:[],
+                    isEdited:false
                 }
             ]
         }
@@ -73,13 +79,20 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
         case ADD_FILTER:
             result.editingStream.filters.push({
                 id: uuid(),
-                name: action.filter.displayName,
-                description: action.filter.description
+                name: action.filter.name,
+                displayName:action.filter.displayName,
+                description: action.filter.description,
+                parameters: action.filter.parameters,
+                isEdited:false
             });
             break;
         case MOVE_FILTER:
             const filterIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filterId);
             swap(result.editingStream.filters, filterIndex, action.position);
+            break;
+        case EDIT_FILTER:
+            result.streamList.forEach(stream => stream.filters.forEach(f => f.isEdited = false))
+            result.editingStream.filters.find(f=> f.id == action.filterId).isEdited = true;
             break;
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;

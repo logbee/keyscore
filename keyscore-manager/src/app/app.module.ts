@@ -20,6 +20,7 @@ import {StoreRouterConnectingModule} from '@ngrx/router-store';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {RouterEffects} from "./router/router.effects";
 import {AgentsModule} from "./agents/agents.module";
+import {FilterEditor} from "./streams/stream-editor/filter-editor/filter-editor.component";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -48,13 +49,15 @@ const routes: Routes = [
         DashboardComponent,
         FiltersComponent,
         FilterDetailComponent,
-        FilterChooser
+        FilterChooser,
+        FilterEditor
     ],
     providers: [
 
     ],
     entryComponents: [
-        FilterChooser
+        FilterChooser,
+        FilterEditor
     ],
     bootstrap: [
         AppComponent

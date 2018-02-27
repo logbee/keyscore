@@ -5,7 +5,11 @@ import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 import {getEditingStream, StreamModel} from "../streams.model";
-import {DeleteStreamAction, MoveFilterAction, ResetStreamAction, UpdateStreamAction} from "../streams.actions";
+import {
+    DeleteStreamAction, EditFilterAction, MoveFilterAction, ResetStreamAction,
+    UpdateStreamAction
+} from "../streams.actions";
+import {FilterEditor} from "./filter-editor/filter-editor.component";
 
 @Component({
     selector: 'stream-editor',
@@ -34,7 +38,8 @@ import {DeleteStreamAction, MoveFilterAction, ResetStreamAction, UpdateStreamAct
                                        [filter]="filter"
                                        [index]="i"
                                        [filterCount]="(stream$|async).filters.length"
-                                       (move)="moveFilter($event)">
+                                       (move)="moveFilter($event)"
+                                       (edit)="editFilter($event)">
                         </stream-filter>
                     </div>
                 </div>
@@ -86,5 +91,10 @@ export class StreamEditorComponent implements OnInit {
 
     moveFilter(filter: { id: string, position: number }) {
         this.store.dispatch(new MoveFilterAction(filter.id, filter.position))
+    }
+
+    editFilter(id:string){
+        this.store.dispatch(new EditFilterAction(id))
+        this.modalService.show(FilterEditor);
     }
 }

@@ -17,20 +17,15 @@ import {FilterModel} from "../streams.model";
                             <img width="12em" src="/assets/images/chevron-down.svg"/>
                         </button>
                     </div>
-                    <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="!filter.editing">
-                        <span class="font-weight-bold">{{filter.name}}</span><br>
+                    <div class="col" style="margin-top: auto; margin-bottom: auto">
+                        <span class="font-weight-bold">{{filter.displayName}}</span><br>
                         <small>{{filter.description}}</small>
                     </div>
-                    <div class="col" style="margin-top: auto; margin-bottom: auto" *ngIf="filter.editing">
-                        <input id="filterName" class="form-control" placeholder="Name"
-                               [(ngModel)]="filter.name"/>
-                        <input id="filterDescription" class="form-control" placeholder="Description"
-                               [(ngModel)]="filter.description"/>
-                    </div>
+                    
                     <div class="col-2"></div>
                     <div class="col-auto">
                         <button type="button" class="btn btn-primary" *ngIf="!filter.editing"
-                                (click)="editFilter()">Edit
+                                (click)="editFilter(filter.id)">Edit
                         </button>
                         <button type="button" class="btn btn-danger" *ngIf="filter.editing"
                                 (click)="removeFilter()">Remove
@@ -41,9 +36,7 @@ import {FilterModel} from "../streams.model";
                     </div>
                 </div>
             </div>
-            <div class="card-body" *ngIf="filter.editing">
-                <h6 class="font-weight-bold">Filter 1</h6>
-            </div>
+            
         </div>
     `
 })
@@ -55,6 +48,7 @@ export class StreamFilterComponent {
 
     @Output() update: EventEmitter<FilterModel> = new EventEmitter();
     @Output() move: EventEmitter<{id:string,position:number}> = new EventEmitter();
+    @Output() edit: EventEmitter<string> = new EventEmitter();
 
 
     constructor() {
@@ -68,7 +62,8 @@ export class StreamFilterComponent {
         this.move.emit({id,position});
     }
 
-    editFilter() {
+    editFilter(id:string) {
+        this.edit.emit(id);
     }
 
     saveFilter() {

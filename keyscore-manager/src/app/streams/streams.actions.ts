@@ -10,9 +10,11 @@ export const UPDATE_STREAM_FAILURE = '[Stream] UpdateStreamFailure';
 export const DELETE_STREAM = '[Stream] DeleteStream';
 export const ADD_FILTER = '[Stream] AddFilter';
 export const MOVE_FILTER = '[Stream] MoveFilter';
+export const EDIT_FILTER = '[Stream] EditFilter'
 export const LOAD_FILTER_DESCRIPTORS_SUCCESS = '[Stream] LoadFilterDescriptorsSuccess';
 export const LOAD_FILTER_DESCRIPTORS_FAILURE ='[Stream] LoadFilterDescriptorsFailed';
 export const LOAD_FILTER_DESCRIPTORS = '[Stream] LoadFilterDescriptors';
+
 
 export type StreamActions =
     | CreateStreamAction
@@ -27,6 +29,7 @@ export type StreamActions =
     | LoadFilterDescriptorsSuccessAction
     | LoadFilterDescriptorsFailureAction
     | LoadFilterDescriptorsAction
+    | EditFilterAction
 
 export class CreateStreamAction implements Action {
     readonly type = CREATE_STREAM;
@@ -99,6 +102,16 @@ export class MoveFilterAction implements Action{
 
     }
 }
+
+export class EditFilterAction implements Action{
+    readonly type=EDIT_FILTER;
+
+    constructor(readonly filterId:string){
+
+    }
+}
+
+
 
 export class LoadFilterDescriptorsAction implements Action{
     readonly type = LOAD_FILTER_DESCRIPTORS

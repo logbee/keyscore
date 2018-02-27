@@ -1,5 +1,5 @@
-import {StreamEditorActions} from "./stream-editor.actions";
-import {FilterModel, StreamModel} from "../streams.model";
+/*import {StreamEditorActions} from "./stream-editor.actions";
+import {FilterModel, ParameterDescriptor, StreamModel} from "../streams.model";
 import {v4 as uuid} from 'uuid';
 
 
@@ -7,15 +7,16 @@ export class Stream {
     name: string;
     description: string;
     filters: FilterInstance[];
-}
+}*/
 
-export class FilterInstance implements FilterModel {
+/*export class FilterInstance implements FilterModel {
     constructor(public id: string,
                 public name: string,
+
                 public description: string = '',
                 public serverId: string = '',
                 public editing: boolean = false,
-                public enabled: boolean = true) {
+                public enabled: boolean = true,) {
     }
 }
 
@@ -28,9 +29,9 @@ export const initialState: Stream = {
         new FilterInstance(uuid(), 'Add fields', 'There are very interesting fields!'),
         new FilterInstance(uuid(), 'Kafka Output', ''),
     ]
-};
+};*/
 
-export function StreamEditorReducer(state: StreamModel, action: StreamEditorActions): StreamModel {
+/*export function StreamEditorReducer(state: StreamModel, action: StreamEditorActions): StreamModel {
 
     const result: StreamModel = Object.assign({}, state);
     return result;
@@ -67,5 +68,5 @@ function swap<T>(arr: Array<T>, a: number, b: number) {
         arr[a] = arr[b];
         arr[b] = temp;
     }
-}
+}*/
 

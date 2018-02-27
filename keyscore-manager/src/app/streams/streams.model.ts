@@ -10,16 +10,19 @@ export class StreamsState {
 }
 
 export interface StreamModel {
-    id: string,
-    name: string,
-    description: string,
-    filters: Array<FilterModel>
+    id: string;
+    name: string;
+    description: string;
+    filters: Array<FilterModel>;
 }
 
 export interface FilterModel {
-    id: string,
-    name: string,
-    description: string
+    id: string;
+    name: string;
+    displayName: string;
+    description: string;
+    parameters: ParameterDescriptor[];
+    isEdited:boolean;
 }
 
 
@@ -38,12 +41,33 @@ export interface ParameterDescriptor {
     mandatory: boolean;
 }
 
-export interface BooleanParameterDescriptor extends ParameterDescriptor {
-
+export interface TextParameterDescriptor extends ParameterDescriptor {
+    name: string;
+    displayName: string;
+    kind: string;
+    mandatory: boolean;
+    validator:string;
 }
 
-export interface TextParameterDescriptor extends ParameterDescriptor {
+export interface ListParameterDescriptor extends ParameterDescriptor{
+    name: string;
+    displayName: string;
+    kind: string;
+    mandatory: boolean;
+    element: ParameterDescriptor;
+    min:Number;
+    max:Number;
+}
 
+export interface MapParameterDescriptor extends ParameterDescriptor{
+    name: string;
+    displayName: string;
+    kind: string;
+    mandatory: boolean;
+    key: ParameterDescriptor;
+    value: ParameterDescriptor;
+    min:Number;
+    max:Number;
 }
 
 
@@ -58,5 +82,7 @@ export const isLoading = createSelector(getStreamsState, (state: StreamsState) =
 export const getFilterDescriptors = createSelector(getStreamsState, (state: StreamsState) => state.filterDescriptors);
 
 export const getFilterCategories = createSelector(getStreamsState, (state: StreamsState) => state.filterCategories);
+
+export const getEditedFilterParameters = createSelector(getStreamsState,(state:StreamsState) => state.editingStream.filters.find(f => f.isEdited).parameters);
 
 

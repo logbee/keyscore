@@ -32,7 +32,7 @@ object RetainFieldsFilter {
   }
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("RetainFieldsFilter", "RetainFieldsFilter", "Retains only the given fieldNames and their values and removes the other fields.", parameters = List(
+    FilterDescriptor("RetainFieldsFilter", "Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.", parameters = List(
       ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
     ))
   }

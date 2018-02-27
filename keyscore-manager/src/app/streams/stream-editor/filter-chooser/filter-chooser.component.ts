@@ -15,10 +15,6 @@ import {Subject} from "rxjs/Subject";
         '.modal-lg{max-width:80% !important;}',
         '.list-group-item-action{cursor: pointer;}',
         '.active-group{background-color: cornflowerblue;color:rgb(255,255,255);transition: all 0.14s ease-in-out}'
-        /*'.arrow_box:after, .arrow_box:before {left: 100%;top: 50%;border: solid transparent;content:" ";height: 0;width: 0; position: absolute;pointer-events: none;}',
-        '.arrow_box:after {border-color: rgba(255, 255, 255, 0);border-left-color: #ffffff;border-width: 12px;margin-top: -12px;}',
-        '.arrow_box:before {border-color: rgba(201, 201, 201, 0);border-left-color: #c9c9c9;border-width: 13px;margin-top: -13px;}',
-        'button:active,button:focus{  border: 1px solid rgba(0, 255, 0, 0.125)!important;box-shadow: none !important;}'*/
     ],
     providers: [
         ModalService,
@@ -61,12 +57,5 @@ export class FilterChooser {
         this.modalService.close()
     }
 
-
 }
 
-function unique(a: string[]) {
-    var seen = {};
-    return a.filter(function (item) {
-        return seen.hasOwnProperty(item) ? false : (seen[item] = true);
-    });
-}
