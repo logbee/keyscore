@@ -13,14 +13,14 @@ import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSeriali
 object KafkaSink {
 
   def create(filterConfig: FilterConfiguration, actorSystem: ActorSystem): Sink[CommittableRecord, NotUsed] = {
-    implicit val system: ActorSystem = actorSystem
+
 
     val kafkaConfig = try {
       loadFilterConfiguration(filterConfig)
     } catch {
       case nse: NoSuchElementException => throw nse
     }
-    val producerSettings = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
+    val producerSettings = ProducerSettings(actorSystem, new ByteArraySerializer, new StringSerializer)
       .withBootstrapServers(kafkaConfig.bootstrapServer)
 
     val sink = Producer.commitableSink(producerSettings)

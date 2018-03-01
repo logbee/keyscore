@@ -131,10 +131,12 @@ object FilterRegistry {
 
   val filters = Map(
     "KafkaSource" -> "io.logbee.keyscore.frontier.sources.KafkaSource",
+    "HttpSource" -> "io.logbee.keyscore.frontier.sources.HttpSource",
     "KafkaSink" -> "io.logbee.keyscore.frontier.sinks.KafkaSink",
     "AddFieldsFilter" -> "io.logbee.keyscore.frontier.filters.AddFieldsFilter",
     "RemoveFieldsFilter" -> "io.logbee.keyscore.frontier.filters.RemoveFieldsFilter",
     "RetainFieldsFilter" -> "io.logbee.keyscore.frontier.filters.RetainFieldsFilter",
     "GrokFilter" -> "io.logbee.keyscore.frontier.filters.GrokFilter"
+
   )
 }

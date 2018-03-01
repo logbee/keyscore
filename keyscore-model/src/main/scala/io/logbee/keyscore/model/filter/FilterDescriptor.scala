@@ -42,6 +42,13 @@ case class TextParameterDescriptor(name: String, displayName: String, mandatory:
   override val kind: String = "text"
 }
 
+object IntParameterDescriptor{
+  def apply(name:String):IntParameterDescriptor = new IntParameterDescriptor(name,name,true)
+}
+case class IntParameterDescriptor(name:String,displayName:String,mandatory:Boolean) extends ParameterDescriptor {
+  override val kind:String = "int"
+}
+
 
 object ListParameterDescriptor {
   def apply(name: String, element: ParameterDescriptor): ListParameterDescriptor = new ListParameterDescriptor(name, name, true, element, 0, Int.MaxValue)
