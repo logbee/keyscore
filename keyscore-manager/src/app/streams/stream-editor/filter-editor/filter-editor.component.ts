@@ -5,7 +5,8 @@ import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/Rx";
 import {AddFilterAction, LoadFilterDescriptorsAction} from "../../streams.actions";
 import {
-    FilterDescriptor, getEditedFilterParameters, getFilterCategories, getFilterDescriptors,
+    FilterDescriptor, FilterModel, getEditingFilter, getEditingFilterParameters, getFilterCategories,
+    getFilterDescriptors,
     ParameterDescriptor,
     StreamsState
 } from "../../streams.model";
@@ -29,12 +30,17 @@ import {Subject} from "rxjs/Subject";
 export class FilterEditor {
 
     private filterParameters$: Observable<ParameterDescriptor[]>;
-
+    private filter$:Observable<FilterModel>;
 
     constructor(private store: Store<StreamsState>, private modalService: ModalService) {
-        this.filterParameters$ = this.store.select(getEditedFilterParameters);
-        console.log(this.filterParameters$)
+        this.filterParameters$ = this.store.select(getEditingFilterParameters);
+        this.filter$ = this.store.select(getEditingFilter);
 
+
+    }
+
+    close(){
+        this.modalService.close()
     }
 
 

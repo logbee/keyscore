@@ -4,6 +4,7 @@ import {createFeatureSelector, createSelector} from "@ngrx/store";
 export class StreamsState {
     streamList: Array<StreamModel>;
     editingStream: StreamModel;
+    editingFilter:FilterModel;
     loading: boolean;
     filterDescriptors: FilterDescriptor[];
     filterCategories: string[];
@@ -21,8 +22,7 @@ export interface FilterModel {
     name: string;
     displayName: string;
     description: string;
-    parameters: ParameterDescriptor[];
-    isEdited:boolean;
+    parameters: Parameter[];
 }
 
 
@@ -34,19 +34,13 @@ export interface FilterDescriptor {
     parameters: ParameterDescriptor[];
 }
 
+//------------------Parameter Descriptors------------------
+
 export interface ParameterDescriptor {
     name: string;
     displayName: string;
     kind: string;
     mandatory: boolean;
-}
-
-export interface TextParameterDescriptor extends ParameterDescriptor {
-    name: string;
-    displayName: string;
-    kind: string;
-    mandatory: boolean;
-    validator:string;
 }
 
 export interface ListParameterDescriptor extends ParameterDescriptor{
@@ -70,6 +64,52 @@ export interface MapParameterDescriptor extends ParameterDescriptor{
     max:Number;
 }
 
+//------------------Parameter------------------
+
+export interface Parameter{
+    name:string;
+    displayName:string;
+    mandatory:boolean;
+    kind:string;
+    value?:any;
+}
+
+export interface TextParameter extends Parameter{
+    validator:string;
+    value?:string;
+}
+
+export interface IntParameter extends Parameter{
+    value?:number;
+}
+
+export interface BooleanParameter extends Parameter{
+    value?:boolean;
+}
+
+
+export interface ListParameter extends Parameter{
+    min:Number;
+    max:Number;
+
+}
+
+export interface TextListParameter extends ListParameter {
+    validator:string;
+    value?:string[];
+}
+
+export interface MapParameter extends Parameter{
+    min:Number;
+    max:Number;
+}
+
+export interface TextMapParameter extends MapParameter{
+    keyValidator:string;
+    valueValidator:string;
+    value?:Map<string,string>;
+}
+
 
 export const getStreamsState = createFeatureSelector<StreamsState>('streams');
 
@@ -83,6 +123,8 @@ export const getFilterDescriptors = createSelector(getStreamsState, (state: Stre
 
 export const getFilterCategories = createSelector(getStreamsState, (state: StreamsState) => state.filterCategories);
 
-export const getEditedFilterParameters = createSelector(getStreamsState,(state:StreamsState) => state.editingStream.filters.find(f => f.isEdited).parameters);
+export const getEditingFilterParameters = createSelector(getStreamsState,(state:StreamsState) => state.editingFilter.parameters);
+
+export const getEditingFilter = createSelector(getStreamsState,(state:StreamsState) => state.editingFilter);
 
 

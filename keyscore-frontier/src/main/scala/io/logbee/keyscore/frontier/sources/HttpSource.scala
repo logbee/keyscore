@@ -46,9 +46,11 @@ object HttpSource {
       TextParameterDescriptor("fieldName"),
       IntParameterDescriptor("port")
 
-    ))
+    ),"Source")
   }
 }
+
+//TODO: find proper way to unbind as soon as possible after the shutdown command to allow updating the source on the fly with same port
 
 class HttpSource(initialConfiguration: HttpSourceConfiguration)(implicit val system: ActorSystem) extends GraphStage[SourceShape[CommittableRecord]] {
 

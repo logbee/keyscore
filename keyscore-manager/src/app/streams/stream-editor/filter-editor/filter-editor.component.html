@@ -2,18 +2,26 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Filter Editor</h5>
+                <h5 class="modal-title">Filter Editor - {{(filter$| async).displayName}}</h5>
                 <button type="button" class="close" aria-label="Close" (click)="close()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
+                    <form>
+                        <div class="form-group" *ngFor="let parameter of filterParameters$ | async">
+                            <label for="{{parameter.name}}">{{parameter.displayName}}</label>
+                            <input class="form-control" type="text" *ngIf="parameter.kind == 'text'" id="{{parameter.name}}" value="{{parameter.value ? parameter.value : parameter.displayName}}">
+                            <input class="form-control" type="number" *ngIf="parameter.kind == 'int'" id="{{parameter.name}}" value="{{parameter.value ? parameter.value : 0}}">
 
+                        </div>
+                    </form>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+                <button type="button" class="btn btn-success" (click)="save()">Ok</button>
+                <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
             </div>
         </div>
     </div>

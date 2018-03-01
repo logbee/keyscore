@@ -1,4 +1,11 @@
-import {StreamsState} from "./streams.model";
+import {
+    BooleanParameter,
+    IntParameter,
+    ListParameter, ListParameterDescriptor, MapParameter, MapParameterDescriptor, Parameter,
+    ParameterDescriptor,
+    StreamsState, TextListParameter, TextMapParameter,
+    TextParameter
+} from "./streams.model";
 import {
     ADD_FILTER,
     CREATE_STREAM,
@@ -24,25 +31,24 @@ const initialState: StreamsState = {
                     id: '850c08cf-b88e-46b3-aa73-8877a743d443',
                     name: 'KafkaInput',
                     description: '',
-                    displayName:'Kafka Input',
-                    parameters:[],
-                    isEdited:false
+                    displayName: 'Kafka Input',
+                    parameters: []
                 },
                 {
                     id: 'ca4108cf-aaf4-5671-aa73-1717a743d215',
                     name: 'KafkaOutput',
                     description: '',
-                    displayName:'Kafka Output',
-                    parameters:[],
-                    isEdited:false
+                    displayName: 'Kafka Output',
+                    parameters: []
                 }
             ]
         }
     ],
     editingStream: null,
+    editingFilter:null,
     loading: false,
-    filterDescriptors:[],
-    filterCategories:[]
+    filterDescriptors: [],
+    filterCategories: []
 };
 
 export function StreamsReducer(state: StreamsState = initialState, action: StreamActions): StreamsState {
@@ -80,10 +86,9 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             result.editingStream.filters.push({
                 id: uuid(),
                 name: action.filter.name,
-                displayName:action.filter.displayName,
+                displayName: action.filter.displayName,
                 description: action.filter.description,
-                parameters: action.filter.parameters,
-                isEdited:false
+                parameters: createParametersFromDescriptors(action.filter.parameters)
             });
             break;
         case MOVE_FILTER:
@@ -91,12 +96,11 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             swap(result.editingStream.filters, filterIndex, action.position);
             break;
         case EDIT_FILTER:
-            result.streamList.forEach(stream => stream.filters.forEach(f => f.isEdited = false))
-            result.editingStream.filters.find(f=> f.id == action.filterId).isEdited = true;
+            setEditingFilter(result,action.filterId);
             break;
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
-            result.filterCategories = result.filterDescriptors.map(descriptor => descriptor.category).filter((category,index,array) => array.indexOf(category) == index);
+            result.filterCategories = result.filterDescriptors.map(descriptor => descriptor.category).filter((category, index, array) => array.indexOf(category) == index);
     }
 
     return result
@@ -104,6 +108,51 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
 
 function setEditingStream(state: StreamsState, id: string) {
     state.editingStream = Object.assign({}, state.streamList.find(stream => id == stream.id));
+}
+
+function setEditingFilter(state:StreamsState, id :string){
+    state.editingFilter = Object.assign({},state.editingStream.filters.find(f =>f.id ==id));
+}
+
+function createParametersFromDescriptors(parameterDescriptors: ParameterDescriptor[]):Parameter[] {
+    return parameterDescriptors.map(p => {
+        switch (p.kind) {
+            case 'text':
+                return p as TextParameter;
+            case 'int':
+                return p as IntParameter;
+            case 'boolean':
+                return p as BooleanParameter;
+            case 'list':
+                return createListParameterFromDescriptor(p as ListParameterDescriptor);
+            case 'map':
+                return createMapParameterFromDescriptor(p as MapParameterDescriptor);
+
+
+        }
+
+    })
+}
+
+function createListParameterFromDescriptor(p: ListParameterDescriptor): ListParameter {
+    if (p.element.kind === 'text') {
+        let element = p.element as TextParameter;
+        return {
+            name: p.name, displayName: p.displayName, mandatory: p.mandatory,
+            kind: 'list[string]', min: p.min, max: p.max, validator: element.validator
+        } as TextListParameter;
+    }
+}
+
+function createMapParameterFromDescriptor(p: MapParameterDescriptor): MapParameter {
+    if (p.key.kind === 'text' && p.value.kind === 'text') {
+        let key = p.key as TextParameter;
+        let value = p.value as TextParameter;
+        return {
+            name: p.name, displayName: p.displayName, mandatory: p.mandatory,
+            kind: 'map[string,string]', min: p.min, max: p.max, keyValidator: key.validator, valueValidator: value.validator
+        } as TextMapParameter;
+    }
 }
 
 function swap<T>(arr: Array<T>, a: number, b: number) {

@@ -41,7 +41,7 @@ object StreamManager {
 class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
 
   implicit val system: ActorSystem = context.system
-  implicit val timeout: Timeout = 2 seconds
+  implicit val timeout: Timeout = 5 seconds
   var idToActor = Map.empty[UUID, ActorRef]
   var actorToId = Map.empty[ActorRef, UUID]
 
@@ -60,7 +60,7 @@ class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMateria
           self tell(ChangeStream(streamId, stream), sender())
         case None =>
           val streamActor = context.actorOf(StreamSupervisor.props(filterManager))
-          val createAnswer = Await.result(streamActor ? CreateNewStream(streamId, stream), 2 seconds)
+          val createAnswer = Await.result(streamActor ? CreateNewStream(streamId, stream), 5 seconds)
           createAnswer match {
             case StreamCreatedWithID =>
               addStreamActor(streamId, streamActor)
@@ -74,7 +74,7 @@ class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMateria
     case ChangeStream(streamId, stream) =>
 
       val newStreamActor = context.actorOf(StreamSupervisor.props(filterManager))
-      val updateAnswer = Await.result(newStreamActor ? CreateNewStream(streamId, stream), 2 seconds)
+      val updateAnswer = Await.result(newStreamActor ? CreateNewStream(streamId, stream), 5 seconds)
       updateAnswer match {
         case StreamCreatedWithID(streamId) =>
           val streamActor: ActorRef = removeStreamActor(streamId)

@@ -30,7 +30,7 @@ object StreamSupervisor {
 class StreamSupervisor(filterManager: ActorRef)
                       (implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
 
-  implicit val timeout: Timeout = 2 seconds
+  implicit val timeout: Timeout = 5 seconds
 
 
   var killSwitch: Option[UniqueKillSwitch] = None
@@ -51,7 +51,7 @@ class StreamSupervisor(filterManager: ActorRef)
     case CreateNewStream(streamId, stream) =>
       val future: Future[BuildGraphAnswerWrapper] = ask(filterManager, BuildGraph(streamId, stream)).mapTo[BuildGraphAnswerWrapper]
 
-      val graphAnswer = Await.result(future, 2 seconds)
+      val graphAnswer = Await.result(future, 5 seconds)
 
       val graph = graphAnswer.answer match {
         case Some(builtGraph: BuiltGraph) =>

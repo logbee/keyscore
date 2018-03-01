@@ -14,6 +14,6 @@ object StdOutSink {
   }
 
   val descriptor:FilterDescriptor = {
-    FilterDescriptor("StdOutSink","Standard Output Sink","Writes the streams output to StdOut",List.empty)
+    FilterDescriptor("StdOutSink","Standard Output Sink","Writes the streams output to StdOut",List.empty,"Sink")
   }
 }
