@@ -2,7 +2,7 @@ package io.logbee.keyscore.frontier.stream
 
 import akka.actor.{Actor, ActorLogging, Props}
 import io.logbee.keyscore.frontier.filters._
-import io.logbee.keyscore.frontier.sinks.KafkaSink
+import io.logbee.keyscore.frontier.sinks.{KafkaSink, StdOutSink}
 import io.logbee.keyscore.frontier.sources.{HttpSource, KafkaSource}
 import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.filter.FilterDescriptor
@@ -25,7 +25,14 @@ object FilterDescriptorManager {
 class FilterDescriptorManager extends Actor with ActorLogging {
 
   val listOfFilterDescriptors = List[FilterDescriptor](
-    AddFieldsFilter.descriptor, GrokFilter.descriptor, RemoveFieldsFilter.descriptor, RetainFieldsFilter.descriptor,KafkaSource.descriptor,KafkaSink.descriptor,HttpSource.descriptor
+    AddFieldsFilter.descriptor,
+    GrokFilter.descriptor,
+    RemoveFieldsFilter.descriptor,
+    RetainFieldsFilter.descriptor,
+    KafkaSource.descriptor,
+    KafkaSink.descriptor,
+    HttpSource.descriptor,
+    StdOutSink.descriptor
   )
   val listOfActiveDescriptors = List[FilterDescriptor]()
 

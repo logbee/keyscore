@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
-import akka.{NotUsed, actor}
+import akka.{Done, NotUsed, actor}
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.KafkaSink
 import io.logbee.keyscore.frontier.sources.KafkaSource
@@ -15,8 +15,8 @@ import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkTypes}
 import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceTypes}
 import streammanagement.FilterManager._
-import scala.util.control.Breaks._
 
+import scala.util.control.Breaks._
 import scala.reflect.runtime.{universe => ru}
 import scala.concurrent.Future
 import scala.util.Success
@@ -39,7 +39,7 @@ object FilterManager {
 
   case class StreamBlueprint(uuid: UUID,
                              source: Source[CommittableRecord, UniqueKillSwitch],
-                             sink: Sink[CommittableRecord, NotUsed],
+                             sink: Sink[CommittableRecord, Future[Done]],
                              filter: Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]])
 
   case class UpdateFilter(uuid: UUID, configuration: GrokFilterConfiguration)
@@ -82,7 +82,7 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
         }
 
         val graph = finalSource
-          .viaMat(AddFieldsFilter(Map("akka_timestamp" -> FilterUtils.getCurrentTimeFormatted)))(Keep.left)
+          .viaMat(AddFieldsFilter(Map("keyscore_timestamp" -> FilterUtils.getCurrentTimeFormatted)))(Keep.left)
           .toMat(streamBlueprint.sink)(Keep.left)
 
         sender ! BuildGraphAnswerWrapper(Some(BuiltGraph(streamId,graph)))
@@ -108,8 +108,8 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
       val source: Source[CommittableRecord, UniqueKillSwitch] =
         Reflection.createFilterByClassname(FilterRegistry.filters(model.source.kind), model.source, Some(system)).asInstanceOf[Source[CommittableRecord, UniqueKillSwitch]]
 
-      val sink: Sink[CommittableRecord, NotUsed] =
-        Reflection.createFilterByClassname(FilterRegistry.filters(model.sink.kind), model.sink, Some(system)).asInstanceOf[Sink[CommittableRecord, NotUsed]]
+      val sink: Sink[CommittableRecord, Future[Done]] =
+        Reflection.createFilterByClassname(FilterRegistry.filters(model.sink.kind), model.sink, Some(system)).asInstanceOf[Sink[CommittableRecord, Future[Done]]]
 
       val filterBuffer = scala.collection.mutable.Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]()
 
@@ -133,6 +133,7 @@ object FilterRegistry {
     "KafkaSource" -> "io.logbee.keyscore.frontier.sources.KafkaSource",
     "HttpSource" -> "io.logbee.keyscore.frontier.sources.HttpSource",
     "KafkaSink" -> "io.logbee.keyscore.frontier.sinks.KafkaSink",
+    "StdOutSink" -> "io.logbee.keyscore.frontier.sinks.StdOutSink",
     "AddFieldsFilter" -> "io.logbee.keyscore.frontier.filters.AddFieldsFilter",
     "RemoveFieldsFilter" -> "io.logbee.keyscore.frontier.filters.RemoveFieldsFilter",
     "RetainFieldsFilter" -> "io.logbee.keyscore.frontier.filters.RetainFieldsFilter",

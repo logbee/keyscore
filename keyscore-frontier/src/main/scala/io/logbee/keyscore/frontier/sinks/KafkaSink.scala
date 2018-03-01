@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.sinks
 
-import akka.NotUsed
+import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
@@ -9,10 +9,12 @@ import io.logbee.keyscore.frontier.filters.{CommittableRecord, ToKafkaProducerFi
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextParameter, TextParameterDescriptor}
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 
+import scala.concurrent.Future
+
 
 object KafkaSink {
 
-  def create(filterConfig: FilterConfiguration, actorSystem: ActorSystem): Sink[CommittableRecord, NotUsed] = {
+  def create(filterConfig: FilterConfiguration, actorSystem: ActorSystem): Sink[CommittableRecord, Future[Done]] = {
 
 
     val kafkaConfig = try {
@@ -25,7 +27,7 @@ object KafkaSink {
 
     val sink = Producer.commitableSink(producerSettings)
 
-    val kafkaSink = ToKafkaProducerFilter(kafkaConfig.sinkTopic).toMat(sink)(Keep.left)
+    val kafkaSink = ToKafkaProducerFilter(kafkaConfig.sinkTopic).toMat(sink)(Keep.right)
 
     kafkaSink
   }
