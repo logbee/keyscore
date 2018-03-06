@@ -13,8 +13,7 @@ import {Subject} from "rxjs/Subject";
     template: require('./filter-chooser.component.html'),
     styles: [
         '.modal-lg{max-width:80% !important;}',
-        '.list-group-item-action{cursor: pointer;}',
-        '.active-group{background-color: cornflowerblue;color:rgb(255,255,255);transition: all 0.14s ease-in-out}'
+        '.list-group-item-action{cursor: pointer;}'
     ],
     providers: [
         ModalService,

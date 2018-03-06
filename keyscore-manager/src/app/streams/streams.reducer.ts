@@ -139,7 +139,7 @@ function createListParameterFromDescriptor(p: ListParameterDescriptor): ListPara
         let element = p.element as TextParameter;
         return {
             name: p.name, displayName: p.displayName, mandatory: p.mandatory,
-            kind: 'list[string]', min: p.min, max: p.max, validator: element.validator
+            kind: 'list[string]', min: p.min, max: p.max, validator: element.validator,value:[]
         } as TextListParameter;
     }
 }

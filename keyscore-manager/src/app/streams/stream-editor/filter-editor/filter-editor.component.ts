@@ -6,11 +6,13 @@ import {Observable} from "rxjs/Rx";
 import {AddFilterAction, LoadFilterDescriptorsAction} from "../../streams.actions";
 import {
     FilterDescriptor, FilterModel, getEditingFilter, getEditingFilterParameters, getFilterCategories,
-    getFilterDescriptors,
+    getFilterDescriptors, Parameter,
     ParameterDescriptor,
     StreamsState
 } from "../../streams.model";
 import {Subject} from "rxjs/Subject";
+import {FormControl, FormGroup} from "@angular/forms";
+import {ParameterControlService} from "../../../services/parameter-control.service";
 
 
 @Component({
@@ -23,24 +25,31 @@ import {Subject} from "rxjs/Subject";
     ],
     providers: [
         ModalService,
+        ParameterControlService
     ]
 })
 
 
 export class FilterEditor {
 
-    private filterParameters$: Observable<ParameterDescriptor[]>;
+    form:FormGroup;
+    payLoad = '';
+
+    private filterParameters$: Observable<Parameter[]>;
     private filter$:Observable<FilterModel>;
 
-    constructor(private store: Store<StreamsState>, private modalService: ModalService) {
+    constructor(private store: Store<StreamsState>, private modalService: ModalService,private parameterService: ParameterControlService) {
         this.filterParameters$ = this.store.select(getEditingFilterParameters);
         this.filter$ = this.store.select(getEditingFilter);
-
-
+        this.filterParameters$.subscribe(parameters => this.form = this.parameterService.toFormGroup(parameters));
     }
 
     close(){
         this.modalService.close()
+    }
+
+    onSubmit(){
+        this.payLoad=JSON.stringify(this.form.value);
     }
 
 

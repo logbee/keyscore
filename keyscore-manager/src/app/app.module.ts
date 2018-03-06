@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
-import {FormsModule} from '@angular/forms'
+import {FormsModule, ReactiveFormsModule} from '@angular/forms'
 import {HttpClientModule} from "@angular/common/http";
 import {RouterModule, Routes} from '@angular/router';
 
@@ -21,6 +21,8 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {RouterEffects} from "./router/router.effects";
 import {AgentsModule} from "./agents/agents.module";
 import {FilterEditor} from "./streams/stream-editor/filter-editor/filter-editor.component";
+import {ParameterList} from "./streams/stream-editor/filter-editor/parameter-list/parameter-list.component";
+import {ParameterComponent} from "./streams/stream-editor/filter-editor/parameter.component";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -36,6 +38,7 @@ const routes: Routes = [
         BrowserModule,
         FormsModule,
         HttpClientModule,
+        ReactiveFormsModule,
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
         EffectsModule.forRoot([AppConfigEffects, RouterEffects]),
@@ -50,7 +53,9 @@ const routes: Routes = [
         FiltersComponent,
         FilterDetailComponent,
         FilterChooser,
-        FilterEditor
+        FilterEditor,
+        ParameterList,
+        ParameterComponent
     ],
     providers: [
 

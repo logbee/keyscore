@@ -7,21 +7,23 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="container-fluid">
-                    <form>
-                        <div class="form-group" *ngFor="let parameter of filterParameters$ | async">
-                            <label for="{{parameter.name}}">{{parameter.displayName}}</label>
-                            <input class="form-control" type="text" *ngIf="parameter.kind == 'text'" id="{{parameter.name}}" value="{{parameter.value ? parameter.value : parameter.displayName}}">
-                            <input class="form-control" type="number" *ngIf="parameter.kind == 'int'" id="{{parameter.name}}" value="{{parameter.value ? parameter.value : 0}}">
-
+            <div class="container-fluid">
+                <form class="form-horizontal col-12" (ngSubmit)="onSubmit()" [formGroup]="form">
+                    <div class="modal-body">
+                        <div *ngFor="let parameter of filterParameters$ | async" class="form-row">
+                            <app-parameter class="col-12" [parameter]="parameter" [form]="form"></app-parameter>
                         </div>
-                    </form>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" (click)="save()">Ok</button>
-                <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+
+                        <div class="form-row" *ngIf="payLoad">
+                            Saved the following values<br>{{payLoad}}
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" [disabled]="!form.valid" class="btn btn-success">Ok</button>
+                        <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

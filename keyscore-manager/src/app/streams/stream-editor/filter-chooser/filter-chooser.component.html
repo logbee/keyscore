@@ -21,7 +21,7 @@
                         <div class="col-xl-3">
                             <div class="card">
                                 <div *ngFor="let category of categories$ | async" class="list-group-flush">
-                                    <button (click)="selectCategory(category)" [ngClass]="{true:'list-group-item list-group-item-action active-group', false: 'list-group-item list-group-item-action'}[(selectedCategory$ | async )==category]">{{category}}</button>
+                                    <button (click)="selectCategory(category)" [ngClass]="{true:'list-group-item list-group-item-action active', false: 'list-group-item list-group-item-action'}[(selectedCategory$ | async )==category]">{{category}}</button>
                                 </div>
                             </div>
                         </div>

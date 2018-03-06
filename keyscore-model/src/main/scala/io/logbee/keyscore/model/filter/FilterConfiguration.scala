@@ -39,3 +39,4 @@ case class TextMapParameter(name: String, value: Map[String,String]) extends Par
 
 case class TextListParameter(name: String, value: List[String]) extends Parameter[List[String]]
 
+case class ParameterList(name: String, value: List[Parameter[_]]) extends Parameter[List[Parameter[_]]]

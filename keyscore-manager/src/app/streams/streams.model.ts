@@ -89,8 +89,8 @@ export interface BooleanParameter extends Parameter{
 
 
 export interface ListParameter extends Parameter{
-    min:Number;
-    max:Number;
+    min:number;
+    max:number;
 
 }
 
@@ -98,10 +98,9 @@ export interface TextListParameter extends ListParameter {
     validator:string;
     value?:string[];
 }
-
 export interface MapParameter extends Parameter{
-    min:Number;
-    max:Number;
+    min:number;
+    max:number;
 }
 
 export interface TextMapParameter extends MapParameter{
