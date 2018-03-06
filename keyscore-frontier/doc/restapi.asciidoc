@@ -25,14 +25,39 @@ A stream contains
 
 
 * stream id
-source
-* sink
-* n filters
+* stream name
+* stream description
+* source configuration
+* sink configuration
+* list of filter configurations
+
 
 ==== Stream ID
 Every stream has a unique UUID. The UUID should match the UUID in the URL.
 [source,json]
  "id":"fff34f64-1550-449f-8c13-4058ae6b185a",
+==== Stream Name and Description
+Simple Strings to describe the Stream.
+
+==== Source,Sink and Filter Configuration
+Every source,sink or filter has the following fields:
+
+* id : UUID
+* kind : describes the filter type (e.g "AddFieldsFilter")
+* parameters: List of parameters to configure the filter.
+
+===== Parameters
+Configuration parameters consist of three fields:
+
+* name of the parameter as string
+* value of the parameter
+* a field called jsonClass representing the values type
+
+Possible values for jsonClass are:
+
+* string,boolean,int,float,map[string,string],list[string]
+
+Examples of different source,sink or filter configurations follow below.
 
 ==== Source
 A source can be built from different types.
@@ -44,12 +69,32 @@ So if something went wrong during the data processing in the pipeline,
 the data that failed is still in kafka and can be processed again.
 [source,json]
  "source":{
-      "source_type":"kafka_source",
-      "bootstrap_server":"<HOST>:<PORT>",
-      "source_topic":"<TOPIC_NAME>",
-      "group_ID":"<GROUP_NAME>",
-      "offset_commit":"latest"
- },
+     "id":"643e0b22-9f18-4c6c-ac3c-9fc79df9471d",
+     "kind":"KafkaSource",
+     "parameters":[
+       {
+         "name":"sourceTopic",
+         "value":"testfluentd",
+         "jsonClass":"string"
+       },
+       {
+         "name":"groupID",
+         "value":"keyscore-consumer_newconfig",
+         "jsonClass":"string"
+       },
+       {
+         "name":"offsetCommit",
+         "value":"earliest",
+         "jsonClass":"string"
+       },
+       {
+         "name":"bootstrapServer",
+         "value":"testserver:9092",
+         "jsonClass":"string"
+       }
+     ]
+
+   }
 
 ==== Sink
 All the processed data will be pushed in the specified sink.
@@ -58,10 +103,21 @@ All the processed data will be pushed in the specified sink.
 
 [source,json]
  "sink":{
-      "sink_type":"kafka_sink",
-      "sink_topic":"<TOPIC_NAME>",
-      "bootstrap_server":"<HOST>:<PORT>"
- },
+     "id":"48ab7a30-7387-4fee-b821-96dfecd411d7",
+     "kind":"KafkaSink",
+     "parameters":[
+       {
+         "name":"sinkTopic",
+         "value":"testfluentd",
+         "jsonClass":"string"
+       },
+       {
+         "name":"bootstrapServer",
+         "value":"testserver:9092",
+         "jsonClass":"string"
+       }
+     ]
+   }
 
 ==== Body
 The body contains all the filter you want to apply on the streaming data. +
@@ -76,43 +132,53 @@ It can be only one filter or as many as you want.
 After the retain filter is processed, only the fields in the "fields_to_remain" list will be present in the streaming data. +
 All other fields are not longer in the streaming data.
 [source,json]
- {
- "filter_type":"retain_fields",
-    "filter_id":"<UUID_OF_FILTER>",
-    "fields_to_retain":[
-        "fieldOne",
-        "fieldTwo",
-        "fieldWithIP",
-        "fieldX"
-    ]
- }
+ "id":"26d4d561-4cfc-42d6-9cf4-521e66586317",
+ "kind":"RetainFieldsFilter",
+ "parameters":[
+     {
+       "name":"fieldsToRetain",
+       "value":[
+         "fieldX",
+         "timeField"
+       ],
+       "jsonClass":"list[string]"
+     }
+ ]
 
 ===== Add_Fields Filter
 This filter adds new fields with the given value to the streaming data. +
 All older fields are retained.
 [source,json]
- {
- "filter_type":"add_fields",
-    "filter_id":"<UUID_OF_FILTER>",
-    "fields_to_add":{
-       "fieldAboutScala":"Scala is great.",
-       "fieldAboutAkka":"Akka is great too.",
-       "fieldAboutJava":"Akka with java is not so great."
-    }
- }
+ "id":"26d4d561-4cfc-42d6-9cf4-521e66586317",
+ "kind":"AddFieldsFilter",
+ "parameters":[
+     {
+       "name":"fieldToAdd",
+       "value":{
+         "fieldX":"valueX",
+         "fieldY":"valueY"
+       },
+       "jsonClass":"map[string,string]"
+     }
+ ]
 
 ===== Remove_Fields Filter
 This filter removes the specified fields from the streaming data. +
 All other fields are retained.
 [source,json]
-{
-"filter_type":"remove_fields",
-    "filter_id":"<UUID_OF_FILTER>",
-    "fields_to_remove":[
+"id":"26d4d561-4cfc-42d6-9cf4-521e66586317",
+"kind":"RemoveFieldsFilter",
+"parameters":[
+    {
+      "name":"fieldsToRemove",
+      "value":[
         "fieldX",
-        "fieldAboutJava"
-    ]
-}
+        "timeField"
+      ],
+      "jsonClass":"list[string]"
+    }
+]
+
 
 ===== Grok_Fields Filter
 The grok filter applies the specified regex pattern on the specified fields and extracts the results in a new field. +
@@ -120,15 +186,25 @@ The other fields are retained. +
 This filter is pausable.
 
 [source,json]
-{
-    "filter_type":"grok_fields",
-    "filter_id":"<UUID_OF_FILTER>",
-    "isPaused":"false",
-    "fieldNames":[
-        "fieldWithIP"
-    ],
-    "pattern":"[0-9.]+(?<ipsuffix>\\d{2,3})"
-}
+"id":"26d4d561-4cfc-42d6-9cf4-521e66586317",
+"kind":"GrokFilter",
+"parameters":[
+    {
+      "name":"isPaused",
+      "value":false,
+      "jsonClass":"boolean"
+    },
+    {
+      "name":"pattern",
+      "value":"(?<newmessage>.*)",
+      "jsonClass":"string"
+    },
+    {
+      "name":"fieldNames",
+      "value":["message"],
+      "jsonClass":"list[string]"
+    }
+]
 
 
 == Change a filter
