@@ -4,13 +4,13 @@ import java.util.UUID
 
 import _root_.streammanagement.StreamSupervisor.ShutdownGraph
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
+import akka.pattern.ask
 import akka.stream.ActorMaterializer
+import akka.util.Timeout
 import io.logbee.keyscore.frontier.stream.StreamManager._
 import io.logbee.keyscore.model._
 import streammanagement.FilterManager.BuildGraphException
 import streammanagement.StreamSupervisor
-import akka.pattern.ask
-import akka.util.Timeout
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -41,7 +41,8 @@ object StreamManager {
 class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
 
   implicit val system: ActorSystem = context.system
-  implicit val timeout: Timeout = 5 seconds
+  //TODO For testing docker-kafka only
+  implicit val timeout: Timeout = 30 seconds
   var idToActor = Map.empty[UUID, ActorRef]
   var actorToId = Map.empty[ActorRef, UUID]
 
@@ -60,7 +61,8 @@ class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMateria
           self tell(ChangeStream(streamId, stream), sender())
         case None =>
           val streamActor = context.actorOf(StreamSupervisor.props(filterManager))
-          val createAnswer = Await.result(streamActor ? CreateNewStream(streamId, stream), 5 seconds)
+          //TODO For testing docker-kafka only
+          val createAnswer = Await.result(streamActor ? CreateNewStream(streamId, stream), 30 seconds)
           createAnswer match {
             case StreamCreatedWithID =>
               addStreamActor(streamId, streamActor)
@@ -74,7 +76,8 @@ class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMateria
     case ChangeStream(streamId, stream) =>
 
       val newStreamActor = context.actorOf(StreamSupervisor.props(filterManager))
-      val updateAnswer = Await.result(newStreamActor ? CreateNewStream(streamId, stream), 5 seconds)
+      //TODO For testing docker-kafka only
+      val updateAnswer = Await.result(newStreamActor ? CreateNewStream(streamId, stream), 30 seconds)
       updateAnswer match {
         case StreamCreatedWithID(streamId) =>
           val streamActor: ActorRef = removeStreamActor(streamId)
