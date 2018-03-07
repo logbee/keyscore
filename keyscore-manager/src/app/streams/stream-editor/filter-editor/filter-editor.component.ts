@@ -1,4 +1,4 @@
-import {Component} from '@angular/core'
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core'
 import {ModalService} from "../../../services/modal.service";
 
 import {Store} from "@ngrx/store";
@@ -17,41 +17,45 @@ import {ParameterControlService} from "../../../services/parameter-control.servi
 
 @Component({
     selector: 'filter-editor',
-    template: require('./filter-editor.component.html'),
-    styles: [
-        '.modal-lg{max-width:80% !important;}',
-        '.list-group-item-action{cursor: pointer;}',
-        '.active-group{background-color: cornflowerblue;color:rgb(255,255,255);transition: all 0.14s ease-in-out}'
-    ],
+    template: `
+        <form class="form-horizontal col-12 mt-3" [formGroup]="form">
+
+            <div *ngFor="let parameter of filterParameters" class="form-row">
+                <app-parameter class="col-12" [parameter]="parameter" [form]="form"></app-parameter>
+            </div>
+
+            <div class="form-row" *ngIf="payLoad">
+                Saved the following values<br>{{payLoad}}
+            </div>
+
+
+        </form>
+    `,
     providers: [
-        ModalService,
         ParameterControlService
     ]
 })
 
 
-export class FilterEditor {
+export class FilterEditorComponent implements OnInit {
 
-    form:FormGroup;
-    payLoad = '';
+    @Input() filterParameters: Parameter[];
 
-    private filterParameters$: Observable<Parameter[]>;
-    private filter$:Observable<FilterModel>;
+    @Output() submitable:EventEmitter<string> = new EventEmitter();
 
-    constructor(private store: Store<StreamsState>, private modalService: ModalService,private parameterService: ParameterControlService) {
-        this.filterParameters$ = this.store.select(getEditingFilterParameters);
-        this.filter$ = this.store.select(getEditingFilter);
-        this.filterParameters$.subscribe(parameters => this.form = this.parameterService.toFormGroup(parameters));
+
+    form: FormGroup;
+
+
+
+    constructor(private parameterService: ParameterControlService) {
+
     }
 
-    close(){
-        this.modalService.close()
+    ngOnInit() {
+        this.form = this.parameterService.toFormGroup(this.filterParameters);
+        this.form.valueChanges.subscribe(_ =>this.form.valid ? this.submitable.emit(this.form.value) : this.submitable.emit(null) )
     }
-
-    onSubmit(){
-        this.payLoad=JSON.stringify(this.form.value);
-    }
-
 
 }
 

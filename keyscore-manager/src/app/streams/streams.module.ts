@@ -3,13 +3,16 @@ import {NgModule} from "@angular/core";
 import {StreamsComponent} from "./streams.component";
 import {CommonModule} from "@angular/common";
 import {StreamEditorComponent} from "./stream-editor/stream-editor.component";
-import {FormsModule} from "@angular/forms";
+import {FormsModule,ReactiveFormsModule} from "@angular/forms";
 import {StreamsReducer} from "./streams.reducer";
 import {StoreModule} from "@ngrx/store";
 import {EffectsModule} from "@ngrx/effects";
 import {StreamsEffects} from "./streams.effects";
 import {StreamDetailsComponent} from "./stream-editor/stream-details.component";
 import {StreamFilterComponent} from "./stream-editor/stream-filter.component";
+import {FilterEditorComponent} from "./stream-editor/filter-editor/filter-editor.component";
+import {ParameterList} from "./stream-editor/filter-editor/parameter-list/parameter-list.component";
+import {ParameterComponent} from "./stream-editor/filter-editor/parameter.component";
 
 export const routes: Routes = [
     {path: '', component: StreamsComponent},
@@ -20,6 +23,7 @@ export const routes: Routes = [
     imports: [
         CommonModule,
         FormsModule,
+        ReactiveFormsModule,
         RouterModule.forChild(routes),
         StoreModule.forFeature('streams', StreamsReducer),
         EffectsModule.forFeature([StreamsEffects])
@@ -28,7 +32,10 @@ export const routes: Routes = [
         StreamsComponent,
         StreamEditorComponent,
         StreamDetailsComponent,
-        StreamFilterComponent
+        StreamFilterComponent,
+        FilterEditorComponent,
+        ParameterList,
+        ParameterComponent
     ],
     providers: []
 })

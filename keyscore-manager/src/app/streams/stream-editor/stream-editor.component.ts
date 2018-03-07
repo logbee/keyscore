@@ -9,7 +9,7 @@ import {
     DeleteStreamAction, EditFilterAction, MoveFilterAction, ResetStreamAction,
     UpdateStreamAction
 } from "../streams.actions";
-import {FilterEditor} from "./filter-editor/filter-editor.component";
+import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
 
 @Component({
     selector: 'stream-editor',
@@ -38,6 +38,7 @@ import {FilterEditor} from "./filter-editor/filter-editor.component";
                                        [filter]="filter"
                                        [index]="i"
                                        [filterCount]="(stream$|async).filters.length"
+                                       [parameters]="filter.parameters"
                                        (move)="moveFilter($event)"
                                        (edit)="editFilter($event)">
                         </stream-filter>
@@ -95,6 +96,6 @@ export class StreamEditorComponent implements OnInit {
 
     editFilter(id:string){
         this.store.dispatch(new EditFilterAction(id))
-        this.modalService.show(FilterEditor);
+
     }
 }
