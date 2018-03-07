@@ -36,10 +36,14 @@ A stream contains
 Every stream has a unique UUID. The UUID should match the UUID in the URL.
 [source,json]
  "id":"fff34f64-1550-449f-8c13-4058ae6b185a",
+
 ==== Stream Name and Description
 Simple Strings to describe the Stream.
+[source,json]
+ "name":"testStream",
+ "description":"Description of testStream",
 
-==== Source,Sink and Filter Configuration
+==== Source, Sink and Filter Configuration
 Every source,sink or filter has the following fields:
 
 * id : UUID
@@ -79,7 +83,7 @@ the data that failed is still in kafka and can be processed again.
        },
        {
          "name":"groupID",
-         "value":"keyscore-consumer_newconfig",
+         "value":"keyscore-consumer_1",
          "parameterType":"string"
        },
        {
@@ -93,14 +97,37 @@ the data that failed is still in kafka and can be processed again.
          "parameterType":"string"
        }
      ]
-
    }
+
+===== HTTP Source
+When using a HTTP Source, just post a JSON message to the specific url to add messages.
+[source,json]
+"source":{
+    "id":"643e0b22-9f18-4c6c-ac3c-9fc79df9471d",
+    "kind":"HttpSource",
+    "parameters":[
+      {
+        "name":"port",
+        "value":8000,
+        "parameterType":"int"
+      },
+      {
+        "name":"fieldName",
+        "value":"httpSource",
+        "parameterType":"string"
+      },
+      {
+        "name":"bindAddress",
+        "value":"localhost",
+        "parameterType":"string"
+      }
+    ]
+  }
 
 ==== Sink
 All the processed data will be pushed in the specified sink.
 
 ===== Kafka Sink
-
 [source,json]
  "sink":{
      "id":"48ab7a30-7387-4fee-b821-96dfecd411d7",
@@ -116,6 +143,17 @@ All the processed data will be pushed in the specified sink.
          "value":"testserver:9092",
          "parameterType":"string"
        }
+     ]
+   }
+
+
+===== StdOut Sink [Dev tool | Not for production]
+Logs all messages in the console.
+[source,json]
+ "sink":{
+     "id":"48ab7a30-7387-4fee-b821-96dfecd411d7",
+     "kind":"StdOutSink",
+     "parameters":[
      ]
    }
 
