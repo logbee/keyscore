@@ -8,7 +8,7 @@
                 </button>
             </div>
             <div class="container-fluid">
-                <form class="form-horizontal col-12" (ngSubmit)="onSubmit()" [formGroup]="form">
+                <form class="form-horizontal col-12" [formGroup]="form">
                     <div class="modal-body">
                         <div *ngFor="let parameter of filterParameters$ | async" class="form-row">
                             <app-parameter class="col-12" [parameter]="parameter" [form]="form"></app-parameter>
@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" [disabled]="!form.valid" class="btn btn-success">Ok</button>
+                        <button type="submit" [disabled]="!form.valid" (click)="onSubmit()" class="btn btn-success">Ok</button>
                         <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
                     </div>
                 </form>

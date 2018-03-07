@@ -18,11 +18,14 @@ import {HostBinding} from "@angular/compiler/src/core";
             </div>
 
         </div>
-        <div class="row mt-2 pl-3 pr-3 justify-content-between ">
-            <input #addItemInput class="form-control col-11" type="text">
-
-            <button class="btn btn-success col-1" (click)="addItem(addItemInput.value)">Add
-            </button>
+        <div class="form-row mt-2 pl-1">
+            <div class="form-group">
+                <input #addItemInput class="form-control" type="text">
+            </div>
+            <div class="form-group ml-1">
+                <button class="btn btn-success" (click)="addItem(addItemInput.value)">Add
+                </button>
+            </div>
 
         </div>`,
     providers: [
@@ -30,25 +33,19 @@ import {HostBinding} from "@angular/compiler/src/core";
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => ParameterList),
             multi: true
-        },
-        {
-            provide: NG_VALIDATORS,
-            useExisting:forwardRef(()=>ParameterList),
-            multi: true
         }
     ]
 })
 
-export class ParameterList implements OnInit, ControlValueAccessor,OnChanges {
+export class ParameterList implements OnInit, ControlValueAccessor {
 
     @Input() parameter: TextListParameter;
     @Input() disabled = false;
+    @Input() distinctValues = true;
 
-    values$:Observable<string[]>;
+    values$: Observable<string[]>;
 
     parameterValues: string[];
-
-    validateFn:Function;
 
     /*@HostBinding('style.opacity')
     get opacity():number {
@@ -60,11 +57,9 @@ export class ParameterList implements OnInit, ControlValueAccessor,OnChanges {
     };
 
     onTouched = () => {
+
     };
 
-    validate(c:FormControl){
-        return this.validateFn(c);
-    }
 
     writeValue(elements: string[]): void {
         this.parameterValues = elements;
@@ -90,16 +85,10 @@ export class ParameterList implements OnInit, ControlValueAccessor,OnChanges {
     ngOnInit() {
         console.log(this.parameter);
         this.parameterValues = this.parameter.value;
-        this.values$=Observable.of(this.parameterValues);
-        this.validateFn=createElementRangeValidator(this.parameter.min,this.parameter.max);
+        this.values$ = Observable.of(this.parameterValues);
 
     }
 
-    ngOnChanges(changes:SimpleChanges){
-        if(changes.parameter){
-            this.validateFn = createElementRangeValidator(this.parameter.min,this.parameter.max);
-        }
-    }
 
     removeItem(index: number) {
         this.parameter.value.splice(index, 1);
@@ -107,19 +96,11 @@ export class ParameterList implements OnInit, ControlValueAccessor,OnChanges {
     }
 
     addItem(value: string) {
-        this.parameter.value.push(value);
-    }
-}
+        if(!this.distinctValues || (this.distinctValues && !this.parameterValues.some(x => x === value))){
+            this.parameter.value.push(value);
+            this.writeValue(this.parameter.value);
+        }
 
-export function createElementRangeValidator(minValue: number, maxValue: number) {
-    return function validateElementRange(c: FormControl) {
-        let err = {
-            outOfRangeError: {
-                given: c.value.length,
-                max: maxValue,
-                min: minValue
-            }
-        };
-        return (c.value.length > +maxValue || c.value.length < +minValue) ? err : null;
+
     }
 }

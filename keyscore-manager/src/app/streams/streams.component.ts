@@ -17,7 +17,8 @@ import * as RouterActions from '../router/router.actions';
                     <div class="card-body">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <img class="input-group-text" width="48em" height="48em" src="/assets/images/magnifying-glass.svg"/>
+                                <img class="input-group-text" width="48em" height="48em"
+                                     src="/assets/images/magnifying-glass.svg"/>
                             </div>
                             <input type="text" class="form-control" placeholder="search..." aria-label="search">
                         </div>
@@ -53,11 +54,11 @@ export class StreamsComponent {
     createStream(activeRouting: boolean = false) {
         let streamId = uuid();
         this.store.dispatch(new CreateStreamAction(streamId, "New Stream", ""));
-        if(activeRouting){
+        if (activeRouting) {
             this.store.dispatch(new RouterActions.Go({
-                path: ['/stream/'+streamId,{}],
-                query:{},
-                extras:{}
+                path: ['/stream/' + streamId, {}],
+                query: {},
+                extras: {}
             }));
         }
     }
