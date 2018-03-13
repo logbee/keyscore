@@ -18,6 +18,7 @@ import {
     UPDATE_STREAM
 } from "./streams.actions";
 import {v4 as uuid} from 'uuid';
+import 'jquery';
 
 
 const initialState: StreamsState = {
@@ -77,10 +78,10 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
         case UPDATE_STREAM:
             const index = result.streamList.findIndex(stream => action.stream.id == stream.id);
             if (index >= 0) {
-                result.streamList[index] = action.stream;
+                result.streamList[index] = jQuery.extend(true, {}, action.stream);
             }
             if (result.editingStream != null && result.editingStream.id == action.stream.id) {
-                result.editingStream = action.stream;
+                result.editingStream = jQuery.extend(true, {}, action.stream);
             }
             break;
         case DELETE_STREAM:
@@ -115,7 +116,8 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
 }
 
 function setEditingStream(state: StreamsState, id: string) {
-    state.editingStream = Object.assign({}, state.streamList.find(stream => id == stream.id));
+    //state.editingStream = Object.assign({}, state.streamList.find(stream => id == stream.id));
+    state.editingStream = jQuery.extend(true, {}, state.streamList.find(stream => id == stream.id));
 }
 
 function setEditingFilter(state: StreamsState, id: string) {
