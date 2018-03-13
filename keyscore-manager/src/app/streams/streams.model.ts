@@ -23,7 +23,7 @@ export interface FilterModel {
     name: string;
     displayName: string;
     description: string;
-    parameters: Parameter[];
+    parameters: ParameterDescriptor[];
 }
 
 
@@ -42,6 +42,7 @@ export interface ParameterDescriptor {
     displayName: string;
     kind: string;
     mandatory: boolean;
+    value?:any;
 }
 
 export interface ListParameterDescriptor extends ParameterDescriptor{
@@ -52,6 +53,7 @@ export interface ListParameterDescriptor extends ParameterDescriptor{
     element: ParameterDescriptor;
     min:Number;
     max:Number;
+    value?:string[];
 }
 
 export interface MapParameterDescriptor extends ParameterDescriptor{
@@ -59,10 +61,11 @@ export interface MapParameterDescriptor extends ParameterDescriptor{
     displayName: string;
     kind: string;
     mandatory: boolean;
-    key: ParameterDescriptor;
-    value: ParameterDescriptor;
+    mapKey: ParameterDescriptor;
+    mapValue: ParameterDescriptor;
     min:Number;
     max:Number;
+    value?:any;
 }
 
 //------------------Parameter------------------

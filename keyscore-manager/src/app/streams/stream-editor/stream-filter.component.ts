@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {FilterModel, Parameter} from "../streams.model";
+import {FilterModel, Parameter, ParameterDescriptor} from "../streams.model";
 import {ParameterControlService} from "../../services/parameter-control.service";
 import {FormControl, FormGroup} from "@angular/forms";
 import {Observable} from "rxjs/Observable";
@@ -71,7 +71,7 @@ export class StreamFilterComponent implements OnInit {
     @Input() filter: FilterModel;
     @Input() index: number;
     @Input() filterCount: number;
-    @Input() parameters: Parameter[];
+    @Input() parameters: ParameterDescriptor[];
 
     @Output() update: EventEmitter<{ filterModel: FilterModel, values: any }> = new EventEmitter();
     @Output() move: EventEmitter<{ id: string, position: number }> = new EventEmitter();

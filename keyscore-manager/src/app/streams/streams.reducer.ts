@@ -93,7 +93,7 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
                 name: action.filter.name,
                 displayName: action.filter.displayName,
                 description: action.filter.description,
-                parameters: createParametersFromDescriptors(action.filter.parameters)
+                parameters: action.filter.parameters
             });
             break;
         case MOVE_FILTER:
@@ -129,52 +129,6 @@ function setEditingFilter(state: StreamsState, id: string) {
     state.editingFilter = Object.assign({}, state.editingStream.filters.find(f => f.id == id));
 }
 
-function createParametersFromDescriptors(parameterDescriptors: ParameterDescriptor[]): Parameter[] {
-    return parameterDescriptors.map(p => {
-        switch (p.kind) {
-            case 'text':
-                return p as TextParameter;
-            case 'int':
-                return p as IntParameter;
-            case 'boolean':
-                return p as BooleanParameter;
-            case 'list':
-                return createListParameterFromDescriptor(p as ListParameterDescriptor);
-            case 'map':
-                return createMapParameterFromDescriptor(p as MapParameterDescriptor);
-
-
-        }
-
-    })
-}
-
-function createListParameterFromDescriptor(p: ListParameterDescriptor): ListParameter {
-    if (p.element.kind === 'text') {
-        let element = p.element as TextParameter;
-        return {
-            name: p.name, displayName: p.displayName, mandatory: p.mandatory,
-            kind: 'list[string]', min: p.min, max: p.max, validator: element.validator, value: []
-        } as TextListParameter;
-    }
-}
-
-function createMapParameterFromDescriptor(p: MapParameterDescriptor): MapParameter {
-    if (p.key.kind === 'text' && p.value.kind === 'text') {
-        let key = p.key as TextParameter;
-        let value = p.value as TextParameter;
-        return {
-            name: p.name,
-            displayName: p.displayName,
-            mandatory: p.mandatory,
-            kind: 'map[string,string]',
-            min: p.min,
-            max: p.max,
-            keyValidator: key.validator,
-            valueValidator: value.validator
-        } as TextMapParameter;
-    }
-}
 
 function swap<T>(arr: Array<T>, a: number, b: number) {
     if (a >= 0 && a < arr.length && b >= 0 && b < arr.length) {

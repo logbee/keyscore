@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {FormGroup} from '@angular/forms';
-import {Parameter} from "../../streams.model";
+import {Parameter, ParameterDescriptor} from "../../streams.model";
 
 
 @Component({
@@ -14,7 +14,7 @@ import {Parameter} from "../../streams.model";
 
                 <input class="form-control" *ngSwitchCase="'int'" [formControlName]="parameter.name"
                        [id]="parameter.name" [type]="'number'">
-                <parameter-list *ngSwitchCase="'list[string]'" [formControlName]="parameter.name"
+                <parameter-list *ngSwitchCase="'list'" [formControlName]="parameter.name"
                                 [id]="parameter.name" [parameter]="parameter"></parameter-list>
             </div>
             <div class="text-danger" *ngIf="!isValid">{{parameter.displayName}} is required</div>
@@ -22,7 +22,7 @@ import {Parameter} from "../../streams.model";
     `
 })
 export class ParameterComponent {
-    @Input() parameter: Parameter;
+    @Input() parameter: ParameterDescriptor;
     @Input() form: FormGroup;
 
     get isValid() {

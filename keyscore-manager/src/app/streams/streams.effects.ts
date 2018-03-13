@@ -40,7 +40,8 @@ export class StreamsEffects {
         ofType(UPDATE_STREAM),
         map(action => (action as UpdateStreamAction).stream),
         combineLatest(this.store.select(selectAppConfig)),
-        switchMap(([stream, config]) => {
+        mergeMap(([stream, config]) => {
+            console.log(stream);
             const streamUrl: string = config.getString('keyscore.frontier.base-url')+'/stream/';
             return this.http.put(streamUrl+stream.id,{}).pipe(
                 map(data => new UpdateStreamSuccessAction(stream)),

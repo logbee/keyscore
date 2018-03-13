@@ -1,5 +1,5 @@
 import {Component, forwardRef, Input, OnChanges, OnInit, SimpleChanges} from "@angular/core";
-import {Parameter, TextListParameter} from "../../../streams.model";
+import {Parameter, ParameterDescriptor, TextListParameter} from "../../../streams.model";
 import {Observable} from "rxjs/Observable";
 import {ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {HostBinding} from "@angular/compiler/src/core";
@@ -13,7 +13,8 @@ import {HostBinding} from "@angular/compiler/src/core";
                 <li class="list-group-item d-flex justify-content-between"
                     *ngFor="let value of values$ | async;index as i">
                     <span class="align-self-center">{{value}}</span>
-                    <button class="btn btn-danger d-inline-block " (click)="removeItem(i)"><img src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
+                    <button class="btn btn-danger d-inline-block " (click)="removeItem(i)"><img
+                            src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
                 </li>
             </div>
 
@@ -23,7 +24,8 @@ import {HostBinding} from "@angular/compiler/src/core";
                 <input #addItemInput class="form-control" type="text">
             </div>
             <div class="form-group ml-1">
-                <button class="btn btn-success" (click)="addItem(addItemInput.value)"><img src="/assets/images/ic_add_white_24px.svg" alt="Remove"/>
+                <button class="btn btn-success" (click)="addItem(addItemInput.value)"><img
+                        src="/assets/images/ic_add_white_24px.svg" alt="Remove"/>
                 </button>
             </div>
 
@@ -39,7 +41,7 @@ import {HostBinding} from "@angular/compiler/src/core";
 
 export class ParameterList implements OnInit, ControlValueAccessor {
 
-    @Input() parameter: TextListParameter;
+    @Input() parameter: ParameterDescriptor;
     @Input() disabled = false;
     @Input() distinctValues = true;
 
@@ -96,7 +98,8 @@ export class ParameterList implements OnInit, ControlValueAccessor {
     }
 
     addItem(value: string) {
-        if(!this.distinctValues || (this.distinctValues && !this.parameterValues.some(x => x === value))){
+        console.log('paramterValues:::' + this.parameterValues);
+        if (!this.distinctValues || (this.distinctValues && !this.parameterValues.some(x => x === value))) {
             this.parameter.value.push(value);
             this.writeValue(this.parameter.value);
         }
