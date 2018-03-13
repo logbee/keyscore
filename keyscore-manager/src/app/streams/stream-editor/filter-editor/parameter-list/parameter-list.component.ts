@@ -13,7 +13,7 @@ import {HostBinding} from "@angular/compiler/src/core";
                 <li class="list-group-item d-flex justify-content-between"
                     *ngFor="let value of values$ | async;index as i">
                     <span class="align-self-center">{{value}}</span>
-                    <button class="btn btn-danger d-inline-block " (click)="removeItem(i)">Delete</button>
+                    <button class="btn btn-danger d-inline-block " (click)="removeItem(i)"><img src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
                 </li>
             </div>
 
@@ -23,7 +23,7 @@ import {HostBinding} from "@angular/compiler/src/core";
                 <input #addItemInput class="form-control" type="text">
             </div>
             <div class="form-group ml-1">
-                <button class="btn btn-success" (click)="addItem(addItemInput.value)">Add
+                <button class="btn btn-success" (click)="addItem(addItemInput.value)"><img src="/assets/images/ic_add_white_24px.svg" alt="Remove"/>
                 </button>
             </div>
 

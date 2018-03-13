@@ -30,14 +30,14 @@ import {FormControl, FormGroup} from "@angular/forms";
                                 (click)="editFilter(filter.id)">Edit
                         </button>
                         <button type="button" [disabled]="!isEditingValid" class="btn btn-success" *ngIf="editing"
-                                (click)="saveFilter()">Save
+                                (click)="saveFilter()"><img src="/assets/images/ic_save_white.svg" alt="Save"/>
                         </button>
 
                         <button type="button" class="btn btn-secondary" *ngIf="editing"
-                                (click)="cancelEditing()">Cancel
+                                (click)="cancelEditing()"><img src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/>
                         </button>
                         <button type="button" class="btn btn-danger" *ngIf="editing"
-                                (click)="removeFilter()">Remove
+                                (click)="removeFilter(filter)"><img src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/>
                         </button>
                     </div>
                 </div>
@@ -70,6 +70,7 @@ export class StreamFilterComponent implements OnInit {
     @Output() update: EventEmitter<FilterModel> = new EventEmitter();
     @Output() move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
     @Output() edit: EventEmitter<string> = new EventEmitter();
+    @Output() remove: EventEmitter<FilterModel> = new EventEmitter();
 
     editing: boolean = false;
     isEditingValid: boolean = false;
@@ -87,8 +88,8 @@ export class StreamFilterComponent implements OnInit {
 
     }
 
-    removeFilter() {
-        this.editing = false;
+    removeFilter(filter:FilterModel) {
+        this.remove.emit(filter);
     }
 
     moveFilter(id: string, position: number) {
@@ -105,7 +106,7 @@ export class StreamFilterComponent implements OnInit {
     }
 
     cancelEditing() {
-
+        this.editing = false;
     }
 
     enableFilter() {

@@ -12,7 +12,7 @@ import {
     DELETE_STREAM, EDIT_FILTER,
     EDIT_STREAM,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
-    MOVE_FILTER,
+    MOVE_FILTER, REMOVE_FILTER,
     RESET_STREAM,
     StreamActions,
     UPDATE_STREAM
@@ -45,7 +45,7 @@ const initialState: StreamsState = {
         }
     ],
     editingStream: null,
-    editingFilter:null,
+    editingFilter: null,
     loading: false,
     filterDescriptors: [],
     filterCategories: []
@@ -96,7 +96,11 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             swap(result.editingStream.filters, filterIndex, action.position);
             break;
         case EDIT_FILTER:
-            setEditingFilter(result,action.filterId);
+            setEditingFilter(result, action.filterId);
+            break;
+        case REMOVE_FILTER:
+            const removeIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filterId);
+            result.editingStream.filters.splice(removeIndex, 1);
             break;
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
@@ -110,11 +114,11 @@ function setEditingStream(state: StreamsState, id: string) {
     state.editingStream = Object.assign({}, state.streamList.find(stream => id == stream.id));
 }
 
-function setEditingFilter(state:StreamsState, id :string){
-    state.editingFilter = Object.assign({},state.editingStream.filters.find(f =>f.id ==id));
+function setEditingFilter(state: StreamsState, id: string) {
+    state.editingFilter = Object.assign({}, state.editingStream.filters.find(f => f.id == id));
 }
 
-function createParametersFromDescriptors(parameterDescriptors: ParameterDescriptor[]):Parameter[] {
+function createParametersFromDescriptors(parameterDescriptors: ParameterDescriptor[]): Parameter[] {
     return parameterDescriptors.map(p => {
         switch (p.kind) {
             case 'text':
@@ -139,7 +143,7 @@ function createListParameterFromDescriptor(p: ListParameterDescriptor): ListPara
         let element = p.element as TextParameter;
         return {
             name: p.name, displayName: p.displayName, mandatory: p.mandatory,
-            kind: 'list[string]', min: p.min, max: p.max, validator: element.validator,value:[]
+            kind: 'list[string]', min: p.min, max: p.max, validator: element.validator, value: []
         } as TextListParameter;
     }
 }
@@ -149,8 +153,14 @@ function createMapParameterFromDescriptor(p: MapParameterDescriptor): MapParamet
         let key = p.key as TextParameter;
         let value = p.value as TextParameter;
         return {
-            name: p.name, displayName: p.displayName, mandatory: p.mandatory,
-            kind: 'map[string,string]', min: p.min, max: p.max, keyValidator: key.validator, valueValidator: value.validator
+            name: p.name,
+            displayName: p.displayName,
+            mandatory: p.mandatory,
+            kind: 'map[string,string]',
+            min: p.min,
+            max: p.max,
+            keyValidator: key.validator,
+            valueValidator: value.validator
         } as TextMapParameter;
     }
 }

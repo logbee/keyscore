@@ -10,9 +10,10 @@ export const UPDATE_STREAM_FAILURE = '[Stream] UpdateStreamFailure';
 export const DELETE_STREAM = '[Stream] DeleteStream';
 export const ADD_FILTER = '[Stream] AddFilter';
 export const MOVE_FILTER = '[Stream] MoveFilter';
-export const EDIT_FILTER = '[Stream] EditFilter'
+export const EDIT_FILTER = '[Stream] EditFilter';
+export const REMOVE_FILTER = '[Stream] RemoveFilter';
 export const LOAD_FILTER_DESCRIPTORS_SUCCESS = '[Stream] LoadFilterDescriptorsSuccess';
-export const LOAD_FILTER_DESCRIPTORS_FAILURE ='[Stream] LoadFilterDescriptorsFailed';
+export const LOAD_FILTER_DESCRIPTORS_FAILURE = '[Stream] LoadFilterDescriptorsFailed';
 export const LOAD_FILTER_DESCRIPTORS = '[Stream] LoadFilterDescriptors';
 
 
@@ -30,6 +31,7 @@ export type StreamActions =
     | LoadFilterDescriptorsFailureAction
     | LoadFilterDescriptorsAction
     | EditFilterAction
+    | RemoveFilterAction
 
 export class CreateStreamAction implements Action {
     readonly type = CREATE_STREAM;
@@ -90,30 +92,37 @@ export class DeleteStreamAction implements Action {
 export class AddFilterAction implements Action {
     readonly type = ADD_FILTER;
 
-    constructor(readonly filter:FilterDescriptor){
+    constructor(readonly filter: FilterDescriptor) {
 
     }
 }
 
-export class MoveFilterAction implements Action{
-    readonly type=MOVE_FILTER;
+export class MoveFilterAction implements Action {
+    readonly type = MOVE_FILTER;
 
-    constructor(readonly filterId:string, readonly position:number){
-
-    }
-}
-
-export class EditFilterAction implements Action{
-    readonly type=EDIT_FILTER;
-
-    constructor(readonly filterId:string){
+    constructor(readonly filterId: string, readonly position: number) {
 
     }
 }
 
+export class EditFilterAction implements Action {
+    readonly type = EDIT_FILTER;
+
+    constructor(readonly filterId: string) {
+
+    }
+}
+
+export class RemoveFilterAction implements Action {
+    readonly type = REMOVE_FILTER;
+
+    constructor(readonly filterId: string) {
+
+    }
+}
 
 
-export class LoadFilterDescriptorsAction implements Action{
+export class LoadFilterDescriptorsAction implements Action {
     readonly type = LOAD_FILTER_DESCRIPTORS
 
 }

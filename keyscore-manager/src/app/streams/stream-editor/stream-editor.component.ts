@@ -4,10 +4,10 @@ import {Observable} from "rxjs/Observable";
 import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
-import {getEditingStream, StreamModel} from "../streams.model";
+import {FilterModel, getEditingStream, StreamModel} from "../streams.model";
 import {
     DeleteStreamAction, EditFilterAction, MoveFilterAction, ResetStreamAction,
-    UpdateStreamAction
+    UpdateStreamAction, RemoveFilterAction
 } from "../streams.actions";
 import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
 
@@ -34,21 +34,21 @@ import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
                         </div>
                     </div>
                     <div class="card-body">
-                        <stream-filter *ngFor="let filter of (stream$ | async).filters; index as i" 
+                        <stream-filter *ngFor="let filter of (stream$ | async).filters; index as i"
                                        [filter]="filter"
                                        [index]="i"
                                        [filterCount]="(stream$|async).filters.length"
                                        [parameters]="filter.parameters"
                                        (move)="moveFilter($event)"
-                                       (edit)="editFilter($event)">
+                                       (edit)="editFilter($event)"
+                                       (remove)="removeFilter($event)">
                         </stream-filter>
                     </div>
                 </div>
             </div>
         </div>
     `,
-    providers: [
-    ]
+    providers: []
 })
 export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
@@ -94,8 +94,12 @@ export class StreamEditorComponent implements OnInit {
         this.store.dispatch(new MoveFilterAction(filter.id, filter.position))
     }
 
-    editFilter(id:string){
+    editFilter(id: string) {
         this.store.dispatch(new EditFilterAction(id))
 
+    }
+
+    removeFilter(filter:FilterModel){
+        this.store.dispatch(new RemoveFilterAction(filter.id))
     }
 }
