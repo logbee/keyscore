@@ -4,10 +4,10 @@ import {Observable} from "rxjs/Observable";
 import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
-import {FilterModel, getEditingStream, StreamModel} from "../streams.model";
+import {FilterModel, getEditingStream, getEditingStreamIsLocked, StreamModel} from "../streams.model";
 import {
     DeleteStreamAction, EditFilterAction, MoveFilterAction, ResetStreamAction,
-    UpdateStreamAction, RemoveFilterAction
+    UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction
 } from "../streams.actions";
 import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
 
@@ -17,7 +17,7 @@ import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
         <div class="row justify-content-center">
             <div class="col-3">
                 <stream-details [stream]="stream$ | async"
-                                [locked]="isLocked"
+                                [locked$]="isLocked$"
                                 (update)="updateStream($event)"
                                 (reset)="resetStream($event)"
                                 (delete)="deleteStream($event)"
@@ -29,7 +29,7 @@ import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
                         <span class="font-weight-bold">Structure</span>
-                        <div *ngIf="!isLocked">
+                        <div *ngIf="!(isLocked$ | async)">
                             <button class="btn btn-success" (click)="addFilter(null)">Add Filter</button>
                         </div>
                     </div>
@@ -39,6 +39,7 @@ import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
                                        [index]="i"
                                        [filterCount]="(stream$|async).filters.length"
                                        [parameters]="filter.parameters"
+                                       [isEditingStreamLocked$]="isLocked$"
                                        (move)="moveFilter($event)"
                                        (edit)="editFilter($event)"
                                        (remove)="removeFilter($event)">
@@ -52,15 +53,16 @@ import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
 })
 export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
-    isLocked: boolean;
+    isLocked$: Observable<boolean>;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
     }
 
     ngOnInit(): void {
+        this.isLocked$ = this.store.select(getEditingStreamIsLocked);
         this.stream$ = this.store.select(getEditingStream);
         this.stream$.subscribe(stream => {
-            this.isLocked = (stream.filters && stream.filters.length > 0)
+            this.store.dispatch(new LockEditingStreamAction(stream.filters && stream.filters.length > 0))
         })
     }
 
@@ -87,7 +89,8 @@ export class StreamEditorComponent implements OnInit {
     }
 
     setLocked(locked: boolean, stream: StreamModel) {
-        this.isLocked = locked;
+        //this.isLocked = locked;
+        this.store.dispatch(new LockEditingStreamAction(locked))
     }
 
     moveFilter(filter: { id: string, position: number }) {
@@ -99,7 +102,7 @@ export class StreamEditorComponent implements OnInit {
 
     }
 
-    removeFilter(filter:FilterModel){
+    removeFilter(filter: FilterModel) {
         this.store.dispatch(new RemoveFilterAction(filter.id))
     }
 }

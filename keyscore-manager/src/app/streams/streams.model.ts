@@ -8,6 +8,7 @@ export class StreamsState {
     loading: boolean;
     filterDescriptors: FilterDescriptor[];
     filterCategories: string[];
+    editingStreamIsLocked: boolean;
 }
 
 export interface StreamModel {
@@ -115,6 +116,8 @@ export const getStreamsState = createFeatureSelector<StreamsState>('streams');
 export const getStreamList = createSelector(getStreamsState, (state: StreamsState) => state.streamList);
 
 export const getEditingStream = createSelector(getStreamsState, (state: StreamsState) => state.editingStream);
+
+export const getEditingStreamIsLocked = createSelector(getStreamsState,(state:StreamsState) => state.editingStreamIsLocked);
 
 export const isLoading = createSelector(getStreamsState, (state: StreamsState) => state.loading);
 

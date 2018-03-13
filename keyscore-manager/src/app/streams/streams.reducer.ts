@@ -11,7 +11,7 @@ import {
     CREATE_STREAM,
     DELETE_STREAM, EDIT_FILTER,
     EDIT_STREAM,
-    LOAD_FILTER_DESCRIPTORS_SUCCESS,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS, LOCK_EDITING_STREAM,
     MOVE_FILTER, REMOVE_FILTER,
     RESET_STREAM,
     StreamActions,
@@ -48,7 +48,8 @@ const initialState: StreamsState = {
     editingFilter: null,
     loading: false,
     filterDescriptors: [],
-    filterCategories: []
+    filterCategories: [],
+    editingStreamIsLocked: true
 };
 
 export function StreamsReducer(state: StreamsState = initialState, action: StreamActions): StreamsState {
@@ -66,6 +67,9 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             break;
         case EDIT_STREAM:
             setEditingStream(result, action.id);
+            break;
+        case LOCK_EDITING_STREAM:
+            result.editingStreamIsLocked = action.isLocked;
             break;
         case RESET_STREAM:
             setEditingStream(result, action.id);

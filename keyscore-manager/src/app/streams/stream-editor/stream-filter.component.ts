@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FilterModel, Parameter} from "../streams.model";
 import {ParameterControlService} from "../../services/parameter-control.service";
 import {FormControl, FormGroup} from "@angular/forms";
+import {Observable} from "rxjs/Observable";
 
 @Component({
     selector: 'stream-filter',
@@ -10,11 +11,11 @@ import {FormControl, FormGroup} from "@angular/forms";
             <div class="card-title">
                 <div class="row pl-2 pt-2 pr-2">
                     <div class="col-auto btn-group-vertical">
-                        <button type="button" class="btn btn-light"
+                        <button type="button" class="btn btn-light" *ngIf="!(isEditingStreamLocked$|async)"
                                 (click)="moveFilter(filter.id, index - 1)" [disabled]="index == 0">
                             <img width="12em" src="/assets/images/chevron-up.svg"/>
                         </button>
-                        <button type="button" class="btn btn-light"
+                        <button type="button" class="btn btn-light"  *ngIf="!(isEditingStreamLocked$|async)"
                                 (click)="moveFilter(filter.id, index + 1)" [disabled]="index == filterCount - 1">
                             <img width="12em" src="/assets/images/chevron-down.svg"/>
                         </button>
@@ -26,7 +27,8 @@ import {FormControl, FormGroup} from "@angular/forms";
 
                     <div class="col-2"></div>
                     <div class="col-auto">
-                        <button type="button" class="btn btn-primary" *ngIf="!editing"
+                        <button type="button" class="btn btn-primary"
+                                *ngIf="!editing && !(isEditingStreamLocked$|async)"
                                 (click)="editFilter(filter.id)">Edit
                         </button>
                         <button type="button" [disabled]="!isEditingValid" class="btn btn-success" *ngIf="editing"
@@ -34,10 +36,12 @@ import {FormControl, FormGroup} from "@angular/forms";
                         </button>
 
                         <button type="button" class="btn btn-secondary" *ngIf="editing"
-                                (click)="cancelEditing()"><img src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/>
+                                (click)="cancelEditing()"><img src="/assets/images/ic_cancel_white_24px.svg"
+                                                               alt="Cancel"/>
                         </button>
                         <button type="button" class="btn btn-danger" *ngIf="editing"
-                                (click)="removeFilter(filter)"><img src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/>
+                                (click)="removeFilter(filter)"><img src="/assets/images/ic_delete_white_24px.svg"
+                                                                    alt="Remove"/>
                         </button>
                     </div>
                 </div>
@@ -62,6 +66,7 @@ import {FormControl, FormGroup} from "@angular/forms";
 })
 export class StreamFilterComponent implements OnInit {
 
+    @Input() isEditingStreamLocked$: Observable<boolean>;
     @Input() filter: FilterModel;
     @Input() index: number;
     @Input() filterCount: number;
@@ -88,7 +93,7 @@ export class StreamFilterComponent implements OnInit {
 
     }
 
-    removeFilter(filter:FilterModel) {
+    removeFilter(filter: FilterModel) {
         this.remove.emit(filter);
     }
 
@@ -102,7 +107,7 @@ export class StreamFilterComponent implements OnInit {
     }
 
     saveFilter() {
-        this.payLoad=JSON.stringify(this.form.value);
+        this.payLoad = JSON.stringify(this.form.value);
     }
 
     cancelEditing() {

@@ -3,6 +3,7 @@ import {FilterDescriptor, StreamModel} from "./streams.model";
 
 export const CREATE_STREAM = '[Stream] CreateStream';
 export const EDIT_STREAM = '[Stream] EditStream';
+export const LOCK_EDITING_STREAM = '[Stream] LockEditingStream';
 export const RESET_STREAM = '[Stream] ResetStream';
 export const UPDATE_STREAM = '[Stream] UpdateStream';
 export const UPDATE_STREAM_SUCCESS = '[Stream] UpdateStreamSuccess';
@@ -32,6 +33,7 @@ export type StreamActions =
     | LoadFilterDescriptorsAction
     | EditFilterAction
     | RemoveFilterAction
+    | LockEditingStreamAction
 
 export class CreateStreamAction implements Action {
     readonly type = CREATE_STREAM;
@@ -46,6 +48,13 @@ export class EditStreamAction implements Action {
 
     constructor(readonly id: string) {
 
+    }
+}
+
+export class LockEditingStreamAction implements Action {
+    readonly type = LOCK_EDITING_STREAM;
+
+    constructor(readonly isLocked: boolean) {
     }
 }
 
