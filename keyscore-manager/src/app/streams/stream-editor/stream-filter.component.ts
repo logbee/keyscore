@@ -15,7 +15,7 @@ import {Observable} from "rxjs/Observable";
                                 (click)="moveFilter(filter.id, index - 1)" [disabled]="index == 0">
                             <img width="12em" src="/assets/images/chevron-up.svg"/>
                         </button>
-                        <button type="button" class="btn btn-light"  *ngIf="!(isEditingStreamLocked$|async)"
+                        <button type="button" class="btn btn-light" *ngIf="!(isEditingStreamLocked$|async)"
                                 (click)="moveFilter(filter.id, index + 1)" [disabled]="index == filterCount - 1">
                             <img width="12em" src="/assets/images/chevron-down.svg"/>
                         </button>
@@ -31,8 +31,9 @@ import {Observable} from "rxjs/Observable";
                                 *ngIf="!editing && !(isEditingStreamLocked$|async)"
                                 (click)="editFilter(filter.id)">Edit
                         </button>
-                        <button type="button" [disabled]="!isEditingValid" class="btn btn-success" *ngIf="editing"
-                                (click)="saveFilter()"><img src="/assets/images/ic_save_white.svg" alt="Save"/>
+                        <button type="button" [disabled]="form.invalid" class="btn btn-success" *ngIf="editing"
+                                (click)="saveFilter(filter,form.value)"><img src="/assets/images/ic_save_white.svg"
+                                                                             alt="Save"/>
                         </button>
 
                         <button type="button" class="btn btn-secondary" *ngIf="editing"
@@ -72,13 +73,12 @@ export class StreamFilterComponent implements OnInit {
     @Input() filterCount: number;
     @Input() parameters: Parameter[];
 
-    @Output() update: EventEmitter<FilterModel> = new EventEmitter();
+    @Output() update: EventEmitter<{ filterModel: FilterModel, values: any }> = new EventEmitter();
     @Output() move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
     @Output() edit: EventEmitter<string> = new EventEmitter();
     @Output() remove: EventEmitter<FilterModel> = new EventEmitter();
 
     editing: boolean = false;
-    isEditingValid: boolean = false;
     payLoad: string = '';
     form: FormGroup;
 
@@ -89,8 +89,6 @@ export class StreamFilterComponent implements OnInit {
 
     ngOnInit() {
         this.form = this.parameterService.toFormGroup(this.parameters);
-        this.form.valueChanges.subscribe(_ => this.form.valid ? this.isEditingValid = true : this.isEditingValid = false);
-
     }
 
     removeFilter(filter: FilterModel) {
@@ -106,12 +104,15 @@ export class StreamFilterComponent implements OnInit {
         this.edit.emit(id);
     }
 
-    saveFilter() {
-        this.payLoad = JSON.stringify(this.form.value);
+    saveFilter(filterModel: FilterModel, values: any) {
+        this.update.emit({filterModel, values});
     }
 
     cancelEditing() {
         this.editing = false;
+        let resetFormValues = {};
+        this.filter.parameters.forEach(p => resetFormValues[p.displayName] = p.value ? p.value : '');
+        this.form.setValue(resetFormValues);
     }
 
     enableFilter() {

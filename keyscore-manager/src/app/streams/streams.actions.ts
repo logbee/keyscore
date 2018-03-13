@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor, StreamModel} from "./streams.model";
+import {FilterDescriptor, FilterModel, StreamModel} from "./streams.model";
 
 export const CREATE_STREAM = '[Stream] CreateStream';
 export const EDIT_STREAM = '[Stream] EditStream';
@@ -13,6 +13,7 @@ export const ADD_FILTER = '[Stream] AddFilter';
 export const MOVE_FILTER = '[Stream] MoveFilter';
 export const EDIT_FILTER = '[Stream] EditFilter';
 export const REMOVE_FILTER = '[Stream] RemoveFilter';
+export const UPDATE_FILTER = '[Stream] UpdateFilter';
 export const LOAD_FILTER_DESCRIPTORS_SUCCESS = '[Stream] LoadFilterDescriptorsSuccess';
 export const LOAD_FILTER_DESCRIPTORS_FAILURE = '[Stream] LoadFilterDescriptorsFailed';
 export const LOAD_FILTER_DESCRIPTORS = '[Stream] LoadFilterDescriptors';
@@ -28,6 +29,7 @@ export type StreamActions =
     | DeleteStreamAction
     | AddFilterAction
     | MoveFilterAction
+    | UpdateFilterAction
     | LoadFilterDescriptorsSuccessAction
     | LoadFilterDescriptorsFailureAction
     | LoadFilterDescriptorsAction
@@ -119,6 +121,13 @@ export class EditFilterAction implements Action {
 
     constructor(readonly filterId: string) {
 
+    }
+}
+
+export class UpdateFilterAction implements Action {
+    readonly type = UPDATE_FILTER;
+
+    constructor(readonly filter: FilterModel, readonly values: any) {
     }
 }
 

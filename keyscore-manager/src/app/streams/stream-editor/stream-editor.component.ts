@@ -7,7 +7,7 @@ import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 import {FilterModel, getEditingStream, getEditingStreamIsLocked, StreamModel} from "../streams.model";
 import {
     DeleteStreamAction, EditFilterAction, MoveFilterAction, ResetStreamAction,
-    UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction
+    UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction, UpdateFilterAction
 } from "../streams.actions";
 import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
 
@@ -42,7 +42,8 @@ import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
                                        [isEditingStreamLocked$]="isLocked$"
                                        (move)="moveFilter($event)"
                                        (edit)="editFilter($event)"
-                                       (remove)="removeFilter($event)">
+                                       (remove)="removeFilter($event)"
+                                       (update)="updateFilter($event)">
                         </stream-filter>
                     </div>
                 </div>
@@ -100,6 +101,10 @@ export class StreamEditorComponent implements OnInit {
     editFilter(id: string) {
         this.store.dispatch(new EditFilterAction(id))
 
+    }
+
+    updateFilter(update: { filterModel: FilterModel, values: any }) {
+        this.store.dispatch(new UpdateFilterAction(update.filterModel, update.values))
     }
 
     removeFilter(filter: FilterModel) {

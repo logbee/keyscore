@@ -14,7 +14,7 @@ import {
     LOAD_FILTER_DESCRIPTORS_SUCCESS, LOCK_EDITING_STREAM,
     MOVE_FILTER, REMOVE_FILTER,
     RESET_STREAM,
-    StreamActions,
+    StreamActions, UPDATE_FILTER,
     UPDATE_STREAM
 } from "./streams.actions";
 import {v4 as uuid} from 'uuid';
@@ -102,6 +102,11 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             break;
         case EDIT_FILTER:
             setEditingFilter(result, action.filterId);
+            break;
+        case UPDATE_FILTER:
+            const updateFilterIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filter.id);
+            result.editingStream.filters[updateFilterIndex] = jQuery.extend(true,{},action.filter);
+            result.editingStream.filters[updateFilterIndex].parameters.forEach(p => p.value = action.values[p.displayName]);
             break;
         case REMOVE_FILTER:
             const removeIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filterId);
