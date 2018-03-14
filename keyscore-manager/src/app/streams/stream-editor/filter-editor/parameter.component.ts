@@ -15,7 +15,7 @@ import {Parameter, ParameterDescriptor} from "../../streams.model";
                 <input class="form-control" *ngSwitchCase="'int'" [formControlName]="parameter.name"
                        [id]="parameter.name" [type]="'number'">
                 <parameter-list *ngSwitchCase="'list'" [formControlName]="parameter.name"
-                                [id]="parameter.name" [parameter]="parameter"></parameter-list>
+                                [id]="parameter.name"></parameter-list>
             </div>
             <div class="text-danger" *ngIf="!isValid">{{parameter.displayName}} is required</div>
         </div>

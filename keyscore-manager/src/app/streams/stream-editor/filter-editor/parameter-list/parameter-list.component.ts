@@ -3,7 +3,7 @@ import {Parameter, ParameterDescriptor, TextListParameter} from "../../../stream
 import {Observable} from "rxjs/Observable";
 import {ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {HostBinding} from "@angular/compiler/src/core";
-import {isUndefined} from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 
 @Component({
     selector: 'parameter-list',
@@ -12,7 +12,7 @@ import {isUndefined} from "util";
         <div class="card" (click)="onTouched()">
             <div class="list-group-flush col-12">
                 <li class="list-group-item d-flex justify-content-between"
-                    *ngFor="let value of values$ | async;index as i">
+                    *ngFor="let value of parameterValues;index as i">
                     <span class="align-self-center">{{value}}</span>
                     <button class="btn btn-danger d-inline-block " (click)="removeItem(i)"><img
                             src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
@@ -40,13 +40,10 @@ import {isUndefined} from "util";
     ]
 })
 
-export class ParameterList implements OnInit, ControlValueAccessor {
+export class ParameterList implements ControlValueAccessor {
 
-    @Input() parameter: ParameterDescriptor;
     @Input() disabled = false;
     @Input() distinctValues = true;
-
-    values$: Observable<string[]>;
 
     parameterValues: string[];
 
@@ -65,7 +62,9 @@ export class ParameterList implements OnInit, ControlValueAccessor {
 
 
     writeValue(elements: string[]): void {
+
         this.parameterValues = elements;
+        console.log('parameterValues: ' + this.parameterValues);
         this.onChange(elements);
 
     }
@@ -86,23 +85,18 @@ export class ParameterList implements OnInit, ControlValueAccessor {
         return this.parameterValues;
     }
 
-    ngOnInit() {
-        this.parameterValues = this.parameter.value;
-        this.values$ = Observable.of(this.parameterValues);
-
-    }
-
-
     removeItem(index: number) {
-        this.parameter.value.splice(index, 1);
-        this.writeValue(this.parameter.value);
+        let newValues = Object.assign([], this.parameterValues);
+        newValues.splice(index, 1);
+        this.writeValue(newValues);
     }
 
     addItem(value: string) {
 
         if (!this.distinctValues || (this.distinctValues && !this.parameterValues.some(x => x === value))) {
-            this.parameter.value.push(value);
-            this.writeValue(this.parameter.value);
+            let newValues = Object.assign([], this.parameterValues);
+            newValues.push(value);
+            this.writeValue(newValues);
         }
 
 
