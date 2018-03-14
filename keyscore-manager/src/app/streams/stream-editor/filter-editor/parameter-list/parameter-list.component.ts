@@ -3,6 +3,7 @@ import {Parameter, ParameterDescriptor, TextListParameter} from "../../../stream
 import {Observable} from "rxjs/Observable";
 import {ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {HostBinding} from "@angular/compiler/src/core";
+import {isUndefined} from "util";
 
 @Component({
     selector: 'parameter-list',
@@ -66,6 +67,7 @@ export class ParameterList implements OnInit, ControlValueAccessor {
     writeValue(elements: string[]): void {
         this.parameterValues = elements;
         this.onChange(elements);
+
     }
 
     registerOnChange(f: (elements: string[]) => void): void {
@@ -85,7 +87,6 @@ export class ParameterList implements OnInit, ControlValueAccessor {
     }
 
     ngOnInit() {
-        console.log(this.parameter);
         this.parameterValues = this.parameter.value;
         this.values$ = Observable.of(this.parameterValues);
 
@@ -98,7 +99,7 @@ export class ParameterList implements OnInit, ControlValueAccessor {
     }
 
     addItem(value: string) {
-        console.log('paramterValues:::' + this.parameterValues);
+
         if (!this.distinctValues || (this.distinctValues && !this.parameterValues.some(x => x === value))) {
             this.parameter.value.push(value);
             this.writeValue(this.parameter.value);

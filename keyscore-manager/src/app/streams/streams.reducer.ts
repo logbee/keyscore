@@ -1,20 +1,17 @@
-import {
-    BooleanParameter,
-    IntParameter,
-    ListParameter, ListParameterDescriptor, MapParameter, MapParameterDescriptor, Parameter,
-    ParameterDescriptor,
-    StreamsState, TextListParameter, TextMapParameter,
-    TextParameter
-} from "./streams.model";
+import {StreamsState} from "./streams.model";
 import {
     ADD_FILTER,
     CREATE_STREAM,
-    DELETE_STREAM, EDIT_FILTER,
+    DELETE_STREAM,
+    EDIT_FILTER,
     EDIT_STREAM,
-    LOAD_FILTER_DESCRIPTORS_SUCCESS, LOCK_EDITING_STREAM,
-    MOVE_FILTER, REMOVE_FILTER,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS,
+    LOCK_EDITING_STREAM,
+    MOVE_FILTER,
+    REMOVE_FILTER,
     RESET_STREAM,
-    StreamActions, UPDATE_FILTER,
+    StreamActions,
+    UPDATE_FILTER,
     UPDATE_STREAM
 } from "./streams.actions";
 import {v4 as uuid} from 'uuid';
@@ -105,7 +102,7 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             break;
         case UPDATE_FILTER:
             const updateFilterIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filter.id);
-            result.editingStream.filters[updateFilterIndex] = jQuery.extend(true,{},action.filter);
+            result.editingStream.filters[updateFilterIndex] = jQuery.extend(true, {}, action.filter);
             result.editingStream.filters[updateFilterIndex].parameters.forEach(p => p.value = action.values[p.displayName]);
             break;
         case REMOVE_FILTER:
@@ -114,6 +111,12 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             break;
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
+            result.filterDescriptors.forEach(descriptor =>
+                descriptor.parameters.forEach(p => {
+                    if (p.kind === 'list') {
+                        p.value = [];
+                    }
+                }));
             result.filterCategories = result.filterDescriptors.map(descriptor => descriptor.category).filter((category, index, array) => array.indexOf(category) == index);
     }
 

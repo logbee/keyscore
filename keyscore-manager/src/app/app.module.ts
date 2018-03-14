@@ -20,7 +20,6 @@ import {StoreRouterConnectingModule} from '@ngrx/router-store';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {RouterEffects} from "./router/router.effects";
 import {AgentsModule} from "./agents/agents.module";
-import {FilterEditorComponent} from "./streams/stream-editor/filter-editor/filter-editor.component";
 import {ParameterList} from "./streams/stream-editor/filter-editor/parameter-list/parameter-list.component";
 import {ParameterComponent} from "./streams/stream-editor/filter-editor/parameter.component";
 

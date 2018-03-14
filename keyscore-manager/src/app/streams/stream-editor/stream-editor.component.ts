@@ -9,7 +9,6 @@ import {
     DeleteStreamAction, EditFilterAction, MoveFilterAction, ResetStreamAction,
     UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction, UpdateFilterAction
 } from "../streams.actions";
-import {FilterEditorComponent} from "./filter-editor/filter-editor.component";
 
 @Component({
     selector: 'stream-editor',

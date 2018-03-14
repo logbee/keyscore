@@ -10,7 +10,6 @@ import {EffectsModule} from "@ngrx/effects";
 import {StreamsEffects} from "./streams.effects";
 import {StreamDetailsComponent} from "./stream-editor/stream-details.component";
 import {StreamFilterComponent} from "./stream-editor/stream-filter.component";
-import {FilterEditorComponent} from "./stream-editor/filter-editor/filter-editor.component";
 import {ParameterList} from "./stream-editor/filter-editor/parameter-list/parameter-list.component";
 import {ParameterComponent} from "./stream-editor/filter-editor/parameter.component";
 
@@ -33,7 +32,6 @@ export const routes: Routes = [
         StreamEditorComponent,
         StreamDetailsComponent,
         StreamFilterComponent,
-        FilterEditorComponent,
         ParameterList,
         ParameterComponent
     ],
