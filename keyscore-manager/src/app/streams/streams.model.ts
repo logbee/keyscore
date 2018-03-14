@@ -18,6 +18,21 @@ export interface StreamModel {
     filters: Array<FilterModel>;
 }
 
+export interface StreamConfiguration{
+    id:string;
+    name:string;
+    description:string;
+    source:FilterConfiguration;
+    sink:FilterConfiguration;
+    filter:FilterConfiguration[];
+}
+
+export interface FilterConfiguration{
+    id:string;
+    kind:string;
+    parameters:Parameter[];
+}
+
 export interface FilterModel {
     id: string;
     name: string;
@@ -72,45 +87,8 @@ export interface MapParameterDescriptor extends ParameterDescriptor{
 
 export interface Parameter{
     name:string;
-    displayName:string;
-    mandatory:boolean;
-    kind:string;
-    value?:any;
-}
-
-export interface TextParameter extends Parameter{
-    validator:string;
-    value?:string;
-}
-
-export interface IntParameter extends Parameter{
-    value?:number;
-}
-
-export interface BooleanParameter extends Parameter{
-    value?:boolean;
-}
-
-
-export interface ListParameter extends Parameter{
-    min:number;
-    max:number;
-
-}
-
-export interface TextListParameter extends ListParameter {
-    validator:string;
-    value?:string[];
-}
-export interface MapParameter extends Parameter{
-    min:number;
-    max:number;
-}
-
-export interface TextMapParameter extends MapParameter{
-    keyValidator:string;
-    valueValidator:string;
-    value?:Map<string,string>;
+    value:any;
+    parameterType:string;
 }
 
 

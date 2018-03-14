@@ -19,7 +19,8 @@ import {
 import {HttpClient} from "@angular/common/http";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
-import {FilterDescriptor} from "./streams.model";
+import {FilterDescriptor, StreamConfiguration} from "./streams.model";
+import {StreamBuilderService} from "../services/streambuilder.service";
 
 @Injectable()
 export class StreamsEffects {
@@ -41,9 +42,11 @@ export class StreamsEffects {
         map(action => (action as UpdateStreamAction).stream),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([stream, config]) => {
-            console.log(stream);
+
             const streamUrl: string = config.getString('keyscore.frontier.base-url')+'/stream/';
-            return this.http.put(streamUrl+stream.id,{}).pipe(
+            const streamConfig:StreamConfiguration = this.streamBuilder.toStream(stream);
+            console.log('stream config: '+streamConfig);
+            return this.http.put(streamUrl+stream.id,streamConfig).pipe(
                 map(data => new UpdateStreamSuccessAction(stream)),
                 catchError((cause: any) => of(new UpdateStreamFailureAction(stream)))
             );
@@ -61,6 +64,6 @@ export class StreamsEffects {
         )
     );
 
-    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient) {
+    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private streamBuilder:StreamBuilderService) {
     }
 }

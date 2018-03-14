@@ -22,6 +22,7 @@ import {RouterEffects} from "./router/router.effects";
 import {AgentsModule} from "./agents/agents.module";
 import {ParameterList} from "./streams/stream-editor/filter-editor/parameter-list/parameter-list.component";
 import {ParameterComponent} from "./streams/stream-editor/filter-editor/parameter.component";
+import {StreamBuilderService} from "./services/streambuilder.service";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -54,7 +55,7 @@ const routes: Routes = [
         FilterChooser
     ],
     providers: [
-
+        StreamBuilderService
     ],
     entryComponents: [
         FilterChooser

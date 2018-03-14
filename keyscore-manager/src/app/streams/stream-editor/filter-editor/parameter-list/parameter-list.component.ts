@@ -1,5 +1,5 @@
 import {Component, forwardRef, Input, OnChanges, OnInit, SimpleChanges} from "@angular/core";
-import {Parameter, ParameterDescriptor, TextListParameter} from "../../../streams.model";
+import {Parameter, ParameterDescriptor} from "../../../streams.model";
 import {Observable} from "rxjs/Observable";
 import {ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {HostBinding} from "@angular/compiler/src/core";
