@@ -10,7 +10,7 @@ export class ParameterControlService {
     toFormGroup(parameters: ParameterDescriptor[]) {
         let group: any = {};
         parameters.forEach(parameter => {
-            group[parameter.name] = parameter.mandatory ? new FormControl(parameter.value || '', Validators.required)
+            group[parameter.name] = parameter.mandatory && parameter.kind != 'boolean' ? new FormControl(parameter.value || '', Validators.required)
                 : new FormControl(parameter.value || '');
         });
         return new FormGroup(group);

@@ -1,4 +1,4 @@
-import {StreamsState} from "./streams.model";
+import {ParameterDescriptor, StreamsState} from "./streams.model";
 import {
     ADD_FILTER,
     CREATE_STREAM,
@@ -15,7 +15,7 @@ import {
     UPDATE_STREAM
 } from "./streams.actions";
 import {v4 as uuid} from 'uuid';
-import 'jquery';
+import {deepcopy} from "../util";
 
 
 const initialState: StreamsState = {
@@ -75,10 +75,10 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
         case UPDATE_STREAM:
             const index = result.streamList.findIndex(stream => action.stream.id == stream.id);
             if (index >= 0) {
-                result.streamList[index] = jQuery.extend(true, {}, action.stream);
+                result.streamList[index] = deepcopy(action.stream);
             }
             if (result.editingStream != null && result.editingStream.id == action.stream.id) {
-                result.editingStream = jQuery.extend(true, {}, action.stream);
+                result.editingStream = deepcopy(action.stream);
             }
             break;
         case DELETE_STREAM:
@@ -102,7 +102,7 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             break;
         case UPDATE_FILTER:
             const updateFilterIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filter.id);
-            result.editingStream.filters[updateFilterIndex] = jQuery.extend(true, {}, action.filter);
+            result.editingStream.filters[updateFilterIndex] = deepcopy(action.filter);
             result.editingStream.filters[updateFilterIndex].parameters.forEach(p => p.value = action.values[p.displayName]);
             break;
         case REMOVE_FILTER:
@@ -112,11 +112,20 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
             result.filterDescriptors.forEach(descriptor =>
-                descriptor.parameters.forEach(p => {
-                    if (p.kind === 'list') {
-                        p.value = [];
-                    }
-                }));
+                    descriptor.parameters.forEach((p, index) => {
+                            switch (p.kind) {
+                                case 'list':
+                                    p.value = [];
+                                    break;
+                                case 'boolean':
+                                    p.value = true;
+                                    break;
+
+                            }
+                        }
+                    )
+            )
+            ;
             result.filterCategories = result.filterDescriptors.map(descriptor => descriptor.category).filter((category, index, array) => array.indexOf(category) == index);
     }
 
@@ -125,13 +134,16 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
 
 function setEditingStream(state: StreamsState, id: string) {
     //state.editingStream = Object.assign({}, state.streamList.find(stream => id == stream.id));
-    state.editingStream = jQuery.extend(true, {}, state.streamList.find(stream => id == stream.id));
+    state.editingStream = deepcopy(state.streamList.find(stream => id == stream.id));
 }
 
 function setEditingFilter(state: StreamsState, id: string) {
-    state.editingFilter = Object.assign({}, state.editingStream.filters.find(f => f.id == id));
+    state.editingFilter = deepcopy(state.editingStream.filters.find(f => f.id == id));
 }
 
+function moveElement<T>(arr: Array<T>, from: number, to: number) {
+    arr.splice(to, 0, arr.splice(from, 1)[0]);
+}
 
 function swap<T>(arr: Array<T>, a: number, b: number) {
     if (a >= 0 && a < arr.length && b >= 0 && b < arr.length) {

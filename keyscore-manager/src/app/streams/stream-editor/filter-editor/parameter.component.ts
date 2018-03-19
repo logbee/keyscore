@@ -16,9 +16,18 @@ import {Parameter, ParameterDescriptor} from "../../streams.model";
                        [id]="parameter.name" [type]="'number'">
                 <parameter-list *ngSwitchCase="'list'" [formControlName]="parameter.name"
                                 [id]="parameter.name"></parameter-list>
+
+                <div *ngSwitchCase="'boolean'" class="btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-secondary active">
+                        <input type="checkbox" [formControlName]="parameter.name" [id]="parameter.name" checked
+                               autocomplete="off"> {{parameter.displayName}}
+                    </label>
+                </div>
+
+                <div class="text-danger" *ngIf="!isValid">{{parameter.displayName}} is required</div>
             </div>
-            <div class="text-danger" *ngIf="!isValid">{{parameter.displayName}} is required</div>
         </div>
+
     `
 })
 export class ParameterComponent {
