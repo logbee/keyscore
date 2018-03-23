@@ -9,17 +9,6 @@ import {isNullOrUndefined, isUndefined} from "util";
     selector: 'parameter-list',
     template:
             `
-        <div class="card" (click)="onTouched()">
-            <div class="list-group-flush col-12">
-                <li class="list-group-item d-flex justify-content-between"
-                    *ngFor="let value of parameterValues;index as i">
-                    <span class="align-self-center">{{value}}</span>
-                    <button class="btn btn-danger d-inline-block " (click)="removeItem(i)"><img
-                            src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
-                </li>
-            </div>
-
-        </div>
         <div class="form-row mt-2 pl-1">
             <div class="form-group">
                 <input #addItemInput class="form-control" type="text">
@@ -30,7 +19,20 @@ import {isNullOrUndefined, isUndefined} from "util";
                 </button>
             </div>
 
-        </div>`,
+        </div>
+        
+        <div class="card" (click)="onTouched()" *ngIf="parameterValues.length > 0">
+            <div class="list-group-flush col-12">
+                <li class="list-group-item d-flex justify-content-between"
+                    *ngFor="let value of parameterValues;index as i">
+                    <span class="align-self-center">{{value}}</span>
+                    <button class="btn btn-danger d-inline-block " (click)="removeItem(i)"><img
+                            src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
+                </li>
+            </div>
+
+        </div>
+    `,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

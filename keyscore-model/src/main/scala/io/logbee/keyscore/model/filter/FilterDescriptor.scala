@@ -65,7 +65,7 @@ object MapParameterDescriptor {
 
 }
 
-case class MapParameterDescriptor(name: String, displayName: String, mandatory: Boolean, key: ParameterDescriptor, value: ParameterDescriptor, min: Int, max: Int, kind: String) extends ParameterDescriptor
+case class MapParameterDescriptor(name: String, displayName: String, mandatory: Boolean, mapKey: ParameterDescriptor, mapValue: ParameterDescriptor, min: Int, max: Int, kind: String) extends ParameterDescriptor
 
 
 

@@ -16,7 +16,8 @@ import {Parameter, ParameterDescriptor} from "../../streams.model";
                        [id]="parameter.name" [type]="'number'">
                 <parameter-list *ngSwitchCase="'list'" [formControlName]="parameter.name"
                                 [id]="parameter.name"></parameter-list>
-
+                <parameter-map *ngSwitchCase="'map'" [formControlName]="parameter.name" [id]="parameter.name"></parameter-map>
+                
                 <div *ngSwitchCase="'boolean'" class="toggleCheckbox" [id]="parameter.name">
 
                     <input type="checkbox" id="checkbox{{parameter.name}}" class="ios-toggle" [formControlName]="parameter.name"> 

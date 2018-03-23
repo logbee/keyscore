@@ -12,7 +12,7 @@ import {
     RESET_STREAM,
     StreamActions,
     UPDATE_FILTER,
-    UPDATE_STREAM
+    UPDATE_STREAM, UPDATE_STREAM_SUCCESS
 } from "./streams.actions";
 import {v4 as uuid} from 'uuid';
 import {deepcopy} from "../util";
@@ -72,7 +72,7 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
         case RESET_STREAM:
             setEditingStream(result, action.id);
             break;
-        case UPDATE_STREAM:
+        case UPDATE_STREAM_SUCCESS:
             const index = result.streamList.findIndex(stream => action.stream.id == stream.id);
             if (index >= 0) {
                 result.streamList[index] = deepcopy(action.stream);
@@ -111,21 +111,6 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
             break;
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
-            result.filterDescriptors.forEach(descriptor =>
-                    descriptor.parameters.forEach((p, index) => {
-                            switch (p.kind) {
-                                case 'list':
-                                    p.value = [];
-                                    break;
-                                case 'boolean':
-                                    p.value = true;
-                                    break;
-
-                            }
-                        }
-                    )
-            )
-            ;
             result.filterCategories = result.filterDescriptors.map(descriptor => descriptor.category).filter((category, index, array) => array.indexOf(category) == index);
     }
 
