@@ -15,6 +15,7 @@ import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.language.postfixOps
+import scala.util.Success
 
 object Agent {
   case object Initialize
@@ -38,9 +39,10 @@ class Agent extends Actor with ActorLogging {
       implicit val startUpTimeout: Timeout = 5 seconds
       val currentSender = sender
       val startUpWatch = context.actorOf(StartUpWatch(filterManager))
-      (startUpWatch ? StartUpComplete).onComplete(_ => {
-        extensionLoader ! LoadExtensions(config, "keyscore.agent.extensions")
-        currentSender ! Done
-      })
+      (startUpWatch ? StartUpComplete).onComplete {
+        case Success(_) =>
+          extensionLoader ! LoadExtensions(config, "keyscore.agent.extensions")
+          currentSender ! Done
+      }
   }
 }
