@@ -5,21 +5,16 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
-import akka.{Done, NotUsed, actor}
+import akka.{Done, actor}
 import io.logbee.keyscore.frontier.filters._
-import io.logbee.keyscore.frontier.sinks.KafkaSink
-import io.logbee.keyscore.frontier.sources.KafkaSource
 import io.logbee.keyscore.frontier.util.Reflection
 import io.logbee.keyscore.model.StreamModel
-import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.sink.{KafkaSinkModel, SinkTypes}
-import io.logbee.keyscore.model.source.{KafkaSourceModel, SourceTypes}
 import streammanagement.FilterManager._
 
-import scala.util.control.Breaks._
-import scala.reflect.runtime.{universe => ru}
 import scala.concurrent.Future
+import scala.reflect.runtime.{universe => ru}
 import scala.util.Success
+import scala.util.control.Breaks._
 
 object FilterManager {
   def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
@@ -35,7 +30,6 @@ object FilterManager {
   case class BuiltGraph (streamId:UUID,graph: RunnableGraph[UniqueKillSwitch]) extends BuildGraphAnswer
 
   case class BuildGraphException(streamId: UUID, stream: StreamModel, msg: String) extends BuildGraphAnswer
-
 
   case class StreamBlueprint(uuid: UUID,
                              source: Source[CommittableRecord, UniqueKillSwitch],
@@ -88,7 +82,6 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
         sender ! BuildGraphAnswerWrapper(Some(BuiltGraph(streamId,graph)))
       }
 
-
     case UpdateFilter(uuid, config) =>
       filterHandles.get(uuid) match {
         case Some(future) =>
@@ -138,6 +131,5 @@ object FilterRegistry {
     "RemoveFieldsFilter" -> "io.logbee.keyscore.frontier.filters.RemoveFieldsFilter",
     "RetainFieldsFilter" -> "io.logbee.keyscore.frontier.filters.RetainFieldsFilter",
     "GrokFilter" -> "io.logbee.keyscore.frontier.filters.GrokFilter"
-
   )
 }

@@ -1,5 +1,12 @@
 package io.logbee.keyscore.model
 
+object Dataset {
+
+  def apply(records: List[Record]): Dataset = new Dataset(records)
+
+  def apply(records: Record*): Dataset = new Dataset(records.toList)
+}
+
 class Dataset(private val records: List[Record]) extends Seq[Record] {
 
   override def apply(idx: Int): Record = records(idx)

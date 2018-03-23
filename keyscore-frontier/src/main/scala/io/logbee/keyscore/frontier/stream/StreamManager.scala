@@ -21,7 +21,6 @@ object StreamManager {
 
   case class TranslateAndCreateNewStream(streamId: UUID, streamModel: StreamModel)
 
-
   case class ChangeStream(streamId: UUID, stream: StreamModel)
 
   case class CreateNewStream(streamId: UUID, stream: StreamModel)
@@ -35,7 +34,6 @@ object StreamManager {
   case class StreamDeleted(id: UUID)
 
   case class StreamNotFound(id: UUID)
-
 }
 
 class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
