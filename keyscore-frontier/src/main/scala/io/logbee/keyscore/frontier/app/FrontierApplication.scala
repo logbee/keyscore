@@ -2,7 +2,6 @@ package io.logbee.keyscore.frontier.app
 
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{HttpOrigin, HttpOriginRange}
@@ -22,9 +21,8 @@ import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{GetStandardDe
 import io.logbee.keyscore.frontier.stream.StreamManager._
 import io.logbee.keyscore.frontier.stream.{FilterDescriptorManager, StreamManager}
 import io.logbee.keyscore.model.StreamModel
-import org.json4s.{DefaultFormats, NoTypeHints}
-import org.json4s.native.Serialization
 import org.json4s.ext.JavaTypesSerializers
+import org.json4s.native.Serialization
 import streammanagement.FilterManager
 import streammanagement.FilterManager.{BuildGraphException, FilterNotFound, FilterUpdated, UpdateFilter}
 
@@ -37,7 +35,8 @@ object FrontierApplication extends App with Json4sSupport {
   implicit val system = ActorSystem("keyscore")
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
-  implicit val timeout: Timeout = 5.seconds
+  //TODO For testing docker-kafka only
+  implicit val timeout: Timeout = 30.seconds
   implicit val serialization = Serialization
   //implicit val formats = DefaultFormats
   implicit val json4sUUIDformats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("parameterType") ++ JavaTypesSerializers.all

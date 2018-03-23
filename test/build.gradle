@@ -1,10 +1,16 @@
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
 buildscript {
     repositories { mavenCentral() }
     dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.3' }
 }
 
 plugins {
-    id 'com.bmuschko.docker-remote-api' version '3.2.1'
+    id 'com.bmuschko.docker-remote-api' version '3.2.5'
 }
 
 apply plugin: 'scala'
@@ -46,3 +52,4 @@ afterEvaluate {
     def junitPlatformTestTask = tasks.getByName('junitPlatformTest')
     junitPlatformTestTask.systemProperty 'citrus.html.report.directory', "$buildDir/test-results/citrus-reports"
 }
+

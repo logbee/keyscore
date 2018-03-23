@@ -1,0 +1,36 @@
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '3.2.5'
+}
+
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+
+task pullKafkaImage(type: DockerPullImage) {
+    repository "logbee/kafka"
+    tag "v1"
+}
+
+task createKafkaContainer(type: DockerCreateContainer) {
+    dependsOn pullKafkaImage
+    containerName = 'kafka'
+    targetImageId { pullKafkaImage.getImageId() }
+    portBindings = ['9092:9092','2181:2181']
+
+}
+
+task startKafkaContainer(type: DockerStartContainer) {
+    dependsOn createKafkaContainer
+    targetContainerId { createKafkaContainer.getContainerId() }
+}
+
+task stopKafkaContainer(type: DockerStopContainer) {
+    targetContainerId { createKafkaContainer.getContainerId() }
+}
+
+task removeKafkaContainer(type: DockerRemoveContainer) {
+    dependsOn stopKafkaContainer
+    targetContainerId { createKafkaContainer.getContainerId() }
+}
