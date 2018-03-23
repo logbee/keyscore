@@ -57,6 +57,12 @@ object FrontierApplication extends App with Json4sSupport {
 
   val route = cors(corsSettings) {
     pathPrefix("stream") {
+      get{
+        onSuccess(streamManager ? GetAllStreams){
+          case RunningStreams(listOfStreams) => complete(StatusCodes.OK, listOfStreams)
+          case _ => complete(StatusCodes.InternalServerError)
+        }
+      } ~
       path(JavaUUID) { streamId =>
         put {
           entity(as[StreamModel]) { stream =>

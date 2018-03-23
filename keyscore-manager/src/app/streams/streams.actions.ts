@@ -9,6 +9,8 @@ export const UPDATE_STREAM = '[Stream] UpdateStream';
 export const UPDATE_STREAM_SUCCESS = '[Stream] UpdateStreamSuccess';
 export const UPDATE_STREAM_FAILURE = '[Stream] UpdateStreamFailure';
 export const DELETE_STREAM = '[Stream] DeleteStream';
+export const DELETE_STREAM_SUCCESS = '[Stream] DeleteStreamSuccess';
+export const DELETE_STREAM_FAILURE = '[Stream] DeleteStreamFailure';
 export const ADD_FILTER = '[Stream] AddFilter';
 export const MOVE_FILTER = '[Stream] MoveFilter';
 export const EDIT_FILTER = '[Stream] EditFilter';
@@ -36,6 +38,8 @@ export type StreamActions =
     | EditFilterAction
     | RemoveFilterAction
     | LockEditingStreamAction
+    | DeleteStreamSuccessAction
+    | DeleteStreamFailureAction
 
 export class CreateStreamAction implements Action {
     readonly type = CREATE_STREAM;
@@ -96,6 +100,22 @@ export class DeleteStreamAction implements Action {
     readonly type = DELETE_STREAM;
 
     constructor(readonly id: string) {
+
+    }
+}
+
+export class DeleteStreamSuccessAction implements Action {
+    readonly type = DELETE_STREAM_SUCCESS;
+
+    constructor(readonly id: string) {
+
+    }
+}
+
+export class DeleteStreamFailureAction implements Action {
+    readonly type = DELETE_STREAM_FAILURE;
+
+    constructor(readonly cause: any,readonly id:string) {
 
     }
 }

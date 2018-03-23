@@ -2,7 +2,7 @@ import {ParameterDescriptor, StreamsState} from "./streams.model";
 import {
     ADD_FILTER,
     CREATE_STREAM,
-    DELETE_STREAM,
+    DELETE_STREAM, DELETE_STREAM_FAILURE, DELETE_STREAM_SUCCESS,
     EDIT_FILTER,
     EDIT_STREAM,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
@@ -81,8 +81,13 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
                 result.editingStream = deepcopy(action.stream);
             }
             break;
-        case DELETE_STREAM:
+        case DELETE_STREAM_SUCCESS:
             result.streamList = result.streamList.filter(stream => action.id != stream.id);
+            break;
+        case DELETE_STREAM_FAILURE:
+            if (action.cause.status == 404) {
+                result.streamList = result.streamList.filter(stream => action.id != stream.id);
+            }
             break;
         case ADD_FILTER:
             result.editingStream.filters.push({

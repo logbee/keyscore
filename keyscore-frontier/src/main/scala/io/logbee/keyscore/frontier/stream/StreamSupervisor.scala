@@ -5,6 +5,7 @@ import akka.pattern.ask
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.util.Timeout
 import io.logbee.keyscore.frontier.stream.StreamManager.{CreateNewStream, StreamCreatedWithID}
+import io.logbee.keyscore.model.StreamModel
 import streammanagement.FilterManager.{BuildGraph, BuildGraphAnswerWrapper, BuildGraphException, BuiltGraph}
 import streammanagement.StreamSupervisor.ShutdownGraph
 
@@ -28,7 +29,6 @@ class StreamSupervisor(filterManager: ActorRef)
 
   //TODO For testing docker-kafka only
   implicit val timeout: Timeout = 30 seconds
-
 
   var killSwitch: Option[UniqueKillSwitch] = None
 
@@ -59,7 +59,7 @@ class StreamSupervisor(filterManager: ActorRef)
           sender ! buildGraphException
           None
         case _ =>
-          sender ! BuildGraphException(streamId, stream, "Unknown error occured while building the stream")
+          sender ! BuildGraphException(streamId, stream, "Unknown error occurred while building the stream")
           None
       }
 

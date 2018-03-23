@@ -7,6 +7,7 @@ import {ROUTER_NAVIGATION} from '@ngrx/router-store'
 import {Injectable} from "@angular/core";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {
+    DELETE_STREAM, DeleteStreamAction, DeleteStreamFailureAction, DeleteStreamSuccessAction,
     EditStreamAction,
     LOAD_FILTER_DESCRIPTORS,
     LoadFilterDescriptorsFailureAction,
@@ -43,13 +44,26 @@ export class StreamsEffects {
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([stream, config]) => {
 
-            const streamUrl: string = config.getString('keyscore.frontier.base-url')+'/stream/';
-            const streamConfig:StreamConfiguration = this.streamBuilder.toStream(stream);
-            console.log('stream config: '+streamConfig);
-            return this.http.put(streamUrl+stream.id,streamConfig).pipe(
+            const streamUrl: string = config.getString('keyscore.frontier.base-url') + '/stream/';
+            const streamConfig: StreamConfiguration = this.streamBuilder.toStream(stream);
+            console.log('stream config: ' + streamConfig);
+            return this.http.put(streamUrl + stream.id, streamConfig).pipe(
                 map(data => new UpdateStreamSuccessAction(stream)),
                 catchError((cause: any) => of(new UpdateStreamFailureAction(stream)))
             );
+        })
+    );
+
+    @Effect() deleteStream$: Observable<Action> = this.actions$.pipe(
+        ofType(DELETE_STREAM),
+        combineLatest(this.store.select(selectAppConfig)),
+        mergeMap(([action, config]) => {
+            const streamUrl: string = config.getString('keyscore.frontier.base-url') + '/stream/';
+            const streamId: string = (action as DeleteStreamAction).id;
+            return this.http.delete(streamUrl + streamId).pipe(
+                map(data => new DeleteStreamSuccessAction(streamId)),
+                catchError((cause: any) => of(new DeleteStreamFailureAction(cause,streamId)))
+            )
         })
     );
 
@@ -64,6 +78,6 @@ export class StreamsEffects {
         )
     );
 
-    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private streamBuilder:StreamBuilderService) {
+    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private streamBuilder: StreamBuilderService) {
     }
 }
