@@ -1,20 +1,20 @@
-package io.logbee.keyscore.frontier.stream
+package io.logbee.keyscore.frontier.cluster
 
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.AgentCapabilities
+import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.{KafkaSink, StdOutSink}
 import io.logbee.keyscore.frontier.sources.{HttpSource, KafkaSource}
-import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.filter.FilterDescriptor
 
 import scala.collection.mutable
 
 
-object FilterDescriptorManager {
-  def props(): Props = Props(new FilterDescriptorManager())
+object ClusterCapabilitiesManager {
+  def props(): Props = Props(new ClusterCapabilitiesManager())
 
   case object GetStandardDescriptors
 
@@ -26,8 +26,7 @@ object FilterDescriptorManager {
 
 }
 
-
-class FilterDescriptorManager extends Actor with ActorLogging {
+class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
 

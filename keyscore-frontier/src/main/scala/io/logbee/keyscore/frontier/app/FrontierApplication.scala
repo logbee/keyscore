@@ -12,14 +12,14 @@ import akka.util.Timeout
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import io.logbee.keyscore.frontier.cluster.AgentManager
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
+import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
+import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.frontier.json.helper.FilterConfigTypeHints
-import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{GetStandardDescriptors, StandardDescriptors}
+import io.logbee.keyscore.frontier.stream.StreamManager
 import io.logbee.keyscore.frontier.stream.StreamManager._
-import io.logbee.keyscore.frontier.stream.{FilterDescriptorManager, StreamManager}
 import io.logbee.keyscore.model.StreamModel
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
@@ -46,7 +46,7 @@ object FrontierApplication extends App with Json4sSupport {
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
   val filterManager = system.actorOf(FilterManager.props)
   val streamManager = system.actorOf(StreamManager.props(filterManager))
-  val filterDescriptorManager = system.actorOf(FilterDescriptorManager.props())
+  val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
 
   val corsSettings = if (configuration.devMode) CorsSettings.defaultSettings.copy(
     allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS)
