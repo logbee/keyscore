@@ -1,11 +1,16 @@
 package io.logbee.keyscore.frontier.stream
 
 import akka.actor.{Actor, ActorLogging, Props}
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
+import io.logbee.keyscore.commons.cluster.AgentCapabilities
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.{KafkaSink, StdOutSink}
 import io.logbee.keyscore.frontier.sources.{HttpSource, KafkaSource}
 import io.logbee.keyscore.frontier.stream.FilterDescriptorManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.filter.FilterDescriptor
+
+import scala.collection.mutable
 
 
 object FilterDescriptorManager {
@@ -24,33 +29,41 @@ object FilterDescriptorManager {
 
 class FilterDescriptorManager extends Actor with ActorLogging {
 
-  val listOfFilterDescriptors = List[FilterDescriptor](
-    AddFieldsFilter.descriptor,
-    GrokFilter.descriptor,
-    RemoveFieldsFilter.descriptor,
-    RetainFieldsFilter.descriptor,
-    KafkaSource.descriptor,
-    KafkaSink.descriptor,
-    HttpSource.descriptor,
-    StdOutSink.descriptor
-  )
-  val listOfActiveDescriptors = List[FilterDescriptor]()
+  private val mediator = DistributedPubSub(context.system).mediator
+
+  private val listOfFilterDescriptors = mutable.Set.empty[FilterDescriptor]
+  private val listOfActiveDescriptors = List[FilterDescriptor]()
 
   override def preStart(): Unit = {
-    log.info("FilterDescriptorManager started")
+    mediator ! Subscribe("agents", self)
+
+    listOfFilterDescriptors ++= List(
+        AddFieldsFilter.descriptor,
+        GrokFilter.descriptor,
+        RemoveFieldsFilter.descriptor,
+        RetainFieldsFilter.descriptor,
+        KafkaSource.descriptor,
+        KafkaSink.descriptor,
+        HttpSource.descriptor,
+        StdOutSink.descriptor
+    )
+
+    log.info("StartUp complete")
   }
 
   override def postStop(): Unit = {
-    log.info("FilterDescriptorManager stopped")
+    mediator ! Unsubscribe("agents", self)
+    log.info("Shutdown complete")
   }
 
   override def receive: Receive = {
     case GetStandardDescriptors=>
-      sender ! StandardDescriptors(listOfFilterDescriptors)
-
+      sender ! StandardDescriptors(listOfFilterDescriptors.toList)
 
     case GetActiveDescriptors =>
       sender() ! ActiveDescriptors(listOfActiveDescriptors)
-  }
 
+    case AgentCapabilities(filterDescriptors) =>
+      listOfFilterDescriptors ++= filterDescriptors
+  }
 }
