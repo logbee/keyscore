@@ -34,8 +34,8 @@ class ExtensionLoader extends Actor with ActorLogging {
             fromString(extensionTypeName) match {
               case Some(extensionType) =>
                 val registerExtension = RegisterExtension(extensionType, extensionClass)
-                log.info(s"$registerExtension")
                 eventBus.publish(registerExtension)
+                log.info(s"Published notification about the $extensionType: $extensionClassName")
               case None =>
                 log.error(s"Unknown extension type: $extensionTypeName")
             }
