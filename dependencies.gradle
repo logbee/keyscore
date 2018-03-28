@@ -1,12 +1,13 @@
 ext {
+    scalaVersion = '2.12.5'
     akkaVersion = '2.5.11'
     akkaHttpVersion = '10.1.0'
     citrusVersion = '2.7.3'
 
     dependency = [
             scala_lang       : [
-                "org.scala-lang:scala-library:2.12.4",
-                "org.scala-lang:scala-reflect:2.12.4"
+                "org.scala-lang:scala-library:$scalaVersion",
+                "org.scala-lang:scala-reflect:$scalaVersion"
             ],
             slf4j            : "org.slf4j:slf4j-log4j12:1.7.25",
             akka_actor       : "com.typesafe.akka:akka-actor_2.12:$akkaVersion",
