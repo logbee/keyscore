@@ -5,7 +5,7 @@ import akka.cluster.ClusterEvent._
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, SubscribeAck, Unsubscribe}
 import akka.cluster.{Cluster, Member}
-import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentJoin, AgentJoinAccepted}
+import io.logbee.keyscore.commons.cluster.{AgentJoin, AgentJoinAccepted}
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 
 import scala.collection.mutable
@@ -61,10 +61,7 @@ class AgentManager extends Actor with ActorLogging {
       removeAgent(member)
 
     case QueryAgents =>
-      sender() ! QueryAgentsResponse(agents.values.toList)
-
-    case message: AgentCapabilities =>
-      log.info(s"$message")
+      sender ! QueryAgentsResponse(agents.values.toList)
   }
 
   private def addAgentMember(member: Member): Unit = {

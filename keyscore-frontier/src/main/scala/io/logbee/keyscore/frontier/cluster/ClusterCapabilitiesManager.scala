@@ -1,6 +1,8 @@
 package io.logbee.keyscore.frontier.cluster
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorPath, Props}
+import akka.cluster.Cluster
+import akka.cluster.ClusterEvent.MemberExited
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.AgentCapabilities
@@ -28,24 +30,17 @@ object ClusterCapabilitiesManager {
 
 class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
+  private val cluster = Cluster(context.system)
   private val mediator = DistributedPubSub(context.system).mediator
 
-  private val listOfFilterDescriptors = mutable.Set.empty[FilterDescriptor]
+  private val listOfFilterDescriptors = mutable.Map.empty[FilterDescriptor, mutable.Set[ActorPath]]
   private val listOfActiveDescriptors = List[FilterDescriptor]()
 
   override def preStart(): Unit = {
+    cluster.subscribe(self, classOf[MemberExited])
     mediator ! Subscribe("agents", self)
 
-    listOfFilterDescriptors ++= List(
-        AddFieldsFilter.descriptor,
-        GrokFilter.descriptor,
-        RemoveFieldsFilter.descriptor,
-        RetainFieldsFilter.descriptor,
-        KafkaSource.descriptor,
-        KafkaSink.descriptor,
-        HttpSource.descriptor,
-        StdOutSink.descriptor
-    )
+    addDefaultDescriptors()
 
     log.info("StartUp complete")
   }
@@ -57,12 +52,35 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case GetStandardDescriptors=>
-      sender ! StandardDescriptors(listOfFilterDescriptors.toList)
+      sender ! StandardDescriptors(listOfFilterDescriptors.keySet.toList)
 
     case GetActiveDescriptors =>
       sender() ! ActiveDescriptors(listOfActiveDescriptors)
 
     case AgentCapabilities(filterDescriptors) =>
-      listOfFilterDescriptors ++= filterDescriptors
+      filterDescriptors.foreach(descriptor => {
+        listOfFilterDescriptors.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
+      })
+
+    case MemberExited(member) =>
+      listOfFilterDescriptors.retain((_, paths) => {
+        paths.retain(path => member.address != path.address)
+        paths.nonEmpty
+      })
+
+      addDefaultDescriptors()
+  }
+
+  private def addDefaultDescriptors(): Unit = {
+    listOfFilterDescriptors ++= Map(
+      AddFieldsFilter.descriptor -> mutable.Set.empty,
+      GrokFilter.descriptor -> mutable.Set.empty,
+      RemoveFieldsFilter.descriptor -> mutable.Set.empty,
+      RetainFieldsFilter.descriptor -> mutable.Set.empty,
+      KafkaSource.descriptor -> mutable.Set.empty,
+      KafkaSink.descriptor -> mutable.Set.empty,
+      HttpSource.descriptor -> mutable.Set.empty,
+      StdOutSink.descriptor -> mutable.Set.empty
+    )
   }
 }
