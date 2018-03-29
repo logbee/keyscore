@@ -58,7 +58,6 @@ class Agent extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case Initialize =>
-      implicit val startUpTimeout: Timeout = 30 seconds
       val currentSender = sender
       val startUpWatch = context.actorOf(StartUpWatch(filterManager))
       (startUpWatch ? StartUpComplete).onComplete {
