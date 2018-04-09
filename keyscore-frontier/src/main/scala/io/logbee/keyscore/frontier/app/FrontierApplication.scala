@@ -20,7 +20,7 @@ import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.frontier.json.helper.FilterConfigTypeHints
 import io.logbee.keyscore.frontier.stream.StreamManager
 import io.logbee.keyscore.frontier.stream.StreamManager._
-import io.logbee.keyscore.model.StreamModel
+import io.logbee.keyscore.model.{AgentModel, StreamModel}
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import streammanagement.FilterManager
@@ -108,7 +108,7 @@ object FrontierApplication extends App with Json4sSupport {
       pathPrefix("agent") {
         get {
           onSuccess(agentManager ? QueryAgents) {
-            case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents)
+            case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.memberId.toString, agent.name, agent.ref.path.address.host.get)))
             case _ => complete(StatusCodes.InternalServerError)
           }
         }

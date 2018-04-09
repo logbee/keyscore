@@ -1,11 +1,9 @@
 package io.logbee.keyscore.frontier.cluster
 
 import akka.actor.{Actor, ActorLogging, ActorPath, Props}
-import akka.cluster.Cluster
-import akka.cluster.ClusterEvent.MemberExited
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
-import io.logbee.keyscore.commons.cluster.AgentCapabilities
+import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.{KafkaSink, StdOutSink}
@@ -30,14 +28,12 @@ object ClusterCapabilitiesManager {
 
 class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
-  private val cluster = Cluster(context.system)
   private val mediator = DistributedPubSub(context.system).mediator
 
   private val listOfFilterDescriptors = mutable.Map.empty[FilterDescriptor, mutable.Set[ActorPath]]
   private val listOfActiveDescriptors = List[FilterDescriptor]()
 
   override def preStart(): Unit = {
-    cluster.subscribe(self, classOf[MemberExited])
     mediator ! Subscribe("agents", self)
 
     addDefaultDescriptors()
@@ -51,7 +47,7 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
-    case GetStandardDescriptors=>
+    case GetStandardDescriptors =>
       sender ! StandardDescriptors(listOfFilterDescriptors.keySet.toList)
 
     case GetActiveDescriptors =>
@@ -62,9 +58,9 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
         listOfFilterDescriptors.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
       })
 
-    case MemberExited(member) =>
+    case AgentLeaved(ref) =>
       listOfFilterDescriptors.retain((_, paths) => {
-        paths.retain(path => member.address != path.address)
+        paths.retain(path => ref.path.address != path.address)
         paths.nonEmpty
       })
 

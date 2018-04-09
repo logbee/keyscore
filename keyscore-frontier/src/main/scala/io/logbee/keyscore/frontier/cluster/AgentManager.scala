@@ -1,11 +1,11 @@
 package io.logbee.keyscore.frontier.cluster
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Address}
+import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.cluster.ClusterEvent._
 import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, SubscribeAck, Unsubscribe}
+import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, SubscribeAck, Unsubscribe}
 import akka.cluster.{Cluster, Member}
-import io.logbee.keyscore.commons.cluster.{AgentJoin, AgentJoinAccepted}
+import io.logbee.keyscore.commons.cluster.{AgentJoin, AgentJoinAccepted, AgentJoined}
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 
 import scala.collection.mutable
@@ -19,8 +19,8 @@ object AgentManager {
 class AgentManager extends Actor with ActorLogging {
 
   val cluster = Cluster(context.system)
-  val agents: mutable.HashMap[Long, RemoteAgent] = mutable.HashMap.empty
-  val members: mutable.HashMap[Address, Long] = mutable.HashMap.empty
+  val agents: mutable.HashMap[String, RemoteAgent] = mutable.HashMap.empty
+//  val members: mutable.HashMap[ActorPath, Long] = mutable.HashMap.empty
   val mediator: ActorRef  = DistributedPubSub(context.system).mediator
 
   override def preStart(): Unit = {
@@ -42,10 +42,10 @@ class AgentManager extends Actor with ActorLogging {
       log.info("subscribing")
 
     case AgentJoin(name) =>
-      val uid = members(sender().path.address)
-      val agent = RemoteAgent(uid, name, sender().path.address.host.get)
-      agents += (uid -> agent)
-      sender() ! AgentJoinAccepted()
+      val agent = RemoteAgent(name, 0, sender)
+      agents += (name -> agent)
+      sender ! AgentJoinAccepted()
+      mediator ! Publish("agents", AgentJoined(agent.ref))
       log.info(s"Agent joined: $agent")
 
     case MemberExited(member) =>
@@ -66,7 +66,7 @@ class AgentManager extends Actor with ActorLogging {
 
   private def addAgentMember(member: Member): Unit = {
     if (member.hasRole("keyscore-agent")) {
-      members += (member.uniqueAddress.address -> member.uniqueAddress.longUid)
+//      members += (member.uniqueAddress.address -> member.uniqueAddress.longUid)
     }
   }
 
@@ -75,11 +75,12 @@ class AgentManager extends Actor with ActorLogging {
     val uid = member.uniqueAddress.longUid
     val address = member.uniqueAddress.address
 
-    agents.get(uid) match {
-      case Some(agent) =>
-        agents.remove(uid)
-        members.remove(address)
-        log.info(s"Removed Agent: $agent")
-    }
+//    agents.get(uid) match {
+//      case Some(agent) =>
+//        agents.remove(uid)
+//        members.remove(address)
+//        mediator ! Publish("agents", AgentLeaved(agent.ref))
+//        log.info(s"Agent leaved: $agent")
+//    }
   }
 }

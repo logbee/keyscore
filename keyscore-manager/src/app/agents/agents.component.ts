@@ -23,7 +23,7 @@ import {Go} from "../router/router.actions";
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-                            <th>UID</th>
+                            <th>ID</th>
                             <th>Host</th>
                             <th>&nbsp;</th>
                         </tr>
@@ -32,7 +32,7 @@ import {Go} from "../router/router.actions";
                             <tr *ngFor="let agent of agents$ | async; let i = index" class="" >
                                 <td>{{i}}</td>
                                 <td>{{agent.name}}</td>
-                                <td>{{agent.uid}}</td>
+                                <td>{{agent.id}}</td>
                                 <td>{{agent.host}}</td>
                                 <td style="text-align: right">
                                     <button class="btn btn-primary" style="padding-bottom: 0; padding-top: 0" (click)="inspect(agent.uid)">
