@@ -5,7 +5,6 @@ import akka.pattern.ask
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.util.Timeout
 import io.logbee.keyscore.frontier.stream.StreamManager.{CreateNewStream, StreamCreatedWithID}
-import io.logbee.keyscore.model.StreamModel
 import streammanagement.FilterManager.{BuildGraph, BuildGraphAnswerWrapper, BuildGraphException, BuiltGraph}
 import streammanagement.StreamSupervisor.ShutdownGraph
 
@@ -27,7 +26,7 @@ object StreamSupervisor {
 class StreamSupervisor(filterManager: ActorRef)
                       (implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
 
-  //TODO For testing docker-kafka only
+  // a useful timeout duration should be evaluated
   implicit val timeout: Timeout = 30 seconds
 
   var killSwitch: Option[UniqueKillSwitch] = None
@@ -48,7 +47,7 @@ class StreamSupervisor(filterManager: ActorRef)
     case CreateNewStream(streamId, stream) =>
       val future: Future[BuildGraphAnswerWrapper] = ask(filterManager, BuildGraph(streamId, stream)).mapTo[BuildGraphAnswerWrapper]
 
-      //TODO For testing docker-kafka only
+      // a useful timeout duration should be evaluated
       val graphAnswer = Await.result(future, 30 seconds)
 
       val graph = graphAnswer.answer match {

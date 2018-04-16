@@ -3,7 +3,7 @@ package io.logbee.keyscore.frontier.app
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods._
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.{HttpOrigin, HttpOriginRange}
 import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
@@ -35,7 +35,7 @@ object FrontierApplication extends App with Json4sSupport {
   implicit val system = ActorSystem("keyscore")
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
-  //TODO For testing docker-kafka only
+  // a useful timeout duration should be evaluated
   implicit val timeout: Timeout = 30.seconds
   implicit val serialization = Serialization
   //implicit val formats = DefaultFormats
@@ -43,8 +43,8 @@ object FrontierApplication extends App with Json4sSupport {
   //implicit val jsonStreamingSupport = EntityStreamingSupport.json()
 
   val configuration = FrontierConfigProvider(system)
-  val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
   val filterManager = system.actorOf(FilterManager.props)
+  val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
   val streamManager = system.actorOf(StreamManager.props(filterManager))
   val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
 

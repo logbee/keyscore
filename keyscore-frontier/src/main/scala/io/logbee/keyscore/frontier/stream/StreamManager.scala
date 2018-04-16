@@ -12,7 +12,6 @@ import io.logbee.keyscore.model._
 import streammanagement.FilterManager.BuildGraphException
 import streammanagement.StreamSupervisor
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
@@ -45,7 +44,7 @@ class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMateria
 
   implicit val system: ActorSystem = context.system
   implicit val executionContext = context.dispatcher
-  //TODO For testing docker-kafka only
+  // a useful timeout duration should be evaluated
   implicit val timeout: Timeout = 30 seconds
   var idToActor = Map.empty[UUID, ActorRef]
   var actorToId = Map.empty[ActorRef, UUID]
@@ -65,7 +64,6 @@ class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMateria
           self tell(ChangeStream(streamId, stream), sender())
         case None =>
           val streamActor = context.actorOf(StreamSupervisor.props(filterManager))
-          //TODO For testing docker-kafka only
           val currentSender = sender()
           (streamActor ? CreateNewStream(streamId, stream)).onComplete {
             case Success(message) =>
@@ -82,7 +80,6 @@ class StreamManager(filterManager: ActorRef)(implicit materializer: ActorMateria
     case ChangeStream(streamId, stream) =>
 
       val newStreamActor = context.actorOf(StreamSupervisor.props(filterManager))
-      //TODO For testing docker-kafka only
       val currentSender = sender()
       (newStreamActor ? CreateNewStream(streamId, stream)).onComplete {
         case Success(updateAnswer) =>

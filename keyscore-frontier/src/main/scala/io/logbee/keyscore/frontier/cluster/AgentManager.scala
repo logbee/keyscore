@@ -1,13 +1,15 @@
 package io.logbee.keyscore.frontier.cluster
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Address}
-import akka.cluster.ClusterEvent
+import akka.actor.{Actor, ActorLogging, ActorRef, Deploy, Props}
 import akka.cluster.ClusterEvent.{MemberExited, MemberUp, ReachableMember, UnreachableMember}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, SubscribeAck, Unsubscribe}
 import akka.cluster.{Cluster, Member, UniqueAddress}
+import akka.remote.RemoteScope
+import io.logbee.keyscore.commons.RemoteActor
+import io.logbee.keyscore.commons.RemoteActor.RemoteTry
 import io.logbee.keyscore.commons.cluster._
-import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers, QueryMembersAddresses}
+import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers}
 
 import scala.collection.mutable
 
@@ -51,17 +53,26 @@ class AgentManager extends Actor with ActorLogging {
       sender ! AgentJoinAccepted()
       mediator ! Publish("agents", AgentJoined(agent.ref))
 
+      val address = sender.path.address
+      val remoteActor = context.actorOf(Props[RemoteActor].
+        withDeploy(Deploy(scope = RemoteScope(address))))
+      remoteActor ! RemoteTry
+
     case MemberExited(member) =>
+      log.info("Member is exited: "+member.uniqueAddress)
       removeAgent(member)
 
     case ReachableMember(member) =>
+      log.info("Member is reachable: "+member.uniqueAddress)
       addAgentMember(member)
 
     case MemberUp(member) =>
+      log.info("Member is up: "+member.uniqueAddress)
       addAgentMember(member)
       sender ! MemberAdded(member)
 
     case UnreachableMember(member) =>
+      log.info("Member is unreachable: "+member.uniqueAddress)
       removeAgent(member)
       sender ! MemberRemoved(member)
 
