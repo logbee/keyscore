@@ -9,6 +9,8 @@ import {
     DeleteStreamAction, EditFilterAction, MoveFilterAction, ResetStreamAction,
     UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction, UpdateFilterAction
 } from "../streams.actions";
+import {selectAppConfig} from "../../app.config";
+import {AppState} from "../../app.component";
 
 @Component({
     selector: 'stream-editor',
@@ -24,7 +26,8 @@ import {
                                 (unlock)="setLocked(false, $event)">
                 </stream-details>
             </div>
-            <div class="col-9">
+            
+            <div *ngIf="!blocklyFlag" class="col-9">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
                         <span class="font-weight-bold">Structure</span>
@@ -47,6 +50,7 @@ import {
                     </div>
                 </div>
             </div>
+            <blockly-workspace *ngIf="blocklyFlag" class="col-9"></blockly-workspace>
         </div>
     `,
     providers: []
@@ -54,8 +58,11 @@ import {
 export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
     isLocked$: Observable<boolean>;
+    blocklyFlag:boolean;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
+        let config = this.store.select(selectAppConfig);
+        config.subscribe(conf => this.blocklyFlag = conf.getBoolean('keyscore.manager.blockly'));
     }
 
     ngOnInit(): void {

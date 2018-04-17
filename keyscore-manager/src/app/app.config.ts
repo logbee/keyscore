@@ -71,6 +71,10 @@ export class AppConfig {
         return <string>this.resolveValue(key.split('.'), this.configuration)
     }
 
+    public getBoolean(key:string): boolean{
+        return <boolean>this.resolveValue(key.split('.'),this.configuration)
+    }
+
     private resolveValue(keys: Array<string>, config: Object): any {
         if (keys.length == 1) {
             return config[keys[0]]

@@ -1,8 +1,8 @@
 import 'zone.js';
 import 'reflect-metadata';
-import * as $ from 'jquery'
-import 'popper.js'
-import 'bootstrap'
+import * as $ from 'jquery';
+import 'popper.js';
+import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 
 import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';

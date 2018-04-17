@@ -23,6 +23,7 @@ import {AgentsModule} from "./agents/agents.module";
 import {ParameterList} from "./streams/stream-editor/filter-editor/parameter-list/parameter-list.component";
 import {ParameterComponent} from "./streams/stream-editor/filter-editor/parameter.component";
 import {StreamBuilderService} from "./services/streambuilder.service";
+import {BlocklyComponent} from "./streams/stream-editor/blockly/blockly.component";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
