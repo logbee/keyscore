@@ -68,6 +68,9 @@ module.exports = {
             jQuery: 'jquery',
             $: 'jquery',
             jquery: 'jquery'
+        }),
+        new webpack.ProvidePlugin({
+            Blockly:'node-blockly/browser.js'
         })
     ],
     devServer: {
