@@ -1,26 +1,34 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Blockly} from "node-blockly/browser";
 
+import {Store} from "@ngrx/store";
+import {FilterDescriptor, getFilterCategories, getFilterDescriptors, StreamsState} from "../../streams.model";
+import {Observable} from "rxjs/Observable";
+
 
 declare var Blockly: any;
 
 @Component({
     selector: 'blockly-workspace',
     template: `
-        <h3>BLOCKLY</h3>
+        
         <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+        <textarea id="code" [(ngModel)]="generatedCode"></textarea>
     `,
     providers: []
 })
 
 export class BlocklyComponent implements OnInit {
     private _workspace: any;
+    private categories$:Observable<string[]>;
+    private filterDescriptors$:Observable<FilterDescriptor[]>;
+    private toolbox: any;
 
-    toolbox: any;
-    name: string = '';
-    generatedCode: string = '// generated code will appear here';
+    generatedCode="Here goes the code";
 
-    constructor() {
+    constructor(private store:Store<StreamsState>) {
+        this.filterDescriptors$ = this.store.select(getFilterDescriptors);
+        this.categories$ = this.store.select(getFilterCategories);
     }
 
     ngOnInit(): void {
@@ -37,5 +45,6 @@ export class BlocklyComponent implements OnInit {
 
     onWorkspaceChange(e: any) {
         console.log(e);
+        this.generatedCode = Blockly.JavaScript.workspaceToCode(this._workspace);
     }
 }
