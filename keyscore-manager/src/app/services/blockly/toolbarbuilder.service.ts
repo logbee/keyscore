@@ -1,28 +1,31 @@
 import {Injectable} from "@angular/core";
 import {FilterDescriptor} from "../../streams/streams.model";
-import 'jquery';
 
 @Injectable()
 export class ToolBarBuilderService {
     constructor() {
     }
 
-    createToolbar(filterDescriptors:FilterDescriptor[],categories:string[]){
+    createToolbar(filterDescriptors:FilterDescriptor[],categories:string[]):string{
+        let parser = new DOMParser();
+        let serializer = new XMLSerializer();
         let xml = '<xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;"></xml>';
-        let xmlDoc = jQuery.parseXML(xml);
-        let $xml = jQuery(xmlDoc);
-        let $root = $xml.find("xml");
+        let xmlDoc = parser.parseFromString(xml,"text/xml");
 
         categories.forEach(cat =>{
-            $root.append("category").attr("name",cat);
+            let currentXmlCategory = xmlDoc.createElement("category");
+            currentXmlCategory.setAttribute("name",cat);
             filterDescriptors.forEach(descriptor =>{
                 if(descriptor.category === cat){
-                    $root.find('[name='+cat+']').append(descriptor.name)
+                    /*TODO: generate blocks from descriptor*/
                 }
             })
+            xmlDoc.getElementById("toolbox").appendChild(currentXmlCategory);
         })
 
-        console.log($root);
+        let xmlString = serializer.serializeToString(xmlDoc);
+        console.log("toolbox: "+xmlString);
+        return xmlString;
     }
 
 }
