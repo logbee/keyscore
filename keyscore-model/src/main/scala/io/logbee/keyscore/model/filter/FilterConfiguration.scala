@@ -3,11 +3,7 @@ package io.logbee.keyscore.model.filter
 import java.util.{NoSuchElementException, UUID}
 
 
-case class FilterConfiguration(
-                                id: UUID,
-                                kind: String,
-                                parameters: List[Parameter[_]]
-                              ) {
+case class FilterConfiguration(id: UUID, kind: String, parameters: List[Parameter[_]]) {
 
   def getParameterValue[T](parameterName: String): T = {
     try {
@@ -16,16 +12,12 @@ case class FilterConfiguration(
       case nse:NoSuchElementException => throw nse;
     }
   }
-
-
 }
-
 
 trait Parameter[T] {
   val name: String
   val value: T
 }
-
 
 case class TextParameter(name: String, value: String) extends Parameter[String]
 
