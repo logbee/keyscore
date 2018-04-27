@@ -3,7 +3,6 @@ import {
     ADD_FILTER,
     CREATE_STREAM,
     DELETE_STREAM, DELETE_STREAM_FAILURE, DELETE_STREAM_SUCCESS,
-    EDIT_FILTER,
     EDIT_STREAM,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOCK_EDITING_STREAM,
@@ -101,9 +100,6 @@ export function StreamsReducer(state: StreamsState = initialState, action: Strea
         case MOVE_FILTER:
             const filterIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filterId);
             swap(result.editingStream.filters, filterIndex, action.position);
-            break;
-        case EDIT_FILTER:
-            setEditingFilter(result, action.filterId);
             break;
         case UPDATE_FILTER:
             const updateFilterIndex = result.editingStream.filters.findIndex(filter => filter.id == action.filter.id);

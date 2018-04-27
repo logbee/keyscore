@@ -13,7 +13,6 @@ export const DELETE_STREAM_SUCCESS = '[Stream] DeleteStreamSuccess';
 export const DELETE_STREAM_FAILURE = '[Stream] DeleteStreamFailure';
 export const ADD_FILTER = '[Stream] AddFilter';
 export const MOVE_FILTER = '[Stream] MoveFilter';
-export const EDIT_FILTER = '[Stream] EditFilter';
 export const REMOVE_FILTER = '[Stream] RemoveFilter';
 export const UPDATE_FILTER = '[Stream] UpdateFilter';
 export const LOAD_FILTER_DESCRIPTORS_SUCCESS = '[Stream] LoadFilterDescriptorsSuccess';
@@ -35,7 +34,6 @@ export type StreamActions =
     | LoadFilterDescriptorsSuccessAction
     | LoadFilterDescriptorsFailureAction
     | LoadFilterDescriptorsAction
-    | EditFilterAction
     | RemoveFilterAction
     | LockEditingStreamAction
     | DeleteStreamSuccessAction
@@ -132,14 +130,6 @@ export class MoveFilterAction implements Action {
     readonly type = MOVE_FILTER;
 
     constructor(readonly filterId: string, readonly position: number) {
-
-    }
-}
-
-export class EditFilterAction implements Action {
-    readonly type = EDIT_FILTER;
-
-    constructor(readonly filterId: string) {
 
     }
 }

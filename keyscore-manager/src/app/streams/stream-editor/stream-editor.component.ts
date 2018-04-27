@@ -6,7 +6,7 @@ import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 import {FilterModel, getEditingStream, getEditingStreamIsLocked, StreamModel} from "../streams.model";
 import {
-    DeleteStreamAction, EditFilterAction, MoveFilterAction, ResetStreamAction,
+    DeleteStreamAction,MoveFilterAction, ResetStreamAction,
     UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction, UpdateFilterAction
 } from "../streams.actions";
 import {selectAppConfig} from "../../app.config";
@@ -36,14 +36,13 @@ import {AppState} from "../../app.component";
                         </div>
                     </div>
                     <div class="card-body">
-                        <stream-filter *ngFor="let filter of (stream$ | async).filters; index as i"
+                        <stream-filter class="filter-component" *ngFor="let filter of (stream$ | async).filters; index as i"
                                        [filter]="filter"
                                        [index]="i"
                                        [filterCount]="(stream$|async).filters.length"
                                        [parameters]="filter.parameters"
                                        [isEditingStreamLocked$]="isLocked$"
                                        (move)="moveFilter($event)"
-                                       (edit)="editFilter($event)"
                                        (remove)="removeFilter($event)"
                                        (update)="updateFilter($event)">
                         </stream-filter>
@@ -53,6 +52,7 @@ import {AppState} from "../../app.component";
             <blockly-workspace *ngIf="blocklyFlag" class="col-9"></blockly-workspace>
         </div>
     `,
+    styles:['.filter-component{transition: 0.25s ease-in-out;}'],
     providers: []
 })
 export class StreamEditorComponent implements OnInit {
@@ -104,10 +104,6 @@ export class StreamEditorComponent implements OnInit {
         this.store.dispatch(new MoveFilterAction(filter.id, filter.position))
     }
 
-    editFilter(id: string) {
-        this.store.dispatch(new EditFilterAction(id))
-
-    }
 
     updateFilter(update: { filterModel: FilterModel, values: any }) {
         this.store.dispatch(new UpdateFilterAction(update.filterModel, update.values))

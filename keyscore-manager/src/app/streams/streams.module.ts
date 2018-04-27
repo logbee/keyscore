@@ -10,7 +10,7 @@ import {EffectsModule} from "@ngrx/effects";
 import {StreamsEffects} from "./streams.effects";
 import {StreamDetailsComponent} from "./stream-editor/stream-details.component";
 import {StreamFilterComponent} from "./stream-editor/stream-filter.component";
-import {ParameterList} from "./stream-editor/filter-editor/parameter-list/parameter-list.component";
+import {ParameterList} from "./stream-editor/filter-editor/parameter-list.component";
 import {ParameterComponent} from "./stream-editor/filter-editor/parameter.component";
 import {ParameterMap} from "./stream-editor/filter-editor/parameter-map.component";
 import {BlocklyComponent} from "./stream-editor/blockly/blockly.component";

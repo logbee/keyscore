@@ -75,7 +75,6 @@ export class StreamFilterComponent implements OnInit {
 
     @Output() update: EventEmitter<{ filterModel: FilterModel, values: any }> = new EventEmitter();
     @Output() move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
-    @Output() edit: EventEmitter<string> = new EventEmitter();
     @Output() remove: EventEmitter<FilterModel> = new EventEmitter();
 
     editing: boolean = false;
@@ -101,7 +100,6 @@ export class StreamFilterComponent implements OnInit {
 
     editFilter(id: string) {
         this.editing = true;
-        this.edit.emit(id);
     }
 
     saveFilter(filterModel: FilterModel, values: any) {
