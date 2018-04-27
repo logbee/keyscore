@@ -34,7 +34,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 }
 
 object ExampleFilter extends Described {
-  override val descriptor: FilterDescriptor = FilterDescriptor("ExampleFilter", "An example filter", List.empty)
+  override def descriptor: FilterDescriptor = FilterDescriptor("ExampleFilter", "An example filter", List.empty)
 }
 
 class ExampleFilter {
