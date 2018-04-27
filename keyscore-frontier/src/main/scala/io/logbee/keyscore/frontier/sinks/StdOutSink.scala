@@ -3,7 +3,7 @@ package io.logbee.keyscore.frontier.sinks
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.Sink
 import io.logbee.keyscore.frontier.filters.CommittableRecord
-import io.logbee.keyscore.model.filter.FilterDescriptor
+import io.logbee.keyscore.model.filter.{FilterConnection, FilterDescriptor}
 
 import scala.concurrent.Future
 
@@ -14,6 +14,6 @@ object StdOutSink {
   }
 
   val descriptor:FilterDescriptor = {
-    FilterDescriptor("StdOutSink","Standard Output Sink","Writes the streams output to StdOut",List.empty,"Sink")
+    FilterDescriptor("StdOutSink","Standard Output Sink","Writes the streams output to StdOut",FilterConnection(true,"all"),FilterConnection(false),List.empty,"Sink")
   }
 }

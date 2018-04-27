@@ -1,5 +1,8 @@
 import {Injectable} from "@angular/core";
 import {FilterDescriptor} from "../../streams/streams.model";
+import {Blockly} from "node-blockly/browser";
+
+declare var Blockly:any;
 
 @Injectable()
 export class ToolBarBuilderService {
@@ -17,7 +20,10 @@ export class ToolBarBuilderService {
             currentXmlCategory.setAttribute("name",cat);
             filterDescriptors.forEach(descriptor =>{
                 if(descriptor.category === cat){
-                    /*TODO: generate blocks from descriptor*/
+                    this.createBlock(descriptor);
+                    let currentXmlBlock = xmlDoc.createElement("block");
+                    currentXmlBlock.setAttribute("type",descriptor.name);
+                    currentXmlCategory.appendChild(currentXmlBlock);
                 }
             })
             xmlDoc.getElementById("toolbox").appendChild(currentXmlCategory);
@@ -26,6 +32,17 @@ export class ToolBarBuilderService {
         let xmlString = serializer.serializeToString(xmlDoc);
         console.log("toolbox: "+xmlString);
         return xmlString;
+    }
+
+    private createBlock(descriptor:FilterDescriptor){
+        Blockly.Blocks[descriptor.name] = {
+            init: function(){
+                this.setPreviousStatement(descriptor.previousConnection.isPermitted);
+                this.setNextStatement(descriptor.nextConnection.isPermitted);
+                this.appendDummyInput()
+                    .appendField(descriptor.displayName);
+            }
+        }
     }
 
 }

@@ -1,19 +1,23 @@
 package io.logbee.keyscore.model.filter
 
 object FilterDescriptor {
-  def apply(name: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, "", parameters)
+  def apply(name: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, "", FilterConnection(true,"all"),FilterConnection(true,"all"),parameters)
 
-  def apply(name: String, description: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, description, parameters)
+  def apply(name: String, description: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, description,FilterConnection(true,"all"),FilterConnection(true,"all"),parameters)
 
 }
 
 case class FilterDescriptor(
-  name: String,
-  displayName: String,
-  description: String,
-  parameters: List[ParameterDescriptor] = List.empty,
-  category: String = "Filter"
-)
+                             name: String,
+                             displayName: String,
+                             description: String,
+                             previousConnection: FilterConnection,
+                             nextConnection: FilterConnection,
+                             parameters: List[ParameterDescriptor] = List.empty,
+                             category: String = "Filter",
+                           )
+
+case class FilterConnection(isPermitted: Boolean, connectionType: String = "")
 
 trait ParameterDescriptor {
   val name: String
@@ -21,6 +25,7 @@ trait ParameterDescriptor {
   val kind: String
   val mandatory: Boolean
 }
+
 
 object BooleanParameterDescriptor {
   def apply(name: String): BooleanParameterDescriptor = new BooleanParameterDescriptor(name, name, true, "boolean")

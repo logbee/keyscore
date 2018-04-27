@@ -4,7 +4,7 @@ import akka.stream
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, ListParameterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter._
 
 import scala.concurrent.{Future, Promise}
 
@@ -14,27 +14,28 @@ object RetainFieldsFilter {
     Flow.fromGraph(new RetainFieldsFilter(fieldNames))
   }
 
-  def create(config:FilterConfiguration): Flow[CommittableRecord,CommittableRecord,Future[FilterHandle]] = {
-    val retainConfiguration = try{
+  def create(config: FilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
+    val retainConfiguration = try {
       loadFilterConfig(config)
-    }catch{
-      case nse:NoSuchElementException => throw nse
+    } catch {
+      case nse: NoSuchElementException => throw nse
     }
     Flow.fromGraph(new RetainFieldsFilter(retainConfiguration))
   }
 
-  private def loadFilterConfig(configuration: FilterConfiguration):List[String]={
+  private def loadFilterConfig(configuration: FilterConfiguration): List[String] = {
     try {
       configuration.getParameterValue[List[String]]("fieldsToRetain")
-    }catch{
-      case _:NoSuchElementException => throw new NoSuchElementException("RetainFieldsFilter needs parameter: fieldsToRetain of type list[string]")
+    } catch {
+      case _: NoSuchElementException => throw new NoSuchElementException("RetainFieldsFilter needs parameter: fieldsToRetain of type list[string]")
     }
   }
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("RetainFieldsFilter", "Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.", parameters = List(
-      ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
-    ))
+    FilterDescriptor("RetainFieldsFilter", "Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.",
+      FilterConnection(true, "all"), FilterConnection(true, "all"), List(
+        ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
+      ))
   }
 }
 

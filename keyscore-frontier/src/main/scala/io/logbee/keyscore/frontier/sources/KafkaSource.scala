@@ -10,7 +10,7 @@ import akka.stream._
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.frontier.filters.CommittableRecord
 import io.logbee.keyscore.model.TextField
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterConnection, FilterDescriptor, TextParameterDescriptor}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.DefaultFormats
@@ -62,7 +62,8 @@ object KafkaSource {
   }
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic", List(
+    FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic",
+      FilterConnection(false),FilterConnection(true,"all"),List(
       TextParameterDescriptor("bootstrapServer"),
       TextParameterDescriptor("sourceTopic"),
       TextParameterDescriptor("groupID"),

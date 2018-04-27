@@ -3,7 +3,6 @@ import {
     FilterConfiguration, FilterModel, Parameter, ParameterDescriptor, StreamConfiguration,
     StreamModel
 } from "../streams/streams.model";
-import {isNullOrUndefined} from "util";
 
 @Injectable()
 export class StreamBuilderService {

@@ -45,11 +45,12 @@ object GrokFilter {
   }
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("GrokFilter", "Grok Filter", "Extracts parts of a text line into fields.", List(
-      BooleanParameterDescriptor("isPaused"),
-      ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
-      TextParameterDescriptor("pattern")
-    ))
+    FilterDescriptor("GrokFilter", "Grok Filter", "Extracts parts of a text line into fields.", FilterConnection(true, "all"),
+      FilterConnection(true, "all"), List(
+        BooleanParameterDescriptor("isPaused"),
+        ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
+        TextParameterDescriptor("pattern")
+      ))
   }
 }
 

@@ -11,7 +11,7 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.stage._
 import akka.stream.{KillSwitch, _}
 import io.logbee.keyscore.frontier.filters.CommittableRecord
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, IntParameterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.{Record, TextField}
 
 import scala.collection.mutable
@@ -41,7 +41,8 @@ object HttpSource {
   }
 
   val descriptor: FilterDescriptor = {
-    FilterDescriptor("HttpSource", "Http Source", "A Http Source", List(
+    FilterDescriptor("HttpSource", "Http Source", "A Http Source",
+      FilterConnection(false),FilterConnection(true,"all"),List(
       TextParameterDescriptor("bindAddress"),
       TextParameterDescriptor("fieldName"),
       IntParameterDescriptor("port")
