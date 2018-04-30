@@ -1,7 +1,7 @@
 package io.logbee.keyscore.agent.stream.contrib
 
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, FilterFunction}
+import io.logbee.keyscore.model.filter._
 
 import scala.Function.tupled
 import scala.collection.mutable
@@ -10,7 +10,10 @@ import scala.util.matching.Regex
 
 
 object GrokFilterFunction extends Described {
-  override def descriptor: FilterDescriptor = FilterDescriptor("GrokFilter", "Filter that structures messages with Regex.", List.empty)
+  override def descriptor: FilterDescriptor = FilterDescriptor("GrokFilter", "Filter that structures messages with Regex.", List(
+    ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
+    TextParameterDescriptor("pattern")
+  ))
 }
 
 class GrokFilterFunction extends FilterFunction {
