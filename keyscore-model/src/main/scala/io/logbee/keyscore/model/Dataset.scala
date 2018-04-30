@@ -7,7 +7,7 @@ object Dataset {
   def apply(records: Record*): Dataset = new Dataset(records.toList)
 }
 
-class Dataset(private val records: List[Record]) extends Seq[Record] {
+class Dataset(val records: List[Record]) extends Seq[Record] {
 
   override def apply(idx: Int): Record = records(idx)
 
