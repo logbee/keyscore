@@ -25,12 +25,14 @@ class GrokFilterFunction extends FilterFunction {
       parameter.name match {
         case "fieldNames" => fieldNames = parameter.value.asInstanceOf[List[String]]
         case "pattern" => parameter.value match {
-          case Some(pattern) =>
+          case Some(pattern: String) =>
             regex = pattern.r(GROK_PATTERN.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
           case None =>
         }
+        case _ =>
       }
     }
+    true
   }
 
   override def apply(dataset: Dataset): Dataset = {

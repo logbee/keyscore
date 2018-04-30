@@ -1,6 +1,6 @@
 package io.logbee.keyscore.model.filter
 
-import java.util.{NoSuchElementException, UUID}
+import java.util.UUID
 
 
 object FilterConfiguration {
