@@ -29,12 +29,17 @@ export class AgentsEffects {
     @Effect() loadAgents$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_AGENTS),
         combineLatest(this.store.select(selectAppConfig)),
-        switchMap(([action, config]) => {
-            const url: string = config.getString('keyscore.frontier.base-url')+'/agent/';
-            return this.http.get(url).pipe(
-                map(data => new LoadAgentsSuccessAction((data as AgentModel[]))),
-                catchError((cause: any) => of(new LoadAgentsFailureAction()))
-            );
+        switchMap(([action, appConfig]) => {
+            try {
+                const url: string = appConfig.getString('keyscore.frontier.base-url') + '/agent/';
+                return this.http.get(url).pipe(
+                    map(data => new LoadAgentsSuccessAction((data as AgentModel[]))),
+                    catchError((cause: any) => of(new LoadAgentsFailureAction(cause)))
+                );
+            }
+            catch (exception) {
+                return of(new LoadAgentsFailureAction(exception));
+            }
         })
     );
 

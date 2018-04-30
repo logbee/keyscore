@@ -23,4 +23,5 @@ export class LoadAgentsSuccessAction implements Action {
 
 export class LoadAgentsFailureAction implements Action {
     readonly type = LOAD_AGENTS_FAILURE;
+    constructor(readonly cause: any) { }
 }
