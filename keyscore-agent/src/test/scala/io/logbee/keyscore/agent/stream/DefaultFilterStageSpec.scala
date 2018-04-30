@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
+import io.logbee.keyscore.agent.stream.ExampleData._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 import org.scalamock.scalatest.MockFactory
@@ -20,21 +21,8 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = materializer.executionContext
 
-  val record1 = Record(TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C"))
-  val record2 = Record(TextField("message", "Is is a rainy day. Temperature: 5.8 °C"))
-  val record1Modified = Record(TextField("weather-report", "cloudy, -11.5 °C"))
-  val record2Modified = Record(TextField("weather-report", "rainy, 5.8 °C"))
-
-  val dataset1 = Dataset(record1)
-  val dataset2 = Dataset(record2)
-  val dataset1Modified = Dataset(record1Modified)
-  val dataset2Modified = Dataset(record2Modified)
-
-  val configA = FilterConfiguration("A")
-  val configB = FilterConfiguration("B")
-
   trait TestStream {
-    val (handleFutur, probe) = Source(List(dataset1, dataset2))
+    val (filterFuture, probe) = Source(List(dataset1, dataset2))
       .viaMat(new DefaultFilterStage())(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
@@ -44,7 +32,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
     "pass elements unmodified, if no filter and condition is specified" in new TestStream {
 
-      whenReady(handleFutur) { filter =>
+      whenReady(filterFuture) { filter =>
         probe.request(2)
         probe.expectNext(dataset1)
         probe.expectNext(dataset2)
@@ -53,7 +41,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
     "pass elements unmodified, if the configured condition does not accept the elements" in new TestStream {
 
-      whenReady(handleFutur) { filter =>
+      whenReady(filterFuture) { filter =>
 
         val condition = stub[Condition]
         condition.apply _ when dataset1 returns Reject(dataset1)
@@ -69,7 +57,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
     "pass a element modified, if the configured condition accepts it" in new TestStream {
 
-      whenReady(handleFutur) { filter =>
+      whenReady(filterFuture) { filter =>
 
         val condition = stub[Condition]
         val function = stub[FilterFunction]
@@ -91,7 +79,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
     "pass a changed condition configuration to the condition-instance" in new TestStream {
 
-      whenReady(handleFutur) { filter =>
+      whenReady(filterFuture) { filter =>
 
         val condition = stub[Condition]
 
@@ -106,7 +94,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
     "pass a changed function configuration to the function-instance" in new TestStream {
 
-      whenReady(handleFutur) { filter =>
+      whenReady(filterFuture) { filter =>
 
         val function = stub[FilterFunction]
 
