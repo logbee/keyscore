@@ -8,8 +8,8 @@ import scala.concurrent.{Future, Promise}
 
 class DefaultFilterStage extends FilterStage {
 
-  private val in = Inlet[Dataset]("grok.in")
-  private val out = Outlet[Dataset]("grok.out")
+  private val in = Inlet[Dataset]("in")
+  private val out = Outlet[Dataset]("out")
 
   override def shape = FlowShape(in, out)
 
