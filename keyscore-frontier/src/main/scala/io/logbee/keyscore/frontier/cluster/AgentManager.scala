@@ -47,8 +47,8 @@ class AgentManager extends Actor with ActorLogging {
     case SubscribeAck(Subscribe("agents", None, `self`)) =>
       log.info("subscribing")
 
-    case AgentJoin(name) =>
-      val agent = RemoteAgent(name, 0, sender)
+    case AgentJoin(id, name) =>
+      val agent = RemoteAgent(id, name, 0, sender)
       agents += (agent.memberId -> agent)
       sender ! AgentJoinAccepted()
       mediator ! Publish("agents", AgentJoined(agent.ref))

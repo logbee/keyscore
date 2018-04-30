@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {AgentModel, AgentsState, getAgents} from "./agents.model";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/Observable";
-import {LoadAgentsAction} from "./agents.actions";
+import {InspectAgentAction, LoadAgentsAction} from "./agents.actions";
 import {Go} from "../router/router.actions";
 
 @Component({
@@ -18,30 +18,32 @@ import {Go} from "../router/router.actions";
                         </button>
                     </div>
                     <div class="card-body">
-                    <table class="table table-sm table-hover">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>ID</th>
-                            <th>Host</th>
-                            <th>&nbsp;</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let agent of agents$ | async; let i = index" class="" >
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>ID</th>
+                                <th>Host</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let agent of agents$ | async; let i = index" class="">
                                 <td>{{i}}</td>
                                 <td>{{agent.name}}</td>
                                 <td>{{agent.id}}</td>
                                 <td>{{agent.host}}</td>
                                 <td style="text-align: right">
-                                    <button class="btn btn-primary" style="padding-bottom: 0; padding-top: 0" (click)="inspect(agent.uid)">
-                                        <img style="filter: invert(1);" width="12em" src="/assets/images/chevron-right.svg"/>
+                                    <button class="btn btn-primary" style="padding-bottom: 0; padding-top: 0"
+                                            (click)="inspect(agent.id)">
+                                        <img style="filter: invert(1);" width="12em"
+                                             src="/assets/images/chevron-right.svg"/>
                                     </button>
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -54,14 +56,16 @@ export class AgentsComponent {
     private agents$: Observable<AgentModel[]>;
 
     constructor(private store: Store<AgentsState>) {
-        this.agents$ = this.store.select(getAgents)
+        this.agents$ = this.store.select(getAgents);
     }
 
     reload() {
         this.store.dispatch(new LoadAgentsAction())
     }
 
-    inspect(uid: string) {
-        this.store.dispatch(new Go({path: ['/agent/' + uid + '/']}))
+    inspect(id: string) {
+        this.store.dispatch(new InspectAgentAction(id));
+        this.store.dispatch(new Go({path: ['/agent/' + id + '/']}))
+
     }
 }

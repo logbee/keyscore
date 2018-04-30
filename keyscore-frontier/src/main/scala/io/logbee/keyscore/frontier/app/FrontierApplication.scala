@@ -108,7 +108,7 @@ object FrontierApplication extends App with Json4sSupport {
       pathPrefix("agent") {
         get {
           onSuccess(agentManager ? QueryAgents) {
-            case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.memberId.toString, agent.name, agent.ref.path.address.host.get)))
+            case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
             case _ => complete(StatusCodes.InternalServerError)
           }
         }

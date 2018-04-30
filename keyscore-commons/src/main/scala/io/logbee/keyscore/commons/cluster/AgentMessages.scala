@@ -1,10 +1,12 @@
 package io.logbee.keyscore.commons.cluster
 
+import java.util.UUID
+
 import akka.actor.ActorRef
 import akka.cluster.Member
 import io.logbee.keyscore.model.filter.FilterDescriptor
 
-case class AgentJoin(name: String)
+case class AgentJoin(id: UUID, name: String)
 case class AgentJoinAccepted()
 case class AgentJoinFailure(cause: Int)
 

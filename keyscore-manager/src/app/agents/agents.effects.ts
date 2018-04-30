@@ -8,7 +8,13 @@ import {of} from "rxjs/observable/of";
 import {Observable} from "rxjs/Rx";
 import {AppState} from "../app.component";
 import {HttpClient} from "@angular/common/http";
-import {LOAD_AGENTS, LoadAgentsAction, LoadAgentsFailureAction, LoadAgentsSuccessAction} from "./agents.actions";
+import {
+    LOAD_AGENTS,
+    LoadAgentsAction,
+    LoadAgentsFailureAction,
+    LoadAgentsSuccessAction,
+    RemoveCurrentAgentAction
+} from "./agents.actions";
 import {selectAppConfig} from "../app.config";
 import {AgentModel} from "./agents.model";
 
@@ -19,7 +25,8 @@ export class AgentsEffects {
         switchMap(action => {
             const navigationAction = action as RouterNavigationAction;
             const url = navigationAction.payload.event.url;
-            if (url.startsWith('/agent')) {
+            const regex = /\/agent$/g;
+            if (regex.test(url)) {
                 return of(new LoadAgentsAction());
             }
             return of({type: 'NOOP'});
@@ -42,6 +49,19 @@ export class AgentsEffects {
             }
         })
     );
+
+    @Effect() removeAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
+        ofType(ROUTER_NAVIGATION),
+        switchMap(action => {
+                const navigationAction = action as RouterNavigationAction;
+                const url = navigationAction.payload.event.url;
+                const agentWithId = /\/agent\/.+/g;
+                if (!agentWithId.test(url)) {
+                    return of(new RemoveCurrentAgentAction());
+                }
+                return of({type: 'NOOP'});
+            }
+        ));
 
     constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient) {
 

@@ -7,9 +7,11 @@ import {CommonModule} from "@angular/common";
 import {AgentsReducer} from "./agents.reducer";
 import {AgentsEffects} from "./agents.effects";
 import {AgentsComponent} from "./agents.component";
+import {AgentsDetails} from "./agentDetailedView/agents-details";
 
 export const routes: Routes = [
     {path: '', component: AgentsComponent},
+    {path: ':id', component: AgentsDetails},
 ];
 
 @NgModule({
@@ -22,6 +24,7 @@ export const routes: Routes = [
     ],
     declarations: [
         AgentsComponent,
+        AgentsDetails
     ],
     providers: []
 })

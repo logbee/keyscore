@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.cluster.Cluster
 import akka.cluster.pubsub.DistributedPubSub
@@ -68,7 +70,7 @@ class Agent extends Actor with ActorLogging {
           context.stop(self)
       }
     case SendJoin =>
-      mediator ! Publish("agents", AgentJoin(name))
+      mediator ! Publish("agents", AgentJoin(UUID.randomUUID(), name))
       scheduler.scheduleOnce(5 seconds) {
         self ! CheckJoin
       }
