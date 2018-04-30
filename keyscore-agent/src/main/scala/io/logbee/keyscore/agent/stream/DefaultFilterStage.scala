@@ -1,7 +1,7 @@
 package io.logbee.keyscore.agent.stream
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
-import io.logbee.keyscore.model.Dataset
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 
 import scala.concurrent.{Future, Promise}
@@ -22,12 +22,12 @@ class DefaultFilterStage extends FilterStage {
 
     val initPromise = Promise[Filter]
 
-    private var condition: FilterCondition = noopCondition
+    private var condition: Condition = noopCondition
     private var function: FilterFunction = noopFunction
 
     private val filter = new Filter {
 
-      private val changeConditionCallback = getAsyncCallback[(Option[FilterCondition], Promise[Boolean])] {
+      private val changeConditionCallback = getAsyncCallback[(Option[Condition], Promise[Boolean])] {
         case (newCondition, promise) =>
           condition = newCondition.getOrElse(noopCondition)
           promise.success(true)
@@ -55,7 +55,7 @@ class DefaultFilterStage extends FilterStage {
           log.info(s"Function configuration has been updated: $configuration")
       }
 
-      override def changeCondition(condition: FilterCondition): Future[Boolean] = {
+      override def changeCondition(condition: Condition): Future[Boolean] = {
         val promise = Promise[Boolean]()
         log.info(s"Changing condition: ${condition.getClass.getName}")
         changeConditionCallback.invoke((Option(condition), promise))
@@ -103,9 +103,9 @@ class DefaultFilterStage extends FilterStage {
     }
   }
 
-  private val noopCondition = new FilterCondition {
+  private val noopCondition = new Condition {
     override def configure(configuration: FilterConfiguration): Boolean = { true }
-    override def apply(dataset: Dataset): FilterConditionResult = { Reject(dataset) }
+    override def apply(dataset: Dataset): ConditionResult = { Reject(dataset) }
   }
 
   private val noopFunction = new FilterFunction {

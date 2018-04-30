@@ -4,8 +4,8 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Record, TextField}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
@@ -55,7 +55,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
       whenReady(handleFutur) { filter =>
 
-        val condition = stub[FilterCondition]
+        val condition = stub[Condition]
         condition.apply _ when dataset1 returns Reject(dataset1)
         condition.apply _ when dataset2 returns Reject(dataset2)
 
@@ -71,7 +71,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
       whenReady(handleFutur) { filter =>
 
-        val condition = stub[FilterCondition]
+        val condition = stub[Condition]
         val function = stub[FilterFunction]
 
         condition.apply _ when dataset1 returns Accept(dataset1)
@@ -93,7 +93,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
       whenReady(handleFutur) { filter =>
 
-        val condition = stub[FilterCondition]
+        val condition = stub[Condition]
 
         Await.result(filter.changeCondition(condition), 30 seconds) shouldBe true
         Await.result(filter.configureCondition(configA), 30 seconds) shouldBe true
