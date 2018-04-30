@@ -30,7 +30,9 @@ export class StreamsEffects {
         switchMap(action => {
             const navigationAction = action as RouterNavigationAction;
             const url = navigationAction.payload.event.url;
-            if (url.startsWith('/stream')) {
+            const regex = /\/stream\/.*/g;
+
+            if (regex.test(url)) {
                 const id = url.substring(url.indexOf('/stream/') + 8);
                 return of(new EditStreamAction(id));
             }

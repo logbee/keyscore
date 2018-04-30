@@ -44,9 +44,10 @@ const routes: Routes = [
         StoreModule.forRoot(reducers, {metaReducers}),
         EffectsModule.forRoot([AppConfigEffects, RouterEffects]),
         StoreRouterConnectingModule,
-        StoreDevtoolsModule.instrument({
+        //ToDO: Throws DataCloneError
+        /*StoreDevtoolsModule.instrument({
             maxAge:20
-        })
+        })*/
     ],
     declarations: [
         AppComponent,

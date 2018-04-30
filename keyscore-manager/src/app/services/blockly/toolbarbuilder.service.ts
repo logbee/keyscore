@@ -41,6 +41,15 @@ export class ToolBarBuilderService {
                 this.setNextStatement(descriptor.nextConnection.isPermitted);
                 this.appendDummyInput()
                     .appendField(descriptor.displayName);
+                descriptor.parameters.forEach(p => {
+                    switch (p.kind){
+                        case 'text': this.appendDummyInput().appendField(p.displayName).appendField(new Blockly.FieldTextInput(''),p.name);
+                        break;
+                        case 'int':this.appendDummyInput().appendField(p.displayName).appendField(new Blockly.FieldNumber('0'),p.name);
+                        break;
+                        case 'boolean': this.append
+                    }
+                })
             }
         }
     }
