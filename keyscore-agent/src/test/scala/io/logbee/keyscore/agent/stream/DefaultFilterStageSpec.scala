@@ -68,8 +68,8 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
         function.apply _ when dataset1 returns dataset1Modified
         function.apply _ when dataset2 returns dataset2Modified
 
-        Await.result(filter.changeCondition(condition), 10 seconds) shouldBe true
-        Await.result(filter.changeFunction(function), 10 seconds) shouldBe true
+        Await.ready(filter.changeCondition(condition), 10 seconds)
+        Await.ready(filter.changeFunction(function), 10 seconds)
 
         probe.request(2)
         probe.expectNext(dataset1Modified)
@@ -83,9 +83,9 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
         val condition = stub[Condition]
 
-        Await.result(filter.changeCondition(condition), 30 seconds) shouldBe true
-        Await.result(filter.configureCondition(configA), 30 seconds) shouldBe true
-        Await.result(filter.configureCondition(configB), 30 seconds) shouldBe true
+        Await.ready(filter.changeCondition(condition), 30 seconds)
+        Await.ready(filter.configureCondition(configA), 30 seconds)
+        Await.ready(filter.configureCondition(configB), 30 seconds)
 
         condition.configure _ verify configA
         condition.configure _ verify configB
@@ -98,9 +98,9 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
         val function = stub[FilterFunction]
 
-        Await.result(filter.changeFunction(function), 30 seconds) shouldBe true
-        Await.result(filter.configureFunction(configA), 30 seconds) shouldBe true
-        Await.result(filter.configureFunction(configB), 30 seconds) shouldBe true
+        Await.ready(filter.changeFunction(function), 30 seconds)
+        Await.ready(filter.configureFunction(configA), 30 seconds)
+        Await.ready(filter.configureFunction(configB), 30 seconds)
 
         function.configure _ verify configA
         function.configure _ verify configB

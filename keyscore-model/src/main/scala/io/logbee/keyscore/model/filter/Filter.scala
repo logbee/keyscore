@@ -6,11 +6,11 @@ import scala.concurrent.Future
 
 trait Filter {
 
-  def changeCondition(condition: Condition): Future[Boolean]
+  def changeCondition(condition: Condition): Future[Unit]
 
-  def changeFunction(function: FilterFunction): Future[Boolean]
+  def changeFunction(function: FilterFunction): Future[Unit]
 
-  def configureCondition(configuration: FilterConfiguration): Future[Boolean]
+  def configureCondition(configuration: FilterConfiguration): Future[Unit]
 
-  def configureFunction(configuration: FilterConfiguration): Future[Boolean]
+  def configureFunction(configuration: FilterConfiguration): Future[Unit]
 }
