@@ -12,6 +12,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
 
@@ -55,7 +56,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
         condition.apply _ when dataset1 returns Reject(dataset1)
         condition.apply _ when dataset2 returns Reject(dataset2)
 
-        whenReady(filter.configure(condition)) { result =>
+        whenReady(filter.changeCondition(condition)) { result =>
           probe.request(2)
           probe.expectNext(dataset1)
           probe.expectNext(dataset2)
@@ -76,8 +77,8 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
         function.apply _ when dataset1 returns dataset1Modified
         function.apply _ when dataset2 returns dataset2Modified
 
-        Await.result(filter.configure(condition), 10 seconds) shouldBe true
-        Await.result(filter.configure(function), 10 seconds) shouldBe true
+        Await.result(filter.changeCondition(condition), 10 seconds) shouldBe true
+        Await.result(filter.changeFunction(function), 10 seconds) shouldBe true
 
         probe.request(2)
         probe.expectNext(dataset1Modified)
@@ -91,14 +92,16 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
 
         val condition = stub[FilterCondition]
         val function = stub[FilterFunction]
-        val configuration = stub[FilterConfiguration]
+        val conditionConfiguration = FilterConfiguration(null, "test", List.empty)
+        val functionConfiguration = FilterConfiguration(null, "test", List.empty)
 
-        Await.result(filter.configure(condition), 10 seconds) shouldBe true
-        Await.result(filter.configure(function), 10 seconds) shouldBe true
-        Await.result(filter.configure(configuration), 10 seconds) shouldBe true
+        Await.result(filter.changeCondition(condition), 30 seconds) shouldBe true
+        Await.result(filter.changeFunction(function), 30 seconds) shouldBe true
+        Await.result(filter.configureFunction(functionConfiguration), 30 seconds) shouldBe true
+        Await.result(filter.configureCondition(conditionConfiguration), 30 seconds) shouldBe true
 
-        condition.configure _ verify configuration
-        function.configure _ verify configuration
+        condition.configure _ verify conditionConfiguration
+        function.configure _ verify functionConfiguration
       }
     }
   }

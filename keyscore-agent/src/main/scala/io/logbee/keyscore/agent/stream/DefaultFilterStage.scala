@@ -22,50 +22,64 @@ class DefaultFilterStage extends FilterStage {
 
     val promise = Promise[Filter]
 
-    private var configuration: FilterConfiguration = null
     private var condition: FilterCondition = noopCondition
     private var function: FilterFunction = noopFunction
 
     private val filter = new Filter {
 
-      private val configureConditionCallback = getAsyncCallback[(Option[FilterCondition], Promise[Boolean])] {
+      private val changeConditionCallback = getAsyncCallback[(Option[FilterCondition], Promise[Boolean])] {
         case (newCondition, promise) =>
           condition = newCondition.getOrElse(noopCondition)
           promise.success(true)
-          log.info(s"New condition configured: ${condition.getClass.getName}")
+          log.info(s"Condition changed: ${condition.getClass.getName}")
       }
 
-      private val configureFunctionCallback = getAsyncCallback[(Option[FilterFunction], Promise[Boolean])] {
+      private val changeFunctionCallback = getAsyncCallback[(Option[FilterFunction], Promise[Boolean])] {
         case (newFunction, promise) =>
           function = newFunction.getOrElse(noopFunction)
           promise.success(true)
-          log.info(s"New function configured: ${function.getClass.getName}")
+          log.info(s"Function changed: ${function.getClass.getName}")
       }
 
-      private val configureConfigurationCallback = getAsyncCallback[(Option[FilterConfiguration], Promise[Boolean])] {
-        case (newConfiguration, promise) =>
-          configuration = newConfiguration.getOrElse(configuration)
+      private val configureConditionCallback = getAsyncCallback[(FilterConfiguration, Promise[Boolean])] {
+        case (configuration, promise) =>
           condition.configure(configuration)
+          promise.success(true)
+          log.info(s"Condition configuration has been updated: $configuration")
+      }
+
+      private val configureFunctionCallback = getAsyncCallback[(FilterConfiguration, Promise[Boolean])] {
+        case (configuration, promise) =>
           function.configure(configuration)
           promise.success(true)
-          log.info(s"New configuration: $configuration")
+          log.info(s"Function configuration has been updated: $configuration")
       }
 
-      override def configure(trigger: FilterCondition): Future[Boolean] = {
+      override def changeCondition(condition: FilterCondition): Future[Boolean] = {
         val promise = Promise[Boolean]()
-        configureConditionCallback.invoke((Option(trigger), promise))
+        log.info(s"Changing condition: ${condition.getClass.getName}")
+        changeConditionCallback.invoke((Option(condition), promise))
         promise.future
       }
 
-      override def configure(function: FilterFunction): Future[Boolean] = {
+      override def changeFunction(function: FilterFunction): Future[Boolean] = {
         val promise = Promise[Boolean]()
-        configureFunctionCallback.invoke(Option(function), promise)
+        log.info(s"Changing function: ${function.getClass.getName}")
+        changeFunctionCallback.invoke(Option(function), promise)
         promise.future
       }
 
-      override def configure(configuration: FilterConfiguration): Future[Boolean] = {
+      override def configureCondition(configuration: FilterConfiguration): Future[Boolean] = {
         val promise = Promise[Boolean]()
-        configureConfigurationCallback.invoke(Option(configuration), promise)
+        log.info(s"Configuring condition: $configuration")
+        configureConditionCallback.invoke(configuration, promise)
+        promise.future
+      }
+
+      override def configureFunction(configuration: FilterConfiguration): Future[Boolean] = {
+        val promise = Promise[Boolean]()
+        log.info(s"Configuring function: $configuration")
+        configureFunctionCallback.invoke(configuration, promise)
         promise.future
       }
     }

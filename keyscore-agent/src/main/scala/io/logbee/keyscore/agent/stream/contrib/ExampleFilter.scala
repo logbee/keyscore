@@ -11,9 +11,11 @@ object ExampleFilter extends Described {
 
 class ExampleFilter extends Filter {
 
-  override def configure(configuration: FilterConfiguration): Future[Boolean] = ???
+  override def changeCondition(trigger: FilterCondition): Future[Boolean] = ???
 
-  override def configure(trigger: FilterCondition): Future[Boolean] = ???
+  override def changeFunction(function: FilterFunction): Future[Boolean] = ???
 
-  override def configure(function: FilterFunction): Future[Boolean] = ???
+  override def configureCondition(configuration: FilterConfiguration): Future[Boolean] = ???
+
+  override def configureFunction(configuration: FilterConfiguration): Future[Boolean] = ???
 }
