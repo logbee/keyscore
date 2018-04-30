@@ -3,6 +3,9 @@ package io.logbee.keyscore.model.filter
 import java.util.{NoSuchElementException, UUID}
 
 
+object FilterConfiguration {
+  def apply(kind: String): FilterConfiguration = new FilterConfiguration(UUID.randomUUID(), kind, List.empty)
+}
 case class FilterConfiguration(id: UUID, kind: String, parameters: List[Parameter[_]]) {
 
   def getParameterValue[T](parameterName: String): T = {

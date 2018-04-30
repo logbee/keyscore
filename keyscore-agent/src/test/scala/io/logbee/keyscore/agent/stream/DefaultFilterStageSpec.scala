@@ -30,6 +30,9 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
   val dataset1Modified = Dataset(record1Modified)
   val dataset2Modified = Dataset(record2Modified)
 
+  val configA = FilterConfiguration("A")
+  val configB = FilterConfiguration("B")
+
   trait TestStream {
     val (handleFutur, probe) = Source(List(dataset1, dataset2))
       .viaMat(new DefaultFilterStage())(Keep.right)
@@ -37,7 +40,7 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
       .run()
   }
 
-  "A filter" should {
+  "A filter stage" should {
 
     "pass elements unmodified, if no filter and condition is specified" in new TestStream {
 
@@ -86,22 +89,33 @@ class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures wi
       }
     }
 
-    "pass an updated configuration to the condition and function" in new TestStream {
+    "pass a changed condition configuration to the condition-instance" in new TestStream {
 
       whenReady(handleFutur) { filter =>
 
         val condition = stub[FilterCondition]
-        val function = stub[FilterFunction]
-        val conditionConfiguration = FilterConfiguration(null, "test", List.empty)
-        val functionConfiguration = FilterConfiguration(null, "test", List.empty)
 
         Await.result(filter.changeCondition(condition), 30 seconds) shouldBe true
-        Await.result(filter.changeFunction(function), 30 seconds) shouldBe true
-        Await.result(filter.configureFunction(functionConfiguration), 30 seconds) shouldBe true
-        Await.result(filter.configureCondition(conditionConfiguration), 30 seconds) shouldBe true
+        Await.result(filter.configureCondition(configA), 30 seconds) shouldBe true
+        Await.result(filter.configureCondition(configB), 30 seconds) shouldBe true
 
-        condition.configure _ verify conditionConfiguration
-        function.configure _ verify functionConfiguration
+        condition.configure _ verify configA
+        condition.configure _ verify configB
+      }
+    }
+
+    "pass a changed function configuration to the function-instance" in new TestStream {
+
+      whenReady(handleFutur) { filter =>
+
+        val function = stub[FilterFunction]
+
+        Await.result(filter.changeFunction(function), 30 seconds) shouldBe true
+        Await.result(filter.configureFunction(configA), 30 seconds) shouldBe true
+        Await.result(filter.configureFunction(configB), 30 seconds) shouldBe true
+
+        function.configure _ verify configA
+        function.configure _ verify configB
       }
     }
   }
