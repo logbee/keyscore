@@ -14,7 +14,7 @@ object DefaultFilterStage {
   }
 
   private val noopFunction = new FilterFunction {
-    override def configure(configuration: FilterConfiguration): Boolean = { true }
+    override def configure(configuration: FilterConfiguration): Unit = {  }
     override def apply(dataset: Dataset): Dataset = { dataset }
   }
 }

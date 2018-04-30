@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.stream
 
+import java.util.UUID
+
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
@@ -14,8 +16,6 @@ import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-
-import java.util.UUID
 
 class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
   implicit val system = ActorSystem()
@@ -44,8 +44,8 @@ class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFu
         removeFieldsFunction.apply _ when datasetMulti returns datasetMultiModified
         removeFieldsFunction.apply _ when datasetMulti2 returns datasetMultiModified2
 
-        Await.result(filter.changeCondition(condition), 10 seconds) shouldBe true
-        Await.result(filter.changeFunction(removeFieldsFunction), 10 seconds) shouldBe true
+        Await.result(filter.changeCondition(condition), 10 seconds)
+        Await.result(filter.changeFunction(removeFieldsFunction), 10 seconds)
 
         probe.request(2)
         probe.expectNext(datasetMultiModified)

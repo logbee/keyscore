@@ -9,7 +9,7 @@ object ExampleFilterFunction extends Described {
 
 class ExampleFilterFunction extends FilterFunction {
 
-  override def configure(configuration: FilterConfiguration): Boolean = ???
+  override def configure(configuration: FilterConfiguration): Unit = ???
 
   override def apply(dataset: Dataset): Dataset = ???
 }

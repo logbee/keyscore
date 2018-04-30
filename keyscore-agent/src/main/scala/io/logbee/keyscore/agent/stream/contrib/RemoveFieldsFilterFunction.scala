@@ -1,7 +1,7 @@
 package io.logbee.keyscore.agent.stream.contrib
 
-import io.logbee.keyscore.model.{Dataset, Described, Record}
 import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.{Dataset, Described, Record}
 
 import scala.collection.mutable.ListBuffer
 
@@ -14,15 +14,13 @@ object RemoveFieldsFilterFunction extends Described {
 class RemoveFieldsFilterFunction extends FilterFunction {
   var fieldsToRemove = List[String]()
 
-  override def configure(configuration: FilterConfiguration): Boolean = {
+  override def configure(configuration: FilterConfiguration): Unit = {
     for (parameter <- configuration.parameters)
     parameter.name match {
       case "fieldsToRemove" =>
         fieldsToRemove = parameter.value.asInstanceOf[List[String]]
       case _ =>
     }
-
-    true
   }
 
   override def apply(dataset: Dataset): Dataset = {

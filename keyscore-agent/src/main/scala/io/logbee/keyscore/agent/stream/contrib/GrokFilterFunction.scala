@@ -23,7 +23,7 @@ class GrokFilterFunction extends FilterFunction {
   private var fieldNames = List.empty[String]
   private var regex: Regex = "".r
 
-  override def configure(configuration: FilterConfiguration): Boolean = {
+  override def configure(configuration: FilterConfiguration): Unit = {
     for (parameter <- configuration.parameters) {
       parameter.name match {
         case "fieldNames" => fieldNames = parameter.value.asInstanceOf[List[String]]
@@ -35,7 +35,6 @@ class GrokFilterFunction extends FilterFunction {
         case _ =>
       }
     }
-    true
   }
 
   override def apply(dataset: Dataset): Dataset = {

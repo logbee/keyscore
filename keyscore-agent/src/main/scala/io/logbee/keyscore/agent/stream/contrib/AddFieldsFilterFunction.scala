@@ -15,7 +15,7 @@ object AddFieldsFilterFunction extends Described {
 class AddFieldsFilterFunction extends FilterFunction {
   var dataToAdd = scala.collection.mutable.Map[String, Field]()
 
-  override def configure(configuration: FilterConfiguration): Boolean = {
+  override def configure(configuration: FilterConfiguration): Unit = {
     for (parameter <- configuration.parameters) {
       parameter.name match {
         case "fieldsToAdd" =>
@@ -24,7 +24,6 @@ class AddFieldsFilterFunction extends FilterFunction {
         case _ =>
       }
     }
-    true
   }
 
   override def apply(dataset: Dataset): Dataset = {

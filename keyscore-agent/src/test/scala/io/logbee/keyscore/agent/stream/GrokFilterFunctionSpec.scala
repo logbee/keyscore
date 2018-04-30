@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.stream
 
+import java.util.UUID
+
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
@@ -9,12 +11,11 @@ import io.logbee.keyscore.agent.stream.contrib.GrokFilterFunction
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter, TextParameter}
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.concurrent.ScalaFutures
-import scala.concurrent.duration._
-import scala.concurrent.Await
+import org.scalatest.{Matchers, WordSpec}
 
-import java.util.UUID
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 class GrokFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
   implicit val system = ActorSystem()
@@ -53,8 +54,8 @@ class GrokFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures wi
         grokFunction.apply _ when dataset2 returns modified2
         grokFunction.apply _ when dataset3 returns modified3
 
-        Await.result(filter.changeCondition(condition), 10 seconds) shouldBe true
-        Await.result(filter.changeFunction(grokFunction), 10 seconds) shouldBe true
+        Await.result(filter.changeCondition(condition), 10 seconds)
+        Await.result(filter.changeFunction(grokFunction), 10 seconds)
 
         probe.request(3)
         probe.expectNext(modified1)
