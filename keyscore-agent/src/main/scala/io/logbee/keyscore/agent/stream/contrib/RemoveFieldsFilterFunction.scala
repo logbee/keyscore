@@ -1,14 +1,20 @@
 package io.logbee.keyscore.agent.stream.contrib
 
-import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.{Dataset, Described, Record}
+import io.logbee.keyscore.model.filter._
 
 import scala.collection.mutable.ListBuffer
 
 object RemoveFieldsFilterFunction extends Described {
-  override def descriptor: FilterDescriptor = FilterDescriptor("RemoveFieldsFilter", "removing specified fields", List(
-    ListParameterDescriptor("fieldsToRemove", TextParameterDescriptor("fieldName"), min = 1)
-  ))
+
+
+
+  override def descriptor: FilterDescriptor = {
+    val fieldsToRemoveParameter = ListParameterDescriptor("fieldsToRemove", TextParameterDescriptor("fieldName"), min = 1)
+    FilterDescriptor("RemoveFieldsFilter", "removing specified fields", List(
+      fieldsToRemoveParameter
+    ))
+  }
 }
 
 class RemoveFieldsFilterFunction extends FilterFunction {
