@@ -15,7 +15,7 @@ object AddFieldsFilter {
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
   }
 
-  def create(config: FilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
+  def create(lg: FilterConfiguration): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
     val addConfiguration = try {
       loadFilterConfiguration(config)
     } catch {

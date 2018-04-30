@@ -24,7 +24,7 @@ class GrokFilterFunction extends FilterFunction {
   private var regex: Regex = "".r
 
   override def configure(configuration: FilterConfiguration): Boolean = {
-    for (parameter <- configuration.parameters){
+    for (parameter <- configuration.parameters) {
       parameter.name match {
         case "fieldNames" => fieldNames = parameter.value.asInstanceOf[List[String]]
         case "pattern" => parameter.value match {
@@ -39,9 +39,10 @@ class GrokFilterFunction extends FilterFunction {
   }
 
   override def apply(dataset: Dataset): Dataset = {
-    val payload = new mutable.HashMap[String, Field]
     var listBufferOfRecords =  ListBuffer[Record]()
     for (record <- dataset) {
+      var payload = new mutable.HashMap[String, Field]
+      payload ++= record.payload
       for (field <- record.payload.values) {
         payload.put(field.name, field)
         if (fieldNames.contains(field.name) && field.isInstanceOf[TextField]) {
