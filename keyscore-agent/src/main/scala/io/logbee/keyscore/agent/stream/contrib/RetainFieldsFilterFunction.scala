@@ -14,7 +14,7 @@ object RetainFieldsFilterFunction extends Described {
 class RetainFieldsFilterFunction extends FilterFunction{
   var fieldsToRetain = List[String]()
 
-  override def configure(configuration: FilterConfiguration): Boolean = {
+  override def configure(configuration: FilterConfiguration): Unit = {
     for (parameter <- configuration.parameters)
       parameter.name match {
         case "fieldsToRetain" =>
@@ -22,7 +22,6 @@ class RetainFieldsFilterFunction extends FilterFunction{
         case _ =>
       }
 
-    true
   }
 
   override def apply(dataset: Dataset): Dataset = {

@@ -46,8 +46,8 @@ class RetainFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFu
         retainFieldsFunction.apply _ when datasetMulti returns datasetMultiModified
         retainFieldsFunction.apply _ when datasetMulti2 returns datasetMultiModified2
 
-        Await.result(filter.changeCondition(condition), 10 seconds) shouldBe true
-        Await.result(filter.changeFunction(retainFieldsFunction), 10 seconds) shouldBe true
+        Await.result(filter.changeCondition(condition), 10 seconds)
+        Await.result(filter.changeFunction(retainFieldsFunction), 10 seconds)
 
         probe.request(2)
         probe.expectNext(datasetMultiModified)
