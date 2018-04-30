@@ -15,12 +15,12 @@ class DefaultFilterStage extends FilterStage {
 
   override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[Filter]) = {
     val logic = new DefaultFilterLogic
-    (logic, logic.promise.future)
+    (logic, logic.initPromise.future)
   }
 
   private class DefaultFilterLogic extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
 
-    val promise = Promise[Filter]
+    val initPromise = Promise[Filter]
 
     private var condition: FilterCondition = noopCondition
     private var function: FilterFunction = noopFunction
@@ -87,7 +87,7 @@ class DefaultFilterStage extends FilterStage {
     setHandlers(in, out, this)
 
     override def preStart(): Unit = {
-      promise.success(filter)
+      initPromise.success(filter)
     }
 
     override def onPull(): Unit = {
