@@ -10,10 +10,11 @@ import io.logbee.keyscore.model.filter.{FilterConfiguration, TextMapParameter}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
+
 import scala.concurrent.duration._
 import java.util.UUID
 
-import io.logbee.keyscore.agent.stream.contrib.GrokFilterFunction
+import io.logbee.keyscore.agent.stream.contrib.{AddFieldsFilterFunction, GrokFilterFunction}
 
 import scala.concurrent.Await
 
@@ -45,24 +46,33 @@ class AddFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutur
     TextField("42", "73")
   ))
 
+  val modified3 = Dataset(Record(
+    TextField("message", "The weather is sunny with a current temperature of: 14.4 °C"),
+    TextField("foo", "bier"),
+    TextField("42", "73")
+  ))
+
   "A AddFieldsFilter" should {
     "add new fields and their data to the already existing data" in new TestStream {
       whenReady(filterFuture) { filter =>
         val condition = stub[Condition]
-        val grokFunction = stub[GrokFilterFunction]
+        val addFieldsFunction = stub[AddFieldsFilterFunction]
 
         condition.apply _ when dataset1 returns Accept(dataset1)
         condition.apply _ when dataset2 returns Reject(dataset2)
+        condition.apply _ when dataset3 returns Accept(dataset3)
 
-        grokFunction.apply _ when dataset1 returns modified1
-        grokFunction.apply _ when dataset2 returns modified2
+        addFieldsFunction.apply _ when dataset1 returns modified1
+        addFieldsFunction.apply _ when dataset2 returns modified2
+        addFieldsFunction.apply _ when dataset3 returns modified3
 
         Await.result(filter.changeCondition(condition), 10 seconds) shouldBe true
-        Await.result(filter.changeFunction(grokFunction), 10 seconds) shouldBe true
+        Await.result(filter.changeFunction(addFieldsFunction), 10 seconds) shouldBe true
 
-        probe.request(2)
+        probe.request(3)
         probe.expectNext(modified1)
         probe.expectNext(dataset2)
+        probe.expectNext(modified3)
       }
 
     }

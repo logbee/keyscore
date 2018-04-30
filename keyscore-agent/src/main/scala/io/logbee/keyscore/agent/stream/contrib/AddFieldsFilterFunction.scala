@@ -21,6 +21,7 @@ class AddFieldsFilterFunction extends FilterFunction {
         case "fieldsToAdd" =>
           val dataMap = parameter.value.asInstanceOf[Map[String, String]]
           dataToAdd ++= dataMap.map(pair => (pair._1, TextField(pair._1, pair._2)))
+        case _ =>
       }
     }
     true
