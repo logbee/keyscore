@@ -15,12 +15,12 @@ declare var Blockly: any;
     selector: 'blockly-workspace',
     template: `
         <div class="row" style="min-height:600px">
-            <div id="blocklyArea" class="col-9" style="position:relative">
+            <div id="blocklyArea" class="col-8" style="position:relative">
                 <div id="blocklyDiv" style="position: absolute"></div>
             </div>
-            <div id="code" class="col-2 ml-3">
-                <div class="col-12" style="font-size: 22px">{{(currentBlock$ | async).name}}</div>
-                <div class="col-12">{{(currentBlock$ | async).description}}</div>
+            <div id="code" class="col-4 p-1">
+                <div class="col-12" style="font-size: 22px">{{(selectedFilter$ | async).displayName}}</div>
+                <div class="col-12">{{(selectedFilter$ | async).description}}</div>
             </div>
         </div>
 
@@ -35,20 +35,18 @@ export class BlocklyComponent implements OnInit {
     private _workspace: any;
     private categories$: Observable<string[]>;
     private filterDescriptors$: Observable<FilterDescriptor[]>;
-    private toolbox: any;
 
-    private currentXml: XMLDocument;
     private blocklyDiv;
     private blocklyArea;
+    private toolbox: any;
 
-    private selectedBlock$: ReplaySubject<String> = new ReplaySubject();
-    private currentBlock$: ReplaySubject<{ name: string, description: string }> = new ReplaySubject();
+    private selectedFilter$: Observable<FilterDescriptor>;
+    private selectedBlockName$: ReplaySubject<string> = new ReplaySubject();
+
 
     constructor(private store: Store<StreamsState>, private toolbarBuilder: ToolBarBuilderService) {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
-        this.currentBlock$.next({name:'Test',description:'Beispiel Beschreibung'});
-        this.selectedBlock$.next('');
 
         this.store.dispatch(new LoadFilterDescriptorsAction())
 
@@ -56,6 +54,16 @@ export class BlocklyComponent implements OnInit {
 
     ngOnInit(): void {
         console.log(Blockly);
+        this.initBlockly();
+
+        this.selectedFilter$ = this.selectedBlockName$.combineLatest(this.filterDescriptors$)
+            .map(([name,descriptors]) => descriptors.filter(d => d.name === name)[0])
+            .startWith({name:"StartDummy",displayName:"Stream configuration",description:"Choose a filter from to toolbox to get started!",previousConnection:null,nextConnection:null,parameters:[],category:null});
+
+
+    }
+
+    initBlockly(){
         this.blocklyDiv = document.getElementById('blocklyDiv');
         this.blocklyArea = document.getElementById('blocklyArea');
         this.filterDescriptors$.combineLatest(this.categories$).subscribe(([descriptors, categories]) => {
@@ -67,11 +75,6 @@ export class BlocklyComponent implements OnInit {
             this._workspace = Blockly.inject('blocklyDiv', {toolbox: this.toolbox});
             this._workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
         });
-
-        this.selectedBlock$.combineLatest(this.filterDescriptors$).subscribe(([blockName,descriptors]) =>{
-            descriptors.filter(descriptor => descriptor.name === blockName).forEach(d => this.currentBlock$.next({name:d.displayName,description:d.description}));
-        })
-
         window.addEventListener('resize', this.onResize, false);
         this.onResize(null);
         Blockly.svgResize(this._workspace);
@@ -79,8 +82,6 @@ export class BlocklyComponent implements OnInit {
 
     onWorkspaceChange(e: any) {
         console.log(e);
-        this.currentXml = Blockly.Xml.workspaceToDom(this._workspace);
-        console.log(this.currentXml);
         if(e.element === 'selected') {
             this.updateSelectedBlock(e.newValue);
         }
@@ -96,13 +97,11 @@ export class BlocklyComponent implements OnInit {
         this.blocklyDiv.style.height = this.blocklyArea.offsetHeight + 'px';
 
     }
-    private updateSelectedBlock(id: string) {
-        let allBlocks = this.currentXml.getElementsByTagName("block");
-        for(let i=0;i<allBlocks.length;i++){
-            if(allBlocks[i].getAttribute('id') === id){
-                this.selectedBlock$.next(allBlocks[i].getAttribute('type'));
-                break;
-            }
+    private updateSelectedBlock(blockId:string) {
+        if(blockId != null) {
+            let block = this._workspace.getBlockById(blockId);
+            console.log("SELECTED: " + block);
+            this.selectedBlockName$.next(block.type);
         }
 
     }

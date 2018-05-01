@@ -67,30 +67,7 @@ export interface ParameterDescriptor {
     value?: any;
 }
 
-export interface ListParameterDescriptor extends ParameterDescriptor {
-    name: string;
-    displayName: string;
-    kind: string;
-    mandatory: boolean;
-    element: ParameterDescriptor;
-    min: Number;
-    max: Number;
-    value?: string[];
-}
-
-export interface MapParameterDescriptor extends ParameterDescriptor {
-    name: string;
-    displayName: string;
-    kind: string;
-    mandatory: boolean;
-    mapKey: ParameterDescriptor;
-    mapValue: ParameterDescriptor;
-    min: Number;
-    max: Number;
-    value?: any;
-}
-
-//------------------Parameter------------------
+//------------------Parameter for Configuration------------------
 
 export interface Parameter {
     name: string;

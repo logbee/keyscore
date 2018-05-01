@@ -10,19 +10,9 @@ import {Observable} from "rxjs/Observable";
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 *ngIf="(locked$|async)" class="font-weight-bold">{{stream.name}}</h4>
-                        <input *ngIf="!(locked$ | async)" placeholder="Name" [(ngModel)]="stream.name"/>
+                        <input class="form-control" *ngIf="!(locked$ | async)" placeholder="Name" [(ngModel)]="stream.name"/>
                     </div>
-                    <div>
-                        <button *ngIf="(locked$ | async)" type="button" class="btn btn-primary mr-1"
-                                (click)="startStreamEditing()">Edit
-                        </button>
-                        <button *ngIf="!(locked$ | async)" type="button" class="btn btn-success"
-                                (click)="saveStreamEditing()">Save
-                        </button>
-                        <button *ngIf="!(locked$ | async)" type="button" class="btn btn-secondary"
-                                (click)="cancelStreamEditing()">Cancel
-                        </button>
-                    </div>
+
                 </div>
                 <div>
                     <small class="">{{stream.id}}</small>
@@ -34,10 +24,22 @@ import {Observable} from "rxjs/Observable";
                           [(ngModel)]="stream.description"></textarea>
             </div>
             <div class="card-footer d-flex justify-content-between">
-                <div>
-                </div>
                 <div *ngIf="!(locked$ | async)">
-                    <button type="button" class="btn btn-danger" (click)="deleteStream()">Delete</button>
+                        <button type="button" class="btn btn-danger" (click)="deleteStream()"><img src="/assets/images/ic_delete_white_24px.svg"
+                                                                                                   alt="Remove"/></button>
+                </div>
+
+                <div>
+                    <button *ngIf="(locked$ | async)" type="button" class="btn btn-primary mr-1"
+                            (click)="startStreamEditing()">Edit
+                    </button>
+                    <button *ngIf="!(locked$ | async)" type="button" class="btn btn-secondary"
+                            (click)="cancelStreamEditing()"><img src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/>
+                    </button>
+                    <button *ngIf="!(locked$ | async)" type="button" class="btn btn-success"
+                            (click)="saveStreamEditing()"><img src="/assets/images/ic_save_white.svg" alt="Save"/>
+                    </button>
+                    
                 </div>
             </div>
         </div>
