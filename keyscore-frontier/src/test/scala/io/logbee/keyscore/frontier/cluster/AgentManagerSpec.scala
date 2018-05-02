@@ -15,7 +15,7 @@ class AgentManagerSpec extends TestKit(ActorSystem("AgentManagerSpec")) with Wor
 
   var agentManager: ActorRef = _
 
-  val actorUUID = UUID.random()
+  val actorUUID = UUID.randomUUID()
 
 
   before {
