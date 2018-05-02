@@ -2,6 +2,7 @@ package io.logbee.keyscore.agent.app
 
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
+import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent
 import io.logbee.keyscore.agent.Agent.Initialize
 
@@ -14,7 +15,8 @@ object AgentApplication extends App {
 
   implicit val timeout: Timeout = 5 seconds
 
-  val system = ActorSystem("keyscore")
+  private val config = ConfigFactory.load()
+  val system = ActorSystem("keyscore", config.getConfig("production").withFallback(config))
   val parent = system.actorOf(Props[Agent], "agent")
 
   parent ! Initialize

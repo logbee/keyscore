@@ -6,19 +6,25 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
+import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.stream.ExampleData.{dataset1, dataset2, dataset3}
 import io.logbee.keyscore.agent.stream.contrib.AddFieldsFilterFunction
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextMapParameter}
+import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import org.scalatest._
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class AddFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
-  implicit val system = ActorSystem()
+  private val config = ConfigFactory.load()
+  implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = materializer.executionContext
 

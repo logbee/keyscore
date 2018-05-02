@@ -15,10 +15,18 @@ import org.scalatest.concurrent.ScalaFutures
 import scala.concurrent.duration._
 import java.util.UUID
 
-import scala.concurrent.Await
+import com.typesafe.config.ConfigFactory
+import org.junit.runner.RunWith
 
+import scala.concurrent.Await
+import org.scalatest._
+import org.scalatest.junit.JUnitRunner
+
+@RunWith(classOf[JUnitRunner])
 class RetainFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
-  implicit val system = ActorSystem()
+
+  private val config = ConfigFactory.load()
+  implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = materializer.executionContext
 
