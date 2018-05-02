@@ -7,7 +7,7 @@ import {CommonModule} from "@angular/common";
 import {AgentsReducer} from "./agents.reducer";
 import {AgentsEffects} from "./agents.effects";
 import {AgentsComponent} from "./agents.component";
-import {AgentsDetails} from "./agentDetailedView/agents-details";
+import {AgentsDetails} from "./agents-details/agents-details";
 
 export const routes: Routes = [
     {path: '', component: AgentsComponent},

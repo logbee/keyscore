@@ -8,8 +8,6 @@ import {StoreModule} from '@ngrx/store';
 
 import {AppComponent} from './app.component';
 import {DashboardComponent} from "./dashboard/dashboard.component";
-import {FiltersComponent} from "./filters/filters.component";
-import {FilterDetailComponent} from "./filters/filter-detail.component";
 import {AppConfigEffects} from "./app.config";
 import {FilterChooser} from "./streams/stream-editor/filter-chooser/filter-chooser.component";
 import {metaReducers} from "./meta.reducers";
@@ -24,14 +22,15 @@ import {ParameterList} from "./streams/stream-editor/filter-editor/parameter-lis
 import {ParameterComponent} from "./streams/stream-editor/filter-editor/parameter.component";
 import {StreamBuilderService} from "./services/streambuilder.service";
 import {BlocklyComponent} from "./streams/stream-editor/blockly/blockly.component";
+import {FilterModule} from "./filters/filter.module";
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
     {path: 'dashboard', component: DashboardComponent},
     {path: 'agent', loadChildren: () => AgentsModule},
     {path: 'stream', loadChildren: () => StreamsModule},
-    {path: 'filter', component: FiltersComponent},
-    {path: 'filter/details', component: FilterDetailComponent}
+    {path: 'filter', loadChildren:() => FilterModule},
+
 ];
 
 @NgModule({
@@ -52,8 +51,6 @@ const routes: Routes = [
     declarations: [
         AppComponent,
         DashboardComponent,
-        FiltersComponent,
-        FilterDetailComponent,
         FilterChooser
     ],
     providers: [
