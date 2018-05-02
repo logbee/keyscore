@@ -9,9 +9,13 @@ import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgent
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, WordSpecLike}
 
+import java.util.UUID
+
 class AgentManagerSpec extends TestKit(ActorSystem("AgentManagerSpec")) with WordSpecLike with ScalaFutures with BeforeAndAfter {
 
   var agentManager: ActorRef = _
+
+  val actorUUID = UUID.random()
 
 
   before {
@@ -37,11 +41,11 @@ class AgentManagerSpec extends TestKit(ActorSystem("AgentManagerSpec")) with Wor
 
       val probe = TestProbe()
 
-      agentManager tell (AgentJoin("test-agent"), probe.ref)
+      agentManager tell (AgentJoin(actorUUID, "test-agent"), probe.ref)
       agentManager tell (QueryAgents, probe.ref)
 
       probe.expectMsgType[AgentJoinAccepted]
-      probe.expectMsg(QueryAgentsResponse(List(RemoteAgent("test-agent", 0, probe.ref))))
+      probe.expectMsg(QueryAgentsResponse(List(RemoteAgent(actorUUID, "test-agent", 0, probe.ref))))
     }
 
     "increase the list of members by one when adding a new agent member with role keyscore-agent" in {
