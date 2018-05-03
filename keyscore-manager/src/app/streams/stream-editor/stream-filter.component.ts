@@ -31,6 +31,9 @@ import {Observable} from "rxjs/Observable";
                                 *ngIf="!editing && !(isEditingStreamLocked$|async)"
                                 (click)="editFilter(filter.id)">Edit
                         </button>
+                        <button type="button" class="btn btn-info" *ngIf="editing" routerLink="/filter/live-editing" routerLinkActive="active">
+                            <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
+                        </button>
                         <button type="button" [disabled]="form.invalid" class="btn btn-success" *ngIf="editing"
                                 (click)="saveFilter(filter,form.value)"><img src="/assets/images/ic_save_white.svg"
                                                                              alt="Save"/>

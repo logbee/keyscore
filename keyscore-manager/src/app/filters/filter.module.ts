@@ -5,10 +5,11 @@ import {StoreModule} from "@ngrx/store";
 import {EffectsModule} from "@ngrx/effects";
 import {FilterEffects} from "./filters.effects";
 import {FiltersComponent} from "./filters.component";
+import {FilterDetailComponent} from "./filter-detail.component";
 
 export const routes: Routes = [
     {path: '', component: FiltersComponent},
-    {path: 'liveEditing', component: FiltersComponent}
+    {path: 'live-editing', component: LiveEditingComponent}
 ];
 
 @NgModule({
@@ -20,7 +21,8 @@ export const routes: Routes = [
 
     declarations: [
         LiveEditingComponent,
-        FiltersComponent,
+        FiltersComponent
+
     ],
 
     providers: []
