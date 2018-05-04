@@ -43,6 +43,13 @@ dependencies {
     testCompile dependency.akka_testkit
 }
 
+test {
+    testLogging {
+        events 'started', 'passed', 'skipped', 'failed'
+        exceptionFormat "full"
+    }
+}
+
 jar {
     manifest.attributes ([
         'Main-Class': mainClass,
