@@ -36,7 +36,8 @@ class CSVParserFilterFunction extends FilterFunction {
         val message = field.asInstanceOf[TextField].value
         val listOfData = message.split(separator).map( x => TextField(x,x)).toList
         val dataMap : Map[String, TextField] = headerList.zip(listOfData).toMap
-        recordsList += new Record(record.id, dataMap)
+        val rec = Record(dataMap)
+        recordsList += rec
       }
     }
 
