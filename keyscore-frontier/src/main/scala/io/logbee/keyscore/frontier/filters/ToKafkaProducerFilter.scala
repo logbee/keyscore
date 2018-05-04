@@ -16,7 +16,7 @@ object ToKafkaProducerFilter {
 
   val descriptor: FilterDescriptor = {
     FilterDescriptor("StandardKafkaProducer", "KafkaProducer", "Creates a Kafka producer that pushes the data into the given topic.",
-      FilterConnection(true,"all"),FilterConnection(true,"kafkaSink"),List(
+      FilterConnection(true),FilterConnection(true, List("kafkaSink")),List(
       TextParameterDescriptor("topic")
     ))
   }

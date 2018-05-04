@@ -42,7 +42,7 @@ object HttpSource {
 
   val descriptor: FilterDescriptor = {
     FilterDescriptor("HttpSource", "Http Source", "A Http Source",
-      FilterConnection(false),FilterConnection(true,"all"),List(
+      FilterConnection(true, List("stream_base")),FilterConnection(true),List(
       TextParameterDescriptor("bindAddress"),
       TextParameterDescriptor("fieldName"),
       IntParameterDescriptor("port")

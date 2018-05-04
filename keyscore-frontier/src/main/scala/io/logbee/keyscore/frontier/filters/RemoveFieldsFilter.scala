@@ -32,7 +32,7 @@ object RemoveFieldsFilter {
 
   val descriptor: FilterDescriptor = {
     FilterDescriptor("RemoveFieldsFilter", "Remove Fields Filter", "Removes all given fields and their values.",
-      FilterConnection(true,"all"),FilterConnection(true,"all"),List(
+      FilterConnection(true),FilterConnection(true),List(
       ListParameterDescriptor("fieldsToRemove", TextParameterDescriptor("fieldName"), min = 1)
     ))
   }

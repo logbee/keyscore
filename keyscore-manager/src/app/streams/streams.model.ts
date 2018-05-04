@@ -54,7 +54,7 @@ export interface FilterDescriptor {
 
 export interface FilterConnection {
     isPermitted: boolean;
-    connectionType: string;
+    connectionType: string[];
 }
 
 //------------------Parameter Descriptors------------------

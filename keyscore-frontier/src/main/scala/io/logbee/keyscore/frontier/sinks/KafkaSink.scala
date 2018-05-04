@@ -45,7 +45,7 @@ object KafkaSink {
 
   val descriptor: FilterDescriptor = {
     FilterDescriptor("KafkaSink", "Kafka Sink", "Writes the streams output to a given kafka topic",
-      FilterConnection(true,"all"),FilterConnection(false),List(
+      FilterConnection(true),FilterConnection(false),List(
       TextParameterDescriptor("sinkTopic"),
       TextParameterDescriptor("bootstrapServer")
     ), "Sink")

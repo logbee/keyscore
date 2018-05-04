@@ -7,6 +7,7 @@ import {Observable} from "rxjs/Observable";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
 import {LoadFilterDescriptorsAction} from "../../streams.actions";
 import {ReplaySubject} from "rxjs/ReplaySubject";
+import Workspace = Blockly.Workspace;
 
 
 declare var Blockly: any;
@@ -18,9 +19,12 @@ declare var Blockly: any;
             <div id="blocklyArea" class="col-8" style="position:relative">
                 <div id="blocklyDiv" style="position: absolute"></div>
             </div>
-            <div id="code" class="col-4 p-1">
-                <div class="col-12" style="font-size: 22px">{{(selectedFilter$ | async).displayName}}</div>
-                <div class="col-12">{{(selectedFilter$ | async).description}}</div>
+            <div id="code" class="col-4">
+                <div class="card">
+                    <div class="card-header" style="font-size: 22px">{{(selectedFilter$ | async).displayName}}</div>
+                    <div class="card-body">{{(selectedFilter$ | async).description}}</div>
+                    <div class="card-footer"></div>
+                </div>
             </div>
         </div>
 
@@ -32,7 +36,7 @@ declare var Blockly: any;
 })
 
 export class BlocklyComponent implements OnInit {
-    private _workspace: any;
+    private workspace: Workspace;
     private categories$: Observable<string[]>;
     private filterDescriptors$: Observable<FilterDescriptor[]>;
 
@@ -57,13 +61,21 @@ export class BlocklyComponent implements OnInit {
         this.initBlockly();
 
         this.selectedFilter$ = this.selectedBlockName$.combineLatest(this.filterDescriptors$)
-            .map(([name,descriptors]) => descriptors.filter(d => d.name === name)[0])
-            .startWith({name:"StartDummy",displayName:"Stream configuration",description:"Choose a filter from to toolbox to get started!",previousConnection:null,nextConnection:null,parameters:[],category:null});
+            .map(([name, descriptors]) => descriptors.filter(d => d.name === name)[0])
+            .startWith({
+                name: "StartDummy",
+                displayName: "Stream configuration",
+                description: "Choose a filter from the toolbox to get started!",
+                previousConnection: null,
+                nextConnection: null,
+                parameters: [],
+                category: null
+            });
 
 
     }
 
-    initBlockly(){
+    initBlockly() {
         this.blocklyDiv = document.getElementById('blocklyDiv');
         this.blocklyArea = document.getElementById('blocklyArea');
         this.filterDescriptors$.combineLatest(this.categories$).subscribe(([descriptors, categories]) => {
@@ -72,17 +84,36 @@ export class BlocklyComponent implements OnInit {
             while (currentBlocklyDiv.firstChild) {
                 currentBlocklyDiv.removeChild(currentBlocklyDiv.firstChild);
             }
-            this._workspace = Blockly.inject('blocklyDiv', {toolbox: this.toolbox});
-            this._workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
+            this.workspace = Blockly.inject('blocklyDiv', {
+                toolbox: this.toolbox,
+                zoom:
+                    {
+                        controls: true,
+                        wheel: true,
+                        startScale: 1.0,
+                        maxScale: 3,
+                        minScale: 0.3,
+                        scaleSpeed: 1.2
+                    }
+            });
+            this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
+            this.toolbarBuilder.createStreamBlock();
+            let streamBlockXml = '<xml><block type="stream_configuration" deletable="false" movable="false"></block></xml>';
+
+            Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(streamBlockXml), this.workspace);
+
         });
+        this.workspace.addChangeListener(Blockly.Events.disableOrphans);
         window.addEventListener('resize', this.onResize, false);
         this.onResize(null);
-        Blockly.svgResize(this._workspace);
+        Blockly.svgResize(this.workspace);
+
+
     }
 
     onWorkspaceChange(e: any) {
         console.log(e);
-        if(e.element === 'selected') {
+        if (e.element === 'selected') {
             this.updateSelectedBlock(e.newValue);
         }
     }
@@ -97,12 +128,14 @@ export class BlocklyComponent implements OnInit {
         this.blocklyDiv.style.height = this.blocklyArea.offsetHeight + 'px';
 
     }
-    private updateSelectedBlock(blockId:string) {
-        if(blockId != null) {
-            let block = this._workspace.getBlockById(blockId);
-            console.log("SELECTED: " + block);
-            this.selectedBlockName$.next(block.type);
+
+    private updateSelectedBlock(blockId: string) {
+        if (blockId != null) {
+            let block = this.workspace.getBlockById(blockId);
+            if (block.type != 'stream_configuration') this.selectedBlockName$.next(block.type);
         }
 
     }
+
+
 }

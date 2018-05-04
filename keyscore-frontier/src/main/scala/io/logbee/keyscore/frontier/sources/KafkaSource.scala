@@ -63,7 +63,7 @@ object KafkaSource {
 
   val descriptor: FilterDescriptor = {
     FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic",
-      FilterConnection(false),FilterConnection(true,"all"),List(
+      FilterConnection(true, List("stream_base")),FilterConnection(true),List(
       TextParameterDescriptor("bootstrapServer"),
       TextParameterDescriptor("sourceTopic"),
       TextParameterDescriptor("groupID"),

@@ -4,6 +4,9 @@ import {Location} from '@angular/common';
 import {Effect, Actions, ofType} from '@ngrx/effects';
 import {map, tap} from 'rxjs/operators';
 import * as RouterActions from './router.actions';
+import {ROUTER_ERROR, RouterErrorAction} from "@ngrx/router-store";
+import {StreamsState} from "../streams/streams.model";
+import uuid = require("uuid");
 
 @Injectable()
 export class RouterEffects {
@@ -26,6 +29,7 @@ export class RouterEffects {
         ofType(RouterActions.FORWARD),
         tap(() => this.location.forward())
     );
+
 
     constructor(private actions$: Actions,
                 private router: Router,

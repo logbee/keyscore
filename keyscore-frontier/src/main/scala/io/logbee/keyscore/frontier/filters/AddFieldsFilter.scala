@@ -34,7 +34,7 @@ object AddFieldsFilter {
 
   val descriptor: FilterDescriptor = {
     FilterDescriptor("AddFieldsFilter", "Add Fields Filter", "Adding new fields and their values.",
-      FilterConnection(true,"all"),FilterConnection(true,"all"),List(
+      FilterConnection(true),FilterConnection(true),List(
         MapParameterDescriptor("fieldsToAdd", TextParameterDescriptor("fieldName"), TextParameterDescriptor("fieldValue"), 1)
       ))
   }
