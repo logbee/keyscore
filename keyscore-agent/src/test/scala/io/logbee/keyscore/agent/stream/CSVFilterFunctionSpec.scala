@@ -26,12 +26,13 @@ class CSVFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures wit
   implicit val executionContext = materializer.executionContext
 
   val vcsAResult = Dataset(Record(
-    TextField("Ident" , "CCM-160816-BJ-1"),
-    TextField("Beginn Produktion" , "6.1.18 8:01"),
-    TextField("Ende Produktion" , "6.1.18 8:30"),
-    TextField("Temperatur" , "20,1")
+    TextField("Philosophy" , "13"),
+    TextField("Maths" , "07"),
+    TextField("Latin" , "09"),
+    TextField("Astrophysics" , "15")
   ))
-  val vcsBResult = Dataset(Record(TextField("message", ";6.1.18 17:31;6.1.18 18:00;25;;;")))
+
+  val vcsBResult = Dataset(Record(TextField("message", ";03;05;01;;;")))
 
   trait TestStream {
     val (filterFuture, probe) = Source(List(vcsDatasetA, vcsDatasetB))

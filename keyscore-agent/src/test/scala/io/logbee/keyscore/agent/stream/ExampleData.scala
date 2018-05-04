@@ -21,8 +21,8 @@ object ExampleData {
     TextField("foo", "bar"),
     TextField("42", "bar")
   )
-  val vcsA = Record(TextField("message", "CCM-160816-BJ-1;6.1.18 8:01;6.1.18 8:30;20,1;;;"))
-  val vcsB = Record(TextField("message", ";6.1.18 17:31;6.1.18 18:00;25;;;"))
+  val vcsA = Record(TextField("message", "13;07;09;15;;;"))
+  val vcsB = Record(TextField("message", ";03;05;01;;;"))
 
   //Modified messages
   val record1Modified = Record(TextField("weather-report", "cloudy, -11.5 °C"))
@@ -57,5 +57,5 @@ object ExampleData {
   val configB = FilterConfiguration("B")
   val vcsHeader = FilterConfiguration(UUID.randomUUID(), "filter", List(
     TextParameter("separator", ";"),
-    TextListParameter("headers", List("Ident","Beginn Produktion","Ende Produktion","Temperatur"))))
+    TextListParameter("headers", List("Philosophy","Maths","Latin","Astrophysics"))))
 }
