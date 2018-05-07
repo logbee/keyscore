@@ -23,7 +23,8 @@ import * as RouterActions from '../router/router.actions';
                             <input type="text" class="form-control" placeholder="search..." aria-label="search">
                         </div>
                         <div class="mt-3 mb-3">
-                            <button type="button" class="btn btn-success" (click)="createStream(true)">Create Stream
+                            <button type="button" class="btn btn-success" (click)="createStream(true)">
+                                {{'STREAMCOMPONENT.CREATE' | translate}}
                             </button>
                         </div>
                     </div>

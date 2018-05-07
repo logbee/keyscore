@@ -1,11 +1,21 @@
 {
   "GENERAL":{
-    "APPNAME":"Keyscore"
+    "APPNAME":"Keyscore",
+    "EDIT":"Edit",
+    "SAVE":"Save",
+    "DELETE":"Delete",
+    "CANCEL":"Cancel",
+    "REMOVE":"Remove",
+    "OK":"Ok"
   },
   "APPCOMPONENT":{
     "DASHBOARD":"Dashboard",
     "AGENTS":"Agents",
     "STREAMS":"Streams",
     "FILTERS":"Filters"
+  },
+  "STREAMCOMPONENT":{
+    "CREATE":"Create Stream"
+
   }
 }
