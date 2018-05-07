@@ -73,7 +73,7 @@ export class StreamsEffects {
         ofType(LOAD_FILTER_DESCRIPTORS),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([action, config]) =>
-            this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors').pipe(
+            this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors?language=de').pipe(
                 map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
                 catchError(cause => of(new LoadFilterDescriptorsFailureAction(cause)))
             )

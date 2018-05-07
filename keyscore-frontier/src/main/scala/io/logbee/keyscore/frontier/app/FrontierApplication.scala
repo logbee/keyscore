@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.app
 
+import java.util.Locale
+
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods._
@@ -99,9 +101,12 @@ object FrontierApplication extends App with Json4sSupport {
       } ~
       pathPrefix("descriptors") {
         get {
-          onSuccess(filterDescriptorManager ? GetStandardDescriptors) {
-            case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
-            case _ => complete(StatusCodes.InternalServerError)
+          parameters('language.as[String]) { language =>
+            Console.print(Locale.forLanguageTag(language))
+            onSuccess(filterDescriptorManager ? GetStandardDescriptors(Locale.forLanguageTag(language)))  {
+              case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
           }
         }
       } ~

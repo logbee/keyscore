@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.cluster
 
+import java.util.Locale
+
 import akka.actor.{Actor, ActorLogging, ActorPath, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
@@ -16,7 +18,7 @@ import scala.collection.mutable
 object ClusterCapabilitiesManager {
   def props(): Props = Props(new ClusterCapabilitiesManager())
 
-  case object GetStandardDescriptors
+  case class GetStandardDescriptors(language:Locale)
 
   case class StandardDescriptors(listOfDescriptorsAndType: List[FilterDescriptor])
 
@@ -36,8 +38,6 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
 
-    addDefaultDescriptors()
-
     log.info("StartUp complete")
   }
 
@@ -47,7 +47,8 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
-    case GetStandardDescriptors =>
+    case GetStandardDescriptors(language) =>
+      addDefaultDescriptors(language)
       sender ! StandardDescriptors(listOfFilterDescriptors.keySet.toList)
 
     case GetActiveDescriptors =>
@@ -64,12 +65,12 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
         paths.nonEmpty
       })
 
-      addDefaultDescriptors()
+
   }
 
-  private def addDefaultDescriptors(): Unit = {
+  private def addDefaultDescriptors(language:Locale): Unit = {
     listOfFilterDescriptors ++= Map(
-      AddFieldsFilter.descriptor -> mutable.Set.empty,
+      AddFieldsFilter.descriptor(language) -> mutable.Set.empty,
       GrokFilter.descriptor -> mutable.Set.empty,
       RemoveFieldsFilter.descriptor -> mutable.Set.empty,
       RetainFieldsFilter.descriptor -> mutable.Set.empty,

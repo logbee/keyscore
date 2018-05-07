@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.filters
 
+import java.util.{Locale, ResourceBundle}
+
 import akka.stream
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
@@ -11,6 +13,8 @@ import org.json4s.DefaultFormats
 import scala.concurrent.{Future, Promise}
 
 object AddFieldsFilter {
+  val supportedLocales:List[Locale] = List(Locale.ENGLISH)
+
   def apply(fieldsToAdd: Map[String, String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
   }
@@ -32,12 +36,14 @@ object AddFieldsFilter {
     }
   }
 
-  val descriptor: FilterDescriptor = {
-    FilterDescriptor("AddFieldsFilter", "Add Fields Filter", "Adding new fields and their values.",
+  def descriptor(language:Locale):FilterDescriptor ={
+    val filterText:ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter",language)
+    FilterDescriptor("AddFieldsFilter", filterText.getString("displayName"), filterText.getString("description"),
       FilterConnection(true),FilterConnection(true),List(
         MapParameterDescriptor("fieldsToAdd", TextParameterDescriptor("fieldName"), TextParameterDescriptor("fieldValue"), 1)
       ))
   }
+
 }
 
 class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
