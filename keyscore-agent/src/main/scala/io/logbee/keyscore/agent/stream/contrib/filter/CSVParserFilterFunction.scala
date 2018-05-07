@@ -1,9 +1,8 @@
-package io.logbee.keyscore.agent.stream.contrib
+package io.logbee.keyscore.agent.stream.contrib.filter
 
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 
-import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object CSVParserFilterFunction extends Described {

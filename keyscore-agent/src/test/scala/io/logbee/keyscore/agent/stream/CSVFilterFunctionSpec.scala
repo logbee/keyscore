@@ -7,7 +7,8 @@ import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.agent.stream.ExampleData.{vcsDatasetA, vcsDatasetB}
-import io.logbee.keyscore.agent.stream.contrib.CSVParserFilterFunction
+import io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilterFunction
+import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}

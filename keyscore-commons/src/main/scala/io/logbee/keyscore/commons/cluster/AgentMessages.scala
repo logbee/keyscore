@@ -23,4 +23,5 @@ case class CreateNewStream(streamID: UUID, stream: StreamModel)
 
 case class StreamKilled(streamID: UUID)
 
+case class GraphCreated(streamID: UUID)
 case class GraphBuildingException(streamID: UUID, streamSpec: StreamModel, errorMsg: String)

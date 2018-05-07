@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.management
 
 import java.util.UUID
 
@@ -6,9 +6,9 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.util.Timeout
-import io.logbee.keyscore.agent.FilterManager.{GraphBuildException, GraphBuildingAnswer, GraphBuilt}
-import io.logbee.keyscore.agent.stream.StreamSupervisor._
-import io.logbee.keyscore.commons.cluster.{CreateNewStream, GraphBuildingException, StreamKilled}
+import io.logbee.keyscore.agent.stream.management.FilterManager.{GraphBuildException, GraphBuildingAnswer, GraphBuilt}
+import io.logbee.keyscore.agent.stream.management.StreamSupervisor.{ChangeStream, CreateStream, ShutdownStream, StreamCreationError}
+import io.logbee.keyscore.commons.cluster.{CreateNewStream, GraphBuildingException, GraphCreated, StreamKilled}
 import io.logbee.keyscore.model.StreamModel
 
 import scala.collection.mutable
@@ -59,7 +59,7 @@ class StreamSupervisor(filterManager: ActorRef)
 
       val graph = graphAnswer.answer match {
         case Some(builtGraph: GraphBuilt) =>
-          streamManager ! StreamCreated(builtGraph.streamID)
+          streamManager ! GraphCreated(builtGraph.streamID)
           Some(builtGraph.graph)
         case Some(e: GraphBuildException) =>
           streamManager ! GraphBuildingException(e.streamID, e.streamSpec, e.errorMsg)

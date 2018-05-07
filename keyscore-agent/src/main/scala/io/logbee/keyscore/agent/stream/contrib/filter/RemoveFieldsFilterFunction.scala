@@ -1,7 +1,7 @@
-package io.logbee.keyscore.agent.stream.contrib
+package io.logbee.keyscore.agent.stream.contrib.filter
 
-import io.logbee.keyscore.model.{Dataset, Described, Record}
 import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.{Dataset, Described, Record}
 
 import scala.collection.mutable.ListBuffer
 

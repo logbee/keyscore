@@ -1,43 +1,45 @@
-package io.logbee.keyscore.agent.stream
-import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
-import akka.stream.{Attributes, Inlet, SinkShape}
-import io.logbee.keyscore.agent.stream.DefaultSinkStage.{noopCondition, noopFunction}
+package io.logbee.keyscore.agent.stream.contrib.stages
+
+import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
+import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.FilterConfiguration
-import io.logbee.keyscore.model.sink.{Sink, SinkFunction}
+import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage.{noopCondition, noopFunction}
 
 import scala.concurrent.{Future, Promise}
 
-object DefaultSinkStage {
+object DefaultFilterStage {
   private val noopCondition = new Condition {
     override def configure(configuration: FilterConfiguration): Boolean = { true }
-    override def apply(dataset: Dataset): ConditionResult = { Accept(dataset) }
+    override def apply(dataset: Dataset): ConditionResult = { Reject(dataset) }
   }
 
-  private val noopFunction = new SinkFunction {
+  private val noopFunction = new FilterFunction {
     override def configure(configuration: FilterConfiguration): Unit = {  }
-    override def apply(dataset: Dataset): Unit = {  }
+    override def apply(dataset: Dataset): Dataset = { dataset }
   }
 }
-class DefaultSinkStage(initialCondition: Condition = noopCondition, initialFunction: SinkFunction = noopFunction) extends SinkStage {
+
+class DefaultFilterStage extends FilterStage {
 
   private val in = Inlet[Dataset]("in")
+  private val out = Outlet[Dataset]("out")
 
-  override def shape: SinkShape[Dataset] = SinkShape(in)
+  override def shape = FlowShape(in, out)
 
-  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[Sink]) = {
-    val logic = new DefaultSinkLogic
+  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[Filter]) = {
+    val logic = new DefaultFilterLogic
     (logic, logic.initPromise.future)
   }
 
-  private class DefaultSinkLogic extends GraphStageLogic(shape) with InHandler with StageLogging {
+  private class DefaultFilterLogic extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
 
-    val initPromise = Promise[Sink]
+    val initPromise = Promise[Filter]
 
-    private var condition: Condition = initialCondition
-    private var function: SinkFunction = initialFunction
+    private var condition: Condition = noopCondition
+    private var function: FilterFunction = noopFunction
 
-    private val sink = new Sink {
+    private val filter = new Filter {
 
       private val changeConditionCallback = getAsyncCallback[(Option[Condition], Promise[Unit])] {
         case (newCondition, promise) =>
@@ -46,7 +48,7 @@ class DefaultSinkStage(initialCondition: Condition = noopCondition, initialFunct
           log.info(s"Condition changed: ${condition.getClass.getName}")
       }
 
-      private val changeFunctionCallback = getAsyncCallback[(Option[SinkFunction], Promise[Unit])] {
+      private val changeFunctionCallback = getAsyncCallback[(Option[FilterFunction], Promise[Unit])] {
         case (newFunction, promise) =>
           function = newFunction.getOrElse(noopFunction)
           promise.success(())
@@ -74,10 +76,10 @@ class DefaultSinkStage(initialCondition: Condition = noopCondition, initialFunct
         promise.future
       }
 
-      override def changeFunction(function: SinkFunction): Future[Unit] = {
+      override def changeFunction(function: FilterFunction): Future[Unit] = {
         val promise = Promise[Unit]()
         log.info(s"Changing function: ${function.getClass.getName}")
-        changeFunctionCallback.invoke((Option(function), promise))
+        changeFunctionCallback.invoke(Option(function), promise)
         promise.future
       }
 
@@ -96,19 +98,20 @@ class DefaultSinkStage(initialCondition: Condition = noopCondition, initialFunct
       }
     }
 
-    setHandler(in, this)
+    setHandlers(in, out, this)
 
     override def preStart(): Unit = {
-      initPromise.success(sink)
+      initPromise.success(filter)
+    }
+
+    override def onPull(): Unit = {
       pull(in)
     }
 
     override def onPush(): Unit = {
-
       condition(grab(in)) match {
-        case Accept(dataset) =>
-          function(dataset)
-          pull(in)
+        case Accept(dataset) => push(out, function(dataset))
+        case Reject(dataset) => push(out, dataset)
         case _ => // drop
       }
     }

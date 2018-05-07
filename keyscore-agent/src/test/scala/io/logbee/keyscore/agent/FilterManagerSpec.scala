@@ -3,7 +3,8 @@ package io.logbee.keyscore.agent
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
-import io.logbee.keyscore.agent.FilterManager.{Descriptors, GetDescriptors}
+import io.logbee.keyscore.agent.stream.management.FilterManager
+import io.logbee.keyscore.agent.stream.management.FilterManager.{Descriptors, GetDescriptors}
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.Described

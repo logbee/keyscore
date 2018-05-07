@@ -6,6 +6,7 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.stream.ExampleData._
+import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 import org.junit.runner.RunWith

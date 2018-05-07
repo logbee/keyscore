@@ -5,6 +5,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.stream.ExampleData._
+import io.logbee.keyscore.agent.stream.contrib.stages.DefaultSinkStage
 import io.logbee.keyscore.model.sink.SinkFunction
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -12,7 +13,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.duration._
-
 import scala.language.postfixOps
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner

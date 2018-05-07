@@ -5,7 +5,6 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti, datasetMulti2, datasetMultiModified}
-import io.logbee.keyscore.agent.stream.contrib.RetainFieldsFilterFunction
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
 import org.scalamock.scalatest.MockFactory
@@ -16,6 +15,8 @@ import scala.concurrent.duration._
 import java.util.UUID
 
 import com.typesafe.config.ConfigFactory
+import io.logbee.keyscore.agent.stream.contrib.filter.RetainFieldsFilterFunction
+import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import org.junit.runner.RunWith
 
 import scala.concurrent.Await

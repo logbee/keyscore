@@ -8,7 +8,8 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti, datasetMulti2, datasetMultiModified, datasetMultiModified2}
-import io.logbee.keyscore.agent.stream.contrib.RemoveFieldsFilterFunction
+import io.logbee.keyscore.agent.stream.contrib.filter.RemoveFieldsFilterFunction
+import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
 import io.logbee.keyscore.model.{Accept, Condition, Dataset, Reject}
 import org.junit.runner.RunWith
