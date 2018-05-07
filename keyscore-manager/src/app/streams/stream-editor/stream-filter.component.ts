@@ -29,7 +29,7 @@ import {Observable} from "rxjs/Observable";
                     <div class="col-auto">
                         <button type="button" class="btn btn-primary"
                                 *ngIf="!editing && !(isEditingStreamLocked$|async)"
-                                (click)="editFilter(filter.id)">Edit
+                                (click)="editFilter(filter.id)">{{'EDIT' | translate}}
                         </button>
                         <button type="button" class="btn btn-info" *ngIf="editing" routerLink="/filter/live-editing" routerLinkActive="active">
                             <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
@@ -56,7 +56,7 @@ import {Observable} from "rxjs/Observable";
                     </div>
 
                     <div class="form-row" *ngIf="payLoad">
-                        Saved the following values<br>{{payLoad}}
+                        {{'STREAMCOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
                     </div>
 
                 </form>

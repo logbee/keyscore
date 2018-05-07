@@ -7,6 +7,7 @@ import {getStreamList, StreamModel} from "./streams.model";
 import {CreateStreamAction} from "./streams.actions";
 import {Router} from "@angular/router";
 import * as RouterActions from '../router/router.actions';
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
     selector: 'keyscore-streams',
@@ -48,7 +49,7 @@ import * as RouterActions from '../router/router.actions';
 export class StreamsComponent {
     streams$: Observable<StreamModel[]>;
 
-    constructor(private store: Store<StreamState>, private router: Router) {
+    constructor(private store: Store<StreamState>, private router: Router,private translate:TranslateService) {
         this.streams$ = this.store.pipe(select(getStreamList));
     }
 

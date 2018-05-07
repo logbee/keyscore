@@ -30,7 +30,7 @@ import {AppState} from "../../app.component";
             <div *ngIf="!blocklyFlag" class="col-9">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <span class="font-weight-bold">Structure</span>
+                        <span class="font-weight-bold">{{'STREAMEDITORCOMPONENT.STREAMBLUEPRINT' | translate}}</span>
                         <div *ngIf="!(isLocked$ | async)">
                             <button class="btn btn-success" (click)="addFilter(null)">Add Filter</button>
                         </div>

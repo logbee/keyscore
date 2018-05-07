@@ -16,16 +16,16 @@ export interface AppState {
             <a class="navbar-brand" href="#" style="text-transform: uppercase">{{'GENERAL.APPNAME' | translate}}</a>
             <div class="navbar-nav">
                 <div class="nav-item">
-                    <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">{{'GENERAL.DASHBOARD' | translate}}</a>
+                    <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">{{'APPCOMPONENT.DASHBOARD' | translate}}</a>
                 </div>
                 <div class="nav-item">
-                    <a class="nav-link" routerLink="/agent" routerLinkActive="active">{{'GENERAL.AGENTS' | translate}}</a>
+                    <a class="nav-link" routerLink="/agent" routerLinkActive="active">{{'APPCOMPONENT.AGENTS' | translate}}</a>
                 </div>
                 <div class="nav-item">
-                    <a class="nav-link" routerLink="/stream" routerLinkActive="active">{{'GENERAL.STREAMS' | translate}}</a>
+                    <a class="nav-link" routerLink="/stream" routerLinkActive="active">{{'APPCOMPONENT.STREAMS' | translate}}</a>
                 </div>
                 <div class="nav-item">
-                    <a class="nav-link" routerLink="/filter" routerLinkActive="active">{{'GENERAL.FILTERS' | translate}}</a>
+                    <a class="nav-link" routerLink="/filter" routerLinkActive="active">{{'APPCOMPONENT.FILTERS' | translate}}</a>
                 </div>
             </div>
         </nav>

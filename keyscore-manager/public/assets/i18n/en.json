@@ -15,7 +15,11 @@
     "FILTERS":"Filters"
   },
   "STREAMCOMPONENT":{
-    "CREATE":"Create Stream"
+    "CREATE":"Create Stream",
+    "SAVED_VALUES":"Saved the following values"
+  },
+  "STREAMEDITORCOMPONENT":{
+    "STREAMBLUEPRINT":"Stream Components"
 
   }
 }
