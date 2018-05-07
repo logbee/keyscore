@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Filter Chooser</h5>
+                <h5 class="modal-title">{{'FILTERCHOSERCOMPONENT.FILTERCHOOSER_TITLE' | translate}}</h5>
                 <button type="button" class="close" aria-label="Close" (click)="close()">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -37,7 +37,7 @@
                                 <div class="list-group-flush">
                                     <div class="list-group-item d-flex justify-content-between">
                                         <h4>{{selectedFilterDescriptor.displayName}}</h4>
-                                        <button type="button" class="btn btn-success" (click)="add(selectedFilterDescriptor)">Add</button>
+                                        <button type="button" class="btn btn-success" (click)="add(selectedFilterDescriptor)">{{'GENERAL.ADD' | translate}}</button>
                                     </div>
                                     <div class="list-group-item">
                                         <div class="">
@@ -53,7 +53,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+                <button type="button" class="btn btn-secondary" (click)="close()">{{'GENERAL.CLOSE' | translate}}</button>
             </div>
         </div>
     </div>

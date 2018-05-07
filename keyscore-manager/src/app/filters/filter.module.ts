@@ -1,11 +1,10 @@
 import {RouterModule, Routes} from "@angular/router";
 import {NgModule} from "@angular/core";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
-import {StoreModule} from "@ngrx/store";
 import {EffectsModule} from "@ngrx/effects";
 import {FilterEffects} from "./filters.effects";
 import {FiltersComponent} from "./filters.component";
-import {FilterDetailComponent} from "./filter-detail.component";
+import {TranslateModule} from "@ngx-translate/core";
 
 export const routes: Routes = [
     {path: '', component: FiltersComponent},
@@ -16,12 +15,14 @@ export const routes: Routes = [
     imports: [
         RouterModule.forChild(routes),
         // StoreModule.forFeature('filters', FilterReducer),
-        EffectsModule.forFeature([FilterEffects])
+        EffectsModule.forFeature([FilterEffects]),
+        TranslateModule
     ],
 
     declarations: [
         LiveEditingComponent,
-        FiltersComponent
+        FiltersComponent,
+
 
     ],
 

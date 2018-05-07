@@ -8,8 +8,8 @@ import { Component } from '@angular/core';
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
-                            <h4>Filters</h4>
-                            <button type="button" class="btn btn-success" routerLink="/filter/new">New</button>
+                            <h4>{{'FILTERSCOMPONENT.FILTERS' | translate}}</h4>
+                            <button type="button" class="btn btn-success" routerLink="/filter/new">{{'GENERAL.NEW' | translate}}</button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -18,8 +18,8 @@ import { Component } from '@angular/core';
                                 <div class="d-flex justify-content-between">
                                     <span class="font-weight-bold">Filter 1</span>
                                     <div>
-                                        <button type="button" class="btn btn-primary" routerLink="/filter/details">Edit</button>
-                                        <button type="button" class="btn btn-danger">Delete</button>
+                                        <button type="button" class="btn btn-primary" routerLink="/filter/details">{{'GENERAL.EDIT' | translate}}</button>
+                                        <button type="button" class="btn btn-danger">{{'GENERAL.DELETE' | translate}}</button>
                                     </div>
                                 </div>
                             </div>
@@ -27,8 +27,8 @@ import { Component } from '@angular/core';
                                 <div class="d-flex justify-content-between">
                                     <span class="font-weight-bold">Filter 2</span>
                                     <div>
-                                        <button type="button" class="btn btn-primary" routerLink="/filter/details">Edit</button>
-                                        <button type="button" class="btn btn-danger">Delete</button>
+                                        <button type="button" class="btn btn-primary" routerLink="/filter/details">{{'GENERAL.EDIT' | translate}}</button>
+                                        <button type="button" class="btn btn-danger">{{'GENERAL.DELETE' | translate}}</button>
                                     </div>
                                 </div>
                             </div>
@@ -36,8 +36,8 @@ import { Component } from '@angular/core';
                                 <div class="d-flex justify-content-between">
                                     <span class="font-weight-bold">Filter 3</span>
                                     <div>
-                                        <button type="button" class="btn btn-primary" routerLink="/filter/details">Edit</button>
-                                        <button type="button" class="btn btn-danger">Delete</button>
+                                        <button type="button" class="btn btn-primary" routerLink="/filter/details">{{'GENERAL.EDIT' | translate}}</button>
+                                        <button type="button" class="btn btn-danger">{{'GENERAL.DELETE' | translate}}</button>
                                     </div>
                                 </div>
                             </div>

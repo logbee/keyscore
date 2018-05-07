@@ -6,20 +6,19 @@ import {Component} from "@angular/core";
         <div class="col-12">
             <div class="card">
                 <div class="card-header alert-info">
-                    Live Editing
+                    {{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}
                 </div>
                 <div class="card-body badge-light">
                     <div class="card">
                         <div class="card-header alert-light font-weight-bold">
-                            Filter Description
-                        </div>
+                            {{'FILTERLIVEEDITINGCOMPONENT.FILTERDESCRIPTION_TITLE' | translate}}                        </div>
                         <div class="card-body">
                             <table class="table table-condensed">
                                 <thead>
                                 <tr>
-                                    <th>FilterName</th>
-                                    <th>FilterDescription</th>
-                                    <th>FilterPattern</th>
+                                    <th>  {{'FILTERLIVEEDITINGCOMPONENT.NAME' | translate}}</th>
+                                    <th>  {{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}</th>
+                                    <th>  {{'FILTERLIVEEDITINGCOMPONENT.PATTERN' | translate}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -33,7 +32,7 @@ import {Component} from "@angular/core";
                         </div>
                     </div>
                     <div class="card mt-3">
-                        <div class="card-header alert-light font-weight-bold">Example Message</div>
+                        <div class="card-header alert-light font-weight-bold">  {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}</div>
                         <div class="card-body">
                             <div class="form-group">
                                 <textarea class="form-control" rows="5"></textarea>
@@ -42,26 +41,26 @@ import {Component} from "@angular/core";
                         </div>
                     </div>
                     <div class="card mt-3">
-                        <div class="card-header alert-light font-weight-bold">Regex Pattern</div>
+                        <div class="card-header alert-light font-weight-bold">  {{'FILTERLIVEEDITINGCOMPONENT.REGEXPATTERN' | translate}}</div>
                         <div class="card-body">
                             <div class="form-group">
                                 <textarea class="form-control" rows="1"></textarea>
                             </div>
-                                <button class="float-right primary btn-info">Apply Filter</button>
+                                <button class="float-right primary btn-info">  {{'GENERAL.APPLY' | translate}}</button>
                         </div>
                     </div>
 
                     <div class="card mt-3">
-                        <div class="card-header alert-light font-weight-bold">Result</div>
+                        <div class="card-header alert-light font-weight-bold">  {{'FILTERLIVEEDITINGCOMPONENT.RESULT' | translate}}</div>
                         <div class="card-body">
                             <div class="form-group">
                                 <table class="table table-condensed">
                                     <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>name</th>
-                                        <th>value</th>
-                                        <th>type</th>
+                                        <th>  {{'FILTERLIVEEDITINGCOMPONENT.NUMBER' | translate}}</th>
+                                        <th>  {{'FILTERLIVEEDITINGCOMPONENT.NAME' | translate}}</th>
+                                        <th>  {{'FILTERLIVEEDITINGCOMPONENT.VALUE' | translate}}</th>
+                                        <th>  {{'FILTERLIVEEDITINGCOMPONENT.TYPE' | translate}}</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -76,7 +75,7 @@ import {Component} from "@angular/core";
                             </div>
                         </div>
                     </div>
-                    <button class="mt-3 float-right primary btn-success">Save/Use Filter</button>
+                    <button class="mt-3 float-right primary btn-success">  {{'GENERAL.SAVE' | translate}}</button>
                 </div>
             </div>
         </div>

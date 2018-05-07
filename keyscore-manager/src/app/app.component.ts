@@ -16,7 +16,7 @@ export interface AppState {
             <a class="navbar-brand" href="#" style="text-transform: uppercase">{{'GENERAL.APPNAME' | translate}}</a>
             <div class="navbar-nav">
                 <div class="nav-item">
-                    <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">{{'APPCOMPONENT.DASHBOARD' | translate}}</a>
+                    <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">{{'GENERAL.DASHBOARD' | translate}}</a>
                 </div>
                 <div class="nav-item">
                     <a class="nav-link" routerLink="/agent" routerLinkActive="active">{{'APPCOMPONENT.AGENTS' | translate}}</a>

@@ -25,7 +25,7 @@ import {Parameter, ParameterDescriptor} from "../../streams.model";
 
                 </div>
 
-                <div class="text-danger" *ngIf="!isValid">{{parameter.displayName}} is required</div>
+                <div class="text-danger" *ngIf="!isValid">{{parameter.displayName}} {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}</div>
             </div>
         </div>
 

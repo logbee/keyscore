@@ -1,33 +1,35 @@
 {
-  "GENERAL":{
-    "APPNAME":"Keyscore",
-    "EDIT":"Edit",
-    "SAVE":"Save",
-    "DELETE":"Delete",
-    "CANCEL":"Cancel",
-    "REMOVE":"Remove",
-    "OK":"Ok"
+  "GENERAL": {
+    "APPNAME": "Keyscore",
+    "EDIT": "Edit",
+    "SAVE": "Save",
+    "DELETE": "Delete",
+    "CANCEL": "Cancel",
+    "REMOVE": "Remove",
+    "OK": "Ok",
+    "DASHBOARD": "Dashboard",
+    "APPLY": "Apply",
+    "NEW": "New",
+    "ADD": "Add",
+    "CLOSE": "Close"
   },
-  "APPCOMPONENT":{
-    "DASHBOARD":"Dashboard",
-    "AGENTS":"Agents",
-    "STREAMS":"Streams",
-    "FILTERS":"Filters"
+  "APPCOMPONENT": {
+    "AGENTS": "Agents",
+    "STREAMS": "Streams",
+    "FILTERS": "Filters"
   },
-  "AGENTSDETAILS":{
+  "AGENTSDETAILS": {
     "DETAILEDVIEW": "Detailed View:",
     "AGENTID": "Agentid:",
     "AGENTNAME": "Agentname:",
     "AGENTHOST": "Agenthost:"
-
   },
-  "STREAMCOMPONENT":{
-    "CREATE":"Create Stream",
-    "SAVED_VALUES":"Saved the following values"
+  "STREAMCOMPONENT": {
+    "CREATE": "Create Stream",
+    "SAVED_VALUES": "Saved the following values"
   },
-  "STREAMEDITORCOMPONENT":{
-    "STREAMBLUEPRINT":"Stream Components"
-
+  "STREAMEDITORCOMPONENT": {
+    "STREAMBLUEPRINT": "Stream Components"
   },
   "AGENTSCOMPONENT": {
     "AGENTS": "Agents",
@@ -35,5 +37,27 @@
     "NAME": "Name",
     "ID": "ID",
     "HOST": "Host"
+  },
+  "FILTERLIVEEDITINGCOMPONENT": {
+    "NUMBER": "#",
+    "TITLE": "Live Editing",
+    "FILTERDESCRIPTION_TITLE": "Filter Description",
+    "NAME": "FilterName",
+    "DESCRIPTION": "FilterDescription",
+    "PATTERN": "FilterPattern",
+    "EXAMPLE_MESSAGE": "Example Message",
+    "REGEXPATTERN": "Regex Pattern",
+    "RESULT": "Result",
+    "VALUE": "Value",
+    "TYPE": "Type"
+  },
+  "FILTERSCOMPONENT" : {
+    "FILTERS": "Filters"
+  },
+  "FILTERCHOSERCOMPONENT": {
+    "FILTERCHOOSER_TITLE": "Filter Chooser"
+  } ,
+  "PARAMETERCOMPONENT" : {
+    "ISREQUIRED": "is required"
   }
 }
