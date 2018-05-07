@@ -3,11 +3,11 @@ import {Blockly} from "node-blockly/browser";
 
 import {Store} from "@ngrx/store";
 import {FilterDescriptor, getFilterCategories, getFilterDescriptors, StreamsState} from "../../streams.model";
-import {Observable} from "rxjs/Observable";
+import {combineLatest,Observable, ReplaySubject} from "rxjs";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
 import {LoadFilterDescriptorsAction} from "../../streams.actions";
-import {ReplaySubject} from "rxjs/ReplaySubject";
 import Workspace = Blockly.Workspace;
+import {map, startWith} from "rxjs/internal/operators";
 
 
 declare var Blockly: any;
@@ -60,9 +60,9 @@ export class BlocklyComponent implements OnInit {
         console.log(Blockly);
         this.initBlockly();
 
-        this.selectedFilter$ = this.selectedBlockName$.combineLatest(this.filterDescriptors$)
-            .map(([name, descriptors]) => descriptors.filter(d => d.name === name)[0])
-            .startWith({
+        this.selectedFilter$ = combineLatest(this.selectedBlockName$,this.filterDescriptors$).pipe(
+            map(([name, descriptors]) => descriptors.filter(d => d.name === name)[0]),
+            startWith({
                 name: "StartDummy",
                 displayName: "Stream configuration",
                 description: "Choose a filter from the toolbox to get started!",
@@ -70,7 +70,7 @@ export class BlocklyComponent implements OnInit {
                 nextConnection: null,
                 parameters: [],
                 category: null
-            });
+            }));
 
 
     }
@@ -78,7 +78,7 @@ export class BlocklyComponent implements OnInit {
     initBlockly() {
         this.blocklyDiv = document.getElementById('blocklyDiv');
         this.blocklyArea = document.getElementById('blocklyArea');
-        this.filterDescriptors$.combineLatest(this.categories$).subscribe(([descriptors, categories]) => {
+        combineLatest(this.filterDescriptors$,this.categories$).subscribe(([descriptors, categories]) => {
             this.toolbox = this.toolbarBuilder.createToolbar(descriptors, categories);
             let currentBlocklyDiv = document.getElementById('blocklyDiv');
             while (currentBlocklyDiv.firstChild) {

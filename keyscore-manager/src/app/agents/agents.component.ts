@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {AgentModel, AgentsState, getAgents} from "./agents.model";
 import {Store} from "@ngrx/store";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import {InspectAgentAction, LoadAgentsAction} from "./agents.actions";
 import {Go} from "../router/router.actions";
 

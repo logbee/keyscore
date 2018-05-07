@@ -1,8 +1,8 @@
 import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
-import {of} from "rxjs/observable/of";
-import {Observable} from "rxjs/Rx";
+import {of} from "rxjs";
+import {Observable} from "rxjs";
 import {ROUTER_NAVIGATION} from '@ngrx/router-store'
 import {Injectable} from "@angular/core";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";

@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs';
 import {Actions, Effect, ofType, ROOT_EFFECTS_INIT} from "@ngrx/effects";
 import {catchError, map, mergeMap} from "rxjs/operators";
-import {of} from "rxjs/observable/of";
+import {of} from "rxjs";
 import {Action} from "@ngrx/store";
 import {AppState} from "./app.component";
 

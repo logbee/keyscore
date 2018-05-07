@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Location} from '@angular/common';
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";

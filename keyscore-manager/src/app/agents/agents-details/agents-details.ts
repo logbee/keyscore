@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import {AgentModel, AgentsState, getCurrentAgent} from "../agents.model";
 import {Store} from "@ngrx/store";
 import {Go} from "../../router/router.actions";

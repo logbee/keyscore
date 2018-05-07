@@ -4,8 +4,8 @@ import {Action, Store} from "@ngrx/store";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
-import {of} from "rxjs/observable/of";
-import {Observable} from "rxjs/Rx";
+import {of} from "rxjs";
+import {Observable} from "rxjs";
 import {AppState} from "../app.component";
 import {HttpClient} from "@angular/common/http";
 import {

@@ -2,10 +2,11 @@ import {Component} from '@angular/core'
 import {ModalService} from "../../../services/modal.service";
 
 import {Store} from "@ngrx/store";
-import {Observable} from "rxjs/Rx";
+import {combineLatest, Observable} from "rxjs";
 import {AddFilterAction, LoadFilterDescriptorsAction} from "../../streams.actions";
 import {FilterDescriptor, getFilterCategories, getFilterDescriptors, StreamsState} from "../../streams.model";
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
+import {map} from "rxjs/internal/operators";
 
 
 @Component({
@@ -35,7 +36,7 @@ export class FilterChooser {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
         this.selectedCategory$ = new Subject();
-        this.activeDescriptors$ = this.filterDescriptors$.combineLatest(this.selectedCategory$).map(([descriptors, category]) => descriptors.filter(descriptor => descriptor.category == category));
+        this.activeDescriptors$ = combineLatest(this.filterDescriptors$,this.selectedCategory$).pipe(map(([descriptors, category]) => descriptors.filter(descriptor => descriptor.category == category)));
         this.activeDescriptors$.subscribe(activeDescriptors => this.selectedFilterDescriptor=activeDescriptors[0]);
         this.store.dispatch(new LoadFilterDescriptorsAction());
     }

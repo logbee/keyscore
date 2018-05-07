@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {select, Store} from "@ngrx/store";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import {StreamState} from "http2";
 import {v4 as uuid} from 'uuid'
 import {getStreamList, StreamModel} from "./streams.model";
