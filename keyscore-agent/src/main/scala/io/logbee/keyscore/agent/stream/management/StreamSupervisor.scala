@@ -83,12 +83,12 @@ class StreamSupervisor(filterManager: ActorRef)
       log.info("Updating stream with id: "+streamId)
     //      var actorToChange = streams.get(UUID)
 
-    case ShutdownStream(streamId) =>
-      log.info("Shutting down stream with id: "+streamId)
-      var streamToKill = streams.get(UUID)
+    case ShutdownStream(streamID) =>
+      log.info("Shutting down stream with id: " + streamID)
+      var streamToKill = streams.get(streamID)
       streamToKill.get.shutdown()
-      streams.remove(UUID)
-      log.info("Shutdown stream with id: " + streamId)
-      sender ! StreamKilled(streamId)
+      streams.remove(streamID)
+      log.info("Shutdown stream with id: " + streamID)
+      sender ! StreamKilled(streamID)
   }
 }
