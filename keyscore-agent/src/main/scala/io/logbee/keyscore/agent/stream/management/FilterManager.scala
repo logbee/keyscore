@@ -7,6 +7,7 @@ import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.javadsl.RunnableGraph
 import akka.stream.scaladsl.Flow
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
+import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import io.logbee.keyscore.agent.stream.management.FilterManager._
 import io.logbee.keyscore.agent.stream.management.StreamSupervisor.CreateStream
 import io.logbee.keyscore.agent.util.Reflection
@@ -38,7 +39,7 @@ object FilterManager {
   case class StreamBlueprint(streamID: UUID,
                              //TODO source
                              //TODO sink
-                             filter: Map[UUID, Flow[Dataset, Dataset, Future[FilterFunction]]]
+                             filter: Map[UUID, Flow[Dataset, Dataset, Future[DefaultFilterStage]]]
                             )
 
 }
@@ -52,7 +53,6 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
 
   private val descriptors = mutable.HashMap.empty[String, FilterRegistration]
 
-  private val filters = mutable.HashMap.empty[UUID, Future[FilterFunction]]
   private val filterKillSwitches = mutable.HashMap.empty[UUID, UniqueKillSwitch]
 
   override def preStart(): Unit = {
@@ -101,12 +101,14 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
       //sink
 
       //filters
-      var filters = mutable.Map[UUID, Flow[Dataset, Dataset, Future[FilterFunction]]]()
+      val filterBuffer = scala.collection.mutable.Map[UUID, Flow[Dataset, Dataset, Future[DefaultFilterStage]]]()
 
       streamSpec.filter.foreach { filter =>
-        filters += ((filter.id, Reflection.createFilterByClassname(FilterRegistry.filters(filter.kind), filter).asInstanceOf[Flow[Dataset, Dataset, Future[FilterFunction]]]))
+        var filterFunction = Reflection.createFilterByClassname(FilterRegistry.filters(filter.kind), filter).asInstanceOf[FilterFunction]
       }
-      StreamBlueprint(streamID, filters.toMap)
+
+      //Create Blueprint
+      StreamBlueprint(streamID, filterBuffer.toMap)
     } catch {
       case nse: NoSuchElementException => throw nse
     }
