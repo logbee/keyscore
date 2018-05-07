@@ -32,7 +32,8 @@
   "AGENTSCOMPONENT": {
     "AGENTS": "Agents",
     "NUMBER": "#",
+    "NAME": "Name",
     "ID": "ID",
-    "HOST"
+    "HOST": "Host"
   }
 }

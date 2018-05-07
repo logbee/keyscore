@@ -12,7 +12,7 @@ import {Go} from "../router/router.actions";
             <div class="col-10">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <span class="font-weight-bold">Agents</span>
+                        <span class="font-weight-bold">{{'AGENTSCOMPONENT.AGENTS' | translate}}</span>
                         <button class="btn" (click)="reload()">
                             <img width="24em" src="/assets/images/arrow-reload.svg"/>
                         </button>
@@ -21,10 +21,10 @@ import {Go} from "../router/router.actions";
                         <table class="table table-sm table-hover">
                             <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>ID</th>
-                                <th>Host</th>
+                                <th>{{'AGENTSCOMPONENT.NUMBER' | translate}}</th>
+                                <th>{{'AGENTSCOMPONENT.NAME' | translate}}</th>
+                                <th>{{'AGENTSCOMPONENT.ID' | translate}}</th>
+                                <th>{{'AGENTSCOMPONENT.HOST' | translate}}</th>
                                 <th>&nbsp;</th>
                             </tr>
                             </thead>
