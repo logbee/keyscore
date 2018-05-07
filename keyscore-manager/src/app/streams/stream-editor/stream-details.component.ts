@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {StreamModel} from "../streams.model";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 
 @Component({
     selector: 'stream-details',
@@ -33,7 +33,7 @@ import {Observable} from "rxjs/Observable";
                     <button *ngIf="(locked$ | async)" type="button" class="btn btn-primary mr-1"
                             (click)="startStreamEditing()">Edit
                     </button>
-                    <button *ngIf="!(locked$ | async)" type="button" class="btn btn-secondary"
+                    <button *ngIf="!(locked$ | async)" type="button" class="btn btn-secondary mr-1"
                             (click)="cancelStreamEditing()"><img src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/>
                     </button>
                     <button *ngIf="!(locked$ | async)" type="button" class="btn btn-success"

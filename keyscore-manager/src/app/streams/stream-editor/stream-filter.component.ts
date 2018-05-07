@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FilterModel, Parameter, ParameterDescriptor} from "../streams.model";
 import {ParameterControlService} from "../../services/parameter-control.service";
 import {FormControl, FormGroup} from "@angular/forms";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 
 @Component({
     selector: 'stream-filter',
