@@ -1,0 +1,11 @@
+{
+  "GENERAL":{
+    "APPNAME":"Keyscore"
+  },
+  "APPCOMPONENT":{
+    "DASHBOARD":"Dashboard",
+    "AGENTS":"Agents",
+    "STREAMS":"Streams",
+    "FILTERS":"Filters"
+  }
+}

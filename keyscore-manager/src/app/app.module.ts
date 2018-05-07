@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms'
-import {HttpClientModule} from "@angular/common/http";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {RouterModule, Routes} from '@angular/router';
 
 import {StoreModule} from '@ngrx/store';
@@ -15,14 +15,13 @@ import {reducers} from "./app.reducers";
 import {EffectsModule} from "@ngrx/effects";
 import {StreamsModule} from "./streams/streams.module";
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
-import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {RouterEffects} from "./router/router.effects";
 import {AgentsModule} from "./agents/agents.module";
-import {ParameterList} from "./streams/stream-editor/filter-editor/parameter-list.component";
-import {ParameterComponent} from "./streams/stream-editor/filter-editor/parameter.component";
 import {StreamBuilderService} from "./services/streambuilder.service";
-import {BlocklyComponent} from "./streams/stream-editor/blockly/blockly.component";
 import {FilterModule} from "./filters/filter.module";
+import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -33,6 +32,9 @@ const routes: Routes = [
 
 ];
 
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http);
+}
 @NgModule({
     imports: [
         BrowserModule,
@@ -43,6 +45,13 @@ const routes: Routes = [
         StoreModule.forRoot(reducers, {metaReducers}),
         EffectsModule.forRoot([AppConfigEffects, RouterEffects]),
         StoreRouterConnectingModule,
+        TranslateModule.forRoot({
+            loader:{
+                provide:TranslateLoader,
+                useFactory:HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        }),
         //ToDO: Throws DataCloneError
         // StoreDevtoolsModule.instrument({
         //     maxAge:20

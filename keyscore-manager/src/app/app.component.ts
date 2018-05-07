@@ -2,6 +2,7 @@ import {Component, ViewChild, ViewContainerRef} from '@angular/core';
 import {ModalService} from "./services/modal.service";
 import {Store} from "@ngrx/store";
 import {AppConfig} from "./app.config";
+import {TranslateService} from "@ngx-translate/core";
 
 export interface AppState {
     config: AppConfig
@@ -12,7 +13,7 @@ export interface AppState {
     selector: 'my-app',
     template: `
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <a class="navbar-brand" href="#">KEYSCORE</a>
+            <a class="navbar-brand" href="#" style="text-transform: uppercase">{{'GENERAL.APPNAME' | translate}}</a>
             <div class="navbar-nav">
                 <div class="nav-item">
                     <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
@@ -54,9 +55,12 @@ export class AppComponent {
     private modalService: ModalService;
     private store: Store<any>;
 
-    constructor(store: Store<any>, modalService: ModalService) {
+    constructor(store: Store<any>, modalService: ModalService, translate:TranslateService) {
         this.store = store;
         this.modalService = modalService
+
+        translate.setDefaultLang('en');
+        translate.use('en');
     }
 
     ngOnInit() {
