@@ -3,6 +3,7 @@ import {Observable} from "rxjs/Observable";
 import {AgentModel, AgentsState, getCurrentAgent} from "../agents.model";
 import {Store} from "@ngrx/store";
 import {Go} from "../../router/router.actions";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
     selector: 'agents-details',
@@ -11,7 +12,7 @@ import {Go} from "../../router/router.actions";
             <div class="col-10">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <span class="font-weight-bold">Detailed View: {{(agent$ | async).name}}</span>
+                        <span class="font-weight-bold">{{'AGENTSDETAILS.DETAILEDVIEW' | translate}} {{(agent$ | async).name}}</span>
                         <button class="btn" (click)="reload()">
                             <img width="24em" src="/assets/images/arrow-reload.svg"/>
                         </button>
@@ -19,19 +20,19 @@ import {Go} from "../../router/router.actions";
                     <div class="card-body">
                         <div class="ml-3">
                             <div class="row">
-                                <div class="col-lg-6 font-weight-bold">Agent-Id:</div>
+                                <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTID' | translate}}</div>
                                 <div class="col-lg-6">
                                     {{(agent$ | async).id}}
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-lg-6 font-weight-bold">Agent-Name:</div>
+                                <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTNAME' | translate}}</div>
                                 <div class="col-lg-6">
                                     {{(agent$ | async).name}}
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-lg-6 font-weight-bold">Agent-Host:</div>
+                                <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTHOST' | translate}}</div>
                                 <div class="col-lg-6">
                                     {{(agent$ | async).host}}
                                 </div>
@@ -52,8 +53,10 @@ import {Go} from "../../router/router.actions";
 export class AgentsDetails {
     private agent$: Observable<AgentModel>;
 
-    constructor(private store: Store<AgentsState>) {
+    constructor(private store: Store<AgentsState>,translate:TranslateService) {
         this.agent$ = this.store.select(getCurrentAgent);
+        translate.setDefaultLang('en');
+        translate.use('en');
     }
 
     reload() {

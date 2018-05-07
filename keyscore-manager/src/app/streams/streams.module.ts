@@ -14,6 +14,8 @@ import {ParameterList} from "./stream-editor/filter-editor/parameter-list.compon
 import {ParameterComponent} from "./stream-editor/filter-editor/parameter.component";
 import {ParameterMap} from "./stream-editor/filter-editor/parameter-map.component";
 import {BlocklyComponent} from "./stream-editor/blockly/blockly.component";
+import {TranslateModule} from "@ngx-translate/core";
+
 
 export const routes: Routes = [
     {path: '', component: StreamsComponent},
@@ -27,7 +29,8 @@ export const routes: Routes = [
         ReactiveFormsModule,
         RouterModule.forChild(routes),
         StoreModule.forFeature('streams', StreamsReducer),
-        EffectsModule.forFeature([StreamsEffects])
+        EffectsModule.forFeature([StreamsEffects]),
+        TranslateModule
     ],
     declarations: [
         StreamsComponent,
