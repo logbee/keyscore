@@ -7,9 +7,18 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object AddFieldsFilterFunction extends Described {
-  override def descriptor: FilterDescriptor = FilterDescriptor("AddFields", "Filter that adds fields with specified data.", List(
-    MapParameterDescriptor("fieldsToAdd", TextParameterDescriptor("fieldName"), TextParameterDescriptor("fieldValue"), min = 1)
-  ))
+  override def descriptor: FilterDescriptor = FilterDescriptor(
+    name = "AddFieldsFilter",
+    description = "Filter that adds fields with specified data.",
+    previousConnection = FilterConnection(true),
+    nextConnection = FilterConnection(true),
+    parameters = List(
+      MapParameterDescriptor("fieldsToAdd",
+        TextParameterDescriptor("fieldName"),
+        TextParameterDescriptor("fieldValue"),
+        min = 1)
+    )
+  )
 }
 
 class AddFieldsFilterFunction extends FilterFunction {
@@ -27,7 +36,7 @@ class AddFieldsFilterFunction extends FilterFunction {
   }
 
   override def apply(dataset: Dataset): Dataset = {
-    var listBufferOfRecords =  ListBuffer[Record]()
+    var listBufferOfRecords = ListBuffer[Record]()
     for (record <- dataset) {
       var payload = new mutable.HashMap[String, Field]()
       payload ++= record.payload

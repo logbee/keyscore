@@ -7,9 +7,16 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object CSVParserFilterFunction extends Described {
-  override def descriptor: FilterDescriptor = FilterDescriptor("CSVFilter", "Filter that parses csv in a readable format with key and value.", List(
-    ListParameterDescriptor("headers", TextParameterDescriptor("headerName"), min = 1),
-    TextParameterDescriptor("separator")
+  override def descriptor: FilterDescriptor = FilterDescriptor(
+    name = "CSVFilter",
+    description = "Filter that parses csv in a readable format with key and value.",
+    previousConnection = FilterConnection(true),
+    nextConnection = FilterConnection(true),
+    parameters = List(
+      ListParameterDescriptor("headers",
+        TextParameterDescriptor("headerName"),
+        min = 1),
+      TextParameterDescriptor("separator")
   ))
 }
 

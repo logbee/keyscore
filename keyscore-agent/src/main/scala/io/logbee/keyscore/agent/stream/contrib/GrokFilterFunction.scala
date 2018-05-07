@@ -10,10 +10,18 @@ import scala.util.matching.Regex
 
 
 object GrokFilterFunction extends Described {
-  override def descriptor: FilterDescriptor = FilterDescriptor("GrokFilter", "Filter that structures messages with Regex.", List(
-    ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
-    TextParameterDescriptor("pattern")
-  ))
+  override def descriptor: FilterDescriptor = FilterDescriptor(
+    name = "GrokFilter",
+    description = "Extracts parts of a text line into fields.",
+    previousConnection = FilterConnection(true),
+    nextConnection = FilterConnection(true),
+    parameters = List(
+      BooleanParameterDescriptor("isPaused"),
+      ListParameterDescriptor("fieldNames",
+        TextParameterDescriptor("field"),
+        min = 1),
+      TextParameterDescriptor("pattern")
+    ))
 }
 
 class GrokFilterFunction extends FilterFunction {

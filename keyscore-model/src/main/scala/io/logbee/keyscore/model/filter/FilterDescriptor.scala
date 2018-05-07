@@ -5,6 +5,8 @@ object FilterDescriptor {
 
   def apply(name: String, description: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, description,FilterConnection(true),FilterConnection(true),parameters)
 
+  def apply(name: String, description: String, previousConnection: FilterConnection, nextConnection: FilterConnection, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, description, previousConnection, nextConnection, parameters)
+
 }
 
 case class FilterDescriptor(

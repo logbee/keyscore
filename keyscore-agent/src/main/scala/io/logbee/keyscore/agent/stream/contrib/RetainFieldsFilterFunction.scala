@@ -6,8 +6,15 @@ import io.logbee.keyscore.model.filter._
 import scala.collection.mutable.ListBuffer
 
 object RetainFieldsFilterFunction extends Described {
-  override def descriptor: FilterDescriptor = FilterDescriptor("RetainFieldsFilter", "retaining only specified fields", List(
-    ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
+  override def descriptor: FilterDescriptor = FilterDescriptor(
+    name = "RetainFieldsFilter",
+    description = "Retains only the given fields and their values and removes the other fields.",
+    previousConnection = FilterConnection(true),
+    nextConnection = FilterConnection(true),
+    parameters = List(
+      ListParameterDescriptor("fieldsToRetain",
+        TextParameterDescriptor("fieldName"),
+        min = 1)
   ))
 }
 
