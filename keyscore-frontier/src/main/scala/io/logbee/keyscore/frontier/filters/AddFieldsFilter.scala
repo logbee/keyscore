@@ -40,8 +40,10 @@ object AddFieldsFilter {
     val filterText:ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter",language)
     FilterDescriptor("AddFieldsFilter", filterText.getString("displayName"), filterText.getString("description"),
       FilterConnection(true),FilterConnection(true),List(
-        MapParameterDescriptor("fieldsToAdd", TextParameterDescriptor("fieldName"), TextParameterDescriptor("fieldValue"), 1)
-      ))
+        MapParameterDescriptor("fieldsToAdd",filterText.getString("fieldsToAddName"),filterText.getString("fieldsToAddDescription"),
+          TextParameterDescriptor("fieldName",filterText.getString("fieldKeyName"),filterText.getString("fieldKeyDescription")),
+          TextParameterDescriptor("fieldValue",filterText.getString("fieldValueName"),filterText.getString("fieldValueDescription"))
+      )))
   }
 
 }

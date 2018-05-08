@@ -70,13 +70,13 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   private def addDefaultDescriptors(language:Locale): Unit = {
     listOfFilterDescriptors ++= Map(
+      KafkaSource.descriptor -> mutable.Set.empty,
+      HttpSource.descriptor -> mutable.Set.empty,
       AddFieldsFilter.descriptor(language) -> mutable.Set.empty,
       GrokFilter.descriptor -> mutable.Set.empty,
       RemoveFieldsFilter.descriptor -> mutable.Set.empty,
       RetainFieldsFilter.descriptor -> mutable.Set.empty,
-      KafkaSource.descriptor -> mutable.Set.empty,
       KafkaSink.descriptor -> mutable.Set.empty,
-      HttpSource.descriptor -> mutable.Set.empty,
       StdOutSink.descriptor -> mutable.Set.empty
     )
   }
