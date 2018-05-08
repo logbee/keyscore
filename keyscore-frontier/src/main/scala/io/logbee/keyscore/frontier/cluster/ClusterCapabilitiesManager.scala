@@ -37,7 +37,7 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
-
+    addDefaultDescriptors()
     log.info("StartUp complete")
   }
 
@@ -48,7 +48,6 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case GetStandardDescriptors(language) =>
-      addDefaultDescriptors(language)
       sender ! StandardDescriptors(listOfFilterDescriptors.keySet.toList)
 
     case GetActiveDescriptors =>
@@ -65,14 +64,15 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
         paths.nonEmpty
       })
 
+      addDefaultDescriptors()
 
   }
 
-  private def addDefaultDescriptors(language:Locale): Unit = {
+  private def addDefaultDescriptors(): Unit = {
     listOfFilterDescriptors ++= Map(
       KafkaSource.descriptor -> mutable.Set.empty,
       HttpSource.descriptor -> mutable.Set.empty,
-      AddFieldsFilter.descriptor(language) -> mutable.Set.empty,
+      AddFieldsFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
       GrokFilter.descriptor -> mutable.Set.empty,
       RemoveFieldsFilter.descriptor -> mutable.Set.empty,
       RetainFieldsFilter.descriptor -> mutable.Set.empty,

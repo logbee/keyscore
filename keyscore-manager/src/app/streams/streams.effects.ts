@@ -22,6 +22,7 @@ import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
 import {FilterDescriptor, StreamConfiguration} from "./streams.model";
 import {StreamBuilderService} from "../services/streambuilder.service";
+import {TranslateService} from "@ngx-translate/core";
 
 @Injectable()
 export class StreamsEffects {
@@ -64,7 +65,7 @@ export class StreamsEffects {
             const streamId: string = (action as DeleteStreamAction).id;
             return this.http.delete(streamUrl + streamId).pipe(
                 map(data => new DeleteStreamSuccessAction(streamId)),
-                catchError((cause: any) => of(new DeleteStreamFailureAction(cause,streamId)))
+                catchError((cause: any) => of(new DeleteStreamFailureAction(cause, streamId)))
             )
         })
     );
@@ -73,13 +74,14 @@ export class StreamsEffects {
         ofType(LOAD_FILTER_DESCRIPTORS),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([action, config]) =>
-            this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors?language=de').pipe(
-                map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
-                catchError(cause => of(new LoadFilterDescriptorsFailureAction(cause)))
-            )
+                this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors?language='+this.translate.currentLang).pipe(
+                    map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
+                    catchError(cause => of(new LoadFilterDescriptorsFailureAction(cause)))
+                )
+
         )
     );
 
-    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private streamBuilder: StreamBuilderService) {
+    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private streamBuilder: StreamBuilderService, private translate: TranslateService) {
     }
 }
