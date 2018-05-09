@@ -5,16 +5,19 @@ import {EffectsModule} from "@ngrx/effects";
 import {FilterEffects} from "./filters.effects";
 import {FiltersComponent} from "./filters.component";
 import {TranslateModule} from "@ngx-translate/core";
+import {FilterReducer} from "./filter.reducer";
+import {StoreModule} from "@ngrx/store";
 
 export const routes: Routes = [
     {path: '', component: FiltersComponent},
-    {path: 'live-editing', component: LiveEditingComponent}
+    {path: 'live-editing', component: LiveEditingComponent},
+    {path: ':filterName', component: LiveEditingComponent}
 ];
 
 @NgModule({
     imports: [
         RouterModule.forChild(routes),
-        // StoreModule.forFeature('filters', FilterReducer),
+        StoreModule.forFeature('filters', FilterReducer),
         EffectsModule.forFeature([FilterEffects]),
         TranslateModule
     ],

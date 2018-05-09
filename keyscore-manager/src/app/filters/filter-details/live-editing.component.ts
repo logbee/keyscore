@@ -1,4 +1,8 @@
 import {Component} from "@angular/core";
+import {Store} from "@ngrx/store";
+import {Observable} from "rxjs/index";
+import {FilterModel} from "../../streams/streams.model";
+import {FilterState} from "../filter-model";
 
 @Component({
     selector: 'live-editing',
@@ -83,5 +87,12 @@ import {Component} from "@angular/core";
 })
 
 export class LiveEditingComponent {
+
+    private currentFilter$: Observable<FilterModel>;
+
+    constructor(private store: Store<FilterState>) {
+        // this.currentFilter$ = this.store.select(getFilterDescriptorForCurrent)
+    }
+
 
 }

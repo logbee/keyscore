@@ -4,13 +4,22 @@ import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
-import {FilterModel, getEditingStream, getEditingStreamIsLocked, StreamModel} from "../streams.model";
+import {
+    FilterDescriptor,
+    FilterModel,
+    getEditingStream,
+    getEditingStreamIsLocked,
+    getFilterDescriptors,
+    StreamModel
+} from "../streams.model";
 import {
     DeleteStreamAction,MoveFilterAction, ResetStreamAction,
     UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction, UpdateFilterAction
 } from "../streams.actions";
 import {selectAppConfig} from "../../app.config";
 import {AppState} from "../../app.component";
+import {Go} from "../../router/router.actions";
+import {GetCurrentDescriptorAction} from "../../filters/filters.actions";
 
 @Component({
     selector: 'stream-editor',
@@ -44,7 +53,8 @@ import {AppState} from "../../app.component";
                                        [isEditingStreamLocked$]="isLocked$"
                                        (move)="moveFilter($event)"
                                        (remove)="removeFilter($event)"
-                                       (update)="updateFilter($event)">
+                                       (update)="updateFilter($event)"
+                                       (liveEdit)="callLiveEditing($event)">
                         </stream-filter>
                     </div>
                 </div>
@@ -59,6 +69,7 @@ export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
     isLocked$: Observable<boolean>;
     blocklyFlag:boolean;
+    filterDescriptor$: Observable<FilterDescriptor>;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
         let config = this.store.select(selectAppConfig);
@@ -111,5 +122,10 @@ export class StreamEditorComponent implements OnInit {
 
     removeFilter(filter: FilterModel) {
         this.store.dispatch(new RemoveFilterAction(filter.id))
+    }
+
+    callLiveEditing(filter: FilterModel) {
+        this.store.dispatch(new GetCurrentDescriptorAction(filter.name,));
+        this.store.dispatch(new Go({path: ['/filter/' + filter.name + '/']}))
     }
 }

@@ -3,6 +3,9 @@ import {FilterModel, Parameter, ParameterDescriptor} from "../streams.model";
 import {ParameterControlService} from "../../services/parameter-control.service";
 import {FormControl, FormGroup} from "@angular/forms";
 import {Observable} from "rxjs";
+import {Go} from "../../router/router.actions";
+import {FilterState} from "../../filters/filter-model";
+import {Store} from "@ngrx/store";
 
 @Component({
     selector: 'stream-filter',
@@ -29,9 +32,9 @@ import {Observable} from "rxjs";
                     <div class="col-auto">
                         <button type="button" class="btn btn-primary"
                                 *ngIf="!editing && !(isEditingStreamLocked$|async)"
-                                (click)="editFilter(filter.id)">{{'EDIT' | translate}}
+                                (click)="editFilter(filter.id)">{{'GENERAL.EDIT' | translate}}
                         </button>
-                        <button type="button" class="btn btn-info" *ngIf="editing" routerLink="/filter/live-editing" routerLinkActive="active">
+                        <button type="button" class="btn btn-info" *ngIf="editing" (click)="callLiveEditing(filter)">
                             <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
                         </button>
                         <button type="button" [disabled]="form.invalid" class="btn btn-success" *ngIf="editing"
@@ -79,6 +82,7 @@ export class StreamFilterComponent implements OnInit {
     @Output() update: EventEmitter<{ filterModel: FilterModel, values: any }> = new EventEmitter();
     @Output() move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
     @Output() remove: EventEmitter<FilterModel> = new EventEmitter();
+    @Output() liveEdit: EventEmitter<FilterModel> = new EventEmitter();
 
     editing: boolean = false;
     payLoad: string = '';
@@ -114,6 +118,10 @@ export class StreamFilterComponent implements OnInit {
         let resetFormValues = {};
         this.filter.parameters.forEach(p => resetFormValues[p.displayName] = p.value ? p.value : '');
         this.form.setValue(resetFormValues);
+    }
+
+    callLiveEditing(filter: FilterModel) {
+        this.liveEdit.emit(filter);
     }
 
     enableFilter() {
