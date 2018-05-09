@@ -5,18 +5,18 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.model._
 import io.logbee.keyscore.agent.stream.ExampleData.{vcsDatasetA, vcsDatasetB}
 import io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilterFunction
 import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
+import io.logbee.keyscore.model._
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
-import scala.concurrent.duration._
 import scala.concurrent.Await
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class CSVFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
@@ -42,8 +42,8 @@ class CSVFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures wit
       .run()
   }
 
-  "A VCSFilter" should {
-    "convert a vcs into a normal record" in new TestStream {
+  "A CSVFilterFunction" should {
+    "convert a csv string into a normal record" in new TestStream {
       whenReady(filterFuture) { filter =>
         val condition = stub[Condition]
         val vcsFunction = stub[CSVParserFilterFunction]
