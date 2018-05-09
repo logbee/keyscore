@@ -10,11 +10,13 @@ import {
     getEditingStream,
     getEditingStreamIsLocked,
     getFilterDescriptors,
+    getFilterCategories, getFilterDescriptors,
     StreamModel
 } from "../streams.model";
+
 import {
-    DeleteStreamAction,MoveFilterAction, ResetStreamAction,
-    UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction, UpdateFilterAction
+    DeleteStreamAction, MoveFilterAction, ResetStreamAction,
+    UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction, UpdateFilterAction, LoadFilterDescriptorsAction
 } from "../streams.actions";
 import {selectAppConfig} from "../../app.config";
 import {AppState} from "../../app.component";
@@ -25,7 +27,7 @@ import {GetCurrentDescriptorAction} from "../../filters/filters.actions";
     selector: 'stream-editor',
     template: `
         <div class="row justify-content-center">
-            <div class="col-3">
+            <div *ngIf="!blocklyFlag" class="col-3">
                 <stream-details [stream]="stream$ | async"
                                 [locked$]="isLocked$"
                                 (update)="updateStream($event)"
@@ -59,7 +61,10 @@ import {GetCurrentDescriptorAction} from "../../filters/filters.actions";
                     </div>
                 </div>
             </div>
-            <blockly-workspace *ngIf="blocklyFlag" class="col-9"></blockly-workspace>
+            <blockly-workspace *ngIf="blocklyFlag" class="col-12" 
+                               [filterDescriptors$]="filterDescriptors$"
+                               [categories$]="categories$"
+                               [stream]="(stream$ | async)"></blockly-workspace>
         </div>
     `,
     styles:['.filter-component{transition: 0.25s ease-in-out;}'],
@@ -68,11 +73,17 @@ import {GetCurrentDescriptorAction} from "../../filters/filters.actions";
 export class StreamEditorComponent implements OnInit {
     stream$: Observable<StreamModel>;
     isLocked$: Observable<boolean>;
+    filterDescriptors$: Observable<FilterDescriptor[]>;
+    categories$: Observable<string[]>;
     blocklyFlag:boolean;
-    filterDescriptor$: Observable<FilterDescriptor>;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
         let config = this.store.select(selectAppConfig);
+        this.filterDescriptors$ = this.store.select(getFilterDescriptors);
+        this.categories$ = this.store.select(getFilterCategories);
+
+        this.store.dispatch(new LoadFilterDescriptorsAction());
+
         config.subscribe(conf => this.blocklyFlag = conf.getBoolean('keyscore.manager.blockly'));
     }
 

@@ -1,7 +1,12 @@
 import {Injectable} from "@angular/core";
-import {FilterDescriptor} from "../../streams/streams.model";
+import {
+    FilterConfiguration, FilterDescriptor, FilterModel, Parameter,
+    ParameterDescriptor, StreamConfiguration
+} from "../../streams/streams.model";
 import {Blockly} from "node-blockly/browser";
 import {StreamBuilderService} from "../streambuilder.service";
+import {v4 as uuid} from 'uuid';
+
 
 declare var Blockly: any;
 
@@ -43,12 +48,32 @@ export class ToolBarBuilderService {
             init: function () {
                 this.setColour(45);
                 this.appendDummyInput().appendField('Stream name: ')
-                    .appendField(new Blockly.FieldTextInput('New Stream'));
+                    .appendField(new Blockly.FieldTextInput('New Stream'),'STREAM_NAME');
                 this.appendDummyInput().appendField('Stream description: ')
-                    .appendField(new Blockly.FieldTextInput('description'));
+                    .appendField(new Blockly.FieldTextInput('description'),'STREAM_DESCRIPTION');
                 this.appendStatementInput('FILTER').appendField('Filter').setCheck('stream_base');
 
             }
+        };
+
+        Blockly.JavaScript['stream_configuration'] = function(block:Blockly.Block){
+            let id:string = "0";
+            let name:string = block.getFieldValue('STREAM_NAME');
+            let description:string = block.getFieldValue('STREMA_DESCRIPTION');
+            let filter:FilterConfiguration[] = Blockly.JavaScript.statementToCode(block,'FILTER');
+
+            let stream:StreamConfiguration = {
+                id:id,
+                name:name,
+                description:description,
+                source:filter[0],
+                sink:filter[filter.length-1],
+                filter:filter.slice(1,filter.length-1)
+            }
+
+            return JSON.stringify(stream);
+
+
         }
     }
 
@@ -84,12 +109,41 @@ export class ToolBarBuilderService {
         };
 
         Blockly.JavaScript[descriptor.name] = function(block:Blockly.Block){
-            descriptor.parameters.forEach(p => {
-                //p.value = block.getFieldValue(p.name);
-            })
+            let parameters = descriptor.parameters.map(p => {
+                p.value = block.getFieldValue(p.name);
+                return p;
+            }).map(p => that.parameterDescriptorToParameter(p));
+
+            let filterConfig:FilterConfiguration = {
+                id:uuid(),
+                kind:descriptor.name,
+                parameters:parameters
+            };
+
+            console.log(JSON.stringify(filterConfig));
+            return JSON.stringify(filterConfig);
         }
 
 
+    }
+
+    private parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
+        let type = parameterDescriptor.kind;
+        switch (type) {
+            case 'list':
+                type = 'list[string]';
+                break;
+            case 'map':
+                type = 'map[string,string]';
+                break;
+            case 'text':
+                type = 'string';
+                break;
+            case 'int':
+                parameterDescriptor.value = +parameterDescriptor.value;
+                break;
+        }
+        return {name: parameterDescriptor.name, value: parameterDescriptor.value, parameterType: type};
     }
 
     private calculateColor(currentCategory:number, categoryCount:number){
