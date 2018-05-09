@@ -11,7 +11,7 @@ import {Component} from "@angular/core";
                 <div class="card-body badge-light">
                     <div class="card">
                         <div class="card-header alert-light font-weight-bold">
-                            {{'FILTERLIVEEDITINGCOMPONENT.FILTERDESCRIPTION_TITLE' | translate}}                        </div>
+                            {{'FILTERLIVEEDITINGCOMPONENT.FILTERDESCRIPTION_TITLE' | translate}}</div>
                         <div class="card-body">
                             <table class="table table-condensed">
                                 <thead>
@@ -35,7 +35,7 @@ import {Component} from "@angular/core";
                         <div class="card-header alert-light font-weight-bold">  {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}</div>
                         <div class="card-body">
                             <div class="form-group">
-                                <textarea class="form-control" rows="5"></textarea>
+                                <textarea placeholder="{{'FILTERLIVEEDITINGCOMPONENT.MESSAGE_PLACEHOLDER' | translate}}" class="form-control" rows="5"></textarea>
                             </div>
 
                         </div>
@@ -44,7 +44,7 @@ import {Component} from "@angular/core";
                         <div class="card-header alert-light font-weight-bold">  {{'FILTERLIVEEDITINGCOMPONENT.REGEXPATTERN' | translate}}</div>
                         <div class="card-body">
                             <div class="form-group">
-                                <textarea class="form-control" rows="1"></textarea>
+                                <textarea placeholder="{{'FILTERLIVEEDITINGCOMPONENT.REGEX_PLACEHOLDER' | translate}}" class="form-control" rows="1"></textarea>
                             </div>
                                 <button class="float-right primary btn-info">  {{'GENERAL.APPLY' | translate}}</button>
                         </div>
