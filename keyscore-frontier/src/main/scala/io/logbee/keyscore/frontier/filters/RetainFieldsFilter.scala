@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.filters
 
+import java.util.Locale
+
 import akka.stream
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
@@ -31,11 +33,13 @@ object RetainFieldsFilter {
     }
   }
 
-  val descriptor: FilterDescriptor = {
-    FilterDescriptor("RetainFieldsFilter", "Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.",
-      FilterConnection(true), FilterConnection(true), List(
-        ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
-      ))
+  def descriptor: (Locale) => FilterDescriptor = {
+    (language: Locale) => {
+      FilterDescriptor("RetainFieldsFilter", "Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.",
+        FilterConnection(true), FilterConnection(true), List(
+          ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
+        ))
+    }
   }
 }
 

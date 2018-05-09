@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.sources
 
+import java.util.Locale
+
 import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -19,13 +21,13 @@ import scala.concurrent.{Future, Promise}
 
 object HttpSource {
 
-  def create(config: FilterConfiguration,system:ActorSystem): Source[CommittableRecord, UniqueKillSwitch] = {
+  def create(config: FilterConfiguration, system: ActorSystem): Source[CommittableRecord, UniqueKillSwitch] = {
     val httpConfig = try {
       loadFilterConfiguration(config)
     } catch {
       case nse: NoSuchElementException => throw nse
     }
-    val httpSource=Source.fromGraph(new HttpSource(httpConfig)(system))
+    val httpSource = Source.fromGraph(new HttpSource(httpConfig)(system))
     httpSource.viaMat(KillSwitches.single)(Keep.right)
   }
 
@@ -40,14 +42,16 @@ object HttpSource {
     }
   }
 
-  val descriptor: FilterDescriptor = {
-    FilterDescriptor("HttpSource", "Http Source", "A Http Source",
-      FilterConnection(true, List("stream_base")),FilterConnection(true),List(
-      TextParameterDescriptor("bindAddress"),
-      TextParameterDescriptor("fieldName"),
-      IntParameterDescriptor("port")
+  def descriptor: Locale => FilterDescriptor = {
+    (language: Locale) => {
+      FilterDescriptor("HttpSource", "Http Source", "A Http Source",
+        FilterConnection(true, List("stream_base")), FilterConnection(true), List(
+          TextParameterDescriptor("bindAddress"),
+          TextParameterDescriptor("fieldName"),
+          IntParameterDescriptor("port")
 
-    ),"Source")
+        ), "Source")
+    }
   }
 }
 

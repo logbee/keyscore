@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.sources
 
-import java.util.UUID
+import java.util.{Locale, UUID}
 
 import akka.actor.ActorSystem
 import akka.kafka
@@ -20,9 +20,9 @@ import org.json4s.native.JsonMethods.parse
 object KafkaSource {
 
 
-  def create(config:FilterConfiguration,actorSystem:ActorSystem): Source[CommittableRecord, UniqueKillSwitch] = {
+  def create(config: FilterConfiguration, actorSystem: ActorSystem): Source[CommittableRecord, UniqueKillSwitch] = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
-    implicit val system:ActorSystem = actorSystem
+    implicit val system: ActorSystem = actorSystem
 
     val kafkaSourceConfig =
       try {
@@ -61,14 +61,16 @@ object KafkaSource {
     }
   }
 
-  val descriptor: FilterDescriptor = {
-    FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic",
-      FilterConnection(true, List("stream_base")),FilterConnection(true),List(
-      TextParameterDescriptor("bootstrapServer"),
-      TextParameterDescriptor("sourceTopic"),
-      TextParameterDescriptor("groupID"),
-      TextParameterDescriptor("offsetCommit")
-    ), "Source")
+  def descriptor: Locale => FilterDescriptor = {
+    (language: Locale) => {
+      FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic",
+        FilterConnection(true, List("stream_base")), FilterConnection(true), List(
+          TextParameterDescriptor("bootstrapServer"),
+          TextParameterDescriptor("sourceTopic"),
+          TextParameterDescriptor("groupID"),
+          TextParameterDescriptor("offsetCommit")
+        ), "Source")
+    }
   }
 }
 

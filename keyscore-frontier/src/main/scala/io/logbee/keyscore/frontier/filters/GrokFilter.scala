@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.filters
 
+import java.util.Locale
+
 import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
@@ -44,13 +46,15 @@ object GrokFilter {
     }
   }
 
-  val descriptor: FilterDescriptor = {
-    FilterDescriptor("GrokFilter", "Grok Filter", "Extracts parts of a text line into fields.", FilterConnection(true),
-      FilterConnection(true), List(
-        BooleanParameterDescriptor("isPaused"),
-        ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
-        TextParameterDescriptor("pattern")
-      ))
+  def descriptor: (Locale) => FilterDescriptor = {
+    (language: Locale) => {
+      FilterDescriptor("GrokFilter", "Grok Filter", "Extracts parts of a text line into fields.", FilterConnection(true),
+        FilterConnection(true), List(
+          BooleanParameterDescriptor("isPaused"),
+          ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
+          TextParameterDescriptor("pattern")
+        ))
+    }
   }
 }
 

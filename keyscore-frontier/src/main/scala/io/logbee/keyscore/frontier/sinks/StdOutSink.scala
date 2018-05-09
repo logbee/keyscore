@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.sinks
 
+import java.util.Locale
+
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.Sink
 import io.logbee.keyscore.frontier.filters.CommittableRecord
@@ -13,8 +15,10 @@ object StdOutSink {
     Sink.foreach[CommittableRecord](x => println(x.payload))
   }
 
-  val descriptor:FilterDescriptor = {
-    FilterDescriptor("StdOutSink","Standard Output Sink","Writes the streams output to StdOut",
-      FilterConnection(true),FilterConnection(false),List.empty,"Sink")
+  def descriptor: Locale => FilterDescriptor = {
+    (language: Locale) => {
+      FilterDescriptor("StdOutSink", "Standard Output Sink", "Writes the streams output to StdOut",
+        FilterConnection(true), FilterConnection(false), List.empty, "Sink")
+    }
   }
 }

@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.sinks
 
+import java.util.Locale
+
 import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
@@ -43,12 +45,14 @@ object KafkaSink {
     }
   }
 
-  val descriptor: FilterDescriptor = {
-    FilterDescriptor("KafkaSink", "Kafka Sink", "Writes the streams output to a given kafka topic",
-      FilterConnection(true),FilterConnection(false),List(
-      TextParameterDescriptor("sinkTopic"),
-      TextParameterDescriptor("bootstrapServer")
-    ), "Sink")
+  def descriptor: Locale => FilterDescriptor = {
+    (language: Locale) => {
+      FilterDescriptor("KafkaSink", "Kafka Sink", "Writes the streams output to a given kafka topic",
+        FilterConnection(true), FilterConnection(false), List(
+          TextParameterDescriptor("sinkTopic"),
+          TextParameterDescriptor("bootstrapServer")
+        ), "Sink")
+    }
   }
 
 }

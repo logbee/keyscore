@@ -1,5 +1,7 @@
 package io.logbee.keyscore.frontier.filters
 
+import java.util.Locale
+
 import akka.stream
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
@@ -30,11 +32,13 @@ object RemoveFieldsFilter {
     }
   }
 
-  val descriptor: FilterDescriptor = {
-    FilterDescriptor("RemoveFieldsFilter", "Remove Fields Filter", "Removes all given fields and their values.",
-      FilterConnection(true),FilterConnection(true),List(
-      ListParameterDescriptor("fieldsToRemove", TextParameterDescriptor("fieldName"), min = 1)
-    ))
+  def descriptor: (Locale) => FilterDescriptor = {
+    (language: Locale) => {
+      FilterDescriptor("RemoveFieldsFilter", "Remove Fields Filter", "Removes all given fields and their values.",
+        FilterConnection(true), FilterConnection(true), List(
+          ListParameterDescriptor("fieldsToRemove", TextParameterDescriptor("fieldName"), min = 1)
+        ))
+    }
   }
 }
 

@@ -13,6 +13,7 @@ import io.logbee.keyscore.frontier.sources.{HttpSource, KafkaSource}
 import io.logbee.keyscore.model.filter.FilterDescriptor
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 
 object ClusterCapabilitiesManager {
@@ -35,6 +36,8 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
   private val listOfFilterDescriptors = mutable.Map.empty[FilterDescriptor, mutable.Set[ActorPath]]
   private val listOfActiveDescriptors = List[FilterDescriptor]()
 
+  private val languageDescriptorList = ListBuffer.empty[(Locale)=>FilterDescriptor]
+
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
     addDefaultDescriptors()
@@ -48,7 +51,7 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case GetStandardDescriptors(language) =>
-      sender ! StandardDescriptors(listOfFilterDescriptors.keySet.toList)
+      sender ! StandardDescriptors(languageDescriptorList.toList.map(languageDescriptor => languageDescriptor(language)))
 
     case GetActiveDescriptors =>
       sender() ! ActiveDescriptors(listOfActiveDescriptors)
@@ -70,14 +73,26 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   private def addDefaultDescriptors(): Unit = {
     listOfFilterDescriptors ++= Map(
-      KafkaSource.descriptor -> mutable.Set.empty,
-      HttpSource.descriptor -> mutable.Set.empty,
+      KafkaSource.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
+      HttpSource.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
+      RemoveFieldsFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
+      RetainFieldsFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
+      KafkaSink.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
+      StdOutSink.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
       AddFieldsFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-      GrokFilter.descriptor -> mutable.Set.empty,
-      RemoveFieldsFilter.descriptor -> mutable.Set.empty,
-      RetainFieldsFilter.descriptor -> mutable.Set.empty,
-      KafkaSink.descriptor -> mutable.Set.empty,
-      StdOutSink.descriptor -> mutable.Set.empty
+      GrokFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
     )
+
+    languageDescriptorList.append(
+      AddFieldsFilter.descriptor,
+      GrokFilter.descriptor,
+      RemoveFieldsFilter.descriptor,
+      RetainFieldsFilter.descriptor,
+      KafkaSink.descriptor,
+      StdOutSink.descriptor,
+      HttpSource.descriptor,
+      KafkaSource.descriptor
+    )
+
   }
 }

@@ -36,14 +36,16 @@ object AddFieldsFilter {
     }
   }
 
-  def descriptor(language:Locale):FilterDescriptor ={
-    val filterText:ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter",language)
-    FilterDescriptor("AddFieldsFilter", filterText.getString("displayName"), filterText.getString("description"),
-      FilterConnection(true),FilterConnection(true),List(
-        MapParameterDescriptor("fieldsToAdd",filterText.getString("fieldsToAddName"),filterText.getString("fieldsToAddDescription"),
-          TextParameterDescriptor("fieldName",filterText.getString("fieldKeyName"),filterText.getString("fieldKeyDescription")),
-          TextParameterDescriptor("fieldValue",filterText.getString("fieldValueName"),filterText.getString("fieldValueDescription"))
-      )))
+  def descriptor: (Locale) => FilterDescriptor = {
+    (language: Locale) => {
+      val filterText: ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter", language)
+      FilterDescriptor("AddFieldsFilter", filterText.getString("displayName"), filterText.getString("description"),
+        FilterConnection(true), FilterConnection(true), List(
+          MapParameterDescriptor("fieldsToAdd", filterText.getString("fieldsToAddName"), filterText.getString("fieldsToAddDescription"),
+            TextParameterDescriptor("fieldName", filterText.getString("fieldKeyName"), filterText.getString("fieldKeyDescription")),
+            TextParameterDescriptor("fieldValue", filterText.getString("fieldValueName"), filterText.getString("fieldValueDescription"))
+          )))
+    }
   }
 
 }
