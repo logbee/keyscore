@@ -49,7 +49,9 @@
     "REGEXPATTERN": "Regex Pattern",
     "RESULT": "Result",
     "VALUE": "Value",
-    "TYPE": "Type"
+    "TYPE": "Type",
+    "REGEX_PLACEHOLDER": "Add your Regex here",
+    "MESSAGE_PLACEHOLDER": "Add your message here"
   },
   "FILTERSCOMPONENT" : {
     "FILTERS": "Filters"
