@@ -5,7 +5,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.ExampleData.{vcsDatasetA, vcsDatasetB}
+import io.logbee.keyscore.agent.stream.ExampleData.{csvDatasetA, csvDatasetB}
 import io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilterFunction
 import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import io.logbee.keyscore.model._
@@ -26,17 +26,17 @@ class CSVFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures wit
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = materializer.executionContext
 
-  val vcsAResult = Dataset(Record(
+  val csvAResult = Dataset(Record(
     TextField("Philosophy" , "13"),
     TextField("Maths" , "07"),
     TextField("Latin" , "09"),
     TextField("Astrophysics" , "15")
   ))
 
-  val vcsBResult = Dataset(Record(TextField("message", ";03;05;01;;;")))
+  val csvBResult = Dataset(Record(TextField("message", ";03;05;01;;;")))
 
   trait TestStream {
-    val (filterFuture, probe) = Source(List(vcsDatasetA, vcsDatasetB))
+    val (filterFuture, probe) = Source(List(csvDatasetA, csvDatasetB))
       .viaMat(new DefaultFilterStage())(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
@@ -46,20 +46,20 @@ class CSVFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures wit
     "convert a csv string into a normal record" in new TestStream {
       whenReady(filterFuture) { filter =>
         val condition = stub[Condition]
-        val vcsFunction = stub[CSVParserFilterFunction]
+        val csvFunction = stub[CSVParserFilterFunction]
 
-        condition.apply _ when vcsDatasetA returns Accept(vcsDatasetA)
-        condition.apply _ when vcsDatasetB returns Reject(vcsDatasetB)
+        condition.apply _ when csvDatasetA returns Accept(csvDatasetA)
+        condition.apply _ when csvDatasetB returns Reject(csvDatasetB)
 
-        vcsFunction.apply _ when vcsDatasetA returns vcsAResult
-        vcsFunction.apply _ when vcsDatasetB returns vcsBResult
+        csvFunction.apply _ when csvDatasetA returns csvAResult
+        csvFunction.apply _ when csvDatasetB returns csvBResult
 
         Await.result(filter.changeCondition(condition), 10 seconds)
-        Await.result(filter.changeFunction(vcsFunction), 10 seconds)
+        Await.result(filter.changeFunction(csvFunction), 10 seconds)
 
         probe.request(2)
-        probe.expectNext(vcsAResult)
-        probe.expectNext(vcsDatasetB)
+        probe.expectNext(csvAResult)
+        probe.expectNext(csvDatasetB)
       }
     }
   }

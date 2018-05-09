@@ -21,8 +21,8 @@ object ExampleData {
     TextField("foo", "bar"),
     TextField("42", "bar")
   )
-  val vcsA = Record(TextField("message", "13;07;09;15;;;"))
-  val vcsB = Record(TextField("message", ";03;05;01;;;"))
+  val csvA = Record(TextField("message", "13;07;09;15;;;"))
+  val csvB = Record(TextField("message", ";03;05;01;;;"))
 
   //Modified messages
   val record1Modified = Record(TextField("weather-report", "cloudy, -11.5 °C"))
@@ -42,8 +42,8 @@ object ExampleData {
   val dataset3 = Dataset(record3)
   val datasetMulti = Dataset(multiRecord)
   val datasetMulti2 = Dataset(multiRecord2)
-  val vcsDatasetA = Dataset(vcsA)
-  val vcsDatasetB = Dataset(vcsB)
+  val csvDatasetA = Dataset(csvA)
+  val csvDatasetB = Dataset(csvB)
 
   //Modified datasets
   val dataset1Modified = Dataset(record1Modified)
@@ -55,7 +55,7 @@ object ExampleData {
   //configurations
   val configA = FilterConfiguration("A")
   val configB = FilterConfiguration("B")
-  val vcsHeader = FilterConfiguration(UUID.randomUUID(), "filter", List(
+  val csvHeader = FilterConfiguration(UUID.randomUUID(), "filter", List(
     TextParameter("separator", ";"),
     TextListParameter("headers", List("Philosophy","Maths","Latin","Astrophysics"))))
 }
