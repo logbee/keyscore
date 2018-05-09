@@ -1,7 +1,5 @@
 package io.logbee.keyscore.model.filter
 
-import org.graalvm.compiler.debug.DebugContext.Description
-
 object FilterDescriptor {
   def apply(name: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, "", FilterConnection(true),FilterConnection(true),parameters)
 
