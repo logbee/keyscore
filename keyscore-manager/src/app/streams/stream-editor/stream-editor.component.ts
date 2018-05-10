@@ -9,17 +9,22 @@ import {
     FilterModel,
     getEditingStream,
     getEditingStreamIsLocked,
+    getFilterCategories,
     getFilterDescriptors,
-    getFilterCategories, getFilterDescriptors,
     StreamModel
 } from "../streams.model";
 
 import {
-    DeleteStreamAction, MoveFilterAction, ResetStreamAction,
-    UpdateStreamAction, RemoveFilterAction, LockEditingStreamAction, UpdateFilterAction, LoadFilterDescriptorsAction
+    DeleteStreamAction,
+    LoadFilterDescriptorsAction,
+    LockEditingStreamAction,
+    MoveFilterAction,
+    RemoveFilterAction,
+    ResetStreamAction,
+    UpdateFilterAction,
+    UpdateStreamAction
 } from "../streams.actions";
 import {selectAppConfig} from "../../app.config";
-import {AppState} from "../../app.component";
 import {Go} from "../../router/router.actions";
 import {GetCurrentDescriptorAction} from "../../filters/filters.actions";
 
