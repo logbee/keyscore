@@ -76,7 +76,8 @@ module.exports = {
     devServer: {
         contentBase: [
             path.join(__dirname, "conf"),
-            path.join(__dirname, "public")
+            path.join(__dirname, "public"),
+            path.join(__dirname, "../media")
         ],
         port: 8080,
         quiet: false,
