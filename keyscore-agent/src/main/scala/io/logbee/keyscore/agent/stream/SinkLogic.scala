@@ -1,26 +1,12 @@
-package io.logbee.keyscore.agent.stream.contrib.stages
+package io.logbee.keyscore.agent.stream
 
-import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue, InHandler, StageLogging}
-import akka.stream.{Attributes, Inlet, SinkShape}
+import akka.stream.SinkShape
+import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.sink.Sink
 
 import scala.concurrent.{Future, Promise}
-
-
-class SinkStage(provider: (FilterConfiguration, SinkShape[Dataset]) => SinkLogic, configuration: FilterConfiguration) extends GraphStageWithMaterializedValue[SinkShape[Dataset], Future[Sink]] {
-
-  private val in = Inlet[Dataset](s"${configuration.id}:inlet")
-
-  override def shape: SinkShape[Dataset] = SinkShape(in)
-
-  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[Sink]) = {
-
-    val logic = provider(configuration, shape)
-    (logic, logic.initPromise.future)
-  }
-}
 
 abstract class SinkLogic(configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends GraphStageLogic(shape) with InHandler with StageLogging {
 
@@ -37,7 +23,7 @@ abstract class SinkLogic(configuration: FilterConfiguration, shape: SinkShape[Da
 
     override def configure(configuration: FilterConfiguration): Future[Unit] = {
       val promise = Promise[Unit]()
-      log.info(s"Updating configuration: $configuration")
+      log.info(s"Updating sink configuration: $configuration")
       configureCallback.invoke(configuration, promise)
       promise.future
     }
@@ -54,6 +40,4 @@ abstract class SinkLogic(configuration: FilterConfiguration, shape: SinkShape[Da
   def initialize(configuration: FilterConfiguration): Unit = {}
 
   def configure(configuration: FilterConfiguration): Unit
-
-  def teardown(): Unit = {}
 }

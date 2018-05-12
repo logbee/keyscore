@@ -4,9 +4,9 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.{ActorMaterializer, SinkShape}
+import akka.stream.testkit.scaladsl.TestSink
+import akka.stream.{ActorMaterializer, SourceShape}
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.ExampleData._
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import org.junit.runner.RunWith
@@ -19,14 +19,14 @@ import scala.concurrent.Promise
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
+class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
 
   private val config = ConfigFactory.load()
   implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = materializer.executionContext
 
-  "A sink stage" should {
+  "A source stage" should {
 
     "pass the appropriate configuration to it's logic" in {
 
@@ -36,7 +36,7 @@ class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFa
       val uuid = UUID.randomUUID()
       val configurationA = FilterConfiguration(uuid, "testA", List.empty)
       val configurationB = FilterConfiguration(uuid, "testB", List.empty)
-      val provider = (c: FilterConfiguration, s: SinkShape[Dataset]) => new SinkLogic(c, s) {
+      val provider = (c: FilterConfiguration, s: SourceShape[Dataset]) => new SourceLogic(c, s) {
 
         override def initialize(configuration: FilterConfiguration): Unit = {
           initializeConfiguration.success(configuration)
@@ -46,15 +46,15 @@ class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFa
           updateConfiguration.success(configuration)
         }
 
-        override def onPush(): Unit = ???
+        override def onPull(): Unit = ???
       }
 
-      val sinkFuture = Source(List(dataset1, dataset2))
-        .toMat(new SinkStage(provider, configurationA))(Keep.right)
+      val sourceFuture = Source.fromGraph(new SourceStage(provider, configurationA))
+        .toMat(TestSink.probe[Dataset])(Keep.left)
         .run()
 
-      whenReady(sinkFuture) { sink =>
-        sink.configure(configurationB)
+      whenReady(sourceFuture) { source =>
+        source.configure(configurationB)
       }
 
       whenReady(initializeConfiguration.future) { success =>
