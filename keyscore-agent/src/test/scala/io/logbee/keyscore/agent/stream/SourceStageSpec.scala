@@ -2,11 +2,9 @@ package io.logbee.keyscore.agent.stream
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
+import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
-import akka.stream.{ActorMaterializer, SourceShape}
-import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import org.junit.runner.RunWith
@@ -19,12 +17,7 @@ import scala.concurrent.Promise
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
-
-  private val config = ConfigFactory.load()
-  implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = materializer.executionContext
+class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   "A source stage" should {
 

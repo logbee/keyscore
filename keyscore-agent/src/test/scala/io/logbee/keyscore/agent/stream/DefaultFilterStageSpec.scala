@@ -1,10 +1,7 @@
 package io.logbee.keyscore.agent.stream
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
-import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.stream.ExampleData._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
@@ -19,12 +16,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
-
-  private val config = ConfigFactory.load()
-  implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = materializer.executionContext
+class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
     val (filterFuture, probe) = Source(List(dataset1, dataset2))
