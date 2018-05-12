@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.UUID
 
@@ -7,24 +7,21 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
+import io.logbee.keyscore.agent.stream.DefaultFilterStage
 import io.logbee.keyscore.agent.stream.ExampleData.{dataset1, dataset2, dataset3}
-import io.logbee.keyscore.agent.stream.contrib.filter.GrokFilterFunction
-import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter, TextParameter}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, TextMapParameter}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class GrokFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
-
+class AddFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
   private val config = ConfigFactory.load()
   implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
   implicit val materializer = ActorMaterializer()
@@ -37,39 +34,51 @@ class GrokFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures wi
       .run()
   }
 
-  val fieldNames = TextListParameter("fieldNames", List("message"))
-  val pattern = TextParameter("pattern", ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*")
-  val parameterList = List(fieldNames, pattern)
+  var map = Map[String, String]("foo" -> "bier", "42" -> "73")
+  val fieldsToAdd = TextMapParameter("fieldsToAdd", map)
+  val initialConfig = FilterConfiguration(UUID.randomUUID(), "addFieldsFilter", List(fieldsToAdd))
 
-  val modified1 = Dataset(Record(NumberField("temperature", -11.5)))
-  val modified2 = Dataset(Record(NumberField("temperature", 5.8)))
-  val modified3 = Dataset(Record(NumberField("temperature", 14.4)))
+  val modified1 = Dataset(Record(
+    TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C"),
+    TextField("foo", "bier"),
+    TextField("42", "73")
+  ))
 
-  val initialConfig = FilterConfiguration(UUID.randomUUID(), "grokFilter", parameterList)
+  val modified2 = Dataset(Record(
+    TextField("message", "Is is a rainy day. Temperature: 5.8 °C"),
+    TextField("foo", "bier"),
+    TextField("42", "73")
+  ))
 
-  "A GrokFilter" should {
-    "extract data into a new field when the grok rule matches the specified field" in new TestStream {
+  val modified3 = Dataset(Record(
+    TextField("message", "The weather is sunny with a current temperature of: 14.4 °C"),
+    TextField("foo", "bier"),
+    TextField("42", "73")
+  ))
+
+  "A AddFieldsFilter" should {
+    "add new fields and their data to the already existing data" in new TestStream {
       whenReady(filterFuture) { filter =>
-
         val condition = stub[Condition]
-        val grokFunction = stub[GrokFilterFunction]
+        val addFieldsFunction = stub[AddFieldsFilterFunction]
 
         condition.apply _ when dataset1 returns Accept(dataset1)
         condition.apply _ when dataset2 returns Reject(dataset2)
         condition.apply _ when dataset3 returns Accept(dataset3)
 
-        grokFunction.apply _ when dataset1 returns modified1
-        grokFunction.apply _ when dataset2 returns modified2
-        grokFunction.apply _ when dataset3 returns modified3
+        addFieldsFunction.apply _ when dataset1 returns modified1
+        addFieldsFunction.apply _ when dataset2 returns modified2
+        addFieldsFunction.apply _ when dataset3 returns modified3
 
         Await.result(filter.changeCondition(condition), 10 seconds)
-        Await.result(filter.changeFunction(grokFunction), 10 seconds)
+        Await.result(filter.changeFunction(addFieldsFunction), 10 seconds)
 
         probe.request(3)
         probe.expectNext(modified1)
         probe.expectNext(dataset2)
         probe.expectNext(modified3)
       }
+
     }
   }
 }

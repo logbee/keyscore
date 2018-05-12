@@ -1,27 +1,24 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.contrib.filter
+
+import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
+import com.typesafe.config.ConfigFactory
+import io.logbee.keyscore.agent.stream.DefaultFilterStage
 import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti, datasetMulti2, datasetMultiModified}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
-import org.scalamock.scalatest.MockFactory
-import org.scalatest.{Matchers, WordSpec}
-import org.scalatest.concurrent.ScalaFutures
-
-import scala.concurrent.duration._
-import java.util.UUID
-
-import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.contrib.filter.RetainFieldsFilterFunction
-import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import org.junit.runner.RunWith
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class RetainFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {

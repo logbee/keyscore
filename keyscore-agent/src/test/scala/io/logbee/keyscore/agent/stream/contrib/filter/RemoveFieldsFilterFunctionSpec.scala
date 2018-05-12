@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.UUID
 
@@ -7,20 +7,18 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
+import io.logbee.keyscore.agent.stream.DefaultFilterStage
 import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti, datasetMulti2, datasetMultiModified, datasetMultiModified2}
-import io.logbee.keyscore.agent.stream.contrib.filter.RemoveFieldsFilterFunction
-import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
 import io.logbee.keyscore.model.{Accept, Condition, Dataset, Reject}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {

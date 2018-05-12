@@ -1,20 +1,20 @@
-package io.logbee.keyscore.agent.stream.contrib.stages
+package io.logbee.keyscore.agent.stream
 
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
+import io.logbee.keyscore.agent.stream.DefaultFilterStage.{noopCondition, noopFunction}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage.{noopCondition, noopFunction}
 
 import scala.concurrent.{Future, Promise}
 
 object DefaultFilterStage {
-  private val noopCondition = new Condition {
+  val noopCondition = new Condition {
     override def configure(configuration: FilterConfiguration): Boolean = { true }
     override def apply(dataset: Dataset): ConditionResult = { Reject(dataset) }
   }
 
-  private val noopFunction = new FilterFunction {
+  val noopFunction = new FilterFunction {
     override def configure(configuration: FilterConfiguration): Unit = {  }
     override def apply(dataset: Dataset): Dataset = { dataset }
   }

@@ -7,7 +7,7 @@ import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.javadsl.RunnableGraph
 import akka.stream.scaladsl.Flow
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
-import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
+import io.logbee.keyscore.agent.stream.DefaultFilterStage
 import io.logbee.keyscore.agent.stream.management.FilterManager._
 import io.logbee.keyscore.agent.stream.management.StreamSupervisor.CreateStream
 import io.logbee.keyscore.agent.util.Reflection

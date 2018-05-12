@@ -1,13 +1,12 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.contrib.filter
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
+import io.logbee.keyscore.agent.stream.DefaultFilterStage
 import io.logbee.keyscore.agent.stream.ExampleData.{csvDatasetA, csvDatasetB}
-import io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilterFunction
-import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import io.logbee.keyscore.model._
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -19,7 +18,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class CSVFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
+class CSVParserFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
 
   private val config = ConfigFactory.load()
   implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))

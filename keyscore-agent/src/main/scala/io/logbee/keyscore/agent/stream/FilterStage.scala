@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.stream.contrib.stages
+package io.logbee.keyscore.agent.stream
 
 import akka.stream.FlowShape
 import akka.stream.stage.GraphStageWithMaterializedValue

@@ -6,19 +6,17 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.stream.ExampleData._
-import io.logbee.keyscore.agent.stream.contrib.stages.DefaultFilterStage
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
