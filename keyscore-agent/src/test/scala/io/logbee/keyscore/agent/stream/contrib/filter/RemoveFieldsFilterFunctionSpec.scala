@@ -7,7 +7,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.DefaultFilterStage
+import io.logbee.keyscore.agent.stream.{DefaultFilterStage, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti, datasetMulti2, datasetMultiModified, datasetMultiModified2}
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
 import io.logbee.keyscore.model.{Accept, Condition, Dataset, Reject}
@@ -21,12 +21,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
-
-  private val config = ConfigFactory.load()
-  implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = materializer.executionContext
+class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
     val (filterFuture, probe) = Source(List(datasetMulti, datasetMulti2))

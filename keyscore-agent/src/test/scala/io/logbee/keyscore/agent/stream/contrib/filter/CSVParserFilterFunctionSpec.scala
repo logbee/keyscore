@@ -5,7 +5,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.DefaultFilterStage
+import io.logbee.keyscore.agent.stream.{DefaultFilterStage, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.agent.stream.ExampleData.{csvDatasetA, csvDatasetB}
 import io.logbee.keyscore.model._
 import org.junit.runner.RunWith
@@ -18,12 +18,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class CSVParserFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory {
-
-  private val config = ConfigFactory.load()
-  implicit val system = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = materializer.executionContext
+class CSVParserFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   val csvAResult = Dataset(Record(
     TextField("Philosophy" , "13"),
