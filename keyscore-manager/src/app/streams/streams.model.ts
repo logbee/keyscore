@@ -85,28 +85,30 @@ export interface Parameter {
     value: any;
     parameterType: string;
 }
-export const getFilterState = createFeatureSelector<FilterState>('filters');
+
+export const getStreamsModuleState = createFeatureSelector<StreamsModuleState>('streams');
+
+export const getStreamsState = createSelector(getStreamsModuleState, (state: StreamsModuleState) => state.streams);
+
+export const getFilterState = createSelector(getStreamsModuleState, (state: StreamsModuleState) => state.filter);
 
 export const getCurrentFilter = createSelector(getFilterState, (state: FilterState) => state.currentFilter);
 
+export const getStreamList = createSelector(getStreamsState, (state: StreamsState) => state.streamList);
 
+export const getEditingStream = createSelector(getStreamsState, (state: StreamsState) => state.editingStream);
 
-export const getStreamsState = createFeatureSelector<StreamsModuleState>('streams');
+export const getEditingStreamIsLocked = createSelector(getStreamsState, (state: StreamsState) => state.editingStreamIsLocked);
 
-export const getStreamList = createSelector(getStreamsState, (state: StreamsModuleState) => state.streams.streamList);
+export const isLoading = createSelector(getStreamsState, (state: StreamsState) => state.loading);
 
-export const getEditingStream = createSelector(getStreamsState, (state: StreamsModuleState) => state.streams.editingStream);
+export const getFilterDescriptors = createSelector(getStreamsState, (state: StreamsState) => state.filterDescriptors);
 
-export const getEditingStreamIsLocked = createSelector(getStreamsState, (state: StreamsModuleState) => state.streams.editingStreamIsLocked);
+export const getFilterCategories = createSelector(getStreamsState, (state: StreamsState) => state.filterCategories);
 
-export const isLoading = createSelector(getStreamsState, (state: StreamsModuleState) => state.streams.loading);
+export const getEditingFilterParameters = createSelector(getStreamsState, (state: StreamsState) => state.editingFilter.parameters);
 
-export const getFilterDescriptors = createSelector(getStreamsState, (state: StreamsModuleState) => state.streams.filterDescriptors);
+export const getEditingFilter = createSelector(getStreamsState, (state: StreamsState) => state.editingFilter);
 
-export const getFilterCategories = createSelector(getStreamsState, (state: StreamsModuleState) => state.streams.filterCategories);
-
-export const getEditingFilterParameters = createSelector(getStreamsState, (state: StreamsModuleState) => state.streams.editingFilter.parameters);
-
-export const getEditingFilter = createSelector(getStreamsState, (state: StreamsModuleState) => state.streams.editingFilter);
-
+export const getFilterById = (id) => createSelector(getStreamsState, (state: StreamsState) => [].concat(state.streamList).find((filter: FilterModel) => filter.id === id));
 
