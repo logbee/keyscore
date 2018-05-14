@@ -4,7 +4,7 @@ import {Blockly} from "node-blockly/browser";
 import {Store} from "@ngrx/store";
 import {
     FilterDescriptor, getFilterCategories, getFilterDescriptors, StreamModel,
-    StreamsState
+    StreamsModuleState
 } from "../../streams.model";
 import {combineLatest, Observable, ReplaySubject} from "rxjs";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";

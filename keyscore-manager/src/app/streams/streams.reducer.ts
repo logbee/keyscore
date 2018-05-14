@@ -1,8 +1,9 @@
-import {ParameterDescriptor, StreamsState} from "./streams.model";
+import {StreamsState} from "./streams.model";
 import {
     ADD_FILTER,
     CREATE_STREAM,
-    DELETE_STREAM, DELETE_STREAM_FAILURE, DELETE_STREAM_SUCCESS,
+    DELETE_STREAM_FAILURE,
+    DELETE_STREAM_SUCCESS,
     EDIT_STREAM,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOCK_EDITING_STREAM,
@@ -11,7 +12,7 @@ import {
     RESET_STREAM,
     StreamActions,
     UPDATE_FILTER,
-    UPDATE_STREAM, UPDATE_STREAM_SUCCESS
+    UPDATE_STREAM_SUCCESS
 } from "./streams.actions";
 import {v4 as uuid} from 'uuid';
 import {deepcopy} from "../util";

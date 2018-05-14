@@ -7,7 +7,7 @@ import {Go} from "../router/router.actions";
 
 @Component({
     selector: 'keyscore-agents',
-    template: `
+    template: `        
         <div class="row justify-content-center">
             <div class="col-10">
                 <div class="card">

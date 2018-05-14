@@ -1,8 +1,7 @@
 import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
-import {FilterModel} from "../../streams/streams.model";
-import {FilterState} from "../filter-model";
+import {FilterDescriptor, FilterState, getCurrentFilter} from "../../streams.model";
 
 @Component({
     selector: 'live-editing',
@@ -15,56 +14,65 @@ import {FilterState} from "../filter-model";
                 <div class="card-body badge-light">
                     <div class="card">
                         <div class="card-header alert-light font-weight-bold">
-                            {{'FILTERLIVEEDITINGCOMPONENT.FILTERDESCRIPTION_TITLE' | translate}}</div>
+                            {{'FILTERLIVEEDITINGCOMPONENT.FILTERDESCRIPTION_TITLE' | translate}}
+                        </div>
                         <div class="card-body">
                             <table class="table table-condensed">
                                 <thead>
                                 <tr>
-                                    <th>  {{'FILTERLIVEEDITINGCOMPONENT.NAME' | translate}}</th>
-                                    <th>  {{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}</th>
-                                    <th>  {{'FILTERLIVEEDITINGCOMPONENT.PATTERN' | translate}}</th>
+                                    <th> {{'FILTERLIVEEDITINGCOMPONENT.NAME' | translate}}</th>
+                                    <th> {{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}</th>
+                                    <th> {{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td>GrokFilter</td>
-                                    <td>Filter that structures messages with Regex.</td>
-                                    <td>""</td>
+                                        <td>{{(currentFilter$ | async)?.displayName}}</td>
+                                        <td>{{(currentFilter$ | async)?.description}}</td>
+                                        <td>{{(currentFilter$ | async)?.category}}</td>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                     <div class="card mt-3">
-                        <div class="card-header alert-light font-weight-bold">  {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}</div>
+                        <div class="card-header alert-light font-weight-bold">
+                            {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}
+                        </div>
                         <div class="card-body">
                             <div class="form-group">
-                                <textarea placeholder="{{'FILTERLIVEEDITINGCOMPONENT.MESSAGE_PLACEHOLDER' | translate}}" class="form-control" rows="5"></textarea>
+                                <textarea placeholder="{{'FILTERLIVEEDITINGCOMPONENT.MESSAGE_PLACEHOLDER' | translate}}"
+                                          class="form-control" rows="5"></textarea>
                             </div>
 
                         </div>
                     </div>
                     <div class="card mt-3">
-                        <div class="card-header alert-light font-weight-bold">  {{'FILTERLIVEEDITINGCOMPONENT.REGEXPATTERN' | translate}}</div>
+                        <div class="card-header alert-light font-weight-bold">
+                            {{'FILTERLIVEEDITINGCOMPONENT.REGEXPATTERN' | translate}}
+                        </div>
                         <div class="card-body">
                             <div class="form-group">
-                                <textarea placeholder="{{'FILTERLIVEEDITINGCOMPONENT.REGEX_PLACEHOLDER' | translate}}" class="form-control" rows="1"></textarea>
+                                <textarea placeholder="{{'FILTERLIVEEDITINGCOMPONENT.REGEX_PLACEHOLDER' | translate}}"
+                                          class="form-control" rows="1"></textarea>
                             </div>
-                                <button class="float-right primary btn-info">  {{'GENERAL.APPLY' | translate}}</button>
+                            <button class="float-right primary btn-info"> {{'GENERAL.APPLY' | translate}}</button>
                         </div>
                     </div>
 
                     <div class="card mt-3">
-                        <div class="card-header alert-light font-weight-bold">  {{'FILTERLIVEEDITINGCOMPONENT.RESULT' | translate}}</div>
+                        <div class="card-header alert-light font-weight-bold">
+                            {{'FILTERLIVEEDITINGCOMPONENT.RESULT' | translate}}
+                        </div>
                         <div class="card-body">
                             <div class="form-group">
                                 <table class="table table-condensed">
                                     <thead>
                                     <tr>
-                                        <th>  {{'FILTERLIVEEDITINGCOMPONENT.NUMBER' | translate}}</th>
-                                        <th>  {{'FILTERLIVEEDITINGCOMPONENT.NAME' | translate}}</th>
-                                        <th>  {{'FILTERLIVEEDITINGCOMPONENT.VALUE' | translate}}</th>
-                                        <th>  {{'FILTERLIVEEDITINGCOMPONENT.TYPE' | translate}}</th>
+                                        <th> {{'FILTERLIVEEDITINGCOMPONENT.NUMBER' | translate}}</th>
+                                        <th> {{'FILTERLIVEEDITINGCOMPONENT.NAME' | translate}}</th>
+                                        <th> {{'FILTERLIVEEDITINGCOMPONENT.VALUE' | translate}}</th>
+                                        <th> {{'FILTERLIVEEDITINGCOMPONENT.TYPE' | translate}}</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -79,7 +87,7 @@ import {FilterState} from "../filter-model";
                             </div>
                         </div>
                     </div>
-                    <button class="mt-3 float-right primary btn-success">  {{'GENERAL.SAVE' | translate}}</button>
+                    <button class="mt-3 float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>
                 </div>
             </div>
         </div>
@@ -88,11 +96,9 @@ import {FilterState} from "../filter-model";
 
 export class LiveEditingComponent {
 
-    private currentFilter$: Observable<FilterModel>;
+    private currentFilter$: Observable<FilterDescriptor>;
 
     constructor(private store: Store<FilterState>) {
-        // this.currentFilter$ = this.store.select(getFilterDescriptorForCurrent)
+        this.currentFilter$ = this.store.select(getCurrentFilter);
     }
-
-
 }

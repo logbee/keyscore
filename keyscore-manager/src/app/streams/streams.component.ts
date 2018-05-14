@@ -34,7 +34,7 @@ import {TranslateService} from "@ngx-translate/core";
             <div class="col-9">
                 <div class="card-columns">
                     <div *ngFor="let stream of streams$ | async; let i = index" class="card">
-                        <a class="card-header btn d-flex" routerLink="/stream/{{stream.id}}">
+                        <a class="card-header btn d-flex" routerLink="/streams/stream/{{stream.id}}">
                             <h5>{{stream.name}}</h5>
                         </a>
                         <div class="card-body">
@@ -58,7 +58,7 @@ export class StreamsComponent {
         this.store.dispatch(new CreateStreamAction(streamId, "New Stream", ""));
         if (activeRouting) {
             this.store.dispatch(new RouterActions.Go({
-                path: ['/stream/' + streamId, {}],
+                path: ['streams/stream/' + streamId, {}],
                 query: {},
                 extras: {}
             }));

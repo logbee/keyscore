@@ -18,7 +18,6 @@ import {StoreRouterConnectingModule} from '@ngrx/router-store';
 import {RouterEffects} from "./router/router.effects";
 import {AgentsModule} from "./agents/agents.module";
 import {StreamBuilderService} from "./services/streambuilder.service";
-import {FilterModule} from "./filters/filter.module";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 
@@ -27,9 +26,7 @@ const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
     {path: 'dashboard', component: DashboardComponent},
     {path: 'agent', loadChildren: () => AgentsModule},
-    {path: 'stream', loadChildren: () => StreamsModule},
-    {path: 'filter', loadChildren:() => FilterModule},
-
+    {path: 'streams', loadChildren: () => StreamsModule},
 ];
 
 export function HttpLoaderFactory(http: HttpClient) {

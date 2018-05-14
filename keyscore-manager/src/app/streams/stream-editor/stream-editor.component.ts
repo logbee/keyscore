@@ -26,7 +26,7 @@ import {
 } from "../streams.actions";
 import {selectAppConfig} from "../../app.config";
 import {Go} from "../../router/router.actions";
-import {GetCurrentDescriptorAction} from "../../filters/filters.actions";
+import {LoadFilterDescriptorAction} from "../filters/filters.actions";
 
 @Component({
     selector: 'stream-editor',
@@ -141,7 +141,6 @@ export class StreamEditorComponent implements OnInit {
     }
 
     callLiveEditing(filter: FilterModel) {
-        this.store.dispatch(new GetCurrentDescriptorAction(filter.name,));
-        this.store.dispatch(new Go({path: ['/filter/' + filter.name + '/']}))
+        this.store.dispatch(new Go({path: ['streams/filter/' + filter.id + '/']}))
     }
 }

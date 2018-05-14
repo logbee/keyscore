@@ -5,7 +5,7 @@ import {Effect, Actions, ofType} from '@ngrx/effects';
 import {map, tap} from 'rxjs/operators';
 import * as RouterActions from './router.actions';
 import {ROUTER_ERROR, RouterErrorAction} from "@ngrx/router-store";
-import {StreamsState} from "../streams/streams.model";
+import {StreamsModuleState} from "../streams/streams.model";
 import uuid = require("uuid");
 
 @Injectable()
@@ -16,7 +16,7 @@ export class RouterEffects {
         map((action: RouterActions.Go) => action.payload),
         tap(({path, query: queryParams, extras}) =>
             this.router.navigate(path, {queryParams, ...extras}))
-    )
+    );
 
     @Effect({dispatch: false})
     navigateBack$ = this.actions$.pipe(

@@ -4,7 +4,6 @@ import {ParameterControlService} from "../../services/parameter-control.service"
 import {FormControl, FormGroup} from "@angular/forms";
 import {Observable} from "rxjs";
 import {Go} from "../../router/router.actions";
-import {FilterState} from "../../filters/filter-model";
 import {Store} from "@ngrx/store";
 
 @Component({
