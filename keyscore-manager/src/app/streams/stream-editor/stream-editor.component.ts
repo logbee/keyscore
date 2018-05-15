@@ -48,7 +48,7 @@ import {LoadFilterDescriptorAction} from "../filters/filters.actions";
                     <div class="card-header d-flex justify-content-between">
                         <span class="font-weight-bold">{{'STREAMEDITORCOMPONENT.STREAMBLUEPRINT' | translate}}</span>
                         <div *ngIf="!(isLocked$ | async)">
-                            <button class="btn btn-success" (click)="addFilter(null)">Add Filter</button>
+                            <button class="btn btn-success" (click)="addFilter(null)">{{'STREAMEDITORCOMPONENT.ADDFILTER' | translate}}</button>
                         </div>
                     </div>
                     <div class="card-body">

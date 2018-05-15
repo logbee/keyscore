@@ -14,20 +14,31 @@ export interface AppState {
     template: `
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <a class="navbar-brand" href="#" style="text-transform: uppercase">{{'GENERAL.APPNAME' | translate}}</a>
-            <div class="navbar-nav">
-                <div class="nav-item">
-                    <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">{{'GENERAL.DASHBOARD' | translate}}</a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" routerLink="/agent" routerLinkActive="active">{{'APPCOMPONENT.AGENTS' | translate}}</a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" routerLink="/streams/stream" routerLinkActive="active">{{'APPCOMPONENT.STREAMS' | translate}}</a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" routerLink="/streams/filter" routerLinkActive="active">{{'APPCOMPONENT.FILTERS' | translate}}</a>
-                </div>
-            </div>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/dashboard"
+                       routerLinkActive="active">{{'GENERAL.DASHBOARD' | translate}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/agent"
+                       routerLinkActive="active">{{'APPCOMPONENT.AGENTS' | translate}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/streams/stream"
+                       routerLinkActive="active">{{'APPCOMPONENT.STREAMS' | translate}}</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                        {{'LANGUAGES.LANGUAGE' | translate}}
+                    </a>
+                    <div class="dropdown-menu">
+                        <span class="dropdown-item" (click)="setLanguage('de')">{{'LANGUAGES.GERMAN' | translate}}</span>
+                        <span class="dropdown-item" (click)="setLanguage('en')">{{'LANGUAGES.ENGLISH' | translate}}</span>
+                    </div>
+                </li>
+            </ul>
         </nav>
         <div id="modal">
             <ng-template #modal></ng-template>
@@ -55,15 +66,23 @@ export class AppComponent {
     private modalService: ModalService;
     private store: Store<any>;
 
-    constructor(store: Store<any>, modalService: ModalService, translate:TranslateService) {
+    constructor(store: Store<any>, modalService: ModalService, private translate: TranslateService) {
         this.store = store;
-        this.modalService = modalService
-
-        translate.setDefaultLang('en');
-        translate.use('en');
+        this.modalService = modalService;
+        translate.addLangs(["en", "de"]);
+        translate.setDefaultLang('de');
+        let browserLang = translate.getBrowserLang();
+        translate.use(browserLang.match(/en|de/) ? browserLang : 'en');
     }
 
     ngOnInit() {
         this.modalService.setRootViewContainerRef(this.viewContainerRef);
     }
+
+
+    private setLanguage(language: string) {
+        this.translate.use(language)
+    }
+
+
 }

@@ -1,0 +1,72 @@
+{
+  "GENERAL": {
+    "APPNAME": "Keyscore",
+    "EDIT": "Bearbeiten",
+    "SAVE": "Speichern",
+    "DELETE": "Löschen",
+    "CANCEL": "Abrechen",
+    "REMOVE": "Entfernen",
+    "OK": "Ok",
+    "DASHBOARD": "Dashboard",
+    "APPLY": "Anwenden",
+    "NEW": "Neu",
+    "ADD": "Hinzufügen",
+    "CLOSE": "Schließen"
+  },
+  "APPCOMPONENT": {
+    "AGENTS": "Agents",
+    "STREAMS": "Streams",
+    "FILTERS": "Filters"
+  },
+  "AGENTSDETAILS": {
+    "DETAILEDVIEW": "Detail Ansicht:",
+    "AGENTID": "Agentid:",
+    "AGENTNAME": "Agentname:",
+    "AGENTHOST": "Agenthost:"
+  },
+  "STREAMCOMPONENT": {
+    "CREATE": "Stream erstellen",
+    "SAVED_VALUES": "Folgende Werte wurden gespeichert"
+  },
+  "STREAMEDITORCOMPONENT": {
+    "STREAMBLUEPRINT": "Stream Komponenten",
+    "ADDFILTER": "Filter hinzufügen"
+  },
+  "AGENTSCOMPONENT": {
+    "AGENTS": "Agents",
+    "NUMBER": "#",
+    "NAME": "Name",
+    "ID": "ID",
+    "HOST": "Host"
+  },
+  "FILTERLIVEEDITINGCOMPONENT": {
+    "NUMBER": "#",
+    "TITLE": "Live Editing",
+    "FILTERDESCRIPTION_TITLE": "Filter Beschreibung",
+    "NAME": "Filter Name",
+    "DESCRIPTION": "Filter Beschreibung",
+    "PATTERN": "Filter Pattern",
+    "CATEGORY": "Kategorie",
+    "EXAMPLE_MESSAGE": "Beispiel Nachricht",
+    "REGEXPATTERN": "Regulärer Ausdruck",
+    "RESULT": "Ergebnis",
+    "VALUE": "Wert",
+    "TYPE": "Typ",
+    "REGEX_PLACEHOLDER": "Regulären Ausdruck hier angeben",
+    "MESSAGE_PLACEHOLDER": "Beispielnachricht hier angeben"
+  },
+  "FILTERSCOMPONENT" : {
+    "FILTERS": "Filter"
+  },
+  "FILTERCHOSERCOMPONENT": {
+    "FILTERCHOOSER_TITLE": "Filter Auswahl"
+  } ,
+  "PARAMETERCOMPONENT" : {
+    "ISREQUIRED": "wird benötigt"
+  },
+  "LANGUAGES": {
+  "LANGUAGE": "Sprache",
+  "GERMAN": "Deutsch",
+  "ENGLISH": "Englisch"
+}
+}

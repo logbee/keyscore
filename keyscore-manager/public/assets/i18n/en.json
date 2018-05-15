@@ -29,7 +29,8 @@
     "SAVED_VALUES": "Saved the following values"
   },
   "STREAMEDITORCOMPONENT": {
-    "STREAMBLUEPRINT": "Stream Components"
+    "STREAMBLUEPRINT": "Stream Components",
+    "ADDFILTER": "Add Filter"
   },
   "AGENTSCOMPONENT": {
     "AGENTS": "Agents",
@@ -62,5 +63,10 @@
   } ,
   "PARAMETERCOMPONENT" : {
     "ISREQUIRED": "is required"
+  },
+  "LANGUAGES": {
+    "LANGUAGE": "Language",
+    "GERMAN": "German",
+    "ENGLISH": "English"
   }
 }
