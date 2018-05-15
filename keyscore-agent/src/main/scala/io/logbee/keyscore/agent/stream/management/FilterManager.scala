@@ -46,7 +46,7 @@ object FilterManager {
 
 case class FilterRegistration(filterDescriptor: FilterDescriptor, filterClass: Class[_])
 
-class FilterManager(implicit materializer: ActorMaterializer) extends Actor with ActorLogging {
+class FilterManager extends Actor with ActorLogging {
 
   private val eventBus = context.system.eventStream
   private val filterLoader = new FilterLoader
