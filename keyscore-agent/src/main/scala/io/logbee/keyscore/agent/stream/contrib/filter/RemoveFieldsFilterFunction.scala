@@ -1,12 +1,23 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
-import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Described, Record}
+import java.util.Locale
 
+import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.{Dataset, Described, Record, sink}
+
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object RemoveFieldsFilterFunction extends Described {
-  override def descriptor: FilterDescriptor = FilterDescriptor(
+
+  override def descriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
+    val descriptors = mutable.Map.empty[Locale,sink.FilterDescriptor]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+    )
+  }
+
+  private def descriptor(language:Locale): sink.FilterDescriptor = FilterDescriptor(
     name = "RemoveFieldsFilter",
     description = "Removes all given fields and their values.",
     previousConnection = FilterConnection(true),

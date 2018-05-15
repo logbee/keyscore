@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.stream.management
 
-import java.util.UUID
+import java.util.{Locale, UUID}
 
 import akka.actor
 import akka.actor.{Actor, ActorLogging, Props}
@@ -14,7 +14,8 @@ import io.logbee.keyscore.agent.util.Reflection
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.{FilterExtension, SinkExtension, SourceExtension}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
-import io.logbee.keyscore.model.filter.{FilterDescriptor, FilterFunction}
+import io.logbee.keyscore.model.filter.FilterFunction
+import io.logbee.keyscore.model.sink.FilterDescriptor
 import io.logbee.keyscore.model.{Dataset, StreamModel}
 
 import scala.collection.mutable
@@ -26,7 +27,7 @@ object FilterManager {
 
   case object GetDescriptors
 
-  case class Descriptors(descriptors: List[FilterDescriptor])
+  case class Descriptors(descriptors: List[mutable.Map[Locale,FilterDescriptor]])
 
   trait GraphBuild {}
 
@@ -44,7 +45,7 @@ object FilterManager {
 
 }
 
-case class FilterRegistration(filterDescriptor: FilterDescriptor, filterClass: Class[_])
+case class FilterRegistration(filterDescriptor: mutable.Map[Locale,FilterDescriptor], filterClass: Class[_])
 
 class FilterManager extends Actor with ActorLogging {
 
@@ -83,8 +84,8 @@ class FilterManager extends Actor with ActorLogging {
       log.info(s"Registering extension '$extensionClass' of type '$extensionType'.")
       extensionType match {
         case FilterExtension | SinkExtension | SourceExtension =>
-          val descriptor = filterLoader.loadDescriptor(extensionClass)
-          descriptors += (descriptor.name -> FilterRegistration(descriptor, extensionClass))
+          val descriptor = filterLoader.loadDescriptors(extensionClass)
+          descriptors += (descriptor(Locale.ENGLISH).name -> FilterRegistration(descriptor, extensionClass))
       }
 
     case GetDescriptors =>

@@ -7,7 +7,9 @@ import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
 import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.sink
 
+import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 
 object RetainFieldsFilter {
@@ -33,13 +35,19 @@ object RetainFieldsFilter {
     }
   }
 
-  def descriptor: (Locale) => FilterDescriptor = {
-    (language: Locale) => {
-      FilterDescriptor("RetainFieldsFilter", "Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.",
-        FilterConnection(true), FilterConnection(true), List(
-          ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
-        ))
-    }
+  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
+    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+    )
+  }
+
+  def descriptor(language: Locale): sink.FilterDescriptor = {
+
+    FilterDescriptor("RetainFieldsFilter", "Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.",
+      FilterConnection(true), FilterConnection(true), List(
+        ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
+      ))
   }
 }
 

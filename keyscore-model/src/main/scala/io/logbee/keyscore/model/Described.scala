@@ -1,7 +1,11 @@
 package io.logbee.keyscore.model
 
-import io.logbee.keyscore.model.filter.FilterDescriptor
+import java.util.Locale
+
+import io.logbee.keyscore.model.sink.FilterDescriptor
+
+import scala.collection.mutable
 
 trait Described {
-  def descriptor: FilterDescriptor
+  def descriptors: mutable.Map[Locale,FilterDescriptor]
 }

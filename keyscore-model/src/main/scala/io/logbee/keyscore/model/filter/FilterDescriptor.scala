@@ -1,15 +1,29 @@
 package io.logbee.keyscore.model.filter
 
+import java.util.UUID
+
+import io.logbee.keyscore.model.sink
+
 object FilterDescriptor {
-  def apply(name: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, "", FilterConnection(true),FilterConnection(true),parameters)
+  def apply(name: String, parameters: List[ParameterDescriptor]): sink.FilterDescriptor = new sink.FilterDescriptor(name, name, "", FilterConnection(true),FilterConnection(true),parameters)
 
-  def apply(name: String, description: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, description,FilterConnection(true),FilterConnection(true),parameters)
+  def apply(name: String, description: String, parameters: List[ParameterDescriptor]): sink.FilterDescriptor = new sink.FilterDescriptor(name, name, description,FilterConnection(true),FilterConnection(true),parameters)
 
-  def apply(name: String, description: String, previousConnection: FilterConnection, nextConnection: FilterConnection, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(name, name, description, previousConnection, nextConnection, parameters)
+  def apply(name: String, description: String, previousConnection: FilterConnection, nextConnection: FilterConnection, parameters: List[ParameterDescriptor]): sink.FilterDescriptor = new sink.FilterDescriptor(name, name, description, previousConnection, nextConnection, parameters)
 
 }
 
+case class FilterDescriptorFragment(
+                                     displayName: String,
+                                     description: String,
+                                     previousConnection: FilterConnection,
+                                     nextConnection: FilterConnection,
+                                     parameters: List[ParameterDescriptor] = List.empty,
+                                     category: String = "Filter",
+                                   )
+
 case class FilterDescriptor(
+                             id: UUID,
                              name: String,
                              displayName: String,
                              description: String,

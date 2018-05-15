@@ -8,7 +8,7 @@ import io.logbee.keyscore.agent.stream.management.FilterManager.{Descriptors, Ge
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.Described
-import io.logbee.keyscore.model.filter.FilterDescriptor
+import io.logbee.keyscore.model.sink.FilterDescriptor
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpecLike}
 

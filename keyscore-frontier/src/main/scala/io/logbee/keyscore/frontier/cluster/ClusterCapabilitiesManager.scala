@@ -10,7 +10,7 @@ import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDes
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.{KafkaSink, StdOutSink}
 import io.logbee.keyscore.frontier.sources.{HttpSource, KafkaSource}
-import io.logbee.keyscore.model.filter.FilterDescriptor
+import io.logbee.keyscore.model.sink.FilterDescriptor
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -19,7 +19,7 @@ import scala.collection.mutable.ListBuffer
 object ClusterCapabilitiesManager {
   def props(): Props = Props(new ClusterCapabilitiesManager())
 
-  case class GetStandardDescriptors(language:Locale)
+  case class GetStandardDescriptors(language: Locale)
 
   case class StandardDescriptors(listOfDescriptorsAndType: List[FilterDescriptor])
 
@@ -33,10 +33,8 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
 
-  private val listOfFilterDescriptors = mutable.Map.empty[FilterDescriptor, mutable.Set[ActorPath]]
+  private val listOfFilterDescriptors = mutable.Map.empty[mutable.Map[Locale, FilterDescriptor], mutable.Set[ActorPath]]
   private val listOfActiveDescriptors = List[FilterDescriptor]()
-
-  private val languageDescriptorList = ListBuffer.empty[(Locale)=>FilterDescriptor]
 
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
@@ -50,15 +48,18 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
-    case GetStandardDescriptors(language) =>
-      sender ! StandardDescriptors(languageDescriptorList.toList.map(languageDescriptor => languageDescriptor(language)))
+    case GetStandardDescriptors(selectedLanguage) =>
+      sender ! StandardDescriptors(listOfFilterDescriptors.foldLeft(ListBuffer[FilterDescriptor]()) {
+        (result, descriptorMap) =>
+          result += descriptorMap._1(selectedLanguage)
+      }.toList)
 
     case GetActiveDescriptors =>
       sender() ! ActiveDescriptors(listOfActiveDescriptors)
 
     case AgentCapabilities(filterDescriptors) =>
-      filterDescriptors.foreach(descriptor => {
-        listOfFilterDescriptors.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
+      filterDescriptors.foreach(descriptors => {
+        listOfFilterDescriptors.getOrElseUpdate(descriptors, mutable.Set.empty) += sender.path
       })
 
     case AgentLeaved(ref) =>
@@ -73,25 +74,14 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   private def addDefaultDescriptors(): Unit = {
     listOfFilterDescriptors ++= Map(
-      KafkaSource.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-      HttpSource.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-      RemoveFieldsFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-      RetainFieldsFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-      KafkaSink.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-      StdOutSink.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-      AddFieldsFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-      GrokFilter.descriptor(Locale.ENGLISH) -> mutable.Set.empty,
-    )
-
-    languageDescriptorList.append(
-      AddFieldsFilter.descriptor,
-      GrokFilter.descriptor,
-      RemoveFieldsFilter.descriptor,
-      RetainFieldsFilter.descriptor,
-      KafkaSink.descriptor,
-      StdOutSink.descriptor,
-      HttpSource.descriptor,
-      KafkaSource.descriptor
+      KafkaSource.getDescriptors -> mutable.Set.empty,
+      HttpSource.getDescriptors -> mutable.Set.empty,
+      RemoveFieldsFilter.getDescriptors -> mutable.Set.empty,
+      RetainFieldsFilter.getDescriptors -> mutable.Set.empty,
+      KafkaSink.getDescriptors -> mutable.Set.empty,
+      StdOutSink.getDescriptors -> mutable.Set.empty,
+      AddFieldsFilter.getDescriptors -> mutable.Set.empty,
+      GrokFilter.getDescriptors -> mutable.Set.empty,
     )
 
   }

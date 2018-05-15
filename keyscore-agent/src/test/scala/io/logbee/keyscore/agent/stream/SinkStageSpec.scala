@@ -39,7 +39,9 @@ class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFa
           updateConfiguration.success(configuration)
         }
 
-        override def onPush(): Unit = ???
+        override def onPush(): Unit = {
+
+        }
       }
 
       val sinkFuture = Source(List(dataset1, dataset2))

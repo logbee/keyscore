@@ -7,13 +7,14 @@ import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Field, TextField}
+import io.logbee.keyscore.model.{Field, TextField, sink}
 import org.json4s.DefaultFormats
 
+import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 
 object AddFieldsFilter {
-  val supportedLocales:List[Locale] = List(Locale.ENGLISH)
+  val supportedLocales: List[Locale] = List(Locale.ENGLISH)
 
   def apply(fieldsToAdd: Map[String, String]): Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]] = {
     Flow.fromGraph(new AddFieldsFilter(fieldsToAdd))
@@ -36,17 +37,24 @@ object AddFieldsFilter {
     }
   }
 
-  def descriptor: (Locale) => FilterDescriptor = {
-    (language: Locale) => {
-      val filterText: ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter", language)
-      FilterDescriptor("AddFieldsFilter", filterText.getString("displayName"), filterText.getString("description"),
-        FilterConnection(true), FilterConnection(true), List(
-          MapParameterDescriptor("fieldsToAdd", filterText.getString("fieldsToAddName"), filterText.getString("fieldsToAddDescription"),
-            TextParameterDescriptor("fieldName", filterText.getString("fieldKeyName"), filterText.getString("fieldKeyDescription")),
-            TextParameterDescriptor("fieldValue", filterText.getString("fieldValueName"), filterText.getString("fieldValueDescription"))
-          )))
-    }
+  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
+    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
+      Locale.GERMAN -> descriptor(Locale.GERMAN)
+    )
   }
+
+  def descriptor(language: Locale): sink.FilterDescriptor = {
+    val filterText: ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter", language)
+    FilterDescriptor("AddFieldsFilter", filterText.getString("displayName"), filterText.getString("description"),
+      FilterConnection(true), FilterConnection(true), List(
+        MapParameterDescriptor("fieldsToAdd", filterText.getString("fieldsToAddName"), filterText.getString("fieldsToAddDescription"),
+          TextParameterDescriptor("fieldName", filterText.getString("fieldKeyName"), filterText.getString("fieldKeyDescription")),
+          TextParameterDescriptor("fieldValue", filterText.getString("fieldValueName"), filterText.getString("fieldValueDescription"))
+        )))
+  }
+
 
 }
 

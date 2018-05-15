@@ -5,7 +5,8 @@ import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
 import io.logbee.keyscore.model.Field
-import io.logbee.keyscore.model.filter.{FilterConnection, FilterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter.{FilterConnection, TextParameterDescriptor}
+import io.logbee.keyscore.model.sink.FilterDescriptor
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.json4s.native.Serialization
 import org.json4s.{DefaultFormats, FieldSerializer}

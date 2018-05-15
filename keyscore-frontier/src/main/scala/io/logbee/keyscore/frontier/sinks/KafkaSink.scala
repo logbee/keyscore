@@ -9,8 +9,10 @@ import akka.kafka.scaladsl.Producer
 import akka.stream.scaladsl.{Keep, Sink}
 import io.logbee.keyscore.frontier.filters.{CommittableRecord, ToKafkaProducerFilter}
 import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.sink
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 
+import scala.collection.mutable
 import scala.concurrent.Future
 
 
@@ -45,14 +47,19 @@ object KafkaSink {
     }
   }
 
-  def descriptor: Locale => FilterDescriptor = {
-    (language: Locale) => {
-      FilterDescriptor("KafkaSink", "Kafka Sink", "Writes the streams output to a given kafka topic",
-        FilterConnection(true), FilterConnection(false), List(
-          TextParameterDescriptor("sinkTopic"),
-          TextParameterDescriptor("bootstrapServer")
-        ), "Sink")
-    }
+  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
+    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+    )
+  }
+
+  def descriptor(language: Locale): sink.FilterDescriptor = {
+    FilterDescriptor("KafkaSink", "Kafka Sink", "Writes the streams output to a given kafka topic",
+      FilterConnection(true), FilterConnection(false), List(
+        TextParameterDescriptor("sinkTopic"),
+        TextParameterDescriptor("bootstrapServer")
+      ), "Sink")
   }
 
 }

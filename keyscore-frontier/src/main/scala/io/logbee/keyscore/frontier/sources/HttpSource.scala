@@ -14,7 +14,7 @@ import akka.stream.stage._
 import akka.stream.{KillSwitch, _}
 import io.logbee.keyscore.frontier.filters.CommittableRecord
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Record, TextField}
+import io.logbee.keyscore.model.{Record, TextField, sink}
 
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
@@ -42,16 +42,21 @@ object HttpSource {
     }
   }
 
-  def descriptor: Locale => FilterDescriptor = {
-    (language: Locale) => {
-      FilterDescriptor("HttpSource", "Http Source", "A Http Source",
-        FilterConnection(true, List("stream_base")), FilterConnection(true), List(
-          TextParameterDescriptor("bindAddress"),
-          TextParameterDescriptor("fieldName"),
-          IntParameterDescriptor("port")
+  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
+    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+    )
+  }
 
-        ), "Source")
-    }
+  def descriptor(language: Locale): sink.FilterDescriptor = {
+    FilterDescriptor("HttpSource", "Http Source", "A Http Source",
+      FilterConnection(true, List("stream_base")), FilterConnection(true), List(
+        TextParameterDescriptor("bindAddress"),
+        TextParameterDescriptor("fieldName"),
+        IntParameterDescriptor("port")
+
+      ), "Source")
   }
 }
 

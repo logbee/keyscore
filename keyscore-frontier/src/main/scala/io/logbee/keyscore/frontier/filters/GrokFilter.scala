@@ -6,7 +6,7 @@ import akka.stream._
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Field, NumberField, TextField}
+import io.logbee.keyscore.model.{Field, NumberField, TextField, sink}
 import org.json4s.DefaultFormats
 
 import scala.Function.tupled
@@ -46,16 +46,22 @@ object GrokFilter {
     }
   }
 
-  def descriptor: (Locale) => FilterDescriptor = {
-    (language: Locale) => {
-      FilterDescriptor("GrokFilter", "Grok Filter", "Extracts parts of a text line into fields.", FilterConnection(true),
-        FilterConnection(true), List(
-          BooleanParameterDescriptor("isPaused"),
-          ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
-          TextParameterDescriptor("pattern")
-        ))
-    }
+  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
+    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+    )
   }
+
+  def descriptor(language: Locale): sink.FilterDescriptor = {
+    FilterDescriptor("GrokFilter", "Grok Filter", "Extracts parts of a text line into fields.", FilterConnection(true),
+      FilterConnection(true), List(
+        BooleanParameterDescriptor("isPaused"),
+        ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),
+        TextParameterDescriptor("pattern")
+      ))
+  }
+
 }
 
 class GrokFilter(initialConfiguration: GrokFilterConfiguration) extends Filter {

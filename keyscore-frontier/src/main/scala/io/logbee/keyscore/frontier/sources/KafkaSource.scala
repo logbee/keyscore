@@ -10,11 +10,14 @@ import akka.stream._
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.frontier.filters.CommittableRecord
 import io.logbee.keyscore.model.TextField
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterConnection, FilterDescriptor, TextParameterDescriptor}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterConnection, TextParameterDescriptor}
+import io.logbee.keyscore.model.sink.FilterDescriptor
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
+
+import scala.collection.mutable
 
 
 object KafkaSource {
@@ -61,16 +64,21 @@ object KafkaSource {
     }
   }
 
-  def descriptor: Locale => FilterDescriptor = {
-    (language: Locale) => {
-      FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic",
-        FilterConnection(true, List("stream_base")), FilterConnection(true), List(
-          TextParameterDescriptor("bootstrapServer"),
-          TextParameterDescriptor("sourceTopic"),
-          TextParameterDescriptor("groupID"),
-          TextParameterDescriptor("offsetCommit")
-        ), "Source")
-    }
+  def getDescriptors: mutable.Map[Locale, FilterDescriptor] = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptor]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+    )
+  }
+
+  def descriptor(language: Locale): FilterDescriptor = {
+    FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic",
+      FilterConnection(true, List("stream_base")), FilterConnection(true), List(
+        TextParameterDescriptor("bootstrapServer"),
+        TextParameterDescriptor("sourceTopic"),
+        TextParameterDescriptor("groupID"),
+        TextParameterDescriptor("offsetCommit")
+      ), "Source")
   }
 }
 

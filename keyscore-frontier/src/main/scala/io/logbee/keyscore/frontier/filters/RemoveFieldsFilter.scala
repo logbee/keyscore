@@ -7,7 +7,9 @@ import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
 import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.sink
 
+import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 
 object RemoveFieldsFilter {
@@ -32,14 +34,21 @@ object RemoveFieldsFilter {
     }
   }
 
-  def descriptor: (Locale) => FilterDescriptor = {
-    (language: Locale) => {
-      FilterDescriptor("RemoveFieldsFilter", "Remove Fields Filter", "Removes all given fields and their values.",
-        FilterConnection(true), FilterConnection(true), List(
-          ListParameterDescriptor("fieldsToRemove", TextParameterDescriptor("fieldName"), min = 1)
-        ))
-    }
+  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
+    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+    )
   }
+
+  def descriptor(language: Locale): sink.FilterDescriptor = {
+
+    FilterDescriptor("RemoveFieldsFilter", "Remove Fields Filter", "Removes all given fields and their values.",
+      FilterConnection(true), FilterConnection(true), List(
+        ListParameterDescriptor("fieldsToRemove", TextParameterDescriptor("fieldName"), min = 1)
+      ))
+  }
+
 }
 
 class RemoveFieldsFilter(fieldNames: List[String]) extends Filter {
