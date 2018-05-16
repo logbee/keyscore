@@ -60,8 +60,6 @@ object AddFieldsFilter {
           TextParameterDescriptor("fieldValue", filterText.getString("fieldValueName"), filterText.getString("fieldValueDescription"))
         )))
   }
-
-
 }
 
 class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {

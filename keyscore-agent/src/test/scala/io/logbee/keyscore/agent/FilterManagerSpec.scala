@@ -1,5 +1,8 @@
 package io.logbee.keyscore.agent
 
+import java.util.{Locale, ResourceBundle}
+import java.util.UUID.fromString
+
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
@@ -8,13 +11,18 @@ import io.logbee.keyscore.agent.stream.management.FilterManager.{Descriptors, Ge
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.Described
-import io.logbee.keyscore.model.sink.FilterDescriptor
+import io.logbee.keyscore.model.filter._
+import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
+import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
+
+@RunWith(classOf[JUnitRunner])
 class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with WordSpecLike with Matchers with ScalaFutures {
 
   "A FilterManager" should {
@@ -29,13 +37,37 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
       filterManager ! GetDescriptors
 
       val message = receiveOne(5 seconds).asInstanceOf[Descriptors]
-      message.descriptors should (contain (ExampleFilter.descriptor) and have length 1)
+      message.descriptors should (contain (ExampleFilter.descriptors) and have length 1)
     }
   }
 }
 
 object ExampleFilter extends Described {
-  override def descriptor: FilterDescriptor = FilterDescriptor("ExampleFilter", "An example filter", List.empty)
+
+  val filterName = "AddFieldsFilter"
+  val filterId ="1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
+
+  override def descriptors: MetaFilterDescriptor = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
+    descriptors ++= Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
+      Locale.GERMAN -> descriptor(Locale.GERMAN)
+    )
+
+    MetaFilterDescriptor(fromString(filterId), filterName, descriptors.toMap)
+  }
+
+  def descriptor(language: Locale): FilterDescriptorFragment = {
+    val filterText: ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter", language)
+    FilterDescriptorFragment(filterText.getString("displayName"), filterText.getString("description"),
+      FilterConnection(true), FilterConnection(true), List(
+        MapParameterDescriptor("fieldsToAdd", filterText.getString("fieldsToAddName"), filterText.getString("fieldsToAddDescription"),
+          TextParameterDescriptor("fieldName", filterText.getString("fieldKeyName"), filterText.getString("fieldKeyDescription")),
+          TextParameterDescriptor("fieldValue", filterText.getString("fieldValueName"), filterText.getString("fieldValueDescription"))
+        )))
+  }
+
+
 }
 
 class ExampleFilter {
