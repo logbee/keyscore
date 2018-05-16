@@ -21,8 +21,20 @@ object ExampleData {
     TextField("foo", "bar"),
     TextField("42", "bar")
   )
+
+  //CSV Filter
   val csvA = Record(TextField("message", "13;07;09;15;;;"))
   val csvB = Record(TextField("message", ";03;05;01;;;"))
+
+  //Kafka
+  val kafka1 = Record(
+    TextField("id", "01"),
+    TextField("name", "robo")
+  )
+  val kafka2 = Record(
+    TextField("id", "02"),
+    TextField("name", "logbee")
+  )
 
   //Modified messages
   val record1Modified = Record(TextField("weather-report", "cloudy, -11.5 °C"))
@@ -40,10 +52,15 @@ object ExampleData {
   val dataset1 = Dataset(record1)
   val dataset2 = Dataset(record2)
   val dataset3 = Dataset(record3)
+
   val datasetMulti = Dataset(multiRecord)
   val datasetMulti2 = Dataset(multiRecord2)
+  //CSV
   val csvDatasetA = Dataset(csvA)
   val csvDatasetB = Dataset(csvB)
+  //Kafka
+  val kafkaDataset1 = Dataset(kafka1)
+  val kafkaDataset2 = Dataset(kafka2)
 
   //Modified datasets
   val dataset1Modified = Dataset(record1Modified)
@@ -55,7 +72,16 @@ object ExampleData {
   //configurations
   val configA = FilterConfiguration("A")
   val configB = FilterConfiguration("B")
+  //CSV
   val csvHeader = FilterConfiguration(UUID.randomUUID(), "filter", List(
     TextParameter("separator", ";"),
     TextListParameter("headers", List("Philosophy","Maths","Latin","Astrophysics"))))
+
+  //Kafkas
+  val kafkaSourceConfiguration = FilterConfiguration(UUID.randomUUID(), "kafkaSource", List(
+    TextParameter("bootstrapServer", "localhost:9092"),
+    TextParameter("groupID", "keyscore-agent"),
+    TextParameter("offsetCommit", "earliest"),
+    TextParameter("sourceTopic", "testTopic")
+  ))
 }

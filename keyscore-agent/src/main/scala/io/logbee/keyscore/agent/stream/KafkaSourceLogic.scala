@@ -36,6 +36,8 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
     val offsetConfig: String = configuration.getParameterValue[String]("offsetCommit")
     val topic: String = configuration.getParameterValue[String]("sourceTopic")
 
+    println("config: " + bootstrapServer + " " + groupID + " " + offsetConfig + " " + topic)
+
     val settings = consumerSettings(bootstrapServer, groupID, offsetConfig)
 
     val committableSource = Consumer.committableSource(settings, Subscriptions.topics(topic))
@@ -44,7 +46,10 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
       val fields = parse(message.record.value())
         .extract[Map[String, String]]
         .map(pair => (pair._1, TextField(pair._1, pair._2)))
-      Dataset(Record(fields))
+
+      val dataset = Dataset(Record(fields))
+      log.info(s"[IN] Dataset: $dataset")
+      dataset
     }.mapAsync(1)(insert).runWith(Sink.ignore)
 
   }
@@ -52,6 +57,7 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
   def insert(dataset: Dataset): Future[_] = {
     val entry = Entry(dataset, Promise[Unit])
     queue.enqueue(entry)
+    push()
     entry.promise.future
   }
 
@@ -65,10 +71,14 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
   }
 
   override def onPull(): Unit = {
+    push()
+  }
 
+  def push(): Unit = {
     while (isAvailable(shape.out) && queue.nonEmpty) {
       val entry = queue.dequeue()
       push(shape.out, entry.dataset)
+      log.info(s"[OUT] Dataset: ${entry.dataset}")
       entry.promise.success(())
     }
   }
