@@ -47,6 +47,7 @@ export class FilterEffects {
             const url = navigationAction.payload.event.url;
             const filterWithId = /\/filter\/.*/g;
 
+
             if (filterWithId.test(url)) {
                 return this.store.select(getFilterById("<uuid>"));
             }

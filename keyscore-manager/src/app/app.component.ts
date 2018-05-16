@@ -32,11 +32,11 @@ export interface AppState {
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                        {{'LANGUAGES.LANGUAGE' | translate}}
+                        <img  class="mr-2" src="/assets/images/flags/{{currentLang}}.svg" width="24px" height="16px"/>
                     </a>
-                    <div class="dropdown-menu">
-                        <span class="dropdown-item" (click)="setLanguage('de')">{{'LANGUAGES.GERMAN' | translate}}</span>
-                        <span class="dropdown-item" (click)="setLanguage('en')">{{'LANGUAGES.ENGLISH' | translate}}</span>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <span class="dropdown-item" (click)="setLanguage('de')"><img  class="mr-2" src="/assets/images/flags/de.svg" width="24px" height="16px" >{{'LANGUAGES.GERMAN' | translate}}</span>
+                        <span class="dropdown-item" (click)="setLanguage('en')"><img class="mr-2" src="/assets/images/flags/en.svg" width="24px" height="16px" >{{'LANGUAGES.ENGLISH' | translate}}</span>
                     </div>
                 </li>
             </ul>
@@ -66,6 +66,7 @@ export class AppComponent {
 
     private modalService: ModalService;
     private store: Store<any>;
+    private currentLang: string;
 
     constructor(store: Store<any>, modalService: ModalService, private translate: TranslateService) {
         this.store = store;
@@ -74,6 +75,7 @@ export class AppComponent {
         translate.setDefaultLang('de');
         let browserLang = translate.getBrowserLang();
         translate.use(browserLang.match(/en|de/) ? browserLang : 'en');
+        this.currentLang = browserLang
     }
 
     ngOnInit() {
@@ -84,6 +86,8 @@ export class AppComponent {
     private setLanguage(language: string) {
         this.translate.use(language);
         this.store.dispatch(new LoadFilterDescriptorsAction());
+        this.translate.use(language);
+        this.currentLang = language;
     }
 
 
