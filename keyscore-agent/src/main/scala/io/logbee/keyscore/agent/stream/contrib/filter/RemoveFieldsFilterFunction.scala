@@ -3,7 +3,6 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 import java.util.Locale
 import java.util.UUID.fromString
 
-import io.logbee.keyscore.agent.stream.contrib.filter.AddFieldsFilterFunction.{filterId, filterName}
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.{Dataset, Described, Record, sink}
 
