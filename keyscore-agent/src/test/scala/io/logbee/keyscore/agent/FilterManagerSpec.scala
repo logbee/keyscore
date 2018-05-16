@@ -1,7 +1,7 @@
 package io.logbee.keyscore.agent
 
-import java.util.{Locale, ResourceBundle}
 import java.util.UUID.fromString
+import java.util.{Locale, ResourceBundle}
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
@@ -32,8 +32,8 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
     implicit val timeout: Timeout = 5 seconds
 
     "load filter extensions " in {
-      filterManager ! RegisterExtension(FilterExtension, classOf[ExampleFilter])
 
+      filterManager ! RegisterExtension(FilterExtension, classOf[ExampleFilter])
       filterManager ! GetDescriptors
 
       val message = receiveOne(5 seconds).asInstanceOf[Descriptors]
@@ -44,8 +44,8 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
 object ExampleFilter extends Described {
 
-  val filterName = "AddFieldsFilter"
-  val filterId ="1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
+  val filterName = "ExampleFilter"
+  val filterId ="2b6e5fd0-a21b-4256-8a4a-388e3b4e5711"
 
   override def descriptors: MetaFilterDescriptor = {
     val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
@@ -58,7 +58,7 @@ object ExampleFilter extends Described {
   }
 
   def descriptor(language: Locale): FilterDescriptorFragment = {
-    val filterText: ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter", language)
+    val filterText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
     FilterDescriptorFragment(filterText.getString("displayName"), filterText.getString("description"),
       FilterConnection(true), FilterConnection(true), List(
         MapParameterDescriptor("fieldsToAdd", filterText.getString("fieldsToAddName"), filterText.getString("fieldsToAddDescription"),
@@ -66,10 +66,7 @@ object ExampleFilter extends Described {
           TextParameterDescriptor("fieldValue", filterText.getString("fieldValueName"), filterText.getString("fieldValueDescription"))
         )))
   }
-
-
 }
-
 class ExampleFilter {
 
 }
