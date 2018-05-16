@@ -1,5 +1,6 @@
 package io.logbee.keyscore.frontier.sources
 
+import java.util.UUID.fromString
 import java.util.{Locale, UUID}
 
 import akka.actor.ActorSystem
@@ -10,8 +11,7 @@ import akka.stream._
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.frontier.filters.CommittableRecord
 import io.logbee.keyscore.model.TextField
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterConnection, TextParameterDescriptor}
-import io.logbee.keyscore.model.sink.FilterDescriptor
+import io.logbee.keyscore.model.filter._
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.DefaultFormats
@@ -63,16 +63,20 @@ object KafkaSource {
       case _: NoSuchElementException => throw new NoSuchElementException("Missing parameter in KafkaSource configuration");
     }
   }
+ val filterName ="KafkaSource"
+  val filterId ="cb5b9b93-23e4-43c9-b5af-be42a53e7eb3"
 
-  def getDescriptors: mutable.Map[Locale, FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale, FilterDescriptor]
+  def getDescriptors: MetaFilterDescriptor = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptors ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH)
     )
+    MetaFilterDescriptor(fromString(filterId), filterName, descriptors.toMap)
+
   }
 
-  def descriptor(language: Locale): FilterDescriptor = {
-    FilterDescriptor("KafkaSource", "Kafka Source", "Reads from a given kafka topic",
+  def descriptor(language: Locale): FilterDescriptorFragment = {
+    FilterDescriptorFragment( "Kafka Source", "Reads from a given kafka topic",
       FilterConnection(true, List("stream_base")), FilterConnection(true), List(
         TextParameterDescriptor("bootstrapServer"),
         TextParameterDescriptor("sourceTopic"),

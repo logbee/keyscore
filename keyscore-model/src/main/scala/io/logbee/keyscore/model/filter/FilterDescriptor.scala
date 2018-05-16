@@ -5,11 +5,11 @@ import java.util.UUID
 import io.logbee.keyscore.model.sink
 
 object FilterDescriptor {
-  def apply(name: String, parameters: List[ParameterDescriptor]): sink.FilterDescriptor = new sink.FilterDescriptor(name, name, "", FilterConnection(true),FilterConnection(true),parameters)
+  def apply(id:UUID,name: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(id,name, name, "", FilterConnection(true),FilterConnection(true),parameters)
 
-  def apply(name: String, description: String, parameters: List[ParameterDescriptor]): sink.FilterDescriptor = new sink.FilterDescriptor(name, name, description,FilterConnection(true),FilterConnection(true),parameters)
+  def apply(id:UUID,name: String, description: String, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(id,name, name, description,FilterConnection(true),FilterConnection(true),parameters)
 
-  def apply(name: String, description: String, previousConnection: FilterConnection, nextConnection: FilterConnection, parameters: List[ParameterDescriptor]): sink.FilterDescriptor = new sink.FilterDescriptor(name, name, description, previousConnection, nextConnection, parameters)
+  def apply(id:UUID,name: String, description: String, previousConnection: FilterConnection, nextConnection: FilterConnection, parameters: List[ParameterDescriptor]): FilterDescriptor = new FilterDescriptor(id,name, name, description, previousConnection, nextConnection, parameters)
 
 }
 

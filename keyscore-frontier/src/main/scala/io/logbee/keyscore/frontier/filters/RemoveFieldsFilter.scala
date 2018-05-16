@@ -1,11 +1,12 @@
 package io.logbee.keyscore.frontier.filters
 
-import java.util.Locale
+import java.util.{Locale, UUID}
 
 import akka.stream
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet}
+import io.logbee.keyscore.frontier.filters.GrokFilter.{filterId, filterName}
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.sink
 
@@ -33,17 +34,22 @@ object RemoveFieldsFilter {
       case _: NoSuchElementException => throw new NoSuchElementException("RemoveFieldsFilter needs parameter: fieldsToRemove of type list[string]")
     }
   }
-
-  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+  val filterName= "RemoveFieldsFilter"
+  val filterId ="b7ee17ad-582f-494c-9f89-2c9da7b4e467"
+  def getDescriptors:MetaFilterDescriptor = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptors ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH)
     )
+
+    MetaFilterDescriptor(UUID.fromString(filterId),filterName,descriptors.toMap)
+
+
   }
 
-  def descriptor(language: Locale): sink.FilterDescriptor = {
+  def descriptor(language: Locale): FilterDescriptorFragment = {
 
-    FilterDescriptor("RemoveFieldsFilter", "Remove Fields Filter", "Removes all given fields and their values.",
+    FilterDescriptorFragment("Remove Fields Filter", "Removes all given fields and their values.",
       FilterConnection(true), FilterConnection(true), List(
         ListParameterDescriptor("fieldsToRemove", TextParameterDescriptor("fieldName"), min = 1)
       ))

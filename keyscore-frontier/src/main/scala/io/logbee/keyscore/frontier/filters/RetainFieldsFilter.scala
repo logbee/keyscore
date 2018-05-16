@@ -1,6 +1,7 @@
 package io.logbee.keyscore.frontier.filters
 
 import java.util.Locale
+import java.util.UUID.fromString
 
 import akka.stream
 import akka.stream.scaladsl.Flow
@@ -35,16 +36,22 @@ object RetainFieldsFilter {
     }
   }
 
-  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+  val filterName ="RetainFieldsFilter"
+  val filterId = "99f4aa2a-ee96-4cf9-bda5-261efb3a8ef6"
+
+  def getDescriptors: MetaFilterDescriptor = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptors ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH)
     )
+
+    MetaFilterDescriptor(fromString(filterId), filterName, descriptors.toMap)
+
   }
 
-  def descriptor(language: Locale): sink.FilterDescriptor = {
+  def descriptor(language: Locale): FilterDescriptorFragment = {
 
-    FilterDescriptor("RetainFieldsFilter", "Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.",
+    FilterDescriptorFragment("Retain Fields Filter", "Retains only the given fields and their values and removes the other fields.",
       FilterConnection(true), FilterConnection(true), List(
         ListParameterDescriptor("fieldsToRetain", TextParameterDescriptor("fieldName"), min = 1)
       ))

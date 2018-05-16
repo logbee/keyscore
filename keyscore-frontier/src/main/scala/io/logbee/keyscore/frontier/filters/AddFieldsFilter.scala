@@ -1,5 +1,6 @@
 package io.logbee.keyscore.frontier.filters
 
+import java.util.UUID.fromString
 import java.util.{Locale, ResourceBundle}
 
 import akka.stream
@@ -37,17 +38,22 @@ object AddFieldsFilter {
     }
   }
 
-  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+  val filterName = "AddFieldsFilter"
+  val filterId ="1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
+
+  def getDescriptors: MetaFilterDescriptor = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptors ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH),
       Locale.GERMAN -> descriptor(Locale.GERMAN)
     )
+
+    MetaFilterDescriptor(fromString(filterId), filterName, descriptors.toMap)
   }
 
-  def descriptor(language: Locale): sink.FilterDescriptor = {
+  def descriptor(language: Locale): FilterDescriptorFragment = {
     val filterText: ResourceBundle = ResourceBundle.getBundle("AddFieldsFilter", language)
-    FilterDescriptor("AddFieldsFilter", filterText.getString("displayName"), filterText.getString("description"),
+    FilterDescriptorFragment(filterText.getString("displayName"), filterText.getString("description"),
       FilterConnection(true), FilterConnection(true), List(
         MapParameterDescriptor("fieldsToAdd", filterText.getString("fieldsToAddName"), filterText.getString("fieldsToAddDescription"),
           TextParameterDescriptor("fieldName", filterText.getString("fieldKeyName"), filterText.getString("fieldKeyDescription")),

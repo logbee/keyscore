@@ -1,11 +1,7 @@
 package io.logbee.keyscore.agent.stream.management
 
-import java.util.Locale
-
 import io.logbee.keyscore.model.Described
-import io.logbee.keyscore.model.sink.FilterDescriptor
-
-import scala.collection.mutable
+import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
 class LoadFilterDescriptorException extends RuntimeException {}
 
@@ -15,7 +11,7 @@ class FilterLoader {
 
   private val runtimeMirror = ru.runtimeMirror(getClass.getClassLoader)
 
-  def loadDescriptors(clazz: Class[_]): mutable.Map[Locale,FilterDescriptor] = {
+  def loadDescriptors(clazz: Class[_]): MetaFilterDescriptor = {
     val moduleSymbol = runtimeMirror.reflectModule(runtimeMirror.staticModule(clazz.getName))
 
     moduleSymbol.instance match {

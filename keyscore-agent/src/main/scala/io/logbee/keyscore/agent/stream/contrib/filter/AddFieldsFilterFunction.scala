@@ -1,11 +1,10 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.UUID.fromString
-import java.util.{Locale, ResourceBundle, UUID}
+import java.util.{Locale, ResourceBundle}
 
-import io.logbee.keyscore.agent.stream.contrib.filter.AddFieldsFilterFunction.descriptors
-import io.logbee.keyscore.model.{sink, _}
 import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -16,18 +15,21 @@ import scala.collection.mutable.ListBuffer
 
 object AddFieldsFilterFunction extends Described {
 
-  val meta = new MetaFilterDescriptor(fromString("1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"), "AddFiledFilter", descriptors.toMap)
+  val filterName = "AddFieldsFilter"
+  val filterId = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
 
-  override def descriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale,sink.FilterDescriptor]
-    descriptors ++= Map(
+  override def descriptors: MetaFilterDescriptor = {
+    val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
+    descriptorMap ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH),
       Locale.GERMAN -> descriptor(Locale.GERMAN)
     )
+    MetaFilterDescriptor(fromString(filterId), filterName, descriptorMap.toMap)
   }
 
-  private def descriptor(language: Locale): sink.FilterDescriptor = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(meta.name, language)
+
+  private def descriptor(language: Locale): FilterDescriptorFragment = {
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),

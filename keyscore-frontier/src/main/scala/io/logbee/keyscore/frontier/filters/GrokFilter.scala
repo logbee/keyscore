@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.filters
 
-import java.util.Locale
+import java.util.{Locale, UUID}
 
 import akka.stream._
 import akka.stream.scaladsl.Flow
@@ -45,16 +45,19 @@ object GrokFilter {
       case _: NoSuchElementException => throw new NoSuchElementException("Missing parameter in GrokFilter configuration")
     }
   }
-
-  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+  val filterName = "GrokFilter"
+  val filterId ="8912a691-e982-4680-8fc7-fea6803fcef0"
+  def getDescriptors: MetaFilterDescriptor = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptors ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH)
     )
+    MetaFilterDescriptor(UUID.fromString(filterId),filterName,descriptors.toMap)
+
   }
 
-  def descriptor(language: Locale): sink.FilterDescriptor = {
-    FilterDescriptor("GrokFilter", "Grok Filter", "Extracts parts of a text line into fields.", FilterConnection(true),
+  def descriptor(language: Locale): FilterDescriptorFragment = {
+    FilterDescriptorFragment("Grok Filter", "Extracts parts of a text line into fields.", FilterConnection(true),
       FilterConnection(true), List(
         BooleanParameterDescriptor("isPaused"),
         ListParameterDescriptor("fieldNames", TextParameterDescriptor("field"), min = 1),

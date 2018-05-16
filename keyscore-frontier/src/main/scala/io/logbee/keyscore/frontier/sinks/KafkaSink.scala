@@ -1,6 +1,7 @@
 package io.logbee.keyscore.frontier.sinks
 
 import java.util.Locale
+import java.util.UUID.fromString
 
 import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
@@ -46,16 +47,18 @@ object KafkaSink {
       case _: NoSuchElementException => throw new NoSuchElementException("Missing parameter in KafkaSink configuration")
     }
   }
-
-  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+  val filterName ="KafkaSink"
+  val filterId ="10a292bb-b493-4269-b160-865bbe8a2ae4"
+  def getDescriptors: MetaFilterDescriptor = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptors ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH)
     )
+    MetaFilterDescriptor(fromString(filterId), filterName, descriptors.toMap)
   }
 
-  def descriptor(language: Locale): sink.FilterDescriptor = {
-    FilterDescriptor("KafkaSink", "Kafka Sink", "Writes the streams output to a given kafka topic",
+  def descriptor(language: Locale): FilterDescriptorFragment = {
+    FilterDescriptorFragment("Kafka Sink", "Writes the streams output to a given kafka topic",
       FilterConnection(true), FilterConnection(false), List(
         TextParameterDescriptor("sinkTopic"),
         TextParameterDescriptor("bootstrapServer")

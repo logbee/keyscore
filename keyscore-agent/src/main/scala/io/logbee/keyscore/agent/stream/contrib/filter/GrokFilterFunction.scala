@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
-import java.util.Locale
+import java.util.{Locale, UUID}
 
 import io.logbee.keyscore.model.{sink, _}
 import io.logbee.keyscore.model.filter._
@@ -12,16 +12,22 @@ import scala.util.matching.Regex
 
 
 object GrokFilterFunction extends Described {
-  override def descriptors: mutable.Map[Locale,sink.FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale,sink.FilterDescriptor]
-    descriptors ++= Map(
+
+  val filterName = "GrokFilter"
+  val filterId = "8912a691-e982-4680-8fc7-fea6803fcef0"
+
+  override def descriptors: MetaFilterDescriptor = {
+    val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
+    descriptorMap ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH)
     )
+
+    MetaFilterDescriptor(UUID.fromString(filterId),filterName,descriptorMap.toMap)
   }
 
   private def descriptor(language:Locale) = {
-    FilterDescriptor(
-      name = "GrokFilter",
+    FilterDescriptorFragment(
+      displayName = "Grok Filter",
       description = "Extracts parts of a text line into fields.",
       previousConnection = FilterConnection(true),
       nextConnection = FilterConnection(true),

@@ -10,10 +10,9 @@ import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDes
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.sinks.{KafkaSink, StdOutSink}
 import io.logbee.keyscore.frontier.sources.{HttpSource, KafkaSource}
-import io.logbee.keyscore.model.sink.FilterDescriptor
+import io.logbee.keyscore.model.filter.{FilterDescriptor, MetaFilterDescriptor}
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 
 object ClusterCapabilitiesManager {
@@ -33,7 +32,7 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
 
-  private val listOfFilterDescriptors = mutable.Map.empty[mutable.Map[Locale, FilterDescriptor], mutable.Set[ActorPath]]
+  private val listOfFilterDescriptors = mutable.Map.empty[MetaFilterDescriptor, mutable.Set[ActorPath]]
   private val listOfActiveDescriptors = List[FilterDescriptor]()
 
   override def preStart(): Unit = {
@@ -49,10 +48,7 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case GetStandardDescriptors(selectedLanguage) =>
-      sender ! StandardDescriptors(listOfFilterDescriptors.foldLeft(ListBuffer[FilterDescriptor]()) {
-        (result, descriptorMap) =>
-          result += descriptorMap._1(selectedLanguage)
-      }.toList)
+      sender ! StandardDescriptors(listOfFilterDescriptors.keys.toList.map(meta => meta.describe(selectedLanguage)))
 
     case GetActiveDescriptors =>
       sender() ! ActiveDescriptors(listOfActiveDescriptors)

@@ -1,6 +1,7 @@
 package io.logbee.keyscore.frontier.sources
 
 import java.util.Locale
+import java.util.UUID.fromString
 
 import akka.Done
 import akka.actor.ActorSystem
@@ -13,6 +14,7 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.stage._
 import akka.stream.{KillSwitch, _}
 import io.logbee.keyscore.frontier.filters.CommittableRecord
+import io.logbee.keyscore.frontier.sinks.StdOutSink.{filterId, filterName}
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.{Record, TextField, sink}
 
@@ -41,16 +43,20 @@ object HttpSource {
       case _: NoSuchElementException => throw new NoSuchElementException("Missing parameter in HttpSource configuration")
     }
   }
+  val filterName ="HttpSource"
+  val filterId ="b734ef76-674f-49a7-a3c8-233f1d2f102b"
 
-  def getDescriptors: mutable.Map[Locale, sink.FilterDescriptor] = {
-    val descriptors = mutable.Map.empty[Locale, sink.FilterDescriptor]
+  def getDescriptors: MetaFilterDescriptor = {
+    val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptors ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH)
     )
+    MetaFilterDescriptor(fromString(filterId), filterName, descriptors.toMap)
+
   }
 
-  def descriptor(language: Locale): sink.FilterDescriptor = {
-    FilterDescriptor("HttpSource", "Http Source", "A Http Source",
+  def descriptor(language: Locale): FilterDescriptorFragment = {
+    FilterDescriptorFragment("Http Source", "A Http Source",
       FilterConnection(true, List("stream_base")), FilterConnection(true), List(
         TextParameterDescriptor("bindAddress"),
         TextParameterDescriptor("fieldName"),
