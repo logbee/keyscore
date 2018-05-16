@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.kafka
 import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
-import akka.stream.SourceShape
+import akka.stream.{ActorMaterializer, SourceShape}
 import akka.stream.scaladsl.Sink
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.{Dataset, Record, TextField}
@@ -22,6 +22,7 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
 
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
   implicit val system: ActorSystem = actorSystem
+  implicit val mat = ActorMaterializer()
 
   private val queue = mutable.Queue[Entry]()
 
@@ -49,7 +50,7 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
   }
 
   def insert(dataset: Dataset): Future[_] = {
-    val entry = Entry(dataset, Promise[()])
+    val entry = Entry(dataset, Promise[Unit])
     queue.enqueue(entry)
     entry.promise.future
   }
@@ -72,6 +73,6 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
     }
   }
 
-  case class Entry(dataset: Dataset, promise: Promise[()])
+  case class Entry(dataset: Dataset, promise: Promise[Unit])
 
 }
