@@ -12,6 +12,7 @@ import {LoadFilterDescriptorsAction} from "../../streams.actions";
 import Workspace = Blockly.Workspace;
 import {map, startWith} from "rxjs/internal/operators";
 import {TranslateService} from "@ngx-translate/core";
+import {isUndefined} from "util";
 
 
 declare var Blockly: any;
@@ -68,7 +69,7 @@ export class BlocklyComponent implements OnInit {
     @Output() remove: EventEmitter<StreamModel> = new EventEmitter();
 
 
-    private workspace: Workspace;
+    private workspace: Workspace = undefined;
 
     private blocklyDiv;
     private blocklyArea;
@@ -133,6 +134,10 @@ export class BlocklyComponent implements OnInit {
         this.blocklyDiv = document.getElementById('blocklyDiv');
         this.blocklyArea = document.getElementById('blocklyArea');
         combineLatest(this.filterDescriptors$, this.categories$).subscribe(([descriptors, categories]) => {
+            let currentWorkspace = undefined;
+            if (typeof this.workspace != "undefined"){
+                currentWorkspace = Blockly.Xml.workspaceToDom(this.workspace);
+            }
             this.toolbox = this.toolbarBuilder.createToolbar(descriptors, categories);
             let currentBlocklyDiv = document.getElementById('blocklyDiv');
             while (currentBlocklyDiv.firstChild) {
@@ -154,7 +159,7 @@ export class BlocklyComponent implements OnInit {
             this.toolbarBuilder.createStreamBlock();
             let streamBlockXml = '<xml><block type="stream_configuration" deletable="false" movable="false"></block></xml>';
 
-            Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(streamBlockXml), this.workspace);
+            Blockly.Xml.domToWorkspace(typeof currentWorkspace === "undefined" ? Blockly.Xml.textToDom( streamBlockXml) : currentWorkspace, this.workspace);
 
         });
         this.workspace.addChangeListener(Blockly.Events.disableOrphans);

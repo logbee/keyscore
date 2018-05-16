@@ -3,6 +3,7 @@ import {ModalService} from "./services/modal.service";
 import {Store} from "@ngrx/store";
 import {AppConfig} from "./app.config";
 import {TranslateService} from "@ngx-translate/core";
+import {LoadFilterDescriptorsAction} from "./streams/streams.actions";
 
 export interface AppState {
     config: AppConfig
@@ -81,7 +82,8 @@ export class AppComponent {
 
 
     private setLanguage(language: string) {
-        this.translate.use(language)
+        this.translate.use(language);
+        this.store.dispatch(new LoadFilterDescriptorsAction());
     }
 
 
