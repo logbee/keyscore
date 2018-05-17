@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
-import {FilterDescriptor, FilterState, getCurrentFilter} from "../../streams.model";
+import {FilterDescriptor, FilterModel, FilterState, getCurrentFilter} from "../../streams.model";
 
 @Component({
     selector: 'live-editing',
@@ -56,7 +56,7 @@ import {FilterDescriptor, FilterState, getCurrentFilter} from "../../streams.mod
                                 <textarea placeholder="{{'FILTERLIVEEDITINGCOMPONENT.REGEX_PLACEHOLDER' | translate}}"
                                           class="form-control" rows="1"></textarea>
                             </div>
-                            <button class="float-right primary btn-info"> {{'GENERAL.APPLY' | translate}}</button>
+                            <button class="float-right btn primary btn-info"> {{'GENERAL.APPLY' | translate}}</button>
                         </div>
                     </div>
 
@@ -87,7 +87,7 @@ import {FilterDescriptor, FilterState, getCurrentFilter} from "../../streams.mod
                             </div>
                         </div>
                     </div>
-                    <button class="mt-3 float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>
+                    <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>
                 </div>
             </div>
         </div>
@@ -96,7 +96,7 @@ import {FilterDescriptor, FilterState, getCurrentFilter} from "../../streams.mod
 
 export class LiveEditingComponent {
 
-    private currentFilter$: Observable<FilterDescriptor>;
+    private currentFilter$: Observable<FilterModel>;
 
     constructor(private store: Store<FilterState>) {
         this.currentFilter$ = this.store.select(getCurrentFilter);

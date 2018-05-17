@@ -18,7 +18,7 @@ export class StreamsState {
 }
 
 export interface FilterState {
-    currentFilter: FilterDescriptor
+    currentFilter: FilterModel
 }
 
 export interface StreamModel {
@@ -111,4 +111,3 @@ export const getEditingFilterParameters = createSelector(getStreamsState, (state
 export const getEditingFilter = createSelector(getStreamsState, (state: StreamsState) => state.editingFilter);
 
 export const getFilterById = (id) => createSelector(getStreamsState, (state: StreamsState) => [].concat(state.streamList).find((filter: FilterModel) => filter.id === id));
-

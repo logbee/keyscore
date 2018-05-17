@@ -1,15 +1,18 @@
 import {FilterState} from "../streams.model"
-import {FiltersActions, LOAD_FILTER_DESCRIPTOR_FAILURE, LOAD_FILTER_DESCRIPTOR_SUCCESS} from "./filters.actions";
+import {
+    FiltersActions,
+    LOAD_FILTER_DESCRIPTOR_FAILURE,
+    LOAD_FILTER_DESCRIPTOR_SUCCESS,
+    LOAD_FILTER_MODEL_FROM_STREAM
+} from "./filters.actions";
 
 const initialState: FilterState = {
     currentFilter: {
+        id:'',
         name: '',
         displayName: '',
         description: '',
-        previousConnection: undefined,
-        nextConnection: undefined,
         parameters: [],
-        category: ''
     }
 
 };
@@ -19,13 +22,8 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
     const result: FilterState = Object.assign({}, state);
 
     switch (action.type) {
-        case LOAD_FILTER_DESCRIPTOR_SUCCESS:
-            result.currentFilter = action.filterDescriptor;
-            console.log("set state");
-            break;
-        case LOAD_FILTER_DESCRIPTOR_FAILURE:
-            console.log("set state failure");
-            break;
+        case LOAD_FILTER_MODEL_FROM_STREAM:
+            result.currentFilter = action.filterModel
     }
     return result;
 }
