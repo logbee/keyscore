@@ -25,7 +25,6 @@ object CSVParserFilterFunction extends Described {
   }
 
   private def descriptor(language:Locale):FilterDescriptorFragment = {
-    println(language)
     val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName,language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
@@ -34,9 +33,11 @@ object CSVParserFilterFunction extends Described {
       nextConnection = FilterConnection(true),
       parameters = List(
         ListParameterDescriptor("headers",
-          TextParameterDescriptor("headerName"),
-          min = 1),
-        TextParameterDescriptor("separator")
+          translatedText.getString("headerToParse"),
+          translatedText.getString("headerToParseDescription"),
+          TextParameterDescriptor("headerName",translatedText.getString("fieldKeyNameHeader"), translatedText.getString("fieldKeyDescriptionHeader"))
+        ),
+        TextParameterDescriptor("separator",translatedText.getString("fieldKeyNameSeparator"), translatedText.getString("fieldKeyDescriptionSeparator"))
       ))
   }
 }

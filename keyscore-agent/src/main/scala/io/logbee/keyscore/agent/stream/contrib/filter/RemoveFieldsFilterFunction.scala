@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
-import java.util.Locale
+import java.util.{Locale, ResourceBundle}
 import java.util.UUID.fromString
 
 import io.logbee.keyscore.model.filter._
@@ -17,23 +17,26 @@ object RemoveFieldsFilterFunction extends Described {
   override def descriptors:MetaFilterDescriptor= {
     val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
     descriptorMap ++= Map(
-      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
+      Locale.GERMAN -> descriptor(Locale.GERMAN)
     )
 
     MetaFilterDescriptor(fromString(filterId), filterName, descriptorMap.toMap)
 
   }
 
-  private def descriptor(language:Locale): FilterDescriptorFragment = FilterDescriptorFragment(
-    displayName = "Remove Fields Filter",
-    description = "Removes all given fields and their values.",
-    previousConnection = FilterConnection(true),
-    nextConnection = FilterConnection(true),
-    parameters = List(
-      ListParameterDescriptor("fieldsToRemove",
-        TextParameterDescriptor("fieldName"),
-        min = 1)
-    ))
+  private def descriptor(language:Locale): FilterDescriptorFragment = {
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName,language)
+    FilterDescriptorFragment(
+      displayName = translatedText.getString("displayName"),
+      description = translatedText.getString("description"),
+      previousConnection = FilterConnection(true),
+      nextConnection = FilterConnection(true),
+      parameters = List(
+        ListParameterDescriptor("fieldsToRemove", translatedText.getString("fieldsToRemoveName"), translatedText.getString("fieldsToRemoveDescription"),
+          TextParameterDescriptor("fieldName", translatedText.getString("fieldKeyName"), translatedText.getString("fieldKeyDescription")))
+      ))
+  }
 }
 
 class RemoveFieldsFilterFunction extends FilterFunction {

@@ -1,11 +1,10 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
-import java.util.Locale
 import java.util.UUID.fromString
+import java.util.{Locale, ResourceBundle}
 
-import io.logbee.keyscore.agent.stream.contrib.filter.AddFieldsFilterFunction.{filterId, filterName}
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Described, Record, sink}
+import io.logbee.keyscore.model.{Dataset, Described, Record}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -18,23 +17,26 @@ object RetainFieldsFilterFunction extends Described {
   override def descriptors: MetaFilterDescriptor = {
     val descriptorMap = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptorMap ++= Map(
-      Locale.ENGLISH -> descriptor(Locale.ENGLISH)
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
+      Locale.GERMAN -> descriptor(Locale.GERMAN)
     )
 
     MetaFilterDescriptor(fromString(filterId), filterName, descriptorMap.toMap)
 
   }
 
-  private def descriptor(language: Locale): FilterDescriptorFragment = FilterDescriptorFragment(
-    displayName = "Retain Fields Filter",
-    description = "Retains only the given fields and their values and removes the other fields.",
-    previousConnection = FilterConnection(true),
-    nextConnection = FilterConnection(true),
-    parameters = List(
-      ListParameterDescriptor("fieldsToRetain",
-        TextParameterDescriptor("fieldName"),
-        min = 1)
-    ))
+  private def descriptor(language: Locale): FilterDescriptorFragment = {
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
+    FilterDescriptorFragment(
+      displayName = translatedText.getString("displayName"),
+      description = translatedText.getString("description"),
+      previousConnection = FilterConnection(true),
+      nextConnection = FilterConnection(true),
+      parameters = List(
+        ListParameterDescriptor("fieldsToRetain",translatedText.getString("fieldsToRetainName"),translatedText.getString("fieldsToRetainDescription"),
+          TextParameterDescriptor("fieldName", translatedText.getString("fieldValueName"), translatedText.getString("fieldValueDescription")))
+      ))
+  }
 }
 
 class RetainFieldsFilterFunction extends FilterFunction {

@@ -34,11 +34,10 @@ object GrokFilterFunction extends Described {
       previousConnection = FilterConnection(true),
       nextConnection = FilterConnection(true),
       parameters = List(
-        BooleanParameterDescriptor("isPaused"),
-        ListParameterDescriptor("fieldNames",
-          TextParameterDescriptor("field"),
-          min = 1),
-        TextParameterDescriptor("pattern")
+        BooleanParameterDescriptor("isPaused",translatedText.getString("displayNameBoolean"), translatedText.getString("descriptionBoolean")),
+        ListParameterDescriptor("fieldNames",translatedText.getString("fieldNames"),translatedText.getString("fieldNamesDescription"),
+          TextParameterDescriptor("field",translatedText.getString("fieldKeyNameHeader"), translatedText.getString("fieldKeyDescriptionHeader"))),
+        TextParameterDescriptor("pattern",translatedText.getString("patternKeyNameHeader"), translatedText.getString("patternKeyDescriptionHeader"))
       ))
   }
 }
