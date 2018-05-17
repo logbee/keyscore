@@ -6,6 +6,7 @@ import {
 import {Blockly} from "node-blockly/browser";
 import {StreamBuilderService} from "../streambuilder.service";
 import {v4 as uuid} from 'uuid';
+import {extractFirstJSONObjectFromString, extractTopLevelJSONObjectsFromString} from "../../util";
 
 
 declare var Blockly: any;
@@ -59,16 +60,16 @@ export class ToolBarBuilderService {
         Blockly.JavaScript['stream_configuration'] = function(block:Blockly.Block){
             let id:string = "0";
             let name:string = block.getFieldValue('STREAM_NAME');
-            let description:string = block.getFieldValue('STREMA_DESCRIPTION');
-            let filter:FilterConfiguration[] = Blockly.JavaScript.statementToCode(block,'FILTER');
+            let description:string = block.getFieldValue('STREAM_DESCRIPTION');
+            let filterConfigurations:FilterConfiguration[] = extractTopLevelJSONObjectsFromString(Blockly.JavaScript.statementToCode(block,'FILTER')) as FilterConfiguration[];
 
             let stream:StreamConfiguration = {
                 id:id,
                 name:name,
                 description:description,
-                source:filter[0],
-                sink:filter[filter.length-1],
-                filter:filter.slice(1,filter.length-1)
+                source:filterConfigurations[0],
+                sink:filterConfigurations[filterConfigurations.length-1],
+                filter:filterConfigurations.slice(1,filterConfigurations.length-1)
             }
 
             return JSON.stringify(stream);

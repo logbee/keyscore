@@ -35,8 +35,8 @@ export interface AppState {
                         <img  class="mr-2" src="/assets/images/flags/{{currentLang}}.svg" width="24px" height="16px"/>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <span class="dropdown-item" (click)="setLanguage('de')"><img  class="mr-2" src="/assets/images/flags/de.svg" width="24px" height="16px" >{{'LANGUAGES.GERMAN' | translate}}</span>
-                        <span class="dropdown-item" (click)="setLanguage('en')"><img class="mr-2" src="/assets/images/flags/en.svg" width="24px" height="16px" >{{'LANGUAGES.ENGLISH' | translate}}</span>
+                        <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('de')"><img  class="mr-2" src="/assets/images/flags/de.svg" width="24px" height="16px" >{{'LANGUAGES.GERMAN' | translate}}</span>
+                        <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('en')"><img class="mr-2" src="/assets/images/flags/en.svg" width="24px" height="16px" >{{'LANGUAGES.ENGLISH' | translate}}</span>
                     </div>
                 </li>
             </ul>

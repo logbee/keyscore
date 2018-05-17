@@ -1,18 +1,11 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Blockly} from "node-blockly/browser";
-
-import {Store} from "@ngrx/store";
-import {
-    FilterDescriptor, getFilterCategories, getFilterDescriptors, StreamModel,
-    StreamsModuleState
-} from "../../streams.model";
+import {FilterDescriptor, StreamConfiguration, StreamModel} from "../../streams.model";
 import {combineLatest, Observable, ReplaySubject} from "rxjs";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
-import {LoadFilterDescriptorsAction} from "../../streams.actions";
-import Workspace = Blockly.Workspace;
 import {map, startWith} from "rxjs/internal/operators";
 import {TranslateService} from "@ngx-translate/core";
-import {isUndefined} from "util";
+import Workspace = Blockly.Workspace;
 
 
 declare var Blockly: any;
@@ -103,8 +96,9 @@ export class BlocklyComponent implements OnInit {
     }
 
     saveStreamEditing(){
-
-        console.log(Blockly.JavaScript.workspaceToCode(this.workspace),null,2);
+        let streamConfiguration:StreamConfiguration = JSON.parse(Blockly.JavaScript.workspaceToCode(this.workspace)) as StreamConfiguration;
+        streamConfiguration.id = this.stream.id;
+        console.log(JSON.stringify(streamConfiguration));
     }
 
     deleteStream(){
