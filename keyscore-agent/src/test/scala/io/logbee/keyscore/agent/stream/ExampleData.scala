@@ -88,7 +88,7 @@ object ExampleData {
   ))
   val kafkaSinkConfiguration = FilterConfiguration(UUID.randomUUID(), "kafkaSink", List(
     TextParameter("bootstrapServer", "localhost:9092"),
-    TextParameter("sourceTopic", "sinkTopic")
+    TextParameter("topic", "sinkTopic")
   ))
 }
 

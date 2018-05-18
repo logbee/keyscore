@@ -18,25 +18,25 @@ import scala.collection.mutable
 import scala.concurrent.Promise
 import scala.util.Success
 
-class KafkaSinkLogic(configuration: FilterConfiguration, shape: SinkShape[Dataset], actorSystem: ActorSystem) extends SinkLogic(configuration, shape) {
+class KafkaSinkLogic(context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends SinkLogic(context, configuration, shape) {
 
   implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
-  implicit val system: ActorSystem = actorSystem
-  implicit val mat = ActorMaterializer()
-
   private var queue: SourceQueueWithComplete[ProducerMessage.Message[Array[Byte], String, Promise[Unit]]] = _
 
-  private val pullAsync = getAsyncCallback[Unit](_ => pull(shape.in))
+  private val pullAsync = getAsyncCallback[Unit](_ => {
+    pull(in)
+  })
 
   private var topic: String = _
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
+    pull(in)
   }
 
   override def configure(configuration: FilterConfiguration): Unit = {
     val bootstrapServer: String = configuration.getParameterValue[String]("bootstrapServer")
-    topic = configuration.getParameterValue[String]("sinkTopic")
+    topic = configuration.getParameterValue[String]("topic")
 
     val settings = producerSettings(bootstrapServer)
 
@@ -50,7 +50,7 @@ class KafkaSinkLogic(configuration: FilterConfiguration, shape: SinkShape[Datase
   }
 
   def producerSettings(bootstrapServer: String): ProducerSettings[Array[Byte], String] = {
-    val settings = ProducerSettings(actorSystem, new ByteArraySerializer, new StringSerializer)
+    val settings = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
       .withBootstrapServers(bootstrapServer)
 
     settings
