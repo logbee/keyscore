@@ -66,7 +66,7 @@ class GrokFilterFunction extends FilterFunction {
   override def apply(dataset: Dataset): Dataset = {
     var listBufferOfRecords =  ListBuffer[Record]()
     for (record <- dataset) {
-      var payload = new mutable.HashMap[String, Field]
+      var payload = new mutable.HashMap[String, Field[_]]
       payload ++= record.payload
       for (field <- record.payload.values) {
         payload.put(field.name, field)

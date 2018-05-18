@@ -45,7 +45,7 @@ object AddFieldsFilterFunction extends Described {
 }
 
 class AddFieldsFilterFunction extends FilterFunction {
-  var dataToAdd = scala.collection.mutable.Map[String, Field]()
+  var dataToAdd = scala.collection.mutable.Map[String, Field[_]]()
 
   override def configure(configuration: FilterConfiguration): Unit = {
     for (parameter <- configuration.parameters) {
@@ -61,7 +61,7 @@ class AddFieldsFilterFunction extends FilterFunction {
   override def apply(dataset: Dataset): Dataset = {
     var listBufferOfRecords = ListBuffer[Record]()
     for (record <- dataset) {
-      var payload = new mutable.HashMap[String, Field]()
+      var payload = new mutable.HashMap[String, Field[_]]()
       payload ++= record.payload
       payload ++= dataToAdd
       listBufferOfRecords += new Record(record.id, payload.toMap)

@@ -13,7 +13,7 @@ object ExampleData {
   val record3 = Record(TextField("message", "The weather is sunny with a current temperature of: 14.4 °C"))
   val multiRecord = Record(
     TextField("foo", "bar"),
-    TextField("42", "bar"),
+    TextField("bar", "42"),
     TextField("bbq", "meat"),
     TextField("beer", "non-alcoholic")
   )
@@ -52,6 +52,8 @@ object ExampleData {
   val dataset1 = Dataset(record1)
   val dataset2 = Dataset(record2)
   val dataset3 = Dataset(record3)
+  val dataset4 = Dataset(record1, multiRecord)
+  val dataset5 = Dataset(record2, multiRecord2)
 
   val datasetMulti = Dataset(multiRecord)
   val datasetMulti2 = Dataset(multiRecord2)
