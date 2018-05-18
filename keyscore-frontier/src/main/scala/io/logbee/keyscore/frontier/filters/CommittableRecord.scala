@@ -8,15 +8,15 @@ import akka.kafka.ConsumerMessage.CommittableOffset
 import io.logbee.keyscore.model.{Field, Record}
 
 object CommittableRecord {
-  def apply(payload: Map[String, Field], offset: CommittableOffset = null): CommittableRecord = {
+  def apply(payload: Map[String, Field[_]], offset: CommittableOffset = null): CommittableRecord = {
     new CommittableRecord(randomUUID(), payload, offset)
   }
 
-  def apply(record: CommittableRecord, payload: Field*): CommittableRecord = {
+  def apply(record: CommittableRecord, payload: Field[_]*): CommittableRecord = {
     new CommittableRecord(record.id, record.payload ++ payload.map(field => (field.name, field)).toMap, record.offset)
   }
 
-  def apply(payload: Field*): CommittableRecord = {
+  def apply(payload: Field[_]*): CommittableRecord = {
     apply(payload.map(field => (field.name, field)).toMap)
   }
 
@@ -25,4 +25,4 @@ object CommittableRecord {
   }
 }
 
-case class CommittableRecord(override val id: UUID, override val payload: Map[String, Field], offset: ConsumerMessage.CommittableOffset) extends Record(id, payload)
+case class CommittableRecord(override val id: UUID, override val payload: Map[String, Field[_]], offset: ConsumerMessage.CommittableOffset) extends Record(id, payload)

@@ -81,7 +81,7 @@ class AddFieldsFilter(fieldsToAdd: Map[String, String]) extends Filter {
     setHandler(in, new InHandler {
       override def onPush(): Unit = {
         val record = grab(in)
-        var payload = scala.collection.mutable.Map[String, Field]()
+        var payload = scala.collection.mutable.Map[String, Field[_]]()
 
         payload ++= record.payload
         payload ++= fieldsToAdd.map(pair => (pair._1, TextField(pair._1, pair._2)))

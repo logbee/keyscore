@@ -141,7 +141,7 @@ class GrokFilter(initialConfiguration: GrokFilterConfiguration) extends Filter {
 
     private def filter(record: CommittableRecord): CommittableRecord = {
 
-      val payload = new mutable.HashMap[String, Field]
+      val payload = new mutable.HashMap[String, Field[_]]
       for (field <- record.payload.values) {
         payload.put(field.name, field)
         if (fieldNames.contains(field.name) && field.isInstanceOf[TextField]) {

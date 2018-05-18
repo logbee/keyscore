@@ -20,7 +20,7 @@ class ToKafkaProducerFilter(sinkTopic: String) extends GraphStage[FlowShape[Comm
   private val in = Inlet[CommittableRecord]("ToKafka.in")
   private val out = Outlet[ProducerMessage.Message[Array[Byte], String, ConsumerMessage.CommittableOffset]]("ToKafka.out")
 
-  private implicit val formats = DefaultFormats + FieldSerializer[Field]()
+  private implicit val formats = DefaultFormats + FieldSerializer[Field[_]]()
 
   override val shape = FlowShape.of(in, out)
 
