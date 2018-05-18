@@ -10,8 +10,10 @@ import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.{Dataset, Record, TextField}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
-import org.json4s.DefaultFormats
+import org.json4s.ext.JavaTypesSerializers
+import org.json4s.{DefaultFormats, Formats, NoTypeHints}
 import org.json4s.native.JsonMethods.parse
+import org.json4s.native.Serialization
 
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
@@ -20,13 +22,13 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
 
   //TODO Descriptor for KafkaSource
 
-  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+  implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
   implicit val system: ActorSystem = actorSystem
   implicit val mat = ActorMaterializer()
 
-  private val queue = mutable.Queue[Entry]()
+  private val queue = mutable.Queue[SourceEntry]()
 
-  private val insertCallback = getAsyncCallback[Entry](entry => {
+  private val insertCallback = getAsyncCallback[SourceEntry](entry => {
     queue.enqueue(entry)
     push()
   })
@@ -53,7 +55,7 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
       val dataset = Dataset(Record(fields))
       dataset
     }.mapAsync(1)(dataset => {
-      val entry = Entry(dataset, Promise[Unit])
+      val entry = SourceEntry(dataset, Promise[Unit])
       insertCallback.invoke(entry)
       entry.promise.future
     }).runWith(Sink.ignore)
@@ -83,6 +85,6 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
     }
   }
 
-  case class Entry(dataset: Dataset, promise: Promise[Unit])
+  case class SourceEntry(dataset: Dataset, promise: Promise[Unit])
 
 }
