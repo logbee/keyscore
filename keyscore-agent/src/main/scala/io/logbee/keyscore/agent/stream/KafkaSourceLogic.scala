@@ -26,6 +26,11 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
 
   private val queue = mutable.Queue[Entry]()
 
+  private val insertCallback = getAsyncCallback[Entry](entry => {
+    queue.enqueue(entry)
+    push()
+  })
+
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
   }
@@ -35,8 +40,6 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
     val groupID: String = configuration.getParameterValue[String]("groupID")
     val offsetConfig: String = configuration.getParameterValue[String]("offsetCommit")
     val topic: String = configuration.getParameterValue[String]("sourceTopic")
-
-    println("config: " + bootstrapServer + " " + groupID + " " + offsetConfig + " " + topic)
 
     val settings = consumerSettings(bootstrapServer, groupID, offsetConfig)
 
@@ -48,17 +51,13 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
         .map(pair => (pair._1, TextField(pair._1, pair._2)))
 
       val dataset = Dataset(Record(fields))
-      log.info(s"[IN] Dataset: $dataset")
       dataset
-    }.mapAsync(1)(insert).runWith(Sink.ignore)
+    }.mapAsync(1)(dataset => {
+      val entry = Entry(dataset, Promise[Unit])
+      insertCallback.invoke(entry)
+      entry.promise.future
+    }).runWith(Sink.ignore)
 
-  }
-
-  def insert(dataset: Dataset): Future[_] = {
-    val entry = Entry(dataset, Promise[Unit])
-    queue.enqueue(entry)
-    push()
-    entry.promise.future
   }
 
   def consumerSettings(bootstrapServer: String, groupID: String, offsetConfig: String): ConsumerSettings[Array[Byte], String] = {
@@ -75,11 +74,12 @@ class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Da
   }
 
   def push(): Unit = {
-    while (isAvailable(shape.out) && queue.nonEmpty) {
-      val entry = queue.dequeue()
-      push(shape.out, entry.dataset)
-      log.info(s"[OUT] Dataset: ${entry.dataset}")
-      entry.promise.success(())
+    while (queue.nonEmpty) {
+      if (isAvailable(shape.out)) {
+        val entry = queue.dequeue()
+        push(shape.out, entry.dataset)
+        entry.promise.success()
+      }
     }
   }
 

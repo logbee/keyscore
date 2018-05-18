@@ -33,7 +33,9 @@ class KafkaSourceLogicSpec extends WordSpec with Matchers with ScalaFutures with
 
       val provider = (c: FilterConfiguration, s: SourceShape[Dataset]) => new KafkaSourceLogic(c, s, system)
 
-      val source = Source.fromGraph((new SourceStage(provider, ExampleData.kafkaSourceConfiguration))).runWith(Sink.ignore)
+      val source = Source.fromGraph((new SourceStage(provider, ExampleData.kafkaSourceConfiguration))).runForeach(dataset => {
+        println(s"Dataset: $dataset")
+      })
 
       Thread.sleep(30000)
     }
