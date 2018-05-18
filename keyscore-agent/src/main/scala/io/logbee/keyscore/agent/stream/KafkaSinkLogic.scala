@@ -3,7 +3,7 @@ package io.logbee.keyscore.agent.stream
 import akka.actor.ActorSystem
 import akka.kafka.{ConsumerMessage, ProducerMessage, ProducerSettings}
 import akka.kafka.scaladsl.Producer
-import akka.stream.scaladsl.{Keep, Source, SourceQueueWithComplete}
+import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{ActorMaterializer, OverflowStrategy, SinkShape, SourceShape}
 import io.logbee.keyscore.model.{Dataset, Record}
 import io.logbee.keyscore.model.filter.FilterConfiguration
@@ -16,6 +16,7 @@ import org.json4s.native.Serialization.write
 
 import scala.collection.mutable
 import scala.concurrent.Promise
+import scala.util.Success
 
 class KafkaSinkLogic(configuration: FilterConfiguration, shape: SinkShape[Dataset], actorSystem: ActorSystem) extends SinkLogic(configuration, shape) {
 
@@ -23,7 +24,9 @@ class KafkaSinkLogic(configuration: FilterConfiguration, shape: SinkShape[Datase
   implicit val system: ActorSystem = actorSystem
   implicit val mat = ActorMaterializer()
 
-  private var queue: SourceQueueWithComplete[ProducerMessage.Message[Array[Byte], String, ConsumerMessage.Committable]] = _
+  private var queue: SourceQueueWithComplete[ProducerMessage.Message[Array[Byte], String, Promise[Unit]]] = _
+
+  private val pullAsync = getAsyncCallback[Unit](_ => pull(shape.in))
 
   private var topic: String = _
 
@@ -37,10 +40,13 @@ class KafkaSinkLogic(configuration: FilterConfiguration, shape: SinkShape[Datase
 
     val settings = producerSettings(bootstrapServer)
 
-    val committableSink = Producer.commitableSink(settings)
+    val committableSink = Producer.flow[Array[Byte], String, Promise[Unit]](settings)
 
-    queue = Source.queue(1, OverflowStrategy.backpressure).to(committableSink).run()
-
+    queue = Source.queue(1, OverflowStrategy.backpressure)
+      .via(committableSink)
+      .map(_.message)
+      .toMat(Sink.foreach(_.passThrough.success()))(Keep.left)
+      .run()
   }
 
   def producerSettings(bootstrapServer: String): ProducerSettings[Array[Byte], String] = {
@@ -56,18 +62,22 @@ class KafkaSinkLogic(configuration: FilterConfiguration, shape: SinkShape[Datase
 
     dataset.foreach(record => {
 
-      new ProducerRecord[Array[Byte], String](topic, parseRecord(record))
+      val promise = Promise[Unit]
+      val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, parseRecord(record)), promise)
+      queue.offer(producerMessage).flatMap(_ => promise.future).onComplete({
+        case Success(()) => pullAsync.invoke()
+      })
     })
   }
 
   def parseRecord(record: Record): String = {
     val payload = record.payload
 
-    //    payload.values.foldLeft(Map.empty[String, Any]) {
-    //      case (map, (field)) => map + (field.name, field.name)
-    //    }
+    val message = payload.values.foldLeft(Map.empty[String, Any]) {
+      case (map, field) => map + (field.name -> field.value)
+    }
 
-    ""
+    write(message)
   }
 
   case class SinkEntry(dataset: Dataset, promise: Promise[Unit])

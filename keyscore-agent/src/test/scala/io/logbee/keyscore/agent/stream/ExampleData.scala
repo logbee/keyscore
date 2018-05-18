@@ -11,13 +11,13 @@ object ExampleData {
   val record1 = Record(TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C"))
   val record2 = Record(TextField("message", "Is is a rainy day. Temperature: 5.8 °C"))
   val record3 = Record(TextField("message", "The weather is sunny with a current temperature of: 14.4 °C"))
-  val multiRecord = Record(
+  val multiFields1 = Record(
     TextField("foo", "bar"),
     TextField("bar", "42"),
     TextField("bbq", "meat"),
     TextField("beer", "non-alcoholic")
   )
-  val multiRecord2 = Record(
+  val multiFields2 = Record(
     TextField("foo", "bar"),
     TextField("42", "bar")
   )
@@ -52,11 +52,11 @@ object ExampleData {
   val dataset1 = Dataset(record1)
   val dataset2 = Dataset(record2)
   val dataset3 = Dataset(record3)
-  val dataset4 = Dataset(record1, multiRecord)
-  val dataset5 = Dataset(record2, multiRecord2)
+  val dataset4 = Dataset(record1, multiFields1)
+  val dataset5 = Dataset(record2, multiFields2)
 
-  val datasetMulti = Dataset(multiRecord)
-  val datasetMulti2 = Dataset(multiRecord2)
+  val datasetMulti1 = Dataset(multiFields1)
+  val datasetMulti2 = Dataset(multiFields2)
   //CSV
   val csvDatasetA = Dataset(csvA)
   val csvDatasetB = Dataset(csvB)
@@ -86,4 +86,9 @@ object ExampleData {
     TextParameter("offsetCommit", "earliest"),
     TextParameter("sourceTopic", "testTopic")
   ))
+  val kafkaSinkConfiguration = FilterConfiguration(UUID.randomUUID(), "kafkaSink", List(
+    TextParameter("bootstrapServer", "localhost:9092"),
+    TextParameter("sourceTopic", "sinkTopic")
+  ))
 }
+

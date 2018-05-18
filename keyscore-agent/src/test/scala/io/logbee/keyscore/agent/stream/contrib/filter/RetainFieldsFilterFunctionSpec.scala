@@ -8,7 +8,7 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.stream.{DefaultFilterStage, TestSystemWithMaterializerAndExecutionContext}
-import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti, datasetMulti2, datasetMultiModified}
+import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti1, datasetMulti2, datasetMultiModified}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
 import org.junit.runner.RunWith
@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 @RunWith(classOf[JUnitRunner])
 class RetainFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
   trait TestStream {
-    val (filterFuture, probe) = Source(List(datasetMulti, datasetMulti2))
+    val (filterFuture, probe) = Source(List(datasetMulti1, datasetMulti2))
       .viaMat(new DefaultFilterStage())(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
@@ -40,10 +40,10 @@ class RetainFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFu
         val condition = stub[Condition]
         val retainFieldsFunction = stub[RetainFieldsFilterFunction]
 
-        condition.apply _ when datasetMulti returns Accept(datasetMulti)
+        condition.apply _ when datasetMulti1 returns Accept(datasetMulti1)
         condition.apply _ when datasetMulti2 returns Reject(datasetMulti2)
 
-        retainFieldsFunction.apply _ when datasetMulti returns datasetMultiModified
+        retainFieldsFunction.apply _ when datasetMulti1 returns datasetMultiModified
         retainFieldsFunction.apply _ when datasetMulti2 returns datasetMultiModified2
 
         Await.result(filter.changeCondition(condition), 10 seconds)

@@ -24,9 +24,6 @@ import scala.concurrent.Promise
   */
 class KafkaSourceLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
-  val updateConfiguration = Promise[FilterConfiguration]
-  val initializeConfiguration = Promise[FilterConfiguration]
-
   "A KafkaSource" should {
 
     "retrieve data from a kafka source and parse it into a dataset" in {

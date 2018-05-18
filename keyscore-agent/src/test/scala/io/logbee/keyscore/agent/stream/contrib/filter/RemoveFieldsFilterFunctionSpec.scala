@@ -8,7 +8,7 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.stream.{DefaultFilterStage, TestSystemWithMaterializerAndExecutionContext}
-import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti, datasetMulti2, datasetMultiModified, datasetMultiModified2}
+import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti1, datasetMulti2, datasetMultiModified, datasetMultiModified2}
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
 import io.logbee.keyscore.model.{Accept, Condition, Dataset, Reject}
 import org.junit.runner.RunWith
@@ -24,7 +24,7 @@ import scala.concurrent.duration._
 class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
-    val (filterFuture, probe) = Source(List(datasetMulti, datasetMulti2))
+    val (filterFuture, probe) = Source(List(datasetMulti1, datasetMulti2))
       .viaMat(new DefaultFilterStage())(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
@@ -39,10 +39,10 @@ class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFu
         val condition = stub[Condition]
         val removeFieldsFunction = stub[RemoveFieldsFilterFunction]
 
-        condition.apply _ when datasetMulti returns Accept(datasetMulti)
+        condition.apply _ when datasetMulti1 returns Accept(datasetMulti1)
         condition.apply _ when datasetMulti2 returns Reject(datasetMulti2)
 
-        removeFieldsFunction.apply _ when datasetMulti returns datasetMultiModified
+        removeFieldsFunction.apply _ when datasetMulti1 returns datasetMultiModified
         removeFieldsFunction.apply _ when datasetMulti2 returns datasetMultiModified2
 
         Await.result(filter.changeCondition(condition), 10 seconds)
