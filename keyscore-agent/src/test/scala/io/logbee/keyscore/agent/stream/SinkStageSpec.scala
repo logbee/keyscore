@@ -29,7 +29,9 @@ class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFa
       val uuid = UUID.randomUUID()
       val configurationA = FilterConfiguration(uuid, "testA", List.empty)
       val configurationB = FilterConfiguration(uuid, "testB", List.empty)
-      val provider = (c: FilterConfiguration, s: SinkShape[Dataset]) => new SinkLogic(c, s) {
+      val context: StageContext = StageContext(system, executionContext)
+
+      val provider = (ctx: StageContext, c: FilterConfiguration, s: SinkShape[Dataset]) => new SinkLogic(ctx, c, s) {
 
         override def initialize(configuration: FilterConfiguration): Unit = {
           initializeConfiguration.success(configuration)
@@ -45,7 +47,7 @@ class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFa
       }
 
       val sinkFuture = Source(List(dataset1, dataset2))
-        .toMat(new SinkStage(provider, configurationA))(Keep.right)
+        .toMat(new SinkStage(context, configurationA, provider))(Keep.right)
         .run()
 
       whenReady(sinkFuture) { sink =>

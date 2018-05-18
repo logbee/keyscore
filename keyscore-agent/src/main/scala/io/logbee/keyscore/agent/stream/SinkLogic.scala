@@ -1,18 +1,25 @@
 package io.logbee.keyscore.agent.stream
 
-import akka.stream.SinkShape
+import akka.actor.ActorSystem
+import akka.stream.{Inlet, Materializer, SinkShape}
 import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.sink.Sink
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
-abstract class SinkLogic(configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends GraphStageLogic(shape) with InHandler with StageLogging {
+abstract class SinkLogic(context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends GraphStageLogic(shape) with InHandler with StageLogging {
 
   val initPromise = Promise[Sink]
 
-  protected val sink = new Sink {
+  protected implicit val system: ActorSystem = context.system
+  protected implicit val dispatcher: ExecutionContextExecutor = context.dispatcher
+  protected override implicit lazy val materializer: Materializer = super.materializer
+
+  protected val in: Inlet[Dataset] = shape.in
+
+  private val sink = new Sink {
 
     private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[Unit])] {
       case (newConfiguration, promise) =>
