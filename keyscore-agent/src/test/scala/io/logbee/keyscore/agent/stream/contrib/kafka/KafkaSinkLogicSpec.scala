@@ -1,8 +1,9 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.contrib.kafka
 
 import akka.stream.SinkShape
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti1, datasetMulti2, kafkaSinkConfiguration}
+import io.logbee.keyscore.agent.stream.{SinkStage, StageContext, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import org.scalamock.scalatest.MockFactory

@@ -1,20 +1,19 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.contrib.kafka
 
-import akka.actor.ActorSystem
-import akka.kafka.{ConsumerMessage, ProducerMessage, ProducerSettings}
 import akka.kafka.scaladsl.Producer
+import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
-import akka.stream.{ActorMaterializer, OverflowStrategy, SinkShape, SourceShape}
-import io.logbee.keyscore.model.{Dataset, Record}
+import akka.stream.{OverflowStrategy, SinkShape}
+import io.logbee.keyscore.agent.stream.{SinkLogic, StageContext}
 import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.model.{Dataset, Record}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.json4s.ext.JavaTypesSerializers
-import org.json4s.{DefaultFormats, Formats, NoTypeHints}
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
+import org.json4s.{Formats, NoTypeHints}
 
-import scala.collection.mutable
 import scala.concurrent.Promise
 import scala.util.Success
 

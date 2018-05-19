@@ -1,16 +1,13 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.contrib.kafka
 
 import akka.stream.SourceShape
-import akka.stream.scaladsl.{Sink, Source}
-import io.logbee.keyscore.model.{Condition, Dataset}
+import akka.stream.scaladsl.Source
+import io.logbee.keyscore.agent.stream.{ExampleData, SourceStage, TestSystemWithMaterializerAndExecutionContext}
+import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.concurrent.ScalaFutures
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-
-import scala.concurrent.Promise
+import org.scalatest.{Matchers, WordSpec}
 
 //@RunWith(classOf[JUnitRunner])
 /**

@@ -1,22 +1,23 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.contrib.kafka
 
 import akka.actor.ActorSystem
 import akka.kafka
 import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
-import akka.stream.{ActorMaterializer, SourceShape}
 import akka.stream.scaladsl.Sink
+import akka.stream.{ActorMaterializer, SourceShape}
+import io.logbee.keyscore.agent.stream.SourceLogic
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.{Dataset, Record, TextField}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.ext.JavaTypesSerializers
-import org.json4s.{DefaultFormats, Formats, NoTypeHints}
 import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization
+import org.json4s.{Formats, NoTypeHints}
 
 import scala.collection.mutable
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.Promise
 
 class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Dataset], actorSystem: ActorSystem) extends SourceLogic(configuration, shape) {
 
