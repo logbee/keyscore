@@ -11,12 +11,14 @@ object ExampleData {
   val record1 = Record(TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C"))
   val record2 = Record(TextField("message", "Is is a rainy day. Temperature: 5.8 °C"))
   val record3 = Record(TextField("message", "The weather is sunny with a current temperature of: 14.4 °C"))
+
   val multiFields1 = Record(
     TextField("foo", "bar"),
     TextField("bar", "42"),
     TextField("bbq", "meat"),
     TextField("beer", "non-alcoholic")
   )
+
   val multiFields2 = Record(
     TextField("foo", "bar"),
     TextField("42", "bar")
