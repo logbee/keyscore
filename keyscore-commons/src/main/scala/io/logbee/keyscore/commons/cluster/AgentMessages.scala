@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.ActorRef
 import akka.cluster.Member
-import io.logbee.keyscore.model.StreamModel
+import io.logbee.keyscore.model.StreamConfiguration
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
 case class AgentJoin(id: UUID, name: String)
@@ -19,9 +19,9 @@ case class AgentCapabilities(filterDescriptors: List[MetaFilterDescriptor])
 case class MemberAdded(member: Member)
 case class MemberRemoved(member: Member)
 
-case class CreateNewStream(streamID: UUID, stream: StreamModel)
+case class CreateNewStream(streamID: UUID, stream: StreamConfiguration)
 
 case class StreamKilled(streamID: UUID)
 
 case class GraphCreated(streamID: UUID)
-case class GraphBuildingException(streamID: UUID, streamSpec: StreamModel, errorMsg: String)
+case class GraphBuildingException(streamID: UUID, streamSpec: StreamConfiguration, errorMsg: String)

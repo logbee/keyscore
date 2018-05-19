@@ -10,8 +10,8 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent.{CheckJoin, Initialize, SendJoin}
-import io.logbee.keyscore.agent.stream.management.FilterManager
 import io.logbee.keyscore.agent.stream.management.FilterManager.{Descriptors, GetDescriptors}
+import io.logbee.keyscore.agent.stream.management.{FilterManager, StreamManager}
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentJoin, AgentJoinAccepted, AgentJoinFailure}
 import io.logbee.keyscore.commons.extension.ExtensionLoader
 import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
@@ -41,6 +41,7 @@ class Agent extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
+  private val streamManager = context.actorOf(Props[StreamManager], "stream-manager")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()
@@ -87,9 +88,11 @@ class Agent extends Actor with ActorLogging {
           mediator ! Publish("agents", AgentCapabilities(message.descriptors))
         case Failure(e) =>
           log.error(e, "Failed to publish capabilities!")
+          context.stop(self)
       }
     case AgentJoinFailure =>
       log.error("Agent join failed")
+      context.stop(self)
 
   }
 }

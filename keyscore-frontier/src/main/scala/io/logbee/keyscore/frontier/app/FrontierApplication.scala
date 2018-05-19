@@ -22,7 +22,7 @@ import io.logbee.keyscore.frontier.filters.GrokFilterConfiguration
 import io.logbee.keyscore.frontier.json.helper.FilterConfigTypeHints
 import io.logbee.keyscore.frontier.stream.StreamManager
 import io.logbee.keyscore.frontier.stream.StreamManager._
-import io.logbee.keyscore.model.{AgentModel, StreamModel}
+import io.logbee.keyscore.model.{AgentModel, StreamConfiguration}
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import streammanagement.FilterManager
@@ -67,7 +67,7 @@ object FrontierApplication extends App with Json4sSupport {
       } ~
       path(JavaUUID) { streamId =>
         put {
-          entity(as[StreamModel]) { stream =>
+          entity(as[StreamConfiguration]) { stream =>
             onSuccess(streamManager ? CreateNewStream(streamId, stream)) {
               case StreamCreatedWithID(id) => complete(StatusCodes.Created, s"Stream '$id' created ")
               case StreamUpdated(id) => complete(StatusCodes.OK, s"Stream '$id' updated")

@@ -2,6 +2,45 @@ package io.logbee.keyscore.agent.stream.management
 
 import java.util.UUID
 
+import akka.actor.{Actor, ActorLogging, Props}
+import io.logbee.keyscore.agent.stream.management.StreamManager.{CreateStream, UpdateStream}
+import io.logbee.keyscore.agent.stream.management.StreamSupervisor.GetStreamConfiguration
+import io.logbee.keyscore.model.StreamConfiguration
+
+object StreamSupervisor {
+
+  case object GetStreamConfiguration
+
+  def apply(id: UUID) = Props(new StreamSupervisor(id))
+}
+
+class StreamSupervisor(val id: UUID) extends Actor with ActorLogging {
+
+  private var streamConfiguration: StreamConfiguration = _
+
+  override def preStart(): Unit = {
+    log.info("StartUp complete.")
+  }
+
+  override def receive: Receive = {
+
+    case CreateStream(configuration) =>
+      streamConfiguration = configuration
+      log.info(s"Creating stream: ${configuration.id}")
+
+    case UpdateStream(configuration) =>
+      log.info(s"Updating stream: ${configuration.id}")
+
+    case GetStreamConfiguration =>
+      sender ! streamConfiguration
+
+    case _ =>
+  }
+}
+
+/*
+import java.util.UUID
+
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
@@ -92,3 +131,4 @@ class StreamSupervisor(filterManager: ActorRef)
       sender ! StreamKilled(streamID)
   }
 }
+*/

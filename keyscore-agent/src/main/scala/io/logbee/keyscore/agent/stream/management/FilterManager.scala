@@ -9,13 +9,13 @@ import akka.stream.scaladsl.Flow
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import io.logbee.keyscore.agent.stream.DefaultFilterStage
 import io.logbee.keyscore.agent.stream.management.FilterManager._
-import io.logbee.keyscore.agent.stream.management.StreamSupervisor.CreateStream
 import io.logbee.keyscore.agent.util.Reflection
+import io.logbee.keyscore.commons.cluster.CreateNewStream
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.{FilterExtension, SinkExtension, SourceExtension}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
 import io.logbee.keyscore.model.filter.{FilterFunction, MetaFilterDescriptor}
-import io.logbee.keyscore.model.{Dataset, StreamModel}
+import io.logbee.keyscore.model.{Dataset, StreamConfiguration}
 
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -34,7 +34,7 @@ object FilterManager {
 
   case class GraphBuilt(streamID: UUID, graph: RunnableGraph[UniqueKillSwitch]) extends GraphBuild
 
-  case class GraphBuildException(streamID: UUID, streamSpec: StreamModel, errorMsg: String) extends GraphBuild
+  case class GraphBuildException(streamID: UUID, streamSpec: StreamConfiguration, errorMsg: String) extends GraphBuild
 
   case class StreamBlueprint(streamID: UUID,
                              //TODO source
@@ -65,7 +65,7 @@ class FilterManager extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
-    case CreateStream(streamID, streamSpec) =>
+    case CreateNewStream(streamID, streamSpec) =>
       breakable {
         log.info("Building stream with id: " + streamID)
         val streamBlueprint = try {
@@ -94,7 +94,7 @@ class FilterManager extends Actor with ActorLogging {
       sender ! Ready
   }
 
-  def createStreamFromModel(streamID: UUID, streamSpec: StreamModel): StreamBlueprint = {
+  def createStreamFromModel(streamID: UUID, streamSpec: StreamConfiguration): StreamBlueprint = {
     try {
       //source
 
