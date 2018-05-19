@@ -2,7 +2,7 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.{Locale, ResourceBundle, UUID}
 
-import io.logbee.keyscore.model.{sink, _}
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 
 import scala.Function.tupled
@@ -13,8 +13,8 @@ import scala.util.matching.Regex
 
 object GrokFilterFunction extends Described {
 
-  val filterName = "GrokFilter"
-  val filterId = "8912a691-e982-4680-8fc7-fea6803fcef0"
+  private val filterName = "io.logbee.keyscore.agent.stream.contrib.filter.GrokFilter"
+  private val filterId = "8912a691-e982-4680-8fc7-fea6803fcef0"
 
   override def descriptors: MetaFilterDescriptor = {
     val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]

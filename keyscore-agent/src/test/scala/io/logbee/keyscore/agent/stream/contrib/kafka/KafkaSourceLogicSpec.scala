@@ -2,7 +2,8 @@ package io.logbee.keyscore.agent.stream.contrib.kafka
 
 import akka.stream.SourceShape
 import akka.stream.scaladsl.Source
-import io.logbee.keyscore.agent.stream.{ExampleData, SourceStage, TestSystemWithMaterializerAndExecutionContext}
+import io.logbee.keyscore.agent.stream.stage.SourceStage
+import io.logbee.keyscore.agent.stream.{ExampleData, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import org.scalamock.scalatest.MockFactory

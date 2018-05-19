@@ -1,10 +1,10 @@
-package io.logbee.keyscore.agent.stream.management
+package io.logbee.keyscore.agent.stream
 
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, Props}
-import io.logbee.keyscore.agent.stream.management.StreamManager.{CreateStream, UpdateStream}
-import io.logbee.keyscore.agent.stream.management.StreamSupervisor.GetStreamConfiguration
+import io.logbee.keyscore.agent.stream.StreamManager.{CreateStream, UpdateStream}
+import io.logbee.keyscore.agent.stream.StreamSupervisor.GetStreamConfiguration
 import io.logbee.keyscore.model.StreamConfiguration
 
 object StreamSupervisor {
@@ -46,7 +46,7 @@ import akka.pattern.ask
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.stream.management.FilterManager.{GraphBuildException, GraphBuildingAnswer, GraphBuilt}
-import io.logbee.keyscore.agent.stream.management.StreamSupervisor.{ChangeStream, CreateStream, ShutdownStream, StreamCreationError}
+import io.logbee.keyscore.agent.stream.StreamSupervisor.{ChangeStream, CreateStream, ShutdownStream, StreamCreationError}
 import io.logbee.keyscore.commons.cluster.{CreateNewStream, GraphBuildingException, GraphCreated, StreamKilled}
 import io.logbee.keyscore.model.StreamModel
 

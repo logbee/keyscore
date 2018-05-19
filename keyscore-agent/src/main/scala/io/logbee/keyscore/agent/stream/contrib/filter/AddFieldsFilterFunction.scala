@@ -3,20 +3,16 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 import java.util.UUID.fromString
 import java.util.{Locale, ResourceBundle}
 
-import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.filter._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-
-
-
-
 object AddFieldsFilterFunction extends Described {
 
-  val filterName = "AddFieldsFilter"
-  val filterId = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
+  private val filterName = "io.logbee.keyscore.agent.stream.contrib.filter.AddFieldsFilter"
+  private val filterId = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
 
   override def descriptors: MetaFilterDescriptor = {
     val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]

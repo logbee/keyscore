@@ -2,13 +2,11 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
-import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.{DefaultFilterStage, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti1, datasetMulti2, datasetMultiModified}
+import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.agent.stream.stage.DefaultFilterStage
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
 import org.junit.runner.RunWith
@@ -35,6 +33,11 @@ class RetainFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFu
   val datasetMultiModified2 = Dataset(Record(TextField("42", "bar")))
 
   "A RetainFieldsFilter" should {
+
+    "return a MetaFilterDescriptor" in {
+      RetainFieldsFilterFunction.descriptors should not be null
+    }
+
     "retain only the specified fields and remove all others" in new TestStream {
       whenReady(filterFuture) { filter =>
         val condition = stub[Condition]

@@ -1,8 +1,8 @@
-package io.logbee.keyscore.agent.stream.management
+package io.logbee.keyscore.agent.stream
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.util.Timeout
-import io.logbee.keyscore.agent.stream.management.StreamManager._
+import io.logbee.keyscore.agent.stream.StreamManager._
 import io.logbee.keyscore.model.StreamConfiguration
 
 import scala.concurrent.duration._
@@ -51,7 +51,7 @@ class StreamManager extends Actor with ActorLogging {
   }
 
   private def nameFromModel(model: StreamConfiguration): String = {
-    s"$SUPERVISOR_NAME_PREFIX${model.id}"
+    s"${SUPERVISOR_NAME_PREFIX}${model.id}"
   }
 
   private def isSupervisor(ref: ActorRef): Boolean = {

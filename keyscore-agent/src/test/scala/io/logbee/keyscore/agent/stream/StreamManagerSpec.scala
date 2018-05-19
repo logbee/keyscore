@@ -6,9 +6,8 @@ import akka.actor.{ActorRef, Props}
 import akka.pattern.ask
 import akka.testkit.TestProbe
 import akka.util.Timeout
-import io.logbee.keyscore.agent.stream.management.StreamManager
-import io.logbee.keyscore.agent.stream.management.StreamManager.{CreateStream, UpdateStream}
-import io.logbee.keyscore.agent.stream.management.StreamSupervisor.GetStreamConfiguration
+import io.logbee.keyscore.agent.stream.StreamManager.{CreateStream, UpdateStream}
+import io.logbee.keyscore.agent.stream.StreamSupervisor.GetStreamConfiguration
 import io.logbee.keyscore.model.StreamConfiguration
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import org.junit.runner.RunWith

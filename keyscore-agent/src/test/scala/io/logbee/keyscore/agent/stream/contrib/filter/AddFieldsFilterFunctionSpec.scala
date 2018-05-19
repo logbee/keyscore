@@ -2,13 +2,11 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
-import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.{DefaultFilterStage, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.agent.stream.ExampleData.{dataset1, dataset2, dataset3}
+import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.agent.stream.stage.DefaultFilterStage
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextMapParameter}
 import org.junit.runner.RunWith
@@ -54,6 +52,11 @@ class AddFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutur
   ))
 
   "A AddFieldsFilter" should {
+
+    "return a MetaFilterDescriptor" in {
+      AddFieldsFilterFunction.descriptors should not be null
+    }
+
     "add new fields and their data to the already existing data" in new TestStream {
       whenReady(filterFuture) { filter =>
         val condition = stub[Condition]

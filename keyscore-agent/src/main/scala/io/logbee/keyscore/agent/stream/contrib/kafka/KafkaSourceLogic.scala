@@ -6,7 +6,7 @@ import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.scaladsl.Sink
 import akka.stream.{ActorMaterializer, SourceShape}
-import io.logbee.keyscore.agent.stream.SourceLogic
+import io.logbee.keyscore.agent.stream.stage.SourceLogic
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.{Dataset, Record, TextField}
 import org.apache.kafka.clients.consumer.ConsumerConfig

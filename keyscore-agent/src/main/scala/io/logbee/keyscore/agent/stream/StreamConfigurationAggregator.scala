@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.stream.management
+package io.logbee.keyscore.agent.stream
 
 import akka.actor.{Actor, ActorRef, Props}
 import io.logbee.keyscore.model.StreamConfiguration
@@ -13,7 +13,7 @@ object StreamConfigurationAggregator {
 
 class StreamConfigurationAggregator(receiver: ActorRef, children: Iterable[ActorRef]) extends Actor {
 
-  import context.system
+  import context.{dispatcher, system}
 
   private var configurations = mutable.ListBuffer.empty[StreamConfiguration]
 

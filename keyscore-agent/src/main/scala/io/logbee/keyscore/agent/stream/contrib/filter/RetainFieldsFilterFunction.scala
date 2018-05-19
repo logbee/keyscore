@@ -11,8 +11,8 @@ import scala.collection.mutable.ListBuffer
 
 object RetainFieldsFilterFunction extends Described {
 
-  val filterName = "RetainFieldsFilter"
-  val filterId = "99f4aa2a-ee96-4cf9-bda5-261efb3a8ef6"
+  private val filterName = "io.logbee.keyscore.agent.stream.contrib.filter.RetainFieldsFilter"
+  private val filterId = "99f4aa2a-ee96-4cf9-bda5-261efb3a8ef6"
 
   override def descriptors: MetaFilterDescriptor = {
     val descriptorMap = mutable.Map.empty[Locale, FilterDescriptorFragment]
@@ -22,7 +22,6 @@ object RetainFieldsFilterFunction extends Described {
     )
 
     MetaFilterDescriptor(fromString(filterId), filterName, descriptorMap.toMap)
-
   }
 
   private def descriptor(language: Locale): FilterDescriptorFragment = {
@@ -30,8 +29,8 @@ object RetainFieldsFilterFunction extends Described {
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),
-      previousConnection = FilterConnection(true),
-      nextConnection = FilterConnection(true),
+      previousConnection = FilterConnection(isPermitted = true),
+      nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
         ListParameterDescriptor("fieldsToRetain",translatedText.getString("fieldsToRetainName"),translatedText.getString("fieldsToRetainDescription"),
           TextParameterDescriptor("fieldName", translatedText.getString("fieldValueName"), translatedText.getString("fieldValueDescription")))

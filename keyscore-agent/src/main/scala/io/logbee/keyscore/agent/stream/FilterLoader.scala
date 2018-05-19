@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.stream.management
+package io.logbee.keyscore.agent.stream
 
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor

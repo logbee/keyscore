@@ -4,7 +4,7 @@ import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, SinkShape}
-import io.logbee.keyscore.agent.stream.{SinkLogic, StageContext}
+import io.logbee.keyscore.agent.stream.stage.{SinkLogic, StageContext}
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.{Dataset, Record}
 import org.apache.kafka.clients.producer.ProducerRecord

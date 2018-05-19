@@ -1,18 +1,18 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
-import java.util.{Locale, ResourceBundle}
 import java.util.UUID.fromString
+import java.util.{Locale, ResourceBundle}
 
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Described, Record, sink}
+import io.logbee.keyscore.model.{Dataset, Described, Record}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object RemoveFieldsFilterFunction extends Described {
 
-  val filterName= "RemoveFieldsFilter"
-  val filterId = "b7ee17ad-582f-494c-9f89-2c9da7b4e467"
+  private val filterName= "io.logbee.keyscore.agent.stream.contrib.filter.RemoveFieldsFilter"
+  private val filterId = "b7ee17ad-582f-494c-9f89-2c9da7b4e467"
 
   override def descriptors:MetaFilterDescriptor= {
     val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
@@ -22,7 +22,6 @@ object RemoveFieldsFilterFunction extends Described {
     )
 
     MetaFilterDescriptor(fromString(filterId), filterName, descriptorMap.toMap)
-
   }
 
   private def descriptor(language:Locale): FilterDescriptorFragment = {
@@ -30,8 +29,8 @@ object RemoveFieldsFilterFunction extends Described {
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),
-      previousConnection = FilterConnection(true),
-      nextConnection = FilterConnection(true),
+      previousConnection = FilterConnection(isPermitted = true),
+      nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
         ListParameterDescriptor("fieldsToRemove", translatedText.getString("fieldsToRemoveName"), translatedText.getString("fieldsToRemoveDescription"),
           TextParameterDescriptor("fieldName", translatedText.getString("fieldKeyName"), translatedText.getString("fieldKeyDescription")))

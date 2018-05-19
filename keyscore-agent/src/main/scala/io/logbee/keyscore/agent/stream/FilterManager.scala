@@ -1,14 +1,13 @@
-package io.logbee.keyscore.agent.stream.management
+package io.logbee.keyscore.agent.stream
 
 import java.util.UUID
 
 import akka.actor
 import akka.actor.{Actor, ActorLogging, Props}
-import akka.stream.javadsl.RunnableGraph
-import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.{Flow, RunnableGraph}
 import akka.stream.{ActorMaterializer, UniqueKillSwitch}
-import io.logbee.keyscore.agent.stream.DefaultFilterStage
-import io.logbee.keyscore.agent.stream.management.FilterManager._
+import io.logbee.keyscore.agent.stream.FilterManager._
+import io.logbee.keyscore.agent.stream.stage.DefaultFilterStage
 import io.logbee.keyscore.agent.util.Reflection
 import io.logbee.keyscore.commons.cluster.CreateNewStream
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
@@ -20,31 +19,6 @@ import io.logbee.keyscore.model.{Dataset, StreamConfiguration}
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.util.control.Breaks._
-
-object FilterManager {
-  def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
-
-  case object GetDescriptors
-
-  case class Descriptors(descriptors: List[MetaFilterDescriptor])
-
-  trait GraphBuild {}
-
-  case class GraphBuildingAnswer(answer: Option[GraphBuild])
-
-  case class GraphBuilt(streamID: UUID, graph: RunnableGraph[UniqueKillSwitch]) extends GraphBuild
-
-  case class GraphBuildException(streamID: UUID, streamSpec: StreamConfiguration, errorMsg: String) extends GraphBuild
-
-  case class StreamBlueprint(streamID: UUID,
-                             //TODO source
-                             //TODO sink
-                             filter: Map[UUID, Flow[Dataset, Dataset, Future[DefaultFilterStage]]]
-                            )
-
-}
-
-case class FilterRegistration(filterDescriptor: MetaFilterDescriptor, filterClass: Class[_])
 
 class FilterManager extends Actor with ActorLogging {
 
@@ -117,18 +91,25 @@ class FilterManager extends Actor with ActorLogging {
 
 }
 
-//TODO Generate this dynamically
-object FilterRegistry {
+object FilterManager {
+  def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
 
-  val filters = Map(
-    "KafkaSource" -> "io.logbee.keyscore.frontier.sources.KafkaSource",
-    "HttpSource" -> "io.logbee.keyscore.frontier.sources.HttpSource",
-    "KafkaSink" -> "io.logbee.keyscore.frontier.sinks.KafkaSink",
-    "StdOutSink" -> "io.logbee.keyscore.frontier.sinks.StdOutSink",
-    "CSVFilter" -> "io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilterFunction",
-    "AddFieldsFilter" -> "io.logbee.keyscore.agent.stream.contrib.filter.AddFieldsFilterFunction",
-    "RemoveFieldsFilter" -> "io.logbee.keyscore.agent.stream.contrib.filter.RemoveFieldsFilterFunction",
-    "RetainFieldsFilter" -> "io.logbee.keyscore.agent.stream.contrib.filter.RetainFieldsFilterFunction",
-    "GrokFilter" -> "io.logbee.keyscore.agent.stream.contrib.filter.GrokFilterFunction"
-  )
+  case object GetDescriptors
+
+  case class Descriptors(descriptors: List[MetaFilterDescriptor])
+
+  trait GraphBuild {}
+
+  case class GraphBuildingAnswer(answer: Option[GraphBuild])
+
+  case class GraphBuilt(streamID: UUID, graph: RunnableGraph[UniqueKillSwitch]) extends GraphBuild
+
+  case class GraphBuildException(streamID: UUID, streamSpec: StreamConfiguration, errorMsg: String) extends GraphBuild
+
+  case class StreamBlueprint(streamID: UUID,
+                             //TODO source
+                             //TODO sink
+                             filter: Map[UUID, Flow[Dataset, Dataset, Future[DefaultFilterStage]]]
+                            )
+
 }

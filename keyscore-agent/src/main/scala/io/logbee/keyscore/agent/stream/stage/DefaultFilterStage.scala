@@ -1,12 +1,12 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.stage
 
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
-import io.logbee.keyscore.agent.stream.DefaultFilterStage.{noopCondition, noopFunction}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 
 import scala.concurrent.{Future, Promise}
+
 
 object DefaultFilterStage {
   val noopCondition = new Condition {
@@ -33,6 +33,8 @@ class DefaultFilterStage extends FilterStage {
   }
 
   private class DefaultFilterLogic extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
+
+    import DefaultFilterStage.{noopCondition, noopFunction}
 
     val initPromise = Promise[Filter]
 

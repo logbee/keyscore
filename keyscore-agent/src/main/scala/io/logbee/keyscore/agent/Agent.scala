@@ -10,8 +10,8 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent.{CheckJoin, Initialize, SendJoin}
-import io.logbee.keyscore.agent.stream.management.FilterManager.{Descriptors, GetDescriptors}
-import io.logbee.keyscore.agent.stream.management.{FilterManager, StreamManager}
+import io.logbee.keyscore.agent.stream.FilterManager.{Descriptors, GetDescriptors}
+import io.logbee.keyscore.agent.stream.{FilterManager, StreamManager}
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentJoin, AgentJoinAccepted, AgentJoinFailure}
 import io.logbee.keyscore.commons.extension.ExtensionLoader
 import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions

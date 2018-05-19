@@ -1,8 +1,8 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.stage
 
 import akka.actor.ActorSystem
-import akka.stream.{Inlet, Materializer, SinkShape}
 import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
+import akka.stream.{Inlet, Materializer, SinkShape}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.sink.Sink

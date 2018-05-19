@@ -2,13 +2,11 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
-import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.{DefaultFilterStage, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti1, datasetMulti2, datasetMultiModified, datasetMultiModified2}
+import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.agent.stream.stage.DefaultFilterStage
 import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
 import io.logbee.keyscore.model.{Accept, Condition, Dataset, Reject}
 import org.junit.runner.RunWith
@@ -34,6 +32,11 @@ class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFu
   val initialConfig = FilterConfiguration(UUID.randomUUID(), "removeFieldsFilter", List(fieldsToRemove))
 
   "A RemoveFieldsFilter" should {
+
+    "return a MetaFilterDescriptor" in {
+      RemoveFieldsFilterFunction.descriptors should not be null
+    }
+
     "remove specified fields" in new TestStream {
       whenReady(filterFuture) { filter =>
         val condition = stub[Condition]

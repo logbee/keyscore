@@ -1,10 +1,11 @@
-package io.logbee.keyscore.agent.stream
+package io.logbee.keyscore.agent.stream.stage
 
 import java.util.UUID
 
 import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
+import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import org.junit.runner.RunWith

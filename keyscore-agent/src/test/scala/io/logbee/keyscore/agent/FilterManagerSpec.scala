@@ -6,8 +6,8 @@ import java.util.{Locale, ResourceBundle}
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
-import io.logbee.keyscore.agent.stream.management.FilterManager
-import io.logbee.keyscore.agent.stream.management.FilterManager.{Descriptors, GetDescriptors}
+import io.logbee.keyscore.agent.stream.FilterManager
+import io.logbee.keyscore.agent.stream.FilterManager.{Descriptors, GetDescriptors}
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.Described

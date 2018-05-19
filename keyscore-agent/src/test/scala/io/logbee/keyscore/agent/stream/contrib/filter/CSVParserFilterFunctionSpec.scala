@@ -1,12 +1,10 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
-import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.stream.{DefaultFilterStage, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.agent.stream.ExampleData.{csvDatasetA, csvDatasetB}
+import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.agent.stream.stage.DefaultFilterStage
 import io.logbee.keyscore.model._
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -37,6 +35,11 @@ class CSVParserFilterFunctionSpec extends WordSpec with Matchers with ScalaFutur
   }
 
   "A CSVFilterFunction" should {
+
+    "return a MetaFilterDescriptor" in {
+      CSVParserFilterFunction.descriptors should not be null
+    }
+
     "convert a csv string into a normal record" in new TestStream {
       whenReady(filterFuture) { filter =>
         val condition = stub[Condition]

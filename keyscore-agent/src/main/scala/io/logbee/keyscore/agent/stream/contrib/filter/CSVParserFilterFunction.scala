@@ -2,7 +2,7 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.{Locale, ResourceBundle, UUID}
 
-import io.logbee.keyscore.model.{sink, _}
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 
 import scala.collection.mutable
@@ -10,9 +10,8 @@ import scala.collection.mutable.ListBuffer
 
 object CSVParserFilterFunction extends Described {
 
-  val filterName = "CSVFilter"
-  val bundleName = "CSVParserFilter"
-  val filterId = "292d368e-6e50-4c52-aed5-1a6826d78c22"
+  private val filterName = "io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilter"
+  private val filterId = "292d368e-6e50-4c52-aed5-1a6826d78c22"
 
   override def descriptors: MetaFilterDescriptor = {
     val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
@@ -25,12 +24,12 @@ object CSVParserFilterFunction extends Described {
   }
 
   private def descriptor(language:Locale):FilterDescriptorFragment = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName,language)
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName,language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),
-      previousConnection = FilterConnection(true),
-      nextConnection = FilterConnection(true),
+      previousConnection = FilterConnection(isPermitted = true),
+      nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
         ListParameterDescriptor("headers",
           translatedText.getString("headerToParse"),
