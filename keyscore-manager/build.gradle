@@ -1,8 +1,6 @@
 plugins {
     id "com.moowork.node" version "1.2.0"
-    id "com.bmuschko.docker-remote-api" version "3.2.1"
 }
-
 
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer

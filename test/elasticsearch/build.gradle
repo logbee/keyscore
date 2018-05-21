@@ -5,15 +5,16 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
 task pullImage(type: DockerPullImage) {
-    repository = "quay.io/logbee/docker-kafka"
-    tag = "latest"
+    repository = 'docker.elastic.co/elasticsearch/elasticsearch-oss'
+    tag = '6.2.4'
 }
 
 task createContainer(type: DockerCreateContainer) {
     dependsOn pullImage
-    containerName = 'kafka'
+    containerName = 'elasticsearch'
     targetImageId { pullImage.getImageId() }
-    portBindings = ['9092:9092','2181:2181']
+    env = ['discovery.type=single-node', 'ES_JAVA_OPTS=-Xms512m -Xmx512m']
+    portBindings = ['9200:9200','9300:9300']
     network = "host"
 }
 
@@ -23,7 +24,7 @@ task startContainer(type: DockerStartContainer) {
 }
 
 task stopContainer(type: DockerStopContainer) {
-    targetContainerId { createKafkaContainer.getContainerId() }
+    targetContainerId { createContainer.getContainerId() }
 }
 
 task removeContainer(type: DockerRemoveContainer) {

@@ -1,16 +1,6 @@
-import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
-import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
 buildscript {
     repositories { mavenCentral() }
     dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.3' }
-}
-
-plugins {
-    id 'com.bmuschko.docker-remote-api' version '3.2.5'
 }
 
 apply plugin: 'scala'
@@ -32,14 +22,20 @@ dependencies {
 }
 
 task startDockerContainers() {
-    dependsOn ':keyscore-frontier:startDockerContainer'
+    dependsOn = [
+        ':keyscore-frontier:startDockerContainer',
+        'elasticsearch:startContainer'
+    ]
     doLast {
-        sleep(5000)
+        sleep(10000)
     }
 }
 
 task stopDockerContainers() {
-    dependsOn ':keyscore-frontier:removeDockerContainer'
+    dependsOn = [
+        ':keyscore-frontier:removeDockerContainer',
+        'elasticsearch:startContainer'
+    ]
 }
 
 junitPlatformTest {
