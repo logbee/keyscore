@@ -29,7 +29,7 @@ class StreamManagerSpec extends WordSpec with Matchers with ScalaFutures with Mo
     "start a StreamSupervisor for a stream" in {
 
       val filterManagerProbe = TestProbe("filter-manager")
-      val testee = system.actorOf(Props[StreamManager], "stream-manager")
+      val testee = system.actorOf(StreamManager(filterManagerProbe.ref), "stream-manager")
 
       val streamConfiguration = StreamConfiguration(streamId, "test", "A test stream.", FilterConfiguration(""), FilterConfiguration(""), List.empty)
 
