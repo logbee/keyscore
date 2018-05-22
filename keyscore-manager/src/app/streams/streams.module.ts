@@ -20,6 +20,7 @@ import {FilterReducer} from "./filters/filter.reducer";
 import {FiltersComponent} from "./filters/filters.component";
 import {LiveEditingComponent} from "./filters/filter-details/live-editing.component";
 import {StreamsModuleState} from "./streams.model";
+import {ErrorComponent} from "../failures/error.component";
 
 
 export const routes: Routes = [
@@ -54,7 +55,8 @@ export const reducers: ActionReducerMap<StreamsModuleState> = {
         ParameterMap,
         ParameterComponent,
         LiveEditingComponent,
-        FiltersComponent
+        FiltersComponent,
+        ErrorComponent
     ],
     providers: []
 })

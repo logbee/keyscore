@@ -39,7 +39,7 @@
     "ID": "ID",
     "HOST": "Host"
   },
-  "FILTERLIVEEDITINGCOMPONENT": {
+  "FILTERLIVEEDITINGCOMPONENT ": {
     "NUMBER": "#",
     "TITLE": "Live Editing",
     "FILTERDESCRIPTION_TITLE": "Filter Description",
@@ -53,7 +53,8 @@
     "VALUE": "Value",
     "TYPE": "Type",
     "REGEX_PLACEHOLDER": "Add your Regex here",
-    "MESSAGE_PLACEHOLDER": "Add your message here"
+    "MESSAGE_PLACEHOLDER": "Add your message here",
+    "NOTFOUND": "The requested filter does not exist"
   },
   "FILTERSCOMPONENT" : {
     "FILTERS": "Filters"

@@ -1,4 +1,5 @@
 import {createFeatureSelector, createSelector} from "@ngrx/store";
+import {Observable} from "rxjs/index";
 
 //-----------------------Streams---------------------------
 
@@ -18,7 +19,7 @@ export class StreamsState {
 }
 
 export interface FilterState {
-    currentFilter: FilterModel
+    filterId: string
 }
 
 export interface StreamModel {
@@ -92,7 +93,7 @@ export const getStreamsState = createSelector(getStreamsModuleState, (state: Str
 
 export const getFilterState = createSelector(getStreamsModuleState, (state: StreamsModuleState) => state.filter);
 
-export const getCurrentFilter = createSelector(getFilterState, (state: FilterState) => state.currentFilter);
+export const getFilterId = createSelector(getFilterState, (state: FilterState) => state.filterId);
 
 export const getStreamList = createSelector(getStreamsState, (state: StreamsState) => state.streamList);
 
@@ -110,4 +111,4 @@ export const getEditingFilterParameters = createSelector(getStreamsState, (state
 
 export const getEditingFilter = createSelector(getStreamsState, (state: StreamsState) => state.editingFilter);
 
-export const getFilterById = (id) => createSelector(getStreamsState, (state: StreamsState) => [].concat(state.streamList).find((filter: FilterModel) => filter.id === id));
+export const getFilterById = (id)  => createSelector(getStreamsState, (state: StreamsState) => [].concat(state.streamList.map(model => model.filters),state.editingStream.filters).find((filter: FilterModel) => filter.id === id));

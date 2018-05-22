@@ -1,20 +1,8 @@
 import {FilterState} from "../streams.model"
-import {
-    FiltersActions,
-    LOAD_FILTER_DESCRIPTOR_FAILURE,
-    LOAD_FILTER_DESCRIPTOR_SUCCESS,
-    LOAD_FILTER_MODEL_FROM_STREAM
-} from "./filters.actions";
+import {CONFIGURE_FILTER, FiltersActions} from "./filters.actions";
 
 const initialState: FilterState = {
-    currentFilter: {
-        id:'',
-        name: '',
-        displayName: '',
-        description: '',
-        parameters: [],
-    }
-
+    filterId: ''
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
@@ -22,8 +10,8 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
     const result: FilterState = Object.assign({}, state);
 
     switch (action.type) {
-        case LOAD_FILTER_MODEL_FROM_STREAM:
-            result.currentFilter = action.filterModel
+        case CONFIGURE_FILTER:
+            result.filterId = action.id;
     }
     return result;
 }

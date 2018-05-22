@@ -53,7 +53,8 @@
     "VALUE": "Wert",
     "TYPE": "Typ",
     "REGEX_PLACEHOLDER": "Regulären Ausdruck hier angeben",
-    "MESSAGE_PLACEHOLDER": "Beispielnachricht hier angeben"
+    "MESSAGE_PLACEHOLDER": "Beispielnachricht hier angeben",
+    "NOTFOUND": "Der angeforderte Filter konnte nicht gefunden werden"
   },
   "FILTERSCOMPONENT" : {
     "FILTERS": "Filter"

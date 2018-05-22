@@ -20,13 +20,14 @@ import {AgentsModule} from "./agents/agents.module";
 import {StreamBuilderService} from "./services/streambuilder.service";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {ErrorComponent} from "./failures/error.component";
 
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
     {path: 'dashboard', component: DashboardComponent},
     {path: 'agent', loadChildren: () => AgentsModule},
-    {path: 'streams', loadChildren: () => StreamsModule},
+    {path: 'streams', loadChildren: () => StreamsModule}
 ];
 
 export function HttpLoaderFactory(http: HttpClient) {
@@ -57,13 +58,14 @@ export function HttpLoaderFactory(http: HttpClient) {
     declarations: [
         AppComponent,
         DashboardComponent,
-        FilterChooser
+        FilterChooser,
+
     ],
     providers: [
         StreamBuilderService
     ],
     entryComponents: [
-        FilterChooser
+        FilterChooser,
     ],
     bootstrap: [
         AppComponent

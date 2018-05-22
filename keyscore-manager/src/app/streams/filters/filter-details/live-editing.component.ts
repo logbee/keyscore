@@ -1,12 +1,15 @@
 import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
-import {FilterDescriptor, FilterModel, FilterState, getCurrentFilter} from "../../streams.model";
+import {FilterModel, FilterState, getFilterById, getFilterId} from "../../streams.model";
+import {mergeMap} from "rxjs/internal/operators";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
+
 
 @Component({
     selector: 'live-editing',
     template: `
-        <div class="col-12">
+        <div class="col-12" *ngIf="!errorHandling">
             <div class="card">
                 <div class="card-header alert-info">
                     {{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}
@@ -27,9 +30,9 @@ import {FilterDescriptor, FilterModel, FilterState, getCurrentFilter} from "../.
                                 </thead>
                                 <tbody>
                                 <tr>
-                                        <td>{{(currentFilter$ | async)?.displayName}}</td>
-                                        <td>{{(currentFilter$ | async)?.description}}</td>
-                                        <td>{{(currentFilter$ | async)?.category}}</td>
+                                        <td>{{(filter$ | async)?.displayName}}</td>
+                                        <td>{{(filter$ | async)?.description}}</td>
+                                        <td>{{(filter$ | async)?.category}}</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -91,14 +94,24 @@ import {FilterDescriptor, FilterModel, FilterState, getCurrentFilter} from "../.
                 </div>
             </div>
         </div>
+        <error-component *ngIf="errorHandling" [httpError]="404" [message]="errorMessage"></error-component>
     `
 })
 
 export class LiveEditingComponent {
 
-    private currentFilter$: Observable<FilterModel>;
-
-    constructor(private store: Store<FilterState>) {
-        this.currentFilter$ = this.store.select(getCurrentFilter);
+    private  filter$: Observable<FilterModel>;
+    private errorHandling: boolean = false;
+    private errorMessage: string;
+    private httpError: string;
+    constructor(private store: Store<FilterState>, private translate:TranslateService) {
+        this.filter$ = this.store.select(getFilterId).pipe(mergeMap(id => this.store.select(getFilterById("123123123414342314434"))));
+        this.filter$.subscribe(filter => {
+            if (typeof(filter) === 'undefined') {
+                this.errorHandling = true;
+                this.translate.get('FILTERLIVEEDITINGCOMPONENT.NOTFOUND').subscribe(translation => this.errorMessage = translation );
+                this.httpError = "404";
+                console.log(this.errorMessage);
+            }})
     }
 }
