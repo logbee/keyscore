@@ -20,6 +20,30 @@ import scala.collection.mutable
 import scala.concurrent.Future
 import scala.util.control.Breaks._
 
+
+object FilterManager {
+  def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
+
+  case object GetDescriptors
+
+  case class Descriptors(descriptors: List[MetaFilterDescriptor])
+
+  trait GraphBuild {}
+
+  case class GraphBuildingAnswer(answer: Option[GraphBuild])
+
+  case class GraphBuilt(streamID: UUID, graph: RunnableGraph[UniqueKillSwitch]) extends GraphBuild
+
+  case class GraphBuildException(streamID: UUID, streamSpec: StreamConfiguration, errorMsg: String) extends GraphBuild
+
+  case class StreamBlueprint(streamID: UUID,
+                             //TODO source
+                             //TODO sink
+                             filter: Map[UUID, Flow[Dataset, Dataset, Future[DefaultFilterStage]]]
+                            )
+
+}
+
 class FilterManager extends Actor with ActorLogging {
 
   private val eventBus = context.system.eventStream
@@ -88,28 +112,5 @@ class FilterManager extends Actor with ActorLogging {
     }
 
   }
-
-}
-
-object FilterManager {
-  def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
-
-  case object GetDescriptors
-
-  case class Descriptors(descriptors: List[MetaFilterDescriptor])
-
-  trait GraphBuild {}
-
-  case class GraphBuildingAnswer(answer: Option[GraphBuild])
-
-  case class GraphBuilt(streamID: UUID, graph: RunnableGraph[UniqueKillSwitch]) extends GraphBuild
-
-  case class GraphBuildException(streamID: UUID, streamSpec: StreamConfiguration, errorMsg: String) extends GraphBuild
-
-  case class StreamBlueprint(streamID: UUID,
-                             //TODO source
-                             //TODO sink
-                             filter: Map[UUID, Flow[Dataset, Dataset, Future[DefaultFilterStage]]]
-                            )
 
 }

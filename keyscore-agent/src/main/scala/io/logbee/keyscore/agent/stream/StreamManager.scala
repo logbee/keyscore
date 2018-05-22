@@ -1,8 +1,9 @@
 package io.logbee.keyscore.agent.stream
 
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.stream.StreamManager._
+import io.logbee.keyscore.agent.stream.StreamSupervisor.{ConfigureStream, StartStream}
 import io.logbee.keyscore.model.StreamConfiguration
 
 import scala.concurrent.duration._
@@ -18,10 +19,14 @@ object StreamManager {
 
   case class DeleteStream(configuration: StreamConfiguration)
 
-  case object GetConfigurations
+  case object RequestStreamsState
+
+  private case class SupervisorTerminated(supervisor: ActorRef, configuration: StreamConfiguration)
+
+  def apply(filterManager: ActorRef): Props = Props(new StreamManager(filterManager))
 }
 
-class StreamManager extends Actor with ActorLogging {
+class StreamManager(filterManager: ActorRef) extends Actor with ActorLogging {
 
   implicit val timeout: Timeout = 10 seconds
 
@@ -33,28 +38,31 @@ class StreamManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
 
-    case createStream @ CreateStream(configuration) =>
-      val supervisor = actorOf(StreamSupervisor(configuration.id), nameFromModel(configuration))
-      supervisor ! createStream
-      sender ! supervisor
+    case CreateStream(configuration) =>
+      val supervisor = actorOf(StreamSupervisor(filterManager), nameFromConfiguration(configuration))
+      supervisor ! StartStream(configuration)
+      watchWith(supervisor, SupervisorTerminated(supervisor, configuration))
 
-    case updateStream @ UpdateStream(configuration) =>
-      child(nameFromModel(configuration)).foreach(child => child ! updateStream)
+    case UpdateStream(configuration) =>
+      child(nameFromConfiguration(configuration)).foreach(child => child ! ConfigureStream(configuration))
 
-    case deleteStream @ DeleteStream(configuration) =>
-      child(nameFromModel(configuration)).foreach(child => child ! deleteStream)
+    case DeleteStream(configuration) =>
+      child(nameFromConfiguration(configuration)).foreach(child => context.stop(child))
 
-    case GetConfigurations =>
-      actorOf(StreamConfigurationAggregator(sender, children.filter(isSupervisor)))
+    case RequestStreamsState =>
+      actorOf(StreamStateAggregator(sender, children.filter(isSupervisor)))
+
+    case SupervisorTerminated(supervisor, configuration) =>
+      log.info(s"StreamSupervisor terminated: $configuration")
 
     case _ =>
   }
 
-  private def nameFromModel(model: StreamConfiguration): String = {
-    s"${SUPERVISOR_NAME_PREFIX}${model.id}"
+  def nameFromConfiguration(configuration: StreamConfiguration): String = {
+    s"$SUPERVISOR_NAME_PREFIX${configuration.id}"
   }
 
-  private def isSupervisor(ref: ActorRef): Boolean = {
+  def isSupervisor(ref: ActorRef): Boolean = {
     ref.path.name.startsWith(SUPERVISOR_NAME_PREFIX)
   }
 }

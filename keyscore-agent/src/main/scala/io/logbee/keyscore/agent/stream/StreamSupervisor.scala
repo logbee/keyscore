@@ -1,20 +1,21 @@
 package io.logbee.keyscore.agent.stream
 
-import java.util.UUID
-
-import akka.actor.{Actor, ActorLogging, Props}
-import io.logbee.keyscore.agent.stream.StreamManager.{CreateStream, UpdateStream}
-import io.logbee.keyscore.agent.stream.StreamSupervisor.GetStreamConfiguration
-import io.logbee.keyscore.model.StreamConfiguration
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import io.logbee.keyscore.agent.stream.StreamSupervisor.{ConfigureStream, RequestStreamState, StartStream}
+import io.logbee.keyscore.model.{Health, StreamConfiguration, StreamState}
 
 object StreamSupervisor {
 
-  case object GetStreamConfiguration
+  case class StartStream(configuration: StreamConfiguration)
 
-  def apply(id: UUID) = Props(new StreamSupervisor(id))
+  case class ConfigureStream(configureStream: StreamConfiguration)
+
+  case object RequestStreamState
+
+  def apply(filterManager: ActorRef) = Props(new StreamSupervisor(filterManager))
 }
 
-class StreamSupervisor(val id: UUID) extends Actor with ActorLogging {
+class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging {
 
   private var streamConfiguration: StreamConfiguration = _
 
@@ -24,15 +25,15 @@ class StreamSupervisor(val id: UUID) extends Actor with ActorLogging {
 
   override def receive: Receive = {
 
-    case CreateStream(configuration) =>
+    case StartStream(configuration) =>
       streamConfiguration = configuration
       log.info(s"Creating stream: ${configuration.id}")
 
-    case UpdateStream(configuration) =>
+    case ConfigureStream(configuration) =>
       log.info(s"Updating stream: ${configuration.id}")
 
-    case GetStreamConfiguration =>
-      sender ! streamConfiguration
+    case RequestStreamState =>
+      sender ! StreamState(streamConfiguration, Health.Green)
 
     case _ =>
   }

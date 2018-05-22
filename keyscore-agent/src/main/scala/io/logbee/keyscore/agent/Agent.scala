@@ -41,7 +41,7 @@ class Agent extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val streamManager = context.actorOf(Props[StreamManager], "stream-manager")
+  private val streamManager = context.actorOf(StreamManager(filterManager), "stream-manager")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()
