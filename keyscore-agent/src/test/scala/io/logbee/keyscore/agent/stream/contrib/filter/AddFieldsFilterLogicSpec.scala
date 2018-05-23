@@ -18,6 +18,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
@@ -25,12 +26,10 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
 
   trait TestStream {
 
-
     val configuration = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(TextMapParameter("fieldsToAdd", Map.empty)))
-    val configuration2 = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(TextMapParameter("fieldsToAdd", Map("message3"->"testValue","message4"->"testValue2"))))
+    val configuration2 = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(TextMapParameter("fieldsToAdd", Map("message3" -> "testValue", "message4" -> "testValue2"))))
     val context = StageContext(system, executionContext)
-    val provider = (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset,Dataset]) => new AddFieldsFilterLogic(ctx, c, s)
-    val filterStage = new FilterStage(context, configuration, provider)
+    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset, Dataset]) => new AddFieldsFilterLogic(ctx, c, s))
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
@@ -65,7 +64,7 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
         sink.request(1)
         sink.expectNext(modified1)
 
-       Await.ready(filter.configure(configuration2), 10 seconds)
+        Await.ready(filter.configure(configuration2), 10 seconds)
 
         source.sendNext(dataset1)
 

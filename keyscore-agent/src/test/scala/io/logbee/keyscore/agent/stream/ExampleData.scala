@@ -9,10 +9,13 @@ import io.logbee.keyscore.model.{Dataset, Record, TextField}
 
 object ExampleData {
 
-  //Original messages
-  val record1 = Record(TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C"))
-  val record2 = Record(TextField("message", "Is is a rainy day. Temperature: 5.8 °C"))
-  val record3 = Record(TextField("message", "The weather is sunny with a current temperature of: 14.4 °C"))
+  val messageTextField1 = TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C")
+  val messageTextField2 = TextField("message", "Is is a rainy day. Temperature: 5.8 °C")
+  val messageTextField3 = TextField("message", "The weather is sunny with a current temperature of: 14.4 °C")
+
+  val record1 = Record(messageTextField1)
+  val record2 = Record(messageTextField2)
+  val record3 = Record(messageTextField3)
 
   val multiFields1 = Record(
     TextField("foo", "bar"),

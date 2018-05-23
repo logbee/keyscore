@@ -2,6 +2,8 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 
 import java.util.{Locale, ResourceBundle, UUID}
 
+import akka.stream.FlowShape
+import io.logbee.keyscore.agent.stream.stage.{FilterLogic, StageContext}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 
@@ -11,7 +13,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.matching.Regex
 
 
-object GrokFilterFunction extends Described {
+object GrokFilterLogic extends Described {
 
   private val filterName = "io.logbee.keyscore.agent.stream.contrib.filter.GrokFilter"
   private val filterId = "8912a691-e982-4680-8fc7-fea6803fcef0"
@@ -30,8 +32,8 @@ object GrokFilterFunction extends Described {
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),
-      previousConnection = FilterConnection(true),
-      nextConnection = FilterConnection(true),
+      previousConnection = FilterConnection(isPermitted = true),
+      nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
         BooleanParameterDescriptor("isPaused", translatedText.getString("displayNameBoolean"), translatedText.getString("descriptionBoolean")),
         ListParameterDescriptor("fieldNames", translatedText.getString("fieldNames"), translatedText.getString("fieldNamesDescription"),
@@ -41,7 +43,8 @@ object GrokFilterFunction extends Described {
   }
 }
 
-class GrokFilterFunction extends FilterFunction {
+class GrokFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
+
   private val GROK_PATTERN: Regex = "\\(\\?<(\\w*)>".r
   private val NUMBER_PATTERN: Regex = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$".r
 
@@ -49,24 +52,26 @@ class GrokFilterFunction extends FilterFunction {
   private var regex: Regex = "".r
 
   override def configure(configuration: FilterConfiguration): Unit = {
-    for (parameter <- configuration.parameters) {
-      parameter.name match {
-        case "fieldNames" => fieldNames = parameter.value.asInstanceOf[List[String]]
-        case "pattern" => parameter.value match {
-          case Some(pattern: String) =>
-            regex = pattern.r(GROK_PATTERN.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
-          case None =>
-        }
-        case _ =>
-      }
+    configuration.parameters.foreach {
+        case TextListParameter("fieldNames", value) => fieldNames = value
+        case TextParameter("pattern", value) => regex = value.r(GROK_PATTERN.findAllMatchIn(value).map(_.group(1)).toSeq: _*)
     }
   }
 
-  override def apply(dataset: Dataset): Dataset = {
+  override def onPush(): Unit = {
+    push(out, grok(grab(in)))
+  }
+
+  override def onPull(): Unit = {
+    pull(in)
+  }
+
+  private def grok(dataset: Dataset): Dataset = {
+
     var listBufferOfRecords = ListBuffer[Record]()
+
     for (record <- dataset) {
-      var payload = new mutable.HashMap[String, Field[_]]
-      payload ++= record.payload
+      var payload = copyPayload(record)
       for (field <- record.payload.values) {
         payload.put(field.name, field)
         if (fieldNames.contains(field.name) && field.isInstanceOf[TextField]) {
@@ -81,7 +86,11 @@ class GrokFilterFunction extends FilterFunction {
       }
       listBufferOfRecords += new Record(record.id, payload.toMap)
     }
-    val listOfRecords = listBufferOfRecords.toList
-    new Dataset(listOfRecords)
+
+    new Dataset(listBufferOfRecords.toList)
+  }
+
+  private def copyPayload(record: Record) = {
+    new mutable.HashMap[String, Field[_]] ++= record.payload
   }
 }
