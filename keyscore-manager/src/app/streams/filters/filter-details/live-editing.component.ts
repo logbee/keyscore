@@ -94,7 +94,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
                 </div>
             </div>
         </div>
-        <error-component *ngIf="errorHandling" [httpError]="404" [message]="errorMessage"></error-component>
+        <error-component *ngIf="errorHandling" [httpError]="httpError" [message]="errorMessage"></error-component>
     `
 })
 
@@ -105,7 +105,7 @@ export class LiveEditingComponent {
     private errorMessage: string;
     private httpError: string;
     constructor(private store: Store<FilterState>, private translate:TranslateService) {
-        this.filter$ = this.store.select(getFilterId).pipe(mergeMap(id => this.store.select(getFilterById("123123123414342314434"))));
+        this.filter$ = this.store.select(getFilterId).pipe(mergeMap(id => this.store.select(getFilterById("23421342342343244"))));
         this.filter$.subscribe(filter => {
             if (typeof(filter) === 'undefined') {
                 this.errorHandling = true;
