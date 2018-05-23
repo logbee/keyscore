@@ -2,7 +2,7 @@ package io.logbee.keyscore.agent.stream.contrib.kafka
 
 import akka.stream.SourceShape
 import akka.stream.scaladsl.Source
-import io.logbee.keyscore.agent.stream.stage.SourceStage
+import io.logbee.keyscore.agent.stream.stage.{SourceStage, StageContext}
 import io.logbee.keyscore.agent.stream.{ExampleData, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
@@ -26,9 +26,10 @@ class KafkaSourceLogicSpec extends WordSpec with Matchers with ScalaFutures with
 
     "retrieve data from a kafka source and parse it into a dataset" in {
 
-      val provider = (c: FilterConfiguration, s: SourceShape[Dataset]) => new KafkaSourceLogic(c, s, system)
+      val context = StageContext(system, executionContext)
+      val provider = (ctx: StageContext, c: FilterConfiguration, s: SourceShape[Dataset]) => new KafkaSourceLogic(c, s, system)
 
-      val source = Source.fromGraph((new SourceStage(provider, ExampleData.kafkaSourceConfiguration))).runForeach(dataset => {
+      val source = Source.fromGraph((new SourceStage(context, ExampleData.kafkaSourceConfiguration, provider))).runForeach(dataset => {
         println(s"Dataset: $dataset")
       })
 

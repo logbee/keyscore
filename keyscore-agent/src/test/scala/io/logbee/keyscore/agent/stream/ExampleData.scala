@@ -2,7 +2,7 @@ package io.logbee.keyscore.agent.stream
 
 import java.util.UUID.randomUUID
 
-import io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilterFunction
+import io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilterLogic
 import io.logbee.keyscore.agent.stream.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextListParameter, TextParameter}
 import io.logbee.keyscore.model.{Dataset, Record, TextField}
@@ -86,9 +86,13 @@ object ExampleData {
   val configB = FilterConfiguration(filterDescriptorB)
 
   //CSV
-  val csvHeader = FilterConfiguration(randomUUID(), CSVParserFilterFunction.describe.describe(), List(
+  val csvHeader = FilterConfiguration(randomUUID(), CSVParserFilterLogic.describe.describe(), List(
     TextParameter("separator", ";"),
     TextListParameter("headers", List("Philosophy","Maths","Latin","Astrophysics")))
+  )
+  val csvHeader2 = FilterConfiguration(randomUUID(), CSVParserFilterLogic.describe.describe(), List(
+    TextParameter("separator", ";"),
+    TextListParameter("headers", List("Philosophy2","Maths2","Latin2","Astrophysics2")))
   )
 
   //Kafka

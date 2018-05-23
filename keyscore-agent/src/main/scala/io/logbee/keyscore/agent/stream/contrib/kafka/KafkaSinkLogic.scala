@@ -58,10 +58,10 @@ class KafkaSinkLogic(context: StageContext, configuration: FilterConfiguration, 
 
     val settings = producerSettings(bootstrapServer)
 
-    val committableSink = Producer.flow[Array[Byte], String, Promise[Unit]](settings)
+    val producer = Producer.flow[Array[Byte], String, Promise[Unit]](settings)
 
     queue = Source.queue(1, OverflowStrategy.backpressure)
-      .via(committableSink)
+      .via(producer)
       .map(_.message)
       .toMat(Sink.foreach(_.passThrough.success()))(Keep.left)
       .run()

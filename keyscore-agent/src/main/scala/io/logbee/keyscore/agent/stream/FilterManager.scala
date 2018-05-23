@@ -2,9 +2,9 @@ package io.logbee.keyscore.agent.stream
 
 import akka.actor
 import akka.actor.{Actor, ActorLogging, Props}
-import akka.stream.{ActorMaterializer, SinkShape}
+import akka.stream.{ActorMaterializer, FlowShape, SinkShape, SourceShape}
 import io.logbee.keyscore.agent.stream.FilterManager._
-import io.logbee.keyscore.agent.stream.stage.{SinkStage, StageContext}
+import io.logbee.keyscore.agent.stream.stage._
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.{FilterExtension, SinkExtension, SourceExtension}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
@@ -24,7 +24,16 @@ object FilterManager {
 
   case class CreateSinkStage(context: StageContext, configuration: FilterConfiguration)
 
+  case class CreateSourceStage(context: StageContext, configuration: FilterConfiguration)
+
+  case class CreateFilterStage(context: StageContext, configuration: FilterConfiguration)
+
   case class SinkStageCreated(stage: SinkStage)
+
+  case class SourceStageCreated(stage: SourceStage)
+
+  case class FilterStageCreated(stage: FilterStage)
+
 }
 
 class FilterManager extends Actor with ActorLogging {
@@ -60,26 +69,72 @@ class FilterManager extends Actor with ActorLogging {
 
       log.debug(s"Creating SinkStage with: $configuration")
 
-      val className = configuration.descriptor.name
+      loadStageLogicClass(configuration.descriptor.name).foreach(logicClass => {
+        val provider = createSinkLogicProvider(logicClass)
+        val stage = new SinkStage(stageContext, configuration, provider)
 
-      ScalaClassLoader(getClass.getClassLoader).tryToLoadClass(className) match {
+        sender ! SinkStageCreated(stage)
+      })
 
-        case Some(logicClass) =>
+    case CreateSourceStage(stageContext, configuration) =>
 
-          val constructor = logicClass.getConstructor(classOf[StageContext], classOf[FilterConfiguration], classOf[SinkShape[Dataset]])
-          val stage = new SinkStage(stageContext, configuration, (context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) => {
-            constructor.newInstance(context, configuration, shape)
-          })
+      log.debug(s"Creating SourceStage with: $configuration")
 
-          sender ! SinkStageCreated(stage)
+      loadStageLogicClass(configuration.descriptor.name).foreach(logicClass => {
+        val provider = createSourceLogicProvider(logicClass)
+        val stage = new SourceStage(stageContext, configuration, provider)
 
-          log.info(s"SinkStage created: $stage")
+        sender ! SourceStageCreated(stage)
+      })
+    case CreateFilterStage(stageContext, configuration) =>
 
-        case None =>
-          log.error(s"Could not load stage class: $className")
-      }
+      log.debug(s"Creating FilterStage with: $configuration")
+
+      loadStageLogicClass(configuration.descriptor.name).foreach(logicClass => {
+        val provider = createFilterLogicProvider(logicClass)
+        val stage = new FilterStage(stageContext, configuration, provider)
+
+        sender ! FilterStageCreated(stage)
+      })
 
     case Ready =>
       sender ! Ready
+  }
+
+  private def createSinkLogicProvider(logicClass: Class[_]) = {
+    val constructor = getSinkStageLogicConstructor(logicClass)
+    (context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) => {
+      constructor.newInstance(context, configuration, shape).asInstanceOf[SinkLogic]
+    }
+  }
+
+  private def createSourceLogicProvider(logicClass: Class[_]) = {
+    val constructor = getSourceStageLogicConstructor(logicClass)
+    (context: StageContext, configuration: FilterConfiguration, shape: SourceShape[Dataset]) => {
+      constructor.newInstance(context, configuration, shape).asInstanceOf[SourceLogic]
+    }
+  }
+
+  private def createFilterLogicProvider(logicClass: Class[_]) = {
+    val constructor = getFilterStageLogicConstructor(logicClass)
+    (context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) => {
+      constructor.newInstance(context, configuration, shape).asInstanceOf[FilterLogic]
+    }
+  }
+
+  private def getSinkStageLogicConstructor(logicClass: Class[_]) = {
+    logicClass.getConstructor(classOf[StageContext], classOf[FilterConfiguration], classOf[SinkShape[Dataset]])
+  }
+
+  private def getSourceStageLogicConstructor(logicClass: Class[_]) = {
+    logicClass.getConstructor(classOf[StageContext], classOf[FilterConfiguration], classOf[SourceShape[Dataset]])
+  }
+
+  private def getFilterStageLogicConstructor(logicClass: Class[_]) = {
+    logicClass.getConstructor(classOf[StageContext], classOf[FilterConfiguration], classOf[FlowShape[Dataset, Dataset]])
+  }
+
+  private def loadStageLogicClass(className: String) = {
+    ScalaClassLoader(getClass.getClassLoader).tryToLoadClass(className)
   }
 }

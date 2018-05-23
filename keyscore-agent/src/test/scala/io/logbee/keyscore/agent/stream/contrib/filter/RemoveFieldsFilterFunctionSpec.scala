@@ -18,6 +18,7 @@ import org.scalatest.{Matchers, WordSpec}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+/*
 @RunWith(classOf[JUnitRunner])
 class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
@@ -58,3 +59,4 @@ class RemoveFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFu
     }
   }
 }
+*/

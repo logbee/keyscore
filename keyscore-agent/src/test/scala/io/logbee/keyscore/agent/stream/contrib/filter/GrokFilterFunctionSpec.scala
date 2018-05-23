@@ -18,6 +18,7 @@ import org.scalatest.{Matchers, WordSpec}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+/*
 @RunWith(classOf[JUnitRunner])
 class GrokFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
@@ -69,3 +70,4 @@ class GrokFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures wi
     }
   }
 }
+*/

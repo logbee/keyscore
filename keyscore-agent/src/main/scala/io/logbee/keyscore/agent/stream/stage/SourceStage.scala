@@ -8,7 +8,7 @@ import io.logbee.keyscore.model.source.Source
 
 import scala.concurrent.Future
 
-class SourceStage(provider: (FilterConfiguration, SourceShape[Dataset]) => SourceLogic, configuration: FilterConfiguration) extends GraphStageWithMaterializedValue[SourceShape[Dataset], Future[Source]] {
+class SourceStage(context: StageContext,configuration:FilterConfiguration,provider: (StageContext, FilterConfiguration, SourceShape[Dataset]) => SourceLogic) extends GraphStageWithMaterializedValue[SourceShape[Dataset], Future[Source]] {
 
   private val out = Outlet[Dataset](s"${configuration.id}:outlet")
 
@@ -16,7 +16,7 @@ class SourceStage(provider: (FilterConfiguration, SourceShape[Dataset]) => Sourc
 
   override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[Source]) = {
 
-    val logic = provider(configuration, shape)
+    val logic = provider(context, configuration, shape)
     (logic, logic.initPromise.future)
   }
 }

@@ -31,7 +31,8 @@ class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with Mock
       val descriptor = FilterDescriptor(randomUUID(), "test")
       val configurationA = FilterConfiguration(uuid, descriptor, List.empty)
       val configurationB = FilterConfiguration(uuid, descriptor, List.empty)
-      val provider = (c: FilterConfiguration, s: SourceShape[Dataset]) => new SourceLogic(c, s) {
+      val context = StageContext(system, executionContext)
+      val provider = (ctx: StageContext, c: FilterConfiguration, s: SourceShape[Dataset]) => new SourceLogic(c, s) {
 
         override def initialize(configuration: FilterConfiguration): Unit = {
           initializeConfiguration.success(configuration)
@@ -44,7 +45,7 @@ class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with Mock
         override def onPull(): Unit = ???
       }
 
-      val sourceFuture = Source.fromGraph(new SourceStage(provider, configurationA))
+      val sourceFuture = Source.fromGraph(new SourceStage(context, configurationA, provider))
         .toMat(TestSink.probe[Dataset])(Keep.left)
         .run()
 

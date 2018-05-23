@@ -20,14 +20,14 @@ object DefaultFilterStage {
   }
 }
 
-class DefaultFilterStage extends FilterStage {
+class DefaultFilterStage {
 
   private val in = Inlet[Dataset]("in")
   private val out = Outlet[Dataset]("out")
 
-  override def shape = FlowShape(in, out)
+  def shape = FlowShape(in, out)
 
-  override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[Filter]) = {
+  def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[Filter]) = {
     val logic = new DefaultFilterLogic
     (logic, logic.initPromise.future)
   }
@@ -71,33 +71,7 @@ class DefaultFilterStage extends FilterStage {
           log.info(s"Function configuration has been updated: $configuration")
       }
 
-      override def changeCondition(condition: Condition): Future[Unit] = {
-        val promise = Promise[Unit]()
-        log.info(s"Changing condition: ${condition.getClass.getName}")
-        changeConditionCallback.invoke((Option(condition), promise))
-        promise.future
-      }
-
-      override def changeFunction(function: FilterFunction): Future[Unit] = {
-        val promise = Promise[Unit]()
-        log.info(s"Changing function: ${function.getClass.getName}")
-        changeFunctionCallback.invoke(Option(function), promise)
-        promise.future
-      }
-
-      override def configureCondition(configuration: FilterConfiguration): Future[Unit] = {
-        val promise = Promise[Unit]()
-        log.info(s"Configuring condition: $configuration")
-        configureConditionCallback.invoke(configuration, promise)
-        promise.future
-      }
-
-      override def configureFunction(configuration: FilterConfiguration): Future[Unit] = {
-        val promise = Promise[Unit]()
-        log.info(s"Configuring function: $configuration")
-        configureFunctionCallback.invoke(configuration, promise)
-        promise.future
-      }
+      override def configure(configuration: FilterConfiguration) = ???
     }
 
     setHandlers(in, out, this)
