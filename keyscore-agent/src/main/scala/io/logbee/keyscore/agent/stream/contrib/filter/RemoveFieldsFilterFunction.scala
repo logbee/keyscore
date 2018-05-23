@@ -14,7 +14,7 @@ object RemoveFieldsFilterFunction extends Described {
   private val filterName= "io.logbee.keyscore.agent.stream.contrib.filter.RemoveFieldsFilter"
   private val filterId = "b7ee17ad-582f-494c-9f89-2c9da7b4e467"
 
-  override def descriptors:MetaFilterDescriptor= {
+  override def describe:MetaFilterDescriptor= {
     val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
     descriptorMap ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH),

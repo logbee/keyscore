@@ -1,12 +1,20 @@
 package io.logbee.keyscore.agent.stream
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import io.logbee.keyscore.agent.stream.StreamSupervisor.{ConfigureStream, RequestStreamState, StartStream}
+import akka.util.Timeout
+import io.logbee.keyscore.agent.stream.FilterManager.{CreateSinkStage, SinkStageCreated}
+import io.logbee.keyscore.agent.stream.StreamSupervisor.{ConfigureStream, CreateStream, RequestStreamState, StartStream}
+import io.logbee.keyscore.agent.stream.stage.{SinkStage, StageContext}
 import io.logbee.keyscore.model.{Health, StreamConfiguration, StreamState}
+
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 object StreamSupervisor {
 
-  case class StartStream(configuration: StreamConfiguration)
+  case class CreateStream(configuration: StreamConfiguration)
+
+  case object StartStream
 
   case class ConfigureStream(configureStream: StreamConfiguration)
 
@@ -17,7 +25,14 @@ object StreamSupervisor {
 
 class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging {
 
+  import context._
+
+  private val timeout: Timeout = 5 seconds
+
   private var streamConfiguration: StreamConfiguration = _
+
+  private var sinkStage: Option[SinkStage] = None
+  private var sourceStage: Option[SinkStage] = None
 
   override def preStart(): Unit = {
     log.info("StartUp complete.")
@@ -25,9 +40,24 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
 
   override def receive: Receive = {
 
-    case StartStream(configuration) =>
-      streamConfiguration = configuration
+    case CreateStream(configuration) =>
       log.info(s"Creating stream: ${configuration.id}")
+
+      streamConfiguration = configuration
+
+      val stageContext = StageContext(system, dispatcher)
+
+      filterManager ! CreateSinkStage(stageContext, configuration.sink)
+
+      system.scheduler.scheduleOnce(10 seconds) {
+        self ! StartStream
+      }
+
+    case SinkStageCreated(stage) =>
+      sinkStage = Option(stage)
+
+    case StartStream =>
+      log.info(s"Start Stream: sink(${sinkStage.isDefined}), source(${sourceStage.isDefined})")
 
     case ConfigureStream(configuration) =>
       log.info(s"Updating stream: ${configuration.id}")

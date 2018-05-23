@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
-import java.util.UUID
+import java.util.UUID.randomUUID
 
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
@@ -8,7 +8,7 @@ import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti1, datasetMulti2
 import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.stream.stage.DefaultFilterStage
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextListParameter}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -28,14 +28,14 @@ class RetainFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFu
   }
 
   val fieldsToRetain = TextListParameter("fieldsToRetain", List("42", "bbq"))
-  val initialConfig = FilterConfiguration(UUID.randomUUID(), "fieldsToRetain", List(fieldsToRetain))
+  val initialConfig = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "fieldsToRetain"), List(fieldsToRetain))
 
   val datasetMultiModified2 = Dataset(Record(TextField("42", "bar")))
 
   "A RetainFieldsFilter" should {
 
     "return a MetaFilterDescriptor" in {
-      RetainFieldsFilterFunction.descriptors should not be null
+      RetainFieldsFilterFunction.describe should not be null
     }
 
     "retain only the specified fields and remove all others" in new TestStream {

@@ -3,7 +3,7 @@ package io.logbee.keyscore.agent.stream
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.stream.StreamManager._
-import io.logbee.keyscore.agent.stream.StreamSupervisor.{ConfigureStream, StartStream}
+import io.logbee.keyscore.agent.stream.StreamSupervisor.{ConfigureStream, CreateStream}
 import io.logbee.keyscore.model.StreamConfiguration
 
 import scala.concurrent.duration._
@@ -40,7 +40,7 @@ class StreamManager(filterManager: ActorRef) extends Actor with ActorLogging {
 
     case CreateStream(configuration) =>
       val supervisor = actorOf(StreamSupervisor(filterManager), nameFromConfiguration(configuration))
-      supervisor ! StartStream(configuration)
+      supervisor ! StreamSupervisor.CreateStream(configuration)
       watchWith(supervisor, SupervisorTerminated(supervisor, configuration))
 
     case UpdateStream(configuration) =>

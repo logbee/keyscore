@@ -7,7 +7,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.stream.FilterManager
-import io.logbee.keyscore.agent.stream.FilterManager.{Descriptors, GetDescriptors}
+import io.logbee.keyscore.agent.stream.FilterManager.{DescriptorsResponse, RequestDescriptors}
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.Described
@@ -34,10 +34,10 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
     "load filter extensions " in {
 
       filterManager ! RegisterExtension(FilterExtension, classOf[ExampleFilter])
-      filterManager ! GetDescriptors
+      filterManager ! RequestDescriptors
 
-      val message = receiveOne(5 seconds).asInstanceOf[Descriptors]
-      message.descriptors should (contain (ExampleFilter.descriptors) and have length 1)
+      val message = receiveOne(5 seconds).asInstanceOf[DescriptorsResponse]
+      message.descriptors should (contain (ExampleFilter.describe) and have length 1)
     }
   }
 }
@@ -47,7 +47,7 @@ object ExampleFilter extends Described {
   val filterName = "ExampleFilter"
   val filterId ="2b6e5fd0-a21b-4256-8a4a-388e3b4e5711"
 
-  override def descriptors: MetaFilterDescriptor = {
+  override def describe: MetaFilterDescriptor = {
     val descriptors = mutable.Map.empty[Locale, FilterDescriptorFragment]
     descriptors ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH),

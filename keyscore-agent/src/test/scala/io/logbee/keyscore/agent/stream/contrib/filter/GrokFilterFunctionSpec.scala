@@ -8,7 +8,7 @@ import io.logbee.keyscore.agent.stream.ExampleData.{dataset1, dataset2, dataset3
 import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.stream.stage.DefaultFilterStage
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter, TextParameter}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextListParameter, TextParameter}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -36,12 +36,12 @@ class GrokFilterFunctionSpec extends WordSpec with Matchers with ScalaFutures wi
   val modified2 = Dataset(Record(NumberField("temperature", 5.8)))
   val modified3 = Dataset(Record(NumberField("temperature", 14.4)))
 
-  val initialConfig = FilterConfiguration(UUID.randomUUID(), "grokFilter", parameterList)
+  val initialConfig = FilterConfiguration(UUID.randomUUID(), FilterDescriptor(UUID.randomUUID(), "addFieldsFilter"), parameterList)
 
   "A GrokFilter" should {
 
     "return a MetaFilterDescriptor" in {
-      GrokFilterFunction.descriptors should not be null
+      GrokFilterFunction.describe should not be null
     }
 
     "extract data into a new field when the grok rule matches the specified field" in new TestStream {

@@ -16,17 +16,16 @@ object GrokFilterFunction extends Described {
   private val filterName = "io.logbee.keyscore.agent.stream.contrib.filter.GrokFilter"
   private val filterId = "8912a691-e982-4680-8fc7-fea6803fcef0"
 
-  override def descriptors: MetaFilterDescriptor = {
-    val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
-    descriptorMap ++= Map(
+  override def describe: MetaFilterDescriptor = {
+    val fragments = Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH),
       Locale.GERMAN -> descriptor(Locale.GERMAN)
     )
 
-    MetaFilterDescriptor(UUID.fromString(filterId),filterName,descriptorMap.toMap)
+    MetaFilterDescriptor(UUID.fromString(filterId), filterName, fragments)
   }
 
-  private def descriptor(language:Locale) = {
+  private def descriptor(language: Locale) = {
     val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
@@ -34,10 +33,10 @@ object GrokFilterFunction extends Described {
       previousConnection = FilterConnection(true),
       nextConnection = FilterConnection(true),
       parameters = List(
-        BooleanParameterDescriptor("isPaused",translatedText.getString("displayNameBoolean"), translatedText.getString("descriptionBoolean")),
-        ListParameterDescriptor("fieldNames",translatedText.getString("fieldNames"),translatedText.getString("fieldNamesDescription"),
-          TextParameterDescriptor("field",translatedText.getString("fieldKeyNameHeader"), translatedText.getString("fieldKeyDescriptionHeader"))),
-        TextParameterDescriptor("pattern",translatedText.getString("patternKeyNameHeader"), translatedText.getString("patternKeyDescriptionHeader"))
+        BooleanParameterDescriptor("isPaused", translatedText.getString("displayNameBoolean"), translatedText.getString("descriptionBoolean")),
+        ListParameterDescriptor("fieldNames", translatedText.getString("fieldNames"), translatedText.getString("fieldNamesDescription"),
+          TextParameterDescriptor("field", translatedText.getString("fieldKeyNameHeader"), translatedText.getString("fieldKeyDescriptionHeader"))),
+        TextParameterDescriptor("pattern", translatedText.getString("patternKeyNameHeader"), translatedText.getString("patternKeyDescriptionHeader"))
       ))
   }
 }
@@ -64,7 +63,7 @@ class GrokFilterFunction extends FilterFunction {
   }
 
   override def apply(dataset: Dataset): Dataset = {
-    var listBufferOfRecords =  ListBuffer[Record]()
+    var listBufferOfRecords = ListBuffer[Record]()
     for (record <- dataset) {
       var payload = new mutable.HashMap[String, Field[_]]
       payload ++= record.payload

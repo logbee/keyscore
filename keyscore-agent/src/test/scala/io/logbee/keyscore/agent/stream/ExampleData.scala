@@ -1,8 +1,10 @@
 package io.logbee.keyscore.agent.stream
 
-import java.util.UUID
+import java.util.UUID.randomUUID
 
-import io.logbee.keyscore.model.filter.{FilterConfiguration, TextListParameter, TextParameter}
+import io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilterFunction
+import io.logbee.keyscore.agent.stream.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextListParameter, TextParameter}
 import io.logbee.keyscore.model.{Dataset, Record, TextField}
 
 object ExampleData {
@@ -59,9 +61,11 @@ object ExampleData {
 
   val datasetMulti1 = Dataset(multiFields1)
   val datasetMulti2 = Dataset(multiFields2)
+
   //CSV
   val csvDatasetA = Dataset(csvA)
   val csvDatasetB = Dataset(csvB)
+
   //Kafka
   val kafkaDataset1 = Dataset(kafka1)
   val kafkaDataset2 = Dataset(kafka2)
@@ -73,22 +77,29 @@ object ExampleData {
   val datasetMultiModified = Dataset(multiRecordModified)
   val datasetMultiModified2 = Dataset(multiRecordModified2)
 
-  //configurations
-  val configA = FilterConfiguration("A")
-  val configB = FilterConfiguration("B")
-  //CSV
-  val csvHeader = FilterConfiguration(UUID.randomUUID(), "filter", List(
-    TextParameter("separator", ";"),
-    TextListParameter("headers", List("Philosophy","Maths","Latin","Astrophysics"))))
+  // descriptors
+  val filterDescriptorA = FilterDescriptor(randomUUID(), "filterA", List.empty)
+  val filterDescriptorB = FilterDescriptor(randomUUID(), "filterB", List.empty)
 
-  //Kafkas
-  val kafkaSourceConfiguration = FilterConfiguration(UUID.randomUUID(), "kafkaSource", List(
+  //configurations
+  val configA = FilterConfiguration(filterDescriptorA)
+  val configB = FilterConfiguration(filterDescriptorB)
+
+  //CSV
+  val csvHeader = FilterConfiguration(randomUUID(), CSVParserFilterFunction.describe.describe(), List(
+    TextParameter("separator", ";"),
+    TextListParameter("headers", List("Philosophy","Maths","Latin","Astrophysics")))
+  )
+
+  //Kafka
+  val kafkaSourceConfiguration = FilterConfiguration(randomUUID(), KafkaSourceLogic.describe.describe(), List(
     TextParameter("bootstrapServer", "localhost:9092"),
     TextParameter("groupID", "keyscore-agent"),
     TextParameter("offsetCommit", "earliest"),
     TextParameter("sourceTopic", "testTopic")
   ))
-  val kafkaSinkConfiguration = FilterConfiguration(UUID.randomUUID(), "kafkaSink", List(
+
+  val kafkaSinkConfiguration = FilterConfiguration(randomUUID(), KafkaSinkLogic.describe.describe(), List(
     TextParameter("bootstrapServer", "localhost:9092"),
     TextParameter("topic", "sinkTopic")
   ))

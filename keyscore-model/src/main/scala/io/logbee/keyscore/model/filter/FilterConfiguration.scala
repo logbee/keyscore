@@ -4,9 +4,10 @@ import java.util.UUID
 
 
 object FilterConfiguration {
-  def apply(kind: String): FilterConfiguration = new FilterConfiguration(UUID.randomUUID(), kind, List.empty)
+  def apply(descriptor: FilterDescriptor): FilterConfiguration = new FilterConfiguration(UUID.randomUUID(), descriptor, List.empty)
 }
-case class FilterConfiguration(id: UUID, kind: String, parameters: List[Parameter[_]]) {
+
+case class FilterConfiguration(id: UUID, descriptor: FilterDescriptor, parameters: List[Parameter[_]]) {
 
   def getParameterValue[T](parameterName: String): T = {
     try {

@@ -4,5 +4,5 @@ import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
 
 trait Described {
-  def descriptors: MetaFilterDescriptor
+  def describe: MetaFilterDescriptor
 }

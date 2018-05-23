@@ -20,7 +20,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 object ElasticSearchSinkLogic extends Described {
-  override def descriptors: MetaFilterDescriptor = ???
+  override def describe: MetaFilterDescriptor = ???
 
   private case class Document(_id: String, fields: Map[String, _])
 }

@@ -99,15 +99,15 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
   private def createStreamFromModel(streamId: UUID, model: StreamConfiguration): StreamBlueprint = {
     try {
       val source: Source[CommittableRecord, UniqueKillSwitch] =
-        Reflection.createFilterByClassname(FilterRegistry.filters(model.source.kind), model.source, Some(system)).asInstanceOf[Source[CommittableRecord, UniqueKillSwitch]]
+        Reflection.createFilterByClassname(FilterRegistry.filters(model.source.descriptor.name), model.source, Some(system)).asInstanceOf[Source[CommittableRecord, UniqueKillSwitch]]
 
       val sink: Sink[CommittableRecord, Future[Done]] =
-        Reflection.createFilterByClassname(FilterRegistry.filters(model.sink.kind), model.sink, Some(system)).asInstanceOf[Sink[CommittableRecord, Future[Done]]]
+        Reflection.createFilterByClassname(FilterRegistry.filters(model.sink.descriptor.name), model.sink, Some(system)).asInstanceOf[Sink[CommittableRecord, Future[Done]]]
 
       val filterBuffer = scala.collection.mutable.Map[UUID, Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]()
 
       model.filter.foreach { filter =>
-        filterBuffer += ((filter.id, Reflection.createFilterByClassname(FilterRegistry.filters(filter.kind), filter).asInstanceOf[Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]))
+        filterBuffer += ((filter.id, Reflection.createFilterByClassname(FilterRegistry.filters(filter.descriptor.name), filter).asInstanceOf[Flow[CommittableRecord, CommittableRecord, Future[FilterHandle]]]))
       }
 
 

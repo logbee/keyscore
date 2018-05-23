@@ -1,13 +1,13 @@
 package io.logbee.keyscore.agent.stream.stage
 
-import java.util.UUID
+import java.util.UUID.randomUUID
 
 import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -27,9 +27,10 @@ class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with Mock
       val updateConfiguration = Promise[FilterConfiguration]
       val initializeConfiguration = Promise[FilterConfiguration]
 
-      val uuid = UUID.randomUUID()
-      val configurationA = FilterConfiguration(uuid, "testA", List.empty)
-      val configurationB = FilterConfiguration(uuid, "testB", List.empty)
+      val uuid = randomUUID()
+      val descriptor = FilterDescriptor(randomUUID(), "test")
+      val configurationA = FilterConfiguration(uuid, descriptor, List.empty)
+      val configurationB = FilterConfiguration(uuid, descriptor, List.empty)
       val provider = (c: FilterConfiguration, s: SourceShape[Dataset]) => new SourceLogic(c, s) {
 
         override def initialize(configuration: FilterConfiguration): Unit = {

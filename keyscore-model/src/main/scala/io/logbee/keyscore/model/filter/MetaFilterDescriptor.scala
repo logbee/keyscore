@@ -1,29 +1,28 @@
 package io.logbee.keyscore.model.filter
 
+import java.util.Locale.ENGLISH
 import java.util.{Locale, UUID}
 
-object MetaFilterDescriptor{
-  def apply(id:UUID,name:String,descriptors: Map[Locale,FilterDescriptorFragment]) = new MetaFilterDescriptor(id,name,descriptors)
+object MetaFilterDescriptor {
+  def apply(id: UUID, name: String, descriptors: Map[Locale, FilterDescriptorFragment]) = new MetaFilterDescriptor(id, name, descriptors)
 }
 
-case class MetaFilterDescriptor(val id: UUID, val name: String, val descriptors: Map[Locale, FilterDescriptorFragment]) {
+case class MetaFilterDescriptor(id: UUID, name: String, descriptors: Map[Locale, FilterDescriptorFragment]) {
 
-  def describe(language: Locale): FilterDescriptor = {
-    var selectedFragment:FilterDescriptorFragment = null
-     descriptors.get(language) match {
-       case Some(fragment) =>
+  def describe(language: Locale = ENGLISH): FilterDescriptor = {
+    var selectedFragment: FilterDescriptorFragment = null
+    descriptors.get(language) match {
+      case Some(fragment) =>
         selectedFragment = fragment
-       case None => descriptors.get(Locale.ENGLISH) match{
-         case Some(fragment) =>
-           selectedFragment = fragment
-         case None =>
-           selectedFragment = descriptors.values.toList.head
-
-       }
-     }
-    FilterDescriptor(id,name,selectedFragment.displayName,selectedFragment.description,selectedFragment.previousConnection,selectedFragment.nextConnection,selectedFragment.parameters,selectedFragment.category)
+      case None => descriptors.get(ENGLISH) match {
+        case Some(fragment) =>
+          selectedFragment = fragment
+        case None =>
+          selectedFragment = descriptors.values.toList.head
+      }
+    }
+    FilterDescriptor(id, name, selectedFragment.displayName, selectedFragment.description, selectedFragment.previousConnection, selectedFragment.nextConnection, selectedFragment.parameters, selectedFragment.category)
   }
-
 
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[MetaFilterDescriptor]

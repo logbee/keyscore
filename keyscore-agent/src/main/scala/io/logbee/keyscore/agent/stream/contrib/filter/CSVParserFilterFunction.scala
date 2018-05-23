@@ -13,7 +13,7 @@ object CSVParserFilterFunction extends Described {
   private val filterName = "io.logbee.keyscore.agent.stream.contrib.filter.CSVParserFilter"
   private val filterId = "292d368e-6e50-4c52-aed5-1a6826d78c22"
 
-  override def descriptors: MetaFilterDescriptor = {
+  override def describe: MetaFilterDescriptor = {
     val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
     descriptorMap ++= Map(
       Locale.ENGLISH -> descriptor(Locale.ENGLISH),

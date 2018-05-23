@@ -1,5 +1,4 @@
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Observable} from "rxjs/index";
 
 //-----------------------Streams---------------------------
 
@@ -34,8 +33,8 @@ export interface StreamConfiguration {
     name: string;
     description: string;
     source: FilterConfiguration;
-    sink: FilterConfiguration;
     filter: FilterConfiguration[];
+    sink: FilterConfiguration;
 }
 //-----------------------Filter---------------------------
 export interface FilterConfiguration {

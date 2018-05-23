@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.stream.contrib.filter
 
-import java.util.UUID
+import java.util.UUID.randomUUID
 
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
@@ -8,7 +8,7 @@ import io.logbee.keyscore.agent.stream.ExampleData.{dataset1, dataset2, dataset3
 import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.stream.stage.DefaultFilterStage
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.{FilterConfiguration, TextMapParameter}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextMapParameter}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -31,7 +31,7 @@ class AddFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutur
 
   var map = Map[String, String]("foo" -> "bier", "42" -> "73")
   val fieldsToAdd = TextMapParameter("fieldsToAdd", map)
-  val initialConfig = FilterConfiguration(UUID.randomUUID(), "addFieldsFilter", List(fieldsToAdd))
+  val initialConfig = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "addFieldsFilter"), List(fieldsToAdd))
 
   val modified1 = Dataset(Record(
     TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C"),
@@ -54,7 +54,7 @@ class AddFieldsFilterFunctionSpec extends WordSpec with Matchers with ScalaFutur
   "A AddFieldsFilter" should {
 
     "return a MetaFilterDescriptor" in {
-      AddFieldsFilterFunction.descriptors should not be null
+      AddFieldsFilterFunction.describe should not be null
     }
 
     "add new fields and their data to the already existing data" in new TestStream {

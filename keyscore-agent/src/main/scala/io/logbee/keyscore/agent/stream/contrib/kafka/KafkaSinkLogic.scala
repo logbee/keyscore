@@ -1,12 +1,15 @@
 package io.logbee.keyscore.agent.stream.contrib.kafka
 
+import java.util.Locale
+import java.util.UUID.fromString
+
 import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, SinkShape}
 import io.logbee.keyscore.agent.stream.stage.{SinkLogic, StageContext}
-import io.logbee.keyscore.model.filter.FilterConfiguration
-import io.logbee.keyscore.model.{Dataset, Record}
+import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.{Dataset, Described, Record}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.json4s.ext.JavaTypesSerializers
@@ -16,6 +19,22 @@ import org.json4s.{Formats, NoTypeHints}
 
 import scala.concurrent.Promise
 import scala.util.Success
+
+//TODO: Descriptor for KafkaSource
+object KafkaSinkLogic extends Described {
+
+  private val filterName = "io.logbee.keyscore.agent.stream.contrib.kafka.KafkaSinkLogic"
+  private val filterId = "4fedbe8e-115e-4408-ba53-5b627b6e2eaf"
+
+  override def describe: MetaFilterDescriptor = {
+    MetaFilterDescriptor(fromString(filterId), filterName, Map(
+      Locale.ENGLISH -> FilterDescriptorFragment("Kafka Sink", "A Kafka Sink.", FilterConnection(isPermitted = true), FilterConnection(isPermitted = false), List(
+        TextParameterDescriptor("bootstrapServer"),
+        TextParameterDescriptor("topic")
+      ), "sink")
+    ))
+  }
+}
 
 class KafkaSinkLogic(context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends SinkLogic(context, configuration, shape) {
 

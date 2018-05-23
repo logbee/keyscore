@@ -16,7 +16,7 @@ class FilterLoader {
 
     moduleSymbol.instance match {
       case describable: Described =>
-        describable.descriptors
+        describable.describe
       case _ =>
         throw new LoadFilterDescriptorException
     }

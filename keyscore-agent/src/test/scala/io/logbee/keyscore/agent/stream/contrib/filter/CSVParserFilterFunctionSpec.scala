@@ -37,7 +37,7 @@ class CSVParserFilterFunctionSpec extends WordSpec with Matchers with ScalaFutur
   "A CSVFilterFunction" should {
 
     "return a MetaFilterDescriptor" in {
-      CSVParserFilterFunction.descriptors should not be null
+      CSVParserFilterFunction.describe should not be null
     }
 
     "convert a csv string into a normal record" in new TestStream {
