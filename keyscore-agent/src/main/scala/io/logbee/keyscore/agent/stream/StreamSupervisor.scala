@@ -15,7 +15,7 @@ object StreamSupervisor {
 
   case class CreateStream(configuration: StreamConfiguration)
 
-  case object StartStream
+  case class StartStream(trials: Int)
 
   case class ConfigureStream(configureStream: StreamConfiguration)
 
@@ -29,6 +29,7 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
   import context._
 
   private val timeout: Timeout = 5 seconds
+  private val streamStartDelay = 5 seconds
 
   private var streamConfiguration: StreamConfiguration = _
 
@@ -43,37 +44,63 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
   override def receive: Receive = {
 
     case CreateStream(configuration) =>
-      log.info(s"Creating stream: ${configuration.id}")
+      log.info(s"Creating stream <${configuration.id}>.")
 
-      streamConfiguration
+      streamConfiguration = configuration
+
       val stageContext = StageContext(system, dispatcher)
 
-
-
       filterManager ! CreateSinkStage(stageContext, configuration.sink)
-      filterManager ! CreateSourceStage(stageContext,configuration.source)
+      filterManager ! CreateSourceStage(stageContext, configuration.source)
+
       configuration.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, filter))
 
-      system.scheduler.scheduleOnce(10 seconds) {
-        self ! StartStream
-      }
+      scheduleStart(3)
 
     case SinkStageCreated(stage) =>
+      log.info(s"Received SinkStage: $stage")
       sinkStage = Option(stage)
 
     case SourceStageCreated(stage) =>
+      log.info(s"Received SourceStage: $stage")
       sourceStage = Option(stage)
 
-    case StartStream =>
-      log.info(s"Start Stream: sink(${sinkStage.isDefined}), source(${sourceStage.isDefined})")
+    case StartStream(trials) =>
+
+      if (trials <= 1) {
+        log.error(s"Failed to start stream <${streamConfiguration.id}> with $streamConfiguration")
+        context.stop(self)
+      }
+      else {
+        if (stagesReady) {
+          log.info(s"Starting Stream <$streamConfiguration>")
+        }
+        else {
+          scheduleStart(trials - 1)
+        }
+      }
 
     case ConfigureStream(configuration) =>
-      log.info(s"Updating stream: ${configuration.id}")
+      log.info(s"Updating stream <${configuration.id}>")
 
     case RequestStreamState =>
       sender ! StreamState(streamConfiguration, Health.Green)
 
     case _ =>
+  }
+
+  private def scheduleStart(trials: Int): Unit = {
+    if (trials > 0) {
+
+      log.info(s"Scheduling start of stream <${streamConfiguration.id}> in $streamStartDelay. (trails=$trials)")
+      system.scheduler.scheduleOnce(streamStartDelay) {
+        self ! StartStream(trials)
+      }
+    }
+  }
+
+  private def stagesReady: Boolean = {
+    sinkStage.isDefined && sourceStage.isDefined
   }
 }
 
