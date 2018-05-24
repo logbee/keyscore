@@ -4,13 +4,13 @@ import akka.actor.ActorSystem
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{FlowShape, Inlet, Materializer, Outlet}
 import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.{Filter, FilterConfiguration}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterProxy}
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
 abstract class FilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
 
-  val initPromise = Promise[Filter]
+  val initPromise = Promise[FilterProxy]
 
   protected implicit val system: ActorSystem = context.system
   protected implicit val dispatcher: ExecutionContextExecutor = context.dispatcher
@@ -19,7 +19,7 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
   protected val in: Inlet[Dataset] = shape.in
   protected val out: Outlet[Dataset] = shape.out
 
-  private val filter = new Filter {
+  private val filter = new FilterProxy {
     private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[Unit])] {
       case (newConfiguration, promise) =>
         FilterLogic.this.configure(newConfiguration)

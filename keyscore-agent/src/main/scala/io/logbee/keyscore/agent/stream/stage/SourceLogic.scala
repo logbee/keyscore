@@ -4,15 +4,15 @@ import akka.stream.SourceShape
 import akka.stream.stage.{GraphStageLogic, OutHandler, StageLogging}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
-import io.logbee.keyscore.model.source.Source
+import io.logbee.keyscore.model.source.SourceProxy
 
 import scala.concurrent.{Future, Promise}
 
-abstract class SourceLogic(configuration: FilterConfiguration, shape: SourceShape[Dataset]) extends GraphStageLogic(shape) with OutHandler with StageLogging {
+abstract class SourceLogic(context: StageContext, configuration: FilterConfiguration, shape: SourceShape[Dataset]) extends GraphStageLogic(shape) with OutHandler with StageLogging {
 
-  val initPromise = Promise[Source]
+  val initPromise = Promise[SourceProxy]
 
-  protected val source = new Source {
+  protected val source = new SourceProxy {
 
     private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[Unit])] {
       case (newConfiguration, promise) =>

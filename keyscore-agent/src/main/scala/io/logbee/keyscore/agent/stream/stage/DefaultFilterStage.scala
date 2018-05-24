@@ -27,7 +27,7 @@ class DefaultFilterStage {
 
   def shape = FlowShape(in, out)
 
-  def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[Filter]) = {
+  def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[FilterProxy]) = {
     val logic = new DefaultFilterLogic
     (logic, logic.initPromise.future)
   }
@@ -36,12 +36,12 @@ class DefaultFilterStage {
 
     import DefaultFilterStage.{noopCondition, noopFunction}
 
-    val initPromise = Promise[Filter]
+    val initPromise = Promise[FilterProxy]
 
     private var condition: Condition = noopCondition
     private var function: FilterFunction = noopFunction
 
-    private val filter = new Filter {
+    private val filter = new FilterProxy {
 
       private val changeConditionCallback = getAsyncCallback[(Option[Condition], Promise[Unit])] {
         case (newCondition, promise) =>

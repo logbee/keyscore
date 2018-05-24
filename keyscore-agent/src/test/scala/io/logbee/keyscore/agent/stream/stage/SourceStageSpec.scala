@@ -32,7 +32,7 @@ class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with Mock
       val configurationA = FilterConfiguration(uuid, descriptor, List.empty)
       val configurationB = FilterConfiguration(uuid, descriptor, List.empty)
       val context = StageContext(system, executionContext)
-      val provider = (ctx: StageContext, c: FilterConfiguration, s: SourceShape[Dataset]) => new SourceLogic(c, s) {
+      val provider = (ctx: StageContext, c: FilterConfiguration, s: SourceShape[Dataset]) => new SourceLogic(ctx, c, s) {
 
         override def initialize(configuration: FilterConfiguration): Unit = {
           initializeConfiguration.success(configuration)

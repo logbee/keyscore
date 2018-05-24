@@ -9,7 +9,7 @@ import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.scaladsl.Sink
 import akka.stream.{ActorMaterializer, SourceShape}
-import io.logbee.keyscore.agent.stream.stage.SourceLogic
+import io.logbee.keyscore.agent.stream.stage.{SourceLogic, StageContext}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -39,10 +39,10 @@ object KafkaSourceLogic extends Described {
     ))
   }
 }
-class KafkaSourceLogic(configuration: FilterConfiguration, shape: SourceShape[Dataset], actorSystem: ActorSystem) extends SourceLogic(configuration, shape) {
+class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration, shape: SourceShape[Dataset]) extends SourceLogic(context, configuration, shape) {
 
   implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
-  implicit val system: ActorSystem = actorSystem
+  implicit val system: ActorSystem = context.system
   implicit val mat = ActorMaterializer()
 
   private val queue = mutable.Queue[SourceEntry]()

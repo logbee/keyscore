@@ -5,13 +5,13 @@ import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
 import akka.stream.{Inlet, Materializer, SinkShape}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.FilterConfiguration
-import io.logbee.keyscore.model.sink.Sink
+import io.logbee.keyscore.model.sink.SinkProxy
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
 abstract class SinkLogic(context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends GraphStageLogic(shape) with InHandler with StageLogging {
 
-  val initPromise = Promise[Sink]
+  val initPromise = Promise[SinkProxy]
 
   protected implicit val system: ActorSystem = context.system
   protected implicit val dispatcher: ExecutionContextExecutor = context.dispatcher
@@ -19,7 +19,7 @@ abstract class SinkLogic(context: StageContext, configuration: FilterConfigurati
 
   protected val in: Inlet[Dataset] = shape.in
 
-  private val sink = new Sink {
+  private val sink = new SinkProxy {
 
     private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[Unit])] {
       case (newConfiguration, promise) =>

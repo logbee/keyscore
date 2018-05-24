@@ -1,14 +1,18 @@
 package io.logbee.keyscore.agent.stream
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Keep, Source}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.stream.FilterManager._
 import io.logbee.keyscore.agent.stream.StreamSupervisor.{ConfigureStream, CreateStream, RequestStreamState, StartStream}
 import io.logbee.keyscore.agent.stream.stage.{FilterStage, SinkStage, SourceStage, StageContext}
-import io.logbee.keyscore.model.Health.Value
+import io.logbee.keyscore.model.filter.FilterProxy
 import io.logbee.keyscore.model.{Health, StreamConfiguration, StreamState}
 
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.language.postfixOps
 
 object StreamSupervisor {
@@ -26,7 +30,8 @@ object StreamSupervisor {
 
 class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging {
 
-  import context._
+  private implicit val executionContext: ExecutionContextExecutor = context.dispatcher
+  private implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   private val timeout: Timeout = 5 seconds
   private val streamStartDelay = 5 seconds
@@ -48,7 +53,7 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
 
       streamConfiguration = configuration
 
-      val stageContext = StageContext(system, dispatcher)
+      val stageContext = StageContext(context.system, context.dispatcher)
 
       filterManager ! CreateSinkStage(stageContext, configuration.sink)
       filterManager ! CreateSourceStage(stageContext, configuration.source)
@@ -72,8 +77,30 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
         context.stop(self)
       }
       else {
+
         if (stagesReady) {
+
           log.info(s"Starting Stream <$streamConfiguration>")
+
+          val filterProxies = new ListBuffer[Future[FilterProxy]]
+
+          val head = Source.fromGraph(sourceStage.get)
+          val last = if (filterStages.nonEmpty) {
+            filterStages.map(_.get).foldLeft(head) { (current, next) =>
+              current.viaMat(next) { (currentFuture, nextFuture) =>
+                filterProxies += nextFuture
+                currentFuture
+              }
+            }
+          } else head
+
+          val tail = last.toMat(sinkStage.get)(Keep.both)
+          val (sourceProxyFuture, sinkProxyFuture) = tail.run()
+
+          Await.ready(sourceProxyFuture, 10 seconds)
+          Await.ready(sinkProxyFuture, 10 seconds)
+
+          log.info(s"Started stream <${streamConfiguration.id}>.")
         }
         else {
           scheduleStart(trials - 1)
@@ -93,7 +120,7 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
     if (trials > 0) {
 
       log.info(s"Scheduling start of stream <${streamConfiguration.id}> in $streamStartDelay. (trails=$trials)")
-      system.scheduler.scheduleOnce(streamStartDelay) {
+      context.system.scheduler.scheduleOnce(streamStartDelay) {
         self ! StartStream(trials)
       }
     }

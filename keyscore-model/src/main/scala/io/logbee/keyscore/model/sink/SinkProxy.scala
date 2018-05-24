@@ -4,6 +4,6 @@ import io.logbee.keyscore.model.filter.FilterConfiguration
 
 import scala.concurrent.Future
 
-trait Sink {
+trait SinkProxy {
   def configure(configuration: FilterConfiguration): Future[Unit]
 }

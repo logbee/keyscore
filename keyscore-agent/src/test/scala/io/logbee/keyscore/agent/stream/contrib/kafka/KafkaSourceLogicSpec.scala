@@ -27,9 +27,9 @@ class KafkaSourceLogicSpec extends WordSpec with Matchers with ScalaFutures with
     "retrieve data from a kafka source and parse it into a dataset" in {
 
       val context = StageContext(system, executionContext)
-      val provider = (ctx: StageContext, c: FilterConfiguration, s: SourceShape[Dataset]) => new KafkaSourceLogic(c, s, system)
+      val provider = (ctx: StageContext, c: FilterConfiguration, s: SourceShape[Dataset]) => new KafkaSourceLogic(ctx, c, s)
 
-      val source = Source.fromGraph((new SourceStage(context, ExampleData.kafkaSourceConfiguration, provider))).runForeach(dataset => {
+      val source = Source.fromGraph(new SourceStage(context, ExampleData.kafkaSourceConfiguration, provider)).runForeach(dataset => {
         println(s"Dataset: $dataset")
       })
 
