@@ -8,6 +8,8 @@ import io.logbee.keyscore.agent.stream.FilterManager._
 import io.logbee.keyscore.agent.stream.StreamSupervisor.{ConfigureStream, CreateStream, RequestStreamState, StartStream}
 import io.logbee.keyscore.agent.stream.stage.{FilterStage, SinkStage, SourceStage, StageContext}
 import io.logbee.keyscore.model.filter.FilterProxy
+import io.logbee.keyscore.model.sink.SinkProxy
+import io.logbee.keyscore.model.source.SourceProxy
 import io.logbee.keyscore.model.{Health, StreamConfiguration, StreamState}
 
 import scala.collection.mutable.ListBuffer
@@ -40,7 +42,7 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
 
   private var sinkStage: Option[SinkStage] = None
   private var sourceStage: Option[SourceStage] = None
-  private var filterStages: List[Option[FilterStage]] = List.empty
+  private val filterStages: ListBuffer[Option[FilterStage]] = ListBuffer.empty
 
   override def preStart(): Unit = {
     log.info("StartUp complete.")
@@ -70,6 +72,10 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
       log.info(s"Received SourceStage: $stage")
       sourceStage = Option(stage)
 
+    case FilterStageCreated(stage) =>
+      log.info(s"Received FilterStage: $stage")
+      filterStages.append(Option(stage))
+
     case StartStream(trials) =>
 
       if (trials <= 1) {
@@ -97,8 +103,15 @@ class StreamSupervisor(filterManager: ActorRef) extends Actor with ActorLogging 
           val tail = last.toMat(sinkStage.get)(Keep.both)
           val (sourceProxyFuture, sinkProxyFuture) = tail.run()
 
-          Await.ready(sourceProxyFuture, 10 seconds)
-          Await.ready(sinkProxyFuture, 10 seconds)
+          val filterFutureList = Future.sequence(filterProxies.map(_.map(Some(_)).fallbackTo(Future(None))))
+
+          val streamFutures = for {
+            source <- sourceProxyFuture.mapTo[SourceProxy]
+            sink <- sinkProxyFuture.mapTo[SinkProxy]
+            filters <- filterFutureList
+          } yield (source, sink, filters)
+
+          Await.ready(streamFutures, 10 seconds)
 
           log.info(s"Started stream <${streamConfiguration.id}>.")
         }
