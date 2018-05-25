@@ -48,11 +48,13 @@ object ExampleData {
   val record2Modified = Record(TextField("weather-report", "rainy, 5.8 °C"))
   val record3Modified = Record(TextField("weather-report", "sunny, 14.4 °C"))
   val multiRecordModified = Record(
-    TextField("42", "bar"),
+    multiFields1.id,
+    TextField("bar", "42"),
     TextField("bbq", "meat")
   )
   val multiRecordModified2 = Record(
-    TextField("42", "bar")
+    multiFields1.id,
+    TextField("foo", "bar")
   )
 
   //Original datasets
@@ -91,11 +93,11 @@ object ExampleData {
   //CSV
   val csvHeader = FilterConfiguration(randomUUID(), CSVParserFilterLogic.describe.describe(), List(
     TextParameter("separator", ";"),
-    TextListParameter("headers", List("Philosophy","Maths","Latin","Astrophysics")))
+    TextListParameter("headers", List("Philosophy", "Maths", "Latin", "Astrophysics")))
   )
   val csvHeader2 = FilterConfiguration(randomUUID(), CSVParserFilterLogic.describe.describe(), List(
     TextParameter("separator", ";"),
-    TextListParameter("headers", List("Philosophy2","Maths2","Latin2","Astrophysics2")))
+    TextListParameter("headers", List("Philosophy2", "Maths2", "Latin2", "Astrophysics2")))
   )
 
   //Kafka

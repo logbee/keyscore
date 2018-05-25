@@ -3,13 +3,15 @@ package io.logbee.keyscore.agent.stream.contrib.filter
 import java.util.UUID.fromString
 import java.util.{Locale, ResourceBundle}
 
+import akka.stream.FlowShape
+import io.logbee.keyscore.agent.stream.stage.{FilterLogic, StageContext}
 import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.{Dataset, Described, Record}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-object RetainFieldsFilterFunction extends Described {
+object RetainFieldsFilterLogic extends Described {
 
   private val filterName = "io.logbee.keyscore.agent.stream.contrib.filter.RetainFieldsFilter"
   private val filterId = "99f4aa2a-ee96-4cf9-bda5-261efb3a8ef6"
@@ -32,14 +34,18 @@ object RetainFieldsFilterFunction extends Described {
       previousConnection = FilterConnection(isPermitted = true),
       nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
-        ListParameterDescriptor("fieldsToRetain",translatedText.getString("fieldsToRetainName"),translatedText.getString("fieldsToRetainDescription"),
+        ListParameterDescriptor("fieldsToRetain", translatedText.getString("fieldsToRetainName"), translatedText.getString("fieldsToRetainDescription"),
           TextParameterDescriptor("fieldName", translatedText.getString("fieldValueName"), translatedText.getString("fieldValueDescription")))
       ))
   }
 }
 
-class RetainFieldsFilterFunction extends FilterFunction {
+class RetainFieldsFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
   var fieldsToRetain = List[String]()
+
+  override def initialize(configuration: FilterConfiguration): Unit = {
+    configure(configuration)
+  }
 
   override def configure(configuration: FilterConfiguration): Unit = {
     for (parameter <- configuration.parameters)
@@ -51,13 +57,19 @@ class RetainFieldsFilterFunction extends FilterFunction {
 
   }
 
-  override def apply(dataset: Dataset): Dataset = {
+  override def onPush(): Unit = {
+    val dataset = grab(in)
+
     var listBufferOfRecords = ListBuffer[Record]()
     for (record <- dataset) {
       var payload = record.payload.filterKeys(fieldsToRetain.contains(_))
       listBufferOfRecords += new Record(record.id, payload.toMap)
     }
     val listOfRecords = listBufferOfRecords.toList
-    new Dataset(listOfRecords)
+    push(out, new Dataset(listOfRecords))
+  }
+
+  override def onPull(): Unit = {
+    pull(in)
   }
 }
