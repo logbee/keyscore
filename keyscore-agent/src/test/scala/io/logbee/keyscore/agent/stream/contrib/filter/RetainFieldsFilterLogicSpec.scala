@@ -5,9 +5,9 @@ import java.util.UUID.randomUUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti1, datasetMultiModified2, datasetMultiModified}
+import io.logbee.keyscore.agent.stream.ExampleData.{datasetMulti1, datasetMultiModified, datasetMultiModified2}
 import io.logbee.keyscore.agent.stream.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.agent.stream.stage.{DefaultFilterStage, FilterStage, StageContext}
+import io.logbee.keyscore.agent.stream.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextListParameter}
 import org.junit.runner.RunWith
@@ -21,10 +21,11 @@ import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class RetainFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+
   trait TestStream {
+
     val context = StageContext(system, executionContext)
     val provider = (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset, Dataset]) => new RetainFieldsFilterLogic(ctx, c, s)
-
 
     val fieldsToRetain = TextListParameter("fieldsToRetain", List("bar", "bbq"))
     val fieldsToRetain2 = TextListParameter("fieldsToRetain", List("foo", "notPresent"))
@@ -38,7 +39,6 @@ class RetainFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
   }
-
 
   "A RetainFieldsFilter" should {
 
