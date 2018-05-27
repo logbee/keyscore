@@ -19,11 +19,11 @@ import scala.util.{Failure, Success}
 object StreamManager {
   def props(filterManager: ActorRef)(implicit materializer: ActorMaterializer): Props = Props(new StreamManager(filterManager))
 
-  case class TranslateAndCreateNewStream(streamId: UUID, streamModel: StreamConfiguration)
+  case class TranslateAndCreateNewStream(streamId: UUID, streamModel: PipelineConfiguration)
 
-  case class ChangeStream(streamId: UUID, stream: StreamConfiguration)
+  case class ChangeStream(streamId: UUID, stream: PipelineConfiguration)
 
-  case class CreateNewStream(streamId: UUID, stream: StreamConfiguration)
+  case class CreateNewStream(streamId: UUID, stream: PipelineConfiguration)
 
   case class StreamCreatedWithID(id: UUID)
 

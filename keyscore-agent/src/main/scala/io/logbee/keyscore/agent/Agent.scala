@@ -10,8 +10,8 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent.{CheckJoin, Initialize, SendJoin}
-import io.logbee.keyscore.agent.stream.FilterManager.{DescriptorsResponse, RequestDescriptors}
-import io.logbee.keyscore.agent.stream.{FilterManager, StreamManager}
+import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
+import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineManager}
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentJoin, AgentJoinAccepted, AgentJoinFailure}
 import io.logbee.keyscore.commons.extension.ExtensionLoader
 import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
@@ -41,7 +41,7 @@ class Agent extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val streamManager = context.actorOf(StreamManager(filterManager), "stream-manager")
+  private val streamManager = context.actorOf(PipelineManager(filterManager), "pipeline-manager")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()

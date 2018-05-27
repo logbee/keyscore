@@ -8,7 +8,7 @@ import akka.stream.{ActorMaterializer, UniqueKillSwitch}
 import akka.{Done, actor}
 import io.logbee.keyscore.frontier.filters._
 import io.logbee.keyscore.frontier.util.Reflection
-import io.logbee.keyscore.model.StreamConfiguration
+import io.logbee.keyscore.model.PipelineConfiguration
 import streammanagement.FilterManager._
 
 import scala.concurrent.Future
@@ -24,11 +24,11 @@ object FilterManager {
 
   case class BuildGraphAnswerWrapper(answer:Option[BuildGraphAnswer])
 
-  case class BuildGraph(streamId: UUID, stream: StreamConfiguration)
+  case class BuildGraph(streamId: UUID, stream: PipelineConfiguration)
 
   case class BuiltGraph (streamId:UUID,graph: RunnableGraph[UniqueKillSwitch]) extends BuildGraphAnswer
 
-  case class BuildGraphException(streamId: UUID, stream: StreamConfiguration, msg: String) extends BuildGraphAnswer
+  case class BuildGraphException(streamId: UUID, stream: PipelineConfiguration, msg: String) extends BuildGraphAnswer
 
   case class StreamBlueprint(uuid: UUID,
                              source: Source[CommittableRecord, UniqueKillSwitch],
@@ -96,7 +96,7 @@ class FilterManager(implicit materializer: ActorMaterializer) extends Actor with
 
   }
 
-  private def createStreamFromModel(streamId: UUID, model: StreamConfiguration): StreamBlueprint = {
+  private def createStreamFromModel(streamId: UUID, model: PipelineConfiguration): StreamBlueprint = {
     try {
       val source: Source[CommittableRecord, UniqueKillSwitch] =
         Reflection.createFilterByClassname(FilterRegistry.filters(model.source.descriptor.name), model.source, Some(system)).asInstanceOf[Source[CommittableRecord, UniqueKillSwitch]]
