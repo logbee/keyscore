@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Parameter, ParameterDescriptor} from "../streams/streams.model";
+import {Parameter, ParameterDescriptor} from "../pipelines/pipelines.model";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Injectable()

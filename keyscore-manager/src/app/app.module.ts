@@ -9,25 +9,24 @@ import {StoreModule} from '@ngrx/store';
 import {AppComponent} from './app.component';
 import {DashboardComponent} from "./dashboard/dashboard.component";
 import {AppConfigEffects} from "./app.config";
-import {FilterChooser} from "./streams/stream-editor/filter-chooser/filter-chooser.component";
+import {FilterChooser} from "./pipelines/pipeline-editor/filter-chooser/filter-chooser.component";
 import {metaReducers} from "./meta.reducers";
 import {reducers} from "./app.reducers";
 import {EffectsModule} from "@ngrx/effects";
-import {StreamsModule} from "./streams/streams.module";
+import {PipelinesModule} from "./pipelines/pipelines.module";
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
 import {RouterEffects} from "./router/router.effects";
 import {AgentsModule} from "./agents/agents.module";
-import {StreamBuilderService} from "./services/streambuilder.service";
+import {PipelineBuilderService} from "./services/pipelinebuilder.service";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {ErrorComponent} from "./failures/error.component";
 
 
 const routes: Routes = [
     {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
     {path: 'dashboard', component: DashboardComponent},
     {path: 'agent', loadChildren: () => AgentsModule},
-    {path: 'streams', loadChildren: () => StreamsModule}
+    {path: 'pipelines', loadChildren: () => PipelinesModule}
 ];
 
 export function HttpLoaderFactory(http: HttpClient) {
@@ -62,7 +61,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 
     ],
     providers: [
-        StreamBuilderService
+        PipelineBuilderService
     ],
     entryComponents: [
         FilterChooser,

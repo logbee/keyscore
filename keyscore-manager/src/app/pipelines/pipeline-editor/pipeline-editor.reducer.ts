@@ -1,9 +1,9 @@
-/*import {StreamEditorActions} from "./stream-editor.actions";
-import {FilterModel, ParameterDescriptor, StreamModel} from "../streams.model";
+/*import {PipelineEditorActions} from "./pipeline-editor.actions";
+import {FilterModel, ParameterDescriptor, PipelineModel} from "../pipeline.model";
 import {v4 as uuid} from 'uuid';
 
 
-export class Stream {
+export class Pipeline {
     name: string;
     description: string;
     filters: FilterInstance[];
@@ -20,9 +20,9 @@ export class Stream {
     }
 }
 
-export const initialState: Stream = {
-    name: 'Test Stream',
-    description: 'This is a test stream.',
+export const initialState: Pipeline = {
+    name: 'Test Pipeline',
+    description: 'This is a test pipeline.',
     filters: [
         new FilterInstance(uuid(), 'Kafka Input', 'Where does it come from?'),
         new FilterInstance(uuid(), 'Drop crap', 'Drop the most'),
@@ -31,9 +31,9 @@ export const initialState: Stream = {
     ]
 };*/
 
-/*export function StreamEditorReducer(state: StreamModel, action: StreamEditorActions): StreamModel {
+/*export function PipelineEditorReducer(state: PipelineModel, action: PipelineEditorActions): PipelineModel {
 
-    const result: StreamModel = Object.assign({}, state);
+    const result: PipelineModel = Object.assign({}, state);
     return result;
     // switch (action.type) {
     //     case REMOVE_FILTER:

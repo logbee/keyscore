@@ -3,9 +3,9 @@ import {Injectable} from "@angular/core";
 // import Workspace = Blockly.Workspace;
 
 @Injectable()
-export class BlocklyStreamService{
+export class BlocklyPipelineService{
 
-    // createStreamModelFromWorkspace(workspace:Workspace,stream:StreamModel){
+    // createPipelineModelFromWorkspace(workspace:Workspace,pipeline:PipelineModel){
     //
     // }
 }

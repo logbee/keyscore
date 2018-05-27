@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {FilterModel, Parameter, ParameterDescriptor} from "../streams.model";
+import {FilterModel, Parameter, ParameterDescriptor} from "../pipelines.model";
 import {ParameterControlService} from "../../services/parameter-control.service";
 import {FormControl, FormGroup} from "@angular/forms";
 import {Observable} from "rxjs";
@@ -7,17 +7,17 @@ import {Go} from "../../router/router.actions";
 import {Store} from "@ngrx/store";
 
 @Component({
-    selector: 'stream-filter',
+    selector: 'pipeline-filter',
     template: `
         <div class="card mb-1">
             <div class="card-title">
                 <div class="row pl-2 pt-2 pr-2">
                     <div class="col-auto btn-group-vertical">
-                        <button type="button" class="btn btn-light" *ngIf="!(isEditingStreamLocked$|async)"
+                        <button type="button" class="btn btn-light" *ngIf="!(isEditingPipelineLocked$|async)"
                                 (click)="moveFilter(filter.id, index - 1)" [disabled]="index == 0">
                             <img width="12em" src="/assets/images/chevron-up.svg"/>
                         </button>
-                        <button type="button" class="btn btn-light" *ngIf="!(isEditingStreamLocked$|async)"
+                        <button type="button" class="btn btn-light" *ngIf="!(isEditingPipelineLocked$|async)"
                                 (click)="moveFilter(filter.id, index + 1)" [disabled]="index == filterCount - 1">
                             <img width="12em" src="/assets/images/chevron-down.svg"/>
                         </button>
@@ -30,7 +30,7 @@ import {Store} from "@ngrx/store";
                     <div class="col-2"></div>
                     <div class="col-auto">
                         <button type="button" class="btn btn-primary"
-                                *ngIf="!editing && !(isEditingStreamLocked$|async)"
+                                *ngIf="!editing && !(isEditingPipelineLocked$|async)"
                                 (click)="editFilter(filter.id)">{{'GENERAL.EDIT' | translate}}
                         </button>
                         <button type="button" class="btn btn-info" *ngIf="editing" (click)="callLiveEditing(filter)">
@@ -58,7 +58,7 @@ import {Store} from "@ngrx/store";
                     </div>
 
                     <div class="form-row" *ngIf="payLoad">
-                        {{'STREAMCOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
+                        {{'PIPELINECOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
                     </div>
 
                 </form>
@@ -70,9 +70,9 @@ import {Store} from "@ngrx/store";
         ParameterControlService
     ]
 })
-export class StreamFilterComponent implements OnInit {
+export class PipelineFilterComponent implements OnInit {
 
-    @Input() isEditingStreamLocked$: Observable<boolean>;
+    @Input() isEditingPipelineLocked$: Observable<boolean>;
     @Input() filter: FilterModel;
     @Input() index: number;
     @Input() filterCount: number;

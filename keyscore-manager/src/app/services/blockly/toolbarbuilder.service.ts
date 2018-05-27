@@ -1,10 +1,10 @@
 import {Injectable} from "@angular/core";
 import {
     FilterConfiguration, FilterDescriptor, FilterModel, Parameter,
-    ParameterDescriptor, StreamConfiguration
-} from "../../streams/streams.model";
+    ParameterDescriptor, PipelineConfiguration
+} from "../../pipelines/pipelines.model";
 import {Blockly} from "node-blockly/browser";
-import {StreamBuilderService} from "../streambuilder.service";
+import {PipelineBuilderService} from "../pipelinebuilder.service";
 import {v4 as uuid} from 'uuid';
 import {extractFirstJSONObjectFromString, extractTopLevelJSONObjectsFromString} from "../../util";
 
@@ -14,7 +14,7 @@ declare var Blockly: any;
 @Injectable()
 export class ToolBarBuilderService {
 
-    constructor(streamBuilder:StreamBuilderService) {
+    constructor(pipelineBuilder:PipelineBuilderService) {
     }
 
     createToolbar(filterDescriptors: FilterDescriptor[], categories: string[]): string {
@@ -44,26 +44,26 @@ export class ToolBarBuilderService {
         return xmlString;
     }
 
-    createStreamBlock() {
-        Blockly.Blocks['stream_configuration'] = {
+    createPipelineBlock() {
+        Blockly.Blocks['pipeline_configuration'] = {
             init: function () {
                 this.setColour(45);
-                this.appendDummyInput().appendField('Stream name: ')
-                    .appendField(new Blockly.FieldTextInput('New Stream'),'STREAM_NAME');
-                this.appendDummyInput().appendField('Stream description: ')
-                    .appendField(new Blockly.FieldTextInput('description'),'STREAM_DESCRIPTION');
-                this.appendStatementInput('FILTER').appendField('Filter').setCheck('stream_base');
+                this.appendDummyInput().appendField('Pipeline name: ')
+                    .appendField(new Blockly.FieldTextInput('New Pipeline'),'PIPELINE_NAME');
+                this.appendDummyInput().appendField('Pipeline description: ')
+                    .appendField(new Blockly.FieldTextInput('description'),'PIPELINE_DESCRIPTION');
+                this.appendStatementInput('FILTER').appendField('Filter').setCheck('pipeline_base');
 
             }
         };
 
-        Blockly.JavaScript['stream_configuration'] = function(block:Blockly.Block){
+        Blockly.JavaScript['pipeline_configuration'] = function(block:Blockly.Block){
             let id:string = "0";
-            let name:string = block.getFieldValue('STREAM_NAME');
-            let description:string = block.getFieldValue('STREAM_DESCRIPTION');
+            let name:string = block.getFieldValue('PIPELINE_NAME');
+            let description:string = block.getFieldValue('PIPELINE_DESCRIPTION');
             let filterConfigurations:FilterConfiguration[] = extractTopLevelJSONObjectsFromString(Blockly.JavaScript.statementToCode(block,'FILTER')) as FilterConfiguration[];
 
-            let stream:StreamConfiguration = {
+            let pipeline:PipelineConfiguration = {
                 id:id,
                 name:name,
                 description:description,
@@ -72,7 +72,7 @@ export class ToolBarBuilderService {
                 filter:filterConfigurations.slice(1,filterConfigurations.length-1)
             }
 
-            return JSON.stringify(stream);
+            return JSON.stringify(pipeline);
 
 
         }

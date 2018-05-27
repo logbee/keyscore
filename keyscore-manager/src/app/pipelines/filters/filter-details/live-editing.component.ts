@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
-import {FilterModel, FilterState, getFilterById, getFilterId} from "../../streams.model";
+import {FilterModel, FilterState, getFilterById, getFilterId} from "../../pipelines.model";
 import {mergeMap} from "rxjs/internal/operators";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 

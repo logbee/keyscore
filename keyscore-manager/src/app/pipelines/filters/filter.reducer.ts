@@ -1,4 +1,4 @@
-import {FilterState} from "../streams.model"
+import {FilterState} from "../pipelines.model"
 import {CONFIGURE_FILTER, FiltersActions} from "./filters.actions";
 
 const initialState: FilterState = {

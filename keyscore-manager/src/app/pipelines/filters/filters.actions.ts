@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor, FilterModel} from "../streams.model";
+import {FilterDescriptor, FilterModel} from "../pipelines.model";
 
 export const LOAD_FILTER_DESCRIPTOR_SUCCESS = '[Filter] LoadFilterDescriptorSuccess';
 export const LOAD_FILTER_DESCRIPTOR = '[Filter] LoadFilterDescriptor';

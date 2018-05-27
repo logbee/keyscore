@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Blockly} from "node-blockly/browser";
-import {FilterDescriptor, StreamConfiguration, StreamModel} from "../../streams.model";
+import {FilterDescriptor, PipelineConfiguration, PipelineModel} from "../../pipelines.model";
 import {combineLatest, Observable, ReplaySubject} from "rxjs";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
 import {map, startWith} from "rxjs/internal/operators";
@@ -32,14 +32,14 @@ declare var Blockly: any;
             <div class="col-8 card p-0">
                 <div class="d-flex justify-content-between card-footer">
                     <div>
-                        <button class="btn btn-danger" (click)="deleteStream()"><img
+                        <button class="btn btn-danger" (click)="deletePipeline()"><img
                                 src="/assets/images/ic_delete_white_24px.svg"
                                 alt="Delete"/> {{'GENERAL.DELETE' | translate}}</button>
                     </div>
                     <div>
-                        <button clasS="btn btn-secondary mr-1" (click)="cancelStreamEditing()"><img
+                        <button clasS="btn btn-secondary mr-1" (click)="cancelPipelineEditing()"><img
                                 src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/> {{'GENERAL.CANCEL' | translate}}</button>
-                        <button class="btn btn-success" (click)="saveStreamEditing()"><img src="/assets/images/ic_save_white.svg" alt="Save"/> {{'GENERAL.SAVE' | translate}}
+                        <button class="btn btn-success" (click)="savePipelineEditing()"><img src="/assets/images/ic_save_white.svg" alt="Save"/> {{'GENERAL.SAVE' | translate}}
                         </button>
                     </div>
                 </div>
@@ -54,12 +54,12 @@ declare var Blockly: any;
 })
 
 export class BlocklyComponent implements OnInit {
-    @Input() stream: StreamModel;
+    @Input() pipeline: PipelineModel;
     @Input() filterDescriptors$: Observable<FilterDescriptor[]>;
     @Input() categories$: Observable<string[]>;
 
-    @Output() update: EventEmitter<StreamModel> = new EventEmitter();
-    @Output() remove: EventEmitter<StreamModel> = new EventEmitter();
+    @Output() update: EventEmitter<PipelineModel> = new EventEmitter();
+    @Output() remove: EventEmitter<PipelineModel> = new EventEmitter();
 
 
     private workspace: Workspace = undefined;
@@ -84,7 +84,7 @@ export class BlocklyComponent implements OnInit {
             map(([name, descriptors]) => descriptors.filter(d => d.name === name)[0]),
             startWith({
                 name: "StartDummy",
-                displayName: "Stream configuration",
+                displayName: "Pipeline configuration",
                 description: "Choose a filter from the toolbox to get started!",
                 previousConnection: null,
                 nextConnection: null,
@@ -95,14 +95,14 @@ export class BlocklyComponent implements OnInit {
 
     }
 
-    saveStreamEditing(){
-        let streamConfiguration:StreamConfiguration = JSON.parse(Blockly.JavaScript.workspaceToCode(this.workspace)) as StreamConfiguration;
-        streamConfiguration.id = this.stream.id;
-        console.log(JSON.stringify(streamConfiguration));
+    savePipelineEditing(){
+        let pipelineConfiguration:PipelineConfiguration = JSON.parse(Blockly.JavaScript.workspaceToCode(this.workspace)) as PipelineConfiguration;
+        pipelineConfiguration.id = this.pipeline.id;
+        console.log(JSON.stringify(pipelineConfiguration));
     }
 
-    deleteStream(){
-        this.remove.emit(this.stream);
+    deletePipeline(){
+        this.remove.emit(this.pipeline);
     }
 
 
@@ -150,10 +150,10 @@ export class BlocklyComponent implements OnInit {
                     }
             });
             this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
-            this.toolbarBuilder.createStreamBlock();
-            let streamBlockXml = '<xml><block type="stream_configuration" deletable="false" movable="false"></block></xml>';
+            this.toolbarBuilder.createPipelineBlock();
+            let pipelineBlockXml = '<xml><block type="pipeline_configuration" deletable="false" movable="false"></block></xml>';
 
-            Blockly.Xml.domToWorkspace(typeof currentWorkspace === "undefined" ? Blockly.Xml.textToDom( streamBlockXml) : currentWorkspace, this.workspace);
+            Blockly.Xml.domToWorkspace(typeof currentWorkspace === "undefined" ? Blockly.Xml.textToDom( pipelineBlockXml) : currentWorkspace, this.workspace);
 
         });
         this.workspace.addChangeListener(Blockly.Events.disableOrphans);
@@ -167,7 +167,7 @@ export class BlocklyComponent implements OnInit {
     private updateSelectedBlock(blockId: string) {
         if (blockId != null) {
             let block = this.workspace.getBlockById(blockId);
-            if (block.type != 'stream_configuration') this.selectedBlockName$.next(block.type);
+            if (block.type != 'pipeline_configuration') this.selectedBlockName$.next(block.type);
         }
 
     }

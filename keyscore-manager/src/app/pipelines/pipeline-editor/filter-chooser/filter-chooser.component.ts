@@ -2,10 +2,9 @@ import {Component} from '@angular/core'
 import {ModalService} from "../../../services/modal.service";
 
 import {Store} from "@ngrx/store";
-import {combineLatest, Observable} from "rxjs";
-import {AddFilterAction, LoadFilterDescriptorsAction} from "../../streams.actions";
-import {FilterDescriptor, getFilterCategories, getFilterDescriptors, StreamsModuleState} from "../../streams.model";
-import {Subject} from "rxjs";
+import {combineLatest, Observable, Subject} from "rxjs";
+import {AddFilterAction, LoadFilterDescriptorsAction} from "../../pipelines.actions";
+import {FilterDescriptor, getFilterCategories, getFilterDescriptors, PipelinesModuleState} from "../../pipelines.model";
 import {map} from "rxjs/internal/operators";
 
 
@@ -32,7 +31,7 @@ export class FilterChooser {
     private activeDescriptors$: Observable<FilterDescriptor[]>;
     private categories$: Observable<string[]>;
 
-    constructor(private store: Store<StreamsModuleState>, private modalService: ModalService) {
+    constructor(private store: Store<PipelinesModuleState>, private modalService: ModalService) {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
         this.selectedCategory$ = new Subject();

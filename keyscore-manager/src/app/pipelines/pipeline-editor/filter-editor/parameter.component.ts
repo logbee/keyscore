@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {FormGroup} from '@angular/forms';
-import {Parameter, ParameterDescriptor} from "../../streams.model";
+import {Parameter, ParameterDescriptor} from "../../pipelines.model";
 
 
 @Component({

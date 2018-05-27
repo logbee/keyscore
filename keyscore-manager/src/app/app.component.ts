@@ -3,7 +3,7 @@ import {ModalService} from "./services/modal.service";
 import {Store} from "@ngrx/store";
 import {AppConfig} from "./app.config";
 import {TranslateService} from "@ngx-translate/core";
-import {LoadFilterDescriptorsAction} from "./streams/streams.actions";
+import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
 
 export interface AppState {
     config: AppConfig
@@ -25,8 +25,8 @@ export interface AppState {
                        routerLinkActive="active">{{'APPCOMPONENT.AGENTS' | translate}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" routerLink="/streams/stream"
-                       routerLinkActive="active">{{'APPCOMPONENT.STREAMS' | translate}}</a>
+                    <a class="nav-link" routerLink="/pipelines/pipeline"
+                       routerLinkActive="active">{{'APPCOMPONENT.PIPELINES' | translate}}</a>
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">

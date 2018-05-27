@@ -15,7 +15,7 @@
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",
-    "STREAMS": "Streams",
+    "PIPELINES": "Pipelines",
     "FILTERS": "Filters"
   },
   "AGENTSDETAILS": {
@@ -24,12 +24,12 @@
     "AGENTNAME": "Agentname:",
     "AGENTHOST": "Agenthost:"
   },
-  "STREAMCOMPONENT": {
-    "CREATE": "Stream erstellen",
+  "PIPELINECOMPONENT": {
+    "CREATE": "Pipeline erstellen",
     "SAVED_VALUES": "Folgende Werte wurden gespeichert"
   },
-  "STREAMEDITORCOMPONENT": {
-    "STREAMBLUEPRINT": "Stream Komponenten",
+  "PIPELINEEDITORCOMPONENT": {
+    "PIPELINEBLUEPRINT": "Pipeline Komponenten",
     "ADDFILTER": "Filter hinzufügen"
   },
   "AGENTSCOMPONENT": {

@@ -58,7 +58,7 @@ object FrontierApplication extends App with Json4sSupport {
   )
 
   val route = cors(corsSettings) {
-    pathPrefix("stream") {
+    pathPrefix("pipeline") {
       get{
         onSuccess(streamManager ? GetAllStreams){
           case RunningStreams(listOfStreams) => complete(StatusCodes.OK, listOfStreams)

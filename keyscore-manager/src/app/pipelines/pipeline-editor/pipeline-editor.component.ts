@@ -7,76 +7,76 @@ import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 import {
     FilterDescriptor,
     FilterModel,
-    getEditingStream,
-    getEditingStreamIsLocked,
+    getEditingPipeline,
+    getEditingPipelineIsLocked,
     getFilterCategories,
     getFilterDescriptors,
-    StreamModel
-} from "../streams.model";
+    PipelineModel
+} from "../pipelines.model";
 
 import {
-    DeleteStreamAction,
+    DeletePipelineAction,
     LoadFilterDescriptorsAction,
-    LockEditingStreamAction,
+    LockEditingPipelineAction,
     MoveFilterAction,
     RemoveFilterAction,
-    ResetStreamAction,
+    ResetPipelineAction,
     UpdateFilterAction,
-    UpdateStreamAction
-} from "../streams.actions";
+    UpdatePipelineAction
+} from "../pipelines.actions";
 import {selectAppConfig} from "../../app.config";
 import {Go} from "../../router/router.actions";
 import {LoadFilterDescriptorAction} from "../filters/filters.actions";
 
 @Component({
-    selector: 'stream-editor',
+    selector: 'pipeline-editor',
     template: `
         <div class="row justify-content-center">
             <div *ngIf="!blocklyFlag" class="col-3">
-                <stream-details [stream]="stream$ | async"
+                <pipeline-details [pipeline]="pipeline$ | async"
                                 [locked$]="isLocked$"
-                                (update)="updateStream($event)"
-                                (reset)="resetStream($event)"
-                                (delete)="deleteStream($event)"
+                                (update)="updatePipeline($event)"
+                                (reset)="resetPipeline($event)"
+                                (delete)="deletePipeline($event)"
                                 (lock)="setLocked(true, $event)"
                                 (unlock)="setLocked(false, $event)">
-                </stream-details>
+                </pipeline-details>
             </div>
             
             <div *ngIf="!blocklyFlag" class="col-9">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <span class="font-weight-bold">{{'STREAMEDITORCOMPONENT.STREAMBLUEPRINT' | translate}}</span>
+                        <span class="font-weight-bold">{{'PIPELINEEDITORCOMPONENT.PIPELINEBLUEPRINT' | translate}}</span>
                         <div *ngIf="!(isLocked$ | async)">
-                            <button class="btn btn-success" (click)="addFilter(null)">{{'STREAMEDITORCOMPONENT.ADDFILTER' | translate}}</button>
+                            <button class="btn btn-success" (click)="addFilter(null)">{{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}</button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <stream-filter class="filter-component" *ngFor="let filter of (stream$ | async).filters; index as i"
+                        <pipeline-filter class="filter-component" *ngFor="let filter of (pipeline$ | async).filters; index as i"
                                        [filter]="filter"
                                        [index]="i"
-                                       [filterCount]="(stream$|async).filters.length"
+                                       [filterCount]="(pipeline$|async).filters.length"
                                        [parameters]="filter.parameters"
-                                       [isEditingStreamLocked$]="isLocked$"
+                                       [isEditingPipelineLocked$]="isLocked$"
                                        (move)="moveFilter($event)"
                                        (remove)="removeFilter($event)"
                                        (update)="updateFilter($event)"
                                        (liveEdit)="callLiveEditing($event)">
-                        </stream-filter>
+                        </pipeline-filter>
                     </div>
                 </div>
             </div>
             <blockly-workspace *ngIf="blocklyFlag" class="col-12" 
                                [filterDescriptors$]="filterDescriptors$"
                                [categories$]="categories$"
-                               [stream]="(stream$ | async)"></blockly-workspace>
+                               [pipeline]="(pipeline$ | async)"></blockly-workspace>
         </div>
     `,
     styles:['.filter-component{transition: 0.25s ease-in-out;}'],
     providers: []
 })
-export class StreamEditorComponent implements OnInit {
-    stream$: Observable<StreamModel>;
+export class PipelineEditorComponent implements OnInit {
+    pipeline$: Observable<PipelineModel>;
     isLocked$: Observable<boolean>;
     filterDescriptors$: Observable<FilterDescriptor[]>;
     categories$: Observable<string[]>;
@@ -93,38 +93,38 @@ export class StreamEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.isLocked$ = this.store.select(getEditingStreamIsLocked);
-        this.stream$ = this.store.select(getEditingStream);
-        this.stream$.subscribe(stream => {
-            this.store.dispatch(new LockEditingStreamAction(stream.filters && stream.filters.length > 0))
+        this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
+        this.pipeline$ = this.store.select(getEditingPipeline);
+        this.pipeline$.subscribe(pipeline => {
+            this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0))
         })
     }
 
-    addFilter(stream: StreamModel) {
+    addFilter(pipeline: PipelineModel) {
         this.modalService.show(FilterChooser);
     }
 
-    deleteStream(stream: StreamModel) {
-        this.store.dispatch(new DeleteStreamAction(stream.id));
+    deletePipeline(pipeline: PipelineModel) {
+        this.store.dispatch(new DeletePipelineAction(pipeline.id));
         this.location.back();
     }
 
-    updateStream(stream: StreamModel) {
-        this.store.dispatch(new UpdateStreamAction({
-            id: stream.id,
-            name: stream.name,
-            description: stream.description,
-            filters: stream.filters
+    updatePipeline(pipeline: PipelineModel) {
+        this.store.dispatch(new UpdatePipelineAction({
+            id: pipeline.id,
+            name: pipeline.name,
+            description: pipeline.description,
+            filters: pipeline.filters
         }));
     }
 
-    resetStream(stream: StreamModel) {
-        this.store.dispatch(new ResetStreamAction(stream.id))
+    resetPipeline(pipeline: PipelineModel) {
+        this.store.dispatch(new ResetPipelineAction(pipeline.id))
     }
 
-    setLocked(locked: boolean, stream: StreamModel) {
+    setLocked(locked: boolean, pipeline: PipelineModel) {
         //this.isLocked = locked;
-        this.store.dispatch(new LockEditingStreamAction(locked))
+        this.store.dispatch(new LockEditingPipelineAction(locked))
     }
 
     moveFilter(filter: { id: string, position: number }) {
@@ -141,6 +141,6 @@ export class StreamEditorComponent implements OnInit {
     }
 
     callLiveEditing(filter: FilterModel) {
-        this.store.dispatch(new Go({path: ['streams/filter/' + filter.id + '/']}))
+        this.store.dispatch(new Go({path: ['pipelines/filter/' + filter.id + '/']}))
     }
 }
