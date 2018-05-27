@@ -7,9 +7,6 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
-import io.logbee.keyscore.frontier.filters._
-import io.logbee.keyscore.frontier.sinks.{KafkaSink, StdOutSink}
-import io.logbee.keyscore.frontier.sources.{HttpSource, KafkaSource}
 import io.logbee.keyscore.model.filter.{FilterDescriptor, MetaFilterDescriptor}
 
 import scala.collection.mutable
@@ -37,7 +34,6 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
-    addDefaultDescriptors()
     log.info("StartUp complete")
   }
 
@@ -63,22 +59,5 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
         paths.retain(path => ref.path.address != path.address)
         paths.nonEmpty
       })
-
-      addDefaultDescriptors()
-
-  }
-
-  private def addDefaultDescriptors(): Unit = {
-    listOfFilterDescriptors ++= Map(
-      KafkaSource.getDescriptors -> mutable.Set.empty,
-      HttpSource.getDescriptors -> mutable.Set.empty,
-      RemoveFieldsFilter.getDescriptors -> mutable.Set.empty,
-      RetainFieldsFilter.getDescriptors -> mutable.Set.empty,
-      KafkaSink.getDescriptors -> mutable.Set.empty,
-      StdOutSink.getDescriptors -> mutable.Set.empty,
-      AddFieldsFilter.getDescriptors -> mutable.Set.empty,
-      GrokFilter.getDescriptors -> mutable.Set.empty,
-    )
-
   }
 }
