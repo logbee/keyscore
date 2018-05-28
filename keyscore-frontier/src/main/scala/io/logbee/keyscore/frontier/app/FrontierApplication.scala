@@ -12,6 +12,7 @@ import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
+import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
@@ -41,7 +42,10 @@ object FrontierApplication extends App with Json4sSupport {
   val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
 
   val corsSettings = if (configuration.devMode) CorsSettings.defaultSettings.copy(
-    allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS)
+    allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS),
+    allowedOrigins = HttpOriginRange.*,
+    allowedHeaders = HttpHeaderRange.*
+
   ) else CorsSettings.defaultSettings.copy(
     allowedOrigins = HttpOriginRange(HttpOrigin("http://" + configuration.managerHostname + ":" + configuration.managerPort)),
     allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS)
@@ -73,7 +77,6 @@ object FrontierApplication extends App with Json4sSupport {
       pathPrefix("descriptors") {
         get {
           parameters('language.as[String]) { language =>
-            Console.print(Locale.forLanguageTag(language))
             onSuccess(filterDescriptorManager ? GetStandardDescriptors(Locale.forLanguageTag(language)))  {
               case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
               case _ => complete(StatusCodes.InternalServerError)

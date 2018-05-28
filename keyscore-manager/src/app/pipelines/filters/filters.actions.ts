@@ -5,12 +5,14 @@ export const LOAD_FILTER_DESCRIPTOR_SUCCESS = '[Filter] LoadFilterDescriptorSucc
 export const LOAD_FILTER_DESCRIPTOR = '[Filter] LoadFilterDescriptor';
 export const LOAD_FILTER_DESCRIPTOR_FAILURE = '[Filter] LoadFilterDescriptorFailure';
 export const CONFIGURE_FILTER = '[Filter] ConfigureFilter';
+export const LOCK_FILTER = '[Filter] LockFilter';
 
 export type FiltersActions =
 |LoadFilterDescriptorAction
 |LoadFilterDescriptorSuccessAction
 |LoadFilterDescriptorFailureAction
 |ConfigureFilterAction
+|LockEditingFilterAction
 
 export class LoadFilterDescriptorAction implements Action {
     readonly type = LOAD_FILTER_DESCRIPTOR;
@@ -42,5 +44,12 @@ export class ConfigureFilterAction implements Action {
     constructor(readonly id: string) {
 
     }
+}
 
+export class LockEditingFilterAction implements Action {
+    readonly type = LOCK_FILTER;
+
+    constructor(readonly filter: FilterModel) {
+
+    }
 }

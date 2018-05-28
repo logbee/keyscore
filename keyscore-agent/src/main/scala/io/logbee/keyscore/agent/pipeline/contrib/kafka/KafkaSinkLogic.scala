@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.kafka
 
-import java.util.Locale
+import java.util.{Locale, ResourceBundle, UUID}
 import java.util.UUID.fromString
 
 import akka.kafka.scaladsl.Producer
@@ -17,23 +17,40 @@ import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
 import org.json4s.{Formats, NoTypeHints}
 
+import scala.collection.mutable
 import scala.concurrent.Promise
 import scala.util.Success
 
-//TODO: Descriptor for KafkaSource
 object KafkaSinkLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic"
+  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSinkLogic"
   private val filterId = "4fedbe8e-115e-4408-ba53-5b627b6e2eaf"
 
+  val descriptorMap = mutable.Map.empty[Locale, FilterDescriptorFragment]
+
+
   override def describe: MetaFilterDescriptor = {
-    MetaFilterDescriptor(fromString(filterId), filterName, Map(
-      Locale.ENGLISH -> FilterDescriptorFragment("Kafka Sink", "A Kafka Sink.", FilterConnection(isPermitted = true), FilterConnection(isPermitted = false), List(
-        TextParameterDescriptor("bootstrapServer"),
-        TextParameterDescriptor("topic")
-      ), "sink")
-    ))
+    val fragments = Map(
+      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
+      Locale.GERMAN -> descriptor(Locale.GERMAN)
+    )
+
+    MetaFilterDescriptor(UUID.fromString(filterId), filterName, fragments)
   }
+
+  private def descriptor(language: Locale) = {
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
+    FilterDescriptorFragment(
+      displayName = translatedText.getString("displayName"),
+      description = translatedText.getString("description"),
+      previousConnection = FilterConnection(isPermitted = true),
+      nextConnection = FilterConnection(isPermitted = false),
+      parameters = List(
+            TextParameterDescriptor(translatedText.getString("bootstrapServer")),
+            TextParameterDescriptor(translatedText.getString("topic"))
+          ), translatedText.getString("category"))
+  }
+
 }
 
 class KafkaSinkLogic(context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends SinkLogic(context, configuration, shape) {

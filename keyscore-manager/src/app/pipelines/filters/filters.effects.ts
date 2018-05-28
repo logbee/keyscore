@@ -17,12 +17,12 @@ export class FilterEffects {
     navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
         switchMap((action: RouterNavigationAction) => {
-            console.log("reached navigateToLiveEditing Effect");
             const navigationAction = action as RouterNavigationAction;
             const url = navigationAction.payload.event.url;
             const currentFilterId = url.substr(url.lastIndexOf("/") + 1, url.length);
             const filterWithId = /\/filter\/.*/g;
             if (filterWithId.test(url)) {
+                console.log("reached navigateToLiveEditing Effect");
                 return of(new ConfigureFilterAction(currentFilterId));
             }
             return of({type: 'NOOP'});

@@ -34,6 +34,7 @@ export class FilterChooser {
     constructor(private store: Store<PipelinesModuleState>, private modalService: ModalService) {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
+        this.categories$.subscribe(category => console.log(category));
         this.selectedCategory$ = new Subject();
         this.activeDescriptors$ = combineLatest(this.filterDescriptors$,this.selectedCategory$).pipe(map(([descriptors, category]) => descriptors.filter(descriptor => descriptor.category == category)));
         this.activeDescriptors$.subscribe(activeDescriptors => this.selectedFilterDescriptor=activeDescriptors[0]);

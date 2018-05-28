@@ -48,10 +48,10 @@ export class PipelinesEffects {
         map(action => (action as UpdatePipelineAction).pipeline),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([pipeline, config]) => {
-
+            console.log("test");
             const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/';
             const pipelineConfig: PipelineConfiguration = this.pipelineBuilder.toPipeline(pipeline);
-            console.log('pipeline config: ' + pipelineConfig);
+            console.log('pipeline config: ' + JSON.stringify(pipelineConfig) + pipelineUrl);
             return this.http.put(pipelineUrl + pipeline.id, pipelineConfig).pipe(
                 map(data => new UpdatePipelineSuccessAction(pipeline)),
                 catchError((cause: any) => of(new UpdatePipelineFailureAction(pipeline)))
