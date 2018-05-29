@@ -22,7 +22,7 @@ import {
 import {HttpClient} from "@angular/common/http";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
-import {FilterDescriptor, PipelineConfiguration} from "./pipelines.model";
+import {FilterDescriptor, getFilterDescriptors, PipelineConfiguration} from "./pipelines.model";
 import {PipelineBuilderService} from "../services/pipelinebuilder.service";
 import {TranslateService} from "@ngx-translate/core";
 
@@ -50,7 +50,9 @@ export class PipelinesEffects {
         mergeMap(([pipeline, config]) => {
             console.log("test");
             const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/';
-            const pipelineConfig: PipelineConfiguration = this.pipelineBuilder.toPipeline(pipeline);
+            var descriptorList: Array<FilterDescriptor> = [];
+            this.store.select(getFilterDescriptors).subscribe(filterDescriptors => filterDescriptors.map(value =>  descriptorList.push(value)));
+            const pipelineConfig: PipelineConfiguration = this.pipelineBuilder.toPipeline(pipeline, descriptorList);
             console.log('pipeline config: ' + JSON.stringify(pipelineConfig) + pipelineUrl);
             return this.http.put(pipelineUrl + pipeline.id, pipelineConfig).pipe(
                 map(data => new UpdatePipelineSuccessAction(pipeline)),

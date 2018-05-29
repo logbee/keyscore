@@ -117,7 +117,7 @@ export class ToolBarBuilderService {
 
             let filterConfig:FilterConfiguration = {
                 id:uuid(),
-                kind:descriptor.name,
+                descriptor:descriptor,
                 parameters:parameters
             };
 

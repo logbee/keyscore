@@ -39,7 +39,7 @@ export interface PipelineConfiguration {
 //-----------------------Filter---------------------------
 export interface FilterConfiguration {
     id: string;
-    kind: string;
+    descriptor:FilterDescriptor
     parameters: Parameter[];
 }
 

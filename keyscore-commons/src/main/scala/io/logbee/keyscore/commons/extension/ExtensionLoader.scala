@@ -29,8 +29,6 @@ class ExtensionLoader extends Actor with ActorLogging {
       config.getConfigList(path).asScala.foreach(config => {
         val extensionTypeName = config.getString("type")
         val extensionClassName = config.getString("class")
-        println("Extension Class Name : " + extensionClassName)
-        println("Extension Type Name : " + extensionTypeName)
         ScalaClassLoader(getClass.getClassLoader).tryToLoadClass(extensionClassName) match {
           case Some(extensionClass) =>
             fromString(extensionTypeName) match {

@@ -1,8 +1,9 @@
 import {Injectable} from "@angular/core";
 import {
-    FilterConfiguration, FilterModel, Parameter, ParameterDescriptor, PipelineConfiguration,
+    FilterConfiguration, FilterDescriptor, FilterModel, Parameter, ParameterDescriptor, PipelineConfiguration,
     PipelineModel
 } from "../pipelines/pipelines.model";
+import {p} from "@angular/core/src/render3";
 
 @Injectable()
 export class PipelineBuilderService {
@@ -11,13 +12,16 @@ export class PipelineBuilderService {
     }
 
     //TODO: For now source has to be the first element and sink the last. GUI should prevent false input
-    toPipeline(pipeline: PipelineModel): PipelineConfiguration {
-        let sourceConf: FilterConfiguration = this.filterModelToConfiguration(pipeline.filters[0]);
-        let sinkConf: FilterConfiguration = this.filterModelToConfiguration(pipeline.filters[pipeline.filters.length - 1]);
+    toPipeline(pipeline: PipelineModel, descriptorList: Array<FilterDescriptor>): PipelineConfiguration {
+
+
+
+        let sourceConf: FilterConfiguration = this.filterModelToConfiguration(pipeline.filters[0],descriptorList.find(descriptor => descriptor.name == pipeline.filters[0].name ));
+        let sinkConf: FilterConfiguration = this.filterModelToConfiguration(pipeline.filters[pipeline.filters.length - 1], descriptorList.find(descriptor => descriptor.name == pipeline.filters[pipeline.filters.length -1].name));
         let filterConf: FilterConfiguration[] = [];
         pipeline.filters.forEach(fm => {
             if (fm.id != sourceConf.id && fm.id != sinkConf.id) {
-                filterConf.push(this.filterModelToConfiguration(fm));
+                filterConf.push(this.filterModelToConfiguration(fm, descriptorList.find(descriptor => descriptor.name == fm.name)));
             }
         });
 
@@ -31,10 +35,11 @@ export class PipelineBuilderService {
         };
     }
 
-    private filterModelToConfiguration(filter: FilterModel): FilterConfiguration {
+    private filterModelToConfiguration(filter: FilterModel, filterDescriptor: FilterDescriptor): FilterConfiguration {
         let confParameters = filter.parameters.map(p => this.parameterDescriptorToParameter(p));
-        return {id: filter.id, kind: filter.name, parameters: confParameters};
+        return {id: filter.id, descriptor: filterDescriptor, parameters: confParameters};
     }
+
 
     private parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
         let type = parameterDescriptor.kind;
