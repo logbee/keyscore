@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.ActorRef
 import akka.cluster.Member
 import io.logbee.keyscore.model.PipelineConfiguration
-import io.logbee.keyscore.model.filter.MetaFilterDescriptor
+import io.logbee.keyscore.model.filter.{FilterConfiguration, MetaFilterDescriptor}
 
 case class AgentJoin(id: UUID, name: String)
 case class AgentJoinAccepted()
@@ -25,3 +25,5 @@ case class StreamKilled(streamID: UUID)
 
 case class GraphCreated(streamID: UUID)
 case class GraphBuildingException(streamID: UUID, streamSpec: PipelineConfiguration, errorMsg: String)
+
+case class CreatePipelineOrder(pipelineConfiguration: PipelineConfiguration)

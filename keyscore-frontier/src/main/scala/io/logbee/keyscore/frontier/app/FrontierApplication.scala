@@ -15,6 +15,7 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import io.logbee.keyscore.frontier.app.PipelineManager.CreatePipeline
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager}
@@ -39,6 +40,7 @@ object FrontierApplication extends App with Json4sSupport {
 
   val configuration = FrontierConfigProvider(system)
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
+  val pipelineManager = system.actorOf(PipelineManager.props(agentManager))
   val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
 
   val corsSettings = if (configuration.devMode) CorsSettings.defaultSettings.copy(
@@ -59,12 +61,12 @@ object FrontierApplication extends App with Json4sSupport {
       path(JavaUUID) { pipelineId =>
         put {
           entity(as[PipelineConfiguration]) { pipeline =>
+            println("[PipelineConfig] "+ pipeline.name)
+            pipelineManager ! CreatePipeline(pipeline)
+
             complete(StatusCodes.NotImplemented)
           }
-        } ~
-          delete {
-            complete(StatusCodes.NotImplemented)
-          }
+        }
       }
     } ~
       pathPrefix("filter") {
