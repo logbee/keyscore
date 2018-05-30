@@ -65,12 +65,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case CreatePipeline(streamConfiguration) =>
 
-      log.info(s"Creating pipeline <${streamConfiguration.id}>.")
+      log.info(s"Crng pipeline <${streamConfiguration.id}>.")
 
       val stream = Pipeline(streamConfiguration)
       val stageContext = StageContext(context.system, context.dispatcher)
 
       become(configuring(stream))
+
+      log.info("[Pipelinesupervisor]: Start sending messages to Filtermanager ")
 
       filterManager ! CreateSinkStage(stageContext, streamConfiguration.sink)
       filterManager ! CreateSourceStage(stageContext, streamConfiguration.source)

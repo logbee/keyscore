@@ -97,6 +97,7 @@ class Agent extends Actor with ActorLogging {
       context.stop(self)
 
     case CreatePipelineOrder(configuration) => {
+      log.info("[Agent] Received CreatePipeline Message")
       pipelineManager ! CreatePipeline(configuration)
     }
   }

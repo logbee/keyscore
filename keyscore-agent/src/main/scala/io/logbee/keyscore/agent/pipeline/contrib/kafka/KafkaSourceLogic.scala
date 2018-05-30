@@ -24,7 +24,8 @@ import scala.concurrent.Promise
 
 object KafkaSourceLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSourceLogic"
+  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic"
+  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSourceLogic"
   private val filterId = "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
 
   override def describe: MetaFilterDescriptor = {
@@ -37,7 +38,7 @@ object KafkaSourceLogic extends Described {
   }
 
   private def descriptor(language: Locale) = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),

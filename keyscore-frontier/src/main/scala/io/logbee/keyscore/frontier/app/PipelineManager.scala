@@ -35,8 +35,8 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
   override def receive: Receive = {
     case CreatePipeline(pipelineConfiguration) =>
       log.info("[Frontier] Recieved CreatePipeline")
-
       val agentToCall = createListOfPossibleAgents(pipelineConfiguration).head
+      log.info("[Frontier] Selected Agent is " + agentToCall.toString())
       agentToCall ! CreatePipelineOrder(pipelineConfiguration)
 
     case AgentCapabilities(metaFilterDescriptors) => {
@@ -56,6 +56,8 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
     if(requiredFilters.filter(filtername => agent._2.map(descriptor => descriptor.name).contains(filtername)).size ==
       requiredFilters.size) {
       return true
+    } else {
+      log.info("")
     }
     false
   }
@@ -65,6 +67,7 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
     availableAgents.foreach { agent =>
       checkIfCapabilitesMatchRequirements(pipelineConfiguration, agent) match {
         case true => possibleAgents += agent._1
+        case false => log.info("[Frontier / PipelineManager]: Agent "+agent+ " doesn't match requirements.")
       }
     }
     possibleAgents.toList

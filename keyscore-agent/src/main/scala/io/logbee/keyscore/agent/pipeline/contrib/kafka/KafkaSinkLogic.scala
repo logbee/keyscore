@@ -23,7 +23,8 @@ import scala.util.Success
 
 object KafkaSinkLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSinkLogic"
+  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic"
+  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSinkLogic"
   private val filterId = "4fedbe8e-115e-4408-ba53-5b627b6e2eaf"
 
   val descriptorMap = mutable.Map.empty[Locale, FilterDescriptorFragment]
@@ -39,7 +40,7 @@ object KafkaSinkLogic extends Described {
   }
 
   private def descriptor(language: Locale) = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),

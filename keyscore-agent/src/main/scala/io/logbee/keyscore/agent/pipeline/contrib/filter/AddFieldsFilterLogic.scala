@@ -13,7 +13,8 @@ import scala.collection.mutable.ListBuffer
 
 object AddFieldsFilterLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilter"
+  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic"
+  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilter"
   private val filterId = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
 
   override def describe: MetaFilterDescriptor = {
@@ -27,7 +28,7 @@ object AddFieldsFilterLogic extends Described {
 
 
   private def descriptor(language: Locale): FilterDescriptorFragment = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),

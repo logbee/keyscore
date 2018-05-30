@@ -27,7 +27,8 @@ import scala.util.{Failure, Success}
 
 object ElasticSearchSinkLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.ElasticSearchSinkLogic"
+  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic"
+  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.ElasticSearchSinkLogic"
   private val filterId = "6693c39e-6261-11e8-adc0-fa7ae01bbebc"
 
   val descriptorMap = mutable.Map.empty[Locale, FilterDescriptorFragment]
@@ -43,7 +44,7 @@ object ElasticSearchSinkLogic extends Described {
   }
 
   private def descriptor(language: Locale) = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),

@@ -45,7 +45,7 @@ class FilterManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     eventBus.subscribe(self, classOf[RegisterExtension])
-    log.info("StartUp complete.")
+    log.info("[Filtermanager]: StartUp complete.")
   }
 
   override def postStop(): Unit = {
@@ -67,7 +67,7 @@ class FilterManager extends Actor with ActorLogging {
 
     case CreateSinkStage(stageContext, configuration) =>
 
-      log.debug(s"Creating SinkStage with: $configuration")
+      log.info(s"Creating SinkStage with: $configuration")
 
       loadStageLogicClass(configuration.descriptor.name).foreach(logicClass => {
         val provider = createSinkLogicProvider(logicClass)
@@ -78,9 +78,10 @@ class FilterManager extends Actor with ActorLogging {
 
     case CreateSourceStage(stageContext, configuration) =>
 
-      log.debug(s"Creating SourceStage with: $configuration")
+      log.info(s"Creating SourceStage with: $configuration")
 
       loadStageLogicClass(configuration.descriptor.name).foreach(logicClass => {
+        log.info("[Filtermanager]: loadSourceStageLogicClass")
         val provider = createSourceLogicProvider(logicClass)
         val stage = new SourceStage(stageContext, configuration, provider)
 
@@ -88,7 +89,7 @@ class FilterManager extends Actor with ActorLogging {
       })
     case CreateFilterStage(stageContext, configuration) =>
 
-      log.debug(s"Creating FilterStage with: $configuration")
+      log.info(s"Creating FilterStage with: $configuration")
 
       loadStageLogicClass(configuration.descriptor.name).foreach(logicClass => {
         val provider = createFilterLogicProvider(logicClass)
@@ -123,6 +124,7 @@ class FilterManager extends Actor with ActorLogging {
   }
 
   private def getSinkStageLogicConstructor(logicClass: Class[_]) = {
+    log.info("[FilterManager]: " + logicClass)
     logicClass.getConstructor(classOf[StageContext], classOf[FilterConfiguration], classOf[SinkShape[Dataset]])
   }
 

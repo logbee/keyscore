@@ -12,7 +12,8 @@ import scala.collection.mutable.ListBuffer
 
 object CSVParserFilterLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilter"
+  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilterLogic"
+  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilter"
   private val filterId = "292d368e-6e50-4c52-aed5-1a6826d78c22"
 
   override def describe: MetaFilterDescriptor = {
@@ -26,7 +27,7 @@ object CSVParserFilterLogic extends Described {
   }
 
   private def descriptor(language:Locale):FilterDescriptorFragment = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName,language)
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName,language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),

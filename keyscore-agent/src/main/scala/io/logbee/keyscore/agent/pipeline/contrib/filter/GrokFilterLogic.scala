@@ -15,7 +15,8 @@ import scala.util.matching.Regex
 
 object GrokFilterLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilter"
+  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic"
+  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilter"
   private val filterId = "8912a691-e982-4680-8fc7-fea6803fcef0"
 
   override def describe: MetaFilterDescriptor = {
@@ -28,7 +29,7 @@ object GrokFilterLogic extends Described {
   }
 
   private def descriptor(language: Locale) = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(filterName, language)
+    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),

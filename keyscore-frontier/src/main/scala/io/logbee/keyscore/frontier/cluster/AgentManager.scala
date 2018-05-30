@@ -77,7 +77,6 @@ class AgentManager extends Actor with ActorLogging {
       sender ! MemberRemoved(member)
 
     case QueryAgents =>
-      println("AgentManager " + agents.values.toList)
       sender ! QueryAgentsResponse(agents.values.toList)
 
     case QueryMembers =>

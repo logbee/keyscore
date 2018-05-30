@@ -61,7 +61,7 @@ object FrontierApplication extends App with Json4sSupport {
       path(JavaUUID) { pipelineId =>
         put {
           entity(as[PipelineConfiguration]) { pipeline =>
-            println("[PipelineConfig] "+ pipeline.name)
+            println("DEBUGING" + pipeline.sink)
             pipelineManager ! CreatePipeline(pipeline)
 
             complete(StatusCodes.NotImplemented)

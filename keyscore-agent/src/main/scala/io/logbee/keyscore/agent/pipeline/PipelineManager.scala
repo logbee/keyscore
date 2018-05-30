@@ -33,13 +33,19 @@ class PipelineManager(filterManager: ActorRef) extends Actor with ActorLogging {
   import context._
 
   override def preStart(): Unit = {
-    log.info("StartUp complete.")
+    log.info("[Agent / Pipelinemanager]: StartUp complete.")
+  }
+
+  override def postStop(): Unit = {
+    log.info("[Agent / Pipelinemanager]:Stopped")
   }
 
   override def receive: Receive = {
 
-    case CreatePipeline(configuration) =>
+    case PipelineManager.CreatePipeline(configuration) =>
+      log.info("[Agent / Pipelinemanager]: Received Create Pipeline")
       val supervisor = actorOf(PipelineSupervisor(filterManager), nameFromConfiguration(configuration))
+      log.info("[Agent / PipelineManager]: send CreatePipelineMessage to" + supervisor.toString())
       supervisor ! PipelineSupervisor.CreatePipeline(configuration)
       watchWith(supervisor, SupervisorTerminated(supervisor, configuration))
 
@@ -55,7 +61,7 @@ class PipelineManager(filterManager: ActorRef) extends Actor with ActorLogging {
     case SupervisorTerminated(supervisor, configuration) =>
       log.info(s"PipelineSupervisor terminated: $configuration")
 
-    case _ =>
+    case _ => log.info("[Agent / Pipelinemanager]: Failure")
   }
 
   def nameFromConfiguration(configuration: PipelineConfiguration): String = {
