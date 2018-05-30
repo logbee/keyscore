@@ -47,6 +47,7 @@
     "DESCRIPTION": "FilterDescription",
     "PATTERN": "FilterPattern",
     "CATEGORY": "Category",
+    "ID": "Id",
     "EXAMPLE_MESSAGE": "Example Message",
     "REGEXPATTERN": "Regex Pattern",
     "RESULT": "Result",

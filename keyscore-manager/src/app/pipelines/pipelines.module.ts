@@ -21,6 +21,10 @@ import {FiltersComponent} from "./filters/filters.component";
 import {LiveEditingComponent} from "./filters/filter-details/live-editing.component";
 import {PipelinesModuleState} from "./pipelines.model";
 import {ErrorComponent} from "../failures/error.component";
+import {FilterDescriptionComponent} from "./filters/filter-details/live-editing-modules/filter-description.component";
+import {ExampleMessageComponent} from "./filters/filter-details/live-editing-modules/example-message.component";
+import {PatternComponent} from "./filters/filter-details/live-editing-modules/pattern.component";
+import {FilterResultComponent} from "./filters/filter-details/live-editing-modules/filter-result.component";
 
 
 export const routes: Routes = [
@@ -56,7 +60,11 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         ParameterComponent,
         LiveEditingComponent,
         FiltersComponent,
-        ErrorComponent
+        ErrorComponent,
+        FilterDescriptionComponent,
+        ExampleMessageComponent,
+        PatternComponent,
+        FilterResultComponent
     ],
     providers: []
 })

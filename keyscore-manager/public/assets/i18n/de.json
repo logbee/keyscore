@@ -47,6 +47,7 @@
     "DESCRIPTION": "Filter Beschreibung",
     "PATTERN": "Filter Pattern",
     "CATEGORY": "Kategorie",
+    "ID": "Id",
     "EXAMPLE_MESSAGE": "Beispiel Nachricht",
     "REGEXPATTERN": "Regulärer Ausdruck",
     "RESULT": "Ergebnis",
