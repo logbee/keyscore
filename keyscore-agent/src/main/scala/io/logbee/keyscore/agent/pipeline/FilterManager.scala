@@ -12,7 +12,6 @@ import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.{FilterConfiguration, MetaFilterDescriptor}
 
 import scala.collection.mutable
-import scala.reflect.internal.util.ScalaClassLoader
 
 
 object FilterManager {
@@ -137,6 +136,6 @@ class FilterManager extends Actor with ActorLogging {
   }
 
   private def loadStageLogicClass(className: String) = {
-    ScalaClassLoader(getClass.getClassLoader).tryToLoadClass(className)
+    Option(getClass.getClassLoader.loadClass(className))
   }
 }
