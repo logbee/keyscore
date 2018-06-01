@@ -2,7 +2,6 @@ package io.logbee.keyscore.agent.pipeline.contrib.kafka
 
 import akka.stream.SourceShape
 import akka.stream.scaladsl.Source
-import io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic.KafkaSourceLogic
 import io.logbee.keyscore.agent.pipeline.stage.{SourceStage, StageContext}
 import io.logbee.keyscore.agent.pipeline.{ExampleData, TestSystemWithMaterializerAndExecutionContext}
 import io.logbee.keyscore.model.Dataset
