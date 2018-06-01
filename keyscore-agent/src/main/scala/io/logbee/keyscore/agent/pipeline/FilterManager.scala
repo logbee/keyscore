@@ -105,7 +105,7 @@ class FilterManager extends Actor with ActorLogging {
   private def createSinkLogicProvider(logicClass: Class[_]) = {
     val constructor = getSinkStageLogicConstructor(logicClass)
     (context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) => {
-      constructor.newInstance(context, configuration, shape).asInstanceOf[SinkLogic]
+      constructor.newInstance(context,configuration,shape).asInstanceOf[SinkLogic]
     }
   }
 
@@ -125,15 +125,15 @@ class FilterManager extends Actor with ActorLogging {
 
   private def getSinkStageLogicConstructor(logicClass: Class[_]) = {
     log.info("[FilterManager]: " + logicClass)
-    logicClass.getConstructor(classOf[StageContext], classOf[FilterConfiguration], classOf[SinkShape[Dataset]])
+    logicClass.getConstructors()(0)
   }
 
   private def getSourceStageLogicConstructor(logicClass: Class[_]) = {
-    logicClass.getConstructor(classOf[StageContext], classOf[FilterConfiguration], classOf[SourceShape[Dataset]])
+    logicClass.getConstructors()(0)
   }
 
   private def getFilterStageLogicConstructor(logicClass: Class[_]) = {
-    logicClass.getConstructor(classOf[StageContext], classOf[FilterConfiguration], classOf[FlowShape[Dataset, Dataset]])
+    logicClass.getConstructors()(0)
   }
 
   private def loadStageLogicClass(className: String) = {

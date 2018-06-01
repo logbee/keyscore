@@ -1,30 +1,35 @@
 package io.logbee.keyscore.agent
 
 import java.util.UUID.fromString
-import java.util.{Locale, ResourceBundle}
+import java.util.{Locale, ResourceBundle, UUID}
 
+import akka.actor.Status.Success
 import akka.actor.{ActorSystem, Props}
+import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
-import io.logbee.keyscore.agent.pipeline.FilterManager
-import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
+import io.logbee.keyscore.agent.pipeline.{FilterManager, TestSystemWithMaterializerAndExecutionContext}
+import io.logbee.keyscore.agent.pipeline.FilterManager._
+import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.filter._
 import org.junit.runner.RunWith
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.collection.mutable
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.language.postfixOps
+import scala.util.Failure
 
 
 @RunWith(classOf[JUnitRunner])
-class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with WordSpecLike with Matchers with ScalaFutures {
-
+class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with WordSpecLike with Matchers with ScalaFutures with MockFactory {
   "A FilterManager" should {
 
     val filterManager = system.actorOf(Props[FilterManager])
@@ -38,6 +43,20 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
       val message = receiveOne(5 seconds).asInstanceOf[DescriptorsResponse]
       message.descriptors should (contain (ExampleFilter.describe) and have length 1)
+    }
+
+    "instantiate a filter stage" in {
+      val filterConfiguration = FilterConfiguration(UUID.randomUUID(),FilterDescriptor(fromString("2b6e5fd0-a21b-4256-8a4a-388e3b4e5711"),"ExampleFilter",List(
+        MapParameterDescriptor("fieldsToAdd", "fieldsToAddName", "fieldsToAddDescription",
+          TextParameterDescriptor("fieldName", "fieldKeyName","fieldKeyDescription"),
+          TextParameterDescriptor("fieldValue", "fieldValueName", "fieldValueDescription")
+        ))),List(TextMapParameter("fieldsToAdd",Map("blubb"->"lappen","lappen"->"blubb"))))
+
+      val result = Await.ready(filterManager ? CreateFilterStage(StageContext(system,system.dispatcher),filterConfiguration),10 seconds)
+
+
+      result shouldBe a [Future[FilterStageCreated]]
+
     }
   }
 }

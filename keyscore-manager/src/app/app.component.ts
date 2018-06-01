@@ -21,7 +21,7 @@ export interface AppState {
                        routerLinkActive="active">{{'GENERAL.DASHBOARD' | translate}}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" routerLink="/agent"
+                    <a id ="test" class="nav-link" routerLink="/agent"
                        routerLinkActive="active">{{'APPCOMPONENT.AGENTS' | translate}}</a>
                 </li>
                 <li class="nav-item">
