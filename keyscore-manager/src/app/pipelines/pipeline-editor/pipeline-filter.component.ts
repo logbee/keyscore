@@ -109,6 +109,7 @@ export class PipelineFilterComponent implements OnInit {
     }
 
     saveFilter(filterModel: FilterModel, values: any) {
+        console.log(JSON.stringify(values));
         this.update.emit({filterModel, values});
     }
 

@@ -133,6 +133,7 @@ export class PipelineEditorComponent implements OnInit {
 
 
     updateFilter(update: { filterModel: FilterModel, values: any }) {
+        console.log(JSON.stringify(update));
         this.store.dispatch(new UpdateFilterAction(update.filterModel, update.values))
     }
 

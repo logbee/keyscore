@@ -1,0 +1,74 @@
+{
+  "id": "d1bdb4ed-455b-46dc-b01f-9a0ab5e68baf",
+  "descriptor": {
+    "id": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
+    "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
+    "displayName": "Kafka Source",
+    "description": "A Kafka Source",
+    "previousConnection": {
+      "isPermitted": false,
+      "connectionType": []
+    },
+    "nextConnection": {
+      "isPermitted": true,
+      "connectionType": []
+    },
+    "parameters": [
+      {
+        "name": "bootstrapServer",
+        "displayName": "bootstrapServer",
+        "description": "description",
+        "mandatory": true,
+        "validator": ".*",
+        "kind": "text"
+      },
+      {
+        "name": "groupID",
+        "displayName": "groupÃd",
+        "description": "description",
+        "mandatory": true,
+        "validator": ".*",
+        "kind": "text"
+      },
+      {
+        "name": "offsetCommit",
+        "displayName": "offsetCommit",
+        "description": "description",
+        "mandatory": true,
+        "validator": ".*",
+        "kind": "text"
+      },
+      {
+        "name": "sourceTopic",
+        "displayName": "topic",
+        "description": "description",
+        "mandatory": true,
+        "validator": ".*",
+        "kind": "text"
+      }
+    ],
+    "category": "source"
+  },
+  "parameters": [
+    {
+      "name": "bootstrapServer",
+      "value": "dsfdsfsdf",
+      "parameterType": "string"
+    },
+    {
+      "name": "groupID",
+      "value":"dasfdasd",
+      "parameterType": "string"
+    },
+    {
+      "name": "offsetCommit",
+      "value": "eraliest",
+      "parameterType": "string"
+    },
+    {
+      "name": "sourceTopic",
+      "value":"adsdasd",
+      "parameterType": "string"
+    }
+  ]
+}

@@ -105,7 +105,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case UPDATE_FILTER:
             const updateFilterIndex = result.editingPipeline.filters.findIndex(filter => filter.id == action.filter.id);
             result.editingPipeline.filters[updateFilterIndex] = deepcopy(action.filter);
-            result.editingPipeline.filters[updateFilterIndex].parameters.forEach(p => p.value = action.values[p.displayName]);
+            result.editingPipeline.filters[updateFilterIndex].parameters.forEach(p => p.value = action.values[p.name]);
             break;
         case REMOVE_FILTER:
             const removeIndex = result.editingPipeline.filters.findIndex(filter => filter.id == action.filterId);

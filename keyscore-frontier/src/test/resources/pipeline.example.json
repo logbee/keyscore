@@ -1,0 +1,128 @@
+{
+  "id": "d9b3e30b-6b43-4e8e-af29-7131a2fedcfe",
+  "name": "New Pipeline",
+  "description": "",
+  "source": {
+    "id": "70807424-399d-464f-b6a1-67732a77aa2f",
+    "descriptor": {
+      "id": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
+      "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
+      "displayName": "Kafka Source",
+      "description": "A Kafka Source",
+      "previousConnection": {
+        "isPermitted": false,
+        "connectionType": []
+      },
+      "nextConnection": {
+        "isPermitted": true,
+        "connectionType": []
+      },
+      "parameters": [
+        {
+          "name": "bootstrapServer",
+          "displayName": "bootstrapServer",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text"
+        },
+        {
+          "name": "groupID",
+          "displayName": "groupÃd",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text"
+        },
+        {
+          "name": "offsetCommit",
+          "displayName": "offsetCommit",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text"
+        },
+        {
+          "name": "sourceTopic",
+          "displayName": "topic",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text"
+        }
+      ],
+      "category": "source"
+    },
+    "parameters": [
+      {
+        "name": "bootstrapServer",
+        "value": "asdasd",
+        "parameterType": "string"
+      },
+      {
+        "name": "groupID",
+        "value": "asdasd",
+        "parameterType": "string"
+      },
+      {
+        "name": "offsetCommit",
+        "value": "asdasd",
+        "parameterType": "string"
+      },
+      {
+        "name": "sourceTopic",
+        "value": "asdasd",
+        "parameterType": "string"
+      }
+    ]
+  },
+  "sink": {
+    "id": "ca2f7c72-1948-4fc7-9507-2c14616da907",
+    "descriptor": {
+      "id": "4fedbe8e-115e-4408-ba53-5b627b6e2eaf",
+      "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic",
+      "displayName": "Kafka Sink",
+      "description": "A Kafka Sink.",
+      "previousConnection": {
+        "isPermitted": true,
+        "connectionType": []
+      },
+      "nextConnection": {
+        "isPermitted": false,
+        "connectionType": []
+      },
+      "parameters": [
+        {
+          "name": "bootstrapServer",
+          "displayName": "bootstrapServer",
+          "description": "",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text"
+        },
+        {
+          "name": "topic",
+          "displayName": "topic",
+          "description": "",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text"
+        }
+      ],
+      "category": "sink"
+    },
+    "parameters": [
+      {
+        "name": "bootstrapServer",
+        "value": "sadsad",
+        "parameterType": "string"
+      },
+      {
+        "name": "topic",
+        "value": "asdasdadasd",
+        "parameterType": "string"
+      }
+    ]
+  },
+  "filter": []
+}
