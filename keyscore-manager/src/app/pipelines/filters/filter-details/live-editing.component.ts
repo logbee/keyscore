@@ -20,7 +20,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
                     
                     <example-message></example-message>
                     
-                    <pattern></pattern>
+                    <pattern (apply)="applyConfiguration($event)"></pattern>
 
                    <filter-result></filter-result>
                     
@@ -28,6 +28,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
                 </div>
             </div>
         </div>
+        
         <error-component *ngIf="errorHandling" [httpError]="httpError" [message]="errorMessage"></error-component>
     `
 })
@@ -38,15 +39,21 @@ export class LiveEditingComponent {
     private errorHandling: boolean = false;
     private errorMessage: string;
     private httpError: string;
+
+
     constructor(private store: Store<FilterState>, private translate:TranslateService) {
         this.filter$ = this.store.select(getFilterId).pipe(mergeMap(id => this.store.select(getFilterById(id))));
-        this.filter$.subscribe(filter => console.log(filter.name));
+
         this.filter$.subscribe(filter => {
             if (typeof(filter) === 'undefined') {
                 this.errorHandling = true;
                 this.translate.get('FILTERLIVEEDITINGCOMPONENT.NOTFOUND').subscribe(translation => this.errorMessage = translation );
                 this.httpError = "404";
-                console.log(this.errorMessage);
             }})
+    }
+
+
+    applyConfiguration(regex: string) {
+        console.log("applyConfiguration:" + regex)
     }
 }
