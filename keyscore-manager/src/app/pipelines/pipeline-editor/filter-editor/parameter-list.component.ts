@@ -1,9 +1,5 @@
-import {Component, forwardRef, Input, OnChanges, OnInit, SimpleChanges} from "@angular/core";
-import {Parameter, ParameterDescriptor} from "../../pipelines.model";
-import {Observable} from "rxjs";
-import {ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {HostBinding} from "@angular/compiler/src/core";
-import {isNullOrUndefined, isUndefined} from "util";
+import {Component, forwardRef, Input} from "@angular/core";
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 
 @Component({
     selector: 'parameter-list',

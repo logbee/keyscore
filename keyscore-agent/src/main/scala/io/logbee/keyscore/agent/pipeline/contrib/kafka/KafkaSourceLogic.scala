@@ -45,10 +45,10 @@ object KafkaSourceLogic extends Described {
       previousConnection = FilterConnection(isPermitted = false),
       nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
-        TextParameterDescriptor(translatedText.getString("bootstrapServer")),
-        TextParameterDescriptor(translatedText.getString("groupID")),
-        TextParameterDescriptor(translatedText.getString("offsetCommit")),
-        TextParameterDescriptor(translatedText.getString("topic"))
+        TextParameterDescriptor("bootstrapServer", translatedText.getString("bootstrapServer"), "description"),
+        TextParameterDescriptor("groupID", translatedText.getString("groupID"), "description"),
+        TextParameterDescriptor("offsetCommit", translatedText.getString("offsetCommit"), "description"),
+        TextParameterDescriptor("sourceTopic", translatedText.getString("topic"), "description")
       ), translatedText.getString("category"))
   }
 }

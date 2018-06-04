@@ -51,9 +51,9 @@ object ElasticSearchSinkLogic extends Described {
       previousConnection = FilterConnection(isPermitted = true),
       nextConnection = FilterConnection(isPermitted = false),
       parameters = List(
-        TextParameterDescriptor(translatedText.getString("host")),
-        TextParameterDescriptor(translatedText.getString("port")),
-        TextParameterDescriptor(translatedText.getString("index"))
+        TextParameterDescriptor("host", translatedText.getString("host"), "description"),
+        IntParameterDescriptor("port", translatedText.getString("port"), "description"),
+        TextParameterDescriptor("index", translatedText.getString("index"), "description")
       ), translatedText.getString("category"))
   }
 
