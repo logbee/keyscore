@@ -47,8 +47,8 @@ object KafkaSinkLogic extends Described {
       previousConnection = FilterConnection(isPermitted = true),
       nextConnection = FilterConnection(isPermitted = false),
       parameters = List(
-            TextParameterDescriptor(translatedText.getString("bootstrapServer")),
-            TextParameterDescriptor(translatedText.getString("topic"))
+            TextParameterDescriptor("bootstrapServer", translatedText.getString("bootstrapServer"), "description"),
+            TextParameterDescriptor("topic", translatedText.getString("topic"), "description")
           ), translatedText.getString("category"))
   }
 
