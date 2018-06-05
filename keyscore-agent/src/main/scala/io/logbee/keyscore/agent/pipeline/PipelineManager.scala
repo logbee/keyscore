@@ -3,7 +3,6 @@ package io.logbee.keyscore.agent.pipeline
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.PipelineManager._
-import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.{ConfigurePipeline, CreatePipeline}
 import io.logbee.keyscore.model.PipelineConfiguration
 
 import scala.concurrent.duration._
@@ -14,6 +13,8 @@ object PipelineManager {
   private val SUPERVISOR_NAME_PREFIX = "pipeline:"
 
   case class CreatePipeline(configuration: PipelineConfiguration)
+
+  case class CreateNewPipeline(configuration: PipelineConfiguration)
 
   case class UpdatePipeline(configuration: PipelineConfiguration)
 
@@ -28,31 +29,42 @@ object PipelineManager {
 
 class PipelineManager(filterManager: ActorRef) extends Actor with ActorLogging {
 
+  import context._
   implicit val timeout: Timeout = 10 seconds
 
-  import context._
 
   override def preStart(): Unit = {
-    log.info("[Agent / Pipelinemanager]: StartUp complete.")
+    log.info("[Agent | PipelineManager]: StartUp complete.")
   }
 
   override def postStop(): Unit = {
-    log.info("[Agent / Pipelinemanager]:Stopped")
+    log.info("[Agent | PipelineManager]: Stopped")
   }
 
   override def receive: Receive = {
 
     case PipelineManager.CreatePipeline(configuration) =>
-      log.info("[Agent / Pipelinemanager]: Received Create Pipeline")
+      child(nameFromConfiguration(configuration)) match {
+        case Some(_) => self ! UpdatePipeline(configuration)
+        case None => self ! CreateNewPipeline(configuration)
+      }
+    case CreateNewPipeline(configuration) =>
+      log.info("[Agent | PipelineManager]: Received Create Pipeline: " + configuration.id)
       val supervisor = actorOf(PipelineSupervisor(filterManager), nameFromConfiguration(configuration))
-      log.info("[Agent / PipelineManager]: send CreatePipelineMessage to" + supervisor.toString())
+      log.info("[Agent | PipelineManager]: send CreatePipelineMessage to" + supervisor.toString())
       supervisor ! PipelineSupervisor.CreatePipeline(configuration)
       watchWith(supervisor, SupervisorTerminated(supervisor, configuration))
 
     case UpdatePipeline(configuration) =>
-      child(nameFromConfiguration(configuration)).foreach(child => child ! ConfigurePipeline(configuration))
+      log.info("[Agent | PipelineManager]: Received Update Pipeline: " + configuration.id)
+      child(nameFromConfiguration(configuration)).foreach(child => {
+        unwatch(child)
+        watchWith(child, CreateNewPipeline(configuration))
+        context.stop(child)
+      })
 
     case DeletePipeline(configuration) =>
+      log.info("[Agent | PipelineManager]: Delete Create Pipeline: " + configuration.id)
       child(nameFromConfiguration(configuration)).foreach(child => context.stop(child))
 
     case RequestPipelineState =>
@@ -61,7 +73,7 @@ class PipelineManager(filterManager: ActorRef) extends Actor with ActorLogging {
     case SupervisorTerminated(supervisor, configuration) =>
       log.info(s"PipelineSupervisor terminated: $configuration")
 
-    case _ => log.info("[Agent / Pipelinemanager]: Failure")
+    case _ => log.info("[Agent | PipelineManager]: Failure")
   }
 
   def nameFromConfiguration(configuration: PipelineConfiguration): String = {

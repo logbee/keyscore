@@ -67,7 +67,7 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
     availableAgents.foreach { agent =>
       checkIfCapabilitesMatchRequirements(pipelineConfiguration, agent) match {
         case true => possibleAgents += agent._1
-        case false => log.info("[Frontier / PipelineManager]: Agent "+agent+ " doesn't match requirements.")
+        case false => log.info("[Frontier | PipelineManager]: Agent " + agent + " doesn't match requirements.")
       }
     }
     possibleAgents.toList
