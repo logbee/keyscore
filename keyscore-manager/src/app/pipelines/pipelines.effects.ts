@@ -14,10 +14,10 @@ import {
     LOAD_FILTER_DESCRIPTORS,
     LoadFilterDescriptorsFailureAction,
     LoadFilterDescriptorsSuccessAction,
-    UPDATE_PIPELINE,
+    UPDATE_PIPELINE, UPDATE_PIPELINE_BLOCKLY,
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
-    UpdatePipelineSuccessAction
+    UpdatePipelineSuccessAction, UpdatePipelineWithBlocklyAction
 } from "./pipelines.actions";
 import {HttpClient} from "@angular/common/http";
 import {AppState} from "../app.component";
@@ -48,15 +48,27 @@ export class PipelinesEffects {
         map(action => (action as UpdatePipelineAction).pipeline),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([pipeline, config]) => {
-            console.log("test");
             const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/';
             var descriptorList: Array<FilterDescriptor> = [];
-            this.store.select(getFilterDescriptors).subscribe(filterDescriptors => filterDescriptors.map(value =>  descriptorList.push(value)));
+            this.store.select(getFilterDescriptors).subscribe(filterDescriptors => filterDescriptors.map(value => descriptorList.push(value)));
             const pipelineConfig: PipelineConfiguration = this.pipelineBuilder.toPipeline(pipeline, descriptorList);
             console.log('pipeline config: ' + JSON.stringify(pipelineConfig) + pipelineUrl);
             return this.http.put(pipelineUrl + pipeline.id, pipelineConfig).pipe(
                 map(data => new UpdatePipelineSuccessAction(pipeline)),
                 catchError((cause: any) => of(new UpdatePipelineFailureAction(pipeline)))
+            );
+        })
+    );
+
+    @Effect() updatePipelineBlockly$: Observable<Action> = this.actions$.pipe(
+        ofType(UPDATE_PIPELINE_BLOCKLY),
+        map(action => (action as UpdatePipelineWithBlocklyAction)),
+        combineLatest(this.store.select(selectAppConfig)),
+        mergeMap(([updateAction, config]) => {
+            const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/';
+            return this.http.put(pipelineUrl + updateAction.pipelineConfiguration.id, updateAction.pipelineConfiguration).pipe(
+                map(data => new UpdatePipelineSuccessAction(updateAction.pipelineModel)),
+                catchError((cause: any) => of(new UpdatePipelineFailureAction(updateAction.pipelineModel)))
             );
         })
     );
@@ -78,11 +90,10 @@ export class PipelinesEffects {
         ofType(LOAD_FILTER_DESCRIPTORS),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([action, config]) =>
-                this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors?language='+this.translate.currentLang).pipe(
-                    map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
-                    catchError(cause => of(new LoadFilterDescriptorsFailureAction(cause)))
-                )
-
+            this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors?language=' + this.translate.currentLang).pipe(
+                map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
+                catchError(cause => of(new LoadFilterDescriptorsFailureAction(cause)))
+            )
         )
     );
 

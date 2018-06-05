@@ -6,7 +6,10 @@ import {
 import {Blockly} from "node-blockly/browser";
 import {PipelineBuilderService} from "../pipelinebuilder.service";
 import {v4 as uuid} from 'uuid';
-import {extractFirstJSONObjectFromString, extractTopLevelJSONObjectsFromString} from "../../util";
+import {
+    extractFirstJSONObjectFromString, extractTopLevelJSONObjectsFromString,
+    mapFromSeparatedString
+} from "../../util";
 
 
 declare var Blockly: any;
@@ -40,7 +43,6 @@ export class ToolBarBuilderService {
         })
 
         let xmlString = serializer.serializeToString(xmlDoc);
-        console.log("toolbox: " + xmlString);
         return xmlString;
     }
 
@@ -121,7 +123,6 @@ export class ToolBarBuilderService {
                 parameters:parameters
             };
 
-            console.log(JSON.stringify(filterConfig));
             return JSON.stringify(filterConfig);
         }
 
@@ -133,9 +134,11 @@ export class ToolBarBuilderService {
         switch (type) {
             case 'list':
                 type = 'list[string]';
+                parameterDescriptor.value = parameterDescriptor.value.split(',');
                 break;
             case 'map':
                 type = 'map[string,string]';
+                parameterDescriptor.value = mapFromSeparatedString(parameterDescriptor.value,',',':');
                 break;
             case 'text':
                 type = 'string';
@@ -150,6 +153,7 @@ export class ToolBarBuilderService {
     private calculateColor(currentCategory:number, categoryCount:number){
         return 360/categoryCount*currentCategory;
     }
+
 
 
 }

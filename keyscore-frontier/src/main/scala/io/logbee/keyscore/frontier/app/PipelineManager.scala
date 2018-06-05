@@ -53,7 +53,7 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
       requiredFilters += filter.descriptor.name
     })
 
-    if(requiredFilters.filter(filtername => agent._2.map(descriptor => descriptor.name).contains(filtername)).size ==
+    if(requiredFilters.count(filtername => agent._2.map(descriptor => descriptor.name).contains(filtername)) ==
       requiredFilters.size) {
       return true
     } else {
@@ -65,9 +65,10 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
   def createListOfPossibleAgents(pipelineConfiguration: PipelineConfiguration): List[ActorRef] = {
     var possibleAgents: ListBuffer[ActorRef] = ListBuffer.empty
     availableAgents.foreach { agent =>
-      checkIfCapabilitesMatchRequirements(pipelineConfiguration, agent) match {
-        case true => possibleAgents += agent._1
-        case false => log.info("[Frontier | PipelineManager]: Agent " + agent + " doesn't match requirements.")
+      if (checkIfCapabilitesMatchRequirements(pipelineConfiguration, agent)) {
+        possibleAgents += agent._1
+      } else {
+        log.info("[Frontier / PipelineManager]: Agent " + agent + " doesn't match requirements.")
       }
     }
     possibleAgents.toList

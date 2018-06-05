@@ -10,7 +10,7 @@ import {
     getEditingPipeline,
     getEditingPipelineIsLocked,
     getFilterCategories,
-    getFilterDescriptors,
+    getFilterDescriptors, PipelineConfiguration,
     PipelineModel
 } from "../pipelines.model";
 
@@ -22,7 +22,7 @@ import {
     RemoveFilterAction,
     ResetPipelineAction,
     UpdateFilterAction,
-    UpdatePipelineAction
+    UpdatePipelineAction, UpdatePipelineWithBlocklyAction
 } from "../pipelines.actions";
 import {selectAppConfig} from "../../app.config";
 import {Go} from "../../router/router.actions";
@@ -34,45 +34,49 @@ import {LoadFilterDescriptorAction} from "../filters/filters.actions";
         <div class="row justify-content-center">
             <div *ngIf="!blocklyFlag" class="col-3">
                 <pipeline-details [pipeline]="pipeline$ | async"
-                                [locked$]="isLocked$"
-                                (update)="updatePipeline($event)"
-                                (reset)="resetPipeline($event)"
-                                (delete)="deletePipeline($event)"
-                                (lock)="setLocked(true, $event)"
-                                (unlock)="setLocked(false, $event)">
+                                  [locked$]="isLocked$"
+                                  (update)="updatePipeline($event)"
+                                  (reset)="resetPipeline($event)"
+                                  (delete)="deletePipeline($event)"
+                                  (lock)="setLocked(true, $event)"
+                                  (unlock)="setLocked(false, $event)">
                 </pipeline-details>
             </div>
-            
+
             <div *ngIf="!blocklyFlag" class="col-9">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
                         <span class="font-weight-bold">{{'PIPELINEEDITORCOMPONENT.PIPELINEBLUEPRINT' | translate}}</span>
                         <div *ngIf="!(isLocked$ | async)">
-                            <button class="btn btn-success" (click)="addFilter(null)">{{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}</button>
+                            <button class="btn btn-success" (click)="addFilter(null)">
+                                {{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}
+                            </button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <pipeline-filter class="filter-component" *ngFor="let filter of (pipeline$ | async).filters; index as i"
-                                       [filter]="filter"
-                                       [index]="i"
-                                       [filterCount]="(pipeline$|async).filters.length"
-                                       [parameters]="filter.parameters"
-                                       [isEditingPipelineLocked$]="isLocked$"
-                                       (move)="moveFilter($event)"
-                                       (remove)="removeFilter($event)"
-                                       (update)="updateFilter($event)"
-                                       (liveEdit)="callLiveEditing($event)">
+                        <pipeline-filter class="filter-component"
+                                         *ngFor="let filter of (pipeline$ | async).filters; index as i"
+                                         [filter]="filter"
+                                         [index]="i"
+                                         [filterCount]="(pipeline$|async).filters.length"
+                                         [parameters]="filter.parameters"
+                                         [isEditingPipelineLocked$]="isLocked$"
+                                         (move)="moveFilter($event)"
+                                         (remove)="removeFilter($event)"
+                                         (update)="updateFilter($event)"
+                                         (liveEdit)="callLiveEditing($event)">
                         </pipeline-filter>
                     </div>
                 </div>
             </div>
-            <blockly-workspace *ngIf="blocklyFlag" class="col-12" 
+            <blockly-workspace *ngIf="blocklyFlag" class="col-12"
                                [filterDescriptors$]="filterDescriptors$"
                                [categories$]="categories$"
-                               [pipeline]="(pipeline$ | async)"></blockly-workspace>
+                               [pipeline]="(pipeline$ | async)"
+                               (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
         </div>
     `,
-    styles:['.filter-component{transition: 0.25s ease-in-out;}'],
+    styles: ['.filter-component{transition: 0.25s ease-in-out;}'],
     providers: []
 })
 export class PipelineEditorComponent implements OnInit {
@@ -80,7 +84,7 @@ export class PipelineEditorComponent implements OnInit {
     isLocked$: Observable<boolean>;
     filterDescriptors$: Observable<FilterDescriptor[]>;
     categories$: Observable<string[]>;
-    blocklyFlag:boolean;
+    blocklyFlag: boolean;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
         let config = this.store.select(selectAppConfig);
@@ -118,30 +122,34 @@ export class PipelineEditorComponent implements OnInit {
         }));
     }
 
+    updatePipelineWithBlockly(pipe: { pipelineModel: PipelineModel, pipelineConfiguration: PipelineConfiguration }) {
+        this.store.dispatch(new UpdatePipelineWithBlocklyAction(pipe.pipelineModel, pipe.pipelineConfiguration));
+    }
+
     resetPipeline(pipeline: PipelineModel) {
-        this.store.dispatch(new ResetPipelineAction(pipeline.id))
+        this.store.dispatch(new ResetPipelineAction(pipeline.id));
     }
 
     setLocked(locked: boolean, pipeline: PipelineModel) {
         //this.isLocked = locked;
-        this.store.dispatch(new LockEditingPipelineAction(locked))
+        this.store.dispatch(new LockEditingPipelineAction(locked));
     }
 
     moveFilter(filter: { id: string, position: number }) {
-        this.store.dispatch(new MoveFilterAction(filter.id, filter.position))
+        this.store.dispatch(new MoveFilterAction(filter.id, filter.position));
     }
 
 
     updateFilter(update: { filterModel: FilterModel, values: any }) {
         console.log(JSON.stringify(update));
-        this.store.dispatch(new UpdateFilterAction(update.filterModel, update.values))
+        this.store.dispatch(new UpdateFilterAction(update.filterModel, update.values));
     }
 
     removeFilter(filter: FilterModel) {
-        this.store.dispatch(new RemoveFilterAction(filter.id))
+        this.store.dispatch(new RemoveFilterAction(filter.id));
     }
 
     callLiveEditing(filter: FilterModel) {
-        this.store.dispatch(new Go({path: ['pipelines/filter/' + filter.id + '/']}))
+        this.store.dispatch(new Go({path: ['pipelines/filter/' + filter.id + '/']}));
     }
 }

@@ -1,11 +1,12 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor, FilterModel, PipelineModel} from "./pipelines.model";
+import {FilterDescriptor, FilterModel, PipelineConfiguration, PipelineModel} from "./pipelines.model";
 
 export const CREATE_PIPELINE = '[Pipeline] CreatePipeline';
 export const EDIT_PIPELINE = '[Pipeline] EditPipeline';
 export const LOCK_EDITING_PIPELINE = '[Pipeline] LockEditingPipeline';
 export const RESET_PIPELINE = '[Pipeline] ResetPipeline';
 export const UPDATE_PIPELINE = '[Pipeline] UpdatePipeline';
+export const UPDATE_PIPELINE_BLOCKLY = '[Pipeline] UpdatePipelineBlockly'
 export const UPDATE_PIPELINE_SUCCESS = '[Pipeline] UpdatePipelineSuccess';
 export const UPDATE_PIPELINE_FAILURE = '[Pipeline] UpdatePipelineFailure';
 export const DELETE_PIPELINE = '[Pipeline] DeletePipeline';
@@ -78,6 +79,14 @@ export class UpdatePipelineAction implements Action {
     }
 }
 
+export class UpdatePipelineWithBlocklyAction implements Action {
+    readonly type = UPDATE_PIPELINE_BLOCKLY;
+
+    constructor(readonly pipelineModel: PipelineModel, readonly pipelineConfiguration: PipelineConfiguration) {
+
+    }
+}
+
 export class UpdatePipelineSuccessAction implements Action {
     readonly type = UPDATE_PIPELINE_SUCCESS;
 
@@ -113,7 +122,7 @@ export class DeletePipelineSuccessAction implements Action {
 export class DeletePipelineFailureAction implements Action {
     readonly type = DELETE_PIPELINE_FAILURE;
 
-    constructor(readonly cause: any,readonly id:string) {
+    constructor(readonly cause: any, readonly id: string) {
 
     }
 }

@@ -32,11 +32,19 @@ export function extractFirstJSONObjectFromString(str: string): { firstObject: an
             console.log('extractJSONObject: failed to parse candidate');
             firstClose++;
         }
-
-
     } while (firstClose < str.length);
 
     return null;
+}
+
+export function mapFromSeparatedString(mapString: string, elementSeparator: string, keyValueSeparator: string) {
+    let elementList = mapString.split(elementSeparator);
+    let resultAsList = elementList.map(e => e.split(keyValueSeparator));
+
+    let resultMap: Map<string, string> = new Map<string, string>();
+    resultAsList.forEach(e => resultMap[e[0]] = e[1]);
+
+    return resultMap;
 }
 
 

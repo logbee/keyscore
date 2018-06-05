@@ -58,7 +58,7 @@ export class BlocklyComponent implements OnInit {
     @Input() filterDescriptors$: Observable<FilterDescriptor[]>;
     @Input() categories$: Observable<string[]>;
 
-    @Output() update: EventEmitter<PipelineModel> = new EventEmitter();
+    @Output() update: EventEmitter<{pipelineModel:PipelineModel,pipelineConfiguration:PipelineConfiguration}> = new EventEmitter();
     @Output() remove: EventEmitter<PipelineModel> = new EventEmitter();
 
 
@@ -99,6 +99,8 @@ export class BlocklyComponent implements OnInit {
         let pipelineConfiguration:PipelineConfiguration = JSON.parse(Blockly.JavaScript.workspaceToCode(this.workspace)) as PipelineConfiguration;
         pipelineConfiguration.id = this.pipeline.id;
         console.log(JSON.stringify(pipelineConfiguration));
+        let pipelineModel = this.pipeline;
+        this.update.emit({pipelineModel,pipelineConfiguration});
     }
 
     deletePipeline(){
