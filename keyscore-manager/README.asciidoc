@@ -1,17 +1,24 @@
-= Description
+= Description =
 
 The keyscore-manager is the web-ui to easily control all aspects of keyscore.
 
-== Development
+== Development ==
+
+=== Prerequisites ===
+To build the keyscore-manager you have to build Blocky currently too. To do this
+you have to have *python2* and *make* installed on your system.
+
+=== Start Webpack ===
+
 To serve the application while developing run the following gradle task at the root of this project:
 ```
 gradle serve
 ```
 This will start webpack's link:https://webpack.js.org/configuration/dev-server/[dev-server] which serves the web-ui at `http://localhost:8080`.
 
-== Deployment
+== Deployment ==
 
-=== Docker
+=== Docker ===
 [TIP]
 ====
 If you need further information about running docker visit the official link:https://docs.docker.com/[Documentation] or take a look at our link:{rootDir}/docker.asciidoc[README].
