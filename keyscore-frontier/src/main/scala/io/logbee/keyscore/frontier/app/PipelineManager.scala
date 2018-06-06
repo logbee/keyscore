@@ -37,7 +37,7 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
         log.info("[Frontier] Selected Agent is " + agentToCall.toString())
         agentToCall ! CreatePipelineOrder(pipelineConfiguration)
       } else {
-        log.info("[Frontier] No Agent available")
+        log.error("[Frontier] No Agent available")
       }
 
     case AgentCapabilities(metaFilterDescriptors) =>
