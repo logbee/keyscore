@@ -7,6 +7,7 @@ import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, Creat
 import io.logbee.keyscore.frontier.app.PipelineManager.CreatePipeline
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor
+
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -18,7 +19,6 @@ object PipelineManager {
   case class CreatePipeline(pipelineConfiguration: PipelineConfiguration)
 
   def apply(agentManager: ActorRef): Props = Props(new PipelineManager(agentManager))
-
 }
 
 class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
@@ -27,13 +27,11 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
   var frontierApplication: ActorRef = sender()
   var availableAgents: mutable.Map[ActorRef, List[MetaFilterDescriptor]] = mutable.Map.empty[ActorRef, List[MetaFilterDescriptor]]
 
-
   mediator ! Subscribe("agents", self)
-
 
   override def receive: Receive = {
     case CreatePipeline(pipelineConfiguration) =>
-      log.info("[Frontier] Recieved CreatePipeline")
+      log.info("[Frontier] Received CreatePipeline")
       if (availableAgents.nonEmpty) {
         val agentToCall = createListOfPossibleAgents(pipelineConfiguration).head
         log.info("[Frontier] Selected Agent is " + agentToCall.toString())
@@ -42,16 +40,15 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
         log.info("[Frontier] No Agent available")
       }
 
-    case AgentCapabilities(metaFilterDescriptors) => {
+    case AgentCapabilities(metaFilterDescriptors) =>
       availableAgents.getOrElseUpdate(sender, metaFilterDescriptors)
-    }
+
     case AgentLeaved(ref) => {
       availableAgents.remove(ref)
     }
-
   }
 
-  def checkIfCapabilitesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[MetaFilterDescriptor])): Boolean = {
+  def checkIfCapabilitiesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[MetaFilterDescriptor])): Boolean = {
     var requiredFilters: ListBuffer[String] = ListBuffer.empty
 
     requiredFilters += pipelineConfiguration.sink.descriptor.name
@@ -72,7 +69,7 @@ class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
   def createListOfPossibleAgents(pipelineConfiguration: PipelineConfiguration): List[ActorRef] = {
     var possibleAgents: ListBuffer[ActorRef] = ListBuffer.empty
     availableAgents.foreach { agent =>
-      if (checkIfCapabilitesMatchRequirements(pipelineConfiguration, agent)) {
+      if (checkIfCapabilitiesMatchRequirements(pipelineConfiguration, agent)) {
         possibleAgents += agent._1
       } else {
         log.info("[Frontier / PipelineManager]: Agent " + agent + " doesn't match requirements.")
