@@ -1,7 +1,7 @@
 package io.logbee.keyscore.agent.pipeline
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, FlowShape}
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.FilterManager._

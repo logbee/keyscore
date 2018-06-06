@@ -2,9 +2,8 @@ package io.logbee.keyscore.agent.pipeline.stage
 
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import akka.testkit.TestProbe
 import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.agent.pipeline.{ExampleData, TestSystemWithMaterializerAndExecutionContext}
+import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.Dataset
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -24,7 +23,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
   trait TestWithSimpleSource {
     val (valveFuture,sink) = Source(List(dataset3, dataset3, dataset3,
-                                          dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3))
+      dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3))
       .viaMat(new ValveStage())(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()

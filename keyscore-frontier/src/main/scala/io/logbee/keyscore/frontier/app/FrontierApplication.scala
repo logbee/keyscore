@@ -40,7 +40,7 @@ object FrontierApplication extends App with Json4sSupport {
 
   val configuration = FrontierConfigProvider(system)
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
-  val pipelineManager = system.actorOf(PipelineManager.props(agentManager))
+  val pipelineManager = system.actorOf(PipelineManager(agentManager))
   val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
 
   val corsSettings = if (configuration.devMode) CorsSettings.defaultSettings.copy(
