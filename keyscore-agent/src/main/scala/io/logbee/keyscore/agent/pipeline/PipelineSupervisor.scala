@@ -1,7 +1,9 @@
 package io.logbee.keyscore.agent.pipeline
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.stream.{ActorMaterializer, FlowShape}
+import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.FilterManager._
@@ -24,7 +26,7 @@ object PipelineSupervisor {
 
   case class StartPipeline(trials: Int)
 
-  case class ConfigurePipeline(configureStream: PipelineConfiguration)
+  case class ConfigurePipeline(configurePipeline: PipelineConfiguration)
 
   case object RequestPipelineState
 
@@ -32,7 +34,7 @@ object PipelineSupervisor {
 }
 
 /**
-  * StreamSupervisor
+  * PipelineSupervisor
   *
   * States:
   * initial:
@@ -55,7 +57,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
   private implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   private val timeout: Timeout = 5 seconds
-  private val streamStartDelay = 5 seconds
+  private val pipelineStartDelay = 5 seconds
 
   override def preStart(): Unit = {
     log.info("[PipelineSupervisor] StartUp complete.")
@@ -67,59 +69,60 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
   override def receive: Receive = {
 
-    case CreatePipeline(streamConfiguration) =>
+    case CreatePipeline(pipelineConfiguration) =>
 
-      log.info(s"[PipelineSupervisor] Creating pipeline <${streamConfiguration.id}>.")
+      log.info(s"[PipelineSupervisor] Creating pipeline <${pipelineConfiguration.id}>.")
 
-      val stream = Pipeline(streamConfiguration)
+      val pip = Pipeline(pipelineConfiguration)
       val stageContext = StageContext(context.system, context.dispatcher)
 
-      become(configuring(stream))
+      become(configuring(pip))
 
       log.info("[PipelineSupervisor] Start sending messages to FilterManager ")
 
-      filterManager ! CreateSinkStage(stageContext, streamConfiguration.sink)
-      filterManager ! CreateSourceStage(stageContext, streamConfiguration.source)
+      filterManager ! CreateSinkStage(stageContext, pipelineConfiguration.sink)
+      filterManager ! CreateSourceStage(stageContext, pipelineConfiguration.source)
 
-      streamConfiguration.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, filter))
+      pipelineConfiguration.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, filter))
 
-      scheduleStart(stream, 3)
+      scheduleStart(pip, 3)
 
     case RequestPipelineState =>
-      sender ! PipelineState(null, Health.Red)
+      log.info("[PipelineSupervisor] Received PipelineState Request")
+      sender ! PipelineState(Health.Red)
   }
 
-  private def configuring(stream: Pipeline): Receive = {
+  private def configuring(pipeline: Pipeline): Receive = {
 
     case SinkStageCreated(stage) =>
       log.info(s"[PipelineSupervisor] Received SinkStage: $stage")
-      become(configuring(stream.withSink(stage)), discardOld = true)
+      become(configuring(pipeline.withSink(stage)), discardOld = true)
 
     case SourceStageCreated(stage) =>
       log.info(s"[PipelineSupervisor] Received SourceStage: $stage")
-      become(configuring(stream.withSource(stage)), discardOld = true)
+      become(configuring(pipeline.withSource(stage)), discardOld = true)
 
     case FilterStageCreated(stage) =>
       log.info(s"[PipelineSupervisor] Received FilterStage: $stage")
-      become(configuring(stream.withFilter(stage)), discardOld = true)
+      become(configuring(pipeline.withFilter(stage)), discardOld = true)
 
     case StartPipeline(trials) =>
 
       if (trials <= 1) {
-        log.error(s"[PipelineSupervisor] Failed to start pipeline <${stream.id}> with ${stream.configuration}")
+        log.error(s"[PipelineSupervisor] Failed to start pipeline <${pipeline.id}> with ${pipeline.configuration}")
         context.stop(self)
       }
       else {
 
-        if (stream.isComplete) {
+        if (pipeline.isComplete) {
 
-          log.info(s"[PipelineSupervisor] Starting Stream <${stream.configuration}>")
+          log.info(s"[PipelineSupervisor] Starting Pipeline <${pipeline.configuration}>")
 
           val filterProxies = new ListBuffer[Future[FilterProxy]]
 
-          val head = Source.fromGraph(stream.source.get)
-          val last = if (stream.filters.nonEmpty) {
-            stream.filters.foldLeft(head) { (current, next) =>
+          val head = Source.fromGraph(pipeline.source.get)
+          val last = if (pipeline.filters.nonEmpty) {
+            pipeline.filters.foldLeft(head) { (current, next) =>
               current.viaMat(next) { (currentFuture, nextFuture) =>
                 filterProxies += nextFuture
                 currentFuture
@@ -127,46 +130,48 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
             }
           } else head
 
-          val tail = last.toMat(stream.sink.get)(Keep.both)
+          val tail = last.toMat(pipeline.sink.get)(Keep.both)
           val (sourceProxyFuture, sinkProxyFuture) = tail.run()
 
           val filterListFuture = sequence(filterProxies.map(_.map(Some(_)).fallbackTo(Future(None))))
 
-          val streamFutures = for {
+          val pipelineFutures = for {
             source <- sourceProxyFuture.mapTo[SourceProxy]
             sink <- sinkProxyFuture.mapTo[SinkProxy]
             filters <- filterListFuture
           } yield (source, sink, filters)
 
-          Await.ready(streamFutures, 10 seconds)
+          Await.ready(pipelineFutures, 10 seconds)
 
-          become(running(stream))
+          become(running(pipeline))
 
-          log.info(s"[PipelineSupervisor] Started pipeline <${stream.id}>.")
+          log.info(s"[PipelineSupervisor] Started pipeline <${pipeline.id}>.")
         }
         else {
-          scheduleStart(stream, trials - 1)
+          scheduleStart(pipeline, trials - 1)
         }
       }
 
     case RequestPipelineState =>
-      sender ! PipelineState(stream.configuration, Health.Yellow)
+      log.info("[PipelineSupervisor] Received PipelineState Request")
+      sender ! PipelineState(pipeline.configuration, Health.Yellow)
   }
 
-  private def running(Stream: Pipeline): Receive = {
+  private def running(pipeline: Pipeline): Receive = {
 
     case ConfigurePipeline(configuration) =>
       log.info(s"[PipelineSupervisor] Updating pipeline <${configuration.id}>")
 
     case RequestPipelineState =>
-      sender ! PipelineState(Stream.configuration, Health.Green)
+      log.info("[PipelineSupervisor] Received PipelineState Request")
+      sender ! PipelineState(pipeline.configuration, Health.Green)
   }
 
-  private def scheduleStart(Stream: Pipeline, trials: Int): Unit = {
+  private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {
     if (trials > 0) {
 
-      log.info(s"[PipelineSupervisor] Scheduling start of pipeline <${Stream.id}> in $streamStartDelay. (trails=$trials)")
-      context.system.scheduler.scheduleOnce(streamStartDelay) {
+      log.info(s"[PipelineSupervisor] Scheduling start of pipeline <${pipeline.id}> in $pipelineStartDelay. (trials=$trials)")
+      context.system.scheduler.scheduleOnce(pipelineStartDelay) {
         self ! StartPipeline(trials)
       }
     }

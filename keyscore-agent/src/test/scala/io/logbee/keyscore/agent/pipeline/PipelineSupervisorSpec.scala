@@ -2,39 +2,39 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.{FlowShape, SinkShape, SourceShape}
-import akka.testkit.{TestActor, TestProbe}
+import akka.testkit.{TestActor, TestKit, TestProbe}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{CreateFilterStage, CreateSinkStage, CreateSourceStage}
-import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
+import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.{CreatePipeline, RequestPipelineState}
 import io.logbee.keyscore.agent.pipeline.stage._
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
-import io.logbee.keyscore.model.{Dataset, Record, PipelineConfiguration, TextField}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{Matchers, WordSpecLike}
 
 
 @RunWith(classOf[JUnitRunner])
-class PipelineSupervisorSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with WordSpecLike with Matchers with ScalaFutures with MockFactory  {
 
   "A running PipelineSupervisor" should {
 
     val filterManager = TestProbe()
 
-    val streamId = UUID.randomUUID()
+    val pipelineID = UUID.randomUUID()
     val sourceConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-source"))
     val sinkConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-sink"))
     val filterConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-filter1"))
     val filterConfiguration2 = FilterConfiguration(FilterDescriptor(UUID.randomUUID(),"test-filter2"))
 
-    val streamConfiguration = PipelineConfiguration(streamId, "test", "A test pipeline.", sourceConfiguration, List(filterConfiguration,filterConfiguration2), sinkConfiguration)
-
+    val pipelineConfiguration = PipelineConfiguration(pipelineID, "test", "A test pipeline.", sourceConfiguration, List(filterConfiguration,filterConfiguration2), sinkConfiguration)
+    val agent = TestProbe("agent")
     val supervisor = system.actorOf(PipelineSupervisor(filterManager.ref))
 
-    "fubar" in {
+    "start a pipeline with a correct configuration" in {
 
       val sinkStage = new SinkStage(stub[StageContext], sinkConfiguration, sinkLogicProvider)
       val sourceStage = new SourceStage(stub[StageContext], sourceConfiguration, sourceLogicProvider)
@@ -54,9 +54,18 @@ class PipelineSupervisorSpec extends WordSpec with Matchers with ScalaFutures wi
           TestActor.KeepRunning
       })
 
-      supervisor ! CreatePipeline(streamConfiguration)
+      supervisor tell (RequestPipelineState,agent.ref)
+      agent.expectMsg(PipelineState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, Health.Red))
+
+      supervisor ! CreatePipeline(pipelineConfiguration)
+
+      supervisor tell (RequestPipelineState, agent.ref)
+      agent.expectMsg(PipelineState(pipelineConfiguration.id, pipelineConfiguration, Health.Yellow))
 
       Thread.sleep(30000)
+
+      supervisor tell (RequestPipelineState, agent.ref)
+      agent.expectMsg(PipelineState(pipelineConfiguration.id, pipelineConfiguration, Health.Green))
     }
   }
 

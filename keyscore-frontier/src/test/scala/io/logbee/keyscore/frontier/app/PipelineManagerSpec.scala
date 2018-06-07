@@ -3,9 +3,8 @@ package io.logbee.keyscore.frontier.app
 import java.util.{Locale, UUID}
 
 import akka.actor.ActorSystem
-import akka.testkit.{EventFilter, TestKit, TestProbe}
-import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentJoin, AgentLeaved, CreatePipelineOrder}
+import akka.testkit.{TestKit, TestProbe}
+import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder}
 import io.logbee.keyscore.frontier.app.PipelineManager.CreatePipeline
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter._
@@ -13,14 +12,13 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.{Matchers, WordSpecLike}
 
 @RunWith(classOf[JUnitRunner])
-class PipelineManagerSpec extends TestKit(ActorSystem("actorSystem")) with  WordSpecLike with Matchers with ScalaFutures with MockFactory with BeforeAndAfterAll  {
+class PipelineManagerSpec extends TestKit(ActorSystem("actorSystem")) with  WordSpecLike with Matchers with ScalaFutures with MockFactory  {
 
   trait TestSetup {
 
-//   implicit val system = ActorSystem("actorSystem", ConfigFactory.parseString("""akka.loggers = ["akka.testkit.TestEventListener"]"""))
     val sinkUuid = UUID.randomUUID()
     val sourceUuid = UUID.randomUUID()
     val agentManager = TestProbe("agent-manager")
@@ -38,6 +36,7 @@ class PipelineManagerSpec extends TestKit(ActorSystem("actorSystem")) with  Word
     val metaFilterDescriptorSink =
       MetaFilterDescriptor(sinkUuid,"test-sink",Map(Locale.ENGLISH -> FilterDescriptorFragment("fragment", "description", FilterConnection(true, List.empty),FilterConnection(false,List.empty))))
   }
+
   val streamId = UUID.randomUUID()
 
 
@@ -50,7 +49,6 @@ class PipelineManagerSpec extends TestKit(ActorSystem("actorSystem")) with  Word
       pipelineManager.tell(AgentCapabilities(List(metaFilterDescriptorSink,metaFilterDescriptorSource)),agent1.ref)
 
       pipelineManager ! CreatePipeline(pipelineConfiguration)
-
       agent1.expectMsg(CreatePipelineOrder(pipelineConfiguration))
     }
 
