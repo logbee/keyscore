@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
+import java.util.UUID
+
 import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
 import io.logbee.keyscore.model.Dataset
@@ -8,6 +10,8 @@ import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 
 trait ValveProxy {
+  def state(): Future[ValveState]
+
   def close(): Future[ValveState]
 
   def open(): Future[ValveState]
@@ -15,9 +19,10 @@ trait ValveProxy {
   def last(n:Int = 1) : Future[List[Dataset]]
 }
 
-case class ValveState(open: Boolean)
+case class ValveState(uuid: UUID, closed: Boolean)
 
 class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {
+  private val uuid = UUID.randomUUID()
   private val in = Inlet[Dataset]("inlet")
   private val out = Outlet[Dataset]("outlet")
 
@@ -36,7 +41,7 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
     private val closeValveCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
       isClosed = true
-      promise.success(ValveState(open = false))
+      promise.success(ValveState(uuid, closed = isClosed))
     })
 
     private val openValveCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
@@ -46,14 +51,19 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
       } else if (isAvailable(out)) {
         pull(in)
       }
-      promise.success(ValveState(open = true))
+      promise.success(ValveState(uuid, closed = isClosed))
     })
 
-    private val lastDatasetCallback = getAsyncCallback[(Promise[List[Dataset]], Int)] ({
+    private val stateCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
+        promise.success(ValveState(uuid, isClosed))
+    })
+
+    private val lastDatasetCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
       case (promise, n) =>
-        println("lastCallback")
         promise.success(datasets.takeRight(n).toList)
     })
+
+
 
     private val valveProxy = new ValveProxy {
 
@@ -71,8 +81,13 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
       override def last(n:Int): Future[List[Dataset]] = {
         val promise = Promise[List[Dataset]]()
-        println("lastMethod")
         lastDatasetCallback.invoke(promise, n)
+        promise.future
+      }
+
+      override def state(): Future[ValveState] = {
+        val promise = Promise[ValveState]()
+        stateCallback.invoke(promise)
         promise.future
       }
     }

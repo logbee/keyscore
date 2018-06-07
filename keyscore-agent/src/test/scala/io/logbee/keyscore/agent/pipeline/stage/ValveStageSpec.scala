@@ -9,6 +9,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -22,7 +23,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
   }
 
   trait TestWithSimpleSource {
-    val (valveFuture,sink) = Source(List(dataset3, dataset3, dataset3,
+    val (valveFuture, sink) = Source(List(dataset3, dataset3, dataset3,
       dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3, dataset3))
       .viaMat(new ValveStage())(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
@@ -102,13 +103,25 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
 
     "valve buffers the last 10 datasets" in new TestWithSimpleSource {
-      whenReady(valveFuture) { valve =>
+      whenReady(valveFuture) { valveProxy =>
         sink.request(11)
 
-        whenReady(valve.last(11)) { datasets =>
+        whenReady(valveProxy.last(11)) { datasets =>
           datasets should have size 10
         }
 
+      }
+    }
+
+    "valve returns the complete state when state method is called" in new TestWithSinkandSource {
+      whenReady(valveFuture) { valveProxy =>
+
+        Await.ready(valveProxy.close(), 5 seconds)
+        Await.ready(valveProxy.open(), 5 seconds)
+
+        whenReady(valveProxy.state()) { state =>
+          state.closed shouldBe false
+        }
       }
     }
   }

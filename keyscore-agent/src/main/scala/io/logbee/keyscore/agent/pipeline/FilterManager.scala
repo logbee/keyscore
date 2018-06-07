@@ -80,7 +80,7 @@ class FilterManager extends Actor with ActorLogging {
       log.info(s"Creating SourceStage with: $configuration")
 
       loadStageLogicClass(configuration.descriptor.name).foreach(logicClass => {
-        log.info("[Filtermanager]: loadSourceStageLogicClass")
+        log.info("Filtermanager: loadSourceStageLogicClass")
         val provider = createSourceLogicProvider(logicClass)
         val stage = new SourceStage(stageContext, configuration, provider)
 
@@ -123,7 +123,7 @@ class FilterManager extends Actor with ActorLogging {
   }
 
   private def getSinkStageLogicConstructor(logicClass: Class[_]) = {
-    log.info("[FilterManager]: " + logicClass)
+    log.info("FilterManager " + logicClass)
     logicClass.getConstructors()(0)
   }
 
