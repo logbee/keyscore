@@ -13,7 +13,6 @@ import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgent
 
 import scala.collection.mutable
 
-
 object AgentManager {
   case object QueryAgents
   case object QueryMembers
@@ -26,7 +25,7 @@ class AgentManager extends Actor with ActorLogging {
 
   val cluster = Cluster(context.system)
   val agents: mutable.HashMap[Long, RemoteAgent] = mutable.HashMap.empty
-  val members: mutable.HashMap[Long, Member] = mutable.HashMap.empty
+  val members: mutable.ListBuffer[Member] = mutable.ListBuffer.empty
   val mediator: ActorRef  = DistributedPubSub(context.system).mediator
 
   override def preStart(): Unit = {
@@ -48,15 +47,18 @@ class AgentManager extends Actor with ActorLogging {
       log.info("subscribing")
 
     case AgentJoin(id, name) =>
-      val agent = RemoteAgent(id, name, 0, sender)
-      agents += (agent.memberId -> agent)
-      sender ! AgentJoinAccepted()
-      mediator ! Publish("agents", AgentJoined(agent.ref))
+      members.find(member => sender.path.address.equals(member.address)) match {
+        case Some(member) =>
+          val agent = RemoteAgent(id, name, member.uniqueAddress.longUid, sender)
+          agents += (agent.memberId -> agent)
+          sender ! AgentJoinAccepted()
+          mediator ! Publish("agents", AgentJoined(agent.ref))
 
-      val address = sender.path.address
-      val remoteActor = context.actorOf(Props[RemoteActor].
-        withDeploy(Deploy(scope = RemoteScope(address))))
-      remoteActor ! RemoteTry
+          log.info(s"Member joint as Agent: $agent")
+
+        case _ =>
+          sender ! AgentJoinFailure(73)
+      }
 
     case MemberExited(member) =>
       log.info("Member is exited: "+member.uniqueAddress)
@@ -80,25 +82,28 @@ class AgentManager extends Actor with ActorLogging {
       sender ! QueryAgentsResponse(agents.values.toList)
 
     case QueryMembers =>
-      sender ! QueryMembers(members.values.toList)
+      sender ! QueryMembers(members.toList)
   }
 
   private def addAgentMember(member: Member): Unit = {
     if (member.hasRole("keyscore-agent")) {
-      members += (member.uniqueAddress.longUid -> member)
+      members += member
     }
   }
 
   private def removeAgent(member: Member): Unit = {
-
     val uid = member.uniqueAddress.longUid
-    val address = member.uniqueAddress.address
 
     agents.get(uid) match {
       case Some(agent) =>
+        log.info("Agent Leaved: " + agent.id)
         agents.remove(uid)
-        members.remove(uid)
+        members.remove(members.indexWhere(member => uid == member.uniqueAddress.longUid))
         mediator ! Publish("agents", AgentLeaved(agent.ref))
+      case _ =>
+        log.info(s"Agent could not be removed: $uid")
     }
   }
 }
+
+

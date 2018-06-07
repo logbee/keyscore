@@ -83,7 +83,7 @@ class Agent extends Actor with ActorLogging {
         self ! SendJoin
       }
     case AgentJoinAccepted() =>
-      log.info("Agent joined")
+      log.info("[Agent] Agent joined: " + name)
       joined = true
       (filterManager ? RequestDescriptors).mapTo[DescriptorsResponse].onComplete {
         case Success(message) =>
