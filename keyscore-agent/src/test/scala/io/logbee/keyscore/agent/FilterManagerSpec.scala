@@ -3,14 +3,13 @@ package io.logbee.keyscore.agent
 import java.util.UUID.fromString
 import java.util.{Locale, ResourceBundle, UUID}
 
-import akka.actor.Status.Success
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
-import io.logbee.keyscore.agent.pipeline.{FilterManager, TestSystemWithMaterializerAndExecutionContext}
+import io.logbee.keyscore.agent.pipeline.FilterManager
 import io.logbee.keyscore.agent.pipeline.FilterManager._
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.StageContext
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.Described
@@ -22,10 +21,9 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.collection.mutable
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
-import scala.util.Failure
 
 
 @RunWith(classOf[JUnitRunner])
@@ -55,7 +53,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
       val result = Await.ready(filterManager ? CreateFilterStage(StageContext(system,system.dispatcher),filterConfiguration),10 seconds)
 
 
-      result shouldBe a [Future[FilterStageCreated]]
+      result shouldBe a [Future[_]]
 
     }
   }
