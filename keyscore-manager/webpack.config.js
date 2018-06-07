@@ -80,6 +80,7 @@ module.exports = {
             path.join(__dirname, "../media")
         ],
         port: 8080,
+        host: "0.0.0.0",
         quiet: false,
         noInfo: false,
         historyApiFallback: true

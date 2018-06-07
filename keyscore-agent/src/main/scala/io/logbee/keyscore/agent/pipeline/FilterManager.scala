@@ -136,6 +136,7 @@ class FilterManager extends Actor with ActorLogging {
   }
 
   private def loadStageLogicClass(className: String) = {
+    log.info(s"Loading StageLogic class: $className")
     Option(getClass.getClassLoader.loadClass(className))
   }
 }
