@@ -3,8 +3,8 @@ package io.logbee.keyscore.agent.pipeline.stage
 import akka.actor.ActorSystem
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{FlowShape, Inlet, Materializer, Outlet}
-import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterProxy}
+import io.logbee.keyscore.model.{Dataset, Health}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterProxy, FilterState}
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
@@ -27,10 +27,20 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
         log.info(s"Configuration has been updated: $newConfiguration")
     }
 
+    private val stateCallback = getAsyncCallback[Promise[FilterState]]({ promise =>
+      promise.success(FilterLogic.this.state())
+    })
+
     override def configure(configuration: FilterConfiguration): Future[Unit] = {
       val promise = Promise[Unit]()
       log.info(s"Updating filter configuration: $configuration")
       configureCallback.invoke(configuration, promise)
+      promise.future
+    }
+
+    override def state(): Future[FilterState] = {
+      val promise = Promise[FilterState]()
+      stateCallback.invoke(promise)
       promise.future
     }
   }
@@ -46,5 +56,7 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
   def initialize(configuration: FilterConfiguration): Unit = {}
 
   def configure(configuration: FilterConfiguration): Unit
+
+  def state(): FilterState = FilterState(configuration.id, Health.Green)
 
 }
