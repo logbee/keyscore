@@ -7,7 +7,7 @@ import akka.actor.ActorSystem
 import akka.kafka
 import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
-import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.{Keep, Sink}
 import akka.stream.{ActorMaterializer, SourceShape}
 import io.logbee.keyscore.agent.pipeline.stage.{SourceLogic, StageContext}
 import io.logbee.keyscore.model._
@@ -21,6 +21,7 @@ import org.json4s.{Formats, NoTypeHints}
 
 import scala.collection.mutable
 import scala.concurrent.Promise
+import scala.util.Success
 
 object KafkaSourceLogic extends Described {
 
@@ -59,6 +60,8 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
   implicit val system: ActorSystem = context.system
   implicit val mat = ActorMaterializer()
 
+  private var kafkaSource: Consumer.Control = _
+
   private val queue = mutable.Queue[SourceEntry]()
 
   private val insertCallback = getAsyncCallback[SourceEntry](entry => {
@@ -68,6 +71,12 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
+  }
+
+  override def postStop(): Unit = {
+    log.info("Kafka source is stopping.")
+    kafkaSource.stop()
+    kafkaSource.shutdown()
   }
 
   override def configure(configuration: FilterConfiguration): Unit = {
@@ -80,7 +89,7 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
 
     val committableSource = Consumer.committableSource(settings, Subscriptions.topics(topic))
 
-    val kafkaSource = committableSource.map { message =>
+    kafkaSource = committableSource.map { message =>
       val fields = parse(message.record.value())
         .extract[Map[String, String]]
         .map(pair => (pair._1, TextField(pair._1, pair._2)))
@@ -91,7 +100,7 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
       val entry = SourceEntry(dataset, Promise[Unit])
       insertCallback.invoke(entry)
       entry.promise.future
-    }).runWith(Sink.ignore)
+    }).toMat(Sink.ignore)(Keep.left).run()
 
   }
 
@@ -100,6 +109,7 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
       .withBootstrapServers(bootstrapServer)
       .withGroupId(groupID)
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetConfig)
+      .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
 
     settings
   }
