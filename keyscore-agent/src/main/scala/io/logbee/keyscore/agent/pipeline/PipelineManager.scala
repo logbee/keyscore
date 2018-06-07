@@ -58,9 +58,11 @@ class PipelineManager(filterManager: ActorRef) extends Actor with ActorLogging {
     case UpdatePipeline(configuration) =>
       log.info("[Agent | PipelineManager]: Received Update Pipeline: " + configuration.id)
       child(nameFromConfiguration(configuration)).foreach(child => {
+        log.info(s"Stopping PipelineSupervisor for pipeline: ${configuration.id}")
         unwatch(child)
         watchWith(child, CreateNewPipeline(configuration))
         context.stop(child)
+        log.info(s"Stopped PipelineSupervisor for pipeline: ${configuration.id}")
       })
 
     case DeletePipeline(configuration) =>
