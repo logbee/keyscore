@@ -65,6 +65,11 @@ class KafkaSinkLogic(context: StageContext, configuration: FilterConfiguration, 
 
   private var topic: String = _
 
+  override def postStop(): Unit = {
+    log.info("Kafka sink is stopping.")
+    queue.complete()
+  }
+
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
     pull(in)
