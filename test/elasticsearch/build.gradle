@@ -15,7 +15,8 @@ task createContainer(type: DockerCreateContainer) {
     targetImageId { pullImage.getImageId() }
     env = ['discovery.type=single-node', 'ES_JAVA_OPTS=-Xms512m -Xmx512m']
     portBindings = ['9200:9200','9300:9300']
-    network = "host"
+    hostName = 'elasticsearch'
+    network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startContainer(type: DockerStartContainer) {

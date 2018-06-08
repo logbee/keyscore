@@ -25,6 +25,7 @@ lib
 generated
 .generated
 fwdir
+target/
 
 #####################################
 #                Logs               #

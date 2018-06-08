@@ -86,6 +86,8 @@ task createDockerContainer(type: DockerCreateContainer) {
     containerName = project.name
     targetImageId { buildDockerImage.getImageId() }
     portBindings = ['3551:3551']
+    hostName = project.name
+    network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startDockerContainer(type: DockerStartContainer) {

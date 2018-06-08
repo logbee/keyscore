@@ -14,7 +14,8 @@ task createContainer(type: DockerCreateContainer) {
     containerName = 'kafka'
     targetImageId { pullImage.getImageId() }
     portBindings = ['9092:9092','2181:2181']
-    network = "host"
+    hostName = 'kafka'
+    network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startContainer(type: DockerStartContainer) {
@@ -23,7 +24,7 @@ task startContainer(type: DockerStartContainer) {
 }
 
 task stopContainer(type: DockerStopContainer) {
-    targetContainerId { createKafkaContainer.getContainerId() }
+    targetContainerId { createContainer.getContainerId() }
 }
 
 task removeContainer(type: DockerRemoveContainer) {

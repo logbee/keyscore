@@ -7,6 +7,9 @@ apply plugin: 'scala'
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply from: rootProject.file('dependencies.gradle')
 
+import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
+import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
+
 repositories {
     mavenCentral()
 }
@@ -21,26 +24,38 @@ dependencies {
     testRuntime dependency.junitRuntime
 }
 
-task startDockerContainers() {
+task createContainerNetwork(type: DockerCreateNetwork) {
+    networkId = project.containerNetwork
+}
+
+task removeContainerNetwork(type: DockerRemoveNetwork) {
+    networkId = project.containerNetwork
+}
+
+task startContainers() {
     dependsOn = [
         ':keyscore-frontier:startDockerContainer',
-        'elasticsearch:startContainer'
+        ':keyscore-agent:startDockerContainer',
+        'elasticsearch:startContainer',
+        'kafka:startContainer'
     ]
     doLast {
         sleep(10000)
     }
 }
 
-task stopDockerContainers() {
+task stopContainers() {
     dependsOn = [
         ':keyscore-frontier:removeDockerContainer',
-        'elasticsearch:startContainer'
+        ':keyscore-agent:removeDockerContainer',
+        'elasticsearch:removeContainer',
+        'kafka:removeContainer'
     ]
 }
 
 junitPlatformTest {
-    dependsOn startDockerContainers
-    finalizedBy stopDockerContainers
+    dependsOn startContainers
+    finalizedBy stopContainers
     outputs.upToDateWhen { false }
 }
 
