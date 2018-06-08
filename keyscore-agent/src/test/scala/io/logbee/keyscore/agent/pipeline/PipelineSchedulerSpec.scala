@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.testkit.TestProbe
 import akka.util.Timeout
-import io.logbee.keyscore.agent.pipeline.PipelineManager.CreatePipeline
+import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
 import org.junit.runner.RunWith
@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class PipelineManagerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class PipelineSchedulerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   implicit val timeout: Timeout = 30 seconds
 
@@ -25,12 +25,12 @@ class PipelineManagerSpec extends WordSpec with Matchers with ScalaFutures with 
   val sourceConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-source"))
   val sinkConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-sink"))
 
-  "A PipelineManager " should {
+  "A PipelineScheduler " should {
 
     "start a StreamSupervisor for a pipeline" in {
 
       val filterManagerProbe = TestProbe("filter-manager")
-      val testee = system.actorOf(PipelineManager(filterManagerProbe.ref), "pipeline-manager")
+      val testee = system.actorOf(PipelineScheduler(filterManagerProbe.ref), "PipelineScheduler")
 
       val streamConfiguration = PipelineConfiguration(streamId, "test", "A test pipeline.", sourceConfiguration, List.empty, sinkConfiguration)
 

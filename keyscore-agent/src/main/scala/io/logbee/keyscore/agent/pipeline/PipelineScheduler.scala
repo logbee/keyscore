@@ -4,14 +4,14 @@ import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
-import io.logbee.keyscore.agent.pipeline.PipelineManager._
+import io.logbee.keyscore.agent.pipeline.PipelineScheduler._
 import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeletePipelineOrder}
 import io.logbee.keyscore.model.PipelineConfiguration
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-object PipelineManager {
+object PipelineScheduler {
 
   private val SUPERVISOR_NAME_PREFIX = "pipeline:"
 
@@ -23,10 +23,10 @@ object PipelineManager {
 
   private case class SupervisorTerminated(supervisor: ActorRef, configuration: PipelineConfiguration)
 
-  def apply(filterManager: ActorRef): Props = Props(new PipelineManager(filterManager))
+  def apply(filterManager: ActorRef): Props = Props(new PipelineScheduler(filterManager))
 }
 
-class PipelineManager(filterManager: ActorRef) extends Actor with ActorLogging {
+class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging {
 
   import context._
   implicit val timeout: Timeout = 10 seconds

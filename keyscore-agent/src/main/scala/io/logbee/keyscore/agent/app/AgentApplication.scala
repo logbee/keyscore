@@ -15,11 +15,11 @@ object AgentApplication extends App {
 
   implicit val timeout: Timeout = 5 seconds
 
-  private val config = ConfigFactory.load()
+  val config = ConfigFactory.load()
   val system = ActorSystem("keyscore", config.getConfig("production").withFallback(config))
-  val parent = system.actorOf(Props[Agent], "agent")
+  val agent = system.actorOf(Props[Agent], "agent")
 
-  parent ! Initialize
+  agent ! Initialize
 
   Await.ready(system.whenTerminated, Duration.Inf)
 }

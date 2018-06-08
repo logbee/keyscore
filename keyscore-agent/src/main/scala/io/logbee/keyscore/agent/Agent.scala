@@ -9,9 +9,9 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.Agent.{CheckJoin, Initialize, SendJoin}
+import io.logbee.keyscore.agent.Agent.{AgentManagerDied, CheckJoin, Initialize, SendJoin}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
-import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineManager}
+import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineScheduler}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.extension.ExtensionLoader
 import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
@@ -29,6 +29,7 @@ object Agent {
   private case object SendJoin
   private case object CheckJoin
 
+  private case object AgentManagerDied
 }
 
 class Agent extends Actor with ActorLogging {
@@ -42,7 +43,7 @@ class Agent extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val pipelineManager = context.actorOf(PipelineManager(filterManager), "PipelineManager")
+  private val pipelineManager = context.actorOf(PipelineScheduler(filterManager), "PipelineScheduler")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()
@@ -72,17 +73,22 @@ class Agent extends Actor with ActorLogging {
           log.error(e, "Failed to initialize agent!")
           context.stop(self)
       }
+
     case SendJoin =>
-      mediator ! Publish("agents", AgentJoin(UUID.randomUUID(), name))
-      scheduler.scheduleOnce(5 seconds) {
+      val agentJoin = AgentJoin(UUID.randomUUID(), name)
+      log.info(s"Trying to join cluster: $agentJoin")
+      mediator ! Publish("agents", agentJoin)
+      scheduler.scheduleOnce(10 seconds) {
         self ! CheckJoin
       }
+
     case CheckJoin =>
       if (!joined) {
         self ! SendJoin
       }
+
     case AgentJoinAccepted() =>
-      log.info("[Agent] Agent joined: " + name)
+      log.info("Joined cluster successfully.")
       joined = true
       (filterManager ? RequestDescriptors).mapTo[DescriptorsResponse].onComplete {
         case Success(message) =>
@@ -91,8 +97,14 @@ class Agent extends Actor with ActorLogging {
           log.error(e, "Failed to publish capabilities!")
           context.stop(self)
       }
+      context.watchWith(sender, AgentManagerDied)
+
     case AgentJoinFailure =>
       log.error("Agent join failed")
       context.stop(self)
+
+    case AgentManagerDied =>
+      joined = false
+      self ! SendJoin
   }
 }
