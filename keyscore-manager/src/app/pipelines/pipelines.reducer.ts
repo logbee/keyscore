@@ -20,27 +20,6 @@ import {deepcopy} from "../util";
 
 const initialState: PipelinesState = {
     pipelineList: [
-        {
-            id: '64ca08cf-a80e-46b3-aa73-977ba743d332',
-            name: 'Test',
-            description: 'My Pipeline',
-            filters: [
-                {
-                    id: '850c08cf-b88e-46b3-aa73-8877a743d443',
-                    name: 'KafkaInput',
-                    description: '',
-                    displayName: 'Kafka Input',
-                    parameters: []
-                },
-                {
-                    id: 'ca4108cf-aaf4-5671-aa73-1717a743d215',
-                    name: 'KafkaOutput',
-                    description: '',
-                    displayName: 'Kafka Output',
-                    parameters: []
-                }
-            ]
-        }
     ],
     editingPipeline: null,
     editingFilter: null,
