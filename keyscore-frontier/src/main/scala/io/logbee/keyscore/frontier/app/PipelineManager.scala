@@ -1,10 +1,11 @@
 package io.logbee.keyscore.frontier.app
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
-import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder}
-import io.logbee.keyscore.frontier.app.PipelineManager.CreatePipeline
+import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder, DeletePipelineOrder}
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
@@ -14,9 +15,9 @@ import scala.collection.mutable.ListBuffer
 
 object PipelineManager {
 
-  case class CreatePipelineFailure(message: String)
-
   case class CreatePipeline(pipelineConfiguration: PipelineConfiguration)
+
+  case class DeletePipeline(id: UUID)
 
   def apply(agentManager: ActorRef): Props = Props(new PipelineManager(agentManager))
 }
@@ -24,28 +25,31 @@ object PipelineManager {
 class PipelineManager(agentManager: ActorRef) extends Actor with ActorLogging {
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
-  var frontierApplication: ActorRef = sender()
   var availableAgents: mutable.Map[ActorRef, List[MetaFilterDescriptor]] = mutable.Map.empty[ActorRef, List[MetaFilterDescriptor]]
 
   mediator ! Subscribe("agents", self)
 
   override def receive: Receive = {
-    case CreatePipeline(pipelineConfiguration) =>
+    case PipelineManager.CreatePipeline(pipelineConfiguration) =>
       log.info("[Frontier] Received CreatePipeline")
       if (availableAgents.nonEmpty) {
-        val agentToCall = createListOfPossibleAgents(pipelineConfiguration).head
-        log.info("[Frontier] Selected Agent is " + agentToCall.toString())
-        agentToCall ! CreatePipelineOrder(pipelineConfiguration)
+        val agent = createListOfPossibleAgents(pipelineConfiguration).head
+        log.info("[Frontier] Selected Agent is " + agent.toString())
+        context.actorSelection(agent.path / "PipelineManager") ! CreatePipelineOrder(pipelineConfiguration)
       } else {
         log.error("[Frontier] No Agent available")
       }
 
+    case PipelineManager.DeletePipeline(id) =>
+      availableAgents.keys.foreach(agent => {
+        context.actorSelection(agent.path / "PipelineManager") ! DeletePipelineOrder(id)
+      })
+
     case AgentCapabilities(metaFilterDescriptors) =>
       availableAgents.getOrElseUpdate(sender, metaFilterDescriptors)
 
-    case AgentLeaved(ref) => {
+    case AgentLeaved(ref) =>
       availableAgents.remove(ref)
-    }
   }
 
   def checkIfCapabilitiesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[MetaFilterDescriptor])): Boolean = {

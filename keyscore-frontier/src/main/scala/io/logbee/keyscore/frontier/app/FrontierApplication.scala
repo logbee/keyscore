@@ -15,7 +15,6 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import io.logbee.keyscore.frontier.app.PipelineManager.CreatePipeline
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager}
@@ -61,11 +60,13 @@ object FrontierApplication extends App with Json4sSupport {
       path(JavaUUID) { pipelineId =>
         put {
           entity(as[PipelineConfiguration]) { pipeline =>
-            println("DEBUGING" + pipeline.sink)
-            pipelineManager ! CreatePipeline(pipeline)
-
-            complete(StatusCodes.NotImplemented)
+            pipelineManager ! PipelineManager.CreatePipeline(pipeline)
+            complete(StatusCodes.OK)
           }
+        } ~
+        delete {
+          pipelineManager ! PipelineManager.DeletePipeline(id = pipelineId)
+          complete(StatusCodes.OK)
         }
       }
     } ~

@@ -11,7 +11,6 @@ import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent.{CheckJoin, Initialize, SendJoin}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
-import io.logbee.keyscore.agent.pipeline.PipelineManager.CreatePipeline
 import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineManager}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.extension.ExtensionLoader
@@ -43,7 +42,7 @@ class Agent extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val pipelineManager = context.actorOf(PipelineManager(filterManager), "pipeline-manager")
+  private val pipelineManager = context.actorOf(PipelineManager(filterManager), "PipelineManager")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()
@@ -95,10 +94,5 @@ class Agent extends Actor with ActorLogging {
     case AgentJoinFailure =>
       log.error("Agent join failed")
       context.stop(self)
-
-    case CreatePipelineOrder(configuration) => {
-      log.info("[Agent] Received CreatePipeline Message")
-      pipelineManager ! CreatePipeline(configuration)
-    }
   }
 }
