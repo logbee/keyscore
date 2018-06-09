@@ -24,12 +24,15 @@ dependencies {
     testRuntime dependency.junitRuntime
 }
 
-task createContainerNetwork(type: DockerCreateNetwork) {
-    networkId = project.containerNetwork
-}
+if (project.hasProperty('containerNetwork')) {
 
-task removeContainerNetwork(type: DockerRemoveNetwork) {
-    networkId = project.containerNetwork
+    task createContainerNetwork(type: DockerCreateNetwork) {
+        networkId = project.containerNetwork
+    }
+
+    task removeContainerNetwork(type: DockerRemoveNetwork) {
+        networkId = project.containerNetwork
+    }
 }
 
 task startContainers() {
