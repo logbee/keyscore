@@ -62,7 +62,7 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
       supervisor tell (RequestPipelineState, agent.ref)
       agent.expectMsg(PipelineState(pipelineConfiguration.id, pipelineConfiguration, Health.Yellow))
 
-      Thread.sleep(30000)
+      Thread.sleep(10000)
 
       supervisor tell (RequestPipelineState, agent.ref)
       agent.expectMsg(PipelineState(pipelineConfiguration.id, pipelineConfiguration, Health.Green))

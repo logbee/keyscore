@@ -1,17 +1,13 @@
 package io.logbee.keyscore.agent.pipeline
 
-import java.util.UUID
-
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.Timeout
+import io.logbee.keyscore.agent.pipeline.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.{ConfigurePipeline, CreatePipeline, RequestPipelineState, StartPipeline}
-import io.logbee.keyscore.agent.pipeline.stage.{StageContext, ValveProxy, ValveStage, ValveState}
-import io.logbee.keyscore.model.filter.FilterProxy
-import io.logbee.keyscore.model.sink.SinkProxy
-import io.logbee.keyscore.model.source.SourceProxy
+import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineState}
 
 import scala.collection.mutable.ListBuffer
@@ -42,12 +38,12 @@ object PipelineSupervisor {
   * running:
   *
   * Transitions:
-  * ''initial'' x CreatePipeline        -> configuring
+  * ''initial'' x CreatePipeline      -> configuring
   * configuring x SinkStageCreated    -> configuring
   * configuring x SourceStageCreated  -> configuring
   * configuring x FilterStageCreated  -> configuring
-  * configuring x StartPipeline         -> [configuring|running]
-  * running     x ConfigurePipeline     -> configuring
+  * configuring x StartPipeline       -> [configuring|running]
+  * running     x ConfigurePipeline   -> configuring
   */
 class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLogging {
 
@@ -88,7 +84,6 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       scheduleStart(pipeline, 3)
 
     case RequestPipelineState =>
-      log.info("Received PipelineState Request")
       sender ! PipelineState(Health.Red)
   }
 
@@ -96,16 +91,15 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case SinkStageCreated(stage) =>
       log.info(s"Received SinkStage: $stage")
-      become(configuring(pipeline.withSink(stage)), discardOld = true)
+      become(configuring(pipeline.withSinkStage(stage)), discardOld = true)
 
     case SourceStageCreated(stage) =>
       log.info(s"Received SourceStage: $stage")
-      become(configuring(pipeline.withSource(stage)), discardOld = true)
+      become(configuring(pipeline.withSourceStage(stage)), discardOld = true)
 
     case FilterStageCreated(stage) =>
       log.info(s"Received FilterStage: $stage")
-      become(configuring(pipeline.withFilter(stage)), discardOld = true)
-      
+      become(configuring(pipeline.withFilterStage(stage)), discardOld = true)
 
     case StartPipeline(trials) =>
 
@@ -119,40 +113,49 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
           log.info(s"Starting Pipeline <${pipeline.configuration}>")
 
-          val filters = pipeline.filters.foldLeft(ListBuffer.empty) {(list, filter) =>
-            list :+ new ValveStage()
-            list :+ filter
-            list
+          val controllerFutures: ListBuffer[Future[Controller]] = ListBuffer.empty
+
+          val head = Source.fromGraph(pipeline.source.get).viaMat(new ValveStage) { (sourceProxyFuture, valveProxyFuture) =>
+            val controller = for {
+              sourceProxy <- sourceProxyFuture
+              valveProxy <- valveProxyFuture
+            } yield sourceController(sourceProxy, valveProxy)
+            controllerFutures += controller
+            valveProxyFuture
           }
-
-          filters :+ new ValveStage()
-
-          val filterProxies = new ListBuffer[Future[FilterProxy]]
-
-          val head = Source.fromGraph(pipeline.source.get)
-          val last = if (filters.nonEmpty) {
-            filters.foldLeft(head) { (current, next) =>
-              current.viaMat(next) { (currentFuture, nextFuture) =>
-                filterProxies += nextFuture
-                currentFuture
+          val last = if (pipeline.filters.nonEmpty) {
+            pipeline.filters.foldLeft(head) { (previousValve, filterStage) =>
+              previousValve.viaMat(filterStage)(Keep.both).viaMat(new ValveStage) { (previous, outValveProxyFuture) =>
+                previous match {
+                  case (inValveProxyFuture, filterProxyFuture) =>
+                    val controller = for {
+                      inValveProxy <- inValveProxyFuture
+                      filterProxy <- filterProxyFuture
+                      outValveProxy <- outValveProxyFuture
+                    } yield filterController(inValveProxy, filterProxy, outValveProxy)
+                    controllerFutures += controller
+                    outValveProxyFuture
+                }
               }
             }
           } else head
+          val tail = last.toMat(pipeline.sink.get) { (valveProxyFuture, sinkProxyFuture) =>
+            val controller = for {
+              valveProxy <- valveProxyFuture
+              sinkProxy <- sinkProxyFuture
+            } yield Controller.sinkController(valveProxy, sinkProxy)
+            controllerFutures += controller
+            sinkProxyFuture
+          }
 
-          val tail = last.toMat(pipeline.sink.get)(Keep.both)
-          val (sourceProxyFuture, sinkProxyFuture) = tail.run()
+          tail.run()
 
-          val filterListFuture = sequence(filterProxies.map(_.map(Some(_)).fallbackTo(Future(None))))
+          val controllerListFuture = sequence(controllerFutures.map(_.map(Some(_)).fallbackTo(Future(None))))
 
-          val pipelineFutures = for {
-            source <- sourceProxyFuture.mapTo[SourceProxy]
-            sink <- sinkProxyFuture.mapTo[SinkProxy]
-            filters <- filterListFuture
-          } yield (source, sink, filters)
+          val controllers = Await.result(controllerListFuture, 10 seconds).map(_.get).toList
+          val controller = PipelineController(pipeline, controllers)
 
-          Await.ready(pipelineFutures, 10 seconds)
-
-          become(running(pipeline))
+          become(running(controller))
 
           log.info(s"Started pipeline <${pipeline.id}>.")
         }
@@ -166,14 +169,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       sender ! PipelineState(pipeline.configuration, Health.Yellow)
   }
 
-  private def running(pipeline: Pipeline): Receive = {
+  private def running(controller: PipelineController): Receive = {
 
     case ConfigurePipeline(configuration) =>
       log.info(s"Updating pipeline <${configuration.id}>")
 
     case RequestPipelineState =>
       log.info("Received PipelineState Request")
-      sender ! PipelineState(pipeline.configuration, Health.Green)
+      sender ! PipelineState(controller.configuration, Health.Green)
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {

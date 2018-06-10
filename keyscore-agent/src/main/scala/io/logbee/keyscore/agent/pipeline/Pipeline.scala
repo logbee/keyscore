@@ -10,15 +10,15 @@ case class Pipeline(configuration: PipelineConfiguration, source: Option[SourceS
 
   val id: UUID = configuration.id
 
-  def withSource(newSource: SourceStage): Pipeline = {
+  def withSourceStage(newSource: SourceStage): Pipeline = {
     Pipeline(configuration, Option(newSource), sink, filters)
   }
 
-  def withSink(newSink: SinkStage): Pipeline = {
+  def withSinkStage(newSink: SinkStage): Pipeline = {
     Pipeline(configuration, source, Option(newSink), filters)
   }
 
-  def withFilter(newFilter: FilterStage): Pipeline = {
+  def withFilterStage(newFilter: FilterStage): Pipeline = {
     Pipeline(configuration, source, sink, filters :+ newFilter)
   }
 
