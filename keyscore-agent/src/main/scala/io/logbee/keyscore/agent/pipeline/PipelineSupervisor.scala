@@ -152,8 +152,8 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
           val controllerListFuture = sequence(controllerFutures.map(_.map(Some(_)).fallbackTo(Future(None))))
 
-          val controllers = Await.result(controllerListFuture, 10 seconds).map(_.get).toList
-          val controller = PipelineController(pipeline, controllers)
+          val controllers = Await.result(controllerListFuture, 15 seconds).map(_.get).toList
+          val controller = new PipelineController(pipeline, controllers)
 
           become(running(controller))
 
