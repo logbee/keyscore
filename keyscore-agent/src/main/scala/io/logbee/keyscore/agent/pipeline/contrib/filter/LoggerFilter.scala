@@ -11,11 +11,11 @@ import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterConnection, F
 object LoggerFilter extends Described {
 
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter"
-  private val filterId = "9a6f5fd0-a21b-4056-7a2a-344e3b4e2488"
+  val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter"
+  val filterId: UUID = UUID.fromString("9a6f5fd0-a21b-4056-7a2a-344e3b4e2488")
 
-  override def describe = {
-    MetaFilterDescriptor(UUID.fromString(filterId), filterName, Map(Locale.ENGLISH -> FilterDescriptorFragment(
+  override def describe: MetaFilterDescriptor = {
+    MetaFilterDescriptor(filterId, filterName, Map(Locale.ENGLISH -> FilterDescriptorFragment(
       displayName = "Logger Filter",
       description = "",
       previousConnection = FilterConnection(true),

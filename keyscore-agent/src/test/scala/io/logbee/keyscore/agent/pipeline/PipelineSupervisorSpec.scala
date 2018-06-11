@@ -15,7 +15,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
-
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with WordSpecLike with Matchers with ScalaFutures with MockFactory  {
@@ -33,6 +33,22 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
     val pipelineConfiguration = PipelineConfiguration(pipelineID, "test", "A test pipeline.", sourceConfiguration, List(filterConfiguration,filterConfiguration2), sinkConfiguration)
     val agent = TestProbe("agent")
     val supervisor = system.actorOf(PipelineSupervisor(filterManager.ref))
+
+    def pollPipelineHealthState(maxRetries: Int, sleepTimeMs: Long): Boolean = {
+      var retries = maxRetries
+      while (retries > 0) {
+
+        supervisor tell(RequestPipelineState, agent.ref)
+        val pipelineState = agent.receiveOne(2 seconds).asInstanceOf[PipelineState]
+        if (pipelineState.health.equals(Health.Green)) {
+          return true
+        }
+        Thread.sleep(sleepTimeMs)
+        retries -= 1
+      }
+
+      false
+    }
 
     "start a pipeline with a correct configuration" in {
 
@@ -62,10 +78,8 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
       supervisor tell (RequestPipelineState, agent.ref)
       agent.expectMsg(PipelineState(pipelineConfiguration.id, pipelineConfiguration, Health.Yellow))
 
-      Thread.sleep(20000)
+      pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000) shouldBe true
 
-      supervisor tell (RequestPipelineState, agent.ref)
-      agent.expectMsg(PipelineState(pipelineConfiguration.id, pipelineConfiguration, Health.Green))
     }
   }
 

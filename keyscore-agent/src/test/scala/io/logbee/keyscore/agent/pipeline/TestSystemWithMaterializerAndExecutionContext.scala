@@ -10,6 +10,6 @@ trait TestSystemWithMaterializerAndExecutionContext {
 
   val config: Config = ConfigFactory.load()
   implicit val system: ActorSystem = ActorSystem("keyscore", config.getConfig("test").withFallback(config))
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val executionContext: ExecutionContextExecutor = materializer.executionContext
+  implicit lazy val materializer: ActorMaterializer = ActorMaterializer()
+  implicit lazy val executionContext: ExecutionContextExecutor = materializer.executionContext
 }

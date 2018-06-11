@@ -52,7 +52,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         source.sendNext(dataset1)
 
         whenReady(valveProxy.pause()) { state =>
-          println("closed valve")
+          state.isPaused shouldBe true
           sink.request(1)
           sink.expectNoMessage(5 seconds)
         }
@@ -65,13 +65,13 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         source.sendNext(dataset2)
 
         whenReady(valveProxy.pause()) { state =>
-          println("closed valve")
+          state.isPaused shouldBe true
           sink.request(1)
           sink.expectNoMessage(5 seconds)
         }
 
         whenReady(valveProxy.unpause()) { state =>
-          println("opened valve")
+          state.isPaused shouldBe false
         }
         sink.request(1)
         sink.expectNext(dataset1)
