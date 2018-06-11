@@ -12,18 +12,26 @@ import scala.concurrent.{Future, Promise}
 trait ValveProxy {
   def state(): Future[ValveState]
 
-  def close(): Future[ValveState]
+  def pause(): Future[ValveState]
 
-  def open(): Future[ValveState]
+  def unpause(): Future[ValveState]
 
-  def last(n:Int = 1) : Future[List[Dataset]]
+  def extractLiveDatasets(n: Int = 1): Future[List[Dataset]]
+
+  def extractInsertedDatasets(n: Int = 1): Future[List[Dataset]]
 
   def insert(dataset: Dataset*): Future[ValveState]
 
-  //  def drain(drain: Boolean) : Future[]
+  def allowPull(): Future[ValveState]
+
+  def denyPull(): Future[ValveState]
+
+  def allowDrain(): Future[ValveState]
+
+  def denyDrain(): Future[ValveState]
 }
 
-case class ValveState(uuid: UUID, closed: Boolean)
+case class ValveState(uuid: UUID, isPaused: Boolean, allowPull: Boolean = false, allowDrain: Boolean = false)
 
 class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {
   private val uuid = UUID.randomUUID()
@@ -41,56 +49,88 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
     val initPromise = Promise[ValveProxy]
     var pushedDatasets = new mutable.ListBuffer[Dataset]()
-    var insertedl
-    var isClosed = false
+    var insertedDatasets = new mutable.ListBuffer[Dataset]()
+    var pulledDatasets = new mutable.ListBuffer[Dataset]()
+    var isPaused = false
+    var allowPull = false
+    var allowDrain = false
 
-    private val closeValveCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
-      isClosed = true
-      promise.success(ValveState(uuid, closed = isClosed))
+    private val pauseValveCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
+      isPaused = true
+      promise.success(ValveState(uuid, isPaused = isPaused, allowPull, allowDrain))
     })
 
-    private val openValveCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
-      isClosed = false
-      if(isAvailable(in)) {
-        push(out,grab(in))
+    private val unpauseValveCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
+      isPaused = false
+      if (isAvailable(in)) {
+        push(out, grab(in))
       } else if (isAvailable(out)) {
         pull(in)
       }
-      promise.success(ValveState(uuid, closed = isClosed))
+      promise.success(ValveState(uuid, isPaused = isPaused, allowPull, allowDrain))
     })
 
     private val stateCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
-        promise.success(ValveState(uuid, isClosed))
+      promise.success(ValveState(uuid, isPaused, allowPull, allowDrain))
     })
 
-    private val lastDatasetCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
+    private val extractInsertedDatasetsCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
+      case (promise, n) =>
+        promise.success(insertedDatasets.takeRight(n).toList)
+    })
+
+    private val extractLiveDataDatasetCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
       case (promise, n) =>
         promise.success(pushedDatasets.takeRight(n).toList)
     })
 
-    private val insertDatasetCallback = getAsyncCallback[(Promise[ValveState], Dataset *)]({
-      case (promise, n) =>
-
-
+    private val insertDatasetCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
+      case (promise, datasets) =>
+        insertedDatasets ++= datasets
+        insertedDatasets.foreach { dataset =>
+          push(out, dataset)
+        }
+        insertedDatasets = mutable.ListBuffer.empty
+        promise.success(ValveState(uuid, isPaused, allowPull, allowDrain))
     })
+
+    private val allowPullCallback = getAsyncCallback[(Promise[ValveState])]({ promise =>
+      allowPull = true
+      promise.success(ValveState(uuid, isPaused, allowPull, allowDrain))
+    })
+
+    private val denyPullCallback = getAsyncCallback[(Promise[ValveState])]({ promise =>
+      allowPull = false
+      promise.success(ValveState(uuid, isPaused, allowPull, allowDrain))
+    })
+
+    private val allowDrainCallback = getAsyncCallback[(Promise[ValveState])] { promise =>
+      allowDrain = true
+      promise.success(ValveState(uuid, isPaused, allowPull, allowDrain))
+    }
+
+    private val denyDrainCallback = getAsyncCallback[(Promise[ValveState])] { promise =>
+      allowDrain = false
+      promise.success(ValveState(uuid, isPaused, allowPull, allowDrain))
+    }
 
     private val valveProxy = new ValveProxy {
 
-      override def close(): Future[ValveState] = {
+      override def pause(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        closeValveCallback.invoke(promise)
+        pauseValveCallback.invoke(promise)
         promise.future
       }
 
-      override def open(): Future[ValveState] = {
+      override def unpause(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        openValveCallback.invoke(promise)
+        unpauseValveCallback.invoke(promise)
         promise.future
       }
 
-      override def last(n:Int): Future[List[Dataset]] = {
+      override def extractLiveDatasets(n: Int): Future[List[Dataset]] = {
         val promise = Promise[List[Dataset]]()
-        lastDatasetCallback.invoke(promise, n)
+        extractLiveDataDatasetCallback.invoke(promise, n)
         promise.future
       }
 
@@ -102,7 +142,37 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
       override def insert(datasets: Dataset*): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        insertDatasetCallback.invoke(promise, datasets)
+        insertDatasetCallback.invoke(promise, datasets.toList)
+        promise.future
+      }
+
+      override def allowPull(): Future[ValveState] = {
+        val promise = Promise[ValveState]()
+        allowPullCallback.invoke(promise)
+        promise.future
+      }
+
+      override def denyPull(): Future[ValveState] = {
+        val promise = Promise[ValveState]()
+        denyPullCallback.invoke(promise)
+        promise.future
+      }
+
+      override def extractInsertedDatasets(n: Int): Future[List[Dataset]] = {
+        val promise = Promise[List[Dataset]]()
+        extractInsertedDatasetsCallback.invoke(promise, n)
+        promise.future
+      }
+
+      override def allowDrain(): Future[ValveState] = {
+        val promise = Promise[ValveState]()
+        allowDrainCallback.invoke(promise)
+        promise.future
+      }
+
+      override def denyDrain(): Future[ValveState] = {
+        val promise = Promise[ValveState]()
+        denyDrainCallback.invoke(promise)
         promise.future
       }
     }
@@ -114,26 +184,30 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
     }
 
     override def onPush(): Unit = {
-
-      if (!isClosed) {
+      if (!isPaused) {
         val dataset = grab(in)
-        println(dataset)
         push(out, dataset)
-        insert(dataset)
-
+        storePushedDataset(dataset)
+      } else if (allowDrain) {
+        val dataset = grab(in)
       }
     }
 
-    private def insert(dataset: Dataset) = {
+    private def storePushedDataset(dataset: Dataset) = {
       pushedDatasets += dataset
       if (pushedDatasets.size > 10) {
         pushedDatasets.remove(0)
-        }
+      }
     }
 
     override def onPull(): Unit = {
-      if (!isClosed) {
+      if (!isPaused) {
         pull(in)
+      } else if (allowPull) {
+        if (isAvailable(in)) {
+          pull(in)
+          pulledDatasets += grab(in)
+        }
       }
     }
   }

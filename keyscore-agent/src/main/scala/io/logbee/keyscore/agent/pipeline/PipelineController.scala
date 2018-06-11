@@ -81,15 +81,15 @@ private class SourceController(val source: SourceProxy, val valve: ValveProxy) e
 
   override def configure(configuration: FilterConfiguration): Future[Unit] = source.configure(configuration)
 
-  override def pause(): Future[ValveState] = valve.close()
+  override def pause(): Future[ValveState] = valve.pause()
 
-  override def unpause(): Future[ValveState] = valve.open()
+  override def unpause(): Future[ValveState] = valve.unpause()
 
   override def drain(drain: Boolean): Future[Boolean] = ???
 
   override def insert(dataset: Dataset*): Future[Unit] = ???
 
-  override def extract(n: Int): Future[List[Dataset]] = valve.last(n)
+  override def extract(n: Int): Future[List[Dataset]] = valve.extractLiveDatasets(n)
 
 }
 
@@ -99,15 +99,15 @@ private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends
 
   override def configure(configuration: FilterConfiguration): Future[Unit] = sink.configure(configuration)
 
-  override def pause(): Future[ValveState] = valve.close()
+  override def pause(): Future[ValveState] = valve.pause()
 
-  override def unpause(): Future[ValveState] = valve.open()
+  override def unpause(): Future[ValveState] = valve.unpause()
 
   override def drain(drain: Boolean): Future[Boolean] = ???
 
   override def insert(dataset: Dataset*): Future[Unit] = ???
 
-  override def extract(n: Int): Future[List[Dataset]] = valve.last(n)
+  override def extract(n: Int): Future[List[Dataset]] = valve.extractLiveDatasets(n)
 }
 
 private class FilterController(val inValve: ValveProxy, val filter: FilterProxy, val outValve: ValveProxy) extends Controller {
@@ -117,18 +117,27 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
   override def configure(configuration: FilterConfiguration): Future[Unit] = filter.configure(configuration)
 
   override def pause(): Future[ValveState] = {
-    inValve.close()
-    outValve.close()
+    inValve.pause()
+    outValve.pause()
   }
 
   override def unpause(): Future[ValveState] = {
-    inValve.open()
-    outValve.open()
+    inValve.unpause()
+    outValve.unpause()
   }
 
   override def drain(drain: Boolean): Future[Boolean] = ???
 
   override def insert(dataset: Dataset*): Future[Unit] = ???
 
-  override def extract(n: Int): Future[List[Dataset]] = outValve.last(n)
+  //  {
+  /*
+  1. pause In
+  2. pause Out
+  3. setPulling Out true
+  4. insert Dataset(s)
+   */
+  //  }
+
+  override def extract(n: Int): Future[List[Dataset]] = outValve.extractLiveDatasets(n)
 }

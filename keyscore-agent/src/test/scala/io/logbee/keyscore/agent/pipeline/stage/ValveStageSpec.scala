@@ -51,7 +51,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       whenReady(valveFuture) { valveProxy =>
         source.sendNext(dataset1)
 
-        whenReady(valveProxy.close()) { state =>
+        whenReady(valveProxy.pause()) { state =>
           println("closed valve")
           sink.request(1)
           sink.expectNoMessage(5 seconds)
@@ -64,13 +64,13 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         source.sendNext(dataset1)
         source.sendNext(dataset2)
 
-        whenReady(valveProxy.close()) { state =>
+        whenReady(valveProxy.pause()) { state =>
           println("closed valve")
           sink.request(1)
           sink.expectNoMessage(5 seconds)
         }
 
-        whenReady(valveProxy.open()) { state =>
+        whenReady(valveProxy.unpause()) { state =>
           println("opened valve")
         }
         sink.request(1)
@@ -81,7 +81,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       }
     }
 
-    "valve saves the  dataset thaT passed through" in new TestWithSinkandSource {
+    "valve saves the dataset that passed through" in new TestWithSinkandSource {
       whenReady(valveFuture) { valveProxy =>
         source.sendNext(dataset1)
         source.sendNext(dataset2)
@@ -89,24 +89,23 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
         sink.request(3)
 
-        whenReady(valveProxy.last()) { datasets =>
+        whenReady(valveProxy.extractLiveDatasets()) { datasets =>
           datasets should have size 1
           datasets should contain(dataset3)
         }
 
-        whenReady(valveProxy.last(3)) { datasets =>
+        whenReady(valveProxy.extractLiveDatasets(3)) { datasets =>
           datasets should have size 3
           datasets should contain inOrder(dataset1, dataset2, dataset3)
         }
       }
     }
 
-
     "valve buffers the last 10 datasets" in new TestWithSimpleSource {
       whenReady(valveFuture) { valveProxy =>
         sink.request(11)
 
-        whenReady(valveProxy.last(11)) { datasets =>
+        whenReady(valveProxy.extractLiveDatasets(11)) { datasets =>
           datasets should have size 10
         }
 
@@ -116,14 +115,47 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
     "valve returns the complete state when state method is called" in new TestWithSinkandSource {
       whenReady(valveFuture) { valveProxy =>
 
-        Await.ready(valveProxy.close(), 5 seconds)
-        Await.ready(valveProxy.open(), 5 seconds)
+        Await.ready(valveProxy.pause(), 5 seconds)
+        Await.ready(valveProxy.unpause(), 5 seconds)
 
         whenReady(valveProxy.state()) { state =>
-          state.closed shouldBe false
+          state.isPaused shouldBe false
+        }
+      }
+    }
+
+    "valve pushes out inserted dataset" in new TestWithSinkandSource {
+      whenReady(valveFuture) { valveProxy =>
+
+        sink.request(1)
+        whenReady(valveProxy.insert(dataset1)) { x =>
+          sink.expectNext(dataset1)
+        }
+
+      }
+    }
+
+    "valve pushes nothing when allowDrain is false" in new TestWithSinkandSource {
+      whenReady(valveFuture) { valveProxy =>
+        Await.ready(valveProxy.pause(), 5 seconds)
+        Await.ready(valveProxy.allowPull(), 5 seconds)
+        whenReady(valveProxy.allowDrain()) { x =>
+          source.sendNext(dataset1)
+          sink.request(1)
+          sink.expectNoMessage(5 seconds)
+        }
+      }
+    }
+
+    "valve sets allowPullFlag" in new TestWithSinkandSource {
+      whenReady(valveFuture) { valueProxy =>
+        Await.ready(valueProxy.allowPull(), 5 seconds)
+        whenReady(valueProxy.state()) { state =>
+          state.allowPull shouldBe true
         }
       }
     }
   }
+
 
 }
