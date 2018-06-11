@@ -17,6 +17,10 @@ trait ValveProxy {
   def open(): Future[ValveState]
 
   def last(n:Int = 1) : Future[List[Dataset]]
+
+  def insert(dataset: Dataset*): Future[ValveState]
+
+  //  def drain(drain: Boolean) : Future[]
 }
 
 case class ValveState(uuid: UUID, closed: Boolean)
@@ -36,7 +40,8 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
   class ValveLogic extends GraphStageLogic(shape) with InHandler with OutHandler {
 
     val initPromise = Promise[ValveProxy]
-    var datasets = new mutable.ListBuffer[Dataset]()
+    var pushedDatasets = new mutable.ListBuffer[Dataset]()
+    var insertedl
     var isClosed = false
 
     private val closeValveCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
@@ -60,10 +65,14 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
     private val lastDatasetCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
       case (promise, n) =>
-        promise.success(datasets.takeRight(n).toList)
+        promise.success(pushedDatasets.takeRight(n).toList)
     })
 
+    private val insertDatasetCallback = getAsyncCallback[(Promise[ValveState], Dataset *)]({
+      case (promise, n) =>
 
+
+    })
 
     private val valveProxy = new ValveProxy {
 
@@ -90,8 +99,13 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
         stateCallback.invoke(promise)
         promise.future
       }
-    }
 
+      override def insert(datasets: Dataset*): Future[ValveState] = {
+        val promise = Promise[ValveState]()
+        insertDatasetCallback.invoke(promise, datasets)
+        promise.future
+      }
+    }
 
     setHandlers(in, out, this)
 
@@ -111,11 +125,10 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
     }
 
     private def insert(dataset: Dataset) = {
-        datasets += dataset
-        if(datasets.size > 10) {
-          datasets.remove(0)
+      pushedDatasets += dataset
+      if (pushedDatasets.size > 10) {
+        pushedDatasets.remove(0)
         }
-
     }
 
     override def onPull(): Unit = {

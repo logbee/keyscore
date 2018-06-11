@@ -2,7 +2,7 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
-import io.logbee.keyscore.agent.pipeline.stage.ValveProxy
+import io.logbee.keyscore.agent.pipeline.stage.{ValveProxy, ValveState}
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterProxy}
 import io.logbee.keyscore.model.sink.SinkProxy
 import io.logbee.keyscore.model.source.SourceProxy
@@ -22,11 +22,11 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
     lookup(id).configure(configuration)
   }
 
-  def pause(id: UUID): Future[Unit] = {
+  def pause(id: UUID): Future[_] = {
     lookup(id).pause()
   }
 
-  def unpause(id: UUID): Future[Unit] = {
+  def unpause(id: UUID): Future[_] = {
     lookup(id).unpause()
   }
 
@@ -64,9 +64,9 @@ abstract class Controller {
 
   def configure(configuration: FilterConfiguration): Future[Unit]
 
-  def pause(): Future[Unit]
+  def pause(): Future[_]
 
-  def unpause(): Future[Unit]
+  def unpause(): Future[_]
 
   def drain(drain: Boolean): Future[Boolean]
 
@@ -79,17 +79,17 @@ private class SourceController(val source: SourceProxy, val valve: ValveProxy) e
 
   override val id: UUID = ???
 
-  override def configure(configuration: FilterConfiguration): Future[Unit] = ???
+  override def configure(configuration: FilterConfiguration): Future[Unit] = source.configure(configuration)
 
-  override def pause(): Future[Unit] = ???
+  override def pause(): Future[ValveState] = valve.close()
 
-  override def unpause(): Future[Unit] = ???
+  override def unpause(): Future[ValveState] = valve.open()
 
   override def drain(drain: Boolean): Future[Boolean] = ???
 
   override def insert(dataset: Dataset*): Future[Unit] = ???
 
-  override def extract(n: Int): Future[List[Dataset]] = ???
+  override def extract(n: Int): Future[List[Dataset]] = valve.last(n)
 
 }
 
@@ -97,32 +97,38 @@ private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends
 
   override val id: UUID = ???
 
-  override def configure(configuration: FilterConfiguration): Future[Unit] = ???
+  override def configure(configuration: FilterConfiguration): Future[Unit] = sink.configure(configuration)
 
-  override def pause(): Future[Unit] = ???
+  override def pause(): Future[ValveState] = valve.close()
 
-  override def unpause(): Future[Unit] = ???
+  override def unpause(): Future[ValveState] = valve.open()
 
   override def drain(drain: Boolean): Future[Boolean] = ???
 
   override def insert(dataset: Dataset*): Future[Unit] = ???
 
-  override def extract(n: Int): Future[List[Dataset]] = ???
+  override def extract(n: Int): Future[List[Dataset]] = valve.last(n)
 }
 
 private class FilterController(val inValve: ValveProxy, val filter: FilterProxy, val outValve: ValveProxy) extends Controller {
 
   override val id: UUID = ???
 
-  override def configure(configuration: FilterConfiguration): Future[Unit] = ???
+  override def configure(configuration: FilterConfiguration): Future[Unit] = filter.configure(configuration)
 
-  override def pause(): Future[Unit] = ???
+  override def pause(): Future[ValveState] = {
+    inValve.close()
+    outValve.close()
+  }
 
-  override def unpause(): Future[Unit] = ???
+  override def unpause(): Future[ValveState] = {
+    inValve.open()
+    outValve.open()
+  }
 
   override def drain(drain: Boolean): Future[Boolean] = ???
 
   override def insert(dataset: Dataset*): Future[Unit] = ???
 
-  override def extract(n: Int): Future[List[Dataset]] = ???
+  override def extract(n: Int): Future[List[Dataset]] = outValve.last(n)
 }
