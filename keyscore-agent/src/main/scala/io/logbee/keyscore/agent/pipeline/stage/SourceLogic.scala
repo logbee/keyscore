@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
+import java.util.UUID
+
 import akka.stream.SourceShape
 import akka.stream.stage.{GraphStageLogic, OutHandler, StageLogging}
 import io.logbee.keyscore.model.Dataset
@@ -20,6 +22,8 @@ abstract class SourceLogic(context: StageContext, configuration: FilterConfigura
         promise.success(())
         log.info(s"Configuration has been updated: $newConfiguration")
     }
+
+    override val id: UUID = configuration.id
 
     override def configure(configuration: FilterConfiguration): Future[Unit] = {
       val promise = Promise[Unit]()

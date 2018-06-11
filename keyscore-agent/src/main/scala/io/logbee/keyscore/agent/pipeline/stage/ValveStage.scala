@@ -86,11 +86,14 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
     private val insertDatasetCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
       case (promise, datasets) =>
+        println("reached insert callback")
         insertedDatasets ++= datasets
         insertedDatasets.foreach { dataset =>
+          println(dataset)
           push(out, dataset)
         }
         insertedDatasets = mutable.ListBuffer.empty
+        println("test")
         promise.success(ValveState(uuid, isPaused, allowPull, allowDrain))
     })
 
@@ -205,6 +208,7 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
         pull(in)
       } else if (allowPull) {
         if (isAvailable(in)) {
+          println("pulled in")
           pull(in)
           pulledDatasets += grab(in)
         }

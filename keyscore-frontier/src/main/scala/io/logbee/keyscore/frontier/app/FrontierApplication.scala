@@ -68,7 +68,7 @@ object FrontierApplication extends App with Json4sSupport {
           pipelineManager ! PipelineManager.DeletePipeline(id = pipelineId)
           complete(StatusCodes.OK)
         }
-      }
+      }1
     } ~
       pathPrefix("filter") {
         path(JavaUUID) { filterId =>

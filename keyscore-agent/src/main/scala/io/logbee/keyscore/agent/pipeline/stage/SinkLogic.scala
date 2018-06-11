@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
+import java.util.UUID
+
 import akka.actor.ActorSystem
 import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
 import akka.stream.{Inlet, Materializer, SinkShape}
@@ -27,6 +29,8 @@ abstract class SinkLogic(context: StageContext, configuration: FilterConfigurati
         promise.success(())
         log.info(s"Configuration has been updated: $newConfiguration")
     }
+
+    override val id: UUID = configuration.id
 
     override def configure(configuration: FilterConfiguration): Future[Unit] = {
       val promise = Promise[Unit]()

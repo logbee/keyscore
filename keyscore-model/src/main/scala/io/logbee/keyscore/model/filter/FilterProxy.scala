@@ -8,6 +8,7 @@ import scala.concurrent.Future
 
 case class FilterState(id:UUID, health: Health)
 trait FilterProxy {
+  val id: UUID
   def configure(configuration: FilterConfiguration): Future[Unit]
   def state(): Future[FilterState]
 }

@@ -141,6 +141,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         Await.ready(valveProxy.allowPull(), 5 seconds)
         whenReady(valveProxy.allowDrain()) { x =>
           source.sendNext(dataset1)
+          Await.ready(valveProxy.pause(), 5 seconds)
           sink.request(1)
           sink.expectNoMessage(5 seconds)
         }

@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
+import java.util.UUID
+
 import akka.actor.ActorSystem
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{FlowShape, Inlet, Materializer, Outlet}
@@ -30,6 +32,8 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
     private val stateCallback = getAsyncCallback[Promise[FilterState]]({ promise =>
       promise.success(FilterLogic.this.state())
     })
+
+    override val id: UUID = configuration.id
 
     override def configure(configuration: FilterConfiguration): Future[Unit] = {
       val promise = Promise[Unit]()
