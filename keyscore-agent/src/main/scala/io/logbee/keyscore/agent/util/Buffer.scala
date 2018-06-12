@@ -10,14 +10,17 @@ class Buffer[T](maxSize: Int) {
   private val ringBuffer = new Array[Any](maxSize)
   private var readPointer = 0
   private var writePointer = 0
+  private var readableData = 0
 
   def push(element: T): Unit = {
+    readableData += 1
     ringBuffer(writePointer) = element
     incrementWritePointer()
   }
 
   def pull(): T = {
-      ringBuffer(nextRead()).asInstanceOf[T]
+    readableData -=1
+    ringBuffer(nextRead()).asInstanceOf[T]
   }
 
 
@@ -25,12 +28,16 @@ class Buffer[T](maxSize: Int) {
     null
   }
 
-  def isFull(): Boolean = {
-    writePointer == readPointer
+  def isNonEmpty(): Boolean = {
+    readableData > 0
   }
 
-  def isEmpty(): Boolean = {
-    writePointer == readPointer
+  def isNotFull(): Boolean = {
+    readableData < maxSize
+  }
+
+  def isFull(): Boolean ={
+    readableData == maxSize
   }
 
   private def nextRead() = {

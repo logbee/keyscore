@@ -141,11 +141,11 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
           ringBuffer.push(element)
         }
 
-        if (ringBuffer.isFull()) {
+        if (ringBuffer.isNotFull()) {
           pull(in)
         }
 
-        while (ringBuffer.isEmpty() && isAvailable(out)) {
+        while (ringBuffer.isNonEmpty() && isAvailable(out)) {
           if (!allowDrain) {
             push(out, ringBuffer.pull())
           }

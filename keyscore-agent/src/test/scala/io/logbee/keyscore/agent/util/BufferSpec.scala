@@ -10,16 +10,28 @@ class BufferSpec extends WordSpec with Matchers {
     val ringBuffer = Buffer[Int](5)
 
     "not be filled" in {
-      ringBuffer.isFull() shouldBe true
+      ringBuffer.isNonEmpty() shouldBe false
     }
 
     "not be nonEmpty" in {
       ringBuffer.push(1)
       ringBuffer.push(2)
+
+      ringBuffer.isNonEmpty() shouldBe true
+    }
+
+    "isNotFull" in {
+      ringBuffer.push(1)
+      ringBuffer.isNotFull() shouldBe true
+    }
+
+    "isFull" in {
+      ringBuffer.push(1)
+      ringBuffer.push(2)
       ringBuffer.push(3)
       ringBuffer.push(4)
       ringBuffer.push(5)
-      ringBuffer.isEmpty() shouldBe true
+      ringBuffer.isFull() shouldBe true
     }
   }
 
