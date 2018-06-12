@@ -57,15 +57,13 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
     "a dataset inserted in inValve should be extracted in outValve" in new TestSetup {
       whenReady(controllerFuture) { controller =>
         whenReady(controller.insert(dataset1)) { state =>
-//          whenReady(controller.extractInsertedData()) {dataset =>
-//            dataset should have size 1
-//          }
+          whenReady(controller.extractInsertedData()) { dataset =>
+            dataset.head shouldBe dataset1
+          }
         }
-
       }
 
 
     }
   }
-
 }
