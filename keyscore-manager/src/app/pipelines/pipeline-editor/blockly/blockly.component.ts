@@ -19,13 +19,7 @@ declare var Blockly: any;
                 <div id="blocklyDiv" style="position: absolute"></div>
             </div>
 
-            <div id="code" class="col-4">
-                <div class="card">
-                    <div class="card-header" style="font-size: 22px">{{(selectedFilter$ | async).displayName}}</div>
-                    <div class="card-body">{{(selectedFilter$ | async).description}}</div>
-                    <div class="card-footer"></div>
-                </div>
-            </div>
+            <filter-information [selectedFilter]="selectedFilter$ | async" id="code" class="col-4"></filter-information>
 
         </div>
         <div class="row pl-2 mt-1">
@@ -77,7 +71,6 @@ export class BlocklyComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        console.log(Blockly);
         this.initBlockly();
 
         this.selectedFilter$ = combineLatest(this.selectedBlockName$, this.filterDescriptors$).pipe(
@@ -109,7 +102,7 @@ export class BlocklyComponent implements OnInit {
 
 
     private onWorkspaceChange(e: any) {
-        console.log(e);
+        //console.log(e);
         if (e.element === 'selected') {
             this.updateSelectedBlock(e.newValue);
         }
