@@ -86,7 +86,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       }
     }
 
-    "extracts single data from the Buffer" in new TestWithSinkandSource {
+    "extracts single data from the RingBuffer" in new TestWithSinkandSource {
       whenReady(valveFuture) { valveProxy =>
         whenReady(valveProxy.insert(dataset1)) { state =>
           whenReady(valveProxy.extractDatasets()) { datasets =>
@@ -95,7 +95,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         }
       }
     }
-    "extract n elements from the Buffer" in new TestWithSinkandSource {
+    "extract n elements from the RingBuffer" in new TestWithSinkandSource {
       whenReady(valveFuture) { valveProxy =>
         whenReady(valveProxy.insert(dataset1, dataset2, dataset3)) { state =>
           whenReady(valveProxy.extractDatasets(2)) { datasets =>

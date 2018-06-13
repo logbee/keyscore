@@ -5,28 +5,28 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class BufferSpec extends WordSpec with Matchers {
+class RingBufferSpec extends WordSpec with Matchers {
 
 
-  "An empty Buffer" should {
+  "An empty RingBuffer" should {
 
-    val ringBuffer = Buffer[Int](5)
+    val ringBuffer = RingBuffer[Int](5)
 
     "not be filled" in {
-      ringBuffer.isNonEmpty() shouldBe false
-      ringBuffer.isFull() shouldBe false
+      ringBuffer.isNonEmpty shouldBe false
+      ringBuffer.isFull shouldBe false
     }
 
     "not be nonEmpty" in {
       ringBuffer.push(1)
       ringBuffer.push(2)
 
-      ringBuffer.isNonEmpty() shouldBe true
+      ringBuffer.isNonEmpty shouldBe true
     }
 
     "isNotFull" in {
       ringBuffer.push(1)
-      ringBuffer.isNotFull() shouldBe true
+      ringBuffer.isNotFull shouldBe true
     }
 
     "isFull" in {
@@ -35,12 +35,12 @@ class BufferSpec extends WordSpec with Matchers {
       ringBuffer.push(3)
       ringBuffer.push(4)
       ringBuffer.push(5)
-      ringBuffer.isFull() shouldBe true
+      ringBuffer.isFull shouldBe true
     }
   }
 
-  "A Buffer with size 3" should {
-    val ringBuffer = Buffer[Int](3)
+  "A RingBuffer with size 3" should {
+    val ringBuffer = RingBuffer[Int](3)
     "write only 3 elements" in {
       ringBuffer.push(1)
       ringBuffer.push(2)
@@ -59,8 +59,8 @@ class BufferSpec extends WordSpec with Matchers {
     }
   }
 
-  "A Buffer filled with 3 elements" should {
-    val ringBuffer = Buffer[Int](3)
+  "A RingBuffer filled with 3 elements" should {
+    val ringBuffer = RingBuffer[Int](3)
     ringBuffer.push(1)
     ringBuffer.push(2)
     ringBuffer.push(3)
@@ -79,13 +79,11 @@ class BufferSpec extends WordSpec with Matchers {
     }
 
     "take single element of Array with one element" in {
-      val testBuffer = Buffer[Int](5)
+      val testBuffer = RingBuffer[Int](5)
 
       testBuffer.push(1)
 
       testBuffer.take(1) should contain (1)
     }
-
   }
-
 }

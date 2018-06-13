@@ -3,11 +3,11 @@ package io.logbee.keyscore.agent.util
 import scala.collection.mutable
 
 
-object Buffer {
-  def apply[T](size: Int): Buffer[T] = new Buffer[T](size)
+object RingBuffer {
+  def apply[T](size: Int): RingBuffer[T] = new RingBuffer[T](size)
 }
 
-class Buffer[T](maxSize: Int) {
+class RingBuffer[T](maxSize: Int) {
 
   private val ringBuffer = new Array[Any](maxSize)
   private var readPointer = 0
@@ -15,18 +15,17 @@ class Buffer[T](maxSize: Int) {
   private var readableData = 0
 
   def push(element: T): Unit = {
-    readableData = if(isFull()) readableData else readableData + 1
+    readableData = if(isFull) readableData else readableData + 1
     ringBuffer(writePointer) = element
     incrementWritePointer()
   }
 
   def pull(): T = {
-    readableData = if(isEmpty()) readableData else readableData - 1
+    readableData = if(isEmpty) readableData else readableData - 1
     val element = ringBuffer(readPointer).asInstanceOf[T]
     incrementReadPointer()
     element
   }
-
 
   def take(n: Int): List[T] = {
     var takePointer = if(writePointer == 0) maxSize - 1 else writePointer - 1
@@ -39,19 +38,19 @@ class Buffer[T](maxSize: Int) {
     result.toList
   }
 
-  def isNonEmpty(): Boolean = {
+  def isNonEmpty: Boolean = {
     readableData > 0
   }
 
-  def isNotFull(): Boolean = {
+  def isNotFull: Boolean = {
     readableData < maxSize
   }
 
-  def isFull(): Boolean = {
+  def isFull: Boolean = {
     readableData == maxSize
   }
 
-  def isEmpty(): Boolean = {
+  def isEmpty: Boolean = {
     readableData == 0
   }
 

@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
-import io.logbee.keyscore.agent.util.Buffer
+import io.logbee.keyscore.agent.util.RingBuffer
 import io.logbee.keyscore.model.Dataset
 
 import scala.concurrent.{Future, Promise}
@@ -42,7 +42,7 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
   class ValveLogic extends GraphStageLogic(shape) with InHandler with OutHandler {
 
     val initPromise = Promise[ValveProxy]
-    val ringBuffer = Buffer[Dataset](10)
+    val ringBuffer = RingBuffer[Dataset](10)
     var isPaused = false
     var allowDrain = false
 
@@ -137,10 +137,10 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
           val element = grab(in)
           ringBuffer.push(element)
         }
-        if (ringBuffer.isNotFull()) {
+        if (ringBuffer.isNotFull) {
           pull(in)
         }
-        while (ringBuffer.isNonEmpty() && isAvailable(out)) {
+        while (ringBuffer.isNonEmpty && isAvailable(out)) {
           if (!allowDrain) {
             push(out, ringBuffer.pull())
           } else {
