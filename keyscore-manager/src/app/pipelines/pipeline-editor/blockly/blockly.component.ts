@@ -150,7 +150,8 @@ export class BlocklyComponent implements OnInit {
             this.toolbarBuilder.createPipelineBlock();
             let pipelineBlockXml = '<xml><block type="pipeline_configuration" deletable="false" movable="false"></block></xml>';
 
-            Blockly.Xml.domToWorkspace(this.pipeline.domRepresentation ? this.pipeline.domRepresentation : typeof currentWorkspace === "undefined" ? Blockly.Xml.textToDom( pipelineBlockXml) : currentWorkspace, this.workspace);
+            //TODO: write this in a more readable manner^^
+            Blockly.Xml.domToWorkspace(typeof currentWorkspace === "undefined" ? (this.pipeline.domRepresentation ? this.pipeline.domRepresentation : Blockly.Xml.textToDom( pipelineBlockXml)) : currentWorkspace, this.workspace);
 
         });
         this.workspace.addChangeListener(Blockly.Events.disableOrphans);
