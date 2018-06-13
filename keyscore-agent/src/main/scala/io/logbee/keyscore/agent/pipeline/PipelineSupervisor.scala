@@ -6,15 +6,14 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
-import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.{ConfigurePipeline, CreatePipeline, RequestPipelineState, StartPipeline}
+import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineState}
 
-import scala.collection.mutable.ListBuffer
-import scala.concurrent.Future.sequence
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
 
 object PipelineSupervisor {
 
@@ -25,6 +24,10 @@ object PipelineSupervisor {
   case class ConfigurePipeline(configurePipeline: PipelineConfiguration)
 
   case object RequestPipelineState
+
+  private case class ControllerMaterialized(controller: Controller)
+
+  private case class ControllerMaterializationFailed(cause: Throwable)
 
   def apply(filterManager: ActorRef) = Props(new PipelineSupervisor(filterManager))
 }
@@ -111,16 +114,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
         if (pipeline.isComplete) {
 
-          log.info(s"Starting Pipeline <${pipeline.configuration}>")
-
-          val controllerFutures: ListBuffer[Future[Controller]] = ListBuffer.empty
+          log.info(s"Constructing pipeline <${pipeline.configuration}>")
 
           val head = Source.fromGraph(pipeline.source.get).viaMat(new ValveStage) { (sourceProxyFuture, valveProxyFuture) =>
             val controller = for {
               sourceProxy <- sourceProxyFuture
               valveProxy <- valveProxyFuture
             } yield sourceController(sourceProxy, valveProxy)
-            controllerFutures += controller
+            controller.onComplete(notifyControllerMaterialization)
             valveProxyFuture
           }
           val last = if (pipeline.filters.nonEmpty) {
@@ -133,7 +134,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
                       filterProxy <- filterProxyFuture
                       outValveProxy <- outValveProxyFuture
                     } yield filterController(inValveProxy, filterProxy, outValveProxy)
-                    controllerFutures += controller
+                    controller.onComplete(notifyControllerMaterialization)
                     outValveProxyFuture
                 }
               }
@@ -144,20 +145,13 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
               valveProxy <- valveProxyFuture
               sinkProxy <- sinkProxyFuture
             } yield Controller.sinkController(valveProxy, sinkProxy)
-            controllerFutures += controller
+            controller.onComplete(notifyControllerMaterialization)
             sinkProxyFuture
           }
 
+          become(materializing(pipeline, List.empty), discardOld = true)
+
           tail.run()
-
-          // TODO: Find a better alternative to implement this behaviour!
-          val controllerListFuture = sequence(controllerFutures.map(_.map(Some(_)).fallbackTo(Future(None))))
-          val controllers = Await.result(controllerListFuture, 15 seconds)
-          val controller = new PipelineController(pipeline, List.empty)
-
-          become(running(controller))
-
-          log.info(s"Started pipeline <${pipeline.id}>.")
         }
         else {
           scheduleStart(pipeline, trials - 1)
@@ -165,7 +159,24 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       }
 
     case RequestPipelineState =>
-      log.info("Received PipelineState Request")
+      sender ! PipelineState(pipeline.configuration, Health.Yellow)
+  }
+
+  private def materializing(pipeline: Pipeline, controllers: List[Controller]): Receive = {
+
+    case ControllerMaterialized(controller) if controllers.size < pipeline.filters.size + 1 =>
+      log.info(s"Controller <${controller.id}> has been materialized.")
+      become(materializing(pipeline, controllers :+ controller), discardOld = true)
+
+    case ControllerMaterialized(controller) =>
+      log.info(s"Last Controller <${controller.id}> has been materialized.")
+      become(running(new PipelineController(pipeline, controllers :+ controller)), discardOld = true)
+
+    case ControllerMaterializationFailed(cause) =>
+      log.error(message = s"Could not construct pipeline <${pipeline.id}> due to a failed materialization a controller!", cause = cause)
+      context.stop(self)
+
+    case RequestPipelineState =>
       sender ! PipelineState(pipeline.configuration, Health.Yellow)
   }
 
@@ -186,6 +197,15 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       context.system.scheduler.scheduleOnce(pipelineStartDelay) {
         self ! StartPipeline(trials)
       }
+    }
+  }
+
+  private def notifyControllerMaterialization(materialization: Try[Controller]): Unit = {
+    materialization match {
+      case Success(controller) =>
+        self ! ControllerMaterialized(controller)
+      case Failure(cause) =>
+        self ! ControllerMaterializationFailed(cause)
     }
   }
 }
