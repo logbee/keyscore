@@ -26,6 +26,7 @@ export interface PipelineModel {
     name: string;
     description: string;
     filters: Array<FilterModel>;
+    domRepresentation?: any;
 }
 
 export interface PipelineConfiguration {
@@ -36,10 +37,11 @@ export interface PipelineConfiguration {
     filter: FilterConfiguration[];
     sink: FilterConfiguration;
 }
+
 //-----------------------Filter---------------------------
 export interface FilterConfiguration {
     id: string;
-    descriptor:FilterDescriptor
+    descriptor: FilterDescriptor
     parameters: Parameter[];
 }
 
@@ -110,4 +112,4 @@ export const getEditingFilterParameters = createSelector(getPipelinesState, (sta
 
 export const getEditingFilter = createSelector(getPipelinesState, (state: PipelinesState) => state.editingFilter);
 
-export const getFilterById = (id)  => createSelector(getPipelinesState, (state: PipelinesState) => [].concat(state.pipelineList.map(model => model.filters),state.editingPipeline.filters).find((filter: FilterModel) => filter.id === id));
+export const getFilterById = (id) => createSelector(getPipelinesState, (state: PipelinesState) => [].concat(state.pipelineList.map(model => model.filters), state.editingPipeline.filters).find((filter: FilterModel) => filter.id === id));

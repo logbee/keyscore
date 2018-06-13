@@ -19,7 +19,7 @@ import {
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction, UpdatePipelineWithBlocklyAction
 } from "./pipelines.actions";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
 import {FilterDescriptor, getFilterDescriptors, PipelineConfiguration} from "./pipelines.model";
@@ -52,10 +52,9 @@ export class PipelinesEffects {
             var descriptorList: Array<FilterDescriptor> = [];
             this.store.select(getFilterDescriptors).subscribe(filterDescriptors => filterDescriptors.map(value => descriptorList.push(value)));
             const pipelineConfig: PipelineConfiguration = this.pipelineBuilder.toPipeline(pipeline, descriptorList);
-            console.log('pipeline config: ' + JSON.stringify(pipelineConfig) + pipelineUrl);
             return this.http.put(pipelineUrl + pipeline.id, pipelineConfig).pipe(
                 map(data => new UpdatePipelineSuccessAction(pipeline)),
-                catchError((cause: any) => of(new UpdatePipelineFailureAction(pipeline)))
+                catchError((cause: any) => of(new UpdatePipelineFailureAction(cause, pipeline)))
             );
         })
     );
@@ -66,9 +65,12 @@ export class PipelinesEffects {
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([updateAction, config]) => {
             const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/';
-            return this.http.put(pipelineUrl + updateAction.pipelineConfiguration.id, updateAction.pipelineConfiguration).pipe(
-                map(data => new UpdatePipelineSuccessAction(updateAction.pipelineModel)),
-                catchError((cause: any) => of(new UpdatePipelineFailureAction(updateAction.pipelineModel)))
+            return this.http.put(pipelineUrl + updateAction.pipelineConfiguration.id, updateAction.pipelineConfiguration, {
+                headers: new HttpHeaders().set('Content-Type', 'application/json'),
+                responseType: 'text'
+            }).pipe(
+                map((data: any) => new UpdatePipelineSuccessAction(updateAction.pipelineModel)),
+                catchError((cause: any) => of(new UpdatePipelineFailureAction(cause, updateAction.pipelineModel)))
             );
         })
     );

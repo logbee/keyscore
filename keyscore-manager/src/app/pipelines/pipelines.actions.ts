@@ -98,7 +98,7 @@ export class UpdatePipelineSuccessAction implements Action {
 export class UpdatePipelineFailureAction implements Action {
     readonly type = UPDATE_PIPELINE_FAILURE;
 
-    constructor(readonly pipeline: PipelineModel) {
+    constructor(readonly cause:any, readonly pipeline: PipelineModel) {
 
     }
 }

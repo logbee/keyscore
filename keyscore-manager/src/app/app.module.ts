@@ -20,6 +20,7 @@ import {AgentsModule} from "./agents/agents.module";
 import {PipelineBuilderService} from "./services/pipelinebuilder.service";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {StoreDevtoolsModule} from "@ngrx/store-devtools";
 
 
 const routes: Routes = [
@@ -50,9 +51,9 @@ export function HttpLoaderFactory(http: HttpClient) {
             }
         }),
         //ToDO: Throws DataCloneError
-        // StoreDevtoolsModule.instrument({
-        //     maxAge:20
-        // })
+         StoreDevtoolsModule.instrument({
+             maxAge:20
+         })
     ],
     declarations: [
         AppComponent,
