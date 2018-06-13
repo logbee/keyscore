@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.util
 
+import scala.collection.mutable
+
 
 object Buffer {
   def apply[T](size: Int): Buffer[T] = new Buffer[T](size)
@@ -13,19 +15,28 @@ class Buffer[T](maxSize: Int) {
   private var readableData = 0
 
   def push(element: T): Unit = {
-    readableData += 1
+    readableData = if(isFull()) readableData else readableData + 1
     ringBuffer(writePointer) = element
     incrementWritePointer()
   }
 
   def pull(): T = {
-    readableData -=1
-    ringBuffer(nextRead()).asInstanceOf[T]
+    readableData = if(isEmpty()) readableData else readableData - 1
+    val element = ringBuffer(readPointer).asInstanceOf[T]
+    incrementReadPointer()
+    element
   }
 
 
   def take(n: Int): List[T] = {
-    null
+    var takePointer = if(writePointer == 0) maxSize - 1 else writePointer - 1
+    val result = mutable.ListBuffer.empty[T]
+
+    for(_ <- 0 until readableData.min(n)) {
+      result += ringBuffer(takePointer).asInstanceOf[T]
+      takePointer = if(takePointer == 0) maxSize - 1 else takePointer - 1
+    }
+    result.toList
   }
 
   def isNonEmpty(): Boolean = {
@@ -36,11 +47,19 @@ class Buffer[T](maxSize: Int) {
     readableData < maxSize
   }
 
-  def isFull(): Boolean ={
+  def isFull(): Boolean = {
     readableData == maxSize
   }
 
-  private def nextRead() = {
+  def isEmpty(): Boolean = {
+    readableData == 0
+  }
+
+  def clear(): Unit = {
+    readableData = 0
+    readPointer = writePointer
+  }
+  private def incrementReadPointer() = {
     readPointer = if (readPointer == maxSize - 1) 0 else readPointer + 1
     readPointer
   }

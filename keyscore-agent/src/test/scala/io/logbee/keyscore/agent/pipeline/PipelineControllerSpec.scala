@@ -10,15 +10,18 @@ import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext, ValveStage}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextMapParameter}
+import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.language.postfixOps
 
 
-//@RunWith(classOf[JUnitRunner])
-class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext  {
+@RunWith(classOf[JUnitRunner])
+class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+
   trait TestSetup {
     val configuration = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(TextMapParameter("fieldsToAdd", Map.empty)))
     val testSource = TestSource.probe[Dataset]
@@ -28,20 +31,20 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
     val ((source, controllerFuture), sink) =
       testSource.viaMat(new ValveStage())(Keep.both)
-      .viaMat(filterStage)(Keep.both)
-      .viaMat(new ValveStage()) { (left, right) =>
-        left match {
-          case ((source, inValveProxyFuture), filterProxyFuture) =>
-            val controller = for {
-              inValveProxy <- inValveProxyFuture
-              filterProxy <- filterProxyFuture
-              outValveProxy <- right
-            } yield Controller.filterController(inValveProxy, filterProxy, outValveProxy)
+        .viaMat(filterStage)(Keep.both)
+        .viaMat(new ValveStage()) { (left, right) =>
+          left match {
+            case ((source, inValveProxyFuture), filterProxyFuture) =>
+              val controller = for {
+                inValveProxy <- inValveProxyFuture
+                filterProxy <- filterProxyFuture
+                outValveProxy <- right
+              } yield Controller.filterController(inValveProxy, filterProxy, outValveProxy)
 
-            (source, controller)
+              (source, controller)
+          }
         }
-      }
-      .toMat(testsink)(Keep.both).run()
+        .toMat(testsink)(Keep.both).run()
 
   }
 
@@ -51,17 +54,14 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       sink.request(1)
       sink.expectNext(dataset1)
     }
-
-    "a dataset inserted in inValve should be extracted in outValve" in new TestSetup {
-      whenReady(controllerFuture) { controller =>
-        whenReady(controller.insert(dataset1)) { state =>
-          whenReady(controller.extractInsertedData()) { dataset =>
-            dataset.head shouldBe dataset1
-          }
-        }
-      }
-
-
-    }
+    //    "extract a dataset in outValve" in new TestSetup {
+    //      whenReady(controllerFuture) { controller =>
+    //        whenReady(controller.insert(dataset1)) { state =>
+    //          whenReady(controller.extractInsertedData()) { dataset =>
+    //            dataset.head shouldBe dataset1
+    //          }
+    //        }
+    //      }
+    //    }
   }
 }

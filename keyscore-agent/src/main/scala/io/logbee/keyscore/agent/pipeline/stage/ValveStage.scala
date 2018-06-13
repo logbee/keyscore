@@ -18,7 +18,6 @@ trait ValveProxy {
 
   def extractDatasets(n: Int = 1): Future[List[Dataset]]
 
-  //
   def insert(dataset: Dataset*): Future[ValveState]
 
   def allowDrain(drainAllowed: Boolean): Future[ValveState]
@@ -72,15 +71,12 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
         promise.success(ringBuffer.take(n))
     })
 
-    //    private val insertDatasetCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
-    //      case (promise, datasets) =>
-    //        insertedDatasets ++= datasets
-    //        insertedDatasets.foreach { dataset =>
-    //
-    //        }
-    //        insertedDatasets = mutable.ListBuffer.empty
-    //        promise.success(ValveState(uuid, isPaused, allowDrain))
-    //    })
+    private val insertDatasetCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
+      case (promise, datasets) =>
+        datasets.foreach(dataset =>
+          ringBuffer.push(dataset)        )
+        promise.success(ValveState(uuid, isPaused, allowDrain))
+    })
 
     private val allowDrainCallback = getAsyncCallback[(Promise[ValveState], Boolean)] {
       case (promise, drainAllowed) =>
@@ -116,7 +112,7 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
       override def insert(datasets: Dataset*): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        //        insertDatasetCallback.invoke(promise, datasets.toList)
+        insertDatasetCallback.invoke(promise, datasets.toList)
         promise.future
       }
 
@@ -154,7 +150,10 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
     }
 
     override def onPull(): Unit = {
+      if (!hasBeenPulled(in)) {
         pull(in)
+      }
     }
   }
+
 }
