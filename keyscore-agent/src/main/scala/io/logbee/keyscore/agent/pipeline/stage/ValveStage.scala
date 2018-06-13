@@ -42,7 +42,7 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
   class ValveLogic extends GraphStageLogic(shape) with InHandler with OutHandler {
 
     val initPromise = Promise[ValveProxy]
-    val ringBuffer = Buffer[Dataset](2)
+    val ringBuffer = Buffer[Dataset](10)
     var isPaused = false
     var allowDrain = false
 
@@ -53,11 +53,13 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
     private val unpauseValveCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
       isPaused = false
-      if (isAvailable(in)) {
-        push(out, grab(in))
-      } else if (isAvailable(out)) {
-        pull(in)
-      }
+        if (isAvailable(in)) {
+          push(out, grab(in))
+        } else if (isAvailable(out)) {
+          if (!hasBeenPulled(in)) {
+            pull(in)
+          }
+        }
       promise.success(ValveState(uuid, isPaused = isPaused, allowDrain))
     })
 
@@ -74,7 +76,7 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
     private val insertDatasetCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
       case (promise, datasets) =>
         datasets.foreach(dataset =>
-          ringBuffer.push(dataset)        )
+          ringBuffer.push(dataset))
         promise.success(ValveState(uuid, isPaused, allowDrain))
     })
 
@@ -131,19 +133,19 @@ class ValveStage extends GraphStageWithMaterializedValue[FlowShape[Dataset, Data
 
     override def onPush(): Unit = {
       if (!isPaused) {
-
         if (isAvailable(in)) {
           val element = grab(in)
           ringBuffer.push(element)
         }
-
         if (ringBuffer.isNotFull()) {
           pull(in)
         }
-
         while (ringBuffer.isNonEmpty() && isAvailable(out)) {
           if (!allowDrain) {
             push(out, ringBuffer.pull())
+          } else {
+            println("drained element")
+            ringBuffer.pull()
           }
         }
       }

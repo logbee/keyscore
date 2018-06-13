@@ -35,11 +35,11 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
   }
 
   def insert(id: UUID, dataset: Dataset*): Future[FilterState] = {
-    lookup(id).insert(dataset:_*)
+    lookup(id).insert(dataset: _*)
   }
 
   def extract(id: UUID, amount: Int = 1): Future[List[Dataset]] = {
-    lookup(id).extractLiveData(amount)
+    lookup(id).extract(amount)
   }
 }
 
@@ -72,9 +72,7 @@ abstract class Controller {
 
   def insert(dataset: Dataset*): Future[FilterState]
 
-  def extractLiveData(amount: Int = 1): Future[List[Dataset]]
-
-  def extractInsertedData(amount: Int = 1): Future[List[Dataset]]
+  def extract(amount: Int = 1): Future[List[Dataset]]
 }
 
 private class SourceController(val source: SourceProxy, val valve: ValveProxy) extends Controller {
@@ -91,9 +89,7 @@ private class SourceController(val source: SourceProxy, val valve: ValveProxy) e
 
   override def insert(dataset: Dataset*): Future[FilterState] = ???
 
-  override def extractLiveData(n: Int): Future[List[Dataset]] = valve.extractDatasets(n)
-
-  override def extractInsertedData(n: Int): Future[List[Dataset]] = valve.extractDatasets(n)
+  override def extract(n: Int): Future[List[Dataset]] = valve.extractDatasets(n)
 }
 
 private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends Controller {
@@ -110,12 +106,10 @@ private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends
 
   override def insert(dataset: Dataset*): Future[FilterState] = ???
 
-  override def extractLiveData(n: Int): Future[List[Dataset]] = valve.extractDatasets(n)
-
-  override def extractInsertedData(n: Int): Future[List[Dataset]] = valve.extractDatasets(n)
+  override def extract(n: Int): Future[List[Dataset]] = valve.extractDatasets(n)
 }
 
-private class FilterController(val inValve: ValveProxy, val filter: FilterProxy, val outValve: ValveProxy) (implicit val executionContext: ExecutionContext) extends Controller {
+private class FilterController(val inValve: ValveProxy, val filter: FilterProxy, val outValve: ValveProxy)(implicit val executionContext: ExecutionContext) extends Controller {
 
   override val id: UUID = filter.id
 
@@ -138,23 +132,28 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
   }
 
   override def drain(drain: Boolean): Future[FilterState] = {
+
     for {
       _ <- outValve.allowDrain(drain)
+      _ <- outValve.unpause()
       filterState <- filter.state()
     } yield filterState
   }
 
   override def insert(dataset: Dataset*): Future[FilterState] = {
-
     for {
       _ <- inValve.pause()
       _ <- outValve.pause()
-      _ <- inValve.insert(dataset:_*)
+      _ <- drain(true)
+      _ <- inValve.insert(dataset: _*)
       filterState <- filter.state()
     } yield filterState
   }
 
-  override def extractInsertedData(n: Int): Future[List[Dataset]] = outValve.extractDatasets(n)
+  override def extract(n: Int): Future[List[Dataset]] = {
+    for {
+      result <- outValve.extractDatasets(n)
+    } yield result
+  }
 
-  override def extractLiveData(n: Int): Future[List[Dataset]] = outValve.extractDatasets(n)
 }

@@ -5,14 +5,17 @@ import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.Dataset
+import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
+@RunWith(classOf[JUnitRunner])
 class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestWithSinkandSource {
@@ -83,11 +86,20 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       }
     }
 
-    "extracts data from the buffer" in new TestWithSinkandSource {
+    "extracts single data from the Buffer" in new TestWithSinkandSource {
       whenReady(valveFuture) { valveProxy =>
         whenReady(valveProxy.insert(dataset1)) { state =>
           whenReady(valveProxy.extractDatasets()) { datasets =>
             datasets should contain(dataset1)
+          }
+        }
+      }
+    }
+    "extract n elements from the Buffer" in new TestWithSinkandSource {
+      whenReady(valveFuture) { valveProxy =>
+        whenReady(valveProxy.insert(dataset1, dataset2, dataset3)) { state =>
+          whenReady(valveProxy.extractDatasets(2)) { datasets =>
+            datasets should contain inOrderOnly (dataset3, dataset2)
           }
         }
       }
@@ -104,30 +116,18 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         }
       }
     }
-    //    "valve pushes out inserted dataset" in new TestWithSinkandSource {
-    //      whenReady(valveFuture) { valveProxy =>
-    //
-    //        sink.request(1)
-    //        whenReady(valveProxy.insert(dataset1)) { x =>
-    //          sink.expectNext(dataset1)
-    //        }
-    //
-    //      }
-    //    }
 
-    //    "valve pushes nothing when allowDrain is false" in new TestWithSinkandSource {
-    //      whenReady(valveFuture) { valveProxy =>
-    //        Await.ready(valveProxy.pause(), 1 seconds)
-    //        Await.ready(valveProxy.allowPull(), 1 seconds)
-    //        whenReady(valveProxy.allowDrain()) { x =>
-    //          source.sendNext(dataset1)
-    //          Await.ready(valveProxy.pause(), 1 seconds)
-    //          sink.request(1)
-    //          sink.expectNoMessage(1 seconds)
-    //        }
-    //      }
-    //    }
+    "set the drain flag properly" in new TestWithSinkandSource  {
+      whenReady(valveFuture) { valveProxy =>
+        whenReady(valveProxy.allowDrain(true)) { state =>
+          state.allowDrain shouldBe true
+        }
+      }
+      whenReady(valveFuture) { valveProxy =>
+        whenReady(valveProxy.allowDrain(false)) { state =>
+          state.allowDrain shouldBe false
+        }
+      }
+    }
   }
-
-
 }

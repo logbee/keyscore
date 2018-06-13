@@ -10,16 +10,16 @@ import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext, ValveStage}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextMapParameter}
-import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.language.postfixOps
 
 
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestSetup {
@@ -54,14 +54,53 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       sink.request(1)
       sink.expectNext(dataset1)
     }
-    //    "extract a dataset in outValve" in new TestSetup {
-    //      whenReady(controllerFuture) { controller =>
-    //        whenReady(controller.insert(dataset1)) { state =>
-    //          whenReady(controller.extractInsertedData()) { dataset =>
-    //            dataset.head shouldBe dataset1
-    //          }
-    //        }
-    //      }
-    //    }
+
+    "close inValve and outValve on pause" in new TestSetup {
+      source.sendNext(dataset1)
+      source.sendNext(dataset2)
+      source.sendNext(dataset3)
+
+      whenReady(controllerFuture) { controller =>
+        Await.ready(controller.pause(), 5 seconds)
+        sink.request(1)
+        sink.expectNoMessage(5 seconds)
+
+        whenReady(controller.unpause()) { _ =>
+          sink.request(1)
+          sink.expectNext(dataset1)
+        }
+      }
+    }
+
+    //TODO:adjust ValveStage implementation
+//    "extract a dataset in outValve" in new TestSetup {
+//      whenReady(controllerFuture) {controller =>
+//        source.sendNext(dataset1)
+//        source.sendNext(dataset1)
+//        source.sendNext(dataset1)
+//        source.sendNext(dataset1)
+//        sink.request(4)
+//
+//        whenReady(controller.insert(dataset1)) { _ =>
+//        }
+//        whenReady(controller.extract()) { datasets =>
+//          datasets should have size 1
+//        }
+//      }
+//    }
+
+    "drain valve" in new TestSetup {
+      whenReady(controllerFuture) { controller =>
+        source.sendNext(dataset1)
+        source.sendNext(dataset1)
+        sink.request(1)
+        whenReady(controller.pause()) { _ =>
+
+        }
+        whenReady(controller.drain(true)) { _ =>
+
+        }
+      }
+    }
   }
 }
