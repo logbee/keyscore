@@ -3,7 +3,6 @@ package io.logbee.keyscore.agent.pipeline
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
-import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
@@ -35,18 +34,21 @@ object PipelineSupervisor {
 /**
   * PipelineSupervisor
   *
-  * States:
-  * initial:
-  * configuring:
-  * running:
-  *
-  * Transitions:
-  * ''initial'' x CreatePipeline      -> configuring
-  * configuring x SinkStageCreated    -> configuring
-  * configuring x SourceStageCreated  -> configuring
-  * configuring x FilterStageCreated  -> configuring
-  * configuring x StartPipeline       -> [configuring|running]
-  * running     x ConfigurePipeline   -> configuring
+  * States:       <br>
+  * initial:      <br>
+  * configuring:  <br>
+  * materializing <br>
+  * running:      <br>
+  * <br>
+  * Transitions:<br>
+  * ''initial''   x CreatePipeline                  -> configuring                <br>
+  * configuring   x SinkStageCreated                -> configuring                <br>
+  * configuring   x SourceStageCreated              -> configuring                <br>
+  * configuring   x FilterStageCreated              -> configuring                <br>
+  * configuring   x StartPipeline                   -> [configuring|materializing]<br>
+  * materializing x ControllerMaterialized          -> [materializing|running]    <br>
+  * materializing x ControllerMaterializationFailed -> ''kill actor''             <br>
+  * running       x ConfigurePipeline               -> configuring                <br>
   */
 class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLogging {
 
@@ -55,8 +57,8 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
   private implicit val executionContext: ExecutionContextExecutor = context.dispatcher
   private implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  private val timeout: Timeout = 5 seconds
   private val pipelineStartDelay = 5 seconds
+  private val pipelineStartTrials = 3
 
   override def preStart(): Unit = {
     log.info(" StartUp complete.")
@@ -84,7 +86,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
       pipelineConfiguration.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, filter))
 
-      scheduleStart(pipeline, 3)
+      scheduleStart(pipeline, pipelineStartTrials)
 
     case RequestPipelineState =>
       sender ! PipelineState(Health.Red)
