@@ -4,11 +4,13 @@ import {Store} from "@ngrx/store";
 import {AppConfig} from "./app.config";
 import {TranslateService} from "@ngx-translate/core";
 import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
+import './style/style.css';
 
 export interface AppState {
     config: AppConfig
 
 }
+
 
 @Component({
     selector: 'my-app',

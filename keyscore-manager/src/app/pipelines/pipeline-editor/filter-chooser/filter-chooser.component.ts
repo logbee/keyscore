@@ -11,10 +11,6 @@ import {map} from "rxjs/internal/operators";
 @Component({
     selector: 'filter-chooser',
     template: require('./filter-chooser.component.html'),
-    styles: [
-        '.modal-lg{max-width:80% !important;}',
-        '.list-group-item-action{cursor: pointer;}'
-    ],
     providers: [
         ModalService,
     ]
