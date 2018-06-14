@@ -129,6 +129,7 @@ task startKafkaDockerContainer(type: DockerStartContainer) {
 
 task stopKafkaDockerContainer(type: DockerStopContainer) {
     targetContainerId { createKafkaContainer.getContainerId() }
+    timeout = 30
 }
 
 task removeKafkaDockerContainer(type: DockerRemoveContainer) {
