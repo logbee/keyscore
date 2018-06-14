@@ -30,5 +30,5 @@ class KafkaSinkLogicSpec extends WordSpec with Matchers with ScalaFutures with M
       Thread.sleep(60000)
     }
   }
-
+l
 }

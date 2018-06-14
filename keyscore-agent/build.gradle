@@ -2,6 +2,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
@@ -47,11 +48,13 @@ test {
 }
 
 jar {
-    manifest.attributes ([
-        'Main-Class': mainClass,
-        'Implementation-Title': project.name,
-        'Implementation-Version': version,
-        'Class-Path': (configurations.runtime + configurations.compile).collect { "libs/" + it.getName() }.join(' ')
+    manifest.attributes([
+            'Main-Class'            : mainClass,
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': version,
+            'Class-Path'            : (configurations.runtime + configurations.compile).collect {
+                "libs/" + it.getName()
+            }.join(' ')
     ])
 }
 
@@ -102,4 +105,33 @@ task stopDockerContainer(type: DockerStopContainer) {
 task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
     targetContainerId { createDockerContainer.getContainerId() }
+}
+
+
+task pullKafkaDockerImage(type: DockerPullImage) {
+    repository = "quay.io/logbee/docker-kafka"
+    tag = "latest"
+}
+
+task createKafkaContainer(type: DockerCreateContainer) {
+    dependsOn pullKafkaDockerImage
+    containerName = "KafkaDocker"
+    targetImageId { pullKafkaDockerImage.getImageId() }
+    portBindings = ['9092:9092', '2181:2181']
+    hostName = InetAddress.localHost.getHostName()
+    network = 'host'
+}
+
+task startKafkaDockerContainer(type: DockerStartContainer) {
+    dependsOn createKafkaContainer
+    targetContainerId { createKafkaContainer.getContainerId() }
+}
+
+task stopKafkaDockerContainer(type: DockerStopContainer) {
+    targetContainerId { createKafkaContainer.getContainerId() }
+}
+
+task removeKafkaDockerContainer(type: DockerRemoveContainer) {
+    dependsOn stopKafkaDockerContainer
+    targetContainerId { createKafkaContainer.getContainerId() }
 }

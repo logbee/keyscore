@@ -1,4 +1,4 @@
-= Docker
+dock= Docker
 
 // tag::gradledocker[]
 === Gradle and Docker ===
