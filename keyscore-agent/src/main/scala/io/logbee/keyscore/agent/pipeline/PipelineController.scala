@@ -31,7 +31,7 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
   }
 
   def drain(id: UUID, doDrain: Boolean): Future[FilterState] = {
-    lookup(id).drain(doDrain)
+    lookup(id).drain(null ,doDrain)
   }
 
   def insert(id: UUID, dataset: Dataset*): Future[FilterState] = {
@@ -68,7 +68,7 @@ abstract class Controller {
 
   def unpause(): Future[FilterState]
 
-  def drain(drain: Boolean): Future[FilterState]
+  def drain(valve: ValveProxy, drain: Boolean): Future[FilterState]
 
   def insert(dataset: Dataset*): Future[FilterState]
 
@@ -85,11 +85,11 @@ private class SourceController(val source: SourceProxy, val valve: ValveProxy) e
 
   override def unpause(): Future[FilterState] = ???
 
-  override def drain(drain: Boolean): Future[FilterState] = ???
+  override def drain(valve: ValveProxy, drain: Boolean): Future[FilterState] = ???
 
   override def insert(dataset: Dataset*): Future[FilterState] = ???
 
-  override def extract(n: Int): Future[List[Dataset]] = valve.extractDatasets(n)
+  override def extract(n: Int): Future[List[Dataset]] = valve.extract(n)
 }
 
 private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends Controller {
@@ -102,11 +102,11 @@ private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends
 
   override def unpause(): Future[FilterState] = ???
 
-  override def drain(drain: Boolean): Future[FilterState] = ???
+  override def drain(valve:ValveProxy, drain: Boolean): Future[FilterState] = ???
 
   override def insert(dataset: Dataset*): Future[FilterState] = ???
 
-  override def extract(n: Int): Future[List[Dataset]] = valve.extractDatasets(n)
+  override def extract(n: Int): Future[List[Dataset]] = valve.extract(n)
 }
 
 private class FilterController(val inValve: ValveProxy, val filter: FilterProxy, val outValve: ValveProxy)(implicit val executionContext: ExecutionContext) extends Controller {
@@ -131,11 +131,9 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
     } yield filterState
   }
 
-  override def drain(drain: Boolean): Future[FilterState] = {
-
+  override def drain(valve:ValveProxy, drain: Boolean): Future[FilterState] = {
     for {
-      _ <- outValve.allowDrain(drain)
-      _ <- outValve.unpause()
+      _ <- valve.allowDrain(drain)
       filterState <- filter.state()
     } yield filterState
   }
@@ -143,8 +141,9 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
   override def insert(dataset: Dataset*): Future[FilterState] = {
     for {
       _ <- inValve.pause()
-      _ <- outValve.pause()
-      _ <- drain(true)
+      _ <- inValve.clearBuffer()
+      _ <- outValve.clearBuffer()
+      _ <- drain(outValve, true)
       _ <- inValve.insert(dataset: _*)
       filterState <- filter.state()
     } yield filterState
@@ -152,7 +151,7 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
 
   override def extract(n: Int): Future[List[Dataset]] = {
     for {
-      result <- outValve.extractDatasets(n)
+      result <- outValve.extract(n)
     } yield result
   }
 

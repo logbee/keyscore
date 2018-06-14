@@ -72,35 +72,19 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       }
     }
 
-    //TODO:adjust ValveStage implementation
-//    "extract a dataset in outValve" in new TestSetup {
-//      whenReady(controllerFuture) {controller =>
-//        source.sendNext(dataset1)
-//        source.sendNext(dataset1)
-//        source.sendNext(dataset1)
-//        source.sendNext(dataset1)
-//        sink.request(4)
-//
-//        whenReady(controller.insert(dataset1)) { _ =>
-//        }
-//        whenReady(controller.extract()) { datasets =>
-//          datasets should have size 1
-//        }
-//      }
-//    }
-
-    "drain valve" in new TestSetup {
+    "extract a dataset in outValve" in new TestSetup {
+     source.sendNext(dataset1)
       whenReady(controllerFuture) { controller =>
-        source.sendNext(dataset1)
-        source.sendNext(dataset1)
-        sink.request(1)
-        whenReady(controller.pause()) { _ =>
+        whenReady(controller.insert(dataset1)) { _ =>
 
-        }
-        whenReady(controller.drain(true)) { _ =>
+          sink.request(1)
 
+          whenReady(controller.extract()) { datasets =>
+            datasets should have size 1
+          }
         }
       }
     }
+
   }
 }
