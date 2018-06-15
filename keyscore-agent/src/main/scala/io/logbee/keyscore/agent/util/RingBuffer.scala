@@ -38,16 +38,6 @@ class RingBuffer[T](maxSize: Int) {
     result.toList
   }
 
-  def snapshot(): List[T] = {
-    val result = mutable.ListBuffer.empty[T]
-    ringBuffer.foreach(element => {
-      if (element != null) {
-        result += element.asInstanceOf[T]
-      }
-    })
-    result.toList
-  }
-
   def isNonEmpty: Boolean = {
     readableData > 0
   }

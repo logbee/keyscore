@@ -56,7 +56,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       whenReady(valveFuture) { valveProxy =>
         source.sendNext(dataset1)
 
-        whenReady(valveProxy.pause()) { state =>
+        whenReady(valveProxy.pause(true)) { state =>
           state.isPaused shouldBe true
           sink.request(1)
           sink.expectNoMessage(5 seconds)
@@ -69,13 +69,13 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         source.sendNext(dataset1)
         source.sendNext(dataset2)
 
-        whenReady(valveProxy.pause()) { state =>
+        whenReady(valveProxy.pause(true)) { state =>
           state.isPaused shouldBe true
           sink.request(1)
           sink.expectNoMessage(5 seconds)
         }
 
-        whenReady(valveProxy.unpause()) { state =>
+        whenReady(valveProxy.pause(false)) { state =>
           state.isPaused shouldBe false
         }
         sink.request(1)
@@ -108,8 +108,8 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
     "valve returns the complete state when state method is called" in new TestWithSinkandSource {
       whenReady(valveFuture) { valveProxy =>
 
-        Await.ready(valveProxy.pause(), 5 seconds)
-        Await.ready(valveProxy.unpause(), 5 seconds)
+        Await.ready(valveProxy.pause(true), 5 seconds)
+        Await.ready(valveProxy.pause(false), 5 seconds)
 
         whenReady(valveProxy.state()) { state =>
           state.isPaused shouldBe false
@@ -128,6 +128,10 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
           state.allowDrain shouldBe false
         }
       }
+    }
+
+    "unpause an Valve which is not paused" in new TestWithSinkandSource {
+
     }
   }
 }

@@ -10,8 +10,10 @@ import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext, ValveStage}
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextMapParameter}
+import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.Await
@@ -19,7 +21,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 
-//@RunWith(classOf[JUnitRunner])
+@RunWith(classOf[JUnitRunner])
 class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestSetup {
@@ -32,7 +34,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
     val ((source, controllerFuture), sink) =
       testSource.viaMat(new ValveStage())(Keep.both)
         .viaMat(filterStage)(Keep.both)
-        .viaMat(new ValveStage()) { (left, right) =>
+        .viaMat(new ValveStage(5)) { (left, right) =>
           left match {
             case ((source, inValveProxyFuture), filterProxyFuture) =>
               val controller = for {
@@ -51,8 +53,12 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
   "A Pipeline" should {
     "let data pass as expected" in new TestSetup {
       source.sendNext(dataset1)
-      sink.request(1)
+      source.sendNext(dataset2)
+      source.sendNext(dataset3)
+      sink.request(3)
       sink.expectNext(dataset1)
+      sink.expectNext(dataset2)
+      sink.expectNext(dataset3)
     }
 
     "close inValve and outValve on pause" in new TestSetup {
@@ -61,30 +67,103 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       source.sendNext(dataset3)
 
       whenReady(controllerFuture) { controller =>
-        Await.ready(controller.pause(), 5 seconds)
+        Await.ready(controller.pause(true), 5 seconds)
         sink.request(1)
         sink.expectNoMessage(5 seconds)
 
-        whenReady(controller.unpause()) { _ =>
+        whenReady(controller.pause(false)) { _ =>
           sink.request(1)
           sink.expectNext(dataset1)
         }
       }
     }
 
-    "extract a dataset in outValve" in new TestSetup {
-     source.sendNext(dataset1)
+    "extract a dataset in outValve when no data was streamed before" in new TestSetup {
       whenReady(controllerFuture) { controller =>
         whenReady(controller.insert(dataset1)) { _ =>
-
-          sink.request(1)
-
           whenReady(controller.extract()) { datasets =>
-            datasets should have size 1
+            datasets should contain(dataset1)
           }
         }
       }
     }
 
+    "extract a dataset in outValve when data was streamed before" in new TestSetup {
+      source.sendNext(dataset1)
+      source.sendNext(dataset2)
+      sink.request(2)
+      sink.expectNext(dataset1)
+      sink.expectNext(dataset2)
+
+      whenReady(controllerFuture) { controller =>
+        whenReady(controller.insert(dataset3)) { _ =>
+          whenReady(controller.extract()) { datasets =>
+            datasets should contain(dataset3)
+          }
+        }
+      }
+    }
+
+    "extract multiple datasets in outValve" in new TestSetup {
+      whenReady(controllerFuture) { controller =>
+        whenReady(controller.insert(dataset1, dataset2, dataset3)) { _ =>
+          whenReady(controller.extract(3)) { datasets =>
+            datasets should contain inOrderOnly(dataset3, dataset2, dataset1)
+          }
+        }
+
+        whenReady(controller.drain(false)) { _ =>
+          whenReady(controller.pause(false)) { _ =>
+            source.sendNext(dataset4)
+            sink.request(1)
+            sink.expectNext(dataset4)
+
+          }
+        }
+      }
+    }
+
+    "extract insert workflow test real" in new TestSetup {
+      source.sendNext(dataset1)
+      source.sendNext(dataset1)
+      source.sendNext(dataset1)
+      sink.request(3)
+      sink.expectNext(dataset1)
+      sink.expectNext(dataset1)
+      sink.expectNext(dataset1)
+
+      whenReady(controllerFuture) { controller =>
+        whenReady(controller.insert(dataset2, dataset3, dataset4)) { _ =>
+          whenReady(controller.extract(3)) { datasets =>
+            datasets should contain inOrderOnly(dataset4, dataset3, dataset2)
+          }
+        }
+
+        whenReady(controller.drain(false)) { _ =>
+          whenReady(controller.pause(false)) { _ =>
+            source.sendNext(dataset4)
+            sink.request(1)
+            sink.expectNext(dataset4)
+
+          }
+        }
+        whenReady(controllerFuture) { controller =>
+          whenReady(controller.insert(dataset2, dataset3, dataset5)) { _ =>
+            whenReady(controller.extract(3)) { datasets =>
+              datasets should contain inOrderOnly(dataset5, dataset3, dataset2)
+            }
+          }
+
+          whenReady(controller.drain(false)) { _ =>
+            whenReady(controller.pause(false)) { _ =>
+              source.sendNext(dataset1)
+              sink.request(1)
+              sink.expectNext(dataset1)
+
+            }
+          }
+        }
+      }
+    }
   }
 }
