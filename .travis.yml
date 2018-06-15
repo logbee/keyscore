@@ -14,4 +14,4 @@ cache:
     - $HOME/.gradle/wrapper/
 
 script:
-  - "gradle check --continue"
+  - "gradle check --continue -x :test:check"
