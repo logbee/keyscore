@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.agent.pipeline.valve
 
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
@@ -33,8 +33,8 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       .run()
   }
 
-
   "A ValveStage" should {
+
     "passes through datasets" in new TestWithSinkandSource {
 
       whenReady(valveFuture) { valveProxy =>
@@ -51,7 +51,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       }
     }
 
-    "when closed no Messages pass through the valve" in new TestWithSinkandSource {
+    "backpressure when paused, so no message passes through it" in new TestWithSinkandSource {
 
       whenReady(valveFuture) { valveProxy =>
         source.sendNext(dataset1)
@@ -78,6 +78,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         whenReady(valveProxy.pause(false)) { state =>
           state.isPaused shouldBe false
         }
+
         sink.request(1)
         sink.expectNext(dataset1)
 

@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.agent.pipeline.valve
 
 import java.util.UUID
 
@@ -8,23 +8,6 @@ import io.logbee.keyscore.agent.util.RingBuffer
 import io.logbee.keyscore.model.Dataset
 
 import scala.concurrent.{Future, Promise}
-
-trait ValveProxy {
-  def state(): Future[ValveState]
-
-  def pause(doPause: Boolean): Future[ValveState]
-
-  def extract(n: Int = 1): Future[List[Dataset]]
-
-  def insert(dataset: Dataset*): Future[ValveState]
-
-  def allowDrain(drainAllowed: Boolean): Future[ValveState]
-
-  def clearBuffer(): Future[ValveState]
-
-}
-
-case class ValveState(uuid: UUID, isPaused: Boolean, allowDrain: Boolean = false, ringBuffer: RingBuffer[Dataset])
 
 
 class ValveStage(bufferSize: Int = 10) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {

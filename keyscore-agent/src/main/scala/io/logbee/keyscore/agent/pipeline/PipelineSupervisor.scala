@@ -7,6 +7,7 @@ import io.logbee.keyscore.agent.pipeline.Controller.{filterController, sourceCon
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.stage._
+import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.pipeline.PauseFilter
 import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineState}
 

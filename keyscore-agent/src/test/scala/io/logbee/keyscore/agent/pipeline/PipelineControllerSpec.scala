@@ -7,7 +7,8 @@ import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext, ValveStage}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
+import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextMapParameter}
 import org.junit.runner.RunWith
