@@ -7,6 +7,7 @@ import io.logbee.keyscore.agent.pipeline.Controller.{filterController, sourceCon
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.stage._
+import io.logbee.keyscore.commons.pipeline.PauseFilter
 import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineState}
 
 import scala.concurrent.ExecutionContextExecutor
@@ -190,6 +191,11 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case RequestPipelineState =>
       log.info("Received PipelineState Request")
       sender ! PipelineState(controller.configuration, Health.Green)
+    case PauseFilter(filterId, doPause) =>
+      val lastSender = sender
+      controller.pause(filterId, doPause).onComplete(filterState =>
+        lastSender ! Success
+      )
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {

@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.PipelineScheduler._
 import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeletePipelineOrder}
+import io.logbee.keyscore.commons.pipeline.PauseFilter
 import io.logbee.keyscore.model.PipelineConfiguration
 
 import scala.concurrent.duration._
@@ -70,6 +71,12 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
 
     case SupervisorTerminated(supervisor, configuration) =>
       log.info(s"PipelineSupervisor terminated: $configuration")
+
+    case message: PauseFilter =>
+      children.foreach( supervisor => {
+        supervisor forward  message
+      })
+
 
     case _ => log.info("Failure")
   }

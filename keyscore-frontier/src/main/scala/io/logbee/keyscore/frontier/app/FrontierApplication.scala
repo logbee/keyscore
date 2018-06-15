@@ -15,6 +15,7 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import io.logbee.keyscore.commons.pipeline.PauseFilter
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
@@ -26,6 +27,7 @@ import org.json4s.native.Serialization
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.Success
 
 object FrontierApplication extends App with Json4sSupport {
 
@@ -72,6 +74,14 @@ object FrontierApplication extends App with Json4sSupport {
     } ~
       pathPrefix("filter") {
         path(JavaUUID) { filterId =>
+          path("pause") {
+           entity(as[Boolean]) { doPause =>
+             onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
+               case Success => complete(StatusCodes.Accepted)
+               case _ => complete(StatusCodes.InternalServerError)
+             }
+           }
+          }
           put {
             complete(StatusCodes.NotImplemented)
           }

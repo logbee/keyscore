@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, 
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder, DeletePipelineOrder}
+import io.logbee.keyscore.commons.pipeline.PauseFilter
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
@@ -59,6 +60,11 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
 
     case AgentLeaved(ref) =>
       availableAgents.remove(ref)
+
+    case message: PauseFilter =>
+      availableAgents.keys.foreach(agent => {
+        pipelineSchedulerSelector(agent, context) forward message
+      })
   }
 
   def checkIfCapabilitiesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[MetaFilterDescriptor])): Boolean = {
