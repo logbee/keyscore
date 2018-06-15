@@ -29,6 +29,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Success
 
+
 object FrontierApplication extends App with Json4sSupport {
 
   val appInfo = AppInfo(classOf[FrontierApplication])
@@ -56,41 +57,43 @@ object FrontierApplication extends App with Json4sSupport {
 
   val route = cors(corsSettings) {
     pathPrefix("pipeline") {
-      get{
+      get {
         complete(StatusCodes.NotImplemented)
       } ~
-      path(JavaUUID) { pipelineId =>
-        put {
-          entity(as[PipelineConfiguration]) { pipeline =>
-            pipelineManager ! PipelineManager.CreatePipeline(pipeline)
-            complete(StatusCodes.OK)
-          }
-        } ~
-        delete {
-          pipelineManager ! PipelineManager.DeletePipeline(id = pipelineId)
-          complete(StatusCodes.OK)
+        path(JavaUUID) { pipelineId =>
+          put {
+            entity(as[PipelineConfiguration]) { pipeline =>
+              pipelineManager ! PipelineManager.CreatePipeline(pipeline)
+              complete(StatusCodes.OK)
+            }
+          } ~
+            delete {
+              pipelineManager ! PipelineManager.DeletePipeline(id = pipelineId)
+              complete(StatusCodes.OK)
+            }
         }
-      }
     } ~
       pathPrefix("filter") {
-        path(JavaUUID) { filterId =>
+        pathPrefix(JavaUUID) { filterId =>
           path("pause") {
-           entity(as[Boolean]) { doPause =>
-             onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
-               case Success => complete(StatusCodes.Accepted)
-               case _ => complete(StatusCodes.InternalServerError)
-             }
-           }
-          }
-          put {
-            complete(StatusCodes.NotImplemented)
+            get {
+              complete(StatusCodes.OK)
+            } ~
+              post {
+                parameter('value.as[Boolean]) { doPause =>
+                  onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
+                    case Success => complete(StatusCodes.Accepted)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                }
+              }
           }
         }
       } ~
       pathPrefix("descriptors") {
         get {
           parameters('language.as[String]) { language =>
-            onSuccess(filterDescriptorManager ? GetStandardDescriptors(Locale.forLanguageTag(language)))  {
+            onSuccess(filterDescriptorManager ? GetStandardDescriptors(Locale.forLanguageTag(language))) {
               case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
               case _ => complete(StatusCodes.InternalServerError)
             }
