@@ -59,6 +59,10 @@ class RingBuffer[T](maxSize: Int) {
     readPointer = writePointer
   }
 
+  def size: Int = readableData
+
+  def limit: Int = maxSize
+
   private def incrementReadPointer() = {
     readPointer = if (readPointer == maxSize - 1) 0 else readPointer + 1
     readPointer

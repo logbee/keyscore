@@ -23,7 +23,7 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
 
   override def drain(drain: Boolean): Future[FilterState] = {
     for {
-      _ <- outValve.allowDrain(drain)
+      _ <- outValve.drain(drain)
       filterState <- filter.state()
     } yield filterState
   }
