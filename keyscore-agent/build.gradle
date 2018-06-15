@@ -106,33 +106,3 @@ task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
     targetContainerId { createDockerContainer.getContainerId() }
 }
-
-
-task pullKafkaDockerImage(type: DockerPullImage) {
-    repository = "quay.io/logbee/docker-kafka"
-    tag = "latest"
-}
-
-task createKafkaContainer(type: DockerCreateContainer) {
-    dependsOn pullKafkaDockerImage
-    containerName = "KafkaDocker"
-    targetImageId { pullKafkaDockerImage.getImageId() }
-    portBindings = ['9092:9092', '2181:2181']
-    hostName = InetAddress.localHost.getHostName()
-    network = 'host'
-}
-
-task startKafkaDockerContainer(type: DockerStartContainer) {
-    dependsOn createKafkaContainer
-    targetContainerId { createKafkaContainer.getContainerId() }
-}
-
-task stopKafkaDockerContainer(type: DockerStopContainer) {
-    targetContainerId { createKafkaContainer.getContainerId() }
-    timeout = 30
-}
-
-task removeKafkaDockerContainer(type: DockerRemoveContainer) {
-    dependsOn stopKafkaDockerContainer
-    targetContainerId { createKafkaContainer.getContainerId() }
-}

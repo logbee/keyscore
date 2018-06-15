@@ -1,3 +1,6 @@
+import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
+import com.bmuschko.gradle.docker.tasks.network.DockerInspectNetwork
+
 buildscript {
     repositories {
         mavenCentral()
@@ -16,4 +19,23 @@ subprojects {
     }
 
     apply plugin: 'com.bmuschko.docker-remote-api'
+}
+
+task setupDockerNetwork(type: DockerInspectNetwork) {
+    finalizedBy 'createContainerNetwork'
+    networkId = project.properties['containerNetwork']
+    setupDockerNetwork.ext.createNetwork = false
+    onError { exception ->
+        if (exception.message.contains('not found')) {
+            println('Network not found')
+            createNetwork = true
+        } else throw exception
+    }
+}
+
+task createContainerNetwork(type: DockerCreateNetwork) {
+    onlyIf {
+        setupDockerNetwork.createNetwork
+    }
+    networkId = project.properties['containerNetwork']
 }
