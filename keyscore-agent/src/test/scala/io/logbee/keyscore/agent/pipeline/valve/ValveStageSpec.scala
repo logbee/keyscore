@@ -4,6 +4,7 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open}
 import io.logbee.keyscore.model.Dataset
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -25,18 +26,18 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       .run()
   }
 
-  class TestWithSourceAndSinkProbe(testData: Dataset*) {
+  class TestWithSourceAndSinkProbe(bufferLimit: Int = 2, testData: List[Dataset]) {
     val (valveFuture, sink) = Source(List(testData:_*))
-      .viaMat(new ValveStage(2))(Keep.right)
+      .viaMat(new ValveStage(bufferLimit))(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
   }
 
   "A ValveStage" should {
 
-    "passes through datasets" in new TestWithSourceAndSinkProbe(dataset1, dataset2, dataset3) {
+    "passes through datasets" in new TestWithSourceAndSinkProbe(testData = List(dataset1, dataset2, dataset3)) {
 
-      whenReady(valveFuture) { valveProxy =>
+      whenReady(valveFuture) { valve =>
 
         sink.request(3)
 
@@ -46,35 +47,36 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       }
     }
 
-    "backpressure when paused, so no message passes through it" in new TestWithSourceProbeAndSinkProbe() {
+    "backpressure when closed, so only buffered messages passe through" in new TestWithSourceAndSinkProbe(bufferLimit = 2, testData = List(dataset1, dataset2, dataset3, dataset4)) {
 
-      whenReady(valveFuture) { valveProxy =>
+      whenReady(valveFuture) { valve =>
 
-        source.sendNext(dataset1)
         sink.request(1)
         sink.expectNext(dataset1)
 
-        whenReady(valveProxy.pause(true)) { state =>
-          state.isPaused shouldBe true
-          sink.request(1)
+        whenReady(valve.close()) { state =>
+          state.position shouldBe Closed
+          sink.request(3)
+          sink.expectNext(dataset2)
+          sink.expectNext(dataset3)
           sink.expectNoMessage(5 seconds)
         }
       }
     }
 
     "valve passes through datasets after it was opened again" in new TestWithSourceProbeAndSinkProbe {
-      whenReady(valveFuture) { valveProxy =>
+      whenReady(valveFuture) { valve =>
         source.sendNext(dataset1)
         source.sendNext(dataset2)
 
-        whenReady(valveProxy.pause(true)) { state =>
-          state.isPaused shouldBe true
+        whenReady(valve.close()) { state =>
+          state.position shouldBe Closed
           sink.request(1)
           sink.expectNoMessage(5 seconds)
         }
 
-        whenReady(valveProxy.pause(false)) { state =>
-          state.isPaused shouldBe false
+        whenReady(valve.open()) { state =>
+          state.position shouldBe Open
         }
 
         sink.request(1)
@@ -86,18 +88,19 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
     }
 
     "extracts single data from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
-      whenReady(valveFuture) { valveProxy =>
-        whenReady(valveProxy.insert(dataset1)) { state =>
-          whenReady(valveProxy.extract()) { datasets =>
+      whenReady(valveFuture) { valve =>
+        whenReady(valve.insert(dataset1)) { state =>
+          whenReady(valve.extract()) { datasets =>
             datasets should contain(dataset1)
           }
         }
       }
     }
+
     "extract n elements from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
-      whenReady(valveFuture) { valveProxy =>
-        whenReady(valveProxy.insert(dataset1, dataset2, dataset3)) { state =>
-          whenReady(valveProxy.extract(2)) { datasets =>
+      whenReady(valveFuture) { valve =>
+        whenReady(valve.insert(dataset1, dataset2, dataset3)) { state =>
+          whenReady(valve.extract(2)) { datasets =>
             datasets should contain inOrderOnly(dataset3, dataset2)
           }
         }
@@ -105,26 +108,26 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
     }
 
     "valve returns the complete state when state method is called" in new TestWithSourceProbeAndSinkProbe {
-      whenReady(valveFuture) { valveProxy =>
+      whenReady(valveFuture) { valve =>
 
-        Await.ready(valveProxy.pause(true), 5 seconds)
-        Await.ready(valveProxy.pause(false), 5 seconds)
+        Await.ready(valve.close(), 5 seconds)
+        Await.ready(valve.open(), 5 seconds)
 
-        whenReady(valveProxy.state()) { state =>
-          state.isPaused shouldBe false
+        whenReady(valve.state()) { state =>
+          state.position shouldBe Open
         }
       }
     }
 
     "set the drain flag properly" in new TestWithSourceProbeAndSinkProbe {
-      whenReady(valveFuture) { valveProxy =>
-        whenReady(valveProxy.drain(true)) { state =>
-          state.isDrained shouldBe true
+      whenReady(valveFuture) { valve =>
+        whenReady(valve.drain()) { state =>
+          state.position shouldBe Drain
         }
       }
-      whenReady(valveFuture) { valveProxy =>
-        whenReady(valveProxy.drain(false)) { state =>
-          state.isDrained shouldBe false
+      whenReady(valveFuture) { valve =>
+        whenReady(valve.open()) { state =>
+          state.position shouldBe Open
         }
       }
     }

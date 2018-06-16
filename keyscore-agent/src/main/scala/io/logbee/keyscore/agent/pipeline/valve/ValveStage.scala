@@ -4,6 +4,7 @@ import java.util.UUID
 
 import akka.stream.stage._
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
+import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open, ValvePosition}
 import io.logbee.keyscore.agent.util.RingBuffer
 import io.logbee.keyscore.model.Dataset
 
@@ -30,50 +31,50 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private var state = ValveState(id, bufferLimit = ringBuffer.limit)
 
     private val stateCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
-      update(ValveState(id, state.isPaused, state.isDrained, ringBuffer.size, ringBuffer.limit))
+      update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit))
       promise.success(state)
     })
 
-    private val pauseCallback = getAsyncCallback[(Promise[ValveState], Boolean)]({
-      case (promise, doPause) =>
-        update(ValveState(id, doPause, state.isDrained, ringBuffer.size, ringBuffer.limit))
-        if(isNotPaused) {
-          pullIn()
-        }
-        promise.success(state)
-        log.debug(s"Paused ValveStage <$id>")
-    })
-
-    private val drainCallback = getAsyncCallback[(Promise[ValveState], Boolean)] {
-      case (promise, drain) =>
-        ringBuffer.clear()
-        update(ValveState(id, state.isPaused, drain, ringBuffer.size, ringBuffer.limit))
+    private val positionCallback = getAsyncCallback[(Promise[ValveState], ValvePosition)]({
+      case (promise, `Open`) =>
+        if (isDraining) ringBuffer.clear()
+        update(ValveState(id, Open, ringBuffer.size, ringBuffer.limit))
         pullIn()
         promise.success(state)
-        log.debug(s"Drained ValveStage <$id>")
-    }
+        log.debug(s"Valve <$id> is now open.")
+
+      case (promise, `Closed`) =>
+        update(ValveState(id, Closed, ringBuffer.size, ringBuffer.limit))
+        promise.success(state)
+        log.debug(s"Valve <$id> is now closed.")
+
+      case (promise, `Drain`) =>
+        ringBuffer.clear()
+        update(ValveState(id, Drain, ringBuffer.size, ringBuffer.limit))
+        pullIn()
+        promise.success(state)
+        log.debug(s"Valve <$id> does now drain.")
+    })
 
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
       case (promise, datasets) =>
         datasets.foreach(ringBuffer.push)
-        update(ValveState(id, isPaused, isDrained, ringBuffer.size, ringBuffer.limit))
+        update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit))
         promise.success(state)
         pushOut()
-        log.debug(s"Inserted ${datasets.size} datasets into ValveStage <$id>")
+        log.debug(s"Inserted ${datasets.size} datasets into valve <$id>")
     })
 
     private val extractCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
       case (promise, amount) =>
         val datasets = ringBuffer.take(amount)
         promise.success(datasets)
-        log.debug(s"Extracted ${datasets.size} datasets from ValveStage <$id>")
-      case _ =>
-        log.error("Something went wrong")
+        log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
 
     private val clearBufferCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
       ringBuffer.clear()
-      promise.success(update(ValveState(id, isPaused, isDrained, ringBuffer.size, ringBuffer.limit)))
+      promise.success(update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit)))
     })
 
     private val valveProxy = new ValveProxy {
@@ -84,23 +85,30 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         promise.future
       }
 
-      override def pause(doPause: Boolean): Future[ValveState] = {
+      override def open(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.debug(s"Pausing ValveStage <$id>")
-        pauseCallback.invoke(promise, doPause)
+        log.debug(s"Open valve <$id>")
+        positionCallback.invoke(promise, Open)
         promise.future
       }
 
-      override def drain(doDrain: Boolean): Future[ValveState] = {
+      override def close(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.debug(s"Draining ValveStage <$id>")
-        drainCallback.invoke(promise, doDrain)
+        log.debug(s"Close valve <$id>")
+        positionCallback.invoke(promise, Closed)
+        promise.future
+      }
+
+      override def drain(): Future[ValveState] = {
+        val promise = Promise[ValveState]()
+        log.debug(s"Drain Valve <$id>")
+        positionCallback.invoke(promise, Drain)
         promise.future
       }
 
       override def extract(amount: Int): Future[List[Dataset]] = {
         val promise = Promise[List[Dataset]]()
-        log.debug(s"Extracting $amount datasets from ValveStage <$id>")
+        log.debug(s"Extracting $amount datasets from valve <$id>")
         extractCallback.invoke(promise, amount)
         promise.future
       }
@@ -108,14 +116,14 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       override def insert(datasets: Dataset*): Future[ValveState] = {
         val promise = Promise[ValveState]()
         val list = datasets.toList
-        log.debug(s"Inserting ${list.size} datasets into ValveStage <$id>")
+        log.debug(s"Inserting ${list.size} datasets into valve <$id>")
         insertCallback.invoke(promise, list)
         promise.future
       }
 
       override def clearBuffer(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.debug(s"Clearing buffer of ValveStage <$id>: ")
+        log.debug(s"Clearing buffer of valve <$id>: ")
         clearBufferCallback.invoke(promise)
         promise.future
       }
@@ -131,23 +139,22 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
       ringBuffer.push(grab(in))
 
-      if (isNotPaused) {
-        if (isNotDrained) {
-          pushOut()
-        }
-        if (ringBuffer.isNotFull || isDrained) {
-          pullIn()
-        }
+      if (isOpen) {
+        pushOut()
+      }
+
+      if (ringBuffer.isNotFull || isDraining) {
+        pullIn()
       }
     }
 
     override def onPull(): Unit = {
 
-      if (isNotPaused) {
+      if (isOpen || isDraining) {
         pullIn()
       }
 
-      if (isNotDrained) {
+      if (isNotDraining) {
         pushOut()
       }
     }
@@ -166,14 +173,13 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     }
 
     private def update(newState: ValveState): ValveState = {
-      log.info(s"ValveStage <$id> changed state from: $state to $newState")
+      log.info(s"Valve <$id> changed state from: $state to $newState")
       state = newState
       state
     }
 
-    private def isPaused = state.isPaused
-    private def isNotPaused = !state.isPaused
-    private def isDrained = state.isDrained
-    private def isNotDrained = !state.isDrained
+    private def isOpen = state.position == Open || state.position == Drain
+    private def isDraining = state.position == Drain
+    private def isNotDraining = state.position == Open || state.position == Closed
   }
 }

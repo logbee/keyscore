@@ -121,7 +121,6 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
             source.sendNext(dataset4)
             sink.request(1)
             sink.expectNext(dataset4)
-
           }
         }
       }

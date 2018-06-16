@@ -14,24 +14,24 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
 
   override def configure(configuration: FilterConfiguration): Future[Unit] = filter.configure(configuration)
 
-  override def pause(doPause:Boolean): Future[FilterState] = {
+  override def pause(doPause: Boolean): Future[FilterState] = {
     for {
-      _ <- inValve.pause(doPause)
+      _ <- if (doPause) inValve.close() else inValve.open()
       filterState <- filter.state()
     } yield filterState
   }
 
   override def drain(drain: Boolean): Future[FilterState] = {
     for {
-      _ <- outValve.drain(drain)
+      _ <- if (drain) outValve.drain() else outValve.open()
       filterState <- filter.state()
     } yield filterState
   }
 
   override def insert(dataset: Dataset*): Future[FilterState] = {
     for {
-      _ <- inValve.pause(true)
-      _ <- drain(true)
+      _ <- inValve.close()
+      _ <- outValve.drain()
       _ <- inValve.insert(dataset: _*)
       filterState <- filter.state()
     } yield filterState

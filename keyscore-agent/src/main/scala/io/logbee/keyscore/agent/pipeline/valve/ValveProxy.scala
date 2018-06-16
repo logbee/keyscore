@@ -8,9 +8,11 @@ trait ValveProxy {
 
   def state(): Future[ValveState]
 
-  def pause(pause: Boolean): Future[ValveState]
+  def open(): Future[ValveState]
 
-  def drain(drain: Boolean): Future[ValveState]
+  def close(): Future[ValveState]
+
+  def drain(): Future[ValveState]
 
   def extract(amount: Int = 1): Future[List[Dataset]]
 
