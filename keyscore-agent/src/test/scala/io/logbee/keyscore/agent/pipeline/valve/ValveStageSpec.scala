@@ -27,7 +27,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
   class TestWithSourceAndSinkProbe(testData: Dataset*) {
     val (valveFuture, sink) = Source(List(testData:_*))
-      .viaMat(new ValveStage())(Keep.right)
+      .viaMat(new ValveStage(2))(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
   }

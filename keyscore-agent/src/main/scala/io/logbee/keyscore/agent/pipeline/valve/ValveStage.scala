@@ -7,10 +7,10 @@ import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
 import io.logbee.keyscore.agent.util.RingBuffer
 import io.logbee.keyscore.model.Dataset
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 
-class ValveStage(bufferLimit: Int = 10) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {
+class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContext) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {
   private val id = UUID.randomUUID()
   private val in = Inlet[Dataset]("inlet")
   private val out = Outlet[Dataset]("outlet")
@@ -41,26 +41,34 @@ class ValveStage(bufferLimit: Int = 10) extends GraphStageWithMaterializedValue[
           pullIn()
         }
         promise.success(state)
+        log.debug(s"Paused ValveStage <$id>")
     })
 
     private val drainCallback = getAsyncCallback[(Promise[ValveState], Boolean)] {
       case (promise, drain) =>
         ringBuffer.clear()
-        pullIn()
         update(ValveState(id, state.isPaused, drain, ringBuffer.size, ringBuffer.limit))
+        pullIn()
         promise.success(state)
+        log.debug(s"Drained ValveStage <$id>")
     }
 
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
       case (promise, datasets) =>
         datasets.foreach(ringBuffer.push)
+        update(ValveState(id, isPaused, isDrained, ringBuffer.size, ringBuffer.limit))
+        promise.success(state)
         pushOut()
-        promise.success(update(ValveState(id, isPaused, isDrained, ringBuffer.size, ringBuffer.limit)))
+        log.debug(s"Inserted ${datasets.size} datasets into ValveStage <$id>")
     })
 
     private val extractCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
       case (promise, amount) =>
-        promise.success(ringBuffer.take(amount))
+        val datasets = ringBuffer.take(amount)
+        promise.success(datasets)
+        log.debug(s"Extracted ${datasets.size} datasets from ValveStage <$id>")
+      case _ =>
+        log.error("Something went wrong")
     })
 
     private val clearBufferCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
@@ -92,15 +100,16 @@ class ValveStage(bufferLimit: Int = 10) extends GraphStageWithMaterializedValue[
 
       override def extract(amount: Int): Future[List[Dataset]] = {
         val promise = Promise[List[Dataset]]()
-        log.debug(s"Extracting data from ValveStage <$id>")
+        log.debug(s"Extracting $amount datasets from ValveStage <$id>")
         extractCallback.invoke(promise, amount)
         promise.future
       }
 
       override def insert(datasets: Dataset*): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.debug(s"Inserting data into ValveStage <$id>")
-        insertCallback.invoke(promise, datasets.toList)
+        val list = datasets.toList
+        log.debug(s"Inserting ${list.size} datasets into ValveStage <$id>")
+        insertCallback.invoke(promise, list)
         promise.future
       }
 
@@ -119,8 +128,8 @@ class ValveStage(bufferLimit: Int = 10) extends GraphStageWithMaterializedValue[
     }
 
     override def onPush(): Unit = {
-      val element = grab(in)
-      ringBuffer.push(element)
+
+      ringBuffer.push(grab(in))
 
       if (isNotPaused) {
         if (isNotDrained) {
@@ -133,23 +142,20 @@ class ValveStage(bufferLimit: Int = 10) extends GraphStageWithMaterializedValue[
     }
 
     override def onPull(): Unit = {
+
       if (isNotPaused) {
         pullIn()
       }
 
-      while (ringBuffer.isNonEmpty && isNotDrained) {
+      if (isNotDrained) {
         pushOut()
       }
     }
 
-    private def isPaused = state.isPaused
-    private def isNotPaused = !state.isPaused
-    private def isDrained = state.isDrained
-    private def isNotDrained = !state.isDrained
-
     private def pushOut(): Unit = {
-      if (isAvailable(out)) {
-        push(out, ringBuffer.pull())
+      if (isAvailable(out) && ringBuffer.isNonEmpty) {
+        val dataset = ringBuffer.pull()
+        push(out, dataset)
       }
     }
 
@@ -160,9 +166,14 @@ class ValveStage(bufferLimit: Int = 10) extends GraphStageWithMaterializedValue[
     }
 
     private def update(newState: ValveState): ValveState = {
-      log.debug(s"ValveStage <$id> changed state from: $state to $newState")
+      log.info(s"ValveStage <$id> changed state from: $state to $newState")
       state = newState
       state
     }
+
+    private def isPaused = state.isPaused
+    private def isNotPaused = !state.isPaused
+    private def isDrained = state.isDrained
+    private def isNotDrained = !state.isDrained
   }
 }
