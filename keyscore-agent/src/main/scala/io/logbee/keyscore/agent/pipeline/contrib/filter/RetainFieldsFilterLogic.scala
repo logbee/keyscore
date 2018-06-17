@@ -62,12 +62,12 @@ class RetainFieldsFilterLogic(context: StageContext, configuration: FilterConfig
     val dataset = grab(in)
 
     var listBufferOfRecords = ListBuffer[Record]()
-    for (record <- dataset) {
+    for (record <- dataset.records) {
       var payload = record.payload.filterKeys(fieldsToRetain.contains(_))
       listBufferOfRecords += new Record(record.id, payload.toMap)
     }
     val listOfRecords = listBufferOfRecords.toList
-    push(out, new Dataset(listOfRecords))
+    push(out, Dataset(listOfRecords))
   }
 
   override def onPull(): Unit = {

@@ -15,6 +15,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
+
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
@@ -92,7 +93,7 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
 
       override def onPull(): Unit = {
         if (outputCounter < input.size) {
-          push(shape.out, new Dataset(List(Record(TextField(outputCounter.toString, input(outputCounter))))))
+          push(shape.out, Dataset(List(Record(TextField(outputCounter.toString, input(outputCounter))))))
           outputCounter += 1
         }
       }
@@ -128,7 +129,7 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
         val modifiedValue = dataset.records.head.payload.values.head.value +"_modified"
         val newRecord = Record(TextField(dataset.records.head.payload.head._1,modifiedValue))
 
-        push(out, new Dataset(List(newRecord)))
+        push(out, Dataset(List(newRecord)))
       }
 
       override def onPull(): Unit = {

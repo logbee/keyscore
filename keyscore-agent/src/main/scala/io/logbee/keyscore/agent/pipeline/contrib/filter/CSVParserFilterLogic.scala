@@ -68,7 +68,7 @@ class CSVParserFilterLogic(context:StageContext,configuration:FilterConfiguratio
     val dataset = grab(shape.in)
 
     var recordsList =  ListBuffer[Record]()
-    for (record <- dataset){
+    for (record <- dataset.records){
       for (field <- record.payload.values) {
         val message = field.asInstanceOf[TextField].value
         val listOfData = message.split(separator).map( x => TextField(x,x)).toList
@@ -79,7 +79,7 @@ class CSVParserFilterLogic(context:StageContext,configuration:FilterConfiguratio
     }
 
     val dataList = recordsList.toList
-    push(out,new Dataset(dataList))
+    push(out, Dataset(dataList))
   }
 
   override def onPull(): Unit = {

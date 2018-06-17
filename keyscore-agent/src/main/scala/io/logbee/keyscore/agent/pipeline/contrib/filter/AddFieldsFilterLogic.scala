@@ -65,14 +65,14 @@ class AddFieldsFilterLogic(context: StageContext, configuration: FilterConfigura
 
     val dataset = grab(shape.in)
     var listBufferOfRecords = ListBuffer[Record]()
-    for (record <- dataset) {
+    for (record <- dataset.records) {
       var payload = new mutable.HashMap[String, Field[_]]()
       payload ++= record.payload
       payload ++= dataToAdd
       listBufferOfRecords += new Record(record.id, payload.toMap)
     }
     val listOfRecords = listBufferOfRecords.toList
-    push(out, new Dataset(listOfRecords))
+    push(out, Dataset(listOfRecords))
   }
 
   override def onPull(): Unit = {

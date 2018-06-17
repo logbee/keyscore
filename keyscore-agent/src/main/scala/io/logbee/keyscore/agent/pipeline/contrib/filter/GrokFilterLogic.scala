@@ -71,7 +71,7 @@ class GrokFilterLogic(context: StageContext, configuration: FilterConfiguration,
 
     var listBufferOfRecords = ListBuffer[Record]()
 
-    for (record <- dataset) {
+    for (record <- dataset.records) {
       var payload = copyPayload(record)
       for (field <- record.payload.values) {
         payload.put(field.name, field)
@@ -88,7 +88,7 @@ class GrokFilterLogic(context: StageContext, configuration: FilterConfiguration,
       listBufferOfRecords += new Record(record.id, payload.toMap)
     }
 
-    new Dataset(listBufferOfRecords.toList)
+    Dataset(listBufferOfRecords.toList)
   }
 
   private def copyPayload(record: Record) = {

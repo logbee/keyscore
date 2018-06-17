@@ -2,6 +2,7 @@ package io.logbee.keyscore.agent.pipeline.contrib.elasticsearch
 
 import java.util.{Locale, ResourceBundle, UUID}
 
+import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods.POST
 import akka.http.scaladsl.model.MediaTypes._
 import akka.http.scaladsl.model.{HttpEntity, HttpRequest, HttpResponse}
@@ -15,10 +16,6 @@ import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
-import java.util.UUID.fromString
-
-import akka.http.scaladsl.Http
-import io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic.{filterId, filterName}
 
 import scala.collection.mutable
 import scala.concurrent.Promise
@@ -97,7 +94,7 @@ class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfigu
 
   override def onPush(): Unit = {
 
-    grab(in)
+    grab(in).records
       .map(record => {
         val fields = record.payload.values.foldLeft(Map.empty[String, Any])({
           case (map, field) => map + (field.name -> field.value)

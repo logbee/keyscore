@@ -1,7 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.kafka
 
 import java.util.{Locale, ResourceBundle, UUID}
-import java.util.UUID.fromString
 
 import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
@@ -101,7 +100,7 @@ class KafkaSinkLogic(context: StageContext, configuration: FilterConfiguration, 
 
     val dataset = grab(shape.in)
 
-    dataset.foreach(record => {
+    dataset.records.foreach(record => {
 
       val promise = Promise[Unit]
       val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, parseRecord(record)), promise)
