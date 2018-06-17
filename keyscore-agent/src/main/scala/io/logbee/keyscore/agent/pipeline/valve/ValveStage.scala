@@ -86,6 +86,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private val clearBufferCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
       ringBuffer.clear()
       promise.success(update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime)))
+      log.debug(s"Cleared buffer of valve <$id>")
     })
 
     private val valveProxy = new ValveProxy {

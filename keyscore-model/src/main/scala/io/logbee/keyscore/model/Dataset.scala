@@ -44,30 +44,3 @@ class Dataset(val metaData: MetaData, val records: List[Record]) {
 
   override def toString = s"Dataset($metaData, $records)"
 }
-
-case class Label[T](name: String) {
-  def from(metaData: MetaData): Option[T] = {
-    metaData.label[T](this)
-  }
-}
-
-object MetaData {
-  def apply(): MetaData = new MetaData(Map.empty)
-}
-
-case class MetaData(labels: Map[Label[_], Any]) {
-
-  def label[T](label: Label[T]): Option[T] = {
-    labels
-      .find(_.isInstanceOf[T])
-      .map(_.asInstanceOf[T])
-  }
-
-  def label[T](label: Label[T], value: T): MetaData = {
-    MetaData(labels + (label -> value))
-  }
-
-  def hasLabel(label: Label[_]): Boolean = {
-    labels.contains(label)
-  }
-}
