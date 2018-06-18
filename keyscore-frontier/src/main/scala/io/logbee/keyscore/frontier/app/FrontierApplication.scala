@@ -2,6 +2,7 @@ package io.logbee.keyscore.frontier.app
 
 import java.util.Locale
 
+import akka.actor.FSM.Failure
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods._
@@ -82,7 +83,7 @@ object FrontierApplication extends App with Json4sSupport {
               parameter('value.as[Boolean]) { doPause =>
                 onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
                   case Success => complete(StatusCodes.Accepted)
-                  case _ => complete(StatusCodes.InternalServerError)
+                  case Failure => complete(StatusCodes.InternalServerError)
                 }
               }
             }

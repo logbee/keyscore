@@ -194,30 +194,35 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       sender ! PipelineState(controller.configuration, Health.Green)
     case PauseFilter(filterId, doPause) =>
       val lastSender = sender
-      controller.close(filterId, doPause).onComplete(filterState =>
-        lastSender ! Success
-      )
+      controller.close(filterId, doPause).onComplete {
+        case Success(value) => lastSender ! Success
+        case Failure(e) => lastSender ! Failure
+      }
     case DrainFilterValve(filterId, doDrain) =>
       val lastSender = sender
-      controller.drain(filterId, doDrain).onComplete(filterState =>
-        lastSender ! Success
-      )
+      controller.drain(filterId, doDrain).onComplete {
+        case Success(value) => lastSender ! Success
+        case Failure(e) => lastSender ! Failure
+      }
     case InsertDatasets(filterId, datasets) =>
       val lastSender = sender
-      controller.insert(filterId, datasets).onComplete(filterState =>
-        lastSender ! Success
-      )
+      controller.insert(filterId, datasets).onComplete {
+        case Success(value) => lastSender ! Success
+        case Failure(e) => lastSender ! Failure
+      }
     case ExtractDatasets(filterId, amount) =>
       val lastSender = sender
-      controller.extract(filterId, amount).onComplete(filterState =>
-        lastSender ! Success
-      )
+      controller.extract(filterId, amount).onComplete {
+        case Success(value) => lastSender ! Success
+        case Failure(e) => lastSender ! Failure
+      }
+
     case ConfigureFilter(filterId, filterConfig) =>
       val lastSender = sender
-      controller.configure(filterId, filterConfig).onComplete(filterState =>
-        lastSender ! sender
-      )
-
+      controller.configure(filterId, filterConfig).onComplete {
+        case Success(value) => lastSender ! Success
+        case Failure(e) => lastSender ! Failure
+      }
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {
