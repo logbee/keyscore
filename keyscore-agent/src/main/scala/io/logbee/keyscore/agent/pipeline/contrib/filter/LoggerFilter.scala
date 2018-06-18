@@ -5,8 +5,8 @@ import java.util.{Locale, UUID}
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
-import io.logbee.keyscore.model.{Dataset, Described}
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterConnection, FilterDescriptorFragment, MetaFilterDescriptor}
+import io.logbee.keyscore.model.{Dataset, Described}
 
 object LoggerFilter extends Described {
 
@@ -18,9 +18,9 @@ object LoggerFilter extends Described {
     MetaFilterDescriptor(filterId, filterName, Map(Locale.ENGLISH -> FilterDescriptorFragment(
       displayName = "Logger Filter",
       description = "",
-      previousConnection = FilterConnection(true),
-      nextConnection = FilterConnection(true),
-      category = "debug"
+      previousConnection = FilterConnection(isPermitted = true),
+      nextConnection = FilterConnection(isPermitted = true),
+      category = "Debug"
     )))
   }
 }

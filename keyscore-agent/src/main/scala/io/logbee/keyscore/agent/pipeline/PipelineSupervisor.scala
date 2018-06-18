@@ -192,24 +192,28 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case RequestPipelineState =>
       log.info("Received PipelineState Request")
       sender ! PipelineState(controller.configuration, Health.Green)
+
     case PauseFilter(filterId, doPause) =>
       val lastSender = sender
       controller.close(filterId, doPause).onComplete {
         case Success(value) => lastSender ! Success
         case Failure(e) => lastSender ! Failure
       }
+
     case DrainFilterValve(filterId, doDrain) =>
       val lastSender = sender
       controller.drain(filterId, doDrain).onComplete {
         case Success(value) => lastSender ! Success
         case Failure(e) => lastSender ! Failure
       }
+
     case InsertDatasets(filterId, datasets) =>
       val lastSender = sender
       controller.insert(filterId, datasets).onComplete {
         case Success(value) => lastSender ! Success
         case Failure(e) => lastSender ! Failure
       }
+
     case ExtractDatasets(filterId, amount) =>
       val lastSender = sender
       controller.extract(filterId, amount).onComplete {
