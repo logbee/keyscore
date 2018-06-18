@@ -15,11 +15,11 @@ private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends
 
   override def configure(configuration: FilterConfiguration): Future[Unit] = sink.configure(configuration)
 
-  override def pause(doPause: Boolean): Future[FilterState] = ???
+  override def pause(doClose: Boolean): Future[FilterState] = ???
 
   override def drain(drain: Boolean): Future[FilterState] = ???
 
-  override def insert(dataset: Dataset*): Future[FilterState] = ???
+  override def insert(dataset: List[Dataset]): Future[FilterState] = ???
 
   override def extract(n: Int): Future[List[Dataset]] = valve.extract(n)
 }

@@ -12,7 +12,12 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
 
   override val id: UUID = filter.id
 
-  override def configure(configuration: FilterConfiguration): Future[Unit] = filter.configure(configuration)
+  override def configure(configuration: FilterConfiguration): Future[Unit] = {
+    for {
+      _ <- filter.configure(configuration)
+      filterState <- filter.state()
+    } yield filterState
+  }
 
   override def pause(doPause: Boolean): Future[FilterState] = {
     for {
@@ -28,11 +33,11 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
     } yield filterState
   }
 
-  override def insert(dataset: Dataset*): Future[FilterState] = {
+  override def insert(dataset: List[Dataset]): Future[FilterState] = {
     for {
       _ <- inValve.close()
       _ <- outValve.drain()
-      _ <- inValve.insert(dataset: _*)
+      _ <- inValve.insert(dataset)
       filterState <- filter.state()
     } yield filterState
   }

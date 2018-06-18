@@ -19,16 +19,16 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
     lookup(id).configure(configuration)
   }
 
-  def pause(id: UUID, doPause: Boolean): Future[FilterState] = {
-    lookup(id).pause(doPause)
+  def close(id: UUID, doClose: Boolean): Future[FilterState] = {
+    lookup(id).pause(doClose)
   }
 
   def drain(id: UUID, doDrain: Boolean): Future[FilterState] = {
     lookup(id).drain(doDrain)
   }
 
-  def insert(id: UUID, dataset: Dataset*): Future[FilterState] = {
-    lookup(id).insert(dataset: _*)
+  def insert(id: UUID, dataset: List[Dataset]): Future[FilterState] = {
+    lookup(id).insert(dataset)
   }
 
   def extract(id: UUID, amount: Int = 1): Future[List[Dataset]] = {

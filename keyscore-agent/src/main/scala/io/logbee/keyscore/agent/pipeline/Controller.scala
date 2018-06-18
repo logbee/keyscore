@@ -31,11 +31,11 @@ abstract class Controller {
 
   def configure(configuration: FilterConfiguration): Future[Unit]
 
-  def pause(doPause: Boolean): Future[FilterState]
+  def pause(doClose: Boolean): Future[FilterState]
 
   def drain(drain: Boolean): Future[FilterState]
 
-  def insert(dataset: Dataset*): Future[FilterState]
+  def insert(dataset: List[Dataset]): Future[FilterState]
 
   def extract(amount: Int = 1): Future[List[Dataset]]
 }

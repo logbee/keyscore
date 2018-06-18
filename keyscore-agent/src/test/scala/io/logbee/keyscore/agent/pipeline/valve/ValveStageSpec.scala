@@ -35,7 +35,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
   "A ValveStage" should {
 
-    "passes through datasets" in new TestWithSourceAndSinkProbe(testData = List(dataset1, dataset2, dataset3)) {
+    "pass through datasets" in new TestWithSourceAndSinkProbe(testData = List(dataset1, dataset2, dataset3)) {
 
       whenReady(valveFuture) { valve =>
 
@@ -47,7 +47,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       }
     }
 
-    "backpressure when closed, so only buffered messages passe through" in new TestWithSourceAndSinkProbe(bufferLimit = 2, testData = List(dataset1, dataset2, dataset3, dataset4)) {
+    "backpressure when closed, so only buffered messages pass through" in new TestWithSourceAndSinkProbe(bufferLimit = 2, testData = List(dataset1, dataset2, dataset3, dataset4)) {
 
       whenReady(valveFuture) { valve =>
 
@@ -89,7 +89,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
     "extracts single data from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>
-        whenReady(valve.insert(dataset1)) { state =>
+        whenReady(valve.insert(List(dataset1))) { state =>
           whenReady(valve.extract()) { datasets =>
             datasets should contain(dataset1)
           }
@@ -99,7 +99,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
     "extract n elements from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>
-        whenReady(valve.insert(dataset1, dataset2, dataset3)) { state =>
+        whenReady(valve.insert(List(dataset1, dataset2, dataset3))) { state =>
           whenReady(valve.extract(2)) { datasets =>
             datasets should contain inOrderOnly(dataset3, dataset2)
           }
@@ -130,10 +130,6 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
           state.position shouldBe Open
         }
       }
-    }
-
-    "unpause an Valve which is not paused" in new TestWithSourceProbeAndSinkProbe {
-
     }
   }
 }

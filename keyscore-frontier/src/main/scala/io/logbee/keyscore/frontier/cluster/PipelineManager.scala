@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, 
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder, DeletePipelineOrder}
-import io.logbee.keyscore.commons.pipeline.PauseFilter
+import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
@@ -64,6 +64,26 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
     case message: PauseFilter =>
       availableAgents.keys.foreach(agent => {
         pipelineSchedulerSelector(agent, context) forward message
+      })
+
+    case message: DrainFilterValve =>
+      availableAgents.keys.foreach(agent => {
+        pipelineSchedulerSelector(agent, context) forward message
+      })
+
+    case message: InsertDatasets =>
+      availableAgents.keys.foreach(agent => {
+        pipelineSchedulerSelector(agent, context) forward message
+      })
+
+    case message: ExtractDatasets =>
+      availableAgents.keys.foreach(agent => {
+        pipelineSchedulerSelector(agent, context) forward message
+      })
+
+    case message: ConfigureFilter =>
+      availableAgents.keys.foreach(agent => {
+        pipelineSchedulerSelector(agent,context) forward message
       })
   }
 

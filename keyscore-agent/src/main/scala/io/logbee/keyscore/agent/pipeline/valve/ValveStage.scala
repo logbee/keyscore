@@ -125,9 +125,9 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         promise.future
       }
 
-      override def insert(datasets: Dataset*): Future[ValveState] = {
+      override def insert(datasets: List[Dataset]): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        val list = datasets.toList
+        val list = datasets
         log.debug(s"Inserting ${list.size} datasets into valve <$id>")
         insertCallback.invoke(promise, list)
         promise.future

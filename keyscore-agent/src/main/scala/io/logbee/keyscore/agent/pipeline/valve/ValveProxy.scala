@@ -16,7 +16,7 @@ trait ValveProxy {
 
   def extract(amount: Int = 1): Future[List[Dataset]]
 
-  def insert(dataset: Dataset*): Future[ValveState]
+  def insert(dataset: List[Dataset]): Future[ValveState]
 
   def clearBuffer(): Future[ValveState]
 }

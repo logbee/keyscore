@@ -15,13 +15,15 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import io.logbee.keyscore.commons.pipeline.PauseFilter
+import io.logbee.keyscore.commons.pipeline
+import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.json.helper.FilterConfigTypeHints
-import io.logbee.keyscore.model.{AgentModel, PipelineConfiguration}
+import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.model.{AgentModel, Dataset, PipelineConfiguration}
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 
@@ -76,17 +78,54 @@ object FrontierApplication extends App with Json4sSupport {
       pathPrefix("filter") {
         pathPrefix(JavaUUID) { filterId =>
           path("pause") {
-            get {
-              complete(StatusCodes.OK)
-            } ~
+            post {
+              parameter('value.as[Boolean]) { doPause =>
+                onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
+                  case Success => complete(StatusCodes.Accepted)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            }
+          } ~
+            path("drain") {
               post {
-                parameter('value.as[Boolean]) { doPause =>
-                  onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
+                parameter('value.as[Boolean]) { doDrain =>
+                  onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
                     case Success => complete(StatusCodes.Accepted)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
               }
+            } ~
+              path("insert") {
+                put {
+                  entity(as[List[Dataset]])  { datasets =>
+                    onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
+                      case Success => complete(StatusCodes.Accepted)
+                      case _ => complete(StatusCodes.InternalServerError)
+                    }
+                  }
+                }
+              } ~
+              path("extract") {
+                get {
+                  parameter('value.as[Int]) { amount =>
+                    onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
+                      case Success => complete(StatusCodes.Accepted)
+                      case _ => complete(StatusCodes.InternalServerError)
+                    }
+                  }
+                }
+              }~
+          path("configure") {
+            put {
+              entity(as[FilterConfiguration]) { filterConfig =>
+                onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
+                  case Success => complete(StatusCodes.Accepted)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            }
           }
         }
       } ~

@@ -2,12 +2,14 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
+import akka.actor.Status.Success
 import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.{FlowShape, SinkShape, SourceShape}
 import akka.testkit.{TestActor, TestKit, TestProbe}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{CreateFilterStage, CreateSinkStage, CreateSourceStage}
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.{CreatePipeline, RequestPipelineState}
 import io.logbee.keyscore.agent.pipeline.stage._
+import io.logbee.keyscore.commons.pipeline.PauseFilter
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
 import org.junit.runner.RunWith
@@ -24,17 +26,35 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
   "A running PipelineSupervisor" should {
 
     val filterManager = TestProbe()
-
     val pipelineID = UUID.randomUUID()
     val sourceConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-source"))
     val sinkConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-sink"))
-    val filterConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-filter1"))
+    val filterConfiguration1 = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-filter1"))
     val filterConfiguration2 = FilterConfiguration(FilterDescriptor(UUID.randomUUID(),"test-filter2"))
 
-    val pipelineConfiguration = PipelineConfiguration(pipelineID, "test", "A test pipeline.", sourceConfiguration, List(filterConfiguration,filterConfiguration2), sinkConfiguration)
+    val pipelineConfiguration = PipelineConfiguration(pipelineID, "test", "A test pipeline.", sourceConfiguration, List(filterConfiguration1,filterConfiguration2), sinkConfiguration)
     val agent = TestProbe("agent")
     val supervisor = system.actorOf(PipelineSupervisor(filterManager.ref))
 
+    trait SupervisorSpecSetup {
+      val sinkStage = new SinkStage(stub[StageContext], sinkConfiguration, sinkLogicProvider)
+      val sourceStage = new SourceStage(stub[StageContext], sourceConfiguration, sourceLogicProvider)
+      val filterStage = new FilterStage(stub[StageContext], filterConfiguration1, filterLogicProvider)
+      val filterStage2 = new FilterStage(stub[StageContext],filterConfiguration2,filterLogicProvider)
+
+      filterManager.setAutoPilot((sender: ActorRef, message: Any) => message match {
+        case _: CreateSinkStage =>
+          sender ! FilterManager.SinkStageCreated(sinkStage)
+          TestActor.KeepRunning
+        case _: CreateSourceStage =>
+          sender ! FilterManager.SourceStageCreated(sourceStage)
+          TestActor.KeepRunning
+        case _: CreateFilterStage =>
+          sender ! FilterManager.FilterStageCreated(filterStage)
+          sender ! FilterManager.FilterStageCreated(filterStage2)
+          TestActor.KeepRunning
+      })
+    }
     def pollPipelineHealthState(maxRetries: Int, sleepTimeMs: Long): Boolean = {
       var retries = maxRetries
       while (retries > 0) {
@@ -51,25 +71,7 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
       false
     }
 
-    "start a pipeline with a correct configuration" in {
-
-      val sinkStage = new SinkStage(stub[StageContext], sinkConfiguration, sinkLogicProvider)
-      val sourceStage = new SourceStage(stub[StageContext], sourceConfiguration, sourceLogicProvider)
-      val filterStage = new FilterStage(stub[StageContext], filterConfiguration, filterLogicProvider)
-      val filterStage2 = new FilterStage(stub[StageContext],filterConfiguration2,filterLogicProvider)
-
-      filterManager.setAutoPilot((sender: ActorRef, message: Any) => message match {
-        case _: CreateSinkStage =>
-          sender ! FilterManager.SinkStageCreated(sinkStage)
-          TestActor.KeepRunning
-        case _: CreateSourceStage =>
-          sender ! FilterManager.SourceStageCreated(sourceStage)
-          TestActor.KeepRunning
-        case _: CreateFilterStage =>
-          sender ! FilterManager.FilterStageCreated(filterStage)
-          sender ! FilterManager.FilterStageCreated(filterStage2)
-          TestActor.KeepRunning
-      })
+    "start a pipeline with a correct configuration" in new SupervisorSpecSetup {
 
       supervisor tell (RequestPipelineState,agent.ref)
       agent.expectMsg(PipelineState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, Health.Red))
