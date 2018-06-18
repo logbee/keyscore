@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
+
 task pullImage(type: DockerPullImage) {
     repository = 'docker.elastic.co/elasticsearch/elasticsearch-oss'
     tag = '6.2.4'
@@ -14,13 +15,13 @@ task createContainer(type: DockerCreateContainer) {
     containerName = 'elasticsearch'
     targetImageId { pullImage.getImageId() }
     env = ['discovery.type=single-node', 'ES_JAVA_OPTS=-Xms512m -Xmx512m']
-    portBindings = ['9200:9200','9300:9300']
+    portBindings = ['9200:9200', '9300:9300']
     hostName = 'elasticsearch'
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startContainer(type: DockerStartContainer) {
-    dependsOn createContainer
+    dependsOn = ['createContainer','::setupDockerNetwork']
     targetContainerId { createContainer.getContainerId() }
 }
 

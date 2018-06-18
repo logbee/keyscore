@@ -12,6 +12,8 @@ buildscript {
     }
 }
 
+apply plugin: 'com.bmuschko.docker-remote-api'
+
 subprojects {
     repositories {
         mavenCentral()
@@ -27,8 +29,8 @@ task setupDockerNetwork(type: DockerInspectNetwork) {
     setupDockerNetwork.ext.createNetwork = false
     onError { exception ->
         if (exception.message.contains('not found')) {
-            println('Network not found')
-            createNetwork = true
+            println("Network " + project.properties['containerNetwork'] + " not found")
+            setupDockerNetwork.ext.createNetwork = true
         } else throw exception
     }
 }

@@ -90,11 +90,16 @@ task createDockerContainer(type: DockerCreateContainer) {
     targetImageId { buildDockerImage.getImageId() }
     portBindings = ['3551:3551']
     hostName = project.name
+    env = [
+        'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
+        'KEYSCORE_REMOTE_HOST=' + project.name,
+        'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
+    ]
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startDockerContainer(type: DockerStartContainer) {
-    dependsOn createDockerContainer
+    dependsOn = ['createDockerContainer',':setupDockerNetwork']
     targetContainerId { createDockerContainer.getContainerId() }
 }
 

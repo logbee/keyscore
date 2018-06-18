@@ -8,7 +8,6 @@ apply plugin: 'org.junit.platform.gradle.plugin'
 apply from: rootProject.file('dependencies.gradle')
 
 
-import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
 
 repositories {
@@ -29,25 +28,16 @@ task removeContainerNetwork(type: DockerRemoveNetwork) {
     networkId = project.properties['containerNetwork']
 }
 
-
 task startContainers() {
-
     dependsOn = [
             ':keyscore-frontier:startDockerContainer',
             ':keyscore-agent:startDockerContainer',
             'elasticsearch:startContainer',
-            'kafka:startContainer'
+            'kafka:createKafkaTopics',
     ]
-
     doLast {
         sleep(10000)
     }
-}
-
-task createKafkaTopics(type: DockerExecContainer) {
-    dependsOn startContainers
-    targetContainerId { task('kafka:startContainer').getContainerId() }
-    cmd = '/usr/bin/create-topics.sh "topic1,topic2,topic3"'
 }
 
 task stopContainers() {
@@ -55,14 +45,15 @@ task stopContainers() {
             ':keyscore-frontier:removeDockerContainer',
             ':keyscore-agent:removeDockerContainer',
             'elasticsearch:removeContainer',
+            'kafka:removeContainer',
             'removeContainerNetwork'
     ]
 }
 
 junitPlatformTest {
     dependsOn startContainers
-    finalizedBy stopContainers
-    outputs.upToDateWhen { false }
+   finalizedBy stopContainers
+   outputs.upToDateWhen { false }
 }
 
 afterEvaluate {

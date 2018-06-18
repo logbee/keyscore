@@ -1,4 +1,5 @@
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
@@ -19,8 +20,16 @@ task createContainer(type: DockerCreateContainer) {
 }
 
 task startContainer(type: DockerStartContainer) {
-    dependsOn createContainer
+    dependsOn = ['createContainer','::setupDockerNetwork']
     targetContainerId { createContainer.getContainerId() }
+}
+
+
+task createKafkaTopics(type: DockerExecContainer) {
+    dependsOn startContainer
+    targetContainerId { startContainer.getContainerId() }
+    cmd = ["/usr/bin/create-topics.sh","sourceTopic,sinkTopic,testTopic"]
+
 }
 
 task stopContainer(type: DockerStopContainer) {
