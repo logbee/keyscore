@@ -83,7 +83,7 @@ object FrontierApplication extends App with Json4sSupport {
         pathPrefix("instance") {
           get {
             onSuccess(pipelineManager ? RequestExistingPipelines()) {
-              case PipelineStateResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
+              case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
               case Failure => complete(StatusCodes.InternalServerError)
             }
           } ~

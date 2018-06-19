@@ -64,7 +64,7 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
     case DeletePipelineOrder(id) =>
       child(nameFrom(id)).foreach(child => context.stop(child))
 
-    case message: RequestPipelineState =>
+    case message: RequestPipelineInstance =>
       children.foreach( supervisor => {
         supervisor forward message
       })

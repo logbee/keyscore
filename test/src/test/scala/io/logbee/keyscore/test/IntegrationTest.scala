@@ -5,6 +5,5 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class IntegrationTest {
-  println("Test is running")
-  assert(true)
+
 }

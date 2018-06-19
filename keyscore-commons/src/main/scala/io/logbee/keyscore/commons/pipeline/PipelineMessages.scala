@@ -1,7 +1,7 @@
 package io.logbee.keyscore.commons.pipeline
 import akka.actor.ActorRef
-import io.logbee.keyscore.model.PipelineState
+import io.logbee.keyscore.model.PipelineInstance
 
 
-case class PipelineStateResponse(pipelineStates: List[PipelineState])
-case class RequestPipelineState(receiver: ActorRef)
+case class PipelineInstanceResponse(pipelineInstances: List[PipelineInstance])
+case class RequestPipelineInstance(receiver: ActorRef)

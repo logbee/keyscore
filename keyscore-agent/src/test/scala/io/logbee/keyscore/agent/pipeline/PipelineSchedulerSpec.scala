@@ -37,8 +37,8 @@ class PipelineSchedulerSpec extends WordSpec with Matchers with ScalaFutures wit
       testee ! CreatePipeline(streamConfiguration)
 
 //      whenReady(().mapTo[ActorRef]) { ref =>
-//        whenReady((ref ? RequestPipelineState).mapTo[PipelineState]) { state =>
-//          state shouldBe PipelineState(streamId, Health.Green, streamConfiguration)
+//        whenReady((ref ? RequestPipelineInstance).mapTo[PipelineInstance]) { state =>
+//          state shouldBe PipelineInstance(streamId, Health.Green, streamConfiguration)
 //        }
 //
 //        testee ! UpdatePipeline(streamConfiguration)

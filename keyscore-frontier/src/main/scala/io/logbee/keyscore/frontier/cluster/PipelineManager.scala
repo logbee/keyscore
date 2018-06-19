@@ -89,9 +89,9 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       })
 
     case  RequestExistingPipelines =>
-      val aggregator = context.system.actorOf(PipelineStateAggregator(sender,availableAgents.keys))
+      val aggregator = context.system.actorOf(PipelineInstanceAggregator(sender,availableAgents.keys))
       availableAgents.keys.foreach( agent => {
-        pipelineSchedulerSelector(agent, context) ! RequestPipelineState(aggregator)
+        pipelineSchedulerSelector(agent, context) ! RequestPipelineInstance(aggregator)
       })
   }
 
