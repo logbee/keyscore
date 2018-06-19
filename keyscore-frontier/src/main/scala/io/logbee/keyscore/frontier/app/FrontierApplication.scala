@@ -67,16 +67,21 @@ object FrontierApplication extends App with Json4sSupport {
         get {
           complete(StatusCodes.NotImplemented)
         } ~
-          path(JavaUUID) { pipelineId =>
-            put {
-              entity(as[PipelineConfiguration]) { pipeline =>
-                pipelineManager ! PipelineManager.CreatePipeline(pipeline)
-                complete(StatusCodes.OK)
-              }
+          put {
+            entity(as[PipelineConfiguration]) { pipeline =>
+              pipelineManager ! PipelineManager.CreatePipeline(pipeline)
+              complete(StatusCodes.OK)
             } ~
-              delete {
-                pipelineManager ! PipelineManager.DeletePipeline(id = pipelineId)
-                complete(StatusCodes.OK)
+              post {
+                entity(as[PipelineConfiguration]) { pipeline =>
+                  complete(StatusCodes.NotImplemented)
+                }
+              } ~
+              pathPrefix(JavaUUID) { configId =>
+                delete {
+                  pipelineManager ! PipelineManager.DeletePipeline(id = configId)
+                  complete(StatusCodes.OK)
+                }
               }
           }
       } ~

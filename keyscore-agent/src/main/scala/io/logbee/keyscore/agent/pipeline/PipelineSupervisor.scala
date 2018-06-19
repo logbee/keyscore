@@ -162,7 +162,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
-      receiver ! PipelineInstance(pipeline.configuration, Health.Yellow)
+      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Health.Yellow)
   }
 
   private def materializing(pipeline: Pipeline, controllers: List[Controller]): Receive = {
@@ -181,7 +181,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
-      receiver ! PipelineInstance(pipeline.configuration, Health.Yellow)
+      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Health.Yellow)
   }
 
   private def running(controller: PipelineController): Receive = {
@@ -191,7 +191,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
-      receiver ! PipelineInstance(controller.configuration, Health.Green)
+      receiver ! PipelineInstance(controller.configuration.id, controller.configuration.name, controller.configuration.description, Health.Green)
 
     case PauseFilter(filterId, doPause) =>
       val lastSender = sender
