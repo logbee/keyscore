@@ -50,12 +50,14 @@ test {
 }
 
 jar {
-    manifest.attributes ([
-        'Main-Class': mainClass,
-        'Implementation-Title': project.name,
-        'Implementation-Version': version,
-        'Implementation-Vendor': 'logbee.io',
-        'Class-Path': (configurations.runtime + configurations.compile).collect { "libs/" + it.getName() }.join(' ')
+    manifest.attributes([
+            'Main-Class'            : mainClass,
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': version,
+            'Implementation-Vendor' : 'logbee.io',
+            'Class-Path'            : (configurations.runtime + configurations.compile).collect {
+                "libs/" + it.getName()
+            }.join(' ')
     ])
 }
 
@@ -92,15 +94,17 @@ task createDockerContainer(type: DockerCreateContainer) {
     portBindings = ['2551:2551', '4711:4711']
     hostName = project.name
     env = [
-        'KEYSCORE_REMOTE_HOST=' + project.name,
-        'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
+            'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
+            'KEYSCORE_REMOTE_HOST=keyscore-frontier',
+            'KEYSCORE_REMOTE_PORT=0',
+            'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
     ]
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startDockerContainer(type: DockerStartContainer) {
 
-    dependsOn = ['createDockerContainer',':setupDockerNetwork']
+    dependsOn = ['createDockerContainer', ':setupDockerNetwork']
     targetContainerId { createDockerContainer.getContainerId() }
 }
 

@@ -92,7 +92,8 @@ task createDockerContainer(type: DockerCreateContainer) {
     hostName = project.name
     env = [
         'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
-        'KEYSCORE_REMOTE_HOST=' + project.name,
+        'KEYSCORE_REMOTE_HOST=keyscore-agent',
+        'KEYSCORE_REMOTE_PORT=0',
         'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
     ]
     network = project.findProperty('containerNetwork') ?: 'host'
