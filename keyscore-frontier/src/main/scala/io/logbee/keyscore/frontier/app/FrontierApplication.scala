@@ -16,6 +16,7 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import io.logbee.keyscore.commons.pipeline
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
@@ -31,6 +32,8 @@ import org.json4s.native.Serialization
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Success
+import java.util.{Locale, UUID}
+import io.logbee.keyscore.frontier.cluster.PipelineManager.RequestExistingPipelines
 
 
 object FrontierApplication extends App with Json4sSupport {
@@ -60,22 +63,39 @@ object FrontierApplication extends App with Json4sSupport {
 
   val route = cors(corsSettings) {
     pathPrefix("pipeline") {
-      get{
-        onSuccess(pipelineManager ? RequestExistingPipelines()) {
-          case PipelineStateResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
-          case Failure => complete(StatusCodes.InternalServerError)
-        }
-      }~
-        path(JavaUUID) { pipelineId =>
-          put {
-            entity(as[PipelineConfiguration]) { pipeline =>
-              pipelineManager ! PipelineManager.CreatePipeline(pipeline)
-              complete(StatusCodes.OK)
+      pathPrefix("config") {
+        get {
+          complete(StatusCodes.NotImplemented)
+        } ~
+          path(JavaUUID) { pipelineId =>
+            put {
+              entity(as[PipelineConfiguration]) { pipeline =>
+                pipelineManager ! PipelineManager.CreatePipeline(pipeline)
+                complete(StatusCodes.OK)
+              }
+            } ~
+              delete {
+                pipelineManager ! PipelineManager.DeletePipeline(id = pipelineId)
+                complete(StatusCodes.OK)
+              }
+          }
+      } ~
+        pathPrefix("instance") {
+          get {
+            onSuccess(pipelineManager ? RequestExistingPipelines()) {
+              case PipelineStateResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
+              case Failure => complete(StatusCodes.InternalServerError)
             }
           } ~
-            delete {
-              pipelineManager ! PipelineManager.DeletePipeline(id = pipelineId)
-              complete(StatusCodes.OK)
+            pathPrefix(JavaUUID) { instanceId =>
+              put {
+                //parameter('configId.as[UUID]){ configId =>
+                complete(StatusCodes.NotImplemented)
+                //}
+              } ~ delete {
+                complete(StatusCodes.NotImplemented)
+              }
+
             }
         }
     } ~
@@ -101,36 +121,36 @@ object FrontierApplication extends App with Json4sSupport {
                 }
               }
             } ~
-              path("insert") {
-                put {
-                  entity(as[List[Dataset]])  { datasets =>
-                    onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
-                      case Success => complete(StatusCodes.Accepted)
-                      case _ => complete(StatusCodes.InternalServerError)
-                    }
+            path("insert") {
+              put {
+                entity(as[List[Dataset]]) { datasets =>
+                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
+                    case Success => complete(StatusCodes.Accepted)
+                    case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
-              } ~
-              path("extract") {
-                get {
-                  parameter('value.as[Int]) { amount =>
-                    onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
-                      case Success => complete(StatusCodes.Accepted)
-                      case _ => complete(StatusCodes.InternalServerError)
-                    }
+              }
+            } ~
+            path("extract") {
+              get {
+                parameter('value.as[Int]) { amount =>
+                  onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
+                    case Success => complete(StatusCodes.Accepted)
+                    case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
-              }~
-          path("configure") {
-            put {
-              entity(as[FilterConfiguration]) { filterConfig =>
-                onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
-                  case Success => complete(StatusCodes.Accepted)
-                  case _ => complete(StatusCodes.InternalServerError)
+              }
+            } ~
+            path("configure") {
+              put {
+                entity(as[FilterConfiguration]) { filterConfig =>
+                  onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
+                    case Success => complete(StatusCodes.Accepted)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
                 }
               }
             }
-          }
         }
       } ~
       pathPrefix("descriptors") {
@@ -160,7 +180,11 @@ object FrontierApplication extends App with Json4sSupport {
 
   val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)
 
-  println(s"Server online at http://${configuration.bindAddress}:${configuration.port}/")
+  println(s"Server online at http://${
+    configuration.bindAddress
+  }:${
+    configuration.port
+  }/")
 
   Await.ready(system.whenTerminated, Duration.Inf)
 

@@ -43,7 +43,7 @@ object KafkaSourceLogic extends Described {
     FilterDescriptorFragment(
       displayName = translatedText.getString("displayName"),
       description = translatedText.getString("description"),
-      previousConnection = FilterConnection(isPermitted = true,connectionType = List("pipeline_base")),
+      previousConnection = FilterConnection(isPermitted = true,connectionType = List(FilterConnectionType.SOURCE)),
       nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
         TextParameterDescriptor("bootstrapServer", translatedText.getString("bootstrapServer"), "description"),
