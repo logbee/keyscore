@@ -45,9 +45,9 @@ task stopContainers() {
             ':keyscore-frontier:removeDockerContainer',
             ':keyscore-agent:removeDockerContainer',
             'elasticsearch:removeContainer',
-            'kafka:removeContainer',
-            'removeContainerNetwork'
+            'kafka:removeContainer'
     ]
+    finalizedBy removeContainerNetwork
 }
 
 junitPlatformTest {
