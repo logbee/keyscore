@@ -1,268 +1,118 @@
-= Description
+=== The keyscore-frontier REST API ===
 
-With the REST API streams can be created and filters can be modified.
+The keyscore-frontier offers a REST API to control all aspects of keyscore.
+Ths document is a brief summary of the most important parts of the API.
+Due to the fact that the API is still work in progress this document will change.
 
-== Tools
-For REST API testing, a browser extension is useful. We recommend to use the following extensions: +
+[TIP]
+====
+For REST API testing, a browser extension is useful.
+We recommend to use the following extensions:
 
 * Chrome:   Restlet Client by Restlet
 * Firefox:  RESTED by Espen H
+====
+
+==== Commons ====
+Within keyscore all entities have an UUID.
 
 
-== Create a stream
+==== Pipelines ====
 
-=== URL
+The common url pattern to control pipelines starts with the prefix
+`/pipeline`.
 
-The URL should have the following structure: http://<HOST>:<PORT>/stream/<UUID> +
-A valid URL to create a new stream would look like: +
-http://localhost:4711/stream/fff34f64-1550-449f-8c13-4058ae6b185a
+===== Get all pipeline configurations =====
 
-=== Method
-A stream can be created with the PUT method.
+====== Request ======
 
-=== Body
-A stream contains
+*Method:* `GET`
 
+*URL:* `/pipeline/configuration/*`
 
-* stream id
-* stream name
-* stream description
-* source configuration
-* sink configuration
-* list of filter configurations
+*Body:* <empty>
 
+====== Response ======
+.*Case:* If there are any `PipelineConfiguration`.
+- *Code:* 200 OK
+- *Body:* Array of `PipelineConfiguration`
 
-==== Stream ID
-Every stream has a unique UUID. The UUID should match the UUID in the URL.
-[source,json]
- "id":"fff34f64-1550-449f-8c13-4058ae6b185a",
+.*Case:* If there is no `PipelineConfiguration`.
+- *Code:* 200 OK
+- *Body:* Empty Array
 
-==== Stream Name and Description
-Simple Strings to describe the Stream.
-[source,json]
- "name":"testStream",
- "description":"Description of testStream",
+===== Get a pipeline configuration =====
 
-==== Source, Sink and Filter Configuration
-Every source,sink or filter has the following fields:
+====== Request ======
 
-* id : UUID
-* kind : describes the filter type (e.g "AddFieldsFilter")
-* parameters: List of parameters to configure the filter.
+*Method:* `GET`
 
-===== Parameters
-Configuration parameters consist of three fields:
+*URL:* `/pipeline/configuration/<uuid>`
 
-* name of the parameter as string
-* value of the parameter
-* a field called parameterType representing the values type
+*Body:* `PipelineConfiguration`
 
-Possible values for parameterType are:
+====== Response ======
+.*Case:* A pipeline with the specified UUID exists.
+- *Code:* 200 OK
+- *Body:* `PipelineConfiguration`
 
-* string,boolean,int,float,map[string,string],list[string]
+.*Case:* A pipeline with the specified UUID does not exists.
+- *Code:* 404 NOT FOUND
+- *Body:* <empty>
 
-Examples of different source,sink or filter configurations follow below.
+===== Create a pipeline configuration =====
 
-==== Source
-A source can be built from different types.
+====== Request ======
 
-===== Kafka Source
-We recommend using a kafka source, because with kafka the probability of loosing data is very small. +
-The offset will be increased only after all data is processed in the pipeline. +
-So if something went wrong during the data processing in the pipeline,
-the data that failed is still in kafka and can be processed again.
-[source,json]
- "source":{
-     "id":"643e0b22-9f18-4c6c-ac3c-9fc79df9471d",
-     "kind":"KafkaSource",
-     "parameters":[
-       {
-         "name":"sourceTopic",
-         "value":"testfluentd",
-         "parameterType":"string"
-       },
-       {
-         "name":"groupID",
-         "value":"keyscore-consumer_1",
-         "parameterType":"string"
-       },
-       {
-         "name":"offsetCommit",
-         "value":"earliest",
-         "parameterType":"string"
-       },
-       {
-         "name":"bootstrapServer",
-         "value":"testserver:9092",
-         "parameterType":"string"
-       }
-     ]
-   }
+*Method:* `PUT`
 
-===== HTTP Source
-When using a HTTP Source, just post a JSON message to the specific url to add messages.
-[source,json]
-"source":{
-    "id":"643e0b22-9f18-4c6c-ac3c-9fc79df9471d",
-    "kind":"HttpSource",
-    "parameters":[
-      {
-        "name":"port",
-        "value":8000,
-        "parameterType":"int"
-      },
-      {
-        "name":"fieldName",
-        "value":"httpSource",
-        "parameterType":"string"
-      },
-      {
-        "name":"bindAddress",
-        "value":"localhost",
-        "parameterType":"string"
-      }
-    ]
-  }
+*URL:* `/pipeline/configuration/`
 
-==== Sink
-All the processed data will be pushed in the specified sink.
+*Body:* `PipelineConfiguration`
 
-===== Kafka Sink
-[source,json]
- "sink":{
-     "id":"48ab7a30-7387-4fee-b821-96dfecd411d7",
-     "kind":"KafkaSink",
-     "parameters":[
-       {
-         "name":"sinkTopic",
-         "value":"testfluentd",
-         "parameterType":"string"
-       },
-       {
-         "name":"bootstrapServer",
-         "value":"testserver:9092",
-         "parameterType":"string"
-       }
-     ]
-   }
+====== Response ======
+.*Case:* A new `PipelineConfiguration` with the specified UUID has been created.
+- *Code:* 201 Created
+- *Content:* <empty>
 
+.*Case:* A `PipelineConfiguration` with the specified UUID already exists.
+- *Code:* 400 Bad Request
+- *Content:* <empty>
 
-===== StdOut Sink [Dev tool | Not for production]
-Logs all messages in the console.
-[source,json]
- "sink":{
-     "id":"48ab7a30-7387-4fee-b821-96dfecd411d7",
-     "kind":"StdOutSink",
-     "parameters":[
-     ]
-   }
+===== Update a pipeline configuration =====
 
-==== Body
-The body contains all the filter you want to apply on the streaming data. +
-It can be only one filter or as many as you want.
-[source,json]
-"filter":[
-    {},
-    {}
- ],
+====== Request ======
 
-===== Retain_Fields Filter
-After the retain filter is processed, only the fields in the "fields_to_remain" list will be present in the streaming data. +
-All other fields are not longer in the streaming data.
-[source,json]
- "id":"26d4d561-4cfc-42d6-9cf4-521e66586317",
- "kind":"RetainFieldsFilter",
- "parameters":[
-     {
-       "name":"fieldsToRetain",
-       "value":[
-         "fieldX",
-         "timeField"
-       ],
-       "parameterType":"list[string]"
-     }
- ]
+*Method:* `POST`
 
-===== Add_Fields Filter
-This filter adds new fields with the given value to the streaming data. +
-All older fields are retained.
-[source,json]
- "id":"26d4d561-4cfc-42d6-9cf4-521e66586317",
- "kind":"AddFieldsFilter",
- "parameters":[
-     {
-       "name":"fieldToAdd",
-       "value":{
-         "fieldX":"valueX",
-         "fieldY":"valueY"
-       },
-       "parameterType":"map[string,string]"
-     }
- ]
+*URL:* `/pipeline/configuration/`
 
-===== Remove_Fields Filter
-This filter removes the specified fields from the streaming data. +
-All other fields are retained.
-[source,json]
-"id":"26d4d561-4cfc-42d6-9cf4-521e66586317",
-"kind":"RemoveFieldsFilter",
-"parameters":[
-    {
-      "name":"fieldsToRemove",
-      "value":[
-        "fieldX",
-        "timeField"
-      ],
-      "parameterType":"list[string]"
-    }
-]
+*Body:* `PipelineConfiguration`
 
+====== Response ======
+.*Case:* The update of the `PipelineConfiguration` with the given UUID was successful.
+- *Code:* 200 OK
+- *Content:* `PipelineConfiguration`
 
-===== Grok_Fields Filter
-The grok filter applies the specified regex pattern on the specified fields and extracts the results in a new field. +
-The other fields are retained. +
-This filter is pausable.
+.*Case:* There is no `PipelineConfiguration` with the given UUID.
+- *Code:* 404 NOT FOUND
+- *Content:* <empty>
 
-[source,json]
-"id":"26d4d561-4cfc-42d6-9cf4-521e66586317",
-"kind":"GrokFilter",
-"parameters":[
-    {
-      "name":"isPaused",
-      "value":false,
-      "parameterType":"boolean"
-    },
-    {
-      "name":"pattern",
-      "value":"(?<newmessage>.*)",
-      "parameterType":"string"
-    },
-    {
-      "name":"fieldNames",
-      "value":["message"],
-      "parameterType":"list[string]"
-    }
-]
+===== Delete a pipeline configuration =====
 
+====== Request ======
 
-== Change a filter
-=== URL
-The url must contain the keyword filter: http://<HOST>:<PORT>/filter/<UUID_OF_FILTER>
+*Method:* `DELTE`
 
-=== Method
-The standard method to edit a filter is PUT.
+*URL:* `/pipeline/configuration/<uuid>`
 
-=== Body
-To change a filter, edit the specific model parameters for the filter. +
-These are all parameters that were used to create a filter except of the filter_type and the filter_id. +
+*Body:* <empty>
 
-Here is an example body how to edit a grok_field filter:
-[source,json]
-{
-    "isPaused":"false"
-    "fieldNames":[
-        "fieldWithIP",
-        "fieldX"
-    ],
-    "pattern":".*(?<ipsuffix>\\d{0,2})"
-}
+====== Response ======
+.*Case:* Deletion of the `PipelineConfiguration` with the given UUID was successful.
+- *Code:* 200 OK
+- *Content:* <empty>
+
+.*Case:* There is no `PipelineConfiguration` with the given UUID.
+- *Code:* 404 NOT FOUND
+- *Content:* <empty>
