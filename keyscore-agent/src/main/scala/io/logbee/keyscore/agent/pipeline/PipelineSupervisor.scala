@@ -8,7 +8,7 @@ import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.commons.pipeline._
+import io.logbee.keyscore.commons.pipeline.{_}
 import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineState}
 
 import scala.concurrent.ExecutionContextExecutor
@@ -23,8 +23,6 @@ object PipelineSupervisor {
   case class StartPipeline(trials: Int)
 
   case class ConfigurePipeline(configurePipeline: PipelineConfiguration)
-
-  case object RequestPipelineState
 
   private case class ControllerMaterialized(controller: Controller)
 
@@ -90,8 +88,8 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
       scheduleStart(pipeline, pipelineStartTrials)
 
-    case RequestPipelineState =>
-      sender ! PipelineState(Health.Red)
+    case RequestPipelineState(receiver) =>
+      receiver ! PipelineState(Health.Red)
   }
 
   private def configuring(pipeline: Pipeline): Receive = {
@@ -162,8 +160,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
         }
       }
 
-    case RequestPipelineState =>
-      sender ! PipelineState(pipeline.configuration, Health.Yellow)
+    case RequestPipelineState(receiver) =>
+      log.info("Received PipelineState Request")
+      receiver ! PipelineState(pipeline.configuration, Health.Yellow)
   }
 
   private def materializing(pipeline: Pipeline, controllers: List[Controller]): Receive = {
@@ -180,8 +179,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.error(message = s"Could not construct pipeline <${pipeline.id}> due to a failed materialization a controller!", cause = cause)
       context.stop(self)
 
-    case RequestPipelineState =>
-      sender ! PipelineState(pipeline.configuration, Health.Yellow)
+    case RequestPipelineState(receiver) =>
+      log.info("Received PipelineState Request")
+      receiver ! PipelineState(pipeline.configuration, Health.Yellow)
   }
 
   private def running(controller: PipelineController): Receive = {
@@ -189,9 +189,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ConfigurePipeline(configuration) =>
       log.info(s"Updating pipeline <${configuration.id}>")
 
-    case RequestPipelineState =>
+    case RequestPipelineState(receiver) =>
       log.info("Received PipelineState Request")
-      sender ! PipelineState(controller.configuration, Health.Green)
+      receiver ! PipelineState(controller.configuration, Health.Green)
 
     case PauseFilter(filterId, doPause) =>
       val lastSender = sender

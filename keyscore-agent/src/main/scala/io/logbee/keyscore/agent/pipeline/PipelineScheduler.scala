@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.PipelineScheduler._
 import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeletePipelineOrder}
-import io.logbee.keyscore.commons.pipeline.PauseFilter
+import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model.PipelineConfiguration
 
 import scala.concurrent.duration._
@@ -19,8 +19,6 @@ object PipelineScheduler {
   case class CreateNewPipeline(configuration: PipelineConfiguration)
 
   case class UpdatePipeline(configuration: PipelineConfiguration)
-
-  case object RequestPipelineState
 
   private case class SupervisorTerminated(supervisor: ActorRef, configuration: PipelineConfiguration)
 
@@ -66,8 +64,10 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
     case DeletePipelineOrder(id) =>
       child(nameFrom(id)).foreach(child => context.stop(child))
 
-    case RequestPipelineState =>
-      actorOf(PipelineStateAggregator(sender, children.filter(isSupervisor)))
+    case message: RequestPipelineState =>
+      children.foreach( supervisor => {
+        supervisor forward message
+      })
 
     case SupervisorTerminated(supervisor, configuration) =>
       log.info(s"PipelineSupervisor terminated: $configuration")
@@ -75,6 +75,26 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
     case message: PauseFilter =>
       children.foreach( supervisor => {
         supervisor forward  message
+      })
+
+    case message: DrainFilterValve =>
+      children.foreach(supervisor => {
+        supervisor forward message
+      })
+
+    case message: InsertDatasets =>
+      children.foreach( supervisor => {
+        supervisor forward message
+      })
+
+    case message: ExtractDatasets =>
+      children.foreach( supervisor =>  {
+        supervisor forward message
+      })
+
+    case message: ConfigureFilter =>
+      children.foreach( supervisor => {
+        supervisor forward message
       })
 
     case _ => log.info("Failure")

@@ -2,14 +2,13 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
-import akka.actor.Status.Success
 import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.{FlowShape, SinkShape, SourceShape}
 import akka.testkit.{TestActor, TestKit, TestProbe}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{CreateFilterStage, CreateSinkStage, CreateSourceStage}
-import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.{CreatePipeline, RequestPipelineState}
+import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
 import io.logbee.keyscore.agent.pipeline.stage._
-import io.logbee.keyscore.commons.pipeline.PauseFilter
+import io.logbee.keyscore.commons.pipeline.RequestPipelineState
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
 import org.junit.runner.RunWith

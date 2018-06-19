@@ -1,6 +1,7 @@
-package io.logbee.keyscore.agent.pipeline
+package io.logbee.keyscore.frontier.cluster
 
 import akka.actor.{Actor, ActorRef, Props}
+import io.logbee.keyscore.commons.pipeline.PipelineStateResponse
 import io.logbee.keyscore.model.PipelineState
 
 import scala.collection.mutable
@@ -15,17 +16,17 @@ class PipelineStateAggregator(receiver: ActorRef, children: Iterable[ActorRef]) 
 
   import context.{dispatcher, system}
 
-  private var models = mutable.ListBuffer.empty[PipelineState]
+  private var states = mutable.ListBuffer.empty[PipelineState]
 
   override def preStart(): Unit = {
     system.scheduler.scheduleOnce(5 seconds) {
-      receiver ! models.toList
+      receiver ! PipelineStateResponse(states.toList)
       context.stop(self)
     }
   }
 
   override def receive: Receive = {
-    case model: PipelineState =>
-      models += model
+    case state: PipelineState =>
+      states += state
   }
 }

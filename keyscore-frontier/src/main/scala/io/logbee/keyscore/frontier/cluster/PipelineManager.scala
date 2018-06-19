@@ -2,11 +2,12 @@ package io.logbee.keyscore.frontier.cluster
 
 import java.util.UUID
 
-import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
+import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, ActorSystem, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder, DeletePipelineOrder}
 import io.logbee.keyscore.commons.pipeline._
+import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingPipelines}
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
@@ -16,6 +17,7 @@ import scala.collection.mutable.ListBuffer
 
 object PipelineManager {
 
+  case class RequestExistingPipelines()
   case class CreatePipeline(pipelineConfiguration: PipelineConfiguration)
 
   case class DeletePipeline(id: UUID)
@@ -84,6 +86,12 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
     case message: ConfigureFilter =>
       availableAgents.keys.foreach(agent => {
         pipelineSchedulerSelector(agent,context) forward message
+      })
+
+    case  RequestExistingPipelines =>
+      val aggregator = context.system.actorOf(PipelineStateAggregator(sender,availableAgents.keys))
+      availableAgents.keys.foreach( agent => {
+        pipelineSchedulerSelector(agent, context) ! RequestPipelineState(aggregator)
       })
   }
 

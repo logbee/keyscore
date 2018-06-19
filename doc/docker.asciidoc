@@ -49,3 +49,10 @@ Environment="NO_PROXY=localhost,127.0.0.1,localaddress,.localdomain.com"
 
 . Flush changes: `systemctl daemon-reload`
 . Restart Docker: `systemctl restart docker`
+
+
+=== Akka setups involving NATs ===
+
+https://doc.akka.io/docs/akka/current/remoting.html
+
+https://hackernoon.com/akka-cluster-in-docker-a-straight-forwards-configuration-b6deea32752d
