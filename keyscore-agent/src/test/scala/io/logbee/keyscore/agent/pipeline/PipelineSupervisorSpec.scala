@@ -8,7 +8,7 @@ import akka.testkit.{TestActor, TestKit, TestProbe}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{CreateFilterStage, CreateSinkStage, CreateSourceStage}
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
 import io.logbee.keyscore.agent.pipeline.stage._
-import io.logbee.keyscore.commons.pipeline.RequestPipelineInstance
+import io.logbee.keyscore.commons.pipeline.{RequestPipelineInstance, RequestPipelineState}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
 import org.junit.runner.RunWith
@@ -58,7 +58,7 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
       var retries = maxRetries
       while (retries > 0) {
 
-        supervisor tell(RequestPipelineInstance, agent.ref)
+        supervisor tell(RequestPipelineInstance(agent.ref), agent.ref)
         val pipelineInstance = agent.receiveOne(2 seconds).asInstanceOf[PipelineInstance]
         if (pipelineInstance.health.equals(Health.Green)) {
           return true
@@ -72,13 +72,13 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
 
     "start a pipeline with a correct configuration" in new SupervisorSpecSetup {
 
-      supervisor tell (RequestPipelineInstance,agent.ref)
-      agent.expectMsg(PipelineInstance(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, Health.Red))
+      supervisor tell (RequestPipelineInstance(agent.ref),agent.ref)
+      agent.expectMsg(PipelineState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, Health.Red))
 
       supervisor ! CreatePipeline(pipelineConfiguration)
 
-      supervisor tell (RequestPipelineInstance, agent.ref)
-      agent.expectMsg(PipelineInstance(pipelineConfiguration.id, pipelineConfiguration, Health.Yellow))
+      supervisor tell (RequestPipelinInstance(agent.ref), agent.ref)
+      agent.expectMsg(PipelineState(pipelineConfiguration.id, pipelineConfiguration, Health.Yellow))
 
       pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000) shouldBe true
 
