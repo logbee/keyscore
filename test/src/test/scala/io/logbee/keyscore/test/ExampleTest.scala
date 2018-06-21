@@ -13,9 +13,9 @@ import org.springframework.http.HttpStatus
 class ExampleTest {
 
   private val httpClient: HttpClient = CitrusEndpoints.http()
-                                        .client()
-                                        .requestUrl("http://localhost:4711")
-                                        .build()
+    .client()
+    .requestUrl("http://localhost:4711")
+    .build()
 
   @Test
   @CitrusTest

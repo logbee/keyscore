@@ -31,8 +31,6 @@ import org.json4s.native.Serialization
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Success
-import java.util.{Locale, UUID}
-import io.logbee.keyscore.frontier.cluster.PipelineManager.RequestExistingPipelines
 
 
 object FrontierApplication extends App with Json4sSupport {

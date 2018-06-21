@@ -1,11 +1,14 @@
 package io.logbee.keyscore.agent.pipeline
 
+import java.util.Locale
 import java.util.UUID.randomUUID
 
-import io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilterLogic
+import io.logbee.keyscore.agent.pipeline.contrib.filter.{AddFieldsFilterLogic, CSVParserFilterLogic}
 import io.logbee.keyscore.agent.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextListParameter, TextParameter}
-import io.logbee.keyscore.model.{Dataset, Record, TextField}
+import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.{Dataset, PipelineConfiguration, Record, TextField}
+
+import scala.collection.mutable
 
 object ExampleData {
 
@@ -112,5 +115,11 @@ object ExampleData {
     TextParameter("bootstrapServer", "localhost:9092"),
     TextParameter("topic", "sinkTopic")
   ))
+
+  val addFieldsFilterConfiguration = FilterConfiguration(randomUUID(), AddFieldsFilterLogic.describe.describe(Locale.ENGLISH),List.empty)
+  var filterList = mutable.ListBuffer[FilterConfiguration]()
+  filterList += addFieldsFilterConfiguration
+  val pipelineConfiguration = PipelineConfiguration(randomUUID(),"Testpipeline", "Valid PipelineConfiguration for testing",kafkaSourceConfiguration, filterList.toList, kafkaSinkConfiguration)
+
 }
 
