@@ -8,7 +8,7 @@ import akka.testkit.{TestActor, TestKit, TestProbe}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{CreateFilterStage, CreateSinkStage, CreateSourceStage}
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
 import io.logbee.keyscore.agent.pipeline.stage._
-import io.logbee.keyscore.commons.pipeline.{RequestPipelineInstance, RequestPipelineState}
+import io.logbee.keyscore.commons.pipeline.{RequestPipelineInstance}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
 import org.junit.runner.RunWith
@@ -73,12 +73,12 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
     "start a pipeline with a correct configuration" in new SupervisorSpecSetup {
 
       supervisor tell (RequestPipelineInstance(agent.ref),agent.ref)
-      agent.expectMsg(PipelineState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, Health.Red))
+      agent.expectMsg(PipelineInstance(UUID.fromString("00000000-0000-0000-0000-000000000000"),"", "", null, Health.Red))
 
       supervisor ! CreatePipeline(pipelineConfiguration)
 
-      supervisor tell (RequestPipelinInstance(agent.ref), agent.ref)
-      agent.expectMsg(PipelineState(pipelineConfiguration.id, pipelineConfiguration, Health.Yellow))
+      supervisor tell (RequestPipelineInstance(agent.ref), agent.ref)
+      agent.expectMsg(PipelineInstance(pipelineConfiguration.id,pipelineConfiguration.name, pipelineConfiguration.description, pipelineConfiguration.id, Health.Red))
 
       pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000) shouldBe true
 

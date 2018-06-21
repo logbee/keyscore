@@ -8,10 +8,8 @@ import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.commons.pipeline.{_}
-import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineInstance}
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineState}
+import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineInstance}
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -92,6 +90,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       receiver ! PipelineInstance(Health.Red)
+
   }
 
   private def configuring(pipeline: Pipeline): Receive = {
@@ -164,7 +163,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
-      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Health.Yellow)
+      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Health.Red)
   }
 
   private def materializing(pipeline: Pipeline, controllers: List[Controller]): Receive = {
