@@ -13,11 +13,25 @@ private class SourceController(val source: SourceProxy, val valve: ValveProxy) e
 
   override val id: UUID = source.id
 
-  override def configure(configuration: FilterConfiguration): Future[Unit] = source.configure(configuration)
+  override def configure(configuration: FilterConfiguration): Future[Unit] = {
+   for {
+       _ <- source.configure(configuration)
+      sourceState <- source.state()
+   } yield sourceState
+  }
 
-  override def pause(doClose: Boolean): Future[FilterState] = ???
-
-  override def drain(drain: Boolean): Future[FilterState] = ???
+  override def pause(doPause: Boolean): Future[FilterState] = {
+    for {
+      _ <- if (doPause) valve.close() else valve.open()
+      sourceState <- source.state()
+    } yield sourceState
+  }
+  override def drain(drain: Boolean): Future[FilterState] = {
+    for {
+      _ <- if (drain) valve.drain() else valve.open()
+      filterState <- source.state()
+    } yield filterState
+  }
 
   override def insert(dataset: List[Dataset]): Future[FilterState] = ???
 
