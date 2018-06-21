@@ -116,3 +116,81 @@ The common url pattern to control pipelines starts with the prefix
 .*Case:* There is no `PipelineConfiguration` with the given UUID.
 - *Code:* 404 NOT FOUND
 - *Content:* <empty>
+
+===== Get all pipeline instances =====
+
+====== Request ======
+
+*Method:* `GET`
+
+*URL:* `/pipeline/instance/*`
+
+*Body:* <empty>
+
+====== Response ======
+.*Case:* If there are any `PipelineInstance`.
+- *Code:* 200 OK
+- *Content:* Array of `PipelineInstance`.
+
+.*Case:* There is no `PipelineInstance` with the given UUID.
+- *Code:* 200 OK
+- *Content:* Empty Array
+
+===== Get a pipeline instance =====
+
+====== Request ======
+
+*Method:* `GET`
+
+*URL:* `/pipeline/instance/<uuid>`
+
+*Body:* <empty>
+
+====== Response ======
+.*Case:* A `PipelineInstance` with the given UUID exists.
+- *Code:* 200 OK
+- *Content:* `PipelineInstance`
+
+.*Case:* A `PipelineInstance` with the given UUID does not exist.
+- *Code:* 404 NOT FOUND
+- *Content:* <empty>
+
+===== Create a pipeline instance =====
+
+====== Request ======
+
+*Method:* `PUT`
+
+*URL:* `/pipeline/instance/<uuid>?<configId>`
+
+*Body:* <empty>
+
+====== Response ======
+.*Case:* A new  `PipelineInstacne` with the given UUID and the `PipelineConfiguration` accessed by <configId> has been created.
+- *Code:* 201 CREATED
+- *Content:* <empty>
+
+.*Case:* A `PipelineInstance` with the given UUID already exists.
+- *Code:* 400 Bad Request
+- *Content:* <empty>
+
+===== Update a pipeline instance =====
+
+====== Request ======
+
+*Method:* `POST`
+
+*URL:* `/pipeline/instance/<uuid>?<configId>`
+
+*Body:* <empty>
+
+====== Response ======
+.*Case:* The update of the `PipelineInstacne` with the given UUID and the `PipelineConfiguration` accessed by <configId> was successfull.
+- *Code:* 200 OK
+- *Content:* <empty>
+
+.*Case:* There is no `PipelineInstance` with the given UUID.
+- *Code:* 404 NOT FOUND
+- *Content:* <empty>
+
+
