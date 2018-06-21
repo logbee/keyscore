@@ -69,6 +69,11 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
         supervisor forward message
       })
 
+    case message: RequestPipelineConfigurations =>
+      children.foreach( supervisor => {
+        supervisor forward message
+      })
+
     case SupervisorTerminated(supervisor, configuration) =>
       log.info(s"PipelineSupervisor terminated: $configuration")
 

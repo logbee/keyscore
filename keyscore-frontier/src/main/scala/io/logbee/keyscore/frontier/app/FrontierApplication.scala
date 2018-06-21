@@ -16,11 +16,10 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import io.logbee.keyscore.commons.pipeline
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
-import io.logbee.keyscore.frontier.cluster.PipelineManager.RequestExistingPipelines
+import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.json.helper.FilterConfigTypeHints
@@ -66,144 +65,150 @@ object FrontierApplication extends App with Json4sSupport {
       pathPrefix("configuration") {
         pathPrefix("*") {
           get {
-            complete(StatusCodes.NotImplemented)
+            onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+              case PipelineConfigurationResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
           }
-        } ~
-          pathPrefix(JavaUUID) { configId =>
-            get {
-              complete(StatusCodes.NotImplemented)
+          } ~
+            pathPrefix(JavaUUID) { configId =>
+              get {
+                onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+                  case PipelineConfigurationResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations.find(pipelineConfiguration => pipelineConfiguration.id == configId))
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              } ~
+                delete {
+                  pipelineManager ! PipelineManager.DeletePipeline(id = configId)
+                  complete(StatusCodes.OK)
+                }
             } ~
-              delete {
-                pipelineManager ! PipelineManager.DeletePipeline(id = configId)
+            put {
+              entity(as[PipelineConfiguration]) { pipeline =>
+                pipelineManager ! PipelineManager.CreatePipeline(pipeline)
                 complete(StatusCodes.OK)
               }
-          } ~
-          put {
-            entity(as[PipelineConfiguration]) { pipeline =>
-              pipelineManager ! PipelineManager.CreatePipeline(pipeline)
-              complete(StatusCodes.OK)
-            }
-          } ~
-          post {
-            entity(as[PipelineConfiguration]) { pipeline =>
-              complete(StatusCodes.NotImplemented)
-            }
-          }
-
-
-      } ~
-      pathPrefix("instance") {
-        get {
-          onSuccess(pipelineManager ? RequestExistingPipelines()) {
-            case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
-            case Failure => complete(StatusCodes.InternalServerError)
-          }
-        } ~
-          pathPrefix(JavaUUID) { instanceId =>
-            put {
-              //parameter('configId.as[UUID]){ configId =>
-              complete(StatusCodes.NotImplemented)
-              //}
-            } ~ delete {
-              complete(StatusCodes.NotImplemented)
-            }
-
-          }
-      }
-  } ~
-    pathPrefix("filter") {
-      pathPrefix(JavaUUID) { filterId =>
-        path("pause") {
-          post {
-            parameter('value.as[Boolean]) { doPause =>
-              onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
-                case Success => complete(StatusCodes.Accepted)
-                case Failure => complete(StatusCodes.InternalServerError)
-              }
-            }
-          }
-        } ~
-          path("drain") {
+            } ~
             post {
-              parameter('value.as[Boolean]) { doDrain =>
-                onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
-                  case Success => complete(StatusCodes.Accepted)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
+              entity(as[PipelineConfiguration]) { pipeline =>
+                complete(StatusCodes.NotImplemented)
               }
             }
-          } ~
-          path("insert") {
-            put {
-              entity(as[List[Dataset]]) { datasets =>
-                onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
-                  case Success => complete(StatusCodes.Accepted)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              }
-            }
-          } ~
-          path("extract") {
+
+
+        } ~
+          pathPrefix("instance") {
             get {
-              parameter('value.as[Int]) { amount =>
-                onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
-                  case Success => complete(StatusCodes.Accepted)
-                  case _ => complete(StatusCodes.InternalServerError)
+              onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            } ~
+              pathPrefix(JavaUUID) { instanceId =>
+                put {
+                  //parameter('configId.as[UUID]){ configId =>
+                  complete(StatusCodes.NotImplemented)
+                  //}
+                } ~ delete {
+                  complete(StatusCodes.NotImplemented)
+                }
+
+              }
+          }
+      } ~
+        pathPrefix("filter") {
+          pathPrefix(JavaUUID) { filterId =>
+            path("pause") {
+              post {
+                parameter('value.as[Boolean]) { doPause =>
+                  onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
+                    case Success => complete(StatusCodes.Accepted)
+                    case Failure => complete(StatusCodes.InternalServerError)
+                  }
                 }
               }
-            }
-          } ~
-          path("configure") {
-            put {
-              entity(as[FilterConfiguration]) { filterConfig =>
-                onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
-                  case Success => complete(StatusCodes.Accepted)
-                  case _ => complete(StatusCodes.InternalServerError)
+            } ~
+              path("drain") {
+                post {
+                  parameter('value.as[Boolean]) { doDrain =>
+                    onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
+                      case Success => complete(StatusCodes.Accepted)
+                      case _ => complete(StatusCodes.InternalServerError)
+                    }
+                  }
                 }
+              } ~
+              path("insert") {
+                put {
+                  entity(as[List[Dataset]]) { datasets =>
+                    onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
+                      case Success => complete(StatusCodes.Accepted)
+                      case _ => complete(StatusCodes.InternalServerError)
+                    }
+                  }
+                }
+              } ~
+              path("extract") {
+                get {
+                  parameter('value.as[Int]) { amount =>
+                    onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
+                      case Success => complete(StatusCodes.Accepted)
+                      case _ => complete(StatusCodes.InternalServerError)
+                    }
+                  }
+                }
+              } ~
+              path("configure") {
+                put {
+                  entity(as[FilterConfiguration]) { filterConfig =>
+                    onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
+                      case Success => complete(StatusCodes.Accepted)
+                      case _ => complete(StatusCodes.InternalServerError)
+                    }
+                  }
+                }
+              }
+          }
+        } ~
+        pathPrefix("descriptors") {
+          get {
+            parameters('language.as[String]) { language =>
+              onSuccess(filterDescriptorManager ? GetStandardDescriptors(Locale.forLanguageTag(language))) {
+                case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+                case _ => complete(StatusCodes.InternalServerError)
               }
             }
           }
-      }
-    } ~
-    pathPrefix("descriptors") {
-      get {
-        parameters('language.as[String]) { language =>
-          onSuccess(filterDescriptorManager ? GetStandardDescriptors(Locale.forLanguageTag(language))) {
-            case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
-            case _ => complete(StatusCodes.InternalServerError)
+        } ~
+        pathPrefix("agent") {
+          get {
+            onSuccess(agentManager ? QueryAgents) {
+              case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          }
+        } ~
+        pathSingleSlash {
+          complete {
+            appInfo
           }
         }
-      }
-    } ~
-    pathPrefix("agent") {
-      get {
-        onSuccess(agentManager ? QueryAgents) {
-          case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
-          case _ => complete(StatusCodes.InternalServerError)
-        }
-      }
-    } ~
-    pathSingleSlash {
-      complete {
-        appInfo
-      }
     }
-}
 
-val bindingFuture = Http ().bindAndHandle (route, configuration.bindAddress, configuration.port)
+    val bindingFuture = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)
 
-println (s"Server online at http://${
-configuration.bindAddress
-}:${
-configuration.port
-}/")
+    println(s"Server online at http://${
+      configuration.bindAddress
+    }:${
+      configuration.port
+    }/")
 
-Await.ready (system.whenTerminated, Duration.Inf)
+    Await.ready(system.whenTerminated, Duration.Inf)
 
-bindingFuture
-.flatMap (_.unbind () )
-.onComplete (_ => system.terminate () )
-}
+    bindingFuture
+      .flatMap(_.unbind())
+      .onComplete(_ => system.terminate())
+  }
 
 class FrontierApplication {
 
