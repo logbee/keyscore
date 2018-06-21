@@ -91,8 +91,7 @@ object FrontierApplication extends App with Json4sSupport {
           }
 
 
-      }
-     ~
+      } ~
       pathPrefix("instance") {
         get {
           onSuccess(pipelineManager ? RequestExistingPipelines()) {
