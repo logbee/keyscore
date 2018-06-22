@@ -9,8 +9,8 @@ import {
     DELETE_PIPELINE,
     DeletePipelineAction,
     DeletePipelineFailureAction,
-    DeletePipelineSuccessAction,
-    EditPipelineAction,
+    DeletePipelineSuccessAction, EDIT_PIPELINE,
+    EditPipelineAction, EditPipelineFailureAction, EditPipelineSuccessAction,
     LOAD_FILTER_DESCRIPTORS,
     LoadFilterDescriptorsFailureAction,
     LoadFilterDescriptorsSuccessAction,
@@ -42,6 +42,19 @@ export class PipelinesEffects {
             return of({type: 'NOOP'});
         })
     );
+
+    @Effect() getEditPipelineConfig$: Observable<Action> = this.actions$.pipe(
+        ofType(EDIT_PIPELINE),
+        map(action => (action as EditPipelineAction).id),
+        combineLatest(this.store.select(selectAppConfig)),
+        switchMap(([pipelineId,config]) =>{
+            const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/configuration/';
+            return this.http.get(pipelineUrl+pipelineId).pipe(
+                map((data:PipelineConfiguration) => new EditPipelineSuccessAction(data)),
+                catchError((cause:any) => of(new EditPipelineFailureAction(pipelineId,cause)))
+            );
+        })
+    )
 
     @Effect() updatePipeline$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE),

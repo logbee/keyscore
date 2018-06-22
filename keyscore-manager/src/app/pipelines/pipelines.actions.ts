@@ -6,6 +6,8 @@ import {
 
 export const CREATE_PIPELINE = '[Pipeline] CreatePipeline';
 export const EDIT_PIPELINE = '[Pipeline] EditPipeline';
+export const EDIT_PIPELINE_SUCCESS = '[Pipeline] EditPipelineSuccess';
+export const EDIT_PIPELINE_FAILURE = '[Pipeline] EditPipelineFailure';
 export const LOCK_EDITING_PIPELINE = '[Pipeline] LockEditingPipeline';
 export const RESET_PIPELINE = '[Pipeline] ResetPipeline';
 export const UPDATE_PIPELINE = '[Pipeline] UpdatePipeline';
@@ -27,6 +29,8 @@ export const LOAD_FILTER_DESCRIPTORS = '[Pipeline] LoadFilterDescriptors';
 export type PipelineActions =
     | CreatePipelineAction
     | EditPipelineAction
+    | EditPipelineSuccessAction
+    | EditPipelineFailureAction
     | ResetPipelineAction
     | UpdatePipelineAction
     | UpdatePipelineSuccessAction
@@ -58,6 +62,25 @@ export class EditPipelineAction implements Action {
 
     }
 }
+
+export class EditPipelineSuccessAction implements Action {
+    readonly type = EDIT_PIPELINE_SUCCESS;
+
+    constructor(readonly pipelineConfiguration: PipelineConfiguration) {
+
+    }
+}
+
+export class EditPipelineFailureAction implements Action {
+    readonly type = EDIT_PIPELINE_FAILURE;
+
+    constructor(readonly id: string,readonly cause:any) {
+
+    }
+}
+
+
+
 
 export class LockEditingPipelineAction implements Action {
     readonly type = LOCK_EDITING_PIPELINE;
