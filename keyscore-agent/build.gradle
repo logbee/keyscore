@@ -16,6 +16,9 @@ repositories {
 project.ext {
     distributionDir = "$buildDir/distribution"
 }
+configurations {
+    testOutput
+}
 
 dependencies {
 
@@ -33,11 +36,15 @@ dependencies {
     compile dependency.akka_persistence
     compile dependency.akka_cluster
     compile dependency.akka_stream_kafka
+    compile dependency.json4s
 
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit
 
     testCompile dependency.junit
+
+    testOutput sourceSets.main.output
+    testOutput sourceSets.test.output
 }
 
 test {

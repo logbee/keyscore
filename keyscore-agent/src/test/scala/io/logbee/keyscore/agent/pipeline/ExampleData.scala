@@ -116,9 +116,11 @@ object ExampleData {
     TextParameter("topic", "sinkTopic")
   ))
 
-  val addFieldsFilterConfiguration = FilterConfiguration(randomUUID(), AddFieldsFilterLogic.describe.describe(Locale.ENGLISH),List.empty)
+  val addFieldsFilterConfiguration = FilterConfiguration(randomUUID(), AddFieldsFilterLogic.describe.describe(Locale.ENGLISH),List(TextMapParameter("test",Map("test"->"test"))))
+
   var filterList = mutable.ListBuffer[FilterConfiguration]()
   filterList += addFieldsFilterConfiguration
+
   val pipelineConfiguration = PipelineConfiguration(randomUUID(),"Testpipeline", "Valid PipelineConfiguration for testing",kafkaSourceConfiguration, filterList.toList, kafkaSinkConfiguration)
 
 }
