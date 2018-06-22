@@ -7,35 +7,41 @@ import {Parameter, ParameterDescriptor} from "../../pipelines.model";
     selector: 'app-parameter',
     template: `
         <div [formGroup]="form">
-            <label [attr.for]="parameter.name">{{parameter.displayName}}</label>
-            <div [ngSwitch]="parameter.kind">
-                <input class="form-control" *ngSwitchCase="'text'" [formControlName]="parameter.name"
-                       [id]="parameter.name" [type]="'text'">
+            <label [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
+            <div [ngSwitch]="parameterDescriptor.kind">
+                <input class="form-control" *ngSwitchCase="'text'" [formControlName]="parameterDescriptor.name"
+                       [id]="parameterDescriptor.name" [type]="'text'">
 
-                <input class="form-control" *ngSwitchCase="'int'" [formControlName]="parameter.name"
-                       [id]="parameter.name" [type]="'number'">
-                <parameter-list *ngSwitchCase="'list'" [formControlName]="parameter.name"
-                                [id]="parameter.name"></parameter-list>
-                <parameter-map *ngSwitchCase="'map'" [formControlName]="parameter.name" [id]="parameter.name"></parameter-map>
-                
-                <div *ngSwitchCase="'boolean'" class="toggleCheckbox" [id]="parameter.name">
+                <input class="form-control" *ngSwitchCase="'int'" [formControlName]="parameterDescriptor.name"
+                       [id]="parameterDescriptor.name" [type]="'number'">
+                <parameter-list *ngSwitchCase="'list'" [formControlName]="parameterDescriptor.name"
+                                [id]="parameterDescriptor.name"></parameter-list>
+                <parameter-map *ngSwitchCase="'map'" [formControlName]="parameterDescriptor.name"
+                               [id]="parameterDescriptor.name"></parameter-map>
 
-                    <input type="checkbox" id="checkbox{{parameter.name}}" class="ios-toggle" [formControlName]="parameter.name"> 
-                    <label for="checkbox{{parameter.name}}" class="checkbox-label" data-off="" data-on=""></label>
+                <div *ngSwitchCase="'boolean'" class="toggleCheckbox" [id]="parameterDescriptor.name">
+
+                    <input type="checkbox" id="checkbox{{parameterDescriptor.name}}" class="ios-toggle"
+                           [formControlName]="parameterDescriptor.name">
+                    <label for="checkbox{{parameterDescriptor.name}}" class="checkbox-label" data-off=""
+                           data-on=""></label>
 
                 </div>
 
-                <div class="text-danger" *ngIf="!isValid">{{parameter.displayName}} {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}</div>
+                <div class="text-danger" *ngIf="!isValid">{{parameterDescriptor.displayName}}
+                    {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}
+                </div>
             </div>
         </div>
 
     `
 })
 export class ParameterComponent {
-    @Input() parameter: ParameterDescriptor;
+    @Input() parameterDescriptor: ParameterDescriptor;
+    @Input() parameter: Parameter;
     @Input() form: FormGroup;
 
     get isValid() {
-        return this.form.controls[this.parameter.name].valid;
+        return this.form.controls[this.parameterDescriptor.name].valid;
     }
 }

@@ -1,6 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {FilterModel} from "../../../pipelines.model";
-import {Observable} from "rxjs/index";
+import {FilterConfiguration} from "../../../pipelines.model";
 
 @Component({
     selector: 'filter-description',
@@ -20,8 +19,8 @@ import {Observable} from "rxjs/index";
                     </thead>
                     <tbody>
                     <tr>
-                        <td>{{currentFilter.displayName}}</td>
-                        <td>{{currentFilter.description}}</td>
+                        <td>{{currentFilter.descriptor.displayName}}</td>
+                        <td>{{currentFilter.descriptor.description}}</td>
                         <td>{{currentFilter.id}}</td>
                     </tr>
                     </tbody>
@@ -33,7 +32,7 @@ import {Observable} from "rxjs/index";
 
 export class FilterDescriptionComponent {
 
-    @Input() currentFilter: FilterModel;
+    @Input() currentFilter: FilterConfiguration;
 
     constructor() {
     }

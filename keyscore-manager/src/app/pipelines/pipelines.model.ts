@@ -8,9 +8,9 @@ export class PipelinesModuleState {
 }
 
 export class PipelinesState {
-    pipelineList: Array<PipelineModel>;
-    editingPipeline: PipelineModel;
-    editingFilter: FilterModel;
+    pipelineList: Array<PipelineInstance>;
+    editingPipeline: InternalPipelineConfiguration;
+    editingFilter: FilterConfiguration;
     loading: boolean;
     filterDescriptors: FilterDescriptor[];
     filterCategories: string[];
@@ -21,12 +21,33 @@ export interface FilterState {
     filterId: string
 }
 
-export interface PipelineModel {
+export interface PipelineInstance{
+    id:string;
+    name: string;
+    description:string;
+    configurationId:string;
+    health:Health;
+}
+
+export enum Health{
+    Green,
+    Yellow,
+    Red
+}
+
+/*export interface PipelineModel {
     id: string;
     name: string;
     description: string;
     filters: Array<FilterModel>;
     domRepresentation?: any;
+}*/
+
+export interface InternalPipelineConfiguration{
+    id:string;
+    name:string;
+    description:string;
+    filters:FilterConfiguration[];
 }
 
 export interface PipelineConfiguration {
@@ -45,13 +66,13 @@ export interface FilterConfiguration {
     parameters: Parameter[];
 }
 
-export interface FilterModel {
+/*export interface FilterModel {
     id: string;
     name: string;
     displayName: string;
     description: string;
     parameters: ParameterDescriptor[];
-}
+}*/
 
 
 export interface FilterDescriptor {
@@ -112,4 +133,4 @@ export const getEditingFilterParameters = createSelector(getPipelinesState, (sta
 
 export const getEditingFilter = createSelector(getPipelinesState, (state: PipelinesState) => state.editingFilter);
 
-export const getFilterById = (id) => createSelector(getPipelinesState, (state: PipelinesState) => [].concat(state.pipelineList.map(model => model.filters), state.editingPipeline.filters).find((filter: FilterModel) => filter.id === id));
+export const getFilterById = (id) => createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipeline.filters.find((filter: FilterConfiguration) => filter.id === id));

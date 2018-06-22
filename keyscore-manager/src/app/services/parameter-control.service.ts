@@ -1,17 +1,19 @@
 import {Injectable} from "@angular/core";
 import {Parameter, ParameterDescriptor} from "../pipelines/pipelines.model";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {zip} from "../util";
 
 @Injectable()
 export class ParameterControlService {
     constructor() {
     }
 
-    toFormGroup(parameters: ParameterDescriptor[]) {
+    toFormGroup(parameterDescriptors: ParameterDescriptor[],parameters:Parameter[]) {
         let group: any = {};
-        parameters.forEach(parameter => {
+        let zippedParameters = zip([parameters,parameterDescriptors]);
+        zippedParameters.forEach(([parameter,parameterDescriptor]) => {
 
-            switch (parameter.kind) {
+            switch (parameterDescriptor.kind) {
                 case 'list':
                     parameter.value = parameter.value ? parameter.value : [];
                     break;
@@ -24,7 +26,7 @@ export class ParameterControlService {
 
             }
 
-            group[parameter.name] = parameter.mandatory && parameter.kind != 'boolean' ? new FormControl(parameter.value || '', Validators.required)
+            group[parameterDescriptor.name] = parameterDescriptor.mandatory && parameterDescriptor.kind != 'boolean' ? new FormControl(parameter.value || '', Validators.required)
                 : new FormControl(parameter.value || '');
         });
         return new FormGroup(group);

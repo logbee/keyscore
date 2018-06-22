@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
-import {PipelineModel} from "../pipelines.model";
 import {Observable} from "rxjs";
+import {InternalPipelineConfiguration} from "../pipelines.model";
 
 @Component({
     selector: 'pipeline-details',
@@ -47,14 +47,14 @@ import {Observable} from "rxjs";
 })
 export class PipelineDetailsComponent {
 
-    @Input() pipeline: PipelineModel;
+    @Input() pipeline: InternalPipelineConfiguration;
     @Input() locked$: Observable<boolean>;
 
-    @Output() update: EventEmitter<PipelineModel> = new EventEmitter();
-    @Output() reset: EventEmitter<PipelineModel> = new EventEmitter();
-    @Output() delete: EventEmitter<PipelineModel> = new EventEmitter();
-    @Output() lock: EventEmitter<PipelineModel> = new EventEmitter();
-    @Output() unlock: EventEmitter<PipelineModel> = new EventEmitter();
+    @Output() update: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() reset: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() delete: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() lock: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() unlock: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
 
     //locked: boolean = true;
 

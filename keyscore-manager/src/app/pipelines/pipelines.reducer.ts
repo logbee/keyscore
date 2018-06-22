@@ -1,4 +1,4 @@
-import {PipelinesState} from "./pipelines.model";
+import {Health, PipelinesState} from "./pipelines.model";
 import {
     ADD_FILTER,
     CREATE_PIPELINE,
@@ -15,12 +15,11 @@ import {
     UPDATE_PIPELINE_SUCCESS
 } from "./pipelines.actions";
 import {v4 as uuid} from 'uuid';
-import {deepcopy} from "../util";
+import {deepcopy, parameterDescriptorToParameter} from "../util";
 
 
 const initialState: PipelinesState = {
-    pipelineList: [
-    ],
+    pipelineList: [],
     editingPipeline: null,
     editingFilter: null,
     loading: false,
@@ -35,29 +34,30 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
 
     switch (action.type) {
         case CREATE_PIPELINE:
-            result.pipelineList.push({
-                id: action.id,
-                name: action.name,
-                description: action.description,
-                filters: []
-            });
+            result.editingPipeline = {id: action.id, name: action.name, description: action.description, filters: []};
             break;
         case EDIT_PIPELINE:
-            setEditingPipeline(result, action.id);
+            //setEditingPipeline(result, action.id);
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
             break;
         case RESET_PIPELINE:
-            setEditingPipeline(result, action.id);
+            //setEditingPipeline(result, action.id);
             break;
         case UPDATE_PIPELINE_SUCCESS:
             const index = result.pipelineList.findIndex(pipeline => action.pipeline.id == pipeline.id);
             if (index >= 0) {
-                result.pipelineList[index] = deepcopy(action.pipeline);
-            }
-            if (result.editingPipeline != null && result.editingPipeline.id == action.pipeline.id) {
-                result.editingPipeline = deepcopy(action.pipeline);
+                result.pipelineList[index].name = action.pipeline.name;
+                result.pipelineList[index].description = action.pipeline.description;
+            } else {
+                result.pipelineList.push({
+                    id: action.pipeline.id,
+                    name: action.pipeline.name,
+                    description: action.pipeline.description,
+                    configurationId: action.pipeline.id,
+                    health: Health.Red
+                })
             }
             break;
         case DELETE_PIPELINE_SUCCESS:
@@ -69,12 +69,11 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             }
             break;
         case ADD_FILTER:
+            let parameters = action.filter.parameters.map(parameterDescriptor => parameterDescriptorToParameter(parameterDescriptor));
             result.editingPipeline.filters.push({
                 id: uuid(),
-                name: action.filter.name,
-                displayName: action.filter.displayName,
-                description: action.filter.description,
-                parameters: action.filter.parameters
+                descriptor: action.filter,
+                parameters: parameters
             });
             break;
         case MOVE_FILTER:
@@ -84,7 +83,13 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case UPDATE_FILTER:
             const updateFilterIndex = result.editingPipeline.filters.findIndex(filter => filter.id == action.filter.id);
             result.editingPipeline.filters[updateFilterIndex] = deepcopy(action.filter);
-            result.editingPipeline.filters[updateFilterIndex].parameters.forEach(p => p.value = action.values[p.name]);
+            result.editingPipeline.filters[updateFilterIndex].parameters.forEach(p => {
+                if (p.parameterType === 'int') {
+                    p.value = +action.values[p.name];
+                } else {
+                    p.value = action.values[p.name];
+                }
+            });
             break;
         case REMOVE_FILTER:
             const removeIndex = result.editingPipeline.filters.findIndex(filter => filter.id == action.filterId);
@@ -99,7 +104,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
 }
 
 function setEditingPipeline(state: PipelinesState, id: string) {
-    //state.editingPipeline = Object.assign({}, state.pipelineList.find(pipeline => id == pipeline.id));
     state.editingPipeline = deepcopy(state.pipelineList.find(pipeline => id == pipeline.id));
 }
 

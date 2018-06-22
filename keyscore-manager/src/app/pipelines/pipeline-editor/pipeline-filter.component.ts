@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {FilterModel, Parameter, ParameterDescriptor} from "../pipelines.model";
+import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.model";
 import {ParameterControlService} from "../../services/parameter-control.service";
 import {FormControl, FormGroup} from "@angular/forms";
 import {Observable} from "rxjs";
@@ -23,8 +23,8 @@ import {Store} from "@ngrx/store";
                         </button>
                     </div>
                     <div class="col" style="margin-top: auto; margin-bottom: auto">
-                        <span class="font-weight-bold">{{filter.displayName}}</span><br>
-                        <small>{{filter.description}}</small>
+                        <span class="font-weight-bold">{{filter.descriptor.displayName}}</span><br>
+                        <small>{{filter.descriptor.description}}</small>
                     </div>
 
                     <div class="col-2"></div>
@@ -54,7 +54,7 @@ import {Store} from "@ngrx/store";
                 <form *ngIf="editing" class="form-horizontal col-12 mt-3" [formGroup]="form">
 
                     <div *ngFor="let parameter of parameters" class="form-row">
-                        <app-parameter class="col-12" [parameter]="parameter" [form]="form"></app-parameter>
+                        <app-parameter class="col-12" [parameterDescriptor]="parameter" [form]="form"></app-parameter>
                     </div>
 
                     <div class="form-row" *ngIf="payLoad">
@@ -73,15 +73,15 @@ import {Store} from "@ngrx/store";
 export class PipelineFilterComponent implements OnInit {
 
     @Input() isEditingPipelineLocked$: Observable<boolean>;
-    @Input() filter: FilterModel;
+    @Input() filter: FilterConfiguration;
     @Input() index: number;
     @Input() filterCount: number;
     @Input() parameters: ParameterDescriptor[];
 
-    @Output() update: EventEmitter<{ filterModel: FilterModel, values: any }> = new EventEmitter();
+    @Output() update: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> = new EventEmitter();
     @Output() move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
-    @Output() remove: EventEmitter<FilterModel> = new EventEmitter();
-    @Output() liveEdit: EventEmitter<FilterModel> = new EventEmitter();
+    @Output() remove: EventEmitter<FilterConfiguration> = new EventEmitter();
+    @Output() liveEdit: EventEmitter<FilterConfiguration> = new EventEmitter();
 
     editing: boolean = false;
     payLoad: string = '';
@@ -93,10 +93,10 @@ export class PipelineFilterComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.form = this.parameterService.toFormGroup(this.parameters);
+        this.form = this.parameterService.toFormGroup(this.parameters,this.filter.parameters);
     }
 
-    removeFilter(filter: FilterModel) {
+    removeFilter(filter: FilterConfiguration) {
         this.remove.emit(filter);
     }
 
@@ -108,19 +108,19 @@ export class PipelineFilterComponent implements OnInit {
         this.editing = true;
     }
 
-    saveFilter(filterModel: FilterModel, values: any) {
+    saveFilter(filterConfiguration: FilterConfiguration, values: any) {
         console.log(JSON.stringify(values));
-        this.update.emit({filterModel, values});
+        this.update.emit({filterConfiguration: filterConfiguration, values});
     }
 
     cancelEditing() {
         this.editing = false;
         let resetFormValues = {};
-        this.filter.parameters.forEach(p => resetFormValues[p.displayName] = p.value ? p.value : '');
+        this.filter.descriptor.parameters.forEach(p => resetFormValues[p.name] = p.value ? p.value : '');
         this.form.setValue(resetFormValues);
     }
 
-    callLiveEditing(filter: FilterModel) {
+    callLiveEditing(filter: FilterConfiguration) {
         this.liveEdit.emit(filter);
     }
 

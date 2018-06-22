@@ -23,8 +23,8 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
 import {FilterDescriptor, getFilterDescriptors, PipelineConfiguration} from "./pipelines.model";
-import {PipelineBuilderService} from "../services/pipelinebuilder.service";
 import {TranslateService} from "@ngx-translate/core";
+import {toInternalPipelineConfig, toPipelineConfiguration} from "../util";
 
 @Injectable()
 export class PipelinesEffects {
@@ -48,11 +48,12 @@ export class PipelinesEffects {
         map(action => (action as UpdatePipelineAction).pipeline),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([pipeline, config]) => {
-            const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/';
-            var descriptorList: Array<FilterDescriptor> = [];
-            this.store.select(getFilterDescriptors).subscribe(filterDescriptors => filterDescriptors.map(value => descriptorList.push(value)));
-            const pipelineConfig: PipelineConfiguration = this.pipelineBuilder.toPipeline(pipeline, descriptorList);
-            return this.http.put(pipelineUrl + pipeline.id, pipelineConfig).pipe(
+            const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/configuration';
+            let pipelineConfig = toPipelineConfiguration(pipeline);
+            return this.http.put(pipelineUrl, pipelineConfig,{
+                headers: new HttpHeaders().set('Content-Type', 'application/json'),
+                responseType: 'text'
+            }).pipe(
                 map(data => new UpdatePipelineSuccessAction(pipeline)),
                 catchError((cause: any) => of(new UpdatePipelineFailureAction(cause, pipeline)))
             );
@@ -64,13 +65,13 @@ export class PipelinesEffects {
         map(action => (action as UpdatePipelineWithBlocklyAction)),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([updateAction, config]) => {
-            const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/';
-            return this.http.put(pipelineUrl + updateAction.pipelineConfiguration.id, updateAction.pipelineConfiguration, {
+            const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/configuration';
+            return this.http.put(pipelineUrl, updateAction.pipelineConfiguration, {
                 headers: new HttpHeaders().set('Content-Type', 'application/json'),
                 responseType: 'text'
             }).pipe(
-                map((data: any) => new UpdatePipelineSuccessAction(updateAction.pipelineModel)),
-                catchError((cause: any) => of(new UpdatePipelineFailureAction(cause, updateAction.pipelineModel)))
+                map((data: any) => new UpdatePipelineSuccessAction(toInternalPipelineConfig(updateAction.pipelineConfiguration))),
+                catchError((cause: any) => of(new UpdatePipelineFailureAction(cause, toInternalPipelineConfig(updateAction.pipelineConfiguration))))
             );
         })
     );
@@ -79,7 +80,7 @@ export class PipelinesEffects {
         ofType(DELETE_PIPELINE),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([action, config]) => {
-            const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/';
+            const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/configuration/';
             const pipelineId: string = (action as DeletePipelineAction).id;
             return this.http.delete(pipelineUrl + pipelineId).pipe(
                 map(data => new DeletePipelineSuccessAction(pipelineId)),
@@ -99,6 +100,6 @@ export class PipelinesEffects {
         )
     );
 
-    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private pipelineBuilder: PipelineBuilderService, private translate: TranslateService) {
+    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private translate: TranslateService) {
     }
 }

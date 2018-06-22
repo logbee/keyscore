@@ -1,6 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Blockly} from "node-blockly/browser";
-import {FilterDescriptor, PipelineConfiguration, PipelineModel} from "../../pipelines.model";
+import {
+    FilterDescriptor, InternalPipelineConfiguration, PipelineConfiguration
+} from "../../pipelines.model";
 import {combineLatest, Observable, ReplaySubject} from "rxjs";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
 import {map, startWith} from "rxjs/internal/operators";
@@ -48,12 +50,12 @@ declare var Blockly: any;
 })
 
 export class BlocklyComponent implements OnInit {
-    @Input() pipeline: PipelineModel;
+    @Input() pipeline: InternalPipelineConfiguration;
     @Input() filterDescriptors$: Observable<FilterDescriptor[]>;
     @Input() categories$: Observable<string[]>;
 
-    @Output() update: EventEmitter<{pipelineModel:PipelineModel,pipelineConfiguration:PipelineConfiguration}> = new EventEmitter();
-    @Output() remove: EventEmitter<PipelineModel> = new EventEmitter();
+    @Output() update: EventEmitter<PipelineConfiguration> = new EventEmitter();
+    @Output() remove: EventEmitter<string> = new EventEmitter();
 
 
     private workspace: Workspace = undefined;
@@ -92,14 +94,12 @@ export class BlocklyComponent implements OnInit {
         let pipelineConfiguration:PipelineConfiguration = JSON.parse(Blockly.JavaScript.workspaceToCode(this.workspace)) as PipelineConfiguration;
         pipelineConfiguration.id = this.pipeline.id;
         //this.pipeline = pipelineConfigurationToModel(pipelineConfiguration);
-        this.pipeline.domRepresentation = Blockly.Xml.workspaceToDom(this.workspace);
         console.log(JSON.stringify(pipelineConfiguration));
-        let pipelineModel = this.pipeline;
-        this.update.emit({pipelineModel,pipelineConfiguration});
+        this.update.emit(pipelineConfiguration);
     }
 
     deletePipeline(){
-        this.remove.emit(this.pipeline);
+        this.remove.emit(this.pipeline.id);
     }
 
 
@@ -151,7 +151,7 @@ export class BlocklyComponent implements OnInit {
             let pipelineBlockXml = '<xml><block type="pipeline_configuration" deletable="false" movable="false"></block></xml>';
 
             //TODO: write this in a more readable manner^^
-            Blockly.Xml.domToWorkspace(typeof currentWorkspace === "undefined" ? (this.pipeline.domRepresentation ? this.pipeline.domRepresentation : Blockly.Xml.textToDom( pipelineBlockXml)) : currentWorkspace, this.workspace);
+            Blockly.Xml.domToWorkspace(typeof currentWorkspace === "undefined" ? Blockly.Xml.textToDom( pipelineBlockXml) : currentWorkspace, this.workspace);
 
         });
         this.workspace.addChangeListener(Blockly.Events.disableOrphans);

@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
-import {FilterModel, FilterState, getFilterById, getFilterId} from "../../pipelines.model";
+import {FilterConfiguration, FilterState, getFilterById, getFilterId} from "../../pipelines.model";
 import {mergeMap} from "rxjs/internal/operators";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 
@@ -35,7 +35,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
 
 export class LiveEditingComponent {
 
-    private  filter$: Observable<FilterModel>;
+    private  filter$: Observable<FilterConfiguration>;
     private errorHandling: boolean = false;
     private errorMessage: string;
     private httpError: string;

@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor, FilterModel} from "../pipelines.model";
+import {FilterConfiguration, FilterDescriptor} from "../pipelines.model";
 
 export const LOAD_FILTER_DESCRIPTOR_SUCCESS = '[Filter] LoadFilterDescriptorSuccess';
 export const LOAD_FILTER_DESCRIPTOR = '[Filter] LoadFilterDescriptor';
@@ -49,7 +49,7 @@ export class ConfigureFilterAction implements Action {
 export class LockEditingFilterAction implements Action {
     readonly type = LOCK_FILTER;
 
-    constructor(readonly filter: FilterModel) {
+    constructor(readonly filter: FilterConfiguration) {
 
     }
 }

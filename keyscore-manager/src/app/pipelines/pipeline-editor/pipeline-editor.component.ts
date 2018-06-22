@@ -5,13 +5,12 @@ import {Store} from "@ngrx/store";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 import {
+    FilterConfiguration,
     FilterDescriptor,
-    FilterModel,
     getEditingPipeline,
     getEditingPipelineIsLocked,
     getFilterCategories,
-    getFilterDescriptors, PipelineConfiguration,
-    PipelineModel
+    getFilterDescriptors, InternalPipelineConfiguration, PipelineConfiguration
 } from "../pipelines.model";
 
 import {
@@ -59,7 +58,7 @@ import {LoadFilterDescriptorAction} from "../filters/filters.actions";
                                          [filter]="filter"
                                          [index]="i"
                                          [filterCount]="(pipeline$|async).filters.length"
-                                         [parameters]="filter.parameters"
+                                         [parameters]="filter.descriptor.parameters"
                                          [isEditingPipelineLocked$]="isLocked$"
                                          (move)="moveFilter($event)"
                                          (remove)="removeFilter($event)"
@@ -80,7 +79,7 @@ import {LoadFilterDescriptorAction} from "../filters/filters.actions";
     providers: []
 })
 export class PipelineEditorComponent implements OnInit {
-    pipeline$: Observable<PipelineModel>;
+    pipeline$: Observable<InternalPipelineConfiguration>;
     isLocked$: Observable<boolean>;
     filterDescriptors$: Observable<FilterDescriptor[]>;
     categories$: Observable<string[]>;
@@ -104,16 +103,16 @@ export class PipelineEditorComponent implements OnInit {
         })
     }
 
-    addFilter(pipeline: PipelineModel) {
+    addFilter(pipeline: InternalPipelineConfiguration) {
         this.modalService.show(FilterChooser);
     }
 
-    deletePipeline(pipeline: PipelineModel) {
+    deletePipeline(pipeline: InternalPipelineConfiguration) {
         this.store.dispatch(new DeletePipelineAction(pipeline.id));
         this.location.back();
     }
 
-    updatePipeline(pipeline: PipelineModel) {
+    updatePipeline(pipeline: InternalPipelineConfiguration) {
         this.store.dispatch(new UpdatePipelineAction({
             id: pipeline.id,
             name: pipeline.name,
@@ -122,15 +121,15 @@ export class PipelineEditorComponent implements OnInit {
         }));
     }
 
-    updatePipelineWithBlockly(pipe: { pipelineModel: PipelineModel, pipelineConfiguration: PipelineConfiguration }) {
-        this.store.dispatch(new UpdatePipelineWithBlocklyAction(pipe.pipelineModel, pipe.pipelineConfiguration));
+    updatePipelineWithBlockly(pipelineConfiguration: PipelineConfiguration) {
+        this.store.dispatch(new UpdatePipelineWithBlocklyAction(pipelineConfiguration));
     }
 
-    resetPipeline(pipeline: PipelineModel) {
+    resetPipeline(pipeline: InternalPipelineConfiguration) {
         this.store.dispatch(new ResetPipelineAction(pipeline.id));
     }
 
-    setLocked(locked: boolean, pipeline: PipelineModel) {
+    setLocked(locked: boolean, pipeline: InternalPipelineConfiguration) {
         //this.isLocked = locked;
         this.store.dispatch(new LockEditingPipelineAction(locked));
     }
@@ -140,16 +139,16 @@ export class PipelineEditorComponent implements OnInit {
     }
 
 
-    updateFilter(update: { filterModel: FilterModel, values: any }) {
+    updateFilter(update: { filterConfiguration: FilterConfiguration, values: any }) {
         console.log(JSON.stringify(update));
-        this.store.dispatch(new UpdateFilterAction(update.filterModel, update.values));
+        this.store.dispatch(new UpdateFilterAction(update.filterConfiguration, update.values));
     }
 
-    removeFilter(filter: FilterModel) {
+    removeFilter(filter: FilterConfiguration) {
         this.store.dispatch(new RemoveFilterAction(filter.id));
     }
 
-    callLiveEditing(filter: FilterModel) {
+    callLiveEditing(filter: FilterConfiguration) {
         this.store.dispatch(new Go({path: ['pipelines/filter/' + filter.id + '/']}));
     }
 }

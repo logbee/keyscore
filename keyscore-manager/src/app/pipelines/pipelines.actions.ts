@@ -1,5 +1,8 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor, FilterModel, PipelineConfiguration, PipelineModel} from "./pipelines.model";
+import {
+    FilterConfiguration, FilterDescriptor, InternalPipelineConfiguration,
+    PipelineConfiguration
+} from "./pipelines.model";
 
 export const CREATE_PIPELINE = '[Pipeline] CreatePipeline';
 export const EDIT_PIPELINE = '[Pipeline] EditPipeline';
@@ -74,7 +77,7 @@ export class ResetPipelineAction implements Action {
 export class UpdatePipelineAction implements Action {
     readonly type = UPDATE_PIPELINE;
 
-    constructor(readonly pipeline: PipelineModel) {
+    constructor(readonly pipeline: InternalPipelineConfiguration) {
 
     }
 }
@@ -82,7 +85,7 @@ export class UpdatePipelineAction implements Action {
 export class UpdatePipelineWithBlocklyAction implements Action {
     readonly type = UPDATE_PIPELINE_BLOCKLY;
 
-    constructor(readonly pipelineModel: PipelineModel, readonly pipelineConfiguration: PipelineConfiguration) {
+    constructor(readonly pipelineConfiguration: PipelineConfiguration) {
 
     }
 }
@@ -90,7 +93,7 @@ export class UpdatePipelineWithBlocklyAction implements Action {
 export class UpdatePipelineSuccessAction implements Action {
     readonly type = UPDATE_PIPELINE_SUCCESS;
 
-    constructor(readonly pipeline: PipelineModel) {
+    constructor(readonly pipeline: InternalPipelineConfiguration) {
 
     }
 }
@@ -98,7 +101,7 @@ export class UpdatePipelineSuccessAction implements Action {
 export class UpdatePipelineFailureAction implements Action {
     readonly type = UPDATE_PIPELINE_FAILURE;
 
-    constructor(readonly cause:any, readonly pipeline: PipelineModel) {
+    constructor(readonly cause:any, readonly pipeline: InternalPipelineConfiguration) {
 
     }
 }
@@ -146,7 +149,7 @@ export class MoveFilterAction implements Action {
 export class UpdateFilterAction implements Action {
     readonly type = UPDATE_FILTER;
 
-    constructor(readonly filter: FilterModel, readonly values: any) {
+    constructor(readonly filter: FilterConfiguration, readonly values: any) {
     }
 }
 

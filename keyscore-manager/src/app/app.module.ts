@@ -17,7 +17,6 @@ import {PipelinesModule} from "./pipelines/pipelines.module";
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
 import {RouterEffects} from "./router/router.effects";
 import {AgentsModule} from "./agents/agents.module";
-import {PipelineBuilderService} from "./services/pipelinebuilder.service";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {StoreDevtoolsModule} from "@ngrx/store-devtools";
@@ -62,7 +61,6 @@ export function HttpLoaderFactory(http: HttpClient) {
 
     ],
     providers: [
-        PipelineBuilderService
     ],
     entryComponents: [
         FilterChooser,

@@ -1,10 +1,9 @@
 import {Injectable} from "@angular/core";
 import {
-    FilterConfiguration, FilterDescriptor, FilterModel, Parameter,
+    FilterConfiguration, FilterDescriptor, Parameter,
     ParameterDescriptor, PipelineConfiguration
 } from "../../pipelines/pipelines.model";
 import {Blockly} from "node-blockly/browser";
-import {PipelineBuilderService} from "../pipelinebuilder.service";
 import {v4 as uuid} from 'uuid';
 import {
     extractFirstJSONObjectFromString, extractTopLevelJSONObjectsFromString,
@@ -17,7 +16,7 @@ declare var Blockly: any;
 @Injectable()
 export class ToolBarBuilderService {
 
-    constructor(pipelineBuilder:PipelineBuilderService) {
+    constructor() {
     }
 
     createToolbar(filterDescriptors: FilterDescriptor[], categories: string[]): string {
