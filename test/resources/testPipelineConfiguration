@@ -1,0 +1,194 @@
+{
+  "id": "d8032851-0147-4f10-a3eb-8144ced9fe47",
+  "name": "Test Pipelline",
+  "description": "The default Test Pipeline",
+  "source": {
+    "id": "7b2ac7f6-b288-45e0-8f84-5295131e4c82",
+    "descriptor": {
+      "id": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
+      "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
+      "displayName": "Kafka Source",
+      "description": "A Kafka Source",
+      "previousConnection": {
+        "isPermitted": true,
+        "connectionType": [
+          "pipeline_base"
+        ]
+      },
+      "nextConnection": {
+        "isPermitted": true,
+        "connectionType": []
+      },
+      "parameters": [
+        {
+          "name": "bootstrapServer",
+          "displayName": "bootstrapServer",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "localhost:9092"
+        },
+        {
+          "name": "groupID",
+          "displayName": "groupId",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "test-consumer"
+        },
+        {
+          "name": "offsetCommit",
+          "displayName": "offsetCommit",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "earliest"
+        },
+        {
+          "name": "sourceTopic",
+          "displayName": "topic",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "testTopic"
+        }
+      ],
+      "category": "Source"
+    },
+    "parameters": [
+      {
+        "name": "bootstrapServer",
+        "value": "localhost:9092",
+        "parameterType": "string"
+      },
+      {
+        "name": "groupID",
+        "value": "test-consumer",
+        "parameterType": "string"
+      },
+      {
+        "name": "offsetCommit",
+        "value": "earliest",
+        "parameterType": "string"
+      },
+      {
+        "name": "sourceTopic",
+        "value": "testTopic",
+        "parameterType": "string"
+      }
+    ]
+  },
+  "sink": {
+    "id": "0c85992a-5932-437e-963c-bae5f1438230",
+    "descriptor": {
+      "id": "4fedbe8e-115e-4408-ba53-5b627b6e2eaf",
+      "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic",
+      "displayName": "Kafka Sink",
+      "description": "A Kafka Sink.",
+      "previousConnection": {
+        "isPermitted": true,
+        "connectionType": []
+      },
+      "nextConnection": {
+        "isPermitted": false,
+        "connectionType": []
+      },
+      "parameters": [
+        {
+          "name": "bootstrapServer",
+          "displayName": "bootstrapServer",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "localhost:9092"
+        },
+        {
+          "name": "topic",
+          "displayName": "topic",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "sinkTopic"
+        }
+      ],
+      "category": "Sink"
+    },
+    "parameters": [
+      {
+        "name": "bootstrapServer",
+        "value": "localhost:9092",
+        "parameterType": "string"
+      },
+      {
+        "name": "topic",
+        "value": "sinkTopic",
+        "parameterType": "string"
+      }
+    ]
+  },
+  "filter": [
+    {
+      "id": "37a0ecc1-b81e-4053-9fc8-222315f5fcdf",
+      "descriptor": {
+        "id": "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
+        "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
+        "displayName": "Add Fields Filter",
+        "description": "Adding new fields and their values.",
+        "previousConnection": {
+          "isPermitted": true,
+          "connectionType": []
+        },
+        "nextConnection": {
+          "isPermitted": true,
+          "connectionType": []
+        },
+        "parameters": [
+          {
+            "name": "fieldsToAdd",
+            "displayName": "Fields to add",
+            "description": "These fields will be added by this filter.",
+            "mandatory": true,
+            "mapKey": {
+              "name": "fieldName",
+              "displayName": "Name",
+              "description": "The identifier of this field.",
+              "mandatory": true,
+              "validator": ".*",
+              "kind": "text"
+            },
+            "mapValue": {
+              "name": "fieldValue",
+              "displayName": "Value",
+              "description": "The value of the added field.",
+              "mandatory": true,
+              "validator": ".*",
+              "kind": "text"
+            },
+            "min": 1,
+            "max": 2147483647,
+            "kind": "map",
+            "value": {
+              "testField": "testMessage"
+            }
+          }
+        ],
+        "category": "Filter"
+      },
+      "parameters": [
+        {
+          "name": "fieldsToAdd",
+          "value": {
+            "testField": "testMessage"
+          },
+          "parameterType": "map[string,string]"
+        }
+      ]
+    }
+  ]
+}
