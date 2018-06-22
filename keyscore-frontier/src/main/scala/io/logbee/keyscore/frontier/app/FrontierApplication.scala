@@ -178,7 +178,15 @@ object FrontierApplication extends App with Json4sSupport {
             }
           }
         } ~
-        pathPrefix("agent") {
+        pathPrefix("agents") {
+          pathPrefix("number") {
+            get{
+              onSuccess(agentManager ? QueryAgents) {
+                case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.size)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+          } ~
           get {
             onSuccess(agentManager ? QueryAgents) {
               case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
