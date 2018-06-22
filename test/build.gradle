@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     compile project(':keyscore-model')
+    compile project(':keyscore-commons')
 
     compile dependency.scala_lang
     compile dependency.slf4j

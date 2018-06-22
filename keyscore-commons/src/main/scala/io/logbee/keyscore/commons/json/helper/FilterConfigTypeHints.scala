@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.json.helper
+package io.logbee.keyscore.commons.json.helper
 
 import io.logbee.keyscore.model.filter._
 import org.json4s.JsonAST.JObject

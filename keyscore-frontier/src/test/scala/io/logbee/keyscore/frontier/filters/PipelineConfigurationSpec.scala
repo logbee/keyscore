@@ -2,7 +2,7 @@ package io.logbee.keyscore.frontier.filters
 
 import java.io.InputStreamReader
 
-import io.logbee.keyscore.frontier.json.helper.FilterConfigTypeHints
+import io.logbee.keyscore.commons.json.helper.FilterConfigTypeHints
 import io.logbee.keyscore.model.PipelineConfiguration
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
