@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{FlowShape, Inlet, Materializer, Outlet}
-import io.logbee.keyscore.model.{Dataset, Health}
+import io.logbee.keyscore.model.{Dataset, Green}
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterProxy, FilterState}
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
@@ -61,6 +61,6 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
 
   def configure(configuration: FilterConfiguration): Unit
 
-  def state(): FilterState = FilterState(configuration.id, Health.Green)
+  def state(): FilterState = FilterState(configuration.id, Green)
 
 }

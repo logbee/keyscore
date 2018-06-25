@@ -60,7 +60,7 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
 
         supervisor tell(RequestPipelineInstance(agent.ref), agent.ref)
         val pipelineInstance = agent.receiveOne(2 seconds).asInstanceOf[PipelineInstance]
-        if (pipelineInstance.health.equals(Health.Green)) {
+        if (pipelineInstance.health.equals(Green)) {
           return true
         }
         Thread.sleep(sleepTimeMs)
@@ -73,12 +73,12 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
     "start a pipeline with a correct configuration" in new SupervisorSpecSetup {
 
       supervisor tell (RequestPipelineInstance(agent.ref),agent.ref)
-      agent.expectMsg(PipelineInstance(UUID.fromString("00000000-0000-0000-0000-000000000000"),"", "", null, Health.Red))
+      agent.expectMsg(PipelineInstance(UUID.fromString("00000000-0000-0000-0000-000000000000"),"", "", null, Red))
 
       supervisor ! CreatePipeline(pipelineConfiguration)
 
       supervisor tell (RequestPipelineInstance(agent.ref), agent.ref)
-      agent.expectMsg(PipelineInstance(pipelineConfiguration.id,pipelineConfiguration.name, pipelineConfiguration.description, pipelineConfiguration.id, Health.Red))
+      agent.expectMsg(PipelineInstance(pipelineConfiguration.id,pipelineConfiguration.name, pipelineConfiguration.description, pipelineConfiguration.id, Red))
 
       pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000) shouldBe true
 

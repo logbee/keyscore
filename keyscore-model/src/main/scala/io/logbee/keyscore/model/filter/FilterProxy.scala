@@ -2,7 +2,7 @@ package io.logbee.keyscore.model.filter
 
 import java.util.UUID
 
-import io.logbee.keyscore.model.Health.Health
+import io.logbee.keyscore.model.Health
 
 import scala.concurrent.Future
 

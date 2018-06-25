@@ -9,7 +9,7 @@ import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineInstance}
+import io.logbee.keyscore.model._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -89,7 +89,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       scheduleStart(pipeline, pipelineStartTrials)
 
     case RequestPipelineInstance(receiver) =>
-      receiver ! PipelineInstance(Health.Red)
+      receiver ! PipelineInstance(Red)
   }
 
   private def configuring(pipeline: Pipeline): Receive = {
@@ -162,7 +162,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
-      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Health.Red)
+      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description,Red)
 
     case RequestPipelineConfigurations(receiver) =>
       log.info("Received PipelineConfiguration Request")
@@ -185,7 +185,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
-      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Health.Yellow)
+      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Yellow)
 
     case RequestPipelineConfigurations(receiver) =>
       log.info("Received PipelineConfiguration Request")
@@ -199,7 +199,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
-      receiver ! PipelineInstance(controller.configuration.id, controller.configuration.name, controller.configuration.description, Health.Green)
+      receiver ! PipelineInstance(controller.configuration.id, controller.configuration.name, controller.configuration.description, Green)
 
     case RequestPipelineConfigurations(receiver) =>
       log.info("Received PipelineConfiguration Request")

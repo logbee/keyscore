@@ -10,7 +10,7 @@ import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.commons.json.helper.FilterConfigTypeHints
 import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineInstance}
-import org.json4s.Formats
+import org.json4s.{DefaultFormats, FieldSerializer, Formats}
 import org.json4s.ext.{EnumNameSerializer, JavaTypesSerializers}
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.read
@@ -23,7 +23,7 @@ import scala.io.Source
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
-  private implicit val formats: Formats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("parameterType") ++ JavaTypesSerializers.all + new EnumNameSerializer(Health)
+  private implicit val formats: Formats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("parameterType") ++ JavaTypesSerializers.all
 
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
@@ -84,7 +84,7 @@ class PipelineIntegrationTest extends Matchers {
       .response(HttpStatus.OK)
       .validationCallback((message, context) => {
         val payload = message.getPayload.asInstanceOf[String]
-        //                val instance = read[PipelineInstance](payload)
+//        val instance = read[PipelineInstance](payload)
       })
     )
 
@@ -116,17 +116,5 @@ class PipelineIntegrationTest extends Matchers {
         config.source.id should equal(kafkaToElasticPipeLineConfig.source.id)
       })
     )
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get("localhost:9200/_search")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message,contest) => {
-        val payload = message.getPayload.asInstanceOf[String]
-      }))
   }
 }
