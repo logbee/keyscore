@@ -79,7 +79,7 @@ class GrokFilterLogic(context: StageContext, configuration: FilterConfiguration,
           regex.findFirstMatchIn(field.asInstanceOf[TextField].value)
             .foreach(patternMatch => patternMatch.groupNames.map(name => (name, patternMatch.group(name))) map tupled { (name, value) =>
               value match {
-                case NUMBER_PATTERN(_*) => NumberField(name, BigDecimal(value))
+                case NUMBER_PATTERN(_*) => NumberField(name, BigDecimal(value).toDouble)
                 case _ => TextField(name, value)
               }
             } foreach (field => payload.put(field.name, field)))

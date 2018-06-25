@@ -1,5 +1,7 @@
 package io.logbee.keyscore.model
 
+import io.logbee.keyscore.model.NativeModel.NativeDataset
+
 object Dataset {
 
   def apply(metaData: MetaData, records: List[Record]): Dataset = new Dataset(metaData, records)
@@ -7,6 +9,14 @@ object Dataset {
   def apply(records: List[Record]): Dataset = new Dataset(MetaData(), records)
 
   def apply(records: Record*): Dataset = new Dataset(MetaData(), records.toList)
+
+  implicit def toNative(dataset: Dataset): NativeDataset = {
+    null
+  }
+
+  implicit def fromNative(native: NativeDataset): Dataset = {
+    null
+  }
 }
 
 class Dataset(val metaData: MetaData, val records: List[Record]) {
