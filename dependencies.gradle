@@ -34,7 +34,8 @@ ext {
                 'org.json4s:json4s-ext_2.12:3.5.4',
                 'org.json4s:json4s-core_2.12:3.5.4'
         ],
-        akka_http_cors: "ch.megard:akka-http-cors_2.12:0.2.2",
+        akka_http_cors: 'ch.megard:akka-http-cors_2.12:0.2.2',
+        protobuf_java: 'com.google.protobuf:protobuf-java:3.5.1',
         scala_test: [
             'org.scalatest:scalatest_2.12:3.0.4',
             'org.scalamock:scalamock_2.12:4.0.0'
