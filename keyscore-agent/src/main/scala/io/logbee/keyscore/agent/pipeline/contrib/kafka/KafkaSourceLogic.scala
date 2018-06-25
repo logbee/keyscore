@@ -83,7 +83,7 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
     val bootstrapServer: String = configuration.getParameterValue[String]("bootstrapServer")
     val groupID: String = configuration.getParameterValue[String]("groupID")
     val offsetConfig: String = configuration.getParameterValue[String]("offsetCommit")
-    val topic: String = configuration.getParameterValue[String]("sourceTopic")
+    val topic: String = configuration.getParameterValue[String]("topic")
 
     val settings = consumerSettings(bootstrapServer, groupID, offsetConfig)
 

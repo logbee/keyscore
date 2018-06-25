@@ -8,11 +8,11 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-object PipelineInstanceAggregator {
-  def apply(receiver: ActorRef, children: Iterable[ActorRef]) = Props(new PipelineInstanceAggregator(receiver, children))
+object PipelineInstanceCollector {
+  def apply(receiver: ActorRef, children: Iterable[ActorRef]) = Props(new PipelineInstanceCollector(receiver, children))
 }
 
-class PipelineInstanceAggregator(receiver: ActorRef, children: Iterable[ActorRef]) extends Actor {
+class PipelineInstanceCollector(receiver: ActorRef, children: Iterable[ActorRef]) extends Actor {
 
   import context.{dispatcher, system}
 

@@ -1,0 +1,203 @@
+{
+  "id": "e2d85f22-b267-439f-bb34-c403b7c8435b",
+  "name": "KafkaToElasticSearch",
+  "description": "Writes from Kafka to ElasticSearch",
+  "source": {
+    "id": "b23a8d24-aed3-436c-9d56-7f8d6cf9f8c6",
+    "descriptor": {
+      "id": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
+      "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
+      "displayName": "Kafka Source",
+      "description": "Eine Kafka Source",
+      "previousConnection": {
+        "isPermitted": true,
+        "connectionType": [
+          "pipeline_base"
+        ]
+      },
+      "nextConnection": {
+        "isPermitted": true,
+        "connectionType": []
+      },
+      "parameters": [
+        {
+          "name": "bootstrapServer",
+          "displayName": "bootstrapServer",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "bootstrapServer"
+        },
+        {
+          "name": "groupID",
+          "displayName": "groupId",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "groupId"
+        },
+        {
+          "name": "offsetCommit",
+          "displayName": "offsetCommit",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "offsetCommit"
+        },
+        {
+          "name": "sourceTopic",
+          "displayName": "topic",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "topic"
+        }
+      ],
+      "category": "Source"
+    },
+    "parameters": [
+      {
+        "name": "bootstrapServer",
+        "value": "bootstrapServer",
+        "parameterType": "string"
+      },
+      {
+        "name": "groupID",
+        "value": "groupId",
+        "parameterType": "string"
+      },
+      {
+        "name": "offsetCommit",
+        "value": "offsetCommit",
+        "parameterType": "string"
+      },
+      {
+        "name": "sourceTopic",
+        "value": "TopicB",
+        "parameterType": "string"
+      }
+    ]
+  },
+  "sink": {
+    "id": "02a51848-2aca-459c-8cd8-a2f43900bb9f",
+    "descriptor": {
+      "id": "6693c39e-6261-11e8-adc0-fa7ae01bbebc",
+      "name": "io.logbee.keyscore.agent.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic",
+      "displayName": "Elastic Search Sink",
+      "description": "Eine Elastic Search Sink",
+      "previousConnection": {
+        "isPermitted": true,
+        "connectionType": []
+      },
+      "nextConnection": {
+        "isPermitted": false,
+        "connectionType": []
+      },
+      "parameters": [
+        {
+          "name": "host",
+          "displayName": "host",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "localhost"
+        },
+        {
+          "name": "port",
+          "displayName": "port",
+          "description": "description",
+          "mandatory": true,
+          "kind": "int",
+          "value": 9200
+        },
+        {
+          "name": "index",
+          "displayName": "index",
+          "description": "description",
+          "mandatory": true,
+          "validator": ".*",
+          "kind": "text",
+          "value": "index"
+        }
+      ],
+      "category": "Sink"
+    },
+    "parameters": [
+      {
+        "name": "host",
+        "value": "localhost",
+        "parameterType": "string"
+      },
+      {
+        "name": "port",
+        "value": 9200,
+        "parameterType": "int"
+      },
+      {
+        "name": "index",
+        "value": "index",
+        "parameterType": "string"
+      }
+    ]
+  },
+  "filter": [
+    {
+      "id": "bd4bd463-bdd7-476b-950c-92b5e66ab14a",
+      "descriptor": {
+        "id": "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
+        "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
+        "displayName": "Felder hinzufÃ¼gen",
+        "description": "HinzufÃ¼gen von neuen Feldern mit dazugehÃ¶rigen Werten zum aktuellen Datensatz.",
+        "previousConnection": {
+          "isPermitted": true,
+          "connectionType": []
+        },
+        "nextConnection": {
+          "isPermitted": true,
+          "connectionType": []
+        },
+        "parameters": [
+          {
+            "name": "fieldsToAdd",
+            "displayName": "HinzuzufÃ¼gende Felder",
+            "description": "Diese Felder werden dem Datensatz hinzugefÃ¼gt.",
+            "mandatory": true,
+            "mapKey": {
+              "name": "fieldName",
+              "displayName": "Name",
+              "description": "Der Name des neuen Feldes.",
+              "mandatory": true,
+              "validator": ".*",
+              "kind": "text"
+            },
+            "mapValue": {
+              "name": "fieldValue",
+              "displayName": "Wert",
+              "description": "Der Wert des neuen Feldes.",
+              "mandatory": true,
+              "validator": ".*",
+              "kind": "text"
+            },
+            "min": 1,
+            "max": 2147483647,
+            "kind": "map",
+            "value": {}
+          }
+        ],
+        "category": "Filter"
+      },
+      "parameters": [
+        {
+          "name": "fieldsToAdd",
+          "value": {},
+          "parameterType": "map[string,string]"
+        }
+      ]
+    }
+  ]
+}

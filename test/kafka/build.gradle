@@ -28,7 +28,7 @@ task startContainer(type: DockerStartContainer) {
 task createKafkaTopics(type: DockerExecContainer) {
     dependsOn startContainer
     targetContainerId { startContainer.getContainerId() }
-    cmd = ["/usr/bin/create-topics.sh","sourceTopic,sinkTopic,testTopic"]
+    cmd = ["/usr/bin/create-topics.sh","TopicA,TopicB,TopicC"]
 
 }
 

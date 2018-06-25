@@ -7,11 +7,11 @@ import io.logbee.keyscore.model.PipelineConfiguration
 import scala.concurrent.duration._
 import scala.collection.mutable
 
-object PipelineConfigurationAggregator {
-  def apply(receiver: ActorRef, children: Iterable[ActorRef]) = Props(new PipelineConfigurationAggregator(receiver, children))
+object PipelineConfigurationCollector {
+  def apply(receiver: ActorRef, children: Iterable[ActorRef]) = Props(new PipelineConfigurationCollector(receiver, children))
 }
 
-class PipelineConfigurationAggregator(receiver: ActorRef, children: Iterable[ActorRef]) extends Actor {
+class PipelineConfigurationCollector(receiver: ActorRef, children: Iterable[ActorRef]) extends Actor {
   import context.{dispatcher, system}
 
   private var configs = mutable.ListBuffer.empty[PipelineConfiguration]

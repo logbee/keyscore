@@ -92,15 +92,15 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       })
 
     case  RequestExistingPipelines() =>
-      val aggregator = context.system.actorOf(PipelineInstanceAggregator(sender,availableAgents.keys))
+      val collector = context.system.actorOf(PipelineInstanceCollector(sender,availableAgents.keys))
       availableAgents.keys.foreach( agent => {
-        pipelineSchedulerSelector(agent, context) ! RequestPipelineInstance(aggregator)
+        pipelineSchedulerSelector(agent, context) ! RequestPipelineInstance(collector)
       })
 
     case RequestExistingConfigurations() =>
-      val aggregator = context.system.actorOf(PipelineConfigurationAggregator(sender,availableAgents.keys))
+      val collector = context.system.actorOf(PipelineConfigurationCollector(sender,availableAgents.keys))
       availableAgents.keys.foreach( agent => {
-        pipelineSchedulerSelector(agent, context) ! RequestPipelineConfigurations(aggregator)
+        pipelineSchedulerSelector(agent, context) ! RequestPipelineConfigurations(collector)
       })
   }
 

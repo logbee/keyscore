@@ -77,7 +77,7 @@
       },
       {
         "name": "sourceTopic",
-        "value": "testTopic",
+        "value": "TopicA",
         "parameterType": "string"
       }
     ]
@@ -108,13 +108,13 @@
           "value": "localhost:9092"
         },
         {
-          "name": "topic",
+          "name": "SinkTopic",
           "displayName": "topic",
           "description": "description",
           "mandatory": true,
           "validator": ".*",
           "kind": "text",
-          "value": "sinkTopic"
+          "value": "topic"
         }
       ],
       "category": "Sink"
@@ -127,7 +127,7 @@
       },
       {
         "name": "topic",
-        "value": "sinkTopic",
+        "value": "TopicB",
         "parameterType": "string"
       }
     ]
