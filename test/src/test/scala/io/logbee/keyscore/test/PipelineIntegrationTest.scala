@@ -8,12 +8,14 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
+import io.logbee.keyscore.agent.pipeline.ExampleData
+import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.commons.json.helper.FilterConfigTypeHints
-import io.logbee.keyscore.model.{Green, PipelineConfiguration, PipelineInstance}
+import io.logbee.keyscore.model.{Dataset, Green, PipelineConfiguration, PipelineInstance}
 import org.json4s.Formats
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
-import org.json4s.native.Serialization.read
+import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
@@ -42,6 +44,13 @@ class PipelineIntegrationTest extends Matchers {
     val kafkaToElasticPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToElastisSearchSink.json"))
     val kafkaToElasticPipeLineConfig = read[PipelineConfiguration](kafkaToElasticPipelineReader)
 
+    val pipelineOneFilter = kafkaToKafkaPipeLineConfig.filter.head
+    val pipelineTwoFilter = kafkaToElasticPipeLineConfig.filter.head
+    val test = write(List(ExampleData.dataset1))
+    println(test)
+
+    println(pipelineOneFilter.id)
+    println(pipelineTwoFilter.id)
 
     // Create new KafkaToKafka Pipeline
 
@@ -59,7 +68,7 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(httpClient)
       .send()
-      .get("/pipeline/configuration/" + kafkaToKafkaPipeLineConfig.id)
+      .get(s"/pipeline/configuration/${kafkaToKafkaPipeLineConfig.id}")
     )
 
     runner.http(action => action.client(httpClient)
@@ -77,8 +86,10 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(httpClient)
       .send()
-      .get("/pipeline/instance/" + kafkaToKafkaPipeLineConfig.id)
+      .get(s"/pipeline/instance/${kafkaToKafkaPipeLineConfig.id}")
     )
+
+    Thread.sleep(5000)
 
     runner.http(action => action.client(httpClient)
       .receive()
@@ -91,7 +102,7 @@ class PipelineIntegrationTest extends Matchers {
     )
 
     // Create new KafkaToElastic Pipeline
-//
+
     runner.http(action => action.client(httpClient)
       .send()
       .put("/pipeline/configuration")
@@ -105,7 +116,7 @@ class PipelineIntegrationTest extends Matchers {
     )
     runner.http(action => action.client(httpClient)
       .send()
-      .get("/pipeline/configuration/" + kafkaToElasticPipeLineConfig.id)
+      .get(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}")
     )
 
     runner.http(action => action.client(httpClient)
@@ -120,19 +131,98 @@ class PipelineIntegrationTest extends Matchers {
     )
 
     runner.http(action => action.client(httpClient)
-        .send()
-        .get("/pipeline/instance/" + kafkaToElasticPipeLineConfig.id)
+      .send()
+      .get(s"/pipeline/instance/${kafkaToElasticPipeLineConfig.id}")
+    )
+
+    Thread.sleep(5000)
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val paylaod = message.getPayload.asInstanceOf[String]
+        val instance = read[PipelineInstance](paylaod)
+        instance.health should equal(Green)
+      })
+    )
+
+
+    // Valves
+
+//    runner.http(action => action.client(httpClient)
+//      .send()
+//      .put(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/insert")
+//      .contentType("application/json")
+//      .payload(write(List(dataset1)))
+//    )
+//
+//    runner.http(action => action.client(httpClient)
+//        .receive()
+//        .response(HttpStatus.ACCEPTED)
+//    )
+//
+//    runner.http(action => action.client(httpClient)
+//          .send()
+//          .get(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/extract?value=1")
+//    )
+//
+//    runner.http(action => action.client(httpClient)
+//          .receive()
+//          .response(HttpStatus.OK)
+//          .validationCallback((message, context) => {
+//           val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
+//            payload should contain only dataset1
+//      })
+//    )
+
+
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/pause?value=true")
     )
 
     runner.http(action => action.client(httpClient)
-          .receive()
-          .response(HttpStatus.OK)
-          .validationCallback((message,context) =>  {
-            val paylaod = message.getPayload.asInstanceOf[String]
-            val instance = read[PipelineInstance](paylaod)
-            instance.health should equal(Green)
-          })
+      .receive()
+      .response(HttpStatus.ACCEPTED)
     )
+
+
+
+
+    // Delete Pipelines
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .delete(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get("/pipeline/instance/*")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val instances = read[List[PipelineInstance]](payload)
+        instances should have size 1
+        instances.head.id shouldBe kafkaToKafkaPipeLineConfig.id
+      }))
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .delete(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}"))
   }
+
+
 }
 

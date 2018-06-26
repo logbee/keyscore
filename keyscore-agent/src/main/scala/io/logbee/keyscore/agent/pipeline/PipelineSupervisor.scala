@@ -221,6 +221,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case InsertDatasets(filterId, datasets) =>
       val lastSender = sender
+      log.info(s"Agent: InsertDatasets${datasets.head.toString}")
       controller.insert(filterId, datasets).onComplete {
         case Success(value) => lastSender ! Success
         case Failure(e) => lastSender ! Failure
@@ -229,7 +230,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ExtractDatasets(filterId, amount) =>
       val lastSender = sender
       controller.extract(filterId, amount).onComplete {
-        case Success(value) => lastSender ! Success
+        case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets)
         case Failure(e) => lastSender ! Failure
       }
 

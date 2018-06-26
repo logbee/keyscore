@@ -141,7 +141,7 @@ object FrontierApplication extends App with Json4sSupport {
               }
             }
           } ~
-            path("drain") {
+            path  ("drain") {
               post {
                 parameter('value.as[Boolean]) { doDrain =>
                   onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
@@ -154,6 +154,7 @@ object FrontierApplication extends App with Json4sSupport {
             path("insert") {
               put {
                 entity(as[List[Dataset]]) { datasets =>
+                  println("Frontier: Received Insert datasets")
                   onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
                     case Success => complete(StatusCodes.Accepted)
                     case _ => complete(StatusCodes.InternalServerError)
@@ -165,7 +166,7 @@ object FrontierApplication extends App with Json4sSupport {
               get {
                 parameter('value.as[Int]) { amount =>
                   onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
-                    case Success => complete(StatusCodes.Accepted)
+                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
@@ -193,7 +194,7 @@ object FrontierApplication extends App with Json4sSupport {
           }
         }
       } ~
-      pathPrefix("agents") {
+      pathPrefix("agent") {
         pathPrefix("number") {
           get {
             onSuccess(agentManager ? QueryAgents) {
