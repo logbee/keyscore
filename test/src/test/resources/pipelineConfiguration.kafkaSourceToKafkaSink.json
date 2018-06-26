@@ -1,14 +1,14 @@
 {
-  "id": "d8032851-0147-4f10-a3eb-8144ced9fe47",
-  "name": "KafkaSource to KafkaSink",
-  "description": "Writes from KafkaSource to KafkaSink(TopicA => TopicB)",
+  "id": "52a124de-de99-484a-829e-349385a9a3c5",
+  "name": "Kafka To Kafka",
+  "description": "Pipeline that writes from Kafka Source to Kafka Sink",
   "source": {
-    "id": "7b2ac7f6-b288-45e0-8f84-5295131e4c82",
+    "id": "468f8b5c-5180-4705-ab03-2d15b7139200",
     "descriptor": {
       "id": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
       "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
       "displayName": "Kafka Source",
-      "description": "A Kafka Source. Liest von Topic A",
+      "description": "Eine Kafka Source",
       "previousConnection": {
         "isPermitted": true,
         "connectionType": [
@@ -27,7 +27,7 @@
           "mandatory": true,
           "validator": ".*",
           "kind": "text",
-          "value": "localhost:9092"
+          "value": "bootstrapServer"
         },
         {
           "name": "groupID",
@@ -36,7 +36,7 @@
           "mandatory": true,
           "validator": ".*",
           "kind": "text",
-          "value": "test-consumer"
+          "value": "groupId"
         },
         {
           "name": "offsetCommit",
@@ -54,7 +54,7 @@
           "mandatory": true,
           "validator": ".*",
           "kind": "text",
-          "value": "testTopic"
+          "value": "TopicA"
         }
       ],
       "category": "Source"
@@ -67,12 +67,12 @@
       },
       {
         "name": "groupID",
-        "value": "test-consumer",
+        "value": "groupId",
         "parameterType": "string"
       },
       {
         "name": "offsetCommit",
-        "value": "earliest",
+        "value": "offsetCommit",
         "parameterType": "string"
       },
       {
@@ -83,12 +83,12 @@
     ]
   },
   "sink": {
-    "id": "0c85992a-5932-437e-963c-bae5f1438230",
+    "id": "34553ae9-2358-48b6-81cc-f251a5a631bd",
     "descriptor": {
       "id": "4fedbe8e-115e-4408-ba53-5b627b6e2eaf",
       "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic",
       "displayName": "Kafka Sink",
-      "description": "A Kafka Sink. Schreibt in TopicB",
+      "description": "Eine Kafka Sink.",
       "previousConnection": {
         "isPermitted": true,
         "connectionType": []
@@ -108,13 +108,13 @@
           "value": "localhost:9092"
         },
         {
-          "name": "SinkTopic",
+          "name": "topic",
           "displayName": "topic",
           "description": "description",
           "mandatory": true,
           "validator": ".*",
           "kind": "text",
-          "value": "topic"
+          "value": "TopicB"
         }
       ],
       "category": "Sink"
@@ -134,12 +134,12 @@
   },
   "filter": [
     {
-      "id": "37a0ecc1-b81e-4053-9fc8-222315f5fcdf",
+      "id": "1fbc4394-6181-406a-b2c6-22a9f1c6c0b0",
       "descriptor": {
         "id": "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
         "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
-        "displayName": "Add Fields Filter",
-        "description": "Adding new fields and their values.",
+        "displayName": "Felder hinzufÃ¼gen",
+        "description": "HinzufÃ¼gen von neuen Feldern mit dazugehÃ¶rigen Werten zum aktuellen Datensatz.",
         "previousConnection": {
           "isPermitted": true,
           "connectionType": []
@@ -151,21 +151,21 @@
         "parameters": [
           {
             "name": "fieldsToAdd",
-            "displayName": "Fields to add",
-            "description": "These fields will be added by this filter.",
+            "displayName": "HinzuzufÃ¼gende Felder",
+            "description": "Diese Felder werden dem Datensatz hinzugefÃ¼gt.",
             "mandatory": true,
             "mapKey": {
               "name": "fieldName",
               "displayName": "Name",
-              "description": "The identifier of this field.",
+              "description": "Der Name des neuen Feldes.",
               "mandatory": true,
               "validator": ".*",
               "kind": "text"
             },
             "mapValue": {
               "name": "fieldValue",
-              "displayName": "Value",
-              "description": "The value of the added field.",
+              "displayName": "Wert",
+              "description": "Der Wert des neuen Feldes.",
               "mandatory": true,
               "validator": ".*",
               "kind": "text"
@@ -173,9 +173,7 @@
             "min": 1,
             "max": 2147483647,
             "kind": "map",
-            "value": {
-              "testField": "testMessage"
-            }
+            "value": {}
           }
         ],
         "category": "Filter"
@@ -183,9 +181,7 @@
       "parameters": [
         {
           "name": "fieldsToAdd",
-          "value": {
-            "testField": "testMessage"
-          },
+          "value": {},
           "parameterType": "map[string,string]"
         }
       ]

@@ -31,7 +31,6 @@ class PipelineIntegrationTest extends Matchers {
     .requestUrl("http://localhost:4711")
     .build()
 
-  @Description("Creates two Pipelines. The first Reads from Kafka TopicA and writes to Kafka TopicB. The second reads from Kafka TopicB and writes to ElasticSearchSink")
   @Test
   @CitrusTest
   def createPipeline(@CitrusResource runner: TestRunner): Unit = {
@@ -42,6 +41,7 @@ class PipelineIntegrationTest extends Matchers {
     val kafkaToElasticPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToElastisSearchSink.json").mkString
     val kafkaToElasticPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToElastisSearchSink.json"))
     val kafkaToElasticPipeLineConfig = read[PipelineConfiguration](kafkaToElasticPipelineReader)
+
 
     // Create new KafkaToKafka Pipeline
 
@@ -91,7 +91,7 @@ class PipelineIntegrationTest extends Matchers {
     )
 
     // Create new KafkaToElastic Pipeline
-
+//
     runner.http(action => action.client(httpClient)
       .send()
       .put("/pipeline/configuration")
@@ -120,18 +120,18 @@ class PipelineIntegrationTest extends Matchers {
     )
 
     runner.http(action => action.client(httpClient)
-      .send()
-      .get("/pipeline/instance/" + kafkaToElasticPipeLineConfig.id)
+        .send()
+        .get("/pipeline/instance/" + kafkaToElasticPipeLineConfig.id)
     )
 
     runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val paylaod = message.getPayload.asInstanceOf[String]
-        val instance = read[PipelineInstance](paylaod)
-        instance.health should equal(Green)
-      })
+          .receive()
+          .response(HttpStatus.OK)
+          .validationCallback((message,context) =>  {
+            val paylaod = message.getPayload.asInstanceOf[String]
+            val instance = read[PipelineInstance](paylaod)
+            instance.health should equal(Green)
+          })
     )
   }
 }

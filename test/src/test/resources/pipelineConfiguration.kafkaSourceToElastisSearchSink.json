@@ -1,14 +1,14 @@
 {
-  "id": "e2d85f22-b267-439f-bb34-c403b7c8435b",
-  "name": "Kafka to ElasticSearch",
-  "description": "Writes from Kafka to ElasticSearch",
+  "id": "7c30130f-5c49-44b0-a62a-bf13b9e526c1",
+  "name": "KafkaSourceToElasticSearch",
+  "description": "Writes from Kafka Source to ElasticSearch",
   "source": {
-    "id": "b23a8d24-aed3-436c-9d56-7f8d6cf9f8c6",
+    "id": "d70ba1d5-c170-4249-b56c-55a45ff48376",
     "descriptor": {
       "id": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
       "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
       "displayName": "Kafka Source",
-      "description": "Eine Kafka Source. Liest von TopicB",
+      "description": "Eine Kafka Source",
       "previousConnection": {
         "isPermitted": true,
         "connectionType": [
@@ -27,7 +27,7 @@
           "mandatory": true,
           "validator": ".*",
           "kind": "text",
-          "value": "bootstrapServer"
+          "value": "localhost:9092"
         },
         {
           "name": "groupID",
@@ -45,7 +45,7 @@
           "mandatory": true,
           "validator": ".*",
           "kind": "text",
-          "value": "offsetCommit"
+          "value": "earliest"
         },
         {
           "name": "topic",
@@ -62,7 +62,7 @@
     "parameters": [
       {
         "name": "bootstrapServer",
-        "value": "bootstrapServer",
+        "value": "localhost:9092",
         "parameterType": "string"
       },
       {
@@ -72,18 +72,18 @@
       },
       {
         "name": "offsetCommit",
-        "value": "offsetCommit",
+        "value": "earliest",
         "parameterType": "string"
       },
       {
         "name": "topic",
-        "value": "TopicB",
+        "value": "topic",
         "parameterType": "string"
       }
     ]
   },
   "sink": {
-    "id": "02a51848-2aca-459c-8cd8-a2f43900bb9f",
+    "id": "c260244e-1a6a-4a4c-b33d-e50fc6cff8fa",
     "descriptor": {
       "id": "6693c39e-6261-11e8-adc0-fa7ae01bbebc",
       "name": "io.logbee.keyscore.agent.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic",
@@ -147,7 +147,7 @@
   },
   "filter": [
     {
-      "id": "bd4bd463-bdd7-476b-950c-92b5e66ab14a",
+      "id": "8c9e9656-3c87-4f78-b26b-17fe7c0e7246",
       "descriptor": {
         "id": "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
         "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",

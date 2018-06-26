@@ -101,6 +101,14 @@ object FrontierApplication extends App with Json4sSupport {
 
       } ~
         pathPrefix("instance") {
+          pathPrefix("*") {
+            get {
+              onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+          }~
           pathPrefix(JavaUUID) { instanceId =>
             put {
               complete(StatusCodes.NotImplemented)
@@ -118,13 +126,7 @@ object FrontierApplication extends App with Json4sSupport {
               }
             }
 
-          } ~
-            get {
-              onSuccess(pipelineManager ? RequestExistingPipelines()) {
-                case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
-                case _ => complete(StatusCodes.InternalServerError)
-              }
-            }
+          }
         }
     } ~
       pathPrefix("filter") {

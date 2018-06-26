@@ -49,7 +49,7 @@ object KafkaSourceLogic extends Described {
         TextParameterDescriptor("bootstrapServer", translatedText.getString("bootstrapServer"), "description"),
         TextParameterDescriptor("groupID", translatedText.getString("groupID"), "description"),
         TextParameterDescriptor("offsetCommit", translatedText.getString("offsetCommit"), "description"),
-        TextParameterDescriptor("sourceTopic", translatedText.getString("topic"), "description")
+        TextParameterDescriptor("topic", translatedText.getString("topic"), "description")
       ), translatedText.getString("category"))
   }
 }
