@@ -1,6 +1,6 @@
 {
   "id": "e2d85f22-b267-439f-bb34-c403b7c8435b",
-  "name": "KafkaToElasticSearch",
+  "name": "Kafka to ElasticSearch",
   "description": "Writes from Kafka to ElasticSearch",
   "source": {
     "id": "b23a8d24-aed3-436c-9d56-7f8d6cf9f8c6",
@@ -8,7 +8,7 @@
       "id": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
       "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
       "displayName": "Kafka Source",
-      "description": "Eine Kafka Source",
+      "description": "Eine Kafka Source. Liest von TopicB",
       "previousConnection": {
         "isPermitted": true,
         "connectionType": [
@@ -48,7 +48,7 @@
           "value": "offsetCommit"
         },
         {
-          "name": "sourceTopic",
+          "name": "topic",
           "displayName": "topic",
           "description": "description",
           "mandatory": true,
@@ -76,7 +76,7 @@
         "parameterType": "string"
       },
       {
-        "name": "sourceTopic",
+        "name": "topic",
         "value": "TopicB",
         "parameterType": "string"
       }

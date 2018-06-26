@@ -162,7 +162,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
-      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description,Red)
+      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Red)
 
     case RequestPipelineConfigurations(receiver) =>
       log.info("Received PipelineConfiguration Request")

@@ -9,28 +9,29 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.commons.json.helper.FilterConfigTypeHints
-import io.logbee.keyscore.model.{Health, PipelineConfiguration, PipelineInstance}
-import org.json4s.{DefaultFormats, FieldSerializer, Formats}
-import org.json4s.ext.{EnumNameSerializer, JavaTypesSerializers}
+import io.logbee.keyscore.model.{Green, PipelineConfiguration, PipelineInstance}
+import org.json4s.Formats
+import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.read
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.springframework.http.HttpStatus
+import io.logbee.keyscore.model.json4s.HealthSerializer
+import org.springframework.context.annotation.Description
 
 import scala.io.Source
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
-  private implicit val formats: Formats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("parameterType") ++ JavaTypesSerializers.all
-
+  private implicit val formats: Formats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("parameterType") ++ JavaTypesSerializers.all ++ List(HealthSerializer)
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
     .build()
 
-
+  @Description("Creates two Pipelines. The first Reads from Kafka TopicA and writes to Kafka TopicB. The second reads from Kafka TopicB and writes to ElasticSearchSink")
   @Test
   @CitrusTest
   def createPipeline(@CitrusResource runner: TestRunner): Unit = {
@@ -84,7 +85,8 @@ class PipelineIntegrationTest extends Matchers {
       .response(HttpStatus.OK)
       .validationCallback((message, context) => {
         val payload = message.getPayload.asInstanceOf[String]
-//        val instance = read[PipelineInstance](payload)
+        val instance = read[PipelineInstance](payload)
+        instance.health should equal(Green)
       })
     )
 
@@ -116,5 +118,21 @@ class PipelineIntegrationTest extends Matchers {
         config.source.id should equal(kafkaToElasticPipeLineConfig.source.id)
       })
     )
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get("/pipeline/instance/" + kafkaToElasticPipeLineConfig.id)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val paylaod = message.getPayload.asInstanceOf[String]
+        val instance = read[PipelineInstance](paylaod)
+        instance.health should equal(Green)
+      })
+    )
   }
 }
+

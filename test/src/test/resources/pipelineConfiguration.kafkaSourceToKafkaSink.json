@@ -1,14 +1,14 @@
 {
   "id": "d8032851-0147-4f10-a3eb-8144ced9fe47",
-  "name": "Test Pipelline",
-  "description": "The default Test Pipeline",
+  "name": "KafkaSource to KafkaSink",
+  "description": "Writes from KafkaSource to KafkaSink(TopicA => TopicB)",
   "source": {
     "id": "7b2ac7f6-b288-45e0-8f84-5295131e4c82",
     "descriptor": {
       "id": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
       "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
       "displayName": "Kafka Source",
-      "description": "A Kafka Source",
+      "description": "A Kafka Source. Liest von Topic A",
       "previousConnection": {
         "isPermitted": true,
         "connectionType": [
@@ -48,7 +48,7 @@
           "value": "earliest"
         },
         {
-          "name": "sourceTopic",
+          "name": "topic",
           "displayName": "topic",
           "description": "description",
           "mandatory": true,
@@ -76,7 +76,7 @@
         "parameterType": "string"
       },
       {
-        "name": "sourceTopic",
+        "name": "topic",
         "value": "TopicA",
         "parameterType": "string"
       }
@@ -88,7 +88,7 @@
       "id": "4fedbe8e-115e-4408-ba53-5b627b6e2eaf",
       "name": "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic",
       "displayName": "Kafka Sink",
-      "description": "A Kafka Sink.",
+      "description": "A Kafka Sink. Schreibt in TopicB",
       "previousConnection": {
         "isPermitted": true,
         "connectionType": []
