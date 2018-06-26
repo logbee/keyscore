@@ -36,7 +36,6 @@ dependencies {
     compile dependency.akka_persistence
     compile dependency.akka_cluster
     compile dependency.akka_stream_kafka
-    compile dependency.json4s
 
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit

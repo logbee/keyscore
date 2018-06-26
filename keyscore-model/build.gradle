@@ -8,7 +8,7 @@ repositories {
 dependencies {
 
     compile dependency.scala_lang
-
+    compile dependency.json4s
     testCompile dependency.scala_test
 }
 
