@@ -33,12 +33,12 @@ class PipelineIntegrationTest extends Matchers {
   @Test
   @CitrusTest
   def createPipeline(@CitrusResource runner: TestRunner): Unit = {
-    val kafkaToKaftaPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToKafkaSink.json").mkString
+    val kafkaToKafkaPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToKafkaSink.json").mkString
     val KafkaToKafkaPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToKafkaSink.json"))
     val kafkaToKafkaPipeLineConfig = read[PipelineConfiguration](KafkaToKafkaPipelineReader)
 
-    val kafkaToElasticPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToElastisSearchSink.json").mkString
-    val kafkaToElasticPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToElastisSearchSink.json"))
+    val kafkaToElasticPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToElasticSearchSink.json").mkString
+    val kafkaToElasticPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToElasticSearchSink.json"))
     val kafkaToElasticPipeLineConfig = read[PipelineConfiguration](kafkaToElasticPipelineReader)
 
     val pipelineOneFilter = kafkaToKafkaPipeLineConfig.filter.head
@@ -56,7 +56,7 @@ class PipelineIntegrationTest extends Matchers {
       .send()
       .put("/pipeline/configuration")
       .contentType("application/json")
-      .payload(kafkaToKaftaPipeLineConfigString)
+      .payload(kafkaToKafkaPipeLineConfigString)
     )
 
     runner.http(action => action.client(httpClient)
@@ -141,8 +141,8 @@ class PipelineIntegrationTest extends Matchers {
       .receive()
       .response(HttpStatus.OK)
       .validationCallback((message, context) => {
-        val paylaod = message.getPayload.asInstanceOf[String]
-        val instance = read[PipelineInstance](paylaod)
+        val payload = message.getPayload.asInstanceOf[String]
+        val instance = read[PipelineInstance](payload)
         instance.health should equal(Green)
       })
     )

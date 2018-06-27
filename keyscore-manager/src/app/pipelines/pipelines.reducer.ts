@@ -16,6 +16,7 @@ import {
 } from "./pipelines.actions";
 import {v4 as uuid} from 'uuid';
 import {deepcopy, parameterDescriptorToParameter} from "../util";
+import {State} from "@ngrx/store";
 
 
 const initialState: PipelinesState = {

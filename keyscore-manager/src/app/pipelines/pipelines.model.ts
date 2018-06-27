@@ -35,14 +35,6 @@ export enum Health{
     Red
 }
 
-/*export interface PipelineModel {
-    id: string;
-    name: string;
-    description: string;
-    filters: Array<FilterModel>;
-    domRepresentation?: any;
-}*/
-
 export interface InternalPipelineConfiguration{
     id:string;
     name:string;
@@ -65,15 +57,6 @@ export interface FilterConfiguration {
     descriptor: FilterDescriptor
     parameters: Parameter[];
 }
-
-/*export interface FilterModel {
-    id: string;
-    name: string;
-    displayName: string;
-    description: string;
-    parameters: ParameterDescriptor[];
-}*/
-
 
 export interface FilterDescriptor {
     name: string;
