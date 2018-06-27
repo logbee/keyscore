@@ -84,12 +84,13 @@ class PipelineIntegrationTest extends Matchers {
         config.filter.head.id should equal(kafkaToKafkaPipeLineConfig.filter.head.id)
       }))
 
+    Thread.sleep(3000)
+
     runner.http(action => action.client(httpClient)
       .send()
       .get(s"/pipeline/instance/${kafkaToKafkaPipeLineConfig.id}")
     )
 
-    Thread.sleep(5000)
 
     runner.http(action => action.client(httpClient)
       .receive()
@@ -130,12 +131,13 @@ class PipelineIntegrationTest extends Matchers {
       })
     )
 
+    Thread.sleep(3000)
+
     runner.http(action => action.client(httpClient)
       .send()
       .get(s"/pipeline/instance/${kafkaToElasticPipeLineConfig.id}")
     )
 
-    Thread.sleep(5000)
 
     runner.http(action => action.client(httpClient)
       .receive()
@@ -152,7 +154,7 @@ class PipelineIntegrationTest extends Matchers {
 
 //    runner.http(action => action.client(httpClient)
 //      .send()
-//      .put(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/insert")
+//      .put(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/insert")grad
 //      .contentType("application/json")
 //      .payload(write(List(dataset1)))
 //    )
