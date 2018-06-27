@@ -26,171 +26,185 @@ The common url pattern to control pipelines starts with the prefix
 
 ====== Request ======
 
-*Method:* `GET`
-
-*URL:* `/pipeline/configuration/*`
-
-*Body:* <empty>
+- Method: `GET`
+- URL: `/pipeline/configuration/*`
+- Payload: `<empty>`
 
 ====== Response ======
 .*Case:* If there are any `PipelineConfiguration`.
-- *Code:* 200 OK
-- *Body:* Array of `PipelineConfiguration`
+- Code: `200 OK`
+- Payload: Array of `PipelineConfiguration`
 
 .*Case:* If there is no `PipelineConfiguration`.
-- *Code:* 200 OK
-- *Body:* Empty Array
+- Code: `200 OK`
+- Payload: `Empty Array`
 
 ===== Get a pipeline configuration =====
 
 ====== Request ======
 
-*Method:* `GET`
-
-*URL:* `/pipeline/configuration/<uuid>`
-
-*Body:* `PipelineConfiguration`
+- Method: `GET`
+- URL: `/pipeline/configuration/<uuid>`
+- Payload: `PipelineConfiguration`
 
 ====== Response ======
 .*Case:* A pipeline with the specified UUID exists.
-- *Code:* 200 OK
-- *Body:* `PipelineConfiguration`
+- Code: `200 OK`
+- Payload: `PipelineConfiguration`
 
 .*Case:* A pipeline with the specified UUID does not exists.
-- *Code:* 404 NOT FOUND
-- *Body:* <empty>
+- Code: `404 NOT FOUND`
+- Payload: `<empty>`
 
 ===== Create a pipeline configuration =====
 
 ====== Request ======
 
-*Method:* `PUT`
-
-*URL:* `/pipeline/configuration/`
-
-*Body:* `PipelineConfiguration`
+- Method: `PUT`
+- URL: `/pipeline/configuration/`
+- Payload: `PipelineConfiguration`
 
 ====== Response ======
 .*Case:* A new `PipelineConfiguration` with the specified UUID has been created.
-- *Code:* 201 Created
-- *Content:* <empty>
+- *Code:* `201 Created`
+- *Payload:* `<empty>`
 
 .*Case:* A `PipelineConfiguration` with the specified UUID already exists.
-- *Code:* 400 Bad Request
-- *Content:* <empty>
+- Code: `400 Bad Request`
+- Payload: `<empty>`
 
 ===== Update a pipeline configuration =====
 
 ====== Request ======
 
-*Method:* `POST`
-
-*URL:* `/pipeline/configuration/`
-
-*Body:* `PipelineConfiguration`
+- Method: `POST`
+- URL: `/pipeline/configuration/`
+- Payload: `PipelineConfiguration`
 
 ====== Response ======
 .*Case:* The update of the `PipelineConfiguration` with the given UUID was successful.
-- *Code:* 200 OK
-- *Content:* `PipelineConfiguration`
+- Code: `200 OK`
+- Payload: `PipelineConfiguration`
 
 .*Case:* There is no `PipelineConfiguration` with the given UUID.
-- *Code:* 404 NOT FOUND
-- *Content:* <empty>
+- Code: `404 NOT FOUND`
+- Payload: `<empty>`
 
 ===== Delete a pipeline configuration =====
 
 ====== Request ======
 
-*Method:* `DELTE`
-
-*URL:* `/pipeline/configuration/<uuid>`
-
-*Body:* <empty>
+- Method: `DELTE`
+- URL: `/pipeline/configuration/<uuid>`
+- Payload: `<empty>`
 
 ====== Response ======
 .*Case:* Deletion of the `PipelineConfiguration` with the given UUID was successful.
-- *Code:* 200 OK
-- *Content:* <empty>
+- Code: `200 OK`
+- Payload: `<empty>`
 
 .*Case:* There is no `PipelineConfiguration` with the given UUID.
-- *Code:* 404 NOT FOUND
-- *Content:* <empty>
+- Code: `404 NOT FOUND`
+- Payload: `<empty>`
+
+===== Delete all pipeline configurations =====
+
+====== Request ======
+
+- Method: `DELTE`
+- URL: `/pipeline/configuration/*`
+- Payload: `<empty>`
+
+====== Response ======
+.*Case:* Deletion was successful.
+- Code: `200 OK`
+- Payload: `<empty>`
+
+.*Case:* There was a problem deleting all pipeline configurations.
+- Code:  `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
 
 ===== Get all pipeline instances =====
 
 ====== Request ======
 
-*Method:* `GET`
-
-*URL:* `/pipeline/instance/*`
-
-*Body:* <empty>
+- Method: `GET`
+- URL: `/pipeline/instance/*`
+- Payload: `<empty>`
 
 ====== Response ======
 .*Case:* If there are any `PipelineInstance`.
-- *Code:* 200 OK
-- *Content:* Array of `PipelineInstance`.
+- Code: 200 OK
+- Payload: Array of `PipelineInstance`.
 
 .*Case:* There is no `PipelineInstance` with the given UUID.
-- *Code:* 200 OK
-- *Content:* Empty Array
+- Code: `200 OK`
+- Payload: `Empty Array`
 
 ===== Get a pipeline instance =====
 
 ====== Request ======
 
-*Method:* `GET`
-
-*URL:* `/pipeline/instance/<uuid>`
-
-*Body:* <empty>
+- Method: `GET`
+- URL: `/pipeline/instance/<uuid>`
+- Payload: `<empty>`
 
 ====== Response ======
 .*Case:* A `PipelineInstance` with the given UUID exists.
-- *Code:* 200 OK
-- *Content:* `PipelineInstance`
+- Code: `200 OK`
+- Payload: `PipelineInstance`
 
 .*Case:* A `PipelineInstance` with the given UUID does not exist.
-- *Code:* 404 NOT FOUND
-- *Content:* <empty>
+- Code: `404 NOT FOUND`
+- Payload: `<empty>`
 
 ===== Create a pipeline instance =====
 
 ====== Request ======
 
-*Method:* `PUT`
-
-*URL:* `/pipeline/instance/<uuid>?<configId>`
-
-*Body:* <empty>
+- Method: `PUT`
+- URL: `/pipeline/instance/<uuid>?<configId>`
+- Payload: `<empty>`
 
 ====== Response ======
 .*Case:* A new  `PipelineInstacne` with the given UUID and the `PipelineConfiguration` accessed by <configId> has been created.
-- *Code:* 201 CREATED
-- *Content:* <empty>
+- Code: `201 CREATED`
+- Payload: `<empty>`
 
 .*Case:* A `PipelineInstance` with the given UUID already exists.
-- *Code:* 400 Bad Request
-- *Content:* <empty>
+- Code: `400 Bad Request`
+- Payload: `<empty>`
 
 ===== Update a pipeline instance =====
 
 ====== Request ======
 
-*Method:* `POST`
-
-*URL:* `/pipeline/instance/<uuid>?<configId>`
-
-*Body:* <empty>
+- Method: `POST`
+- URL: `/pipeline/instance/<uuid>?<configId>`
+- Payload: <empty>
 
 ====== Response ======
 .*Case:* The update of the `PipelineInstacne` with the given UUID and the `PipelineConfiguration` accessed by <configId> was successfull.
-- *Code:* 200 OK
-- *Content:* <empty>
+- Code: `200 OK`
+- Payload: `<empty>`
 
 .*Case:* There is no `PipelineInstance` with the given UUID.
-- *Code:* 404 NOT FOUND
-- *Content:* <empty>
+- Code: `404 NOT FOUND`
+- Payload: `<empty>`
 
+===== Delete all pipeline instance =====
 
+====== Request ======
+
+- Method: `DELTE`
+- URL: `/pipeline/instance/*`
+- Payload: `<empty>`
+
+====== Response ======
+.*Case:* Deletion was successful.
+- Code: `200 OK`
+- Payload: `<empty>`
+
+.*Case:* There was a problem deleting all pipeline instances.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
