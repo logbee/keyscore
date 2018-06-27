@@ -1,8 +1,7 @@
-package io.logbee.keyscore.commons.json.helper
+package io.logbee.keyscore.model.json4s
 
 import io.logbee.keyscore.model.filter._
-import org.json4s.JsonAST.JObject
-import org.json4s.{CustomSerializer, TypeHints}
+import org.json4s.TypeHints
 
 object FilterConfigTypeHints extends TypeHints {
   val classToHint: Map[Class[_], String] = Map(

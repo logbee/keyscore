@@ -38,7 +38,7 @@ export class AgentsEffects {
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appConfig]) => {
             try {
-                const url: string = appConfig.getString('keyscore.frontier.base-url') + '/agent/';
+                const url: string = appConfig.getString('keyscore.frontier.base-url') + '/agents/';
                 return this.http.get(url).pipe(
                     map(data => new LoadAgentsSuccessAction((data as AgentModel[]))),
                     catchError((cause: any) => of(new LoadAgentsFailureAction(cause)))
