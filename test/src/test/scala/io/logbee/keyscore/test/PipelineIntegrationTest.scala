@@ -10,7 +10,6 @@ import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData
 import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.commons.json.helper.FilterConfigTypeHints
 import io.logbee.keyscore.model.{Dataset, Green, PipelineConfiguration, PipelineInstance}
 import org.json4s.Formats
 import org.json4s.ext.JavaTypesSerializers
@@ -20,9 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.springframework.http.HttpStatus
-import io.logbee.keyscore.model.json4s.HealthSerializer
-import org.springframework.context.annotation.Description
-
+import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
 import scala.io.Source
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
@@ -46,11 +43,12 @@ class PipelineIntegrationTest extends Matchers {
 
     val pipelineOneFilter = kafkaToKafkaPipeLineConfig.filter.head
     val pipelineTwoFilter = kafkaToElasticPipeLineConfig.filter.head
-    val test = write(List(ExampleData.dataset1))
-    println(test)
+    val datasetJsonString = write(List(ExampleData.dataset1))
+
 
     println(pipelineOneFilter.id)
     println(pipelineTwoFilter.id)
+    println(datasetJsonString)
 
     // Create new KafkaToKafka Pipeline
 
@@ -150,13 +148,13 @@ class PipelineIntegrationTest extends Matchers {
     )
 
 
-    // Valves
+    // Insert Data into AddFieldsFilter
 
 //    runner.http(action => action.client(httpClient)
 //      .send()
-//      .put(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/insert")grad
+//      .put(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/insert")
 //      .contentType("application/json")
-//      .payload(write(List(dataset1)))
+//      .payload(datasetJsonString)
 //    )
 //
 //    runner.http(action => action.client(httpClient)
@@ -177,20 +175,20 @@ class PipelineIntegrationTest extends Matchers {
 //            payload should contain only dataset1
 //      })
 //    )
+//
+//
+//
+//    runner.http(action => action.client(httpClient)
+//      .send()
+//      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/pause?value=true")
+//    )
+//
+//    runner.http(action => action.client(httpClient)
+//      .receive()
+//      .response(HttpStatus.ACCEPTED)
+//    )
 
-
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/pause?value=true")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.ACCEPTED)
-    )
-
-
+    // Check if no Data is in ElasticSearchSink
 
 
     // Delete Pipelines
