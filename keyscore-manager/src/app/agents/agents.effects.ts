@@ -33,7 +33,7 @@ export class AgentsEffects {
         })
     );
 
-    @Effect() removeAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
+    @Effect() addAgentOnNavigation$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
         switchMap(action => {
                 const agentWithId = /\/agent\/.+/g;
