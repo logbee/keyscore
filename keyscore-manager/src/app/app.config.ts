@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {Actions, Effect, ofType, ROOT_EFFECTS_INIT} from "@ngrx/effects";
 import {catchError, map, mergeMap, switchMap} from "rxjs/operators";
 import {of} from "rxjs";
-import {Action} from "@ngrx/store";
+import {Action, Store} from "@ngrx/store";
 import {AppState} from "./app.component";
 import {TranslateService} from "@ngx-translate/core";
 
@@ -41,17 +41,6 @@ export type AppConfigActions =
 @Injectable()
 export class AppConfigEffects {
 
-    @Effect() init$: Observable<Action> = this.actions$.pipe(
-        ofType(ROOT_EFFECTS_INIT),
-        mergeMap(action =>
-            this.http.get('application.conf').pipe(
-                map(data => new AppConfigLoaded(data)),
-                catchError((cause: any) => of(new AppConfigFailure(cause)))
-            )
-
-        )
-    );
-
     @Effect() initLanguage$: Observable<Action> = this.actions$.pipe(
         ofType(ROOT_EFFECTS_INIT),
         switchMap(action => {
@@ -62,7 +51,7 @@ export class AppConfigEffects {
                 return of(new LanguageInitialised())
             }
         )
-    )
+    );
 
     constructor(private http: HttpClient,
                 private actions$: Actions,private translate:TranslateService) {
@@ -89,6 +78,8 @@ export class AppConfig {
         this.configuration = configuration;
     }
 
+
+
     public getString(key: string): string {
         return <string>this.resolveValue(key.split('.'), this.configuration)
     }
@@ -104,5 +95,30 @@ export class AppConfig {
         else {
             return this.resolveValue(keys, config[keys.shift()])
         }
+    }
+}
+
+@Injectable()
+export class AppConfigLoader{
+    constructor(private http:HttpClient, private store:Store<AppState>){
+
+    }
+
+    public load(){
+        return new Promise((resolve,reject) => {
+            this.http.get('application.conf').subscribe(
+                data => {
+                    this.store.dispatch(new AppConfigLoaded(data));
+                    data
+                    resolve();
+                },
+                err => {
+                    this.store.dispatch(new AppConfigFailure(err));
+                    resolve(true);
+
+                }
+
+            )
+        })
     }
 }

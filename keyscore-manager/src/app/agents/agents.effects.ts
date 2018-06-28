@@ -67,11 +67,11 @@ export class AgentsEffects {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {
-        return regEx.test(action.payload.event.url)
+        return regEx.test(action.payload.event.url);
 
     }
 
     private getAgentIdfromRouterAction(action:RouterNavigationAction){
-        return action.payload.routerState.root.firstChild.firstChild.url[0].path
+        return action.payload.routerState.root.firstChild.firstChild.url[0].path;
     }
 }

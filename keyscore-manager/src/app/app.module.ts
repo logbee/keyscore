@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms'
 import {HttpClient, HttpClientModule} from "@angular/common/http";
@@ -8,7 +8,7 @@ import {StoreModule} from '@ngrx/store';
 
 import {AppComponent} from './app.component';
 import {DashboardComponent} from "./dashboard/dashboard.component";
-import {AppConfigEffects} from "./app.config";
+import {AppConfigEffects, AppConfigLoader} from "./app.config";
 import {FilterChooser} from "./pipelines/pipeline-editor/filter-chooser/filter-chooser.component";
 import {metaReducers} from "./meta.reducers";
 import {reducers} from "./app.reducers";
@@ -61,6 +61,8 @@ export function HttpLoaderFactory(http: HttpClient) {
 
     ],
     providers: [
+        AppConfigLoader,
+        {provide:APP_INITIALIZER,useFactory:(configLoader:AppConfigLoader) => () => configLoader.load(),deps:[AppConfigLoader],multi:true}
     ],
     entryComponents: [
         FilterChooser,

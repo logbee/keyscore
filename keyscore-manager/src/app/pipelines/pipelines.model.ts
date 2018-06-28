@@ -117,3 +117,4 @@ export const getEditingFilterParameters = createSelector(getPipelinesState, (sta
 export const getEditingFilter = createSelector(getPipelinesState, (state: PipelinesState) => state.editingFilter);
 
 export const getFilterById = (id) => createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipeline.filters.find((filter: FilterConfiguration) => filter.id === id));
+

@@ -24,7 +24,6 @@ export function AgentsReducer(state: AgentsState = initialState, action: AgentsA
             result.agents = action.agents;
             break;
 
-        case LOAD_AGENTS:
         case LOAD_AGENTS_FAILURE:
             result.agents = [];
             break;

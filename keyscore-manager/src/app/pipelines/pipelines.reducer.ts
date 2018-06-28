@@ -4,7 +4,7 @@ import {
     CREATE_PIPELINE,
     DELETE_PIPELINE_FAILURE,
     DELETE_PIPELINE_SUCCESS,
-    EDIT_PIPELINE, EDIT_PIPELINE_SUCCESS,
+    EDIT_PIPELINE, EDIT_PIPELINE_FAILURE, EDIT_PIPELINE_SUCCESS,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOCK_EDITING_PIPELINE,
     MOVE_FILTER,
@@ -17,6 +17,7 @@ import {
 import {v4 as uuid} from 'uuid';
 import {deepcopy, parameterDescriptorToParameter} from "../util";
 import {State} from "@ngrx/store";
+import {CONFIG_LOADED} from "../app.config";
 
 
 const initialState: PipelinesState = {
@@ -26,7 +27,7 @@ const initialState: PipelinesState = {
     loading: false,
     filterDescriptors: [],
     filterCategories: [],
-    editingPipelineIsLocked: true
+    editingPipelineIsLocked: true,
 };
 
 export function PipelinesReducer(state: PipelinesState = initialState, action: PipelineActions): PipelinesState {
@@ -39,6 +40,9 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             break;
         case EDIT_PIPELINE_SUCCESS:
             result.editingPipeline = deepcopy(action.pipelineConfiguration);
+            break;
+        case EDIT_PIPELINE_FAILURE:
+            result.editingPipeline = {id:action.id,name:"New Pipeline",description:"",filters:[]};
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
@@ -99,6 +103,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
             result.filterCategories = result.filterDescriptors.map(descriptor => descriptor.category).filter((category, index, array) => array.indexOf(category) == index);
+            break;
     }
 
     return result
