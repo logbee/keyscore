@@ -4,7 +4,7 @@ import {
     CREATE_PIPELINE,
     DELETE_PIPELINE_FAILURE,
     DELETE_PIPELINE_SUCCESS,
-    EDIT_PIPELINE,
+    EDIT_PIPELINE, EDIT_PIPELINE_SUCCESS,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOCK_EDITING_PIPELINE,
     MOVE_FILTER,
@@ -37,8 +37,8 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case CREATE_PIPELINE:
             result.editingPipeline = {id: action.id, name: action.name, description: action.description, filters: []};
             break;
-        case EDIT_PIPELINE:
-            //setEditingPipeline(result, action.id);
+        case EDIT_PIPELINE_SUCCESS:
+            result.editingPipeline = deepcopy(action.pipelineConfiguration);
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
@@ -102,18 +102,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
     }
 
     return result
-}
-
-function setEditingPipeline(state: PipelinesState, id: string) {
-    state.editingPipeline = deepcopy(state.pipelineList.find(pipeline => id == pipeline.id));
-}
-
-function setEditingFilter(state: PipelinesState, id: string) {
-    state.editingFilter = deepcopy(state.editingPipeline.filters.find(f => f.id == id));
-}
-
-function moveElement<T>(arr: Array<T>, from: number, to: number) {
-    arr.splice(to, 0, arr.splice(from, 1)[0]);
 }
 
 function swap<T>(arr: Array<T>, a: number, b: number) {

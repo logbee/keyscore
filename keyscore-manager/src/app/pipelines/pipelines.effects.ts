@@ -39,7 +39,7 @@ export class PipelinesEffects {
                 const id = url.substring(url.indexOf('/pipeline/') + 10);
                 return of(new EditPipelineAction(id));
             }
-            return of({type: 'NOOP'});
+            return of();
         })
     );
 

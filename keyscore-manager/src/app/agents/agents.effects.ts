@@ -29,7 +29,7 @@ export class AgentsEffects {
             if (regex.test(url)) {
                 return of(new LoadAgentsAction());
             }
-            return of({type: 'NOOP'});
+            return of();
         })
     );
 
@@ -59,7 +59,7 @@ export class AgentsEffects {
                 if (!agentWithId.test(url)) {
                     return of(new RemoveCurrentAgentAction());
                 }
-                return of({type: 'NOOP'});
+                return of();
             }
         ));
 
