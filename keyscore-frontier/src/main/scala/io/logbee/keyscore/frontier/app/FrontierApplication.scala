@@ -67,6 +67,10 @@ object FrontierApplication extends App with Json4sSupport {
               case PipelineConfigurationResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
               case _ => complete(StatusCodes.InternalServerError)
             }
+          } ~
+            delete {
+              pipelineManager ! PipelineManager.DeleteAllPipelines
+              complete(StatusCodes.OK)
           }
         } ~
           pathPrefix(JavaUUID) { configId =>
@@ -106,6 +110,9 @@ object FrontierApplication extends App with Json4sSupport {
                 case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
                 case _ => complete(StatusCodes.InternalServerError)
               }
+            } ~
+              delete {
+                complete(StatusCodes.NotImplemented)
             }
           }~
           pathPrefix(JavaUUID) { instanceId =>

@@ -5,9 +5,9 @@ import java.util.UUID
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, ActorSystem, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
-import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder, DeletePipelineOrder}
+import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.PipelineManager.{DeleteAllPipelines, RequestExistingConfigurations, RequestExistingPipelines}
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
@@ -24,6 +24,8 @@ object PipelineManager {
   case class CreatePipeline(pipelineConfiguration: PipelineConfiguration)
 
   case class DeletePipeline(id: UUID)
+
+  case object DeleteAllPipelines
 
   def apply(agentManager: ActorRef): Props = {
     Props(new PipelineManager(
@@ -59,6 +61,11 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       availableAgents.keys.foreach(agent => {
         context.actorSelection(agent.path / "PipelineScheduler") ! DeletePipelineOrder(id)
       })
+
+    case DeleteAllPipelines =>
+      availableAgents.keys.foreach(agent =>
+        context.actorSelection(agent.path / "PipelineScheduler") ! DeleteAllPipelinesOrder
+      )
 
     case AgentCapabilities(metaFilterDescriptors) =>
       availableAgents.getOrElseUpdate(sender, metaFilterDescriptors)

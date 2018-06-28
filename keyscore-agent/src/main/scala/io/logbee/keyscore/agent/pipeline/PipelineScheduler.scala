@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.PipelineScheduler._
-import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeletePipelineOrder}
+import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeleteAllPipelinesOrder, DeletePipelineOrder}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model.PipelineConfiguration
 
@@ -63,6 +63,9 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
 
     case DeletePipelineOrder(id) =>
       child(nameFrom(id)).foreach(child => context.stop(child))
+
+    case DeleteAllPipelinesOrder =>
+      children.foreach(child => context.stop(child))
 
     case message: RequestPipelineInstance =>
       children.foreach( supervisor => {
