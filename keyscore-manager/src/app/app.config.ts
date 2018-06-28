@@ -2,13 +2,15 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from 'rxjs';
 import {Actions, Effect, ofType, ROOT_EFFECTS_INIT} from "@ngrx/effects";
-import {catchError, map, mergeMap} from "rxjs/operators";
+import {catchError, map, mergeMap, switchMap} from "rxjs/operators";
 import {of} from "rxjs";
 import {Action} from "@ngrx/store";
 import {AppState} from "./app.component";
+import {TranslateService} from "@ngx-translate/core";
 
 export const CONFIG_LOADED = '[AppConfig] Loaded';
 export const CONFIG_FAILURE = '[AppConfig] Failure';
+export const LANGUAGE_SET = '[AppConfig] LanguageSet'
 
 export class AppConfigLoaded implements Action {
     readonly type = CONFIG_LOADED;
@@ -24,9 +26,17 @@ export class AppConfigFailure implements Action {
     }
 }
 
+export class LanguageSet implements Action{
+    readonly type = LANGUAGE_SET
+    constructor(){
+
+    }
+}
+
 export type AppConfigActions =
     | AppConfigLoaded
-    | AppConfigFailure;
+    | AppConfigFailure
+    | LanguageSet;
 
 @Injectable()
 export class AppConfigEffects {
@@ -42,8 +52,20 @@ export class AppConfigEffects {
         )
     );
 
+    @Effect() initLanguage$: Observable<Action> = this.actions$.pipe(
+        ofType(ROOT_EFFECTS_INIT),
+        switchMap(action => {
+                this.translate.addLangs(["en", "de"]);
+                this.translate.setDefaultLang('en');
+                let browserLang = this.translate.getBrowserLang();
+                this.translate.use(browserLang.match(/en|de/) ? browserLang : 'en');
+                return of(new LanguageSet())
+            }
+        )
+    )
+
     constructor(private http: HttpClient,
-                private actions$: Actions) {
+                private actions$: Actions,private translate:TranslateService) {
     }
 }
 
