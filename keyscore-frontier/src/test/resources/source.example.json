@@ -53,22 +53,22 @@
     {
       "name": "bootstrapServer",
       "value": "dsfdsfsdf",
-      "parameterType": "string"
+      "jsonClass": "string"
     },
     {
       "name": "groupID",
       "value":"dasfdasd",
-      "parameterType": "string"
+      "jsonClass": "string"
     },
     {
       "name": "offsetCommit",
       "value": "eraliest",
-      "parameterType": "string"
+      "jsonClass": "string"
     },
     {
       "name": "sourceTopic",
       "value":"adsdasd",
-      "parameterType": "string"
+      "jsonClass": "string"
     }
   ]
 }

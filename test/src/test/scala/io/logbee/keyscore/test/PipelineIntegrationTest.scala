@@ -9,9 +9,8 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData
-import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.model.{Dataset, Green, PipelineConfiguration, PipelineInstance}
-import org.json4s.Formats
+import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.{read, write}
@@ -19,12 +18,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.springframework.http.HttpStatus
-import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
+
 import scala.io.Source
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
-  private implicit val formats: Formats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("parameterType") ++ JavaTypesSerializers.all ++ List(HealthSerializer)
+  implicit val formats = Serialization.formats(FieldTypeHints + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer)
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
@@ -37,8 +36,8 @@ class PipelineIntegrationTest extends Matchers {
     val KafkaToKafkaPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToKafkaSink.json"))
     val kafkaToKafkaPipeLineConfig = read[PipelineConfiguration](KafkaToKafkaPipelineReader)
 
-    val kafkaToElasticPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToElasticSearchSink.json").mkString
-    val kafkaToElasticPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToElasticSearchSink.json"))
+    val kafkaToElasticPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaToElasticSearchSink.json").mkString
+    val kafkaToElasticPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaToElasticSearchSink.json"))
     val kafkaToElasticPipeLineConfig = read[PipelineConfiguration](kafkaToElasticPipelineReader)
 
     val pipelineOneFilter = kafkaToKafkaPipeLineConfig.filter.head
@@ -161,7 +160,7 @@ class PipelineIntegrationTest extends Matchers {
 //        .receive()
 //        .response(HttpStatus.ACCEPTED)
 //    )
-//
+
 //    runner.http(action => action.client(httpClient)
 //          .send()
 //          .get(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/extract?value=1")

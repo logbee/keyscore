@@ -89,7 +89,7 @@ export interface ParameterDescriptor {
 export interface Parameter {
     name: string;
     value: any;
-    parameterType: string;
+    jsonClass: string;
 }
 
 export const getPipelinesModuleState = createFeatureSelector<PipelinesModuleState>('pipelines');

@@ -81,7 +81,7 @@ export function parameterDescriptorToParameter(parameterDescriptor: ParameterDes
         case 'int':
             break;
     }
-    return {name: parameterDescriptor.name, value: null, parameterType: type};
+    return {name: parameterDescriptor.name, value: null, jsonClass: type};
 }
 
 export function zip(arrays){

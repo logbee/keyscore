@@ -146,7 +146,7 @@ export class ToolBarBuilderService {
                 parameterDescriptor.value = +parameterDescriptor.value;
                 break;
         }
-        return {name: parameterDescriptor.name, value: parameterDescriptor.value, parameterType: type};
+        return {name: parameterDescriptor.name, value: parameterDescriptor.value, jsonClass: type};
     }
 
     private calculateColor(currentCategory:number, categoryCount:number){
