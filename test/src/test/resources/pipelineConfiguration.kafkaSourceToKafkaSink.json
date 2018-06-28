@@ -62,17 +62,17 @@
     "parameters": [
       {
         "name": "bootstrapServer",
-        "value": "localhost:9092",
+        "value": "kafka:9092",
         "parameterType": "string"
       },
       {
         "name": "groupID",
-        "value": "groupId",
+        "value": "sourceGroup1",
         "parameterType": "string"
       },
       {
         "name": "offsetCommit",
-        "value": "offsetCommit",
+        "value": "earliest",
         "parameterType": "string"
       },
       {
@@ -105,7 +105,7 @@
           "mandatory": true,
           "validator": ".*",
           "kind": "text",
-          "value": "localhost:9092"
+          "value": "kafka:9092"
         },
         {
           "name": "topic",
@@ -122,7 +122,7 @@
     "parameters": [
       {
         "name": "bootstrapServer",
-        "value": "localhost:9092",
+        "value": "kafka:9092",
         "parameterType": "string"
       },
       {

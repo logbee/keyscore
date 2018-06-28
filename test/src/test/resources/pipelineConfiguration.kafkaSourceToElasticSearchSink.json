@@ -62,12 +62,12 @@
     "parameters": [
       {
         "name": "bootstrapServer",
-        "value": "localhost:9092",
+        "value": "kafka:9092",
         "parameterType": "string"
       },
       {
         "name": "groupID",
-        "value": "groupId",
+        "value": "sourceGroup2",
         "parameterType": "string"
       },
       {
@@ -77,7 +77,7 @@
       },
       {
         "name": "topic",
-        "value": "topic",
+        "value": "TopicB",
         "parameterType": "string"
       }
     ]
