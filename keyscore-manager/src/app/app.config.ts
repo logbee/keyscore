@@ -10,7 +10,7 @@ import {TranslateService} from "@ngx-translate/core";
 
 export const CONFIG_LOADED = '[AppConfig] Loaded';
 export const CONFIG_FAILURE = '[AppConfig] Failure';
-export const LANGUAGE_SET = '[AppConfig] LanguageSet'
+export const LANGUAGE_INIT = '[AppConfig] LanguageInitialised'
 
 export class AppConfigLoaded implements Action {
     readonly type = CONFIG_LOADED;
@@ -26,8 +26,8 @@ export class AppConfigFailure implements Action {
     }
 }
 
-export class LanguageSet implements Action{
-    readonly type = LANGUAGE_SET
+export class LanguageInitialised implements Action{
+    readonly type = LANGUAGE_INIT
     constructor(){
 
     }
@@ -36,7 +36,7 @@ export class LanguageSet implements Action{
 export type AppConfigActions =
     | AppConfigLoaded
     | AppConfigFailure
-    | LanguageSet;
+    | LanguageInitialised;
 
 @Injectable()
 export class AppConfigEffects {
@@ -59,7 +59,7 @@ export class AppConfigEffects {
                 this.translate.setDefaultLang('en');
                 let browserLang = this.translate.getBrowserLang();
                 this.translate.use(browserLang.match(/en|de/) ? browserLang : 'en');
-                return of(new LanguageSet())
+                return of(new LanguageInitialised())
             }
         )
     )
