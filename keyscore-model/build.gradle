@@ -17,6 +17,7 @@ dependencies {
     compile dependency.protobuf_java
 
     testCompile dependency.scala_test
+    testCompile dependency.junit
 }
 
 protobuf {
