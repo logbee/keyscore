@@ -8,16 +8,21 @@ message NativeDataset {
 }
 
 message NativeMetaData {
-    repeated NativeLabel label = 1;
+    map<string, NativeLabel> labels = 1;
 }
 
 message NativeLabel {
     string name = 1;
-    string value = 2;
+    string type = 2;
+    oneof value_oneof {
+        string string = 16;
+        int64 long = 17;
+    }
 }
 
 message NativeRecord {
-    repeated NativeField field = 1;
+    string id = 1;
+    repeated NativeField field = 2;
 }
 
 message NativeField {

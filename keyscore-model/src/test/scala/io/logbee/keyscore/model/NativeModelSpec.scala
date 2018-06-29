@@ -1,97 +1,86 @@
 package io.logbee.keyscore.model
 
-import java.io.{File, FileInputStream, FileOutputStream, OutputStream}
-import java.nio.ByteBuffer
+import java.util.UUID.randomUUID
 
-import io.logbee.keyscore.model.Field.fieldFromNative
 import io.logbee.keyscore.model.NativeModel._
-import org.scalatest.{FreeSpec, Matchers, WordSpec}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FreeSpec, Matchers}
 
+
+@RunWith(classOf[JUnitRunner])
 class NativeModelSpec extends FreeSpec with Matchers {
 
-  "A NativeField" - {
+  val textField = TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C")
+  val numberField = NumberField("temperature", -11.5)
+  val timestampField = TimestampField("timestamp", 1529948452746L)
 
-    val nativeField = NativeField.newBuilder.setName("message").setKind("text").setText("Hello World!").build()
+  val fields = List(textField, numberField, timestampField)
 
-    "when serialized" - {
+  "A Field" - {
 
-      val buffer = ByteBuffer.allocate(10 * 1024)
-      nativeField.writeTo(newOutputStream(buffer))
+    fields.map((_, new BufferAndStream().tuple)).foreach({ case (field, (buffer, stream)) =>
+
+      s"of kind ${field.kind}" - {
+
+        "should be serializable to a NativeField and deserializable from a NativeField" in {
+
+          val nativeTextField: NativeField = field
+
+          nativeTextField.writeTo(stream)
+
+          buffer.flip()
+
+          val parsedTextField: Field[_] = NativeField.parseFrom(buffer)
+
+          parsedTextField shouldBe field
+        }
+      }
+    })
+  }
+
+  "A Record" - {
+
+    "should be serializable to a NativeRecord and deserializable from a NativeRecord" in new BufferAndStream {
+
+      val record = Record(randomUUID(), fields)
+
+      val nativeRecord: NativeRecord = record
+
+      nativeRecord.writeTo(stream)
+
       buffer.flip()
 
-      "should be parsable from a ByteBuffer" in {
+      val parsedRecord: Record = NativeRecord.parseFrom(buffer)
 
-        val parsedTextField: TextField = NativeField.parseFrom(buffer)
-
-        parsedTextField.name shouldBe "message"
-        parsedTextField.kind shouldBe "text"
-        parsedTextField.value shouldBe "Hello World!"
-      }
+      parsedRecord shouldBe record
     }
   }
 
-  "A TextField" - {
+  "A Dataset" - {
 
-    val textField = TextField("message", "Hello World!")
+    "should be serializable to a NativeDataset and deserializable from a NativeDataset" in new BufferAndStream {
 
-    "when converted to a NativeField" - {
+      val metaData = MetaData(Map(
+        Label[String]("someLabel") -> "sameValue"
+      ))
+      val dataset = Dataset(metaData,
+        List(
+          Record(randomUUID(), fields),
+          Record(randomUUID(), TextField("message", "Is is a rainy day. Temperature: 5.8 °C"))
+        )
+      )
 
-      val nativeField: NativeField = textField
-      val buffer = ByteBuffer.allocate(10 * 1024)
+      val nativeDataset: NativeDataset = dataset
 
-      "should be serializable into a ByteBuffer" in {
+      nativeDataset.writeTo(stream)
 
-        nativeField.writeTo(newOutputStream(buffer))
-      }
+      buffer.flip()
+
+      val parsedDataset: Dataset = NativeDataset.parseFrom(buffer)
+
+      parsedDataset shouldBe dataset
+      //parsedDataset.metaData shouldBe dataset.metaData // TODO: Implement serialization/deserialization for MetaData
     }
-  }
-
-//  "A Record" should {
-//
-//    val record = NativeRecord.newBuilder()
-//      .addField(NativeField.newBuilder.setName("message").setText("Its a test!").build())
-//      .addField(NativeField.newBuilder.setName("greeting").setText("Hello World").build())
-//      .addField(NativeField.newBuilder.setName("temperature").setNumber(42.73).build())
-//      .addField(NativeField.newBuilder.setName("timestamp").setTimestamp(1529948452746L).build())
-//      .build()
-//
-//    val dataset = NativeDataset.newBuilder()
-//      .setMetadata(NativeMetaData.newBuilder
-//        .addLabel(NativeLabel.newBuilder.setName("LabelA").setValue("42"))
-//        .addLabel(NativeLabel.newBuilder.setName("LabelB").setValue("A Test")))
-//      .addRecord(record)
-//      .build()
-//
-//    val textField: NativeField = TextField("FieldA", "Hello World")
-//    val numberField: NativeField = NumberField("FieldB", 42.73)
-//    val timestampField: NativeField = TimestampField("FieldC", 1529948452746L)
-//
-//    "foo" in {
-//
-//      val buffer = ByteBuffer.allocate(10 * 1024)
-//      val tmpFile = File.createTempFile("keyscore", null)
-//      val output = new FileOutputStream(tmpFile)
-//      val input = new FileInputStream(tmpFile)
-//
-//      dataset.writeTo(output)
-//
-//      val parsedDataset = NativeDataset.parseFrom(input)
-//
-//      parsedDataset shouldBe dataset
-//
-//      buffer.flip()
-//
-//      val parsedTextField: TextField = NativeField.parseFrom(buffer)
-//      val anotherTextField = textField
-//
-//      parsedTextField shouldBe anotherTextField
-//    }
-//  }
-
-  def newOutputStream(buffer: ByteBuffer): OutputStream = new OutputStream() {
-
-    override def write(bytes: Array[Byte], offset: Int, length: Int): Unit = buffer.put(bytes, offset, length)
-
-    override def write(b: Int): Unit = buffer.put(b.asInstanceOf[Byte])
   }
 }
