@@ -9,7 +9,7 @@ import {
     DELETE_PIPELINE,
     DeletePipelineAction,
     DeletePipelineFailureAction,
-    DeletePipelineSuccessAction, EDIT_PIPELINE,
+    DeletePipelineSuccessAction, EDIT_PIPELINE, EDIT_PIPELINE_FAILURE,
     EditPipelineAction, EditPipelineFailureAction, EditPipelineSuccessAction,
     LOAD_FILTER_DESCRIPTORS,
     LoadFilterDescriptorsFailureAction,
@@ -25,21 +25,19 @@ import {selectAppConfig} from "../app.config";
 import {FilterDescriptor, getFilterDescriptors, PipelineConfiguration} from "./pipelines.model";
 import {TranslateService} from "@ngx-translate/core";
 import {toInternalPipelineConfig, toPipelineConfiguration} from "../util";
+import {Go} from "../router/router.actions";
 
 @Injectable()
 export class PipelinesEffects {
     @Effect() editPipeline$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
         switchMap(action => {
-            const navigationAction = action as RouterNavigationAction;
-            const url = navigationAction.payload.event.url;
             const regex = /\/pipeline\/.*/g;
-
-            if (regex.test(url)) {
-                const id = url.substring(url.indexOf('/pipeline/') + 10);
+            if (this.handleNavigation(regex, action as RouterNavigationAction)) {
+                const id = this.getPipelineIdfromRouterAction(action as RouterNavigationAction);
                 return of(new EditPipelineAction(id));
             }
-            return of({type: 'NOOP'});
+            return of();
         })
     );
 
@@ -47,14 +45,15 @@ export class PipelinesEffects {
         ofType(EDIT_PIPELINE),
         map(action => (action as EditPipelineAction).id),
         combineLatest(this.store.select(selectAppConfig)),
-        switchMap(([pipelineId,config]) =>{
+        switchMap(([pipelineId, config]) => {
             const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/configuration/';
-            return this.http.get(pipelineUrl+pipelineId).pipe(
-                map((data:PipelineConfiguration) => new EditPipelineSuccessAction(data)),
-                catchError((cause:any) => of(new EditPipelineFailureAction(pipelineId,cause)))
+            return this.http.get(pipelineUrl + pipelineId).pipe(
+                map((data: PipelineConfiguration) => new EditPipelineSuccessAction(data)),
+                catchError((cause: any) => of(new EditPipelineFailureAction(pipelineId, cause)))
             );
         })
-    )
+    );
+
 
     @Effect() updatePipeline$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE),
@@ -63,7 +62,7 @@ export class PipelinesEffects {
         mergeMap(([pipeline, config]) => {
             const pipelineUrl: string = config.getString('keyscore.frontier.base-url') + '/pipeline/configuration';
             let pipelineConfig = toPipelineConfiguration(pipeline);
-            return this.http.put(pipelineUrl, pipelineConfig,{
+            return this.http.put(pipelineUrl, pipelineConfig, {
                 headers: new HttpHeaders().set('Content-Type', 'application/json'),
                 responseType: 'text'
             }).pipe(
@@ -114,5 +113,14 @@ export class PipelinesEffects {
     );
 
     constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private translate: TranslateService) {
+    }
+
+    private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {
+        return regEx.test(action.payload.event.url);
+
+    }
+
+    private getPipelineIdfromRouterAction(action: RouterNavigationAction) {
+        return action.payload.routerState.root.firstChild.firstChild.url[1].path;
     }
 }

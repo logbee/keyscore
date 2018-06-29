@@ -28,3 +28,5 @@ case class GraphBuildingException(streamID: UUID, streamSpec: PipelineConfigurat
 
 case class CreatePipelineOrder(pipelineConfiguration: PipelineConfiguration)
 case class DeletePipelineOrder(id: UUID)
+
+case object DeleteAllPipelinesOrder

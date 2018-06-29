@@ -1,13 +1,14 @@
 import {Component} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {select, State, Store} from "@ngrx/store";
 import {Observable} from "rxjs";
 import {StreamState} from "http2";
 import {v4 as uuid} from 'uuid'
-import {getPipelineList, PipelineInstance} from "./pipelines.model";
+import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.model";
 import {CreatePipelineAction} from "./pipelines.actions";
 import {Router} from "@angular/router";
 import * as RouterActions from '../router/router.actions';
 import {TranslateService} from "@ngx-translate/core";
+import {take} from 'rxjs/operators'
 
 @Component({
     selector: 'keyscore-pipelines',
@@ -49,7 +50,7 @@ import {TranslateService} from "@ngx-translate/core";
 export class PipelinesComponent {
     pipelines$: Observable<PipelineInstance[]>;
 
-    constructor(private store: Store<StreamState>, private router: Router,private translate:TranslateService) {
+    constructor(private store: Store<PipelinesState>, private router: Router, private translate: TranslateService) {
         this.pipelines$ = this.store.pipe(select(getPipelineList));
     }
 

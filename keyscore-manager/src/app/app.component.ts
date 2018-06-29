@@ -34,7 +34,7 @@ export interface AppState {
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                        <img  class="mr-2" src="/assets/images/flags/{{currentLang}}.svg" width="24px" height="16px"/>
+                        <img  class="mr-2" src="/assets/images/flags/{{translate.currentLang}}.svg" width="24px" height="16px"/>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
                         <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('de')"><img  class="mr-2" src="/assets/images/flags/de.svg" width="24px" height="16px" >{{'LANGUAGES.GERMAN' | translate}}</span>
@@ -68,16 +68,10 @@ export class AppComponent {
 
     private modalService: ModalService;
     private store: Store<any>;
-    private currentLang: string;
 
     constructor(store: Store<any>, modalService: ModalService, private translate: TranslateService) {
         this.store = store;
         this.modalService = modalService;
-        translate.addLangs(["en", "de"]);
-        translate.setDefaultLang('de');
-        let browserLang = translate.getBrowserLang();
-        translate.use(browserLang.match(/en|de/) ? browserLang : 'en');
-        this.currentLang = browserLang
     }
 
     ngOnInit() {
@@ -89,7 +83,6 @@ export class AppComponent {
         this.translate.use(language);
         this.store.dispatch(new LoadFilterDescriptorsAction());
         this.translate.use(language);
-        this.currentLang = language;
     }
 
 

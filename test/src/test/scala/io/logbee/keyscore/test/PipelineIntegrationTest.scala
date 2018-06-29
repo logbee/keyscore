@@ -9,9 +9,9 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData
-import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.model.{Dataset, Green, PipelineConfiguration, PipelineInstance}
-import org.json4s.Formats
+import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
+import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.{read, write}
@@ -19,12 +19,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.springframework.http.HttpStatus
-import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
+
 import scala.io.Source
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
-  private implicit val formats: Formats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("parameterType") ++ JavaTypesSerializers.all ++ List(HealthSerializer)
+  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer)
+
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
@@ -33,12 +34,12 @@ class PipelineIntegrationTest extends Matchers {
   @Test
   @CitrusTest
   def createPipeline(@CitrusResource runner: TestRunner): Unit = {
-    val kafkaToKaftaPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToKafkaSink.json").mkString
+    val kafkaToKafkaPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToKafkaSink.json").mkString
     val KafkaToKafkaPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToKafkaSink.json"))
     val kafkaToKafkaPipeLineConfig = read[PipelineConfiguration](KafkaToKafkaPipelineReader)
 
-    val kafkaToElasticPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaSourceToElastisSearchSink.json").mkString
-    val kafkaToElasticPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaSourceToElastisSearchSink.json"))
+    val kafkaToElasticPipeLineConfigString = Source.fromResource("pipelineConfiguration.kafkaToElasticSearchSink.json").mkString
+    val kafkaToElasticPipelineReader = new InputStreamReader(getClass.getResourceAsStream("/pipelineConfiguration.kafkaToElasticSearchSink.json"))
     val kafkaToElasticPipeLineConfig = read[PipelineConfiguration](kafkaToElasticPipelineReader)
 
     val pipelineOneFilter = kafkaToKafkaPipeLineConfig.filter.head
@@ -56,7 +57,7 @@ class PipelineIntegrationTest extends Matchers {
       .send()
       .put("/pipeline/configuration")
       .contentType("application/json")
-      .payload(kafkaToKaftaPipeLineConfigString)
+      .payload(kafkaToKafkaPipeLineConfigString)
     )
 
     runner.http(action => action.client(httpClient)
@@ -141,8 +142,8 @@ class PipelineIntegrationTest extends Matchers {
       .receive()
       .response(HttpStatus.OK)
       .validationCallback((message, context) => {
-        val paylaod = message.getPayload.asInstanceOf[String]
-        val instance = read[PipelineInstance](paylaod)
+        val payload = message.getPayload.asInstanceOf[String]
+        val instance = read[PipelineInstance](payload)
         instance.health should equal(Green)
       })
     )
@@ -161,7 +162,7 @@ class PipelineIntegrationTest extends Matchers {
 //        .receive()
 //        .response(HttpStatus.ACCEPTED)
 //    )
-//
+
 //    runner.http(action => action.client(httpClient)
 //          .send()
 //          .get(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/extract?value=1")
@@ -220,7 +221,7 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(httpClient)
       .send()
-      .delete(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}"))
+      .delete(s"/pipeline/configuration/${kafkaToKafkaPipeLineConfig.id}"))
   }
 
 

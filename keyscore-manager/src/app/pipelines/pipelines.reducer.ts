@@ -4,7 +4,7 @@ import {
     CREATE_PIPELINE,
     DELETE_PIPELINE_FAILURE,
     DELETE_PIPELINE_SUCCESS,
-    EDIT_PIPELINE,
+    EDIT_PIPELINE, EDIT_PIPELINE_FAILURE, EDIT_PIPELINE_SUCCESS,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOCK_EDITING_PIPELINE,
     MOVE_FILTER,
@@ -16,6 +16,8 @@ import {
 } from "./pipelines.actions";
 import {v4 as uuid} from 'uuid';
 import {deepcopy, parameterDescriptorToParameter} from "../util";
+import {State} from "@ngrx/store";
+import {CONFIG_LOADED} from "../app.config";
 
 
 const initialState: PipelinesState = {
@@ -25,7 +27,7 @@ const initialState: PipelinesState = {
     loading: false,
     filterDescriptors: [],
     filterCategories: [],
-    editingPipelineIsLocked: true
+    editingPipelineIsLocked: true,
 };
 
 export function PipelinesReducer(state: PipelinesState = initialState, action: PipelineActions): PipelinesState {
@@ -36,8 +38,11 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case CREATE_PIPELINE:
             result.editingPipeline = {id: action.id, name: action.name, description: action.description, filters: []};
             break;
-        case EDIT_PIPELINE:
-            //setEditingPipeline(result, action.id);
+        case EDIT_PIPELINE_SUCCESS:
+            result.editingPipeline = deepcopy(action.pipelineConfiguration);
+            break;
+        case EDIT_PIPELINE_FAILURE:
+            result.editingPipeline = {id:action.id,name:"New Pipeline",description:"",filters:[]};
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
@@ -84,7 +89,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             const updateFilterIndex = result.editingPipeline.filters.findIndex(filter => filter.id == action.filter.id);
             result.editingPipeline.filters[updateFilterIndex] = deepcopy(action.filter);
             result.editingPipeline.filters[updateFilterIndex].parameters.forEach(p => {
-                if (p.parameterType === 'int') {
+                if (p.jsonClass === 'int') {
                     p.value = +action.values[p.name];
                 } else {
                     p.value = action.values[p.name];
@@ -98,21 +103,10 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
             result.filterCategories = result.filterDescriptors.map(descriptor => descriptor.category).filter((category, index, array) => array.indexOf(category) == index);
+            break;
     }
 
     return result
-}
-
-function setEditingPipeline(state: PipelinesState, id: string) {
-    state.editingPipeline = deepcopy(state.pipelineList.find(pipeline => id == pipeline.id));
-}
-
-function setEditingFilter(state: PipelinesState, id: string) {
-    state.editingFilter = deepcopy(state.editingPipeline.filters.find(f => f.id == id));
-}
-
-function moveElement<T>(arr: Array<T>, from: number, to: number) {
-    arr.splice(to, 0, arr.splice(from, 1)[0]);
 }
 
 function swap<T>(arr: Array<T>, a: number, b: number) {

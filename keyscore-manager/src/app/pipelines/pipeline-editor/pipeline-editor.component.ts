@@ -78,7 +78,7 @@ import {LoadFilterDescriptorAction} from "../filters/filters.actions";
     styles: ['.filter-component{transition: 0.25s ease-in-out;}'],
     providers: []
 })
-export class PipelineEditorComponent implements OnInit {
+export class PipelineEditorComponent implements OnInit{
     pipeline$: Observable<InternalPipelineConfiguration>;
     isLocked$: Observable<boolean>;
     filterDescriptors$: Observable<FilterDescriptor[]>;
@@ -86,22 +86,27 @@ export class PipelineEditorComponent implements OnInit {
     blocklyFlag: boolean;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
+        this.store.dispatch(new LoadFilterDescriptorsAction());
+
         let config = this.store.select(selectAppConfig);
+        config.subscribe(conf => this.blocklyFlag = conf.getBoolean('keyscore.manager.blockly'));
+
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
 
-        this.store.dispatch(new LoadFilterDescriptorsAction());
-
-        config.subscribe(conf => this.blocklyFlag = conf.getBoolean('keyscore.manager.blockly'));
-    }
-
-    ngOnInit(): void {
         this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
         this.pipeline$.subscribe(pipeline => {
-            this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0))
-        })
+            if(pipeline) {
+                this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0))
+            }
+        });
     }
+
+    ngOnInit(){
+
+    }
+
 
     addFilter(pipeline: InternalPipelineConfiguration) {
         this.modalService.show(FilterChooser);

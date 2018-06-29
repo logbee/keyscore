@@ -51,7 +51,7 @@ module.exports = {
     output: {
         filename: 'keyscore.bundle.js',
         path: path.resolve(__dirname, 'build/webpack'),
-        publicPath: "/"
+        publicPath:"/"
     },
     plugins: [
         new webpack.ProvidePlugin({
@@ -75,15 +75,16 @@ module.exports = {
     ],
     devServer: {
         contentBase: [
-            path.join(__dirname, "conf"),
-            path.join(__dirname, "public"),
-            path.join(__dirname, "../media")
+            path.join(__dirname, "/public"),
+            path.join(__dirname, "../media"),
+            path.join(__dirname, "/conf")
         ],
         port: 8080,
         host: "0.0.0.0",
         quiet: false,
         noInfo: false,
-        historyApiFallback: true
+        historyApiFallback: true,
+        watchContentBase:true
     }
 };
 

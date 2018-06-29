@@ -64,8 +64,6 @@ export class AgentsComponent {
     }
 
     inspect(id: string) {
-        this.store.dispatch(new InspectAgentAction(id));
         this.store.dispatch(new Go({path: ['/agent/' + id + '/']}))
-
     }
 }

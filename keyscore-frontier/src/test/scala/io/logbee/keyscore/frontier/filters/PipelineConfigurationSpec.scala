@@ -14,7 +14,7 @@ import org.scalatest.{Matchers, WordSpecLike}
 @RunWith(classOf[JUnitRunner])
 class PipelineConfigurationSpec extends WordSpecLike with Matchers {
 
-  private implicit val formats = Serialization.formats(FilterConfigTypeHints).withTypeHintFieldName("parameterType") ++ JavaTypesSerializers.all
+  private implicit val formats = Serialization.formats(FilterConfigTypeHints)++ JavaTypesSerializers.all
 
   "PipelineConfiguration" should {
     "be deserializable" in {

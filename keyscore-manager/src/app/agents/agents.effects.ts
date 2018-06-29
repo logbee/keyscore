@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {catchError, combineLatest, map, switchMap} from "rxjs/operators";
-import {Action, Store} from "@ngrx/store";
+import {Action, State, Store} from "@ngrx/store";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
@@ -9,6 +9,7 @@ import {Observable} from "rxjs";
 import {AppState} from "../app.component";
 import {HttpClient} from "@angular/common/http";
 import {
+    InspectAgentAction,
     LOAD_AGENTS,
     LoadAgentsAction,
     LoadAgentsFailureAction,
@@ -17,21 +18,31 @@ import {
 } from "./agents.actions";
 import {selectAppConfig} from "../app.config";
 import {AgentModel} from "./agents.model";
+import {ActivatedRouteSnapshot} from "@angular/router";
 
 @Injectable()
 export class AgentsEffects {
     @Effect() triggerLoadAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
         switchMap(action => {
-            const navigationAction = action as RouterNavigationAction;
-            const url = navigationAction.payload.event.url;
-            const regex = /\/agent$/g;
-            if (regex.test(url)) {
+            const regex = /\/agent.*/g;
+            if (this.handleNavigation(regex,action as RouterNavigationAction)) {
                 return of(new LoadAgentsAction());
             }
-            return of({type: 'NOOP'});
+            return of();
         })
     );
+
+    @Effect() removeAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
+        ofType(ROUTER_NAVIGATION),
+        switchMap(action => {
+                const agentWithId = /\/agent\/.+/g;
+                if (this.handleNavigation(agentWithId,action as RouterNavigationAction)) {
+                    return of(new InspectAgentAction(this.getAgentIdfromRouterAction(action as RouterNavigationAction)));
+                }
+                return of();
+            }
+        ));
 
     @Effect() loadAgents$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_AGENTS),
@@ -50,20 +61,17 @@ export class AgentsEffects {
         })
     );
 
-    @Effect() removeAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
-        ofType(ROUTER_NAVIGATION),
-        switchMap(action => {
-                const navigationAction = action as RouterNavigationAction;
-                const url = navigationAction.payload.event.url;
-                const agentWithId = /\/agent\/.+/g;
-                if (!agentWithId.test(url)) {
-                    return of(new RemoveCurrentAgentAction());
-                }
-                return of({type: 'NOOP'});
-            }
-        ));
 
     constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient) {
 
+    }
+
+    private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {
+        return regEx.test(action.payload.event.url);
+
+    }
+
+    private getAgentIdfromRouterAction(action:RouterNavigationAction){
+        return action.payload.routerState.root.firstChild.firstChild.url[0].path;
     }
 }

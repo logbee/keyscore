@@ -25,7 +25,7 @@ export class FilterEffects {
                 console.log("reached navigateToLiveEditing Effect");
                 return of(new ConfigureFilterAction(currentFilterId));
             }
-            return of({type: 'NOOP'});
+            return of();
         }));
 
     constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient, private translate: TranslateService) {

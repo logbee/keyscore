@@ -63,22 +63,22 @@
       {
         "name": "bootstrapServer",
         "value": "bootstrapServer",
-        "parameterType": "string"
+        "jsonClass": "string"
       },
       {
         "name": "groupID",
         "value": "groupÃd",
-        "parameterType": "string"
+        "jsonClass": "string"
       },
       {
         "name": "offsetCommit",
         "value": "offsetCommit",
-        "parameterType": "string"
+        "jsonClass": "string"
       },
       {
         "name": "sourceTopic",
         "value": "topic",
-        "parameterType": "string"
+        "jsonClass": "string"
       }
     ]
   },
@@ -131,17 +131,17 @@
       {
         "name": "host",
         "value": "host",
-        "parameterType": "string"
+        "jsonClass": "string"
       },
       {
         "name": "port",
         "value": 0,
-        "parameterType": "int"
+        "jsonClass": "int"
       },
       {
         "name": "index",
         "value": "index",
-        "parameterType": "string"
+        "jsonClass": "string"
       }
     ]
   },
@@ -201,7 +201,7 @@
             "hu": "5",
             "hi": "2"
           },
-          "parameterType": "map[string,string]"
+          "jsonClass": "map[string,string]"
         }
       ]
     }

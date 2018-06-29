@@ -35,14 +35,6 @@ export enum Health{
     Red
 }
 
-/*export interface PipelineModel {
-    id: string;
-    name: string;
-    description: string;
-    filters: Array<FilterModel>;
-    domRepresentation?: any;
-}*/
-
 export interface InternalPipelineConfiguration{
     id:string;
     name:string;
@@ -65,15 +57,6 @@ export interface FilterConfiguration {
     descriptor: FilterDescriptor
     parameters: Parameter[];
 }
-
-/*export interface FilterModel {
-    id: string;
-    name: string;
-    displayName: string;
-    description: string;
-    parameters: ParameterDescriptor[];
-}*/
-
 
 export interface FilterDescriptor {
     name: string;
@@ -106,7 +89,7 @@ export interface ParameterDescriptor {
 export interface Parameter {
     name: string;
     value: any;
-    parameterType: string;
+    jsonClass: string;
 }
 
 export const getPipelinesModuleState = createFeatureSelector<PipelinesModuleState>('pipelines');
@@ -134,3 +117,4 @@ export const getEditingFilterParameters = createSelector(getPipelinesState, (sta
 export const getEditingFilter = createSelector(getPipelinesState, (state: PipelinesState) => state.editingFilter);
 
 export const getFilterById = (id) => createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipeline.filters.find((filter: FilterConfiguration) => filter.id === id));
+

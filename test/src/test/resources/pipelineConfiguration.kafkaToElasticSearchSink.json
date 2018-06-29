@@ -62,23 +62,23 @@
     "parameters": [
       {
         "name": "bootstrapServer",
-        "value": "localhost:9092",
-        "parameterType": "string"
+        "value": "kafka:9092",
+        "jsonClass": "string"
       },
       {
         "name": "groupID",
         "value": "groupId",
-        "parameterType": "string"
+        "jsonClass": "string"
       },
       {
         "name": "offsetCommit",
         "value": "earliest",
-        "parameterType": "string"
+        "jsonClass": "string"
       },
       {
         "name": "topic",
         "value": "topic",
-        "parameterType": "string"
+        "jsonClass": "string"
       }
     ]
   },
@@ -130,18 +130,18 @@
     "parameters": [
       {
         "name": "host",
-        "value": "localhost",
-        "parameterType": "string"
+        "value": "elastic",
+        "jsonClass": "string"
       },
       {
         "name": "port",
         "value": 9200,
-        "parameterType": "int"
+        "jsonClass": "int"
       },
       {
         "name": "index",
         "value": "index",
-        "parameterType": "string"
+        "jsonClass": "string"
       }
     ]
   },
@@ -195,7 +195,7 @@
         {
           "name": "fieldsToAdd",
           "value": {},
-          "parameterType": "map[string,string]"
+          "jsonClass": "map[string,string]"
         }
       ]
     }
