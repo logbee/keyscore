@@ -7,7 +7,7 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{DeleteAllPipelines, RequestExistingConfigurations, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.PipelineManager._
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.MetaFilterDescriptor
 
@@ -21,11 +21,20 @@ object PipelineManager {
 
   case class RequestExistingConfigurations()
 
+  case class RequestExistingConfigurationById(id: UUID)
+
+  case class ExistingPipelineConfigurations(pipelineConfigurations: List[PipelineConfiguration])
+
+  case class ExistingPipelineConfigurationResponse(pipelineConfiguration: PipelineConfiguration)
+
+  case class PipelineConfigurationNotFound(id: UUID)
+
   case class CreatePipeline(pipelineConfiguration: PipelineConfiguration)
 
   case class DeletePipeline(id: UUID)
 
   case object DeleteAllPipelines
+
 
   def apply(agentManager: ActorRef): Props = {
     Props(new PipelineManager(
@@ -43,6 +52,7 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
   var availableAgents: mutable.Map[ActorRef, List[MetaFilterDescriptor]] = mutable.Map.empty[ActorRef, List[MetaFilterDescriptor]]
+  val availableConfigurations: mutable.Map[ActorRef, List[PipelineConfiguration]] = mutable.Map.empty
 
   mediator ! Subscribe("agents", self)
 
@@ -72,6 +82,10 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
 
     case AgentLeaved(ref) =>
       availableAgents.remove(ref)
+      availableConfigurations.remove(ref)
+
+    case UpdatedRunningConfigurations(configurations, agentRef) =>
+      availableConfigurations += (agentRef -> configurations)
 
     case message: PauseFilter =>
       availableAgents.keys.foreach(agent => {
@@ -95,20 +109,23 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
 
     case message: ConfigureFilter =>
       availableAgents.keys.foreach(agent => {
-        pipelineSchedulerSelector(agent,context) forward message
+        pipelineSchedulerSelector(agent, context) forward message
       })
 
-    case  RequestExistingPipelines() =>
-      val collector = context.system.actorOf(PipelineInstanceCollector(sender,availableAgents.keys))
-      availableAgents.keys.foreach( agent => {
+    case RequestExistingPipelines() =>
+      val collector = context.system.actorOf(PipelineInstanceCollector(sender, availableAgents.keys))
+      availableAgents.keys.foreach(agent => {
         pipelineSchedulerSelector(agent, context) ! RequestPipelineInstance(collector)
       })
 
     case RequestExistingConfigurations() =>
-      val collector = context.system.actorOf(PipelineConfigurationCollector(sender,availableAgents.keys))
-      availableAgents.keys.foreach( agent => {
-        pipelineSchedulerSelector(agent, context) ! RequestPipelineConfigurations(collector)
-      })
+      sender ! ExistingPipelineConfigurations(availableConfigurations.values.flatten.toList)
+
+    case RequestExistingConfigurationById(id) =>
+      availableConfigurations.values.flatten.find(conf => conf.id == id) match {
+        case Some(config) => sender ! ExistingPipelineConfigurationResponse(config)
+        case None => sender ! PipelineConfigurationNotFound(id)
+      }
   }
 
   def checkIfCapabilitiesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[MetaFilterDescriptor])): Boolean = {

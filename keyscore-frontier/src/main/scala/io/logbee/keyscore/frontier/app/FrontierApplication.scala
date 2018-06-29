@@ -19,13 +19,12 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
-import io.logbee.keyscore.frontier.cluster.PipelineConfigurationManager._
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
-import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineConfigurationManager, PipelineManager}
+import io.logbee.keyscore.frontier.cluster.PipelineManager.{ExistingPipelineConfigurations, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
-import io.logbee.keyscore.model._
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 
@@ -48,7 +47,6 @@ object FrontierApplication extends App with Json4sSupport {
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
   val pipelineManager = system.actorOf(PipelineManager(agentManager))
   val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
-  val pipelineConfigurationManager = system.actorOf(PipelineConfigurationManager(pipelineManager))
 
   val corsSettings = if (configuration.devMode) CorsSettings.defaultSettings.copy(
     allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS),
@@ -66,8 +64,8 @@ object FrontierApplication extends App with Json4sSupport {
       pathPrefix("configuration") {
         pathPrefix("*") {
           get {
-            onSuccess(pipelineConfigurationManager ? RequestConfigurations) {
-              case PipelineConfigurations(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
+            onSuccess(pipelineManager ? PipelineManager.RequestExistingConfigurations()) {
+              case ExistingPipelineConfigurations(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
@@ -78,10 +76,10 @@ object FrontierApplication extends App with Json4sSupport {
         } ~
           pathPrefix(JavaUUID) { configId =>
             get {
-              onSuccess(pipelineConfigurationManager ? RequestConfigById(configId)) {
-                case PipelineConfigurationById(configuration) =>
-                  complete(StatusCodes.OK, configuration)
-                case PipelineConfigurationNotFound => complete(StatusCodes.NotFound)
+              onSuccess(pipelineManager ? PipelineManager.RequestExistingConfigurationById(configId)) {
+                case PipelineManager.ExistingPipelineConfigurationResponse(pipelineConfiguration) =>
+                  complete(StatusCodes.OK, pipelineConfiguration)
+                case PipelineManager.PipelineConfigurationNotFound => complete(StatusCodes.NotFound)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             } ~

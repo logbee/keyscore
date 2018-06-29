@@ -4,6 +4,7 @@ import java.util.UUID
 
 import akka.testkit.TestProbe
 import akka.util.Timeout
+import io.logbee.keyscore.agent.pipeline.PipelineScheduler.UpdatedConfiguration
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
@@ -21,28 +22,24 @@ class PipelineSchedulerSpec extends WordSpec with Matchers with ScalaFutures wit
 
   implicit val timeout: Timeout = 30 seconds
 
-  val streamId = UUID.randomUUID()
+  val pipelineId = UUID.randomUUID()
   val sourceConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-source"))
   val sinkConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-sink"))
-
+  val agentProbe = TestProbe("agentProbe")
   "A PipelineScheduler " should {
 
-    "start a StreamSupervisor for a pipeline" in {
+    "start a PipelineSupervisor for a pipeline" in {
 
       val filterManagerProbe = TestProbe("filter-manager")
-      val testee = system.actorOf(PipelineScheduler(filterManagerProbe.ref), "PipelineScheduler")
+      val scheduler = system.actorOf(PipelineScheduler(filterManagerProbe.ref), "PipelineScheduler")
 
-      val streamConfiguration = PipelineConfiguration(streamId, "test", "A test pipeline.", sourceConfiguration, List.empty, sinkConfiguration)
+      val pipelineConfiguration = PipelineConfiguration(pipelineId, "test", "A test pipeline.", sourceConfiguration, List.empty, sinkConfiguration)
 
-      testee ! CreatePipeline(streamConfiguration)
+      scheduler tell(CreatePipeline(pipelineConfiguration), agentProbe.ref)
+      agentProbe.expectMsg(UpdatedConfiguration(pipelineConfiguration))
+      
 
-//      whenReady(().mapTo[ActorRef]) { ref =>
-//        whenReady((ref ? RequestPipelineInstance).mapTo[PipelineInstance]) { state =>
-//          state shouldBe PipelineInstance(streamId, Health.Green, streamConfiguration)
-//        }
-//
-//        testee ! UpdatePipeline(streamConfiguration)
-//      }
+
     }
   }
 }

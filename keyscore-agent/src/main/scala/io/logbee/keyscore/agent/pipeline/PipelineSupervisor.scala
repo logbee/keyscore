@@ -1,10 +1,13 @@
 package io.logbee.keyscore.agent.pipeline
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.Publish
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.agent.pipeline.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
+import io.logbee.keyscore.agent.pipeline.PipelineScheduler.UpdatedConfiguration
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
@@ -66,6 +69,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
   override def postStop(): Unit = {
     log.info(" Supervisor stopped.")
+
   }
 
   override def receive: Receive = {
@@ -87,6 +91,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       pipelineConfiguration.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, filter))
 
       scheduleStart(pipeline, pipelineStartTrials)
+      sender ! UpdatedConfiguration(pipelineConfiguration)
 
     case RequestPipelineInstance(receiver) =>
       receiver ! PipelineInstance(Red)
@@ -164,9 +169,6 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.info("Received PipelineInstance Request")
       receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Red)
 
-    case RequestPipelineConfigurations(receiver) =>
-      log.info("Received PipelineConfiguration Request")
-      receiver ! pipeline.configuration
   }
 
   private def materializing(pipeline: Pipeline, controllers: List[Controller]): Receive = {
@@ -196,6 +198,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case ConfigurePipeline(configuration) =>
       log.info(s"Updating pipeline <${configuration.id}>")
+
+      sender ! UpdatedConfiguration(controller.configuration)
+
 
     case RequestPipelineInstance(receiver) =>
       log.info("Received PipelineInstance Request")
@@ -237,7 +242,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ConfigureFilter(filterId, filterConfig) =>
       val lastSender = sender
       controller.configure(filterId, filterConfig).onComplete {
-        case Success(value) => lastSender ! Success
+        case Success(value) =>
+          lastSender ! Success
+          sender ! UpdatedConfiguration(controller.configuration)
         case Failure(e) => lastSender ! Failure
       }
   }
