@@ -11,6 +11,7 @@ import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
+import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.{read, write}
@@ -23,7 +24,8 @@ import scala.io.Source
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
-  implicit val formats = Serialization.formats(FieldTypeHints + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer)
+  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer)
+
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
@@ -219,7 +221,7 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(httpClient)
       .send()
-      .delete(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}"))
+      .delete(s"/pipeline/configuration/${kafkaToKafkaPipeLineConfig.id}"))
   }
 
 

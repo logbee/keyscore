@@ -6,9 +6,9 @@ import org.json4s.{ShortTypeHints, TypeHints}
 
 object FieldTypeHints extends TypeHints {
 val classToHint: Map[Class[_], String] = Map(
-  classOf[TextField] -> "string",
-  classOf[NumberField] -> "int",
-  classOf[TimestampField] -> "timestamp"
+  classOf[TextField] -> "TextField",
+  classOf[NumberField] -> "NumberField",
+  classOf[TimestampField] -> "TimestampField"
 )
 
   val hintToClass = classToHint.map(_.swap)
@@ -23,5 +23,5 @@ val classToHint: Map[Class[_], String] = Map(
 
   override def hintFor(clazz: Class[_]): String = classToHint(clazz)
 
-  override def +(hints: TypeHints): TypeHints = ShortTypeHints(List.empty) + hints
+  override def +(hints: TypeHints): TypeHints = (ShortTypeHints(List.empty) + hints) + FieldTypeHints
 }
