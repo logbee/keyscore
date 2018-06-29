@@ -3,8 +3,6 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.Publish
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.PipelineScheduler._
 import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeleteAllPipelinesOrder, DeletePipelineOrder}
@@ -22,8 +20,6 @@ object PipelineScheduler {
 
   case class UpdatePipeline(configuration: PipelineConfiguration)
 
-  case class UpdatedConfiguration(pipelineConfiguration: PipelineConfiguration)
-
   private case class SupervisorTerminated(supervisor: ActorRef, configuration: PipelineConfiguration)
 
   def apply(filterManager: ActorRef): Props = Props(new PipelineScheduler(filterManager))
@@ -32,12 +28,7 @@ object PipelineScheduler {
 class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging {
 
   import context._
-
   implicit val timeout: Timeout = 10 seconds
-
-  val mediator: ActorRef = DistributedPubSub(context.system).mediator
-
-  val pipelineConfigurations: collection.mutable.Map[ActorRef, PipelineConfiguration] = collection.mutable.Map.empty
 
   override def preStart(): Unit = {
     log.info("StartUp complete.")
@@ -71,33 +62,27 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
       })
 
     case DeletePipelineOrder(id) =>
-      child(nameFrom(id)).foreach(child => {
-        context.stop(child)
-        pipelineConfigurations.remove(child)
-        mediator ! Publish("agents", UpdatedRunningConfigurations(pipelineConfigurations.values.toList, parent))
-      })
-
-    case UpdatedConfiguration(pipelineConfiguration) =>
-      pipelineConfigurations += (sender -> pipelineConfiguration)
-      mediator ! Publish("agents", UpdatedRunningConfigurations(pipelineConfigurations.values.toList, parent))
+      child(nameFrom(id)).foreach(child => context.stop(child))
 
     case DeleteAllPipelinesOrder =>
       children.foreach(child => context.stop(child))
 
     case message: RequestPipelineInstance =>
-      children.foreach(supervisor => {
+      children.foreach( supervisor => {
+        supervisor forward message
+      })
+
+    case message: RequestPipelineConfigurations =>
+      children.foreach( supervisor => {
         supervisor forward message
       })
 
     case SupervisorTerminated(supervisor, configuration) =>
       log.info(s"PipelineSupervisor terminated: $configuration")
-      pipelineConfigurations.remove(supervisor)
-      mediator ! Publish("agents", UpdatedRunningConfigurations(pipelineConfigurations.values.toList, parent))
-
 
     case message: PauseFilter =>
-      children.foreach(supervisor => {
-        supervisor forward message
+      children.foreach( supervisor => {
+        supervisor forward  message
       })
 
     case message: DrainFilterValve =>
@@ -106,17 +91,17 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
       })
 
     case message: InsertDatasets =>
-      children.foreach(supervisor => {
+      children.foreach( supervisor => {
         supervisor forward message
       })
 
     case message: ExtractDatasets =>
-      children.foreach(supervisor => {
+      children.foreach( supervisor =>  {
         supervisor forward message
       })
 
     case message: ConfigureFilter =>
-      children.foreach(supervisor => {
+      children.foreach( supervisor => {
         supervisor forward message
       })
 

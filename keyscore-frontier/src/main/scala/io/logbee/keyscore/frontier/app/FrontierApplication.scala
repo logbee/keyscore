@@ -19,7 +19,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{ExistingPipelineConfigurations, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.model._
@@ -58,14 +58,13 @@ object FrontierApplication extends App with Json4sSupport {
     allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS)
   )
 
-
   val route = cors(corsSettings) {
     pathPrefix("pipeline") {
       pathPrefix("configuration") {
         pathPrefix("*") {
           get {
-            onSuccess(pipelineManager ? PipelineManager.RequestExistingConfigurations()) {
-              case ExistingPipelineConfigurations(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
+            onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+              case PipelineConfigurationResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
@@ -76,10 +75,12 @@ object FrontierApplication extends App with Json4sSupport {
         } ~
           pathPrefix(JavaUUID) { configId =>
             get {
-              onSuccess(pipelineManager ? PipelineManager.RequestExistingConfigurationById(configId)) {
-                case PipelineManager.ExistingPipelineConfigurationResponse(pipelineConfiguration) =>
-                  complete(StatusCodes.OK, pipelineConfiguration)
-                case PipelineManager.PipelineConfigurationNotFound => complete(StatusCodes.NotFound)
+              onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+                case PipelineConfigurationResponse(listOfConfigurations) =>
+                  listOfConfigurations.find(pipelineConfiguration => pipelineConfiguration.id == configId) match {
+                    case Some(config) => complete(StatusCodes.OK, config)
+                    case None => complete(StatusCodes.NotFound)
+                  }
                 case _ => complete(StatusCodes.InternalServerError)
               }
             } ~
@@ -113,25 +114,25 @@ object FrontierApplication extends App with Json4sSupport {
               delete {
                 complete(StatusCodes.NotImplemented)
             }
-          } ~
-            pathPrefix(JavaUUID) { instanceId =>
-              put {
-                complete(StatusCodes.NotImplemented)
+          }~
+          pathPrefix(JavaUUID) { instanceId =>
+            put {
+              complete(StatusCodes.NotImplemented)
 
-              } ~ delete {
-                complete(StatusCodes.NotImplemented)
-              } ~ get {
-                onSuccess(pipelineManager ? RequestExistingPipelines()) {
-                  case PipelineInstanceResponse(listOfPipelines) =>
-                    listOfPipelines.find(instance => instance.id == instanceId) match {
-                      case Some(instance) => complete(StatusCodes.OK, instance)
-                      case None => complete(StatusCodes.NotFound)
-                    }
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
+            } ~ delete {
+              complete(StatusCodes.NotImplemented)
+            } ~ get {
+              onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                case PipelineInstanceResponse(listOfPipelines) =>
+                  listOfPipelines.find(instance => instance.id == instanceId) match {
+                    case Some(instance) => complete(StatusCodes.OK, instance)
+                    case None => complete(StatusCodes.NotFound)
+                  }
+                case _ => complete(StatusCodes.InternalServerError)
               }
-
             }
+
+          }
         }
     } ~
       pathPrefix("filter") {
