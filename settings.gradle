@@ -3,6 +3,7 @@ include 'keyscore-commons'
 include 'keyscore-frontier'
 include 'keyscore-manager'
 include 'keyscore-model'
+include 'keyscore-model:keyscore-native-model'
 
 include 'test'
 include 'test:elasticsearch'

@@ -1,6 +1,5 @@
 apply plugin: 'scala'
 apply plugin: 'java'
-apply plugin: 'com.google.protobuf'
 
 apply from: rootProject.file('dependencies.gradle')
 
@@ -8,25 +7,13 @@ repositories {
     mavenCentral()
 }
 
-sourceSets.main.java.srcDir file(protobuf.generatedFilesBaseDir + '/main/java')
-
 dependencies {
 
     compile dependency.scala_lang
     compile dependency.json4s
-    compile dependency.protobuf_java
 
     testCompile dependency.scala_test
     testCompile dependency.junit
-}
-
-protobuf {
-    protoc {
-        artifact = 'com.google.protobuf:protoc:3.6.0'
-    }
-    generateProtoTasks {
-        project.tasks['generateProto'].dependsOn("cleanProto")
-    }
 }
 
 test {
@@ -42,15 +29,3 @@ jar {
         'Implementation-Version': version,
     ])
 }
-
-idea {
-    module {
-        generatedSourceDirs  += file(protobuf.generatedFilesBaseDir)
-    }
-}
-
-task cleanProto(type: Delete) {
-    delete file(protobuf.generatedFilesBaseDir)
-}
-
-

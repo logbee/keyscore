@@ -2,14 +2,14 @@ package io.logbee.keyscore.model
 
 import java.util.UUID.randomUUID
 
-import io.logbee.keyscore.model.NativeModel._
+import io.logbee.keyscore.model.NativeConversion._
+import io.logbee.keyscore.model.NativeModel.{NativeDataset, NativeField, NativeRecord}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
-
 @RunWith(classOf[JUnitRunner])
-class NativeModelSpec extends FreeSpec with Matchers {
+class NativeConversionSpec extends FreeSpec with Matchers {
 
   val textField = TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C")
   val numberField = NumberField("temperature", -11.5)
