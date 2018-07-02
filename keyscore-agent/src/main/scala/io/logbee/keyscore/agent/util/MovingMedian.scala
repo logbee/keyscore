@@ -18,8 +18,8 @@ object MovingMedian {
 }
 
 class MovingMedian(window: Int) {
-  var isEmpty: Boolean = true
   var medians: Array[MovingMedianItem] = Array.ofDim(window)
+  var isEmpty: Boolean = true
 
   def +(value: Long): MovingMedian = {
     isEmpty = false
@@ -37,16 +37,18 @@ class MovingMedian(window: Int) {
 
   def get: Long = {
     var time =  0L
-    if (!isEmpty) {
-      val medianItem = medians(numberOfItems / 2)
+    val itemsCount = numberOfItems
+    if (itemsCount > 0) {
+      val medianItem = medians(itemsCount / 2)
       time = medianItem.throughputTime
-      time
-    } else 0
+    }
+    time
 
   }
 
   def reset(): Unit = {
-    medians = Array.empty
+    var emptyArray: Array[MovingMedianItem] = Array.ofDim(window)
+    medians = emptyArray
   }
 
   private def numberOfItems: Int = {
