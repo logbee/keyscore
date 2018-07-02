@@ -1,10 +1,9 @@
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
-import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
 apply plugin: 'scala'
 apply from: rootProject.file('dependencies.gradle')
@@ -19,10 +18,8 @@ project.ext {
 
 dependencies {
 
-    //compile project(':keyscore-agent')
     compile project(':keyscore-commons')
     compile project(':keyscore-model')
-    compile project(':keyscore-model:keyscore-akka-model')
 
     compile dependency.scala_lang
     compile dependency.slf4j
