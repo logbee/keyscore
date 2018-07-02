@@ -92,12 +92,12 @@ class RingBufferSpec extends WordSpec with Matchers {
     ringBuffer.push(1)
     ringBuffer.push(2)
     ringBuffer.push(3)
+    ringBuffer.push(4)
 
-    // When drain is active
     ringBuffer.pull()
     ringBuffer.pull()
     ringBuffer.pull()
 
-    ringBuffer.last(3) should contain inOrderOnly(1, 2, 3)
+    ringBuffer.last(4) should contain inOrderOnly(4, 3, 2)
   }
 }

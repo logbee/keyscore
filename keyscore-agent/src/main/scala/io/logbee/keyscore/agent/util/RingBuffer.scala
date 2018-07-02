@@ -38,12 +38,27 @@ class RingBuffer[T](maxSize: Int) {
     result.toList
   }
 
-  def last(n:Int): List[T] = {
+  def last(number: Int): List[T] = {
+
     val result = mutable.ListBuffer.empty[T]
-    var iterator = if(n > ringBuffer.length) ringBuffer.length else n
-    for (i <- 0 until iterator) {
-      result += ringBuffer(i).asInstanceOf[T]
+    val iterator = new Iterator[Int] {
+      private var index = if (writePointer == 0) maxSize - 1 else writePointer - 1
+      private var count = number.min(maxSize)
+      override def hasNext: Boolean = count > 0
+      override def next(): Int = {
+        val result = index
+        index = if (index > 0) index - 1 else maxSize - 1
+        count -= 1
+        result
+      }
     }
+
+    for (i <- iterator) {
+      if (ringBuffer(i) != null) {
+        result += ringBuffer(i).asInstanceOf[T]
+      }
+    }
+
     result.toList
   }
 

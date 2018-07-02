@@ -13,8 +13,8 @@ import scala.collection.mutable
 object ExampleData {
 
   val messageTextField1 = TextField("message", "The weather is cloudy with a current temperature of: -11.5 C")
-  val messageTextField2 = TextField("message", "Is is a rainy day. Temperature: 5.8 °C")
-  val messageTextField3 = TextField("message", "The weather is sunny with a current temperature of: 14.4 °C")
+  val messageTextField2 = TextField("message", "Is is a rainy day. Temperature: 5.8 C")
+  val messageTextField3 = TextField("message", "The weather is sunny with a current temperature of: 14.4 C")
 
   val record1 = Record(messageTextField1)
   val record2 = Record(messageTextField2)
@@ -47,9 +47,9 @@ object ExampleData {
   )
 
   //Modified messages
-  val record1Modified = Record(TextField("weather-report", "cloudy, -11.5 °C"))
-  val record2Modified = Record(TextField("weather-report", "rainy, 5.8 °C"))
-  val record3Modified = Record(TextField("weather-report", "sunny, 14.4 °C"))
+  val record1Modified = Record(TextField("weather-report", "cloudy, -11.5 C"))
+  val record2Modified = Record(TextField("weather-report", "rainy, 5.8 C"))
+  val record3Modified = Record(TextField("weather-report", "sunny, 14.4 C"))
   val multiRecordModified = Record(
     multiFields1.id,
     TextField("bar", "42"),
