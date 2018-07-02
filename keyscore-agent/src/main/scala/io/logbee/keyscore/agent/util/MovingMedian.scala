@@ -10,7 +10,7 @@ object MovingMedian {
     median.get
   }
 
-  case class MovingMedianItem(throughputTime: Long, currentSystemTime: Long = System.currentTimeMillis()) extends Ordered[MovingMedianItem] {
+  case class MovingMedianItem(value: Long, currentSystemTime: Long = System.currentTimeMillis()) extends Ordered[MovingMedianItem] {
     override def compare(that: MovingMedianItem): Int = {
       this.currentSystemTime compare that.currentSystemTime
     }
@@ -36,13 +36,13 @@ class MovingMedian(window: Int) {
   }
 
   def get: Long = {
-    var time =  0L
+    var value = 0L
     val itemsCount = numberOfItems
     if (itemsCount > 0) {
       val medianItem = medians(itemsCount / 2)
-      time = medianItem.throughputTime
+      value = medianItem.value
     }
-    time
+    value
 
   }
 
