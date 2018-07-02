@@ -40,7 +40,7 @@ class MovingMedianSpec extends WordSpec with Matchers {
       movingMedian + 18
       movingMedian + 19
       Thread.sleep(1000)
-      movingMedian.get shouldBe (15)
+      movingMedian.get shouldBe 15
     }
   }
 }

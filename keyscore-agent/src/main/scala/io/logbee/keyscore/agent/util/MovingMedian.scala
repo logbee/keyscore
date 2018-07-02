@@ -4,7 +4,6 @@ import io.logbee.keyscore.agent.util.MovingMedian.MovingMedianItem
 
 
 object MovingMedian {
-
   def apply(window: Int = 10): MovingMedian = new MovingMedian(window)
 
   implicit def median2Long(median: MovingMedian): Long = {
@@ -19,10 +18,11 @@ object MovingMedian {
 }
 
 class MovingMedian(window: Int) {
-
+  var isEmpty: Boolean = true
   var medians: Array[MovingMedianItem] = Array.ofDim(window)
 
   def +(value: Long): MovingMedian = {
+    isEmpty = false
     val item = MovingMedianItem(value)
     var indexToUpdate = 0
     val itemsCount = numberOfItems
@@ -36,12 +36,13 @@ class MovingMedian(window: Int) {
   }
 
   def get: Long = {
-    var time: Long = Long.MinValue
-    if (medians.nonEmpty) {
+    var time =  0L
+    if (!isEmpty) {
       val medianItem = medians(numberOfItems / 2)
       time = medianItem.throughputTime
-    }
-    time
+      time
+    } else 0
+
   }
 
   def reset(): Unit = {

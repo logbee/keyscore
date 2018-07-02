@@ -150,9 +150,9 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     override def onPush(): Unit = {
 
       val dataset = grab(in)
-
-      compute(totalThroughputTime, FirstValveTimestamp, dataset)
-      compute(throughputTime, PreviousValveTimestamp, dataset)
+//TODO: Fix OnError(java.lang.ArrayIndexOutOfBoundsException: 0)
+//      compute(totalThroughputTime, FirstValveTimestamp, dataset)
+//      compute(throughputTime, PreviousValveTimestamp, dataset)
 
       ringBuffer.push(withNewLabels(dataset))
 
