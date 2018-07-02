@@ -12,7 +12,7 @@ import scala.collection.mutable
 
 object ExampleData {
 
-  val messageTextField1 = TextField("message", "The weather is cloudy with a current temperature of: -11.5 °C")
+  val messageTextField1 = TextField("message", "The weather is cloudy with a current temperature of: -11.5 C")
   val messageTextField2 = TextField("message", "Is is a rainy day. Temperature: 5.8 °C")
   val messageTextField3 = TextField("message", "The weather is sunny with a current temperature of: 14.4 °C")
 

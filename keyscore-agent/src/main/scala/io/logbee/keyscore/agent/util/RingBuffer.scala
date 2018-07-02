@@ -38,6 +38,15 @@ class RingBuffer[T](maxSize: Int) {
     result.toList
   }
 
+  def last(n:Int): List[T] = {
+    val result = mutable.ListBuffer.empty[T]
+    var iterator = if(n > ringBuffer.length) ringBuffer.length else n
+    for (i <- 0 until iterator) {
+      result += ringBuffer(i).asInstanceOf[T]
+    }
+    result.toList
+  }
+
   def isNonEmpty: Boolean = {
     readableData > 0
   }

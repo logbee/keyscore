@@ -42,6 +42,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
         sink.request(3)
 
         sink.expectNext(dataset1)
+        println(dataset1)
         sink.expectNext(dataset2)
         sink.expectNext(dataset3)
       }

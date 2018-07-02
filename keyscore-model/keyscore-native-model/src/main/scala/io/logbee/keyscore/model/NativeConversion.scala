@@ -16,7 +16,7 @@ object NativeConversion {
   }
 
   implicit def datasetFromNative(native: NativeDataset): Dataset = {
-    Dataset(null, native.getRecordList.asScala.map(recordFromNative).toList)
+    Dataset(MetaData(), native.getRecordList.asScala.map(recordFromNative).toList)
   }
 
   implicit def metadataToNative(metaData: MetaData): NativeMetaData = {

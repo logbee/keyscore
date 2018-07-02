@@ -9,6 +9,8 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData
+import io.logbee.keyscore.agent.pipeline.ExampleData.dataset1
+import io.logbee.keyscore.model.NativeModel.NativeDataset
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
 import org.json4s.ShortTypeHints
@@ -44,7 +46,7 @@ class PipelineIntegrationTest extends Matchers {
 
     val pipelineOneFilter = kafkaToKafkaPipeLineConfig.filter.head
     val pipelineTwoFilter = kafkaToElasticPipeLineConfig.filter.head
-    val datasetJsonString = write(List(ExampleData.dataset1))
+    val datasetJsonString = write(dataset1)
 
 
     println(pipelineOneFilter.id)
@@ -149,50 +151,51 @@ class PipelineIntegrationTest extends Matchers {
     )
 
 
-    // Insert Data into AddFieldsFilter
+    // Insert Data into LoggerFilter
 
-//    runner.http(action => action.client(httpClient)
-//      .send()
-//      .put(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/insert")
-//      .contentType("application/json")
-//      .payload(datasetJsonString)
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//        .receive()
-//        .response(HttpStatus.ACCEPTED)
-//    )
+    runner.http(action => action.client(httpClient)
+      .send()
+      .put(s"/filter/${pipelineOneFilter.id}/insert")
+      .contentType("application/json")
+      .payload(datasetJsonString)
+    )
 
-//    runner.http(action => action.client(httpClient)
-//          .send()
-//          .get(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/extract?value=1")
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//          .receive()
-//          .response(HttpStatus.OK)
-//          .validationCallback((message, context) => {
-//           val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
-//            payload should contain only dataset1
-//      })
-//    )
-//
-//
-//
-//    runner.http(action => action.client(httpClient)
-//      .send()
-//      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/pause?value=true")
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//      .receive()
-//      .response(HttpStatus.ACCEPTED)
-//    )
-
-    // Check if no Data is in ElasticSearchSink
+    runner.http(action => action.client(httpClient)
+        .receive()
+        .response(HttpStatus.ACCEPTED)
+    )
 
 
-    // Delete Pipelines
+    runner.http(action => action.client(httpClient)
+          .send()
+          .get(s"/filter/${pipelineOneFilter.id}/extract?value=1")
+    )
+
+    runner.http(action => action.client(httpClient)
+          .receive()
+          .response(HttpStatus.OK)
+          .validationCallback((message, context) => {
+           val payload = read[Dataset](message.getPayload.asInstanceOf[String])
+            payload shouldBe dataset1
+      })
+    )
+
+
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/pause?value=true")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+
+    //   TODO:  Check if no Data is in ElasticSearchSink
+
+
+    //     Delete Pipelines
 
     runner.http(action => action.client(httpClient)
       .send()

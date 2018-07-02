@@ -23,6 +23,7 @@ import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfi
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.NativeConversion._
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
 import org.json4s.ShortTypeHints
@@ -160,7 +161,7 @@ object FrontierApplication extends App with Json4sSupport {
             } ~
             path("insert") {
               put {
-                entity(as[List[Dataset]]) { datasets =>
+                entity(as[Dataset]) { datasets =>
                   println("Frontier: Received Insert datasets" + datasets)
                   onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
                     case Success => complete(StatusCodes.Accepted)
@@ -173,7 +174,7 @@ object FrontierApplication extends App with Json4sSupport {
               get {
                 parameter('value.as[Int]) { amount =>
                   onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
-                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
+                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasetFromNative(datasets))
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }

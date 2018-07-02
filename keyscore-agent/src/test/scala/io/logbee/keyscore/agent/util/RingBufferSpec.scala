@@ -86,4 +86,18 @@ class RingBufferSpec extends WordSpec with Matchers {
       testBuffer.take(1) should contain (1)
     }
   }
+
+  "A RingBuffer should return the last n elements" in {
+    val ringBuffer = RingBuffer[Int](3)
+    ringBuffer.push(1)
+    ringBuffer.push(2)
+    ringBuffer.push(3)
+
+    // When drain is active
+    ringBuffer.pull()
+    ringBuffer.pull()
+    ringBuffer.pull()
+
+    ringBuffer.last(3) should contain inOrderOnly(1, 2, 3)
+  }
 }

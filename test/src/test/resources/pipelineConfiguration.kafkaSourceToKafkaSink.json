@@ -134,12 +134,12 @@
   },
   "filter": [
     {
-      "id": "1fbc4394-6181-406a-b2c6-22a9f1c6c0b0",
+      "id": "be87bc3d-e6ee-4bfc-95a1-176338213acc",
       "descriptor": {
-        "id": "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
-        "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
-        "displayName": "Felder hinzufÃ¼gen",
-        "description": "HinzufÃ¼gen von neuen Feldern mit dazugehÃ¶rigen Werten zum aktuellen Datensatz.",
+        "id": "9a6f5fd0-a21b-4056-7a2a-344e3b4e2488",
+        "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter",
+        "displayName": "Logger Filter",
+        "description": "",
         "previousConnection": {
           "isPermitted": true,
           "connectionType": []
@@ -148,43 +148,10 @@
           "isPermitted": true,
           "connectionType": []
         },
-        "parameters": [
-          {
-            "name": "fieldsToAdd",
-            "displayName": "HinzuzufÃ¼gende Felder",
-            "description": "Diese Felder werden dem Datensatz hinzugefÃ¼gt.",
-            "mandatory": true,
-            "mapKey": {
-              "name": "fieldName",
-              "displayName": "Name",
-              "description": "Der Name des neuen Feldes.",
-              "mandatory": true,
-              "validator": ".*",
-              "kind": "text"
-            },
-            "mapValue": {
-              "name": "fieldValue",
-              "displayName": "Wert",
-              "description": "Der Wert des neuen Feldes.",
-              "mandatory": true,
-              "validator": ".*",
-              "kind": "text"
-            },
-            "min": 1,
-            "max": 2147483647,
-            "kind": "map",
-            "value": {}
-          }
-        ],
-        "category": "Filter"
+        "parameters": [],
+        "category": "Debug"
       },
-      "parameters": [
-        {
-          "name": "fieldsToAdd",
-          "value": {},
-          "jsonClass": "map[string,string]"
-        }
-      ]
+      "parameters": []
     }
   ]
 }

@@ -10,6 +10,7 @@ import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.NativeConversion._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -221,16 +222,17 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case InsertDatasets(filterId, datasets) =>
       val lastSender = sender
-      log.info(s"Agent: InsertDatasets${datasets.head.toString}")
-      controller.insert(filterId, datasets).onComplete {
+      log.info(s"Agent: InsertDatasets${datasets}")
+      controller.insert(filterId, List(datasets)).onComplete {
         case Success(value) => lastSender ! Success
         case Failure(e) => lastSender ! Failure
       }
 
     case ExtractDatasets(filterId, amount) =>
       val lastSender = sender
+      log.info(s"Agent: ExtractedDatasets amount $amount")
       controller.extract(filterId, amount).onComplete {
-        case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets)
+        case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets.head)
         case Failure(e) => lastSender ! Failure
       }
 
