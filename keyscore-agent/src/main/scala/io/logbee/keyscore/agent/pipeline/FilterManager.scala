@@ -3,10 +3,10 @@ package io.logbee.keyscore.agent.pipeline
 import akka.actor
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.{ActorMaterializer, FlowShape, SinkShape, SourceShape}
+import io.logbee.keyscore.agent.extension.ExtensionLoader.RegisterExtension
+import io.logbee.keyscore.agent.extension.{FilterExtension, SinkExtension, SourceExtension}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.stage._
-import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
-import io.logbee.keyscore.commons.extension.{FilterExtension, SinkExtension, SourceExtension}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
 import io.logbee.keyscore.model.Dataset
 import io.logbee.keyscore.model.filter.{FilterConfiguration, MetaFilterDescriptor}
@@ -15,11 +15,14 @@ import scala.collection.mutable
 
 
 object FilterManager {
+
   def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
 
   case object RequestDescriptors
 
   case class DescriptorsResponse(descriptors: List[MetaFilterDescriptor])
+
+  case class RegisterFilter(registration: FilterRegistration)
 
   case class CreateSinkStage(context: StageContext, configuration: FilterConfiguration)
 
@@ -53,13 +56,17 @@ class FilterManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
 
-    case RegisterExtension(extensionType, extensionClass) =>
+    case RegisterExtension(extensionType, extensionClass, extensionConfiguration) =>
       log.info(s"Registering extension '$extensionClass' of type '$extensionType'.")
       extensionType match {
-        case FilterExtension | SinkExtension | SourceExtension =>
-          val descriptor = filterLoader.loadDescriptors(extensionClass)
-          descriptors += (descriptor.name -> FilterRegistration(descriptor, extensionClass))
+        case FilterExtension | SinkExtension | SourceExtension if extensionClass.isDefined =>
+          val filterDescriptor = filterLoader.loadDescriptors(extensionClass.get)
+          val registration = FilterRegistration(filterDescriptor, extensionClass.get, extensionConfiguration)
+          descriptors += (filterDescriptor.name -> registration)
       }
+
+    case RegisterFilter(registration) =>
+      descriptors += (registration.filterDescriptor.name -> registration)
 
     case RequestDescriptors =>
       sender ! DescriptorsResponse(descriptors.values.map(_.filterDescriptor).toList)

@@ -10,11 +10,11 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent.{AgentManagerDied, CheckJoin, Initialize, SendJoin}
+import io.logbee.keyscore.agent.extension.ExtensionLoader
+import io.logbee.keyscore.agent.extension.ExtensionLoader.LoadExtensions
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
-import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineScheduler}
+import io.logbee.keyscore.agent.pipeline.{ExternalFilterManager, FilterManager, PipelineScheduler}
 import io.logbee.keyscore.commons.cluster._
-import io.logbee.keyscore.commons.extension.ExtensionLoader
-import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
 import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
 import io.logbee.keyscore.commons.util.{RandomNameGenerator, StartUpWatch}
 
@@ -42,9 +42,10 @@ class Agent extends Actor with ActorLogging {
   private val scheduler = context.system.scheduler
 
   private val mediator = DistributedPubSub(context.system).mediator
-  private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val pipelineManager = context.actorOf(PipelineScheduler(filterManager), "PipelineScheduler")
-  private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
+  private val filterManager = context.actorOf(Props[FilterManager], "FilterManager")
+  private val externalFilterManager = context.actorOf(ExternalFilterManager(filterManager), "ExternalFilterManager")
+  private val pipelineScheduler = context.actorOf(PipelineScheduler(filterManager), "PipelineScheduler")
+  private val extensionLoader = context.actorOf(Props[ExtensionLoader], "ExtensionLoader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()
   private var joined: Boolean = false
@@ -65,7 +66,7 @@ class Agent extends Actor with ActorLogging {
   override def receive: Receive = {
     case Initialize =>
       val currentSender = sender
-      val startUpWatch = context.actorOf(StartUpWatch(filterManager))
+      val startUpWatch = context.actorOf(StartUpWatch(filterManager, externalFilterManager))
       (startUpWatch ? StartUpComplete).onComplete {
         case Success(_) =>
           extensionLoader ! LoadExtensions(config, "keyscore.agent.extensions")

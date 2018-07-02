@@ -1,10 +1,10 @@
-package io.logbee.keyscore.commons.extension
+package io.logbee.keyscore.agent.extension
 
 import akka.Done
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.commons.extension.ExtensionLoader.{LoadExtensions, RegisterExtension}
+import io.logbee.keyscore.agent.extension.ExtensionLoader.{LoadExtensions, RegisterExtension}
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
@@ -22,18 +22,18 @@ class ExtensionLoaderSpec extends TestKit(ActorSystem("spec")) with ImplicitSend
     "emit RegisterExtension messages for all extensions of passed config" in {
 
       val config = ConfigFactory.parseString("test.extensions: [" +
-            "{ type = \"filter\", class = \"io.logbee.keyscore.commons.extension.ExampleFilter\" }," +
-            "{ type = \"sink\", class = \"io.logbee.keyscore.commons.extension.ExampleSink\" }" +
+            "{ type = \"filter\", class = \"io.logbee.keyscore.agent.extension.ExampleFilter\" }," +
+            "{ type = \"sink\", class = \"io.logbee.keyscore.agent.extension.ExampleSink\" }" +
           "]")
 
       extensionManager ! LoadExtensions(config, "test.extensions")
 
       var message: RegisterExtension = probe.receiveOne(100 millis).asInstanceOf[RegisterExtension]
-      message.extensionClass.getName should be (classOf[ExampleFilter].getName)
+      message.extensionClass.get.getName should be (classOf[ExampleFilter].getName)
       message.extensionType should be (FilterExtension)
 
       message = probe.receiveOne(100 millis).asInstanceOf[RegisterExtension]
-      message.extensionClass.getName should be (classOf[ExampleSink].getName)
+      message.extensionClass.get.getName should be (classOf[ExampleSink].getName)
       message.extensionType should be (SinkExtension)
 
       expectMsg(Done)
@@ -51,7 +51,7 @@ class ExtensionLoaderSpec extends TestKit(ActorSystem("spec")) with ImplicitSend
 
     "not emit a RegisterExtension message for an unknown extension type" in {
       val config = ConfigFactory.parseString("test.extensions: [" +
-            "{ type = \"fubar\", class = \"io.logbee.keyscore.commons.extension.ExampleFilter\" }" +
+            "{ type = \"fubar\", class = \"io.logbee.keyscore.agent.extension.ExampleFilter\" }" +
           "]")
 
       extensionManager ! LoadExtensions(config, "test.extensions")
