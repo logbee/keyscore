@@ -36,6 +36,7 @@ task removeContainerNetwork(type: DockerRemoveNetwork) {
 
 task startContainers() {
     dependsOn = [
+
             ':keyscore-frontier:startDockerContainer',
             ':keyscore-agent:startDockerContainer',
             'elasticsearch:startContainer',

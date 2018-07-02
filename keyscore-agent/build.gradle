@@ -24,6 +24,7 @@ dependencies {
 
     compile project(':keyscore-commons')
     compile project(':keyscore-model')
+    compile project(':keyscore-model:keyscore-akka-model')
 
     compile dependency.scala_lang
     compile dependency.slf4j

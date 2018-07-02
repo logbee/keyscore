@@ -4,6 +4,7 @@ include 'keyscore-frontier'
 include 'keyscore-manager'
 include 'keyscore-model'
 include 'keyscore-model:keyscore-native-model'
+include 'keyscore-model:keyscore-akka-model'
 
 include 'test'
 include 'test:elasticsearch'
