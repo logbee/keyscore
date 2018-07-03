@@ -21,22 +21,22 @@ task createContainer(type: DockerCreateContainer) {
 
 task startContainer(type: DockerStartContainer) {
     dependsOn = ['createContainer','::setupDockerNetwork']
-    targetContainerId { createContainer.getContainerId() }
+    targetContainerId { createContainer.getContainerName() }
 }
 
 
 task createKafkaTopics(type: DockerExecContainer) {
     dependsOn startContainer
-    targetContainerId { startContainer.getContainerId() }
+    targetContainerId { startContainer.getContainerName() }
     cmd = ["/usr/bin/create-topics.sh","TopicA,TopicB,TopicC"]
 
 }
 
 task stopContainer(type: DockerStopContainer) {
-    targetContainerId { createContainer.getContainerId() }
+    targetContainerId { createContainer.getContainerName() }
 }
 
 task removeContainer(type: DockerRemoveContainer) {
     dependsOn stopContainer
-    targetContainerId { createContainer.getContainerId() }
+    targetContainerId { createContainer.getContainerName() }
 }

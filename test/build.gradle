@@ -59,8 +59,8 @@ task stopContainers() {
 
 junitPlatformTest {
     dependsOn startContainers
-   finalizedBy stopContainers
-   outputs.upToDateWhen { false }
+    finalizedBy stopContainers
+    outputs.upToDateWhen { false }
 }
 
 afterEvaluate {

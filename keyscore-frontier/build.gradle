@@ -103,15 +103,15 @@ task createDockerContainer(type: DockerCreateContainer) {
 task startDockerContainer(type: DockerStartContainer) {
 
     dependsOn = ['createDockerContainer', ':setupDockerNetwork']
-    targetContainerId { createDockerContainer.getContainerId() }
+    targetContainerId { createDockerContainer.getContainerName() }
 }
 
 task stopDockerContainer(type: DockerStopContainer) {
-    targetContainerId { createDockerContainer.getContainerId() }
+    targetContainerId { createDockerContainer.getContainerName() }
 }
 
 task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
-    targetContainerId { createDockerContainer.getContainerId() }
+    targetContainerId { createDockerContainer.getContainerName() }
 }
 
