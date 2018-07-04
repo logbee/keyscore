@@ -32,6 +32,11 @@ class PipelineIntegrationTest extends Matchers {
     .requestUrl("http://localhost:4711")
     .build()
 
+  private val elasticClient: HttpClient = CitrusEndpoints.http()
+    .client()
+    .requestUrl("http://localhost:9200")
+    .build()
+
   @Test
   @CitrusTest
   def createPipeline(@CitrusResource runner: TestRunner): Unit = {
@@ -154,6 +159,25 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(httpClient)
       .send()
+      .post(s"/filter/${pipelineOneFilter.id}/pause?value=true"))
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .post(s"/filter/${pipelineOneFilter.id}/drain?value=true"))
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+
+
+    runner.http(action => action.client(httpClient)
+      .send()
       .put(s"/filter/${pipelineOneFilter.id}/insert")
       .contentType("application/json")
       .payload(datasets)
@@ -200,8 +224,14 @@ class PipelineIntegrationTest extends Matchers {
     )
 
 
-    //    Insert TestData and check ElasticSearchSink for proof
+    runner.http(action => action.client(httpClient)
+      .send()
+      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/drain?value=false")
+    )
 
+
+
+    //    Insert TestData and check ElasticSearchSink for proof
 
     runner.http(action => action.client(httpClient)
       .send()
@@ -214,6 +244,20 @@ class PipelineIntegrationTest extends Matchers {
       .receive()
       .response(HttpStatus.ACCEPTED)
     )
+
+
+    runner.http(action => action.client(elasticClient)
+      .send()
+      .get("/_search?q=tag:wow")
+    )
+
+    runner.http(action => action.client(elasticClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val response = message.getPayload.asInstanceOf[String]
+        println(response)
+      }))
 
 
 
