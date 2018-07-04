@@ -180,6 +180,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       if (isAvailable(out) && ringBuffer.isNonEmpty) {
         val dataset = ringBuffer.pull()
         push(out, dataset)
+        println(s"Valve pushed out: $dataset")
       }
     }
 

@@ -16,6 +16,7 @@ import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.{read, write}
+import org.json4s.native.JsonMethods._
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
@@ -32,7 +33,7 @@ class PipelineIntegrationTest extends Matchers {
     .requestUrl("http://localhost:4711")
     .build()
 
-  private val elasticClient: HttpClient = CitrusEndpoints.http()
+    private val elasticClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:9200")
     .build()
@@ -245,10 +246,10 @@ class PipelineIntegrationTest extends Matchers {
       .response(HttpStatus.ACCEPTED)
     )
 
-
+    Thread.sleep(1000)
     runner.http(action => action.client(elasticClient)
       .send()
-      .get("/_search?q=tag:wow")
+      .get("/test/_search")
     )
 
     runner.http(action => action.client(elasticClient)
@@ -256,10 +257,10 @@ class PipelineIntegrationTest extends Matchers {
       .response(HttpStatus.OK)
       .validationCallback((message, context) => {
         val response = message.getPayload.asInstanceOf[String]
-        println(response)
+        val json = parse(response)
+        val hits = (json \ "hits" \ "total").extract[Int]
+        hits shouldBe 3
       }))
-
-
 
     //     Delete Pipelines
 
@@ -312,7 +313,7 @@ class PipelineIntegrationTest extends Matchers {
       })
     )
 
-
+//
   }
 
 
