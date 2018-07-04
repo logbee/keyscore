@@ -57,8 +57,17 @@ task stopContainers() {
     finalizedBy removeContainerNetwork
 }
 
+task removeOldContainers(){
+    dependsOn = [
+            ':keyscore-frontier:removeDockerContainer',
+            ':keyscore-agent:removeDockerContainer',
+            'elasticsearch:removeContainer',
+            'kafka:removeContainer'
+    ]
+}
+
 task startContainers() {
-    dependsOn stopContainers
+    dependsOn removeOldContainers
     finalizedBy runContainers
 }
 
