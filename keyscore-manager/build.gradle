@@ -61,16 +61,16 @@ task createDockerContainer(type: DockerCreateContainer) {
 
 task startDockerContainer(type: DockerStartContainer) {
     dependsOn createDockerContainer
-    targetContainerId { createDockerContainer.getContainerName() }
+    targetContainerId { createDockerContainer.containerName }
 }
 
 task stopDockerContainer(type: DockerStopContainer) {
-    targetContainerId { createDockerContainer.getContainerName() }
+    targetContainerId { createDockerContainer.containerName }
 }
 
 task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
-    targetContainerId { createDockerContainer.getContainerName() }
+    targetContainerId { createDockerContainer.containerName }
 }
 
 task build(dependsOn: webpack) {

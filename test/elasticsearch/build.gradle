@@ -22,14 +22,14 @@ task createContainer(type: DockerCreateContainer) {
 
 task startContainer(type: DockerStartContainer) {
     dependsOn = ['createContainer','::setupDockerNetwork']
-    targetContainerId { createContainer.getContainerName() }
+    targetContainerId { createContainer.containerName }
 }
 
 task stopContainer(type: DockerStopContainer) {
-    targetContainerId { createContainer.getContainerName() }
+    targetContainerId { createContainer.containerName }
 }
 
 task removeContainer(type: DockerRemoveContainer) {
     dependsOn stopContainer
-    targetContainerId { createContainer.getContainerName() }
+    targetContainerId { createContainer.containerName }
 }
