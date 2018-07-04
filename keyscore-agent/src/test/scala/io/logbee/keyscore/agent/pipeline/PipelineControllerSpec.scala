@@ -84,7 +84,13 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
     "extract a dataset in outValve when no data was streamed before" in new TestSetup {
       whenReady(controllerFuture) { controller =>
-        whenReady(controller.insert(List(dataset1))) { _ =>
+        val state = for {
+          _ <- controller.pause(true)
+          _ <- controller.drain(true)
+          insert <- controller.insert(List(dataset1))
+        } yield insert
+
+        whenReady(state) { _ =>
           whenReady(controller.extract()) { datasets =>
             datasets should contain(dataset1)
           }
@@ -110,11 +116,19 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
     "extract multiple datasets in outValve" in new TestSetup {
       whenReady(controllerFuture) { controller =>
-        whenReady(controller.insert(List(dataset1, dataset2, dataset3))) { _ =>
+
+        val state = for {
+          _ <- controller.pause(true)
+          _ <- controller.drain(true)
+          filterState <- controller.insert(List(dataset1, dataset2, dataset3))
+        } yield filterState
+
+        whenReady(state) { _ =>
           whenReady(controller.extract(3)) { datasets =>
             datasets should contain inOrderOnly(dataset3, dataset2, dataset1)
           }
         }
+
 
         whenReady(controller.drain(false)) { _ =>
           whenReady(controller.pause(false)) { _ =>
@@ -136,7 +150,14 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       sink.expectNext(dataset1)
 
       whenReady(controllerFuture) { controller =>
-        whenReady(controller.insert(List(dataset2, dataset3, dataset4))) { _ =>
+
+        val state = for {
+          _ <- controller.pause(true)
+          _ <- controller.drain(true)
+          filterState <- controller.insert(List(dataset2, dataset3, dataset4))
+        } yield filterState
+
+        whenReady(state) { _ =>
           whenReady(controller.extract(3)) { datasets =>
             datasets should contain inOrderOnly(dataset4, dataset3, dataset2)
           }
@@ -151,7 +172,13 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
           }
         }
         whenReady(controllerFuture) { controller =>
-          whenReady(controller.insert(List(dataset2, dataset3, dataset5))) { _ =>
+
+          val state = for {
+            _ <- controller.pause(true)
+            _ <- controller.drain(true)
+            filterState <- controller.insert(List(dataset2, dataset3, dataset5))
+          } yield filterState
+          whenReady(state) { _ =>
             whenReady(controller.extract(3)) { datasets =>
               datasets should contain inOrderOnly(dataset5, dataset3, dataset2)
             }

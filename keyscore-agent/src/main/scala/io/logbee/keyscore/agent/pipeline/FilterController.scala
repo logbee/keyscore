@@ -35,8 +35,6 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
 
   override def insert(dataset: List[Dataset]): Future[FilterState] = {
     for {
-      _ <- inValve.close()
-      _ <- outValve.drain()
       _ <- inValve.insert(dataset)
       filterState <- filter.state()
     } yield filterState
