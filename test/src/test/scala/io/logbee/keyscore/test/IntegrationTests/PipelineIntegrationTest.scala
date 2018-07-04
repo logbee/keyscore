@@ -8,7 +8,8 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.agent.pipeline.ExampleData.dataset1
+import io.logbee.keyscore.agent.pipeline.ExampleData._
+import io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, HealthSerializer}
 import org.json4s.ShortTypeHints
@@ -23,7 +24,7 @@ import org.springframework.http.HttpStatus
 import scala.io.Source
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
-class PipelineIntegrationTest extends Matchers {
+class PipelineIntegrationTest extends Matchers  {
   implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer)
 
   private val httpClient: HttpClient = CitrusEndpoints.http()
@@ -44,12 +45,12 @@ class PipelineIntegrationTest extends Matchers {
 
     val pipelineOneFilter = kafkaToKafkaPipeLineConfig.filter.head
     val pipelineTwoFilter = kafkaToElasticPipeLineConfig.filter.head
-    val datasetJsonString = write(dataset1)
+    val datasets = write(List(dataset1,dataset2,dataset3))
 
+    println(s"LoggerFilterIdPipelineOne: ${pipelineOneFilter.id}")
+    println(s"LoggerFilterIdPipelineTwo: ${pipelineTwoFilter.id}")
+    println(s"datasetList: $datasets")
 
-    println(pipelineOneFilter.id)
-    println(pipelineTwoFilter.id)
-    println(datasetJsonString)
 
     // Create new KafkaToKafka Pipeline
 
@@ -155,7 +156,7 @@ class PipelineIntegrationTest extends Matchers {
       .send()
       .put(s"/filter/${pipelineOneFilter.id}/insert")
       .contentType("application/json")
-      .payload(datasetJsonString)
+      .payload(datasets)
     )
 
     runner.http(action => action.client(httpClient)
@@ -173,12 +174,25 @@ class PipelineIntegrationTest extends Matchers {
       .receive()
       .response(HttpStatus.OK)
       .validationCallback((message, context) => {
-        val payload = read[Dataset](message.getPayload.asInstanceOf[String])
-        payload shouldBe dataset1
+        val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
+        payload should have size 1
+        payload should contain (dataset3)
       })
     )
 
+    runner.http(action => action.client(httpClient)
+        .send()
+        .get(s"/filter/${pipelineOneFilter.id}/extract?value=5")
+    )
 
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
+        payload should have size 3
+      })
+    )
 
     //    runner.http(action => action.client(httpClient)
     //      .send()

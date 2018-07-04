@@ -161,9 +161,9 @@ object FrontierApplication extends App with Json4sSupport {
             } ~
             path("insert") {
               put {
-                entity(as[Dataset]) { datasets =>
+                entity(as[List[Dataset]]) { datasets =>
                   println("Frontier: Received Insert datasets" + datasets)
-                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
+                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets.map(datasetToNative))) {
                     case Success => complete(StatusCodes.Accepted)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
@@ -174,7 +174,7 @@ object FrontierApplication extends App with Json4sSupport {
               get {
                 parameter('value.as[Int]) { amount =>
                   onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
-                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasetFromNative(datasets))
+                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets.map(datasetFromNative))
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
