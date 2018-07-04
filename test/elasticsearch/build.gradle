@@ -11,12 +11,12 @@ task pullImage(type: DockerPullImage) {
 }
 
 task createContainer(type: DockerCreateContainer) {
-    dependsOn pullImage
-    containerName = 'elasticsearch'
+    dependsOn = ['pullImage','removeContainer']
+    containerName = 'keyscore-elasticsearch'
     targetImageId { pullImage.getImageId() }
     env = ['discovery.type=single-node', 'ES_JAVA_OPTS=-Xms512m -Xmx512m']
     portBindings = ['9200:9200', '9300:9300']
-    hostName = 'elasticsearch'
+    hostName = 'keyscore-elasticsearch'
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
@@ -27,9 +27,19 @@ task startContainer(type: DockerStartContainer) {
 
 task stopContainer(type: DockerStopContainer) {
     targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
 }
 
 task removeContainer(type: DockerRemoveContainer) {
     dependsOn stopContainer
     targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createContainer.containerName + " has already been removed")
+        } else throw exception
+    }
 }

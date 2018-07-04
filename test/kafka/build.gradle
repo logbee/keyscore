@@ -11,16 +11,16 @@ task pullImage(type: DockerPullImage) {
 }
 
 task createContainer(type: DockerCreateContainer) {
-    dependsOn pullImage
-    containerName = 'kafka'
+    dependsOn = ['pullImage', 'removeContainer']
+    containerName = 'keyscore-kafka'
     targetImageId { pullImage.getImageId() }
-    portBindings = ['9092:9092','2181:2181']
-    hostName = 'kafka'
+    portBindings = ['9092:9092', '2181:2181']
+    hostName = 'keyscore-kafka'
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startContainer(type: DockerStartContainer) {
-    dependsOn = ['createContainer','::setupDockerNetwork']
+    dependsOn = ['createContainer', '::setupDockerNetwork']
     targetContainerId { createContainer.containerName }
 }
 
@@ -28,14 +28,24 @@ task startContainer(type: DockerStartContainer) {
 task createKafkaTopics(type: DockerExecContainer) {
     dependsOn startContainer
     targetContainerId { createContainer.containerName }
-    cmd = ["/usr/bin/create-topics.sh","TopicA,TopicB,TopicC"]
+    cmd = ["/usr/bin/create-topics.sh", "TopicA,TopicB,TopicC"]
 }
 
 task stopContainer(type: DockerStopContainer) {
     targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
 }
 
 task removeContainer(type: DockerRemoveContainer) {
     dependsOn stopContainer
     targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createContainer.containerName + " has already been removed")
+        } else throw exception
+    }
 }

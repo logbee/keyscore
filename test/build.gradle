@@ -34,9 +34,9 @@ task removeContainerNetwork(type: DockerRemoveNetwork) {
     networkId = project.properties['containerNetwork']
 }
 
-task startContainers() {
-    dependsOn = [
 
+task runContainers(){
+    dependsOn = [
             ':keyscore-frontier:startDockerContainer',
             ':keyscore-agent:startDockerContainer',
             'elasticsearch:startContainer',
@@ -55,6 +55,11 @@ task stopContainers() {
             'kafka:removeContainer'
     ]
     finalizedBy removeContainerNetwork
+}
+
+task startContainers() {
+    dependsOn stopContainers
+    finalizedBy runContainers
 }
 
 junitPlatformTest {

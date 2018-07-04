@@ -62,7 +62,7 @@
     "parameters": [
       {
         "name": "bootstrapServer",
-        "value": "kafka:9092",
+        "value": "kafka-keyscore:9092",
         "jsonClass": "string"
       },
       {
@@ -122,7 +122,7 @@
     "parameters": [
       {
         "name": "bootstrapServer",
-        "value": "kafka:9092",
+        "value": "keyscore-kafka:9092",
         "jsonClass": "string"
       },
       {

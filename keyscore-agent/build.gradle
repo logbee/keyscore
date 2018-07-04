@@ -90,7 +90,7 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, bui
 }
 
 task createDockerContainer(type: DockerCreateContainer) {
-    dependsOn buildDockerImage
+    dependsOn =  ['buildDockerImage','removeDockerContainer']
     containerName = project.name
     targetImageId { buildDockerImage.getImageId() }
     portBindings = ['3551:3551']
@@ -98,7 +98,7 @@ task createDockerContainer(type: DockerCreateContainer) {
     env = [
         'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
         'KEYSCORE_REMOTE_HOST=keyscore-agent',
-        'KEYSCORE_REMOTE_PORT=0',
+        'KEYSCORE_REMOTE_PORT=3551',
         'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
     ]
     network = project.findProperty('containerNetwork') ?: 'host'
@@ -111,9 +111,19 @@ task startDockerContainer(type: DockerStartContainer) {
 
 task stopDockerContainer(type: DockerStopContainer) {
     targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createDockerContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
 }
 
 task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
     targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createDockerContainer.containerName + " has already been removed")
+        } else throw exception
+    }
 }
