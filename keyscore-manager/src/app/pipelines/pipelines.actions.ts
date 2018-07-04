@@ -1,7 +1,7 @@
 import {Action} from "@ngrx/store";
 import {
     FilterConfiguration, FilterDescriptor, InternalPipelineConfiguration,
-    PipelineConfiguration
+    PipelineConfiguration, PipelineInstance
 } from "./pipelines.model";
 
 export const CREATE_PIPELINE = '[Pipeline] CreatePipeline';
@@ -17,6 +17,10 @@ export const UPDATE_PIPELINE_FAILURE = '[Pipeline] UpdatePipelineFailure';
 export const DELETE_PIPELINE = '[Pipeline] DeletePipeline';
 export const DELETE_PIPELINE_SUCCESS = '[Pipeline] DeletePipelineSuccess';
 export const DELETE_PIPELINE_FAILURE = '[Pipeline] DeletePipelineFailure';
+export const LOAD_ALL_PIPELINES = '[Pipeline] LoadAllPipelines';
+export const LOAD_ALL_PIPELINES_SUCCESS = '[Pipeline] LoadAllPipelinesSuccess';
+export const LOAD_ALL_PIPELINES_FAILURE = '[Pipeline] LoadAllPipelinesFailure';
+export const UPDATE_PIPELINE_POLLING = '[Pipeline] UpdatePipelinePolling';
 export const ADD_FILTER = '[Pipeline] AddFilter';
 export const MOVE_FILTER = '[Pipeline] MoveFilter';
 export const REMOVE_FILTER = '[Pipeline] RemoveFilter';
@@ -36,6 +40,10 @@ export type PipelineActions =
     | UpdatePipelineSuccessAction
     | UpdatePipelineFailureAction
     | DeletePipelineAction
+    | LoadAllPipelinesAction
+    | LoadAllPipelinesSuccessAction
+    | LoadAllPipelinesFailureAction
+    | UpdatePipelinePollingAction
     | AddFilterAction
     | MoveFilterAction
     | UpdateFilterAction
@@ -74,12 +82,10 @@ export class EditPipelineSuccessAction implements Action {
 export class EditPipelineFailureAction implements Action {
     readonly type = EDIT_PIPELINE_FAILURE;
 
-    constructor(readonly id: string,readonly cause:any) {
+    constructor(readonly id: string, readonly cause: any) {
 
     }
 }
-
-
 
 
 export class LockEditingPipelineAction implements Action {
@@ -124,10 +130,43 @@ export class UpdatePipelineSuccessAction implements Action {
 export class UpdatePipelineFailureAction implements Action {
     readonly type = UPDATE_PIPELINE_FAILURE;
 
-    constructor(readonly cause:any, readonly pipeline: InternalPipelineConfiguration) {
+    constructor(readonly cause: any, readonly pipeline: InternalPipelineConfiguration) {
 
     }
 }
+
+export class LoadAllPipelinesAction implements Action {
+    readonly type = LOAD_ALL_PIPELINES;
+
+    constructor() {
+
+    }
+}
+
+export class LoadAllPipelinesSuccessAction implements Action {
+    readonly type = LOAD_ALL_PIPELINES_SUCCESS;
+
+    constructor(readonly pipelineInstances: PipelineInstance[]) {
+
+    }
+}
+
+export class LoadAllPipelinesFailureAction implements Action {
+    readonly type = LOAD_ALL_PIPELINES_FAILURE;
+
+    constructor(readonly cause: any) {
+
+    }
+}
+
+export class UpdatePipelinePollingAction implements Action {
+    readonly type = UPDATE_PIPELINE_POLLING;
+
+    constructor(readonly isPolling: boolean) {
+
+    }
+}
+
 
 export class DeletePipelineAction implements Action {
     readonly type = DELETE_PIPELINE;

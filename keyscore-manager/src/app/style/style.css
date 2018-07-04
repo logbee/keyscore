@@ -109,3 +109,40 @@
     transition: 0.25s ease-in-out;
 
 }
+
+/*-------------- Health Status -------------------*/
+.health-light-Green{
+    background: lime;
+    background-size: 5px 5px;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    border: none;
+    box-shadow:
+            0 0 0.8em #111 inset,
+            0 0 1.2em lime;
+}
+
+.health-light-Red{
+    background: red;
+    background-size: 5px 5px;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    border: none;
+    box-shadow:
+            0 0 0.8em #111 inset,
+            0 0 1.2em red;
+}
+
+.health-light-Yellow{
+    background: yellow;
+    background-size: 5px 5px;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    border: none;
+    box-shadow:
+            0 0 0.8em #111 inset,
+            0 0 1.2em yellow;
+}

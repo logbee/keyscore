@@ -9,23 +9,28 @@ import {
     DELETE_PIPELINE,
     DeletePipelineAction,
     DeletePipelineFailureAction,
-    DeletePipelineSuccessAction, EDIT_PIPELINE, EDIT_PIPELINE_FAILURE,
-    EditPipelineAction, EditPipelineFailureAction, EditPipelineSuccessAction,
-    LOAD_FILTER_DESCRIPTORS,
+    DeletePipelineSuccessAction,
+    EDIT_PIPELINE,
+    EditPipelineAction,
+    EditPipelineFailureAction,
+    EditPipelineSuccessAction, LOAD_ALL_PIPELINES,
+    LOAD_FILTER_DESCRIPTORS, LoadAllPipelinesAction, LoadAllPipelinesFailureAction, LoadAllPipelinesSuccessAction,
     LoadFilterDescriptorsFailureAction,
     LoadFilterDescriptorsSuccessAction,
-    UPDATE_PIPELINE, UPDATE_PIPELINE_BLOCKLY,
+    UPDATE_PIPELINE,
+    UPDATE_PIPELINE_BLOCKLY,
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
-    UpdatePipelineSuccessAction, UpdatePipelineWithBlocklyAction
+    UpdatePipelineSuccessAction,
+    UpdatePipelineWithBlocklyAction
 } from "./pipelines.actions";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
-import {FilterDescriptor, getFilterDescriptors, PipelineConfiguration} from "./pipelines.model";
+import {FilterDescriptor, getPipelinePolling, PipelineConfiguration, PipelineInstance} from "./pipelines.model";
 import {TranslateService} from "@ngx-translate/core";
 import {toInternalPipelineConfig, toPipelineConfiguration} from "../util";
-import {Go} from "../router/router.actions";
+import {concat, concatMap, delay, skip, tap} from "rxjs/internal/operators";
 
 @Injectable()
 export class PipelinesEffects {
@@ -108,6 +113,25 @@ export class PipelinesEffects {
             this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors?language=' + this.translate.currentLang).pipe(
                 map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
                 catchError(cause => of(new LoadFilterDescriptorsFailureAction(cause)))
+            )
+        )
+    );
+
+    @Effect() loadPipelineInstances$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_ALL_PIPELINES),
+        combineLatest(this.store.select(selectAppConfig)),
+        combineLatest(this.store.select(getPipelinePolling)),
+        concatMap(([[action, config], polling]) =>
+            this.http.get(config.getString('keyscore.frontier.base-url') + '/pipeline/instance/*').pipe(
+                concat(of('').pipe(
+                    delay(10000),
+                    tap(_ => {
+                        if (polling) {
+                            this.store.dispatch(new LoadAllPipelinesAction());
+                        }
+                    }), skip(1))),
+                map((data: PipelineInstance[]) => new LoadAllPipelinesSuccessAction(data)),
+                catchError(cause => of(new LoadAllPipelinesFailureAction(cause)))
             )
         )
     );

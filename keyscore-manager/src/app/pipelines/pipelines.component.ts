@@ -1,14 +1,12 @@
-import {Component} from '@angular/core';
-import {select, State, Store} from "@ngrx/store";
+import {Component, OnDestroy} from '@angular/core';
+import {select, Store} from "@ngrx/store";
 import {Observable} from "rxjs";
-import {StreamState} from "http2";
 import {v4 as uuid} from 'uuid'
 import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.model";
-import {CreatePipelineAction} from "./pipelines.actions";
+import {CreatePipelineAction, LoadAllPipelinesAction, UpdatePipelinePollingAction} from "./pipelines.actions";
 import {Router} from "@angular/router";
 import * as RouterActions from '../router/router.actions';
 import {TranslateService} from "@ngx-translate/core";
-import {take} from 'rxjs/operators'
 
 @Component({
     selector: 'keyscore-pipelines',
@@ -35,8 +33,8 @@ import {take} from 'rxjs/operators'
             <div class="col-9">
                 <div class="card-columns">
                     <div *ngFor="let pipeline of pipelines$ | async; let i = index" class="card">
-                        <a class="card-header btn d-flex" routerLink="/pipelines/pipeline/{{pipeline.id}}">
-                            <h5>{{pipeline.name}}</h5>
+                        <a class="card-header btn d-flex justify-content-between" routerLink="/pipelines/pipeline/{{pipeline.id}}">
+                            <h5>{{pipeline.name}}</h5><span class="health-light-{{pipeline.health}}"></span>
                         </a>
                         <div class="card-body">
                             <small>{{pipeline.description}}</small>
@@ -47,11 +45,17 @@ import {take} from 'rxjs/operators'
         </div>
     `
 })
-export class PipelinesComponent {
+export class PipelinesComponent implements OnDestroy {
     pipelines$: Observable<PipelineInstance[]>;
 
     constructor(private store: Store<PipelinesState>, private router: Router, private translate: TranslateService) {
         this.pipelines$ = this.store.pipe(select(getPipelineList));
+        this.store.dispatch(new UpdatePipelinePollingAction(true));
+        this.store.dispatch(new LoadAllPipelinesAction());
+    }
+
+    ngOnDestroy(){
+        this.store.dispatch(new UpdatePipelinePollingAction(false));
     }
 
     createPipeline(activeRouting: boolean = false) {

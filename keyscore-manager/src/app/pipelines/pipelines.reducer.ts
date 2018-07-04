@@ -4,7 +4,8 @@ import {
     CREATE_PIPELINE,
     DELETE_PIPELINE_FAILURE,
     DELETE_PIPELINE_SUCCESS,
-    EDIT_PIPELINE, EDIT_PIPELINE_FAILURE, EDIT_PIPELINE_SUCCESS,
+    EDIT_PIPELINE_FAILURE,
+    EDIT_PIPELINE_SUCCESS, LOAD_ALL_PIPELINES_SUCCESS,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOCK_EDITING_PIPELINE,
     MOVE_FILTER,
@@ -12,12 +13,11 @@ import {
     REMOVE_FILTER,
     RESET_PIPELINE,
     UPDATE_FILTER,
+    UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS
 } from "./pipelines.actions";
 import {v4 as uuid} from 'uuid';
 import {deepcopy, parameterDescriptorToParameter} from "../util";
-import {State} from "@ngrx/store";
-import {CONFIG_LOADED} from "../app.config";
 
 
 const initialState: PipelinesState = {
@@ -28,6 +28,7 @@ const initialState: PipelinesState = {
     filterDescriptors: [],
     filterCategories: [],
     editingPipelineIsLocked: true,
+    pipelineInstancePolling: false
 };
 
 export function PipelinesReducer(state: PipelinesState = initialState, action: PipelineActions): PipelinesState {
@@ -42,7 +43,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             result.editingPipeline = deepcopy(action.pipelineConfiguration);
             break;
         case EDIT_PIPELINE_FAILURE:
-            result.editingPipeline = {id:action.id,name:"New Pipeline",description:"",filters:[]};
+            result.editingPipeline = {id: action.id, name: "New Pipeline", description: "", filters: []};
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
@@ -51,7 +52,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             //setEditingPipeline(result, action.id);
             break;
         case UPDATE_PIPELINE_SUCCESS:
-            const index = result.pipelineList.findIndex(pipeline => action.pipeline.id == pipeline.id);
+            const index = result.pipelineList.findIndex(pipeline => action.pipeline.id === pipeline.id);
             if (index >= 0) {
                 result.pipelineList[index].name = action.pipeline.name;
                 result.pipelineList[index].description = action.pipeline.description;
@@ -72,6 +73,15 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             if (action.cause.status == 404) {
                 result.pipelineList = result.pipelineList.filter(pipeline => action.id != pipeline.id);
             }
+            break;
+        case LOAD_ALL_PIPELINES_SUCCESS:
+            result.pipelineList = deepcopy(action.pipelineInstances, []);
+            result.pipelineList.sort((a, b) => {
+                return a.name.localeCompare(b.name);
+            });
+            break;
+        case UPDATE_PIPELINE_POLLING:
+            result.pipelineInstancePolling = action.isPolling;
             break;
         case ADD_FILTER:
             let parameters = action.filter.parameters.map(parameterDescriptor => parameterDescriptorToParameter(parameterDescriptor));

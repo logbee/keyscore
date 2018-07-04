@@ -15,6 +15,7 @@ export class PipelinesState {
     filterDescriptors: FilterDescriptor[];
     filterCategories: string[];
     editingPipelineIsLocked: boolean;
+    pipelineInstancePolling:boolean;
 }
 
 export interface FilterState {
@@ -118,3 +119,4 @@ export const getEditingFilter = createSelector(getPipelinesState, (state: Pipeli
 
 export const getFilterById = (id) => createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipeline.filters.find((filter: FilterConfiguration) => filter.id === id));
 
+export const getPipelinePolling = createSelector(getPipelinesState,(state:PipelinesState)=>state.pipelineInstancePolling);
