@@ -38,29 +38,17 @@ class RingBuffer[T](maxSize: Int) {
     result.toList
   }
 
-  def last(number: Int): List[T] = {
-
-    val result = mutable.ListBuffer.empty[T]
-    val iterator = new Iterator[Int] {
-      private var index = if (writePointer == 0) maxSize - 1 else writePointer - 1
-      private var count = number.min(maxSize)
-      override def hasNext: Boolean = count > 0
-      override def next(): Int = {
-        val result = index
-        index = if (index > 0) index - 1 else maxSize - 1
-        count -= 1
-        result
-      }
+  def last(number: Int): List[T] = new Iterator[T] {
+    private var index = if (writePointer == 0) maxSize - 1 else writePointer - 1
+    private var count = number.min(maxSize)
+    override def hasNext: Boolean = count > 0 && ringBuffer(index) != null
+    override def next(): T = {
+      val result = ringBuffer(index).asInstanceOf[T]
+      index = if (index > 0) index - 1 else maxSize - 1
+      count -= 1
+      result
     }
-
-    for (i <- iterator) {
-      if (ringBuffer(i) != null) {
-        result += ringBuffer(i).asInstanceOf[T]
-      }
-    }
-
-    result.toList
-  }
+  }.toList
 
   def isNonEmpty: Boolean = {
     readableData > 0
