@@ -90,7 +90,7 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, bui
 }
 
 task createDockerContainer(type: DockerCreateContainer) {
-    dependsOn =  ['buildDockerImage','removeDockerContainer']
+    dependsOn =  ['buildDockerImage']
     containerName = project.name
     targetImageId { buildDockerImage.getImageId() }
     portBindings = ['3551:3551']
@@ -116,6 +116,7 @@ task stopDockerContainer(type: DockerStopContainer) {
             println("Container " + createDockerContainer.containerName + " has already been stopped")
         } else throw exception
     }
+
 }
 
 task removeDockerContainer(type: DockerRemoveContainer) {
@@ -126,4 +127,26 @@ task removeDockerContainer(type: DockerRemoveContainer) {
             println("Container " + createDockerContainer.containerName + " has already been removed")
         } else throw exception
     }
+
+}
+
+task stopDockerContainerOnStartup(type: DockerStopContainer) {
+    targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createDockerContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+
+}
+
+task removeDockerContainerOnStartup(type: DockerRemoveContainer) {
+    dependsOn stopDockerContainerOnStartup
+    targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createDockerContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+
 }

@@ -11,7 +11,7 @@ task pullImage(type: DockerPullImage) {
 }
 
 task createContainer(type: DockerCreateContainer) {
-    dependsOn = ['pullImage', 'removeContainer']
+    dependsOn = ['pullImage']
     containerName = 'keyscore-kafka'
     targetImageId { pullImage.getImageId() }
     portBindings = ['9092:9092', '2181:2181']
@@ -38,10 +38,31 @@ task stopContainer(type: DockerStopContainer) {
             println("Container " + createContainer.containerName + " has already been stopped")
         } else throw exception
     }
+
 }
 
 task removeContainer(type: DockerRemoveContainer) {
     dependsOn stopContainer
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}
+
+task stopContainerOnStartup(type: DockerStopContainer) {
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+
+}
+
+task removeContainerOnStartup(type: DockerRemoveContainer) {
+    dependsOn stopContainerOnStartup
     targetContainerId { createContainer.containerName }
     onError { exception ->
         if (exception.message.contains('No such container')) {

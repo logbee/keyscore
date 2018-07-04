@@ -11,7 +11,7 @@ task pullImage(type: DockerPullImage) {
 }
 
 task createContainer(type: DockerCreateContainer) {
-    dependsOn = ['pullImage','removeContainer']
+    dependsOn = ['pullImage']
     containerName = 'keyscore-elasticsearch'
     targetImageId { pullImage.getImageId() }
     env = ['discovery.type=single-node', 'ES_JAVA_OPTS=-Xms512m -Xmx512m']
@@ -32,6 +32,7 @@ task stopContainer(type: DockerStopContainer) {
             println("Container " + createContainer.containerName + " has already been stopped")
         } else throw exception
     }
+
 }
 
 task removeContainer(type: DockerRemoveContainer) {
@@ -42,4 +43,26 @@ task removeContainer(type: DockerRemoveContainer) {
             println("Container " + createContainer.containerName + " has already been removed")
         } else throw exception
     }
+
+}
+
+task stopContainerOnStartup(type: DockerStopContainer) {
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+
+}
+
+task removeContainerOnStartup(type: DockerRemoveContainer) {
+    dependsOn stopContainerOnStartup
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.message.contains('No such container')) {
+            println("Container " + createContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+
 }
