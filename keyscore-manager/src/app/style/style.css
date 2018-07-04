@@ -123,6 +123,7 @@
             0 0 1.2em lime;
 }
 
+
 .health-light-Red{
     background: red;
     background-size: 5px 5px;
@@ -133,7 +134,9 @@
     box-shadow:
             0 0 0.8em #111 inset,
             0 0 1.2em red;
+
 }
+
 
 .health-light-Yellow{
     background: yellow;
@@ -145,4 +148,88 @@
     box-shadow:
             0 0 0.8em #111 inset,
             0 0 1.2em yellow;
+    transition: all 1s ease-in;
+}
+
+/*------------------ Loader ---------------------*/
+.spinner {
+    margin: 100px auto;
+    width: 50px;
+    height: 40px;
+    text-align: center;
+    font-size: 10px;
+}
+.spinner-dark{
+    width:24px;
+    height:24px;
+    text-align: center;
+    font-size:10px;
+}
+
+.spinner-dark > div {
+    background-color: #000000;
+    height:100%;
+    width:2px;
+    margin-right:2px;
+    display:inline-block;
+    -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner > div {
+    background-color: #ffffff;
+    height: 100%;
+    width: 6px;
+    margin-right:3px;
+    display: inline-block;
+
+    -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+
+
+.spinner .rect2,.spinner-dark .rect2 {
+    -webkit-animation-delay: -1.1s;
+    animation-delay: -1.1s;
+}
+
+.spinner .rect3,.spinner-dark .rect3 {
+    -webkit-animation-delay: -1.0s;
+    animation-delay: -1.0s;
+}
+
+.spinner .rect4,.spinner-dark .rect4 {
+    -webkit-animation-delay: -0.9s;
+    animation-delay: -0.9s;
+}
+
+.spinner .rect5,.spinner-dark .rect5 {
+    -webkit-animation-delay: -0.8s;
+    animation-delay: -0.8s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+    0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
+    20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes sk-stretchdelay {
+    0%, 40%, 100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+    }  20% {
+           transform: scaleY(1.0);
+           -webkit-transform: scaleY(1.0);
+       }
+}
+
+.loading-background{
+    background: #365880;
+    height:100vh;
+    width:100vw;
+    margin-top:-16px;
+    margin-left:-16px;
+    padding:0
+
 }

@@ -36,7 +36,7 @@ import {concat, concatMap, delay, skip, tap} from "rxjs/internal/operators";
 export class PipelinesEffects {
     @Effect() editPipeline$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
-        switchMap(action => {
+        mergeMap(action => {
             const regex = /\/pipeline\/.*/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 const id = this.getPipelineIdfromRouterAction(action as RouterNavigationAction);
@@ -109,7 +109,7 @@ export class PipelinesEffects {
     @Effect() loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_FILTER_DESCRIPTORS),
         combineLatest(this.store.select(selectAppConfig)),
-        mergeMap(([action, config]) =>
+        switchMap(([action, config]) =>
             this.http.get(config.getString('keyscore.frontier.base-url') + '/descriptors?language=' + this.translate.currentLang).pipe(
                 map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
                 catchError(cause => of(new LoadFilterDescriptorsFailureAction(cause)))

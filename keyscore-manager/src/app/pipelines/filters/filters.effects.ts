@@ -7,7 +7,7 @@ import {AppState} from "../../app.component";
 import {HttpClient} from "@angular/common/http";
 import {TranslateService} from "@ngx-translate/core";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
-import {switchMap} from "rxjs/internal/operators";
+import {mergeMap, switchMap} from "rxjs/internal/operators";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 
 @Injectable()
@@ -16,7 +16,7 @@ export class FilterEffects {
     @Effect()
     navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
-        switchMap((action: RouterNavigationAction) => {
+        mergeMap((action: RouterNavigationAction) => {
             const navigationAction = action as RouterNavigationAction;
             const url = navigationAction.payload.event.url;
             const currentFilterId = url.substr(url.lastIndexOf("/") + 1, url.length);

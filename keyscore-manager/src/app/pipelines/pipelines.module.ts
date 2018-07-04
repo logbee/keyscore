@@ -26,6 +26,8 @@ import {ExampleMessageComponent} from "./filters/filter-details/live-editing-mod
 import {PatternComponent} from "./filters/filter-details/live-editing-modules/pattern.component";
 import {FilterResultComponent} from "./filters/filter-details/live-editing-modules/filter-result.component";
 import {FilterInformationComponent} from "./pipeline-editor/filter-information.component";
+import {LoadingFullViewComponent} from "../loading/loading-full-view.component";
+import {LoadingComponent} from "../loading/loading.component";
 
 
 export const routes: Routes = [
@@ -57,6 +59,8 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         PipelineFilterComponent,
         BlocklyComponent,
         FilterInformationComponent,
+        LoadingFullViewComponent,
+        LoadingComponent,
         ParameterList,
         ParameterMap,
         ParameterComponent,

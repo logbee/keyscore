@@ -10,7 +10,7 @@ import {
     getEditingPipeline,
     getEditingPipelineIsLocked,
     getFilterCategories,
-    getFilterDescriptors, InternalPipelineConfiguration, PipelineConfiguration
+    getFilterDescriptors, InternalPipelineConfiguration, isLoading, PipelineConfiguration
 } from "../pipelines.model";
 
 import {
@@ -30,7 +30,8 @@ import {LoadFilterDescriptorAction} from "../filters/filters.actions";
 @Component({
     selector: 'pipeline-editor',
     template: `
-        <div class="row justify-content-center">
+        <loading-full-view *ngIf="isLoading$|async"></loading-full-view>
+        <div *ngIf="!(isLoading$|async)" class="row justify-content-center">
             <div *ngIf="!blocklyFlag" class="col-3">
                 <pipeline-details [pipeline]="pipeline$ | async"
                                   [locked$]="isLocked$"
@@ -78,12 +79,13 @@ import {LoadFilterDescriptorAction} from "../filters/filters.actions";
     styles: ['.filter-component{transition: 0.25s ease-in-out;}'],
     providers: []
 })
-export class PipelineEditorComponent implements OnInit{
+export class PipelineEditorComponent implements OnInit {
     pipeline$: Observable<InternalPipelineConfiguration>;
     isLocked$: Observable<boolean>;
     filterDescriptors$: Observable<FilterDescriptor[]>;
     categories$: Observable<string[]>;
     blocklyFlag: boolean;
+    isLoading$: Observable<boolean>;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
         this.store.dispatch(new LoadFilterDescriptorsAction());
@@ -93,17 +95,17 @@ export class PipelineEditorComponent implements OnInit{
 
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
-
+        this.isLoading$ = this.store.select(isLoading);
         this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
         this.pipeline$.subscribe(pipeline => {
-            if(pipeline) {
+            if (pipeline) {
                 this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0))
             }
         });
     }
 
-    ngOnInit(){
+    ngOnInit() {
 
     }
 

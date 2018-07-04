@@ -3,9 +3,9 @@ import {
     ADD_FILTER,
     CREATE_PIPELINE,
     DELETE_PIPELINE_FAILURE,
-    DELETE_PIPELINE_SUCCESS,
+    DELETE_PIPELINE_SUCCESS, EDIT_PIPELINE,
     EDIT_PIPELINE_FAILURE,
-    EDIT_PIPELINE_SUCCESS, LOAD_ALL_PIPELINES_SUCCESS,
+    EDIT_PIPELINE_SUCCESS, LOAD_ALL_PIPELINES, LOAD_ALL_PIPELINES_SUCCESS,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOCK_EDITING_PIPELINE,
     MOVE_FILTER,
@@ -39,11 +39,16 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case CREATE_PIPELINE:
             result.editingPipeline = {id: action.id, name: action.name, description: action.description, filters: []};
             break;
+        case EDIT_PIPELINE:
+            result.loading = true;
+            break;
         case EDIT_PIPELINE_SUCCESS:
             result.editingPipeline = deepcopy(action.pipelineConfiguration);
+            result.loading = false;
             break;
         case EDIT_PIPELINE_FAILURE:
             result.editingPipeline = {id: action.id, name: "New Pipeline", description: "", filters: []};
+            result.loading = false;
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
@@ -74,11 +79,15 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 result.pipelineList = result.pipelineList.filter(pipeline => action.id != pipeline.id);
             }
             break;
+        case LOAD_ALL_PIPELINES:
+            result.loading = true;
+            break;
         case LOAD_ALL_PIPELINES_SUCCESS:
             result.pipelineList = deepcopy(action.pipelineInstances, []);
             result.pipelineList.sort((a, b) => {
                 return a.name.localeCompare(b.name);
             });
+            result.loading = false;
             break;
         case UPDATE_PIPELINE_POLLING:
             result.pipelineInstancePolling = action.isPolling;

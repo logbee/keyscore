@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {catchError, combineLatest, map, switchMap} from "rxjs/operators";
+import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
 import {Action, State, Store} from "@ngrx/store";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
@@ -24,7 +24,7 @@ import {ActivatedRouteSnapshot} from "@angular/router";
 export class AgentsEffects {
     @Effect() triggerLoadAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
-        switchMap(action => {
+        mergeMap(action => {
             const regex = /\/agent.*/g;
             if (this.handleNavigation(regex,action as RouterNavigationAction)) {
                 return of(new LoadAgentsAction());
@@ -35,7 +35,7 @@ export class AgentsEffects {
 
     @Effect() removeAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
-        switchMap(action => {
+        mergeMap(action => {
                 const agentWithId = /\/agent\/.+/g;
                 if (this.handleNavigation(agentWithId,action as RouterNavigationAction)) {
                     return of(new InspectAgentAction(this.getAgentIdfromRouterAction(action as RouterNavigationAction)));
@@ -47,7 +47,7 @@ export class AgentsEffects {
     @Effect() loadAgents$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_AGENTS),
         combineLatest(this.store.select(selectAppConfig)),
-        switchMap(([action, appConfig]) => {
+        mergeMap(([action, appConfig]) => {
             try {
                 const url: string = appConfig.getString('keyscore.frontier.base-url') + '/agents/';
                 return this.http.get(url).pipe(
