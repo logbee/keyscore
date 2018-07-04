@@ -1,5 +1,5 @@
 
-package io.logbee.keyscore.test
+package io.logbee.keyscore.test.IntegrationTests
 
 import java.io.InputStreamReader
 
@@ -8,11 +8,9 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.agent.pipeline.ExampleData
 import io.logbee.keyscore.agent.pipeline.ExampleData.dataset1
-import io.logbee.keyscore.model.NativeModel.NativeDataset
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
+import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, HealthSerializer}
 import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
@@ -161,38 +159,38 @@ class PipelineIntegrationTest extends Matchers {
     )
 
     runner.http(action => action.client(httpClient)
-        .receive()
-        .response(HttpStatus.ACCEPTED)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
     )
 
 
     runner.http(action => action.client(httpClient)
-          .send()
-          .get(s"/filter/${pipelineOneFilter.id}/extract?value=1")
+      .send()
+      .get(s"/filter/${pipelineOneFilter.id}/extract?value=1")
     )
 
     runner.http(action => action.client(httpClient)
-          .receive()
-          .response(HttpStatus.OK)
-          .validationCallback((message, context) => {
-           val payload = read[Dataset](message.getPayload.asInstanceOf[String])
-            payload shouldBe dataset1
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = read[Dataset](message.getPayload.asInstanceOf[String])
+        payload shouldBe dataset1
       })
     )
 
 
 
-    runner.http(action => action.client(httpClient)
-      .send()
-      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/pause?value=true")
-    )
+    //    runner.http(action => action.client(httpClient)
+    //      .send()
+    //      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/pause?value=true")
+    //    )
+    //
+    //    runner.http(action => action.client(httpClient)
+    //      .receive()
+    //      .response(HttpStatus.ACCEPTED)
+    //    )
 
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.ACCEPTED)
-    )
-
-    //   TODO:  Check if no Data is in ElasticSearchSink
+    //       TODO:  Check if no Data is in ElasticSearchSink
 
 
     //     Delete Pipelines
@@ -224,7 +222,29 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(httpClient)
       .send()
-      .delete(s"/pipeline/configuration/${kafkaToKafkaPipeLineConfig.id}"))
+      .delete(s"/pipeline/configuration/*")
+    )
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get("/pipeline/instance/*")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val instances = read[List[PipelineInstance]](payload)
+        instances should have size 0
+      })
+    )
+
+
   }
 
 
