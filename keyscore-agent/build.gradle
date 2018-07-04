@@ -112,7 +112,7 @@ task startDockerContainer(type: DockerStartContainer) {
 task stopDockerContainer(type: DockerStopContainer) {
     targetContainerId { createDockerContainer.containerName }
     onError { exception ->
-        if (exception.message.contains('No such container')) {
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createDockerContainer.containerName + " has already been stopped")
         } else throw exception
     }
@@ -123,7 +123,7 @@ task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
     targetContainerId { createDockerContainer.containerName }
     onError { exception ->
-        if (exception.message.contains('No such container')) {
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createDockerContainer.containerName + " has already been removed")
         } else throw exception
     }
@@ -133,9 +133,9 @@ task removeDockerContainer(type: DockerRemoveContainer) {
 task stopDockerContainerOnStartup(type: DockerStopContainer) {
     targetContainerId { createDockerContainer.containerName }
     onError { exception ->
-        if (exception.message.contains('No such container')) {
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createDockerContainer.containerName + " has already been stopped")
-        } else throw exception
+        } else if (ex)throw exception
     }
 
 }
@@ -144,7 +144,7 @@ task removeDockerContainerOnStartup(type: DockerRemoveContainer) {
     dependsOn stopDockerContainerOnStartup
     targetContainerId { createDockerContainer.containerName }
     onError { exception ->
-        if (exception.message.contains('No such container')) {
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createDockerContainer.containerName + " has already been removed")
         } else throw exception
     }

@@ -28,7 +28,7 @@ task startContainer(type: DockerStartContainer) {
 task stopContainer(type: DockerStopContainer) {
     targetContainerId { createContainer.containerName }
     onError { exception ->
-        if (exception.message.contains('No such container')) {
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createContainer.containerName + " has already been stopped")
         } else throw exception
     }
@@ -39,7 +39,7 @@ task removeContainer(type: DockerRemoveContainer) {
     dependsOn stopContainer
     targetContainerId { createContainer.containerName }
     onError { exception ->
-        if (exception.message.contains('No such container')) {
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createContainer.containerName + " has already been removed")
         } else throw exception
     }
@@ -49,7 +49,7 @@ task removeContainer(type: DockerRemoveContainer) {
 task stopContainerOnStartup(type: DockerStopContainer) {
     targetContainerId { createContainer.containerName }
     onError { exception ->
-        if (exception.message.contains('No such container')) {
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createContainer.containerName + " has already been stopped")
         } else throw exception
     }
@@ -60,7 +60,7 @@ task removeContainerOnStartup(type: DockerRemoveContainer) {
     dependsOn stopContainerOnStartup
     targetContainerId { createContainer.containerName }
     onError { exception ->
-        if (exception.message.contains('No such container')) {
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createContainer.containerName + " has already been removed")
         } else throw exception
     }
