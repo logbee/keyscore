@@ -3,6 +3,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 apply plugin: 'scala'
@@ -68,7 +69,6 @@ task buildDistribution(type: Copy, dependsOn: [jar]) {
     from(configurations.runtime) {
         into 'libs'
     }
-
 }
 
 task buildDockerfile(type: Dockerfile) {
@@ -82,11 +82,11 @@ task buildDockerfile(type: Dockerfile) {
 task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, buildDockerfile]) {
     inputDir = projectDir
     dockerFile = buildDockerfile.destFile
-    tag = 'logbee/keyscore-frontier:latest'
+    tag = "$dockerImageName:$version"
 }
 
 task createDockerContainer(type: DockerCreateContainer) {
-    dependsOn = ['buildDockerImage']
+    dependsOn buildDockerImage
     containerName = project.name
     targetImageId { buildDockerImage.getImageId() }
     portBindings = ['2551:2551', '4711:4711']
@@ -94,7 +94,7 @@ task createDockerContainer(type: DockerCreateContainer) {
     env = [
             'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
             'KEYSCORE_REMOTE_HOST=keyscore-frontier',
-            'KEYSCORE_REMOTE_PORT=2551',
+            'KEYSCORE_REMOTE_PORT=0',
             'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
     ]
     network = project.findProperty('containerNetwork') ?: 'host'
@@ -146,5 +146,10 @@ task removeDockerContainerOnStartup(type: DockerRemoveContainer) {
             println("Container " + createDockerContainer.containerName + " has already been removed")
         } else throw exception
     }
+}
 
+task pushDockerImage(type: DockerPushImage) {
+    dependsOn buildDockerImage
+    imageName = dockerImageName
+    tag = version
 }

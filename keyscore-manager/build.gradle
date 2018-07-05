@@ -6,8 +6,9 @@ import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 node {
     version = '8.9.4'
@@ -49,7 +50,7 @@ task copyResources(type: Copy) {
 task buildDockerImage(type: DockerBuildImage, dependsOn: [createDockerfile, copyResources, webpack]) {
     inputDir = projectDir
     dockerFile = createDockerfile.destFile
-    tag = 'logbee/keyscore-manager:latest'
+    tag = "$dockerImageName:$version"
 }
 
 task createDockerContainer(type: DockerCreateContainer) {
@@ -71,6 +72,12 @@ task stopDockerContainer(type: DockerStopContainer) {
 task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
     targetContainerId { createDockerContainer.containerName }
+}
+
+task pushDockerImage(type: DockerPushImage) {
+    dependsOn buildDockerImage
+    imageName = dockerImageName
+    tag = version
 }
 
 task build(dependsOn: webpack) {
