@@ -209,14 +209,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case PauseFilter(filterId, doPause) =>
       val lastSender = sender
       controller.close(filterId, doPause).onComplete {
-        case Success(value) => lastSender ! Success
+        case Success(state) => lastSender ! PauseFilterResponse(state)
         case Failure(e) => lastSender ! Failure
       }
 
     case DrainFilterValve(filterId, doDrain) =>
       val lastSender = sender
       controller.drain(filterId, doDrain).onComplete {
-        case Success(value) => lastSender ! Success
+        case Success(state) => lastSender ! DrainFilterResponse(state)
         case Failure(e) => lastSender ! Failure
       }
 
@@ -224,7 +224,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       val lastSender = sender
       log.info(s"Agent: InsertDatasets${datasets}")
       controller.insert(filterId,datasets.map(datasetFromNative)).onComplete {
-        case Success(value) => lastSender ! Success
+        case Success(state) => lastSender ! InsertDatasetsResponse(state)
         case Failure(e) => lastSender ! Failure
       }
 
@@ -239,7 +239,16 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ConfigureFilter(filterId, filterConfig) =>
       val lastSender = sender
       controller.configure(filterId, filterConfig).onComplete {
-        case Success(value) => lastSender ! Success
+        case Success(state) => lastSender ! ConfigureFilterResponse(state)
+        case Failure(e) => lastSender ! Failure
+      }
+
+    case CheckFilterState(filterId) =>
+      val lastSender = sender
+      controller.state(filterId).onComplete {
+        case Success(state) =>
+          lastSender ! CheckFilterStateResponse(state)
+          println(s"Succes: $state")
         case Failure(e) => lastSender ! Failure
       }
   }

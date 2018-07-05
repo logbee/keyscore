@@ -9,7 +9,8 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.{filter, _}
+import io.logbee.keyscore.model.filter.{FilterState, Paused, Running}
 import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, HealthSerializer}
 import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
@@ -22,6 +23,7 @@ import org.scalatest.Matchers
 import org.springframework.http.HttpStatus
 
 import scala.io.Source
+import scala.language.postfixOps
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
@@ -155,6 +157,10 @@ class PipelineIntegrationTest extends Matchers {
     )
 
 
+    // Check FilterState
+
+
+
     // Insert and Extract Case
 
     runner.http(action => action.client(httpClient)
@@ -164,6 +170,21 @@ class PipelineIntegrationTest extends Matchers {
     runner.http(action => action.client(httpClient)
       .receive()
       .response(HttpStatus.ACCEPTED)
+    )
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get(s"/filter/${pipelineOneFilter.id}/state")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val state = read[FilterState](payload)
+        state.health shouldBe Green
+//        state.status shouldBe Paused
+      })
     )
 
     runner.http(action => action.client(httpClient)

@@ -9,8 +9,8 @@ import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextMapParameter}
+import io.logbee.keyscore.model.{Dataset, Green}
+import io.logbee.keyscore.model.filter._
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -63,6 +63,20 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       sink.expectNext(dataset1)
       sink.expectNext(dataset2)
       sink.expectNext(dataset3)
+    }
+
+    "valve computes and sets the throughputTime and totalThroughputTime in valvestate" in new TestSetup {
+      whenReady(controllerFuture) { controller =>
+        source.sendNext(dataset1)
+        sink.request(1)
+
+        whenReady(controller.state()) { state =>
+          state.throughPutTime.toInt should be > 0
+          state.totalThroughputTime.toInt should be > 0
+          state.health shouldBe Green
+          state.status shouldBe Running
+        }
+      }
     }
 
     "close inValve and outValve on pause" in new TestSetup {

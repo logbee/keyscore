@@ -15,7 +15,7 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
 
   def id: UUID = configuration.id
 
-  def configure(id: UUID, configuration: FilterConfiguration): Future[Unit] = {
+  def configure(id: UUID, configuration: FilterConfiguration): Future[FilterState] = {
     lookup(id).configure(configuration)
   }
 
@@ -33,5 +33,9 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
 
   def extract(id: UUID, amount: Int = 1): Future[List[Dataset]] = {
     lookup(id).extract(amount)
+  }
+
+  def state(id: UUID): Future[FilterState] = {
+    lookup(id).state()
   }
 }

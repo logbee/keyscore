@@ -155,7 +155,8 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       compute(throughputTime, PreviousValveTimestamp, dataset)
 
       log.info(s"onPush():$dataset")
-      ringBuffer.push(withNewLabels(dataset))
+      val labeledDataset = withNewLabels(dataset)
+      ringBuffer.push(labeledDataset)
       if (isOpen) {
         pushOut()
       }
@@ -200,8 +201,10 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def compute(median: MovingMedian, timestampLabel: Label[Long], dataset: Dataset): Unit = {
       dataset.label(timestampLabel) match {
-        case Some(timestamp) => median + timestamp
-        case None => median + 0
+        case Some(timestamp) =>
+          median + (nanoTime() - timestamp)
+        case None =>
+          median + 0
       }
     }
 

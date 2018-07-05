@@ -97,7 +97,10 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       availableAgents.keys.foreach(agent => {
         pipelineSchedulerSelector(agent,context) forward message
       })
-
+    case message: CheckFilterState =>
+      availableAgents.keys.foreach(agent => {
+        pipelineSchedulerSelector(agent, context) forward message
+      })
     case  RequestExistingPipelines() =>
       val collector = context.system.actorOf(PipelineInstanceCollector(sender,availableAgents.keys))
       availableAgents.keys.foreach( agent => {

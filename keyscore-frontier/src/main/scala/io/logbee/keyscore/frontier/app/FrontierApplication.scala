@@ -143,7 +143,7 @@ object FrontierApplication extends App with Json4sSupport {
             post {
               parameter('value.as[Boolean]) { doPause =>
                 onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
-                  case Success => complete(StatusCodes.Accepted)
+                  case PauseFilterResponse(state) => complete(StatusCodes.Accepted, state)
                   case Failure => complete(StatusCodes.InternalServerError)
                 }
               }
@@ -153,7 +153,7 @@ object FrontierApplication extends App with Json4sSupport {
               post {
                 parameter('value.as[Boolean]) { doDrain =>
                   onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
-                    case Success => complete(StatusCodes.Accepted)
+                    case DrainFilterResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
@@ -164,7 +164,7 @@ object FrontierApplication extends App with Json4sSupport {
                 entity(as[List[Dataset]]) { datasets =>
                   println("Frontier: Received Insert datasets" + datasets)
                   onSuccess(pipelineManager ? InsertDatasets(filterId, datasets.map(datasetToNative))) {
-                    case Success => complete(StatusCodes.Accepted)
+                    case InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
@@ -184,9 +184,19 @@ object FrontierApplication extends App with Json4sSupport {
               put {
                 entity(as[FilterConfiguration]) { filterConfig =>
                   onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
-                    case Success => complete(StatusCodes.Accepted)
+                    case ConfigureFilterResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
+                }
+              }
+            } ~
+            path("state") {
+              get {
+                onSuccess(pipelineManager ? CheckFilterState(filterId)) {
+                  case CheckFilterStateResponse(state) =>
+                    println(s"Succes: $state")
+                    complete(StatusCodes.Accepted, state)
+                  case _ => complete(StatusCodes.InternalServerError)
                 }
               }
             }

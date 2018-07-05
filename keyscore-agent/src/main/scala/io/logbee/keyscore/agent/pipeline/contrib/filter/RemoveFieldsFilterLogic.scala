@@ -66,7 +66,7 @@ class RemoveFieldsFilterLogic(context: StageContext, configuration: FilterConfig
       listBufferOfRecords += Record(record.id, payload)
     }
     val listOfRecords = listBufferOfRecords.toList
-    push(out, Dataset(listOfRecords))
+    push(out, Dataset(dataset.metaData, listOfRecords))
   }
 
   override def onPull(): Unit = {

@@ -22,10 +22,10 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
   protected val out: Outlet[Dataset] = shape.out
 
   private val filter = new FilterProxy {
-    private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[Unit])] {
+    private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[FilterState])] {
       case (newConfiguration, promise) =>
         FilterLogic.this.configure(newConfiguration)
-        promise.success(())
+        promise.success(FilterLogic.this.state())
         log.info(s"Configuration has been updated: $newConfiguration")
     }
 
@@ -35,8 +35,8 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
 
     override val id: UUID = configuration.id
 
-    override def configure(configuration: FilterConfiguration): Future[Unit] = {
-      val promise = Promise[Unit]()
+    override def configure(configuration: FilterConfiguration): Future[FilterState] = {
+      val promise = Promise[FilterState]()
       log.info(s"Updating filter configuration: $configuration")
       configureCallback.invoke(configuration, promise)
       promise.future

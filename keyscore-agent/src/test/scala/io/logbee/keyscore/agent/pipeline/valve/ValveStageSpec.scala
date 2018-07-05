@@ -27,7 +27,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
   }
 
   class TestWithSourceAndSinkProbe(bufferLimit: Int = 2, testData: List[Dataset]) {
-    val (valveFuture, sink) = Source(List(testData:_*))
+    val (valveFuture, sink) = Source(List(testData: _*))
       .viaMat(new ValveStage(bufferLimit))(Keep.right)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
@@ -116,9 +116,14 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
         whenReady(valve.state()) { state =>
           state.position shouldBe Open
+          state.throughputTime should equal(0)
+          state.totalThroughputTime should equal(0)
+          state.bufferLimit shouldBe a[Integer]
+          state.bufferSize shouldBe a[Integer]
         }
       }
     }
+
 
     "set the drain flag properly" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>
