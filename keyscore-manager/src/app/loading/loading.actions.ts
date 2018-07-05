@@ -15,7 +15,7 @@ export class ShowSpinner implements Action {
 
 export class UpdateRefreshTimeAction implements Action{
     readonly type = UPDATE_REFRESH_TIME;
-    constructor(readonly time:number){
+    constructor(readonly newRefreshTime:number,readonly oldRefreshTime:number){
 
     }
 }

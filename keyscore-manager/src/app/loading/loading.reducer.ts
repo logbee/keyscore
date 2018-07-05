@@ -18,7 +18,7 @@ export function reducer(state: State = initialState, action: LoadingAction) {
         case SPINNER_SHOW:
             return {...state, show: true};
         case UPDATE_REFRESH_TIME:
-            return {...state, refreshTime: action.time};
+            return {...state, refreshTime: action.newRefreshTime};
         default :
             return state;
     }

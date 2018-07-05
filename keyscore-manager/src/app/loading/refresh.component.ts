@@ -5,9 +5,9 @@ import {TranslateService} from "@ngx-translate/core";
     selector: 'refresh-time',
     template: `
         <div class="dropdown">
-            <button class="btn btn-outline-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false" (mouseenter)="setRefreshColor('white')" (mouseleave)="setRefreshColor('blue')">
-                <img src="/assets/images/refresh-time-{{refreshColor}}.svg" height="24px" width="24px"> {{(refreshTime/1000)}}s
+            <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false" >
+                <img src="/assets/images/refresh-time-white.svg" height="24px" width="24px"> {{(refreshTime>0 ? (refreshTime/1000)+'s': ('REFRESHCOMPONENT.OF') | translate)}}
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <a class="dropdown-item" (click)="updateRefreshTime(-1)">{{'REFRESHCOMPONENT.OF' | translate}}</a>
@@ -22,19 +22,14 @@ import {TranslateService} from "@ngx-translate/core";
 
 export class RefreshTimeComponent {
     @Input() refreshTime: number;
-    @Output() update: EventEmitter<number> = new EventEmitter();
-    private refreshColor:string;
+    @Output() update: EventEmitter<{newRefreshTime:number,oldRefreshTime:number}> = new EventEmitter();
 
     constructor(private translate: TranslateService) {
-        this.refreshColor="blue"
     }
 
     updateRefreshTime(time: number) {
-        this.update.emit(time);
+        this.update.emit({newRefreshTime:time,oldRefreshTime:this.refreshTime});
     }
 
-    setRefreshColor(color:string){
-        this.refreshColor = color;
-    }
 
 }

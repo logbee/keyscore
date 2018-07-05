@@ -18,7 +18,7 @@ import {UpdateRefreshTimeAction} from "../loading/loading.actions";
 
                 <div class="row">
                     <div class="col-1 mr-5">
-                        <button type="button" class="btn btn-outline-success" (click)="createPipeline(true)">
+                        <button type="button" class="btn btn-success" (click)="createPipeline(true)">
                             {{'PIPELINECOMPONENT.CREATE' | translate}}
                         </button>
                     </div>
@@ -85,7 +85,7 @@ export class PipelinesComponent implements OnDestroy {
         }
     }
 
-    updateRefreshTime(time: number) {
-        this.store.dispatch(new UpdateRefreshTimeAction(time));
+    updateRefreshTime(refreshTimes:{newRefreshTime:number,oldRefreshTime:number}) {
+        this.store.dispatch(new UpdateRefreshTimeAction(refreshTimes.newRefreshTime,refreshTimes.oldRefreshTime));
     }
 }
