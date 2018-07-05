@@ -10,7 +10,6 @@ import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.FilterState
 import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, HealthSerializer}
 import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
@@ -249,7 +248,8 @@ class PipelineIntegrationTest extends Matchers {
       .response(HttpStatus.ACCEPTED)
     )
 
-    Thread.sleep(2000)
+    Thread.sleep(6000)
+
     runner.http(action => action.client(elasticClient)
       .send()
       .get("/test/_search")
