@@ -30,7 +30,7 @@ import {selectAppConfig} from "../app.config";
 import {FilterDescriptor, getPipelinePolling, PipelineConfiguration, PipelineInstance} from "./pipelines.model";
 import {TranslateService} from "@ngx-translate/core";
 import {toInternalPipelineConfig, toPipelineConfiguration} from "../util";
-import {concat, concatMap, delay, skip, tap} from "rxjs/internal/operators";
+import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
 
 @Injectable()
 export class PipelinesEffects {
@@ -119,13 +119,13 @@ export class PipelinesEffects {
 
     @Effect() loadPipelineInstances$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_ALL_PIPELINES),
-        combineLatest(this.store.select(selectAppConfig)),
-        combineLatest(this.store.select(getPipelinePolling)),
-        concatMap(([[action, config], polling]) =>
+        withLatestFrom(this.store.select(selectAppConfig)),
+        concatMap(([action, config]) =>
             this.http.get(config.getString('keyscore.frontier.base-url') + '/pipeline/instance/*').pipe(
                 concat(of('').pipe(
                     delay(10000),
-                    tap(_ => {
+                    withLatestFrom(this.store.select(getPipelinePolling)),
+                    tap(([_,polling]) => {
                         if (polling) {
                             this.store.dispatch(new LoadAllPipelinesAction());
                         }

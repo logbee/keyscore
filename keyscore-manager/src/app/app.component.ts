@@ -5,9 +5,11 @@ import {AppConfig} from "./app.config";
 import {TranslateService} from "@ngx-translate/core";
 import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
 import './style/style.css';
+import * as fromSpinner from './loading/loading.reducer'
 
 export interface AppState {
-    config: AppConfig
+    config: AppConfig,
+    spinner: fromSpinner.State
 
 }
 

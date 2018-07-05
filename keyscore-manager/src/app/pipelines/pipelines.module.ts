@@ -28,6 +28,8 @@ import {FilterResultComponent} from "./filters/filter-details/live-editing-modul
 import {FilterInformationComponent} from "./pipeline-editor/filter-information.component";
 import {LoadingFullViewComponent} from "../loading/loading-full-view.component";
 import {LoadingComponent} from "../loading/loading.component";
+import {LoadingEffects} from "../loading/loading.effects";
+import {RefreshTimeComponent} from "../loading/refresh.component";
 
 
 export const routes: Routes = [
@@ -49,7 +51,7 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         ReactiveFormsModule,
         RouterModule.forChild(routes),
         StoreModule.forFeature('pipelines', reducers),
-        EffectsModule.forFeature([PipelinesEffects, FilterEffects]),
+        EffectsModule.forFeature([PipelinesEffects, FilterEffects, LoadingEffects]),
         TranslateModule
     ],
     declarations: [
@@ -61,6 +63,7 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         FilterInformationComponent,
         LoadingFullViewComponent,
         LoadingComponent,
+        RefreshTimeComponent,
         ParameterList,
         ParameterMap,
         ParameterComponent,

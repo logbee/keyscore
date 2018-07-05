@@ -66,6 +66,10 @@
   "PARAMETERCOMPONENT" : {
     "ISREQUIRED": "is required"
   },
+
+  "REFRESHCOMPONENT":{
+    "OF":"Of"
+  },
   "LANGUAGES": {
     "LANGUAGE": "Language",
     "GERMAN": "German",

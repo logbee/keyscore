@@ -66,6 +66,9 @@
   "PARAMETERCOMPONENT" : {
     "ISREQUIRED": "wird benötigt"
   },
+  "REFRESHCOMPONENT":{
+    "OF":"Aus"
+  },
   "LANGUAGES": {
   "LANGUAGE": "Sprache",
   "GERMAN": "Deutsch",

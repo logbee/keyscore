@@ -11,7 +11,6 @@ export class PipelinesState {
     pipelineList: Array<PipelineInstance>;
     editingPipeline: InternalPipelineConfiguration;
     editingFilter: FilterConfiguration;
-    loading: boolean;
     filterDescriptors: FilterDescriptor[];
     filterCategories: string[];
     editingPipelineIsLocked: boolean;
@@ -106,8 +105,6 @@ export const getPipelineList = createSelector(getPipelinesState, (state: Pipelin
 export const getEditingPipeline = createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipeline);
 
 export const getEditingPipelineIsLocked = createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipelineIsLocked);
-
-export const isLoading = createSelector(getPipelinesState, (state: PipelinesState) => state.loading);
 
 export const getFilterDescriptors = createSelector(getPipelinesState, (state: PipelinesState) => state.filterDescriptors);
 

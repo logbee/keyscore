@@ -10,7 +10,7 @@ import {
     getEditingPipeline,
     getEditingPipelineIsLocked,
     getFilterCategories,
-    getFilterDescriptors, InternalPipelineConfiguration, isLoading, PipelineConfiguration
+    getFilterDescriptors, InternalPipelineConfiguration, PipelineConfiguration
 } from "../pipelines.model";
 
 import {
@@ -26,6 +26,7 @@ import {
 import {selectAppConfig} from "../../app.config";
 import {Go} from "../../router/router.actions";
 import {LoadFilterDescriptorAction} from "../filters/filters.actions";
+import {isSpinnerShowing} from "../../loading/loading.reducer";
 
 @Component({
     selector: 'pipeline-editor',
@@ -95,7 +96,7 @@ export class PipelineEditorComponent implements OnInit {
 
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
-        this.isLoading$ = this.store.select(isLoading);
+        this.isLoading$ = this.store.select(isSpinnerShowing);
         this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
         this.pipeline$.subscribe(pipeline => {

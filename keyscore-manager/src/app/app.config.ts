@@ -10,7 +10,7 @@ import {TranslateService} from "@ngx-translate/core";
 
 export const CONFIG_LOADED = '[AppConfig] Loaded';
 export const CONFIG_FAILURE = '[AppConfig] Failure';
-export const LANGUAGE_INIT = '[AppConfig] LanguageInitialised'
+export const LANGUAGE_INIT = '[AppConfig] LanguageInitialised';
 
 export class AppConfigLoaded implements Action {
     readonly type = CONFIG_LOADED;
@@ -109,12 +109,11 @@ export class AppConfigLoader{
             this.http.get('application.conf').subscribe(
                 data => {
                     this.store.dispatch(new AppConfigLoaded(data));
-                    data
                     resolve();
                 },
                 err => {
                     this.store.dispatch(new AppConfigFailure(err));
-                    resolve(true);
+                    resolve();
 
                 }
 
