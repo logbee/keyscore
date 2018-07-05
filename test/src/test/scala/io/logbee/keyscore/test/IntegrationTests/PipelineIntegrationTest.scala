@@ -9,8 +9,8 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter
 import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.filter.FilterState
 import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, HealthSerializer}
 import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
@@ -33,7 +33,7 @@ class PipelineIntegrationTest extends Matchers {
     .requestUrl("http://localhost:4711")
     .build()
 
-    private val elasticClient: HttpClient = CitrusEndpoints.http()
+  private val elasticClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:9200")
     .build()
@@ -218,16 +218,19 @@ class PipelineIntegrationTest extends Matchers {
         payload should have size 3
       })
     )
-
     runner.http(action => action.client(httpClient)
       .send()
-      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/pause?value=false")
+      .post(s"/filter/${pipelineOneFilter.id}/pause?value=false")
     )
 
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
 
     runner.http(action => action.client(httpClient)
       .send()
-      .post(s"/filter/${kafkaToKafkaPipeLineConfig.filter.head.id}/drain?value=false")
+      .post(s"/filter/${pipelineOneFilter.id}/drain?value=false")
     )
 
 
@@ -246,7 +249,7 @@ class PipelineIntegrationTest extends Matchers {
       .response(HttpStatus.ACCEPTED)
     )
 
-    Thread.sleep(1000)
+    Thread.sleep(2000)
     runner.http(action => action.client(elasticClient)
       .send()
       .get("/test/_search")
@@ -263,6 +266,10 @@ class PipelineIntegrationTest extends Matchers {
       }))
 
     //     Delete Pipelines
+
+    runner.http(action => action.client(elasticClient)
+      .send()
+      .delete("/test"))
 
     runner.http(action => action.client(httpClient)
       .send()
@@ -312,10 +319,7 @@ class PipelineIntegrationTest extends Matchers {
         instances should have size 0
       })
     )
-
-//
   }
-
 
 }
 
