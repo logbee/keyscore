@@ -16,7 +16,7 @@ const initialState: State = {
     loadingActionsCounter: 0
 };
 
-export function reducer(state: State = initialState, action: LoadingAction) {
+export function reducer(state: State = initialState, action: LoadingAction): State {
     switch (action.type) {
         case SPINNER_HIDE:
             return {...state, show: state.loadingActionsCounter > 0 };

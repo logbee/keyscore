@@ -18,6 +18,11 @@
     "PIPELINES": "Pipelines",
     "FILTERS": "Filters"
   },
+  "SETTINGS": {
+    "DIALOG_TITLE": "Settings",
+    "GROUP_GENERAL_TITLE": "General",
+    "GROUP_FEATURES_TITLE": "Features"
+  },
   "AGENTSDETAILS": {
     "DETAILEDVIEW": "Detailed View:",
     "AGENTID": "Agentid:",

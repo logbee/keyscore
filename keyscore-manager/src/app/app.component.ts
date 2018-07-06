@@ -6,11 +6,13 @@ import * as fromSpinner from "./loading/loading.reducer";
 import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
 import {ModalService} from "./services/modal.service";
 import "./style/style.css";
+import {SettingsComponent} from "./settings/settings.component";
+import {SettingsState} from "./settings/settings.model";
 
 export interface AppState {
     config: AppConfig;
+    settings: SettingsState;
     spinner: fromSpinner.State;
-
 }
 
 @Component({
@@ -48,6 +50,14 @@ export interface AppState {
                             {{'LANGUAGES.ENGLISH' | translate}}
                         </span>
                     </div>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <button type="button" class="nav-link btn btn-primary" (click)="showSettings()">
+                        <img src="/assets/images/ic_settings_white_24px.svg"
+                             width="24px" height="24px"/>
+                    </button>
                 </li>
             </ul>
         </nav>
@@ -92,4 +102,7 @@ export class AppComponent {
         this.translate.use(language);
     }
 
+    protected showSettings() {
+        this.modalService.show(SettingsComponent)
+    }
 }

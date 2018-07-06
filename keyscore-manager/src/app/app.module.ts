@@ -20,6 +20,7 @@ import {metaReducers} from "./meta.reducers";
 import {FilterChooser} from "./pipelines/pipeline-editor/filter-chooser/filter-chooser.component";
 import {PipelinesModule} from "./pipelines/pipelines.module";
 import {RouterEffects} from "./router/router.effects";
+import {SettingsComponent} from "./settings/settings.component";
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
@@ -57,7 +58,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         AppComponent,
         DashboardComponent,
         FilterChooser,
-
+        SettingsComponent
     ],
     providers: [
         AppConfigLoader,
@@ -68,6 +69,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     ],
     entryComponents: [
         FilterChooser,
+        SettingsComponent
     ],
     bootstrap: [
         AppComponent

@@ -51,7 +51,8 @@ export class AppConfigEffects {
     );
 
     constructor(private http: HttpClient,
-                private actions$: Actions, private translate: TranslateService) {
+                private actions$: Actions,
+                private translate: TranslateService) {
     }
 }
 
