@@ -23,9 +23,11 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 ext.dockerRegestryUser = System.getProperty("logbee.quay.user")
 ext.dockerRegestryPassword = System.getProperty("logbee.quay.password")
 ext.dockerRegestryUrl = 'https://quay.io/'
+ext.dockerRegestryUserIsDefined = dockerRegestryUser == null || dockerRegestryUser.empty
+ext.dockerRegestryPasswordIsDefined = dockerRegestryPassword == null || dockerRegestryPassword.empty
 
-if (dockerRegestryUser == null || dockerRegestryUser.empty) logger.warn("No registry credentials for: $dockerRegestryUrl - logbee.quay.user is not set.")
-if (dockerRegestryPassword == null || dockerRegestryPassword.empty) logger.warn("No registry credentials for: $dockerRegestryUrl - logbee.quay.password is not set.")
+if (!dockerRegestryUserIsDefined) logger.warn("No registry credentials for: $dockerRegestryUrl - logbee.quay.user is not set.")
+if (!dockerRegestryPasswordIsDefined) logger.warn("No registry credentials for: $dockerRegestryUrl - logbee.quay.password is not set.")
 
 subprojects {
 
@@ -37,7 +39,7 @@ subprojects {
     apply plugin: 'com.bmuschko.docker-remote-api'
 
     docker {
-        if (System.hasProperty("logbee.quay.user") && System.hasProperty("logbee.quay.password")) {
+        if (dockerRegestryUserIsDefined && dockerRegestryPasswordIsDefined) {
             registryCredentials {
                 url = "https://quay.io/"
                 username = "$dockerRegestryUser"
