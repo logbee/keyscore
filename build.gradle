@@ -20,14 +20,14 @@ buildscript {
 apply plugin: 'idea'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
-ext.dockerRegestryUser = System.getProperty("logbee.quay.user")
-ext.dockerRegestryPassword = System.getProperty("logbee.quay.password")
-ext.dockerRegestryUrl = 'https://quay.io/'
-ext.dockerRegestryUserIsDefined = dockerRegestryUser == null || dockerRegestryUser.empty
-ext.dockerRegestryPasswordIsDefined = dockerRegestryPassword == null || dockerRegestryPassword.empty
+ext.dockerRegistryUser = System.getProperty("logbee.quay.user")
+ext.dockerRegistryPassword = System.getProperty("logbee.quay.password")
+ext.dockerRegistryUrl = 'https://quay.io/'
+ext.dockerRegistryUserIsDefined = dockerRegistryUser == null || dockerRegistryUser.empty
+ext.dockerRegistryPasswordIsDefined = dockerRegistryPassword == null || dockerRegistryPassword.empty
 
-if (!dockerRegestryUserIsDefined) logger.warn("No registry credentials for: $dockerRegestryUrl - logbee.quay.user is not set.")
-if (!dockerRegestryPasswordIsDefined) logger.warn("No registry credentials for: $dockerRegestryUrl - logbee.quay.password is not set.")
+if (!dockerRegistryUserIsDefined) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.user is not set.")
+if (!dockerRegistryPasswordIsDefined) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.password is not set.")
 
 subprojects {
 
@@ -39,12 +39,12 @@ subprojects {
     apply plugin: 'com.bmuschko.docker-remote-api'
 
     docker {
-        if (dockerRegestryUserIsDefined && dockerRegestryPasswordIsDefined) {
-            logger.info("Registry credentials set for: $dockerRegestryUrl")
+        if (dockerRegistryUserIsDefined && dockerRegistryPasswordIsDefined) {
+            logger.info("Registry credentials set for: $dockerRegistryUrl")
             registryCredentials {
-                url = dockerRegestryUrl
-                username = "$dockerRegestryUser"
-                password = "$dockerRegestryPassword"
+                url = dockerRegistryUrl
+                username = "$dockerRegistryUser"
+                password = "$dockerRegistryPassword"
             }
         }
     }
