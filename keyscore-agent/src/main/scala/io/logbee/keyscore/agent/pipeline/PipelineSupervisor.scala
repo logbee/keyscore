@@ -208,49 +208,48 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case PauseFilter(filterId, doPause) =>
       val lastSender = sender
-      controller.close(filterId, doPause).onComplete {
+      controller.close(filterId, doPause).foreach(_.onComplete {
         case Success(state) => lastSender ! PauseFilterResponse(state)
         case Failure(e) => lastSender ! Failure
-      }
+      })
 
     case DrainFilterValve(filterId, doDrain) =>
       val lastSender = sender
-      controller.drain(filterId, doDrain).onComplete {
+      controller.drain(filterId, doDrain).foreach(_.onComplete {
         case Success(state) => lastSender ! DrainFilterResponse(state)
         case Failure(e) => lastSender ! Failure
-      }
+      })
 
     case InsertDatasets(filterId, datasets) =>
       val lastSender = sender
       log.info(s"Agent: InsertDatasets${datasets}")
-      controller.insert(filterId,datasets.map(datasetFromNative)).onComplete {
+      controller.insert(filterId,datasets.map(datasetFromNative)).foreach(_.onComplete {
         case Success(state) => lastSender ! InsertDatasetsResponse(state)
         case Failure(e) => lastSender ! Failure
-      }
+      })
 
     case ExtractDatasets(filterId, amount) =>
       val lastSender = sender
       log.info(s"Agent: ExtractedDatasets amount $amount")
-      controller.extract(filterId, amount).onComplete {
+      controller.extract(filterId, amount).foreach(_.onComplete {
         case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets.map(datasetToNative))
         case Failure(e) => lastSender ! Failure
-      }
+      })
 
     case ConfigureFilter(filterId, filterConfig) =>
       val lastSender = sender
-      controller.configure(filterId, filterConfig).onComplete {
+      controller.configure(filterId, filterConfig).foreach(_.onComplete {
         case Success(state) => lastSender ! ConfigureFilterResponse(state)
         case Failure(e) => lastSender ! Failure
-      }
+      })
 
     case CheckFilterState(filterId) =>
       val lastSender = sender
-      controller.state(filterId).onComplete {
+      controller.state(filterId).foreach(_.onComplete {
         case Success(state) =>
           lastSender ! CheckFilterStateResponse(state)
-          println(s"Succes: $state")
         case Failure(e) => lastSender ! Failure
-      }
+      })
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {
