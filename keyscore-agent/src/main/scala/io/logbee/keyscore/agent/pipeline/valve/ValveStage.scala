@@ -188,7 +188,6 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def update(newState: ValveState): ValveState = {
       if (!state.equals(newState)) {
-        log.info(s"Valve <$id> changed state from: $state to $newState")
         state = newState
       }
       state

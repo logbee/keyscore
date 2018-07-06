@@ -222,7 +222,6 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case InsertDatasets(filterId, datasets) =>
       val lastSender = sender
-      log.info(s"Agent: InsertDatasets${datasets}")
       controller.insert(filterId,datasets.map(datasetFromNative)).foreach(_.onComplete {
         case Success(state) => lastSender ! InsertDatasetsResponse(state)
         case Failure(e) => lastSender ! Failure
@@ -230,7 +229,6 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case ExtractDatasets(filterId, amount) =>
       val lastSender = sender
-      log.info(s"Agent: ExtractedDatasets amount $amount")
       controller.extract(filterId, amount).foreach(_.onComplete {
         case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets.map(datasetToNative))
         case Failure(e) => lastSender ! Failure

@@ -161,7 +161,6 @@ object FrontierApplication extends App with Json4sSupport {
             path("insert") {
               put {
                 entity(as[List[Dataset]]) { datasets =>
-                  println("Frontier: Received Insert datasets" + datasets)
                   onSuccess(pipelineManager ? InsertDatasets(filterId, datasets.map(datasetToNative))) {
                     case
                       InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
