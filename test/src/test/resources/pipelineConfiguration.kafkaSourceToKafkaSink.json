@@ -62,7 +62,7 @@
     "parameters": [
       {
         "name": "bootstrapServer",
-        "value": "kafka-keyscore:9092",
+        "value": "keyscore-kafka:9092",
         "jsonClass": "string"
       },
       {
@@ -134,7 +134,7 @@
   },
   "filter": [
     {
-      "id": "be87bc3d-e6ee-4bfc-95a1-176338213acc",
+      "id": "b3ddfd8a-1e3c-4362-a21b-5960230da04d",
       "descriptor": {
         "id": "9a6f5fd0-a21b-4056-7a2a-344e3b4e2488",
         "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter",
