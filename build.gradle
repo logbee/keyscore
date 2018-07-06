@@ -20,8 +20,8 @@ buildscript {
 apply plugin: 'idea'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
-ext.dockerRegistryUser = System.getProperty("logbee.quay.user")
-ext.dockerRegistryPassword = System.getProperty("logbee.quay.password")
+ext.dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
+ext.dockerRegistryPassword = getBuildPropertyValue("logbee.quay.password")
 ext.dockerRegistryUrl = 'https://quay.io/'
 ext.dockerRegistryUserIsDefined = dockerRegistryUser == null || dockerRegistryUser.empty
 ext.dockerRegistryPasswordIsDefined = dockerRegistryPassword == null || dockerRegistryPassword.empty
@@ -67,4 +67,14 @@ task createContainerNetwork(type: DockerCreateNetwork) {
         setupDockerNetwork.createNetwork
     }
     networkId = project.properties['containerNetwork']
+}
+
+task foo {
+
+}
+
+static def getBuildPropertyValue(String name) {
+    def env = System.getenv()
+    def envName = name.toUpperCase().replace('.', '_')
+    return env.containsKey(envName) ? env.get(envName) : System.getProperty(name)
 }
