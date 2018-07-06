@@ -1,8 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
-import {Store} from "@ngrx/store";
 import {Observable} from "rxjs";
 import {Go} from "../../router/router.actions";
+import {Store} from "@ngrx/store";
+import {selectAppConfig} from "../../app.config";
+import {filter} from "rxjs/internal/operators";
 import {ParameterControlService} from "../../services/parameter-control.service";
 import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.model";
 
@@ -33,9 +35,11 @@ import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.
                                 *ngIf="!editing && !(isEditingPipelineLocked$|async)"
                                 (click)="editFilter(filter.id)">{{'GENERAL.EDIT' | translate}}
                         </button>
-                        <button type="button" class="btn btn-info" *ngIf="editing" (click)="callLiveEditing(filter)">
-                            <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
-                        </button>
+                            <button type="button" class="btn btn-info" *ngIf="editing && liveEditingFlag && isGrokFilter"
+                                    (click)="callLiveEditing(filter)">
+                                <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
+                            </button>
+
                         <button type="button" [disabled]="form.invalid" class="btn btn-success" *ngIf="editing"
                                 (click)="saveFilter(filter,form.value)"><img src="/assets/images/ic_save_white.svg"
                                                                              alt="Save"/>
@@ -81,6 +85,8 @@ export class PipelineFilterComponent implements OnInit {
     public editing: boolean = false;
     public payLoad: string = "";
     public form: FormGroup;
+    public liveEditingFlag: boolean;
+    public isGrokFilter:boolean = false;
 
     @Output() private update: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> =
         new EventEmitter();
@@ -88,12 +94,15 @@ export class PipelineFilterComponent implements OnInit {
     @Output() private remove: EventEmitter<FilterConfiguration> = new EventEmitter();
     @Output() private liveEdit: EventEmitter<FilterConfiguration> = new EventEmitter();
 
-    constructor(private parameterService: ParameterControlService) {
-
+    constructor(private parameterService: ParameterControlService, private store: Store<any>) {
+        let config = this.store.select(selectAppConfig);
+        config.subscribe(conf => this.liveEditingFlag = conf.getBoolean('keyscore.manager.live-editing'));
+        console.log(this.liveEditingFlag);
     }
 
-    public ngOnInit() {
+    ngOnInit() {
         this.form = this.parameterService.toFormGroup(this.parameters, this.filter.parameters);
+        this.isGrokFilter = this.filter.descriptor.name == "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic"
     }
 
     public removeFilter(filter: FilterConfiguration) {
