@@ -35,7 +35,8 @@ import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.
                                 *ngIf="!editing && !(isEditingPipelineLocked$|async)"
                                 (click)="editFilter(filter.id)">{{'GENERAL.EDIT' | translate}}
                         </button>
-                            <button type="button" class="btn btn-info" *ngIf="editing && liveEditingFlag && isGrokFilter"
+                            <button type="button" class="btn btn-info"
+                                    *ngIf="editing && liveEditingFlag && isGrokFilter"
                                     (click)="callLiveEditing(filter)">
                                 <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
                             </button>
@@ -64,10 +65,8 @@ import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.
                     <div class="form-row" *ngIf="payLoad">
                         {{'PIPELINECOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
                     </div>
-
                 </form>
             </div>
-
         </div>
     `,
     providers: [
@@ -86,7 +85,7 @@ export class PipelineFilterComponent implements OnInit {
     public payLoad: string = "";
     public form: FormGroup;
     public liveEditingFlag: boolean;
-    public isGrokFilter:boolean = false;
+    public isGrokFilter: boolean = false;
 
     @Output() private update: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> =
         new EventEmitter();
@@ -95,18 +94,19 @@ export class PipelineFilterComponent implements OnInit {
     @Output() private liveEdit: EventEmitter<FilterConfiguration> = new EventEmitter();
 
     constructor(private parameterService: ParameterControlService, private store: Store<any>) {
-        let config = this.store.select(selectAppConfig);
-        config.subscribe(conf => this.liveEditingFlag = conf.getBoolean('keyscore.manager.live-editing'));
+        const config = this.store.select(selectAppConfig);
+        config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.live-editing"));
         console.log(this.liveEditingFlag);
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.form = this.parameterService.toFormGroup(this.parameters, this.filter.parameters);
-        this.isGrokFilter = this.filter.descriptor.name == "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic"
+        this.isGrokFilter = this.filter.descriptor.name ===
+            "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic";
     }
 
-    public removeFilter(filter: FilterConfiguration) {
-        this.remove.emit(filter);
+    public removeFilter(filterConfiguration: FilterConfiguration) {
+        this.remove.emit(filterConfiguration);
     }
 
     public moveFilter(id: string, position: number) {
@@ -129,8 +129,8 @@ export class PipelineFilterComponent implements OnInit {
         this.form.setValue(resetFormValues);
     }
 
-    public callLiveEditing(filter: FilterConfiguration) {
-        this.liveEdit.emit(filter);
+    public callLiveEditing(filterConfiguration: FilterConfiguration) {
+        this.liveEdit.emit(filterConfiguration);
     }
 
 }
