@@ -22,4 +22,4 @@ script:
 - gradle check --continue -Dlogbee.quay.user=$LOGBEE_QUAY_USER -Dlogbee.quay.password=$LOGBEE_QUAY_PASSWORD
 
 after_success:
-- gradle pushDockerImage -Pversion=$TRAVIS_BRANCH -Dlogbee.quay.user=$LOGBEE_QUAY_USER -Dlogbee.quay.password=$LOGBEE_QUAY_PASSWORD
+- gradle pushDockerImage -Pversion=$TRAVIS_BRANCH -Dlogbee.quay.user=$LOGBEE_QUAY_USER -Dlogbee.quay.password=$LOGBEE_QUAY_PASSWORD --info

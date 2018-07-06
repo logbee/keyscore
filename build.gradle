@@ -40,8 +40,9 @@ subprojects {
 
     docker {
         if (dockerRegestryUserIsDefined && dockerRegestryPasswordIsDefined) {
+            logger.info("Registry credentials set for: $dockerRegestryUrl")
             registryCredentials {
-                url = "https://quay.io/"
+                url = dockerRegestryUrl
                 username = "$dockerRegestryUser"
                 password = "$dockerRegestryPassword"
             }
