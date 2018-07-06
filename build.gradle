@@ -22,6 +22,11 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 
 ext.dockerRegestryUser = System.getProperty("logbee.quay.user")
 ext.dockerRegestryPassword = System.getProperty("logbee.quay.password")
+ext.dockerRegestryUrl = 'https://quay.io/'
+
+if (!System.hasProperty("logbee.quay.user") || !System.hasProperty("logbee.quay.password")) {
+    logger.warn("No registry credentials for: $dockerRegestryUrl")
+}
 
 subprojects {
 
