@@ -33,10 +33,12 @@ subprojects {
     apply plugin: 'com.bmuschko.docker-remote-api'
 
     docker {
-        registryCredentials {
-            url = "https://quay.io/"
-            username = "$dockerRegestryUser"
-            password = "$dockerRegestryPassword"
+        if (System.hasProperty("logbee.quay.user") && System.hasProperty("logbee.quay.password")) {
+            registryCredentials {
+                url = "https://quay.io/"
+                username = "$dockerRegestryUser"
+                password = "$dockerRegestryPassword"
+            }
         }
     }
 }
