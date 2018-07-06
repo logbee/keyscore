@@ -1,11 +1,13 @@
 import {Component, Input} from "@angular/core";
-import {FilterDescriptor} from "../pipelines.model";
+import {FilterDescriptor, InternalPipelineConfiguration} from "../pipelines.model";
 
 @Component({
     selector: "filter-information",
     template: `
         <div class="card">
-            <div class="card-header" style="font-size: 22px">{{selectedFilter.displayName}}</div>
+            <div class="card-header" style="font-size: 22px">
+                {{selectedFilter.displayName ? selectedFilter.displayName : selectedFilter.name}}
+            </div>
             <div class="card-body">{{selectedFilter.description}}</div>
             <div class="card-footer"></div>
         </div>
@@ -13,5 +15,5 @@ import {FilterDescriptor} from "../pipelines.model";
 })
 
 export class FilterInformationComponent {
-    @Input() public selectedFilter: FilterDescriptor;
+    @Input() public selectedFilter: FilterDescriptor | InternalPipelineConfiguration;
 }

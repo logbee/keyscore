@@ -80,6 +80,7 @@ import {
                                [filterDescriptors$]="filterDescriptors$"
                                [categories$]="categories$"
                                [pipeline]="(pipeline$ | async)"
+                               [isLoading$]="isLoading$"
                                (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
         </div>
     `,

@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
 import {Blockly} from "node-blockly/browser";
-import {combineLatest, Observable, ReplaySubject} from "rxjs";
-import {map, startWith} from "rxjs/internal/operators";
+import {BehaviorSubject, combineLatest, Observable, ReplaySubject} from "rxjs";
+import {filter, first, last, map, startWith, take} from "rxjs/internal/operators";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
 import {
     FilterDescriptor, InternalPipelineConfiguration, PipelineConfiguration
@@ -56,6 +56,7 @@ export class BlocklyComponent implements OnInit {
     @Input() public pipeline: InternalPipelineConfiguration;
     @Input() public filterDescriptors$: Observable<FilterDescriptor[]>;
     @Input() public categories$: Observable<string[]>;
+    @Input() public isLoading$: Observable<boolean>;
 
     @Output() public update: EventEmitter<PipelineConfiguration> = new EventEmitter();
     @Output() public remove: EventEmitter<string> = new EventEmitter();
@@ -66,27 +67,21 @@ export class BlocklyComponent implements OnInit {
     private blocklyArea;
     private toolbox: any;
 
-    private selectedFilter$: Observable<FilterDescriptor>;
-    private selectedBlockName$: ReplaySubject<string> = new ReplaySubject();
+    private selectedFilter$: Observable<FilterDescriptor | InternalPipelineConfiguration>;
+    private selectedBlockName$: BehaviorSubject<string> = new BehaviorSubject("pipeline_configuration");
 
     constructor(private toolbarBuilder: ToolBarBuilderService, private translate: TranslateService) {
 
     }
 
     public ngOnInit(): void {
-        this.initBlockly();
+        this.isLoading$.pipe(first((b) => b === false))
+            .subscribe((_) => this.initBlockly());
 
         this.selectedFilter$ = combineLatest(this.selectedBlockName$, this.filterDescriptors$).pipe(
-            map(([name, descriptors]) => descriptors.filter((d) => d.name === name)[0]),
-            startWith({
-                name: "StartDummy",
-                displayName: "Pipeline configuration",
-                description: "Choose a filter from the toolbox to get started!",
-                previousConnection: null,
-                nextConnection: null,
-                parameters: [],
-                category: null
-            }));
+            map(([name, descriptors]) =>
+                name === "pipeline_configuration" ? this.pipeline : descriptors.filter((d) => d.name === name)[0])
+        );
 
     }
 
@@ -102,8 +97,8 @@ export class BlocklyComponent implements OnInit {
     }
 
     private onWorkspaceChange(e: any) {
-        if (e.element === "selected") {
-            this.updateSelectedBlock(e.newValue);
+        if (e instanceof Blockly.Events.Create || e.element === "click") {
+            this.updateSelectedBlock(e.block ? e.block.blockId : e.blockId);
         }
     }
 
@@ -121,6 +116,8 @@ export class BlocklyComponent implements OnInit {
     private initBlockly() {
         this.blocklyDiv = document.getElementById("blocklyDiv");
         this.blocklyArea = document.getElementById("blocklyArea");
+        this.toolbarBuilder.createPipelineBlock();
+
         combineLatest(this.filterDescriptors$, this.categories$).subscribe(([descriptors, categories]) => {
             let currentWorkspace;
             if (typeof this.workspace !== "undefined") {
@@ -144,10 +141,8 @@ export class BlocklyComponent implements OnInit {
                     }
             });
             this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
-            this.toolbarBuilder.createPipelineBlock();
             const pipelineBlockXml =
                 '<xml><block type="pipeline_configuration" deletable="false" movable="false"></block></xml>';
-
             Blockly.Xml.domToWorkspace(
                 typeof currentWorkspace === "undefined" ?
                     Blockly.Xml.textToDom(pipelineBlockXml) :
@@ -162,9 +157,10 @@ export class BlocklyComponent implements OnInit {
     }
 
     private updateSelectedBlock(blockId: string) {
+
         if (blockId != null) {
             const block = this.workspace.getBlockById(blockId);
-            if (block.type !== "pipeline_configuration") { this.selectedBlockName$.next(block.type); }
+            this.selectedBlockName$.next(block.type);
         }
 
     }
