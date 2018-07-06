@@ -1,7 +1,7 @@
-import {Component, Input} from "@angular/core";
+import {Component} from "@angular/core";
 
 @Component({
-    selector: 'example-message',
+    selector: "example-message",
     template: `
         <div class="card mt-3">
             <div class="card-header alert-light font-weight-bold">
@@ -19,7 +19,4 @@ import {Component, Input} from "@angular/core";
 })
 
 export class ExampleMessageComponent {
-
-    constructor() {
-    }
 }

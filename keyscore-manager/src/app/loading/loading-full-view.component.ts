@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 
 @Component({
-    selector: 'loading-full-view',
+    selector: "loading-full-view",
     template: `
         <div class="loading-background">
             <div class="row justify-content-center">
@@ -23,7 +23,7 @@ import {Component} from "@angular/core";
                 </div>
             </div>
         </div>
-    `
+    `,
 })
 
 export class LoadingFullViewComponent {

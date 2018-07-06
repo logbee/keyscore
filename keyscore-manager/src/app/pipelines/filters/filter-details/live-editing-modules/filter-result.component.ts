@@ -1,7 +1,7 @@
 import {Component, Input} from "@angular/core";
 
 @Component({
-    selector: 'filter-result',
+    selector: "filter-result",
     template: `
         <div class="card mt-3">
             <div class="card-header alert-light font-weight-bold">
@@ -29,14 +29,10 @@ import {Component, Input} from "@angular/core";
                     </table>
                 </div>
             </div>
-        </div>       
+        </div>
     `
 })
 
 export class FilterResultComponent {
 
-    constructor() {
-    }
 }
-
-

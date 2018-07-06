@@ -1,5 +1,5 @@
-import 'jquery'
-import {ComponentFactoryResolver, ComponentRef, Injectable, ViewContainerRef} from '@angular/core'
+import {ComponentFactoryResolver, ComponentRef, Injectable, ViewContainerRef} from "@angular/core";
+import "jquery";
 
 /*
  * The mechanism to add/show components dynamically based on:
@@ -16,7 +16,7 @@ export class ModalService {
     }
 
     public setRootViewContainerRef(viewContainerRef: ViewContainerRef) {
-        this.modalViewContainer = viewContainerRef
+        this.modalViewContainer = viewContainerRef;
     }
 
     public show(componentType: any) {
@@ -27,8 +27,8 @@ export class ModalService {
         this.modalViewContainer.insert(this.component.hostView);
 
         // it's ugly but works...
-        jQuery('.modal').modal('show');
-        jQuery('.modal').on('hide.bs.modal', function (e) {
+        jQuery(".modal").modal("show");
+        jQuery(".modal").on("hide.bs.modal", (e) => {
             if (o.component) {
                 o.component.destroy();
                 o.component = null;
@@ -37,6 +37,6 @@ export class ModalService {
     }
 
     public close() {
-        jQuery('.modal').modal('hide');
+        jQuery(".modal").modal("hide");
     }
 }

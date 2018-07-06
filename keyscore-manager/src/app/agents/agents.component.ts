@@ -1,13 +1,13 @@
-import {Component} from '@angular/core';
-import {AgentModel, AgentsState, getAgents} from "./agents.model";
+import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs";
-import {InspectAgentAction, LoadAgentsAction} from "./agents.actions";
 import {Go} from "../router/router.actions";
+import {InspectAgentAction, LoadAgentsAction} from "./agents.actions";
+import {AgentModel, AgentsState, getAgents} from "./agents.model";
 
 @Component({
-    selector: 'keyscore-agents',
-    template: `        
+    selector: "keyscore-agents",
+    template: `
         <div class="row justify-content-center">
             <div class="col-10">
                 <div class="card">
@@ -59,11 +59,11 @@ export class AgentsComponent {
         this.agents$ = this.store.select(getAgents);
     }
 
-    reload() {
-        this.store.dispatch(new LoadAgentsAction())
+    public reload() {
+        this.store.dispatch(new LoadAgentsAction());
     }
 
-    inspect(id: string) {
-        this.store.dispatch(new Go({path: ['/agent/' + id + '/']}))
+    public inspect(id: string) {
+        this.store.dispatch(new Go({path: ["/agent/" + id + "/"]}));
     }
 }

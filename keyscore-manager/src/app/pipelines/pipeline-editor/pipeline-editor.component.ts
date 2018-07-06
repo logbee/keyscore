@@ -1,18 +1,23 @@
-import {Component, OnInit} from '@angular/core';
-import {Location} from '@angular/common';
-import {Observable} from "rxjs";
+import {Location} from "@angular/common";
+import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
+import {Observable} from "rxjs";
 import {ModalService} from "../../services/modal.service";
-import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 import {
     FilterConfiguration,
     FilterDescriptor,
     getEditingPipeline,
     getEditingPipelineIsLocked,
     getFilterCategories,
-    getFilterDescriptors, InternalPipelineConfiguration, PipelineConfiguration
+    getFilterDescriptors,
+    InternalPipelineConfiguration,
+    PipelineConfiguration,
 } from "../pipelines.model";
+import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 
+import {selectAppConfig} from "../../app.config";
+import {isSpinnerShowing} from "../../loading/loading.reducer";
+import {Go} from "../../router/router.actions";
 import {
     DeletePipelineAction,
     LoadFilterDescriptorsAction,
@@ -21,15 +26,13 @@ import {
     RemoveFilterAction,
     ResetPipelineAction,
     UpdateFilterAction,
-    UpdatePipelineAction, UpdatePipelineWithBlocklyAction
+    UpdatePipelineAction,
+    UpdatePipelineWithBlocklyAction,
 } from "../pipelines.actions";
-import {selectAppConfig} from "../../app.config";
-import {Go} from "../../router/router.actions";
-import {LoadFilterDescriptorAction} from "../filters/filters.actions";
-import {isSpinnerShowing} from "../../loading/loading.reducer";
 
 @Component({
-    selector: 'pipeline-editor',
+    selector: "pipeline-editor",
+    styles: [".filter-component{transition: 0.25s ease-in-out;}"],
     template: `
         <loading-full-view *ngIf="isLoading$|async"></loading-full-view>
         <div *ngIf="!(isLoading$|async)" class="row justify-content-center">
@@ -47,7 +50,9 @@ import {isSpinnerShowing} from "../../loading/loading.reducer";
             <div *ngIf="!blocklyFlag" class="col-9">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <span class="font-weight-bold">{{'PIPELINEEDITORCOMPONENT.PIPELINEBLUEPRINT' | translate}}</span>
+                        <span class="font-weight-bold">
+                            {{'PIPELINEEDITORCOMPONENT.PIPELINEBLUEPRINT' | translate}}
+                        </span>
                         <div *ngIf="!(isLocked$ | async)">
                             <button class="btn btn-success" (click)="addFilter(null)">
                                 {{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}
@@ -77,86 +82,77 @@ import {isSpinnerShowing} from "../../loading/loading.reducer";
                                (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
         </div>
     `,
-    styles: ['.filter-component{transition: 0.25s ease-in-out;}'],
-    providers: []
 })
-export class PipelineEditorComponent implements OnInit {
-    pipeline$: Observable<InternalPipelineConfiguration>;
-    isLocked$: Observable<boolean>;
-    filterDescriptors$: Observable<FilterDescriptor[]>;
-    categories$: Observable<string[]>;
-    blocklyFlag: boolean;
-    isLoading$: Observable<boolean>;
+export class PipelineEditorComponent {
+    public pipeline$: Observable<InternalPipelineConfiguration>;
+    public isLocked$: Observable<boolean>;
+    public filterDescriptors$: Observable<FilterDescriptor[]>;
+    public categories$: Observable<string[]>;
+    public blocklyFlag: boolean;
+    public isLoading$: Observable<boolean>;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
-        let config = this.store.select(selectAppConfig);
-        config.subscribe(conf => this.blocklyFlag = conf.getBoolean('keyscore.manager.blockly'));
+        const config = this.store.select(selectAppConfig);
+        config.subscribe((conf) => this.blocklyFlag = conf.getBoolean("keyscore.manager.blockly"));
 
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
         this.isLoading$ = this.store.select(isSpinnerShowing);
         this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
-        this.pipeline$.subscribe(pipeline => {
+        this.pipeline$.subscribe((pipeline) => {
             if (pipeline) {
-                this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0))
+                this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0));
             }
         });
     }
 
-    ngOnInit() {
-
-    }
-
-
-    addFilter(pipeline: InternalPipelineConfiguration) {
+    public addFilter(pipeline: InternalPipelineConfiguration) {
         this.modalService.show(FilterChooser);
     }
 
-    deletePipeline(pipeline: InternalPipelineConfiguration) {
+    public deletePipeline(pipeline: InternalPipelineConfiguration) {
         this.store.dispatch(new DeletePipelineAction(pipeline.id));
         this.location.back();
     }
 
-    updatePipeline(pipeline: InternalPipelineConfiguration) {
+    public updatePipeline(pipeline: InternalPipelineConfiguration) {
         this.store.dispatch(new UpdatePipelineAction({
             id: pipeline.id,
             name: pipeline.name,
             description: pipeline.description,
-            filters: pipeline.filters
+            filters: pipeline.filters,
         }));
     }
 
-    updatePipelineWithBlockly(pipelineConfiguration: PipelineConfiguration) {
+    public updatePipelineWithBlockly(pipelineConfiguration: PipelineConfiguration) {
         this.store.dispatch(new UpdatePipelineWithBlocklyAction(pipelineConfiguration));
     }
 
-    resetPipeline(pipeline: InternalPipelineConfiguration) {
+    public resetPipeline(pipeline: InternalPipelineConfiguration) {
         this.store.dispatch(new ResetPipelineAction(pipeline.id));
     }
 
-    setLocked(locked: boolean, pipeline: InternalPipelineConfiguration) {
-        //this.isLocked = locked;
+    public setLocked(locked: boolean, pipeline: InternalPipelineConfiguration) {
+        // this.isLocked = locked;
         this.store.dispatch(new LockEditingPipelineAction(locked));
     }
 
-    moveFilter(filter: { id: string, position: number }) {
+    public moveFilter(filter: { id: string, position: number }) {
         this.store.dispatch(new MoveFilterAction(filter.id, filter.position));
     }
 
-
-    updateFilter(update: { filterConfiguration: FilterConfiguration, values: any }) {
-        console.log(JSON.stringify(update));
+    public updateFilter(update: { filterConfiguration: FilterConfiguration, values: any }) {
         this.store.dispatch(new UpdateFilterAction(update.filterConfiguration, update.values));
     }
 
-    removeFilter(filter: FilterConfiguration) {
+    public removeFilter(filter: FilterConfiguration) {
         this.store.dispatch(new RemoveFilterAction(filter.id));
     }
 
-    callLiveEditing(filter: FilterConfiguration) {
-        this.store.dispatch(new Go({path: ['pipelines/filter/' + filter.id + '/']}));
+    public callLiveEditing(filter: FilterConfiguration) {
+        this.store.dispatch(new Go({path: ["pipelines/filter/" + filter.id + "/"]}));
     }
 }

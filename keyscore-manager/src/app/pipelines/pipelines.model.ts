@@ -1,45 +1,45 @@
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 
-//-----------------------Pipelines---------------------------
+// -----------------------Pipelines---------------------------
 
 export class PipelinesModuleState {
-    pipelines: PipelinesState;
-    filter: FilterState;
+    public pipelines: PipelinesState;
+    public filter: FilterState;
 }
 
 export class PipelinesState {
-    pipelineList: Array<PipelineInstance>;
-    editingPipeline: InternalPipelineConfiguration;
-    editingFilter: FilterConfiguration;
-    filterDescriptors: FilterDescriptor[];
-    filterCategories: string[];
-    editingPipelineIsLocked: boolean;
-    pipelineInstancePolling:boolean;
+    public pipelineList: PipelineInstance[];
+    public editingPipeline: InternalPipelineConfiguration;
+    public editingFilter: FilterConfiguration;
+    public filterDescriptors: FilterDescriptor[];
+    public filterCategories: string[];
+    public editingPipelineIsLocked: boolean;
+    public pipelineInstancePolling: boolean;
 }
 
 export interface FilterState {
-    filterId: string
+    filterId: string;
 }
 
-export interface PipelineInstance{
-    id:string;
+export interface PipelineInstance {
+    id: string;
     name: string;
-    description:string;
-    configurationId:string;
-    health:Health;
+    description: string;
+    configurationId: string;
+    health: Health;
 }
 
-export enum Health{
+export enum Health {
     Green,
     Yellow,
     Red
 }
 
-export interface InternalPipelineConfiguration{
-    id:string;
-    name:string;
-    description:string;
-    filters:FilterConfiguration[];
+export interface InternalPipelineConfiguration {
+    id: string;
+    name: string;
+    description: string;
+    filters: FilterConfiguration[];
 }
 
 export interface PipelineConfiguration {
@@ -51,10 +51,10 @@ export interface PipelineConfiguration {
     sink: FilterConfiguration;
 }
 
-//-----------------------Filter---------------------------
+// -----------------------Filter---------------------------
 export interface FilterConfiguration {
     id: string;
-    descriptor: FilterDescriptor
+    descriptor: FilterDescriptor;
     parameters: Parameter[];
 }
 
@@ -73,8 +73,7 @@ export interface FilterConnection {
     connectionType: string[];
 }
 
-
-//------------------Parameter Descriptors------------------
+// ------------------Parameter Descriptors------------------
 
 export interface ParameterDescriptor {
     name: string;
@@ -84,7 +83,7 @@ export interface ParameterDescriptor {
     value?: any;
 }
 
-//------------------Parameter for Configuration------------------
+// ------------------Parameter for Configuration------------------
 
 export interface Parameter {
     name: string;
@@ -92,28 +91,41 @@ export interface Parameter {
     jsonClass: string;
 }
 
-export const getPipelinesModuleState = createFeatureSelector<PipelinesModuleState>('pipelines');
+export const getPipelinesModuleState = createFeatureSelector<PipelinesModuleState>("pipelines");
 
-export const getPipelinesState = createSelector(getPipelinesModuleState, (state: PipelinesModuleState) => state.pipelines);
+export const getPipelinesState = createSelector(getPipelinesModuleState,
+    (state: PipelinesModuleState) => state.pipelines);
 
-export const getFilterState = createSelector(getPipelinesModuleState, (state: PipelinesModuleState) => state.filter);
+export const getFilterState = createSelector(getPipelinesModuleState,
+    (state: PipelinesModuleState) => state.filter);
 
-export const getFilterId = createSelector(getFilterState, (state: FilterState) => state.filterId);
+export const getFilterId = createSelector(getFilterState,
+    (state: FilterState) => state.filterId);
 
-export const getPipelineList = createSelector(getPipelinesState, (state: PipelinesState) => state.pipelineList);
+export const getPipelineList = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.pipelineList);
 
-export const getEditingPipeline = createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipeline);
+export const getEditingPipeline = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.editingPipeline);
 
-export const getEditingPipelineIsLocked = createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipelineIsLocked);
+export const getEditingPipelineIsLocked = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.editingPipelineIsLocked);
 
-export const getFilterDescriptors = createSelector(getPipelinesState, (state: PipelinesState) => state.filterDescriptors);
+export const getFilterDescriptors = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.filterDescriptors);
 
-export const getFilterCategories = createSelector(getPipelinesState, (state: PipelinesState) => state.filterCategories);
+export const getFilterCategories = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.filterCategories);
 
-export const getEditingFilterParameters = createSelector(getPipelinesState, (state: PipelinesState) => state.editingFilter.parameters);
+export const getEditingFilterParameters = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.editingFilter.parameters);
 
-export const getEditingFilter = createSelector(getPipelinesState, (state: PipelinesState) => state.editingFilter);
+export const getEditingFilter = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.editingFilter);
 
-export const getFilterById = (id) => createSelector(getPipelinesState, (state: PipelinesState) => state.editingPipeline.filters.find((filter: FilterConfiguration) => filter.id === id));
+export const getFilterById = (id) => createSelector(getPipelinesState,
+    (state: PipelinesState) =>
+        state.editingPipeline.filters.find((filter: FilterConfiguration) => filter.id === id));
 
-export const getPipelinePolling = createSelector(getPipelinesState,(state:PipelinesState)=>state.pipelineInstancePolling);
+export const getPipelinePolling = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.pipelineInstancePolling);

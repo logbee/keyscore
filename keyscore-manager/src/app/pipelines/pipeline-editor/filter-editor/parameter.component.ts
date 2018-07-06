@@ -1,10 +1,9 @@
-import {Component, Input} from '@angular/core';
-import {FormGroup} from '@angular/forms';
+import {Component, Input} from "@angular/core";
+import {FormGroup} from "@angular/forms";
 import {Parameter, ParameterDescriptor} from "../../pipelines.model";
 
-
 @Component({
-    selector: 'app-parameter',
+    selector: "app-parameter",
     template: `
         <div [formGroup]="form">
             <label [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
@@ -37,9 +36,9 @@ import {Parameter, ParameterDescriptor} from "../../pipelines.model";
     `
 })
 export class ParameterComponent {
-    @Input() parameterDescriptor: ParameterDescriptor;
-    @Input() parameter: Parameter;
-    @Input() form: FormGroup;
+    @Input() public parameterDescriptor: ParameterDescriptor;
+    @Input() public parameter: Parameter;
+    @Input() public form: FormGroup;
 
     get isValid() {
         return this.form.controls[this.parameterDescriptor.name].valid;

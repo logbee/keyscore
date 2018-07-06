@@ -1,9 +1,9 @@
-import {FilterState} from "../pipelines.model"
-import {CONFIGURE_FILTER, FiltersActions, LOCK_FILTER} from "./filters.actions";
 import {resetFakeAsyncZone} from "@angular/core/testing";
+import {FilterState} from "../pipelines.model";
+import {CONFIGURE_FILTER, FiltersActions, LOCK_FILTER} from "./filters.actions";
 
 const initialState: FilterState = {
-    filterId: ''
+    filterId: ""
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {

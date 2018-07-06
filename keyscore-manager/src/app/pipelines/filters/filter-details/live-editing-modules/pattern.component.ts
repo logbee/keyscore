@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 @Component({
-    selector: 'pattern',
+    selector: "pattern",
     template: `
         <div class="card mt-3">
             <div class="card-header alert-light font-weight-bold">
@@ -12,7 +12,8 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
                     <textarea placeholder="{{'FILTERLIVEEDITINGCOMPONENT.REGEX_PLACEHOLDER' | translate}}"
                               class="form-control" rows="1"></textarea>
                 </div>
-                <button class="float-right btn primary btn-info" (click)="applyConfiguration('TestStringForRegex')"> {{'GENERAL.APPLY' | translate}}</button>
+                <button class="float-right btn primary btn-info"
+                        (click)="applyConfiguration('TestStringForRegex')"> {{'GENERAL.APPLY' | translate}}</button>
             </div>
         </div>
     `
@@ -20,16 +21,9 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 export class PatternComponent {
 
-    @Output() apply: EventEmitter<string> = new EventEmitter();
+    @Output() public apply: EventEmitter<string> = new EventEmitter();
 
-    constructor() {
-    }
-
-    applyConfiguration(regex: string) {
-        this.apply.emit(regex)
+    public applyConfiguration(regex: string) {
+        this.apply.emit(regex);
     }
 }
-
-
-
-

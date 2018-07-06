@@ -1,13 +1,13 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.model";
-import {ParameterControlService} from "../../services/parameter-control.service";
 import {FormControl, FormGroup} from "@angular/forms";
+import {Store} from "@ngrx/store";
 import {Observable} from "rxjs";
 import {Go} from "../../router/router.actions";
-import {Store} from "@ngrx/store";
+import {ParameterControlService} from "../../services/parameter-control.service";
+import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.model";
 
 @Component({
-    selector: 'pipeline-filter',
+    selector: "pipeline-filter",
     template: `
         <div class="card mb-1">
             <div class="card-title">
@@ -72,61 +72,56 @@ import {Store} from "@ngrx/store";
 })
 export class PipelineFilterComponent implements OnInit {
 
-    @Input() isEditingPipelineLocked$: Observable<boolean>;
-    @Input() filter: FilterConfiguration;
-    @Input() index: number;
-    @Input() filterCount: number;
-    @Input() parameters: ParameterDescriptor[];
+    @Input() public isEditingPipelineLocked$: Observable<boolean>;
+    @Input() public filter: FilterConfiguration;
+    @Input() public index: number;
+    @Input() public parameters: ParameterDescriptor[];
+    @Input() public filterCount: number;
 
-    @Output() update: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> = new EventEmitter();
-    @Output() move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
-    @Output() remove: EventEmitter<FilterConfiguration> = new EventEmitter();
-    @Output() liveEdit: EventEmitter<FilterConfiguration> = new EventEmitter();
+    public editing: boolean = false;
+    public payLoad: string = "";
+    public form: FormGroup;
 
-    editing: boolean = false;
-    payLoad: string = '';
-    form: FormGroup;
-
+    @Output() private update: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> =
+        new EventEmitter();
+    @Output() private move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
+    @Output() private remove: EventEmitter<FilterConfiguration> = new EventEmitter();
+    @Output() private liveEdit: EventEmitter<FilterConfiguration> = new EventEmitter();
 
     constructor(private parameterService: ParameterControlService) {
 
     }
 
-    ngOnInit() {
-        this.form = this.parameterService.toFormGroup(this.parameters,this.filter.parameters);
+    public ngOnInit() {
+        this.form = this.parameterService.toFormGroup(this.parameters, this.filter.parameters);
     }
 
-    removeFilter(filter: FilterConfiguration) {
+    public removeFilter(filter: FilterConfiguration) {
         this.remove.emit(filter);
     }
 
-    moveFilter(id: string, position: number) {
+    public moveFilter(id: string, position: number) {
         this.move.emit({id, position});
     }
 
-    editFilter(id: string) {
+    public editFilter(id: string) {
         this.editing = true;
     }
 
-    saveFilter(filterConfiguration: FilterConfiguration, values: any) {
+    public saveFilter(filterConfiguration: FilterConfiguration, values: any) {
         console.log(JSON.stringify(values));
-        this.update.emit({filterConfiguration: filterConfiguration, values});
+        this.update.emit({filterConfiguration, values});
     }
 
-    cancelEditing() {
+    public cancelEditing() {
         this.editing = false;
-        let resetFormValues = {};
-        this.filter.descriptor.parameters.forEach(p => resetFormValues[p.name] = p.value ? p.value : '');
+        const resetFormValues = {};
+        this.filter.descriptor.parameters.forEach((p) => resetFormValues[p.name] = p.value ? p.value : "");
         this.form.setValue(resetFormValues);
     }
 
-    callLiveEditing(filter: FilterConfiguration) {
+    public callLiveEditing(filter: FilterConfiguration) {
         this.liveEdit.emit(filter);
     }
 
-    enableFilter() {
-    }
-
-    disableFilter() {
-    }
 }

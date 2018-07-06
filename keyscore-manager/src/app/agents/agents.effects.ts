@@ -1,66 +1,64 @@
-import {Injectable} from "@angular/core";
-import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
-import {Action, State, Store} from "@ngrx/store";
-import {Actions, Effect, ofType} from "@ngrx/effects";
-import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
-import {ROUTER_NAVIGATION} from "@ngrx/router-store";
-import {of} from "rxjs";
-import {Observable} from "rxjs";
-import {AppState} from "../app.component";
 import {HttpClient} from "@angular/common/http";
+import {Injectable} from "@angular/core";
+import {Actions, Effect, ofType} from "@ngrx/effects";
+import {ROUTER_NAVIGATION} from "@ngrx/router-store";
+import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
+import {Action, Store} from "@ngrx/store";
+import {Observable, of} from "rxjs";
+import {withLatestFrom} from "rxjs/internal/operators";
+import {catchError, map, mergeMap} from "rxjs/operators";
+import {AppState} from "../app.component";
+import {selectAppConfig} from "../app.config";
 import {
     InspectAgentAction,
     LOAD_AGENTS,
     LoadAgentsAction,
     LoadAgentsFailureAction,
-    LoadAgentsSuccessAction,
-    RemoveCurrentAgentAction
+    LoadAgentsSuccessAction
 } from "./agents.actions";
-import {selectAppConfig} from "../app.config";
 import {AgentModel} from "./agents.model";
-import {ActivatedRouteSnapshot} from "@angular/router";
 
 @Injectable()
 export class AgentsEffects {
-    @Effect() triggerLoadAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
+    @Effect() public triggerLoadAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
-        mergeMap(action => {
+        mergeMap((action) => {
             const regex = /\/agent.*/g;
-            if (this.handleNavigation(regex,action as RouterNavigationAction)) {
+            if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 return of(new LoadAgentsAction());
             }
             return of();
         })
     );
 
-    @Effect() removeAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
+    @Effect() public removeAgentsOnNavigation$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
-        mergeMap(action => {
+        mergeMap((action) => {
                 const agentWithId = /\/agent\/.+/g;
-                if (this.handleNavigation(agentWithId,action as RouterNavigationAction)) {
-                    return of(new InspectAgentAction(this.getAgentIdfromRouterAction(action as RouterNavigationAction)));
+                if (this.handleNavigation(agentWithId, action as RouterNavigationAction)) {
+                    return of(new InspectAgentAction(
+                        this.getAgentIdfromRouterAction(action as RouterNavigationAction)
+                    ));
                 }
                 return of();
             }
         ));
 
-    @Effect() loadAgents$: Observable<Action> = this.actions$.pipe(
+    @Effect() public loadAgents$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_AGENTS),
-        combineLatest(this.store.select(selectAppConfig)),
+        withLatestFrom(this.store.select(selectAppConfig)),
         mergeMap(([action, appConfig]) => {
             try {
-                const url: string = appConfig.getString('keyscore.frontier.base-url') + '/agents/';
+                const url: string = appConfig.getString("keyscore.frontier.base-url") + "/agents/";
                 return this.http.get(url).pipe(
-                    map(data => new LoadAgentsSuccessAction((data as AgentModel[]))),
+                    map((data) => new LoadAgentsSuccessAction((data as AgentModel[]))),
                     catchError((cause: any) => of(new LoadAgentsFailureAction(cause)))
                 );
-            }
-            catch (exception) {
+            } catch (exception) {
                 return of(new LoadAgentsFailureAction(exception));
             }
         })
     );
-
 
     constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient) {
 
@@ -71,7 +69,7 @@ export class AgentsEffects {
 
     }
 
-    private getAgentIdfromRouterAction(action:RouterNavigationAction){
+    private getAgentIdfromRouterAction(action: RouterNavigationAction) {
         return action.payload.routerState.root.firstChild.firstChild.url[0].path;
     }
 }

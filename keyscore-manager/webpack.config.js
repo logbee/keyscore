@@ -9,6 +9,16 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.ts$/,
+                enforce: 'pre',
+                use: [
+                    {
+                        loader: 'tslint-loader',
+                        options: { /* Loader options go here */ }
+                    }
+                ]
+            },
+            {
                 test: /\.tsx?$/,
                 use: 'ts-loader',
                 exclude: /node_modules/

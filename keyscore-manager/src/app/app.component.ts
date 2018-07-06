@@ -1,21 +1,20 @@
-import {Component, ViewChild, ViewContainerRef} from '@angular/core';
-import {ModalService} from "./services/modal.service";
+import {Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {Store} from "@ngrx/store";
-import {AppConfig} from "./app.config";
 import {TranslateService} from "@ngx-translate/core";
+import {AppConfig} from "./app.config";
+import * as fromSpinner from "./loading/loading.reducer";
 import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
-import './style/style.css';
-import * as fromSpinner from './loading/loading.reducer'
+import {ModalService} from "./services/modal.service";
+import "./style/style.css";
 
 export interface AppState {
-    config: AppConfig,
-    spinner: fromSpinner.State
+    config: AppConfig;
+    spinner: fromSpinner.State;
 
 }
 
-
 @Component({
-    selector: 'my-app',
+    selector: "my-app",
     template: `
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <a class="navbar-brand" href="#" style="text-transform: uppercase">{{'GENERAL.APPNAME' | translate}}</a>
@@ -36,11 +35,18 @@ export interface AppState {
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                        <img  class="mr-2" src="/assets/images/flags/{{translate.currentLang}}.svg" width="24px" height="16px"/>
+                        <img  class="mr-2" src="/assets/images/flags/{{translate.currentLang}}.svg"
+                              width="24px" height="16px"/>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('de')"><img  class="mr-2" src="/assets/images/flags/de.svg" width="24px" height="16px" >{{'LANGUAGES.GERMAN' | translate}}</span>
-                        <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('en')"><img class="mr-2" src="/assets/images/flags/en.svg" width="24px" height="16px" >{{'LANGUAGES.ENGLISH' | translate}}</span>
+                        <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('de')">
+                            <img  class="mr-2" src="/assets/images/flags/de.svg" width="24px" height="16px" >
+                            {{'LANGUAGES.GERMAN' | translate}}
+                        </span>
+                        <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('en')">
+                            <img class="mr-2" src="/assets/images/flags/en.svg" width="24px" height="16px" >
+                            {{'LANGUAGES.ENGLISH' | translate}}
+                        </span>
                     </div>
                 </li>
             </ul>
@@ -64,9 +70,9 @@ export interface AppState {
 
 export class AppComponent {
 
-    @ViewChild('modal', {
+    @ViewChild("modal", {
         read: ViewContainerRef
-    }) viewContainerRef: ViewContainerRef;
+    }) public viewContainerRef: ViewContainerRef;
 
     private modalService: ModalService;
     private store: Store<any>;
@@ -76,16 +82,14 @@ export class AppComponent {
         this.modalService = modalService;
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.modalService.setRootViewContainerRef(this.viewContainerRef);
     }
 
-
-    private setLanguage(language: string) {
+    public setLanguage(language: string) {
         this.translate.use(language);
         this.store.dispatch(new LoadFilterDescriptorsAction());
         this.translate.use(language);
     }
-
 
 }

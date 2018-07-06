@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "tslint:recommended",
+    "rxjs-tslint-rules"
+  ],
+  "defaultSeverity": "warning",
+  "rules": {
+    "rxjs-no-unsafe-switchmap": {
+      "severity": "error"
+    },
+    "max-classes-per-file": [false],
+    "object-literal-sort-keys": false,
+    "trailing-comma": false,
+    "interface-name": false,
+    "ordered-imports": false
+  },
+  "jsRules": {
+    "no-console": {
+      "severity": "warning",
+      "options" : [true]
+    }
+  }
+}

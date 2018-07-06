@@ -1,158 +1,166 @@
 import {Injectable} from "@angular/core";
-import {
-    FilterConfiguration, FilterDescriptor, Parameter,
-    ParameterDescriptor, PipelineConfiguration
-} from "../../pipelines/pipelines.model";
 import {Blockly} from "node-blockly/browser";
-import {v4 as uuid} from 'uuid';
+import {v4 as uuid} from "uuid";
 import {
-    extractFirstJSONObjectFromString, extractTopLevelJSONObjectsFromString,
-    mapFromSeparatedString
-} from "../../util";
-
+    FilterConfiguration,
+    FilterDescriptor,
+    Parameter,
+    ParameterDescriptor,
+    PipelineConfiguration
+} from "../../pipelines/pipelines.model";
+import {extractTopLevelJSONObjectsFromString, mapFromSeparatedString} from "../../util";
 
 declare var Blockly: any;
 
 @Injectable()
 export class ToolBarBuilderService {
 
-    constructor() {
-    }
+    public createToolbar(filterDescriptors: FilterDescriptor[], categories: string[]): string {
+        const parser = new DOMParser();
+        const serializer = new XMLSerializer();
+        const xml = '<xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;"></xml>';
+        const xmlDoc = parser.parseFromString(xml, "text/xml");
 
-    createToolbar(filterDescriptors: FilterDescriptor[], categories: string[]): string {
-        let parser = new DOMParser();
-        let serializer = new XMLSerializer();
-        let xml = '<xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;"></xml>';
-        let xmlDoc = parser.parseFromString(xml, "text/xml");
-
-        categories.forEach((cat,index,array) => {
-            let currentXmlCategory = xmlDoc.createElement("category");
+        categories.forEach((cat, index, array) => {
+            const currentXmlCategory = xmlDoc.createElement("category");
             currentXmlCategory.setAttribute("name", cat);
-            currentXmlCategory.setAttribute("colour",this.calculateColor(index,array.length).toString());
-            filterDescriptors.forEach(descriptor => {
+            currentXmlCategory.setAttribute("colour", this.calculateColor(index, array.length).toString());
+            filterDescriptors.forEach((descriptor) => {
                 if (descriptor.category === cat) {
-                    let color = this.calculateColor(index,array.length);
-                    this.createBlock(descriptor,color,array);
-                    let currentXmlBlock = xmlDoc.createElement("block");
+                    const color = this.calculateColor(index, array.length);
+                    this.createBlock(descriptor, color, array);
+                    const currentXmlBlock = xmlDoc.createElement("block");
                     currentXmlBlock.setAttribute("type", descriptor.name);
                     currentXmlCategory.appendChild(currentXmlBlock);
                 }
-            })
+            });
             xmlDoc.getElementById("toolbox").appendChild(currentXmlCategory);
-        })
+        });
 
-        let xmlString = serializer.serializeToString(xmlDoc);
+        const xmlString = serializer.serializeToString(xmlDoc);
         return xmlString;
     }
 
-    createPipelineBlock() {
-        Blockly.Blocks['pipeline_configuration'] = {
-            init: function () {
+    public createPipelineBlock() {
+        Blockly.Blocks.pipeline_configuration = {
+            init() {
                 this.setColour(45);
-                this.appendDummyInput().appendField('Pipeline name: ')
-                    .appendField(new Blockly.FieldTextInput('New Pipeline'),'PIPELINE_NAME');
-                this.appendDummyInput().appendField('Pipeline description: ')
-                    .appendField(new Blockly.FieldTextInput('description'),'PIPELINE_DESCRIPTION');
-                this.appendStatementInput('FILTER').appendField('Filter').setCheck('pipeline_base');
+                this.appendDummyInput().appendField("Pipeline name: ")
+                    .appendField(new Blockly.FieldTextInput("New Pipeline"), "PIPELINE_NAME");
+                this.appendDummyInput().appendField("Pipeline description: ")
+                    .appendField(new Blockly.FieldTextInput("description"), "PIPELINE_DESCRIPTION");
+                this.appendStatementInput("FILTER").appendField("Filter").setCheck("pipeline_base");
 
             }
         };
 
-        Blockly.JavaScript['pipeline_configuration'] = function(block:Blockly.Block){
-            let id:string = "0";
-            let name:string = block.getFieldValue('PIPELINE_NAME');
-            let description:string = block.getFieldValue('PIPELINE_DESCRIPTION');
-            let filterConfigurations:FilterConfiguration[] = extractTopLevelJSONObjectsFromString(Blockly.JavaScript.statementToCode(block,'FILTER')) as FilterConfiguration[];
+        Blockly.JavaScript.pipeline_configuration = (block: Blockly.Block) => {
+            const id: string = "0";
+            const name: string = block.getFieldValue("PIPELINE_NAME");
+            const description: string = block.getFieldValue("PIPELINE_DESCRIPTION");
+            const filterConfigurations: FilterConfiguration[] =
+                extractTopLevelJSONObjectsFromString(
+                    Blockly.JavaScript.statementToCode(block, "FILTER")
+                ) as FilterConfiguration[];
 
-            let pipeline:PipelineConfiguration = {
-                id:id,
-                name:name,
-                description:description,
-                source:filterConfigurations[0],
-                sink:filterConfigurations[filterConfigurations.length-1],
-                filter:filterConfigurations.slice(1,filterConfigurations.length-1)
-            }
+            const pipeline: PipelineConfiguration = {
+                id,
+                name,
+                description,
+                source: filterConfigurations[0],
+                sink: filterConfigurations[filterConfigurations.length - 1],
+                filter: filterConfigurations.slice(1, filterConfigurations.length - 1)
+            };
 
             return JSON.stringify(pipeline);
 
-
-        }
+        };
     }
 
-    private createBlock(descriptor: FilterDescriptor,color:number,categories:string[]) {
-        let that = this;
+    private createBlock(descriptor: FilterDescriptor, color: number, categories: string[]) {
+        const that = this;
         Blockly.Blocks[descriptor.name] = {
-            init: function () {
-                this.setPreviousStatement(descriptor.previousConnection.isPermitted, descriptor.previousConnection.connectionType.length ? descriptor.previousConnection.connectionType : categories);
-                this.setNextStatement(descriptor.nextConnection.isPermitted,descriptor.nextConnection.connectionType.length ? descriptor.nextConnection.connectionType : categories);
+            init() {
+                this.setPreviousStatement(
+                    descriptor.previousConnection.isPermitted,
+                    descriptor.previousConnection.connectionType.length ?
+                        descriptor.previousConnection.connectionType :
+                        categories);
+                this.setNextStatement(
+                    descriptor.nextConnection.isPermitted,
+                    descriptor.nextConnection.connectionType.length ?
+                        descriptor.nextConnection.connectionType :
+                        categories);
                 this.setColour(color);
                 this.appendDummyInput()
                     .appendField(descriptor.displayName);
                 this.setTooltip(descriptor.description);
-                descriptor.parameters.forEach(p => {
+                descriptor.parameters.forEach((p) => {
                     switch (p.kind) {
-                        case 'text':
-                            this.appendDummyInput().appendField(p.displayName).appendField(new Blockly.FieldTextInput(p.displayName), p.name);
+                        case "text":
+                            this.appendDummyInput().appendField(p.displayName)
+                                .appendField(new Blockly.FieldTextInput(p.displayName), p.name);
                             break;
-                        case 'int':
-                            this.appendDummyInput().appendField(p.displayName).appendField(new Blockly.FieldNumber('0'), p.name);
+                        case "int":
+                            this.appendDummyInput().appendField(p.displayName)
+                                .appendField(new Blockly.FieldNumber("0"), p.name);
                             break;
-                        case 'boolean':
-                            this.appendDummyInput().appendField(p.displayName).appendField(new Blockly.FieldCheckbox('FALSE'), p.name);
+                        case "boolean":
+                            this.appendDummyInput().appendField(p.displayName)
+                                .appendField(new Blockly.FieldCheckbox("FALSE"), p.name);
                             break;
                         default:
-                            this.appendDummyInput().appendField(p.displayName).appendField(new Blockly.FieldTextInput(p.displayName),p.name);
+                            this.appendDummyInput().appendField(p.displayName)
+                                .appendField(new Blockly.FieldTextInput(p.displayName), p.name);
                             break;
 
-
                     }
-                })
+                });
             }
         };
 
-        Blockly.JavaScript[descriptor.name] = function(block:Blockly.Block){
-            let parameters = descriptor.parameters.map(p => {
+        Blockly.JavaScript[descriptor.name] = (block: Blockly.Block) => {
+            const parameters = descriptor.parameters.map((p) => {
                 p.value = block.getFieldValue(p.name);
                 return p;
-            }).map(p => that.parameterDescriptorToParameter(p));
+            }).map((p) => that.parameterDescriptorToParameter(p));
 
-            let filterConfig:FilterConfiguration = {
-                id:uuid(),
-                descriptor:descriptor,
-                parameters:parameters
+            const filterConfig: FilterConfiguration = {
+                id: uuid(),
+                descriptor,
+                parameters
             };
 
             return JSON.stringify(filterConfig);
-        }
-
+        };
 
     }
 
     private parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
         let type = parameterDescriptor.kind;
         switch (type) {
-            case 'list':
-                type = 'list[string]';
-                parameterDescriptor.value = parameterDescriptor.value.split(',');
+            case "list":
+                type = "list[string]";
+                parameterDescriptor.value = parameterDescriptor.value.split(",");
                 break;
-            case 'map':
-                type = 'map[string,string]';
-                parameterDescriptor.value = mapFromSeparatedString(parameterDescriptor.value,',',':');
+            case "map":
+                type = "map[string,string]";
+                parameterDescriptor.value = mapFromSeparatedString(
+                    parameterDescriptor.value, ",", ":"
+                );
                 break;
-            case 'text':
-                type = 'string';
+            case "text":
+                type = "string";
                 break;
-            case 'int':
+            case "int":
                 parameterDescriptor.value = +parameterDescriptor.value;
                 break;
         }
         return {name: parameterDescriptor.name, value: parameterDescriptor.value, jsonClass: type};
     }
 
-    private calculateColor(currentCategory:number, categoryCount:number){
-        return 360/categoryCount*currentCategory;
+    private calculateColor(currentCategory: number, categoryCount: number) {
+        return 360 / categoryCount * currentCategory;
     }
-
-
 
 }

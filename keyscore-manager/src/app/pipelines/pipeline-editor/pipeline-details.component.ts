@@ -3,16 +3,16 @@ import {Observable} from "rxjs";
 import {InternalPipelineConfiguration} from "../pipelines.model";
 
 @Component({
-    selector: 'pipeline-details',
+    selector: "pipeline-details",
     template: `
         <div class="card">
             <div class="card-header">
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 *ngIf="(locked$|async)" class="font-weight-bold">{{pipeline.name}}</h4>
-                        <input class="form-control" *ngIf="!(locked$ | async)" placeholder="Name" [(ngModel)]="pipeline.name"/>
+                        <input class="form-control" *ngIf="!(locked$ | async)" placeholder="Name"
+                               [(ngModel)]="pipeline.name"/>
                     </div>
-
                 </div>
                 <div>
                     <small class="">{{pipeline.id}}</small>
@@ -25,8 +25,8 @@ import {InternalPipelineConfiguration} from "../pipelines.model";
             </div>
             <div class="card-footer d-flex justify-content-between">
                 <div *ngIf="!(locked$ | async)">
-                        <button type="button" class="btn btn-danger" (click)="deletePipeline()"><img src="/assets/images/ic_delete_white_24px.svg"
-                                                                                                   alt="Remove"/></button>
+                    <button type="button" class="btn btn-danger" (click)="deletePipeline()">
+                        <img src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
                 </div>
 
                 <div>
@@ -34,12 +34,12 @@ import {InternalPipelineConfiguration} from "../pipelines.model";
                             (click)="startPipelineEditing()">Edit
                     </button>
                     <button *ngIf="!(locked$ | async)" type="button" class="btn btn-secondary mr-1"
-                            (click)="cancelPipelineEditing()"><img src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/>
+                            (click)="cancelPipelineEditing()">
+                        <img src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/>
                     </button>
                     <button *ngIf="!(locked$ | async)" type="button" class="btn btn-success"
                             (click)="savePipelineEditing()"><img src="/assets/images/ic_save_white.svg" alt="Save"/>
                     </button>
-                    
                 </div>
             </div>
         </div>
@@ -47,39 +47,30 @@ import {InternalPipelineConfiguration} from "../pipelines.model";
 })
 export class PipelineDetailsComponent {
 
-    @Input() pipeline: InternalPipelineConfiguration;
-    @Input() locked$: Observable<boolean>;
+    @Input() public pipeline: InternalPipelineConfiguration;
+    @Input() public locked$: Observable<boolean>;
 
-    @Output() update: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
-    @Output() reset: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
-    @Output() delete: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
-    @Output() lock: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
-    @Output() unlock: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() private update: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() private reset: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() private delete: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() private lock: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
+    @Output() private unlock: EventEmitter<InternalPipelineConfiguration> = new EventEmitter();
 
-    //locked: boolean = true;
-
-    constructor() {
-
+    public deletePipeline() {
+        this.delete.emit(this.pipeline);
     }
 
-    deletePipeline() {
-        this.delete.emit(this.pipeline)
-    }
-
-    startPipelineEditing() {
-        //this.locked = false;
+    public startPipelineEditing() {
         this.unlock.emit(this.pipeline);
     }
 
-    savePipelineEditing() {
-        //this.locked = true;
+    public savePipelineEditing() {
         this.lock.emit(this.pipeline);
-        this.update.emit(this.pipeline)
+        this.update.emit(this.pipeline);
     }
 
-    cancelPipelineEditing() {
-        //this.locked = true;
+    public cancelPipelineEditing() {
         this.lock.emit(this.pipeline);
-        this.reset.emit(this.pipeline)
+        this.reset.emit(this.pipeline);
     }
 }

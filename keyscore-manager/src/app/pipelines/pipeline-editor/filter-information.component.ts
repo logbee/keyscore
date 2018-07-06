@@ -2,8 +2,8 @@ import {Component, Input} from "@angular/core";
 import {FilterDescriptor} from "../pipelines.model";
 
 @Component({
-    selector:'filter-information',
-    template:`
+    selector: "filter-information",
+    template: `
         <div class="card">
             <div class="card-header" style="font-size: 22px">{{selectedFilter.displayName}}</div>
             <div class="card-body">{{selectedFilter.description}}</div>
@@ -13,5 +13,5 @@ import {FilterDescriptor} from "../pipelines.model";
 })
 
 export class FilterInformationComponent {
-    @Input() selectedFilter:FilterDescriptor;
+    @Input() public selectedFilter: FilterDescriptor;
 }

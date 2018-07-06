@@ -1,8 +1,8 @@
 import {Component} from "@angular/core";
 
 @Component({
-    selector: 'loading',
-    template: `        
+    selector: "loading",
+    template: `
         <div class="spinner-dark">
             <div class="rect1"></div>
             <div class="rect2"></div>

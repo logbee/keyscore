@@ -2,7 +2,7 @@ import {Component, Input} from "@angular/core";
 import {FilterConfiguration} from "../../../pipelines.model";
 
 @Component({
-    selector: 'filter-description',
+    selector: "filter-description",
     template: `
         <div class="card">
             <div class="card-header alert-light font-weight-bold">
@@ -32,8 +32,6 @@ import {FilterConfiguration} from "../../../pipelines.model";
 
 export class FilterDescriptionComponent {
 
-    @Input() currentFilter: FilterConfiguration;
+    @Input() public currentFilter: FilterConfiguration;
 
-    constructor() {
-    }
 }

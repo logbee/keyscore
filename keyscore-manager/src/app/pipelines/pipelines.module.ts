@@ -1,47 +1,46 @@
-import {RouterModule, Routes} from "@angular/router";
-import {NgModule} from "@angular/core";
-import {PipelinesComponent} from "./pipelines.component";
 import {CommonModule} from "@angular/common";
-import {PipelineEditorComponent} from "./pipeline-editor/pipeline-editor.component";
+import {NgModule} from "@angular/core";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {PipelinesReducer} from "./pipelines.reducer";
-import {ActionReducerMap, StoreModule} from "@ngrx/store";
+import {RouterModule, Routes} from "@angular/router";
 import {EffectsModule} from "@ngrx/effects";
-import {PipelinesEffects} from "./pipelines.effects";
-import {PipelineDetailsComponent} from "./pipeline-editor/pipeline-details.component";
-import {PipelineFilterComponent} from "./pipeline-editor/pipeline-filter.component";
-import {ParameterList} from "./pipeline-editor/filter-editor/parameter-list.component";
-import {ParameterComponent} from "./pipeline-editor/filter-editor/parameter.component";
-import {ParameterMap} from "./pipeline-editor/filter-editor/parameter-map.component";
-import {BlocklyComponent} from "./pipeline-editor/blockly/blockly.component";
+import {ActionReducerMap, StoreModule} from "@ngrx/store";
 import {TranslateModule} from "@ngx-translate/core";
-import {FilterEffects} from "./filters/filters.effects";
-import {FilterReducer} from "./filters/filter.reducer";
-import {FiltersComponent} from "./filters/filters.component";
-import {LiveEditingComponent} from "./filters/filter-details/live-editing.component";
-import {PipelinesModuleState} from "./pipelines.model";
 import {ErrorComponent} from "../failures/error.component";
-import {FilterDescriptionComponent} from "./filters/filter-details/live-editing-modules/filter-description.component";
-import {ExampleMessageComponent} from "./filters/filter-details/live-editing-modules/example-message.component";
-import {PatternComponent} from "./filters/filter-details/live-editing-modules/pattern.component";
-import {FilterResultComponent} from "./filters/filter-details/live-editing-modules/filter-result.component";
-import {FilterInformationComponent} from "./pipeline-editor/filter-information.component";
 import {LoadingFullViewComponent} from "../loading/loading-full-view.component";
 import {LoadingComponent} from "../loading/loading.component";
 import {LoadingEffects} from "../loading/loading.effects";
 import {RefreshTimeComponent} from "../loading/refresh.component";
-
+import {ExampleMessageComponent} from "./filters/filter-details/live-editing-modules/example-message.component";
+import {FilterDescriptionComponent} from "./filters/filter-details/live-editing-modules/filter-description.component";
+import {FilterResultComponent} from "./filters/filter-details/live-editing-modules/filter-result.component";
+import {PatternComponent} from "./filters/filter-details/live-editing-modules/pattern.component";
+import {LiveEditingComponent} from "./filters/filter-details/live-editing.component";
+import {FilterReducer} from "./filters/filter.reducer";
+import {FiltersComponent} from "./filters/filters.component";
+import {FilterEffects} from "./filters/filters.effects";
+import {BlocklyComponent} from "./pipeline-editor/blockly/blockly.component";
+import {ParameterList} from "./pipeline-editor/filter-editor/parameter-list.component";
+import {ParameterMap} from "./pipeline-editor/filter-editor/parameter-map.component";
+import {ParameterComponent} from "./pipeline-editor/filter-editor/parameter.component";
+import {FilterInformationComponent} from "./pipeline-editor/filter-information.component";
+import {PipelineDetailsComponent} from "./pipeline-editor/pipeline-details.component";
+import {PipelineEditorComponent} from "./pipeline-editor/pipeline-editor.component";
+import {PipelineFilterComponent} from "./pipeline-editor/pipeline-filter.component";
+import {PipelinesComponent} from "./pipelines.component";
+import {PipelinesEffects} from "./pipelines.effects";
+import {PipelinesModuleState} from "./pipelines.model";
+import {PipelinesReducer} from "./pipelines.reducer";
 
 export const routes: Routes = [
-    {path: 'pipeline', component: PipelinesComponent},
-    {path: 'pipeline/:id', component: PipelineEditorComponent},
-    {path: 'filter', component: FiltersComponent},
-    {path: 'filter/:id', component: LiveEditingComponent}
+    {path: "pipeline", component: PipelinesComponent},
+    {path: "pipeline/:id", component: PipelineEditorComponent},
+    {path: "filter", component: FiltersComponent},
+    {path: "filter/:id", component: LiveEditingComponent},
 ];
 
 export const reducers: ActionReducerMap<PipelinesModuleState> = {
     pipelines: PipelinesReducer,
-    filter: FilterReducer
+    filter: FilterReducer,
 };
 
 @NgModule({
@@ -50,9 +49,9 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(routes),
-        StoreModule.forFeature('pipelines', reducers),
+        StoreModule.forFeature("pipelines", reducers),
         EffectsModule.forFeature([PipelinesEffects, FilterEffects, LoadingEffects]),
-        TranslateModule
+        TranslateModule,
     ],
     declarations: [
         PipelinesComponent,
@@ -73,9 +72,9 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         FilterDescriptionComponent,
         ExampleMessageComponent,
         PatternComponent,
-        FilterResultComponent
+        FilterResultComponent,
     ],
-    providers: []
+    providers: [],
 })
 export class PipelinesModule {
 }

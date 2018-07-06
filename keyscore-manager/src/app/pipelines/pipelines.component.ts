@@ -1,17 +1,17 @@
-import {Component, OnDestroy} from '@angular/core';
-import {select, Store} from "@ngrx/store";
-import {Observable} from "rxjs";
-import {v4 as uuid} from 'uuid'
-import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.model";
-import {CreatePipelineAction, LoadAllPipelinesAction, UpdatePipelinePollingAction} from "./pipelines.actions";
+import {Component, OnDestroy} from "@angular/core";
 import {Router} from "@angular/router";
-import * as RouterActions from '../router/router.actions';
+import {select, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
-import {isSpinnerShowing, selectRefreshTime} from "../loading/loading.reducer";
+import {Observable} from "rxjs";
+import {v4 as uuid} from "uuid";
 import {UpdateRefreshTimeAction} from "../loading/loading.actions";
+import {isSpinnerShowing, selectRefreshTime} from "../loading/loading.reducer";
+import * as RouterActions from "../router/router.actions";
+import {CreatePipelineAction, LoadAllPipelinesAction, UpdatePipelinePollingAction} from "./pipelines.actions";
+import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.model";
 
 @Component({
-    selector: 'keyscore-pipelines',
+    selector: "keyscore-pipelines",
     template: `
         <div class="card">
             <div class="card-header">
@@ -57,9 +57,9 @@ import {UpdateRefreshTimeAction} from "../loading/loading.actions";
     `
 })
 export class PipelinesComponent implements OnDestroy {
-    pipelines$: Observable<PipelineInstance[]>;
-    isLoading$: Observable<boolean>;
-    refreshTime$: Observable<number>;
+    public pipelines$: Observable<PipelineInstance[]>;
+    public isLoading$: Observable<boolean>;
+    public refreshTime$: Observable<number>;
 
     constructor(private store: Store<PipelinesState>, private router: Router, private translate: TranslateService) {
         this.pipelines$ = this.store.pipe(select(getPipelineList));
@@ -69,23 +69,23 @@ export class PipelinesComponent implements OnDestroy {
         this.store.dispatch(new LoadAllPipelinesAction());
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.store.dispatch(new UpdatePipelinePollingAction(false));
     }
 
-    createPipeline(activeRouting: boolean = false) {
-        let pipelineId = uuid();
+    public createPipeline(activeRouting: boolean = false) {
+        const pipelineId = uuid();
         this.store.dispatch(new CreatePipelineAction(pipelineId, "New Pipeline", ""));
         if (activeRouting) {
             this.store.dispatch(new RouterActions.Go({
-                path: ['pipelines/pipeline/' + pipelineId, {}],
+                path: ["pipelines/pipeline/" + pipelineId, {}],
                 query: {},
                 extras: {}
             }));
         }
     }
 
-    updateRefreshTime(refreshTimes:{newRefreshTime:number,oldRefreshTime:number}) {
-        this.store.dispatch(new UpdateRefreshTimeAction(refreshTimes.newRefreshTime,refreshTimes.oldRefreshTime));
+    public updateRefreshTime(refreshTimes: {newRefreshTime: number, oldRefreshTime: number}) {
+        this.store.dispatch(new UpdateRefreshTimeAction(refreshTimes.newRefreshTime, refreshTimes.oldRefreshTime));
     }
 }
