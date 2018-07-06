@@ -1,17 +1,22 @@
 sudo: required
-
 language: java
 
+env:
+  global:
+  - secure: kzdX3LLF9w56oYEmQPiiNiWbWor1nYRsa1kI6gfoWDy1+32bv4jpN/Ug3SAAhv/fOvYkvwx5RvOjFNlt4tEHXUyXnozHKPZ4uRFB6LUwsgbPXNRuizl71/uwUkgMxVFRVJ2EcHLoBfoN1XsTviZ06A+XsEnL1GUURzOpqt3Un/FKeL81SV8SDGWTPusaYrAM2fIWdf7ObcT1oCgQ9Sn+dUueoQ/hVYkRvQAtlBqqcNuHrw4uqYAI/yeDAlJ2WcW+vVuxpnmVEG47aF6y7xl80QevZrQ6WeKQC9npgRwLQWYi0m8XxPMJGB+kTnJubJpsOXnI9Vv7E+0MBRym+CF6RTMxyL8+mno3pDL0YMJvPdJenpOUvFJjTY6j4h47gio0etsBGekwv4MYtfs2EaWqM7BkaXYf/FFI3RY71+3NWnes3OgKhtbYJL1qnT//hmib0/5gN9v2MVlNd9L5Mn+iFu8NvU99uEQR3vmZCiSfFysOLZkvk2YMgcC1qGTNyXQ/ZZSNHe/w+ZlXMNi6wwSKKn4F11uhHSfX8n7bxJ5yMwOAIypXbwIkbPjktXF+sUZPxGWyaHUu1sgVJE4pzzdOrtmbLtxp1mFsMNYhQldeoZIPhXh9IfxUqoN0LcSFG9WS+ROL00jJO8etNeq4czuZhxR5ceLyq29DKfyoRhabGfA=
+  - secure: d05tsL12o63+r6usBvKUUK4vT0zba0K83O7Doy2Ky+/zNn/Ww8AT9AdGo1c2xb+KfRGfo3ml485wXp9gDE2CZgPK1cKx6WFLqBO4PyG7KH5jHx87VTkDZ6HXbCtXAg+8WzUJLb7/LHr5URGgZWBaz8RAxLC4maFmE2I7J109cQtaOF7A7DrtP4fF4der0kOhhrByh8SD5/w4GIQEz5srmiSHZ9xMV8Y8+/oD5ATVanorSrK9pOK9LnGgIoSIbZbdIgeUl6gpG+C69N6HiWLUeSHaesBSpfBJ9NfhiaTT45VULcXk7E1lep3hmWiuZT+G/kFKgRy+nTb6Zw8CSAvGV60t+0XEttx2kgGoB7SKjpthN3VrpavKWYZA1rlcSS7ToszAxB2KeU6C1eKyQB0b4jGlHMKc1czfeCQygYs5coUF7GgGdSJkJN6irDKHnRwuCCPMwRxWieSa4rHgtWaxS02C284TJqap6I5eH4ovM0B3HMl+DpTzppzHAYl5r4AmV+nwW23fMZqHI+ASYp3aUP5xzISkN0v6ZjsT+Ybiu4JInNJm7xfZDFyQbpWDNf4MvIFKFrOqMObIWibyV4ry9fdA+tbQkMaWiLeCxcUVoPCxlFT4Z0PsxGUCDcuIvu9jdai/UgTION5BIWKCthrHsSdAAd7B2GBRqdJCwvItq98=
+
 services:
-  - docker
+- docker
 
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 
 script:
-  - "gradle check --continue"
+- gradle check --continue -Dlogbee.quay.user=LOGBEE_QUAY_USER -Dlogbee.quay.password=LOGBEE_QUAY_PASSWORD
