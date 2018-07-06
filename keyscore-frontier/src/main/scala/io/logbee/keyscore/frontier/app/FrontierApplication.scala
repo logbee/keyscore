@@ -25,14 +25,13 @@ import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.NativeConversion._
 import io.logbee.keyscore.model.filter.FilterConfiguration
-import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
+import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, FilterStatusSerializer, HealthSerializer}
 import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.Success
 
 
 object FrontierApplication extends App with Json4sSupport {
@@ -43,7 +42,7 @@ object FrontierApplication extends App with Json4sSupport {
   implicit val executionContext = system.dispatcher
   implicit val timeout: Timeout = 30.seconds
   implicit val serialization = Serialization
-  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer)
+  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer, FilterStatusSerializer)
 
   val configuration = FrontierConfigProvider(system)
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
@@ -164,7 +163,8 @@ object FrontierApplication extends App with Json4sSupport {
                 entity(as[List[Dataset]]) { datasets =>
                   println("Frontier: Received Insert datasets" + datasets)
                   onSuccess(pipelineManager ? InsertDatasets(filterId, datasets.map(datasetToNative))) {
-                    case InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
+                    case
+                      InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
@@ -194,7 +194,6 @@ object FrontierApplication extends App with Json4sSupport {
               get {
                 onSuccess(pipelineManager ? CheckFilterState(filterId)) {
                   case CheckFilterStateResponse(state) =>
-                    println(s"Succes: $state")
                     complete(StatusCodes.Accepted, state)
                   case _ => complete(StatusCodes.InternalServerError)
                 }

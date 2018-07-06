@@ -11,7 +11,7 @@ import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.model.{filter, _}
 import io.logbee.keyscore.model.filter.{FilterState, Paused, Running}
-import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, HealthSerializer}
+import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, FilterStatusSerializer, HealthSerializer}
 import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
@@ -27,7 +27,7 @@ import scala.language.postfixOps
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
-  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer)
+  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer, FilterStatusSerializer)
 
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
@@ -157,10 +157,6 @@ class PipelineIntegrationTest extends Matchers {
     )
 
 
-    // Check FilterState
-
-
-
     // Insert and Extract Case
 
     runner.http(action => action.client(httpClient)
@@ -183,7 +179,7 @@ class PipelineIntegrationTest extends Matchers {
         val payload = message.getPayload.asInstanceOf[String]
         val state = read[FilterState](payload)
         state.health shouldBe Green
-//        state.status shouldBe Paused
+        state.status shouldBe Paused
       })
     )
 
@@ -340,7 +336,7 @@ class PipelineIntegrationTest extends Matchers {
         instances should have size 0
       })
     )
-  }
 
+  }
 }
 

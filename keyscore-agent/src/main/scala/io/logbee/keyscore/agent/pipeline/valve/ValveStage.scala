@@ -150,13 +150,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     override def onPush(): Unit = {
 
-      val dataset = grab(in)
-      compute(totalThroughputTime, FirstValveTimestamp, dataset)
-      compute(throughputTime, PreviousValveTimestamp, dataset)
-
-      log.info(s"onPush():$dataset")
-      val labeledDataset = withNewLabels(dataset)
-      ringBuffer.push(labeledDataset)
+      ringBuffer.push(grab(in))
       if (isOpen) {
         pushOut()
       }
@@ -180,8 +174,9 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private def pushOut(): Unit = {
       if (isAvailable(out) && ringBuffer.isNonEmpty) {
         val dataset = ringBuffer.pull()
-        push(out, dataset)
-        println(s"Valve pushed out: $dataset")
+        compute(totalThroughputTime, FirstValveTimestamp, dataset)
+        compute(throughputTime, PreviousValveTimestamp, dataset)
+        push(out, withNewLabels(dataset))
       }
     }
 
