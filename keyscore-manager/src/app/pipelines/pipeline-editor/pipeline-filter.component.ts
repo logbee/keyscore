@@ -6,7 +6,7 @@ import {Store} from "@ngrx/store";
 import {selectAppConfig} from "../../app.config";
 import {filter} from "rxjs/internal/operators";
 import {ParameterControlService} from "../../services/parameter-control.service";
-import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.model";
+import {FilterConfiguration, InternalPipelineConfiguration, Parameter, ParameterDescriptor} from "../pipelines.model";
 
 @Component({
     selector: "pipeline-filter",
@@ -36,7 +36,7 @@ import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.
                                 (click)="editFilter(filter.id)">{{'GENERAL.EDIT' | translate}}
                         </button>
                             <button type="button" class="btn btn-info"
-                                    *ngIf="editing && liveEditingFlag && isGrokFilter"
+                                    *ngIf="editing && liveEditingFlag && isGrokFilter && editingPipeline.isRunning"
                                     (click)="callLiveEditing(filter)">
                                 <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
                             </button>
@@ -80,6 +80,7 @@ export class PipelineFilterComponent implements OnInit {
     @Input() public index: number;
     @Input() public parameters: ParameterDescriptor[];
     @Input() public filterCount: number;
+    @Input() public editingPipeline: InternalPipelineConfiguration;
 
     public editing: boolean = false;
     public payLoad: string = "";
@@ -96,7 +97,6 @@ export class PipelineFilterComponent implements OnInit {
     constructor(private parameterService: ParameterControlService, private store: Store<any>) {
         const config = this.store.select(selectAppConfig);
         config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.live-editing"));
-        console.log(this.liveEditingFlag);
     }
 
     public ngOnInit() {

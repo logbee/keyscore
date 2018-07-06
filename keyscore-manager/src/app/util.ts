@@ -57,7 +57,7 @@ export function mapFromSeparatedString(mapString: string, elementSeparator: stri
 
 export function toInternalPipelineConfig(pipe: PipelineConfiguration): InternalPipelineConfiguration {
     const filters = [].concat(pipe.source, pipe.filter, pipe.sink);
-    return {id: pipe.id, name: pipe.name, description: pipe.description, filters};
+    return {id: pipe.id, name: pipe.name, description: pipe.description, filters, isRunning:false};
 }
 
 export function toPipelineConfiguration(pipe: InternalPipelineConfiguration): PipelineConfiguration {

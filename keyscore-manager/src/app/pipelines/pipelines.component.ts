@@ -53,7 +53,6 @@ import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.mod
                 </div>
             </div>
         </div>
-
     `
 })
 export class PipelinesComponent implements OnDestroy {

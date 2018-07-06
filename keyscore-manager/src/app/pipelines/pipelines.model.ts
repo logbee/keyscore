@@ -40,6 +40,7 @@ export interface InternalPipelineConfiguration {
     name: string;
     description: string;
     filters: FilterConfiguration[];
+    isRunning: boolean;
 }
 
 export interface PipelineConfiguration {

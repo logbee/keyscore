@@ -67,6 +67,7 @@ import {
                                          [filterCount]="(pipeline$|async).filters.length"
                                          [parameters]="filter.descriptor.parameters"
                                          [isEditingPipelineLocked$]="isLocked$"
+                                         [editingPipeline]="pipeline$ | async"
                                          (move)="moveFilter($event)"
                                          (remove)="removeFilter($event)"
                                          (update)="updateFilter($event)"
@@ -124,6 +125,7 @@ export class PipelineEditorComponent {
             name: pipeline.name,
             description: pipeline.description,
             filters: pipeline.filters,
+            isRunning: pipeline.isRunning
         }));
     }
 

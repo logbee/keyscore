@@ -1,5 +1,5 @@
 import {v4 as uuid} from "uuid";
-import {deepcopy, parameterDescriptorToParameter} from "../util";
+import {deepcopy, parameterDescriptorToParameter, toInternalPipelineConfig} from "../util";
 import {
     ADD_FILTER,
     CREATE_PIPELINE,
@@ -36,13 +36,15 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
 
     switch (action.type) {
         case CREATE_PIPELINE:
-            result.editingPipeline = {id: action.id, name: action.name, description: action.description, filters: []};
+            result.editingPipeline = {id: action.id, name: action.name, description: action.description, filters: [],
+                isRunning: false};
             break;
         case EDIT_PIPELINE_SUCCESS:
-            result.editingPipeline = deepcopy(action.pipelineConfiguration);
+            result.editingPipeline = {...toInternalPipelineConfig(action.pipelineConfiguration), isRunning : false};
             break;
         case EDIT_PIPELINE_FAILURE:
-            result.editingPipeline = {id: action.id, name: "New Pipeline", description: "", filters: []};
+            result.editingPipeline = {id: action.id, name: "New Pipeline", description: "", filters: [],
+                isRunning: false};
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
