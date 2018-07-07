@@ -93,49 +93,6 @@ export interface AppState {
 
             </nav>
 
-            <!--<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-                <a class="navbar-brand" href="#" style="text-transform: uppercase">{{'GENERAL.APPNAME' | translate}}</a>
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" routerLink="/dashboard"
-                           routerLinkActive="active">{{'GENERAL.DASHBOARD' | translate}}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a id ="test" class="nav-link" routerLink="/agent"
-                           routerLinkActive="active">{{'APPCOMPONENT.AGENTS' | translate}}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" routerLink="/pipelines/pipeline"
-                           routerLinkActive="active">{{'APPCOMPONENT.PIPELINES' | translate}}</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                            <img  class="mr-2" src="/assets/images/flags/{{translate.currentLang}}.svg"
-                                  width="24px" height="16px"/>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('de')">
-                                <img  class="mr-2" src="/assets/images/flags/de.svg" width="24px" height="16px" >
-                                {{'LANGUAGES.GERMAN' | translate}}
-                            </span>
-                            <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('en')">
-                                <img class="mr-2" src="/assets/images/flags/en.svg" width="24px" height="16px" >
-                                {{'LANGUAGES.ENGLISH' | translate}}
-                            </span>
-                        </div>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <button type="button" class="nav-link btn btn-primary" (click)="showSettings()">
-                            <img src="/assets/images/ic_settings_white_24px.svg"
-                                 width="24px" height="24px"/>
-                        </button>
-                    </li>
-                </ul>
-            </nav>-->
             <div id="modal">
                 <ng-template #modal></ng-template>
             </div>
@@ -186,6 +143,6 @@ export class AppComponent {
     }
 
     protected showSettings() {
-        this.modalService.show(SettingsComponent)
+        this.modalService.show(SettingsComponent);
     }
 }

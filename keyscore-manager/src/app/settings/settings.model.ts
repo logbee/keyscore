@@ -6,18 +6,18 @@ export interface SettingsState {
 }
 
 export interface SettingsModel {
-    groups: SettingsGroup[]
+    groups: SettingsGroup[];
 }
 
 export interface SettingsGroup {
-    name: String
-    title: String
-    items: SettingsItem[]
+    name: string;
+    title: string;
+    items: SettingsItem[];
 }
 
 export interface SettingsItem {
-    name: String,
-    value: Object
+    name: string;
+    value: any;
 }
 
 export const getSettings = (state: AppState) => state.settings.current;

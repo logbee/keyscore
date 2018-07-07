@@ -37,7 +37,6 @@ export function extractFirstJSONObjectFromString(str: string): { firstObject: an
             const tail = str.substr(firstClose + 1, str.length - firstClose);
             return {firstObject: result, tail};
         } catch (e) {
-            console.log("extractJSONObject: failed to parse candidate");
             firstClose++;
         }
     } while (firstClose < str.length);
@@ -57,7 +56,7 @@ export function mapFromSeparatedString(mapString: string, elementSeparator: stri
 
 export function toInternalPipelineConfig(pipe: PipelineConfiguration): InternalPipelineConfiguration {
     const filters = [].concat(pipe.source, pipe.filter, pipe.sink);
-    return {id: pipe.id, name: pipe.name, description: pipe.description, filters, isRunning:false};
+    return {id: pipe.id, name: pipe.name, description: pipe.description, filters, isRunning: false};
 }
 
 export function toPipelineConfiguration(pipe: InternalPipelineConfiguration): PipelineConfiguration {

@@ -6,12 +6,12 @@ const initialState: SettingsState = {
     current: {
         groups: [
             {
-                name: 'general',
+                name: "general",
                 title: "SETTINGS.GROUP_GENERAL_TITLE",
                 items: []
             },
             {
-                name: 'features',
+                name: "features",
                 title: "SETTINGS.GROUP_FEATURES_TITLE",
                 items: []
             }
