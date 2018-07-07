@@ -11,7 +11,9 @@
     "APPLY": "Apply",
     "NEW": "New",
     "ADD": "Add",
-    "CLOSE": "Close"
+    "CLOSE": "Close",
+    "COLLAPSE":"Collapse",
+    "EXPAND":"Expand"
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",
