@@ -29,20 +29,28 @@ export interface AppState {
                         <a routerLink="/dashboard"
                            routerLinkActive="active">
                             <span><img src="/assets/images/menu/desktop-mac-dashboard.png"></span>
-                            {{'GENERAL.DASHBOARD' | translate}}
+                            <span *ngIf="isSideBarExpanded()">
+                                {{'GENERAL.DASHBOARD' | translate}}
+                            </span>
                         </a>
                     </li>
                     <li>
                         <a id="test" routerLink="/agent"
                            routerLinkActive="active">
                             <span><img src="/assets/images/menu/worker.png"></span>
-                            {{'APPCOMPONENT.AGENTS' | translate}}</a>
+                            <span *ngIf="isSideBarExpanded()">
+                                {{'APPCOMPONENT.AGENTS' | translate}}
+                            </span>
+                        </a>
                     </li>
                     <li>
                         <a class="nav-link" routerLink="/pipelines/pipeline"
                            routerLinkActive="active">
                             <span><img src="/assets/images/menu/sitemap.png"></span>
-                            {{'APPCOMPONENT.PIPELINES' | translate}}</a>
+                            <span *ngIf="isSideBarExpanded()">
+                                {{'APPCOMPONENT.PIPELINES' | translate}}
+                            </span>
+                        </a>
                     </li>
                 </ul>
                 <div class="sidebar-footer">
@@ -50,9 +58,9 @@ export interface AppState {
                         <li class="nav-item dropdown" id="language-selector">
                             <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
                                 <img src="/assets/images/flags/{{translate.currentLang}}.svg"
-                                     width="24px" height="16px"/><span
-                                    *ngIf="translate.currentLang == 'de'">{{'LANGUAGES.GERMAN' | translate}}</span>
-                                <span *ngIf="translate.currentLang == 'en'">{{'LANGUAGES.ENGLISH' | translate}}</span>
+                                     width="24px" height="16px"/>
+                                <span *ngIf="translate.currentLang == 'de' && isSideBarExpanded()">{{'LANGUAGES.GERMAN' | translate}}</span>
+                                <span *ngIf="translate.currentLang == 'en' && isSideBarExpanded()">{{'LANGUAGES.ENGLISH' | translate}}</span>
                             </a>
                             <div class="dropdown-menu">
                             <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('de')">
@@ -70,7 +78,9 @@ export interface AppState {
                                 <span>
                                     <img src="/assets/images/ic_settings_white_24px.svg" width="24px" height="24px"/>
                                 </span>
-                                {{'SETTINGS.TITLE' | translate}}
+                                <span *ngIf="isSideBarExpanded()">
+                                    {{'SETTINGS.TITLE' | translate}}
+                                </span>
                             </a>
                         </li>
                         <li>
@@ -80,7 +90,6 @@ export interface AppState {
                                 <span class="hide-on-expand"><img
                                         src="/assets/images/menu/arrow-right-drop-circle.png"></span>
                                 <span class="hide-on-collapse">{{'GENERAL.COLLAPSE' | translate}}</span>
-                                <span class="hide-on-expand">{{'GENERAL.EXPAND' | translate}}</span>
                             </a>
                         </li>
                     </ul>
@@ -138,6 +147,10 @@ export class AppComponent {
 
     public toggleMenu() {
         this.sideBarClassName = this.sideBarClassName === "" ? "active" : "";
+    }
+
+    public isSideBarExpanded() {
+       return this.sideBarClassName === ""
     }
 
     protected showSettings() {
