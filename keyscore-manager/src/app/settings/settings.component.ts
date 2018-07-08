@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {ModalService} from "../services/modal.service";
 import {AppState} from "../app.component";
-import {BOOLEAN_ITEM, getSettings, SettingsItem, SettingsModel, TEXT_CHOICE_ITEM} from "./settings.model";
+import {getSettings, SettingsModel} from "./settings.model";
 import {Observable} from "rxjs/index";
 
 @Component({
@@ -29,7 +29,7 @@ import {Observable} from "rxjs/index";
                                 <input type="checkbox" id="checkbox{{item.name}}" class="ios-toggle">
                                 <label for="checkbox{{item.name}}" class="checkbox-label" data-off="">
                                     {{item.title | translate}}
-                                </label>  
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -43,25 +43,7 @@ export class SettingsComponent {
 
     private settings$: Observable<SettingsModel>;
 
-    constructor(private store: Store<AppState>,
-                private modalService: ModalService) {
-
+    constructor(private store: Store<AppState>) {
         this.settings$ = store.select(getSettings);
-    }
-
-    protected close() {
-        this.modalService.close();
-    }
-
-    protected isTextItem(item: SettingsItem) {
-        return TEXT_CHOICE_ITEM === item.type;
-    }
-
-    protected isBooleanItem(item: SettingsItem) {
-        return BOOLEAN_ITEM === item.type;
-    }
-
-    protected isTextChoiceItem(item: SettingsItem) {
-        return TEXT_CHOICE_ITEM === item.type;
     }
 }
