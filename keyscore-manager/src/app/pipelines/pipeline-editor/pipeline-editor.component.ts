@@ -97,7 +97,7 @@ export class PipelineEditorComponent {
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
         const config = this.store.select(selectAppConfig);
-        config.subscribe((conf) => this.blocklyFlag = conf.getBoolean("keyscore.manager.blockly"));
+        config.subscribe((conf) => this.blocklyFlag = conf.getBoolean("keyscore.manager.features.blockly"));
 
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);

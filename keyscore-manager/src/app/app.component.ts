@@ -1,7 +1,7 @@
 import {Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
-import {AppConfig} from "./app.config";
+import {AppConfig, selectAppConfig} from "./app.config";
 import * as fromSpinner from "./loading/loading.reducer";
 import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
 import {ModalService} from "./services/modal.service";
@@ -24,7 +24,6 @@ export interface AppState {
                     <img src="/assets/images/logos/keyscore-header.dark.svg">
                     <strong>KS</strong>
                 </div>
-
                 <ul class="list-unstyled components">
                     <li>
                         <a routerLink="/dashboard"
@@ -45,20 +44,9 @@ export interface AppState {
                             <span><img src="/assets/images/menu/sitemap.png"></span>
                             {{'APPCOMPONENT.PIPELINES' | translate}}</a>
                     </li>
-
                 </ul>
-
                 <div class="sidebar-footer">
                     <ul class="list-unstyled components">
-
-                        <li>
-                            <a (click)="showSettings()">
-                                <span>
-                                    <img src="/assets/images/ic_settings_white_24px.svg" width="24px" height="24px"/>
-                                </span>
-                                {{'SETTINGS.DIALOG_TITLE' | translate}}
-                            </a>
-                        </li>
                         <li class="nav-item dropdown" id="language-selector">
                             <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
                                 <img src="/assets/images/flags/{{translate.currentLang}}.svg"
@@ -77,6 +65,14 @@ export interface AppState {
                             </span>
                             </div>
                         </li>
+                        <li *ngIf="settingsFeatureEnabled">
+                            <a class="nav-link" routerLink="/settings" routerLinkActive="active">
+                                <span>
+                                    <img src="/assets/images/ic_settings_white_24px.svg" width="24px" height="24px"/>
+                                </span>
+                                {{'SETTINGS.TITLE' | translate}}
+                            </a>
+                        </li>
                         <li>
                             <a (click)="toggleMenu()">
                             <span class="hide-on-collapse"><img
@@ -87,12 +83,9 @@ export interface AppState {
                                 <span class="hide-on-expand">{{'GENERAL.EXPAND' | translate}}</span>
                             </a>
                         </li>
-
                     </ul>
                 </div>
-
             </nav>
-
             <div id="modal">
                 <ng-template #modal></ng-template>
             </div>
@@ -121,11 +114,15 @@ export class AppComponent {
 
     private modalService: ModalService;
     private store: Store<any>;
+    private settingsFeatureEnabled: boolean;
 
     constructor(store: Store<any>, modalService: ModalService, private translate: TranslateService) {
         this.store = store;
         this.modalService = modalService;
         this.sideBarClassName = "";
+        this.store.select(selectAppConfig).subscribe((conf) => {
+            this.settingsFeatureEnabled = conf.getBoolean("keyscore.manager.features.settings");
+        });
     }
 
     public ngOnInit() {

@@ -21,9 +21,21 @@
     "FILTERS": "Filters"
   },
   "SETTINGS": {
-    "DIALOG_TITLE": "Einstellungen",
+    "TITLE": "Einstellungen",
     "GROUP_GENERAL_TITLE": "Allgemein",
-    "GROUP_FEATURES_TITLE": "Ausstattung"
+    "GROUP_FEATURES_TITLE": "Ausstattung",
+    "ITEMS": {
+      "BASE_URL_TITLE": "Basis-URL",
+      "BASE_URL_DESCRIPTION": "Basis-URL",
+      "LANGUAGE_TITLE": "Sprache",
+      "LANGUAGE_DESCRIPTION": "Sprache",
+      "BLOCKLY_ENABLED_TITLE": "Blockly aktivieren",
+      "BLOCKLY_ENABLED_DESCRIPTION": "Blockly",
+      "LIVEEDITING_ENABLED_TITLE": "Live Editing aktivieren",
+      "LIVEEDITING_ENABLED_DESCRIPTION": "Live Editing",
+      "SETTINGS_ENABLED_TITLE": "Einstellungen aktivieren",
+      "SETTINGS_ENABLED_DESCRIPTION": "Einstellungen"
+    }
   },
   "AGENTSDETAILS": {
     "DETAILEDVIEW": "Detail Ansicht:",

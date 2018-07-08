@@ -26,7 +26,8 @@ const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
     {path: "dashboard", component: DashboardComponent},
     {path: "agent", loadChildren: () => AgentsModule},
-    {path: "pipelines", loadChildren: () => PipelinesModule}
+    {path: "pipelines", loadChildren: () => PipelinesModule},
+    {path: "settings", component: SettingsComponent}
 ];
 
 export function HttpLoaderFactory(http: HttpClient) {

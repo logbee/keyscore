@@ -1,12 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {FormControl, FormGroup} from "@angular/forms";
+import {FormGroup} from "@angular/forms";
 import {Observable} from "rxjs";
-import {Go} from "../../router/router.actions";
 import {Store} from "@ngrx/store";
 import {selectAppConfig} from "../../app.config";
 import {filter} from "rxjs/internal/operators";
 import {ParameterControlService} from "../../services/parameter-control.service";
-import {FilterConfiguration, InternalPipelineConfiguration, Parameter, ParameterDescriptor} from "../pipelines.model";
+import {FilterConfiguration, InternalPipelineConfiguration, ParameterDescriptor} from "../pipelines.model";
 
 @Component({
     selector: "pipeline-filter",
@@ -96,7 +95,7 @@ export class PipelineFilterComponent implements OnInit {
 
     constructor(private parameterService: ParameterControlService, private store: Store<any>) {
         const config = this.store.select(selectAppConfig);
-        config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.live-editing"));
+        config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
     }
 
     public ngOnInit() {

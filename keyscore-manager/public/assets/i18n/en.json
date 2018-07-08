@@ -21,9 +21,21 @@
     "FILTERS": "Filters"
   },
   "SETTINGS": {
-    "DIALOG_TITLE": "Settings",
+    "TITLE": "Settings",
     "GROUP_GENERAL_TITLE": "General",
-    "GROUP_FEATURES_TITLE": "Features"
+    "GROUP_FEATURES_TITLE": "Features",
+    "ITEMS": {
+      "BASE_URL_TITLE": "Base-URL",
+      "BASE_URL_DESCRIPTION": "Base-URL",
+      "LANGUAGE_TITLE": "Languange",
+      "LANGUAGE_DESCRIPTION": "Languange",
+      "BLOCKLY_ENABLED_TITLE": "Activate Blockly",
+      "BLOCKLY_ENABLED_DESCRIPTION": "Blockly",
+      "LIVEEDITING_ENABLED_TITLE": "Activate Live Editing",
+      "LIVEEDITING_ENABLED_DESCRIPTION": "Live Editing",
+      "SETTINGS_ENABLED_TITLE": "Activate Settings",
+      "SETTINGS_ENABLED_DESCRIPTION": "Settings"
+    }
   },
   "AGENTSDETAILS": {
     "DETAILEDVIEW": "Detailed View:",
