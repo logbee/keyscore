@@ -13,7 +13,7 @@ import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.mod
 @Component({
     selector: "keyscore-pipelines",
     template: `
-        <header-bar title="Pipelines"></header-bar>
+        <!--<header-bar title="Pipelines"></header-bar>-->
         <div class="card">
             <div class="card-header">
 
