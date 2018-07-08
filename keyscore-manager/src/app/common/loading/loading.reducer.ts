@@ -1,6 +1,10 @@
 import {
-    SPINNER_HIDE, SPINNER_SHOW, LoadingAction, UPDATE_REFRESH_TIME,
-    INCREMENT_LOADING_COUNTER, DECREMENT_LOADING_COUNTER
+    DECREMENT_LOADING_COUNTER,
+    INCREMENT_LOADING_COUNTER,
+    LoadingAction,
+    SPINNER_HIDE,
+    SPINNER_SHOW,
+    UPDATE_REFRESH_TIME
 } from "./loading.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 

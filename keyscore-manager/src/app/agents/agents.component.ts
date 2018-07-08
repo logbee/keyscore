@@ -2,12 +2,13 @@ import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs";
 import {Go} from "../router/router.actions";
-import {InspectAgentAction, LoadAgentsAction} from "./agents.actions";
+import {LoadAgentsAction} from "./agents.actions";
 import {AgentModel, AgentsState, getAgents} from "./agents.model";
 
 @Component({
     selector: "keyscore-agents",
     template: `
+        <header-bar title="Agents"></header-bar>
         <div class="row justify-content-center">
             <div class="col-10">
                 <div class="card">

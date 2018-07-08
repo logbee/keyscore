@@ -10,7 +10,7 @@ import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal
 import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
-import {selectRefreshTime} from "../loading/loading.reducer";
+import {selectRefreshTime} from "../common/loading/loading.reducer";
 import {toInternalPipelineConfig, toPipelineConfiguration} from "../util";
 import {
     DELETE_PIPELINE,
@@ -20,8 +20,12 @@ import {
     EDIT_PIPELINE,
     EditPipelineAction,
     EditPipelineFailureAction,
-    EditPipelineSuccessAction, LOAD_ALL_PIPELINES,
-    LOAD_FILTER_DESCRIPTORS, LoadAllPipelinesAction, LoadAllPipelinesFailureAction, LoadAllPipelinesSuccessAction,
+    EditPipelineSuccessAction,
+    LOAD_ALL_PIPELINES,
+    LOAD_FILTER_DESCRIPTORS,
+    LoadAllPipelinesAction,
+    LoadAllPipelinesFailureAction,
+    LoadAllPipelinesSuccessAction,
     LoadFilterDescriptorsFailureAction,
     LoadFilterDescriptorsSuccessAction,
     UPDATE_PIPELINE,

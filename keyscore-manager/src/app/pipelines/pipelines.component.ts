@@ -4,8 +4,8 @@ import {select, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs";
 import {v4 as uuid} from "uuid";
-import {UpdateRefreshTimeAction} from "../loading/loading.actions";
-import {isSpinnerShowing, selectRefreshTime} from "../loading/loading.reducer";
+import {UpdateRefreshTimeAction} from "../common/loading/loading.actions";
+import {isSpinnerShowing, selectRefreshTime} from "../common/loading/loading.reducer";
 import * as RouterActions from "../router/router.actions";
 import {CreatePipelineAction, LoadAllPipelinesAction, UpdatePipelinePollingAction} from "./pipelines.actions";
 import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.model";
@@ -13,6 +13,7 @@ import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.mod
 @Component({
     selector: "keyscore-pipelines",
     template: `
+        <header-bar title="Pipelines"></header-bar>
         <div class="card">
             <div class="card-header">
 

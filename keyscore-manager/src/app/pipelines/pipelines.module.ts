@@ -5,11 +5,11 @@ import {RouterModule, Routes} from "@angular/router";
 import {EffectsModule} from "@ngrx/effects";
 import {ActionReducerMap, StoreModule} from "@ngrx/store";
 import {TranslateModule} from "@ngx-translate/core";
-import {ErrorComponent} from "../failures/error.component";
-import {LoadingFullViewComponent} from "../loading/loading-full-view.component";
-import {LoadingComponent} from "../loading/loading.component";
-import {LoadingEffects} from "../loading/loading.effects";
-import {RefreshTimeComponent} from "../loading/refresh.component";
+import {ErrorComponent} from "../common/error/error.component";
+import {LoadingFullViewComponent} from "../common/loading/loading-full-view.component";
+import {LoadingComponent} from "../common/loading/loading.component";
+import {LoadingEffects} from "../common/loading/loading.effects";
+import {RefreshTimeComponent} from "../common/loading/refresh.component";
 import {ExampleMessageComponent} from "./filters/filter-details/live-editing-modules/example-message.component";
 import {FilterDescriptionComponent} from "./filters/filter-details/live-editing-modules/filter-description.component";
 import {FilterResultComponent} from "./filters/filter-details/live-editing-modules/filter-result.component";
@@ -30,6 +30,7 @@ import {PipelinesComponent} from "./pipelines.component";
 import {PipelinesEffects} from "./pipelines.effects";
 import {PipelinesModuleState} from "./pipelines.model";
 import {PipelinesReducer} from "./pipelines.reducer";
+import {HeaderBarModule} from "../common/headerbar.module";
 
 export const routes: Routes = [
     {path: "pipeline", component: PipelinesComponent},
@@ -52,6 +53,7 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         StoreModule.forFeature("pipelines", reducers),
         EffectsModule.forFeature([PipelinesEffects, FilterEffects, LoadingEffects]),
         TranslateModule,
+        HeaderBarModule
     ],
     declarations: [
         PipelinesComponent,

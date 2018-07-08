@@ -16,7 +16,7 @@ import {
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 
 import {selectAppConfig} from "../../app.config";
-import {isSpinnerShowing} from "../../loading/loading.reducer";
+import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {Go} from "../../router/router.actions";
 import {
     DeletePipelineAction,

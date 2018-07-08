@@ -15,7 +15,7 @@ import {
     LoadAllPipelinesAction,
     LoadAllPipelinesSuccessAction,
     UpdatePipelinePollingAction
-} from "../pipelines/pipelines.actions";
+} from "../../pipelines/pipelines.actions";
 import {
     DecrementLoadingCounterAction,
     HideSpinner,

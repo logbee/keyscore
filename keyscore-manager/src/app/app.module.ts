@@ -21,6 +21,7 @@ import {FilterChooser} from "./pipelines/pipeline-editor/filter-chooser/filter-c
 import {PipelinesModule} from "./pipelines/pipelines.module";
 import {RouterEffects} from "./router/router.effects";
 import {SettingsComponent} from "./settings/settings.component";
+import {HeaderBarModule} from "./common/headerbar.module";
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
@@ -53,7 +54,8 @@ export function HttpLoaderFactory(http: HttpClient) {
         // ToDO: Throws DataCloneError
          StoreDevtoolsModule.instrument({
              maxAge: 20
-         })
+         }),
+        HeaderBarModule
     ],
     declarations: [
         AppComponent,

@@ -2,7 +2,7 @@ import {Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {AppConfig, selectAppConfig} from "./app.config";
-import * as fromSpinner from "./loading/loading.reducer";
+import * as fromSpinner from "./common/loading/loading.reducer";
 import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
 import {ModalService} from "./services/modal.service";
 import "./style/style.css";
@@ -89,13 +89,14 @@ export interface AppState {
             <div id="modal">
                 <ng-template #modal></ng-template>
             </div>
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 pb-5 mt-1">
+            <div class="container-fluid" style="padding-left: 0">
+                <div class="row no-gutters">
+                    <div class="col-12">
                         <router-outlet></router-outlet>
                     </div>
                 </div>
             </div>
+            
         </div>
     `,
     providers: [

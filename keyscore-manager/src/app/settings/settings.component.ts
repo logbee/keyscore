@@ -9,7 +9,7 @@ import {Observable} from "rxjs/index";
     selector: "keyscore-settings",
     providers: [ModalService],
     template: `
-        <h4 class="">{{'SETTINGS.TITLE' | translate}}</h4>
+        <header-bar title="{{'SETTINGS.TITLE' | translate}}"></header-bar>
         <div *ngFor="let group of (settings$ | async).groups" class="card mt-3">
             <div class="card-header">
                 <span class="mb-0">{{group.title | translate}}</span>
