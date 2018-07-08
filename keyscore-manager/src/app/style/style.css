@@ -333,10 +333,10 @@
 }
 
 
-/* Shrinking the sidebar from 250px to 90px and center aligning its content*/
+/* Shrinking the sidebar from 250px to 80px and center aligning its content*/
 #sidebar.active {
-    min-width: 90px;
-    max-width: 90px;
+    min-width: 80px;
+    max-width: 80px;
     text-align: center;
 }
 
@@ -362,19 +362,19 @@
     display: none;
 }
 
-#sidebar .sidebar-footer .hide-on-expand{
+#sidebar .hide-on-expand{
     display: none;
 }
 
-#sidebar .sidebar-footer .hide-on-collapse{
+#sidebar .hide-on-collapse{
     display: inline-block;
 }
 
-#sidebar.active .sidebar-footer .hide-on-collapse{
+#sidebar.active .hide-on-collapse{
     display: none;
 }
 
-#sidebar.active .sidebar-footer .hide-on-expand{
+#sidebar.active .hide-on-expand{
     display: block;
 }
 
