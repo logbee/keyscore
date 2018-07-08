@@ -59,8 +59,12 @@ export interface AppState {
                             <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
                                 <img src="/assets/images/flags/{{translate.currentLang}}.svg"
                                      width="24px" height="16px"/>
-                                <span *ngIf="translate.currentLang == 'de' && isSideBarExpanded()">{{'LANGUAGES.GERMAN' | translate}}</span>
-                                <span *ngIf="translate.currentLang == 'en' && isSideBarExpanded()">{{'LANGUAGES.ENGLISH' | translate}}</span>
+                                <span *ngIf="translate.currentLang == 'de' && isSideBarExpanded()">
+                                    {{'LANGUAGES.GERMAN' | translate}}
+                                </span>
+                                <span *ngIf="translate.currentLang == 'en' && isSideBarExpanded()">
+                                    {{'LANGUAGES.ENGLISH' | translate}}
+                                </span>
                             </a>
                             <div class="dropdown-menu">
                             <span class="dropdown-item" style="{cursor: pointer;}" (click)="setLanguage('de')">
@@ -105,7 +109,7 @@ export interface AppState {
                     </div>
                 </div>
             </div>
-            
+
         </div>
     `,
     providers: [
@@ -150,7 +154,7 @@ export class AppComponent {
     }
 
     public isSideBarExpanded() {
-       return this.sideBarClassName === ""
+        return this.sideBarClassName === "";
     }
 
     protected showSettings() {

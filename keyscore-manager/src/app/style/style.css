@@ -111,39 +111,45 @@
 }
 
 /*-------------- Health Status -------------------*/
-.health-light-Green {
-    background: lime;
-    background-size: 5px 5px;
-    width: 1.5em;
-    height: 1.5em;
+.health-light-Red {
+    width: 12px;
+    height: 12px;
+    margin-right:5px;
+    background-color: #6e1e01;
     border-radius: 50%;
-    border: none;
-    box-shadow: 0 0 0.8em #111 inset,
-    0 0 1.2em lime;
 }
 
-.health-light-Red {
-    background: red;
-    background-size: 5px 5px;
-    width: 1.5em;
-    height: 1.5em;
-    border-radius: 50%;
-    border: none;
-    box-shadow: 0 0 0.8em #111 inset,
-    0 0 1.2em red;
+.health-light-Red.Red{
+    background-color: red;
+    box-shadow: inset #600 0 -1px 9px, #F00 0 2px 6px;
 
 }
 
 .health-light-Yellow {
-    background: yellow;
-    background-size: 5px 5px;
-    width: 1.5em;
-    height: 1.5em;
+    width: 12px;
+    height: 12px;
+    margin-right:5px;
+    background-color: #6d5c00;
     border-radius: 50%;
-    border: none;
-    box-shadow: 0 0 0.8em #111 inset,
-    0 0 1.2em yellow;
-    transition: all 1s ease-in;
+}
+
+.health-light-Yellow.Yellow{
+    background-color: yellow;
+    box-shadow: inset #660 0 -1px 9px, #DD0 0 2px 6px;
+
+}
+
+.health-light-Green {
+    width: 12px;
+    height: 12px;
+    background-color: #3a6300;
+    border-radius: 50%;
+}
+
+.health-light-Green.Green{
+    background-color: lime;
+    box-shadow: inset #460 0 -1px 9px, #7D0 0 2px 6px;
+
 }
 
 /*------------------ Loader ---------------------*/
@@ -224,7 +230,7 @@
 }
 
 .loading-background {
-    background: #365880;
+    background: #354970;
     height: 100vh;
     width: 100vw;
     margin-top: -16px;

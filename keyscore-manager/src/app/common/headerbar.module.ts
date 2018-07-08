@@ -13,7 +13,7 @@ import {HeaderBarComponent} from "./headerbar.component";
     ],
     declarations: [HeaderBarComponent],
     entryComponents: [HeaderBarComponent],
-    exports:[HeaderBarComponent],
+    exports: [HeaderBarComponent],
     providers: [],
 })
 export class HeaderBarModule {

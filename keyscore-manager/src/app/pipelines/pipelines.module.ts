@@ -31,6 +31,7 @@ import {PipelinesEffects} from "./pipelines.effects";
 import {PipelinesModuleState} from "./pipelines.model";
 import {PipelinesReducer} from "./pipelines.reducer";
 import {HeaderBarModule} from "../common/headerbar.module";
+import {HealthComponent} from "../common/health/health.component";
 
 export const routes: Routes = [
     {path: "pipeline", component: PipelinesComponent},
@@ -64,6 +65,7 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         FilterInformationComponent,
         LoadingFullViewComponent,
         LoadingComponent,
+        HealthComponent,
         RefreshTimeComponent,
         ParameterList,
         ParameterMap,

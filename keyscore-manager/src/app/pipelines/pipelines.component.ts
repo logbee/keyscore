@@ -45,7 +45,8 @@ import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.mod
                     <div *ngFor="let pipeline of pipelines$ | async; let i = index" class="card">
                         <a class="card-header btn d-flex justify-content-between"
                            routerLink="/pipelines/pipeline/{{pipeline.id}}">
-                            <h5>{{pipeline.name}}</h5><span class="health-light-{{pipeline.health}}"></span>
+                            <h5>{{pipeline.name}}</h5>
+                            <span><health-light [health]="pipeline.health"></health-light></span>
                         </a>
                         <div class="card-body">
                             <small>{{pipeline.description}}</small>
