@@ -1,12 +1,10 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
 import {Blockly} from "node-blockly/browser";
-import {BehaviorSubject, combineLatest, Observable, ReplaySubject} from "rxjs";
-import {filter, first, last, map, startWith, take} from "rxjs/internal/operators";
+import {BehaviorSubject, combineLatest, Observable} from "rxjs";
+import {filter, map, takeWhile} from "rxjs/internal/operators";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
-import {
-    FilterDescriptor, InternalPipelineConfiguration, PipelineConfiguration
-} from "../../pipelines.model";
+import {FilterDescriptor, InternalPipelineConfiguration, PipelineConfiguration} from "../../pipelines.model";
 import Workspace = Blockly.Workspace;
 
 declare var Blockly: any;
@@ -14,32 +12,33 @@ declare var Blockly: any;
 @Component({
     selector: "blockly-workspace",
     template: `
-        <div class="row pl-1" style="min-height:600px">
+        <div class="ml-2">
+            <div class="row" style="min-height:600px">
 
-            <div id="blocklyArea" class="col-8 pr-2" style="position:relative">
-                <div id="blocklyDiv" style="position: absolute"></div>
+                <div id="blocklyDiv" class="col-8 p-0"></div>
+
+                <filter-information [selectedFilter]="selectedFilter$ | async" id="code"
+                                    class="col-4"></filter-information>
+
             </div>
-
-            <filter-information [selectedFilter]="selectedFilter$ | async" id="code" class="col-4"></filter-information>
-
-        </div>
-        <div class="row pl-2 mt-1">
-            <div class="col-8 card p-0">
-                <div class="d-flex justify-content-between card-footer">
-                    <div>
-                        <button class="btn btn-danger" (click)="deletePipeline()"><img
-                                src="/assets/images/ic_delete_white_24px.svg"
-                                alt="Delete"/> {{'GENERAL.DELETE' | translate}}
-                        </button>
-                    </div>
-                    <div>
-                        <button clasS="btn btn-secondary mr-1" (click)="cancelPipelineEditing()"><img
-                                src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/>
-                            {{'GENERAL.CANCEL' | translate}}
-                        </button>
-                        <button class="btn btn-success" (click)="savePipelineEditing()">
-                            <img src="/assets/images/ic_save_white.svg" alt="Save"/> {{'GENERAL.SAVE' | translate}}
-                        </button>
+            <div class="row mt-1">
+                <div class="col-8 p-0 card">
+                    <div class="d-flex justify-content-between card-footer">
+                        <div>
+                            <button class="btn btn-danger" (click)="deletePipeline()"><img
+                                    src="/assets/images/ic_delete_white_24px.svg"
+                                    alt="Delete"/> {{'GENERAL.DELETE' | translate}}
+                            </button>
+                        </div>
+                        <div>
+                            <button clasS="btn btn-secondary mr-1" (click)="cancelPipelineEditing()"><img
+                                    src="/assets/images/ic_cancel_white_24px.svg" alt="Cancel"/>
+                                {{'GENERAL.CANCEL' | translate}}
+                            </button>
+                            <button class="btn btn-success" (click)="savePipelineEditing()">
+                                <img src="/assets/images/ic_save_white.svg" alt="Save"/> {{'GENERAL.SAVE' | translate}}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -52,7 +51,7 @@ declare var Blockly: any;
     ]
 })
 
-export class BlocklyComponent implements OnInit {
+export class BlocklyComponent implements OnInit, OnDestroy {
     @Input() public pipeline: InternalPipelineConfiguration;
     @Input() public filterDescriptors$: Observable<FilterDescriptor[]>;
     @Input() public categories$: Observable<string[]>;
@@ -64,25 +63,29 @@ export class BlocklyComponent implements OnInit {
     private workspace: Workspace = undefined;
 
     private blocklyDiv;
-    private blocklyArea;
     private toolbox: any;
+    private isAlive: boolean = true;
+    private loadingObservable$: Observable<boolean>;
 
     private selectedFilter$: Observable<FilterDescriptor | InternalPipelineConfiguration>;
     private selectedBlockName$: BehaviorSubject<string> = new BehaviorSubject("pipeline_configuration");
 
     constructor(private toolbarBuilder: ToolBarBuilderService, private translate: TranslateService) {
-
     }
 
     public ngOnInit(): void {
-        this.isLoading$.pipe(first((b) => b === false))
-            .subscribe((_) => this.initBlockly());
-
         this.selectedFilter$ = combineLatest(this.selectedBlockName$, this.filterDescriptors$).pipe(
             map(([name, descriptors]) =>
-                name === "pipeline_configuration" ? this.pipeline : descriptors.filter((d) => d.name === name)[0])
+                name === "pipeline_configuration" ? this.pipeline : descriptors.find((d) => d.name === name))
         );
 
+        this.loadingObservable$ = this.isLoading$.pipe(takeWhile(() => this.isAlive),
+            filter((loading) => loading === false));
+        this.initBlockly();
+    }
+
+    public ngOnDestroy() {
+        this.isAlive = false;
     }
 
     public savePipelineEditing() {
@@ -102,58 +105,45 @@ export class BlocklyComponent implements OnInit {
         }
     }
 
-    private onResize(e: any) {
-        const element = this.blocklyArea;
-
-        // Position blocklyDiv over blocklyArea.
-        this.blocklyDiv.style.left = element.offsetLeft + "px";
-        this.blocklyDiv.style.top = element.offsetTop + "px";
-        this.blocklyDiv.style.width = this.blocklyArea.offsetWidth + "px";
-        this.blocklyDiv.style.height = this.blocklyArea.offsetHeight + "px";
-
-    }
-
     private initBlockly() {
         this.blocklyDiv = document.getElementById("blocklyDiv");
-        this.blocklyArea = document.getElementById("blocklyArea");
         this.toolbarBuilder.createPipelineBlock();
 
-        combineLatest(this.filterDescriptors$, this.categories$).subscribe(([descriptors, categories]) => {
-            let currentWorkspace;
-            if (typeof this.workspace !== "undefined") {
-                currentWorkspace = Blockly.Xml.workspaceToDom(this.workspace);
-            }
-            this.toolbox = this.toolbarBuilder.createToolbar(descriptors, categories);
-            const currentBlocklyDiv = document.getElementById("blocklyDiv");
-            while (currentBlocklyDiv.firstChild) {
-                currentBlocklyDiv.removeChild(currentBlocklyDiv.firstChild);
-            }
-            this.workspace = Blockly.inject("blocklyDiv", {
-                toolbox: this.toolbox,
-                zoom:
-                    {
-                        controls: true,
-                        wheel: true,
-                        startScale: 1.0,
-                        maxScale: 3,
-                        minScale: 0.3,
-                        scaleSpeed: 1.2
-                    }
+        combineLatest(this.filterDescriptors$, this.categories$, this.loadingObservable$)
+            .pipe(takeWhile((_) => this.isAlive))
+            .subscribe(([descriptors, categories, isLoading]) => {
+                let currentWorkspace;
+                if (typeof this.workspace !== "undefined") {
+                    currentWorkspace = Blockly.Xml.workspaceToDom(this.workspace);
+                }
+                this.toolbox = this.toolbarBuilder.createToolbar(descriptors, categories);
+                const currentBlocklyDiv = document.getElementById("blocklyDiv");
+                while (currentBlocklyDiv.firstChild) {
+                    currentBlocklyDiv.removeChild(currentBlocklyDiv.firstChild);
+                }
+                this.workspace = Blockly.inject("blocklyDiv", {
+                    toolbox: this.toolbox,
+                    zoom:
+                        {
+                            controls: true,
+                            wheel: true,
+                            startScale: 1.0,
+                            maxScale: 3,
+                            minScale: 0.3,
+                            scaleSpeed: 1.2
+                        }
+                });
+                this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
+                const pipelineBlockXml =
+                    '<xml><block type="pipeline_configuration" deletable="false" movable="false"></block></xml>';
+                Blockly.Xml.domToWorkspace(
+                    typeof currentWorkspace === "undefined" ?
+                        Blockly.Xml.textToDom(pipelineBlockXml) :
+                        currentWorkspace, this.workspace);
+
             });
-            this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
-            const pipelineBlockXml =
-                '<xml><block type="pipeline_configuration" deletable="false" movable="false"></block></xml>';
-            Blockly.Xml.domToWorkspace(
-                typeof currentWorkspace === "undefined" ?
-                    Blockly.Xml.textToDom(pipelineBlockXml) :
-                    currentWorkspace, this.workspace);
-
-        });
         this.workspace.addChangeListener(Blockly.Events.disableOrphans);
-        window.addEventListener("resize", this.onResize, false);
-        this.onResize(null);
         Blockly.svgResize(this.workspace);
-
     }
 
     private updateSelectedBlock(blockId: string) {

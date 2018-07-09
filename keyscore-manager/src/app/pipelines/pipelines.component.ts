@@ -14,42 +14,44 @@ import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.mod
     selector: "keyscore-pipelines",
     template: `
         <!--<header-bar title="Pipelines"></header-bar>-->
-        <div class="card">
-            <div class="card-header">
+        <div class=" ml-2 mt-2">
+            <div class="card">
+                <div class="card-header">
 
-                <div class="row">
-                    <div class="col-1 mr-5">
-                        <button type="button" class="btn btn-success" (click)="createPipeline(true)">
-                            {{'PIPELINECOMPONENT.CREATE' | translate}}
-                        </button>
-                    </div>
+                    <div class="row">
+                        <div class="col-1 mr-5">
+                            <button type="button" class="btn btn-success" (click)="createPipeline(true)">
+                                {{'PIPELINECOMPONENT.CREATE' | translate}}
+                            </button>
+                        </div>
 
-                    <div class="col-1">
-                        <refresh-time [refreshTime]="refreshTime$|async"
-                                      (update)="updateRefreshTime($event)"></refresh-time>
+                        <div class="col-1">
+                            <refresh-time [refreshTime]="refreshTime$|async"
+                                          (update)="updateRefreshTime($event)"></refresh-time>
+                        </div>
+                        <loading *ngIf="isLoading$|async" class="col-1 ml-auto align-self-center"></loading>
                     </div>
-                    <loading *ngIf="isLoading$|async" class="col-1 ml-auto align-self-center"></loading>
+                </div>
+                <div class="input-group card-body mt-1">
+                    <input type="text" class="form-control" placeholder="search..." aria-label="search">
+                    <div class="input-group-append">
+                        <img class="input-group-text" width="40em" height="40em"
+                             src="/assets/images/magnifying-glass.svg"/>
+                    </div>
                 </div>
             </div>
-            <div class="input-group card-body mt-1">
-                <input type="text" class="form-control" placeholder="search..." aria-label="search">
-                <div class="input-group-append">
-                    <img class="input-group-text" width="40em" height="40em"
-                         src="/assets/images/magnifying-glass.svg"/>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-12">
-                <div class="card-columns">
-                    <div *ngFor="let pipeline of pipelines$ | async; let i = index" class="card">
-                        <a class="card-header btn d-flex justify-content-between"
-                           routerLink="/pipelines/pipeline/{{pipeline.id}}">
-                            <h5>{{pipeline.name}}</h5>
-                            <span><health-light [health]="pipeline.health"></health-light></span>
-                        </a>
-                        <div class="card-body">
-                            <small>{{pipeline.description}}</small>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="card-columns">
+                        <div *ngFor="let pipeline of pipelines$ | async; let i = index" class="card">
+                            <a class="card-header btn d-flex justify-content-between"
+                               routerLink="/pipelines/pipeline/{{pipeline.id}}">
+                                <h5>{{pipeline.name}}</h5>
+                                <span><health-light [health]="pipeline.health"></health-light></span>
+                            </a>
+                            <div class="card-body">
+                                <small>{{pipeline.description}}</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -86,7 +88,7 @@ export class PipelinesComponent implements OnDestroy {
         }
     }
 
-    public updateRefreshTime(refreshTimes: {newRefreshTime: number, oldRefreshTime: number}) {
+    public updateRefreshTime(refreshTimes: { newRefreshTime: number, oldRefreshTime: number }) {
         this.store.dispatch(new UpdateRefreshTimeAction(refreshTimes.newRefreshTime, refreshTimes.oldRefreshTime));
     }
 }

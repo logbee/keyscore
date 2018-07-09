@@ -29,13 +29,14 @@ import {
     UpdatePipelineAction,
     UpdatePipelineWithBlocklyAction,
 } from "../pipelines.actions";
+import {share} from "rxjs/internal/operators";
 
 @Component({
     selector: "pipeline-editor",
     styles: [".filter-component{transition: 0.25s ease-in-out;}"],
     template: `
         <loading-full-view *ngIf="isLoading$|async"></loading-full-view>
-        <div *ngIf="!(isLoading$|async)" class="row justify-content-center">
+        <div *ngIf="!(isLoading$|async)" class="row justify-content-center ml-2 mt-2">
             <div *ngIf="!blocklyFlag" class="col-3">
                 <pipeline-details [pipeline]="pipeline$ | async"
                                   [locked$]="isLocked$"
@@ -101,7 +102,7 @@ export class PipelineEditorComponent {
 
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
-        this.isLoading$ = this.store.select(isSpinnerShowing);
+        this.isLoading$ = this.store.select(isSpinnerShowing).pipe(share());
         this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
         this.pipeline$.subscribe((pipeline) => {
