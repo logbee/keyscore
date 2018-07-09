@@ -38,16 +38,16 @@ subprojects {
 
     apply plugin: 'com.bmuschko.docker-remote-api'
 
-    docker {
-        if (dockerRegistryUserIsDefined && dockerRegistryPasswordIsDefined) {
-            logger.info("Registry credentials set for: $dockerRegistryUrl")
-            registryCredentials {
-                url = dockerRegistryUrl
-                username = "$dockerRegistryUser"
-                password = "$dockerRegistryPassword"
-            }
-        }
-    }
+//    docker {
+//        if (dockerRegistryUserIsDefined && dockerRegistryPasswordIsDefined) {
+//            logger.info("Registry credentials set for: $dockerRegistryUrl")
+//            registryCredentials {
+//                url = dockerRegistryUrl
+//                username = "$dockerRegistryUser"
+//                password = "$dockerRegistryPassword"
+//            }
+//        }
+//    }
 }
 
 task setupDockerNetwork(type: DockerInspectNetwork) {
