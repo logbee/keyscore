@@ -197,6 +197,18 @@ object FrontierApplication extends App with Json4sSupport {
                   case _ => complete(StatusCodes.InternalServerError)
                 }
               }
+            }~
+            pathPrefix("filterConfig") {
+              get {
+                onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+                  case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
+                    case Some(filter) => complete(StatusCodes.OK, filter)
+                    case None => complete(StatusCodes.NotFound
+                    )
+                  }
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
             }
         }
       } ~

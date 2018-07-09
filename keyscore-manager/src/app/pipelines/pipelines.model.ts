@@ -18,7 +18,7 @@ export class PipelinesState {
 }
 
 export interface FilterState {
-    filterId: string;
+    filter: FilterConfiguration;
 }
 
 export interface PipelineInstance {
@@ -101,7 +101,9 @@ export const getFilterState = createSelector(getPipelinesModuleState,
     (state: PipelinesModuleState) => state.filter);
 
 export const getFilterId = createSelector(getFilterState,
-    (state: FilterState) => state.filterId);
+    (state: FilterState) => state.filter.id);
+
+export const getLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
 
 export const getPipelineList = createSelector(getPipelinesState,
     (state: PipelinesState) => state.pipelineList);
@@ -123,10 +125,6 @@ export const getEditingFilterParameters = createSelector(getPipelinesState,
 
 export const getEditingFilter = createSelector(getPipelinesState,
     (state: PipelinesState) => state.editingFilter);
-
-export const getFilterById = (id) => createSelector(getPipelinesState,
-    (state: PipelinesState) =>
-        state.editingPipeline.filters.find((filter: FilterConfiguration) => filter.id === id));
 
 export const getPipelinePolling = createSelector(getPipelinesState,
     (state: PipelinesState) => state.pipelineInstancePolling);

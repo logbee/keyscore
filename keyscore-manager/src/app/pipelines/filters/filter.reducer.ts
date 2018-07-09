@@ -1,9 +1,12 @@
-import {resetFakeAsyncZone} from "@angular/core/testing";
 import {FilterState} from "../pipelines.model";
-import {CONFIGURE_FILTER, FiltersActions, LOCK_FILTER} from "./filters.actions";
+import {FiltersActions, SET_LIVE_EDITING_FILTER} from "./filters.actions";
 
 const initialState: FilterState = {
-    filterId: ""
+    filter: {
+        id: "",
+        descriptor: null,
+        parameters: []
+    }
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
@@ -11,11 +14,9 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
     const result: FilterState = Object.assign({}, state);
 
     switch (action.type) {
-        case CONFIGURE_FILTER:
-            result.filterId = action.id;
-
-        // case LOCK_FILTER:
-        //     result.filter = action.filter
+        case SET_LIVE_EDITING_FILTER:
+            console.log("Set new State with:" + action.filter);
+            result.filter = action.filter;
     }
     return result;
 }

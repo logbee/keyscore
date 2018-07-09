@@ -1,9 +1,8 @@
 import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
-import {mergeMap} from "rxjs/internal/operators";
-import {FilterConfiguration, FilterState, getFilterById, getFilterId} from "../../pipelines.model";
+import {FilterConfiguration, FilterState, getLiveEditingFilter} from "../../pipelines.model";
 
 @Component({
     selector: "live-editing",
@@ -38,18 +37,17 @@ export class LiveEditingComponent {
     private errorHandling: boolean = false;
     private errorMessage: string;
     private httpError: string;
-
     constructor(private store: Store<FilterState>, private translate: TranslateService) {
-        this.filter$ = this.store.select(getFilterId).pipe(mergeMap((id) => this.store.select(getFilterById(id))));
-
-        this.filter$.subscribe((filter) => {
-            if (typeof(filter) === "undefined") {
-                this.errorHandling = true;
-                this.translate.get("FILTERLIVEEDITINGCOMPONENT.NOTFOUND").subscribe(
-                    (translation) => this.errorMessage = translation);
-                this.httpError = "404";
-            }
-        });
+        this.filter$ = this.store.select(getLiveEditingFilter);
+        this.filter$.subscribe((filter) => console.log("Filter:" + filter.id));
+        // this.filter$.subscribe((filter) => {
+        //     if (typeof(filter) === "undefined") {
+        //         this.errorHandling = true;
+        //         this.translate.get("FILTERLIVEEDITINGCOMPONENT.NOTFOUND").subscribe(
+        //             (translation) => this.errorMessage = translation);
+        //         this.httpError = "404";
+        //     }
+        // });
     }
 
     public applyConfiguration(regex: string) {

@@ -1,5 +1,7 @@
 import {Component, Input} from "@angular/core";
-import {FilterConfiguration} from "../../../pipelines.model";
+import {FilterConfiguration, FilterState} from "../../../pipelines.model";
+import {TranslateService} from "@ngx-translate/core";
+import {Store} from "@ngrx/store";
 
 @Component({
     selector: "filter-description",
@@ -19,9 +21,10 @@ import {FilterConfiguration} from "../../../pipelines.model";
                     </thead>
                     <tbody>
                     <tr>
-                        <td>{{currentFilter.descriptor.displayName}}</td>
-                        <td>{{currentFilter.descriptor.description}}</td>
-                        <td>{{currentFilter.id}}</td>
+                        <td>{{currentFilter.descriptor !== null ? currentFilter.descriptor.displayName : ""}}</td>
+                        <td>{{currentFilter.descriptor !== null ?
+                                currentFilter.descriptor.description : ""}}</td>
+                        <td>{{currentFilter.id !== null ? currentFilter.id : ""}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -33,5 +36,6 @@ import {FilterConfiguration} from "../../../pipelines.model";
 export class FilterDescriptionComponent {
 
     @Input() public currentFilter: FilterConfiguration;
-
+    constructor( private translate: TranslateService) {
+    }
 }

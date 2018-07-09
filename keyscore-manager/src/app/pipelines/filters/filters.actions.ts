@@ -1,54 +1,41 @@
 import {Action} from "@ngrx/store";
-import {FilterConfiguration, FilterDescriptor} from "../pipelines.model";
+import {FilterConfiguration, FilterDescriptor, PipelineConfiguration, PipelineInstance} from "../pipelines.model";
 
-export const LOAD_FILTER_DESCRIPTOR_SUCCESS = "[Filter] LoadFilterDescriptorSuccess";
-export const LOAD_FILTER_DESCRIPTOR = "[Filter] LoadFilterDescriptor";
-export const LOAD_FILTER_DESCRIPTOR_FAILURE = "[Filter] LoadFilterDescriptorFailure";
-export const CONFIGURE_FILTER = "[Filter] ConfigureFilter";
-export const LOCK_FILTER = "[Filter] LockFilter";
+export const LOAD_LIVE_EDITING_FILTER = "[Filter] LoadLiveEditingFilterAction";
+export const LOAD_LIVE_EDITING_FILTER_FAILURE = "[Filter] LoadLiveEditingFilterFailureAction";
+export const SET_LIVE_EDITING_FILTER = "[Filter] SetLiveEditingFilterAction";
+export const SET_LIVE_EDITING_FILTER_FAILURE = "[Filter] SetLiveEditingFilterFailureAction";
 
 export type FiltersActions =
-|LoadFilterDescriptorAction
-|LoadFilterDescriptorSuccessAction
-|LoadFilterDescriptorFailureAction
-|ConfigureFilterAction
-|LockEditingFilterAction;
+    | LoadLiveEditingFilterAction
+    | LoadLiveEditingFilterFailureAction
+    | SetLiveEditingFilterFailureAction
+    | SetLiveEditingFilterAction;
 
-export class LoadFilterDescriptorAction implements Action {
-    public readonly type = LOAD_FILTER_DESCRIPTOR;
+export class LoadLiveEditingFilterAction implements Action {
+    public readonly type = LOAD_LIVE_EDITING_FILTER;
 
-    constructor(readonly  filterName: string) {
-
+    constructor(readonly filterId: string) {
     }
 }
 
-export class LoadFilterDescriptorFailureAction implements Action {
-    public readonly type = LOAD_FILTER_DESCRIPTOR_FAILURE;
+export class LoadLiveEditingFilterFailureAction implements Action {
+    public readonly type = LOAD_LIVE_EDITING_FILTER_FAILURE;
 
     constructor(readonly cause: any) {
     }
 }
 
-export class LoadFilterDescriptorSuccessAction implements Action {
-    public readonly type = LOAD_FILTER_DESCRIPTOR_SUCCESS;
-
-    constructor(readonly  filterDescriptor: FilterDescriptor) {
-
-    }
-}
-
-export class ConfigureFilterAction implements Action {
-    public readonly  type = CONFIGURE_FILTER;
-
-    constructor(readonly id: string) {
-
-    }
-}
-
-export class LockEditingFilterAction implements Action {
-    public readonly type = LOCK_FILTER;
+export class SetLiveEditingFilterAction implements Action {
+    public readonly type = SET_LIVE_EDITING_FILTER;
 
     constructor(readonly filter: FilterConfiguration) {
+    }
+}
 
+export class SetLiveEditingFilterFailureAction implements Action {
+    public readonly type = SET_LIVE_EDITING_FILTER_FAILURE;
+
+    constructor(readonly cause: any) {
     }
 }

@@ -6,9 +6,17 @@ import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module
 import {Action, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable, of} from "rxjs/index";
-import {mergeMap} from "rxjs/internal/operators";
+import {catchError, map, mergeMap, switchMap} from "rxjs/internal/operators";
 import {AppState} from "../../app.component";
-import {ConfigureFilterAction} from "./filters.actions";
+import {
+    LOAD_LIVE_EDITING_FILTER,
+    LoadLiveEditingFilterAction,
+    SetLiveEditingFilterAction,
+    SetLiveEditingFilterFailureAction
+} from "./filters.actions";
+import {FilterConfiguration} from "../pipelines.model";
+import {combineLatest} from "rxjs/operators";
+import {selectAppConfig} from "../../app.config";
 
 @Injectable()
 export class FilterEffects {
@@ -16,20 +24,36 @@ export class FilterEffects {
     @Effect()
     public navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
-        mergeMap((action: RouterNavigationAction) => {
-            const navigationAction = action as RouterNavigationAction;
-            const url = navigationAction.payload.event.url;
-            const currentFilterId = url.substr(url.lastIndexOf("/") + 1, url.length);
-            const filterWithId = /\/filter\/.*/g;
-            if (filterWithId.test(url)) {
-                return of(new ConfigureFilterAction(currentFilterId));
+        mergeMap((action) => {
+                const navigationAction = action as RouterNavigationAction;
+                const url = navigationAction.payload.event.url;
+                const filterId = url.substring(url.lastIndexOf("/") + 1, url.length);
+                const filterIdRegex = /\/pipelines\/filter\/.*/g;
+                if (filterIdRegex.test(url)) {
+                    return of(new LoadLiveEditingFilterAction(filterId));
+                }
+                return of();
             }
-            return of();
-        }));
+        )
+    );
+    @Effect()
+    public loadFilterConfiguration$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_LIVE_EDITING_FILTER),
+        map((action) => (action as LoadLiveEditingFilterAction)),
+        combineLatest(this.store.select(selectAppConfig)),
+        switchMap(([action, appconfig]) => {
+            return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
+                "/filter/" + action.filterId + "/filterConfig").pipe(
+                map((data: FilterConfiguration) => new SetLiveEditingFilterAction(data)),
+                catchError((cause: any) => of(new SetLiveEditingFilterFailureAction(cause)))
+            );
+        })
+    );
 
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
                 private http: HttpClient,
                 private translate: TranslateService) {
     }
+
 }
