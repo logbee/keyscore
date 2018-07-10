@@ -22,7 +22,7 @@ export interface AppState {
     selector: "my-app",
     template: `
         <div class="wrapper">
-            <sidemenu (toggleSidebar)="toggleMenu()"></sidemenu>
+            <sidemenu (toggleSidebar)="toggleMenu()" (updateLanguage)="setLanguage($event)"></sidemenu>
             <div id="modal">
                 <ng-template #modal></ng-template>
             </div>

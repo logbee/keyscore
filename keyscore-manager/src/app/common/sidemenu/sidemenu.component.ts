@@ -100,6 +100,10 @@ export class SidemenuComponent {
         this.toggleSidebar.emit();
     }
 
+    public setLanguage(lang: string) {
+        this.updateLanguage.emit(lang);
+    }
+
     public isSideBarExpanded() {
         return this.sideBarClassName === "";
     }
