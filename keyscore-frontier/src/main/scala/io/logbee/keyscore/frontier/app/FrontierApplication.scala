@@ -179,7 +179,7 @@ object FrontierApplication extends App with Json4sSupport {
                 }
               }
             } ~
-            path("configure") {
+            path("config") {
               put {
                 entity(as[FilterConfiguration]) { filterConfig =>
                   onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
@@ -188,17 +188,6 @@ object FrontierApplication extends App with Json4sSupport {
                   }
                 }
               }
-            } ~
-            path("state") {
-              get {
-                onSuccess(pipelineManager ? CheckFilterState(filterId)) {
-                  case CheckFilterStateResponse(state) =>
-                    complete(StatusCodes.Accepted, state)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              }
-            }~
-            pathPrefix("filterConfig") {
               get {
                 onSuccess(pipelineManager ? RequestExistingConfigurations()) {
                   case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
@@ -206,6 +195,15 @@ object FrontierApplication extends App with Json4sSupport {
                     case None => complete(StatusCodes.NotFound
                     )
                   }
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            } ~
+            path("state") {
+              get {
+                onSuccess(pipelineManager ? CheckFilterState(filterId)) {
+                  case CheckFilterStateResponse(state) =>
+                    complete(StatusCodes.Accepted, state)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
               }

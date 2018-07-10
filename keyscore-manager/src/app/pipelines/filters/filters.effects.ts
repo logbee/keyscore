@@ -46,7 +46,7 @@ export class FilterEffects {
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/filterConfig").pipe(
+                "/filter/" + action.filterId + "/config").pipe(
                 map((data: FilterConfiguration) => new LoadLiveEditingFilterSuccess(data)),
                 catchError((cause: any) => of(new LoadLiveEditingFilterFailure(cause)))
             );

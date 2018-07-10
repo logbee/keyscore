@@ -4,13 +4,13 @@ import {Component, Input} from "@angular/core";
     selector: "error-component",
     template: `
         <div class="row pb-3"
-             style="background-color: rgba(0,0,0,0.69); max-height: 40vh; min-height: 40vh; margin-top: -20px">
+             style="background-color: #365078; max-height: 50vh; min-height: 50vh;">
             <div class="col text-center">
-                <img class="mt-3" src="/assets/images/logos/keyscore.dark.svg"
-                     style="height:38vh; width: 100vw">
+                <img class="mt-lg-4 pr-lg-5" src="/assets/images/logos/keyscore.dark.svg"
+                     style="height:40vh; width: 100vw">
             </div>
         </div>
-        <div class="row" style="min-height: 54.9vh; background-color: rgba(0,0,0,0.35)">
+        <div class="row" style="min-height: 50vh; background-color: #365880">
             <div class="col align-self-center">
                 <div class="row justify-content-center">
                     <h1 style="color: white; font-size: 6em">{{httpError}}</h1>
