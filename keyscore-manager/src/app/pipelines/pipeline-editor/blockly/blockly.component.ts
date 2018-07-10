@@ -6,6 +6,7 @@ import {delay, filter, map, takeWhile} from "rxjs/internal/operators";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
 import {FilterDescriptor, InternalPipelineConfiguration, PipelineConfiguration} from "../../pipelines.model";
 import Workspace = Blockly.Workspace;
+import {BlockBuilderService} from "../../../services/blockly/blockbuilder.service";
 
 declare var Blockly: any;
 
@@ -47,7 +48,8 @@ declare var Blockly: any;
     `,
 
     providers: [
-        ToolBarBuilderService
+        ToolBarBuilderService,
+        BlockBuilderService
     ]
 })
 
@@ -70,7 +72,9 @@ export class BlocklyComponent implements OnInit, OnDestroy {
     private selectedFilter$: Observable<FilterDescriptor | InternalPipelineConfiguration>;
     private selectedBlockName$: BehaviorSubject<string> = new BehaviorSubject("pipeline_configuration");
 
-    constructor(private toolbarBuilder: ToolBarBuilderService, private translate: TranslateService) {
+    constructor(private toolbarBuilder: ToolBarBuilderService,
+                private blockBuilder: BlockBuilderService,
+                private translate: TranslateService) {
     }
 
     public ngOnInit(): void {
@@ -142,11 +146,10 @@ export class BlocklyComponent implements OnInit, OnDestroy {
                 });
                 this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
                 this.workspace.addChangeListener(Blockly.Events.disableOrphans);
-                const pipelineBlockXml =
-                    '<xml><block type="pipeline_configuration" deletable="false" movable="false"></block></xml>';
+
                 Blockly.Xml.domToWorkspace(
                     typeof currentWorkspace === "undefined" ?
-                        Blockly.Xml.textToDom(pipelineBlockXml) :
+                        Blockly.Xml.textToDom(this.blockBuilder.toBlocklyPipeline(this.pipeline)) :
                         currentWorkspace, this.workspace);
                 Blockly.svgResize(this.workspace);
 

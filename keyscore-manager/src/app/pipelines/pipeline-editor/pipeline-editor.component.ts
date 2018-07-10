@@ -37,6 +37,7 @@ import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
     styles: [".filter-component{transition: 0.25s ease-in-out;}"],
     template: `
         <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
+
         <ng-template #editor>
             <div class="row justify-content-center ml-2 mt-2">
                 <div *ngIf="!blocklyFlag" class="col-3">
@@ -58,7 +59,7 @@ import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
                         </span>
                             <div *ngIf="!(isLocked$ | async)">
                                 <button class="btn btn-success" (click)="addFilter(null)">
-                                    {{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}
+                            {{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}
                                 </button>
                             </div>
                         </div>
