@@ -1,16 +1,14 @@
 import {Action} from "@ngrx/store";
-import {FilterConfiguration, FilterDescriptor, PipelineConfiguration, PipelineInstance} from "../pipelines.model";
+import {FilterConfiguration} from "../pipelines.model";
 
-export const LOAD_LIVE_EDITING_FILTER = "[Filter] LoadLiveEditingFilterAction";
-export const LOAD_LIVE_EDITING_FILTER_FAILURE = "[Filter] LoadLiveEditingFilterFailureAction";
-export const SET_LIVE_EDITING_FILTER = "[Filter] SetLiveEditingFilterAction";
-export const SET_LIVE_EDITING_FILTER_FAILURE = "[Filter] SetLiveEditingFilterFailureAction";
-
+export const LOAD_LIVE_EDITING_FILTER = "[Filter] LoadLiveEditingFilter";
+export const LOAD_LIVE_EDITING_FILTER_FAILURE = "[Filter] LoadLiveEditingFilterFailure";
+export const LOAD_LIVE_EDITING_FILTER_SUCCESS = "[Filter] LoadLiveEditingFilterSuccess";
 export type FiltersActions =
+
     | LoadLiveEditingFilterAction
-    | LoadLiveEditingFilterFailureAction
-    | SetLiveEditingFilterFailureAction
-    | SetLiveEditingFilterAction;
+    | LoadLiveEditingFilterFailure
+    | LoadLiveEditingFilterSuccess;
 
 export class LoadLiveEditingFilterAction implements Action {
     public readonly type = LOAD_LIVE_EDITING_FILTER;
@@ -19,22 +17,15 @@ export class LoadLiveEditingFilterAction implements Action {
     }
 }
 
-export class LoadLiveEditingFilterFailureAction implements Action {
-    public readonly type = LOAD_LIVE_EDITING_FILTER_FAILURE;
-
-    constructor(readonly cause: any) {
-    }
-}
-
-export class SetLiveEditingFilterAction implements Action {
-    public readonly type = SET_LIVE_EDITING_FILTER;
+export class LoadLiveEditingFilterSuccess implements Action {
+    public readonly type = LOAD_LIVE_EDITING_FILTER_SUCCESS;
 
     constructor(readonly filter: FilterConfiguration) {
     }
 }
 
-export class SetLiveEditingFilterFailureAction implements Action {
-    public readonly type = SET_LIVE_EDITING_FILTER_FAILURE;
+export class LoadLiveEditingFilterFailure implements Action {
+    public readonly type = LOAD_LIVE_EDITING_FILTER_FAILURE;
 
     constructor(readonly cause: any) {
     }

@@ -12,8 +12,8 @@
     "NEW": "New",
     "ADD": "Add",
     "CLOSE": "Close",
-    "COLLAPSE":"Collapse",
-    "EXPAND":"Expand"
+    "COLLAPSE": "Collapse",
+    "EXPAND": "Expand"
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",
@@ -58,7 +58,7 @@
     "ID": "ID",
     "HOST": "Host"
   },
-  "FILTERLIVEEDITINGCOMPONENT ": {
+  "FILTERLIVEEDITINGCOMPONENT": {
     "NUMBER": "#",
     "TITLE": "Live Editing",
     "FILTERDESCRIPTION_TITLE": "Filter Description",
@@ -76,18 +76,17 @@
     "MESSAGE_PLACEHOLDER": "Add your message here",
     "NOTFOUND": "The requested filter does not exist"
   },
-  "FILTERSCOMPONENT" : {
+  "FILTERSCOMPONENT": {
     "FILTERS": "Filters"
   },
   "FILTERCHOSERCOMPONENT": {
     "FILTERCHOOSER_TITLE": "Filter Chooser"
-  } ,
-  "PARAMETERCOMPONENT" : {
+  },
+  "PARAMETERCOMPONENT": {
     "ISREQUIRED": "is required"
   },
-
-  "REFRESHCOMPONENT":{
-    "OF":"Of"
+  "REFRESHCOMPONENT": {
+    "OF": "Of"
   },
   "LANGUAGES": {
     "LANGUAGE": "Language",

@@ -21,10 +21,9 @@ import {Store} from "@ngrx/store";
                     </thead>
                     <tbody>
                     <tr>
-                        <td>{{currentFilter.descriptor !== null ? currentFilter.descriptor.displayName : ""}}</td>
-                        <td>{{currentFilter.descriptor !== null ?
-                                currentFilter.descriptor.description : ""}}</td>
-                        <td>{{currentFilter.id !== null ? currentFilter.id : ""}}</td>
+                        <td>{{ currentFilter?.descriptor?.displayName}}</td>
+                        <td>{{ currentFilter?.descriptor?.description}}</td>
+                        <td>{{ currentFilter?.id}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -36,6 +35,4 @@ import {Store} from "@ngrx/store";
 export class FilterDescriptionComponent {
 
     @Input() public currentFilter: FilterConfiguration;
-    constructor( private translate: TranslateService) {
-    }
 }

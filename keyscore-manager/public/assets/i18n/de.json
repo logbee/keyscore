@@ -12,8 +12,8 @@
     "NEW": "Neu",
     "ADD": "Hinzufügen",
     "CLOSE": "Schließen",
-    "COLLAPSE":"Zusammenklappen",
-    "EXPAND":"Ausklappen"
+    "COLLAPSE": "Zusammenklappen",
+    "EXPAND": "Ausklappen"
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",
@@ -76,21 +76,21 @@
     "MESSAGE_PLACEHOLDER": "Beispielnachricht hier angeben",
     "NOTFOUND": "Der angeforderte Filter konnte nicht gefunden werden"
   },
-  "FILTERSCOMPONENT" : {
+  "FILTERSCOMPONENT": {
     "FILTERS": "Filter"
   },
   "FILTERCHOSERCOMPONENT": {
     "FILTERCHOOSER_TITLE": "Filter Auswahl"
-  } ,
-  "PARAMETERCOMPONENT" : {
+  },
+  "PARAMETERCOMPONENT": {
     "ISREQUIRED": "wird benötigt"
   },
-  "REFRESHCOMPONENT":{
-    "OF":"Aus"
+  "REFRESHCOMPONENT": {
+    "OF": "Aus"
   },
   "LANGUAGES": {
-  "LANGUAGE": "Sprache",
-  "GERMAN": "Deutsch",
-  "ENGLISH": "Englisch"
-}
+    "LANGUAGE": "Sprache",
+    "GERMAN": "Deutsch",
+    "ENGLISH": "Englisch"
+  }
 }

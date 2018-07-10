@@ -24,25 +24,37 @@ import {
     UPDATE_REFRESH_TIME,
     UpdateRefreshTimeAction
 } from "./loading.actions";
+import {
+    LoadLiveEditingFilterAction,
+    LOAD_LIVE_EDITING_FILTER, LOAD_LIVE_EDITING_FILTER_FAILURE,
+    LoadLiveEditingFilterSuccess,
+    LoadLiveEditingFilterFailure, LOAD_LIVE_EDITING_FILTER_SUCCESS
+} from "../../pipelines/filters/filters.actions";
 
 type showSpinnerTypes =
     | EditPipelineAction
-    | LoadAllPipelinesAction;
+    | LoadAllPipelinesAction
+    | LoadLiveEditingFilterAction;
 
 const showSpinnerActions = [
     EDIT_PIPELINE,
-    LOAD_ALL_PIPELINES
+    LOAD_ALL_PIPELINES,
+    LOAD_LIVE_EDITING_FILTER
 ];
 
 type hideSpinnerTypes =
     | LoadAllPipelinesSuccessAction
     | EditPipelineSuccessAction
-    | EditPipelineFailureAction;
+    | EditPipelineFailureAction
+    | LoadLiveEditingFilterSuccess
+    | LoadLiveEditingFilterFailure;
 
 const hideSpinnerActions = [
     LOAD_ALL_PIPELINES_SUCCESS,
     EDIT_PIPELINE_SUCCESS,
-    EDIT_PIPELINE_FAILURE
+    EDIT_PIPELINE_FAILURE,
+    LOAD_LIVE_EDITING_FILTER_SUCCESS,
+    LOAD_LIVE_EDITING_FILTER_FAILURE
 ];
 
 @Injectable()

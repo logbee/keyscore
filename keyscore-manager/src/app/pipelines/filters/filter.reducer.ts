@@ -1,5 +1,9 @@
 import {FilterState} from "../pipelines.model";
-import {FiltersActions, SET_LIVE_EDITING_FILTER} from "./filters.actions";
+import {
+    FiltersActions,
+    LOAD_LIVE_EDITING_FILTER_FAILURE,
+    LOAD_LIVE_EDITING_FILTER_SUCCESS
+} from "./filters.actions";
 
 const initialState: FilterState = {
     filter: {
@@ -14,9 +18,14 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
     const result: FilterState = Object.assign({}, state);
 
     switch (action.type) {
-        case SET_LIVE_EDITING_FILTER:
-            console.log("Set new State with:" + action.filter);
+        case LOAD_LIVE_EDITING_FILTER_SUCCESS:
             result.filter = action.filter;
+            break;
+        case LOAD_LIVE_EDITING_FILTER_FAILURE:
+            if (action.cause.status === 404) {
+                result.filter = {id: "404", descriptor: null, parameters: []};
+            }
+            break;
     }
     return result;
 }
