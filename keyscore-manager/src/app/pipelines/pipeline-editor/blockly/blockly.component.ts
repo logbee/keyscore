@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angula
 import {TranslateService} from "@ngx-translate/core";
 import {Blockly} from "node-blockly/browser";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs";
-import {filter, map, takeWhile} from "rxjs/internal/operators";
+import {delay, filter, map, takeWhile} from "rxjs/internal/operators";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
 import {FilterDescriptor, InternalPipelineConfiguration, PipelineConfiguration} from "../../pipelines.model";
 import Workspace = Blockly.Workspace;
@@ -79,8 +79,13 @@ export class BlocklyComponent implements OnInit, OnDestroy {
                 name === "pipeline_configuration" ? this.pipeline : descriptors.find((d) => d.name === name))
         );
 
-        this.loadingObservable$ = this.isLoading$.pipe(takeWhile(() => this.isAlive),
-            filter((loading) => loading === false));
+        this.isLoading$.pipe(takeWhile(() => this.isAlive),
+            filter((loading) => loading === false),
+            delay(1)).subscribe((_) => {
+            Blockly.svgResize(this.workspace);
+            this.selectedBlockName$.next("pipeline_configuration");
+        });
+
         this.initBlockly();
     }
 
@@ -106,12 +111,12 @@ export class BlocklyComponent implements OnInit, OnDestroy {
     }
 
     private initBlockly() {
-        this.blocklyDiv = document.getElementById("blocklyDiv");
         this.toolbarBuilder.createPipelineBlock();
+        this.blocklyDiv = document.getElementById("blocklyDiv");
 
-        combineLatest(this.filterDescriptors$, this.categories$, this.loadingObservable$)
+        combineLatest(this.filterDescriptors$, this.categories$)
             .pipe(takeWhile((_) => this.isAlive))
-            .subscribe(([descriptors, categories, isLoading]) => {
+            .subscribe(([descriptors, categories]) => {
                 let currentWorkspace;
                 if (typeof this.workspace !== "undefined") {
                     currentWorkspace = Blockly.Xml.workspaceToDom(this.workspace);
@@ -134,16 +139,16 @@ export class BlocklyComponent implements OnInit, OnDestroy {
                         }
                 });
                 this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
+                this.workspace.addChangeListener(Blockly.Events.disableOrphans);
                 const pipelineBlockXml =
                     '<xml><block type="pipeline_configuration" deletable="false" movable="false"></block></xml>';
                 Blockly.Xml.domToWorkspace(
                     typeof currentWorkspace === "undefined" ?
                         Blockly.Xml.textToDom(pipelineBlockXml) :
                         currentWorkspace, this.workspace);
+                Blockly.svgResize(this.workspace);
 
             });
-        this.workspace.addChangeListener(Blockly.Events.disableOrphans);
-        Blockly.svgResize(this.workspace);
     }
 
     private updateSelectedBlock(blockId: string) {

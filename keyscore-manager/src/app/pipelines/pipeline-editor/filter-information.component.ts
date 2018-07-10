@@ -6,10 +6,9 @@ import {FilterDescriptor, InternalPipelineConfiguration} from "../pipelines.mode
     template: `
         <div class="card">
             <div class="card-header" style="font-size: 22px">
-                {{selectedFilter !== null ?
-                    selectedFilter.displayName ? selectedFilter.displayName : selectedFilter.name :""}}
+                {{selectedFilter?.displayName ? selectedFilter?.displayName : selectedFilter?.name}}
             </div>
-            <div class="card-body">{{selectedFilter !== null ? selectedFilter.description : ""}}</div>
+            <div class="card-body">{{selectedFilter?.description}}</div>
             <div class="card-footer"></div>
         </div>
     `

@@ -22,6 +22,7 @@ import {PipelinesModule} from "./pipelines/pipelines.module";
 import {RouterEffects} from "./router/router.effects";
 import {SettingsComponent} from "./settings/settings.component";
 import {HeaderBarModule} from "./common/headerbar.module";
+import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
@@ -61,7 +62,8 @@ export function HttpLoaderFactory(http: HttpClient) {
         AppComponent,
         DashboardComponent,
         FilterChooser,
-        SettingsComponent
+        SettingsComponent,
+        SidemenuComponent
     ],
     providers: [
         AppConfigLoader,

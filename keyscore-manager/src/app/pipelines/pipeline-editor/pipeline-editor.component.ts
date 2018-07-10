@@ -35,55 +35,57 @@ import {share} from "rxjs/internal/operators";
     selector: "pipeline-editor",
     styles: [".filter-component{transition: 0.25s ease-in-out;}"],
     template: `
-        <loading-full-view *ngIf="isLoading$|async"></loading-full-view>
-        <div *ngIf="!(isLoading$|async)" class="row justify-content-center ml-2 mt-2">
-            <div *ngIf="!blocklyFlag" class="col-3">
-                <pipeline-details [pipeline]="pipeline$ | async"
-                                  [locked$]="isLocked$"
-                                  (update)="updatePipeline($event)"
-                                  (reset)="resetPipeline($event)"
-                                  (delete)="deletePipeline($event)"
-                                  (lock)="setLocked(true, $event)"
-                                  (unlock)="setLocked(false, $event)">
-                </pipeline-details>
-            </div>
+        <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
+        <ng-template #editor>
+            <div class="row justify-content-center ml-2 mt-2">
+                <div *ngIf="!blocklyFlag" class="col-3">
+                    <pipeline-details [pipeline]="pipeline$ | async"
+                                      [locked$]="isLocked$"
+                                      (update)="updatePipeline($event)"
+                                      (reset)="resetPipeline($event)"
+                                      (delete)="deletePipeline($event)"
+                                      (lock)="setLocked(true, $event)"
+                                      (unlock)="setLocked(false, $event)">
+                    </pipeline-details>
+                </div>
 
-            <div *ngIf="!blocklyFlag" class="col-9">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between">
+                <div *ngIf="!blocklyFlag" class="col-9">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between">
                         <span class="font-weight-bold">
                             {{'PIPELINEEDITORCOMPONENT.PIPELINEBLUEPRINT' | translate}}
                         </span>
-                        <div *ngIf="!(isLocked$ | async)">
-                            <button class="btn btn-success" (click)="addFilter(null)">
-                                {{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}
-                            </button>
+                            <div *ngIf="!(isLocked$ | async)">
+                                <button class="btn btn-success" (click)="addFilter(null)">
+                                    {{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <pipeline-filter class="filter-component"
+                                             *ngFor="let filter of (pipeline$ | async).filters; index as i"
+                                             [filter]="filter"
+                                             [index]="i"
+                                             [filterCount]="(pipeline$|async).filters.length"
+                                             [parameters]="filter.descriptor.parameters"
+                                             [isEditingPipelineLocked$]="isLocked$"
+                                             [editingPipeline]="pipeline$ | async"
+                                             (move)="moveFilter($event)"
+                                             (remove)="removeFilter($event)"
+                                             (update)="updateFilter($event)"
+                                             (liveEdit)="callLiveEditing($event)">
+                            </pipeline-filter>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <pipeline-filter class="filter-component"
-                                         *ngFor="let filter of (pipeline$ | async).filters; index as i"
-                                         [filter]="filter"
-                                         [index]="i"
-                                         [filterCount]="(pipeline$|async).filters.length"
-                                         [parameters]="filter.descriptor.parameters"
-                                         [isEditingPipelineLocked$]="isLocked$"
-                                         [editingPipeline]="pipeline$ | async"
-                                         (move)="moveFilter($event)"
-                                         (remove)="removeFilter($event)"
-                                         (update)="updateFilter($event)"
-                                         (liveEdit)="callLiveEditing($event)">
-                        </pipeline-filter>
-                    </div>
                 </div>
+                <blockly-workspace *ngIf="blocklyFlag" class="col-12"
+                                   [filterDescriptors$]="filterDescriptors$"
+                                   [categories$]="categories$"
+                                   [pipeline]="(pipeline$ | async)"
+                                   [isLoading$]="isLoading$"
+                                   (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
             </div>
-            <blockly-workspace *ngIf="blocklyFlag" class="col-12"
-                               [filterDescriptors$]="filterDescriptors$"
-                               [categories$]="categories$"
-                               [pipeline]="(pipeline$ | async)"
-                               [isLoading$]="isLoading$"
-                               (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
-        </div>
+        </ng-template>
     `,
 })
 export class PipelineEditorComponent {
