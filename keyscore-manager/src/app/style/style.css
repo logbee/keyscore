@@ -121,7 +121,7 @@
 
 .health-light-Red.Red{
     background-color: red;
-    box-shadow: inset #600 0 -1px 9px, #F00 0 2px 6px;
+    box-shadow: inset #600 0 -1px 9px;
 
 }
 
@@ -135,7 +135,7 @@
 
 .health-light-Yellow.Yellow{
     background-color: yellow;
-    box-shadow: inset #660 0 -1px 9px, #DD0 0 2px 6px;
+    box-shadow: inset #660 0 -1px 9px;
 
 }
 
@@ -148,7 +148,7 @@
 
 .health-light-Green.Green{
     background-color: lime;
-    box-shadow: inset #460 0 -1px 9px, #7D0 0 2px 6px;
+    box-shadow: inset #460 0 -1px 9px;
 
 }
 

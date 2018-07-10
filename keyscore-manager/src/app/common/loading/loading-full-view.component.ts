@@ -3,12 +3,11 @@ import {Component} from "@angular/core";
 @Component({
     selector: "loading-full-view",
     template: `
+    <div class="col-12">
         <div class="loading-background">
             <div class="row justify-content-center">
-                <div class="col-12 justify-content-around d-flex mt-5">
-                    <div></div>
-                    <img class="align-self-center" src="/assets/images/logos/keyscore.dark.svg">
-                    <div></div>
+                <div class="col-12 justify-content-center d-flex mt-5">
+                    <img src="/assets/images/logos/keyscore.dark.svg">
                 </div>
             </div>
             <div class="row">
@@ -23,6 +22,7 @@ import {Component} from "@angular/core";
                 </div>
             </div>
         </div>
+    </div>
     `,
 })
 
