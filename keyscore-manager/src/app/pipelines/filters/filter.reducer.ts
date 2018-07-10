@@ -22,6 +22,7 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             result.filter = action.filter;
             break;
         case LOAD_LIVE_EDITING_FILTER_FAILURE:
+            console.log(JSON.stringify(action.cause));
             if (action.cause.status === 404) {
                 result.filter = {id: "", descriptor: null, parameters: []};
             }

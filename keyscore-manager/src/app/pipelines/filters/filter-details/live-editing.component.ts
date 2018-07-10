@@ -54,13 +54,12 @@ export class LiveEditingComponent {
     constructor(private store: Store<FilterState>, private translate: TranslateService) {
         this.loading$ = this.store.select(isSpinnerShowing);
         this.filter$ = this.store.select(getLiveEditingFilter);
-        this.filter$.subscribe((filter) => {
-
-                this.errorHandling = true;
-                this.translate.get("FILTERLIVEEDITINGCOMPONENT.NOTFOUND").subscribe(
-                    (translation) => this.errorMessage = translation);
-                this.httpError = "404";
-        });
+        // this.filter$.subscribe((filter) => {
+                // this.errorHandling = true;
+                // this.translate.get("FILTERLIVEEDITINGCOMPONENT.NOTFOUND").subscribe(
+                //     (translation) => this.errorMessage = translation);
+                // this.httpError = "404";
+        // });
     }
 
     public applyConfiguration(regex: string) {
