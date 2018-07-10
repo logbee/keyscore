@@ -30,6 +30,7 @@ import {
     UpdatePipelineWithBlocklyAction,
 } from "../pipelines.actions";
 import {share} from "rxjs/internal/operators";
+import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
 
 @Component({
     selector: "pipeline-editor",
@@ -83,6 +84,7 @@ import {share} from "rxjs/internal/operators";
                                    [categories$]="categories$"
                                    [pipeline]="(pipeline$ | async)"
                                    [isLoading$]="isLoading$"
+                                   [isMenuExpanded$]="isMenuExpanded$"
                                    (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
             </div>
         </ng-template>
@@ -95,6 +97,7 @@ export class PipelineEditorComponent {
     public categories$: Observable<string[]>;
     public blocklyFlag: boolean;
     public isLoading$: Observable<boolean>;
+    public isMenuExpanded$: Observable<boolean>;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
         this.store.dispatch(new LoadFilterDescriptorsAction());
@@ -105,6 +108,7 @@ export class PipelineEditorComponent {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
         this.isLoading$ = this.store.select(isSpinnerShowing).pipe(share());
+        this.isMenuExpanded$ = this.store.select(isMenuExpanded);
         this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
         this.pipeline$.subscribe((pipeline) => {

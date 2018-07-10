@@ -56,6 +56,7 @@ export class BlocklyComponent implements OnInit, OnDestroy {
     @Input() public filterDescriptors$: Observable<FilterDescriptor[]>;
     @Input() public categories$: Observable<string[]>;
     @Input() public isLoading$: Observable<boolean>;
+    @Input() public isMenuExpanded$: Observable<boolean>;
 
     @Output() public update: EventEmitter<PipelineConfiguration> = new EventEmitter();
     @Output() public remove: EventEmitter<string> = new EventEmitter();
@@ -65,7 +66,6 @@ export class BlocklyComponent implements OnInit, OnDestroy {
     private blocklyDiv;
     private toolbox: any;
     private isAlive: boolean = true;
-    private loadingObservable$: Observable<boolean>;
 
     private selectedFilter$: Observable<FilterDescriptor | InternalPipelineConfiguration>;
     private selectedBlockName$: BehaviorSubject<string> = new BehaviorSubject("pipeline_configuration");
@@ -87,6 +87,8 @@ export class BlocklyComponent implements OnInit, OnDestroy {
         });
 
         this.initBlockly();
+
+        this.isMenuExpanded$.pipe(delay(300)).subscribe((_) => Blockly.svgResize(this.workspace));
     }
 
     public ngOnDestroy() {
