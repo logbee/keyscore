@@ -55,12 +55,11 @@ export class LiveEditingComponent {
         this.loading$ = this.store.select(isSpinnerShowing);
         this.filter$ = this.store.select(getLiveEditingFilter);
         this.filter$.subscribe((filter) => {
-            if (filter.id === "404") {
+
                 this.errorHandling = true;
                 this.translate.get("FILTERLIVEEDITINGCOMPONENT.NOTFOUND").subscribe(
                     (translation) => this.errorMessage = translation);
                 this.httpError = "404";
-            }
         });
     }
 

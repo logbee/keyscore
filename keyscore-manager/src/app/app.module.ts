@@ -23,6 +23,7 @@ import {RouterEffects} from "./router/router.effects";
 import {SettingsComponent} from "./settings/settings.component";
 import {HeaderBarModule} from "./common/headerbar.module";
 import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
+import {ErrorComponent} from "./common/error/error.component";
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},

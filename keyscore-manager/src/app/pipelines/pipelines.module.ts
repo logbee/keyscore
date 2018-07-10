@@ -38,6 +38,7 @@ export const routes: Routes = [
     {path: "pipeline/:id", component: PipelineEditorComponent},
     {path: "filter", component: FiltersComponent},
     {path: "filter/:id", component: LiveEditingComponent},
+    {path: "error", component: ErrorComponent}
 ];
 
 export const reducers: ActionReducerMap<PipelinesModuleState> = {
@@ -72,10 +73,10 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         ParameterComponent,
         LiveEditingComponent,
         FiltersComponent,
-        ErrorComponent,
         FilterDescriptionComponent,
         ExampleMessageComponent,
         PatternComponent,
+        ErrorComponent,
         FilterResultComponent,
     ],
     providers: [],

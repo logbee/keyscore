@@ -1,4 +1,6 @@
 import {Component, Input} from "@angular/core";
+import {constants} from "http2";
+import {HttpResponse} from "@angular/common/http";
 
 @Component({
     selector: "error-component",
@@ -26,6 +28,13 @@ import {Component, Input} from "@angular/core";
 })
 
 export class ErrorComponent {
-    @Input() public httpError: Response;
-    @Input() public message: string;
+    @Input() public httpError?: string;
+    @Input() public message?: string;
+
+    constructor() {
+        if (this.httpError == null || this.message == null) {
+            this.message = "Something went wrong!";
+            this.httpError = "Ups";
+        }
+    }
 }

@@ -8,6 +8,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {Observable, of} from "rxjs/index";
 import {catchError, map, mergeMap, switchMap} from "rxjs/internal/operators";
 import {AppState} from "../../app.component";
+import { ActivatedRoute, Router } from "@angular/router";
 import {
     LOAD_LIVE_EDITING_FILTER,
     LoadLiveEditingFilterAction,
@@ -30,11 +31,11 @@ export class FilterEffects {
                 const url = navigationAction.payload.event.url;
                 const filterId = url.substring(url.lastIndexOf("/") + 1, url.length);
                 const filterIdRegex =
-                    /\/pipelines\/filter\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+                    /\/pipelines\/filter\/.*/g;
                 if (filterIdRegex.test(url)) {
                     return of(new LoadLiveEditingFilterAction(filterId));
                 } else {
-                    return of(new LoadLiveEditingFilterFailure("Invalid url"));
+                    return of();
                 }
             }
         )
@@ -52,16 +53,6 @@ export class FilterEffects {
             );
         })
     );
-    // @Effect()
-    // public redirectToErrorComponent$: Observable<Action> = this.actions$.pipe(
-    //     ofType(LOAD_LIVE_EDITING_FILTER_FAILURE),
-    //     map((action) => (action as LoadLiveEditingFilterFailure)),
-    //     combineLatest(this.store.select(selectAppConfig)),
-    //     switchMap(([action, appconfig]) => {
-    //         console.log("FailureEffect");
-    //         return of(new Go({path: ["/errorhandling"]}));
-    //     })
-// );
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
                 private http: HttpClient,

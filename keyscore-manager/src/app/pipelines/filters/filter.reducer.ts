@@ -23,7 +23,7 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             break;
         case LOAD_LIVE_EDITING_FILTER_FAILURE:
             if (action.cause.status === 404) {
-                result.filter = {id: "404", descriptor: null, parameters: []};
+                result.filter = {id: "", descriptor: null, parameters: []};
             }
             break;
     }
