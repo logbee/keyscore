@@ -36,15 +36,19 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
 
     switch (action.type) {
         case CREATE_PIPELINE:
-            result.editingPipeline = {id: action.id, name: action.name, description: action.description, filters: [],
-                isRunning: false};
+            result.editingPipeline = {
+                id: action.id, name: action.name, description: action.description, filters: [],
+                isRunning: false
+            };
             break;
         case EDIT_PIPELINE_SUCCESS:
-            result.editingPipeline = {...toInternalPipelineConfig(action.pipelineConfiguration), isRunning : false};
+            result.editingPipeline = {...toInternalPipelineConfig(action.pipelineConfiguration), isRunning: false};
             break;
         case EDIT_PIPELINE_FAILURE:
-            result.editingPipeline = {id: action.id, name: "New Pipeline", description: "", filters: [],
-                isRunning: false};
+            result.editingPipeline = {
+                id: action.id, name: "New Pipeline", description: "", filters: [],
+                isRunning: false
+            };
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
@@ -56,6 +60,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             if (index >= 0) {
                 result.pipelineList[index].name = action.pipeline.name;
                 result.pipelineList[index].description = action.pipeline.description;
+                result.pipelineList[index].health = Health.Red;
             } else {
                 result.pipelineList.push({
                     id: action.pipeline.id,

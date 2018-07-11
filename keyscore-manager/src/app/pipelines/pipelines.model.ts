@@ -30,9 +30,9 @@ export interface PipelineInstance {
 }
 
 export enum Health {
-    Green,
-    Yellow,
-    Red
+    Green = "Green",
+    Yellow = "Yellow",
+    Red = "Red"
 }
 
 export interface InternalPipelineConfiguration {

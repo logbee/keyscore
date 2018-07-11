@@ -147,7 +147,6 @@ export class PipelineEditorComponent {
     }
 
     public setLocked(locked: boolean, pipeline: InternalPipelineConfiguration) {
-        // this.isLocked = locked;
         this.store.dispatch(new LockEditingPipelineAction(locked));
     }
 

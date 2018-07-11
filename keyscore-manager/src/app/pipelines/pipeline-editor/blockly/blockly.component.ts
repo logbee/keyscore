@@ -128,32 +128,42 @@ export class BlocklyComponent implements OnInit, OnDestroy {
                     currentWorkspace = Blockly.Xml.workspaceToDom(this.workspace);
                 }
                 this.toolbox = this.toolbarBuilder.createToolbar(descriptors, categories);
-                const currentBlocklyDiv = document.getElementById("blocklyDiv");
-                while (currentBlocklyDiv.firstChild) {
-                    currentBlocklyDiv.removeChild(currentBlocklyDiv.firstChild);
-                }
-                this.workspace = Blockly.inject("blocklyDiv", {
-                    toolbox: this.toolbox,
-                    zoom:
-                        {
-                            controls: true,
-                            wheel: true,
-                            startScale: 1.0,
-                            maxScale: 3,
-                            minScale: 0.3,
-                            scaleSpeed: 1.2
-                        }
-                });
-                this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
-                this.workspace.addChangeListener(Blockly.Events.disableOrphans);
+
+                this.injectBlockly("blocklyDiv");
 
                 Blockly.Xml.domToWorkspace(
                     typeof currentWorkspace === "undefined" ?
                         Blockly.Xml.textToDom(this.blockBuilder.toBlocklyPipeline(this.pipeline)) :
                         currentWorkspace, this.workspace);
+
                 Blockly.svgResize(this.workspace);
 
             });
+    }
+
+    private injectBlockly(container: string) {
+        this.clearBlocklyContainer(container);
+        this.workspace = Blockly.inject(container, {
+            toolbox: this.toolbox,
+            zoom:
+                {
+                    controls: true,
+                    wheel: true,
+                    startScale: 1.0,
+                    maxScale: 3,
+                    minScale: 0.3,
+                    scaleSpeed: 1.2
+                }
+        });
+        this.workspace.addChangeListener((e: any) => this.onWorkspaceChange(e));
+        this.workspace.addChangeListener(Blockly.Events.disableOrphans);
+    }
+
+    private clearBlocklyContainer(container: string) {
+        const currentBlocklyDiv = document.getElementById(container);
+        while (currentBlocklyDiv.firstChild) {
+            currentBlocklyDiv.removeChild(currentBlocklyDiv.firstChild);
+        }
     }
 
     private updateSelectedBlock(blockId: string) {

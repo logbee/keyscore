@@ -1,7 +1,5 @@
-import {Component, Input, OnDestroy} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {Health} from "../../pipelines/pipelines.model";
-import {Observable} from "rxjs/internal/Observable";
-import {takeWhile} from "rxjs/operators";
 
 @Component({
     selector: "health-light",
