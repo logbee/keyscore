@@ -1,7 +1,4 @@
 import {Component, Input} from "@angular/core";
-import {constants} from "http2";
-import {HttpResponse} from "@angular/common/http";
-
 @Component({
     selector: "error-component",
     template: `
@@ -26,7 +23,6 @@ import {HttpResponse} from "@angular/common/http";
 
     `
 })
-
 export class ErrorComponent {
     @Input() public httpError?: string;
     @Input() public message?: string;

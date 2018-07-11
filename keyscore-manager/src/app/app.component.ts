@@ -10,12 +10,14 @@ import {SettingsState} from "./settings/settings.model";
 import {MenuState} from "./common/sidemenu/sidemenu.reducer";
 import {LoadingState} from "./common/loading/loading.reducer";
 import {ToggleMenuAction} from "./common/sidemenu/sidemenu.actions";
+import {ErrorState} from "./common/error/error.reducer";
 
 export interface AppState {
     config: AppConfig;
     settings: SettingsState;
     spinner: LoadingState;
     menu: MenuState;
+    error: ErrorState
 }
 
 @Component({

@@ -5,6 +5,7 @@ import {Observable} from "rxjs/index";
 import {FilterConfiguration, FilterState, getLiveEditingFilter} from "../../pipelines.model";
 import {AppState} from "../../../app.component";
 import {isSpinnerShowing} from "../../../common/loading/loading.reducer";
+import {ErrorState, errorState} from "../../../common/error/error.reducer";
 
 @Component({
     selector: "live-editing",
@@ -47,19 +48,13 @@ export class LiveEditingComponent {
 
     private filter$: Observable<FilterConfiguration>;
     private errorHandling: boolean = false;
-    private errorMessage: string;
-    private httpError: string;
+    private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
 
     constructor(private store: Store<FilterState>, private translate: TranslateService) {
         this.loading$ = this.store.select(isSpinnerShowing);
+        this.error$ = this.store.select(errorState);
         this.filter$ = this.store.select(getLiveEditingFilter);
-        // this.filter$.subscribe((filter) => {
-                // this.errorHandling = true;
-                // this.translate.get("FILTERLIVEEDITINGCOMPONENT.NOTFOUND").subscribe(
-                //     (translation) => this.errorMessage = translation);
-                // this.httpError = "404";
-        // });
     }
 
     public applyConfiguration(regex: string) {

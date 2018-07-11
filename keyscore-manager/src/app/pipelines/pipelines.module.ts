@@ -32,6 +32,7 @@ import {PipelinesModuleState} from "./pipelines.model";
 import {PipelinesReducer} from "./pipelines.reducer";
 import {HeaderBarModule} from "../common/headerbar.module";
 import {HealthComponent} from "../common/health/health.component";
+import {ErrorEffects} from "../common/error/error.effects";
 
 export const routes: Routes = [
     {path: "pipeline", component: PipelinesComponent},
@@ -53,7 +54,7 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         ReactiveFormsModule,
         RouterModule.forChild(routes),
         StoreModule.forFeature("pipelines", reducers),
-        EffectsModule.forFeature([PipelinesEffects, FilterEffects, LoadingEffects]),
+        EffectsModule.forFeature([PipelinesEffects, FilterEffects, LoadingEffects, ErrorEffects]),
         TranslateModule,
         HeaderBarModule
     ],
