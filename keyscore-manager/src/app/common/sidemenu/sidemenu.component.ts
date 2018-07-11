@@ -5,10 +5,13 @@ import {TranslateService} from "@ngx-translate/core";
     selector: "sidemenu",
     template: `
         <nav id="sidebar" [class]="sideBarClassName">
-            <div class="sidebar-header">
-                <img src="/assets/images/logos/keyscore-header.dark.svg">
-                <strong>KS</strong>
-            </div>
+            <a routerLink="/dashboard"
+               routerLinkActive="active">
+                <div class="sidebar-header">
+                    <img src="/assets/images/logos/keyscore-header.dark.svg">
+                    <strong>KS</strong>
+                </div>
+            </a>
             <ul class="list-unstyled components">
                 <li>
                     <a routerLink="/dashboard"
