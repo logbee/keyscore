@@ -24,6 +24,7 @@ import {SettingsComponent} from "./settings/settings.component";
 import {HeaderBarModule} from "./common/headerbar.module";
 import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
 import {ErrorComponent} from "./common/error/error.component";
+import {AlertComponent} from "./common/alert/alert.component";
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},

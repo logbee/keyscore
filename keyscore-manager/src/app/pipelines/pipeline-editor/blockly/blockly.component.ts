@@ -4,9 +4,15 @@ import {Blockly} from "node-blockly/browser";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs";
 import {delay, filter, map, takeWhile} from "rxjs/internal/operators";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
-import {FilterDescriptor, InternalPipelineConfiguration, PipelineConfiguration} from "../../pipelines.model";
+import {
+    FilterDescriptor,
+    InternalPipelineConfiguration,
+    PipelineConfiguration,
+    PipelineInstance
+} from "../../pipelines.model";
 import Workspace = Blockly.Workspace;
 import {BlockBuilderService} from "../../../services/blockly/blockbuilder.service";
+import {of} from "rxjs/internal/observable/of";
 
 declare var Blockly: any;
 
@@ -44,6 +50,11 @@ declare var Blockly: any;
                 </div>
             </div>
         </div>
+        <alert [level]="'success'" [message]="'BLOCKLY.SAVE_SUCCESS'"
+               [trigger$]="successAlertTrigger$"></alert>
+        <alert [level]="'danger'" [message]="'BLOCKLY.SAVE_FAILURE'"
+               [trigger$]="failureAlertTrigger$"></alert>
+
 
     `,
 
@@ -59,9 +70,13 @@ export class BlocklyComponent implements OnInit, OnDestroy {
     @Input() public categories$: Observable<string[]>;
     @Input() public isLoading$: Observable<boolean>;
     @Input() public isMenuExpanded$: Observable<boolean>;
+    @Input() public updateSuccess$: Observable<boolean[]>;
 
     @Output() public update: EventEmitter<PipelineConfiguration> = new EventEmitter();
     @Output() public remove: EventEmitter<string> = new EventEmitter();
+
+    public successAlertTrigger$: Observable<boolean>;
+    public failureAlertTrigger$: Observable<boolean>;
 
     private workspace: Workspace = undefined;
 
@@ -75,9 +90,11 @@ export class BlocklyComponent implements OnInit, OnDestroy {
     constructor(private toolbarBuilder: ToolBarBuilderService,
                 private blockBuilder: BlockBuilderService,
                 private translate: TranslateService) {
+
     }
 
     public ngOnInit(): void {
+
         this.selectedFilter$ = combineLatest(this.selectedBlockName$, this.filterDescriptors$).pipe(
             map(([name, descriptors]) =>
                 name === "pipeline_configuration" ? this.pipeline : descriptors.find((d) => d.name === name))
@@ -93,6 +110,10 @@ export class BlocklyComponent implements OnInit, OnDestroy {
         this.initBlockly();
 
         this.isMenuExpanded$.pipe(delay(300)).subscribe((_) => Blockly.svgResize(this.workspace));
+        this.successAlertTrigger$ = this.updateSuccess$.pipe(map((success) => success[0]));
+        this.failureAlertTrigger$ = this.updateSuccess$.pipe(
+            map((successList) => !successList[0]));
+
     }
 
     public ngOnDestroy() {

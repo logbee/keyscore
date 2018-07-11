@@ -9,9 +9,9 @@ import {
     getEditingPipeline,
     getEditingPipelineIsLocked,
     getFilterCategories,
-    getFilterDescriptors,
+    getFilterDescriptors, getLastUpdateSuccess, getPipelineList,
     InternalPipelineConfiguration,
-    PipelineConfiguration,
+    PipelineConfiguration, PipelineInstance,
 } from "../pipelines.model";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 
@@ -59,7 +59,7 @@ import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
                         </span>
                             <div *ngIf="!(isLocked$ | async)">
                                 <button class="btn btn-success" (click)="addFilter(null)">
-                            {{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}
+                                    {{'PIPELINEEDITORCOMPONENT.ADDFILTER' | translate}}
                                 </button>
                             </div>
                         </div>
@@ -86,6 +86,7 @@ import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
                                    [pipeline]="(pipeline$ | async)"
                                    [isLoading$]="isLoading$"
                                    [isMenuExpanded$]="isMenuExpanded$"
+                                   [updateSuccess$]="updateSuccess$"
                                    (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
             </div>
         </ng-template>
@@ -99,6 +100,7 @@ export class PipelineEditorComponent {
     public blocklyFlag: boolean;
     public isLoading$: Observable<boolean>;
     public isMenuExpanded$: Observable<boolean>;
+    public updateSuccess$: Observable<boolean[]>;
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
         this.store.dispatch(new LoadFilterDescriptorsAction());
@@ -109,6 +111,7 @@ export class PipelineEditorComponent {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
         this.isLoading$ = this.store.select(isSpinnerShowing).pipe(share());
+        this.updateSuccess$ = this.store.select(getLastUpdateSuccess).pipe(share());
         this.isMenuExpanded$ = this.store.select(isMenuExpanded);
         this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
@@ -117,6 +120,7 @@ export class PipelineEditorComponent {
                 this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0));
             }
         });
+
     }
 
     public addFilter(pipeline: InternalPipelineConfiguration) {

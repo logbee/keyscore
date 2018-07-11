@@ -15,6 +15,7 @@ export class PipelinesState {
     public filterCategories: string[];
     public editingPipelineIsLocked: boolean;
     public pipelineInstancePolling: boolean;
+    public wasLastUpdateSuccessful: boolean[];
 }
 
 export interface FilterState {
@@ -128,3 +129,6 @@ export const getEditingFilter = createSelector(getPipelinesState,
 
 export const getPipelinePolling = createSelector(getPipelinesState,
     (state: PipelinesState) => state.pipelineInstancePolling);
+
+export const getLastUpdateSuccess = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.wasLastUpdateSuccessful);

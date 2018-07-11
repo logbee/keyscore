@@ -14,7 +14,7 @@ import {
     PipelineActions,
     REMOVE_FILTER,
     RESET_PIPELINE,
-    UPDATE_FILTER,
+    UPDATE_FILTER, UPDATE_PIPELINE_FAILURE,
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "./pipelines.actions";
@@ -28,6 +28,7 @@ const initialState: PipelinesState = {
     filterCategories: [],
     editingPipelineIsLocked: true,
     pipelineInstancePolling: false,
+    wasLastUpdateSuccessful: []
 };
 
 export function PipelinesReducer(state: PipelinesState = initialState, action: PipelineActions): PipelinesState {
@@ -43,12 +44,14 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             break;
         case EDIT_PIPELINE_SUCCESS:
             result.editingPipeline = {...toInternalPipelineConfig(action.pipelineConfiguration), isRunning: false};
+            result.wasLastUpdateSuccessful = [];
             break;
         case EDIT_PIPELINE_FAILURE:
             result.editingPipeline = {
                 id: action.id, name: "New Pipeline", description: "", filters: [],
                 isRunning: false
             };
+            result.wasLastUpdateSuccessful = [];
             break;
         case LOCK_EDITING_PIPELINE:
             result.editingPipelineIsLocked = action.isLocked;
@@ -70,6 +73,12 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                     health: Health.Red,
                 });
             }
+            result.wasLastUpdateSuccessful = [true];
+
+            break;
+        case UPDATE_PIPELINE_FAILURE:
+
+            result.wasLastUpdateSuccessful = [false];
             break;
         case DELETE_PIPELINE_SUCCESS:
             result.pipelineList = result.pipelineList.filter((pipeline) => action.id !== pipeline.id);

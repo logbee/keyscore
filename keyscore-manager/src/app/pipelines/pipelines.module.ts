@@ -33,6 +33,8 @@ import {PipelinesReducer} from "./pipelines.reducer";
 import {HeaderBarModule} from "../common/headerbar.module";
 import {HealthComponent} from "../common/health/health.component";
 import {ErrorEffects} from "../common/error/error.effects";
+import {AlertComponent} from "../common/alert/alert.component";
+import {AppModule} from "../app.module";
 
 export const routes: Routes = [
     {path: "pipeline", component: PipelinesComponent},
@@ -78,6 +80,7 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         ExampleMessageComponent,
         PatternComponent,
         ErrorComponent,
+        AlertComponent,
         FilterResultComponent,
     ],
     providers: [],

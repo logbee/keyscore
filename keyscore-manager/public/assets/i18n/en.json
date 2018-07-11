@@ -92,5 +92,9 @@
     "LANGUAGE": "Language",
     "GERMAN": "German",
     "ENGLISH": "English"
+  },
+  "BLOCKLY":{
+    "SAVE_SUCCESS":"The pipeline was saved successfully",
+    "SAVE_FAILURE":"An error occurred while saving your pipeline. "
   }
 }
