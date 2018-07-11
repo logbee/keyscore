@@ -54,6 +54,16 @@ export function mapFromSeparatedString(mapString: string, elementSeparator: stri
     return resultMap;
 }
 
+export function separatedStringFromMap(map: any, elementSeparator: string, keyValueSeparator: string) {
+    let resultString = "";
+
+    for (const [key, value] of Object.entries(map)) {
+        resultString += key + keyValueSeparator + value + elementSeparator;
+    }
+
+    return resultString.substr(0, resultString.length - 1);
+}
+
 export function toInternalPipelineConfig(pipe: PipelineConfiguration): InternalPipelineConfiguration {
     const filters = [].concat(pipe.source, pipe.filter, pipe.sink);
     return {id: pipe.id, name: pipe.name, description: pipe.description, filters, isRunning: false};

@@ -1,6 +1,7 @@
 import {Blockly} from "node-blockly/browser";
 import {Injectable} from "@angular/core";
 import {InternalPipelineConfiguration} from "../../pipelines/pipelines.model";
+import {separatedStringFromMap} from "../../util";
 
 declare var Blockly: any;
 
@@ -26,7 +27,20 @@ export class BlockBuilderService {
             filter.parameters.forEach((parameter) => {
                 const currentXmlField = xmlDoc.createElement("field");
                 currentXmlField.setAttribute("name", parameter.name);
-                currentXmlField.appendChild(xmlDoc.createTextNode(parameter.value));
+                switch (parameter.jsonClass) {
+                    case "list[string]":
+                        currentXmlField.appendChild(xmlDoc.createTextNode(parameter.value.join()));
+                        break;
+                    case "map[string,string]":
+                        currentXmlField.appendChild(xmlDoc.createTextNode(
+                            separatedStringFromMap(parameter.value, ",", ":")
+                        ));
+                        break;
+                    default:
+                        currentXmlField.appendChild(xmlDoc.createTextNode(parameter.value));
+                        break;
+
+                }
                 currentXmlBlock.appendChild(currentXmlField);
             });
             if (index < array.length - 1) {
