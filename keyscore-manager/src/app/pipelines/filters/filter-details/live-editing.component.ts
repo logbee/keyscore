@@ -49,7 +49,7 @@ export class LiveEditingComponent implements OnInit {
     private errorHandling: boolean = false;
     private liveEditingFlag: boolean;
     private httpError: string = "Ups!";
-    private message: string = "Keyscore.exe hast stopped working";
+    private message: string = "The requested resource could not be shown";
     // Obsevables
     private filter$: Observable<FilterConfiguration>;
     private error$: Observable<ErrorState>;

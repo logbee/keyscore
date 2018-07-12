@@ -16,7 +16,7 @@ import {
     EXTRACT_DATASETS,
     ExtractDatasetsAction,
     ExtractDatasetsFailure,
-    ExtractDatasetsSuccess,
+    ExtractDatasetsSuccess, InitalizeLiveEditingDataAction, INITIALIZE_LIVE_EDITING_DATA,
     INSERT_DATASETS,
     InsertDatasetsAction,
     InsertDatasetsFailure,
@@ -41,7 +41,7 @@ import {selectAppConfig} from "../../app.config";
 @Injectable()
 export class FilterEffects {
     @Effect()
-    public navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
+    public initalizeLiveEditingData$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
         mergeMap((action) => {
                 const navigationAction = action as RouterNavigationAction;
@@ -50,13 +50,25 @@ export class FilterEffects {
                 const filterIdRegex =
                     /\/pipelines\/filter\/.*/g;
                 if (filterIdRegex.test(url)) {
-                    return of(new LoadLiveEditingFilterAction(filterId));
+                    return of(new InitalizeLiveEditingDataAction(filterId));
                 } else {
                     return of();
                 }
             }
         )
     );
+
+
+    @Effect()
+    public navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
+        ofType(INITIALIZE_LIVE_EDITING_DATA),
+        map((action) => (action as InitalizeLiveEditingDataAction)),
+        switchMap(payload => [
+            new LoadLiveEditingFilterAction(payload.filterId),
+            new LoadFilterStateAction(payload.filterId)
+        ])
+    );
+
     @Effect()
     public loadFilterConfiguration$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_LIVE_EDITING_FILTER),
@@ -76,7 +88,7 @@ export class FilterEffects {
         map((action) => (action as LoadFilterStateAction)),
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
-            return this.http.get(appconfig.getString("keyscore.froniter.base-url") +
+            return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/state").pipe(
                 map((data: FilterInstanceState) => new LoadFilterStateSuccess(data)),
                 catchError((cause: any) => of(new LoadFilterStateFailure(cause))));
@@ -90,7 +102,8 @@ export class FilterEffects {
         switchMap(([action, appconfig]) => {
             return this.http.post(appconfig + "/filter/" + action.filterId + "/pause", true, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "text" }).pipe(
+                responseType: "text"
+            }).pipe(
                 map((_) => new PauseFilterSuccess()),
                 catchError((cause: any) => of(new PauseFilterFailure(cause)))
             );
