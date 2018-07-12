@@ -2,22 +2,21 @@ import {Component, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
-import {FilterConfiguration, FilterState, getLiveEditingFilter} from "../../pipelines.model";
+import {FilterConfiguration, getLiveEditingFilter} from "../../pipelines.model";
 import {isSpinnerShowing} from "../../../common/loading/loading.reducer";
 import {ErrorState, errorState} from "../../../common/error/error.reducer";
-import {selectAppConfig} from "../../../app.config";
 import {b} from "@angular/core/src/render3";
 import {AppState} from "../../../app.component";
-import {trigger} from "@angular/animations";
+import {selectAppConfig} from "../../../app.config";
 
 @Component({
     selector: "live-editing",
     template: `
         <div *ngIf="!(loading$ | async); else loading">
             <div class="col-12" *ngIf="!errorHandling">
-                <div class="card">
-                    <div class="card-header alert-info">
-                        {{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}
+                <div class="card mt-3 mb-3">
+                    <div class="card-header" style="background-color: #365880; color: white">
+                        <strong>{{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}</strong>
                     </div>
                     <div class="card-body badge-light">
 
@@ -40,9 +39,7 @@ import {trigger} from "@angular/animations";
             </div>
         </div>
         <ng-template #loading>
-            <div class="col-12">
                 <loading-full-view></loading-full-view>
-            </div>
         </ng-template>
     `
 })

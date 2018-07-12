@@ -22,6 +22,21 @@ export interface FilterState {
     filter: FilterConfiguration;
 }
 
+export interface FilterInstanceState {
+    id: string;
+    health: Health;
+    throughPutTime: number;
+    toalThroughPutTime: number;
+    status: FilterStatus;
+}
+
+export enum FilterStatus {
+    Unknown = "Unknown",
+    Paused = "Paused",
+    Running = "Running",
+    Drained = "Drained"
+}
+
 export interface PipelineInstance {
     id: string;
     name: string;

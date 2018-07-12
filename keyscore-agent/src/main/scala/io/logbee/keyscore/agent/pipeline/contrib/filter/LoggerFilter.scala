@@ -17,7 +17,7 @@ object LoggerFilter extends Described {
   override def describe: MetaFilterDescriptor = {
     MetaFilterDescriptor(filterId, filterName, Map(Locale.ENGLISH -> FilterDescriptorFragment(
       displayName = "Logger Filter",
-      description = "",
+      description = "Logs every dataset which passes through.",
       previousConnection = FilterConnection(isPermitted = true),
       nextConnection = FilterConnection(isPermitted = true),
       category = "Debug"
