@@ -5,6 +5,10 @@ import {Observable} from "rxjs/index";
 import {FilterConfiguration, FilterState, getLiveEditingFilter} from "../../pipelines.model";
 import {isSpinnerShowing} from "../../../common/loading/loading.reducer";
 import {ErrorState, errorState} from "../../../common/error/error.reducer";
+import {selectAppConfig} from "../../../app.config";
+import {b} from "@angular/core/src/render3";
+import {AppState} from "../../../app.component";
+import {trigger} from "@angular/animations";
 
 @Component({
     selector: "live-editing",
@@ -50,8 +54,13 @@ export class LiveEditingComponent implements OnInit {
     private errorHandling: boolean = false;
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
-
-    constructor(private store: Store<FilterState>, private translate: TranslateService) {
+    private liveEditingFlag: boolean;
+    constructor(private store: Store<AppState>, private translate: TranslateService) {
+        const config = this.store.select(selectAppConfig);
+        config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
+        if (!this.liveEditingFlag) {
+            this.triggerErrorComponent("999");
+        }
         this.loading$ = this.store.select(isSpinnerShowing);
         this.error$ = this.store.select(errorState);
         this.filter$ = this.store.select(getLiveEditingFilter);
@@ -84,6 +93,12 @@ export class LiveEditingComponent implements OnInit {
             }
             case "0": {
                 this.translate.get("ERRORS.0").subscribe(
+                    (translation) => this.message = translation);
+                this.errorHandling = true;
+                break;
+            }
+            case "999": {
+                this.translate.get("ERRORS.999").subscribe(
                     (translation) => this.message = translation);
                 this.errorHandling = true;
                 break;

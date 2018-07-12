@@ -93,13 +93,14 @@
     "GERMAN": "Deutsch",
     "ENGLISH": "Englisch"
   },
-  "BLOCKLY":{
-    "SAVE_SUCCESS":"Die Pipeline wurde erfolgreich gespeichert!",
-    "SAVE_FAILURE":"Beim Speichern der Pipeline ist ein Fehler aufgetreten."
+  "BLOCKLY": {
+    "SAVE_SUCCESS": "Die Pipeline wurde erfolgreich gespeichert!",
+    "SAVE_FAILURE": "Beim Speichern der Pipeline ist ein Fehler aufgetreten."
   },
   "ERRORS": {
-  "404": "Der angeforderte Filter konnte nicht gefunden werden.",
-  "0": "Die angegebene Url ist nicht valide.",
-  "503": "Keyscore konnte die Anfrage leider  nicht erfüllen."
+    "404": "Der angeforderte Filter konnte nicht gefunden werden.",
+    "0": "Die angegebene Url ist nicht valide.",
+    "503": "Keyscore konnte die Anfrage leider  nicht erfüllen.",
+    "999": "Dieses Feature ist nocht nicht verfügbar"
   }
 }
