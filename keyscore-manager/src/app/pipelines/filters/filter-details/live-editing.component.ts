@@ -45,13 +45,15 @@ import {selectAppConfig} from "../../../app.config";
 })
 
 export class LiveEditingComponent implements OnInit {
+    // Flags
+    private errorHandling: boolean = false;
+    private liveEditingFlag: boolean;
     private httpError: string = "Ups!";
     private message: string = "Keyscore.exe hast stopped working";
+    // Obsevables
     private filter$: Observable<FilterConfiguration>;
-    private errorHandling: boolean = false;
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
-    private liveEditingFlag: boolean;
     constructor(private store: Store<AppState>, private translate: TranslateService) {
         const config = this.store.select(selectAppConfig);
         config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
@@ -66,13 +68,7 @@ export class LiveEditingComponent implements OnInit {
     public ngOnInit() {
         this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
     }
-
-    public applyConfiguration(regex: string) {
-        console.log("applyConfiguration:" + regex);
-    }
-
     private triggerErrorComponent(httpError: string) {
-        console.log(httpError);
         switch (httpError.toString()) {
             case "404": {
                 this.httpError = httpError;

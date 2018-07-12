@@ -40,7 +40,6 @@ import {selectAppConfig} from "../../app.config";
 
 @Injectable()
 export class FilterEffects {
-
     @Effect()
     public navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
