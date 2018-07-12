@@ -1,9 +1,8 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
 import {FilterConfiguration, FilterState, getLiveEditingFilter} from "../../pipelines.model";
-import {AppState} from "../../../app.component";
 import {isSpinnerShowing} from "../../../common/loading/loading.reducer";
 import {ErrorState, errorState} from "../../../common/error/error.reducer";
 
@@ -33,19 +32,20 @@ import {ErrorState, errorState} from "../../../common/error/error.reducer";
             </div>
             <div class="col-12">
                 <error-component *ngIf="errorHandling" [httpError]="httpError"
-                                 [message]="errorMessage"></error-component>
+                                 [message]="message"></error-component>
             </div>
         </div>
         <ng-template #loading>
-        <div class="col-12">
-            <loading-full-view></loading-full-view>
-        </div>
+            <div class="col-12">
+                <loading-full-view></loading-full-view>
+            </div>
         </ng-template>
     `
 })
 
-export class LiveEditingComponent {
-
+export class LiveEditingComponent implements OnInit {
+    private httpError: string = "Ups!";
+    private message: string = "Keyscore.exe hast stopped working";
     private filter$: Observable<FilterConfiguration>;
     private errorHandling: boolean = false;
     private error$: Observable<ErrorState>;
@@ -57,7 +57,37 @@ export class LiveEditingComponent {
         this.filter$ = this.store.select(getLiveEditingFilter);
     }
 
+    public ngOnInit() {
+        this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
+    }
+
     public applyConfiguration(regex: string) {
         console.log("applyConfiguration:" + regex);
+    }
+
+    private triggerErrorComponent(httpError: string) {
+        console.log(httpError);
+        switch (httpError.toString()) {
+            case "404": {
+                this.httpError = httpError;
+                this.translate.get("ERRORS.404").subscribe(
+                    (translation) => this.message = translation);
+                this.errorHandling = true;
+                break;
+            }
+            case "503": {
+                this.httpError = httpError;
+                this.translate.get("ERRORS.503").subscribe(
+                    (translation) => this.message = translation);
+                this.errorHandling = true;
+                break;
+            }
+            case "0": {
+                this.translate.get("ERRORS.0").subscribe(
+                    (translation) => this.message = translation);
+                this.errorHandling = true;
+                break;
+            }
+        }
     }
 }

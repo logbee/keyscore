@@ -73,8 +73,7 @@
     "VALUE": "Value",
     "TYPE": "Type",
     "REGEX_PLACEHOLDER": "Add your Regex here",
-    "MESSAGE_PLACEHOLDER": "Add your message here",
-    "NOTFOUND": "The requested filter does not exist"
+    "MESSAGE_PLACEHOLDER": "Add your message here"
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filters"
@@ -96,5 +95,10 @@
   "BLOCKLY":{
     "SAVE_SUCCESS":"The pipeline was saved successfully",
     "SAVE_FAILURE":"An error occurred while saving your pipeline. "
+  },
+  "ERRORS": {
+    "404": "The requested filter does not exist.",
+    "503": "Keyscore was not able too process your request.",
+    "0": "The url you requested was not vallid."
   }
 }

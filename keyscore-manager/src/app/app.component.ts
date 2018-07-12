@@ -17,7 +17,7 @@ export interface AppState {
     settings: SettingsState;
     spinner: LoadingState;
     menu: MenuState;
-    error: ErrorState
+    error: ErrorState;
 }
 
 @Component({

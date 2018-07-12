@@ -1,12 +1,16 @@
 import {Component, Input} from "@angular/core";
+
 @Component({
     selector: "error-component",
     template: `
         <div class="row pb-3"
              style="background-color: #365078; max-height: 50vh; min-height: 50vh;">
             <div class="col text-center">
-                <img class="mt-lg-4 pr-lg-5" src="/assets/images/logos/keyscore.dark.svg"
-                     style="height:40vh; width: 100vw">
+                <a routerLink="/dashboard"
+                   routerLinkActive="active">
+                    <img class="mt-lg-4 pr-lg-5" src="/assets/images/logos/keyscore.dark.svg"
+                         style="height:40vh; width: 100vw">
+                </a>
             </div>
         </div>
         <div class="row" style="min-height: 50vh; background-color: #365880">

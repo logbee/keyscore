@@ -1,4 +1,4 @@
-import {ERROR_EVENT, ErrorActions} from "./error.actions";
+import {ERROR_ACTION, ErrorActions} from "./error.actions";
 import {createFeatureSelector} from "@ngrx/store";
 
 export interface ErrorState {
@@ -16,7 +16,7 @@ export function ErrorReducer(state: ErrorState = initialState, action: ErrorActi
     const result: ErrorState = Object.assign({}, state);
 
     switch (action.type) {
-        case ERROR_EVENT:
+        case ERROR_ACTION:
             console.log("Set ErrorState " + action.httpError + " and " + action.message);
             result.httpError = action.httpError;
             result.message = action.message;
@@ -24,10 +24,9 @@ export function ErrorReducer(state: ErrorState = initialState, action: ErrorActi
         default:
             return result;
     }
-    return result
+    return result;
 }
 
 export const errorState = createFeatureSelector<ErrorState>(
     "error"
 );
-
