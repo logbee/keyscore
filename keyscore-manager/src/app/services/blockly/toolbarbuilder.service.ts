@@ -155,6 +155,9 @@ export class ToolBarBuilderService {
             case "int":
                 parameterDescriptor.value = +parameterDescriptor.value;
                 break;
+            case "boolean":
+                parameterDescriptor.value = parameterDescriptor.value !== "FALSE";
+                break;
         }
         return {name: parameterDescriptor.name, value: parameterDescriptor.value, jsonClass: type};
     }
