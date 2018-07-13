@@ -61,7 +61,7 @@
   "FILTERLIVEEDITINGCOMPONENT": {
     "NUMBER": "#",
     "TITLE": "Live Editing",
-    "FILTERDESCRIPTION_TITLE": "Filter Description",
+    "FILTERDESCRIPTION_TITLE": "Filterdata",
     "NAME": "FilterName",
     "DESCRIPTION": "FilterDescription",
     "PATTERN": "FilterPattern",
@@ -73,7 +73,10 @@
     "VALUE": "Value",
     "TYPE": "Type",
     "REGEX_PLACEHOLDER": "Add your Regex here",
-    "MESSAGE_PLACEHOLDER": "Add your message here"
+    "MESSAGE_PLACEHOLDER": "Add your message here",
+    "THROUGHPUTTIME": "Throughputtime/Filter",
+    "TOTALTHROUGHPUTTIME": "Throughputtime/Pipeline",
+    "STATUS": "Filterstatus"
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filters"

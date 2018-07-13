@@ -61,7 +61,7 @@
   "FILTERLIVEEDITINGCOMPONENT": {
     "NUMBER": "#",
     "TITLE": "Live Editing",
-    "FILTERDESCRIPTION_TITLE": "Filter Beschreibung",
+    "FILTERDESCRIPTION_TITLE": "Filterdaten",
     "NAME": "Filter Name",
     "DESCRIPTION": "Filter Beschreibung",
     "PATTERN": "Filter Pattern",
@@ -74,7 +74,10 @@
     "TYPE": "Typ",
     "REGEX_PLACEHOLDER": "Regulären Ausdruck hier angeben",
     "MESSAGE_PLACEHOLDER": "Beispielnachricht hier angeben",
-    "NOTFOUND": "Der angeforderte Filter konnte nicht gefunden werden"
+    "NOTFOUND": "Der angeforderte Filter konnte nicht gefunden werden",
+    "THROUGHPUTTIME": "Durchlaufzeit/Filter",
+    "TOTALTHROUGHPUTTIME": "Durchlaufzeit/Pipeline",
+    "STATUS": "Filterstatus"
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filter"

@@ -1,5 +1,5 @@
-import {Component, Input} from "@angular/core";
-import {FilterConfiguration, FilterState} from "../../../pipelines.model";
+import {Component, Input, OnInit} from "@angular/core";
+import {FilterConfiguration, FilterInstanceState, FilterState} from "../../../pipelines.model";
 import {TranslateService} from "@ngx-translate/core";
 import {Store} from "@ngrx/store";
 
@@ -14,16 +14,22 @@ import {Store} from "@ngrx/store";
                 <table class="table table-condensed">
                     <thead>
                     <tr>
+                        <th> {{'FILTERLIVEEDITINGCOMPONENT.ID' | translate}}</th>
                         <th> {{'FILTERLIVEEDITINGCOMPONENT.NAME' | translate}}</th>
                         <th> {{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}</th>
-                        <th> {{'FILTERLIVEEDITINGCOMPONENT.ID' | translate}}</th>
+                        <th> {{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}</th>
+                        <th> {{'FILTERLIVEEDITINGCOMPONENT.TOTALTHROUGHPUTTIME' | translate}}</th>
+                        <th> {{'FILTERLIVEEDITINGCOMPONENT.STATUS' | translate}}</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
+                        <td>{{ currentFilter?.id}}</td>
                         <td>{{ currentFilter?.descriptor?.displayName}}</td>
                         <td>{{ currentFilter?.descriptor?.description}}</td>
-                        <td>{{ currentFilter?.id}}</td>
+                        <td>{{ currentFilterState?.throughPutTime}}</td>
+                        <td>{{ currentFilterState?.throughPutTime}}</td>
+                        <td>{{ currentFilterState?.status}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -32,7 +38,16 @@ import {Store} from "@ngrx/store";
     `
 })
 
-export class FilterDescriptionComponent {
+export class FilterDescriptionComponent implements OnInit{
 
     @Input() public currentFilter: FilterConfiguration;
+    @Input() public currentFilterState: FilterInstanceState;
+
+    constructor() {
+    }
+
+    ngOnInit(): void {
+        console.log("[filter-description]" + this.currentFilterState.pipelineThroughput);
+    }
+
 }

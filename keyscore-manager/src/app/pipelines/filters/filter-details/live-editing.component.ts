@@ -2,7 +2,13 @@ import {Component, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
-import {FilterConfiguration, getLiveEditingFilter} from "../../pipelines.model";
+import {
+    FilterConfiguration,
+    FilterInstanceState,
+    FilterState,
+    getLiveEditingFilter,
+    getLiveEditingFilterState
+} from "../../pipelines.model";
 import {isSpinnerShowing} from "../../../common/loading/loading.reducer";
 import {ErrorState, errorState} from "../../../common/error/error.reducer";
 import {b} from "@angular/core/src/render3";
@@ -20,8 +26,10 @@ import {selectAppConfig} from "../../../app.config";
                     </div>
                     <div class="card-body badge-light">
 
-                        <filter-description [currentFilter]="filter$ | async"></filter-description>
-
+                        <filter-description [currentFilter]="filter$ | async"
+                                            [currentFilterState]="filterState$ | async">
+                        </filter-description>
+                        
                         <example-message></example-message>
 
                         <pattern (apply)="applyConfiguration($event)"></pattern>
@@ -44,7 +52,7 @@ import {selectAppConfig} from "../../../app.config";
     `
 })
 
-export class LiveEditingComponent implements OnInit {
+export class LiveEditingComponent {
     // Flags
     private errorHandling: boolean = false;
     private liveEditingFlag: boolean;
@@ -52,22 +60,24 @@ export class LiveEditingComponent implements OnInit {
     private message: string = "The requested resource could not be shown";
     // Obsevables
     private filter$: Observable<FilterConfiguration>;
+    private filterState$: Observable<FilterInstanceState>;
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
+
     constructor(private store: Store<AppState>, private translate: TranslateService) {
         const config = this.store.select(selectAppConfig);
         config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
         if (!this.liveEditingFlag) {
             this.triggerErrorComponent("999");
+        } else {
+            this.filterState$ = this.store.select(getLiveEditingFilterState);
+            this.filter$ = this.store.select(getLiveEditingFilter);
+            this.error$ = this.store.select(errorState);
+            this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
+            this.loading$ = this.store.select(isSpinnerShowing);
         }
-        this.loading$ = this.store.select(isSpinnerShowing);
-        this.error$ = this.store.select(errorState);
-        this.filter$ = this.store.select(getLiveEditingFilter);
     }
 
-    public ngOnInit() {
-        this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
-    }
     private triggerErrorComponent(httpError: string) {
         switch (httpError.toString()) {
             case "404": {

@@ -18,9 +18,9 @@ export class PipelinesState {
     public wasLastUpdateSuccessful: boolean[];
 }
 
-export interface FilterState {
-    filter: FilterConfiguration;
-    filterState: FilterInstanceState;
+export class FilterState {
+    public filter: FilterConfiguration;
+    public filterState: FilterInstanceState;
 }
 
 export interface PipelineInstance {
@@ -79,7 +79,7 @@ export interface FilterInstanceState {
     id: string;
     health: Health;
     throughPutTime: number;
-    toalThroughPutTime: number;
+    pipelineThroughput: number;
     status: FilterStatus;
 }
 
@@ -120,6 +120,8 @@ export const getFilterId = createSelector(getFilterState,
     (state: FilterState) => state.filter.id);
 
 export const getLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
+
+export const getLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
 
 export const getPipelineList = createSelector(getPipelinesState,
     (state: PipelinesState) => state.pipelineList);

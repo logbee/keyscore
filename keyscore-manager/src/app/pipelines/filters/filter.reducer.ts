@@ -15,7 +15,7 @@ const initialState: FilterState = {
         id: "",
         health: null,
         throughPutTime: 0,
-        toalThroughPutTime: 0,
+        pipelineThroughput: 0,
         status: FilterStatus.Unknown
     }
 };
@@ -30,7 +30,6 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             break;
         case LOAD_FILTERSTATE_SUCCESS:
             result.filterState = action.state;
-            console.log(JSON.stringify(result.filterState));
             break;
 
     }
