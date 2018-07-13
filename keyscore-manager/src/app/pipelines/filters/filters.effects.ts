@@ -57,8 +57,6 @@ export class FilterEffects {
             }
         )
     );
-
-
     @Effect()
     public navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
         ofType(INITIALIZE_LIVE_EDITING_DATA),
@@ -68,7 +66,6 @@ export class FilterEffects {
             new LoadFilterStateAction(payload.filterId)
         ])
     );
-
     @Effect()
     public loadFilterConfiguration$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_LIVE_EDITING_FILTER),

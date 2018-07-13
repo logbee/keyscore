@@ -1,6 +1,6 @@
-import {FilterState} from "../pipelines.model";
+import {FilterState, FilterStatus, Health} from "../pipelines.model";
 import {
-    FiltersActions,
+    FiltersActions, LOAD_FILTERSTATE, LOAD_FILTERSTATE_FAILURE, LOAD_FILTERSTATE_SUCCESS,
     LOAD_LIVE_EDITING_FILTER_FAILURE,
     LOAD_LIVE_EDITING_FILTER_SUCCESS
 } from "./filters.actions";
@@ -10,6 +10,13 @@ const initialState: FilterState = {
         id: "",
         descriptor: null,
         parameters: []
+    },
+    filterState: {
+        id: "",
+        health: null,
+        throughPutTime: 0,
+        toalThroughPutTime: 0,
+        status: FilterStatus.Unknown
     }
 };
 
@@ -21,12 +28,11 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
         case LOAD_LIVE_EDITING_FILTER_SUCCESS:
             result.filter = action.filter;
             break;
-        case LOAD_LIVE_EDITING_FILTER_FAILURE:
-            console.log(JSON.stringify(action.cause));
-            if (action.cause.status === 404) {
-                result.filter = {id: "", descriptor: null, parameters: []};
-            }
+        case LOAD_FILTERSTATE_SUCCESS:
+            result.filterState = action.state;
+            console.log(JSON.stringify(result.filterState));
             break;
+
     }
     return result;
 }

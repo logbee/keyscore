@@ -20,6 +20,7 @@ export class PipelinesState {
 
 export interface FilterState {
     filter: FilterConfiguration;
+    filterState: FilterInstanceState;
 }
 
 export interface PipelineInstance {
