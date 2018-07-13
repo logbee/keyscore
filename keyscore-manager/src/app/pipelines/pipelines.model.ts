@@ -79,7 +79,7 @@ export interface FilterInstanceState {
     id: string;
     health: Health;
     throughPutTime: number;
-    pipelineThroughput: number;
+    totalThroughputTime: number;
     status: FilterStatus;
 }
 

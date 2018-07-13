@@ -28,7 +28,7 @@ import {Store} from "@ngrx/store";
                         <td>{{ currentFilter?.descriptor?.displayName}}</td>
                         <td>{{ currentFilter?.descriptor?.description}}</td>
                         <td>{{ currentFilterState?.throughPutTime}}</td>
-                        <td>{{ currentFilterState?.throughPutTime}}</td>
+                        <td>{{ currentFilterState?.totalThroughputTime}}</td>
                         <td>{{ currentFilterState?.status}}</td>
                     </tr>
                     </tbody>
@@ -47,7 +47,7 @@ export class FilterDescriptionComponent implements OnInit{
     }
 
     ngOnInit(): void {
-        console.log("[filter-description]" + this.currentFilterState.pipelineThroughput);
+        console.log("[filter-description]" + this.currentFilterState.totalThroughputTime);
     }
 
 }

@@ -15,7 +15,7 @@ const initialState: FilterState = {
         id: "",
         health: null,
         throughPutTime: 0,
-        pipelineThroughput: 0,
+        totalThroughputTime: 0,
         status: FilterStatus.Unknown
     }
 };
