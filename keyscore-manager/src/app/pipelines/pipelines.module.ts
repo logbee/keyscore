@@ -36,6 +36,10 @@ import {ErrorEffects} from "../common/error/error.effects";
 import {AlertComponent} from "../common/alert/alert.component";
 import {AppModule} from "../app.module";
 import {StatuslightComponent} from "../common/health/statuslight.component";
+import {LoadingModule} from "../common/loading/loading.module";
+import {HealthModule} from "../common/health/health.module";
+import {AlertModule} from "../common/alert/alert.module";
+import {ErrorModule} from "../common/error/error.module";
 
 export const routes: Routes = [
     {path: "pipeline", component: PipelinesComponent},
@@ -59,7 +63,11 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         StoreModule.forFeature("pipelines", reducers),
         EffectsModule.forFeature([PipelinesEffects, FilterEffects, LoadingEffects, ErrorEffects]),
         TranslateModule,
-        HeaderBarModule
+        HeaderBarModule,
+        LoadingModule,
+        HealthModule,
+        AlertModule,
+        ErrorModule
     ],
     declarations: [
         PipelinesComponent,
@@ -68,9 +76,6 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         PipelineFilterComponent,
         BlocklyComponent,
         FilterInformationComponent,
-        LoadingFullViewComponent,
-        LoadingComponent,
-        HealthComponent,
         StatuslightComponent,
         RefreshTimeComponent,
         ParameterList,
@@ -81,8 +86,6 @@ export const reducers: ActionReducerMap<PipelinesModuleState> = {
         FilterDescriptionComponent,
         ExampleMessageComponent,
         PatternComponent,
-        ErrorComponent,
-        AlertComponent,
         FilterResultComponent,
     ],
     providers: [],
