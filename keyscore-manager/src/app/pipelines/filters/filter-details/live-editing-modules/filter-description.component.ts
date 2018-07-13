@@ -7,38 +7,39 @@ import {Store} from "@ngrx/store";
     selector: "filter-description",
     template: `
         <div class="card">
-            <div class="card-header alert-light font-weight-bold">
-                {{'FILTERLIVEEDITINGCOMPONENT.FILTERDESCRIPTION_TITLE' | translate}}
+            <div class="card-header font-weight-bold d-flex justify-content-between"
+                 style="background-color: #3a88b3; color: white">
+                <h4>{{currentFilter.descriptor.displayName}}</h4>
+                <span class="mr-3">
+                    <health-light [health]="this.currentFilterState.health"></health-light>
+                </span>
             </div>
             <div class="card-body">
-                <table class="table table-condensed">
-                    <thead>
-                    <tr>
-                        <th> {{'FILTERLIVEEDITINGCOMPONENT.ID' | translate}}</th>
-                        <th> {{'FILTERLIVEEDITINGCOMPONENT.NAME' | translate}}</th>
-                        <th> {{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}</th>
-                        <th> {{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}</th>
-                        <th> {{'FILTERLIVEEDITINGCOMPONENT.TOTALTHROUGHPUTTIME' | translate}}</th>
-                        <th> {{'FILTERLIVEEDITINGCOMPONENT.STATUS' | translate}}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>{{ currentFilter?.id}}</td>
-                        <td>{{ currentFilter?.descriptor?.displayName}}</td>
-                        <td>{{ currentFilter?.descriptor?.description}}</td>
-                        <td>{{ currentFilterState?.throughPutTime}}</td>
-                        <td>{{ currentFilterState?.totalThroughputTime}}</td>
-                        <td>{{ currentFilterState?.status}}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="row">
+                    <div class="col-11">
+                        <div>
+                            <!--<small class="text-info">{{currentFilter.descriptor.description}}</small>-->
+                            <small>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam.</small>
+                        </div>
+                    </div>
+                    <div class="col-1 text-right">
+                        <status-light [status]="currentFilterState.status"></status-light>
+                    </div>
+                </div>
+                <div>
+                    <small>{{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}: </small>
+                    <small class="text-info"> {{currentFilter.descriptor.category}}</small>
+                </div>
+                <div>
+                    <small>{{currentFilterState.throughPutTime}}</small>
+                </div>
+
             </div>
         </div>
     `
 })
 
-export class FilterDescriptionComponent implements OnInit{
+export class FilterDescriptionComponent implements OnInit {
 
     @Input() public currentFilter: FilterConfiguration;
     @Input() public currentFilterState: FilterInstanceState;

@@ -146,12 +146,37 @@
     border-radius: 50%;
 }
 
-.health-light-Green.Green{
+.health-light-Green.Green {
     background-color: lime;
     box-shadow: inset #460 0 -1px 9px;
 
 }
+/*------------------ Status-Light----------------*/
 
+.status-light {
+    width: 36px;
+    height:36px;
+    background-color: rgba(99, 96, 96, 0.48);
+    border-radius: 50%;
+}
+
+.status-light.Running {
+    background-color: lime;
+    box-shadow: inset #460 0 -1px 9px;
+}
+
+.status-light.Paused {
+    background-color: yellow;
+    box-shadow: inset #460 0 -1px 9px;
+}
+.status-light.Drained {
+    background-color: orange;
+    box-shadow: inset #460 0 -1px 9px;
+}
+.status-light.Unknown {
+    background-color: rgba(99, 96, 96, 0.48);
+    box-shadow: inset #460 0 -1px 9px;
+}
 /*------------------ Loader ---------------------*/
 .spinner {
     margin: 100px auto;

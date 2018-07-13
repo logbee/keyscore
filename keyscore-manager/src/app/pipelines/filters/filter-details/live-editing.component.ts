@@ -18,11 +18,16 @@ import {selectAppConfig} from "../../../app.config";
 @Component({
     selector: "live-editing",
     template: `
+        <header-bar
+                title="Live-Editing"
+                [showManualReload]="false"
+                (onManualReload)="reload()">
+        </header-bar>
         <div *ngIf="!(loading$ | async); else loading">
             <div class="col-12" *ngIf="!errorHandling">
-                <div class="card mt-3 mb-3">
-                    <div class="card-header" style="background-color: #365880; color: white">
-                        <strong>{{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}</strong>
+                <!--<div class="card mt-3 mb-3">-->
+                    <!--<div class="card-header" style="background-color: #365880; color: white">-->
+                        <!--<strong>{{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}</strong>-->
                     </div>
                     <div class="card-body badge-light">
 
@@ -38,8 +43,8 @@ import {selectAppConfig} from "../../../app.config";
 
                         <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}
                         </button>
-                    </div>
-                </div>
+                    <!--</div>-->
+                <!--</div>-->
             </div>
             <div class="col-12">
                 <error-component *ngIf="errorHandling" [httpError]="httpError"
