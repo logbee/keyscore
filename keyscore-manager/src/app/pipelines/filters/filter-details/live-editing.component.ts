@@ -28,7 +28,7 @@ import {selectAppConfig} from "../../../app.config";
                 <!--<div class="card mt-3 mb-3">-->
                     <!--<div class="card-header" style="background-color: #365880; color: white">-->
                         <!--<strong>{{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}</strong>-->
-                    </div>
+                    <!--</div>-->
                     <div class="card-body badge-light">
 
                         <filter-description [currentFilter]="filter$ | async"
@@ -43,7 +43,7 @@ import {selectAppConfig} from "../../../app.config";
 
                         <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}
                         </button>
-                    <!--</div>-->
+                    </div>
                 <!--</div>-->
             </div>
             <div class="col-12">
@@ -57,7 +57,7 @@ import {selectAppConfig} from "../../../app.config";
     `
 })
 
-export class LiveEditingComponent {
+export class LiveEditingComponent implements OnInit {
     // Flags
     private errorHandling: boolean = false;
     private liveEditingFlag: boolean;
@@ -78,9 +78,12 @@ export class LiveEditingComponent {
             this.filterState$ = this.store.select(getLiveEditingFilterState);
             this.filter$ = this.store.select(getLiveEditingFilter);
             this.error$ = this.store.select(errorState);
-            this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
             this.loading$ = this.store.select(isSpinnerShowing);
         }
+    }
+
+    ngOnInit(): void {
+        this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
     }
 
     private triggerErrorComponent(httpError: string) {
