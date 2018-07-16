@@ -80,7 +80,7 @@ export function toPipelineConfiguration(pipe: InternalPipelineConfiguration): Pi
 }
 
 export function parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
-    let type = parameterDescriptor.kind;
+    let type = parameterDescriptor.jsonClass;
     switch (type) {
         case "list":
             type = "list[string]";

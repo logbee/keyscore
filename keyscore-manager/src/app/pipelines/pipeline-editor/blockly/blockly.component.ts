@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
 import {Blockly} from "node-blockly/browser";
-import {BehaviorSubject, combineLatest, Observable} from "rxjs";
-import {delay, filter, map, takeWhile} from "rxjs/internal/operators";
+import {BehaviorSubject, combineLatest, Observable, Subject} from "rxjs";
+import {delay, filter, map, takeUntil, takeWhile} from "rxjs/internal/operators";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
 import Workspace = Blockly.Workspace;
 import {BlockBuilderService} from "../../../services/blockly/blockbuilder.service";
@@ -47,10 +47,6 @@ declare var Blockly: any;
                 </div>
             </div>
         </div>
-        <alert [level]="'success'" [message]="'BLOCKLY.SAVE_SUCCESS'"
-               [trigger$]="successAlertTrigger$"></alert>
-        <alert [level]="'danger'" [message]="'BLOCKLY.SAVE_FAILURE'"
-               [trigger$]="failureAlertTrigger$"></alert>
 
 
     `,
@@ -67,19 +63,15 @@ export class BlocklyComponent implements OnInit, OnDestroy {
     @Input() public categories$: Observable<string[]>;
     @Input() public isLoading$: Observable<boolean>;
     @Input() public isMenuExpanded$: Observable<boolean>;
-    @Input() public updateSuccess$: Observable<boolean[]>;
 
     @Output() public update: EventEmitter<PipelineConfiguration> = new EventEmitter();
     @Output() public remove: EventEmitter<string> = new EventEmitter();
-
-    public successAlertTrigger$: Observable<boolean>;
-    public failureAlertTrigger$: Observable<boolean>;
 
     private workspace: Workspace = undefined;
 
     private blocklyDiv;
     private toolbox: any;
-    private isAlive: boolean = true;
+    private alive$: Subject<void> = new Subject();
 
     private selectedFilter$: Observable<FilterDescriptor | InternalPipelineConfiguration>;
     private selectedBlockName$: BehaviorSubject<string> = new BehaviorSubject("pipeline_configuration");
@@ -97,7 +89,7 @@ export class BlocklyComponent implements OnInit, OnDestroy {
                 name === "pipeline_configuration" ? this.pipeline : descriptors.find((d) => d.name === name))
         );
 
-        this.isLoading$.pipe(takeWhile(() => this.isAlive),
+        this.isLoading$.pipe(takeUntil(this.alive$),
             filter((loading) => loading === false),
             delay(1)).subscribe((_) => {
             Blockly.svgResize(this.workspace);
@@ -107,14 +99,11 @@ export class BlocklyComponent implements OnInit, OnDestroy {
         this.initBlockly();
 
         this.isMenuExpanded$.pipe(delay(300)).subscribe((_) => Blockly.svgResize(this.workspace));
-        this.successAlertTrigger$ = this.updateSuccess$.pipe(map((success) => success[0]));
-        this.failureAlertTrigger$ = this.updateSuccess$.pipe(
-            map((successList) => !successList[0]));
 
     }
 
     public ngOnDestroy() {
-        this.isAlive = false;
+        this.alive$.next();
     }
 
     public savePipelineEditing() {
@@ -139,7 +128,7 @@ export class BlocklyComponent implements OnInit, OnDestroy {
         this.blocklyDiv = document.getElementById("blocklyDiv");
 
         combineLatest(this.filterDescriptors$, this.categories$)
-            .pipe(takeWhile((_) => this.isAlive))
+            .pipe(takeUntil(this.alive$))
             .subscribe(([descriptors, categories]) => {
                 let currentWorkspace;
                 if (typeof this.workspace !== "undefined") {

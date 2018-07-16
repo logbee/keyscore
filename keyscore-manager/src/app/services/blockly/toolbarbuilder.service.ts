@@ -94,7 +94,7 @@ export class ToolBarBuilderService {
                     .appendField(descriptor.displayName);
                 this.setTooltip(descriptor.description);
                 descriptor.parameters.forEach((p) => {
-                    switch (p.kind) {
+                    switch (p.jsonClass) {
                         case "text":
                             this.appendDummyInput().appendField(p.displayName)
                                 .appendField(new Blockly.FieldTextInput(p.displayName), p.name);
@@ -135,7 +135,7 @@ export class ToolBarBuilderService {
     }
 
     private parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
-        let type = parameterDescriptor.kind;
+        let type = parameterDescriptor.jsonClass;
         switch (type) {
             case "list":
                 type = "list[string]";

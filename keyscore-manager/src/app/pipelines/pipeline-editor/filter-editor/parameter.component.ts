@@ -8,7 +8,7 @@ import {Parameter} from "../../../models/pipeline-model/parameters/Parameter";
     template: `
         <div [formGroup]="form">
             <label [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
-            <div [ngSwitch]="parameterDescriptor.kind">
+            <div [ngSwitch]="parameterDescriptor.jsonClass">
                 <input class="form-control" *ngSwitchCase="'text'" [formControlName]="parameterDescriptor.name"
                        [id]="parameterDescriptor.name" [type]="'text'">
 

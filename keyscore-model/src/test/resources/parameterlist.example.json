@@ -1,0 +1,20 @@
+[
+  {
+    "name": "bootstrapServer",
+    "displayName": "bootstrapServer",
+    "description": "description",
+    "mandatory": true,
+    "validator": ".*",
+    "kind": "text",
+    "jsonClass": "text"
+  },
+  {
+    "name": "topic",
+    "displayName": "topic",
+    "description": "description",
+    "mandatory": true,
+    "validator": ".*",
+    "kind": "text",
+    "jsonClass": "text"
+  }
+]

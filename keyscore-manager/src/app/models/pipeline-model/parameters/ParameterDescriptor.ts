@@ -1,7 +1,7 @@
 export interface ParameterDescriptor {
     name: string;
     displayName: string;
-    kind: string;
+    jsonClass: string;
     mandatory: boolean;
     value?: any;
 }

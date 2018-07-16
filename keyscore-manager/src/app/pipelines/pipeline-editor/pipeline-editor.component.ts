@@ -1,7 +1,7 @@
 import {Location} from "@angular/common";
-import {Component} from "@angular/core";
+import {Component, OnDestroy} from "@angular/core";
 import {Store} from "@ngrx/store";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {ModalService} from "../../services/modal.service";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
 import {selectAppConfig} from "../../app.config";
@@ -18,7 +18,7 @@ import {
     UpdatePipelineAction,
     UpdatePipelineWithBlocklyAction,
 } from "../pipelines.actions";
-import {share} from "rxjs/internal/operators";
+import {map, share, takeUntil} from "rxjs/internal/operators";
 import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
 import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 import {FilterDescriptor} from "../../models/filter-model/FilterDescriptor";
@@ -86,13 +86,18 @@ import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration
                                    [pipeline]="(pipeline$ | async)"
                                    [isLoading$]="isLoading$"
                                    [isMenuExpanded$]="isMenuExpanded$"
-                                   [updateSuccess$]="updateSuccess$"
                                    (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
             </div>
+
+            <alert [level]="'success'" [message]="'BLOCKLY.SAVE_SUCCESS'"
+                   [trigger$]="successAlertTrigger$"></alert>
+            <alert [level]="'danger'" [message]="'BLOCKLY.SAVE_FAILURE'"
+                   [trigger$]="failureAlertTrigger$"></alert>
+
         </ng-template>
     `,
 })
-export class PipelineEditorComponent {
+export class PipelineEditorComponent implements OnDestroy {
     public pipeline$: Observable<InternalPipelineConfiguration>;
     public isLocked$: Observable<boolean>;
     public filterDescriptors$: Observable<FilterDescriptor[]>;
@@ -101,6 +106,11 @@ export class PipelineEditorComponent {
     public isLoading$: Observable<boolean>;
     public isMenuExpanded$: Observable<boolean>;
     public updateSuccess$: Observable<boolean[]>;
+
+    public successAlertTrigger$: Observable<boolean>;
+    public failureAlertTrigger$: Observable<boolean>;
+
+    private alive: Subject<void> = new Subject();
 
     constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
         this.store.dispatch(new LoadFilterDescriptorsAction());
@@ -115,12 +125,20 @@ export class PipelineEditorComponent {
         this.isMenuExpanded$ = this.store.select(isMenuExpanded);
         this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
-        this.pipeline$.subscribe((pipeline) => {
+        this.pipeline$.pipe(takeUntil(this.alive)).subscribe((pipeline) => {
             if (pipeline) {
                 this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0));
             }
         });
 
+        this.successAlertTrigger$ = this.updateSuccess$.pipe(map((success) => success[0]));
+        this.failureAlertTrigger$ = this.updateSuccess$.pipe(
+            map((successList) => !successList[0]));
+
+    }
+
+    public ngOnDestroy() {
+        this.alive.next();
     }
 
     public addFilter(pipeline: InternalPipelineConfiguration) {
