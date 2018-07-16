@@ -1,14 +1,12 @@
 import {Injectable} from "@angular/core";
 import {Blockly} from "node-blockly/browser";
 import {v4 as uuid} from "uuid";
-import {
-    FilterConfiguration,
-    FilterDescriptor,
-    Parameter,
-    ParameterDescriptor,
-    PipelineConfiguration
-} from "../../pipelines/pipelines.model";
 import {extractTopLevelJSONObjectsFromString, mapFromSeparatedString} from "../../util";
+import {FilterDescriptor} from "../../models/filter-model/FilterDescriptor";
+import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
+import {PipelineConfiguration} from "../../models/pipeline-model/PipelineConfiguration";
+import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
+import {ParameterDescriptor} from "../../models/pipeline-model/parameters/ParameterDescriptor";
 
 declare var Blockly: any;
 

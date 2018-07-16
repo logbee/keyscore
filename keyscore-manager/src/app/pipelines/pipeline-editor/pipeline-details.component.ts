@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {Observable} from "rxjs";
-import {InternalPipelineConfiguration} from "../pipelines.model";
+import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 
 @Component({
     selector: "pipeline-details",

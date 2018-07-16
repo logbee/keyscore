@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {FilterStatus, Health} from "../../pipelines/pipelines.model";
+import {FilterStatus} from "../../models/filter-model/FilterStatus";
 
 @Component({
     selector: "status-light",

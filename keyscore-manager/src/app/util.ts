@@ -1,9 +1,8 @@
 import "jquery";
-import {
-    InternalPipelineConfiguration, Parameter, ParameterDescriptor,
-    PipelineConfiguration
-} from "./pipelines/pipelines.model";
-
+import {InternalPipelineConfiguration} from "./models/pipeline-model/InternalPipelineConfiguration";
+import {PipelineConfiguration} from "./models/pipeline-model/PipelineConfiguration";
+import {ParameterDescriptor} from "./models/pipeline-model/parameters/ParameterDescriptor";
+import {Parameter} from "./models/pipeline-model/parameters/Parameter";
 export function deepcopy(source: any, target?: any): any {
     return jQuery.extend(true, target == null ? {} : target, source);
 }

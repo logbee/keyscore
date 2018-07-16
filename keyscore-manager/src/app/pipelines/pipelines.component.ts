@@ -8,7 +8,8 @@ import {UpdateRefreshTimeAction} from "../common/loading/loading.actions";
 import {isSpinnerShowing, selectRefreshTime} from "../common/loading/loading.reducer";
 import * as RouterActions from "../router/router.actions";
 import {CreatePipelineAction, LoadAllPipelinesAction, UpdatePipelinePollingAction} from "./pipelines.actions";
-import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.model";
+import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
+import {getPipelineList, PipelinesState} from "./pipelines.reducer";
 
 @Component({
     selector: "keyscore-pipelines",
@@ -45,7 +46,7 @@ import {getPipelineList, PipelineInstance, PipelinesState} from "./pipelines.mod
                     <div class="card-columns">
                         <div *ngFor="let pipeline of pipelines$ | async; let i = index" class="card">
                             <a class="card-header btn d-flex justify-content-between"
-                               routerLink="/pipelines/pipeline/{{pipeline.id}}">
+                               routerLink="/pipelines/{{pipeline.id}}">
                                 <h5>{{pipeline.name}}</h5>
                                 <span><health-light [health]="pipeline.health"></health-light></span>
                             </a>
@@ -81,7 +82,7 @@ export class PipelinesComponent implements OnDestroy {
         this.store.dispatch(new CreatePipelineAction(pipelineId, "New Pipeline", ""));
         if (activeRouting) {
             this.store.dispatch(new RouterActions.Go({
-                path: ["pipelines/pipeline/" + pipelineId, {}],
+                path: ["pipelines/" + pipelineId, {}],
                 query: {},
                 extras: {}
             }));

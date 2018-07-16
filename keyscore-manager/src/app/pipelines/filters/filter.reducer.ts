@@ -1,9 +1,13 @@
-import {FilterState, FilterStatus, Health} from "../pipelines.model";
-import {
-    FiltersActions, LOAD_FILTERSTATE, LOAD_FILTERSTATE_FAILURE, LOAD_FILTERSTATE_SUCCESS,
-    LOAD_LIVE_EDITING_FILTER_FAILURE,
-    LOAD_LIVE_EDITING_FILTER_SUCCESS
-} from "./filters.actions";
+import {FiltersActions, LOAD_FILTERSTATE_SUCCESS, LOAD_LIVE_EDITING_FILTER_SUCCESS} from "./filters.actions";
+import {createFeatureSelector, createSelector} from "@ngrx/store";
+import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
+import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
+import {FilterStatus} from "../../models/filter-model/FilterStatus";
+
+export class FilterState {
+    public filter: FilterConfiguration;
+    public filterState: FilterInstanceState;
+}
 
 const initialState: FilterState = {
     filter: {
@@ -35,3 +39,13 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
     }
     return result;
 }
+
+export const getFilterState = createFeatureSelector<FilterState>(
+    "filter"
+);
+export const getFilterId = createSelector(getFilterState,
+    (state: FilterState) => state.filter.id);
+
+export const getLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
+
+export const getLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);

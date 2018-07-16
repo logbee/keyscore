@@ -3,18 +3,7 @@ import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs";
 import {ModalService} from "../../services/modal.service";
-import {
-    FilterConfiguration,
-    FilterDescriptor,
-    getEditingPipeline,
-    getEditingPipelineIsLocked,
-    getFilterCategories,
-    getFilterDescriptors, getLastUpdateSuccess, getPipelineList,
-    InternalPipelineConfiguration,
-    PipelineConfiguration, PipelineInstance,
-} from "../pipelines.model";
 import {FilterChooser} from "./filter-chooser/filter-chooser.component";
-
 import {selectAppConfig} from "../../app.config";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {Go} from "../../router/router.actions";
@@ -31,6 +20,17 @@ import {
 } from "../pipelines.actions";
 import {share} from "rxjs/internal/operators";
 import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
+import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
+import {FilterDescriptor} from "../../models/filter-model/FilterDescriptor";
+import {
+    getEditingPipeline,
+    getEditingPipelineIsLocked,
+    getFilterCategories,
+    getFilterDescriptors,
+    getLastUpdateSuccess
+} from "../pipelines.reducer";
+import {PipelineConfiguration} from "../../models/pipeline-model/PipelineConfiguration";
+import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
 
 @Component({
     selector: "pipeline-editor",

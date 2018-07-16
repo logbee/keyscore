@@ -2,18 +2,13 @@ import {Component, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
-import {
-    FilterConfiguration,
-    FilterInstanceState,
-    FilterState,
-    getLiveEditingFilter,
-    getLiveEditingFilterState
-} from "../../pipelines.model";
 import {isSpinnerShowing} from "../../../common/loading/loading.reducer";
 import {ErrorState, errorState} from "../../../common/error/error.reducer";
-import {b} from "@angular/core/src/render3";
 import {AppState} from "../../../app.component";
 import {selectAppConfig} from "../../../app.config";
+import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
+import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceState";
+import {getLiveEditingFilter, getLiveEditingFilterState} from "../filter.reducer";
 
 @Component({
     selector: "live-editing",
@@ -30,17 +25,12 @@ import {selectAppConfig} from "../../../app.config";
                         <!--<strong>{{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}</strong>-->
                     <!--</div>-->
                     <div class="card-body badge-light">
-
                         <filter-description [currentFilter]="filter$ | async"
                                             [currentFilterState]="filterState$ | async">
                         </filter-description>
-                        
                         <example-message></example-message>
-
-                        <pattern (apply)="applyConfiguration($event)"></pattern>
-
+                        <pattern></pattern>
                         <filter-result></filter-result>
-
                         <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}
                         </button>
                     </div>
@@ -69,7 +59,7 @@ export class LiveEditingComponent implements OnInit {
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
 
-    constructor(private store: Store<AppState>, private translate: TranslateService) {
+    constructor(private store: Store<any>, private translate: TranslateService) {
         const config = this.store.select(selectAppConfig);
         config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
         if (!this.liveEditingFlag) {
@@ -82,7 +72,7 @@ export class LiveEditingComponent implements OnInit {
         }
     }
 
-    ngOnInit(): void {
+    public ngOnInit(): void {
         this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
     }
 

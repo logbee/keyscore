@@ -1,7 +1,8 @@
 import {Injectable} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {Parameter, ParameterDescriptor} from "../pipelines/pipelines.model";
 import {zip} from "../util";
+import {ParameterDescriptor} from "../models/pipeline-model/parameters/ParameterDescriptor";
+import {Parameter} from "../models/pipeline-model/parameters/Parameter";
 
 @Injectable()
 export class ParameterControlService {

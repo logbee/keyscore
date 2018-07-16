@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {Health} from "../../pipelines/pipelines.model";
+import {Health} from "../../models/common/Health";
 
 @Component({
     selector: "health-light",

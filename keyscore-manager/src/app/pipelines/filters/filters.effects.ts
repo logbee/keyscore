@@ -34,9 +34,10 @@ import {
     PauseFilterFailure,
     PauseFilterSuccess
 } from "./filters.actions";
-import {FilterConfiguration, FilterInstanceState} from "../pipelines.model";
 import {combineLatest} from "rxjs/operators";
 import {selectAppConfig} from "../../app.config";
+import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
+import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
 
 @Injectable()
 export class FilterEffects {
@@ -48,7 +49,7 @@ export class FilterEffects {
                 const url = navigationAction.payload.event.url;
                 const filterId = url.substring(url.lastIndexOf("/") + 1, url.length);
                 const filterIdRegex =
-                    /\/pipelines\/filter\/.*/g;
+                    /\/filter\/.*/g;
                 if (filterIdRegex.test(url)) {
                     return of(new InitalizeLiveEditingDataAction(filterId));
                 } else {
@@ -61,7 +62,7 @@ export class FilterEffects {
     public navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
         ofType(INITIALIZE_LIVE_EDITING_DATA),
         map((action) => (action as InitalizeLiveEditingDataAction)),
-        switchMap(payload => [
+        switchMap((payload) => [
             new LoadLiveEditingFilterAction(payload.filterId),
             new LoadFilterStateAction(payload.filterId)
         ])

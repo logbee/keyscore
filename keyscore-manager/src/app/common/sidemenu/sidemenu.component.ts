@@ -32,7 +32,7 @@ import {TranslateService} from "@ngx-translate/core";
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link" routerLink="/pipelines/pipeline"
+                    <a class="nav-link" routerLink="/pipelines"
                        routerLinkActive="active">
                         <span><img src="/assets/images/menu/sitemap.png"></span>
                         <span *ngIf="isSideBarExpanded()">

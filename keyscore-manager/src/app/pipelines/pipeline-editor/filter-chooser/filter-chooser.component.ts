@@ -5,7 +5,8 @@ import {Store} from "@ngrx/store";
 import {combineLatest, Observable, Subject} from "rxjs";
 import {map} from "rxjs/internal/operators";
 import {AddFilterAction, LoadFilterDescriptorsAction} from "../../pipelines.actions";
-import {FilterDescriptor, getFilterCategories, getFilterDescriptors, PipelinesModuleState} from "../../pipelines.model";
+import {FilterDescriptor} from "../../../models/filter-model/FilterDescriptor";
+import {getFilterCategories, getFilterDescriptors, PipelinesState} from "../../pipelines.reducer";
 
 @Component({
     selector: "filter-chooser",
@@ -24,7 +25,7 @@ export class FilterChooser {
     private activeDescriptors$: Observable<FilterDescriptor[]>;
     private categories$: Observable<string[]>;
 
-    constructor(private store: Store<PipelinesModuleState>, private modalService: ModalService) {
+    constructor(private store: Store<PipelinesState>, private modalService: ModalService) {
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
         this.categories$ = this.store.select(getFilterCategories);
         this.selectedCategory$ = new Subject();

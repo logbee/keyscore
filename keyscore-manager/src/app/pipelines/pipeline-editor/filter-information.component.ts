@@ -1,5 +1,6 @@
 import {Component, Input} from "@angular/core";
-import {FilterDescriptor, InternalPipelineConfiguration} from "../pipelines.model";
+import {FilterDescriptor} from "../../models/filter-model/FilterDescriptor";
+import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 
 @Component({
     selector: "filter-information",

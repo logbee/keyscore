@@ -1,6 +1,7 @@
 import {Component, Input} from "@angular/core";
 import {FormGroup} from "@angular/forms";
-import {Parameter, ParameterDescriptor} from "../../pipelines.model";
+import {ParameterDescriptor} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
+import {Parameter} from "../../../models/pipeline-model/parameters/Parameter";
 
 @Component({
     selector: "app-parameter",

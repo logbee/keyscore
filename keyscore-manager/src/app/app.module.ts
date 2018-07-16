@@ -23,14 +23,16 @@ import {RouterEffects} from "./router/router.effects";
 import {SettingsComponent} from "./settings/settings.component";
 import {HeaderBarModule} from "./common/headerbar.module";
 import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
-import {ErrorComponent} from "./common/error/error.component";
-import {AlertComponent} from "./common/alert/alert.component";
+import {LiveEditingModule} from "./pipelines/filters/filter.module";
+import {LoadingEffects} from "./common/loading/loading.effects";
+import {ErrorEffects} from "./common/error/error.effects";
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
     {path: "dashboard", component: DashboardComponent},
     {path: "agent", loadChildren: () => AgentsModule},
     {path: "pipelines", loadChildren: () => PipelinesModule},
+    {path: "filter/:id", loadChildren: () => LiveEditingModule},
     {path: "settings", component: SettingsComponent}
 ];
 
@@ -45,7 +47,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         ReactiveFormsModule,
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
-        EffectsModule.forRoot([AppConfigEffects, RouterEffects]),
+        EffectsModule.forRoot([AppConfigEffects, RouterEffects, LoadingEffects, ErrorEffects]),
         StoreRouterConnectingModule,
         TranslateModule.forRoot({
             loader: {

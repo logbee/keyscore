@@ -5,7 +5,9 @@ import {Store} from "@ngrx/store";
 import {selectAppConfig} from "../../app.config";
 import {filter} from "rxjs/internal/operators";
 import {ParameterControlService} from "../../services/parameter-control.service";
-import {FilterConfiguration, InternalPipelineConfiguration, ParameterDescriptor} from "../pipelines.model";
+import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
+import {ParameterDescriptor} from "../../models/pipeline-model/parameters/ParameterDescriptor";
+import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 
 @Component({
     selector: "pipeline-filter",

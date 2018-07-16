@@ -1,8 +1,9 @@
 import {Action} from "@ngrx/store";
-import {
-    FilterConfiguration, FilterDescriptor, InternalPipelineConfiguration,
-    PipelineConfiguration, PipelineInstance
-} from "./pipelines.model";
+import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
+import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
+import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
+import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
+import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 export const EDIT_PIPELINE = "[Pipeline] EditPipeline";

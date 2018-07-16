@@ -18,8 +18,23 @@ import {
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "./pipelines.actions";
-import {Health, PipelinesState} from "./pipelines.model";
+import {createFeatureSelector, createSelector} from "@ngrx/store";
+import {Health} from "../models/common/Health";
+import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
+import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
+import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
+import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
 
+export class PipelinesState {
+    public pipelineList: PipelineInstance[];
+    public editingPipeline: InternalPipelineConfiguration;
+    public editingFilter: FilterConfiguration;
+    public filterDescriptors: FilterDescriptor[];
+    public filterCategories: string[];
+    public editingPipelineIsLocked: boolean;
+    public pipelineInstancePolling: boolean;
+    public wasLastUpdateSuccessful: boolean[];
+}
 const initialState: PipelinesState = {
     pipelineList: [],
     editingPipeline: null,
@@ -145,3 +160,33 @@ function swap<T>(arr: T[], a: number, b: number) {
         arr[b] = temp;
     }
 }
+
+export const getPipelinesState = createFeatureSelector<PipelinesState>(
+    "pipelines"
+);
+export const getPipelineList = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.pipelineList);
+
+export const getEditingPipeline = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.editingPipeline);
+
+export const getEditingPipelineIsLocked = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.editingPipelineIsLocked);
+
+export const getFilterDescriptors = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.filterDescriptors);
+
+export const getFilterCategories = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.filterCategories);
+
+export const getEditingFilterParameters = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.editingFilter.parameters);
+
+export const getEditingFilter = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.editingFilter);
+
+export const getPipelinePolling = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.pipelineInstancePolling);
+
+export const getLastUpdateSuccess = createSelector(getPipelinesState,
+    (state: PipelinesState) => state.wasLastUpdateSuccessful);

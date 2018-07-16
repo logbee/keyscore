@@ -4,15 +4,12 @@ import {Blockly} from "node-blockly/browser";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs";
 import {delay, filter, map, takeWhile} from "rxjs/internal/operators";
 import {ToolBarBuilderService} from "../../../services/blockly/toolbarbuilder.service";
-import {
-    FilterDescriptor,
-    InternalPipelineConfiguration,
-    PipelineConfiguration,
-    PipelineInstance
-} from "../../pipelines.model";
 import Workspace = Blockly.Workspace;
 import {BlockBuilderService} from "../../../services/blockly/blockbuilder.service";
 import {of} from "rxjs/internal/observable/of";
+import {InternalPipelineConfiguration} from "../../../models/pipeline-model/InternalPipelineConfiguration";
+import {FilterDescriptor} from "../../../models/filter-model/FilterDescriptor";
+import {PipelineConfiguration} from "../../../models/pipeline-model/PipelineConfiguration";
 
 declare var Blockly: any;
 

@@ -1,7 +1,7 @@
 import {Blockly} from "node-blockly/browser";
 import {Injectable} from "@angular/core";
-import {InternalPipelineConfiguration} from "../../pipelines/pipelines.model";
 import {separatedStringFromMap} from "../../util";
+import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 
 declare var Blockly: any;
 

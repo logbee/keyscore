@@ -35,16 +35,20 @@ import {
     UpdatePipelineSuccessAction,
     UpdatePipelineWithBlocklyAction
 } from "./pipelines.actions";
-import {FilterDescriptor, getPipelinePolling, PipelineConfiguration, PipelineInstance} from "./pipelines.model";
+import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
+import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
+import {getPipelinePolling} from "./pipelines.reducer";
+import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
 
 @Injectable()
 export class PipelinesEffects {
     @Effect() public editPipeline$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
         mergeMap((action) => {
-            const regex = /\/pipeline\/.*/g;
+            const regex = /\/pipelines\/.+/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 const id = this.getPipelineIdfromRouterAction(action as RouterNavigationAction);
+                console.log("Reached:", id);
                 return of(new EditPipelineAction(id));
             }
             return of();
@@ -153,11 +157,12 @@ export class PipelinesEffects {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {
+        console.log("URL: ", action.payload.event.url);
         return regEx.test(action.payload.event.url);
 
     }
 
     private getPipelineIdfromRouterAction(action: RouterNavigationAction) {
-        return action.payload.routerState.root.firstChild.firstChild.url[1].path;
+        return action.payload.routerState.root.firstChild.firstChild.url[0].path;
     }
 }
