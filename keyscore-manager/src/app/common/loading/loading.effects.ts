@@ -29,7 +29,7 @@ import {
     LOAD_LIVE_EDITING_FILTER, LOAD_LIVE_EDITING_FILTER_FAILURE,
     LoadLiveEditingFilterSuccess,
     LoadLiveEditingFilterFailure, LOAD_LIVE_EDITING_FILTER_SUCCESS
-} from "../../pipelines/filters/filters.actions";
+} from "../../filters/filters.actions";
 
 type showSpinnerTypes =
     | EditPipelineAction

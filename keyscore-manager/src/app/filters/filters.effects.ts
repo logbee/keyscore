@@ -7,7 +7,7 @@ import {Action, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable, of} from "rxjs/index";
 import {catchError, map, mergeMap, switchMap} from "rxjs/internal/operators";
-import {AppState} from "../../app.component";
+import {AppState} from "../app.component";
 import {
     DRAIN_FILTER,
     DrainFilterAction,
@@ -35,9 +35,9 @@ import {
     PauseFilterSuccess
 } from "./filters.actions";
 import {combineLatest} from "rxjs/operators";
-import {selectAppConfig} from "../../app.config";
-import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
-import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
+import {selectAppConfig} from "../app.config";
+import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
+import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 
 @Injectable()
 export class FilterEffects {

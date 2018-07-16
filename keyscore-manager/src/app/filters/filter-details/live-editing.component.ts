@@ -2,12 +2,12 @@ import {Component, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
-import {isSpinnerShowing} from "../../../common/loading/loading.reducer";
-import {ErrorState, errorState} from "../../../common/error/error.reducer";
-import {AppState} from "../../../app.component";
-import {selectAppConfig} from "../../../app.config";
-import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
-import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceState";
+import {isSpinnerShowing} from "../../common/loading/loading.reducer";
+import {ErrorState, errorState} from "../../common/error/error.reducer";
+import {AppState} from "../../app.component";
+import {selectAppConfig} from "../../app.config";
+import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
+import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
 import {getLiveEditingFilter, getLiveEditingFilterState} from "../filter.reducer";
 
 @Component({

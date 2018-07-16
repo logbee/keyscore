@@ -1,8 +1,8 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
 import {Store} from "@ngrx/store";
-import {FilterConfiguration} from "../../../../models/filter-model/FilterConfiguration";
-import {FilterInstanceState} from "../../../../models/filter-model/FilterInstanceState";
+import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
+import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceState";
 
 @Component({
     selector: "filter-description",

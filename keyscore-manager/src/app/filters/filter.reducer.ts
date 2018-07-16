@@ -1,8 +1,8 @@
 import {FiltersActions, LOAD_FILTERSTATE_SUCCESS, LOAD_LIVE_EDITING_FILTER_SUCCESS} from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
-import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
-import {FilterStatus} from "../../models/filter-model/FilterStatus";
+import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
+import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
+import {FilterStatus} from "../models/filter-model/FilterStatus";
 
 export class FilterState {
     public filter: FilterConfiguration;
