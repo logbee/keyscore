@@ -5,8 +5,7 @@
     "description": "description",
     "mandatory": true,
     "validator": ".*",
-    "kind": "text",
-    "jsonClass": "text"
+    "jsonClass": "TextParameterDescriptor"
   },
   {
     "name": "topic",
@@ -14,7 +13,6 @@
     "description": "description",
     "mandatory": true,
     "validator": ".*",
-    "kind": "text",
-    "jsonClass": "text"
+    "jsonClass": "TextParameterDescriptor"
   }
 ]

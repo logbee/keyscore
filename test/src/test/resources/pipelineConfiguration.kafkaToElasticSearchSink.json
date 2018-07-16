@@ -26,7 +26,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "localhost:9092"
         },
         {
@@ -35,7 +35,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "groupId"
         },
         {
@@ -44,7 +44,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "earliest"
         },
         {
@@ -53,7 +53,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "topic"
         }
       ],
@@ -63,22 +63,22 @@
       {
         "name": "bootstrapServer",
         "value": "keyscore-kafka:9092",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "groupID",
         "value": "groupId",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "offsetCommit",
         "value": "earliest",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "topic",
         "value": "TopicB",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       }
     ]
   },
@@ -104,7 +104,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "localhost"
         },
         {
@@ -112,7 +112,7 @@
           "displayName": "port",
           "description": "description",
           "mandatory": true,
-          "kind": "int",
+          "jsonClass": "IntParameterDescriptor",
           "value": 9200
         },
         {
@@ -121,7 +121,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "index"
         }
       ],
@@ -131,17 +131,17 @@
       {
         "name": "host",
         "value": "keyscore-elasticsearch",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "port",
         "value": 9200,
-        "jsonClass": "int"
+        "jsonClass": "IntParameter"
       },
       {
         "name": "index",
         "value": "test",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       }
     ]
   },

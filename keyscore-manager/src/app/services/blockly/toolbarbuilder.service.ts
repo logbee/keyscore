@@ -95,15 +95,15 @@ export class ToolBarBuilderService {
                 this.setTooltip(descriptor.description);
                 descriptor.parameters.forEach((p) => {
                     switch (p.jsonClass) {
-                        case "text":
+                        case "TextParameterDescriptor":
                             this.appendDummyInput().appendField(p.displayName)
                                 .appendField(new Blockly.FieldTextInput(p.displayName), p.name);
                             break;
-                        case "int":
+                        case "IntParameterDescriptor":
                             this.appendDummyInput().appendField(p.displayName)
                                 .appendField(new Blockly.FieldNumber("0"), p.name);
                             break;
-                        case "boolean":
+                        case "BooleanParameterDescriptor":
                             this.appendDummyInput().appendField(p.displayName)
                                 .appendField(new Blockly.FieldCheckbox("FALSE"), p.name);
                             break;
@@ -137,23 +137,25 @@ export class ToolBarBuilderService {
     private parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
         let type = parameterDescriptor.jsonClass;
         switch (type) {
-            case "list":
-                type = "list[string]";
+            case "ListParameterDescriptor":
+                type = "TextListParameter";
                 parameterDescriptor.value = parameterDescriptor.value.split(",");
                 break;
-            case "map":
-                type = "map[string,string]";
+            case "MapParameterDescriptor":
+                type = "TextMapParameter";
                 parameterDescriptor.value = mapFromSeparatedString(
                     parameterDescriptor.value, ",", ":"
                 );
                 break;
-            case "text":
-                type = "string";
+            case "TextParameterDescriptor":
+                type = "TextParameter";
                 break;
-            case "int":
+            case "IntParameterDescriptor":
+                type = "IntParameter";
                 parameterDescriptor.value = +parameterDescriptor.value;
                 break;
-            case "boolean":
+            case "BooleanParameterDescriptor":
+                type = "BooleanParameter";
                 parameterDescriptor.value = parameterDescriptor.value !== "FALSE";
                 break;
         }

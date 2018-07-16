@@ -20,7 +20,7 @@
         "description": "description",
         "mandatory": true,
         "validator": ".*",
-        "kind": "text"
+        "jsonClass": "TextParameterDescriptor"
       },
       {
         "name": "groupID",
@@ -28,7 +28,7 @@
         "description": "description",
         "mandatory": true,
         "validator": ".*",
-        "kind": "text"
+        "jsonClass": "TextParameterDescriptor"
       },
       {
         "name": "offsetCommit",
@@ -36,7 +36,7 @@
         "description": "description",
         "mandatory": true,
         "validator": ".*",
-        "kind": "text"
+        "jsonClass": "TextParameterDescriptor"
       },
       {
         "name": "sourceTopic",
@@ -44,7 +44,7 @@
         "description": "description",
         "mandatory": true,
         "validator": ".*",
-        "kind": "text"
+        "jsonClass": "TextParameterDescriptor"
       }
     ],
     "category": "source"
@@ -53,22 +53,22 @@
     {
       "name": "bootstrapServer",
       "value": "dsfdsfsdf",
-      "jsonClass": "string"
+      "jsonClass": "TextParameter"
     },
     {
       "name": "groupID",
       "value":"dasfdasd",
-      "jsonClass": "string"
+      "jsonClass": "TextParameter"
     },
     {
       "name": "offsetCommit",
       "value": "eraliest",
-      "jsonClass": "string"
+      "jsonClass": "TextParameter"
     },
     {
       "name": "sourceTopic",
       "value":"adsdasd",
-      "jsonClass": "string"
+      "jsonClass": "TextParameter"
     }
   ]
 }

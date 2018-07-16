@@ -2,26 +2,17 @@ package io.logbee.keyscore.model
 
 import java.io.InputStreamReader
 
-import io.logbee.keyscore.model.filter.ParameterDescriptor
-import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, FilterStatusSerializer, HealthSerializer, ParameterDescriptorTypeHints}
-import org.json4s.ShortTypeHints
-import org.json4s.ext.JavaTypesSerializers
-import org.json4s.native.Serialization
-import org.json4s.native.Serialization.{read, write}
+import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.json4s._
+import org.json4s.native.Serialization.read
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.junit.JUnitRunner
-
-import scala.io.Source
+import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
 class ParameterDescriptorSerializerSpec extends WordSpec with Matchers {
-  implicit val formats = Serialization.formats(
-    ShortTypeHints(
-      classOf[TextField] ::
-        classOf[NumberField] ::
-        classOf[TimestampField] :: Nil)
-      + FilterConfigTypeHints + ParameterDescriptorTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer, FilterStatusSerializer)
+
+  implicit val formats = KeyscoreFormats.formats
 
   "A List of ParameterDescriptor" should {
     "be deserializable" in {

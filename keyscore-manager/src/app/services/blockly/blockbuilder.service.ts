@@ -28,10 +28,10 @@ export class BlockBuilderService {
                 const currentXmlField = xmlDoc.createElement("field");
                 currentXmlField.setAttribute("name", parameter.name);
                 switch (parameter.jsonClass) {
-                    case "list[string]":
+                    case "TextListParameter":
                         currentXmlField.appendChild(xmlDoc.createTextNode(parameter.value.join()));
                         break;
-                    case "map[string,string]":
+                    case "TextMapParameter":
                         currentXmlField.appendChild(xmlDoc.createTextNode(
                             separatedStringFromMap(parameter.value, ",", ":")
                         ));

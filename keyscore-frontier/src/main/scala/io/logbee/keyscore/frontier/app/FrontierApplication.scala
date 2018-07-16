@@ -22,12 +22,10 @@ import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStanda
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
-import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.NativeConversion._
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.json4s._
-import org.json4s.ShortTypeHints
-import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 
 import scala.concurrent.Await
@@ -42,7 +40,7 @@ object FrontierApplication extends App with Json4sSupport {
   implicit val executionContext = system.dispatcher
   implicit val timeout: Timeout = 30.seconds
   implicit val serialization = Serialization
-  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints + ParameterDescriptorTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer, FilterStatusSerializer)
+  implicit val formats = KeyscoreFormats.formats
 
   val configuration = FrontierConfigProvider(system)
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")

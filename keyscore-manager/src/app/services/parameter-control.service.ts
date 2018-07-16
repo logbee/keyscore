@@ -12,14 +12,14 @@ export class ParameterControlService {
         const zippedParameters = zip([parameters, parameterDescriptors]);
         zippedParameters.forEach(([parameter, parameterDescriptor]) => {
 
-            switch (parameterDescriptor.kind) {
-                case "list":
+            switch (parameterDescriptor.jsonClass) {
+                case "ListParameterDescriptor":
                     parameter.value = parameter.value ? parameter.value : [];
                     break;
-                case "boolean":
+                case "BooleanParameterDescriptor":
                     parameter.value = parameter.value ? parameter.value : true;
                     break;
-                case "map":
+                case "MapParameterDescriptor":
                     parameter.value = parameter.value ? parameter.value : {};
                     break;
 
@@ -27,7 +27,8 @@ export class ParameterControlService {
 
             group[parameterDescriptor.name] =
                 parameterDescriptor.mandatory &&
-                parameterDescriptor.kind !== "boolean" ? new FormControl(parameter.value || "", Validators.required)
+                parameterDescriptor.jsonClass !== "BooleanParameterDescriptor" ?
+                    new FormControl(parameter.value || "", Validators.required)
                     : new FormControl(parameter.value || "");
         });
         return new FormGroup(group);

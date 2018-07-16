@@ -3,6 +3,7 @@ import {InternalPipelineConfiguration} from "./models/pipeline-model/InternalPip
 import {PipelineConfiguration} from "./models/pipeline-model/PipelineConfiguration";
 import {ParameterDescriptor} from "./models/pipeline-model/parameters/ParameterDescriptor";
 import {Parameter} from "./models/pipeline-model/parameters/Parameter";
+
 export function deepcopy(source: any, target?: any): any {
     return jQuery.extend(true, target == null ? {} : target, source);
 }
@@ -82,16 +83,20 @@ export function toPipelineConfiguration(pipe: InternalPipelineConfiguration): Pi
 export function parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
     let type = parameterDescriptor.jsonClass;
     switch (type) {
-        case "list":
-            type = "list[string]";
+        case "ListParameterDescriptor":
+            type = "TextListParameter";
             break;
-        case "map":
-            type = "map[string,string]";
+        case "MapParameterDescriptor":
+            type = "TextMapParameter";
             break;
-        case "text":
-            type = "string";
+        case "TextParameterDescriptor":
+            type = "TextParameter";
             break;
-        case "int":
+        case "IntParameterDescriptor":
+            type = "IntParameter";
+            break;
+        case "BooleanParameterDescriptor":
+            type = "BooleanParameter";
             break;
     }
     return {name: parameterDescriptor.name, value: null, jsonClass: type};

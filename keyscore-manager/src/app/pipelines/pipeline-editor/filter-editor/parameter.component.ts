@@ -9,17 +9,20 @@ import {Parameter} from "../../../models/pipeline-model/parameters/Parameter";
         <div [formGroup]="form">
             <label [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
             <div [ngSwitch]="parameterDescriptor.jsonClass">
-                <input class="form-control" *ngSwitchCase="'text'" [formControlName]="parameterDescriptor.name"
+                <input class="form-control" *ngSwitchCase="'TextParameterDescriptor'"
+                       [formControlName]="parameterDescriptor.name"
                        [id]="parameterDescriptor.name" [type]="'text'">
 
-                <input class="form-control" *ngSwitchCase="'int'" [formControlName]="parameterDescriptor.name"
+                <input class="form-control" *ngSwitchCase="'IntParameterDescriptor'"
+                       [formControlName]="parameterDescriptor.name"
                        [id]="parameterDescriptor.name" [type]="'number'">
-                <parameter-list *ngSwitchCase="'list'" [formControlName]="parameterDescriptor.name"
+                <parameter-list *ngSwitchCase="'ListParameterDescriptor'" [formControlName]="parameterDescriptor.name"
                                 [id]="parameterDescriptor.name"></parameter-list>
-                <parameter-map *ngSwitchCase="'map'" [formControlName]="parameterDescriptor.name"
+                <parameter-map *ngSwitchCase="'MapParameterDescriptor'" [formControlName]="parameterDescriptor.name"
                                [id]="parameterDescriptor.name"></parameter-map>
 
-                <div *ngSwitchCase="'boolean'" class="toggleCheckbox" [id]="parameterDescriptor.name">
+                <div *ngSwitchCase="'BooleanParameterDescriptor'"
+                     class="toggleCheckbox" [id]="parameterDescriptor.name">
 
                     <input type="checkbox" id="checkbox{{parameterDescriptor.name}}" class="ios-toggle"
                            [formControlName]="parameterDescriptor.name">

@@ -131,7 +131,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 filter.id === action.filter.id);
             result.editingPipeline.filters[updateFilterIndex] = deepcopy(action.filter);
             result.editingPipeline.filters[updateFilterIndex].parameters.forEach((p) => {
-                if (p.jsonClass === "int") {
+                if (p.jsonClass === "IntParameter") {
                     p.value = +action.values[p.name];
                 } else {
                     p.value = action.values[p.name];

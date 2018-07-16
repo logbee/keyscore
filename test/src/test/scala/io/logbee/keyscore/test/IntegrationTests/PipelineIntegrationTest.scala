@@ -11,7 +11,7 @@ import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.model.{filter, _}
 import io.logbee.keyscore.model.filter.{FilterState, Paused, Running}
-import io.logbee.keyscore.model.json4s.{FilterConfigTypeHints, FilterStatusSerializer, HealthSerializer}
+import io.logbee.keyscore.model.json4s.{FilterStatusSerializer, HealthSerializer, KeyscoreFormats}
 import org.json4s.ShortTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
@@ -27,7 +27,7 @@ import scala.language.postfixOps
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
-  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer, FilterStatusSerializer)
+  implicit val formats = KeyscoreFormats.formats
 
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
