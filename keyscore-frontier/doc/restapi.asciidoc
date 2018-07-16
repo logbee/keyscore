@@ -1,4 +1,6 @@
-=== The keyscore-frontier REST API ===
+= The keyscore-frontier REST API =
+v0.1.0, 2018-07-16
+:toc:
 
 The keyscore-frontier offers a REST API to control all aspects of keyscore.
 Ths document is a brief summary of the most important parts of the API.
@@ -13,24 +15,24 @@ We recommend to use the following extensions:
 * Firefox:  RESTED by Espen H
 ====
 
-==== Commons ====
+== Commons ==
 Within keyscore all entities have an UUID.
 
 
-==== Pipelines ====
+== Pipeline Configurations ==
 
 The common url pattern to control pipelines starts with the prefix
 `/pipeline`.
 
-===== Get all pipeline configurations =====
+=== Get all pipeline configurations ===
 
-====== Request ======
+==== Request ====
 
 - Method: `GET`
 - URL: `/pipeline/configuration/*`
 - Payload: `<empty>`
 
-====== Response ======
+==== Response ====
 .*Case:* If there are any `PipelineConfiguration`.
 - Code: `200 OK`
 - Payload: Array of `PipelineConfiguration`
@@ -39,15 +41,15 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `200 OK`
 - Payload: `Empty Array`
 
-===== Get a pipeline configuration =====
+=== Get a pipeline configuration ===
 
-====== Request ======
+==== Request ====
 
 - Method: `GET`
 - URL: `/pipeline/configuration/<uuid>`
 - Payload: `PipelineConfiguration`
 
-====== Response ======
+==== Response ====
 .*Case:* A pipeline with the specified UUID exists.
 - Code: `200 OK`
 - Payload: `PipelineConfiguration`
@@ -56,15 +58,15 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `404 NOT FOUND`
 - Payload: `<empty>`
 
-===== Create a pipeline configuration =====
+=== Create a pipeline configuration ===
 
-====== Request ======
+==== Request ====
 
 - Method: `PUT`
 - URL: `/pipeline/configuration/`
 - Payload: `PipelineConfiguration`
 
-====== Response ======
+==== Response ====
 .*Case:* A new `PipelineConfiguration` with the specified UUID has been created.
 - *Code:* `201 Created`
 - *Payload:* `<empty>`
@@ -73,15 +75,15 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `400 Bad Request`
 - Payload: `<empty>`
 
-===== Update a pipeline configuration =====
+=== Update a pipeline configuration ===
 
-====== Request ======
+==== Request ====
 
 - Method: `POST`
 - URL: `/pipeline/configuration/`
 - Payload: `PipelineConfiguration`
 
-====== Response ======
+==== Response ====
 .*Case:* The update of the `PipelineConfiguration` with the given UUID was successful.
 - Code: `200 OK`
 - Payload: `PipelineConfiguration`
@@ -90,15 +92,15 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `404 NOT FOUND`
 - Payload: `<empty>`
 
-===== Delete a pipeline configuration =====
+=== Delete a pipeline configuration ===
 
-====== Request ======
+==== Request ====
 
 - Method: `DELTE`
 - URL: `/pipeline/configuration/<uuid>`
 - Payload: `<empty>`
 
-====== Response ======
+==== Response ====
 .*Case:* Deletion of the `PipelineConfiguration` with the given UUID was successful.
 - Code: `200 OK`
 - Payload: `<empty>`
@@ -107,15 +109,15 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `404 NOT FOUND`
 - Payload: `<empty>`
 
-===== Delete all pipeline configurations =====
+=== Delete all pipeline configurations ===
 
-====== Request ======
+==== Request ====
 
 - Method: `DELTE`
 - URL: `/pipeline/configuration/*`
 - Payload: `<empty>`
 
-====== Response ======
+==== Response ====
 .*Case:* Deletion was successful.
 - Code: `200 OK`
 - Payload: `<empty>`
@@ -124,15 +126,17 @@ The common url pattern to control pipelines starts with the prefix
 - Code:  `500 INTERNAL SERVER ERROR`
 - Payload: `<empty>`
 
-===== Get all pipeline instances =====
+== Pipeline Instances ==
 
-====== Request ======
+=== Get all pipeline instances ===
+
+==== Request ====
 
 - Method: `GET`
 - URL: `/pipeline/instance/*`
 - Payload: `<empty>`
 
-====== Response ======
+==== Response ====
 .*Case:* If there are any `PipelineInstance`.
 - Code: 200 OK
 - Payload: Array of `PipelineInstance`.
@@ -141,15 +145,15 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `200 OK`
 - Payload: `Empty Array`
 
-===== Get a pipeline instance =====
+=== Get a pipeline instance ===
 
-====== Request ======
+==== Request ====
 
 - Method: `GET`
 - URL: `/pipeline/instance/<uuid>`
 - Payload: `<empty>`
 
-====== Response ======
+==== Response ====
 .*Case:* A `PipelineInstance` with the given UUID exists.
 - Code: `200 OK`
 - Payload: `PipelineInstance`
@@ -158,15 +162,18 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `404 NOT FOUND`
 - Payload: `<empty>`
 
-===== Create a pipeline instance =====
 
-====== Request ======
+=== Create a pipeline instance ===
+
+CAUTION: Not implemented yet
+
+==== Request ====
 
 - Method: `PUT`
 - URL: `/pipeline/instance/<uuid>?<configId>`
 - Payload: `<empty>`
 
-====== Response ======
+==== Response ====
 .*Case:* A new  `PipelineInstacne` with the given UUID and the `PipelineConfiguration` accessed by <configId> has been created.
 - Code: `201 CREATED`
 - Payload: `<empty>`
@@ -175,15 +182,17 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `400 Bad Request`
 - Payload: `<empty>`
 
-===== Update a pipeline instance =====
+=== Update a pipeline instance ===
 
-====== Request ======
+CAUTION: Not implemented yet
+
+==== Request ====
 
 - Method: `POST`
 - URL: `/pipeline/instance/<uuid>?<configId>`
 - Payload: <empty>
 
-====== Response ======
+==== Response ====
 .*Case:* The update of the `PipelineInstacne` with the given UUID and the `PipelineConfiguration` accessed by <configId> was successfull.
 - Code: `200 OK`
 - Payload: `<empty>`
@@ -192,15 +201,17 @@ The common url pattern to control pipelines starts with the prefix
 - Code: `404 NOT FOUND`
 - Payload: `<empty>`
 
-===== Delete all pipeline instance =====
+=== Delete all pipeline instance ===
 
-====== Request ======
+CAUTION: Not implemented yet
+
+==== Request ====
 
 - Method: `DELTE`
 - URL: `/pipeline/instance/*`
 - Payload: `<empty>`
 
-====== Response ======
+==== Response ====
 .*Case:* Deletion was successful.
 - Code: `200 OK`
 - Payload: `<empty>`
@@ -208,3 +219,174 @@ The common url pattern to control pipelines starts with the prefix
 .*Case:* There was a problem deleting all pipeline instances.
 - Code: `500 INTERNAL SERVER ERROR`
 - Payload: `<empty>`
+
+== Filter ==
+
+=== Get all filter descriptors ===
+
+==== Request ====
+
+- Method: `GET`
+- URL: `/descriptors`
+- Payload: `<empty>`
+
+==== Response ====
+.*Case:* Found descriptors
+- Code: `200 OK`
+- Payload: Array of `FilterDescriptor`
+
+.*Case:* There was a problem getting the descriptors.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
+=== Get a filter state ===
+
+==== Request ====
+
+- Method: `GET`
+- URL: `/filter/<id>/state`
+- Payload: `<empty>`
+
+==== Response ====
+.*Case:* Found filter state.
+- Code: `202 ACCEPTED`
+- Payload: `FilterState`
+
+.*Case:* There was a problem finding the filter state.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
+== Filter interactions ==
+
+=== Pause a filter ===
+
+==== Request ====
+
+- Method: `POST`
+- URL: `/filter/<id>/pause`
+- Payload: `boolean`
+
+==== Response ====
+.*Case:* Pause was successful.
+- Code: `202 ACCEPTED`
+- Payload: `FilterState`
+
+.*Case:* There was a problem pausing the filter.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
+=== Drain a filter ===
+
+==== Request ====
+
+- Method: `POST`
+- URL: `/filter/<id>/drain`
+- Payload: `boolean`
+
+==== Response ====
+.*Case:* Drain was successful.
+- Code: `202 ACCEPTED`
+- Payload: `FilterState`
+
+.*Case:* There was a problem draining the filter.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
+=== Insert a dataset into a filter ===
+
+==== Request ====
+
+- Method: `PUT`
+- URL: `/filter/<id>/insert`
+- Payload: Array of `Dataset`
+
+==== Response ====
+.*Case:* Insert was successful.
+- Code: `202 ACCEPTED`
+- Payload: `FilterState`
+
+.*Case:* There was a problem inserting data into the filter.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
+=== Extracting datasets from a filter ===
+
+==== Request ====
+
+- Method: `GET`
+- URL: `/filter/<id>/extract`
+- Payload: `Integer` : how many datasets to extract
+
+==== Response ====
+.*Case:* Extract was successful.
+- Code: `200 OK`
+- Payload: Array of `Dataset`
+
+.*Case:* There was a problem extracting data from the filter.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
+== Filter configuration ==
+
+=== Get a filter configuration ===
+
+==== Request ====
+
+- Method: `GET`
+- URL: `/filter/<id>/config`
+- Payload: `<empty>`
+
+==== Response ====
+.*Case:* Configuration found.
+- Code: `200 OK`
+- Payload: `FilterConfiguration`
+
+.*Case:* Filter does not exist.
+- Code: `404 NOT FOUND`
+- Payload: `<empty>`
+
+.*Case:* There was a problem finding the filter configuration.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
+=== Configure a filter ===
+
+==== Request ====
+
+- Method: `PUT`
+- URL: `/filter/<id>/config`
+- Payload: `FilterConfiguration`
+
+==== Response ====
+.*Case:* Configuration was successful.
+- Code: `200 OK`
+- Payload: `FilterState`
+
+.*Case:* There was a problem configuring the filter.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
+== Agents ==
+
+=== Get all running agents ===
+
+==== Request ====
+
+- Method: `GET`
+- URL: `/agent`
+- Payload: `<empty>`
+
+==== Response ====
+.*Case:* Call was successful and there are running agents.
+- Code: `200 OK`
+- Payload: Array of `AgentModel`
+
+
+.*Case:* Call was successful and there are no running agents.
+- Code: `200 OK`
+- Payload: Empty array
+
+.*Case:* There was a problem querying the agents.
+- Code: `500 INTERNAL SERVER ERROR`
+- Payload: `<empty>`
+
