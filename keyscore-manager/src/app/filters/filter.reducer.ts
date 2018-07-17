@@ -1,4 +1,9 @@
-import {FiltersActions, LOAD_FILTERSTATE_SUCCESS, LOAD_LIVE_EDITING_FILTER_SUCCESS} from "./filters.actions";
+import {
+    DRAIN_FILTER_SUCCESS,
+    FiltersActions,
+    LOAD_FILTERSTATE_SUCCESS,
+    LOAD_LIVE_EDITING_FILTER_SUCCESS, PAUSE_FILTER_SUCCESS
+} from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
@@ -35,7 +40,11 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
         case LOAD_FILTERSTATE_SUCCESS:
             result.filterState = action.state;
             break;
-
+        case DRAIN_FILTER_SUCCESS:
+            result.filterState = action.state;
+        case PAUSE_FILTER_SUCCESS:
+            result.filterState = action.state;
+            break;
     }
     return result;
 }

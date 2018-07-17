@@ -6,7 +6,7 @@ import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module
 import {Action, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable, of} from "rxjs/index";
-import {catchError, map, mergeMap, switchMap} from "rxjs/internal/operators";
+import {catchError, concatMap, map, mergeMap, switchMap} from "rxjs/internal/operators";
 import {AppState} from "../app.component";
 import {
     DRAIN_FILTER,
@@ -62,10 +62,11 @@ export class FilterEffects {
     public navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
         ofType(INITIALIZE_LIVE_EDITING_DATA),
         map((action) => (action as InitalizeLiveEditingDataAction)),
-        switchMap((payload) => [
-            new LoadLiveEditingFilterAction(payload.filterId),
-            new LoadFilterStateAction(payload.filterId)
-        ])
+        concatMap((payload) => [
+            new PauseFilterAction(payload.filterId, true),
+            new DrainFilterAction(payload.filterId, true),
+            new LoadLiveEditingFilterAction(payload.filterId)]
+        )
     );
     @Effect()
     public loadFilterConfiguration$: Observable<Action> = this.actions$.pipe(
@@ -88,7 +89,7 @@ export class FilterEffects {
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/state").pipe(
-                map((data: FilterInstanceState) => new LoadFilterStateSuccess(data)),
+                map((state: FilterInstanceState) => new LoadFilterStateSuccess(state)),
                 catchError((cause: any) => of(new LoadFilterStateFailure(cause))));
         })
     );
@@ -98,11 +99,12 @@ export class FilterEffects {
         map((action) => (action as PauseFilterAction)),
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
-            return this.http.post(appconfig + "/filter/" + action.filterId + "/pause", true, {
+            return this.http.post(appconfig.getString("keyscore.frontier.base-url") + "/filter/" +
+                action.filterId + "/pause?value=" + action.pause, {}, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "text"
+                responseType: "json"
             }).pipe(
-                map((_) => new PauseFilterSuccess()),
+                map((state: FilterInstanceState) => new PauseFilterSuccess(state)),
                 catchError((cause: any) => of(new PauseFilterFailure(cause)))
             );
         })
@@ -113,11 +115,12 @@ export class FilterEffects {
         map((action) => (action as DrainFilterAction)),
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
-            return this.http.post(appconfig + "/filter/" + action.filterId + "/drain", true, {
+            return this.http.post(appconfig.getString("keyscore.frontier.base-url") + "/filter/" + action.filterId +
+                "/drain?value=" + action.drain, {}, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "text"
+                responseType: "json"
             }).pipe(
-                map((_) => new DrainFilterSuccess()),
+                map((state: FilterInstanceState) => new DrainFilterSuccess(state)),
                 catchError((cause: any) => of(new DrainFilterFailure(cause)))
             );
         })
@@ -130,9 +133,9 @@ export class FilterEffects {
         switchMap(([action, appconfig]) => {
             return this.http.put(appconfig + "/filter/" + action.filterId + "/insert", action.datasets, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "text"
+                responseType: "json"
             }).pipe(
-                map((_) => new InsertDatasetsSuccess()),
+                map((state: FilterInstanceState) => new InsertDatasetsSuccess(state)),
                 catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
             );
         }),

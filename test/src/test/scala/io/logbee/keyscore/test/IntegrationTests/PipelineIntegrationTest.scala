@@ -284,58 +284,58 @@ class PipelineIntegrationTest extends Matchers {
 
     //     Delete Pipelines
 
-//    runner.http(action => action.client(elasticClient)
-//      .send()
-//      .delete("/test"))
-//
-//    runner.http(action => action.client(httpClient)
-//      .send()
-//      .delete(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}")
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//      .receive()
-//      .response(HttpStatus.OK)
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//      .send()
-//      .get("/pipeline/instance/*")
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//      .receive()
-//      .response(HttpStatus.OK)
-//      .validationCallback((message, context) => {
-//        val payload = message.getPayload.asInstanceOf[String]
-//        val instances = read[List[PipelineInstance]](payload)
-//        instances should have size 1
-//        instances.head.id shouldBe kafkaToKafkaPipeLineConfig.id
-//      }))
-//
-//    runner.http(action => action.client(httpClient)
-//      .send()
-//      .delete(s"/pipeline/configuration/*")
-//    )
-//    runner.http(action => action.client(httpClient)
-//      .receive()
-//      .response(HttpStatus.OK)
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//      .send()
-//      .get("/pipeline/instance/*")
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//      .receive()
-//      .response(HttpStatus.OK)
-//      .validationCallback((message, context) => {
-//        val payload = message.getPayload.asInstanceOf[String]
-//        val instances = read[List[PipelineInstance]](payload)
-//        instances should have size 0
-//      })
-//    )
+    runner.http(action => action.client(elasticClient)
+      .send()
+      .delete("/test"))
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .delete(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get("/pipeline/instance/*")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val instances = read[List[PipelineInstance]](payload)
+        instances should have size 1
+        instances.head.id shouldBe kafkaToKafkaPipeLineConfig.id
+      }))
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .delete(s"/pipeline/configuration/*")
+    )
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get("/pipeline/instance/*")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val instances = read[List[PipelineInstance]](payload)
+        instances should have size 0
+      })
+    )
 
   }
 }

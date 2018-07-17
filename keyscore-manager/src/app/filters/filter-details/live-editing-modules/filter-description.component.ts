@@ -1,6 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
-import {TranslateService} from "@ngx-translate/core";
-import {Store} from "@ngrx/store";
+import {Component, Input} from "@angular/core";
 import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceState";
 
@@ -11,9 +9,6 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
             <div class="card-header font-weight-bold d-flex justify-content-between"
                  style="background-color: #3a88b3; color: white">
                 <h4>{{currentFilter.descriptor.displayName}}</h4>
-                <span class="mr-3">
-                    <health-light [health]="this.currentFilterState.health"></health-light>
-                </span>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -40,13 +35,9 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
     `
 })
 
-export class FilterDescriptionComponent implements OnInit {
+export class FilterDescriptionComponent {
 
     @Input() public currentFilter: FilterConfiguration;
     @Input() public currentFilterState: FilterInstanceState;
-
-    public ngOnInit(): void {
-        // console.log("[filter-description]" + this.currentFilterState.totalThroughputTime);
-    }
 
 }

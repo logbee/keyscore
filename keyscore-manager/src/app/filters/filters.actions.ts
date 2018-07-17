@@ -12,8 +12,8 @@ export const PAUSE_FILTER = "[Filter] PauseFilterAction";
 export const PAUSE_FILTER_SUCCESS = "[Filter] PauseFilterSuccess";
 export const PAUSE_FILTER_FAILURE = "[Filter] PauseFilterFailure";
 export const DRAIN_FILTER = "[Filter] DrainFilterAction";
-export const DRAIN_FILTER_FAILURE = "[Filter] DrainFilterAction";
-export const DRAIN_FILTER_SUCCESS = "[Filter] DrainFilterAction";
+export const DRAIN_FILTER_FAILURE = "[Filter] DrainFilterActionFailure";
+export const DRAIN_FILTER_SUCCESS = "[Filter] DrainFilterActionSuccess";
 export const INSERT_DATASETS = "[Filter] InsertDatasetsAction";
 export const INSERT_DATASETS_FAILURE = "[Filter] InsertDatasetsFailure";
 export const INSERT_DATASETS_SUCCESS = "[Filter] InsertDatasetsSuccess";
@@ -89,7 +89,7 @@ export class LoadFilterStateSuccess implements Action {
 export class PauseFilterAction implements Action {
     public readonly type = PAUSE_FILTER;
 
-    constructor(readonly filterId: string) {
+    constructor(readonly filterId: string, readonly pause: boolean) {
     }
 }
 
@@ -102,17 +102,23 @@ export class PauseFilterFailure implements Action {
 
 export class PauseFilterSuccess implements Action {
     public readonly type = PAUSE_FILTER_SUCCESS;
+
+    constructor(readonly state: FilterInstanceState) {
+    }
 }
 
 export class DrainFilterAction implements Action {
     public readonly type = DRAIN_FILTER;
 
-    constructor(readonly filterId: string) {
+    constructor(readonly filterId: string, readonly drain: boolean) {
     }
 }
 
 export class DrainFilterSuccess implements Action {
     public readonly type = DRAIN_FILTER_SUCCESS;
+
+    constructor(readonly state: FilterInstanceState) {
+    }
 }
 
 export class DrainFilterFailure implements Action {
@@ -131,6 +137,9 @@ export class InsertDatasetsAction implements Action {
 
 export class InsertDatasetsSuccess implements Action {
     public readonly type = INSERT_DATASETS_SUCCESS;
+
+    constructor(readonly state: FilterInstanceState) {
+    }
 }
 
 export class InsertDatasetsFailure implements Action {
@@ -156,6 +165,7 @@ export class ExtractDatasetsSuccess implements Action {
 
 export class ExtractDatasetsFailure implements Action {
     public readonly type = EXTRACT_DATASETS_FAILURE;
+
     constructor(readonly cause: any) {
     }
 }

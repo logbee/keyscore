@@ -166,11 +166,17 @@
 }
 
 .status-light.Paused {
-    background-color: yellow;
+    background-color: orange;
     box-shadow: inset #460 0 -1px 9px;
 }
+
+.status-light.Ready {
+    background-color: lightblue;
+    box-shadow: inset #460 0 -1px 9px;
+}
+
 .status-light.Drained {
-    background-color: orange;
+    background-color: purple;
     box-shadow: inset #460 0 -1px 9px;
 }
 .status-light.Unknown {
