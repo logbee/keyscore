@@ -24,7 +24,7 @@ export interface AppState {
     selector: "my-app",
     template: `
         <div class="wrapper">
-            <sidemenu (toggleSidebar)="toggleMenu()" (updateLanguage)="setLanguage($event)"></sidemenu>
+            <sidemenu [showSettings]="settingsFeatureEnabled" (toggleSidebar)="toggleMenu()" (updateLanguage)="setLanguage($event)"></sidemenu>
             <div id="modal">
                 <ng-template #modal></ng-template>
             </div>
@@ -51,10 +51,9 @@ export class AppComponent implements OnInit {
     }) public viewContainerRef: ViewContainerRef;
 
     private modalService: ModalService;
-    private store: Store<any>;
     private settingsFeatureEnabled: boolean;
 
-    constructor(store: Store<any>, modalService: ModalService, private translate: TranslateService) {
+    constructor(private store: Store<any>, modalService: ModalService, private translate: TranslateService) {
         this.store = store;
         this.modalService = modalService;
         this.store.select(selectAppConfig).subscribe((conf) => {

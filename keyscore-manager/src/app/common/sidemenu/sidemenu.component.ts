@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
 
 @Component({
@@ -65,7 +65,7 @@ import {TranslateService} from "@ngx-translate/core";
                             </span>
                         </div>
                     </li>
-                    <li *ngIf="settingsFeatureEnabled">
+                    <li *ngIf="showSettings">
                         <a class="nav-link" routerLink="/settings" routerLinkActive="active">
                                 <span>
                                     <img src="/assets/images/ic_settings_white_24px.svg" width="24px" height="24px"/>
@@ -90,6 +90,7 @@ import {TranslateService} from "@ngx-translate/core";
 })
 
 export class SidemenuComponent {
+    @Input() public showSettings: boolean = true;
     @Output() public toggleSidebar: EventEmitter<void> = new EventEmitter();
     @Output() public updateLanguage: EventEmitter<string> = new EventEmitter();
 
