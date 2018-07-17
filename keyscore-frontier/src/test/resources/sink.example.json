@@ -26,7 +26,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "bootstrapServer"
         },
         {
@@ -35,7 +35,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "groupÃd"
         },
         {
@@ -44,7 +44,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "offsetCommit"
         },
         {
@@ -53,7 +53,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "topic"
         }
       ],
@@ -63,22 +63,22 @@
       {
         "name": "bootstrapServer",
         "value": "bootstrapServer",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "groupID",
         "value": "groupÃd",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "offsetCommit",
         "value": "offsetCommit",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "sourceTopic",
         "value": "topic",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       }
     ]
   },
@@ -104,7 +104,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "host"
         },
         {
@@ -112,7 +112,7 @@
           "displayName": "port",
           "description": "description",
           "mandatory": true,
-          "kind": "int",
+          "jsonClass": "IntParameterDescriptor",
           "value": 0
         },
         {
@@ -121,7 +121,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text",
+          "jsonClass": "TextParameterDescriptor",
           "value": "index"
         }
       ],
@@ -131,17 +131,17 @@
       {
         "name": "host",
         "value": "host",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "port",
         "value": 0,
-        "jsonClass": "int"
+        "jsonClass": "IntParameter"
       },
       {
         "name": "index",
         "value": "index",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       }
     ]
   },
@@ -173,7 +173,7 @@
               "description": "The identifier of this field.",
               "mandatory": true,
               "validator": ".*",
-              "kind": "text"
+              "jsonClass": "TextParameterDescriptor"
             },
             "mapValue": {
               "name": "fieldValue",
@@ -181,11 +181,11 @@
               "description": "The value of the added field.",
               "mandatory": true,
               "validator": ".*",
-              "kind": "text"
+              "jsonClass": "TextParameterDescriptor"
             },
             "min": 1,
             "max": 2147483647,
-            "kind": "map",
+            "jsonClass": "MapParameterDescriptor",
             "value": {
               "hu": "5",
               "hi": "2"
@@ -201,7 +201,7 @@
             "hu": "5",
             "hi": "2"
           },
-          "jsonClass": "map[string,string]"
+          "jsonClass": "TextMapParameter"
         }
       ]
     }

@@ -11,32 +11,62 @@ task pullImage(type: DockerPullImage) {
 }
 
 task createContainer(type: DockerCreateContainer) {
-    dependsOn pullImage
-    containerName = 'kafka'
+    dependsOn = ['pullImage']
+    containerName = 'keyscore-kafka'
     targetImageId { pullImage.getImageId() }
-    portBindings = ['9092:9092','2181:2181']
-    hostName = 'kafka'
+    portBindings = ['9092:9092', '2181:2181']
+    hostName = 'keyscore-kafka'
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startContainer(type: DockerStartContainer) {
-    dependsOn = ['createContainer','::setupDockerNetwork']
-    targetContainerId { createContainer.getContainerId() }
+    dependsOn = ['createContainer', '::setupDockerNetwork']
+    targetContainerId { createContainer.containerName }
 }
 
 
-task createKafkaTopics(type: DockerExecContainer) {
+task createKafkaTopics_with_a_lightning_fast_script_created_by_max(type: DockerExecContainer) {
     dependsOn startContainer
-    targetContainerId { startContainer.getContainerId() }
-    cmd = ["/usr/bin/create-topics.sh","TopicA,TopicB,TopicC"]
-
+    targetContainerId { createContainer.containerName }
+    cmd = ["/usr/bin/create-topics.sh", "TopicA,TopicB,TopicC"]
 }
 
 task stopContainer(type: DockerStopContainer) {
-    targetContainerId { createContainer.getContainerId() }
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+
 }
 
 task removeContainer(type: DockerRemoveContainer) {
     dependsOn stopContainer
-    targetContainerId { createContainer.getContainerId() }
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}
+
+task stopContainerOnStartup(type: DockerStopContainer) {
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+
+}
+
+task removeContainerOnStartup(type: DockerRemoveContainer) {
+    dependsOn stopContainerOnStartup
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createContainer.containerName + " has already been removed")
+        } else throw exception
+    }
 }

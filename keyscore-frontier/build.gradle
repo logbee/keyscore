@@ -1,10 +1,10 @@
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
-import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
 apply plugin: 'scala'
 apply from: rootProject.file('dependencies.gradle')
@@ -19,7 +19,6 @@ project.ext {
 
 dependencies {
 
-    //compile project(':keyscore-agent')
     compile project(':keyscore-commons')
     compile project(':keyscore-model')
 
@@ -70,7 +69,6 @@ task buildDistribution(type: Copy, dependsOn: [jar]) {
     from(configurations.runtime) {
         into 'libs'
     }
-
 }
 
 task buildDockerfile(type: Dockerfile) {
@@ -84,7 +82,7 @@ task buildDockerfile(type: Dockerfile) {
 task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, buildDockerfile]) {
     inputDir = projectDir
     dockerFile = buildDockerfile.destFile
-    tag = 'logbee/keyscore-frontier:latest'
+    tag = "$dockerImageName:$version"
 }
 
 task createDockerContainer(type: DockerCreateContainer) {
@@ -105,15 +103,53 @@ task createDockerContainer(type: DockerCreateContainer) {
 task startDockerContainer(type: DockerStartContainer) {
 
     dependsOn = ['createDockerContainer', ':setupDockerNetwork']
-    targetContainerId { createDockerContainer.getContainerId() }
+    targetContainerId { createDockerContainer.containerName }
 }
 
 task stopDockerContainer(type: DockerStopContainer) {
-    targetContainerId { createDockerContainer.getContainerId() }
+    targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createDockerContainer.containerName + " has already been stopped")
+        }
+        else throw exception
+    }
+
 }
 
 task removeDockerContainer(type: DockerRemoveContainer) {
     dependsOn stopDockerContainer
-    targetContainerId { createDockerContainer.getContainerId() }
+    targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createDockerContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+
 }
 
+task stopDockerContainerOnStartup(type: DockerStopContainer) {
+    targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createDockerContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+
+}
+
+task removeDockerContainerOnStartup(type: DockerRemoveContainer) {
+    dependsOn stopDockerContainerOnStartup
+    targetContainerId { createDockerContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createDockerContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}
+
+task pushDockerImage(type: DockerPushImage) {
+    dependsOn buildDockerImage
+    imageName = dockerImageName
+    tag = version
+}

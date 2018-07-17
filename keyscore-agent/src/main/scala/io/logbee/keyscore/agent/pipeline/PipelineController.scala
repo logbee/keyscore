@@ -9,29 +9,33 @@ import scala.concurrent.Future
 
 class PipelineController(val pipeline: Pipeline, val controllers: List[Controller]) {
 
-  private val lookup = controllers.map(controller => controller.id -> controller).toMap
+  private val controllerMap = controllers.map(controller => controller.id -> controller).toMap
 
   def configuration: PipelineConfiguration = pipeline.configuration
 
   def id: UUID = configuration.id
 
-  def configure(id: UUID, configuration: FilterConfiguration): Future[Unit] = {
-    lookup(id).configure(configuration)
+  def configure(id: UUID, configuration: FilterConfiguration): Option[Future[FilterState]] = {
+    controllerMap.get(id).map(_.configure(configuration))
   }
 
-  def close(id: UUID, doClose: Boolean): Future[FilterState] = {
-    lookup(id).pause(doClose)
+  def close(id: UUID, doClose: Boolean): Option[Future[FilterState]] = {
+    controllerMap.get(id).map(_.pause(doClose))
   }
 
-  def drain(id: UUID, doDrain: Boolean): Future[FilterState] = {
-    lookup(id).drain(doDrain)
+  def drain(id: UUID, doDrain: Boolean): Option[Future[FilterState]] = {
+    controllerMap.get(id).map(_.drain(doDrain))
   }
 
-  def insert(id: UUID, dataset: List[Dataset]): Future[FilterState] = {
-    lookup(id).insert(dataset)
+  def insert(id: UUID, dataset: List[Dataset]): Option[Future[FilterState]] = {
+    controllerMap.get(id).map(_.insert(dataset))
   }
 
-  def extract(id: UUID, amount: Int = 1): Future[List[Dataset]] = {
-    lookup(id).extract(amount)
+  def extract(id: UUID, amount: Int = 1): Option[Future[List[Dataset]]] = {
+    controllerMap.get(id).map(_.extract(amount))
+  }
+
+  def state(id: UUID): Option[Future[FilterState]] = {
+    controllerMap.get(id).map(_.state())
   }
 }

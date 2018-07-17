@@ -34,12 +34,13 @@ task removeContainerNetwork(type: DockerRemoveNetwork) {
     networkId = project.properties['containerNetwork']
 }
 
-task startContainers() {
+
+task runContainers(){
     dependsOn = [
             ':keyscore-frontier:startDockerContainer',
             ':keyscore-agent:startDockerContainer',
             'elasticsearch:startContainer',
-            'kafka:createKafkaTopics',
+            'kafka:createKafkaTopics_with_a_lightning_fast_script_created_by_max',
     ]
     doLast {
         sleep(10000)
@@ -56,10 +57,24 @@ task stopContainers() {
     finalizedBy removeContainerNetwork
 }
 
+task removeOldContainers() {
+    dependsOn = [
+            ':keyscore-frontier:removeDockerContainerOnStartup',
+            ':keyscore-agent:removeDockerContainerOnStartup',
+            'elasticsearch:removeContainerOnStartup',
+            'kafka:removeContainerOnStartup'
+    ]
+}
+
+task startContainers() {
+    dependsOn removeOldContainers
+    finalizedBy runContainers
+}
+
 junitPlatformTest {
     dependsOn startContainers
-   finalizedBy stopContainers
-   outputs.upToDateWhen { false }
+    finalizedBy stopContainers
+    outputs.upToDateWhen { false }
 }
 
 afterEvaluate {
@@ -67,3 +82,6 @@ afterEvaluate {
     junitPlatformTestTask.systemProperty 'citrus.html.report.directory', "$buildDir/test-results/citrus-reports"
 }
 
+clean {
+    delete 'target'
+}

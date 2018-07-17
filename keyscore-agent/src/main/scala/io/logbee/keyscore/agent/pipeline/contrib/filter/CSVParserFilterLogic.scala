@@ -79,7 +79,7 @@ class CSVParserFilterLogic(context:StageContext,configuration:FilterConfiguratio
     }
 
     val dataList = recordsList.toList
-    push(out, Dataset(dataList))
+    push(out, Dataset(dataset.metaData, dataList))
   }
 
   override def onPull(): Unit = {

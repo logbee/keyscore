@@ -82,7 +82,7 @@ class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfigu
 
   override def configure(configuration: FilterConfiguration): Unit = {
 
-    val pool = Http().cachedHostConnectionPool[Promise[HttpResponse]](host = "localhost", port = 9200)
+    val pool = Http().cachedHostConnectionPool[Promise[HttpResponse]](host = elasticHost, port = elasticPort)
     queue = Source.queue[(HttpRequest, Promise[HttpResponse])](1, OverflowStrategy.dropNew)
       .via(pool)
       .toMat(Sink.foreach({
@@ -93,7 +93,6 @@ class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfigu
   }
 
   override def onPush(): Unit = {
-
     grab(in).records
       .map(record => {
         val fields = record.payload.values.foldLeft(Map.empty[String, Any])({
@@ -108,7 +107,7 @@ class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfigu
             case Success(response) =>
               log.info(s"$response")
               pullAsync.invoke()
-            case _ =>
+            case Failure(cause) => log.error(s"Send datasets to elastic failed: $cause")
           })
       })
   }

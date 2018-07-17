@@ -1,18 +1,10 @@
-import {
-    AgentsActions,
-    INSPECT_AGENT,
-    LOAD_AGENTS,
-    LOAD_AGENTS_FAILURE,
-    LOAD_AGENTS_SUCCESS,
-    REMOVE_AGENT
-} from "./agents.actions";
+import {AgentsActions, INSPECT_AGENT, LOAD_AGENTS_FAILURE, LOAD_AGENTS_SUCCESS, REMOVE_AGENT} from "./agents.actions";
 
 import {AgentsState} from "./agents.model";
 
-
 const initialState: AgentsState = {
     agents: [],
-    currentAgentid: ''
+    currentAgentid: ""
 };
 
 export function AgentsReducer(state: AgentsState = initialState, action: AgentsActions): AgentsState {
@@ -33,7 +25,7 @@ export function AgentsReducer(state: AgentsState = initialState, action: AgentsA
             break;
 
         case REMOVE_AGENT:
-            result.currentAgentid = '';
+            result.currentAgentid = "";
     }
 
     return result;

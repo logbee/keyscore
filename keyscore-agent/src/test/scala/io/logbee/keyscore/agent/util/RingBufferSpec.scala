@@ -7,7 +7,6 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class RingBufferSpec extends WordSpec with Matchers {
 
-
   "An empty RingBuffer" should {
 
     val ringBuffer = RingBuffer[Int](5)
@@ -85,5 +84,23 @@ class RingBufferSpec extends WordSpec with Matchers {
 
       testBuffer.take(1) should contain (1)
     }
+  }
+
+  "A RingBuffer should always return the last n elements" in {
+    val ringBuffer = RingBuffer[Int](3)
+    ringBuffer.push(1)
+    ringBuffer.push(2)
+    ringBuffer.push(3)
+    ringBuffer.push(4)
+
+    ringBuffer.pull()
+    ringBuffer.pull()
+
+    ringBuffer.last(4) should contain inOrderOnly(4, 3, 2)
+
+    ringBuffer.push(5)
+    ringBuffer.pull()
+
+    ringBuffer.last(2) should contain inOrderOnly(5, 4)
   }
 }

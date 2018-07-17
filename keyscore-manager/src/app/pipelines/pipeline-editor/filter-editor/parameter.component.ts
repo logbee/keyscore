@@ -1,25 +1,28 @@
-import {Component, Input} from '@angular/core';
-import {FormGroup} from '@angular/forms';
-import {Parameter, ParameterDescriptor} from "../../pipelines.model";
-
+import {Component, Input} from "@angular/core";
+import {FormGroup} from "@angular/forms";
+import {ParameterDescriptor} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
+import {Parameter} from "../../../models/pipeline-model/parameters/Parameter";
 
 @Component({
-    selector: 'app-parameter',
+    selector: "app-parameter",
     template: `
         <div [formGroup]="form">
             <label [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
-            <div [ngSwitch]="parameterDescriptor.kind">
-                <input class="form-control" *ngSwitchCase="'text'" [formControlName]="parameterDescriptor.name"
+            <div [ngSwitch]="parameterDescriptor.jsonClass">
+                <input class="form-control" *ngSwitchCase="'TextParameterDescriptor'"
+                       [formControlName]="parameterDescriptor.name"
                        [id]="parameterDescriptor.name" [type]="'text'">
 
-                <input class="form-control" *ngSwitchCase="'int'" [formControlName]="parameterDescriptor.name"
+                <input class="form-control" *ngSwitchCase="'IntParameterDescriptor'"
+                       [formControlName]="parameterDescriptor.name"
                        [id]="parameterDescriptor.name" [type]="'number'">
-                <parameter-list *ngSwitchCase="'list'" [formControlName]="parameterDescriptor.name"
+                <parameter-list *ngSwitchCase="'ListParameterDescriptor'" [formControlName]="parameterDescriptor.name"
                                 [id]="parameterDescriptor.name"></parameter-list>
-                <parameter-map *ngSwitchCase="'map'" [formControlName]="parameterDescriptor.name"
+                <parameter-map *ngSwitchCase="'MapParameterDescriptor'" [formControlName]="parameterDescriptor.name"
                                [id]="parameterDescriptor.name"></parameter-map>
 
-                <div *ngSwitchCase="'boolean'" class="toggleCheckbox" [id]="parameterDescriptor.name">
+                <div *ngSwitchCase="'BooleanParameterDescriptor'"
+                     class="toggleCheckbox" [id]="parameterDescriptor.name">
 
                     <input type="checkbox" id="checkbox{{parameterDescriptor.name}}" class="ios-toggle"
                            [formControlName]="parameterDescriptor.name">
@@ -37,9 +40,9 @@ import {Parameter, ParameterDescriptor} from "../../pipelines.model";
     `
 })
 export class ParameterComponent {
-    @Input() parameterDescriptor: ParameterDescriptor;
-    @Input() parameter: Parameter;
-    @Input() form: FormGroup;
+    @Input() public parameterDescriptor: ParameterDescriptor;
+    @Input() public parameter: Parameter;
+    @Input() public form: FormGroup;
 
     get isValid() {
         return this.form.controls[this.parameterDescriptor.name].valid;

@@ -1,18 +1,20 @@
 import {Component} from "@angular/core";
-import {Observable} from "rxjs";
-import {AgentModel, AgentsState, getCurrentAgent} from "../agents.model";
 import {Store} from "@ngrx/store";
-import {Go} from "../../router/router.actions";
 import {TranslateService} from "@ngx-translate/core";
+import {Observable} from "rxjs";
+import {Go} from "../../router/router.actions";
+import {AgentModel, AgentsState, getCurrentAgent} from "../agents.model";
 
 @Component({
-    selector: 'agents-details',
+    selector: "agents-details",
     template: `
         <div class="row justify-content-center">
             <div class="col-10">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <span class="font-weight-bold">{{'AGENTSDETAILS.DETAILEDVIEW' | translate}} {{(agent$ | async).name}}</span>
+                        <span class="font-weight-bold">
+                            {{'AGENTSDETAILS.DETAILEDVIEW' | translate}} {{(agent$ | async).name}}
+                        </span>
                         <button class="btn" (click)="reload()">
                             <img width="24em" src="/assets/images/arrow-reload.svg"/>
                         </button>
@@ -53,18 +55,17 @@ import {TranslateService} from "@ngx-translate/core";
 export class AgentsDetails {
     private agent$: Observable<AgentModel>;
 
-    constructor(private store: Store<AgentsState>,translate:TranslateService) {
+    constructor(private store: Store<AgentsState>, translate: TranslateService) {
         this.agent$ = this.store.select(getCurrentAgent);
-        translate.setDefaultLang('en');
-        translate.use('en');
+        translate.setDefaultLang("en");
+        translate.use("en");
     }
 
-    reload() {
-        console.log("reloaded");
-        this.agent$ = this.store.select(getCurrentAgent)
+    public reload() {
+        this.agent$ = this.store.select(getCurrentAgent);
     }
 
-    backToAgentsView() {
-        this.store.dispatch(new Go({path: ['/agent/']}))
+    public backToAgentsView() {
+        this.store.dispatch(new Go({path: ["/agent/"]}));
     }
 }

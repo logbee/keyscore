@@ -10,7 +10,7 @@ object MovingMedian {
     median.get
   }
 
-  case class MovingMedianItem(throughputTime: Long, currentSystemTime: Long = System.currentTimeMillis()) extends Ordered[MovingMedianItem] {
+  case class MovingMedianItem(value: Long, currentSystemTime: Long = System.currentTimeMillis()) extends Ordered[MovingMedianItem] {
     override def compare(that: MovingMedianItem): Int = {
       this.currentSystemTime compare that.currentSystemTime
     }
@@ -18,8 +18,8 @@ object MovingMedian {
 }
 
 class MovingMedian(window: Int) {
-  var isEmpty: Boolean = true
   var medians: Array[MovingMedianItem] = Array.ofDim(window)
+  var isEmpty: Boolean = true
 
   def +(value: Long): MovingMedian = {
     isEmpty = false
@@ -36,17 +36,19 @@ class MovingMedian(window: Int) {
   }
 
   def get: Long = {
-    var time =  0L
-    if (!isEmpty) {
-      val medianItem = medians(numberOfItems / 2)
-      time = medianItem.throughputTime
-      time
-    } else 0
+    var value = 0L
+    val itemsCount = numberOfItems
+    if (itemsCount > 0) {
+      val medianItem = medians(itemsCount / 2)
+      value = medianItem.value
+    }
+    value
 
   }
 
   def reset(): Unit = {
-    medians = Array.empty
+    var emptyArray: Array[MovingMedianItem] = Array.ofDim(window)
+    medians = emptyArray
   }
 
   private def numberOfItems: Int = {

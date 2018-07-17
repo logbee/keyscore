@@ -38,6 +38,8 @@
     "tslint": "5.9.1",
     "webpack": "3.11.0",
     "webpack-dev-server": "2.11.1",
+    "tslint-loader": "3.6.0",
+    "rxjs-tslint-rules": "4.5.1",
     "ts-loader": "3.5.0",
     "style-loader": "0.21.0",
     "css-loader": "0.28.11",

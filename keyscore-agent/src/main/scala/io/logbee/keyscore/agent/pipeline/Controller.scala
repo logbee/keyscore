@@ -29,7 +29,7 @@ abstract class Controller {
 
   val id: UUID
 
-  def configure(configuration: FilterConfiguration): Future[Unit]
+  def configure(configuration: FilterConfiguration): Future[FilterState]
 
   def pause(doClose: Boolean): Future[FilterState]
 
@@ -38,4 +38,6 @@ abstract class Controller {
   def insert(dataset: List[Dataset]): Future[FilterState]
 
   def extract(amount: Int = 1): Future[List[Dataset]]
+
+  def state(): Future[FilterState]
 }

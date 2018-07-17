@@ -1,13 +1,13 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor} from "../pipelines.model";
+import {FilterDescriptor} from "../../models/filter-model/FilterDescriptor";
 
-export const REMOVE_FILTER = '[Pipelines] REMOVE_FILTER';
-export const MOVE_FILTER = '[Pipelines] MOVE_FILTER';
-export const EDIT_FILTER = '[Pipelines] EDIT_FILTER';
-export const SAVE_FILTER = '[Pipelines] SAVE_FILTER';
-export const ENABLE_FILTER = '[Pipelines] ENABLE_FILTER';
-export const DISABLE_FILTER = '[Pipelines] DISABLE_FILTER';
-export const ADD_FILTER = '[Pipelines] ADD_FILTER';
+export const REMOVE_FILTER = "[Pipelines] REMOVE_FILTER";
+export const MOVE_FILTER = "[Pipelines] MOVE_FILTER";
+export const EDIT_FILTER = "[Pipelines] EDIT_FILTER";
+export const SAVE_FILTER = "[Pipelines] SAVE_FILTER";
+export const ENABLE_FILTER = "[Pipelines] ENABLE_FILTER";
+export const DISABLE_FILTER = "[Pipelines] DISABLE_FILTER";
+export const ADD_FILTER = "[Pipelines] ADD_FILTER";
 
 export type PipelineEditorActions =
     | RemoveFilterAction
@@ -16,52 +16,52 @@ export type PipelineEditorActions =
     | SaveFilterAction
     | EnableFilterAction
     | DisableFilterAction
-    | AddFilterAction
+    | AddFilterAction;
 
 export class RemoveFilterAction implements Action {
-    readonly type = '[Pipelines] REMOVE_FILTER';
+    public readonly type = "[Pipelines] REMOVE_FILTER";
 
     constructor(public filterId: number) {
     }
 }
 
 export class MoveFilterAction implements Action {
-    readonly type = '[Pipelines] MOVE_FILTER';
+    public readonly type = "[Pipelines] MOVE_FILTER";
 
     constructor(public filterId: number, public position: number) {
     }
 }
 
 export class EditFilterAction implements Action {
-    readonly type = '[Pipelines] EDIT_FILTER';
+    public readonly type = "[Pipelines] EDIT_FILTER";
 
     constructor(public filterId: number) {
     }
 }
 
 export class SaveFilterAction implements Action {
-    readonly type = '[Pipelines] SAVE_FILTER';
+    public readonly type = "[Pipelines] SAVE_FILTER";
 
     constructor(public filterId: number) {
     }
 }
 
 export class EnableFilterAction implements Action {
-    readonly type = '[Pipelines] ENABLE_FILTER';
+    public readonly type = "[Pipelines] ENABLE_FILTER";
 
     constructor(public filterId: number) {
     }
 }
 
 export class DisableFilterAction implements Action {
-    readonly type = '[Pipelines] DISABLE_FILTER';
+    public readonly type = "[Pipelines] DISABLE_FILTER";
 
     constructor(public filterId: number) {
     }
 }
 
 export class AddFilterAction implements Action {
-    readonly type = '[Pipelines] ADD_FILTER';
+    public readonly type = "[Pipelines] ADD_FILTER";
 
     constructor(readonly filter: FilterDescriptor) {
     }

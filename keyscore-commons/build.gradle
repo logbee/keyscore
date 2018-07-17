@@ -8,6 +8,7 @@ repositories {
 dependencies {
 
     compile project(':keyscore-model')
+    compile project(':keyscore-model:keyscore-native-model')
 
     compile dependency.scala_lang
     compile dependency.akka_actor

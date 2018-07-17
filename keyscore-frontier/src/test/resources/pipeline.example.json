@@ -24,7 +24,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text"
+          "jsonClass": "TextParameterDescriptor"
         },
         {
           "name": "groupID",
@@ -32,7 +32,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text"
+          "jsonClass": "TextParameterDescriptor"
         },
         {
           "name": "offsetCommit",
@@ -40,7 +40,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text"
+          "jsonClass": "TextParameterDescriptor"
         },
         {
           "name": "sourceTopic",
@@ -48,7 +48,7 @@
           "description": "description",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text"
+          "jsonClass": "TextParameterDescriptor"
         }
       ],
       "category": "source"
@@ -57,22 +57,22 @@
       {
         "name": "bootstrapServer",
         "value": "asdasd",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "groupID",
         "value": "asdasd",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "offsetCommit",
         "value": "asdasd",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "sourceTopic",
         "value": "asdasd",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       }
     ]
   },
@@ -98,7 +98,7 @@
           "description": "",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text"
+          "jsonClass": "TextParameterDescriptor"
         },
         {
           "name": "topic",
@@ -106,7 +106,7 @@
           "description": "",
           "mandatory": true,
           "validator": ".*",
-          "kind": "text"
+          "jsonClass": "TextParameterDescriptor"
         }
       ],
       "category": "sink"
@@ -115,12 +115,12 @@
       {
         "name": "bootstrapServer",
         "value": "sadsad",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       },
       {
         "name": "topic",
         "value": "asdasdadasd",
-        "jsonClass": "string"
+        "jsonClass": "TextParameter"
       }
     ]
   },

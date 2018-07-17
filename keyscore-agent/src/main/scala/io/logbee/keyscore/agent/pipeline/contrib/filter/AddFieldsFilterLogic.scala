@@ -72,7 +72,7 @@ class AddFieldsFilterLogic(context: StageContext, configuration: FilterConfigura
       listBufferOfRecords += new Record(record.id, payload.toMap)
     }
     val listOfRecords = listBufferOfRecords.toList
-    push(out, Dataset(listOfRecords))
+    push(out, Dataset(dataset.metaData, listOfRecords))
   }
 
   override def onPull(): Unit = {

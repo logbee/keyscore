@@ -22,16 +22,14 @@ import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStanda
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
+import io.logbee.keyscore.model.NativeConversion._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.FilterConfiguration
-import io.logbee.keyscore.model.json4s.{FieldTypeHints, FilterConfigTypeHints, HealthSerializer}
-import org.json4s.ShortTypeHints
-import org.json4s.ext.JavaTypesSerializers
+import io.logbee.keyscore.model.json4s._
 import org.json4s.native.Serialization
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.Success
 
 
 object FrontierApplication extends App with Json4sSupport {
@@ -42,7 +40,7 @@ object FrontierApplication extends App with Json4sSupport {
   implicit val executionContext = system.dispatcher
   implicit val timeout: Timeout = 30.seconds
   implicit val serialization = Serialization
-  implicit val formats = Serialization.formats(ShortTypeHints(classOf[TextField] :: classOf[NumberField] :: classOf[TimestampField] :: Nil) + FilterConfigTypeHints) ++ JavaTypesSerializers.all ++ List(HealthSerializer)
+  implicit val formats = KeyscoreFormats.formats
 
   val configuration = FrontierConfigProvider(system)
   val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
@@ -92,6 +90,7 @@ object FrontierApplication extends App with Json4sSupport {
           } ~
           put {
             entity(as[PipelineConfiguration]) { pipeline =>
+              println(pipeline)
               pipelineManager ! PipelineManager.CreatePipeline(pipeline)
               complete(StatusCodes.Created)
             }
@@ -142,7 +141,7 @@ object FrontierApplication extends App with Json4sSupport {
             post {
               parameter('value.as[Boolean]) { doPause =>
                 onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
-                  case Success => complete(StatusCodes.Accepted)
+                  case PauseFilterResponse(state) => complete(StatusCodes.Accepted, state)
                   case Failure => complete(StatusCodes.InternalServerError)
                 }
               }
@@ -152,7 +151,7 @@ object FrontierApplication extends App with Json4sSupport {
               post {
                 parameter('value.as[Boolean]) { doDrain =>
                   onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
-                    case Success => complete(StatusCodes.Accepted)
+                    case DrainFilterResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
@@ -161,9 +160,9 @@ object FrontierApplication extends App with Json4sSupport {
             path("insert") {
               put {
                 entity(as[List[Dataset]]) { datasets =>
-                  println("Frontier: Received Insert datasets" + datasets)
-                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
-                    case Success => complete(StatusCodes.Accepted)
+                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets.map(datasetToNative))) {
+                    case
+                      InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
@@ -173,19 +172,38 @@ object FrontierApplication extends App with Json4sSupport {
               get {
                 parameter('value.as[Int]) { amount =>
                   onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
-                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
+                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets.map(datasetFromNative))
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
               }
             } ~
-            path("configure") {
+            path("config") {
               put {
                 entity(as[FilterConfiguration]) { filterConfig =>
                   onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
-                    case Success => complete(StatusCodes.Accepted)
+                    case ConfigureFilterResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
+                }
+              }
+              get {
+                onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+                  case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
+                    case Some(filter) => complete(StatusCodes.OK, filter)
+                    case None => complete(StatusCodes.NotFound
+                    )
+                  }
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            } ~
+            path("state") {
+              get {
+                onSuccess(pipelineManager ? CheckFilterState(filterId)) {
+                  case CheckFilterStateResponse(state) =>
+                    complete(StatusCodes.Accepted, state)
+                  case _ => complete(StatusCodes.InternalServerError)
                 }
               }
             }

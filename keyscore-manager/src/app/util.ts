@@ -1,17 +1,17 @@
-import 'jquery';
-import {
-    InternalPipelineConfiguration, Parameter, ParameterDescriptor,
-    PipelineConfiguration
-} from "./pipelines/pipelines.model";
+import "jquery";
+import {InternalPipelineConfiguration} from "./models/pipeline-model/InternalPipelineConfiguration";
+import {PipelineConfiguration} from "./models/pipeline-model/PipelineConfiguration";
+import {ParameterDescriptor} from "./models/pipeline-model/parameters/ParameterDescriptor";
+import {Parameter} from "./models/pipeline-model/parameters/Parameter";
 
 export function deepcopy(source: any, target?: any): any {
     return jQuery.extend(true, target == null ? {} : target, source);
 }
 
 export function extractTopLevelJSONObjectsFromString(str: string): any[] {
-    let result: any[] = [];
+    const result: any[] = [];
     while (str.length) {
-        let firstObject = extractFirstJSONObjectFromString(str);
+        const firstObject = extractFirstJSONObjectFromString(str);
         result.push(firstObject.firstObject);
         str = firstObject.tail;
     }
@@ -20,20 +20,23 @@ export function extractTopLevelJSONObjectsFromString(str: string): any[] {
 }
 
 export function extractFirstJSONObjectFromString(str: string): { firstObject: any, tail: string } {
-    let firstOpen = -1, firstClose, candidate;
-    firstOpen = str.indexOf('{', firstOpen + 1);
+    let firstOpen = -1;
+    let firstClose;
+    let candidate;
+
+    firstOpen = str.indexOf("{", firstOpen + 1);
     firstClose = firstOpen;
     do {
-        firstClose = str.indexOf('}', firstClose + 1);
+        firstClose = str.indexOf("}", firstClose + 1);
         candidate = str.substring(firstOpen, firstClose + 1);
-        if ((candidate.match(/{/g) || []).length != (candidate.match(/}/g) || []).length) continue;
-        try {
-            let result = JSON.parse(candidate);
-            let tail = str.substr(firstClose + 1, str.length - firstClose);
-            return {firstObject: result, tail: tail};
+        if ((candidate.match(/{/g) || []).length !== (candidate.match(/}/g) || []).length) {
+            continue;
         }
-        catch (e) {
-            console.log('extractJSONObject: failed to parse candidate');
+        try {
+            const result = JSON.parse(candidate);
+            const tail = str.substr(firstClose + 1, str.length - firstClose);
+            return {firstObject: result, tail};
+        } catch (e) {
             firstClose++;
         }
     } while (firstClose < str.length);
@@ -42,52 +45,65 @@ export function extractFirstJSONObjectFromString(str: string): { firstObject: an
 }
 
 export function mapFromSeparatedString(mapString: string, elementSeparator: string, keyValueSeparator: string) {
-    let elementList = mapString.split(elementSeparator);
-    let resultAsList = elementList.map(e => e.split(keyValueSeparator));
+    const elementList = mapString.split(elementSeparator);
+    const resultAsList = elementList.map((e) => e.split(keyValueSeparator));
 
-    let resultMap: Map<string, string> = new Map<string, string>();
-    resultAsList.forEach(e => resultMap[e[0]] = e[1]);
+    const resultMap: Map<string, string> = new Map<string, string>();
+    resultAsList.forEach((e) => resultMap[e[0]] = e[1]);
 
     return resultMap;
 }
 
+export function separatedStringFromMap(map: any, elementSeparator: string, keyValueSeparator: string) {
+    let resultString = "";
+
+    for (const [key, value] of Object.entries(map)) {
+        resultString += key + keyValueSeparator + value + elementSeparator;
+    }
+
+    return resultString.substr(0, resultString.length - 1);
+}
+
 export function toInternalPipelineConfig(pipe: PipelineConfiguration): InternalPipelineConfiguration {
-    let filters = [].concat(pipe.source, pipe.filter, pipe.sink);
-    return {id: pipe.id, name: pipe.name, description: pipe.description, filters: filters};
+    const filters = [].concat(pipe.source, pipe.filter, pipe.sink);
+    return {id: pipe.id, name: pipe.name, description: pipe.description, filters, isRunning: false};
 }
 
 export function toPipelineConfiguration(pipe: InternalPipelineConfiguration): PipelineConfiguration {
-    let filter = deepcopy(pipe.filters, []);
-    let source = filter.find(filter => filter.descriptor.previousConnection.connectionType.includes('pipeline_base'));
+    const filter = deepcopy(pipe.filters, []);
+    const source = filter.find((f) =>
+        f.descriptor.previousConnection.connectionType.includes("pipeline_base"));
     filter.splice(filter.indexOf(source), 1);
-    let sink = filter.find(filter => !filter.descriptor.nextConnection.isPermitted);
+    const sink = filter.find((f) => !f.descriptor.nextConnection.isPermitted);
     filter.splice(filter.indexOf(sink), 1);
 
-    return {id: pipe.id, name: pipe.name, description: pipe.description, source: source, filter: filter, sink: sink};
+    return {id: pipe.id, name: pipe.name, description: pipe.description, source, filter, sink};
 }
 
 export function parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
-    let type = parameterDescriptor.kind;
+    let type = parameterDescriptor.jsonClass;
     switch (type) {
-        case 'list':
-            type = 'list[string]';
+        case "ListParameterDescriptor":
+            type = "TextListParameter";
             break;
-        case 'map':
-            type = 'map[string,string]';
+        case "MapParameterDescriptor":
+            type = "TextMapParameter";
             break;
-        case 'text':
-            type = 'string';
+        case "TextParameterDescriptor":
+            type = "TextParameter";
             break;
-        case 'int':
+        case "IntParameterDescriptor":
+            type = "IntParameter";
+            break;
+        case "BooleanParameterDescriptor":
+            type = "BooleanParameter";
             break;
     }
     return {name: parameterDescriptor.name, value: null, jsonClass: type};
 }
 
-export function zip(arrays){
-    return arrays[0].map(function(_,i){
-        return arrays.map(function(array){return array[i]})
+export function zip(arrays) {
+    return arrays[0].map((_, i) => {
+        return arrays.map((array) => array[i]);
     });
 }
-
-

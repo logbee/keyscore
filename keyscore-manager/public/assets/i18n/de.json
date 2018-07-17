@@ -11,12 +11,31 @@
     "APPLY": "Anwenden",
     "NEW": "Neu",
     "ADD": "Hinzufügen",
-    "CLOSE": "Schließen"
+    "CLOSE": "Schließen",
+    "COLLAPSE": "Zusammenklappen",
+    "EXPAND": "Ausklappen"
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",
     "PIPELINES": "Pipelines",
     "FILTERS": "Filters"
+  },
+  "SETTINGS": {
+    "TITLE": "Einstellungen",
+    "GROUP_GENERAL_TITLE": "Allgemein",
+    "GROUP_FEATURES_TITLE": "Ausstattung",
+    "ITEMS": {
+      "BASE_URL_TITLE": "Basis-URL",
+      "BASE_URL_DESCRIPTION": "Basis-URL",
+      "LANGUAGE_TITLE": "Sprache",
+      "LANGUAGE_DESCRIPTION": "Sprache",
+      "BLOCKLY_ENABLED_TITLE": "Blockly aktivieren",
+      "BLOCKLY_ENABLED_DESCRIPTION": "Blockly",
+      "LIVEEDITING_ENABLED_TITLE": "Live Editing aktivieren",
+      "LIVEEDITING_ENABLED_DESCRIPTION": "Live Editing",
+      "SETTINGS_ENABLED_TITLE": "Einstellungen aktivieren",
+      "SETTINGS_ENABLED_DESCRIPTION": "Einstellungen"
+    }
   },
   "AGENTSDETAILS": {
     "DETAILEDVIEW": "Detail Ansicht:",
@@ -42,7 +61,7 @@
   "FILTERLIVEEDITINGCOMPONENT": {
     "NUMBER": "#",
     "TITLE": "Live Editing",
-    "FILTERDESCRIPTION_TITLE": "Filter Beschreibung",
+    "FILTERDESCRIPTION_TITLE": "Filterdaten",
     "NAME": "Filter Name",
     "DESCRIPTION": "Filter Beschreibung",
     "PATTERN": "Filter Pattern",
@@ -55,20 +74,36 @@
     "TYPE": "Typ",
     "REGEX_PLACEHOLDER": "Regulären Ausdruck hier angeben",
     "MESSAGE_PLACEHOLDER": "Beispielnachricht hier angeben",
-    "NOTFOUND": "Der angeforderte Filter konnte nicht gefunden werden"
+    "NOTFOUND": "Der angeforderte Filter konnte nicht gefunden werden",
+    "THROUGHPUTTIME": "Durchlaufzeit/Filter",
+    "TOTALTHROUGHPUTTIME": "Durchlaufzeit/Pipeline",
+    "STATUS": "Filterstatus"
   },
-  "FILTERSCOMPONENT" : {
+  "FILTERSCOMPONENT": {
     "FILTERS": "Filter"
   },
   "FILTERCHOSERCOMPONENT": {
     "FILTERCHOOSER_TITLE": "Filter Auswahl"
-  } ,
-  "PARAMETERCOMPONENT" : {
+  },
+  "PARAMETERCOMPONENT": {
     "ISREQUIRED": "wird benötigt"
   },
+  "REFRESHCOMPONENT": {
+    "OF": "Aus"
+  },
   "LANGUAGES": {
-  "LANGUAGE": "Sprache",
-  "GERMAN": "Deutsch",
-  "ENGLISH": "Englisch"
-}
+    "LANGUAGE": "Sprache",
+    "GERMAN": "Deutsch",
+    "ENGLISH": "Englisch"
+  },
+  "BLOCKLY": {
+    "SAVE_SUCCESS": "Die Pipeline wurde erfolgreich gespeichert!",
+    "SAVE_FAILURE": "Beim Speichern der Pipeline ist ein Fehler aufgetreten."
+  },
+  "ERRORS": {
+    "404": "Der angeforderte Filter konnte nicht gefunden werden.",
+    "0": "Die angegebene Url ist nicht valide.",
+    "503": "Keyscore konnte die Anfrage leider  nicht erfüllen.",
+    "999": "Dieses Feature ist nocht nicht verfügbar"
+  }
 }

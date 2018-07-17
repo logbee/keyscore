@@ -5,8 +5,8 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
 import akka.stream.{Inlet, Materializer, SinkShape}
-import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.model.{Dataset, Green}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState}
 import io.logbee.keyscore.model.sink.SinkProxy
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
@@ -23,17 +23,17 @@ abstract class SinkLogic(context: StageContext, configuration: FilterConfigurati
 
   private val sink = new SinkProxy {
 
-    private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[Unit])] {
+    private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[FilterState])] {
       case (newConfiguration, promise) =>
         SinkLogic.this.configure(newConfiguration)
-        promise.success(())
+        promise.success(state)
         log.info(s"Configuration has been updated: $newConfiguration")
     }
 
     override val id: UUID = configuration.id
 
-    override def configure(configuration: FilterConfiguration): Future[Unit] = {
-      val promise = Promise[Unit]()
+    override def configure(configuration: FilterConfiguration): Future[FilterState] = {
+      val promise = Promise[FilterState]()
       log.info(s"Updating sink configuration: $configuration")
       configureCallback.invoke(configuration, promise)
       promise.future
@@ -51,4 +51,7 @@ abstract class SinkLogic(context: StageContext, configuration: FilterConfigurati
   def initialize(configuration: FilterConfiguration): Unit = {}
 
   def configure(configuration: FilterConfiguration): Unit
+
+  def state(): FilterState = FilterState(configuration.id, Green)
+
 }

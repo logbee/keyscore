@@ -1,13 +1,16 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {FilterConfiguration, Parameter, ParameterDescriptor} from "../pipelines.model";
-import {ParameterControlService} from "../../services/parameter-control.service";
-import {FormControl, FormGroup} from "@angular/forms";
+import {FormGroup} from "@angular/forms";
 import {Observable} from "rxjs";
-import {Go} from "../../router/router.actions";
 import {Store} from "@ngrx/store";
+import {selectAppConfig} from "../../app.config";
+import {filter} from "rxjs/internal/operators";
+import {ParameterControlService} from "../../services/parameter-control.service";
+import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
+import {ParameterDescriptor} from "../../models/pipeline-model/parameters/ParameterDescriptor";
+import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 
 @Component({
-    selector: 'pipeline-filter',
+    selector: "pipeline-filter",
     template: `
         <div class="card mb-1">
             <div class="card-title">
@@ -33,9 +36,12 @@ import {Store} from "@ngrx/store";
                                 *ngIf="!editing && !(isEditingPipelineLocked$|async)"
                                 (click)="editFilter(filter.id)">{{'GENERAL.EDIT' | translate}}
                         </button>
-                        <button type="button" class="btn btn-info" *ngIf="editing" (click)="callLiveEditing(filter)">
-                            <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
-                        </button>
+                            <button type="button" class="btn btn-info"
+                                    *ngIf="editing && liveEditingFlag && isGrokFilter && editingPipeline.isRunning"
+                                    (click)="callLiveEditing(filter)">
+                                <img src="/assets/images/ic_settings_white_24px.svg" alt="Live Editing"/>
+                            </button>
+
                         <button type="button" [disabled]="form.invalid" class="btn btn-success" *ngIf="editing"
                                 (click)="saveFilter(filter,form.value)"><img src="/assets/images/ic_save_white.svg"
                                                                              alt="Save"/>
@@ -60,10 +66,8 @@ import {Store} from "@ngrx/store";
                     <div class="form-row" *ngIf="payLoad">
                         {{'PIPELINECOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
                     </div>
-
                 </form>
             </div>
-
         </div>
     `,
     providers: [
@@ -72,61 +76,62 @@ import {Store} from "@ngrx/store";
 })
 export class PipelineFilterComponent implements OnInit {
 
-    @Input() isEditingPipelineLocked$: Observable<boolean>;
-    @Input() filter: FilterConfiguration;
-    @Input() index: number;
-    @Input() filterCount: number;
-    @Input() parameters: ParameterDescriptor[];
+    @Input() public isEditingPipelineLocked$: Observable<boolean>;
+    @Input() public filter: FilterConfiguration;
+    @Input() public index: number;
+    @Input() public parameters: ParameterDescriptor[];
+    @Input() public filterCount: number;
+    @Input() public editingPipeline: InternalPipelineConfiguration;
 
-    @Output() update: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> = new EventEmitter();
-    @Output() move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
-    @Output() remove: EventEmitter<FilterConfiguration> = new EventEmitter();
-    @Output() liveEdit: EventEmitter<FilterConfiguration> = new EventEmitter();
+    public editing: boolean = false;
+    public payLoad: string = "";
+    public form: FormGroup;
+    public liveEditingFlag: boolean;
+    public isGrokFilter: boolean = false;
 
-    editing: boolean = false;
-    payLoad: string = '';
-    form: FormGroup;
+    @Output() private update: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> =
+        new EventEmitter();
+    @Output() private move: EventEmitter<{ id: string, position: number }> = new EventEmitter();
+    @Output() private remove: EventEmitter<FilterConfiguration> = new EventEmitter();
+    @Output() private liveEdit: EventEmitter<FilterConfiguration> = new EventEmitter();
 
-
-    constructor(private parameterService: ParameterControlService) {
-
+    constructor(private parameterService: ParameterControlService, private store: Store<any>) {
+        const config = this.store.select(selectAppConfig);
+        config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
     }
 
-    ngOnInit() {
-        this.form = this.parameterService.toFormGroup(this.parameters,this.filter.parameters);
+    public ngOnInit() {
+        this.form = this.parameterService.toFormGroup(this.parameters, this.filter.parameters);
+        this.isGrokFilter = this.filter.descriptor.name ===
+            "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic";
     }
 
-    removeFilter(filter: FilterConfiguration) {
-        this.remove.emit(filter);
+    public removeFilter(filterConfiguration: FilterConfiguration) {
+        this.remove.emit(filterConfiguration);
     }
 
-    moveFilter(id: string, position: number) {
+    public moveFilter(id: string, position: number) {
         this.move.emit({id, position});
     }
 
-    editFilter(id: string) {
+    public editFilter(id: string) {
         this.editing = true;
     }
 
-    saveFilter(filterConfiguration: FilterConfiguration, values: any) {
+    public saveFilter(filterConfiguration: FilterConfiguration, values: any) {
         console.log(JSON.stringify(values));
-        this.update.emit({filterConfiguration: filterConfiguration, values});
+        this.update.emit({filterConfiguration, values});
     }
 
-    cancelEditing() {
+    public cancelEditing() {
         this.editing = false;
-        let resetFormValues = {};
-        this.filter.descriptor.parameters.forEach(p => resetFormValues[p.name] = p.value ? p.value : '');
+        const resetFormValues = {};
+        this.filter.descriptor.parameters.forEach((p) => resetFormValues[p.name] = p.value ? p.value : "");
         this.form.setValue(resetFormValues);
     }
 
-    callLiveEditing(filter: FilterConfiguration) {
-        this.liveEdit.emit(filter);
+    public callLiveEditing(filterConfiguration: FilterConfiguration) {
+        this.liveEdit.emit(filterConfiguration);
     }
 
-    enableFilter() {
-    }
-
-    disableFilter() {
-    }
 }

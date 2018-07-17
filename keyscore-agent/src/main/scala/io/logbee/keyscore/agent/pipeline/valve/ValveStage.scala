@@ -50,21 +50,21 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         update(ValveState(id, Open, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
         pullIn()
         promise.success(state)
-        log.debug(s"Valve <$id> is now open.")
+        log.info(s"Valve <$id> is now open.")
 
       case (promise, `Closed`) =>
         totalThroughputTime.reset()
         throughputTime.reset()
         update(ValveState(id, Closed, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
         promise.success(state)
-        log.debug(s"Valve <$id> is now closed.")
+        log.info(s"Valve <$id> is now closed.")
 
       case (promise, `Drain`) =>
         ringBuffer.clear()
         update(ValveState(id, Drain, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
         pullIn()
         promise.success(state)
-        log.debug(s"Valve <$id> does now drain.")
+        log.info(s"Valve <$id> does now drain.")
     })
 
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
@@ -73,20 +73,21 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
         promise.success(state)
         pushOut()
-        log.debug(s"Inserted ${datasets.size} datasets into valve <$id>")
+        log.info(s"Inserted ${datasets.size} datasets into valve <$id>")
     })
 
     private val extractCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
       case (promise, amount) =>
-        val datasets = ringBuffer.take(amount)
+        val datasets = ringBuffer.last(amount)
         promise.success(datasets)
-        log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
+
+        log.info(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
 
     private val clearBufferCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
       ringBuffer.clear()
       promise.success(update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime)))
-      log.debug(s"Cleared buffer of valve <$id>")
+      log.info(s"Cleared buffer of valve <$id>")
     })
 
     private val valveProxy = new ValveProxy {
@@ -99,28 +100,28 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
       override def open(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.debug(s"Open valve <$id>")
+        log.info(s"Open valve <$id>")
         positionCallback.invoke(promise, Open)
         promise.future
       }
 
       override def close(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.debug(s"Close valve <$id>")
+        log.info(s"Close valve <$id>")
         positionCallback.invoke(promise, Closed)
         promise.future
       }
 
       override def drain(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.debug(s"Drain Valve <$id>")
+        log.info(s"Drain Valve <$id>")
         positionCallback.invoke(promise, Drain)
         promise.future
       }
 
       override def extract(amount: Int): Future[List[Dataset]] = {
         val promise = Promise[List[Dataset]]()
-        log.debug(s"Extracting $amount datasets from valve <$id>")
+        log.info(s"Extracting $amount datasets from valve <$id>")
         extractCallback.invoke(promise, amount)
         promise.future
       }
@@ -128,14 +129,14 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       override def insert(datasets: List[Dataset]): Future[ValveState] = {
         val promise = Promise[ValveState]()
         val list = datasets
-        log.debug(s"Inserting ${list.size} datasets into valve <$id>")
+        log.info(s"Inserting ${list.size} datasets into valve <$id>")
         insertCallback.invoke(promise, list)
         promise.future
       }
 
       override def clearBuffer(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.debug(s"Clearing buffer of valve <$id>: ")
+        log.info(s"Clearing buffer of valve <$id>: ")
         clearBufferCallback.invoke(promise)
         promise.future
       }
@@ -149,13 +150,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     override def onPush(): Unit = {
 
-      val dataset = grab(in)
-//TODO: Fix OnError(java.lang.ArrayIndexOutOfBoundsException: 0)
-//      compute(totalThroughputTime, FirstValveTimestamp, dataset)
-//      compute(throughputTime, PreviousValveTimestamp, dataset)
-
-      ringBuffer.push(withNewLabels(dataset))
-
+      ringBuffer.push(grab(in))
       if (isOpen) {
         pushOut()
       }
@@ -179,7 +174,9 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private def pushOut(): Unit = {
       if (isAvailable(out) && ringBuffer.isNonEmpty) {
         val dataset = ringBuffer.pull()
-        push(out, dataset)
+        compute(totalThroughputTime, FirstValveTimestamp, dataset)
+        compute(throughputTime, PreviousValveTimestamp, dataset)
+        push(out, withNewLabels(dataset))
       }
     }
 
@@ -191,7 +188,6 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def update(newState: ValveState): ValveState = {
       if (!state.equals(newState)) {
-        log.info(s"Valve <$id> changed state from: $state to $newState")
         state = newState
       }
       state
@@ -199,8 +195,10 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def compute(median: MovingMedian, timestampLabel: Label[Long], dataset: Dataset): Unit = {
       dataset.label(timestampLabel) match {
-        case Some(timestamp) => median + timestamp
-        case None => median + 0
+        case Some(timestamp) =>
+          median + (nanoTime() - timestamp)
+        case None =>
+          median + 0
       }
     }
 

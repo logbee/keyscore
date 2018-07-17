@@ -7,9 +7,11 @@ object MetaData {
 case class MetaData(labels: Map[Label[_], Any]) {
 
   def label[T](label: Label[T]): Option[T] = {
-    labels
-      .find(_.isInstanceOf[T])
-      .map(_.asInstanceOf[T])
+    labels.find(_.isInstanceOf[T]) match {
+      case Some((_, value)) =>
+        Option(value.asInstanceOf[T])
+      case _ => None
+    }
   }
 
   def label[T](label: Label[T], value: T): MetaData = {

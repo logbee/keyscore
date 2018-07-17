@@ -2,9 +2,9 @@ import {Component, forwardRef, Input} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 
 @Component({
-    selector: 'parameter-map',
+    selector: "parameter-map",
     template:
-            `        
+            `
         <div class="form-row mt-2 pl-1">
             <div class="form-group">
                 <input #addItemInputKey class="form-control" type="text" placeholder="Field Name">
@@ -44,42 +44,35 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 
 export class ParameterMap implements ControlValueAccessor {
 
-    @Input() disabled = false;
+    @Input() public disabled = false;
 
-    objectKeys = Object.keys;
-    parameterValues: Map<string, string>;
+    public objectKeys = Object.keys;
+    public parameterValues: Map<string, string>;
 
-    /*@HostBinding('style.opacity')
-    get opacity():number {
-        return this.disabled ? 0.25 : 1;
-    }*/
+    public onChange = (elements: Map<string, string>) => {
+        return;
+    }
 
+    public onTouched = () => {
+        return;
+    }
 
-    onChange = (elements: Map<string, string>) => {
-    };
-
-    onTouched = () => {
-
-    };
-
-
-    writeValue(elements: Map<string, string>): void {
+    public writeValue(elements: Map<string, string>): void {
 
         this.parameterValues = Object.assign({}, elements);
-        console.log('parameterValues: ' + JSON.stringify(this.parameterValues));
         this.onChange(elements);
 
     }
 
-    registerOnChange(f: (elements: Map<string, string>) => void): void {
+    public registerOnChange(f: (elements: Map<string, string>) => void): void {
         this.onChange = f;
     }
 
-    registerOnTouched(f: () => void): void {
+    public registerOnTouched(f: () => void): void {
         this.onTouched = f;
     }
 
-    setDisabledState(isDisabled: boolean): void {
+    public setDisabledState(isDisabled: boolean): void {
         this.disabled = isDisabled;
     }
 
@@ -88,14 +81,14 @@ export class ParameterMap implements ControlValueAccessor {
 
     }
 
-    removeItem(key: string) {
-        let newValues = Object.assign({}, this.parameterValues);
+    public removeItem(key: string) {
+        const newValues = Object.assign({}, this.parameterValues);
         delete newValues[key];
         this.writeValue(newValues);
     }
 
-    addItem(key: string, value: string) {
-        let newValues = Object.assign({}, this.parameterValues);
+    public addItem(key: string, value: string) {
+        const newValues = Object.assign({}, this.parameterValues);
         newValues[key] = value;
         this.writeValue(newValues);
 

@@ -1,30 +1,34 @@
 import {Action} from "@ngrx/store";
-import {
-    FilterConfiguration, FilterDescriptor, InternalPipelineConfiguration,
-    PipelineConfiguration
-} from "./pipelines.model";
+import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
+import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
+import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
+import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
+import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 
-export const CREATE_PIPELINE = '[Pipeline] CreatePipeline';
-export const EDIT_PIPELINE = '[Pipeline] EditPipeline';
-export const EDIT_PIPELINE_SUCCESS = '[Pipeline] EditPipelineSuccess';
-export const EDIT_PIPELINE_FAILURE = '[Pipeline] EditPipelineFailure';
-export const LOCK_EDITING_PIPELINE = '[Pipeline] LockEditingPipeline';
-export const RESET_PIPELINE = '[Pipeline] ResetPipeline';
-export const UPDATE_PIPELINE = '[Pipeline] UpdatePipeline';
-export const UPDATE_PIPELINE_BLOCKLY = '[Pipeline] UpdatePipelineBlockly'
-export const UPDATE_PIPELINE_SUCCESS = '[Pipeline] UpdatePipelineSuccess';
-export const UPDATE_PIPELINE_FAILURE = '[Pipeline] UpdatePipelineFailure';
-export const DELETE_PIPELINE = '[Pipeline] DeletePipeline';
-export const DELETE_PIPELINE_SUCCESS = '[Pipeline] DeletePipelineSuccess';
-export const DELETE_PIPELINE_FAILURE = '[Pipeline] DeletePipelineFailure';
-export const ADD_FILTER = '[Pipeline] AddFilter';
-export const MOVE_FILTER = '[Pipeline] MoveFilter';
-export const REMOVE_FILTER = '[Pipeline] RemoveFilter';
-export const UPDATE_FILTER = '[Pipeline] UpdateFilter';
-export const LOAD_FILTER_DESCRIPTORS_SUCCESS = '[Pipeline] LoadFilterDescriptorsSuccess';
-export const LOAD_FILTER_DESCRIPTORS_FAILURE = '[Pipeline] LoadFilterDescriptorsFailed';
-export const LOAD_FILTER_DESCRIPTORS = '[Pipeline] LoadFilterDescriptors';
-
+export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
+export const EDIT_PIPELINE = "[Pipeline] EditPipeline";
+export const EDIT_PIPELINE_SUCCESS = "[Pipeline] EditPipelineSuccess";
+export const EDIT_PIPELINE_FAILURE = "[Pipeline] EditPipelineFailure";
+export const LOCK_EDITING_PIPELINE = "[Pipeline] LockEditingPipeline";
+export const RESET_PIPELINE = "[Pipeline] ResetPipeline";
+export const UPDATE_PIPELINE = "[Pipeline] UpdatePipeline";
+export const UPDATE_PIPELINE_BLOCKLY = "[Pipeline] UpdatePipelineBlockly";
+export const UPDATE_PIPELINE_SUCCESS = "[Pipeline] UpdatePipelineSuccess";
+export const UPDATE_PIPELINE_FAILURE = "[Pipeline] UpdatePipelineFailure";
+export const DELETE_PIPELINE = "[Pipeline] DeletePipeline";
+export const DELETE_PIPELINE_SUCCESS = "[Pipeline] DeletePipelineSuccess";
+export const DELETE_PIPELINE_FAILURE = "[Pipeline] DeletePipelineFailure";
+export const LOAD_ALL_PIPELINES = "[Pipeline] LoadAllPipelines";
+export const LOAD_ALL_PIPELINES_SUCCESS = "[Pipeline] LoadAllPipelinesSuccess";
+export const LOAD_ALL_PIPELINES_FAILURE = "[Pipeline] LoadAllPipelinesFailure";
+export const UPDATE_PIPELINE_POLLING = "[Pipeline] UpdatePipelinePolling";
+export const ADD_FILTER = "[Pipeline] AddFilter";
+export const MOVE_FILTER = "[Pipeline] MoveFilter";
+export const REMOVE_FILTER = "[Pipeline] RemoveFilter";
+export const UPDATE_FILTER = "[Pipeline] UpdateFilter";
+export const LOAD_FILTER_DESCRIPTORS_SUCCESS = "[Pipeline] LoadFilterDescriptorsSuccess";
+export const LOAD_FILTER_DESCRIPTORS_FAILURE = "[Pipeline] LoadFilterDescriptorsFailed";
+export const LOAD_FILTER_DESCRIPTORS = "[Pipeline] LoadFilterDescriptors";
 
 export type PipelineActions =
     | CreatePipelineAction
@@ -36,6 +40,10 @@ export type PipelineActions =
     | UpdatePipelineSuccessAction
     | UpdatePipelineFailureAction
     | DeletePipelineAction
+    | LoadAllPipelinesAction
+    | LoadAllPipelinesSuccessAction
+    | LoadAllPipelinesFailureAction
+    | UpdatePipelinePollingAction
     | AddFilterAction
     | MoveFilterAction
     | UpdateFilterAction
@@ -45,10 +53,10 @@ export type PipelineActions =
     | RemoveFilterAction
     | LockEditingPipelineAction
     | DeletePipelineSuccessAction
-    | DeletePipelineFailureAction
+    | DeletePipelineFailureAction;
 
 export class CreatePipelineAction implements Action {
-    readonly type = CREATE_PIPELINE;
+    public readonly type = CREATE_PIPELINE;
 
     constructor(readonly id: string, readonly name: string, readonly description: string) {
 
@@ -56,7 +64,7 @@ export class CreatePipelineAction implements Action {
 }
 
 export class EditPipelineAction implements Action {
-    readonly type = EDIT_PIPELINE;
+    public readonly type = EDIT_PIPELINE;
 
     constructor(readonly id: string) {
 
@@ -64,7 +72,7 @@ export class EditPipelineAction implements Action {
 }
 
 export class EditPipelineSuccessAction implements Action {
-    readonly type = EDIT_PIPELINE_SUCCESS;
+    public readonly type = EDIT_PIPELINE_SUCCESS;
 
     constructor(readonly pipelineConfiguration: PipelineConfiguration) {
 
@@ -72,25 +80,22 @@ export class EditPipelineSuccessAction implements Action {
 }
 
 export class EditPipelineFailureAction implements Action {
-    readonly type = EDIT_PIPELINE_FAILURE;
+    public readonly type = EDIT_PIPELINE_FAILURE;
 
-    constructor(readonly id: string,readonly cause:any) {
+    constructor(readonly id: string, readonly cause: any) {
 
     }
 }
 
-
-
-
 export class LockEditingPipelineAction implements Action {
-    readonly type = LOCK_EDITING_PIPELINE;
+    public readonly type = LOCK_EDITING_PIPELINE;
 
     constructor(readonly isLocked: boolean) {
     }
 }
 
 export class ResetPipelineAction implements Action {
-    readonly type = RESET_PIPELINE;
+    public readonly type = RESET_PIPELINE;
 
     constructor(readonly id: string) {
 
@@ -98,7 +103,7 @@ export class ResetPipelineAction implements Action {
 }
 
 export class UpdatePipelineAction implements Action {
-    readonly type = UPDATE_PIPELINE;
+    public readonly type = UPDATE_PIPELINE;
 
     constructor(readonly pipeline: InternalPipelineConfiguration) {
 
@@ -106,7 +111,7 @@ export class UpdatePipelineAction implements Action {
 }
 
 export class UpdatePipelineWithBlocklyAction implements Action {
-    readonly type = UPDATE_PIPELINE_BLOCKLY;
+    public readonly type = UPDATE_PIPELINE_BLOCKLY;
 
     constructor(readonly pipelineConfiguration: PipelineConfiguration) {
 
@@ -114,7 +119,7 @@ export class UpdatePipelineWithBlocklyAction implements Action {
 }
 
 export class UpdatePipelineSuccessAction implements Action {
-    readonly type = UPDATE_PIPELINE_SUCCESS;
+    public readonly type = UPDATE_PIPELINE_SUCCESS;
 
     constructor(readonly pipeline: InternalPipelineConfiguration) {
 
@@ -122,15 +127,43 @@ export class UpdatePipelineSuccessAction implements Action {
 }
 
 export class UpdatePipelineFailureAction implements Action {
-    readonly type = UPDATE_PIPELINE_FAILURE;
+    public readonly type = UPDATE_PIPELINE_FAILURE;
 
-    constructor(readonly cause:any, readonly pipeline: InternalPipelineConfiguration) {
+    constructor(readonly cause: any, readonly pipeline: InternalPipelineConfiguration) {
+
+    }
+}
+
+export class LoadAllPipelinesAction implements Action {
+    public readonly type = LOAD_ALL_PIPELINES;
+}
+
+export class LoadAllPipelinesSuccessAction implements Action {
+    public readonly type = LOAD_ALL_PIPELINES_SUCCESS;
+
+    constructor(readonly pipelineInstances: PipelineInstance[]) {
+
+    }
+}
+
+export class LoadAllPipelinesFailureAction implements Action {
+    public readonly type = LOAD_ALL_PIPELINES_FAILURE;
+
+    constructor(readonly cause: any) {
+
+    }
+}
+
+export class UpdatePipelinePollingAction implements Action {
+    public readonly type = UPDATE_PIPELINE_POLLING;
+
+    constructor(readonly isPolling: boolean) {
 
     }
 }
 
 export class DeletePipelineAction implements Action {
-    readonly type = DELETE_PIPELINE;
+    public readonly type = DELETE_PIPELINE;
 
     constructor(readonly id: string) {
 
@@ -138,7 +171,7 @@ export class DeletePipelineAction implements Action {
 }
 
 export class DeletePipelineSuccessAction implements Action {
-    readonly type = DELETE_PIPELINE_SUCCESS;
+    public readonly type = DELETE_PIPELINE_SUCCESS;
 
     constructor(readonly id: string) {
 
@@ -146,7 +179,7 @@ export class DeletePipelineSuccessAction implements Action {
 }
 
 export class DeletePipelineFailureAction implements Action {
-    readonly type = DELETE_PIPELINE_FAILURE;
+    public readonly type = DELETE_PIPELINE_FAILURE;
 
     constructor(readonly cause: any, readonly id: string) {
 
@@ -154,7 +187,7 @@ export class DeletePipelineFailureAction implements Action {
 }
 
 export class AddFilterAction implements Action {
-    readonly type = ADD_FILTER;
+    public readonly type = ADD_FILTER;
 
     constructor(readonly filter: FilterDescriptor) {
 
@@ -162,7 +195,7 @@ export class AddFilterAction implements Action {
 }
 
 export class MoveFilterAction implements Action {
-    readonly type = MOVE_FILTER;
+    public readonly type = MOVE_FILTER;
 
     constructor(readonly filterId: string, readonly position: number) {
 
@@ -170,35 +203,34 @@ export class MoveFilterAction implements Action {
 }
 
 export class UpdateFilterAction implements Action {
-    readonly type = UPDATE_FILTER;
+    public readonly type = UPDATE_FILTER;
 
     constructor(readonly filter: FilterConfiguration, readonly values: any) {
     }
 }
 
 export class RemoveFilterAction implements Action {
-    readonly type = REMOVE_FILTER;
+    public readonly type = REMOVE_FILTER;
 
     constructor(readonly filterId: string) {
 
     }
 }
 
-
 export class LoadFilterDescriptorsAction implements Action {
-    readonly type = LOAD_FILTER_DESCRIPTORS
+    public readonly type = LOAD_FILTER_DESCRIPTORS;
 
 }
 
 export class LoadFilterDescriptorsSuccessAction implements Action {
-    readonly type = LOAD_FILTER_DESCRIPTORS_SUCCESS;
+    public readonly type = LOAD_FILTER_DESCRIPTORS_SUCCESS;
 
     constructor(readonly descriptors: FilterDescriptor[]) {
     }
 }
 
 export class LoadFilterDescriptorsFailureAction implements Action {
-    readonly type = LOAD_FILTER_DESCRIPTORS_FAILURE;
+    public readonly type = LOAD_FILTER_DESCRIPTORS_FAILURE;
 
     constructor(readonly cause: any) {
     }

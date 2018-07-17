@@ -13,7 +13,7 @@ private class SourceController(val source: SourceProxy, val valve: ValveProxy) e
 
   override val id: UUID = source.id
 
-  override def configure(configuration: FilterConfiguration): Future[Unit] = source.configure(configuration)
+  override def configure(configuration: FilterConfiguration): Future[FilterState] = source.configure(configuration)
 
   override def pause(doClose: Boolean): Future[FilterState] = ???
 
@@ -22,4 +22,7 @@ private class SourceController(val source: SourceProxy, val valve: ValveProxy) e
   override def insert(dataset: List[Dataset]): Future[FilterState] = ???
 
   override def extract(n: Int): Future[List[Dataset]] = valve.extract(n)
+
+  override def state(): Future[FilterState] = ???
+
 }

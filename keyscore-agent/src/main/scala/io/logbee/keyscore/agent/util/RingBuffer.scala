@@ -38,6 +38,18 @@ class RingBuffer[T](maxSize: Int) {
     result.toList
   }
 
+  def last(number: Int): List[T] = new Iterator[T] {
+    private var index = if (writePointer == 0) maxSize - 1 else writePointer - 1
+    private var count = number.min(maxSize)
+    override def hasNext: Boolean = count > 0 && ringBuffer(index) != null
+    override def next(): T = {
+      val result = ringBuffer(index).asInstanceOf[T]
+      index = if (index > 0) index - 1 else maxSize - 1
+      count -= 1
+      result
+    }
+  }.toList
+
   def isNonEmpty: Boolean = {
     readableData > 0
   }
