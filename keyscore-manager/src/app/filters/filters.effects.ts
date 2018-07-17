@@ -22,7 +22,7 @@ import {
     InsertDatasetsFailure,
     InsertDatasetsSuccess,
     LOAD_FILTERSTATE,
-    LOAD_LIVE_EDITING_FILTER,
+    LOAD_LIVE_EDITING_FILTER, LOAD_LIVE_EDITING_FILTER_FAILURE, LOAD_LIVE_EDITING_FILTER_SUCCESS,
     LoadFilterStateAction,
     LoadFilterStateFailure,
     LoadFilterStateSuccess,
@@ -38,7 +38,6 @@ import {combineLatest} from "rxjs/operators";
 import {selectAppConfig} from "../app.config";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
-
 @Injectable()
 export class FilterEffects {
     @Effect()
@@ -76,7 +75,7 @@ export class FilterEffects {
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/config").pipe(
-                map((data: FilterConfiguration) => new LoadLiveEditingFilterSuccess(data)),
+                map((data: FilterConfiguration) => new LoadLiveEditingFilterSuccess(data, action.filterId)),
                 catchError((cause: any) => of(new LoadLiveEditingFilterFailure(cause)))
             );
         })
@@ -142,13 +141,14 @@ export class FilterEffects {
     );
     @Effect()
     public extractDatasets: Observable<Action> = this.actions$.pipe(
-        ofType(EXTRACT_DATASETS),
-        map((action) => (action as ExtractDatasetsAction)),
+        ofType(LOAD_LIVE_EDITING_FILTER_SUCCESS),
+        map((action) => (action as LoadLiveEditingFilterSuccess)),
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
-            return this.http.put(appconfig + "/filter/" + action.filterId + "/extract", action.amount, {
+            return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
+                "/filter/" + action.filterId + "/extract?amount=10", {}, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "text"
+                responseType: "json"
             }).pipe(
                 map((datasets: any) => new ExtractDatasetsSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))

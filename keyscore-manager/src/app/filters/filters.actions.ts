@@ -54,7 +54,7 @@ export class LoadLiveEditingFilterAction implements Action {
 export class LoadLiveEditingFilterSuccess implements Action {
     public readonly type = LOAD_LIVE_EDITING_FILTER_SUCCESS;
 
-    constructor(readonly filter: FilterConfiguration) {
+    constructor(readonly filter: FilterConfiguration, readonly filterId: string) {
     }
 }
 

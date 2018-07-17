@@ -5,13 +5,13 @@ import {Component, Input} from "@angular/core";
     template: `
         <div class="row pb-3"
              style="background-color: #365078; max-height: 50vh; min-height: 50vh;">
-            <div class="col text-center">
-                <a routerLink="/dashboard"
-                   routerLinkActive="active">
+            <a routerLink="/dashboard"
+               routerLinkActive="active">
+                <div class="col text-center">
                     <img class="mt-lg-4 pr-lg-5" src="/assets/images/logos/keyscore.dark.svg"
-                         style="height:40vh; width: 100vw">
-                </a>
-            </div>
+                         style=" height:40vh; width: 100vw">
+                </div>
+            </a>
         </div>
         <div class="row" style="min-height: 50vh; background-color: #365880">
             <div class="col align-self-center">

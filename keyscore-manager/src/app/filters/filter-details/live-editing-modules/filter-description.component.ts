@@ -15,7 +15,7 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
                     <div class="col-11">
                         <div>
                             <!--<small class="text-info">{{currentFilter.descriptor.description}}</small>-->
-                            <small>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam.</small>
+                            <small>Simple Filter that logs each dataset it receives.</small>
                         </div>
                     </div>
                     <div class="col-1 text-right">
