@@ -1,8 +1,10 @@
 import {AppState} from "../app.component";
 
 export interface SettingsState {
-    current: SettingsModel;
     default: SettingsModel;
+    active: SettingsModel;
+    modified: SettingsModel;
+    isModified: boolean;
 }
 
 export interface SettingsModel {
@@ -45,9 +47,16 @@ export class BooleanItem implements SettingsItem {
         readonly value: boolean) { }
 }
 
-export class ChoiceItem {
+export class TextChoiceItem implements SettingsItem {
     public readonly type = TEXT_CHOICE_ITEM;
-    constructor(readonly value: string) { }
+    constructor(
+        readonly name: string,
+        readonly title: string,
+        readonly description: string,
+        readonly value: TextItem,
+        readonly choices: TextItem[]) { }
 }
 
-export const getSettings = (state: AppState) => state.settings.current;
+export const getSettingsState = (state: AppState) => state.settings;
+export const getActiveSettings = (state: AppState) => state.settings.active;
+export const getModifiedSettings = (state: AppState) => state.settings.modified;
