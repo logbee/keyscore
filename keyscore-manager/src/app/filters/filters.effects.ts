@@ -38,6 +38,7 @@ import {combineLatest} from "rxjs/operators";
 import {selectAppConfig} from "../app.config";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
+import {Dataset} from "../models/filter-model/dataset/Dataset";
 @Injectable()
 export class FilterEffects {
     @Effect()
@@ -145,12 +146,9 @@ export class FilterEffects {
         map((action) => (action as LoadLiveEditingFilterSuccess)),
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
-            return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/extract?amount=10", {}, {
-                headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "json"
-            }).pipe(
-                map((datasets: any) => new ExtractDatasetsSuccess(datasets)),
+            return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
+                "/filter/" + action.filterId + "/extract?value=10").pipe(
+                map((datasets: Dataset[]) => new ExtractDatasetsSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
         }),

@@ -4,11 +4,15 @@ import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {ErrorState, errorState} from "../../common/error/error.reducer";
-import {AppState} from "../../app.component";
 import {selectAppConfig} from "../../app.config";
 import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
-import {getLiveEditingFilter, getLiveEditingFilterState} from "../filter.reducer";
+import {
+    getExtractedDatasetsByIndex,
+    getLiveEditingFilter,
+    getLiveEditingFilterState
+} from "../filter.reducer";
+import {Dataset} from "../../models/filter-model/dataset/Dataset";
 
 @Component({
     selector: "live-editing",
@@ -20,21 +24,16 @@ import {getLiveEditingFilter, getLiveEditingFilterState} from "../filter.reducer
         </header-bar>
         <div *ngIf="!(loading$ | async); else loading">
             <div class="col-12" *ngIf="!errorHandling">
-                <!--<div class="card mt-3 mb-3">-->
-                    <!--<div class="card-header" style="background-color: #365880; color: white">-->
-                        <!--<strong>{{'FILTERLIVEEDITINGCOMPONENT.TITLE' | translate}}</strong>-->
-                    <!--</div>-->
-                    <div class="card-body badge-light">
-                        <filter-description [currentFilter]="filter$ | async"
-                                            [currentFilterState]="filterState$ | async">
-                        </filter-description>
-                        <example-message></example-message>
-                        <pattern></pattern>
-                        <filter-result></filter-result>
-                        <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}
-                        </button>
-                    </div>
-                <!--</div>-->
+                <div class="card-body badge-light">
+                    <filter-description [currentFilter]="filter$ | async"
+                                        [currentFilterState]="filterState$ | async">
+                    </filter-description>
+                    <example-message [dataset]="dataset$ | async"></example-message>
+                    <pattern></pattern>
+                    <filter-result></filter-result>
+                    <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}
+                    </button>
+                </div>
             </div>
             <div class="col-12">
                 <error-component *ngIf="errorHandling" [httpError]="httpError"
@@ -42,7 +41,7 @@ import {getLiveEditingFilter, getLiveEditingFilterState} from "../filter.reducer
             </div>
         </div>
         <ng-template #loading>
-                <loading-full-view></loading-full-view>
+            <loading-full-view></loading-full-view>
         </ng-template>
     `
 })
@@ -58,6 +57,7 @@ export class LiveEditingComponent implements OnInit {
     private filterState$: Observable<FilterInstanceState>;
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
+    private dataset$: Observable<Dataset>;
 
     constructor(private store: Store<any>, private translate: TranslateService) {
         const config = this.store.select(selectAppConfig);
@@ -69,6 +69,7 @@ export class LiveEditingComponent implements OnInit {
             this.filter$ = this.store.select(getLiveEditingFilter);
             this.error$ = this.store.select(errorState);
             this.loading$ = this.store.select(isSpinnerShowing);
+            this.dataset$ = this.store.select(getExtractedDatasetsByIndex);
         }
     }
 

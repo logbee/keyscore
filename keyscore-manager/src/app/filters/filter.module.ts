@@ -18,6 +18,7 @@ import {FilterResultComponent} from "./filter-details/live-editing-modules/filte
 import {StatuslightComponent} from "../common/health/statuslight.component";
 import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
+import {DatasetVisualizer} from "./filter-details/live-editing-modules/DatasetVisualizer";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -43,7 +44,8 @@ export const routes: Routes = [
         PatternComponent,
         FilterResultComponent,
         StatuslightComponent,
-        LiveEditingComponent
+        LiveEditingComponent,
+        DatasetVisualizer
     ]
     ,
     providers: [],

@@ -14,8 +14,8 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
                 <div class="row">
                     <div class="col-11">
                         <div>
-                            <!--<small class="text-info">{{currentFilter.descriptor.description}}</small>-->
-                            <small>Simple Filter that logs each dataset it receives.</small>
+                            <!--<strong class="text-info">{{currentFilter.descriptor.description}}</strong>-->
+                            <h6>Simple Filter that logs each dataset it receives.</h6>
                         </div>
                     </div>
                     <div class="col-1 text-right">
@@ -23,11 +23,12 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
                     </div>
                 </div>
                 <div>
-                    <small>{{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}: </small>
-                    <small class="text-info"> {{currentFilter.descriptor.category}}</small>
+                    <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}: </strong>
+                    <strong> {{currentFilter.descriptor.category}}</strong>
                 </div>
-                <div>
-                    <small>{{currentFilterState.throughPutTime}}</small>
+                <div class="mt-1">
+                    <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}: </strong>
+                    <strong>{{currentFilterState.throughPutTime}}</strong>
                 </div>
 
             </div>
