@@ -13,6 +13,8 @@ import {
     getLiveEditingFilterState
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
+import {DeletePipelineAction} from "../../pipelines/pipelines.actions";
+import {LockCurrentExampleDatasetAction} from "../filters.actions";
 
 @Component({
     selector: "live-editing",
@@ -28,8 +30,9 @@ import {Dataset} from "../../models/filter-model/dataset/Dataset";
                     <filter-description [currentFilter]="filter$ | async"
                                         [currentFilterState]="filterState$ | async">
                     </filter-description>
-                        <example-message [extractedDatasets]="extractedDatasets$ | async">
-                        </example-message>
+                    <example-message [extractedDatasets]="extractedDatasets$ | async"
+                                     (currentExampleDataset)="lockCurrentExampleDataset($event)">
+                    </example-message>
                     <pattern></pattern>
                     <filter-result></filter-result>
                     <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>
@@ -75,6 +78,10 @@ export class LiveEditingComponent implements OnInit {
 
     public ngOnInit(): void {
         this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
+    }
+
+    public lockCurrentExampleDataset(dataset: Dataset) {
+        this.store.dispatch(new LockCurrentExampleDatasetAction(dataset));
     }
 
     private triggerErrorComponent(httpError: string) {

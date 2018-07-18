@@ -1,8 +1,9 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
 import {getExtractFinish} from "../../filter.reducer";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
+import {PipelineConfiguration} from "../../../models/pipeline-model/PipelineConfiguration";
 
 @Component({
     selector: "example-message",
@@ -39,6 +40,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 export class ExampleMessageComponent implements  OnInit {
     @Input() public extractedDatasets: Dataset[];
+    @Output() public currentExampleDataset: EventEmitter<Dataset> = new EventEmitter();
     public extractFinish$: Observable<boolean>;
     public count: number;
     public isReady$: Observable<boolean>;
@@ -54,12 +56,16 @@ export class ExampleMessageComponent implements  OnInit {
     private  goLeft() {
         if (this.count !== this.extractedDatasets.length - 1) {
             this.count += 1;
+            const dataset: Dataset = this.extractedDatasets[this.count];
+            this.currentExampleDataset.emit(dataset);
         }
     }
 
     private  goRight() {
         if (this.count !== 0) {
             this.count -= 1;
+            const dataset: Dataset = this.extractedDatasets[this.count];
+            this.currentExampleDataset.emit(dataset);
         }
     }
 }

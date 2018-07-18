@@ -22,7 +22,7 @@ export const EXTRACT_DATASETS = "[Filter] ExtractDatasetsAction";
 export const EXTRACT_DATASETS_FAILURE = "[Filter] ExtractDatasetsFailure";
 export const EXTRACT_DATASETS_SUCCESS = "[Filter] ExtractDatasetsSuccess";
 export const INITIALIZE_LIVE_EDITING_DATA = "[Filter] InitializeLiveEditingDataAction";
-
+export const LOCK_CURRENT_EXAMPLE_DATASET = "[Filter] LockCurrentExampleDatasetAction";
 export type FiltersActions =
 
     | LoadLiveEditingFilterAction
@@ -43,7 +43,8 @@ export type FiltersActions =
     | ExtractDatasetsAction
     | ExtractDatasetsFailure
     | ExtractDatasetsSuccess
-    | InitializeLiveEditingDataAction;
+    | InitializeLiveEditingDataAction
+    | LockCurrentExampleDatasetAction;
 
 export class LoadLiveEditingFilterAction implements Action {
     public readonly type = LOAD_LIVE_EDITING_FILTER;
@@ -176,5 +177,12 @@ export class InitializeLiveEditingDataAction implements Action {
 
     constructor(readonly filterId: string) {
 
+    }
+}
+
+export class LockCurrentExampleDatasetAction implements Action {
+    public readonly type = LOCK_CURRENT_EXAMPLE_DATASET;
+
+    constructor(readonly dataset: Dataset) {
     }
 }

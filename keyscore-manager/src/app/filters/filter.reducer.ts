@@ -1,22 +1,24 @@
 import {
-    DRAIN_FILTER_SUCCESS, EXTRACT_DATASETS_SUCCESS,
+    DRAIN_FILTER_SUCCESS,
+    EXTRACT_DATASETS_SUCCESS,
     FiltersActions,
     LOAD_FILTERSTATE_SUCCESS,
-    LOAD_LIVE_EDITING_FILTER_SUCCESS, PAUSE_FILTER_SUCCESS
+    LOAD_LIVE_EDITING_FILTER_SUCCESS,
+    LOCK_CURRENT_EXAMPLE_DATASET,
+    PAUSE_FILTER_SUCCESS
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {FilterStatus} from "../models/filter-model/FilterStatus";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
-import {create} from "domain";
-import {LoadingState} from "../common/loading/loading.reducer";
 
 export class FilterState {
     public filter: FilterConfiguration;
     public filterState: FilterInstanceState;
     public datasets: Dataset[];
     public extractFinish: boolean;
+    public currentExampleDataset: Dataset;
 }
 
 const initialState: FilterState = {
@@ -47,7 +49,22 @@ const initialState: FilterState = {
             }
         ]
     }],
-    extractFinish: false
+    extractFinish: false,
+    currentExampleDataset: {
+        metaData: "",
+        records: [
+            {
+                id: "b8f4e010-dbe5-40ae-bd2c-b73a953da100",
+                payload: {
+                    message: {
+                        jsonClass: "TextField",
+                        name: "message",
+                        value: "The weather is cloudy with a current temperature of: -11.5 C"
+                    }
+                }
+            }
+        ]
+    }
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
@@ -73,6 +90,8 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             result.datasets = action.datasets;
             result.extractFinish = true;
             break;
+        case LOCK_CURRENT_EXAMPLE_DATASET:
+            result.currentExampleDataset = action.dataset;
     }
     return result;
 }
