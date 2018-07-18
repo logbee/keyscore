@@ -17,8 +17,6 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                 <strong class="text-muted">records:</strong>
             </div>
             <div class="col-10">
-                           <span (click)="toggleRecords()"><img width="16em"
-                                                                src="/assets/images/chevron-down-dark.svg"/></span>
                 <div class="col-sm-2"></div>
                 <div class="col-sm-10">
                     <div class="row" *ngIf="showRecords">

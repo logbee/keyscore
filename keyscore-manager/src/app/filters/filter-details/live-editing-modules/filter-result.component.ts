@@ -4,7 +4,7 @@ import {Component, Input} from "@angular/core";
     selector: "filter-result",
     template: `
         <div class="card mt-3">
-            <div class="card-header alert-light font-weight-bold">
+            <div class="card-header alert-light font-weight-bold" style="color: black;">
                 {{'FILTERLIVEEDITINGCOMPONENT.RESULT' | translate}}
             </div>
             <div class="card-body">

@@ -1,6 +1,8 @@
-import {Component, Input} from "@angular/core";
-import {Dataset} from "../../../models/filter-model/dataset/Dataset";
+import {Component, Input, OnInit} from "@angular/core";
 import {Observable} from "rxjs/index";
+import {Store} from "@ngrx/store";
+import {getExtractFinish} from "../../filter.reducer";
+import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 @Component({
     selector: "example-message",
@@ -12,20 +14,52 @@ import {Observable} from "rxjs/index";
             <div class="card-body">
                 <div class="ml-3">
                     <div class="row">
-                        <div class="col-sm-2 mb-2">
-                            <span (click)="toggleRecords()"><img width="16em"
-                              src="/assets/images/chevron-left.svg"/></span></div>
-                        <div class="col-sm-8 mb-2"><dataset-visualizer [dataset]="dataset">
-                        </dataset-visualizer></div>
-                        <div class="col-sm-2 mb-2"><span (click)="toggleRecords()"><img width="16em"
-                                      src="/assets/images/chevron-right.svg"/></span></div>
+                        <div class="col-sm-1">
+                            <span class="float-left" (click)="goLeft()">
+                                <img width="25em" src="/assets/images/chevron-left.svg"/>
+                            </span>
+                        </div>
+                        <div class="col-sm-10 mb-2" *ngIf="(extractFinish$ | async); else loading">
+                            <dataset-visualizer [dataset]="extractedDatasets[count]">
+                            </dataset-visualizer>
+                        </div>
+                        <div class="col-sm-1"><span class="float-right" (click)="goRight()">
+                            <img width="25em" src="/assets/images/chevron-right.svg"/></span></div>
                     </div>
                 </div>
             </div>
         </div>
+        <ng-template #loading>
+            <div class="col-sm-10 mb-2" align="center">
+                <loading></loading>
+            </div>
+        </ng-template>
     `
 })
 
-export class ExampleMessageComponent {
-    @Input() public dataset: Dataset[];
+export class ExampleMessageComponent implements  OnInit {
+    @Input() public extractedDatasets: Dataset[];
+    public extractFinish$: Observable<boolean>;
+    public count: number;
+    public isReady$: Observable<boolean>;
+    public length: number;
+
+    constructor(private store: Store<any>) {
+        this.isReady$ = this.store.select(getExtractFinish);
+        this.extractFinish$ = this.store.select(getExtractFinish);
+    }
+    public ngOnInit(): void {
+        this.count = 0;
+    }
+    private  goLeft() {
+        if (this.count !== this.extractedDatasets.length - 1) {
+            this.count += 1;
+        }
+    }
+
+    private  goRight() {
+        if (this.count !== 0) {
+            this.count -= 1;
+        }
+    }
 }

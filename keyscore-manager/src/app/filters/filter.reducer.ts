@@ -9,11 +9,14 @@ import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {FilterStatus} from "../models/filter-model/FilterStatus";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
+import {create} from "domain";
+import {LoadingState} from "../common/loading/loading.reducer";
 
 export class FilterState {
     public filter: FilterConfiguration;
     public filterState: FilterInstanceState;
     public datasets: Dataset[];
+    public extractFinish: boolean;
 }
 
 const initialState: FilterState = {
@@ -43,7 +46,8 @@ const initialState: FilterState = {
                 }
             }
         ]
-    }]
+    }],
+    extractFinish: false
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
@@ -58,17 +62,22 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             result.filterState = action.state;
             break;
         case DRAIN_FILTER_SUCCESS:
+            result.extractFinish = false;
             result.filterState = action.state;
             break;
         case PAUSE_FILTER_SUCCESS:
             result.filterState = action.state;
             break;
         case EXTRACT_DATASETS_SUCCESS:
+            result.datasets = [];
             result.datasets = action.datasets;
+            result.extractFinish = true;
             break;
     }
     return result;
 }
+
+export const extractFinish = (state: FilterState) => state.extractFinish;
 
 export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
@@ -80,4 +89,6 @@ export const getLiveEditingFilter = createSelector(getFilterState, (state: Filte
 
 export const getLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
 
-export const getExtractedDatasetsByIndex = createSelector(getFilterState, (state: FilterState) => state.datasets[0]);
+export const getExtractedDatasets = createSelector(getFilterState, (state: FilterState) => state.datasets);
+
+export const getExtractFinish = createSelector(getFilterState, extractFinish);

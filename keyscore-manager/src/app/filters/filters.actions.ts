@@ -21,7 +21,7 @@ export const INSERT_DATASETS_SUCCESS = "[Filter] InsertDatasetsSuccess";
 export const EXTRACT_DATASETS = "[Filter] ExtractDatasetsAction";
 export const EXTRACT_DATASETS_FAILURE = "[Filter] ExtractDatasetsFailure";
 export const EXTRACT_DATASETS_SUCCESS = "[Filter] ExtractDatasetsSuccess";
-export const INITIALIZE_LIVE_EDITING_DATA = "[Filter] InitalizeLiveEditingDataAction";
+export const INITIALIZE_LIVE_EDITING_DATA = "[Filter] InitializeLiveEditingDataAction";
 
 export type FiltersActions =
 
@@ -43,7 +43,7 @@ export type FiltersActions =
     | ExtractDatasetsAction
     | ExtractDatasetsFailure
     | ExtractDatasetsSuccess
-    | InitalizeLiveEditingDataAction;
+    | InitializeLiveEditingDataAction;
 
 export class LoadLiveEditingFilterAction implements Action {
     public readonly type = LOAD_LIVE_EDITING_FILTER;
@@ -171,7 +171,7 @@ export class ExtractDatasetsFailure implements Action {
     }
 }
 
-export class InitalizeLiveEditingDataAction implements Action {
+export class InitializeLiveEditingDataAction implements Action {
     public readonly type = INITIALIZE_LIVE_EDITING_DATA;
 
     constructor(readonly filterId: string) {

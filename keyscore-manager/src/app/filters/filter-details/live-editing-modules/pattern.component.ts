@@ -4,7 +4,7 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
     selector: "pattern",
     template: `
         <div class="card mt-3">
-            <div class="card-header alert-light font-weight-bold">
+            <div class="card-header alert-light font-weight-bold"style="color: black;">
                 {{'FILTERLIVEEDITINGCOMPONENT.REGEXPATTERN' | translate}}
             </div>
             <div class="card-body">

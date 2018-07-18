@@ -16,7 +16,7 @@ import {
     EXTRACT_DATASETS,
     ExtractDatasetsAction,
     ExtractDatasetsFailure,
-    ExtractDatasetsSuccess, InitalizeLiveEditingDataAction, INITIALIZE_LIVE_EDITING_DATA,
+    ExtractDatasetsSuccess, InitializeLiveEditingDataAction, INITIALIZE_LIVE_EDITING_DATA,
     INSERT_DATASETS,
     InsertDatasetsAction,
     InsertDatasetsFailure,
@@ -51,7 +51,7 @@ export class FilterEffects {
                 const filterIdRegex =
                     /\/filter\/.*/g;
                 if (filterIdRegex.test(url)) {
-                    return of(new InitalizeLiveEditingDataAction(filterId));
+                    return of(new InitializeLiveEditingDataAction(filterId));
                 } else {
                     return of();
                 }
@@ -61,7 +61,7 @@ export class FilterEffects {
     @Effect()
     public navigateToLiveEditing$: Observable<Action> = this.actions$.pipe(
         ofType(INITIALIZE_LIVE_EDITING_DATA),
-        map((action) => (action as InitalizeLiveEditingDataAction)),
+        map((action) => (action as InitializeLiveEditingDataAction)),
         concatMap((payload) => [
             new PauseFilterAction(payload.filterId, true),
             new DrainFilterAction(payload.filterId, true),

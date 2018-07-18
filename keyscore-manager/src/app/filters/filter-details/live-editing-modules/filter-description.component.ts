@@ -19,16 +19,16 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
                         </div>
                     </div>
                     <div class="col-1 text-right">
-                        <status-light [status]="currentFilterState.status"></status-light>
+                        <status-light [status]="currentFilterState?.status"></status-light>
                     </div>
                 </div>
                 <div>
                     <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}: </strong>
-                    <strong> {{currentFilter.descriptor.category}}</strong>
+                    <strong> {{currentFilter?.descriptor.category}}</strong>
                 </div>
                 <div class="mt-1">
                     <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}: </strong>
-                    <strong>{{currentFilterState.throughPutTime}}</strong>
+                    <strong>{{currentFilterState?.throughPutTime}}</strong>
                 </div>
 
             </div>
