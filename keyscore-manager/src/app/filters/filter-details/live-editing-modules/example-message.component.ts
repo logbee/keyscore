@@ -16,7 +16,7 @@ import {PipelineConfiguration} from "../../../models/pipeline-model/PipelineConf
                 <div class="ml-3">
                     <div class="row">
                         <div class="col-sm-1">
-                            <span class="float-left" (click)="goLeft()">
+                            <span class="float-left chevron" (click)="goLeft()">
                                 <img width="25em" src="/assets/images/chevron-left.svg"/>
                             </span>
                         </div>
@@ -41,10 +41,10 @@ import {PipelineConfiguration} from "../../../models/pipeline-model/PipelineConf
 export class ExampleMessageComponent implements  OnInit {
     @Input() public extractedDatasets: Dataset[];
     @Output() public currentExampleDataset: EventEmitter<Dataset> = new EventEmitter();
-    public extractFinish$: Observable<boolean>;
-    public count: number;
-    public isReady$: Observable<boolean>;
-    public length: number;
+    private extractFinish$: Observable<boolean>;
+    private count: number;
+    private isReady$: Observable<boolean>;
+    private length: number;
 
     constructor(private store: Store<any>) {
         this.isReady$ = this.store.select(getExtractFinish);

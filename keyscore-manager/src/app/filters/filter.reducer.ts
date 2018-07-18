@@ -18,6 +18,7 @@ export class FilterState {
     public filterState: FilterInstanceState;
     public datasets: Dataset[];
     public extractFinish: boolean;
+    public resultAvailable: boolean;
     public currentExampleDataset: Dataset;
 }
 
@@ -34,6 +35,8 @@ const initialState: FilterState = {
         totalThroughputTime: 0,
         status: FilterStatus.Unknown
     },
+    extractFinish: false,
+    resultAvailable: false,
     datasets: [{
         metaData: "",
         records: [
@@ -49,7 +52,6 @@ const initialState: FilterState = {
             }
         ]
     }],
-    extractFinish: false,
     currentExampleDataset: {
         metaData: "",
         records: [
@@ -98,6 +100,8 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
 
 export const extractFinish = (state: FilterState) => state.extractFinish;
 
+export const resultAvailable = (state: FilterState) => state.resultAvailable;
+
 export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
 );
@@ -111,3 +115,5 @@ export const getLiveEditingFilterState = createSelector(getFilterState, (state: 
 export const getExtractedDatasets = createSelector(getFilterState, (state: FilterState) => state.datasets);
 
 export const getExtractFinish = createSelector(getFilterState, extractFinish);
+
+export const getResultAvailable = createSelector(getFilterState, resultAvailable);

@@ -35,13 +35,12 @@ import {LockCurrentExampleDatasetAction} from "../filters.actions";
                     </example-message>
                     <pattern></pattern>
                     <filter-result></filter-result>
-                    <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>
                 </div>
             </div>
-            <div class="col-12">
-                <error-component *ngIf="errorHandling" [httpError]="httpError"
-                                 [message]="message"></error-component>
-            </div>
+        </div>
+        <div class="col-12">
+            <error-component *ngIf="errorHandling" [httpError]="httpError"
+                             [message]="message"></error-component>
         </div>
         <ng-template #loading>
             <loading-full-view></loading-full-view>
