@@ -68,7 +68,7 @@
     "CATEGORY": "Category",
     "ID": "Id",
     "EXAMPLE_MESSAGE": "Example Message",
-    "REGEXPATTERN": "Regex Pattern",
+    "REGEXPATTERN": "Configuration",
     "RESULT": "Result",
     "VALUE": "Value",
     "TYPE": "Type",
@@ -81,7 +81,9 @@
     "RECORDS": "records",
     "PAYLOAD": "payload",
     "MESSAGE": "message",
-    "NODATA": "No messages to show."
+    "NODATA": "No messages to show.",
+    "PAUSED": "isPaused",
+    "FIELDNAMES": "fieldnames"
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filters"

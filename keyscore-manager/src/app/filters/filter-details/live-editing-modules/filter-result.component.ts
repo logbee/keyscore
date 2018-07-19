@@ -19,11 +19,9 @@ import {getResultAvailable} from "../../filter.reducer";
         </div>
         <ng-template #loading>
             <div class="row">
-                <div class="col-sm-5"></div>
-                <div class="col-sm-2">
-                    <loading align="center"></loading>
+                <div class="col-sm-12" align="center">
+                    <loading></loading>
                 </div>
-                <div class="col-sm-5"></div>
             </div>
         </ng-template>
     `

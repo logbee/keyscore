@@ -68,7 +68,7 @@
     "CATEGORY": "Kategorie",
     "ID": "Id",
     "EXAMPLE_MESSAGE": "Beispiel Nachricht",
-    "REGEXPATTERN": "Regulärer Ausdruck",
+    "REGEXPATTERN": "Konfiguration",
     "RESULT": "Ergebnis",
     "VALUE": "Wert",
     "TYPE": "Typ",
@@ -82,9 +82,9 @@
     "RECORDS": "records",
     "PAYLOAD": "inhalt",
     "MESSAGE": "nachricht",
-    "NODATA": "Keine Nachrichten verfügbar."
-
-
+    "NODATA": "Keine Nachrichten verfügbar.",
+    "PAUSED": "ist pausiert",
+    "FIELDNAMES": "Feldernamen"
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filter"

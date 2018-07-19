@@ -8,13 +8,14 @@ import {selectAppConfig} from "../../app.config";
 import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
 import {
-    getExtractedDatasets, getExtractFinish,
+    getExtractedDatasets, getExtractFinish, getFilterId,
     getLiveEditingFilter,
     getLiveEditingFilterState
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
 import {DeletePipelineAction} from "../../pipelines/pipelines.actions";
 import {LockCurrentExampleDatasetAction} from "../filters.actions";
+import {s, st} from "@angular/core/src/render3";
 
 @Component({
     selector: "live-editing",
@@ -60,13 +61,13 @@ export class LiveEditingComponent implements OnInit {
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
     private extractedDatasets$: Observable<Dataset[]>;
-
     constructor(private store: Store<any>, private translate: TranslateService) {
         const config = this.store.select(selectAppConfig);
         config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
+
         if (!this.liveEditingFlag) {
             this.triggerErrorComponent("999");
-        } else {
+        }  else {
             this.filterState$ = this.store.select(getLiveEditingFilterState);
             this.filter$ = this.store.select(getLiveEditingFilter);
             this.error$ = this.store.select(errorState);
@@ -114,3 +115,4 @@ export class LiveEditingComponent implements OnInit {
         }
     }
 }
+
