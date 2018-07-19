@@ -76,7 +76,12 @@
     "MESSAGE_PLACEHOLDER": "Add your message here",
     "THROUGHPUTTIME": "Throughputtime/Filter",
     "TOTALTHROUGHPUTTIME": "Throughputtime/Pipeline",
-    "STATUS": "Filterstatus"
+    "STATUS": "Filterstatus",
+    "NORESULT": "No result to present",
+    "RECORDS": "records",
+    "PAYLOAD": "payload",
+    "MESSAGE": "message",
+    "NODATA": "No messages to show."
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filters"

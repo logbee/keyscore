@@ -12,7 +12,7 @@ import {getResultAvailable} from "../../filter.reducer";
             </div>
             <div class="card-body">
                 <div class="form-group" align="center" *ngIf="(loading$ | async); else loading">
-                    <h4>No result to present</h4>
+                    <h4>{{'FILTERLIVEEDITINGCOMPONENT.NORESULT' | translate}}</h4>
                 </div>
                 <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>
             </div>

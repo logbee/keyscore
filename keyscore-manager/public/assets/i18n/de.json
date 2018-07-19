@@ -77,7 +77,14 @@
     "NOTFOUND": "Der angeforderte Filter konnte nicht gefunden werden",
     "THROUGHPUTTIME": "Durchlaufzeit/Filter",
     "TOTALTHROUGHPUTTIME": "Durchlaufzeit/Pipeline",
-    "STATUS": "Filterstatus"
+    "STATUS": "Filterstatus",
+    "NORESULT": "Kein Ergebnis berechenet",
+    "RECORDS": "records",
+    "PAYLOAD": "inhalt",
+    "MESSAGE": "nachricht",
+    "NODATA": "Keine Nachrichten verfügbar."
+
+
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filter"

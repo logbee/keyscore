@@ -6,7 +6,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
     template: `
         <div class="row">
             <div class="col-sm-2">
-                <strong class="text-muted">id:</strong>
+                <strong class="text-muted"> {{'FILTERLIVEEDITINGCOMPONENT.ID' | translate}}:</strong>
             </div>
             <div class="col-10">
                 <small>{{dataset?.records[0].id}}</small>
@@ -14,14 +14,14 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
         </div>
         <div class="row">
             <div class="col-sm-2">
-                <strong class="text-muted">records:</strong>
+                <strong class="text-muted"> {{'FILTERLIVEEDITINGCOMPONENT.RECORDS' | translate}}:</strong>
             </div>
             <div class="col-10">
                 <div class="col-sm-2"></div>
                 <div class="col-sm-10">
                     <div class="row" *ngIf="showRecords">
                         <div class="col-sm-2">
-                            <strong class="text-muted">payload:</strong>
+                            <strong class="text-muted"> {{'FILTERLIVEEDITINGCOMPONENT.PAYLOAD' | translate}}:</strong>
                         </div>
                         <div class="col-sm-10">
                             <span (click)="togglePayload()"><img width="16em"
@@ -40,7 +40,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                             </div>
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <strong class="text-muted">message: </strong>
+                                    <strong class="text-muted"> {{'FILTERLIVEEDITINGCOMPONENT.MESSAGE' | translate}}:</strong>
                                 </div>
                                 <div class="col-sm-10">
                                     <small>{{dataset?.records[0].payload.message.value}}</small>
