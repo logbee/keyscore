@@ -37,21 +37,7 @@ const initialState: FilterState = {
     },
     extractFinish: false,
     resultAvailable: false,
-    datasets: [{
-        metaData: "",
-        records: [
-            {
-                id: "b8f4e010-dbe5-40ae-bd2c-b73a953da100",
-                payload: {
-                    message: {
-                        jsonClass: "TextField",
-                        name: "message",
-                        value: "The weather is cloudy with a current temperature of: -11.5 C"
-                    }
-                }
-            }
-        ]
-    }],
+    datasets: [],
     currentExampleDataset: {
         metaData: "",
         records: [

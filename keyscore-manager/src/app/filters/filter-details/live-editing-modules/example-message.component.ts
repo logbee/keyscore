@@ -20,12 +20,15 @@ import {PipelineConfiguration} from "../../../models/pipeline-model/PipelineConf
                                 <img width="25em" src="/assets/images/chevron-left.svg"/>
                             </span>
                         </div>
+                        <div *ngIf="false; else noData">
                         <div class="col-sm-10 mb-2" *ngIf="(extractFinish$ | async); else loading">
                             <dataset-visualizer [dataset]="extractedDatasets[count]">
                             </dataset-visualizer>
                         </div>
+                        </div>
                         <div class="col-sm-1"><span class="float-right" (click)="goRight()">
-                            <img width="25em" src="/assets/images/chevron-right.svg"/></span></div>
+                            <img width="25em" src="/assets/images/chevron-right.svg"/></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -33,6 +36,12 @@ import {PipelineConfiguration} from "../../../models/pipeline-model/PipelineConf
         <ng-template #loading>
             <div class="col-sm-10 mb-2" align="center">
                 <loading></loading>
+            </div>
+        </ng-template>
+        
+        <ng-template #noData>
+            <div class="col-sm-10" align="center">
+                <h4>{{'FILTERLIVEEDITINGCOMPONENT.NODATA' | translate}}</h4>
             </div>
         </ng-template>
     `
@@ -44,13 +53,16 @@ export class ExampleMessageComponent implements  OnInit {
     private extractFinish$: Observable<boolean>;
     private count: number;
     private isReady$: Observable<boolean>;
-    private length: number;
+    private noDataAvailable: boolean = false;
 
     constructor(private store: Store<any>) {
         this.isReady$ = this.store.select(getExtractFinish);
         this.extractFinish$ = this.store.select(getExtractFinish);
     }
     public ngOnInit(): void {
+        if (this.extractedDatasets.length == 0) {
+            this.noDataAvailable = true;
+        }
         this.count = 0;
     }
     private  goLeft() {

@@ -8,7 +8,7 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
         <div class="card">
             <div class="card-header font-weight-bold d-flex justify-content-between"
                  style="background-color: #3a88b3; color: white">
-                <h4>{{currentFilter.descriptor.displayName}}</h4>
+                <h4>{{currentFilter?.descriptor.displayName}}</h4>
             </div>
             <div class="card-body">
                 <div class="row">
