@@ -2,6 +2,8 @@ import {Component, EventEmitter, OnInit, Output} from "@angular/core";
 import {FormGroup, FormBuilder, Validators, FormControl} from "@angular/forms";
 import {s} from "@angular/core/src/render3";
 import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
+import {Store} from "@ngrx/store";
+import {selectLiveEditingFilter} from "../../filter.reducer";
 
 @Component({
     selector: "pattern",
@@ -60,10 +62,13 @@ export class PatternComponent implements OnInit {
     private currentRegex: string;
     private fieldNameList: string[] = [];
     private fieldName: string;
+    private newConfiguration: FilterConfiguration;
 
+    constructor(private store: Store<any>) {
+    }
     public applyConfiguration() {
-        // TODO: create Filterconfiguration with the new set Parameters
-        this.apply.emit();
+        this.store.select(selectLiveEditingFilter).subscribe((filter) => this.newConfiguration = filter);
+        this.apply.emit(this.newConfiguration);
     }
 
     public ngOnInit(): void {
@@ -80,11 +85,9 @@ export class PatternComponent implements OnInit {
             this.fieldNameList.push(this.fieldName);
             this.fieldNameControl.setValue("");
         }
-        console.log(this.fieldNameList.length);
     }
 
     private removefromfieldNameList(pos: number) {
         this.fieldNameList = this.fieldNameList.filter((element) => element !== this.fieldNameList[pos]);
-        console.log(this.fieldNameList.length);
     }
 }

@@ -130,6 +130,13 @@
         "connectionType": []
       },
       "parameters": [{
+        "jsonClass": "BooleanParameterDescriptor",
+        "name": "isPaused",
+        "displayName": "ist pausiert",
+        "description": "zeigt an ob der Filter aktiv ist oder nicht",
+        "mandatory": true,
+        "value": false
+      }, {
         "jsonClass": "ListParameterDescriptor",
         "name": "fieldNames",
         "displayName": "fieldNames",
@@ -158,6 +165,10 @@
       "category": "Filter"
     },
     "parameters": [{
+      "name": "isPaused",
+      "value": false,
+      "jsonClass": "BooleanParameter"
+    }, {
       "name": "fieldNames",
       "value": ["fooBaar"],
       "jsonClass": "TextListParameter"

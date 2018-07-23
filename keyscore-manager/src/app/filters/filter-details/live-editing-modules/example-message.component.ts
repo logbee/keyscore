@@ -1,31 +1,35 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
-import {getExtractFinish} from "../../filter.reducer";
+import {selectExtractFinish} from "../../filter.reducer";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
-import {PipelineConfiguration} from "../../../models/pipeline-model/PipelineConfiguration";
 
 @Component({
     selector: "example-message",
     template: `
         <div class="card mt-3">
             <div class="card-header alert-light font-weight-bold" style="color: black;">
-                {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}
+                <div class="row">
+                    <div class="col-sm-1">
+                        {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}
+                    </div>
+                    <div class="col-sm-2">
+                        <span class="mr-1" (click)="goLeft()">
+                            <img width="18em" src="/assets/images/chevron-left.svg"/>
+                        </span>
+                        <span (click)="goRight()">
+                            <img width="18em" src="/assets/images/chevron-right.svg"/>
+                        </span>
+                    </div>
+                    <div class="col-sm-9"></div>
+                </div>
             </div>
             <div class="card-body">
                 <div class="ml-3">
                     <div class="row" *ngIf="(noDataAvailable); else noData">
-                        <div class="col-sm-1">
-                            <span class="float-left chevron" (click)="goLeft()">
-                                <img width="25em" src="/assets/images/chevron-left.svg"/>
-                            </span>
-                        </div>
-                            <div class="col-sm-10 mb-2" *ngIf="(extractFinish$ | async); else loading">
-                                <dataset-visualizer [dataset]="extractedDatasets[count]">
-                                </dataset-visualizer>
-                            </div>
-                        <div class="col-sm-1"><span class="float-right" (click)="goRight()">
-                            <img width="25em" src="/assets/images/chevron-right.svg"/></span>
+                        <div class="col-sm-12 mb-2" *ngIf="(extractFinish$ | async); else loading">
+                            <dataset-visualizer [dataset]="extractedDatasets[count]">
+                            </dataset-visualizer>
                         </div>
                     </div>
                 </div>
@@ -54,12 +58,12 @@ export class ExampleMessageComponent implements OnInit {
     private noDataAvailable: boolean = false;
 
     constructor(private store: Store<any>) {
-        this.isReady$ = this.store.select(getExtractFinish);
-        this.extractFinish$ = this.store.select(getExtractFinish);
+        this.isReady$ = this.store.select(selectExtractFinish);
+        this.extractFinish$ = this.store.select(selectExtractFinish);
     }
 
     public ngOnInit(): void {
-        if (this.extractedDatasets.length == 0) {
+        if (this.extractedDatasets.length === 0) {
             this.noDataAvailable = true;
         }
         this.count = 0;

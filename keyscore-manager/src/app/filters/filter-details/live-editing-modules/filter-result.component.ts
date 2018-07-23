@@ -1,7 +1,7 @@
 import {Component, Input} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
-import {getResultAvailable} from "../../filter.reducer";
+import {selectResultAvailable} from "../../filter.reducer";
 
 @Component({
     selector: "filter-result",
@@ -31,6 +31,6 @@ export class FilterResultComponent {
     private loading$: Observable<boolean>;
 
     constructor(private store: Store<any>) {
-        this.loading$ = this.store.select(getResultAvailable);
+        this.loading$ = this.store.select(selectResultAvailable);
     }
 }

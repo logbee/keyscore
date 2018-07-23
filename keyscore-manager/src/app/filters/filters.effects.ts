@@ -16,13 +16,17 @@ import {
     EXTRACT_DATASETS,
     ExtractDatasetsAction,
     ExtractDatasetsFailure,
-    ExtractDatasetsSuccess, InitializeLiveEditingDataAction, INITIALIZE_LIVE_EDITING_DATA,
+    ExtractDatasetsSuccess,
+    InitializeLiveEditingDataAction,
+    INITIALIZE_LIVE_EDITING_DATA,
     INSERT_DATASETS,
     InsertDatasetsAction,
     InsertDatasetsFailure,
     InsertDatasetsSuccess,
     LOAD_FILTERSTATE,
-    LOAD_LIVE_EDITING_FILTER, LOAD_LIVE_EDITING_FILTER_FAILURE, LOAD_LIVE_EDITING_FILTER_SUCCESS,
+    LOAD_LIVE_EDITING_FILTER,
+    LOAD_LIVE_EDITING_FILTER_FAILURE,
+    LOAD_LIVE_EDITING_FILTER_SUCCESS,
     LoadFilterStateAction,
     LoadFilterStateFailure,
     LoadFilterStateSuccess,
@@ -32,13 +36,18 @@ import {
     PAUSE_FILTER,
     PauseFilterAction,
     PauseFilterFailure,
-    PauseFilterSuccess
+    PauseFilterSuccess,
+    RECONFIGURE_FILTER_ACTION,
+    ReconfigureFilterAction,
+    ReconfigureFilterFailure,
+    ReconfigureFilterSuccess
 } from "./filters.actions";
 import {combineLatest} from "rxjs/operators";
 import {selectAppConfig} from "../app.config";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
+import {state} from "@angular/animations";
 @Injectable()
 export class FilterEffects {
     @Effect()
@@ -131,7 +140,8 @@ export class FilterEffects {
         map((action) => (action as InsertDatasetsAction)),
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
-            return this.http.put(appconfig + "/filter/" + action.filterId + "/insert", action.datasets, {
+            return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
+                "/filter/" + action.filterId + "/insert", action.datasets, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "json"
             }).pipe(
@@ -152,6 +162,23 @@ export class FilterEffects {
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
         }),
+    );
+    @Effect()
+    public reconfigureFilter: Observable<Action> = this.actions$.pipe(
+        ofType(RECONFIGURE_FILTER_ACTION),
+        map((action) => (action as ReconfigureFilterAction)),
+        combineLatest(this.store.select(selectAppConfig)),
+        switchMap(([action, appconfig]) => {
+            return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
+                "/filter/" + action.filterId + "/config", {
+                headers: new HttpHeaders().set("Content-Type", "application/json"),
+                responseType: "json"
+            }).pipe(
+                map((state: FilterInstanceState) => new ReconfigureFilterSuccess(state)),
+                catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
+        )
+            ;
+        })
     );
 
     constructor(private store: Store<AppState>,

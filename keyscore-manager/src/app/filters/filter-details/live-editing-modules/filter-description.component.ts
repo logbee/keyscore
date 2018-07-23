@@ -16,7 +16,7 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
                 </div>
                 <div class="row ml-3 mb-1">
                     <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}: </strong>
-                    <strong> {{currentFilter?.descriptor.category}}</strong>
+                    <strong class="ml-1"> {{currentFilter?.descriptor.category}}</strong>
                 </div>
                 <div class="row ml-3 mb-1">
                     <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}

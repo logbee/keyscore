@@ -8,14 +8,12 @@ import {selectAppConfig} from "../../app.config";
 import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
 import {
-    getExtractedDatasets, getExtractFinish, getFilterId,
-    getLiveEditingFilter,
-    getLiveEditingFilterState
+    selectExtractedDatasets, selectExtractFinish, getFilterId,
+    selectLiveEditingFilter,
+    selectLiveEditingFilterState
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
-import {DeletePipelineAction} from "../../pipelines/pipelines.actions";
-import {LockCurrentExampleDatasetAction} from "../filters.actions";
-import {s, st} from "@angular/core/src/render3";
+import {LockCurrentExampleDatasetAction, ReconfigureFilterAction} from "../filters.actions";
 
 @Component({
     selector: "live-editing",
@@ -34,14 +32,15 @@ import {s, st} from "@angular/core/src/render3";
                     <example-message [extractedDatasets]="extractedDatasets$ | async"
                                      (currentExampleDataset)="lockCurrentExampleDataset($event)">
                     </example-message>
-                    <pattern></pattern>
+                    <pattern (apply)="reconfigureFilter($event)"></pattern>
                     <filter-result></filter-result>
                 </div>
             </div>
         </div>
         <div class="col-12">
             <error-component *ngIf="errorHandling" [httpError]="httpError"
-                             [message]="message"></error-component>
+                             [message]="message">
+            </error-component>
         </div>
         <ng-template #loading>
             <loading-full-view></loading-full-view>
@@ -61,6 +60,7 @@ export class LiveEditingComponent implements OnInit {
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
     private extractedDatasets$: Observable<Dataset[]>;
+
     constructor(private store: Store<any>, private translate: TranslateService) {
         const config = this.store.select(selectAppConfig);
         config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
@@ -68,11 +68,11 @@ export class LiveEditingComponent implements OnInit {
         if (!this.liveEditingFlag) {
             this.triggerErrorComponent("999");
         }  else {
-            this.filterState$ = this.store.select(getLiveEditingFilterState);
-            this.filter$ = this.store.select(getLiveEditingFilter);
+            this.filterState$ = this.store.select(selectLiveEditingFilterState);
+            this.filter$ = this.store.select(selectLiveEditingFilter);
             this.error$ = this.store.select(errorState);
             this.loading$ = this.store.select(isSpinnerShowing);
-            this.extractedDatasets$ = this.store.select(getExtractedDatasets);
+            this.extractedDatasets$ = this.store.select(selectExtractedDatasets);
         }
     }
 
@@ -84,6 +84,9 @@ export class LiveEditingComponent implements OnInit {
         this.store.dispatch(new LockCurrentExampleDatasetAction(dataset));
     }
 
+    public reconfigureFilter(configuration: FilterConfiguration) {
+        this.store.dispatch(new ReconfigureFilterAction(configuration.id, configuration));
+    }
     private triggerErrorComponent(httpError: string) {
         switch (httpError.toString()) {
             case "404": {
@@ -115,4 +118,3 @@ export class LiveEditingComponent implements OnInit {
         }
     }
 }
-

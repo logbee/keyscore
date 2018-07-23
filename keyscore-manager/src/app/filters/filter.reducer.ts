@@ -5,7 +5,7 @@ import {
     LOAD_FILTERSTATE_SUCCESS,
     LOAD_LIVE_EDITING_FILTER_SUCCESS,
     LOCK_CURRENT_EXAMPLE_DATASET,
-    PAUSE_FILTER_SUCCESS
+    PAUSE_FILTER_SUCCESS, RECONFIGURE_FILTER_SUCCESS
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
@@ -80,6 +80,7 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             break;
         case LOCK_CURRENT_EXAMPLE_DATASET:
             result.currentExampleDataset = action.dataset;
+            break;
     }
     return result;
 }
@@ -94,12 +95,12 @@ export const getFilterState = createFeatureSelector<FilterState>(
 export const getFilterId = createSelector(getFilterState,
     (state: FilterState) => state.filter.id);
 
-export const getLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
+export const selectLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
 
-export const getLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
+export const selectLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
 
-export const getExtractedDatasets = createSelector(getFilterState, (state: FilterState) => state.datasets);
+export const selectExtractedDatasets = createSelector(getFilterState, (state: FilterState) => state.datasets);
 
-export const getExtractFinish = createSelector(getFilterState, extractFinish);
+export const selectExtractFinish = createSelector(getFilterState, extractFinish);
 
-export const getResultAvailable = createSelector(getFilterState, resultAvailable);
+export const selectResultAvailable = createSelector(getFilterState, resultAvailable);
