@@ -12,43 +12,35 @@ import {FilterConfiguration} from "../../../models/filter-model/FilterConfigurat
             </div>
             <div class="card-body">
                 <div class="row mb-3">
-                    <div class="col-sm-2">
-                        <strong>{{'FILTERLIVEEDITINGCOMPONENT.PAUSED' | translate}}</strong>
-                    </div>
-                    <div class="col-sm-8" align="left">
-                        <input type="checkbox" class="checkbox" [formControl]="isPausedControl"/>
-                    </div>
-                </div>
-                <div class="row mb-3">
                     <div class="col-sm-12">
                         <strong>{{'FILTERLIVEEDITINGCOMPONENT.FIELDNAMES' | translate}}:</strong>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-sm-4">
-                        <input class="form-control" [formControl]="fieldNameControl" type="text" placeholder="{{'FILTERLIVEEDITINGCOMPONENT.FIELDNAMES' | translate}}"/>
+                        <input class="form-control" [formControl]="fieldNameControl" type="text"
+                               (keydown.enter)="addField()"
+                               placeholder="{{'FILTERLIVEEDITINGCOMPONENT.FIELDNAMES' | translate}}"/>
                     </div>
                     <div class="col-sm-8">
                         <button class="btn btn-success" (click)="addField()">+</button>
-                    </div>
+                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-3 ml-2">
                     <div class="col-sm-12">
-                        <!--DummyCode-->
-                        <span class="mr-2" style="background-color: #2a5263">
-                        <small style=" color: white;"> test x </small>
-                        </span>
-                        <span class="mr-2" style="background-color: #369db4">
-                        <small style=" color: white;"> name x </small>
-                        </span>
-                        <span class="mr-2" style="background-color: #325d83">
-                        <small style=" color: white;"> name x </small>
-                        </span>
+                        <div *ngFor="let element of fieldNameList let i = index " style="float: left">
+                               <span class="tag">
+                                    <small>{{element }}
+                                        <span class="removeX" (click)="removefromfieldNameList(i)">x</span>
+                                    </small>
+                               </span>
+                        </div>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-12">
-                        <input type="text" [formControl]="patternControl" class="form-control input-group input-group-lg"
+                        <input type="text" [formControl]="patternControl"
+                               class="form-control input-group input-group-lg"
                                placeholder="{{'FILTERLIVEEDITINGCOMPONENT.REGEX_PLACEHOLDER' | translate}}"/>
                     </div>
                 </div>
@@ -63,36 +55,36 @@ import {FilterConfiguration} from "../../../models/filter-model/FilterConfigurat
 
 export class PatternComponent implements OnInit {
     @Output() public apply: EventEmitter<FilterConfiguration> = new EventEmitter();
+    public patternControl = new FormControl();
+    public fieldNameControl = new FormControl();
     private currentRegex: string;
-    private isPaused: boolean;
-    private fieldnameList: string[] = [];
+    private fieldNameList: string[] = [];
     private fieldName: string;
-    patternControl = new FormControl();
-    isPausedControl = new FormControl();
-    fieldNameControl = new FormControl();
 
     public applyConfiguration() {
-        //TODO: create Filterconfiguration with the new set Parameters
+        // TODO: create Filterconfiguration with the new set Parameters
         this.apply.emit();
     }
 
-    ngOnInit(): void {
-        this.patternControl.valueChanges.subscribe(value => {
+    public ngOnInit(): void {
+        this.patternControl.valueChanges.subscribe((value) => {
             this.currentRegex = value;
         });
-
-        this.isPausedControl.valueChanges.subscribe(value => {
-            this.isPaused = value;
-        });
-
-        this.fieldNameControl.valueChanges.subscribe(value => {
+        this.fieldNameControl.valueChanges.subscribe((value) => {
             this.fieldName = value;
         });
     }
 
     private addField() {
-        this.fieldnameList.push(this.fieldName);
-        this.fieldNameControl.setValue("");
+        if (this.fieldName !== "") {
+            this.fieldNameList.push(this.fieldName);
+            this.fieldNameControl.setValue("");
+        }
+        console.log(this.fieldNameList.length);
     }
 
+    private removefromfieldNameList(pos: number) {
+        this.fieldNameList = this.fieldNameList.filter((element) => element !== this.fieldNameList[pos]);
+        console.log(this.fieldNameList.length);
+    }
 }

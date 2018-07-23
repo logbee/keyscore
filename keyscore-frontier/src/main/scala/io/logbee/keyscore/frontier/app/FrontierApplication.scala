@@ -90,7 +90,6 @@ object FrontierApplication extends App with Json4sSupport {
           } ~
           put {
             entity(as[PipelineConfiguration]) { pipeline =>
-              println(pipeline)
               pipelineManager ! PipelineManager.CreatePipeline(pipeline)
               complete(StatusCodes.Created)
             }

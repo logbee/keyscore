@@ -11,23 +11,26 @@ import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceSt
                 <h4>{{currentFilter?.descriptor.displayName}}</h4>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-11">
-                        <div>
-                            <strong>{{currentFilter?.descriptor.description}}</strong>
-                        </div>
-                    </div>
-                    <div class="col-1 text-right">
-                        <status-light [status]="currentFilterState?.status"></status-light>
-                    </div>
+                <div class="row ml-3 mb-1">
+                        <small class="text-primary">{{currentFilter?.descriptor.description}}</small>
                 </div>
-                <div>
+                <div class="row ml-3 mb-1">
                     <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}: </strong>
                     <strong> {{currentFilter?.descriptor.category}}</strong>
                 </div>
-                <div class="mt-1">
-                    <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}: </strong>
-                    <strong>{{currentFilterState?.throughPutTime}}</strong>
+                <div class="row ml-3 mb-1">
+                    <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}
+                        {{currentFilter?.descriptor.displayName}}:</strong>
+                    <strong class="ml-1"> {{currentFilterState?.throughPutTime / 1000000}}
+                        <small class="text-info"> ms</small>
+                    </strong>
+                </div>
+                <div class="row ml-3 mb-1">
+                    <strong class="text-muted">{{'FILTERLIVEEDITINGCOMPONENT.TOTALTHROUGHPUTTIME' | translate}}
+                        {{currentFilter?.descriptor.displayName}}: </strong>
+                    <strong class="ml-1"> {{currentFilterState?.totalThroughputTime / 1000000}}
+                        <small class="text-info"> ms</small>
+                    </strong>
                 </div>
 
             </div>
@@ -39,5 +42,8 @@ export class FilterDescriptionComponent {
 
     @Input() public currentFilter: FilterConfiguration;
     @Input() public currentFilterState: FilterInstanceState;
+
+    constructor() {
+    }
 
 }

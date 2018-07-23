@@ -25,7 +25,6 @@ import {getPipelineList, PipelinesState} from "./pipelines.reducer";
                                 {{'PIPELINECOMPONENT.CREATE' | translate}}
                             </button>
                         </div>
-
                         <div class="col-1">
                             <refresh-time [refreshTime]="refreshTime$|async"
                                           (update)="updateRefreshTime($event)"></refresh-time>
