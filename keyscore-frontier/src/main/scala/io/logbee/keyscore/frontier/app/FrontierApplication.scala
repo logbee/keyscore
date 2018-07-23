@@ -185,7 +185,7 @@ object FrontierApplication extends App with Json4sSupport {
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
-              }
+              } ~
               get {
                 onSuccess(pipelineManager ? RequestExistingConfigurations()) {
                   case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {

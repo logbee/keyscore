@@ -1,0 +1,64 @@
+  {
+    "id": "eb829e66-0053-40d3-bd43-51df2bf3416e",
+    "descriptor": {
+      "id": "8912a691-e982-4680-8fc7-fea6803fcef0",
+      "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic",
+      "displayName": "Grok Filter",
+      "description": "Extrahiert Teile einer  Nachricht in einzelne/eigene Felder",
+      "previousConnection": {
+        "isPermitted": true,
+        "connectionType": []
+      },
+      "nextConnection": {
+        "isPermitted": true,
+        "connectionType": []
+      },
+      "parameters": [
+        {
+          "jsonClass": "ListParameterDescriptor",
+          "name": "fieldNames",
+          "displayName": "fieldNames",
+          "description": "",
+          "mandatory": true,
+          "element": {
+            "jsonClass": "TextParameterDescriptor",
+            "name": "field",
+            "displayName": "tbd",
+            "description": "tbd",
+            "mandatory": true,
+            "validator": ".*"
+          },
+          "min": 1,
+          "max": 2147483647,
+          "value": [
+            "fooBaar"
+          ]
+        },
+        {
+          "jsonClass": "TextParameterDescriptor",
+          "name": "pattern",
+          "displayName": "pattern das fÃ¼r die Extraktion verwendet wird.",
+          "description": "das Pattern beschreibt wie genau die Extraktion der Felder aussieht.",
+          "mandatory": true,
+          "validator": ".*",
+          "value": ""
+        }
+      ],
+      "category": "Filter"
+    },
+    "parameters": [
+      {
+        "name": "fieldNames",
+        "value": [
+          "foo",
+          "baar"
+        ],
+        "jsonClass": "TextListParameter"
+      },
+      {
+        "name": "pattern",
+        "value": "test",
+        "jsonClass": "TextParameter"
+      }
+    ]
+  }
