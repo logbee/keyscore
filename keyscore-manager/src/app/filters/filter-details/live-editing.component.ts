@@ -32,7 +32,9 @@ import {LockCurrentExampleDatasetAction, ReconfigureFilterAction} from "../filte
                     <example-message [extractedDatasets]="extractedDatasets$ | async"
                                      (currentExampleDataset)="lockCurrentExampleDataset($event)">
                     </example-message>
-                    <pattern (apply)="reconfigureFilter($event)"></pattern>
+                    <filter-configuration [parameters]="(filter$ | async)?.descriptor.parameters"
+                                          [filter]="filter$ | async"
+                                          (apply)="reconfigureFilter($event)"></filter-configuration>
                     <filter-result></filter-result>
                 </div>
             </div>
@@ -84,8 +86,7 @@ export class LiveEditingComponent implements OnInit {
         this.store.dispatch(new LockCurrentExampleDatasetAction(dataset));
     }
 
-    public reconfigureFilter(configuration: FilterConfiguration) {
-        this.store.dispatch(new ReconfigureFilterAction(configuration.id, configuration));
+    public reconfigureFilter(update: { filterConfiguration: FilterConfiguration, values: any }) {
     }
     private triggerErrorComponent(httpError: string) {
         switch (httpError.toString()) {

@@ -13,12 +13,16 @@ import {HealthModule} from "../common/health/health.module";
 import {AlertModule} from "../common/alert/alert.module";
 import {FilterDescriptionComponent} from "./filter-details/live-editing-modules/filter-description.component";
 import {ExampleMessageComponent} from "./filter-details/live-editing-modules/example-message.component";
-import {PatternComponent} from "./filter-details/live-editing-modules/pattern.component";
+import {FilterConfigurationComponent} from "./filter-details/live-editing-modules/filter-configuration.component";
 import {FilterResultComponent} from "./filter-details/live-editing-modules/filter-result.component";
 import {StatuslightComponent} from "../common/health/statuslight.component";
 import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
 import {DatasetVisualizer} from "./filter-details/live-editing-modules/DatasetVisualizer";
+import {ParameterControlService} from "../services/parameter-control.service";
+import {ParameterMap} from "../pipelines/pipeline-editor/filter-editor/parameter-map.component";
+import {ParameterComponent} from "../pipelines/pipeline-editor/filter-editor/parameter.component";
+import {ParameterList} from "../pipelines/pipeline-editor/filter-editor/parameter-list.component";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -41,14 +45,17 @@ export const routes: Routes = [
     declarations: [
         FilterDescriptionComponent,
         ExampleMessageComponent,
-        PatternComponent,
+        FilterConfigurationComponent,
         FilterResultComponent,
         StatuslightComponent,
         LiveEditingComponent,
-        DatasetVisualizer
+        DatasetVisualizer,
+        ParameterList,
+        ParameterMap,
+        ParameterComponent
     ]
     ,
-    providers: [],
+    providers: [ParameterControlService],
 })
 export class LiveEditingModule {
 }

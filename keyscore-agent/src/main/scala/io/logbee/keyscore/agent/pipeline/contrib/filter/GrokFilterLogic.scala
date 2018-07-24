@@ -36,7 +36,6 @@ object GrokFilterLogic extends Described {
       previousConnection = FilterConnection(isPermitted = true),
       nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
-        BooleanParameterDescriptor("isPaused", translatedText.getString("displayNameBoolean"), translatedText.getString("descriptionBoolean")),
         ListParameterDescriptor("fieldNames", translatedText.getString("fieldNames"), translatedText.getString("fieldNamesDescription"),
           TextParameterDescriptor("field", translatedText.getString("fieldKeyNameHeader"), translatedText.getString("fieldKeyDescriptionHeader"))),
         TextParameterDescriptor("pattern", translatedText.getString("patternKeyNameHeader"), translatedText.getString("patternKeyDescriptionHeader"))

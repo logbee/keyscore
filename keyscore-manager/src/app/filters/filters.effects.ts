@@ -48,6 +48,7 @@ import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
 import {state} from "@angular/animations";
+import {selectLiveEditingFilter} from "./filter.reducer";
 @Injectable()
 export class FilterEffects {
     @Effect()
@@ -170,7 +171,7 @@ export class FilterEffects {
         combineLatest(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/config", {
+                "/filter/" + action.filterId + "/config", action.configuration, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "json"
             }).pipe(
@@ -178,6 +179,21 @@ export class FilterEffects {
                 catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
         )
             ;
+        })
+    );
+
+    @Effect()
+    public updateFilterTest: Observable<Action> = this.store.select(selectLiveEditingFilter).pipe(
+        combineLatest(this.store.select(selectAppConfig)),
+        switchMap(([filterConfiguration, appconfig]) => {
+            return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
+                "/filter/" + filterConfiguration.id + "/config", filterConfiguration, {
+                headers: new HttpHeaders().set("Content-Type", "application/json"),
+                responseType: "json"
+            }).pipe(
+                map((state: FilterInstanceState) => new ReconfigureFilterSuccess(state)),
+                catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
+            );
         })
     );
 

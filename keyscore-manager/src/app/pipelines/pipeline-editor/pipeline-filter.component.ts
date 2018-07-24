@@ -58,7 +58,6 @@ import {InternalPipelineConfiguration} from "../../models/pipeline-model/Interna
                     </div>
                 </div>
                 <form *ngIf="editing" class="form-horizontal col-12 mt-3" [formGroup]="form">
-
                     <div *ngFor="let parameter of parameters" class="form-row">
                         <app-parameter class="col-12" [parameterDescriptor]="parameter" [form]="form"></app-parameter>
                     </div>
