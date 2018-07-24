@@ -25,8 +25,14 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
     private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[FilterState])] {
       case (newConfiguration, promise) =>
         FilterLogic.this.configure(newConfiguration)
+        try {
         promise.success(FilterLogic.this.state())
         log.info(s"Configuration has been updated: $newConfiguration")
+        } catch {
+          case e: Throwable =>
+            promise.failure(e)
+            log.error(e,"Configuration could not be updated!")
+        }
     }
 
     private val stateCallback = getAsyncCallback[Promise[FilterState]]({ promise =>

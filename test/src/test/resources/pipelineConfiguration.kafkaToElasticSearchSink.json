@@ -77,7 +77,7 @@
       },
       {
         "name": "topic",
-        "value": "TopicB",
+        "value": "TopicC",
         "jsonClass": "TextParameter"
       }
     ]

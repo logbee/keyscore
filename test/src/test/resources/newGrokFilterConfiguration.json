@@ -1,5 +1,5 @@
 {
-  "id": "eb829e66-0053-40d3-bd43-51df2bf3416e",
+  "id": "e9fc89bc-689b-4d9f-b0cc-097593d0c08f",
   "descriptor": {
     "id": "8912a691-e982-4680-8fc7-fea6803fcef0",
     "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic",
@@ -13,52 +13,64 @@
       "isPermitted": true,
       "connectionType": []
     },
-    "parameters": [{
-      "jsonClass": "BooleanParameterDescriptor",
-      "name": "isPaused",
-      "displayName": "ist pausiert",
-      "description": "zeigt an ob der Filter aktiv ist oder nicht",
-      "mandatory": true,
-      "value": false
-    }, {
-      "jsonClass": "ListParameterDescriptor",
-      "name": "fieldNames",
-      "displayName": "fieldNames",
-      "description": "",
-      "mandatory": true,
-      "element": {
-        "jsonClass": "TextParameterDescriptor",
-        "name": "field",
-        "displayName": "tbd",
-        "description": "tbd",
+    "parameters": [
+      {
+        "jsonClass": "BooleanParameterDescriptor",
+        "name": "isPaused",
+        "displayName": "ist pausiert",
+        "description": "zeigt an ob der Filter aktiv ist oder nicht",
         "mandatory": true,
-        "validator": ".*"
+        "value": false
       },
-      "min": 1,
-      "max": 2147483647,
-      "value": ["fooBaar"]
-    }, {
-      "jsonClass": "TextParameterDescriptor",
-      "name": "pattern",
-      "displayName": "pattern das fÃ¼r die Extraktion verwendet wird.",
-      "description": "das Pattern beschreibt wie genau die Extraktion der Felder aussieht.",
-      "mandatory": true,
-      "validator": ".*",
-      "value": ""
-    }],
+      {
+        "jsonClass": "ListParameterDescriptor",
+        "name": "fieldNames",
+        "displayName": "fieldNames",
+        "description": "",
+        "mandatory": true,
+        "element": {
+          "jsonClass": "TextParameterDescriptor",
+          "name": "field",
+          "displayName": "tbd",
+          "description": "tbd",
+          "mandatory": true,
+          "validator": ".*"
+        },
+        "min": 1,
+        "max": 2147483647,
+        "value": [
+          "test"
+        ]
+      },
+      {
+        "jsonClass": "TextParameterDescriptor",
+        "name": "pattern",
+        "displayName": "pattern das fÃ¼r die Extraktion verwendet wird.",
+        "description": "das Pattern beschreibt wie genau die Extraktion der Felder aussieht.",
+        "mandatory": true,
+        "validator": ".*",
+        "value": ""
+      }
+    ],
     "category": "Filter"
   },
-  "parameters": [{
-    "name": "isPaused",
-    "value": false,
-    "jsonClass": "BooleanParameter"
-  }, {
-    "name": "fieldNames",
-    "value": ["fooBaar"],
-    "jsonClass": "TextListParameter"
-  }, {
-    "name": "pattern",
-    "value": "",
-    "jsonClass": "TextParameter"
-  }]
+  "parameters": [
+    {
+      "name": "isPaused",
+      "value": false,
+      "jsonClass": "BooleanParameter"
+    },
+    {
+      "name": "fieldNames",
+      "value": [
+        "test"
+      ],
+      "jsonClass": "TextListParameter"
+    },
+    {
+      "name": "pattern",
+      "value": ".+",
+      "jsonClass": "TextParameter"
+    }
+  ]
 }

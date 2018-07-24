@@ -36,6 +36,7 @@ object GrokFilterLogic extends Described {
       previousConnection = FilterConnection(isPermitted = true),
       nextConnection = FilterConnection(isPermitted = true),
       parameters = List(
+        BooleanParameterDescriptor("isPaused", translatedText.getString("displayNameBoolean"), translatedText.getString("descriptionBoolean")),
         ListParameterDescriptor("fieldNames", translatedText.getString("fieldNames"), translatedText.getString("fieldNamesDescription"),
           TextParameterDescriptor("field", translatedText.getString("fieldKeyNameHeader"), translatedText.getString("fieldKeyDescriptionHeader"))),
         TextParameterDescriptor("pattern", translatedText.getString("patternKeyNameHeader"), translatedText.getString("patternKeyDescriptionHeader"))
@@ -53,8 +54,9 @@ class GrokFilterLogic(context: StageContext, configuration: FilterConfiguration,
 
   override def configure(configuration: FilterConfiguration): Unit = {
     configuration.parameters.foreach {
-        case TextListParameter("fieldNames", value) => fieldNames = value
-        case TextParameter("pattern", value) => regex = value.r(GROK_PATTERN.findAllMatchIn(value).map(_.group(1)).toSeq: _*)
+      case TextListParameter("fieldNames", value) => fieldNames = value
+      case TextParameter("pattern", value) => regex = value.r(GROK_PATTERN.findAllMatchIn(value).map(_.group(1)).toSeq: _*)
+      case _ =>
     }
   }
 

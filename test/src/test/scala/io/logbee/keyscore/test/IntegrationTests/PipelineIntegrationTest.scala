@@ -8,16 +8,12 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.agent.pipeline.ExampleData
 import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.model.{filter, _}
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState, Paused, Running}
-import io.logbee.keyscore.model.json4s.{FilterStatusSerializer, HealthSerializer, KeyscoreFormats}
-import org.json4s.ShortTypeHints
-import org.json4s.ext.JavaTypesSerializers
-import org.json4s.native.Serialization
-import org.json4s.native.Serialization.{read, write}
+import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState, Paused}
+import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import org.json4s.native.JsonMethods._
+import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
@@ -69,6 +65,7 @@ class PipelineIntegrationTest extends Matchers {
     println(s"LoggerFilterIdPipelineTwo: ${pipelineTwoFilter.id}")
     println(s"GrokIdPipelineThree: ${pipelineThreeFilter.id}")
     println(s"datasetList: $datasets")
+    println(s"grokfilterConfig $newFilterConfiguration")
 
 
     // Create new KafkaToKafka Pipeline
@@ -345,17 +342,17 @@ class PipelineIntegrationTest extends Matchers {
 
 
 //    // Reconfiguring
-//    runner.http(action => action.client(httpClient)
-//      .send()
-//      .put(s"/filter/${pipelineThreeFilter.id}/config")
-//      .contentType("application/json")
-//      .payload(newFilterConfiguration)
-//    )
-//
-//    runner.http(action => action.client(httpClient)
-//      .receive()
-//      .response(HttpStatus.ACCEPTED)
-//    )
+    runner.http(action => action.client(httpClient)
+      .send()
+      .put(s"/filter/${pipelineThreeFilter.id}/config")
+      .contentType("application/json")
+      .payload(newFilterConfiguration)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
 
     //     Delete Pipelines
 
@@ -385,7 +382,7 @@ class PipelineIntegrationTest extends Matchers {
             val payload = message.getPayload.asInstanceOf[String]
             val instances = read[List[PipelineInstance]](payload)
             instances should have size 2
-            instances.head.id shouldBe kafkaToKafkaPipeLineConfig.id
+            instances.head.id shouldBe kafkaToKafkaWithGrokPipelineConfig.id
           }))
 
         runner.http(action => action.client(httpClient)
