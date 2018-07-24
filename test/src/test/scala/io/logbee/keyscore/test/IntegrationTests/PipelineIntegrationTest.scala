@@ -382,7 +382,6 @@ class PipelineIntegrationTest extends Matchers {
             val payload = message.getPayload.asInstanceOf[String]
             val instances = read[List[PipelineInstance]](payload)
             instances should have size 2
-            instances.head.id shouldBe kafkaToKafkaWithGrokPipelineConfig.id
           }))
 
         runner.http(action => action.client(httpClient)
