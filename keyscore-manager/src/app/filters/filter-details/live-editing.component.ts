@@ -13,7 +13,7 @@ import {
     selectLiveEditingFilterState
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
-import {LockCurrentExampleDatasetAction, ReconfigureFilterAction} from "../filters.actions";
+import {LockCurrentExampleDatasetAction, ReconfigureFilterAction, UpdateFilterConfiguration} from "../filters.actions";
 
 @Component({
     selector: "live-editing",
@@ -87,6 +87,7 @@ export class LiveEditingComponent implements OnInit {
     }
 
     public reconfigureFilter(update: { filterConfiguration: FilterConfiguration, values: any }) {
+        this.store.dispatch(new UpdateFilterConfiguration(update.filterConfiguration, update.values));
     }
     private triggerErrorComponent(httpError: string) {
         switch (httpError.toString()) {

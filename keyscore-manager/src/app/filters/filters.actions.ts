@@ -26,6 +26,7 @@ export const LOCK_CURRENT_EXAMPLE_DATASET = "[Filter] LockCurrentExampleDatasetA
 export const RECONFIGURE_FILTER_ACTION = "[Filter] ReconfigureFilterAction";
 export const RECONFIGURE_FILTER_SUCCESS = "[Filter] ReconfigureFilterSuccess";
 export const RECONFIGURE_FILTER_FAILURE = "[Filter] ReconfigureFilterFailure";
+export const UPDATE_FILTER_CONFIGURATION = "[Filter] UpdateFilterConfiguration";
 export type FiltersActions =
 
     | LoadLiveEditingFilterAction
@@ -50,7 +51,8 @@ export type FiltersActions =
     | LockCurrentExampleDatasetAction
     | ReconfigureFilterAction
     | ReconfigureFilterSuccess
-    | ReconfigureFilterFailure;
+    | ReconfigureFilterFailure
+    | UpdateFilterConfiguration;
 
 export class LoadLiveEditingFilterAction implements Action {
     public readonly type = LOAD_LIVE_EDITING_FILTER;
@@ -193,7 +195,7 @@ export class LockCurrentExampleDatasetAction implements Action {
     }
 }
 
-export class ReconfigureFilterAction  implements  Action {
+export class ReconfigureFilterAction implements Action {
     public readonly type = RECONFIGURE_FILTER_ACTION;
 
     constructor(readonly filterId: string, readonly configuration: FilterConfiguration) {
@@ -211,5 +213,12 @@ export class ReconfigureFilterFailure implements Action {
     public readonly type = RECONFIGURE_FILTER_FAILURE;
 
     constructor(readonly cause: any) {
+    }
+}
+
+export class UpdateFilterConfiguration implements Action {
+    public readonly type = UPDATE_FILTER_CONFIGURATION;
+
+    constructor(readonly filter: FilterConfiguration, readonly values: any) {
     }
 }

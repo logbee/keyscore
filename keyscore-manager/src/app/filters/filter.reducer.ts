@@ -5,19 +5,21 @@ import {
     LOAD_FILTERSTATE_SUCCESS,
     LOAD_LIVE_EDITING_FILTER_SUCCESS,
     LOCK_CURRENT_EXAMPLE_DATASET,
-    PAUSE_FILTER_SUCCESS, RECONFIGURE_FILTER_SUCCESS
+    PAUSE_FILTER_SUCCESS, RECONFIGURE_FILTER_SUCCESS, UPDATE_FILTER_CONFIGURATION
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {FilterStatus} from "../models/filter-model/FilterStatus";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
+import {deepcopy} from "../util";
 
 export class FilterState {
     public filter: FilterConfiguration;
     public filterState: FilterInstanceState;
     public datasets: Dataset[];
     public extractFinish: boolean;
+    public updateConfiguration: boolean;
     public resultAvailable: boolean;
     public currentExampleDataset: Dataset;
 }
@@ -36,6 +38,7 @@ const initialState: FilterState = {
         status: FilterStatus.Unknown
     },
     extractFinish: false,
+    updateConfiguration: false,
     resultAvailable: false,
     datasets: [],
     currentExampleDataset: {
@@ -61,6 +64,7 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
 
     switch (action.type) {
         case LOAD_LIVE_EDITING_FILTER_SUCCESS:
+            result.updateConfiguration = false;
             result.filter = action.filter;
             break;
         case LOAD_FILTERSTATE_SUCCESS:
@@ -81,6 +85,17 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
         case LOCK_CURRENT_EXAMPLE_DATASET:
             result.currentExampleDataset = action.dataset;
             break;
+        case UPDATE_FILTER_CONFIGURATION:
+            result.updateConfiguration = true;
+            result.filter = deepcopy(action.filter);
+            result.filter.parameters.forEach((p) => {
+                if (p.jsonClass === "IntParameter") {
+                    p.value = +action.values[p.name];
+                } else {
+                    p.value = action.values[p.name];
+                }
+            });
+            break;
     }
     return result;
 }
@@ -88,6 +103,8 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
 export const extractFinish = (state: FilterState) => state.extractFinish;
 
 export const resultAvailable = (state: FilterState) => state.resultAvailable;
+
+export const getUpdateConfigurationFlag = (state: FilterState) => state.updateConfiguration;
 
 export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
@@ -104,3 +121,5 @@ export const selectExtractedDatasets = createSelector(getFilterState, (state: Fi
 export const selectExtractFinish = createSelector(getFilterState, extractFinish);
 
 export const selectResultAvailable = createSelector(getFilterState, resultAvailable);
+
+export const selectUpdateConfigurationFlag = createSelector(getFilterState, getUpdateConfigurationFlag);

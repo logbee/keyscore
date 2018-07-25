@@ -3,29 +3,26 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
-import {Action, Store} from "@ngrx/store";
+import {Action, State, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
-import {Observable, of} from "rxjs/index";
-import {catchError, concatMap, map, mergeMap, switchMap} from "rxjs/internal/operators";
+import {Observable, of, combineLatest} from "rxjs/index";
+import {catchError, concatMap, map, mergeMap, switchMap, withLatestFrom} from "rxjs/internal/operators";
 import {AppState} from "../app.component";
 import {
     DRAIN_FILTER,
     DrainFilterAction,
     DrainFilterFailure,
     DrainFilterSuccess,
-    EXTRACT_DATASETS,
-    ExtractDatasetsAction,
     ExtractDatasetsFailure,
     ExtractDatasetsSuccess,
-    InitializeLiveEditingDataAction,
     INITIALIZE_LIVE_EDITING_DATA,
+    InitializeLiveEditingDataAction,
     INSERT_DATASETS,
     InsertDatasetsAction,
     InsertDatasetsFailure,
     InsertDatasetsSuccess,
     LOAD_FILTERSTATE,
     LOAD_LIVE_EDITING_FILTER,
-    LOAD_LIVE_EDITING_FILTER_FAILURE,
     LOAD_LIVE_EDITING_FILTER_SUCCESS,
     LoadFilterStateAction,
     LoadFilterStateFailure,
@@ -42,13 +39,12 @@ import {
     ReconfigureFilterFailure,
     ReconfigureFilterSuccess
 } from "./filters.actions";
-import {combineLatest} from "rxjs/operators";
 import {selectAppConfig} from "../app.config";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
-import {state} from "@angular/animations";
-import {selectLiveEditingFilter} from "./filter.reducer";
+import {selectLiveEditingFilter, selectUpdateConfigurationFlag} from "./filter.reducer";
+
 @Injectable()
 export class FilterEffects {
     @Effect()
@@ -82,7 +78,7 @@ export class FilterEffects {
     public loadFilterConfiguration$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_LIVE_EDITING_FILTER),
         map((action) => (action as LoadLiveEditingFilterAction)),
-        combineLatest(this.store.select(selectAppConfig)),
+        withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/config").pipe(
@@ -95,7 +91,7 @@ export class FilterEffects {
     public loadFilterState$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_FILTERSTATE),
         map((action) => (action as LoadFilterStateAction)),
-        combineLatest(this.store.select(selectAppConfig)),
+        withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/state").pipe(
@@ -107,7 +103,7 @@ export class FilterEffects {
     public pauseFilter$: Observable<Action> = this.actions$.pipe(
         ofType(PAUSE_FILTER),
         map((action) => (action as PauseFilterAction)),
-        combineLatest(this.store.select(selectAppConfig)),
+        withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.post(appconfig.getString("keyscore.frontier.base-url") + "/filter/" +
                 action.filterId + "/pause?value=" + action.pause, {}, {
@@ -123,7 +119,7 @@ export class FilterEffects {
     public drainFilter$: Observable<Action> = this.actions$.pipe(
         ofType(DRAIN_FILTER),
         map((action) => (action as DrainFilterAction)),
-        combineLatest(this.store.select(selectAppConfig)),
+        withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.post(appconfig.getString("keyscore.frontier.base-url") + "/filter/" + action.filterId +
                 "/drain?value=" + action.drain, {}, {
@@ -139,7 +135,7 @@ export class FilterEffects {
     public insertDatasets: Observable<Action> = this.actions$.pipe(
         ofType(INSERT_DATASETS),
         map((action) => (action as InsertDatasetsAction)),
-        combineLatest(this.store.select(selectAppConfig)),
+        withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/insert", action.datasets, {
@@ -155,7 +151,7 @@ export class FilterEffects {
     public extractDatasets: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_LIVE_EDITING_FILTER_SUCCESS),
         map((action) => (action as LoadLiveEditingFilterSuccess)),
-        combineLatest(this.store.select(selectAppConfig)),
+        withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/extract?value=10").pipe(
@@ -164,36 +160,25 @@ export class FilterEffects {
             );
         }),
     );
-    @Effect()
-    public reconfigureFilter: Observable<Action> = this.actions$.pipe(
-        ofType(RECONFIGURE_FILTER_ACTION),
-        map((action) => (action as ReconfigureFilterAction)),
-        combineLatest(this.store.select(selectAppConfig)),
-        switchMap(([action, appconfig]) => {
-            return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/config", action.configuration, {
-                headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "json"
-            }).pipe(
-                map((state: FilterInstanceState) => new ReconfigureFilterSuccess(state)),
-                catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
-        )
-            ;
-        })
-    );
 
     @Effect()
-    public updateFilterTest: Observable<Action> = this.store.select(selectLiveEditingFilter).pipe(
-        combineLatest(this.store.select(selectAppConfig)),
-        switchMap(([filterConfiguration, appconfig]) => {
+    public updateConfiguration: Observable<Action> = combineLatest(this.store.select(selectLiveEditingFilter),
+        this.store.select(selectAppConfig), this.store.select(selectUpdateConfigurationFlag)).pipe(
+        switchMap(([filterConfiguration, appconfig, triggerCall]) => {
+            console.log(JSON.stringify(filterConfiguration), JSON.stringify(appconfig), triggerCall);
+            if (triggerCall) {
             return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + filterConfiguration.id + "/config", filterConfiguration, {
-                headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "json"
-            }).pipe(
-                map((state: FilterInstanceState) => new ReconfigureFilterSuccess(state)),
-                catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
-            );
+                    "/filter/" + filterConfiguration.id + "/config", filterConfiguration, {
+                    headers: new HttpHeaders().set("Content-Type", "application/json"),
+                    responseType: "json"
+                }).pipe(
+                    map((state: FilterInstanceState) => new ReconfigureFilterSuccess(state)),
+                    catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
+                );
+            } else {
+                console.log("not necessary to send configure call");
+                return of();
+            }
         })
     );
 
