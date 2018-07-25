@@ -1,6 +1,5 @@
 import {
-    DRAIN_FILTER_SUCCESS,
-    EXTRACT_DATASETS_SUCCESS,
+    DRAIN_FILTER_SUCCESS, EXTRACT_DATASETS_INITIAL_SUCCESS, EXTRACT_DATASETS_RESULT_SUCCESS,
     FiltersActions,
     LOAD_FILTERSTATE_SUCCESS,
     LOAD_LIVE_EDITING_FILTER_SUCCESS,
@@ -17,7 +16,8 @@ import {deepcopy} from "../util";
 export class FilterState {
     public filter: FilterConfiguration;
     public filterState: FilterInstanceState;
-    public datasets: Dataset[];
+    public exampleDatasets: Dataset[];
+    public resultDatasets: Dataset[];
     public extractFinish: boolean;
     public updateConfiguration: boolean;
     public resultAvailable: boolean;
@@ -40,7 +40,8 @@ const initialState: FilterState = {
     extractFinish: false,
     updateConfiguration: false,
     resultAvailable: false,
-    datasets: [],
+    exampleDatasets: [],
+    resultDatasets: [],
     currentExampleDataset: {
         metaData: "",
         records: [
@@ -77,9 +78,14 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
         case PAUSE_FILTER_SUCCESS:
             result.filterState = action.state;
             break;
-        case EXTRACT_DATASETS_SUCCESS:
-            result.datasets = [];
-            result.datasets = action.datasets;
+        case EXTRACT_DATASETS_INITIAL_SUCCESS:
+            result.exampleDatasets = [];
+            result.exampleDatasets = action.datasets;
+            result.extractFinish = true;
+            break;
+        case EXTRACT_DATASETS_RESULT_SUCCESS:
+            result.resultDatasets = [];
+            result.resultDatasets = action.datasets;
             result.extractFinish = true;
             break;
         case LOCK_CURRENT_EXAMPLE_DATASET:
@@ -109,14 +115,14 @@ export const getUpdateConfigurationFlag = (state: FilterState) => state.updateCo
 export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
 );
-export const getFilterId = createSelector(getFilterState,
+export const selectFilterId = createSelector(getFilterState,
     (state: FilterState) => state.filter.id);
 
 export const selectLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
 
 export const selectLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
 
-export const selectExtractedDatasets = createSelector(getFilterState, (state: FilterState) => state.datasets);
+export const selectExtractedDatasets = createSelector(getFilterState, (state: FilterState) => state.exampleDatasets);
 
 export const selectExtractFinish = createSelector(getFilterState, extractFinish);
 

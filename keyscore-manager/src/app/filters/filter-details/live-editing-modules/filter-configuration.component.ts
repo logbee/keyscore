@@ -71,7 +71,6 @@ export class FilterConfigurationComponent implements OnInit {
     }
 
     public applyFilter(filterConfiguration: FilterConfiguration, values: any) {
-        console.log(JSON.stringify(values));
         this.apply.emit({filterConfiguration, values});
     }
 }

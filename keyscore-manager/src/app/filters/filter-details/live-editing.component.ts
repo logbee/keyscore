@@ -8,7 +8,7 @@ import {selectAppConfig} from "../../app.config";
 import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
 import {
-    selectExtractedDatasets, selectExtractFinish, getFilterId,
+    selectExtractedDatasets, selectExtractFinish, selectFilterId,
     selectLiveEditingFilter,
     selectLiveEditingFilterState
 } from "../filter.reducer";

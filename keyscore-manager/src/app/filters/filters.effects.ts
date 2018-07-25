@@ -12,12 +12,11 @@ import {
     DRAIN_FILTER,
     DrainFilterAction,
     DrainFilterFailure,
-    DrainFilterSuccess,
-    ExtractDatasetsFailure,
-    ExtractDatasetsSuccess,
+    DrainFilterSuccess, EXTRACT_DATASETS, ExtractDatasetsAction,
+    ExtractDatasetsFailure, ExtractDatasetsInitialSuccess, ExtractDatasetsResultSuccess,
     INITIALIZE_LIVE_EDITING_DATA,
     InitializeLiveEditingDataAction,
-    INSERT_DATASETS,
+    INSERT_DATASETS, INSERT_DATASETS_SUCCESS,
     InsertDatasetsAction,
     InsertDatasetsFailure,
     InsertDatasetsSuccess,
@@ -34,7 +33,7 @@ import {
     PauseFilterAction,
     PauseFilterFailure,
     PauseFilterSuccess,
-    RECONFIGURE_FILTER_ACTION,
+    RECONFIGURE_FILTER_ACTION, RECONFIGURE_FILTER_SUCCESS,
     ReconfigureFilterAction,
     ReconfigureFilterFailure,
     ReconfigureFilterSuccess
@@ -43,7 +42,12 @@ import {selectAppConfig} from "../app.config";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
-import {selectLiveEditingFilter, selectUpdateConfigurationFlag} from "./filter.reducer";
+import {
+    selectExtractedDatasets,
+    selectFilterId,
+    selectLiveEditingFilter,
+    selectUpdateConfigurationFlag
+} from "./filter.reducer";
 
 @Injectable()
 export class FilterEffects {
@@ -71,7 +75,7 @@ export class FilterEffects {
         concatMap((payload) => [
             new PauseFilterAction(payload.filterId, true),
             new DrainFilterAction(payload.filterId, true),
-            new LoadLiveEditingFilterAction(payload.filterId)]
+            new LoadLiveEditingFilterAction(payload.filterId, 10)]
         )
     );
     @Effect()
@@ -133,12 +137,14 @@ export class FilterEffects {
     );
     @Effect()
     public insertDatasets: Observable<Action> = this.actions$.pipe(
-        ofType(INSERT_DATASETS),
-        map((action) => (action as InsertDatasetsAction)),
-        withLatestFrom(this.store.select(selectAppConfig)),
-        switchMap(([action, appconfig]) => {
-            return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/insert", action.datasets, {
+        ofType(RECONFIGURE_FILTER_SUCCESS),
+        withLatestFrom(
+            this.store.select(selectAppConfig),
+            this.store.select(selectFilterId),
+            this.store.select(selectExtractedDatasets)),
+        switchMap(([_, config, filterId, datasets]) => {
+            return this.http.put(config.getString("keyscore.frontier.base-url") +
+                "/filter/" + filterId + "/insert", datasets, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "json"
             }).pipe(
@@ -147,15 +153,37 @@ export class FilterEffects {
             );
         }),
     );
+
+    @Effect()
+    public fireExtractDatasetsWhenInsertDatasetsSuccessAction: Observable<Action> = this.actions$.pipe(
+        ofType(INSERT_DATASETS_SUCCESS),
+        withLatestFrom(this.store.select(selectFilterId), this.store.select(selectExtractedDatasets)),
+        switchMap(([_, filterId, datasets] ) => of(new ExtractDatasetsAction(filterId, datasets.length)))
+    );
+
+    @Effect()
+    public fireExtractDatasetsWhenLoadLiveEditEditingFilterSuccesAction: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_LIVE_EDITING_FILTER_SUCCESS),
+        map((action) => (action as LoadLiveEditingFilterAction)),
+        withLatestFrom(this.store.select(selectAppConfig)),
+        switchMap(([action, appconfig]) => {
+            return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
+                "/filter/" + action.filterId + "/extract?value=10").pipe(
+                map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
+                catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
+            );
+        }),
+    );
+
     @Effect()
     public extractDatasets: Observable<Action> = this.actions$.pipe(
-        ofType(LOAD_LIVE_EDITING_FILTER_SUCCESS),
+        ofType(EXTRACT_DATASETS),
         map((action) => (action as LoadLiveEditingFilterSuccess)),
         withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/extract?value=10").pipe(
-                map((datasets: Dataset[]) => new ExtractDatasetsSuccess(datasets)),
+                map((datasets: Dataset[]) => new ExtractDatasetsResultSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
         }),
@@ -165,9 +193,8 @@ export class FilterEffects {
     public updateConfiguration: Observable<Action> = combineLatest(this.store.select(selectLiveEditingFilter),
         this.store.select(selectAppConfig), this.store.select(selectUpdateConfigurationFlag)).pipe(
         switchMap(([filterConfiguration, appconfig, triggerCall]) => {
-            console.log(JSON.stringify(filterConfiguration), JSON.stringify(appconfig), triggerCall);
             if (triggerCall) {
-            return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
+                return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
                     "/filter/" + filterConfiguration.id + "/config", filterConfiguration, {
                     headers: new HttpHeaders().set("Content-Type", "application/json"),
                     responseType: "json"
@@ -176,7 +203,6 @@ export class FilterEffects {
                     catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
                 );
             } else {
-                console.log("not necessary to send configure call");
                 return of();
             }
         })
