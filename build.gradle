@@ -23,11 +23,9 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 ext.dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
 ext.dockerRegistryPassword = getBuildPropertyValue("logbee.quay.password")
 ext.dockerRegistryUrl = 'https://quay.io/'
-ext.dockerRegistryUserIsDefined = dockerRegistryUser == null || dockerRegistryUser.empty
-ext.dockerRegistryPasswordIsDefined = dockerRegistryPassword == null || dockerRegistryPassword.empty
 
-if (!dockerRegistryUserIsDefined) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.user is not set.")
-if (!dockerRegistryPasswordIsDefined) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.password is not set.")
+if (!isDockerRegistryUserConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.user is not set.")
+if (!isDockerRegistryPasswordConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.password is not set.")
 
 subprojects {
 
@@ -38,16 +36,17 @@ subprojects {
 
     apply plugin: 'com.bmuschko.docker-remote-api'
 
-//    docker {
-//        if (dockerRegistryUserIsDefined && dockerRegistryPasswordIsDefined) {
-//            logger.info("Registry credentials set for: $dockerRegistryUrl")
-//            registryCredentials {
-//                url = dockerRegistryUrl
-//                username = "$dockerRegistryUser"
-//                password = "$dockerRegistryPassword"
-//            }
-//        }
-//    }
+    docker {
+
+        if (isDockerRegistryUserConfigured() && isDockerRegistryPasswordConfigured()) {
+            logger.info("Registry credentials set for: $dockerRegistryUrl")
+            registryCredentials {
+                url = dockerRegistryUrl
+                username = "$dockerRegistryUser"
+                password = "$dockerRegistryPassword"
+            }
+        }
+    }
 }
 
 task setupDockerNetwork(type: DockerInspectNetwork) {
@@ -73,8 +72,22 @@ task foo {
 
 }
 
+private def isDockerRegistryUserConfigured() {
+    return ext.dockerRegistryUser != null && !ext.dockerRegistryUser.empty
+}
+
+private def isDockerRegistryPasswordConfigured() {
+    return ext.dockerRegistryPassword != null && !ext.dockerRegistryPassword.empty
+}
+
 static def getBuildPropertyValue(String name) {
     def env = System.getenv()
     def envName = name.toUpperCase().replace('.', '_')
-    return env.containsKey(envName) ? env.get(envName) : System.getProperty(name)
+
+    if (env.containsKey(envName)) {
+        return env.get(envName)
+    }
+    else {
+        return System.getProperty(name)
+    }
 }
