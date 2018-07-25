@@ -4,6 +4,13 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
+docker {
+    registryCredentials {
+        url = "https://docker.elastic.co"
+        username = ""
+        password = ""
+    }
+}
 
 task pullImage(type: DockerPullImage) {
     repository = 'docker.elastic.co/elasticsearch/elasticsearch-oss'
