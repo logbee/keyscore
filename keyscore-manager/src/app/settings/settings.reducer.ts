@@ -1,5 +1,6 @@
 import {BooleanItem, SettingsState, TextChoiceItem, TextItem} from "./settings.model";
 import {APPLY_SETTINGS, LOAD_SETTINGS_SUCCESS, SettingsActions, UPDATE_SETTINGS_ITEM} from "./settings.actions";
+import {AppConfigActions, CONFIG_LOADED} from "../app.config";
 
 const defaultSettings = {
     groups: [
@@ -54,16 +55,26 @@ const initialState: SettingsState = {
     isModified: false
 };
 
-export function SettingsReducer(state: SettingsState = initialState, action: SettingsActions): SettingsState {
+export function SettingsReducer(state: SettingsState = initialState, action: SettingsActions | AppConfigActions): SettingsState {
 
+    const LOCAL_STORAGE_KEY = "io.logbee.keyscore.settings";
     const result: SettingsState = Object.assign({}, state);
 
     switch (action.type) {
         case LOAD_SETTINGS_SUCCESS:
             break;
 
+        case CONFIG_LOADED:
+            // defaults to restore
+//            action.payload
+
+            result.active = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
+            result.modified = result.active;
+            break;
+
         case APPLY_SETTINGS:
             result.active = state.modified;
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.active));
             result.isModified = false;
             break;
 

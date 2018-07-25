@@ -3,9 +3,8 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType, ROOT_EFFECTS_INIT} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
-import {Observable} from "rxjs";
-import {of} from "rxjs";
-import {catchError, map, mergeMap, switchMap} from "rxjs/operators";
+import {Observable, of} from "rxjs";
+import {switchMap} from "rxjs/operators";
 import {AppState} from "./app.component";
 
 export const CONFIG_LOADED = "[AppConfig] Loaded";
@@ -101,6 +100,7 @@ export class AppConfigLoader {
 
     public load() {
         return new Promise((resolve, reject) => {
+
             this.http.get("application.conf").subscribe(
                 (data) => {
                     this.store.dispatch(new AppConfigLoaded(data));

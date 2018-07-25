@@ -68,7 +68,6 @@ export class SettingsComponent {
 
     private settings$: Observable<SettingsModel>;
     public isModified: boolean;
-
     constructor(private store: Store<AppState>, private translate: TranslateService) {
         this.settings$ = store.select(getModifiedSettings);
         store.select(getSettingsState).subscribe( state => {
@@ -78,6 +77,13 @@ export class SettingsComponent {
 
     private applySettings() {
         this.store.dispatch(new ApplySettingsAction());
+    }
+
+    private updateTextItem(item: TextItem) {
+        console.log(item.value)
+        this.store.dispatch(new UpdateSettingsItemAction(new TextItem(
+            item.name, item.title, item.description, item.value
+        )))
     }
 
     private updateBooleanItem(item: BooleanItem) {

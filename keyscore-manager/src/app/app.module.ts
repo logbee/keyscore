@@ -27,6 +27,8 @@ import {LiveEditingModule} from "./filters/filter.module";
 import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
 
+import {CookieService} from 'ngx-cookie-service';
+
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
     {path: "dashboard", component: DashboardComponent},
