@@ -40,7 +40,8 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                             </div>
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <strong class="text-muted"> {{'FILTERLIVEEDITINGCOMPONENT.MESSAGE' | translate}}:</strong>
+                                    <strong class="text-muted">
+                                        {{'FILTERLIVEEDITINGCOMPONENT.MESSAGE' | translate}}:</strong>
                                 </div>
                                 <div class="col-sm-10">
                                     <small>{{dataset?.records[0].payload.message.value}}</small>

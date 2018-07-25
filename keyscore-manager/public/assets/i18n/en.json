@@ -82,6 +82,7 @@
     "PAYLOAD": "payload",
     "MESSAGE": "message",
     "NODATA": "No messages to show.",
+    "NODATACONFIG": "Configuration disabled.",
     "PAUSED": "isPaused",
     "FIELDNAMES": "fieldnames"
   },

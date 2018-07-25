@@ -13,7 +13,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                     <div class="col-sm-1">
                         {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-2" *ngIf="!noDataAvailable">
                         <span class="mr-1" (click)="goLeft()">
                             <img width="18em" src="/assets/images/chevron-left.svg"/>
                         </span>
@@ -26,9 +26,9 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
             </div>
             <div class="card-body">
                 <div class="ml-3">
-                    <div class="row" *ngIf="(noDataAvailable); else noData">
+                    <div class="row" *ngIf="(!noDataAvailable); else noData">
                         <div class="col-sm-12 mb-2" *ngIf="(extractFinish$ | async); else loading">
-                            <dataset-visualizer [dataset]="extractedDatasets[count]">
+                            <dataset-visualizer [dataset]="(extractedDatasets$ | async)[count]">
                             </dataset-visualizer>
                         </div>
                     </div>
@@ -42,7 +42,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
         </ng-template>
 
         <ng-template #noData>
-            <div class="col-sm-10" align="center">
+            <div class="col-sm-12" align="center">
                 <h4>{{'FILTERLIVEEDITINGCOMPONENT.NODATA' | translate}}</h4>
             </div>
         </ng-template>
@@ -50,12 +50,13 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 })
 
 export class ExampleMessageComponent implements OnInit {
-    @Input() public extractedDatasets: Dataset[];
+    @Input() public extractedDatasets$: Observable<Dataset[]>;
     @Output() public currentExampleDataset: EventEmitter<Dataset> = new EventEmitter();
     private extractFinish$: Observable<boolean>;
     private count: number;
     private isReady$: Observable<boolean>;
-    private noDataAvailable: boolean = false;
+    private noDataAvailable: boolean = true;
+    private numberOfDatasets: number;
 
     constructor(private store: Store<any>) {
         this.isReady$ = this.store.select(selectExtractFinish);
@@ -63,25 +64,28 @@ export class ExampleMessageComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        if (this.extractedDatasets.length === 0) {
-            this.noDataAvailable = true;
-        }
+        this.extractedDatasets$.subscribe((datasets) => {
+            this.numberOfDatasets = datasets.length;
+            this.noDataAvailable = datasets.length === 0;
+        });
         this.count = 0;
     }
 
     private goLeft() {
-        if (this.count !== this.extractedDatasets.length - 1) {
+        if (this.count !== this.numberOfDatasets - 1) {
             this.count += 1;
-            const dataset: Dataset = this.extractedDatasets[this.count];
-            this.currentExampleDataset.emit(dataset);
+            this.extractedDatasets$.subscribe((datasets) => {
+                this.currentExampleDataset.emit(datasets[this.count]);
+            });
         }
     }
 
     private goRight() {
         if (this.count !== 0) {
             this.count -= 1;
-            const dataset: Dataset = this.extractedDatasets[this.count];
-            this.currentExampleDataset.emit(dataset);
+            this.extractedDatasets$.subscribe((datasets) => {
+                this.currentExampleDataset.emit(datasets[this.count]);
+            });
         }
     }
 }

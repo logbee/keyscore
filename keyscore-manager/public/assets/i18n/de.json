@@ -83,6 +83,7 @@
     "PAYLOAD": "inhalt",
     "MESSAGE": "nachricht",
     "NODATA": "Keine Nachrichten verfügbar.",
+    "NODATACONFIG": "Konfiguration deaktiviert.",
     "PAUSED": "ist pausiert",
     "FIELDNAMES": "Feldernamen"
   },

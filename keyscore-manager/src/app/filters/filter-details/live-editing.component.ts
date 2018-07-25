@@ -29,11 +29,11 @@ import {LockCurrentExampleDatasetAction, ReconfigureFilterAction, UpdateFilterCo
                     <filter-description [currentFilter]="filter$ | async"
                                         [currentFilterState]="filterState$ | async">
                     </filter-description>
-                    <example-message [extractedDatasets]="extractedDatasets$ | async"
+                    <example-message [extractedDatasets$]="extractedDatasets$"
                                      (currentExampleDataset)="lockCurrentExampleDataset($event)">
                     </example-message>
-                    <filter-configuration [parameters]="(filter$ | async)?.descriptor.parameters"
-                                          [filter]="filter$ | async"
+                    <filter-configuration [filter$]="filter$"
+                                          [extractedDatasets$]="extractedDatasets$"
                                           (apply)="reconfigureFilter($event)"></filter-configuration>
                     <filter-result></filter-result>
                 </div>

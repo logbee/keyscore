@@ -4,6 +4,8 @@ import {FilterConfiguration} from "../../../models/filter-model/FilterConfigurat
 import {Store} from "@ngrx/store";
 import {ParameterControlService} from "../../../services/parameter-control.service";
 import {ParameterDescriptor} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
+import {Observable} from "rxjs/index";
+import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 @Component({
     selector: "filter-configuration",
@@ -13,27 +15,41 @@ import {ParameterDescriptor} from "../../../models/pipeline-model/parameters/Par
                 {{'FILTERLIVEEDITINGCOMPONENT.REGEXPATTERN' | translate}}
             </div>
             <div class="card-body">
-                <form *ngIf="true" class="form-horizontal col-12 mt-3" [formGroup]="form">
-                    <div *ngFor="let parameter of parameters" class="form-row">
-                        <app-parameter class="col-12" [parameterDescriptor]="parameter" [form]="form"></app-parameter>
-                    </div>
+                <div *ngIf="!noDataAvailable; else noparam">
+                    <form *ngIf="!noParamsAvailable; else noparam" class="form-horizontal col-12 mt-3"
+                          [formGroup]="form">
+                        <div *ngFor="let parameter of parameters" class="form-row">
+                            <app-parameter class="col-12" [parameterDescriptor]="parameter"
+                                           [form]="form"></app-parameter>
+                        </div>
 
-                    <div class="form-row" *ngIf="payLoad">
-                        {{'PIPELINECOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
-                    </div>
-                </form>
-                <button class="float-right btn primary btn-info mt-3"
+                        <div class="form-row" *ngIf="payLoad">
+                            {{'PIPELINECOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
+                        </div>
+                    </form>
+                </div>
+                <button *ngIf="!noParamsAvailable" class="float-right btn primary btn-info mt-3"
                         (click)="applyFilter(filter,form.value)"> {{'GENERAL.APPLY' | translate}}
                 </button>
             </div>
         </div>
+        <ng-template #noparam>
+            <div class="col-sm-12" align="center">
+                <h4>{{'FILTERLIVEEDITINGCOMPONENT.NODATACONFIG' | translate}}</h4>
+            </div>
+        </ng-template>
     `
 })
 
 export class FilterConfigurationComponent implements OnInit {
-    @Input() public parameters: ParameterDescriptor[];
-    @Input() public filter: FilterConfiguration;
+    @Input() public filter$: Observable<FilterConfiguration>;
+    @Input() public extractedDatasets$: Observable<Dataset[]>;
+
     public form: FormGroup;
+    public filter: FilterConfiguration;
+    public parameters: ParameterDescriptor[];
+    private noParamsAvailable: boolean = true;
+    private noDataAvailable: boolean = true;
 
     @Output() private apply: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> =
         new EventEmitter();
@@ -42,7 +58,16 @@ export class FilterConfigurationComponent implements OnInit {
     }
 
     public ngOnInit(): void {
+        this.extractedDatasets$.subscribe((datasets) => {
+            this.noDataAvailable = datasets.length === 0;
+        });
+        this.filter$.subscribe((filter) => {
+            this.parameters = filter.descriptor.parameters;
+            this.noParamsAvailable = filter.descriptor.parameters.length === 0;
+            this.filter = filter;
+        });
         this.form = this.parameterService.toFormGroup(this.parameters, this.filter.parameters);
+
     }
 
     public applyFilter(filterConfiguration: FilterConfiguration, values: any) {
