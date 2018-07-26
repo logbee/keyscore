@@ -10,8 +10,9 @@ import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, SinkShape}
 import io.logbee.keyscore.agent.pipeline.stage.{SinkLogic, StageContext}
 import io.logbee.keyscore.commons.util.Hashing._
+import io.logbee.keyscore.model.Field.ValueTypeOneof.{Number, Text}
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Described}
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
@@ -95,8 +96,12 @@ class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfigu
   override def onPush(): Unit = {
     grab(in).records
       .map(record => {
-        val fields = record.payload.values.foldLeft(Map.empty[String, Any])({
-          case (map, field) => map + (field.name -> field.value)
+        val fields = record.fields.foldLeft(Map.empty[String, Any])({
+          case (map, Field(name, valueType)) =>
+            valueType match {
+              case Text(TextValue(value)) => map + (name -> value)
+              case Number(NumberValue(value)) => map + (name -> value)
+            }
         })
 
         HttpRequest(POST, uri = s"/$elasticIndex/_doc/${fields.hashCode().base64()}/", entity = HttpEntity(`application/json`, write(fields))) -> Promise[HttpResponse]

@@ -22,10 +22,9 @@ import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStanda
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
-import io.logbee.keyscore.model.NativeConversion._
-import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.json4s._
+import io.logbee.keyscore.model.{AgentModel, Dataset, PipelineConfiguration}
 import org.json4s.native.Serialization
 
 import scala.concurrent.Await
@@ -159,7 +158,7 @@ object FrontierApplication extends App with Json4sSupport {
             path("insert") {
               put {
                 entity(as[List[Dataset]]) { datasets =>
-                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets.map(datasetToNative))) {
+                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets)) {
                     case
                       InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
@@ -171,7 +170,7 @@ object FrontierApplication extends App with Json4sSupport {
               get {
                 parameter('value.as[Int]) { amount =>
                   onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
-                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets.map(datasetFromNative))
+                    case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }

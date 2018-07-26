@@ -1,6 +1,5 @@
 package io.logbee.keyscore.model.json4s
 
-import io.logbee.keyscore.model.{NumberField, TextField, TimestampField}
 import io.logbee.keyscore.model.filter._
 import org.json4s.{ShortTypeHints, TypeHints}
 
@@ -23,13 +22,13 @@ object KeyscoreTypeHints {
     classOf[TextListParameter]
   ))
 
-  val fieldHints = ShortTypeHints(List(
-    classOf[TextField],
-    classOf[NumberField],
-    classOf[TimestampField]
-  ))
+//  val fieldHints = ShortTypeHints(List(
+//    classOf[TextField],
+//    classOf[NumberField],
+//    classOf[TimestampField]
+//  ))
 
-  val all: TypeHints = parameterDescriptorHints + parameterHints + fieldHints
+  val all: TypeHints = parameterDescriptorHints + parameterHints
 
 
 }

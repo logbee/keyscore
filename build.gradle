@@ -14,6 +14,7 @@ buildscript {
     dependencies {
         classpath 'com.bmuschko:gradle-docker-plugin:3.3.2'
         classpath 'gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.5'
+        classpath "gradle.plugin.com.charlesahunt:scalapb-plugin:1.2.1"
     }
 }
 

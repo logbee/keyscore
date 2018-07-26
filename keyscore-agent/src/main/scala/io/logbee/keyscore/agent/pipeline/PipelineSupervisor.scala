@@ -10,7 +10,6 @@ import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.NativeConversion._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -222,7 +221,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case InsertDatasets(filterId, datasets) =>
       val lastSender = sender
-      controller.insert(filterId,datasets.map(datasetFromNative)).foreach(_.onComplete {
+      controller.insert(filterId, datasets).foreach(_.onComplete {
         case Success(state) => lastSender ! InsertDatasetsResponse(state)
         case Failure(e) => lastSender ! Failure
       })
@@ -230,7 +229,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ExtractDatasets(filterId, amount) =>
       val lastSender = sender
       controller.extract(filterId, amount).foreach(_.onComplete {
-        case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets.map(datasetToNative))
+        case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets)
         case Failure(e) => lastSender ! Failure
       })
 
