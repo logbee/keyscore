@@ -43,7 +43,6 @@ object MessageGroupingLogic extends Described {
 }
 
 class MessageGroupingLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
-  var dataToAdd = scala.collection.mutable.Map[String, Field[_]]()
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
