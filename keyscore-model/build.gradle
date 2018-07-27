@@ -28,6 +28,7 @@ scalapbConfig {
     targetDir = "build/generated/source/scalapb/main/scala"
     protocVersion = "-v360"
     grpc = false
+    embeddedProtoc = true
 }
 
 test {
