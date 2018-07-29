@@ -1,0 +1,21 @@
+
+group 'io.logbee.gradle'
+version = '0.1.0'
+
+ext.protobufVersion = '3.6.0'
+ext.scalapbVersion = '0.8.0-RC1'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.github.os72:protoc-jar:$protobufVersion"
+    compile "com.google.protobuf:protobuf-java:$protobufVersion"
+    compile "com.thesamet.scalapb:compilerplugin_2.12:$scalapbVersion"
+    compile "com.thesamet.scalapb:scalapb-runtime-grpc_2.12:$scalapbVersion"
+    compile "com.thesamet.scalapb:scalapb-runtime_2.12:$scalapbVersion"
+}

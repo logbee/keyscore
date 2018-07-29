@@ -1,6 +1,8 @@
+import io.logbee.gradle.scalapb.ScalaPBPlugin
+
 apply plugin: 'scala'
 apply plugin: 'java'
-apply plugin: "com.charlesahunt.scalapb"
+apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')
 
@@ -8,27 +10,14 @@ repositories {
     mavenCentral()
 }
 
-ext.scalapbGeneratedPath = "$buildDir/generated/source/scalapb/main/scala"
-
-sourceSets.main.scala.srcDirs += file(scalapbGeneratedPath)
-
 dependencies {
 
     compile dependency.scala_lang
     compile dependency.json4s
-    compile "com.thesamet.scalapb:scalapb-runtime_2.12:0.7.4"
+    compile "com.thesamet.scalapb:scalapb-runtime_2.12:0.8.0-RC1"
 
     testCompile dependency.scala_test
     testCompile dependency.junit
-}
-
-scalapbConfig {
-    projectProtoSourceDir = "src/main/proto"
-    extractedIncludeDir = "build/external_protos"
-    targetDir = "build/generated/source/scalapb/main/scala"
-    protocVersion = "-v360"
-    grpc = false
-    embeddedProtoc = true
 }
 
 test {
@@ -43,10 +32,4 @@ jar {
         'Implementation-Title': project.name,
         'Implementation-Version': version,
     ])
-}
-
-idea {
-    module {
-        generatedSourceDirs  += file(scalapbGeneratedPath)
-    }
 }
