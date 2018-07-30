@@ -47,13 +47,11 @@ const initialState: FilterState = {
         records: [
             {
                 id: "b8f4e010-dbe5-40ae-bd2c-b73a953da100",
-                payload: {
-                    message: {
-                        jsonClass: "TextField",
-                        name: "message",
-                        value: "The weather is cloudy with a current temperature of: -11.5 C"
-                    }
-                }
+                payload: [
+                    { jsonClass: "TextField", name: "message",
+                        value: "The weather is cloudy with a current temperature of: -11.5 C"},
+                    { jsonClass: "NumberField", name: "temperature", value: 11.5}
+                ]
             }
         ]
     }
@@ -84,6 +82,7 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             result.extractFinish = true;
             break;
         case EXTRACT_DATASETS_RESULT_SUCCESS:
+            result.resultAvailable = true;
             result.resultDatasets = [];
             result.resultDatasets = action.datasets;
             result.extractFinish = true;

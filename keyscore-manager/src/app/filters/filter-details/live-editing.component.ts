@@ -8,12 +8,12 @@ import {selectAppConfig} from "../../app.config";
 import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
 import {
-    selectExtractedDatasets, selectExtractFinish, selectFilterId,
+    selectExtractedDatasets,
     selectLiveEditingFilter,
     selectLiveEditingFilterState
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
-import {LockCurrentExampleDatasetAction, ReconfigureFilterAction, UpdateFilterConfiguration} from "../filters.actions";
+import {LockCurrentExampleDatasetAction, UpdateFilterConfiguration} from "../filters.actions";
 
 @Component({
     selector: "live-editing",
@@ -35,7 +35,7 @@ import {LockCurrentExampleDatasetAction, ReconfigureFilterAction, UpdateFilterCo
                     <filter-configuration [filter$]="filter$"
                                           [extractedDatasets$]="extractedDatasets$"
                                           (apply)="reconfigureFilter($event)"></filter-configuration>
-                    <filter-result></filter-result>
+                    <filter-result [extractedDatasets$] ="extractedDatasets$"></filter-result>
                 </div>
             </div>
         </div>

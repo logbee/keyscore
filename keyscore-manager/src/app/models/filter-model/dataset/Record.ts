@@ -1,6 +1,6 @@
-import {Payload} from "./Payload";
+import {Field} from "./Field";
 
 export interface Record {
     id: string;
-    payload: Payload;
+    payload: Field[];
 }

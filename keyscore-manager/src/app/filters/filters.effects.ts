@@ -42,12 +42,14 @@ import {selectAppConfig} from "../app.config";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
+import {Record} from "../models/filter-model/dataset/Record";
 import {
     selectExtractedDatasets,
     selectFilterId,
     selectLiveEditingFilter,
     selectUpdateConfigurationFlag
 } from "./filter.reducer";
+import {Field} from "../models/filter-model/dataset/Field";
 
 @Injectable()
 export class FilterEffects {
@@ -144,7 +146,7 @@ export class FilterEffects {
             this.store.select(selectExtractedDatasets)),
         switchMap(([_, config, filterId, datasets]) => {
             return this.http.put(config.getString("keyscore.frontier.base-url") +
-                "/filter/" + filterId + "/insert", datasets, {
+                "/filter/" + filterId + "/insert", this.convertDatasetsToBackend(datasets), {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "json"
             }).pipe(
@@ -169,6 +171,7 @@ export class FilterEffects {
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/extract?value=10").pipe(
+                map((content) => this.convertDatasetsFromBackend(content as Object[])),
                 map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
@@ -183,6 +186,7 @@ export class FilterEffects {
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/extract?value=10").pipe(
+                map((content) => this.convertDatasetsFromBackend(content as Object[])),
                 map((datasets: Dataset[]) => new ExtractDatasetsResultSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
@@ -214,4 +218,33 @@ export class FilterEffects {
                 private translate: TranslateService) {
     }
 
+    private convertDatasetsFromBackend(datasets: Object[]) {
+        const recordsExtractionValue: string = "records";
+        const idExtractionValue: string = "id";
+        const metaDataExtractionValue: string = "metaData";
+        return datasets.map((dataset) => {
+            const records: Record[] = dataset[recordsExtractionValue].map((record) => {
+                return { id: record[idExtractionValue], payload: Object.values(record.payload)};
+            });
+            return {metaData: dataset[metaDataExtractionValue], records} as Dataset;
+        });
+    }
+
+    private convertDatasetsToBackend(datasets: Dataset[]) {
+        return datasets.map((dataset) => {
+            const records = dataset.records.map((record: Record) => {
+
+                const newRecord = {id: record.id, payload: {}};
+
+                record.payload.forEach( (field: Field) => {
+                    newRecord.payload[field.name] = field;
+                });
+
+                return newRecord;
+            });
+            console.log("=======>" + JSON.stringify(records));
+            return {metaData: dataset.metaData, records};
+        });
+
+    }
 }

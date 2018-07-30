@@ -18,7 +18,7 @@ import {FilterResultComponent} from "./filter-details/live-editing-modules/filte
 import {StatuslightComponent} from "../common/health/statuslight.component";
 import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
-import {DatasetVisualizer} from "./filter-details/live-editing-modules/DatasetVisualizer";
+import {DatasetVisualizer} from "./filter-details/live-editing-modules/datasetVisualizer";
 import {ParameterControlService} from "../services/parameter-control.service";
 import {ParameterMap} from "../pipelines/pipeline-editor/filter-editor/parameter-map.component";
 import {ParameterComponent} from "../pipelines/pipeline-editor/filter-editor/parameter.component";
@@ -50,8 +50,8 @@ export const routes: Routes = [
         StatuslightComponent,
         LiveEditingComponent,
         DatasetVisualizer,
-        ParameterList,
         ParameterMap,
+        ParameterList,
         ParameterComponent
     ]
     ,
