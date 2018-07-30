@@ -123,6 +123,8 @@ export const selectLiveEditingFilterState = createSelector(getFilterState, (stat
 
 export const selectExtractedDatasets = createSelector(getFilterState, (state: FilterState) => state.exampleDatasets);
 
+export const selectResultDatasets = createSelector(getFilterState, (state: FilterState) => state.resultDatasets);
+
 export const selectExtractFinish = createSelector(getFilterState, extractFinish);
 
 export const selectResultAvailable = createSelector(getFilterState, resultAvailable);

@@ -10,7 +10,7 @@ import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState
 import {
     selectExtractedDatasets,
     selectLiveEditingFilter,
-    selectLiveEditingFilterState
+    selectLiveEditingFilterState, selectResultDatasets
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
 import {LockCurrentExampleDatasetAction, UpdateFilterConfiguration} from "../filters.actions";
@@ -35,7 +35,7 @@ import {LockCurrentExampleDatasetAction, UpdateFilterConfiguration} from "../fil
                     <filter-configuration [filter$]="filter$"
                                           [extractedDatasets$]="extractedDatasets$"
                                           (apply)="reconfigureFilter($event)"></filter-configuration>
-                    <filter-result [extractedDatasets$] ="extractedDatasets$"></filter-result>
+                    <filter-result [resultDatasets$] ="resultDatasets$"></filter-result>
                 </div>
             </div>
         </div>
@@ -62,6 +62,7 @@ export class LiveEditingComponent implements OnInit {
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
     private extractedDatasets$: Observable<Dataset[]>;
+    private resultDatasets$: Observable<Dataset[]>;
 
     constructor(private store: Store<any>, private translate: TranslateService) {
         const config = this.store.select(selectAppConfig);
@@ -75,6 +76,7 @@ export class LiveEditingComponent implements OnInit {
             this.error$ = this.store.select(errorState);
             this.loading$ = this.store.select(isSpinnerShowing);
             this.extractedDatasets$ = this.store.select(selectExtractedDatasets);
+            this.resultDatasets$ = this.store.select(selectResultDatasets);
         }
     }
 

@@ -27,7 +27,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
             <div class="card-body">
                 <div class="row" align="center" *ngIf="(loading$ | async); else loading">
                     <div class="col-sm-12">
-                        <dataset-visualizer [dataset]="(extractedDatasets$ | async)[count]">
+                        <dataset-visualizer [dataset]="(resultDatasets$ | async)[count]">
                         </dataset-visualizer>
                     </div>
                 </div>
@@ -45,7 +45,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 })
 
 export class FilterResultComponent implements OnInit {
-    @Input() public extractedDatasets$: Observable<Dataset[]>;
+    @Input() public resultDatasets$: Observable<Dataset[]>;
     private loading$: Observable<boolean>;
     private count: number;
     private numberOfDatasets: number;
@@ -56,7 +56,7 @@ export class FilterResultComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.extractedDatasets$.subscribe((datasets) => {
+        this.resultDatasets$.subscribe((datasets) => {
             this.numberOfDatasets = datasets.length;
         });
         this.count = 0;
