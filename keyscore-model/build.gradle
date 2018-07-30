@@ -15,6 +15,7 @@ dependencies {
     compile dependency.scala_lang
     compile dependency.json4s
     compile "com.thesamet.scalapb:scalapb-runtime_2.12:0.8.0-RC1"
+    compile "com.google.protobuf:protobuf-java-util:3.5.1"
 
     testCompile dependency.scala_test
     testCompile dependency.junit
