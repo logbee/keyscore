@@ -18,5 +18,5 @@ trait ValveProxy {
 
   def insert(dataset: List[Dataset]): Future[ValveState]
 
-  def clearBuffer(): Future[ValveState]
+  def clear(): Future[ValveState]
 }

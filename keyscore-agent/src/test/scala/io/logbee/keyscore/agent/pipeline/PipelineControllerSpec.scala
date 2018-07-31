@@ -9,7 +9,7 @@ import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.model.{Dataset, Green}
+import io.logbee.keyscore.model.{After, Before, Dataset, Green}
 import io.logbee.keyscore.model.filter._
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -101,11 +101,11 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
         val state = for {
           _ <- controller.pause(true)
           _ <- controller.drain(true)
-          insert <- controller.insert(List(dataset1))
+          insert <- controller.insert(List(dataset1), Before)
         } yield insert
 
         whenReady(state) { _ =>
-          whenReady(controller.extract()) { datasets =>
+          whenReady(controller.extract(where = After)) { datasets =>
             datasets should contain(dataset1)
           }
         }
@@ -120,8 +120,8 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       sink.expectNext(dataset2)
 
       whenReady(controllerFuture) { controller =>
-        whenReady(controller.insert(List(dataset3))) { _ =>
-          whenReady(controller.extract()) { datasets =>
+        whenReady(controller.insert(List(dataset3), Before)) { _ =>
+          whenReady(controller.extract(where = After)) { datasets =>
             datasets should contain(dataset3)
           }
         }
@@ -134,11 +134,11 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
         val state = for {
           _ <- controller.pause(true)
           _ <- controller.drain(true)
-          filterState <- controller.insert(List(dataset1, dataset2, dataset3))
+          filterState <- controller.insert(List(dataset1, dataset2, dataset3), Before)
         } yield filterState
 
         whenReady(state) { _ =>
-          whenReady(controller.extract(3)) { datasets =>
+          whenReady(controller.extract(3, After)) { datasets =>
             datasets should contain inOrderOnly(dataset3, dataset2, dataset1)
           }
         }
@@ -168,11 +168,11 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
         val state = for {
           _ <- controller.pause(true)
           _ <- controller.drain(true)
-          filterState <- controller.insert(List(dataset2, dataset3, dataset4))
+          filterState <- controller.insert(List(dataset2, dataset3, dataset4), Before)
         } yield filterState
 
         whenReady(state) { _ =>
-          whenReady(controller.extract(3)) { datasets =>
+          whenReady(controller.extract(3, After)) { datasets =>
             datasets should contain inOrderOnly(dataset4, dataset3, dataset2)
           }
         }
@@ -190,10 +190,10 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
           val state = for {
             _ <- controller.pause(true)
             _ <- controller.drain(true)
-            filterState <- controller.insert(List(dataset2, dataset3, dataset5))
+            filterState <- controller.insert(List(dataset2, dataset3, dataset5), Before)
           } yield filterState
           whenReady(state) { _ =>
-            whenReady(controller.extract(3)) { datasets =>
+            whenReady(controller.extract(3, After)) { datasets =>
               datasets should contain inOrderOnly(dataset5, dataset3, dataset2)
             }
           }

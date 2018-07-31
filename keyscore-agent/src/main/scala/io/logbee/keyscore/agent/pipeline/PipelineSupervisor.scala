@@ -220,16 +220,16 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
         case Failure(e) => lastSender ! Failure
       })
 
-    case InsertDatasets(filterId, datasets) =>
+    case InsertDatasets(filterId, datasets, where) =>
       val lastSender = sender
-      controller.insert(filterId,datasets.map(datasetFromNative)).foreach(_.onComplete {
+      controller.insert(filterId,datasets.map(datasetFromNative), where).foreach(_.onComplete {
         case Success(state) => lastSender ! InsertDatasetsResponse(state)
         case Failure(e) => lastSender ! Failure
       })
 
-    case ExtractDatasets(filterId, amount) =>
+    case ExtractDatasets(filterId, amount, where) =>
       val lastSender = sender
-      controller.extract(filterId, amount).foreach(_.onComplete {
+      controller.extract(filterId, amount, where).foreach(_.onComplete {
         case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets.map(datasetToNative))
         case Failure(e) => lastSender ! Failure
       })
@@ -246,6 +246,13 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       controller.state(filterId).foreach(_.onComplete {
         case Success(state) =>
           lastSender ! CheckFilterStateResponse(state)
+        case Failure(e) => lastSender ! Failure
+      })
+
+    case ClearBuffer(filterId) =>
+      val lastSender = sender
+      controller.clear(filterId).foreach(_.onComplete {
+        case Success(state) => lastSender ! ClearBufferResponse(state)
         case Failure(e) => lastSender ! Failure
       })
   }

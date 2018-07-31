@@ -3,7 +3,7 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import io.logbee.keyscore.agent.pipeline.valve.ValveProxy
-import io.logbee.keyscore.model.Dataset
+import io.logbee.keyscore.model.{Dataset, WhichValve}
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterProxy, FilterState}
 import io.logbee.keyscore.model.sink.SinkProxy
 import io.logbee.keyscore.model.source.SourceProxy
@@ -35,9 +35,11 @@ abstract class Controller {
 
   def drain(drain: Boolean): Future[FilterState]
 
-  def insert(dataset: List[Dataset]): Future[FilterState]
+  def insert(dataset: List[Dataset], where: WhichValve): Future[FilterState]
 
-  def extract(amount: Int = 1): Future[List[Dataset]]
+  def extract(amount: Int = 1, where: WhichValve): Future[List[Dataset]]
 
   def state(): Future[FilterState]
+
+  def clear(): Future[FilterState]
 }

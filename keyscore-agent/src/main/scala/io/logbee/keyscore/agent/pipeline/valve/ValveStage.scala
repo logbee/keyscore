@@ -34,6 +34,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     val initPromise = Promise[ValveProxy]
 
     private val ringBuffer = RingBuffer[Dataset](bufferLimit)
+    private val insertBuffer = RingBuffer[Dataset](bufferLimit)
     private val totalThroughputTime = MovingMedian()
     private val throughputTime = MovingMedian()
 
@@ -69,7 +70,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
       case (promise, datasets) =>
-        datasets.foreach(ringBuffer.push)
+        datasets.foreach(insertBuffer.push)
         update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
         promise.success(state)
         pushOut()
@@ -84,7 +85,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         log.info(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
 
-    private val clearBufferCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
+    private val clearCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
       ringBuffer.clear()
       promise.success(update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime)))
       log.info(s"Cleared buffer of valve <$id>")
@@ -134,10 +135,10 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         promise.future
       }
 
-      override def clearBuffer(): Future[ValveState] = {
+      override def clear(): Future[ValveState] = {
         val promise = Promise[ValveState]()
         log.info(s"Clearing buffer of valve <$id>: ")
-        clearBufferCallback.invoke(promise)
+        clearCallback.invoke(promise)
         promise.future
       }
     }
@@ -172,11 +173,15 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     }
 
     private def pushOut(): Unit = {
-      if (isAvailable(out) && ringBuffer.isNonEmpty) {
-        val dataset = ringBuffer.pull()
-        compute(totalThroughputTime, FirstValveTimestamp, dataset)
-        compute(throughputTime, PreviousValveTimestamp, dataset)
-        push(out, withNewLabels(dataset))
+      if (isAvailable(out)) {
+
+        val dataset = if (insertBuffer.isNonEmpty) Option(insertBuffer.pull()) else if(ringBuffer.isNonEmpty) Option(ringBuffer.pull()) else None
+
+        dataset.foreach( dataset => {
+          compute(totalThroughputTime, FirstValveTimestamp, dataset)
+          compute(throughputTime, PreviousValveTimestamp, dataset)
+          push(out, withNewLabels(dataset))
+        })
       }
     }
 

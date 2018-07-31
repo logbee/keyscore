@@ -23,6 +23,7 @@ import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfi
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.model.NativeConversion._
+import io.logbee.keyscore.model.WhichValve.whichValve
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.FilterConfiguration
 import io.logbee.keyscore.model.json4s._
@@ -47,14 +48,10 @@ object FrontierApplication extends App with Json4sSupport {
   val pipelineManager = system.actorOf(PipelineManager(agentManager))
   val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
 
-  val corsSettings = if (configuration.devMode) CorsSettings.defaultSettings.copy(
+  val corsSettings = CorsSettings.defaultSettings.copy(
     allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS),
     allowedOrigins = HttpOriginRange.*,
     allowedHeaders = HttpHeaderRange.*
-
-  ) else CorsSettings.defaultSettings.copy(
-    allowedOrigins = HttpOriginRange(HttpOrigin("http://" + configuration.managerHostname + ":" + configuration.managerPort)),
-    allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS)
   )
 
   val route = cors(corsSettings) {
@@ -70,7 +67,7 @@ object FrontierApplication extends App with Json4sSupport {
             delete {
               pipelineManager ! PipelineManager.DeleteAllPipelines
               complete(StatusCodes.OK)
-          }
+            }
         } ~
           pathPrefix(JavaUUID) { configId =>
             get {
@@ -112,26 +109,26 @@ object FrontierApplication extends App with Json4sSupport {
             } ~
               delete {
                 complete(StatusCodes.NotImplemented)
-            }
-          }~
-          pathPrefix(JavaUUID) { instanceId =>
-            put {
-              complete(StatusCodes.NotImplemented)
-
-            } ~ delete {
-              complete(StatusCodes.NotImplemented)
-            } ~ get {
-              onSuccess(pipelineManager ? RequestExistingPipelines()) {
-                case PipelineInstanceResponse(listOfPipelines) =>
-                  listOfPipelines.find(instance => instance.id == instanceId) match {
-                    case Some(instance) => complete(StatusCodes.OK, instance)
-                    case None => complete(StatusCodes.NotFound)
-                  }
-                case _ => complete(StatusCodes.InternalServerError)
               }
-            }
+          } ~
+            pathPrefix(JavaUUID) { instanceId =>
+              put {
+                complete(StatusCodes.NotImplemented)
 
-          }
+              } ~ delete {
+                complete(StatusCodes.NotImplemented)
+              } ~ get {
+                onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                  case PipelineInstanceResponse(listOfPipelines) =>
+                    listOfPipelines.find(instance => instance.id == instanceId) match {
+                      case Some(instance) => complete(StatusCodes.OK, instance)
+                      case None => complete(StatusCodes.NotFound)
+                    }
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+
+            }
         }
     } ~
       pathPrefix("filter") {
@@ -159,21 +156,23 @@ object FrontierApplication extends App with Json4sSupport {
             path("insert") {
               put {
                 entity(as[List[Dataset]]) { datasets =>
-                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets.map(datasetToNative))) {
+                  parameter("where" ? "before") { where =>
+                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets.map(datasetToNative), where)) {
                     case
                       InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
+                    }
                   }
                 }
               }
             } ~
             path("extract") {
               get {
-                parameter('value.as[Int]) { amount =>
-                  onSuccess(pipelineManager ? ExtractDatasets(filterId, amount)) {
+                parameters('value.as[Int], "where" ? "after") { (amount, where) =>
+                    onSuccess(pipelineManager ? ExtractDatasets(filterId, amount, where)) {
                     case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets.map(datasetFromNative))
                     case _ => complete(StatusCodes.InternalServerError)
-                  }
+                    }
                 }
               }
             } ~
@@ -186,21 +185,30 @@ object FrontierApplication extends App with Json4sSupport {
                   }
                 }
               } ~
-              get {
-                onSuccess(pipelineManager ? RequestExistingConfigurations()) {
-                  case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
-                    case Some(filter) => complete(StatusCodes.OK, filter)
-                    case None => complete(StatusCodes.NotFound
-                    )
+                get {
+                  onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+                    case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
+                      case Some(filter) => complete(StatusCodes.OK, filter)
+                      case None => complete(StatusCodes.NotFound
+                      )
+                    }
+                    case _ => complete(StatusCodes.InternalServerError)
                   }
-                  case _ => complete(StatusCodes.InternalServerError)
                 }
-              }
             } ~
             path("state") {
               get {
                 onSuccess(pipelineManager ? CheckFilterState(filterId)) {
                   case CheckFilterStateResponse(state) =>
+                    complete(StatusCodes.Accepted, state)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            } ~
+            path("clear") {
+              get {
+                onSuccess(pipelineManager ? ClearBuffer(filterId)) {
+                  case ClearBufferResponse(state) =>
                     complete(StatusCodes.Accepted, state)
                   case _ => complete(StatusCodes.InternalServerError)
                 }

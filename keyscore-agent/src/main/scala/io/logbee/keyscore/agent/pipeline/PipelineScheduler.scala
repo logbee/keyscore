@@ -109,6 +109,10 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
       children.foreach( supervisor => {
         supervisor forward message
       })
+    case message: ClearBuffer =>
+      children.foreach( supervisor => {
+        supervisor forward message
+      })
     case _ => log.info("Failure")
   }
 

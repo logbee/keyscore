@@ -2,8 +2,9 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
+import com.sun.xml.internal.bind.util.Which
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState}
-import io.logbee.keyscore.model.{Dataset, PipelineConfiguration}
+import io.logbee.keyscore.model._
 
 import scala.concurrent.Future
 
@@ -27,15 +28,19 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
     controllerMap.get(id).map(_.drain(doDrain))
   }
 
-  def insert(id: UUID, dataset: List[Dataset]): Option[Future[FilterState]] = {
-    controllerMap.get(id).map(_.insert(dataset))
+  def insert(id: UUID, dataset: List[Dataset], where: WhichValve): Option[Future[FilterState]] = {
+    controllerMap.get(id).map(_.insert(dataset, Before))
   }
 
-  def extract(id: UUID, amount: Int = 1): Option[Future[List[Dataset]]] = {
-    controllerMap.get(id).map(_.extract(amount))
+  def extract(id: UUID, amount: Int = 1, where:WhichValve): Option[Future[List[Dataset]]] = {
+    controllerMap.get(id).map(_.extract(amount, where))
   }
 
   def state(id: UUID): Option[Future[FilterState]] = {
     controllerMap.get(id).map(_.state())
+  }
+
+  def clear(id: UUID): Option[Future[FilterState]] = {
+    controllerMap.get(id).map(_.clear())
   }
 }
