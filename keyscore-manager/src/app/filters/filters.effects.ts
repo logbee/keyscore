@@ -3,21 +3,24 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
-import {Action, State, Store} from "@ngrx/store";
+import {Action, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
-import {Observable, of, combineLatest} from "rxjs/index";
+import {combineLatest, Observable, of} from "rxjs/index";
 import {catchError, concatMap, map, mergeMap, switchMap, withLatestFrom} from "rxjs/internal/operators";
 import {AppState} from "../app.component";
 import {
     DRAIN_FILTER,
     DrainFilterAction,
     DrainFilterFailure,
-    DrainFilterSuccess, EXTRACT_DATASETS, ExtractDatasetsAction,
-    ExtractDatasetsFailure, ExtractDatasetsInitialSuccess, ExtractDatasetsResultSuccess,
+    DrainFilterSuccess,
+    EXTRACT_DATASETS,
+    ExtractDatasetsAction,
+    ExtractDatasetsFailure,
+    ExtractDatasetsInitialSuccess,
+    ExtractDatasetsResultSuccess,
     INITIALIZE_LIVE_EDITING_DATA,
     InitializeLiveEditingDataAction,
-    INSERT_DATASETS, INSERT_DATASETS_SUCCESS,
-    InsertDatasetsAction,
+    INSERT_DATASETS_SUCCESS,
     InsertDatasetsFailure,
     InsertDatasetsSuccess,
     LOAD_FILTERSTATE,
@@ -33,8 +36,7 @@ import {
     PauseFilterAction,
     PauseFilterFailure,
     PauseFilterSuccess,
-    RECONFIGURE_FILTER_ACTION, RECONFIGURE_FILTER_SUCCESS,
-    ReconfigureFilterAction,
+    RECONFIGURE_FILTER_SUCCESS,
     ReconfigureFilterFailure,
     ReconfigureFilterSuccess
 } from "./filters.actions";
@@ -42,12 +44,14 @@ import {selectAppConfig} from "../app.config";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {Dataset} from "../models/filter-model/dataset/Dataset";
+import {Record} from "../models/filter-model/dataset/Record";
 import {
     selectExtractedDatasets,
     selectFilterId,
     selectLiveEditingFilter,
     selectUpdateConfigurationFlag
 } from "./filter.reducer";
+import {Field} from "../models/filter-model/dataset/Field";
 
 @Injectable()
 export class FilterEffects {
@@ -144,7 +148,7 @@ export class FilterEffects {
             this.store.select(selectExtractedDatasets)),
         switchMap(([_, config, filterId, datasets]) => {
             return this.http.put(config.getString("keyscore.frontier.base-url") +
-                "/filter/" + filterId + "/insert", datasets, {
+                "/filter/" + filterId + "/insert?where=before" , this.convertDatasetsToBackend(datasets), {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "json"
             }).pipe(
@@ -168,7 +172,8 @@ export class FilterEffects {
         withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/extract?value=10").pipe(
+                "/filter/" + action.filterId + "/extract?value=10&where=before").pipe(
+                map((content) => this.convertDatasetsFromBackend(content as Object[])),
                 map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
@@ -178,11 +183,12 @@ export class FilterEffects {
     @Effect()
     public extractDatasets: Observable<Action> = this.actions$.pipe(
         ofType(EXTRACT_DATASETS),
-        map((action) => (action as LoadLiveEditingFilterSuccess)),
+        map((action) => (action as ExtractDatasetsAction)),
         withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/extract?value=10").pipe(
+                "/filter/" + action.filterId + "/extract?value=" + action.amount + "&where=after").pipe(
+                map((content) => this.convertDatasetsFromBackend(content as Object[])),
                 map((datasets: Dataset[]) => new ExtractDatasetsResultSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
@@ -214,4 +220,33 @@ export class FilterEffects {
                 private translate: TranslateService) {
     }
 
+    private convertDatasetsFromBackend(datasets: Object[]) {
+        const recordsExtractionValue: string = "records";
+        const idExtractionValue: string = "id";
+        const metaDataExtractionValue: string = "metaData";
+        return datasets.map((dataset) => {
+            const records: Record[] = dataset[recordsExtractionValue].map((record) => {
+                return { id: record[idExtractionValue], payload: Object.values(record.payload)};
+            });
+            return {metaData: dataset[metaDataExtractionValue], records} as Dataset;
+        });
+    }
+
+    private convertDatasetsToBackend(datasets: Dataset[]) {
+        return datasets.map((dataset) => {
+            const records = dataset.records.map((record: Record) => {
+
+                const newRecord = {id: record.id, payload: {}};
+
+                record.payload.forEach( (field: Field) => {
+                    newRecord.payload[field.name] = field;
+                });
+
+                return newRecord;
+            });
+            console.log("=======>" + JSON.stringify(records));
+            return {metaData: dataset.metaData, records};
+        });
+
+    }
 }

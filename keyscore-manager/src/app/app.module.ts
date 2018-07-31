@@ -26,8 +26,8 @@ import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
 import {LiveEditingModule} from "./filters/filter.module";
 import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
+import {ParameterList} from "./pipelines/pipeline-editor/filter-editor/parameter-list.component";
 
-import {CookieService} from 'ngx-cookie-service';
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},

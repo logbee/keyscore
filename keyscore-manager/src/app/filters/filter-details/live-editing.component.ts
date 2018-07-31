@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
@@ -8,13 +8,17 @@ import {selectAppConfig} from "../../app.config";
 import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
 import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
 import {
-    selectExtractedDatasets, selectExtractFinish, selectFilterId,
+    selectExtractedDatasets,
     selectLiveEditingFilter,
-    selectLiveEditingFilterState
+    selectLiveEditingFilterState, selectResultDatasets
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
-import {LockCurrentExampleDatasetAction, ReconfigureFilterAction, UpdateFilterConfiguration} from "../filters.actions";
-
+import {
+    LockCurrentExampleDatasetAction,
+    RestoreFilterConfiguration,
+    UpdateFilterConfiguration
+} from "../filters.actions";
+import {Location} from "@angular/common";
 @Component({
     selector: "live-editing",
     template: `
@@ -35,7 +39,7 @@ import {LockCurrentExampleDatasetAction, ReconfigureFilterAction, UpdateFilterCo
                     <filter-configuration [filter$]="filter$"
                                           [extractedDatasets$]="extractedDatasets$"
                                           (apply)="reconfigureFilter($event)"></filter-configuration>
-                    <filter-result></filter-result>
+                    <filter-result [resultDatasets$] ="resultDatasets$"></filter-result>
                 </div>
             </div>
         </div>
@@ -50,7 +54,7 @@ import {LockCurrentExampleDatasetAction, ReconfigureFilterAction, UpdateFilterCo
     `
 })
 
-export class LiveEditingComponent implements OnInit {
+export class LiveEditingComponent implements OnInit, OnDestroy {
     // Flags
     private errorHandling: boolean = false;
     private liveEditingFlag: boolean;
@@ -62,8 +66,9 @@ export class LiveEditingComponent implements OnInit {
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
     private extractedDatasets$: Observable<Dataset[]>;
+    private resultDatasets$: Observable<Dataset[]>;
 
-    constructor(private store: Store<any>, private translate: TranslateService) {
+    constructor(private store: Store<any>, private translate: TranslateService, private location: Location) {
         const config = this.store.select(selectAppConfig);
         config.subscribe((conf) => this.liveEditingFlag = conf.getBoolean("keyscore.manager.features.live-editing"));
 
@@ -75,11 +80,15 @@ export class LiveEditingComponent implements OnInit {
             this.error$ = this.store.select(errorState);
             this.loading$ = this.store.select(isSpinnerShowing);
             this.extractedDatasets$ = this.store.select(selectExtractedDatasets);
+            this.resultDatasets$ = this.store.select(selectResultDatasets);
         }
     }
 
     public ngOnInit(): void {
         this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
+    }
+
+    public ngOnDestroy(): void {
     }
 
     public lockCurrentExampleDataset(dataset: Dataset) {
@@ -119,4 +128,4 @@ export class LiveEditingComponent implements OnInit {
             }
         }
     }
-}
+   }

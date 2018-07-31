@@ -3,10 +3,11 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, ValveState}
-import io.logbee.keyscore.model.Dataset
+import io.logbee.keyscore.model.{After, Dataset, WhichValve}
 import io.logbee.keyscore.model.filter._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.macros.whitebox
 
 private class FilterController(val inValve: ValveProxy, val filter: FilterProxy, val outValve: ValveProxy)(implicit val executionContext: ExecutionContext) extends Controller {
 
@@ -41,18 +42,18 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
     } yield computeFilterState(inValveState, outValveState, filterState)
   }
 
-  override def insert(dataset: List[Dataset]): Future[FilterState] = {
+  override def insert(dataset: List[Dataset], whichValve: WhichValve): Future[FilterState] = {
     for {
     inValveState <- inValve.state()
     outValveState <- outValve.state()
-    _ <- inValve.insert(dataset)
+    _ <- if(whichValve == After) outValve.insert(dataset) else inValve.insert(dataset)
     filterState <- filter.state()
     } yield computeFilterState(inValveState, outValveState, filterState)
   }
 
-  override def extract(n: Int): Future[List[Dataset]] = {
+  override def extract(n: Int, whichValve: WhichValve): Future[List[Dataset]] = {
     for {
-    result <- outValve.extract(n)
+    result <- if(whichValve == After) outValve.extract(n) else inValve.extract(n)
     } yield result
   }
 
@@ -61,6 +62,14 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
     inValveState <- inValve.state()
     outValveState <- outValve.state()
     filterState <- filter.state()
+    } yield  computeFilterState(inValveState, outValveState, filterState)
+  }
+
+  override def clear(): Future[FilterState] = {
+    for {
+      inValveState <- inValve.state()
+      outValveState <- outValve.state()
+      filterState <- filter.state()
     } yield  computeFilterState(inValveState, outValveState, filterState)
   }
 

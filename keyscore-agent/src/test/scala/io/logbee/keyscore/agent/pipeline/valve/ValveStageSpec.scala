@@ -88,25 +88,25 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       }
     }
 
-    "extracts single data from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
-      whenReady(valveFuture) { valve =>
-        whenReady(valve.insert(List(dataset1))) { state =>
-          whenReady(valve.extract()) { datasets =>
-            datasets should contain(dataset1)
-          }
-        }
-      }
-    }
+//    "extracts single data from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
+//      whenReady(valveFuture) { valve =>
+//        whenReady(valve.insert(List(dataset1))) { state =>
+//          whenReady(valve.extract()) { datasets =>
+//            datasets should contain(dataset1)
+//          }
+//        }
+//      }
+//    }
 
-    "extract n elements from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
-      whenReady(valveFuture) { valve =>
-        whenReady(valve.insert(List(dataset1, dataset2, dataset3))) { state =>
-          whenReady(valve.extract(2)) { datasets =>
-            datasets should contain inOrderOnly(dataset3, dataset2)
-          }
-        }
-      }
-    }
+//    "extract n elements from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
+//      whenReady(valveFuture) { valve =>
+//        whenReady(valve.insert(List(dataset1, dataset2, dataset3))) { state =>
+//          whenReady(valve.extract(2)) { datasets =>
+//            datasets should contain inOrderOnly(dataset3, dataset2)
+//          }
+//        }
+//      }
+//    }
 
     "valve returns the complete state when state method is called" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>

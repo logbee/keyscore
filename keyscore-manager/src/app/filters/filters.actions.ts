@@ -28,6 +28,7 @@ export const RECONFIGURE_FILTER_ACTION = "[Filter] ReconfigureFilterAction";
 export const RECONFIGURE_FILTER_SUCCESS = "[Filter] ReconfigureFilterSuccess";
 export const RECONFIGURE_FILTER_FAILURE = "[Filter] ReconfigureFilterFailure";
 export const UPDATE_FILTER_CONFIGURATION = "[Filter] UpdateFilterConfiguration";
+export const RESTORE_FILTER_CONFIGURATIOM = "[Filter] RestoreFilterConfiguration";
 export type FiltersActions =
 
     | LoadLiveEditingFilterAction
@@ -54,7 +55,8 @@ export type FiltersActions =
     | ReconfigureFilterAction
     | ReconfigureFilterSuccess
     | ReconfigureFilterFailure
-    | UpdateFilterConfiguration;
+    | UpdateFilterConfiguration
+    | RestoreFilterConfiguration;
 
 export class LoadLiveEditingFilterAction implements Action {
     public readonly type = LOAD_LIVE_EDITING_FILTER;
@@ -230,5 +232,12 @@ export class UpdateFilterConfiguration implements Action {
     public readonly type = UPDATE_FILTER_CONFIGURATION;
 
     constructor(readonly filter: FilterConfiguration, readonly values: any) {
+    }
+}
+
+export class RestoreFilterConfiguration implements  Action {
+    public readonly type = RESTORE_FILTER_CONFIGURATIOM;
+
+    constructor(readonly  filter: FilterConfiguration) {
     }
 }
