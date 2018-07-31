@@ -8,27 +8,37 @@ import org.scalatest.{FreeSpec, Matchers}
 class GeneratedModelSpec extends FreeSpec with  Matchers {
 
   private val exampleText = "The weather is cloudy with a current temperature of 11.5 C."
+  private val exampleLabelText = "Hello World!"
+  private val exampleLabelNumber = 42
 
   "This test" - {
     "should check something" in new BufferAndStream {
 
-      private val messageField = Field("message", TextValue(exampleText))
-
-      private val record = Record(fields = List(
-        messageField,
-        Field("temperature", DecimalValue(11.5)),
-        Field("report", NumberValue(1)),
-        Field("timestamp", TimestampValue(4711L)
-      )))
-
-      val dataset = Dataset(None, List(record))
+      val dataset = Dataset(
+        MetaData(List(
+          Label("foo", TextValue(exampleLabelText)),
+          Label("bar", NumberValue(exampleLabelNumber))
+        )),
+        List(
+          Record(List(
+            Field("message", TextValue(exampleText)),
+            TextField("message", exampleText),
+            DecimalField("temperature",  11.5),
+            Field("report", NumberValue(1)),
+            Field("timestamp", TimestampValue(4711, 73)
+          )))
+      ))
 
       dataset.writeTo(output)
       buffer.flip()
 
       val parsedDataset: Dataset = Dataset.parseFrom(input)
 
-      parsedDataset shouldBe dataset
+      parsedDataset.metadata.findLabel("foo").get.value shouldBe exampleLabelText
+      parsedDataset.metadata.findLabel("bar").get.value shouldBe exampleLabelNumber
+
+      parsedDataset.metadata.findLabel("fubar") shouldBe None
+      parsedDataset.metadata.findTextLabel("bar") shouldBe None
 
       parsedDataset.records.head.fields.foreach { field: Field =>
         field.value match {
@@ -39,7 +49,9 @@ class GeneratedModelSpec extends FreeSpec with  Matchers {
           case number: NumberValue =>
             number.value shouldBe 1
           case timestamp: TimestampValue =>
-            timestamp.value shouldBe 4711L
+            timestamp.seconds shouldBe 4711
+            timestamp.nanos shouldBe 73
+          case _ => throw new IllegalStateException()
         }
       }
     }

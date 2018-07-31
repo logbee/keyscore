@@ -5,7 +5,7 @@ import java.util.UUID.randomUUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.agent.pipeline.ExampleData.{dataset1, record1}
+import io.logbee.keyscore.agent.pipeline.ExampleData.dataset1
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.model._
@@ -37,18 +37,15 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
       .run()
   }
 
-  val modified1 = Dataset(Record(
-    record1.id,
+  val modified1 = Dataset(records = Seq(Record(Seq(
     TextField("message", "The weather is cloudy with a current temperature of: -11.5 C"),
-  ))
+  ))))
 
-  val modified2 = Dataset(Record(
-    record1.id,
+  val modified2 = Dataset(records = Seq(Record(Seq(
     TextField("message", "The weather is cloudy with a current temperature of: -11.5 C"),
     TextField("message3", "testValue"),
     TextField("message4", "testValue2")
-  ))
-
+  ))))
 
   "A AddFieldsFilter" should {
 
@@ -71,7 +68,6 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
         sink.request(1)
         sink.expectNext(modified2)
       }
-
     }
   }
 }

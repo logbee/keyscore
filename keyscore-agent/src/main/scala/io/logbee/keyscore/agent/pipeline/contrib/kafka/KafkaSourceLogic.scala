@@ -1,7 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.kafka
 
 import java.util.{Locale, ResourceBundle, UUID}
-import java.util.UUID.fromString
 
 import akka.actor.ActorSystem
 import akka.kafka
@@ -21,7 +20,6 @@ import org.json4s.{Formats, NoTypeHints}
 
 import scala.collection.mutable
 import scala.concurrent.Promise
-import scala.util.Success
 
 object KafkaSourceLogic extends Described {
 

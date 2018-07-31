@@ -8,9 +8,9 @@ import akka.http.scaladsl.model.MediaTypes._
 import akka.http.scaladsl.model.{HttpEntity, HttpRequest, HttpResponse}
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, SinkShape}
+import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.agent.pipeline.stage.{SinkLogic, StageContext}
 import io.logbee.keyscore.commons.util.Hashing._
-import io.logbee.keyscore.model.Field.ValueTypeOneof.{Number, Text}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 import org.json4s.NoTypeHints
@@ -87,8 +87,8 @@ class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfigu
     queue = Source.queue[(HttpRequest, Promise[HttpResponse])](1, OverflowStrategy.dropNew)
       .via(pool)
       .toMat(Sink.foreach({
-        case ((Success(response), promise)) => promise.success(response)
-        case ((Failure(throwable), promise)) => promise.failure(throwable)
+        case (Success(response), promise) => promise.success(response)
+        case (Failure(throwable), promise) => promise.failure(throwable)
       }))(Keep.left)
       .run()
   }
@@ -97,10 +97,13 @@ class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfigu
     grab(in).records
       .map(record => {
         val fields = record.fields.foldLeft(Map.empty[String, Any])({
-          case (map, Field(name, valueType)) =>
-            valueType match {
-              case Text(TextValue(value)) => map + (name -> value)
-              case Number(NumberValue(value)) => map + (name -> value)
+          case (map, Field(name, value)) =>
+            value match {
+              case TextValue(text) => map + (name -> text)
+              case NumberValue(number) => map + (name -> number)
+              case DecimalValue(decimal) => map + (name -> decimal)
+              case timestampValue: TimestampValue => map + (name -> Timestamps.toString(timestampValue))
+              case _ => map
             }
         })
 

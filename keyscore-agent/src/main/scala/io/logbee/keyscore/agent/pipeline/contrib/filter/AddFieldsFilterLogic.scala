@@ -9,7 +9,6 @@ import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 object AddFieldsFilterLogic extends Described {
 
@@ -44,7 +43,8 @@ object AddFieldsFilterLogic extends Described {
 }
 
 class AddFieldsFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
-  var dataToAdd = scala.collection.mutable.Map[String, Field[_]]()
+
+  private var fieldsToAdd = List.empty[Field]
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
@@ -54,8 +54,10 @@ class AddFieldsFilterLogic(context: StageContext, configuration: FilterConfigura
     for (parameter <- configuration.parameters) {
       parameter.name match {
         case "fieldsToAdd" =>
-          val dataMap = parameter.value.asInstanceOf[Map[String, String]]
-          dataToAdd ++= dataMap.map(pair => (pair._1, TextField(pair._1, pair._2)))
+          fieldsToAdd = parameter.value.asInstanceOf[Map[String, String]].foldLeft(List[Field]()) {
+            case (list, (name, value)) => list :+ Field(name, TextValue(value))
+            case (list, _) => list
+          }
         case _ =>
       }
     }
@@ -64,20 +66,17 @@ class AddFieldsFilterLogic(context: StageContext, configuration: FilterConfigura
   override def onPush(): Unit = {
 
     val dataset = grab(shape.in)
-    var listBufferOfRecords = ListBuffer[Record]()
-    for (record <- dataset.records) {
-      var payload = new mutable.HashMap[String, Field[_]]()
-      payload ++= record.payload
-      payload ++= dataToAdd
-      listBufferOfRecords += new Record(record.id, payload.toMap)
+
+    if (fieldsToAdd.nonEmpty) {
+      val records = dataset.records.map(record => Record(fields = fieldsToAdd ++ record.fields))
+      push(out, Dataset(dataset.metadata, records))
     }
-    val listOfRecords = listBufferOfRecords.toList
-    push(out, Dataset(dataset.metaData, listOfRecords))
+    else {
+      push(out, dataset)
+    }
   }
 
   override def onPull(): Unit = {
     pull(in)
-
-
   }
 }
