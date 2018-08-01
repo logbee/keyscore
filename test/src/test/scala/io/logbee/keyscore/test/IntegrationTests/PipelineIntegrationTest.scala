@@ -10,22 +10,23 @@ import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState, Paused}
+import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState, FilterStatus, Paused}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 
 import scala.io.Source
 import scala.language.postfixOps
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
-class PipelineIntegrationTest extends Matchers {
+class PipelineIntegrationTest extends Matchers  {
   implicit val formats = KeyscoreFormats.formats
-
+  private val log = LoggerFactory.getLogger(classOf[PipelineIntegrationTest])
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
@@ -61,270 +62,83 @@ class PipelineIntegrationTest extends Matchers {
     val datasets = write(List(dataset1, dataset2, dataset3))
     val newFilterConfiguration = write(newGrokFilterconfiguration)
 
-    println(s"LoggerFilterIdPipelineOne: ${pipelineOneFilter.id}")
-    println(s"LoggerFilterIdPipelineTwo: ${pipelineTwoFilter.id}")
-    println(s"GrokIdPipelineThree: ${pipelineThreeFilter.id}")
-    println(s"datasetList: $datasets")
-    println(s"grokfilterConfig $newFilterConfiguration")
-
 
     // Create new KafkaToKafka Pipeline
 
-    runner.http(action => action.client(httpClient)
-      .send()
-      .put("/pipeline/configuration")
-      .contentType("application/json")
-      .payload(kafkaToKafkaPipeLineConfigString)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.CREATED)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/pipeline/configuration/${kafkaToKafkaPipeLineConfig.id}")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val config = read[PipelineConfiguration](payload)
-        config.filter should have size 1
-        config.name should equal(kafkaToKafkaPipeLineConfig.name)
-        config.source.id should equal(kafkaToKafkaPipeLineConfig.source.id)
-        config.sink.id should equal(kafkaToKafkaPipeLineConfig.sink.id)
-        config.filter.head.id should equal(kafkaToKafkaPipeLineConfig.filter.head.id)
-      }))
-
-    Thread.sleep(3000)
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/pipeline/instance/${kafkaToKafkaPipeLineConfig.id}")
-    )
-
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val instance = read[PipelineInstance](payload)
-        instance.health should equal(Green)
-      })
-    )
+    startPipeline(runner, kafkaToKafkaPipeLineConfigString, kafkaToKafkaPipeLineConfig)
 
     // Create new KafkaToElastic Pipeline
 
-    runner.http(action => action.client(httpClient)
-      .send()
-      .put("/pipeline/configuration")
-      .contentType("application/json")
-      .payload(kafkaToElasticPipeLineConfigString)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.CREATED)
-    )
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val config = read[PipelineConfiguration](payload)
-        config.filter should have size 1
-        config.source.id should equal(kafkaToElasticPipeLineConfig.source.id)
-      })
-    )
-
-    Thread.sleep(3000)
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/pipeline/instance/${kafkaToElasticPipeLineConfig.id}")
-    )
-
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val instance = read[PipelineInstance](payload)
-        instance.health should equal(Green)
-      })
-    )
+    startPipeline(runner, kafkaToElasticPipeLineConfigString, kafkaToElasticPipeLineConfig)
 
     // Create KafkatoKafka with Grok Pipeline
 
-    runner.http(action => action.client(httpClient)
-      .send()
-      .put("/pipeline/configuration")
-      .contentType("application/json")
-      .payload(kafkaToKafkaWithGrokPipelineConfigString)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.CREATED)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/pipeline/configuration/${kafkaToKafkaWithGrokPipelineConfig.id}")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val config = read[PipelineConfiguration](payload)
-        config.filter should have size 1
-        config.name should equal(kafkaToKafkaWithGrokPipelineConfig.name)
-        config.source.id should equal(kafkaToKafkaWithGrokPipelineConfig.source.id)
-        config.sink.id should equal(kafkaToKafkaWithGrokPipelineConfig.sink.id)
-        config.filter.head.id should equal(kafkaToKafkaWithGrokPipelineConfig.filter.head.id)
-      }))
-
-    Thread.sleep(3000)
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/pipeline/instance/${kafkaToKafkaWithGrokPipelineConfig.id}")
-    )
+    startPipeline(runner, kafkaToKafkaWithGrokPipelineConfigString, kafkaToKafkaWithGrokPipelineConfig)
 
 
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val instance = read[PipelineInstance](payload)
-        instance.health should equal(Green)
-      })
-    )
 
     // Insert and Extract Case
+    pauseFilter(runner, pipelineOneFilter, "true")
 
-    runner.http(action => action.client(httpClient)
-      .send()
-      .post(s"/filter/${pipelineOneFilter.id}/pause?value=true"))
+    checkFilteState(runner, pipelineOneFilter, Green, Paused)
 
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.ACCEPTED)
-    )
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/filter/${pipelineOneFilter.id}/state")
-    )
+    drainFilter(runner, pipelineOneFilter, "true")
 
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.ACCEPTED)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val state = read[FilterState](payload)
-        state.health shouldBe Green
-        state.status shouldBe Paused
-      })
-    )
+    insertDatasetsInFilter(runner, pipelineOneFilter, datasets)
 
-    runner.http(action => action.client(httpClient)
-      .send()
-      .post(s"/filter/${pipelineOneFilter.id}/drain?value=true"))
+    extractDatasetFromFilter(runner, pipelineOneFilter, 1, 1)
 
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.ACCEPTED)
-    )
+    extractDatasetFromFilter(runner, pipelineOneFilter, 5, 3)
 
+    pauseFilter(runner, pipelineOneFilter, "false")
 
-    runner.http(action => action.client(httpClient)
-      .send()
-      .put(s"/filter/${pipelineOneFilter.id}/insert")
-      .contentType("application/json")
-      .payload(datasets)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.ACCEPTED)
-    )
-
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/filter/${pipelineOneFilter.id}/extract?value=1")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
-        payload should have size 1
-        payload should contain(dataset3)
-      })
-    )
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/filter/${pipelineOneFilter.id}/extract?value=5")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
-        payload should have size 3
-      })
-    )
-    runner.http(action => action.client(httpClient)
-      .send()
-      .post(s"/filter/${pipelineOneFilter.id}/pause?value=false")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.ACCEPTED)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .post(s"/filter/${pipelineOneFilter.id}/drain?value=false")
-    )
+    drainFilter(runner, pipelineOneFilter, "false")
 
 
 
     //    Insert TestData and check ElasticSearchSink for proof
 
+    insertDatasetsInFilter(runner, pipelineOneFilter, datasets)
+
+    Thread.sleep(6000)
+
+    checkElasticElements(runner, 3)
+
+    // Reconfiguring
+
+    reconfigureFilter(runner, newFilterConfiguration, pipelineThreeFilter)
+
+    //     Delete Pipelines
+
+    removeElasticIndex(runner, "test")
+
+    deletePipeline(runner, kafkaToElasticPipeLineConfig)
+
+    checkRunningInstances(runner, 2)
+
+    deleteAllPipelines(runner)
+
+    checkRunningInstances(runner, 0)
+
+  }
+
+  private def extractDatasetFromFilter(runner: TestRunner, filter: FilterConfiguration, amount: Int, expected: Int) = {
     runner.http(action => action.client(httpClient)
       .send()
-      .put(s"/filter/${pipelineOneFilter.id}/insert")
-      .contentType("application/json")
-      .payload(datasets)
+      .get(s"/filter/${filter.id}/extract?value=" + amount)
     )
 
     runner.http(action => action.client(httpClient)
       .receive()
-      .response(HttpStatus.ACCEPTED)
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
+        payload should have size expected
+      })
     )
+  }
 
-    Thread.sleep(6000)
-
+  private def checkElasticElements(runner: TestRunner, hits: Int) = {
     runner.http(action => action.client(elasticClient)
       .send()
       .get("/test/_search")
@@ -337,16 +151,16 @@ class PipelineIntegrationTest extends Matchers {
         val response = message.getPayload.asInstanceOf[String]
         val json = parse(response)
         val hits = (json \ "hits" \ "total").extract[Int]
-        hits shouldBe 3
+        hits shouldBe hits
       }))
+  }
 
-
-//    // Reconfiguring
+  private def insertDatasetsInFilter(runner: TestRunner, filter: FilterConfiguration, datasets: String) = {
     runner.http(action => action.client(httpClient)
       .send()
-      .put(s"/filter/${pipelineThreeFilter.id}/config")
+      .put(s"/filter/${filter.id}/insert")
       .contentType("application/json")
-      .payload(newFilterConfiguration)
+      .payload(datasets)
     )
 
     runner.http(action => action.client(httpClient)
@@ -354,60 +168,163 @@ class PipelineIntegrationTest extends Matchers {
       .response(HttpStatus.ACCEPTED)
     )
 
-    //     Delete Pipelines
+    log.info(s"inserted: $datasets into ${filter.descriptor.displayName}")
+  }
 
-        runner.http(action => action.client(elasticClient)
-          .send()
-          .delete("/test"))
+  private def drainFilter(runner: TestRunner, filter: FilterConfiguration, toggle: String) = {
+    runner.http(action => action.client(httpClient)
+      .send()
+      .post(s"/filter/${filter.id}/drain?value=" + toggle))
 
-        runner.http(action => action.client(httpClient)
-          .send()
-          .delete(s"/pipeline/configuration/${kafkaToElasticPipeLineConfig.id}")
-        )
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+  }
 
-        runner.http(action => action.client(httpClient)
-          .receive()
-          .response(HttpStatus.OK)
-        )
+  private def checkFilteState(runner: TestRunner, filter: FilterConfiguration, health: Health, status: FilterStatus) = {
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get(s"/filter/${filter.id}/state")
+    )
 
-        runner.http(action => action.client(httpClient)
-          .send()
-          .get("/pipeline/instance/*")
-        )
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val state = read[FilterState](payload)
+        state.health shouldBe health
+        state.status shouldBe status
+      })
+    )
+  }
 
-        runner.http(action => action.client(httpClient)
-          .receive()
-          .response(HttpStatus.OK)
-          .validationCallback((message, context) => {
-            val payload = message.getPayload.asInstanceOf[String]
-            val instances = read[List[PipelineInstance]](payload)
-            instances should have size 2
-          }))
+  private def pauseFilter(runner: TestRunner, filter: FilterConfiguration, toggle: String) = {
+    runner.http(action => action.client(httpClient)
+      .send()
+      .post(s"/filter/${filter.id}/pause?value=" + toggle))
 
-        runner.http(action => action.client(httpClient)
-          .send()
-          .delete(s"/pipeline/configuration/*")
-        )
-        runner.http(action => action.client(httpClient)
-          .receive()
-          .response(HttpStatus.OK)
-        )
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+  }
 
-        runner.http(action => action.client(httpClient)
-          .send()
-          .get("/pipeline/instance/*")
-        )
+  private def reconfigureFilter(runner: TestRunner, newConfig: String, filter: FilterConfiguration) = {
+    runner.http(action => action.client(httpClient)
+      .send()
+      .put(s"/filter/${filter.id}/config")
+      .contentType("application/json")
+      .payload(newConfig)
+    )
 
-        runner.http(action => action.client(httpClient)
-          .receive()
-          .response(HttpStatus.OK)
-          .validationCallback((message, context) => {
-            val payload = message.getPayload.asInstanceOf[String]
-            val instances = read[List[PipelineInstance]](payload)
-            instances should have size 0
-          })
-        )
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+    log.info(s"Applied new config to ${filter.descriptor.displayName}: $newConfig")
 
+  }
+
+  private def checkRunningInstances(runner: TestRunner, expectedInstances: Int) = {
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get("/pipeline/instance/*")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val instances = read[List[PipelineInstance]](payload)
+        instances should have size expectedInstances
+      }))
+  }
+
+  private def deleteAllPipelines(runner: TestRunner) = {
+    runner.http(action => action.client(httpClient)
+      .send()
+      .delete(s"/pipeline/configuration/*")
+    )
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+    )
+  }
+
+  private def deletePipeline(runner: TestRunner, config: PipelineConfiguration) = {
+    runner.http(action => action.client(httpClient)
+      .send()
+      .delete(s"/pipeline/configuration/${config.id}")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+    )
+  }
+
+  private def removeElasticIndex(runner: TestRunner, index: String) = {
+    runner.http(action => action.client(elasticClient)
+      .send()
+      .delete("/" + index))
+    runner.http(action => action.client(elasticClient)
+      .receive()
+      .response(HttpStatus.OK)
+    )
+  }
+
+  private def startPipeline(runner: TestRunner, pipelineConfigString: String, pipelineConfiguration: PipelineConfiguration) = {
+    runner.http(action => action.client(httpClient)
+      .send()
+      .put("/pipeline/configuration")
+      .contentType("application/json")
+      .payload(pipelineConfigString)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.CREATED)
+    )
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get(s"/pipeline/configuration/${pipelineConfiguration.id}")
+    )
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val config = read[PipelineConfiguration](payload)
+        config.filter should have size 1
+        config.name should equal(pipelineConfiguration.name)
+        config.source.id should equal(pipelineConfiguration.source.id)
+        config.sink.id should equal(pipelineConfiguration.sink.id)
+        config.filter.head.id should equal(pipelineConfiguration.filter.head.id)
+      }))
+
+    Thread.sleep(5000)
+
+    runner.http(action => action.client(httpClient)
+      .send()
+      .get(s"/pipeline/instance/${pipelineConfiguration.id}")
+    )
+
+
+    runner.http(action => action.client(httpClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val instance = read[PipelineInstance](payload)
+        instance.health should equal(Green)
+      })
+    )
+    log.info(s"Created ${pipelineConfiguration.name} with ${pipelineConfiguration.filter.head.descriptor.displayName}: ${pipelineConfiguration.filter.head.id}")
   }
 }
 

@@ -150,14 +150,6 @@
         },
         "parameters": [
           {
-            "jsonClass": "BooleanParameterDescriptor",
-            "name": "isPaused",
-            "displayName": "ist pausiert",
-            "description": "zeigt an ob der Filter aktiv ist oder nicht",
-            "mandatory": true,
-            "value": false
-          },
-          {
             "jsonClass": "ListParameterDescriptor",
             "name": "fieldNames",
             "displayName": "fieldNames",
@@ -173,9 +165,7 @@
             },
             "min": 1,
             "max": 2147483647,
-            "value": [
-              "test"
-            ]
+            "value": []
           },
           {
             "jsonClass": "TextParameterDescriptor",
@@ -191,20 +181,13 @@
       },
       "parameters": [
         {
-          "name": "isPaused",
-          "value": false,
-          "jsonClass": "BooleanParameter"
-        },
-        {
           "name": "fieldNames",
-          "value": [
-            "test"
-          ],
+          "value": [],
           "jsonClass": "TextListParameter"
         },
         {
           "name": "pattern",
-          "value": ".*",
+          "value": "",
           "jsonClass": "TextParameter"
         }
       ]
