@@ -162,11 +162,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       }
 
     case RequestPipelineInstance(receiver) =>
-      log.info("Received PipelineInstance Request")
       receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Red)
 
     case RequestPipelineConfigurations(receiver) =>
-      log.info("Received PipelineConfiguration Request")
       receiver ! pipeline.configuration
   }
 
@@ -185,11 +183,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       context.stop(self)
 
     case RequestPipelineInstance(receiver) =>
-      log.info("Received PipelineInstance Request")
       receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Yellow)
 
     case RequestPipelineConfigurations(receiver) =>
-      log.info("Received PipelineConfiguration Request")
       receiver ! pipeline.configuration
   }
 
@@ -199,11 +195,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.info(s"Updating pipeline <${configuration.id}>")
 
     case RequestPipelineInstance(receiver) =>
-      log.info("Received PipelineInstance Request")
       receiver ! PipelineInstance(controller.configuration.id, controller.configuration.name, controller.configuration.description, Green)
 
     case RequestPipelineConfigurations(receiver) =>
-      log.info("Received PipelineConfiguration Request")
       receiver ! controller.configuration
 
     case PauseFilter(filterId, doPause) =>
