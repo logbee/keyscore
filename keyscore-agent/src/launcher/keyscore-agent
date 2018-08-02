@@ -2,4 +2,4 @@
 SCRIPT=`readlink -f "$0"`
 KEYSCORE_HOME=`dirname "$SCRIPT"`
 
-java -jar "$KEYSCORE_HOME/keyscore-agent.jar" -server -XX:+UnlockExperimentalVMOptions -Xms512m -Xmx3g
+exec java -jar "$KEYSCORE_HOME/keyscore-agent.jar" -server -XX:+UnlockExperimentalVMOptions -Xms512m -Xmx3g
