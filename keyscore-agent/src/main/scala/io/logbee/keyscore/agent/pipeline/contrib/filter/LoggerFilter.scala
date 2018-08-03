@@ -26,7 +26,9 @@ object LoggerFilter extends Described {
 }
 
 class LoggerFilter(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) with StageLogging {
-  override def configure(configuration: FilterConfiguration): Unit = {}
+
+  override def configure(configuration: FilterConfiguration): Unit = {
+  }
 
   override def onPush(): Unit = {
     val dataset = grab(in)

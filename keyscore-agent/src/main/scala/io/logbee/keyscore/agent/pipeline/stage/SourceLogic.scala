@@ -2,17 +2,22 @@ package io.logbee.keyscore.agent.pipeline.stage
 
 import java.util.UUID
 
-import akka.stream.SourceShape
+import akka.actor.ActorSystem
+import akka.stream.{Materializer, SourceShape}
 import akka.stream.stage.{GraphStageLogic, OutHandler, StageLogging}
 import io.logbee.keyscore.model.{Dataset, Green}
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState}
 import io.logbee.keyscore.model.source.SourceProxy
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
 abstract class SourceLogic(context: StageContext, configuration: FilterConfiguration, shape: SourceShape[Dataset]) extends GraphStageLogic(shape) with OutHandler with StageLogging {
 
   val initPromise = Promise[SourceProxy]
+
+  protected implicit val system: ActorSystem = context.system
+  protected implicit val dispatcher: ExecutionContextExecutor = context.dispatcher
+  protected override implicit lazy val materializer: Materializer = super.materializer
 
   protected val source = new SourceProxy {
 
