@@ -6,9 +6,10 @@ import java.util.UUID.fromString
 import akka.actor.ActorSystem
 import akka.kafka
 import akka.kafka.scaladsl.Consumer
-import akka.kafka.{ConsumerSettings, Subscriptions}
-import akka.stream.scaladsl.{Keep, Sink}
-import akka.stream.{ActorMaterializer, SourceShape}
+import akka.kafka.{ConsumerSettings, ProducerMessage, Subscriptions}
+import akka.stream.Attributes.InputBuffer
+import akka.stream.scaladsl.{Keep, Sink, SinkQueueWithCancel, SourceQueueWithComplete}
+import akka.stream.{ActorMaterializer, Attributes, SourceShape}
 import io.logbee.keyscore.agent.pipeline.stage.{SourceLogic, StageContext}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
@@ -57,17 +58,12 @@ object KafkaSourceLogic extends Described {
 class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration, shape: SourceShape[Dataset]) extends SourceLogic(context, configuration, shape) {
 
   implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
-  implicit val system: ActorSystem = context.system
-  implicit val mat = ActorMaterializer()
 
-  private var kafkaSource: Consumer.Control = _
+  private var sinkQueue: SinkQueueWithCancel[Dataset] = _
 
-  private val queue = mutable.Queue[SourceEntry]()
-
-  private val insertCallback = getAsyncCallback[SourceEntry](entry => {
-    queue.enqueue(entry)
-    push()
-  })
+  private val pushAsync = getAsyncCallback[Dataset] { dataset =>
+    push(shape.out, dataset)
+  }
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
@@ -75,9 +71,10 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
 
   override def postStop(): Unit = {
     log.info("Kafka source is stopping.")
-    kafkaSource.stop()
-    kafkaSource.shutdown()
+    sinkQueue.cancel()
   }
+
+  private var counter = 0
 
   override def configure(configuration: FilterConfiguration): Unit = {
     val bootstrapServer: String = configuration.getParameterValue[String]("bootstrapServer")
@@ -88,20 +85,12 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
     val settings = consumerSettings(bootstrapServer, groupID, offsetConfig)
 
     val committableSource = Consumer.committableSource(settings, Subscriptions.topics(topic))
-
-    kafkaSource = committableSource.map { message =>
+    sinkQueue = committableSource.map { message =>
       val fields = parse(message.record.value())
         .extract[Map[String, String]]
         .map(pair => (pair._1, TextField(pair._1, pair._2)))
-
-      val dataset = Dataset(Record(fields))
-      dataset
-    }.mapAsync(1)(dataset => {
-      val entry = SourceEntry(dataset, Promise[Unit])
-      insertCallback.invoke(entry)
-      entry.promise.future
-    }).toMat(Sink.ignore)(Keep.left).run()
-
+      Dataset(Record(fields))
+    }.runWith(Sink.queue[Dataset].withAttributes(Attributes(InputBuffer(1, 1))))
   }
 
   def consumerSettings(bootstrapServer: String, groupID: String, offsetConfig: String): ConsumerSettings[Array[Byte], String] = {
@@ -115,20 +104,9 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
   }
 
   override def onPull(): Unit = {
-    push()
-  }
-
-  def push(): Unit = {
-    while (queue.nonEmpty) {
-      if (isAvailable(shape.out)) {
-        val entry = queue.dequeue()
-        push(shape.out, entry.dataset)
-        entry.promise.success()
-      }
+    sinkQueue.pull().onComplete {
+      case Success(Some(dataset)) => pushAsync.invoke(dataset)
+      case _ => log.info("Failed to pull from kafka consumer queue!")
     }
   }
-
-  case class SourceEntry(dataset: Dataset, promise: Promise[Unit])
-
-
 }
