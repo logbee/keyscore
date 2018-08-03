@@ -7,7 +7,7 @@ object TextField extends TextFieldConversion
 case class TextField(name: String, value: String)
 
 object NumberField extends NumberFieldConversion
-case class NumberField(name: String, value: Int)
+case class NumberField(name: String, value: Long)
 
 object DecimalField extends DecimalFieldConversion
 case class DecimalField(name: String, value: Double)

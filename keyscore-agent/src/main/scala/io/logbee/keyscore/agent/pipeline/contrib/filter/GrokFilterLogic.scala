@@ -7,9 +7,7 @@ import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
 
-import scala.Function.tupled
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 import scala.util.matching.Regex
 
 
@@ -69,29 +67,20 @@ class GrokFilterLogic(context: StageContext, configuration: FilterConfiguration,
 
   private def grok(dataset: Dataset): Dataset = {
 
-    var listBufferOfRecords = ListBuffer[Record]()
-
-    for (record <- dataset.records) {
-      var payload = copyPayload(record)
-      for (field <- record.payload.values) {
-        payload.put(field.name, field)
-        if (fieldNames.contains(field.name) && field.isInstanceOf[TextField]) {
-          regex.findFirstMatchIn(field.asInstanceOf[TextField].value)
-            .foreach(patternMatch => patternMatch.groupNames.map(name => (name, patternMatch.group(name))) map tupled { (name, value) =>
-              value match {
-                case NUMBER_PATTERN(_*) => NumberField(name, BigDecimal(value).toDouble)
-                case _ => TextField(name, value)
-              }
-            } foreach (field => payload.put(field.name, field)))
+    Dataset(dataset.metadata, dataset.records.map(record => {
+      val fields = mutable.ListBuffer[Field]() ++= record.fields
+      for (field <- record.fields) {
+        if (fieldNames.contains(field.name) && field.value.isInstanceOf[TextValue]) {
+          regex.findFirstMatchIn(field.value.asInstanceOf[TextValue].value).foreach(patternMatch =>
+            patternMatch.groupNames.map(name => {
+                patternMatch.group(name) match {
+                  case value @ NUMBER_PATTERN(_*) => Field(name, DecimalValue(value.toDouble))
+                  case value => Field(name, TextValue(value))
+                }
+            }).foldLeft(fields) { (fields, field) => fields += field })
         }
       }
-      listBufferOfRecords += new Record(record.id, payload.toMap)
-    }
-
-    Dataset(dataset.metaData, listBufferOfRecords.toList)
-  }
-
-  private def copyPayload(record: Record) = {
-    new mutable.HashMap[String, Field[_]] ++= record.payload
+      Record(fields.toList)
+    }))
   }
 }

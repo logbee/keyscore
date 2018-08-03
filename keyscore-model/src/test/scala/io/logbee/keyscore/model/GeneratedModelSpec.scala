@@ -19,14 +19,13 @@ class GeneratedModelSpec extends FreeSpec with  Matchers {
           Label("foo", TextValue(exampleLabelText)),
           Label("bar", NumberValue(exampleLabelNumber))
         )),
-        List(
-          Record(List(
-            Field("message", TextValue(exampleText)),
-            TextField("message", exampleText),
-            DecimalField("temperature",  11.5),
-            Field("report", NumberValue(1)),
-            Field("timestamp", TimestampValue(4711, 73)
-          )))
+        Record(
+          Field("message", TextValue(exampleText)),
+          TextField("message", exampleText),
+          DecimalField("temperature",  11.5),
+          Field("report", NumberValue(1)),
+          Field("timestamp", TimestampValue(4711, 73)
+        )
       ))
 
       dataset.writeTo(output)

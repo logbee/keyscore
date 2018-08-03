@@ -6,9 +6,10 @@ import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, SinkShape}
+import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.agent.pipeline.stage.{SinkLogic, StageContext}
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Described, Record}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.json4s.ext.JavaTypesSerializers
@@ -48,7 +49,8 @@ object KafkaSinkLogic extends Described {
       parameters = List(
             TextParameterDescriptor("bootstrapServer", translatedText.getString("bootstrapServer"), "description"),
             TextParameterDescriptor("topic", translatedText.getString("topic"), "description")
-          ), translatedText.getString("category"))
+      ),
+      translatedText.getString("category"))
   }
 
 }
@@ -111,10 +113,12 @@ class KafkaSinkLogic(context: StageContext, configuration: FilterConfiguration, 
   }
 
   def parseRecord(record: Record): String = {
-    val payload = record.payload
 
-    val message = payload.values.foldLeft(Map.empty[String, Any]) {
-      case (map, field) => map + (field.name -> field.value)
+    val message = record.fields.map(field => (field.name, field.value)).foldLeft(Map.empty[String, Any]) {
+      case (map, (name, TextValue(value))) => map + (name -> value)
+      case (map, (name, NumberValue(value))) => map + (name -> value)
+      case (map, (name, DecimalValue(value))) => map + (name -> value)
+      case (map, (name, value: TimestampValue)) => map + (name -> Timestamps.toString(value))
     }
 
     write(message)

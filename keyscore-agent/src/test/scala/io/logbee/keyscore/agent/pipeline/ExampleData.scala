@@ -51,12 +51,10 @@ object ExampleData {
   val record2Modified = Record(TextField("weather-report", "rainy, 5.8 C"))
   val record3Modified = Record(TextField("weather-report", "sunny, 14.4 C"))
   val multiRecordModified = Record(
-    multiFields1.id,
     TextField("bar", "42"),
     TextField("bbq", "meat")
   )
   val multiRecordModified2 = Record(
-    multiFields1.id,
     TextField("foo", "bar")
   )
 

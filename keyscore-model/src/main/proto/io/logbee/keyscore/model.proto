@@ -9,8 +9,9 @@ option (scalapb.options) = {
 };
 
 message Dataset {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.DatasetCompanion";
     MetaData metadata = 1 [(scalapb.field).no_box = true];
-    repeated Record records = 2;
+    repeated Record records = 2 [(scalapb.field).collection_type="collection.immutable.List"];
 }
 
 message MetaData {
@@ -26,7 +27,7 @@ message Label {
 
 message Record {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.RecordCompanion";
-    repeated Field fields = 2;
+    repeated Field fields = 2 [(scalapb.field).collection_type="collection.immutable.List"];
 }
 
 message Field {
@@ -51,7 +52,7 @@ message TextValue {
 
 message NumberValue {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.NumberValueConversion";
-    sint32 value = 1;
+    sint64 value = 1;
 }
 
 message DecimalValue {

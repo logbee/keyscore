@@ -9,7 +9,6 @@ import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.{Dataset, Described, Record}
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 object RemoveFieldsFilterLogic extends Described {
 
@@ -42,7 +41,8 @@ object RemoveFieldsFilterLogic extends Described {
 }
 
 class RemoveFieldsFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
-  var fieldsToRemove = List[String]()
+
+  private var fieldsToRemove = List.empty[String]
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
@@ -50,23 +50,20 @@ class RemoveFieldsFilterLogic(context: StageContext, configuration: FilterConfig
 
   override def configure(configuration: FilterConfiguration): Unit = {
     for (parameter <- configuration.parameters)
-      parameter.name match {
-        case "fieldsToRemove" =>
-          fieldsToRemove = parameter.value.asInstanceOf[List[String]]
+      parameter match {
+        case TextListParameter("fieldsToRemove", value) => fieldsToRemove = value
         case _ =>
       }
   }
 
   override def onPush(): Unit = {
-    val dataset = grab(in)
 
-    var listBufferOfRecords = ListBuffer[Record]()
-    for (record <- dataset.records) {
-      val payload = record.payload.filterKeys(!fieldsToRemove.contains(_))
-      listBufferOfRecords += Record(record.id, payload)
-    }
-    val listOfRecords = listBufferOfRecords.toList
-    push(out, Dataset(dataset.metaData, listOfRecords))
+    val dataset = grab(in)
+    val records = dataset.records.map( record => {
+      Record(record.fields.filter(field => !fieldsToRemove.contains(field.name)))
+    })
+
+    push(out, Dataset(dataset.metadata, records))
   }
 
   override def onPull(): Unit = {

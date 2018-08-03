@@ -68,7 +68,7 @@ class AddFieldsFilterLogic(context: StageContext, configuration: FilterConfigura
     val dataset = grab(shape.in)
 
     if (fieldsToAdd.nonEmpty) {
-      val records = dataset.records.map(record => Record(fields = fieldsToAdd ++ record.fields))
+      val records = dataset.records.map(record => Record(fields = record.fields ++ fieldsToAdd))
       push(out, Dataset(dataset.metadata, records))
     }
     else {

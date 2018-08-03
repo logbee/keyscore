@@ -9,7 +9,7 @@ trait TextFieldConversion {
 }
 
 trait NumberFieldConversion {
-  implicit def numberFieldToField(field: NumberField): Field = Field(field.name, DecimalValue(field.value))
+  implicit def numberFieldToField(field: NumberField): Field = Field(field.name, NumberValue(field.value))
   implicit def fieldToNumberField(field: Field): NumberField = NumberField(field.name, field.value.asInstanceOf[NumberValue].value)
 }
 

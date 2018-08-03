@@ -23,7 +23,6 @@ import scala.language.postfixOps
 @RunWith(classOf[JUnitRunner])
 class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
-
   trait TestStream {
 
     val configuration = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(TextMapParameter("fieldsToAdd", Map.empty)))
@@ -37,15 +36,15 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
       .run()
   }
 
-  val modified1 = Dataset(records = Seq(Record(Seq(
+  val modified1 = Dataset(records = Record(
     TextField("message", "The weather is cloudy with a current temperature of: -11.5 C"),
-  ))))
+  ))
 
-  val modified2 = Dataset(records = Seq(Record(Seq(
+  val modified2 = Dataset(records = Record(
     TextField("message", "The weather is cloudy with a current temperature of: -11.5 C"),
     TextField("message3", "testValue"),
     TextField("message4", "testValue2")
-  ))))
+  ))
 
   "A AddFieldsFilter" should {
 

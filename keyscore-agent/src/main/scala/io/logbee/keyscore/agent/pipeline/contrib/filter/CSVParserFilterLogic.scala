@@ -45,8 +45,9 @@ object CSVParserFilterLogic extends Described {
 }
 
 class CSVParserFilterLogic(context:StageContext,configuration:FilterConfiguration,shape:FlowShape[Dataset,Dataset]) extends FilterLogic(context,configuration,shape) {
-  var headerList : List[String] = List[String]()
-  var separator : String = ""
+
+  private var headerList : List[String] = List.empty
+  private var separator : String = ""
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
@@ -54,32 +55,28 @@ class CSVParserFilterLogic(context:StageContext,configuration:FilterConfiguratio
 
   override def configure(configuration: FilterConfiguration): Unit = {
     for (parameter <- configuration.parameters)
-      parameter.name match {
-        case "separator" =>
-          separator = parameter.value.asInstanceOf[String]
-        case "headers" =>
-          headerList = parameter.value.asInstanceOf[List[String]]
+      parameter match {
+        case TextParameter("separator", value) => separator = value
+        case TextListParameter("headers", value) => headerList = value
         case _ =>
       }
-
   }
 
   override def onPush(): Unit = {
     val dataset = grab(shape.in)
+    val records = dataset.records.map(record => {
+      Record(record.fields.foldLeft(ListBuffer[Field]()) { (fields, field) =>
+        field.value match {
+          case TextValue(line) if headerList.nonEmpty && separator.nonEmpty =>
+            fields ++= headerList.zip(line.split(separator)).map {
+              case (name, value) => Field(name, TextValue(value))
+            }
+          case _ => fields += field
+        }
+      }.toList)
+    })
 
-    var recordsList =  ListBuffer[Record]()
-    for (record <- dataset.records){
-      for (field <- record.payload.values) {
-        val message = field.asInstanceOf[TextField].value
-        val listOfData = message.split(separator).map( x => TextField(x,x)).toList
-        val dataMap : Map[String, TextField] = headerList.zip(listOfData).toMap.map(e => e._1 -> TextField(e._1.toString,e._2.value))
-        val rec = Record(record.id,dataMap)
-        recordsList += rec
-      }
-    }
-
-    val dataList = recordsList.toList
-    push(out, Dataset(dataset.metaData, dataList))
+    push(out, Dataset(dataset.metadata, records))
   }
 
   override def onPull(): Unit = {

@@ -3,7 +3,7 @@ package io.logbee.keyscore.agent.pipeline.contrib.filter
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.agent.pipeline.ExampleData.{csvA, csvDatasetA, csvHeader, csvHeader2}
+import io.logbee.keyscore.agent.pipeline.ExampleData.{csvDatasetA, csvHeader, csvHeader2}
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.model._
@@ -21,7 +21,6 @@ import scala.concurrent.duration._
 class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   val csvAResult = Dataset(Record(
-    csvA.id,
     TextField("Philosophy" , "13"),
     TextField("Maths" , "07"),
     TextField("Latin" , "09"),
@@ -29,7 +28,6 @@ class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
   ))
 
   val csvBResult = Dataset(Record(
-    csvA.id,
     TextField("Philosophy2" , "13"),
     TextField("Maths2" , "07"),
     TextField("Latin2" , "09"),

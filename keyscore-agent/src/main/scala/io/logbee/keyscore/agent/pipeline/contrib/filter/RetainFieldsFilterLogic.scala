@@ -9,7 +9,6 @@ import io.logbee.keyscore.model.filter._
 import io.logbee.keyscore.model.{Dataset, Described, Record}
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 object RetainFieldsFilterLogic extends Described {
 
@@ -42,7 +41,8 @@ object RetainFieldsFilterLogic extends Described {
 }
 
 class RetainFieldsFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
-  var fieldsToRetain = List[String]()
+
+  private var fieldsToRetain = List.empty[String]
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
@@ -59,15 +59,13 @@ class RetainFieldsFilterLogic(context: StageContext, configuration: FilterConfig
   }
 
   override def onPush(): Unit = {
-    val dataset = grab(in)
 
-    var listBufferOfRecords = ListBuffer[Record]()
-    for (record <- dataset.records) {
-      var payload = record.payload.filterKeys(fieldsToRetain.contains(_))
-      listBufferOfRecords += new Record(record.id, payload.toMap)
-    }
-    val listOfRecords = listBufferOfRecords.toList
-    push(out, Dataset(dataset.metaData, listOfRecords))
+    val dataset = grab(in)
+    val records = dataset.records.map( record => {
+      Record(record.fields.filter(field => fieldsToRetain.contains(field.name)))
+    })
+
+    push(out, Dataset(dataset.metadata, records))
   }
 
   override def onPull(): Unit = {

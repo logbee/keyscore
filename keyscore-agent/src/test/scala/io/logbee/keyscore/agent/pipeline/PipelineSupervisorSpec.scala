@@ -94,7 +94,7 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
 
       override def onPull(): Unit = {
         if (outputCounter < input.size) {
-          push(shape.out, Dataset(List(Record(TextField(outputCounter.toString, input(outputCounter))))))
+          push(shape.out, Dataset(Record(TextField(outputCounter.toString, input(outputCounter)))))
           outputCounter += 1
         }
       }
@@ -112,8 +112,8 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
 
       override def onPush(): Unit ={
         val result = grab(in)
-        assert(result.records.head.payload.values.head.value.toString.contains("_modified"))
-        Console.println(result)
+        assert(result.records.head.fields.head.value.asInstanceOf[TextValue].value.contains("_modified"))
+        println(result)
         pull(in)
       }
     }
@@ -126,11 +126,11 @@ class PipelineSupervisorSpec extends TestKit(ActorSystem("actorSystem")) with Wo
 
       override def onPush(): Unit = {
         val dataset = grab(in)
-        Console.println(dataset)
-        val modifiedValue = dataset.records.head.payload.values.head.value +"_modified"
-        val newRecord = Record(TextField(dataset.records.head.payload.head._1,modifiedValue))
+        println(dataset)
+        val modifiedValue = dataset.records.head.fields.head.value + "_modified"
+        val newRecord = Record(TextField(dataset.records.head.fields.head.name, modifiedValue))
 
-        push(out, Dataset(List(newRecord)))
+        push(out, Dataset(newRecord))
       }
 
       override def onPull(): Unit = {

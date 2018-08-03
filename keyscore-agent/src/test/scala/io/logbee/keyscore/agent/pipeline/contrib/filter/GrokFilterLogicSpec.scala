@@ -40,8 +40,8 @@ class GrokFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with 
     TextParameter("pattern", ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*")
   ))
 
-  val modified1 = Dataset(Record(record1.id, messageTextField1, NumberField("temperature", -11.5)))
-  val modified2 = Dataset(Record(record2.id, messageTextField2, NumberField("temperature", 5.8)))
+  val modified1 = Dataset(Record(messageTextField1, DecimalField("temperature", -11.5)))
+  val modified2 = Dataset(Record(messageTextField2, DecimalField("temperature", 5.8)))
 
   "A GrokFilter" should {
 

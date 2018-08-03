@@ -9,8 +9,8 @@ import akka.stream.stage.StageLogging
 import com.google.common.base.Charsets
 import com.google.common.io.BaseEncoding.base64
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Described, Record, TextField}
 
 import scala.collection.mutable
 
@@ -37,7 +37,6 @@ object FingerprintFilterLogic extends Described {
       description = translatedText.getString("description"),
       previousConnection = FilterConnection(isPermitted = true),
       nextConnection = FilterConnection(isPermitted = true),
-      category = "Debug",
       parameters = List(
         TextParameterDescriptor("fingerprintFieldName", displayName = translatedText.getString("fingerprintFieldName"), description = "", mandatory = true, validator = ".*")
       ))
@@ -62,16 +61,16 @@ class FingerprintFilterLogic(context: StageContext, configuration: FilterConfigu
     val dataset = grab(in)
     val records = dataset.records.map(record => {
 
-      val base64MD5Hash = base64().encode(record.payload.values.foldLeft(digest) {
+      val base64MD5Hash = base64().encode(record.fields.foldLeft(digest) {
         case (md5, field) =>
           md5.update(s"${field.name}=${field.value}".getBytes(Charsets.UTF_8))
           md5
       }.digest())
 
-      Record(record.id, record.payload + (fingerprintFieldName -> TextField(fingerprintFieldName, base64MD5Hash)))
+      Record(Field(fingerprintFieldName, TextValue(base64MD5Hash)) +: record.fields)
     })
 
-    push(out, Dataset(dataset.metaData, records))
+    push(out, Dataset(dataset.metadata, records))
   }
 
   override def onPull(): Unit = {

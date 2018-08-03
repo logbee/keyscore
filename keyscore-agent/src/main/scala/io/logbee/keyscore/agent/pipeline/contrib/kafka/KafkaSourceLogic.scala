@@ -82,8 +82,8 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
     sinkQueue = committableSource.map { message =>
       val fields = parse(message.record.value())
         .extract[Map[String, String]]
-        .map(pair => (pair._1, TextField(pair._1, pair._2)))
-      Dataset(Record(fields))
+        .map(pair => Field(pair._1, TextValue(pair._2)))
+      Dataset(MetaData(), Record(fields.toList))
     }.runWith(Sink.queue[Dataset].withAttributes(Attributes(InputBuffer(1, 1))))
   }
 

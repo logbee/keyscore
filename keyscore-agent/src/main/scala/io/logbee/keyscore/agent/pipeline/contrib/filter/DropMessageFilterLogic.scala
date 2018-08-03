@@ -6,14 +6,14 @@ import java.util.{Locale, ResourceBundle}
 import akka.stream.FlowShape
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Described, TextField}
+import io.logbee.keyscore.model.{Dataset, Described, TextValue}
 
 import scala.collection.mutable
 
-object RetainMessageFilterLogic extends Described {
+object DropMessageFilterLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RetainMessageFilterLogic"
-  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RetainMessageFilter"
+  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.DropMessageFilterLogic"
+  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.DropMessageFilter"
   private val filterId = "2f117a41-8bf1-4830-9228-7342f3f3fd64"
 
   override def describe: MetaFilterDescriptor = {
@@ -40,8 +40,9 @@ object RetainMessageFilterLogic extends Described {
   }
 }
 
-class RetainMessageFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
-  var messagesToRetain = List[String]()
+class DropMessageFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
+
+  private var messagesToRetain = List.empty[String]
 
   override def initialize(configuration: FilterConfiguration): Unit = {
     configure(configuration)
@@ -59,8 +60,11 @@ class RetainMessageFilterLogic(context: StageContext, configuration: FilterConfi
 
   override def onPush(): Unit = {
     val dataset = grab(in)
-    if (checkForRetainCondition(dataset)) {
+    if (keep(dataset)) {
       push(out, dataset)
+    }
+    else {
+      pull(in)
     }
   }
 
@@ -68,14 +72,14 @@ class RetainMessageFilterLogic(context: StageContext, configuration: FilterConfi
     pull(in)
   }
 
-  private def checkForRetainCondition(dataset: Dataset): Boolean = {
+  private def keep(dataset: Dataset): Boolean = {
     for (record <- dataset.records) {
-      for (field <- record.payload.values) {
-        field match {
-          case textField: TextField =>
+      for (field <- record.fields) {
+        field.value match {
+          case textValue: TextValue =>
             for (message <- messagesToRetain) {
-              message.r.findFirstMatchIn(textField.value) match {
-                case Some(_) => return true
+              message.r.findFirstMatchIn(textValue.value) match {
+                case Some(_) => return false
                 case _ =>
               }
             }
@@ -83,6 +87,6 @@ class RetainMessageFilterLogic(context: StageContext, configuration: FilterConfi
         }
       }
     }
-    false
+    true
   }
 }
