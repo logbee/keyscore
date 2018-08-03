@@ -1,15 +1,13 @@
 package io.logbee.keyscore.agent.pipeline.contrib.kafka
 
 import java.util.{Locale, ResourceBundle, UUID}
-import java.util.UUID.fromString
 
-import akka.actor.ActorSystem
 import akka.kafka
 import akka.kafka.scaladsl.Consumer
-import akka.kafka.{ConsumerSettings, ProducerMessage, Subscriptions}
+import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.Attributes.InputBuffer
-import akka.stream.scaladsl.{Keep, Sink, SinkQueueWithCancel, SourceQueueWithComplete}
-import akka.stream.{ActorMaterializer, Attributes, SourceShape}
+import akka.stream.scaladsl.{Sink, SinkQueueWithCancel}
+import akka.stream.{Attributes, SourceShape}
 import io.logbee.keyscore.agent.pipeline.stage.{SourceLogic, StageContext}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
@@ -20,8 +18,6 @@ import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization
 import org.json4s.{Formats, NoTypeHints}
 
-import scala.collection.mutable
-import scala.concurrent.Promise
 import scala.util.Success
 
 object KafkaSourceLogic extends Described {
@@ -73,8 +69,6 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
     log.info("Kafka source is stopping.")
     sinkQueue.cancel()
   }
-
-  private var counter = 0
 
   override def configure(configuration: FilterConfiguration): Unit = {
     val bootstrapServer: String = configuration.getParameterValue[String]("bootstrapServer")
