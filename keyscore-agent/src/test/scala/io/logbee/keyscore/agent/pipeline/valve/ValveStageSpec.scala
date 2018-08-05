@@ -5,9 +5,8 @@ import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open}
-import io.logbee.keyscore.model.Dataset
+import io.logbee.keyscore.model._
 import org.junit.runner.RunWith
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -17,7 +16,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   class TestWithSourceProbeAndSinkProbe(bufferLimit: Int = 2) {
     val ((source, valveFuture), sink) = TestSource.probe[Dataset]
@@ -41,10 +40,9 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
 
         sink.request(3)
 
-        sink.expectNext(dataset1)
-        println(dataset1)
-        sink.expectNext(dataset2)
-        sink.expectNext(dataset3)
+        sink.requestNext().records should contain theSameElementsAs dataset1.records
+        sink.requestNext().records should contain theSameElementsAs dataset2.records
+        sink.requestNext().records should contain theSameElementsAs dataset3.records
       }
     }
 
@@ -53,19 +51,22 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
       whenReady(valveFuture) { valve =>
 
         sink.request(1)
-        sink.expectNext(dataset1)
+        sink.requestNext().records should contain theSameElementsAs dataset1.records
 
         whenReady(valve.close()) { state =>
           state.position shouldBe Closed
+
           sink.request(3)
-          sink.expectNext(dataset2)
-          sink.expectNext(dataset3)
+
+          sink.requestNext().records should contain theSameElementsAs dataset2.records
+          sink.requestNext().records should contain theSameElementsAs dataset3.records
+
           sink.expectNoMessage(5 seconds)
         }
       }
     }
 
-    "valve passes through datasets after it was opened again" in new TestWithSourceProbeAndSinkProbe {
+    "let datasets pass through after it was opened again" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>
         source.sendNext(dataset1)
         source.sendNext(dataset2)
@@ -80,35 +81,52 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with MockF
           state.position shouldBe Open
         }
 
-        sink.request(1)
-        sink.expectNext(dataset1)
-
-        sink.request(1)
-        sink.expectNext(dataset2)
+        sink.requestNext().records should contain theSameElementsAs dataset1.records
+        sink.requestNext().records should contain theSameElementsAs dataset2.records
       }
     }
 
-//    "extracts single data from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
-//      whenReady(valveFuture) { valve =>
-//        whenReady(valve.insert(List(dataset1))) { state =>
-//          whenReady(valve.extract()) { datasets =>
-//            datasets should contain(dataset1)
-//          }
-//        }
-//      }
-//    }
+    "drops datasets when drained" in new TestWithSourceProbeAndSinkProbe {
 
-//    "extract n elements from the RingBuffer" in new TestWithSourceProbeAndSinkProbe {
-//      whenReady(valveFuture) { valve =>
-//        whenReady(valve.insert(List(dataset1, dataset2, dataset3))) { state =>
-//          whenReady(valve.extract(2)) { datasets =>
-//            datasets should contain inOrderOnly(dataset3, dataset2)
-//          }
-//        }
-//      }
-//    }
+      whenReady(valveFuture) { valve =>
 
-    "valve returns the complete state when state method is called" in new TestWithSourceProbeAndSinkProbe {
+        whenReady(valve.drain()) { state =>
+
+          state.position shouldBe Drain
+
+          source.sendNext(dataset1)
+          source.sendNext(dataset2)
+
+          sink.request(1)
+          sink.expectNoMessage(5 seconds)
+
+          whenReady(valve.open()) { state =>
+
+            state.position shouldBe Open
+
+            source.sendNext(dataset3)
+            source.sendNext(dataset4)
+
+            sink.requestNext().records should contain theSameElementsAs dataset3.records
+            sink.requestNext().records should contain theSameElementsAs dataset4.records
+          }
+        }
+      }
+    }
+
+    "retains the labels of dataset" in new TestWithSourceProbeAndSinkProbe {
+
+      whenReady(valveFuture) { valve =>
+
+        val expectedLabel = Label("foo", TextValue("bar"))
+        val dataset = Dataset(MetaData(expectedLabel), Record(Field("message", TextValue("Hello World!"))))
+
+        source.sendNext(dataset)
+        sink.requestNext().metadata.labels should contain (expectedLabel)
+      }
+    }
+
+    "returns the complete state when state method is called" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>
 
         Await.ready(valve.close(), 5 seconds)

@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent.util
 
+import com.google.protobuf.Duration
 import io.logbee.keyscore.agent.util.MovingMedian.MovingMedianItem
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -10,13 +11,18 @@ class MovingMedianSpec extends WordSpec with Matchers {
 
   "An initialized MovingMedian" should {
     "return 0" in {
-      MovingMedian().get shouldBe 0
+      MovingMedian().get shouldBe Duration.newBuilder().build()
     }
   }
 
   private val min: Int = 1
   private val max: Int = 42
-  private val initMedians = Array(MovingMedianItem(42, min + 3), MovingMedianItem(37, min + 5), MovingMedianItem(12, max), MovingMedianItem(31, min), MovingMedianItem(75, min + 7))
+  private val initMedians = Array(
+    MovingMedianItem(Duration.newBuilder().setSeconds(42).build(), min + 3),
+    MovingMedianItem(Duration.newBuilder().setSeconds(37).build(), min + 5),
+    MovingMedianItem(Duration.newBuilder().setSeconds(12).build(), max),
+    MovingMedianItem(Duration.newBuilder().setSeconds(31).build(), min),
+    MovingMedianItem(Duration.newBuilder().setSeconds(75).build(), min + 7))
   private var movingMedian = MovingMedian(10)
 
   "An Array of MovingMedianItems" should {
@@ -29,18 +35,18 @@ class MovingMedianSpec extends WordSpec with Matchers {
       initMedians.indexOf(initMedians.min) shouldBe (3)
     }
     "update a new item correct" in {
-      movingMedian + 10
-      movingMedian + 11
-      movingMedian + 12
-      movingMedian + 13
-      movingMedian + 14
-      movingMedian + 15
-      movingMedian + 16
-      movingMedian + 17
-      movingMedian + 18
-      movingMedian + 19
-      Thread.sleep(1000)
-      movingMedian.get shouldBe 15
+      movingMedian + Duration.newBuilder().setSeconds(10).build()
+      movingMedian + Duration.newBuilder().setSeconds(11).build()
+      movingMedian + Duration.newBuilder().setSeconds(12).build()
+      movingMedian + Duration.newBuilder().setSeconds(13).build()
+      movingMedian + Duration.newBuilder().setSeconds(14).build()
+      movingMedian + Duration.newBuilder().setSeconds(15).build()
+      movingMedian + Duration.newBuilder().setSeconds(16).build()
+      movingMedian + Duration.newBuilder().setSeconds(17).build()
+      movingMedian + Duration.newBuilder().setSeconds(18).build()
+      movingMedian + Duration.newBuilder().setSeconds(19).build()
+
+      movingMedian.get shouldBe Duration.newBuilder().setSeconds(15).build()
     }
   }
 }

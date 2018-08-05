@@ -3,11 +3,10 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, ValveState}
-import io.logbee.keyscore.model.{After, Dataset, WhichValve}
 import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.{After, Dataset, WhichValve}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.macros.whitebox
 
 private class FilterController(val inValve: ValveProxy, val filter: FilterProxy, val outValve: ValveProxy)(implicit val executionContext: ExecutionContext) extends Controller {
 
@@ -81,7 +80,6 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
       case (ValvePosition.Open, ValvePosition.Drain) => Drained
       case _ => Unknown
     }
-    println(s"Status: $status ${in.position} ${out.position}")
     status
   }
 

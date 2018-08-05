@@ -1,7 +1,7 @@
 package io.logbee.keyscore.model.conversion
 
-import com.google.protobuf.Timestamp
-import io.logbee.keyscore.model.{DecimalValue, NumberValue, TextValue, TimestampValue}
+import com.google.protobuf.{Duration, Timestamp}
+import io.logbee.keyscore.model._
 
 trait ValueConversion extends TextValueConversion with NumberValueConversion with DecimalValueConversion with TimestampValueConversion
 
@@ -40,11 +40,26 @@ trait DecimalValueConversion {
 
 trait TimestampValueConversion {
 
+  def apply(timestamp: Timestamp) = new TimestampValue(timestamp.getSeconds, timestamp.getNanos)
+
   implicit def timestampValueToTimestamp(timestampValue: TimestampValue): Timestamp = {
     Timestamp.newBuilder().setSeconds(timestampValue.seconds).setNanos(timestampValue.nanos).build()
   }
 
   implicit def timestampValueFromTimestamp(timestamp: Timestamp): TimestampValue = {
-    TimestampValue(timestamp.getSeconds, timestamp.getNanos)
+    TimestampValue(timestamp)
+  }
+}
+
+trait DurationValueConversion {
+
+  def apply(duration: Duration) = new DurationValue(duration.getSeconds, duration.getNanos)
+
+  implicit def durationValueToTimestamp(durationValue: DurationValue): Duration = {
+    Duration.newBuilder().setSeconds(durationValue.seconds).setNanos(durationValue.nanos).build()
+  }
+
+  implicit def durationValueFromDuration(duration: Duration): DurationValue = {
+    DurationValue(duration)
   }
 }

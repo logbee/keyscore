@@ -1,20 +1,25 @@
 package io.logbee.keyscore.agent.pipeline.valve
 
-import java.lang.System.nanoTime
 import java.util.UUID
 
 import akka.stream.stage._
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
+import com.google.protobuf.Duration
+import com.google.protobuf.util.Timestamps
+import com.google.protobuf.util.Timestamps.between
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open, ValvePosition}
-import io.logbee.keyscore.agent.pipeline.valve.ValveStage.{FirstValveTimestamp, PreviousValveTimestamp}
+import io.logbee.keyscore.agent.pipeline.valve.ValveStage.{FirstValveTimestamp, PreviousDatasetThroughputTime, PreviousValveTimestamp, TotalDatasetThroughputTime}
 import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
-import io.logbee.keyscore.model.{Dataset, Label}
+import io.logbee.keyscore.model._
 
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
 object ValveStage {
-  val FirstValveTimestamp = Label[Long]("FIRST_VALVE_TIMESTAMP")
-  val PreviousValveTimestamp = Label[Long]("PREVIOUS_VALVE_TIMESTAMP")
+  val FirstValveTimestamp = "io.logbee.keyscore.agent.pipeline.valve.VALVE_FIRST_TIMESTAMP"
+  val PreviousValveTimestamp = "io.logbee.keyscore.agent.pipeline.valve.VALVE_PREVIOUS_TIMESTAMP"
+  val PreviousDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_PREVIOUS_THROUGHPUT_TIME"
+  val TotalDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_TOTAL_THROUGHPUT_TIME"
 }
 
 class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContext) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {
@@ -41,14 +46,14 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private var state = ValveState(id, bufferLimit = ringBuffer.limit)
 
     private val stateCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
-      update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
+      update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
       promise.success(state)
     })
 
     private val positionCallback = getAsyncCallback[(Promise[ValveState], ValvePosition)]({
       case (promise, `Open`) =>
         if (isDraining) ringBuffer.clear()
-        update(ValveState(id, Open, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
+        update(ValveState(id, Open, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         pullIn()
         promise.success(state)
         log.info(s"Valve <$id> is now open.")
@@ -56,13 +61,13 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       case (promise, `Closed`) =>
         totalThroughputTime.reset()
         throughputTime.reset()
-        update(ValveState(id, Closed, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
+        update(ValveState(id, Closed, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         promise.success(state)
         log.info(s"Valve <$id> is now closed.")
 
       case (promise, `Drain`) =>
         ringBuffer.clear()
-        update(ValveState(id, Drain, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
+        update(ValveState(id, Drain, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         pullIn()
         promise.success(state)
         log.info(s"Valve <$id> does now drain.")
@@ -71,7 +76,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
       case (promise, datasets) =>
         datasets.foreach(insertBuffer.push)
-        update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime))
+        update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         promise.success(state)
         pushOut()
         log.info(s"Inserted ${datasets.size} datasets into valve <$id>")
@@ -87,7 +92,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private val clearCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
       ringBuffer.clear()
-      promise.success(update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, throughputTime, totalThroughputTime)))
+      promise.success(update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime))))
       log.info(s"Cleared buffer of valve <$id>")
     })
 
@@ -173,14 +178,16 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     }
 
     private def pushOut(): Unit = {
+
       if (isAvailable(out)) {
 
         val dataset = if (insertBuffer.isNonEmpty) Option(insertBuffer.pull()) else if(ringBuffer.isNonEmpty) Option(ringBuffer.pull()) else None
 
         dataset.foreach( dataset => {
-          compute(totalThroughputTime, FirstValveTimestamp, dataset)
-          compute(throughputTime, PreviousValveTimestamp, dataset)
-          push(out, withNewLabels(dataset))
+          val labels = mutable.Map.empty[String, Label]
+          compute(totalThroughputTime, FirstValveTimestamp, TotalDatasetThroughputTime, dataset, labels)
+          compute(throughputTime, PreviousValveTimestamp, PreviousDatasetThroughputTime, dataset, labels)
+          push(out, withNewLabels(dataset, labels.toMap))
         })
       }
     }
@@ -198,23 +205,42 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       state
     }
 
-    private def compute(median: MovingMedian, timestampLabel: Label[Long], dataset: Dataset): Unit = {
-      dataset.label(timestampLabel) match {
-        case Some(timestamp) =>
-          median + (nanoTime() - timestamp)
-        case None =>
-          median + 0
+    private def compute(median: MovingMedian, timestampLabel: String, throughputLabel: String, dataset: Dataset, labels: mutable.Map[String, Label]): Unit = {
+      val newTimestamp = Timestamps.fromMillis(System.currentTimeMillis())
+      labels.put(timestampLabel, Label(timestampLabel, TimestampValue(newTimestamp)))
+      dataset.metadata.labels.find(_.name == timestampLabel) match {
+        case Some(Label(_, timestamp: TimestampValue)) =>
+          val duration = between(timestamp, newTimestamp)
+          labels.put(throughputLabel, Label(throughputLabel, DurationValue(duration)))
+          median + duration
+        case _ =>
+          median + Duration.newBuilder().build()
       }
     }
 
-    private def withNewLabels(dataset: Dataset) = {
-      dataset
-        .labelOnce(FirstValveTimestamp, nanoTime())
-        .label(PreviousValveTimestamp, nanoTime())
+    private def withNewLabels(dataset: Dataset, labels: Map[String, Label]) = {
+
+      val newLabels = allLabelsExceptFirstValveTimestampIfItIsAlreadyPresent(labels, dataset)
+      val retainedLabels = allOtherLabelsAndFirstValveTimestampIfPresent(dataset, labels)
+
+      dataset.copy(MetaData(retainedLabels ++ newLabels))
+    }
+
+    private def allLabelsExceptFirstValveTimestampIfItIsAlreadyPresent(labels: Map[String, Label], dataset: Dataset) = {
+      val isFirstValveTimestampPresent = dataset.metadata.labels.exists(label => label.name == FirstValveTimestamp)
+      labels.values.filter(label => {
+        label.name != FirstValveTimestamp || label.name == FirstValveTimestamp && !isFirstValveTimestampPresent
+      })
+    }
+
+    private def allOtherLabelsAndFirstValveTimestampIfPresent(dataset: Dataset, labels: Map[String, Label]) = {
+      dataset.metadata.labels.filter(label => !labels.contains(label.name) || label.name == FirstValveTimestamp)
     }
 
     private def isOpen = state.position == Open || state.position == Drain
     private def isDraining = state.position == Drain
     private def isNotDraining = state.position == Open || state.position == Closed
+
+    private def durationToNanos(duration: Duration): Long = duration.getSeconds * 1000000L + duration.getNanos
   }
 }

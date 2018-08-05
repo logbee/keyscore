@@ -15,12 +15,11 @@ message Dataset {
 }
 
 message MetaData {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.MetaDataConversion";
-    repeated Label labels = 1;
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.MetaDataCompanion";
+    repeated Label labels = 1 [(scalapb.field).collection_type="collection.immutable.Set"];
 }
 
 message Label {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.LabelConversion";
     string name = 1;
     Value value = 2;
 }
@@ -42,6 +41,7 @@ message Value {
         NumberValue number = 2;
         DecimalValue decimal = 3;
         TimestampValue timestamp = 4;
+        DurationValue duration = 5;
     }
 }
 
@@ -70,5 +70,11 @@ message TimestampValue {
     // second values with fractions must still have non-negative nanos values
     // that count forward in time. Must be from 0 to 999,999,999
     // inclusive.
+    int32 nanos = 2;
+}
+
+message DurationValue {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.DurationValueConversion";
+    int64 seconds = 1;
     int32 nanos = 2;
 }

@@ -9,8 +9,8 @@ import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.model.{After, Before, Dataset, Green}
 import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.{After, Before, Dataset, Green}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -59,10 +59,12 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       source.sendNext(dataset1)
       source.sendNext(dataset2)
       source.sendNext(dataset3)
+
       sink.request(3)
-      sink.expectNext(dataset1)
-      sink.expectNext(dataset2)
-      sink.expectNext(dataset3)
+
+      sink.requestNext().records should contain theSameElementsAs dataset1.records
+      sink.requestNext().records should contain theSameElementsAs dataset2.records
+      sink.requestNext().records should contain theSameElementsAs dataset3.records
     }
 
     "valve computes and sets the throughputTime and totalThroughputTime in valvestate" in new TestSetup {
@@ -91,7 +93,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(controller.pause(false)) { _ =>
           sink.request(1)
-          sink.expectNext(dataset1)
+          sink.requestNext().records should contain theSameElementsAs dataset1.records
         }
       }
     }
@@ -106,7 +108,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(state) { _ =>
           whenReady(controller.extract(where = After)) { datasets =>
-            datasets should contain(dataset1)
+            datasets.head.records should contain theSameElementsAs dataset1.records
           }
         }
       }
@@ -116,13 +118,13 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       source.sendNext(dataset1)
       source.sendNext(dataset2)
       sink.request(2)
-      sink.expectNext(dataset1)
-      sink.expectNext(dataset2)
+      sink.requestNext().records should contain theSameElementsAs dataset1.records
+      sink.requestNext().records should contain theSameElementsAs dataset2.records
 
       whenReady(controllerFuture) { controller =>
         whenReady(controller.insert(List(dataset3), Before)) { _ =>
           whenReady(controller.extract(where = After)) { datasets =>
-            datasets should contain(dataset3)
+            datasets.head.records should contain theSameElementsAs dataset3.records
           }
         }
       }
@@ -138,34 +140,40 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
         } yield filterState
 
         whenReady(state) { _ =>
+
           whenReady(controller.extract(3, After)) { datasets =>
-            datasets should contain inOrderOnly(dataset3, dataset2, dataset1)
-          }
-        }
 
+            datasets(0).records should contain theSameElementsAs dataset3.records
+            datasets(1).records should contain theSameElementsAs dataset2.records
+            datasets(2).records should contain theSameElementsAs dataset1.records
 
-        whenReady(controller.drain(false)) { _ =>
-          whenReady(controller.pause(false)) { _ =>
-            source.sendNext(dataset4)
-            sink.request(1)
-            sink.expectNext(dataset4)
+            whenReady(controller.drain(false)) { _ =>
+              whenReady(controller.pause(false)) { _ =>
+                source.sendNext(dataset4)
+                sink.request(1)
+                sink.requestNext().records should contain theSameElementsAs dataset4.records
+              }
+            }
           }
         }
       }
     }
 
     "extract insert workflow test real" in new TestSetup {
+
       source.sendNext(dataset1)
-      source.sendNext(dataset1)
-      source.sendNext(dataset1)
+      source.sendNext(dataset2)
+      source.sendNext(dataset3)
+
       sink.request(3)
-      sink.expectNext(dataset1)
-      sink.expectNext(dataset1)
-      sink.expectNext(dataset1)
+
+      sink.requestNext().records should contain theSameElementsAs dataset1.records
+      sink.requestNext().records should contain theSameElementsAs dataset2.records
+      sink.requestNext().records should contain theSameElementsAs dataset3.records
 
       whenReady(controllerFuture) { controller =>
 
-        val state = for {
+        var state = for {
           _ <- controller.pause(true)
           _ <- controller.drain(true)
           filterState <- controller.insert(List(dataset2, dataset3, dataset4), Before)
@@ -173,38 +181,39 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(state) { _ =>
           whenReady(controller.extract(3, After)) { datasets =>
-            datasets should contain inOrderOnly(dataset4, dataset3, dataset2)
+            datasets(0).records should contain theSameElementsAs dataset4.records
+            datasets(1).records should contain theSameElementsAs dataset3.records
+            datasets(2).records should contain theSameElementsAs dataset2.records
           }
         }
 
         whenReady(controller.drain(false)) { _ =>
           whenReady(controller.pause(false)) { _ =>
-            source.sendNext(dataset4)
+            source.sendNext(dataset1)
             sink.request(1)
-            sink.expectNext(dataset4)
-
+            sink.requestNext().records should contain theSameElementsAs dataset1.records
           }
         }
-        whenReady(controllerFuture) { controller =>
 
-          val state = for {
-            _ <- controller.pause(true)
-            _ <- controller.drain(true)
-            filterState <- controller.insert(List(dataset2, dataset3, dataset5), Before)
-          } yield filterState
-          whenReady(state) { _ =>
-            whenReady(controller.extract(3, After)) { datasets =>
-              datasets should contain inOrderOnly(dataset5, dataset3, dataset2)
-            }
+        state = for {
+          _ <- controller.pause(true)
+          _ <- controller.drain(true)
+          filterState <- controller.insert(List(dataset2, dataset3, dataset5), Before)
+        } yield filterState
+
+        whenReady(state) { _ =>
+          whenReady(controller.extract(3, After)) { datasets =>
+            datasets(0).records should contain theSameElementsAs dataset5.records
+            datasets(1).records should contain theSameElementsAs dataset3.records
+            datasets(2).records should contain theSameElementsAs dataset2.records
           }
+        }
 
-          whenReady(controller.drain(false)) { _ =>
-            whenReady(controller.pause(false)) { _ =>
-              source.sendNext(dataset1)
-              sink.request(1)
-              sink.expectNext(dataset1)
-
-            }
+        whenReady(controller.drain(false)) { _ =>
+          whenReady(controller.pause(false)) { _ =>
+            source.sendNext(dataset1)
+            sink.request(1)
+            sink.requestNext().records should contain theSameElementsAs dataset1.records
           }
         }
       }
