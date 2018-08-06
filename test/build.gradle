@@ -19,7 +19,6 @@ dependencies {
     compile project(':keyscore-commons')
 
     compile dependency.scala_lang
-    compile dependency.slf4j
     compile dependency.json4s
 
     testCompile dependency.scala_test

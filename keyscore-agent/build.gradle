@@ -26,7 +26,6 @@ dependencies {
     compile project(':keyscore-model')
 
     compile dependency.scala_lang
-    compile dependency.slf4j
     compile dependency.akka_actor
     compile dependency.akka_persistence
     compile dependency.akka_stream
@@ -36,6 +35,8 @@ dependencies {
     compile dependency.akka_persistence
     compile dependency.akka_cluster
     compile dependency.akka_stream_kafka
+
+    runtime dependency.logback
 
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit
