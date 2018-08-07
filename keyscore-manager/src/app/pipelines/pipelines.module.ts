@@ -25,6 +25,7 @@ import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {AlertModule} from "../common/alert/alert.module";
 import {ErrorModule} from "../common/error/error.module";
+import {PipelyComponent} from "./pipeline-editor/pipely/pipely.component";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -53,6 +54,7 @@ export const routes: Routes = [
         PipelineDetailsComponent,
         PipelineFilterComponent,
         BlocklyComponent,
+        PipelyComponent,
         FilterInformationComponent,
         RefreshTimeComponent,
         ParameterList,
