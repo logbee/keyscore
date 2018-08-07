@@ -28,7 +28,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                         </div>
                     </form>
                 </div>
-                <button *ngIf="!noParamsAvailable" class="float-right btn primary btn-info mt-3"
+                <button *ngIf="!noParamsAvailable" class="float-right btn btn-success mt-3"
                         (click)="applyFilter(filter,form.value)"> {{'GENERAL.APPLY' | translate}}
                 </button>
             </div>

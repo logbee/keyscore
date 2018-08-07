@@ -31,7 +31,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                         </dataset-visualizer>
                     </div>
                 </div>
-                <button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>
+                <!--<button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>-->
             </div>
         </div>
         <ng-template #loading>

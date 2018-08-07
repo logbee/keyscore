@@ -10,23 +10,20 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
                 <input #addItemInput class="form-control" type="text">
             </div>
             <div class="form-group ml-1">
-                <button class="btn btn-success" (click)="addItem(addItemInput.value)"><img
+                <button class="btn btn-info" (click)="addItem(addItemInput.value)"><img
                         src="/assets/images/ic_add_white_24px.svg" alt="Remove"/>
                 </button>
             </div>
 
         </div>
 
-        <div class="card" (click)="onTouched()" *ngIf="parameterValues.length > 0">
-            <div class="list-group-flush col-12">
-                <li class="list-group-item d-flex justify-content-between"
-                    *ngFor="let value of parameterValues;index as i">
-                    <span class="align-self-center">{{value}}</span>
-                    <button class="btn btn-danger d-inline-block " (click)="removeItem(i)"><img
-                            src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
-                </li>
+        
+        <div (click)="onTouched()" class="mb-3" *ngIf="parameterValues.length > 0">
+            <div style="display: inline-block; margin-left: 5px; margin-right: 5px;" *ngFor="let value of parameterValues;index as i">
+                <span class="badge badge-pill badge-info" style="font-size: large"><strong>{{value}}</strong>
+                    <span (click)="removeItem(i)">
+                        <strong> X </strong></span></span>
             </div>
-
         </div>
     `,
     providers: [
@@ -47,11 +44,11 @@ export class ParameterList implements ControlValueAccessor {
 
     public onChange = (elements: string[]) => {
         return;
-    }
+    };
 
     public onTouched = () => {
         return;
-    }
+    };
 
     public writeValue(elements: string[]): void {
 

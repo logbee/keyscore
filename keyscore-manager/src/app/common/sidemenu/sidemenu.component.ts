@@ -14,30 +14,24 @@ import {TranslateService} from "@ngx-translate/core";
             </a>
             <ul class="list-unstyled components">
                 <li>
-                    <a routerLink="/dashboard"
-                       routerLinkActive="active">
+                    <a routerLink="/dashboard" routerLinkActive="active"
+                       [ngClass]="(isSideBarExpanded())?'d-flex justify-content-between':''">
+                        <span *ngIf="isSideBarExpanded()">{{'GENERAL.DASHBOARD' | translate}}</span>
                         <span><img src="/assets/images/menu/desktop-mac-dashboard.png"></span>
-                        <span *ngIf="isSideBarExpanded()">
-                                {{'GENERAL.DASHBOARD' | translate}}
-                            </span>
                     </a>
                 </li>
                 <li>
-                    <a id="test" routerLink="/agent"
-                       routerLinkActive="active">
+                    <a routerLink="/agent" routerLinkActive="active"
+                       [ngClass]="(isSideBarExpanded())?'d-flex justify-content-between':''">
+                        <span *ngIf="isSideBarExpanded()">{{'APPCOMPONENT.AGENTS' | translate}}</span>
                         <span><img src="/assets/images/menu/worker.png"></span>
-                        <span *ngIf="isSideBarExpanded()">
-                                {{'APPCOMPONENT.AGENTS' | translate}}
-                            </span>
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link" routerLink="/pipelines"
-                       routerLinkActive="active">
+                    <a class="nav-link" routerLink="/pipelines" routerLinkActive="active"
+                       [ngClass]="(isSideBarExpanded())?'d-flex justify-content-between':''">
+                        <span *ngIf="isSideBarExpanded()">{{'APPCOMPONENT.PIPELINES' | translate}}</span>
                         <span><img src="/assets/images/menu/sitemap.png"></span>
-                        <span *ngIf="isSideBarExpanded()">
-                                {{'APPCOMPONENT.PIPELINES' | translate}}
-                            </span>
                     </a>
                 </li>
             </ul>
