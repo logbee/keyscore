@@ -5,57 +5,58 @@ import java.util.UUID.randomUUID
 
 import io.logbee.keyscore.agent.pipeline.contrib.filter.{AddFieldsFilterLogic, CSVParserFilterLogic}
 import io.logbee.keyscore.agent.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
+import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, PipelineConfiguration, Record, TextField}
 
 import scala.collection.mutable
 
 object ExampleData {
 
-  val messageTextField1 = TextField("message", "The weather is cloudy with a current temperature of: -11.5 C")
-  val messageTextField2 = TextField("message", "Is is a rainy day. Temperature: 5.8 C")
-  val messageTextField3 = TextField("message", "The weather is sunny with a current temperature of: 14.4 C")
+  val messageTextField1 = Field("message", TextValue("The weather is cloudy with a current temperature of: -11.5 C"))
+  val messageTextField2 = Field("message", TextValue("Is is a rainy day. Temperature: 5.8 C"))
+  val messageTextField3 = Field("message", TextValue("The weather is sunny with a current temperature of: 14.4 C"))
 
   val record1 = Record(messageTextField1)
   val record2 = Record(messageTextField2)
   val record3 = Record(messageTextField3)
 
   val multiFields1 = Record(
-    TextField("foo", "bar"),
-    TextField("bar", "42"),
-    TextField("bbq", "meat"),
-    TextField("beer", "non-alcoholic")
+    Field("foo", TextValue("bar")),
+    Field("bar", TextValue("42")),
+    Field("bbq", TextValue("meat")),
+    Field("beer", TextValue("non-alcoholic"))
   )
 
   val multiFields2 = Record(
-    TextField("foo", "bar"),
-    TextField("42", "bar")
+    Field("foo", TextValue("bar")),
+    Field("42", TextValue("bar"))
   )
 
   //CSV Filter
-  val csvA = Record(TextField("message", "13;07;09;15;;;"))
-  val csvB = Record(TextField("message", ";03;05;01;;;"))
+  val csvA = Record(Field("message", TextValue("13;07;09;15;;;")))
+  val csvB = Record(Field("message", TextValue(";03;05;01;;;")))
 
   //Kafka
   val kafka1 = Record(
-    TextField("id", "01"),
-    TextField("name", "robo")
+    Field("id", TextValue("01")),
+    Field("name", TextValue("robo"))
   )
   val kafka2 = Record(
-    TextField("id", "02"),
-    TextField("name", "logbee")
+    Field("id", TextValue("02")),
+    Field("name", TextValue("logbee"))
   )
 
   //Modified messages
-  val record1Modified = Record(TextField("weather-report", "cloudy, -11.5 C"))
-  val record2Modified = Record(TextField("weather-report", "rainy, 5.8 C"))
-  val record3Modified = Record(TextField("weather-report", "sunny, 14.4 C"))
+  val record1Modified = Record(Field("weather-report", TextValue("cloudy, -11.5 C")))
+  val record2Modified = Record(Field("weather-report", TextValue("rainy, 5.8 C")))
+  val record3Modified = Record(Field("weather-report", TextValue("sunny, 14.4 C")))
+
   val multiRecordModified = Record(
-    TextField("bar", "42"),
-    TextField("bbq", "meat")
+    Field("bar", TextValue("42")),
+    Field("bbq", TextValue("meat"))
   )
   val multiRecordModified2 = Record(
-    TextField("foo", "bar")
+    Field("foo", TextValue("bar"))
   )
 
   //Original datasets

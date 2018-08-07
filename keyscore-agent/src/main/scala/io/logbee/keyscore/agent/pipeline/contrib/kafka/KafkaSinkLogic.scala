@@ -119,6 +119,8 @@ class KafkaSinkLogic(context: StageContext, configuration: FilterConfiguration, 
       case (map, (name, NumberValue(value))) => map + (name -> value)
       case (map, (name, DecimalValue(value))) => map + (name -> value)
       case (map, (name, value: TimestampValue)) => map + (name -> Timestamps.toString(value))
+      case (map, (name, _)) => map + (name -> null)
+      case (map, _) => map
     }
 
     write(message)
