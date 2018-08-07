@@ -65,10 +65,8 @@ export function SettingsReducer(state: SettingsState = initialState, action: Set
             break;
 
         case CONFIG_LOADED:
-            // defaults to restore
-//            action.payload
-
-            result.active = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
+            const storedConfig = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+            result.active = storedConfig != null ? storedConfig : result.default;
             result.modified = result.active;
             break;
 
