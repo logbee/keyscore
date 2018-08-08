@@ -50,10 +50,10 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
 
       whenReady(valveFuture) { valve =>
 
-        sink.request(1)
         sink.requestNext().records should contain theSameElementsAs dataset1.records
 
         whenReady(valve.close()) { state =>
+
           state.position shouldBe Closed
 
           sink.request(3)

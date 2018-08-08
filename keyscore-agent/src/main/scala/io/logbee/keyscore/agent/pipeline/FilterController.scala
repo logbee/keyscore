@@ -12,7 +12,6 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
 
   override val id: UUID = filter.id
 
-
   override def configure(configuration: FilterConfiguration): Future[FilterState] = {
     for {
     inValveState <- inValve.state()
@@ -21,7 +20,6 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
     filterState <- filter.state()
     } yield computeFilterState(inValveState, outValveState, filterState)
   }
-
 
   override def pause(doPause: Boolean): Future[FilterState] = {
     for {

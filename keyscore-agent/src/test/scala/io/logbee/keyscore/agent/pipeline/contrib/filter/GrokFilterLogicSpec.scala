@@ -62,9 +62,8 @@ class GrokFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with 
         source.sendNext(dataset1)
         source.sendNext(dataset2)
 
-        sink.request(2)
-        sink.expectNext(modified1)
-        sink.expectNext(modified2)
+        sink.requestNext().records should contain theSameElementsAs modified1.records
+        sink.requestNext().records should contain theSameElementsAs modified2.records
       }
     }
   }

@@ -57,15 +57,13 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
 
         source.sendNext(dataset1)
 
-        sink.request(1)
-        sink.expectNext(modified1)
+        sink.requestNext().records should contain theSameElementsAs modified1.records
 
         Await.ready(filter.configure(configuration2), 10 seconds)
 
         source.sendNext(dataset1)
 
-        sink.request(1)
-        sink.expectNext(modified2)
+        sink.requestNext().records should contain theSameElementsAs modified2.records
       }
     }
   }

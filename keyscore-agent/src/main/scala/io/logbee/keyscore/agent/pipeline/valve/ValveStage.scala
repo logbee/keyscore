@@ -40,8 +40,8 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private val ringBuffer = RingBuffer[Dataset](bufferLimit)
     private val insertBuffer = RingBuffer[Dataset](bufferLimit)
-    private val totalThroughputTime = MovingMedian()
-    private val throughputTime = MovingMedian()
+    private val totalThroughputTime = MovingMedian(bufferLimit)
+    private val throughputTime = MovingMedian(bufferLimit)
 
     private var state = ValveState(id, bufferLimit = ringBuffer.limit)
 

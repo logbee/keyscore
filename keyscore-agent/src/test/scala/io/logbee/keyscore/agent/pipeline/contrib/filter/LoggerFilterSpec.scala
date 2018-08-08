@@ -22,9 +22,8 @@ import org.scalatest.{Matchers, WordSpec}
 class LoggerFilterSpec extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   override implicit val system: ActorSystem = ActorSystem("testsystem", ConfigFactory.parseString(
-    """
-  akka.loggers = ["akka.testkit.TestEventListener"]
-  """))
+    """akka.loggers = ["akka.testkit.TestEventListener"]"""
+  ))
 
   val configurationA = FilterConfiguration(randomUUID(), FilterDescriptor(LoggerFilter.filterId, LoggerFilter.filterName), List.empty)
   val context = StageContext(system, executionContext)
@@ -34,7 +33,6 @@ class LoggerFilterSpec extends WordSpec with Matchers with ScalaFutures with Tes
     .viaMat(filterStage)(Keep.both)
     .toMat(TestSink.probe[Dataset])(Keep.both)
     .run()
-
 
   "A LoggerFilter" should {
 
@@ -46,14 +44,12 @@ class LoggerFilterSpec extends WordSpec with Matchers with ScalaFutures with Tes
 
       whenReady(filterFuture) { filter =>
 
-        EventFilter.info(pattern = s".*${messageTextField1.value}.*", occurrences = 1) intercept {
+        EventFilter.info(pattern = s".*${messageTextField1.toTextField.value}.*", occurrences = 1) intercept {
           source.sendNext(dataset1)
 
           sink.request(1)
           sink.expectNext(dataset1)
-
         }
-
       }
     }
   }

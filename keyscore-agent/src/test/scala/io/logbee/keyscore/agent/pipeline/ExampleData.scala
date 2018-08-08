@@ -60,11 +60,11 @@ object ExampleData {
   )
 
   //Original datasets
-  val dataset1 = Dataset(record1)
-  val dataset2 = Dataset(record2)
-  val dataset3 = Dataset(record3)
-  val dataset4 = Dataset(record1, multiFields1)
-  val dataset5 = Dataset(record2, multiFields2)
+  val dataset1 = Dataset(MetaData(Label("name", TextValue("dataset1"))), record1)
+  val dataset2 = Dataset(MetaData(Label("name", TextValue("dataset2"))), record2)
+  val dataset3 = Dataset(MetaData(Label("name", TextValue("dataset3"))), record3)
+  val dataset4 = Dataset(MetaData(Label("name", TextValue("dataset4"))), record1, multiFields1)
+  val dataset5 = Dataset(MetaData(Label("name", TextValue("dataset5"))), record2, multiFields2)
 
   val datasetMulti1 = Dataset(multiFields1)
   val datasetMulti2 = Dataset(multiFields2)

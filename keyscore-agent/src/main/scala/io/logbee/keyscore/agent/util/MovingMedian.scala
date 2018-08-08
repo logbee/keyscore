@@ -56,4 +56,6 @@ class MovingMedian(window: Int) {
   private def oldestIndex: Int = {
     medians.indexOf(medians.min)
   }
+
+  override def toString = s"MovingMedian($get)"
 }

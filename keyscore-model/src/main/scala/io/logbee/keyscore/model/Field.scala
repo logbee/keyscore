@@ -14,5 +14,6 @@ case class DecimalField(name: String, value: Double)
 
 object TimestampField extends TimestampFieldConversion {
   def apply(name: String, timestamp: Timestamp): TimestampField = new TimestampField(name, timestamp.getSeconds, timestamp.getNanos)
+  def apply(name: String, value: TimestampValue): TimestampField = new TimestampField(name, value.seconds, value.nanos)
 }
 case class TimestampField(name: String, seconds: Long, nanos: Int = 0)

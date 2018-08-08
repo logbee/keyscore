@@ -30,6 +30,7 @@ message Record {
 }
 
 message Field {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.FieldConversions";
     string name = 1;
     Value value = 2;
 }
