@@ -17,6 +17,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                         <span class="mr-1" (click)="goLeft()">
                             <img width="18em" src="/assets/images/chevron-left.svg"/>
                         </span>
+                        {{displayCount}} / {{(extractedDatasets$ | async)?.length}}
                         <span (click)="goRight()">
                             <img width="18em" src="/assets/images/chevron-right.svg"/>
                         </span>
@@ -57,6 +58,7 @@ export class ExampleMessageComponent implements OnInit {
     private isReady$: Observable<boolean>;
     private noDataAvailable: boolean = true;
     private numberOfDatasets: number;
+    private displayCount: number;
 
     constructor(private store: Store<any>) {
         this.isReady$ = this.store.select(selectExtractFinish);
@@ -69,11 +71,13 @@ export class ExampleMessageComponent implements OnInit {
             this.noDataAvailable = datasets.length === 0;
         });
         this.count = 0;
+        this.displayCount = 1;
     }
 
     private goLeft() {
         if (this.count !== this.numberOfDatasets - 1) {
             this.count += 1;
+            this.displayCount += 1;
             this.extractedDatasets$.subscribe((datasets) => {
                 this.currentExampleDataset.emit(datasets[this.count]);
             });
@@ -83,6 +87,7 @@ export class ExampleMessageComponent implements OnInit {
     private goRight() {
         if (this.count !== 0) {
             this.count -= 1;
+            this.displayCount -= 1;
             this.extractedDatasets$.subscribe((datasets) => {
                 this.currentExampleDataset.emit(datasets[this.count]);
             });

@@ -14,9 +14,10 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                         {{'FILTERLIVEEDITINGCOMPONENT.RESULT' | translate}}
                     </div>
                     <div class="col-sm-2" *ngIf="(loading$ | async)">
-                      <span class="mr-1" (click)="goLeft()">
+                      <span (click)="goLeft()">
                             <img width="18em" src="/assets/images/chevron-left.svg"/>
                       </span>
+                        {{displayCount}} / {{(resultDatasets$ | async)?.length}}
                         <span (click)="goRight()">
                             <img width="18em" src="/assets/images/chevron-right.svg"/>
                       </span>
@@ -31,7 +32,6 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                         </dataset-visualizer>
                     </div>
                 </div>
-                <!--<button class="mt-3 btn float-right primary btn-success"> {{'GENERAL.SAVE' | translate}}</button>-->
             </div>
         </div>
         <ng-template #loading>
@@ -49,10 +49,10 @@ export class FilterResultComponent implements OnInit {
     private loading$: Observable<boolean>;
     private count: number;
     private numberOfDatasets: number;
+    private displayCount: number;
 
     constructor(private store: Store<any>) {
         this.loading$ = this.store.select(selectResultAvailable);
-        this.count = 0;
     }
 
     public ngOnInit(): void {
@@ -60,17 +60,20 @@ export class FilterResultComponent implements OnInit {
             this.numberOfDatasets = datasets.length;
         });
         this.count = 0;
+        this.displayCount = 1;
     }
 
     private goLeft() {
         if (this.count !== this.numberOfDatasets - 1) {
             this.count += 1;
+            this.displayCount += 1;
         }
     }
 
     private goRight() {
         if (this.count !== 0) {
             this.count -= 1;
+            this.displayCount -= 1;
         }
     }
 }

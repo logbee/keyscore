@@ -18,6 +18,8 @@ export class ToolBarBuilderService {
         const serializer = new XMLSerializer();
         const xml = '<xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;"></xml>';
         const xmlDoc = parser.parseFromString(xml, "text/xml");
+        Blockly.HSV_SATURATION = 0.70;
+        Blockly.HSV_VALUE = 0.80;
 
         categories.forEach((cat, index, array) => {
             const currentXmlCategory = xmlDoc.createElement("category");

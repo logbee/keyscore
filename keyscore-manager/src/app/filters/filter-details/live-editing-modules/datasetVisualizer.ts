@@ -21,13 +21,4 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 export class DatasetVisualizer {
     @Input() public dataset: Dataset;
-    public showPayload: boolean = true;
-    public showRecords: boolean = true;
-    private togglePayload() {
-        this.showPayload = this.showPayload === false;
-    }
-
-    private toggleRecords() {
-        this.showRecords = this.showRecords === false;
-    }
 }

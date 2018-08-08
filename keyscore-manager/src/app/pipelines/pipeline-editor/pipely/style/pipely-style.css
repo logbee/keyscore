@@ -1,0 +1,35 @@
+.pipely-wrapper .Block{
+    padding:10px;
+    border: 5px solid cornflowerblue;
+    border-radius:5px;
+    margin-bottom: 15px;
+    margin-right:5px;
+    cursor: move;
+}
+
+.pipely-wrapper #workspace{
+    padding:5px;
+    min-height:600px;
+    border-radius:5px;
+    border:2px solid lightgrey;
+
+}
+
+.pipely-wrapper .draggableObject{
+    padding:10px;
+    border:2px solid black;
+    cursor:move;
+}
+
+.pipely-wrapper .innerWorkspace{
+    min-height:300px;
+    border: 1px solid black;
+}
+
+.pipely-wrapper .absoluteWorkspace{
+    position:relative;
+}
+
+.pipely-wrapper span.workspace--isDropzone{
+    min-width:150px;
+}
