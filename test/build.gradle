@@ -66,8 +66,7 @@ task removeOldContainers() {
 }
 
 task startContainers() {
-    dependsOn removeOldContainers
-    finalizedBy runContainers
+    dependsOn removeOldContainers, runContainers
 }
 
 junitPlatformTest {

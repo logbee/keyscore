@@ -25,8 +25,10 @@ import scala.language.postfixOps
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers  {
+
   implicit val formats = KeyscoreFormats.formats
   private val log = LoggerFactory.getLogger(classOf[PipelineIntegrationTest])
+
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")

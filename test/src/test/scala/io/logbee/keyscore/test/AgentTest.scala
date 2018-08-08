@@ -6,12 +6,12 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import com.consol.citrus.message.MessageType
+import org.json4s._
+import org.json4s.native.JsonMethods._
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.springframework.http.HttpStatus
-import org.json4s._
-import org.json4s.native.JsonMethods._
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class AgentTest extends Matchers {
@@ -41,7 +41,5 @@ class AgentTest extends Matchers {
       })
       .messageType(MessageType.JSON)
     )
-
-
   }
 }
