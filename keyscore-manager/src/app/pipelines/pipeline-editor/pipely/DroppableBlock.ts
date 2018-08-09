@@ -34,6 +34,8 @@ export default class DroppableBlock extends Draggable {
     }
 
     public [onDragStart](event) {
+        console.log("Dropzones: ", this.dropzones);
+
         this.dropzones = [...this[getDropzones]()];
         console.log("Dropzones: ", this.dropzones);
         const dropzone = closest(event.sensorEvent.target, this.options.dropzone);

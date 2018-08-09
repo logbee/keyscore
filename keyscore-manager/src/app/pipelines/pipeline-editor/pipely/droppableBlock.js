@@ -1,5 +1,5 @@
 import {closest} from "@shopify/draggable";
-import Draggable from "@shopify/draggable";
+import {Draggable} from "@shopify/draggable";
 
 import {DroppableStartEvent, DroppableDroppedEvent, DroppableReturnedEvent, DroppableStopEvent} from "@shopify/draggable";
 
