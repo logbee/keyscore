@@ -1,9 +1,7 @@
 import {Component, ElementRef, HostBinding, Input, OnDestroy, OnInit, ViewChild, ViewContainerRef} from "@angular/core";
-import {WorkspaceComponent} from "./workspace.component";
 import {v4 as uuid} from "uuid";
-import {DragService} from "./services/drag.service";
-import {DragMoveEvent} from "./events/drag-move.event";
 import {DropzoneModel} from "./models/dropzone.model";
+import {Draggable, Dropzone, Workspace} from "./models/contract";
 
 @Component({
     selector: "dropzone",
@@ -14,27 +12,26 @@ import {DropzoneModel} from "./models/dropzone.model";
     `
 })
 
-export class DropzoneComponent implements OnInit, OnDestroy {
 
-    @Input() workspace: WorkspaceComponent;
+export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
+
+    @Input() workspace: Workspace;
     @Input() dropzoneModel: DropzoneModel;
 
     @HostBinding('class.col-6') isCol6: boolean;
-    isDroppable: boolean;
+
+    private isDroppable: boolean;
 
     @ViewChild("draggableContainer", {read: ViewContainerRef}) draggableContainer: ViewContainerRef;
     @ViewChild("dropzone") dropzoneElement: ElementRef;
 
     public id: string;
 
-    constructor(private dragService: DragService) {
+    constructor() {
         this.isCol6 = true;
-        this.isDroppable = false;
+        this.setIsDroppable(false);
         this.id = uuid();
 
-        this.dragService.dragMove$.subscribe(moveEvent => {
-            this.isDroppable = this.acceptDraggable(moveEvent);
-        })
 
     }
 
@@ -46,33 +43,57 @@ export class DropzoneComponent implements OnInit, OnDestroy {
 
     }
 
-    private acceptDraggable(moveEvent: DragMoveEvent): boolean {
-        if (moveEvent.dropzoneType != this.dropzoneModel.dropzoneType) {
+    isDraggableInRange(draggable: Draggable): boolean {
+        this.isDroppable = this.acceptDraggable(draggable);
+        return this.isDroppable;
+    }
+
+    getIsDroppable(): boolean {
+        return this.isDroppable;
+    }
+
+    setIsDroppable(isDroppable: boolean): void {
+        this.isDroppable = isDroppable;
+    }
+
+    getDraggableContainer(): ViewContainerRef {
+        return this.draggableContainer;
+    }
+
+    private acceptDraggable(draggable: Draggable): boolean {
+
+        if (!this.dropzoneModel.acceptedDraggableTypes.includes(draggable.getDraggableModel().draggableType)) {
             return false;
         }
-        let dropzoneNativeElement = this.dropzoneElement.nativeElement;
+        let dropzoneNativeBoundingRect: ClientRect = this.dropzoneElement.nativeElement.getBoundingClientRect();
+
         const dropzoneBoundingBox = {
-            left: dropzoneNativeElement.offsetLeft - this.dropzoneModel.dropzoneRadius,
-            right: dropzoneNativeElement.offsetLeft + dropzoneNativeElement.offsetWidth + this.dropzoneModel.dropzoneRadius,
-            top: dropzoneNativeElement.offsetTop - this.dropzoneModel.dropzoneRadius,
-            bottom: dropzoneNativeElement.offsetTop + dropzoneNativeElement.offsetHeight + this.dropzoneModel.dropzoneRadius
+            left: dropzoneNativeBoundingRect.left - this.dropzoneModel.dropzoneRadius,
+            right: dropzoneNativeBoundingRect.right + this.dropzoneModel.dropzoneRadius,
+            top: dropzoneNativeBoundingRect.top - this.dropzoneModel.dropzoneRadius,
+            bottom: dropzoneNativeBoundingRect.bottom + this.dropzoneModel.dropzoneRadius
         };
 
         const draggableBoundingBox = {
-            left: moveEvent.position.x,
-            right: moveEvent.position.x + moveEvent.size.width,
-            top: moveEvent.position.y,
-            bottom: moveEvent.position.y + moveEvent.size.height
+            left: draggable.getAbsoluteDraggablePosition().x,
+            right: draggable.getAbsoluteDraggablePosition().x + draggable.getDraggableSize().width,
+            top: draggable.getAbsoluteDraggablePosition().y,
+            bottom: draggable.getAbsoluteDraggablePosition().y + draggable.getDraggableSize().height
         };
-
-        console.log("Dropzone: ", dropzoneBoundingBox);
-        console.log("Draggable: ", draggableBoundingBox);
 
         return !(draggableBoundingBox.left > dropzoneBoundingBox.right ||
             draggableBoundingBox.right < dropzoneBoundingBox.left ||
             draggableBoundingBox.bottom < dropzoneBoundingBox.top ||
             draggableBoundingBox.top > dropzoneBoundingBox.bottom)
 
+    }
+
+    getId(): string {
+        return this.id;
+    }
+
+    getDropzoneModel(): DropzoneModel {
+        return this.dropzoneModel;
     }
 
 

@@ -4,7 +4,6 @@ import {TranslateModule} from "@ngx-translate/core";
 import {WorkspaceComponent} from "./workspace.component";
 import {DraggableComponent} from "./draggable.component";
 import {DropzoneComponent} from "./dropzone.component";
-import {DragService} from "./services/drag.service";
 
 @NgModule({
     imports: [
@@ -20,10 +19,7 @@ import {DragService} from "./services/drag.service";
         DraggableComponent,
         DropzoneComponent
     ],
-    exports: [WorkspaceComponent],
-    providers: [
-        DragService
-    ]
+    exports: [WorkspaceComponent]
 
 })
 

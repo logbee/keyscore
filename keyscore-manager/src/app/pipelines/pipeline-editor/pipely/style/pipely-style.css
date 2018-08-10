@@ -18,3 +18,9 @@
     position:absolute;
     z-index: 9999;
 }
+
+.workspace{
+    height:650px;
+    overflow-x: scroll;
+    overflow-y: scroll;
+}

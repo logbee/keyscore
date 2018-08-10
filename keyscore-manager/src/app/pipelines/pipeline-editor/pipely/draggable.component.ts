@@ -1,42 +1,66 @@
-import {Component, ElementRef, HostBinding, HostListener, Input, OnDestroy, OnInit, ViewChild} from "@angular/core";
-import {WorkspaceComponent} from "./workspace.component";
+import {Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {v4 as uuid} from "uuid";
-import {DragService} from "./services/drag.service";
-import {DragMoveEvent} from "./events/drag-move.event";
 import {DraggableModel} from "./models/draggable.model";
-import {DragStartEvent} from "./events/drag-start.event";
+import {Subject} from "rxjs/index";
+import {Draggable, Dropzone, Workspace} from "./models/contract";
 
 
 @Component({
     selector: "draggable",
     template: `
-        <div #draggableElement [class]="'draggable'" [class.mirror]="draggableModel.isMirror" [class.hide]="isHidden"
+        <div #draggableElement [class]="'draggable'" [class.mirror]="draggableModel.isMirror"
              (mousedown)="dragStart($event)"
              (mouseup)="dragStop($event)">{{draggableModel.name}}
         </div>
     `
 })
 
+export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
-export class DraggableComponent implements OnInit, OnDestroy {
-
-    @Input() workspace: WorkspaceComponent;
-    @Input() draggableModel: DraggableModel;
+    workspace: Workspace;
+    draggableModel: DraggableModel;
 
     @ViewChild("draggableElement") draggableElement: ElementRef;
 
     public id: string;
 
-    private isHidden: boolean = false;
+    private dragStartSource = new Subject<void>();
+    private dragMoveSource = new Subject<void>();
+
+    dragStart$ = this.dragStartSource.asObservable();
+    dragMove$ = this.dragMoveSource.asObservable();
+
     private lastDragX: number;
     private lastDragY: number;
 
     private preDragPosition: { x: number, y: number } = {x: 0, y: 0};
 
 
+    constructor() {
+        this.id = uuid();
+    }
+
+    public ngOnInit() {
+        if (this.draggableModel.hasAbsolutePosition) {
+            this.draggableElement.nativeElement.style.position = "absolute";
+        }
+        if (this.draggableModel.position && this.draggableModel.hasAbsolutePosition) {
+            this.draggableElement.nativeElement.style.left = this.draggableModel.position.x + "px";
+            this.draggableElement.nativeElement.style.top = this.draggableModel.position.y + "px";
+        }
+    }
+
+    public ngOnDestroy() {
+
+    }
+
     @HostListener('document:mousemove', ['$event'])
     onMouseMove(event: MouseEvent) {
-        if (this.draggableModel.isMirror) {
+        if (
+            this.draggableModel.isMirror ||
+            this.draggableModel.initialDropzone.getDropzoneModel().dropzoneType ===
+            "workspace") {
+
             const x = event.clientX - this.lastDragX;
             const y = event.clientY - this.lastDragY;
             this.lastDragX = event.clientX;
@@ -48,7 +72,7 @@ export class DraggableComponent implements OnInit, OnDestroy {
             };
             const size = this.getDraggableSize();
 
-            this.dragService.triggerDragMove(new DragMoveEvent(newPosition, size, this.draggableModel.dropzoneType));
+            this.triggerDragMove();
 
             this.draggableElement.nativeElement.style.left = newPosition.x + "px";
             this.draggableElement.nativeElement.style.top = newPosition.y + "px";
@@ -56,63 +80,51 @@ export class DraggableComponent implements OnInit, OnDestroy {
         }
     }
 
-    @HostListener('document:mouseup', ['$event'])
-    onMouseUp(event: MouseEvent) {
-        //this.isDragged = false;
-        this.draggableElement.nativeElement.style.top = this.preDragPosition.y + "px";
-        this.draggableElement.nativeElement.style.left = this.preDragPosition.x + "px";
-        //this.draggableElement.nativeElement.style.position = "relative";
-
+    private triggerDragStart() {
+        this.dragStartSource.next();
     }
 
-    constructor(private dragService: DragService) {
-        this.id = uuid();
-    }
-
-    public ngOnInit() {
-
-    }
-
-    public ngOnDestroy() {
-
-    }
-
-    private dragStop(event: MouseEvent) {
-        //this.isDragged = false;
-        //this.draggableElement.nativeElement.style.position = "relative";
-
+    private triggerDragMove() {
+        this.dragMoveSource.next();
     }
 
     private dragStart(event: MouseEvent) {
         console.log(event);
-        this.preDragPosition.x = this.draggableElement.nativeElement.offsetLeft;
-        this.preDragPosition.y = this.draggableElement.nativeElement.offsetTop;
         this.lastDragX = event.clientX;
         this.lastDragY = event.clientY;
-        let eventDraggableModel = {
-            ...this.draggableModel,
-            hasAbsolutePosition: true,
-            isMirror: true,
-            draggablePosition: this.getDraggablePosition(),
-            draggableSize: this.getDraggableSize()
 
-        };
-        this.dragService.triggerDragStart(new DragStartEvent(eventDraggableModel,event))
+        this.triggerDragStart();
 
 
     }
 
-    private getDraggablePosition(): { x: number, y: number } {
+    getDraggablePosition(): { x: number, y: number } {
         return {
             x: this.draggableElement.nativeElement.offsetLeft,
             y: this.draggableElement.nativeElement.offsetTop
         };
     }
 
-    private getDraggableSize(): { width: number, height: number } {
+    getAbsoluteDraggablePosition(): { x: number, y: number } {
+        return {
+            x: this.draggableElement.nativeElement.getBoundingClientRect().left,
+            y: this.draggableElement.nativeElement.getBoundingClientRect().top
+
+        }
+    }
+
+    getDraggableSize(): { width: number, height: number } {
         return {
             width: this.draggableElement.nativeElement.offsetWidth,
             height: this.draggableElement.nativeElement.offsetHeight
         }
+    }
+
+    getDraggableModel(): DraggableModel {
+        return this.draggableModel;
+    }
+
+    getId(): string {
+        return this.id;
     }
 }
