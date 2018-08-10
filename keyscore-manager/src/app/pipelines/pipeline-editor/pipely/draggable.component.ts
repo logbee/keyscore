@@ -58,7 +58,7 @@ export class DraggableComponent implements OnInit, OnDestroy {
 
     @HostListener('document:mouseup', ['$event'])
     onMouseUp(event: MouseEvent) {
-        this.isDragged = false;
+        //this.isDragged = false;
         this.draggableElement.nativeElement.style.top = this.preDragPosition.y + "px";
         this.draggableElement.nativeElement.style.left = this.preDragPosition.x + "px";
         //this.draggableElement.nativeElement.style.position = "relative";
@@ -78,7 +78,7 @@ export class DraggableComponent implements OnInit, OnDestroy {
     }
 
     private dragStop(event: MouseEvent) {
-        this.isDragged = false;
+        //this.isDragged = false;
         //this.draggableElement.nativeElement.style.position = "relative";
 
     }
@@ -97,7 +97,7 @@ export class DraggableComponent implements OnInit, OnDestroy {
             draggableSize: this.getDraggableSize()
 
         };
-        this.dragService.triggerDragStart(new DragStartEvent())
+        this.dragService.triggerDragStart(new DragStartEvent(eventDraggableModel,event))
 
 
     }
