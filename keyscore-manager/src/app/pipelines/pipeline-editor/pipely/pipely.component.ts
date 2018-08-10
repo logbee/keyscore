@@ -6,7 +6,6 @@ import {Draggable} from "@shopify/draggable";
 import {Droppable} from "@shopify/draggable";
 
 import "./style/pipely-style.css";
-import DroppableBlock from "./DroppableBlock";
 
 @Component({
     selector: "pipely-workspace",

@@ -1,18 +1,23 @@
 import {
-    Component, ComponentFactoryResolver, ComponentRef, ElementRef, OnDestroy, OnInit, ViewChild,
+    Component,
+    ComponentFactoryResolver,
+    ComponentRef,
+    OnDestroy,
+    OnInit,
+    ViewChild,
     ViewContainerRef
 } from "@angular/core";
-import {Workspace} from "./workspace";
 import {DropzoneComponent} from "./dropzone.component";
 import {v4 as uuid} from "uuid";
 import {DraggableComponent} from "./draggable.component";
+import {DragService} from "./services/drag.service";
 
 @Component({
     selector: "workspace",
     template: `
         <div class="workspace col-12">
-            <div #dropzoneContainer class="row">
-                
+            <div class="row">
+                <ng-template #dropzoneContainer></ng-template>
             </div>
         </div>
     `
@@ -20,26 +25,52 @@ import {DraggableComponent} from "./draggable.component";
 
 export class WorkspaceComponent implements OnInit, OnDestroy {
     @ViewChild("dropzoneContainer", {read: ViewContainerRef}) dropzoneContainer: ViewContainerRef;
-    public dropzones: ComponentRef<DropzoneComponent>[] = [];
 
-    constructor(private resolver: ComponentFactoryResolver) {
+    public id: string;
+
+    public dropzones: ComponentRef<DropzoneComponent>[] = [];
+    public draggables: ComponentRef<DraggableComponent>[] = [];
+
+    constructor(private resolver: ComponentFactoryResolver, private dragService: DragService) {
+        this.id = uuid();
+
+        dragService.dragStart$.subscribe(dragStartEvent => {
+
+        })
 
     }
 
     private createDropzoneComponent() {
         const dropzoneFactory = this.resolver.resolveComponentFactory(DropzoneComponent);
-        const componentRef = this.dropzoneContainer.createComponent(dropzoneFactory);
-        this.dropzones.push(componentRef);
-        componentRef.instance.id = uuid();
-        componentRef.instance.workspace = this;
+        const dropzoneRef = this.dropzoneContainer.createComponent(dropzoneFactory);
+        this.dropzones.push(dropzoneRef);
+        dropzoneRef.instance.workspace = this;
+        dropzoneRef.instance.dropzoneModel = {dropzoneType: "general", dropzoneRadius: 0};
 
+    }
+
+    private createDraggableComponent(dropzone: ComponentRef<DropzoneComponent>) {
+        const draggableFactory = this.resolver.resolveComponentFactory(DraggableComponent);
+        const draggableRef = dropzone.instance.draggableContainer.createComponent(draggableFactory);
+        this.draggables.push(draggableRef);
+        draggableRef.instance.workspace = this;
+        draggableRef.instance.draggableModel = {
+            name: "Test" + Math.random(),
+            hasAbsolutePosition: false,
+            dropzoneType: "general"
+        };
 
     }
 
     public ngOnInit() {
-        for(let i=0;i<2;i++){
+        for (let i = 0; i < 2; i++) {
             this.createDropzoneComponent();
         }
+        this.dropzones.forEach(dropzone => {
+            for (let i = 0; i < 2; i++) {
+                this.createDraggableComponent(dropzone);
+            }
+        })
     }
 
     public ngOnDestroy() {

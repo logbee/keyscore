@@ -2,11 +2,16 @@
     padding:10px;
     border: solid 1px black;
     cursor:move;
+    user-select:none;
 }
 
 .dropzone{
     border: solid 1px black;
     min-height:600px;
+}
+
+.is-droppable{
+    border: solid 3px green;
 }
 
 .mirror{
