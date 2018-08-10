@@ -34,10 +34,12 @@ task serve(type: NodeTask, dependsOn: npmInstall) {
 task createDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'nginx:1.13.7-alpine'
+    instruction { 'RUN apk add --no-cache tini' }
     instruction { 'COPY public/ build/webpack/ /usr/share/nginx/html/' }
     instruction { 'COPY conf/nginx.conf /etc/nginx/nginx.conf' }
     instruction { 'COPY conf/application.conf /usr/share/nginx/html/' }
     instruction { 'COPY build/resources/keyscore.light.svg /usr/share/nginx/html/' }
+    instruction { "ENTRYPOINT [\"/sbin/tini\", \"-v\", \"--\"]" }
     instruction { "CMD nginx -g 'daemon off;'" }
     instruction { 'EXPOSE 80' }
 }

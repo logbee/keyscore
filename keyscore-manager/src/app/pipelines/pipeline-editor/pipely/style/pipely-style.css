@@ -1,35 +1,26 @@
-.pipely-wrapper .Block{
+.draggable{
     padding:10px;
-    border: 5px solid cornflowerblue;
-    border-radius:5px;
-    margin-bottom: 15px;
-    margin-right:5px;
-    cursor: move;
-}
-
-.pipely-wrapper #workspace{
-    padding:5px;
-    min-height:600px;
-    border-radius:5px;
-    border:2px solid lightgrey;
-
-}
-
-.pipely-wrapper .draggableObject{
-    padding:10px;
-    border:2px solid black;
+    border: solid 1px black;
     cursor:move;
+    user-select:none;
 }
 
-.pipely-wrapper .innerWorkspace{
-    min-height:300px;
-    border: 1px solid black;
+.dropzone{
+    border: solid 1px black;
+    min-height:600px;
 }
 
-.pipely-wrapper .absoluteWorkspace{
-    position:relative;
+.is-droppable{
+    border: solid 3px green;
 }
 
-.pipely-wrapper span.workspace--isDropzone{
-    min-width:150px;
+.mirror{
+    position:absolute;
+    z-index: 9999;
+}
+
+.workspace{
+    height:650px;
+    overflow-x: scroll;
+    overflow-y: scroll;
 }

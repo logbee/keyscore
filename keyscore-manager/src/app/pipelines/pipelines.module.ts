@@ -26,6 +26,10 @@ import {HealthModule} from "../common/health/health.module";
 import {AlertModule} from "../common/alert/alert.module";
 import {ErrorModule} from "../common/error/error.module";
 import {PipelyComponent} from "./pipeline-editor/pipely/pipely.component";
+import {DraggableComponent} from "./pipeline-editor/pipely/draggable.component";
+import {DropzoneComponent} from "./pipeline-editor/pipely/dropzone.component";
+import {WorkspaceComponent} from "./pipeline-editor/pipely/workspace.component";
+import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -46,7 +50,8 @@ export const routes: Routes = [
         LoadingModule,
         HealthModule,
         AlertModule,
-        ErrorModule
+        ErrorModule,
+        PipelyModule
     ],
     declarations: [
         PipelinesComponent,
@@ -61,7 +66,7 @@ export const routes: Routes = [
         ParameterMap,
         ParameterComponent
     ],
-    providers: [],
+    providers: []
 })
 export class PipelinesModule {
 }
