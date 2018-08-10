@@ -80,9 +80,10 @@ task buildDistribution(type: Copy, dependsOn: [jar]) {
 task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'java:openjdk-8-jdk-alpine'
+    instruction { 'RUN apk add --no-cache tini' }
     instruction { "COPY build/distribution/ /opt/keyscore-agent/" }
+    instruction { "ENTRYPOINT [\"/sbin/tini\", \"-v\", \"--\"]" }
     instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
-    instruction { 'EXPOSE 4711' }
 }
 
 task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, buildDockerfile]) {
