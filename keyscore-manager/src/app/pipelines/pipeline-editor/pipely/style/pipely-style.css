@@ -2,12 +2,29 @@
     padding:10px;
     border: solid 1px black;
     cursor:move;
-    user-select:none;
+    -webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
 }
 
-.dropzone{
+.dropzone-workspace{
     border: solid 1px black;
-    min-height:600px;
+    height:600px;
+    overflow-x: scroll;
+    overflow-y: scroll;
+
+}
+
+.dropzone-toolbar{
+    min-height:300px;
+    border:solid 1px black;
+}
+
+.dropzone-connector{
+    min-height:100%;
+    min-width:20%;
+    border:dashed 2px black;
 }
 
 .is-droppable{
@@ -21,6 +38,4 @@
 
 .workspace{
     height:650px;
-    overflow-x: scroll;
-    overflow-y: scroll;
 }
