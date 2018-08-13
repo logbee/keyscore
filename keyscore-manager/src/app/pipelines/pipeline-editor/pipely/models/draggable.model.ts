@@ -10,6 +10,7 @@ export interface DraggableModel {
     parent:Draggable;
     nextConnection: Connection;
     isMirror: boolean;
+    next:DraggableModel;
     initialDropzone: Dropzone;
     rootDropzone: DropzoneType;
     position?: { x: number, y: number };

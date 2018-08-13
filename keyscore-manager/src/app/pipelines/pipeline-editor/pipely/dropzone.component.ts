@@ -36,8 +36,6 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
         this.isCol6 = true;
         this.setIsDroppable(false);
         this.id = uuid();
-
-
     }
 
     public ngOnInit() {
@@ -77,13 +75,20 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
         const rectangle = this.getRectangle();
         const pivotDistance = computeDistance(mirrorRectangle, pivotRectangle);
         const currentDistance = computeDistance(mirrorRectangle, rectangle);
+
         return currentDistance < pivotDistance ? this : pivot;
 
     }
 
 
     isDraggableInRange(draggable: Draggable): boolean {
-        if (this.getOwner() === draggable ||this.isOccupied()) {
+        let nextDraggable = draggable;
+        do {
+            if (nextDraggable.getNextConnection() && nextDraggable.getNextConnection().getId() === this.id) {
+                return false;
+            }
+        } while(nextDraggable = nextDraggable.getNext())
+        if (this.getOwner() === draggable || this.isOccupied()) {
             return false;
         }
         if (this.dropzoneModel.dropzoneType === DropzoneType.Toolbar) {

@@ -57,6 +57,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     private nextConnection: Dropzone;
     private previousConnection: Dropzone;
 
+    private next: Draggable;
+
     constructor(private resolver: ComponentFactoryResolver) {
         this.id = uuid();
     }
@@ -78,8 +80,14 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
             if (this.previousConnection) {
                 this.previousConnection.occupyDropzone();
             }
+            this.draggableModel.parent.getDraggableModel().next = this.draggableModel;
+        }
+
+        if (this.draggableModel.next) {
+            this.next = this.workspace.createDraggableComponent(this.nextConnection, this.draggableModel.next);
         }
     }
+
 
     private createConnection(connection: Connection, container: ViewContainerRef) {
         if (connection.isPermitted) {
@@ -120,7 +128,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
                 x: currentPosition.x + x,
                 y: currentPosition.y + y
             };
-            const size = this.getDraggableSize();
 
             this.triggerDragMove();
 
@@ -139,6 +146,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     private dragStart(event: MouseEvent) {
+        event.stopPropagation();
+
         this.lastDragX = event.clientX;
         this.lastDragY = event.clientY;
 
@@ -189,6 +198,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     destroy(): void {
+        if (this.getDraggableModel().parent) {
+            this.getDraggableModel().parent.getDraggableModel().next = null;
+            console.log("Parent after destroy", this.getDraggableModel().parent);
+        }
         this.componentRef.destroy();
     }
 
@@ -206,6 +219,18 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     isVisible(): boolean {
         return this.visible;
+    }
+
+    getNextConnection(): Dropzone {
+        return this.nextConnection;
+    }
+
+    getNext(): Draggable {
+        return this.next;
+    }
+
+    getPreviousConnection(): Dropzone {
+        return this.previousConnection;
     }
 
     private setPosition(pos: { x: number, y: number }) {

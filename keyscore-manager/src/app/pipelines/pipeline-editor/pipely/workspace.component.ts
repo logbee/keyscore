@@ -16,6 +16,7 @@ import {DraggableModel} from "./models/draggable.model";
 import {Draggable, Dropzone, Workspace} from "./models/contract";
 import {DraggableComponent} from "./draggable.component";
 import {DropzoneType} from "./models/dropzone-type";
+import {deepcopy} from "../../../util";
 
 @Component({
     selector: "workspace",
@@ -84,6 +85,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
             }
             this.currentMirror.destroy();
             this.isDragging = false;
+            this.currentMirror = undefined;
         }
     }
 
@@ -94,9 +96,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         switch (targetDropzone.getDropzoneModel().dropzoneType) {
             case DropzoneType.Workspace:
                 draggableModel = {
-                    ...this.currentMirror.getDraggableModel(),
+                    ...deepcopy(this.currentMirror.getDraggableModel()),
                     initialDropzone: targetDropzone,
-                    rootDropzone: targetDropzone.getDropzoneModel().dropzoneType,
+                    rootDropzone: DropzoneType.Workspace,
                     isMirror: false,
                     position: this.computeRelativePositionToParent(this.currentMirror.getAbsoluteDraggablePosition(),
                         targetDropzone.getAbsolutePosition()),
@@ -106,7 +108,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                 break;
             case DropzoneType.Connector:
                 draggableModel = {
-                    ...this.currentDragged.getDraggableModel(),
+                    ...deepcopy(this.currentDragged.getDraggableModel()),
                     initialDropzone: targetDropzone,
                     rootDropzone: DropzoneType.Workspace,
                     hasAbsolutePosition: false,
@@ -138,26 +140,26 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         const dropzoneRef = this.dropzoneContainer.createComponent(dropzoneFactory);
         this.dropzones.add(dropzoneRef.instance);
         dropzoneRef.instance.workspace = this;
-        dropzoneRef.instance.dropzoneModel = dropzoneModel;
+        dropzoneRef.instance.dropzoneModel = deepcopy(dropzoneModel);
         dropzoneRef.instance.owner = null;
 
-        console.log("Dropzone created");
 
     }
 
-    private createDraggableComponent(dropzone: Dropzone, draggableModel: DraggableModel) {
+    createDraggableComponent(dropzone: Dropzone, draggableModel: DraggableModel) {
         const draggableFactory = this.resolver.resolveComponentFactory(DraggableComponent);
         const draggableRef = dropzone.getDraggableContainer().createComponent(draggableFactory);
         this.draggables.push(draggableRef.instance);
         draggableRef.instance.workspace = this;
-        draggableRef.instance.draggableModel = draggableModel;
+        draggableRef.instance.draggableModel = deepcopy(draggableModel);
         draggableRef.instance.componentRef = draggableRef;
 
         draggableRef.instance.dragStart$.subscribe(() => {
             this.dragStart(draggableRef);
 
         });
-        console.log("Draggable created");
+
+        return draggableRef.instance;
 
 
     }
@@ -167,14 +169,13 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         const mirrorRef = this.dropzoneContainer.createComponent(draggableFactory);
         this.currentMirror = mirrorRef.instance;
         mirrorRef.instance.workspace = this;
-        mirrorRef.instance.draggableModel = draggableModel;
+        mirrorRef.instance.draggableModel = deepcopy(draggableModel);
         mirrorRef.instance.componentRef = mirrorRef;
 
 
         mirrorRef.instance.dragMove$.subscribe(() =>
             this.dragMove(mirrorRef)
         );
-        console.log("Mirror created");
 
 
     }
@@ -186,7 +187,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
             {x: workspaceRect.left, y: workspaceRect.top});
 
         return {
-            ...this.currentDragged.getDraggableModel(),
+            ...deepcopy(this.currentDragged.getDraggableModel()),
             isMirror: true,
             hasAbsolutePosition: true,
             position: relativeMirrorPosition
@@ -231,6 +232,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                     previousConnection: {isPermitted: true, connectableTypes: ["general"]},
                     initialDropzone: dropzone,
                     parent: null,
+                    next: null,
                     rootDropzone: dropzone.getDropzoneModel().dropzoneType,
                     isMirror: false
                 });

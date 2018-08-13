@@ -8,6 +8,8 @@ export interface Workspace {
     addDropzone(dropzone: Dropzone): void;
 
     removeAllDropzones(predicate: (dropzone: Dropzone) => boolean): void;
+
+    createDraggableComponent(dropzone: Dropzone, draggableModel: DraggableModel): Draggable;
 }
 
 export interface Dropzone {
@@ -31,7 +33,7 @@ export interface Dropzone {
 
     getOwner(): Draggable;
 
-    isOccupied():boolean;
+    isOccupied(): boolean;
 
     occupyDropzone();
 
@@ -53,6 +55,12 @@ export interface Draggable {
     getRectangle(): Rectangle;
 
     getDraggableModel(): DraggableModel;
+
+    getNextConnection():Dropzone;
+
+    getNext():Draggable;
+
+    getPreviousConnection():Dropzone;
 
     destroy(): void;
 
