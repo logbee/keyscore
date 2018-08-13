@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.model"
+    flat_package: true
+};
+
+message Descriptor {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.DescriptorCompanion";
+    string id = 1;
+    Describe describe = 2;
+    map<string, TranslationMapping> localisation = 3 [(scalapb.field).key_type = "io.logbee.keyscore.model.TextRef"];
+}
+
+message Describe {
+    oneof sealed_value {
+        FilterDescriptor filterDescriptor = 1;
+    }
+}
+
+message FilterDescriptor {
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+    TextRef category = 4;
+    map<string, ParameterDescriptor> parameters = 5 [(scalapb.field).key_type = "io.logbee.keyscore.model.ParameterRef"];
+}
+
+message ParameterDescriptor {
+    oneof sealed_value {
+        TextParameterDescriptor textParameter = 1;
+        BooleanParameterDescriptor booleanParameter = 2;
+    }
+}
+
+message ParameterRef {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.ParameterRefCompanion";
+    string ref = 1;
+}
+
+message TextParameterDescriptor {
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3;
+}
+
+message BooleanParameterDescriptor {
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3;
+}
+
+message TextRef {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.TextRefCompanion";
+    string ref = 1;
+}
+
+message TranslationMapping {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.TranslationMappingCompanion";
+    map<string, string> translations = 1 [(scalapb.field).key_type = "io.logbee.keyscore.model.Locale"];
+}
+
+message Locale {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.LocaleCompanion";
+    string language = 1;
+    string country = 2;
+}
