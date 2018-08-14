@@ -21,17 +21,17 @@ import scala.concurrent.duration._
 class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   val csvAResult = Dataset(Record(
-    TextField("Philosophy" , "13"),
-    TextField("Maths" , "07"),
-    TextField("Latin" , "09"),
-    TextField("Astrophysics" , "15")
+    Field("Philosophy", TextValue("13")),
+    Field("Maths", TextValue("07")),
+    Field("Latin", TextValue("09")),
+    Field("Astrophysics", TextValue("15"))
   ))
 
   val csvBResult = Dataset(Record(
-    TextField("Philosophy2" , "13"),
-    TextField("Maths2" , "07"),
-    TextField("Latin2" , "09"),
-    TextField("Astrophysics2" , "15")
+    Field("Philosophy2", TextValue("13")),
+    Field("Maths2", TextValue("07")),
+    Field("Latin2", TextValue("09")),
+    Field("Astrophysics2", TextValue("15"))
   ))
 
   trait TestStream {

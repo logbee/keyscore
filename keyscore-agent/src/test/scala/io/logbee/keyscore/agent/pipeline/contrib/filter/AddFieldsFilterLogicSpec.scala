@@ -37,13 +37,13 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
   }
 
   val modified1 = Dataset(records = Record(
-    TextField("message", "The weather is cloudy with a current temperature of: -11.5 C"),
+    Field("message", TextValue("The weather is cloudy with a current temperature of: -11.5 C")),
   ))
 
   val modified2 = Dataset(records = Record(
-    TextField("message", "The weather is cloudy with a current temperature of: -11.5 C"),
-    TextField("message3", "testValue"),
-    TextField("message4", "testValue2")
+    Field("message", TextValue("The weather is cloudy with a current temperature of: -11.5 C")),
+    Field("message3", TextValue("testValue")),
+    Field("message4", TextValue("testValue2"))
   ))
 
   "A AddFieldsFilter" should {
