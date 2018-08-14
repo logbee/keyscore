@@ -28,18 +28,20 @@ class ScalaPBPlugin implements Plugin<Project> {
         project.getSourceSets().each { sourceSet ->
             Task compileScala = project.tasks.getByName(sourceSet.getTaskName("compile", "Scala"))
             Task processResourcesTask = project.tasks.getByName(sourceSet.getTaskName('process', 'resources'))
+            File outputBaseDir = project.file("${project.buildDir}/generated/source/scalapb/${sourceSet.name}/scala")
             Task scalapb = project.tasks.create(scalapbTaskName(sourceSet), ScalaPBGenerateTask) {
                 it.description = "Compiles protobuf '${sourceSet.name}' sources and generates scala code.'"
                 it.inputs.files(sourceSet.proto)
-                it.outputBaseDir = project.file("${project.buildDir}/generated/source/scalapb/${sourceSet.name}/scala")
+                it.outputBaseDir = outputBaseDir
             }
 
             compileScala.dependsOn scalapb
+
             processResourcesTask.from(project.tasks.getByName(scalapbTaskName(sourceSet)).inputs.files) {
                 include '**/*.proto'
             }
 
-            sourceSet.scala.srcDirs += project.file(scalapb.outputBaseDir)
+            sourceSet.scala.srcDirs += outputBaseDir
         }
     }
 

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "scalapb/scalapb.proto";
+import "localization.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model"
@@ -11,12 +12,12 @@ message Descriptor {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.DescriptorCompanion";
     string id = 1;
     Describe describe = 2;
-    map<string, TranslationMapping> localisation = 3 [(scalapb.field).key_type = "io.logbee.keyscore.model.TextRef"];
+    Localization localization = 15;
 }
 
 message Describe {
     oneof sealed_value {
-        FilterDescriptor filterDescriptor = 1;
+        FilterDescriptor filter = 1;
     }
 }
 
@@ -25,43 +26,83 @@ message FilterDescriptor {
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
     TextRef category = 4;
-    map<string, ParameterDescriptor> parameters = 5 [(scalapb.field).key_type = "io.logbee.keyscore.model.ParameterRef"];
+    repeated ParameterDescriptor parameters = 5;
+}
+
+message ParameterRef {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.ParameterRefCompanion";
+    string id = 1;
+}
+
+message ParameterInfo {
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3;
 }
 
 message ParameterDescriptor {
     oneof sealed_value {
         TextParameterDescriptor textParameter = 1;
         BooleanParameterDescriptor booleanParameter = 2;
+        FieldNameParameterDescriptor fieldNameParameter = 3;
+        ListParameterDescriptor listParameter = 4;
+        ConditionalParameterDescriptor conditionalParameter = 5;
     }
 }
 
-message ParameterRef {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.ParameterRefCompanion";
-    string ref = 1;
-}
-
 message TextParameterDescriptor {
-    TextRef displayName = 2 [(scalapb.field).no_box = true];
-    TextRef description = 3;
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    string defaultValue = 3;
+    TextPattern pattern = 4;
 }
 
 message BooleanParameterDescriptor {
-    TextRef displayName = 2 [(scalapb.field).no_box = true];
-    TextRef description = 3;
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    bool defaultValue = 3;
 }
 
-message TextRef {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.TextRefCompanion";
-    string ref = 1;
+message FieldNameParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    string defaultValue = 3;
+    TextPattern pattern = 4;
+    FieldNameHint hint = 5;
+    enum FieldNameHint {
+        AnyField = 0;
+        PresentField = 1;
+        AbsentField = 2;
+    }
 }
 
-message TranslationMapping {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.TranslationMappingCompanion";
-    map<string, string> translations = 1 [(scalapb.field).key_type = "io.logbee.keyscore.model.Locale"];
+message ListParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    ParameterDescriptor kind = 3;
 }
 
-message Locale {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.LocaleCompanion";
-    string language = 1;
-    string country = 2;
+message ConditionalParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    ConditionalParameterCondition condition = 3 [(scalapb.field).no_box = true];
+    repeated ParameterDescriptor parameters = 4;
+}
+
+message ConditionalParameterCondition {
+    oneof sealed_value {
+        BooleanParameterCondition booleanParameterCondition = 1;
+    }
+}
+
+message BooleanParameterCondition {
+    ParameterRef parameter = 2 [(scalapb.field).no_box = true];
+    bool negate = 3;
+}
+
+message TextPattern {
+    enum PatternType {
+        RegEx = 0;
+        Grok = 1;
+        AbsentField = 2;
+    }
 }

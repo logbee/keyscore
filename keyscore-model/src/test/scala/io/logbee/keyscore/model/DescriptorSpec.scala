@@ -1,5 +1,8 @@
 package io.logbee.keyscore.model
 
+import io.logbee.keyscore.model.ConditionalParameterConditionMessage.SealedValue.BooleanParameterCondition
+import io.logbee.keyscore.model.FieldNameParameterDescriptor.FieldNameHint.PresentField
+import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import org.scalatest.{FreeSpec, Matchers}
 import scalapb.json4s.JsonFormat
 
@@ -12,16 +15,23 @@ class DescriptorSpec extends FreeSpec with Matchers {
   "A Dataset" - {
     "should" in {
 
-      val EN = Locale("en")
+      val EN = Locale("en", "US")
       val DE = Locale("de/DE")
 
-      val filterDisplayName = TextRef("10d2b680-17c8-47b5-9ce6-2f3facf6e764")
-      val filterDescription = TextRef("c46ce8dc-d55c-443c-bc97-118ca4911592")
+      val filterDisplayName = TextRef("displayName")
+      val filterDescription = TextRef("description")
       val category = TextRef("aa5de1cd-1122-758f-97fa-228ca8911378")
 
-      val parameterARef = ParameterRef("37024d8b-4aec-4b3e-8074-21ef065e5ee2")
-      val parameterADisplayName = TextRef("c36c2134-bc89-4306-85bf-ec02180717fc")
-      val parameterADescription = TextRef("49cfa908-bd3a-417f-bdd8-850e3505c312")
+//      val parameterARef = ParameterRef("37024d8b-4aec-4b3e-8074-21ef065e5ee2")
+      val parameterADisplayName = TextRef("parameterADisplayName")
+      val parameterADescription = TextRef("parameterADescription")
+
+//      val parameterBRef = ParameterRef("ff543cab-15bf-114a-47a1-ce1f065e5513")
+      val parameterBDisplayName = TextRef("parameterBDisplayName")
+      val parameterBDescription = TextRef("parameterBDescription")
+
+      val parameterCRef = ParameterRef("b7cc9c84-ae6e-4ea3-bbff-f8d62af4caed")
+//      val parameterDRef = ParameterRef("5f28c6dd-f88f-4530-afd1-c8b946bc5406")
 
       val descriptor = Descriptor(
         id = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
@@ -30,11 +40,15 @@ class DescriptorSpec extends FreeSpec with Matchers {
           displayName = filterDisplayName,
           description = filterDescription,
           category = category,
-          parameters = Map(
-            parameterARef -> TextParameterDescriptor(parameterADisplayName, parameterADescription)
+          parameters = Seq(
+            TextParameterDescriptor("37024d8b-4aec-4b3e-8074-21ef065e5ee2", ParameterInfo(parameterADisplayName, parameterADescription), "Hello World", ".*"),
+            BooleanParameterDescriptor(parameterCRef, ParameterInfo(TextRef("parameterDDisplayName"), TextRef("parameterDDescription")), defaultValue = true),
+            ConditionalParameterDescriptor(condition = BooleanParameterCondition(parameterCRef, negate = true), parameters = Seq(
+              ListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513", ParameterInfo(parameterBDisplayName, parameterBDescription), FieldNameParameterDescriptor(hint = PresentField))
+            ))
           )
         ),
-        localisation = Map(
+        localization = Localization(Set(EN, DE), Map(
           filterDisplayName -> Map(
             EN -> "Add Fields",
             DE -> "Feld Hinzufuegen"
@@ -54,11 +68,19 @@ class DescriptorSpec extends FreeSpec with Matchers {
           parameterADescription -> Map(
             EN -> "A simple text parameter as example.",
             DE -> "Ein einfacher Textparameter als Beispiel."
+          ),
+          parameterBDisplayName -> Map(
+            EN -> "A Parameter",
+            DE -> "Ein Parameter"
+          ),
+          parameterBDescription -> Map(
+            EN -> "A simple text parameter as example.",
+            DE -> "Ein einfacher Textparameter als Beispiel."
           )
         )
-      )
+      ))
 
-      println(descriptor)
+//      println(descriptor)
 
       val json = JsonFormat.toJson(descriptor)
       println(pretty(json))

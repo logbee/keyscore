@@ -1,5 +1,6 @@
-package io.logbee.keyscore.model
+package io.logbee.keyscore.model.localization
 
+import io.logbee.keyscore.model.localization.Locale
 import scalapb.TypeMapper
 
 trait LocaleCompanion {
