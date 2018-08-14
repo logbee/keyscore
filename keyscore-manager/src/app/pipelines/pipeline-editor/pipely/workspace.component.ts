@@ -87,7 +87,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
             if (this.bestDropzone) {
                 this.drop(this.bestDropzone);
             }
-            else if (!this.bestDropzone && !this.currentDragged.isVisible()) {
+            else if (!this.currentDragged.isVisible()) {
                 this.currentDragged.show();
             }
             this.currentMirror.destroy();
@@ -108,9 +108,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                     rootDropzone: DropzoneType.Workspace,
                     isMirror: false,
                     position: this.computeRelativePositionToParent(this.currentMirror.getAbsoluteDraggablePosition(),
-                        targetDropzone.getAbsolutePosition()),
-                    parent: null
-
+                        targetDropzone.getAbsolutePosition())
                 };
                 break;
             case DropzoneType.Connector:
@@ -119,9 +117,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                     initialDropzone: targetDropzone,
                     rootDropzone: DropzoneType.Workspace,
                     hasAbsolutePosition: false,
-                    parent: targetDropzone.getOwner()
                 };
                 targetDropzone.occupyDropzone();
+                targetDropzone.getOwner().getDraggableModel().next = deepcopy(draggableModel);
                 break;
         }
 
@@ -223,7 +221,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                 nextConnection: {isPermitted: true, connectableTypes: ["general"]},
                 previousConnection: {isPermitted: true, connectableTypes: ["general"]},
                 initialDropzone: this.toolbar,
-                parent: null,
                 next: null,
                 rootDropzone: this.toolbar.getDropzoneModel().dropzoneType,
                 isMirror: false

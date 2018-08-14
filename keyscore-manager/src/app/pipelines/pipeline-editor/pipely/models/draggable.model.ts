@@ -7,7 +7,6 @@ export interface DraggableModel {
     hasAbsolutePosition: boolean;
     draggableType: string;
     previousConnection: Connection;
-    parent:Draggable;
     nextConnection: Connection;
     isMirror: boolean;
     next:DraggableModel;

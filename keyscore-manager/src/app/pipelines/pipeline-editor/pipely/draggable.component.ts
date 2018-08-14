@@ -77,11 +77,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
             this.nextConnection = this.createConnection(this.draggableModel.nextConnection, this.nextConnectionContainer);
         }
 
-        if (this.draggableModel.parent) {
+        if (this.draggableModel.initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
             if (this.previousConnection) {
                 this.previousConnection.occupyDropzone();
             }
-            this.draggableModel.parent.getDraggableModel().next = this.draggableModel;
         }
 
         if (this.draggableModel.next) {
@@ -183,8 +182,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     destroy(): void {
-        if (this.getDraggableModel().parent) {
-            this.getDraggableModel().parent.getDraggableModel().next = null;
+        if (this.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
+            this.getDraggableModel().initialDropzone.getOwner().getDraggableModel().next = null;
         }
         this.componentRef.destroy();
     }
