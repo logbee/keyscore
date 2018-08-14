@@ -10,6 +10,7 @@ import {DropzoneType} from "./models/dropzone-type";
 import {DropzoneComponent} from "./dropzone.component";
 import {Connection} from "./models/connection.model";
 import {Rectangle} from "./models/rectangle";
+import {DropzoneFactory} from "./dropzone/dropzone-factory";
 
 
 @Component({
@@ -59,7 +60,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     private next: Draggable;
 
-    constructor(private resolver: ComponentFactoryResolver) {
+    constructor(private dropzoneFactory: DropzoneFactory) {
         this.id = uuid();
     }
 
@@ -91,22 +92,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     private createConnection(connection: Connection, container: ViewContainerRef) {
         if (connection.isPermitted) {
-            const dropzoneFactory = this.resolver.resolveComponentFactory(DropzoneComponent);
-            const dropzoneRef = container.createComponent(dropzoneFactory);
-            const connectionDropzone: Dropzone = dropzoneRef.instance;
-            dropzoneRef.instance.workspace = this.workspace;
-            dropzoneRef.instance.dropzoneModel = {
-                dropzoneType: DropzoneType.Connector,
-                acceptedDraggableTypes: connection.connectableTypes,
-                dropzoneRadius: 30
-            };
-            dropzoneRef.instance.owner = this;
+            const connectionDropzone =
+                this.dropzoneFactory.createConnectorDropzone(container, this, connection.connectableTypes);
             this.workspace.addDropzone(connectionDropzone);
-            console.log("Connection created");
-
             return connectionDropzone;
-
-
         }
     }
 
@@ -148,11 +137,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     private dragStart(event: MouseEvent) {
         event.stopPropagation();
 
-        this.lastDragX = event.clientX;
-        this.lastDragY = event.clientY;
-
         this.triggerDragStart();
-
 
     }
 
@@ -200,7 +185,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     destroy(): void {
         if (this.getDraggableModel().parent) {
             this.getDraggableModel().parent.getDraggableModel().next = null;
-            console.log("Parent after destroy", this.getDraggableModel().parent);
         }
         this.componentRef.destroy();
     }

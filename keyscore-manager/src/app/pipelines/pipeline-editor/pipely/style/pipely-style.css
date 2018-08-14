@@ -17,8 +17,13 @@
 }
 
 .dropzone-toolbar{
-    min-height:300px;
     border:solid 1px black;
+    margin-bottom:10px;
+    padding:10px;
+}
+
+.dropzone-toolbar .draggable{
+    margin-right:10px;
 }
 
 .dropzone-connector{

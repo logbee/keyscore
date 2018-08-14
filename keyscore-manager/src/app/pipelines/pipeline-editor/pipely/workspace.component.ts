@@ -17,13 +17,17 @@ import {Draggable, Dropzone, Workspace} from "./models/contract";
 import {DraggableComponent} from "./draggable.component";
 import {DropzoneType} from "./models/dropzone-type";
 import {deepcopy} from "../../../util";
+import {DropzoneFactory} from "./dropzone/dropzone-factory";
 
 @Component({
     selector: "workspace",
     template: `
-        <div class="workspace col-12">
-            <div #workspace class="row">
-                <ng-template #dropzoneContainer></ng-template>
+        <div #workspace class="workspace col-12">
+            <div class="row">
+                <ng-template #toolbarContainer></ng-template>
+            </div>
+            <div class="row">
+                <ng-template #workspaceContainer></ng-template>
             </div>
         </div>
     `
@@ -31,7 +35,8 @@ import {deepcopy} from "../../../util";
 
 
 export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
-    @ViewChild("dropzoneContainer", {read: ViewContainerRef}) dropzoneContainer: ViewContainerRef;
+    @ViewChild("toolbarContainer", {read: ViewContainerRef}) toolbarContainer: ViewContainerRef;
+    @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
 
     public id: string;
@@ -39,12 +44,14 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     public dropzones: Set<Dropzone> = new Set();
     public draggables: Draggable[] = [];
 
+    public toolbar: Dropzone;
+
     private isDragging: boolean = false;
     private bestDropzone: Dropzone;
     private currentDragged: Draggable;
     private currentMirror: Draggable;
 
-    constructor(private resolver: ComponentFactoryResolver) {
+    constructor(private resolver: ComponentFactoryResolver, private dropzoneFactory: DropzoneFactory) {
         this.id = uuid();
     }
 
@@ -135,17 +142,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     }
 
-    private createDropzoneComponent(dropzoneModel: DropzoneModel) {
-        const dropzoneFactory = this.resolver.resolveComponentFactory(DropzoneComponent);
-        const dropzoneRef = this.dropzoneContainer.createComponent(dropzoneFactory);
-        this.dropzones.add(dropzoneRef.instance);
-        dropzoneRef.instance.workspace = this;
-        dropzoneRef.instance.dropzoneModel = deepcopy(dropzoneModel);
-        dropzoneRef.instance.owner = null;
-
-
-    }
-
     createDraggableComponent(dropzone: Dropzone, draggableModel: DraggableModel) {
         const draggableFactory = this.resolver.resolveComponentFactory(DraggableComponent);
         const draggableRef = dropzone.getDraggableContainer().createComponent(draggableFactory);
@@ -166,7 +162,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     private createMirrorComponent(draggableModel: DraggableModel) {
         const draggableFactory = this.resolver.resolveComponentFactory(DraggableComponent);
-        const mirrorRef = this.dropzoneContainer.createComponent(draggableFactory);
+        const mirrorRef = this.toolbarContainer.createComponent(draggableFactory);
         this.currentMirror = mirrorRef.instance;
         mirrorRef.instance.workspace = this;
         mirrorRef.instance.draggableModel = deepcopy(draggableModel);
@@ -215,30 +211,26 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     }
 
     ngOnInit() {
-        this.createDropzoneComponent(
-            {dropzoneType: DropzoneType.Toolbar, dropzoneRadius: 0, acceptedDraggableTypes: []}
-        );
-        this.createDropzoneComponent(
-            {dropzoneType: DropzoneType.Workspace, dropzoneRadius: 0, acceptedDraggableTypes: ["general"]}
-        );
+        this.toolbar = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer);
 
-        this.dropzones.forEach(dropzone => {
-            for (let i = 0; i < 2; i++) {
-                this.createDraggableComponent(dropzone, {
-                    name: "Test" + Math.random(),
-                    hasAbsolutePosition: false,
-                    draggableType: "general",
-                    nextConnection: {isPermitted: true, connectableTypes: ["general"]},
-                    previousConnection: {isPermitted: true, connectableTypes: ["general"]},
-                    initialDropzone: dropzone,
-                    parent: null,
-                    next: null,
-                    rootDropzone: dropzone.getDropzoneModel().dropzoneType,
-                    isMirror: false
-                });
-            }
-        })
+        this.dropzones.add(this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer));
+
+        for (let i = 0; i < 2; i++) {
+            this.createDraggableComponent(this.toolbar, {
+                name: "Test" + Math.random(),
+                hasAbsolutePosition: false,
+                draggableType: "general",
+                nextConnection: {isPermitted: true, connectableTypes: ["general"]},
+                previousConnection: {isPermitted: true, connectableTypes: ["general"]},
+                initialDropzone: this.toolbar,
+                parent: null,
+                next: null,
+                rootDropzone: this.toolbar.getDropzoneModel().dropzoneType,
+                isMirror: false
+            });
+        }
     }
+
 
     ngOnDestroy() {
 

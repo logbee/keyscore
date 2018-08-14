@@ -4,6 +4,10 @@ import {TranslateModule} from "@ngx-translate/core";
 import {WorkspaceComponent} from "./workspace.component";
 import {DraggableComponent} from "./draggable.component";
 import {DropzoneComponent} from "./dropzone.component";
+import {DropzoneFactory} from "./dropzone/dropzone-factory";
+import {ToolbarDropzoneSubcomponent} from "./dropzone/toolbar-dropzone-subcomponent";
+import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
+import {ConnectorDropzoneSubcomponent} from "./dropzone/connector-dropzone-subcomponent";
 
 @NgModule({
     imports: [
@@ -13,13 +17,21 @@ import {DropzoneComponent} from "./dropzone.component";
     declarations: [
         WorkspaceComponent,
         DraggableComponent,
-        DropzoneComponent
+        DropzoneComponent,
+        ToolbarDropzoneSubcomponent,
+        WorkspaceDropzoneSubcomponent,
+        ConnectorDropzoneSubcomponent
     ],
     entryComponents: [
         DraggableComponent,
-        DropzoneComponent
+        DropzoneComponent,
+        ToolbarDropzoneSubcomponent,
+        WorkspaceDropzoneSubcomponent,
+        ConnectorDropzoneSubcomponent,
+
     ],
-    exports: [WorkspaceComponent]
+    exports: [WorkspaceComponent],
+    providers: [DropzoneFactory]
 
 })
 

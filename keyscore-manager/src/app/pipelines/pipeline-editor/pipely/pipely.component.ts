@@ -1,9 +1,5 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {Subject} from "rxjs/index";
-import {Sortable} from "@shopify/draggable";
-import {Plugins} from "@shopify/draggable";
-import {Draggable} from "@shopify/draggable";
-import {Droppable} from "@shopify/draggable";
 
 import "./style/pipely-style.css";
 

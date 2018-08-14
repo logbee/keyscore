@@ -1,4 +1,4 @@
-import {ViewContainerRef} from "@angular/core";
+import {ElementRef, ViewContainerRef} from "@angular/core";
 import {DraggableModel} from "./draggable.model";
 import {Observable} from "rxjs/index";
 import {DropzoneModel} from "./dropzone.model";
@@ -19,6 +19,8 @@ export interface Dropzone {
 
     getDraggableContainer(): ViewContainerRef;
 
+    getDropzoneElement(): ElementRef;
+
     getIsDroppable(): boolean;
 
     setIsDroppable(isDroppable: boolean): void;
@@ -30,6 +32,8 @@ export interface Dropzone {
     getSize(): { width: number, height: number };
 
     getRectangle(): Rectangle;
+
+    getRectangleWithRadius(): Rectangle;
 
     getOwner(): Draggable;
 
@@ -56,11 +60,11 @@ export interface Draggable {
 
     getDraggableModel(): DraggableModel;
 
-    getNextConnection():Dropzone;
+    getNextConnection(): Dropzone;
 
-    getNext():Draggable;
+    getNext(): Draggable;
 
-    getPreviousConnection():Dropzone;
+    getPreviousConnection(): Dropzone;
 
     destroy(): void;
 
