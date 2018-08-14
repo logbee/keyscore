@@ -46,15 +46,18 @@ const initialState: FilterState = {
         metaData: "",
         records: [
             {
-                id: "b8f4e010-dbe5-40ae-bd2c-b73a953da100",
-                payload: [
-                    { jsonClass: "TextField", name: "message",
-                        value: "The weather is cloudy with a current temperature of: -11.5 C"},
-                    { jsonClass: "NumberField", name: "temperature", value: 11.5}
+                fields: [
+                    {
+                        name: "message",
+                        value: {
+                            jsonClass: "TextValue",
+                            value: "The weather is sunny with a current temperature of: 14.4 C"
+                        }
+                    }
                 ]
             }
         ]
-    }
+    },
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
