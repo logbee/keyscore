@@ -79,10 +79,8 @@ task buildDistribution(type: Copy, dependsOn: [jar]) {
 
 task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
-    from 'java:openjdk-8-jdk-alpine'
-    instruction { 'RUN apk add --no-cache tini' }
+    from 'quay.io/logbee/openjdk-8-jdk-alpine'
     instruction { "COPY build/distribution/ /opt/keyscore-agent/" }
-    instruction { "ENTRYPOINT [\"/sbin/tini\", \"-v\", \"--\"]" }
     instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
 }
 
