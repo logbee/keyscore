@@ -10,7 +10,7 @@ import {
     EditPipelineAction,
     EditPipelineFailureAction,
     EditPipelineSuccessAction,
-    LOAD_ALL_PIPELINES,
+    LOAD_ALL_PIPELINES, LOAD_ALL_PIPELINES_FAILURE,
     LOAD_ALL_PIPELINES_SUCCESS,
     LoadAllPipelinesAction,
     LoadAllPipelinesSuccessAction,
@@ -51,6 +51,7 @@ type hideSpinnerTypes =
 
 const hideSpinnerActions = [
     LOAD_ALL_PIPELINES_SUCCESS,
+    LOAD_ALL_PIPELINES_FAILURE,
     EDIT_PIPELINE_SUCCESS,
     EDIT_PIPELINE_FAILURE,
     LOAD_LIVE_EDITING_FILTER_SUCCESS,
