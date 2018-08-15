@@ -4,7 +4,6 @@ import {Connection} from "./connection.model";
 
 export interface DraggableModel {
     name: string;
-    hasAbsolutePosition: boolean;
     draggableType: string;
     previousConnection: Connection;
     nextConnection: Connection;

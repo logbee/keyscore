@@ -9,7 +9,10 @@ export interface Workspace {
 
     removeAllDropzones(predicate: (dropzone: Dropzone) => boolean): void;
 
-    createDraggableComponent(dropzone: Dropzone, draggableModel: DraggableModel): Draggable;
+    registerDraggable(draggable: Draggable);
+
+    registerMirror(mirror: Draggable);
+
 }
 
 export interface Dropzone {
@@ -42,6 +45,9 @@ export interface Dropzone {
     occupyDropzone();
 
     clearDropzone();
+
+    drop(mirros: Draggable, currentDragged: Draggable): void;
+
 }
 
 export interface Draggable {

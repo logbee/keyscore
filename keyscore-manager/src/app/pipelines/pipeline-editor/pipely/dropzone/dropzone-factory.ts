@@ -1,6 +1,6 @@
 import {ComponentFactory, ComponentFactoryResolver, Injectable, ViewContainerRef} from "@angular/core";
 import {DropzoneComponent} from "../dropzone.component";
-import {Draggable, Dropzone} from "../models/contract";
+import {Draggable, Dropzone, Workspace} from "../models/contract";
 import {DropzoneType} from "../models/dropzone-type";
 import {ToolbarDropzoneLogic} from "./toolbar-dropzone-logic";
 import {WorkspaceDropzoneLogic} from "./workspace-dropzone-logic";
@@ -19,7 +19,7 @@ export class DropzoneFactory {
 
     }
 
-    public createToolbarDropzone(container: ViewContainerRef): Dropzone {
+    public createToolbarDropzone(container: ViewContainerRef, workspace: Workspace): Dropzone {
         const dropzoneRef = container.createComponent(this.componentFactory);
         dropzoneRef.instance.dropzoneModel = {
             dropzoneRadius: 0,
@@ -28,6 +28,7 @@ export class DropzoneFactory {
             owner: null
         };
         dropzoneRef.instance.logic = new ToolbarDropzoneLogic();
+        dropzoneRef.instance.workspace = workspace;
 
         const toolbarSubFactory = this.resolver.resolveComponentFactory(ToolbarDropzoneSubcomponent);
         const subRef = dropzoneRef.instance.dropzoneContainer.createComponent(toolbarSubFactory);
@@ -35,7 +36,7 @@ export class DropzoneFactory {
         return dropzoneRef.instance;
     }
 
-    public createWorkspaceDropzone(container: ViewContainerRef): Dropzone {
+    public createWorkspaceDropzone(container: ViewContainerRef, workspace: Workspace): Dropzone {
         const dropzoneRef = container.createComponent(this.componentFactory);
         dropzoneRef.instance.dropzoneModel = {
             dropzoneRadius: 0,
@@ -44,6 +45,8 @@ export class DropzoneFactory {
             owner: null
         };
         dropzoneRef.instance.logic = new WorkspaceDropzoneLogic(dropzoneRef.instance);
+        dropzoneRef.instance.workspace = workspace;
+
 
         const workspaceSubFactory = this.resolver.resolveComponentFactory(WorkspaceDropzoneSubcomponent);
         const subRef = dropzoneRef.instance.dropzoneContainer.createComponent(workspaceSubFactory);
@@ -52,6 +55,7 @@ export class DropzoneFactory {
     }
 
     public createConnectorDropzone(container: ViewContainerRef,
+                                   workspace: Workspace,
                                    owner: Draggable,
                                    acceptedDraggables: string[]): Dropzone {
         const dropzoneRef = container.createComponent(this.componentFactory);
@@ -62,6 +66,8 @@ export class DropzoneFactory {
             owner: owner
         };
         dropzoneRef.instance.logic = new ConnectorDropzoneLogic(dropzoneRef.instance);
+        dropzoneRef.instance.workspace = workspace;
+
 
         const connectorSubFactory = this.resolver.resolveComponentFactory(ConnectorDropzoneSubcomponent);
 

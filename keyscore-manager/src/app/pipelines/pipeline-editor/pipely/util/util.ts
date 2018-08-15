@@ -1,6 +1,6 @@
 import {Rectangle} from "../models/rectangle";
 
-export function intersects(firstRect:Rectangle, secondRect:Rectangle){
+export function intersects(firstRect: Rectangle, secondRect: Rectangle) {
     return !(firstRect.left > secondRect.right ||
         firstRect.right < secondRect.left ||
         firstRect.bottom < secondRect.top ||
@@ -22,4 +22,12 @@ export function computeDistance(firstRect: Rectangle, secondRect: Rectangle) {
 
     return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
+}
+
+export function computeRelativePositionToParent(absolutePosition: { x: number, y: number },
+                                                absolutePositionParent: { x: number, y: number }) {
+    return {
+        x: (absolutePosition.x - absolutePositionParent.x),
+        y: (absolutePosition.y - absolutePositionParent.y)
+    }
 }

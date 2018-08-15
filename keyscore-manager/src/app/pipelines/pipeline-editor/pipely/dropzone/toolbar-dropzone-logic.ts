@@ -7,4 +7,8 @@ export class ToolbarDropzoneLogic implements DropzoneLogic {
     computeBestDropzone(mirror: Draggable, pivot: Dropzone): Dropzone {
         return pivot;
     }
+
+    drop(mirror: Draggable = null, currentDragged: Draggable = null): void {
+        return;
+    }
 }

@@ -1,16 +1,18 @@
 import {Component, ElementRef, HostBinding, Input, OnDestroy, OnInit, ViewChild, ViewContainerRef} from "@angular/core";
 import {v4 as uuid} from "uuid";
 import {DropzoneModel} from "./models/dropzone.model";
-import {Draggable, Dropzone} from "./models/contract";
+import {Draggable, Dropzone, Workspace} from "./models/contract";
 import {Rectangle} from "./models/rectangle";
 import {DropzoneLogic} from "./dropzone/dropzone-logic";
 import {DropzoneSubcomponent} from "./dropzone/dropzone-subcomponent";
+import {DropzoneFactory} from "./dropzone/dropzone-factory";
+import {DraggableFactory} from "./draggable/draggable-factory";
 
 @Component({
     selector: "dropzone",
     template: `
         <div [class.is-droppable]="isDroppable">
-            <ng-template #dropzoneContainer ></ng-template>
+            <ng-template #dropzoneContainer></ng-template>
         </div>
 
     `
@@ -21,7 +23,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
     @Input() dropzoneModel: DropzoneModel;
     @Input() logic: DropzoneLogic;
     @Input() subComponent: DropzoneSubcomponent;
-
+    @Input() workspace:Workspace;
 
     @HostBinding('class.col-12') isCol12: boolean;
 
@@ -33,7 +35,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
     private id: string;
     private occupied: boolean = false;
 
-    constructor() {
+    constructor(public draggableFactory:DraggableFactory) {
         this.isCol12 = true;
         this.setIsDroppable(false);
         this.id = uuid();
@@ -56,6 +58,9 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
         return this.dropzoneModel.owner;
     }
 
+    drop(mirror: Draggable, currentDragged: Draggable) {
+        this.logic.drop(mirror, currentDragged);
+    }
 
     getIsDroppable(): boolean {
         return this.isDroppable;
@@ -127,6 +132,5 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
     getDropzoneElement(): ElementRef {
         return this.subComponent.dropzoneElement;
     }
-
 
 }
