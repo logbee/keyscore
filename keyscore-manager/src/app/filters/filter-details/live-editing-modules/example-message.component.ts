@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
-import {selectExtractFinish} from "../../filter.reducer";
+import {selectcurrentDatasetCounter, selectExtractFinish, selectUpdateConfigurationFlag} from "../../filter.reducer";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 @Component({
@@ -52,9 +52,10 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 export class ExampleMessageComponent implements OnInit {
     @Input() public extractedDatasets$: Observable<Dataset[]>;
-    @Output() public currentExampleDataset: EventEmitter<Dataset> = new EventEmitter();
+    @Output() public currentDatasetCounter: EventEmitter<number> = new EventEmitter();
     private extractFinish$: Observable<boolean>;
     private count: number;
+    private count$: Observable<number>;
     private isReady$: Observable<boolean>;
     private noDataAvailable: boolean = true;
     private numberOfDatasets: number;
@@ -62,6 +63,7 @@ export class ExampleMessageComponent implements OnInit {
     constructor(private store: Store<any>) {
         this.isReady$ = this.store.select(selectExtractFinish);
         this.extractFinish$ = this.store.select(selectExtractFinish);
+        this.count$ = this.store.select(selectcurrentDatasetCounter)
     }
 
     public ngOnInit(): void {
@@ -69,32 +71,32 @@ export class ExampleMessageComponent implements OnInit {
             this.numberOfDatasets = datasets.length;
             this.noDataAvailable = datasets.length === 0;
         });
-        this.count = 0;
+        this.count$.subscribe((count) => {
+            this.count = count;
+        })
     }
 
     private goLeft() {
         if (this.count == 0) {
             this.count = this.numberOfDatasets - 1;
-            this.emitSelectedDataset(this.count)
+            this.emitCounter(this.count);
         } else  {
             this.count -= 1;
-           this.emitSelectedDataset(this.count)
+            this.emitCounter(this.count)
         }
     }
 
     private goRight() {
         if (this.count == this.numberOfDatasets - 1) {
             this.count = 0;
-            this.emitSelectedDataset(this.count)
+            this.emitCounter(this.count);
         } else  {
             this.count += 1;
-            this.emitSelectedDataset(this.count)
+            this.emitCounter(this.count)
         }
     }
 
-    private emitSelectedDataset(count:number) {
-        this.extractedDatasets$.subscribe((datasets) => {
-            this.currentExampleDataset.emit(datasets[count]);
-        });
+    private emitCounter(count: number) {
+        this.currentDatasetCounter.emit(count)
     }
 }

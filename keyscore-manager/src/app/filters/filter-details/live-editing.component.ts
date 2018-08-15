@@ -15,7 +15,7 @@ import {
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
 import {
     LockCurrentExampleDatasetAction,
-    RestoreFilterConfiguration,
+    RestoreFilterConfiguration, UpdateDatasetCounter,
     UpdateFilterConfiguration
 } from "../filters.actions";
 import {Location} from "@angular/common";
@@ -34,12 +34,13 @@ import {Location} from "@angular/common";
                                         [currentFilterState]="filterState$ | async">
                     </filter-description>
                     <example-message [extractedDatasets$]="extractedDatasets$"
-                                     (currentExampleDataset)="lockCurrentExampleDataset($event)">
+                                     (currentDatasetCounter)="updateCounterInStore($event)">
                     </example-message>
                     <filter-configuration [filter$]="filter$"
                                           [extractedDatasets$]="extractedDatasets$"
                                           (apply)="reconfigureFilter($event)"></filter-configuration>
-                    <filter-result [resultDatasets$] ="resultDatasets$"></filter-result>
+                    <filter-result [resultDatasets$] ="resultDatasets$"
+                                   (currentDatasetCounter)="updateCounterInStore($event)"></filter-result>
                 </div>
             </div>
         </div>
@@ -91,13 +92,14 @@ export class LiveEditingComponent implements OnInit, OnDestroy {
     public ngOnDestroy(): void {
     }
 
-    public lockCurrentExampleDataset(dataset: Dataset) {
-        this.store.dispatch(new LockCurrentExampleDatasetAction(dataset));
-    }
-
     public reconfigureFilter(update: { filterConfiguration: FilterConfiguration, values: any }) {
         this.store.dispatch(new UpdateFilterConfiguration(update.filterConfiguration, update.values));
     }
+
+    private updateCounterInStore(count:number) {
+        this.store.dispatch(new UpdateDatasetCounter(count));
+    }
+
     private triggerErrorComponent(httpError: string) {
         switch (httpError.toString()) {
             case "404": {
@@ -128,4 +130,6 @@ export class LiveEditingComponent implements OnInit, OnDestroy {
             }
         }
     }
-   }
+
+}
+

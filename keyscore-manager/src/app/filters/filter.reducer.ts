@@ -4,7 +4,7 @@ import {
     LOAD_FILTERSTATE_SUCCESS,
     LOAD_LIVE_EDITING_FILTER_SUCCESS,
     LOCK_CURRENT_EXAMPLE_DATASET,
-    PAUSE_FILTER_SUCCESS, RECONFIGURE_FILTER_SUCCESS, UPDATE_FILTER_CONFIGURATION
+    PAUSE_FILTER_SUCCESS, RECONFIGURE_FILTER_SUCCESS, UPDATE_DATASET_COUNTER, UPDATE_FILTER_CONFIGURATION
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
@@ -21,7 +21,7 @@ export class FilterState {
     public extractFinish: boolean;
     public updateConfiguration: boolean;
     public resultAvailable: boolean;
-    public currentExampleDataset: Dataset;
+    public currentDatasetCounter: number;
 }
 
 const initialState: FilterState = {
@@ -42,22 +42,7 @@ const initialState: FilterState = {
     resultAvailable: false,
     exampleDatasets: [],
     resultDatasets: [],
-    currentExampleDataset: {
-        metaData: "",
-        records: [
-            {
-                fields: [
-                    {
-                        name: "message",
-                        value: {
-                            jsonClass: "TextValue",
-                            value: "The weather is sunny with a current temperature of: 14.4 C"
-                        }
-                    }
-                ]
-            }
-        ]
-    },
+    currentDatasetCounter: 0
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
@@ -87,11 +72,8 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
         case EXTRACT_DATASETS_RESULT_SUCCESS:
             result.resultAvailable = true;
             result.resultDatasets = [];
-            result.resultDatasets = action.datasets;
+            result.resultDatasets = action.datasets.reverse();
             result.extractFinish = true;
-            break;
-        case LOCK_CURRENT_EXAMPLE_DATASET:
-            result.currentExampleDataset = action.dataset;
             break;
         case UPDATE_FILTER_CONFIGURATION:
             result.updateConfiguration = true;
@@ -104,11 +86,16 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
                 }
             });
             break;
+        case UPDATE_DATASET_COUNTER:
+            result.currentDatasetCounter = action.counter;
+            break;
     }
     return result;
 }
 
 export const extractFinish = (state: FilterState) => state.extractFinish;
+
+export const currentDatasetCounter = (state: FilterState) => state.currentDatasetCounter;
 
 export const resultAvailable = (state: FilterState) => state.resultAvailable;
 
@@ -133,3 +120,6 @@ export const selectExtractFinish = createSelector(getFilterState, extractFinish)
 export const selectResultAvailable = createSelector(getFilterState, resultAvailable);
 
 export const selectUpdateConfigurationFlag = createSelector(getFilterState, getUpdateConfigurationFlag);
+
+export const selectcurrentDatasetCounter = createSelector(getFilterState, currentDatasetCounter);
+
