@@ -28,7 +28,7 @@ export interface AppState {
             <div id="modal">
                 <ng-template #modal></ng-template>
             </div>
-            <div class="container-fluid" style="padding-left: 0">
+            <div class="container-fluid p-0" style="padding-left: 0">
                 <div class="row no-gutters">
                     <div class="col-12">
                         <router-outlet></router-outlet>

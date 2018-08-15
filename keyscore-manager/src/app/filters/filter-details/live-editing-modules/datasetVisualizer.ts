@@ -1,41 +1,28 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 @Component({
     selector: "dataset-visualizer",
     template: `
         <div *ngFor="let record of dataset?.records">
-            <div class="row">
-                <strong></strong>
-            </div>
             <table class="table table-bordered">
-                <tr *ngFor="let field of record.fields">
+                <tr *ngFor="let field of record.fields"  [ngSwitch]="field.value.jsonClass">
                     <th>{{field.name}}</th>
-                    <div [ngSwitch]="field.value.jsonClass">
                         <td *ngSwitchCase="'TextValue'">
                             {{field.value.value}}
                         </td>
-                    </div>
-                    <div [ngSwitch]="field.value.jsonClass">
                         <td *ngSwitchCase="'NumberValue'">
                             {{field.value.value}}
                         </td>
-                    </div>
-                    <div [ngSwitch]="field.value.jsonClass">
                         <td *ngSwitchCase="'DecimalValue'">
-                            <!--{{todo}}-->
+                            {{field.value.value}}
                         </td>
-                    </div>
-                    <div [ngSwitch]="field.value.jsonClass">
                         <td *ngSwitchCase="'TimestampValue'">
-                            <!--{{todo}}-->
+                           {{convertToDateTime(field.value.seconds)}}
                         </td>
-                    </div>
-                    <div [ngSwitch]="field.value.jsonClass">
                         <td *ngSwitchCase="'DurationValue'">
-                            <!--{{todo}}-->
+                            {{convertToDateTime(field.value.seconds)}}
                         </td>
-                    </div>
                     <td>{{field.value.jsonClass}}</td>
                 </tr>
             </table>
@@ -43,6 +30,17 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
     `
 })
 
-export class DatasetVisualizer {
+export class DatasetVisualizer implements OnInit{
     @Input() public dataset: Dataset;
+
+    ngOnInit(): void {
+
+    }
+
+    convertToDateTime(seconds: number) {
+        const dateTime = new Date(1970, 0, 1);
+        dateTime.setSeconds(seconds);
+        return dateTime;
+    }
+
 }
