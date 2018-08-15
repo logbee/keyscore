@@ -1,13 +1,10 @@
 package io.logbee.keyscore.frontier.cluster
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Deploy, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill}
 import akka.cluster.ClusterEvent.{MemberExited, MemberUp, ReachableMember, UnreachableMember}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, SubscribeAck, Unsubscribe}
 import akka.cluster.{Cluster, Member, UniqueAddress}
-import akka.remote.RemoteScope
-import io.logbee.keyscore.commons.RemoteActor
-import io.logbee.keyscore.commons.RemoteActor.RemoteTry
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers}
 
@@ -83,6 +80,19 @@ class AgentManager extends Actor with ActorLogging {
 
     case QueryMembers =>
       sender ! QueryMembers(members.toList)
+
+    case RemoveAgentFromCluster(agentID) =>
+      agents.find(agent => agent._2.id.equals(agentID)) match {
+        case Some((memberID, remoteAgent)) =>
+          members.find(member => member.uniqueAddress.longUid.equals(memberID)) match {
+            case Some(member) =>
+              stopAgent(member, sender(), remoteAgent)
+            case _ =>
+              sender ! RemoveAgentFromClusterFailed
+          }
+        case _ =>
+          sender ! RemoveAgentFromClusterFailed
+      }
   }
 
   private def addAgentMember(member: Member): Unit = {
@@ -104,6 +114,17 @@ class AgentManager extends Actor with ActorLogging {
         log.info(s"Agent could not be removed: $uid")
     }
   }
+
+  private def stopAgent(member: Member, senderRef: ActorRef, agent: RemoteAgent): Unit = {
+    //mark the agent as down
+    cluster.down(member.uniqueAddress.address)
+    //stop the agent actor
+    agent.ref ! PoisonPill
+    log.info("Agent Stopped: " + agent.id)
+    removeAgent(member)
+    senderRef ! AgentRemovedFromCluster(agent.id)
+  }
+
 }
 
 

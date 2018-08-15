@@ -30,3 +30,9 @@ case class CreatePipelineOrder(pipelineConfiguration: PipelineConfiguration)
 case class DeletePipelineOrder(id: UUID)
 
 case object DeleteAllPipelinesOrder
+
+case class RemoveAgentFromCluster(agentID: UUID)
+
+case class AgentRemovedFromCluster(agentID: UUID)
+
+case object RemoveAgentFromClusterFailed
