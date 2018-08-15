@@ -17,7 +17,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                       <span (click)="goLeft()">
                             <img width="18em" src="/assets/images/chevron-left.svg"/>
                       </span>
-                        {{displayCount}} / {{(resultDatasets$ | async)?.length}}
+                        {{count + 1}} / {{(resultDatasets$ | async)?.length}}
                         <span (click)="goRight()">
                             <img width="18em" src="/assets/images/chevron-right.svg"/>
                       </span>
@@ -49,7 +49,6 @@ export class FilterResultComponent implements OnInit {
     private loading$: Observable<boolean>;
     private count: number;
     private numberOfDatasets: number;
-    private displayCount: number;
 
     constructor(private store: Store<any>) {
         this.loading$ = this.store.select(selectResultAvailable);
@@ -60,20 +59,22 @@ export class FilterResultComponent implements OnInit {
             this.numberOfDatasets = datasets.length;
         });
         this.count = 0;
-        this.displayCount = 1;
     }
 
     private goLeft() {
-        if (this.count !== this.numberOfDatasets - 1) {
-            this.count += 1;
-            this.displayCount += 1;
+        if (this.count == 0) {
+            this.count = this.numberOfDatasets - 1;
+        } else  {
+            this.count -= 1;
         }
     }
 
     private goRight() {
-        if (this.count !== 0) {
-            this.count -= 1;
-            this.displayCount -= 1;
+        if (this.count == this.numberOfDatasets - 1) {
+            this.count = 0;
+        } else  {
+            this.count += 1;
         }
     }
+
 }
