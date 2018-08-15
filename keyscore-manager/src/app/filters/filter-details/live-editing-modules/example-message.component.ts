@@ -25,7 +25,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                     <div class="col-sm-9"></div>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0 pr-3">
                 <div class="ml-3">
                     <div class="row" *ngIf="(!noDataAvailable); else noData">
                         <div class="col-sm-12 mb-2" *ngIf="(extractFinish$ | async); else loading">

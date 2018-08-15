@@ -11,7 +11,7 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
             </div>
             <div class="form-group ml-1">
                 <button class="btn btn-info" (click)="addItem(addItemInput.value)"><img
-                        src="/assets/images/ic_add_white_24px.svg" alt="Remove"/>
+                       width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Remove"/>
                 </button>
             </div>
 
