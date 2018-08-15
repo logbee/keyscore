@@ -70,6 +70,10 @@ export interface Draggable {
 
     getNext(): Draggable;
 
+    removeNextFromModel():void;
+
+    setNextModel(next:DraggableModel):void;
+
     getPreviousConnection(): Dropzone;
 
     destroy(): void;

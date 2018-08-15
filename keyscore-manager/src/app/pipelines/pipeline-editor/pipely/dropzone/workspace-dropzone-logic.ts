@@ -21,20 +21,24 @@ export class WorkspaceDropzoneLogic implements DropzoneLogic {
     drop(mirror: Draggable, currentDragged: Draggable):void {
         this.component.setIsDroppable(false);
         const draggableModel = {
-            ...mirror.getDraggableModel(),
+            ...currentDragged.getDraggableModel(),
             initialDropzone: this.component,
             rootDropzone: DropzoneType.Workspace,
-            isMirror: false,
             position: computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
                 this.component.getAbsolutePosition())
         };
-        const initialDropzone = mirror.getDraggableModel().initialDropzone;
+        const initialDropzone = currentDragged.getDraggableModel().initialDropzone;
         if (initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
             initialDropzone.clearDropzone();
+            console.log("model before remove:",initialDropzone.getOwner().getDraggableModel());
+            initialDropzone.getOwner().removeNextFromModel();
+            console.log("model after remove:",initialDropzone.getOwner().getDraggableModel());
+
         }
         if (currentDragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             currentDragged.destroy();
         }
+
 
         const droppedDraggable =  this.component.draggableFactory.createDraggable(this.component.getDraggableContainer(),
             draggableModel,

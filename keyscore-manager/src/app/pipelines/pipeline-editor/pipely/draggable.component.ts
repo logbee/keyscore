@@ -162,7 +162,9 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     }
 
-
+    removeNextFromModel(){
+        this.draggableModel.next = null;
+    }
     getDraggablePosition(): { x: number, y: number } {
         return {
             x: this.draggableElement.nativeElement.offsetLeft,
@@ -237,6 +239,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     getPreviousConnection(): Dropzone {
         return this.previousConnection;
+    }
+
+    setNextModel(next:DraggableModel):void{
+        this.draggableModel.next = next;
     }
 
     private setPosition(pos: { x: number, y: number }) {

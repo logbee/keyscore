@@ -41,11 +41,15 @@ export class ConnectorDropzoneLogic implements DropzoneLogic {
         };
 
         this.component.occupyDropzone();
-        this.component.getOwner().getDraggableModel().next = draggableModel;
+        console.log("ownermodel before set",this.component.getOwner().getDraggableModel());
+        this.component.getOwner().setNextModel(draggableModel);
+        console.log("ownermodel after set",this.component.getOwner().getDraggableModel());
 
-        const initialDropzone = mirror.getDraggableModel().initialDropzone;
+        const initialDropzone = currentDragged.getDraggableModel().initialDropzone;
         if (initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
             initialDropzone.clearDropzone();
+            initialDropzone.getOwner().removeNextFromModel();
+
         }
         if (currentDragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             currentDragged.destroy();

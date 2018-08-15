@@ -6,8 +6,6 @@ import {DropzoneType} from "./models/dropzone-type";
 import {deepcopy} from "../../../util";
 import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
-import {switchMap, takeUntil} from "rxjs/operators";
-import {mergeMap} from "rxjs/internal/operators";
 import {computeRelativePositionToParent} from "./util/util";
 
 @Component({
@@ -28,7 +26,7 @@ import {computeRelativePositionToParent} from "./util/util";
 export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     @ViewChild("toolbarContainer", {read: ViewContainerRef}) toolbarContainer: ViewContainerRef;
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
-    @ViewChild("workspace", {read: ViewContainerRef}) wrapperContainer: ViewContainerRef;
+    @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
 
     public id: string;
@@ -78,15 +76,15 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     dragStop(event: MouseEvent) {
         if (this.isDragging) {
             if (this.bestDropzone) {
-                this.bestDropzone.drop(this.currentMirror,this.currentDragged);
+                this.bestDropzone.drop(this.currentMirror, this.currentDragged);
             }
             if (!this.currentDragged.isVisible()) {
                 this.currentDragged.show();
             }
             this.currentMirror.destroy();
             this.isDragging = false;
-            this.currentMirror = undefined;
         }
+        this.bestDropzone = null;
     }
 
     private initialiseMirrorComponent(): DraggableModel {
@@ -103,13 +101,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     }
 
 
-
     private createAndRegisterDraggable(container: ViewContainerRef, model: DraggableModel) {
         this.registerDraggable(this.draggableFactory.createDraggable(container, model, this));
     }
 
     private createAndRegisterMirror(model: DraggableModel) {
-        this.currentMirror = this.draggableFactory.createDraggable(this.wrapperContainer, model, this);
+        this.currentMirror = this.draggableFactory.createDraggable(this.mirrorContainer, model, this);
         this.registerMirror(this.currentMirror);
     }
 
@@ -134,9 +131,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     }
 
     ngOnInit() {
-        this.toolbar = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer,this);
+        this.toolbar = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
 
-        this.dropzones.add(this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer,this));
+        this.dropzones.add(this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this));
 
         for (let i = 0; i < 2; i++) {
             this.createAndRegisterDraggable(this.toolbar.getDraggableContainer(), {
