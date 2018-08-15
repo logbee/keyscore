@@ -30,16 +30,25 @@ import {
     LoadLiveEditingFilterSuccess,
     LoadLiveEditingFilterFailure, LOAD_LIVE_EDITING_FILTER_SUCCESS
 } from "../../filters/filters.actions";
+import {
+    LOAD_AGENTS,
+    LOAD_AGENTS_FAILURE, LOAD_AGENTS_SUCCESS,
+    LoadAgentsAction,
+    LoadAgentsFailureAction,
+    LoadAgentsSuccessAction
+} from "../../agents/agents.actions";
 
 type showSpinnerTypes =
     | EditPipelineAction
     | LoadAllPipelinesAction
-    | LoadLiveEditingFilterAction;
+    | LoadLiveEditingFilterAction
+    | LoadAgentsAction;
 
 const showSpinnerActions = [
     EDIT_PIPELINE,
     LOAD_ALL_PIPELINES,
-    LOAD_LIVE_EDITING_FILTER
+    LOAD_LIVE_EDITING_FILTER,
+    LOAD_AGENTS
 ];
 
 type hideSpinnerTypes =
@@ -47,7 +56,9 @@ type hideSpinnerTypes =
     | EditPipelineSuccessAction
     | EditPipelineFailureAction
     | LoadLiveEditingFilterSuccess
-    | LoadLiveEditingFilterFailure;
+    | LoadLiveEditingFilterFailure
+    | LoadAgentsFailureAction
+    | LoadAgentsSuccessAction;
 
 const hideSpinnerActions = [
     LOAD_ALL_PIPELINES_SUCCESS,
@@ -55,7 +66,9 @@ const hideSpinnerActions = [
     EDIT_PIPELINE_SUCCESS,
     EDIT_PIPELINE_FAILURE,
     LOAD_LIVE_EDITING_FILTER_SUCCESS,
-    LOAD_LIVE_EDITING_FILTER_FAILURE
+    LOAD_LIVE_EDITING_FILTER_FAILURE,
+    LOAD_AGENTS_FAILURE,
+    LOAD_AGENTS_SUCCESS
 ];
 
 @Injectable()
