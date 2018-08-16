@@ -17,8 +17,8 @@ import {isSpinnerShowing} from "../../common/loading/loading.reducer";
             <div class="col-10">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <span class="font-weight-bold">
-                            {{'AGENTSDETAILS.DETAILEDVIEW' | translate}} {{(agent$ | async).name}}
+                        <span class="font-weight-bold" *ngIf="!(isLoading$ | async)">
+                            {{'AGENTSDETAILS.DETAILEDVIEW' | translate}} {{(agent$ | async)?.name}}
                         </span>
                         <div class="row">
                             <div class="col-1 mr-5">
@@ -39,19 +39,19 @@ import {isSpinnerShowing} from "../../common/loading/loading.reducer";
                             <div class="row">
                                 <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTID' | translate}}</div>
                                 <div class="col-lg-6">
-                                    {{(agent$ | async).id}}
+                                    {{(agent$ | async)?.id}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTNAME' | translate}}</div>
                                 <div class="col-lg-6">
-                                    {{(agent$ | async).name}}
+                                    {{(agent$ | async)?.name}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTHOST' | translate}}</div>
                                 <div class="col-lg-6">
-                                    {{(agent$ | async).host}}
+                                    {{(agent$ | async)?.host}}
                                 </div>
                             </div>
                         </div>
@@ -79,7 +79,7 @@ export class AgentsDetails implements OnDestroy {
         this.isLoading$.pipe(takeUntil(this.isAlive$), skipWhile(isLoading => isLoading), take(1))
             .subscribe(_ => {
                 this.agent$ = this.store.select(getCurrentAgent);
-                this.agent$.pipe(takeUntil(this.isAlive$)).subscribe(agent => this.agentId = agent.id);
+                this.agent$.pipe(takeUntil(this.isAlive$), take(1)).subscribe(agent => this.agentId = agent.id);
             });
 
 

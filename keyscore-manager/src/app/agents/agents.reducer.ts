@@ -1,4 +1,11 @@
-import {AgentsActions, INSPECT_AGENT, LOAD_AGENTS_FAILURE, LOAD_AGENTS_SUCCESS, REMOVE_AGENT} from "./agents.actions";
+import {
+    AgentsActions,
+    DELETE_AGENT_SUCCESS,
+    INSPECT_AGENT,
+    LOAD_AGENTS_FAILURE,
+    LOAD_AGENTS_SUCCESS,
+    REMOVE_AGENT
+} from "./agents.actions";
 
 import {AgentsState} from "./agents.model";
 
@@ -24,7 +31,7 @@ export function AgentsReducer(state: AgentsState = initialState, action: AgentsA
             result.currentAgentid = action.id;
             break;
 
-        case REMOVE_AGENT:
+        case DELETE_AGENT_SUCCESS:
             result.currentAgentid = "";
     }
 
