@@ -5,10 +5,10 @@ import {Rectangle} from "../models/rectangle";
 import {DropzoneComponent} from "../dropzone.component";
 import {DropzoneType} from "../models/dropzone-type";
 
-export class WorkspaceDropzoneLogic implements DropzoneLogic {
+export class WorkspaceDropzoneLogic extends DropzoneLogic {
 
-    constructor(private component: DropzoneComponent) {
-
+    constructor(component: DropzoneComponent) {
+        super(component);
     }
 
     computeBestDropzone(mirror: Draggable, pivot: Dropzone): Dropzone {
@@ -18,7 +18,7 @@ export class WorkspaceDropzoneLogic implements DropzoneLogic {
         return pivot === null ? this.component : pivot;
     }
 
-    drop(mirror: Draggable, currentDragged: Draggable):void {
+    drop(mirror: Draggable, currentDragged: Draggable): void {
         this.component.setIsDroppable(false);
         const draggableModel = {
             ...currentDragged.getDraggableModel(),
@@ -27,23 +27,8 @@ export class WorkspaceDropzoneLogic implements DropzoneLogic {
             position: computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
                 this.component.getAbsolutePosition())
         };
-        const initialDropzone = currentDragged.getDraggableModel().initialDropzone;
-        if (initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
-            initialDropzone.clearDropzone();
-            console.log("model before remove:",initialDropzone.getOwner().getDraggableModel());
-            initialDropzone.getOwner().removeNextFromModel();
-            console.log("model after remove:",initialDropzone.getOwner().getDraggableModel());
-
-        }
-        if (currentDragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
-            currentDragged.destroy();
-        }
-
-
-        const droppedDraggable =  this.component.draggableFactory.createDraggable(this.component.getDraggableContainer(),
-            draggableModel,
-            this.component.workspace);
-        this.component.workspace.registerDraggable(droppedDraggable);
+        console.log("dropped DraggableModel:",draggableModel);
+        this.commonDrop(currentDragged, draggableModel);
 
     }
 

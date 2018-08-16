@@ -2,12 +2,13 @@ import {DropzoneLogic} from "./dropzone-logic";
 import {Draggable, Dropzone} from "../models/contract";
 import {DropzoneComponent} from "../dropzone.component";
 import {Rectangle} from "../models/rectangle";
-import {computeDistance, computeRelativePositionToParent, intersects} from "../util/util";
+import {computeDistance, intersects} from "../util/util";
 import {DropzoneType} from "../models/dropzone-type";
 
-export class ConnectorDropzoneLogic implements DropzoneLogic {
+export class ConnectorDropzoneLogic extends DropzoneLogic {
 
-    constructor(private component: DropzoneComponent) {
+    constructor(component: DropzoneComponent) {
+        super(component);
 
     }
 
@@ -45,24 +46,11 @@ export class ConnectorDropzoneLogic implements DropzoneLogic {
         this.component.getOwner().setNextModel(draggableModel);
         console.log("ownermodel after set",this.component.getOwner().getDraggableModel());
 
-        const initialDropzone = currentDragged.getDraggableModel().initialDropzone;
-        if (initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
-            initialDropzone.clearDropzone();
-            initialDropzone.getOwner().removeNextFromModel();
 
-        }
-        if (currentDragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
-            currentDragged.destroy();
-        }
-
-        const droppedDraggable = this.component.draggableFactory.createDraggable(this.component.getDraggableContainer(),
-            draggableModel,
-            this.component.workspace);
-
-        this.component.workspace.registerDraggable(droppedDraggable);
-
-
+        this.commonDrop(currentDragged, draggableModel);
     }
+
+
 
     private isMirrorInRange(mirror: Draggable): boolean {
         if (!this.component.dropzoneModel.acceptedDraggableTypes.includes(mirror.getDraggableModel().draggableType)) {

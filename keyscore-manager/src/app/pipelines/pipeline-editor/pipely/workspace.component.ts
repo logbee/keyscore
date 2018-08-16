@@ -37,8 +37,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     private isDragging: boolean = false;
     private bestDropzone: Dropzone;
-    private currentDragged: Draggable;
-    private currentMirror: Draggable;
+    private dragged: Draggable;
+    private mirror: Draggable;
 
     constructor(private dropzoneFactory: DropzoneFactory,
                 private draggableFactory: DraggableFactory) {
@@ -47,14 +47,15 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
 
     private dragStart(draggable: Draggable) {
-        this.currentDragged = draggable;
+        this.dragged = draggable;
+        console.log("Dragged: ", this.dragged);
         this.isDragging = true;
 
         const mirrorModel = this.initialiseMirrorComponent();
         this.createAndRegisterMirror(mirrorModel);
 
-        if (this.currentDragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
-            this.currentDragged.hide();
+        if (this.dragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
+            this.dragged.hide();
         }
     }
 
@@ -76,12 +77,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     dragStop(event: MouseEvent) {
         if (this.isDragging) {
             if (this.bestDropzone) {
-                this.bestDropzone.drop(this.currentMirror, this.currentDragged);
+                this.bestDropzone.drop(this.mirror, this.dragged);
             }
-            if (!this.currentDragged.isVisible()) {
-                this.currentDragged.show();
+            if (!this.dragged.isVisible()) {
+                this.dragged.show();
             }
-            this.currentMirror.destroy();
+            this.mirror.destroy();
             this.isDragging = false;
         }
         this.bestDropzone = null;
@@ -90,11 +91,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     private initialiseMirrorComponent(): DraggableModel {
         const workspaceRect = this.workspaceElement.nativeElement.getBoundingClientRect();
         const relativeMirrorPosition = computeRelativePositionToParent(
-            this.currentDragged.getAbsoluteDraggablePosition(),
+            this.dragged.getAbsoluteDraggablePosition(),
             {x: workspaceRect.left, y: workspaceRect.top});
 
         return {
-            ...deepcopy(this.currentDragged.getDraggableModel()),
+            ...deepcopy(this.dragged.getDraggableModel()),
             isMirror: true,
             position: relativeMirrorPosition
         };
@@ -106,8 +107,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     }
 
     private createAndRegisterMirror(model: DraggableModel) {
-        this.currentMirror = this.draggableFactory.createDraggable(this.mirrorContainer, model, this);
-        this.registerMirror(this.currentMirror);
+        this.mirror = this.draggableFactory.createDraggable(this.mirrorContainer, model, this);
+        console.log("Mirror: ", this.mirror.getDraggableModel());
+        this.registerMirror(this.mirror);
+
     }
 
     addDropzone(dropzone: Dropzone) {

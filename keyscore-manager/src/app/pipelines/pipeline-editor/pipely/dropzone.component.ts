@@ -5,7 +5,6 @@ import {Draggable, Dropzone, Workspace} from "./models/contract";
 import {Rectangle} from "./models/rectangle";
 import {DropzoneLogic} from "./dropzone/dropzone-logic";
 import {DropzoneSubcomponent} from "./dropzone/dropzone-subcomponent";
-import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
 
 @Component({
