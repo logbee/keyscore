@@ -91,24 +91,22 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
 
     getRectangle(): Rectangle {
-        const position = this.getAbsolutePosition();
-        const size = this.getSize();
+        const clientRect:ClientRect = this.getDropzoneElement().nativeElement.getBoundingClientRect();
         return {
-            top: position.y,
-            left: position.x,
-            right: position.x + size.width,
-            bottom: position.y + size.height
+            top: clientRect.top,
+            left: clientRect.left,
+            right: clientRect.right,
+            bottom: clientRect.bottom
         };
     }
 
     getRectangleWithRadius(): Rectangle {
-        const position = this.getAbsolutePosition();
-        const size = this.getSize();
+        const rect = this.getRectangle();
         return {
-            top: position.y - this.dropzoneModel.dropzoneRadius,
-            left: position.x - this.dropzoneModel.dropzoneRadius,
-            right: position.x + size.width + this.dropzoneModel.dropzoneRadius,
-            bottom: position.y + size.height + this.dropzoneModel.dropzoneRadius
+            top: rect.top - this.dropzoneModel.dropzoneRadius,
+            left: rect.left - this.dropzoneModel.dropzoneRadius,
+            right: rect.right + this.dropzoneModel.dropzoneRadius,
+            bottom: rect.bottom + this.dropzoneModel.dropzoneRadius
         };
     }
 

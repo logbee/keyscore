@@ -2,7 +2,7 @@ import {DropzoneLogic} from "./dropzone-logic";
 import {Draggable, Dropzone} from "../models/contract";
 import {DropzoneComponent} from "../dropzone.component";
 import {Rectangle} from "../models/rectangle";
-import {computeDistance, intersects} from "../util/util";
+import {computeDistance, computeRelativePositionToParent, intersects} from "../util/util";
 import {DropzoneType} from "../models/dropzone-type";
 import {DraggableModel} from "../models/draggable.model";
 
@@ -35,10 +35,18 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
     }
 
     computeDraggableModel(mirror: Draggable, currentDragged: Draggable) {
+        const componentRectangle = this.component.getRectangle();
+        const ownerRectangle = this.component.getOwner().getRectangle();
+        const position = {
+            x: Math.abs(ownerRectangle.right - componentRectangle.left+3),
+            y: -Math.abs(componentRectangle.top - ownerRectangle.top-3)
+        };
+
         const draggableModel = {
             ...currentDragged.getDraggableModel(),
             initialDropzone: this.component,
-            rootDropzone: DropzoneType.Workspace
+            rootDropzone: DropzoneType.Workspace,
+            position: position
         };
 
         return draggableModel;

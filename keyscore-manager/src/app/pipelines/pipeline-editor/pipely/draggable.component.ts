@@ -23,7 +23,10 @@ import {takeUntil} from "rxjs/internal/operators";
 @Component({
     selector: "draggable",
     template: `
-        <div #draggableElement [class]="'draggable'" [class.mirror]="draggableModel.isMirror"
+        <div #draggableElement [class]="'draggable flex-row'"
+             [class.mirror]="draggableModel.isMirror"
+             [class.d-flex]="visible"
+             [class.d-none]="!visible"
              (mousedown)="dragStart($event)">
             <div class="connection previous-connection">
                 <ng-template #previousConnection></ng-template>
@@ -76,57 +79,18 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     public ngOnInit() {
-        const hasAbsolutePosition: boolean = (this.draggableModel.isMirror ||
-            this.draggableModel.initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Workspace);
 
-        if (hasAbsolutePosition) {
-            this.draggableElement.nativeElement.style.position = "absolute";
-        }
-        if (this.draggableModel.position && hasAbsolutePosition) {
-            this.setPosition(this.draggableModel.position)
-        }
+        this.positionDraggable();
 
-        if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
-            this.previousConnectionDropzone =
-                this.createConnection(this.draggableModel.previousConnection, this.previousConnectionContainer);
-            this.nextConnectionDropzone =
-                this.createConnection(this.draggableModel.nextConnection, this.nextConnectionContainer);
-        }
+        this.initialiseConncetions();
 
         if (this.draggableModel.initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
-            if (this.previousConnectionDropzone) {
-                this.previousConnectionDropzone.occupyDropzone();
-            }
+            this.occupyPreviousConnection();
         }
 
         if (this.draggableModel.next) {
             this.createAndRegisterNext();
         }
-    }
-
-
-    private createConnection(connection: Connection, container: ViewContainerRef) {
-        if (connection.isPermitted) {
-            const connectionDropzone =
-                this.dropzoneFactory.createConnectorDropzone(container, this.workspace, this, connection.connectableTypes);
-            this.workspace.addDropzone(connectionDropzone);
-            return connectionDropzone;
-        }
-    }
-
-    private createAndRegisterNext() {
-        const draggableFactory = new DraggableFactory(this.resolver);
-        console.log("NextDraggableModel: ",this.draggableModel.next);
-        const nextDraggableModel = {...this.draggableModel.next, initialDropzone: this.nextConnectionDropzone};
-        this.draggableModel.next = nextDraggableModel;
-        this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(), this.draggableModel.next, this.workspace);
-        this.nextConnectionDropzone.occupyDropzone();
-        this.workspace.registerDraggable(this.next);
-    }
-
-    public ngOnDestroy() {
-        this.workspace.removeAllDropzones(dropzone => dropzone.getOwner() === this);
-        this.isAlive.next();
     }
 
     @HostListener('document:mousemove', ['$event'])
@@ -152,6 +116,56 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
 
         }
+    }
+
+
+    private initialiseConncetions() {
+        if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
+            this.previousConnectionDropzone =
+                this.createConnection(this.draggableModel.previousConnection, this.previousConnectionContainer);
+            this.nextConnectionDropzone =
+                this.createConnection(this.draggableModel.nextConnection, this.nextConnectionContainer);
+        }
+    }
+
+    private positionDraggable() {
+        const hasAbsolutePosition: boolean = (this.draggableModel.isMirror ||
+            this.draggableModel.initialDropzone.getDropzoneModel().dropzoneType !== DropzoneType.Toolbar);
+
+        this.draggableElement.nativeElement.style.position = hasAbsolutePosition ? "absolute" : "relative";
+
+        if (hasAbsolutePosition) {
+            this.setPosition(this.draggableModel.position);
+        }
+    }
+
+    private occupyPreviousConnection() {
+        if (this.previousConnectionDropzone) {
+            this.previousConnectionDropzone.occupyDropzone();
+        }
+    }
+
+    private createConnection(connection: Connection, container: ViewContainerRef) {
+        if (connection.isPermitted) {
+            const connectionDropzone =
+                this.dropzoneFactory.createConnectorDropzone(container, this.workspace, this, connection.connectableTypes);
+            this.workspace.addDropzone(connectionDropzone);
+            return connectionDropzone;
+        }
+    }
+
+    private createAndRegisterNext() {
+        const draggableFactory = new DraggableFactory(this.resolver);
+        this.draggableModel.next =
+            {...this.draggableModel.next, initialDropzone: this.nextConnectionDropzone};
+        this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(), this.draggableModel.next, this.workspace);
+        this.nextConnectionDropzone.occupyDropzone();
+        this.workspace.registerDraggable(this.next);
+    }
+
+    public ngOnDestroy() {
+        this.workspace.removeAllDropzones(dropzone => dropzone.getOwner() === this);
+        this.isAlive.next();
     }
 
     private triggerDragStart() {
@@ -195,13 +209,12 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     getRectangle(): Rectangle {
-        const position = this.getAbsoluteDraggablePosition();
-        const size = this.getDraggableSize();
+        const clientRect: ClientRect = this.draggableElement.nativeElement.getBoundingClientRect();
         return {
-            top: position.y,
-            left: position.x,
-            right: position.x + size.width,
-            bottom: position.y + size.height
+            top: clientRect.top,
+            left: clientRect.left,
+            right: clientRect.right,
+            bottom: clientRect.bottom
         };
     }
 
@@ -214,20 +227,15 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     destroy(): void {
-        /*if (this.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
-            this.getDraggableModel().initialDropzone.getOwner().getDraggableModel().next = null;
-        }*/
         this.componentRef.destroy();
     }
 
     hide(): void {
         this.preDragPosition = this.getDraggablePosition();
-        this.draggableElement.nativeElement.style.display = "none";
         this.visible = false;
     }
 
     show(): void {
-        this.draggableElement.nativeElement.style.display = "block";
         this.setPosition(this.preDragPosition);
         this.visible = true;
     }

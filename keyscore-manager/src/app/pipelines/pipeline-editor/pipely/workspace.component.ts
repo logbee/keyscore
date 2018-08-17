@@ -140,7 +140,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
         for (let i = 0; i < 2; i++) {
             this.createAndRegisterDraggable(this.toolbar.getDraggableContainer(), {
-                name: "Test" + Math.random(),
+                name: "Test" + Math.random().toString().substr(0,4),
                 draggableType: "general",
                 nextConnection: {isPermitted: true, connectableTypes: ["general"]},
                 previousConnection: {isPermitted: true, connectableTypes: ["general"]},
