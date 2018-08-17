@@ -4,7 +4,7 @@ import {DropzoneSubcomponent} from "./dropzone-subcomponent";
 @Component({
     selector:"toolbar-dropzone",
     template:`
-        <div #dropzone class="dropzone-toolbar d-flex flex-row justify-content-start" [class.is-droppable]="isDroppable">
+        <div #dropzone [class]="'dropzone-toolbar d-flex flex-row justify-content-start'" [class.is-droppable]="isDroppable">
             <ng-template #draggableContainer></ng-template>
         </div>
     `
@@ -13,4 +13,6 @@ import {DropzoneSubcomponent} from "./dropzone-subcomponent";
 export class ToolbarDropzoneSubcomponent implements DropzoneSubcomponent{
     @ViewChild("draggableContainer", {read: ViewContainerRef}) draggableContainer: ViewContainerRef;
     @ViewChild("dropzone") dropzoneElement: ElementRef;
+
+    isDroppable:boolean;
 }

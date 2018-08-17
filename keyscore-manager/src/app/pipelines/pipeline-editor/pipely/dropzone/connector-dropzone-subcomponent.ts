@@ -14,4 +14,6 @@ export class ConnectorDropzoneSubcomponent implements DropzoneSubcomponent{
     @ViewChild("draggableContainer", {read: ViewContainerRef}) draggableContainer: ViewContainerRef;
     @ViewChild("dropzone") dropzoneElement: ElementRef;
 
+    isDroppable:boolean;
+
 }

@@ -10,7 +10,7 @@ import {DraggableFactory} from "./draggable/draggable-factory";
 @Component({
     selector: "dropzone",
     template: `
-        <div [class.is-droppable]="isDroppable">
+        <div >
             <ng-template #dropzoneContainer></ng-template>
         </div>
 
@@ -26,7 +26,6 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
     @HostBinding('class.col-12') isCol12: boolean;
 
-    private isDroppable: boolean;
 
     @ViewChild("dropzoneContainer", {read: ViewContainerRef}) dropzoneContainer: ViewContainerRef;
 
@@ -36,11 +35,11 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
     constructor(public draggableFactory:DraggableFactory) {
         this.isCol12 = true;
-        this.setIsDroppable(false);
         this.id = uuid();
     }
 
     public ngOnInit() {
+        this.setIsDroppable(false);
 
     }
 
@@ -62,11 +61,11 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
     }
 
     getIsDroppable(): boolean {
-        return this.isDroppable;
+        return this.subComponent.isDroppable;
     }
 
     setIsDroppable(isDroppable: boolean): void {
-        this.isDroppable = isDroppable;
+        this.subComponent.isDroppable = isDroppable;
     }
 
     getId(): string {

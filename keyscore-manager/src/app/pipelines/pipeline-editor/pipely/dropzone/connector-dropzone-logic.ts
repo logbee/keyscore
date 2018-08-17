@@ -38,8 +38,8 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const componentRectangle = this.component.getRectangle();
         const ownerRectangle = this.component.getOwner().getRectangle();
         const position = {
-            x: Math.abs(ownerRectangle.right - componentRectangle.left+3),
-            y: -Math.abs(componentRectangle.top - ownerRectangle.top-3)
+            x: Math.abs(ownerRectangle.right - componentRectangle.left),
+            y: -Math.abs(componentRectangle.top - ownerRectangle.top)
         };
 
         const draggableModel = {
