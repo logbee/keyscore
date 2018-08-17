@@ -26,7 +26,7 @@ message FilterDescriptor {
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
     TextRef category = 4;
-    repeated ParameterDescriptor parameters = 5;
+    repeated ParameterDescriptor parameters = 8;
 }
 
 message ParameterRef {
@@ -41,11 +41,13 @@ message ParameterInfo {
 
 message ParameterDescriptor {
     oneof sealed_value {
-        TextParameterDescriptor textParameter = 1;
-        BooleanParameterDescriptor booleanParameter = 2;
-        FieldNameParameterDescriptor fieldNameParameter = 3;
-        ListParameterDescriptor listParameter = 4;
-        ConditionalParameterDescriptor conditionalParameter = 5;
+        BooleanParameterDescriptor booleanParameter = 1;
+        TextParameterDescriptor textParameter = 2;
+        PatternParameterDescriptor patternParameter = 3;
+        FieldNameParameterDescriptor fieldNameParameter = 4;
+        ListParameterDescriptor listParameter = 5;
+        ChoiceParameterDescriptor choiceParameter = 6;
+        ConditionalParameterDescriptor conditionalParameter = 7;
     }
 }
 
@@ -53,32 +55,60 @@ message TextParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
     string defaultValue = 3;
-    TextPattern pattern = 4;
+    StringValidator validator = 4;
+    bool mandatory = 5;
+}
+
+message PatternParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    PatternType patternType = 3;
+    string defaultValue = 4;
+    bool mandatory = 5;
 }
 
 message BooleanParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
-    bool defaultValue = 3;
+    bool defaultValue = 5;
+    bool mandatory = 4;
 }
 
 message FieldNameParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
     string defaultValue = 3;
-    TextPattern pattern = 4;
-    FieldNameHint hint = 5;
-    enum FieldNameHint {
-        AnyField = 0;
-        PresentField = 1;
-        AbsentField = 2;
-    }
+    FieldNameHint hint = 4;
+    StringValidator validator = 5;
+    bool mandatory = 6;
+}
+
+enum FieldNameHint {
+    AnyField = 0;
+    PresentField = 1;
+    AbsentField = 2;
 }
 
 message ListParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
     ParameterDescriptor kind = 3;
+    uint32 min = 4;
+    uint32 max = 5;
+}
+
+message ChoiceParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    uint32 min = 3;
+    uint32 max = 4;
+    repeated Choice Choices = 5;
+}
+
+message Choice {
+    string name = 1;
+    TextRef displayName = 2;
+    TextRef description = 3;
 }
 
 message ConditionalParameterDescriptor {
@@ -99,10 +129,14 @@ message BooleanParameterCondition {
     bool negate = 3;
 }
 
-message TextPattern {
-    enum PatternType {
-        RegEx = 0;
-        Grok = 1;
-        AbsentField = 2;
-    }
+message StringValidator {
+    string pattern = 1;
+    PatternType patternType = 2;
+    TextRef description = 3;
+}
+
+enum PatternType {
+    RegEx = 0;
+    Grok = 2;
+    Glob = 3;
 }

@@ -1,16 +1,30 @@
 package io.logbee.keyscore.model
 
-import io.logbee.keyscore.model.ConditionalParameterConditionMessage.SealedValue.BooleanParameterCondition
-import io.logbee.keyscore.model.FieldNameParameterDescriptor.FieldNameHint.PresentField
+import com.google.protobuf.`type`.Field.Cardinality
+import io.logbee.keyscore.model.FieldNameHint.{AbsentField, AnyField, PresentField}
+import io.logbee.keyscore.model.ParameterDescriptorMessage.SealedValue.ChoiceParameter
+import io.logbee.keyscore.model.PatternType.{Glob, Grok, RegEx}
+import io.logbee.keyscore.model.configuration.{Configuration, TextParameterConfiguration}
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
+import org.json4s.JsonAST.{JNull, JString}
+import org.json4s.native.Serialization
+import org.json4s.{CustomKeySerializer, CustomSerializer, FullTypeHints, NoTypeHints, ShortTypeHints}
 import org.scalatest.{FreeSpec, Matchers}
-import scalapb.json4s.JsonFormat
+
+import scala.io.Source
 
 
 class DescriptorSpec extends FreeSpec with Matchers {
 
   import io.logbee.keyscore.model.ToOption._
-  import org.json4s.jackson.JsonMethods._
+  import org.json4s.native.Serialization.{write, read, writePretty}
+
+  implicit val formats = Serialization.formats(FullTypeHints(List(
+    classOf[Descriptor],
+    classOf[FilterDescriptor],
+    classOf[ParameterDescriptor],
+    classOf[ConditionalParameterCondition]
+  ))) + TextRefKeySerializer + LocaleKeySerializer + PatternTypeSerializer + FieldNameHintSerializer
 
   "A Dataset" - {
     "should" in {
@@ -22,7 +36,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
       val filterDescription = TextRef("description")
       val category = TextRef("aa5de1cd-1122-758f-97fa-228ca8911378")
 
-//      val parameterARef = ParameterRef("37024d8b-4aec-4b3e-8074-21ef065e5ee2")
+      val parameterARef = ParameterRef("37024d8b-4aec-4b3e-8074-21ef065e5ee2")
       val parameterADisplayName = TextRef("parameterADisplayName")
       val parameterADescription = TextRef("parameterADescription")
 
@@ -41,10 +55,19 @@ class DescriptorSpec extends FreeSpec with Matchers {
           description = filterDescription,
           category = category,
           parameters = Seq(
-            TextParameterDescriptor("37024d8b-4aec-4b3e-8074-21ef065e5ee2", ParameterInfo(parameterADisplayName, parameterADescription), "Hello World", ".*"),
+            TextParameterDescriptor(parameterARef, ParameterInfo(parameterADisplayName, parameterADescription), defaultValue = "Hello World", validator = StringValidator("Hello*", PatternType.Glob)),
             BooleanParameterDescriptor(parameterCRef, ParameterInfo(TextRef("parameterDDisplayName"), TextRef("parameterDDescription")), defaultValue = true),
             ConditionalParameterDescriptor(condition = BooleanParameterCondition(parameterCRef, negate = true), parameters = Seq(
-              ListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513", ParameterInfo(parameterBDisplayName, parameterBDescription), FieldNameParameterDescriptor(hint = PresentField))
+              PatternParameterDescriptor("98276284-a309-4f21-a0d8-50ce20e3376a", patternType = Grok),
+              ListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
+                ParameterInfo(parameterBDisplayName, parameterBDescription),
+                FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*", PatternType.RegEx)),
+                min = 1, max = Int.MaxValue)
+            )),
+            ChoiceParameterDescriptor("e84ad685-b7ad-421e-80b4-d12e5ca2b4ff", min = 1, max = 1, choices = Seq(
+              Choice("red"),
+              Choice("green"),
+              Choice("blue")
             ))
           )
         ),
@@ -80,10 +103,67 @@ class DescriptorSpec extends FreeSpec with Matchers {
         )
       ))
 
-//      println(descriptor)
+      val config = Configuration()
+      val textConfig = TextParameterConfiguration()
 
-      val json = JsonFormat.toJson(descriptor)
-      println(pretty(json))
+      println(write(descriptor))
+    }
+
+    "should deserialize" in {
+      val exmapleJson = Source.fromInputStream(getClass.getResourceAsStream("/example-filter-descriptor.json")).mkString
+
+      val parsedDescriptor = read[Descriptor](exmapleJson)
+
+      println(writePretty(parsedDescriptor))
     }
   }
+
+  object TextRefKeySerializer extends CustomKeySerializer[TextRef](format => ({
+    case id: String => TextRef(id)
+  }, {
+    case ref: TextRef => ref.id
+  }))
+
+  object LocaleKeySerializer extends CustomKeySerializer[Locale](format => ({
+    case locale: String => Locale(locale)
+  }, {
+    case locale: Locale => Locale.localeToString(locale)
+  }))
+
+  object ParameterRefKeySerializer extends CustomKeySerializer[ParameterRef](format => ({
+    case id: String => ParameterRef(id)
+  }, {
+    case ref: ParameterRef => ref.id
+  }))
+
+  case object ParameterRefSerializer extends CustomSerializer[ParameterRef](format => ( {
+    case JString(ref) => ParameterRef(ref)
+    case JNull => null
+  }, {
+    case ref: ParameterRef =>
+      JString(ref.id)
+  }))
+
+  case object PatternTypeSerializer extends CustomSerializer[PatternType](format => ( {
+    case JString(patternType) => patternType match {
+      case "RegEx" => RegEx
+      case "Grok" => Grok
+      case "Glob" => Glob
+    }
+    case JNull => RegEx
+  }, {
+    case patternType: PatternType => JString(patternType.getClass.getSimpleName.replace("$", ""))
+  }))
+
+  case object FieldNameHintSerializer extends CustomSerializer[FieldNameHint](format => ( {
+    case JString(hint) => hint match {
+      case "AnyField" => AnyField
+      case "PresentField" => PresentField
+      case "AbsentField" => AbsentField
+    }
+    case JNull => AnyField
+  }, {
+    case hint: FieldNameHint =>
+      JString(hint.getClass.getSimpleName.replace("$", ""))
+  }))
 }
