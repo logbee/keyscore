@@ -24,7 +24,6 @@ import {Location} from "@angular/common";
     template: `
         <header-bar
                 [showManualReload]="false"
-                [filter]="(filter$ | async).descriptor"
                 [title]="filterName"
                 (onManualRelad)="reload()">    
         </header-bar>
