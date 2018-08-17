@@ -63,8 +63,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     private preDragPosition: { x: number, y: number } = {x: 0, y: 0};
 
-    private nextConnection: Dropzone;
-    private previousConnection: Dropzone;
+    private nextConnectionDropzone: Dropzone;
+    private previousConnectionDropzone: Dropzone;
 
     private next: Draggable;
 
@@ -87,15 +87,15 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         }
 
         if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
-            this.previousConnection =
+            this.previousConnectionDropzone =
                 this.createConnection(this.draggableModel.previousConnection, this.previousConnectionContainer);
-            this.nextConnection =
+            this.nextConnectionDropzone =
                 this.createConnection(this.draggableModel.nextConnection, this.nextConnectionContainer);
         }
 
         if (this.draggableModel.initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
-            if (this.previousConnection) {
-                this.previousConnection.occupyDropzone();
+            if (this.previousConnectionDropzone) {
+                this.previousConnectionDropzone.occupyDropzone();
             }
         }
 
@@ -116,7 +116,11 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     private createAndRegisterNext() {
         const draggableFactory = new DraggableFactory(this.resolver);
-        this.next = draggableFactory.createDraggable(this.nextConnection.getDraggableContainer(), this.draggableModel.next, this.workspace);
+        console.log("NextDraggableModel: ",this.draggableModel.next);
+        const nextDraggableModel = {...this.draggableModel.next, initialDropzone: this.nextConnectionDropzone};
+        this.draggableModel.next = nextDraggableModel;
+        this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(), this.draggableModel.next, this.workspace);
+        this.nextConnectionDropzone.occupyDropzone();
         this.workspace.registerDraggable(this.next);
     }
 
@@ -140,10 +144,12 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
                 y: currentPosition.y + y
             };
 
-            this.triggerDragMove();
 
             this.draggableElement.nativeElement.style.left = newPosition.x + "px";
             this.draggableElement.nativeElement.style.top = newPosition.y + "px";
+
+            this.triggerDragMove();
+
 
         }
     }
@@ -162,9 +168,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     }
 
-    removeNextFromModel(){
+    removeNextFromModel() {
         this.draggableModel.next = null;
     }
+
     getDraggablePosition(): { x: number, y: number } {
         return {
             x: this.draggableElement.nativeElement.offsetLeft,
@@ -207,9 +214,9 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     destroy(): void {
-        if (this.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
+        /*if (this.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
             this.getDraggableModel().initialDropzone.getOwner().getDraggableModel().next = null;
-        }
+        }*/
         this.componentRef.destroy();
     }
 
@@ -230,7 +237,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     getNextConnection(): Dropzone {
-        return this.nextConnection;
+        return this.nextConnectionDropzone;
     }
 
     getNext(): Draggable {
@@ -238,10 +245,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     getPreviousConnection(): Dropzone {
-        return this.previousConnection;
+        return this.previousConnectionDropzone;
     }
 
-    setNextModel(next:DraggableModel):void{
+    setNextModel(next: DraggableModel): void {
         this.draggableModel.next = next;
     }
 

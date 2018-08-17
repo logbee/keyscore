@@ -48,7 +48,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     private dragStart(draggable: Draggable) {
         this.dragged = draggable;
-        console.log("Dragged: ", this.dragged);
+        console.log("Dragged: ", this.dragged.getDraggableModel());
         this.isDragging = true;
 
         const mirrorModel = this.initialiseMirrorComponent();
@@ -95,7 +95,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
             {x: workspaceRect.left, y: workspaceRect.top});
 
         return {
-            ...deepcopy(this.dragged.getDraggableModel()),
+            ...this.dragged.getDraggableModel(),
             isMirror: true,
             position: relativeMirrorPosition
         };

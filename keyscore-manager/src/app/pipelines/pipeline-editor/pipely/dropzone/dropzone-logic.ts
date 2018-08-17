@@ -5,30 +5,39 @@ import {DraggableModel} from "../models/draggable.model";
 
 export abstract class DropzoneLogic {
 
-    constructor(protected component: DropzoneComponent){
+    constructor(protected component: DropzoneComponent) {
 
     }
 
     abstract computeBestDropzone(mirror: Draggable, pivot: Dropzone): Dropzone;
 
-    abstract drop(mirror: Draggable, currentDragged: Draggable): void;
+    abstract computeDraggableModel(mirror: Draggable, currentDragged: Draggable): DraggableModel;
 
-    commonDrop(currentDragged: Draggable, draggableModel: DraggableModel) {
+    insertNewDraggable(draggableModel: DraggableModel) {
+        return;
+    }
+
+    drop(mirror: Draggable, currentDragged: Draggable) {
+
+        this.component.setIsDroppable(false);
+
         const initialDropzone = currentDragged.getDraggableModel().initialDropzone;
         if (initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
             initialDropzone.clearDropzone();
             initialDropzone.getOwner().removeNextFromModel();
-            console.log("owner after remove next: ",initialDropzone.getOwner().getDraggableModel());
 
         }
         if (currentDragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             currentDragged.destroy();
         }
 
+        const draggableModel = this.computeDraggableModel(mirror, currentDragged);
+        this.insertNewDraggable(draggableModel);
+
         const droppedDraggable = this.component.draggableFactory
             .createDraggable(this.component.getDraggableContainer(),
-            draggableModel,
-            this.component.workspace);
+                draggableModel,
+                this.component.workspace);
 
         this.component.workspace.registerDraggable(droppedDraggable);
     }

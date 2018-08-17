@@ -18,8 +18,7 @@ export class WorkspaceDropzoneLogic extends DropzoneLogic {
         return pivot === null ? this.component : pivot;
     }
 
-    drop(mirror: Draggable, currentDragged: Draggable): void {
-        this.component.setIsDroppable(false);
+    computeDraggableModel(mirror:Draggable,currentDragged:Draggable){
         const draggableModel = {
             ...currentDragged.getDraggableModel(),
             initialDropzone: this.component,
@@ -27,10 +26,9 @@ export class WorkspaceDropzoneLogic extends DropzoneLogic {
             position: computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
                 this.component.getAbsolutePosition())
         };
-        console.log("dropped DraggableModel:",draggableModel);
-        this.commonDrop(currentDragged, draggableModel);
-
+        return draggableModel;
     }
+
 
     private isMirrorInRange(mirror: Draggable): boolean {
 

@@ -4,6 +4,7 @@ import {DropzoneComponent} from "../dropzone.component";
 import {Rectangle} from "../models/rectangle";
 import {computeDistance, intersects} from "../util/util";
 import {DropzoneType} from "../models/dropzone-type";
+import {DraggableModel} from "../models/draggable.model";
 
 export class ConnectorDropzoneLogic extends DropzoneLogic {
 
@@ -33,23 +34,20 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         return currentDistance < pivotDistance ? this.component : pivot;
     }
 
-    drop(mirror: Draggable, currentDragged: Draggable): void {
-        this.component.setIsDroppable(false);
+    computeDraggableModel(mirror: Draggable, currentDragged: Draggable) {
         const draggableModel = {
             ...currentDragged.getDraggableModel(),
             initialDropzone: this.component,
             rootDropzone: DropzoneType.Workspace
         };
 
-        this.component.occupyDropzone();
-        console.log("ownermodel before set",this.component.getOwner().getDraggableModel());
-        this.component.getOwner().setNextModel(draggableModel);
-        console.log("ownermodel after set",this.component.getOwner().getDraggableModel());
-
-
-        this.commonDrop(currentDragged, draggableModel);
+        return draggableModel;
     }
 
+    insertNewDraggable(draggableModel: DraggableModel) {
+        this.component.occupyDropzone();
+        this.component.getOwner().setNextModel(draggableModel);
+    }
 
 
     private isMirrorInRange(mirror: Draggable): boolean {
