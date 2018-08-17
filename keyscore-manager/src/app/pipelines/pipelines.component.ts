@@ -14,7 +14,11 @@ import {getPipelineList, PipelinesState} from "./pipelines.reducer";
 @Component({
     selector: "keyscore-pipelines",
     template: `
-        <!--<header-bar title="Pipelines"></header-bar>-->
+        <header-bar
+                [showManualReload]="false"
+                [title]="title"
+                (onManualRelad)="reload()"> 
+        </header-bar>
         <div class=" ml-2 mt-2">
             <div class="card">
                 <div class="card-header">
@@ -63,6 +67,7 @@ export class PipelinesComponent implements OnDestroy {
     public pipelines$: Observable<PipelineInstance[]>;
     public isLoading$: Observable<boolean>;
     public refreshTime$: Observable<number>;
+    public title: string = "Pipelines";
 
     constructor(private store: Store<PipelinesState>, private router: Router, private translate: TranslateService) {
         this.pipelines$ = this.store.pipe(select(getPipelineList));

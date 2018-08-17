@@ -467,7 +467,23 @@
     }
 
 }
+/*------------------header-bar---------------------*/
+#header-bar {
+    min-height: 5vh;
+    background-color:  #365880;
+    color: white;
+}
+
+#header-bar .title {
+    font-size: x-large;
+    color: white;
+}
+
+#header-bar .reload {
+    box-shadow: 4px 4px;
+}
 
 #language-selector .dropdown-item > img {
     display: inline-block;
 }
+

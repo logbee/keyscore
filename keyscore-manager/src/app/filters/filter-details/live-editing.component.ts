@@ -23,9 +23,10 @@ import {Location} from "@angular/common";
     selector: "live-editing",
     template: `
         <header-bar
-                title="Live-Editing"
                 [showManualReload]="false"
-                (onManualReload)="reload()">
+                [filter]="(filter$ | async).descriptor"
+                [title]="filterName"
+                (onManualRelad)="reload()">    
         </header-bar>
         <div *ngIf="!(loading$ | async); else loading">
             <div class="col-12" *ngIf="!errorHandling">
@@ -68,6 +69,7 @@ export class LiveEditingComponent implements OnInit, OnDestroy {
     private loading$: Observable<boolean>;
     private extractedDatasets$: Observable<Dataset[]>;
     private resultDatasets$: Observable<Dataset[]>;
+    private filterName: string = "Live-Editing";
 
     constructor(private store: Store<any>, private translate: TranslateService, private location: Location) {
         const config = this.store.select(selectAppConfig);

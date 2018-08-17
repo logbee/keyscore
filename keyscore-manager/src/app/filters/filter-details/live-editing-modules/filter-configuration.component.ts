@@ -9,6 +9,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 @Component({
     selector: "filter-configuration",
+    styleUrls: ['/filterstyle.css'],
     template: `
         <div class="card mt-3">
             <div class="card-header alert-light font-weight-bold" style="color: black;">
@@ -28,7 +29,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                         </div>
                     </form>
                 </div>
-                <button *ngIf="!noParamsAvailable" class="float-right btn btn-success mt-3"
+                <button  id="buttonStyle" *ngIf="!noParamsAvailable" class="float-right btn btn-success mt-3"
                         (click)="applyFilter(filter,form.value)">
                     <img  width="20em" src="/assets/images/ic-remove-white.svg" alt=" {{'GENERAL.APPLY' | translate}}"/>
                 </button>
