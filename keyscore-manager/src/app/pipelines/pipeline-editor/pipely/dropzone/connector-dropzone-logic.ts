@@ -36,7 +36,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
 
     computeDraggableModel(mirror: Draggable, currentDragged: Draggable): DraggableModel {
 
-        if (this.component.getOwner().getPreviousConnection().getId() === this.component.getId()) {
+        if (this.isPreviousConnection()) {
             return this.prependModel(mirror, currentDragged);
         }
         else {
@@ -47,7 +47,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
     }
 
     insertNewDraggable(draggableModel: DraggableModel) {
-        if (this.component.getOwner().getPreviousConnection().getId() === this.component.getId()) {
+        if (this.isPreviousConnection()) {
             this.prependNewDraggable(draggableModel);
         } else {
             this.appendNewDraggable(draggableModel);
@@ -63,13 +63,20 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
             position: this.computePrependPosition(droppedPosition, currentDragged.getDraggableSize().width)
         };
 
-        return {
+
+        let draggedTailModel: DraggableModel = currentDragged.getDraggableModel();
+        while (draggedTailModel.next) {
+            draggedTailModel = draggedTailModel.next;
+        }
+        draggedTailModel.next = nexDraggableModel;
+
+        return{
             ...currentDragged.getDraggableModel(),
             initialDropzone: this.component.workspace.getWorkspaceDropzone(),
             rootDropzone: DropzoneType.Workspace,
-            next: nexDraggableModel,
             position: droppedPosition
-        };
+        }
+
     }
 
     private appendModel(mirror: Draggable, currentDragged: Draggable): DraggableModel {
@@ -132,23 +139,31 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
             return false;
         }
 
-        if(this.component.isOccupied() && mirror.getDraggableModel().initialDropzone.getId() !== this.component.getId()){
+        if (this.component.isOccupied() && mirror.getDraggableModel().initialDropzone.getId() !== this.component.getId()) {
             return false;
         }
 
         let nextDraggable = mirror;
+        let mirrorTail = null;
         do {
             if (nextDraggable.getNextConnection() &&
                 nextDraggable.getNextConnection().getId() === this.component.getId()) {
                 return false;
             }
+            mirrorTail = nextDraggable;
         } while (nextDraggable = nextDraggable.getNext());
 
-
         const dropzoneBoundingBox: Rectangle = this.component.getRectangleWithRadius();
+        let draggableBoundingBox: Rectangle = mirror.getRectangle();
 
-        const draggableBoundingBox: Rectangle = mirror.getRectangle();
+        if (this.isPreviousConnection() && mirror.getDraggableModel().next) {
+            draggableBoundingBox = mirrorTail.getRectangle();
+        }
 
         return intersects(dropzoneBoundingBox, draggableBoundingBox);
+    }
+
+    private isPreviousConnection(): boolean {
+        return this.component.getOwner().getPreviousConnection().getId() === this.component.getId();
     }
 }
