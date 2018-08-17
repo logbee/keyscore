@@ -8,6 +8,8 @@ import {ConnectorDropzoneLogic} from "./connector-dropzone-logic";
 import {ToolbarDropzoneSubcomponent} from "./toolbar-dropzone-subcomponent";
 import {WorkspaceDropzoneSubcomponent} from "./workspace-dropzone-subcomponent";
 import {ConnectorDropzoneSubcomponent} from "./connector-dropzone-subcomponent";
+import {TrashDropzoneLogic} from "./trash-dropzone-logic";
+import {TrashDropzoneSubcomponent} from "./trash-dropzone-subcomponent";
 
 @Injectable()
 export class DropzoneFactory {
@@ -41,7 +43,7 @@ export class DropzoneFactory {
         dropzoneRef.instance.dropzoneModel = {
             dropzoneRadius: 0,
             dropzoneType: DropzoneType.Workspace,
-            acceptedDraggableTypes: ["general"],
+            acceptedDraggableTypes: ["all"],
             owner: null
         };
         dropzoneRef.instance.logic = new WorkspaceDropzoneLogic(dropzoneRef.instance);
@@ -50,6 +52,24 @@ export class DropzoneFactory {
 
         const workspaceSubFactory = this.resolver.resolveComponentFactory(WorkspaceDropzoneSubcomponent);
         const subRef = dropzoneRef.instance.dropzoneContainer.createComponent(workspaceSubFactory);
+        dropzoneRef.instance.subComponent = subRef.instance;
+        return dropzoneRef.instance;
+    }
+
+    public createTrashDropzone(container: ViewContainerRef, workspace:Workspace): Dropzone{
+        const dropzoneRef = container.createComponent(this.componentFactory);
+        dropzoneRef.instance.dropzoneModel = {
+            dropzoneRadius: 0,
+            dropzoneType: DropzoneType.Trash,
+            acceptedDraggableTypes: ["all"],
+            owner: null
+        };
+        dropzoneRef.instance.logic = new TrashDropzoneLogic(dropzoneRef.instance);
+        dropzoneRef.instance.workspace = workspace;
+
+
+        const trashSubFactory = this.resolver.resolveComponentFactory(TrashDropzoneSubcomponent);
+        const subRef = dropzoneRef.instance.dropzoneContainer.createComponent(trashSubFactory);
         dropzoneRef.instance.subComponent = subRef.instance;
         return dropzoneRef.instance;
     }

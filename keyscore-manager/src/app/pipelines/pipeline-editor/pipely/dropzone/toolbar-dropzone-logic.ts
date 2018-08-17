@@ -21,4 +21,8 @@ export class ToolbarDropzoneLogic extends DropzoneLogic {
     drop(mirror: Draggable = null, currentDragged: Draggable = null): void {
         return;
     }
+
+    isPreviousConnection():boolean{
+        return false;
+    }
 }

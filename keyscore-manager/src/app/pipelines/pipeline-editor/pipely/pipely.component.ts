@@ -9,7 +9,7 @@ import "./style/pipely-style.css";
             `
         <div class="pipely-wrapper">
             <div class="row">
-                <h1>Pipely</h1>
+                <h1 >Pipely</h1>
             </div>
             <div class="row">
                 <workspace class="col-12 p-0"></workspace>

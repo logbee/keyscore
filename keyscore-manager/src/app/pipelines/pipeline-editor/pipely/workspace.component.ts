@@ -80,10 +80,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
             if (this.bestDropzone) {
                 this.bestDropzone.drop(this.mirror, this.dragged);
             }
-            if (!this.dragged.isVisible()) {
+            if (this.dragged && !this.dragged.isVisible()) {
                 this.dragged.show();
             }
+
             this.mirror.destroy();
+
             this.isDragging = false;
         }
         this.bestDropzone = null;
@@ -140,9 +142,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     ngOnInit() {
         this.toolbarDropzone = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
-        this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this)
+        this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this);
 
         this.dropzones.add(this.workspaceDropzone);
+        this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer,this));
 
         for (let i = 0; i < 2; i++) {
             this.createAndRegisterDraggable(this.toolbarDropzone.getDraggableContainer(), {

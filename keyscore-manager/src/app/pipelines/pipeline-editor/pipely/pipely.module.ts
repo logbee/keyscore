@@ -9,6 +9,7 @@ import {ToolbarDropzoneSubcomponent} from "./dropzone/toolbar-dropzone-subcompon
 import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
 import {ConnectorDropzoneSubcomponent} from "./dropzone/connector-dropzone-subcomponent";
 import {DraggableFactory} from "./draggable/draggable-factory";
+import {TrashDropzoneSubcomponent} from "./dropzone/trash-dropzone-subcomponent";
 
 @NgModule({
     imports: [
@@ -21,7 +22,8 @@ import {DraggableFactory} from "./draggable/draggable-factory";
         DropzoneComponent,
         ToolbarDropzoneSubcomponent,
         WorkspaceDropzoneSubcomponent,
-        ConnectorDropzoneSubcomponent
+        ConnectorDropzoneSubcomponent,
+        TrashDropzoneSubcomponent
     ],
     entryComponents: [
         DraggableComponent,
@@ -29,6 +31,7 @@ import {DraggableFactory} from "./draggable/draggable-factory";
         ToolbarDropzoneSubcomponent,
         WorkspaceDropzoneSubcomponent,
         ConnectorDropzoneSubcomponent,
+        TrashDropzoneSubcomponent
 
     ],
     exports: [WorkspaceComponent],
