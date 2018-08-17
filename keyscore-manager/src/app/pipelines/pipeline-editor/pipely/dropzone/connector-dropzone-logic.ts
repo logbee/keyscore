@@ -48,7 +48,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
 
     insertNewDraggable(draggableModel: DraggableModel) {
         if (this.component.getOwner().getPreviousConnection().getId() === this.component.getId()) {
-            this.prePendNewDraggable(draggableModel);
+            this.prependNewDraggable(draggableModel);
         } else {
             this.appendNewDraggable(draggableModel);
         }
@@ -65,7 +65,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
 
         return {
             ...currentDragged.getDraggableModel(),
-            initialDropzone: this.component,
+            initialDropzone: this.component.workspace.getWorkspaceDropzone(),
             rootDropzone: DropzoneType.Workspace,
             next: nexDraggableModel,
             position: droppedPosition
@@ -81,7 +81,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         };
     }
 
-    private prePendNewDraggable(draggableModel: DraggableModel) {
+    private prependNewDraggable(draggableModel: DraggableModel) {
         const droppedDraggable = this.component.draggableFactory
             .createDraggable(this.component.workspace.getWorkspaceDropzone().getDraggableContainer(),
                 draggableModel,
@@ -127,11 +127,12 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         if (!this.component.dropzoneModel.acceptedDraggableTypes.includes(mirror.getDraggableModel().draggableType)) {
             return false;
         }
-        if (mirror.getDraggableModel().initialDropzone.getId() === this.component.getId()) {
+
+        if (this.component.getOwner() === mirror) {
             return false;
         }
 
-        if (this.component.getOwner() === mirror || this.component.isOccupied()) {
+        if(this.component.isOccupied() && mirror.getDraggableModel().initialDropzone.getId() !== this.component.getId()){
             return false;
         }
 

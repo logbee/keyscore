@@ -12,14 +12,20 @@
     -moz-user-select: none; /* Firefox 2+ */
     -ms-user-select: none; /* IE 10+ */
     user-select: none; /* Standard syntax */
+    
 }
 
 .dropzone-workspace {
+
+position:relative;
+    height:100%;
+}
+
+.workspace-scroll-wrapper{
     border: solid 1px black;
     height: 600px;
     overflow-x: scroll;
     overflow-y: scroll;
-
 }
 
 .dropzone-toolbar {
