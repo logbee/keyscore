@@ -16,7 +16,6 @@
 }
 
 .dropzone-workspace {
-
 position:relative;
     height:100%;
 }
@@ -44,10 +43,13 @@ position:relative;
     min-height:100%;
 }
 
+.dropzone-connector{
+    position:relative;
+}
+
 .dropzone-connector.is-droppable{
     min-width:100%;
     min-height: 100%;
-
     border: dashed 1px lime;
 
 }
