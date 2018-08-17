@@ -5,6 +5,7 @@ import {Rectangle} from "../models/rectangle";
 import {computeDistance, computeRelativePositionToParent, intersects} from "../util/util";
 import {DropzoneType} from "../models/dropzone-type";
 import {DraggableModel} from "../models/draggable.model";
+import {deepcopy} from "../../../../util";
 
 export class ConnectorDropzoneLogic extends DropzoneLogic {
 
@@ -63,15 +64,15 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
             position: this.computePrependPosition(droppedPosition, currentDragged.getDraggableSize().width)
         };
 
-
-        let draggedTailModel: DraggableModel = currentDragged.getDraggableModel();
+        let draggedCopy:DraggableModel = deepcopy(currentDragged.getDraggableModel());
+        let draggedTailModel: DraggableModel = draggedCopy;
         while (draggedTailModel.next) {
             draggedTailModel = draggedTailModel.next;
         }
         draggedTailModel.next = nexDraggableModel;
 
         return{
-            ...currentDragged.getDraggableModel(),
+            ...draggedCopy,
             initialDropzone: this.component.workspace.getWorkspaceDropzone(),
             rootDropzone: DropzoneType.Workspace,
             position: droppedPosition

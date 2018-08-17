@@ -22,14 +22,16 @@ position:relative;
 }
 
 .workspace-scroll-wrapper{
-    border: solid 1px black;
+    border: solid 1px darkgrey;
+    border-radius: 2px;
     height: 600px;
     overflow-x: scroll;
     overflow-y: scroll;
 }
 
 .dropzone-toolbar {
-    border: solid 1px black;
+    border: solid 1px darkgrey;
+    border-radius:2px;
     margin-bottom: 10px;
     padding: 10px;
 }
