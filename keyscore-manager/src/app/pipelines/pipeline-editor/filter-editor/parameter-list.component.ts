@@ -21,7 +21,7 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
         <div (click)="onTouched()" class="mb-3" *ngIf="parameterValues.length > 0">
             <div style="display: inline-block; margin-left: 5px; margin-right: 5px;"
                  *ngFor="let value of parameterValues;index as i">
-                <span class="badge badge-pill badge-info" style="font-size: large"><strong>{{value}}</strong>
+                <span class="m-2 badge badge-pill badge-info" style="font-size: large"><strong>{{value}}</strong>
                     <span (click)="removeItem(i)">
                       <img class="pl-2" src="/assets/images/ic_cancel_white_24px.svg"/>
                     </span>

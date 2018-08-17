@@ -304,7 +304,8 @@
 #sidebar {
     min-width: 250px;
     max-width: 250px;
-    height: 100vh;
+    min-height: 100vh;
+    height: 100%;
     position: relative;
     background: #365880;
     color: #fff;
