@@ -1,6 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
-import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 @Component({
     selector: "header-bar",
@@ -15,19 +13,12 @@ import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
         </div>
     `
 })
-export class HeaderBarComponent implements OnInit{
+export class HeaderBarComponent {
     @Input() public title: string;
     @Input() public showManualReload: boolean;
-    @Input() public filter?: FilterDescriptor;
     @Output() public onManualReload = new EventEmitter<any>();
 
     private reload() {
         this.onManualReload.emit({});
-    }
-
-    ngOnInit(): void {
-        if (this.filter != null) {
-            this.title = this.filter.displayName;
-        }
     }
 }
