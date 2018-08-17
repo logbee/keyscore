@@ -1,9 +1,5 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {Subject} from "rxjs/index";
-import {Sortable} from "@shopify/draggable";
-import {Plugins} from "@shopify/draggable";
-import {Draggable} from "@shopify/draggable";
-import {Droppable} from "@shopify/draggable";
 
 import "./style/pipely-style.css";
 
@@ -16,7 +12,7 @@ import "./style/pipely-style.css";
                 <h1>Pipely</h1>
             </div>
             <div class="row">
-                <workspace class="col-12"></workspace>
+                <workspace class="col-12 p-0"></workspace>
             </div>
         </div>
 

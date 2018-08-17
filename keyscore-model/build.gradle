@@ -35,3 +35,9 @@ jar {
         'Implementation-Version': version,
     ])
 }
+
+idea {
+    module {
+        generatedSourceDirs += file("${project.buildDir}/generated/source/scalpb/main/scala")
+    }
+}

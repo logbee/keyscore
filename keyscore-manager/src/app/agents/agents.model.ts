@@ -17,3 +17,5 @@ export const getAgents = createSelector(getAgentState, (state: AgentsState) => s
 
 export const getCurrentAgent = createSelector(getAgentState,
     (state: AgentsState) => state.agents.filter((agent) => agent.id === state.currentAgentid)[0]);
+
+export const getCurrentAgentId = createSelector(getAgentState, (state: AgentsState) => state.currentAgentid);

@@ -25,6 +25,7 @@ dependencies {
     testCompile dependency.citrus
     testCompile dependency.junit
     testRuntime dependency.junitRuntime
+    testRuntime dependency.logback
 
     testCompile project(path: ':keyscore-agent', configuration: 'testOutput')
 }

@@ -1,9 +1,14 @@
-import {Component} from "@angular/core";
+import {Component, OnDestroy} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs";
 import {Go} from "../../router/router.actions";
 import {AgentModel, AgentsState, getCurrentAgent} from "../agents.model";
+import {RemoveCurrentAgentAction} from "../agents.actions";
+import {skipWhile, take, takeLast, takeUntil, takeWhile} from "rxjs/operators";
+import {Subject} from "rxjs/internal/Subject";
+import {select} from "@ngrx/core/operator/select";
+import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 
 @Component({
     selector: "agents-details",
@@ -12,31 +17,41 @@ import {AgentModel, AgentsState, getCurrentAgent} from "../agents.model";
             <div class="col-10">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <span class="font-weight-bold">
-                            {{'AGENTSDETAILS.DETAILEDVIEW' | translate}} {{(agent$ | async).name}}
+                        <span class="font-weight-bold" *ngIf="!(isLoading$ | async)">
+                            {{'AGENTSDETAILS.DETAILEDVIEW' | translate}} {{(agent$ | async)?.name}}
                         </span>
-                        <button class="btn" (click)="reload()">
-                            <img width="24em" src="/assets/images/arrow-reload.svg"/>
-                        </button>
+                        <div class="row">
+                            <div class="col-1 mr-5">
+                                <button class="btn" (click)="reload()">
+                                    <img width="24em" src="/assets/images/arrow-reload.svg"/>
+                                </button>
+                            </div>
+                            <div class="col-1 mr-5">
+                                <button class="btn" (click)="deleteAgent()">
+                                    <img width="24em" src="/assets/images/ic_delete_dark_24px.svg"/>
+                                </button>
+                            </div>
+                            <loading class="col-1" *ngIf="isLoading$ | async"></loading>
+                        </div>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" *ngIf="!(isLoading$ | async)">
                         <div class="ml-3">
                             <div class="row">
                                 <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTID' | translate}}</div>
                                 <div class="col-lg-6">
-                                    {{(agent$ | async).id}}
+                                    {{(agent$ | async)?.id}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTNAME' | translate}}</div>
                                 <div class="col-lg-6">
-                                    {{(agent$ | async).name}}
+                                    {{(agent$ | async)?.name}}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-6 font-weight-bold">{{'AGENTSDETAILS.AGENTHOST' | translate}}</div>
                                 <div class="col-lg-6">
-                                    {{(agent$ | async).host}}
+                                    {{(agent$ | async)?.host}}
                                 </div>
                             </div>
                         </div>
@@ -52,11 +67,23 @@ import {AgentModel, AgentsState, getCurrentAgent} from "../agents.model";
     `
 })
 
-export class AgentsDetails {
+export class AgentsDetails implements OnDestroy {
     private agent$: Observable<AgentModel>;
+    private agentId: string;
+    private isAlive$: Subject<void> = new Subject();
+    private isLoading$: Observable<boolean>;
 
     constructor(private store: Store<AgentsState>, translate: TranslateService) {
-        this.agent$ = this.store.select(getCurrentAgent);
+        this.isLoading$ = this.store.select(isSpinnerShowing);
+
+        this.isLoading$.pipe(takeUntil(this.isAlive$), skipWhile(isLoading => isLoading), take(1))
+            .subscribe(_ => {
+                this.agent$ = this.store.select(getCurrentAgent);
+                this.agent$.pipe(takeUntil(this.isAlive$), take(1)).subscribe(agent => this.agentId = agent.id);
+            });
+
+
+
         translate.setDefaultLang("en");
         translate.use("en");
     }
@@ -65,7 +92,15 @@ export class AgentsDetails {
         this.agent$ = this.store.select(getCurrentAgent);
     }
 
+    public deleteAgent() {
+        this.store.dispatch(new RemoveCurrentAgentAction(this.agentId));
+    }
+
     public backToAgentsView() {
         this.store.dispatch(new Go({path: ["/agent/"]}));
+    }
+
+    ngOnDestroy() {
+        this.isAlive$.next();
     }
 }

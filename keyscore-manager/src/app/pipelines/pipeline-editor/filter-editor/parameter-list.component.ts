@@ -11,18 +11,21 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
             </div>
             <div class="form-group ml-1">
                 <button class="btn btn-info" (click)="addItem(addItemInput.value)"><img
-                        src="/assets/images/ic_add_white_24px.svg" alt="Remove"/>
+                       width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Remove"/>
                 </button>
             </div>
 
         </div>
 
-        
+
         <div (click)="onTouched()" class="mb-3" *ngIf="parameterValues.length > 0">
-            <div style="display: inline-block; margin-left: 5px; margin-right: 5px;" *ngFor="let value of parameterValues;index as i">
-                <span class="badge badge-pill badge-info" style="font-size: large"><strong>{{value}}</strong>
+            <div style="display: inline-block; margin-left: 5px; margin-right: 5px;"
+                 *ngFor="let value of parameterValues;index as i">
+                <span class="m-2 badge badge-pill badge-info" style="font-size: large"><strong>{{value}}</strong>
                     <span (click)="removeItem(i)">
-                        <strong> X </strong></span></span>
+                      <img class="pl-2" src="/assets/images/ic_cancel_white_24px.svg"/>
+                    </span>
+                </span>
             </div>
         </div>
     `,

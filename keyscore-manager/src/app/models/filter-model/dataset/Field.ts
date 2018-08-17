@@ -1,6 +1,6 @@
+import {Value} from "./Value";
 
 export interface Field {
-    jsonClass: string;
     name: string;
-    value: any;
+    value: Value;
 }

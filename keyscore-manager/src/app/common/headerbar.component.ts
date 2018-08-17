@@ -3,10 +3,10 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 @Component({
     selector: "header-bar",
     template: `
-        <div style="background-color:  #365880; color: white; padding-left: -15px">
+        <div id="header-bar">
             <div class="p-2 d-flex justify-content-between align-middle">
-                <span class="font-weight-bold">{{title}}</span>
-                <button *ngIf="this.showManualReload" class="btn" (click)="reload()">
+                <span class="title">{{title}}</span>
+                <button *ngIf="this.showManualReload" class="reload btn btn-light btn-sm" (click)="reload()">
                     <img width="24em" src="/assets/images/arrow-reload.svg"/>
                 </button>
             </div>

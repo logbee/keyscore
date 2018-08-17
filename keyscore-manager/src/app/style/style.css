@@ -304,7 +304,8 @@
 #sidebar {
     min-width: 250px;
     max-width: 250px;
-    height: 100vh;
+    min-height: 100vh;
+    height: 100%;
     position: relative;
     background: #365880;
     color: #fff;
@@ -466,7 +467,23 @@
     }
 
 }
+/*------------------header-bar---------------------*/
+#header-bar {
+    min-height: 5vh;
+    background-color:  #365880;
+    color: white;
+}
+
+#header-bar .title {
+    font-size: x-large;
+    color: white;
+}
+
+#header-bar .reload {
+    box-shadow: 4px 4px;
+}
 
 #language-selector .dropdown-item > img {
     display: inline-block;
 }
+

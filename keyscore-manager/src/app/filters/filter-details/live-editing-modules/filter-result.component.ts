@@ -1,7 +1,7 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
-import {selectResultAvailable} from "../../filter.reducer";
+import {selectcurrentDatasetCounter, selectResultAvailable} from "../../filter.reducer";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 @Component({
@@ -17,7 +17,7 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                       <span (click)="goLeft()">
                             <img width="18em" src="/assets/images/chevron-left.svg"/>
                       </span>
-                        {{displayCount}} / {{(resultDatasets$ | async)?.length}}
+                        {{count + 1}} / {{(resultDatasets$ | async)?.length}}
                         <span (click)="goRight()">
                             <img width="18em" src="/assets/images/chevron-right.svg"/>
                       </span>
@@ -46,34 +46,50 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
 export class FilterResultComponent implements OnInit {
     @Input() public resultDatasets$: Observable<Dataset[]>;
+    @Output() public currentDatasetCounter: EventEmitter<number> = new EventEmitter();
     private loading$: Observable<boolean>;
+    private count$: Observable<number>;
     private count: number;
     private numberOfDatasets: number;
-    private displayCount: number;
 
     constructor(private store: Store<any>) {
         this.loading$ = this.store.select(selectResultAvailable);
+        this.count$ = this.store.select(selectcurrentDatasetCounter);
     }
 
     public ngOnInit(): void {
         this.resultDatasets$.subscribe((datasets) => {
             this.numberOfDatasets = datasets.length;
         });
-        this.count = 0;
-        this.displayCount = 1;
+
+        this.count$.subscribe((count) => {
+            this.count = count;
+        })
+
     }
 
     private goLeft() {
-        if (this.count !== this.numberOfDatasets - 1) {
-            this.count += 1;
-            this.displayCount += 1;
+        if (this.count == 0) {
+            this.count = this.numberOfDatasets - 1;
+            this.emitCounter(this.count)
+        } else  {
+            this.count -= 1;
+            this.emitCounter(this.count)
         }
     }
 
     private goRight() {
-        if (this.count !== 0) {
-            this.count -= 1;
-            this.displayCount -= 1;
+        if (this.count == this.numberOfDatasets - 1) {
+            this.count = 0;
+            this.emitCounter(this.count)
+        } else  {
+            this.count += 1;
+            this.emitCounter(this.count)
         }
     }
+
+    private emitCounter(count: number) {
+        this.currentDatasetCounter.emit(count)
+    }
+
 }

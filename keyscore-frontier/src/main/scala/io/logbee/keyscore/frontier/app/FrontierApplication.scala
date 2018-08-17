@@ -16,6 +16,7 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
@@ -233,6 +234,14 @@ object FrontierApplication extends App with Json4sSupport {
           }
         }
       } ~
+        pathPrefix(JavaUUID) { agentID =>
+          delete {
+            onSuccess(agentManager ? RemoveAgentFromCluster(agentID)) {
+              case AgentRemovedFromCluster(agentID) => complete(StatusCodes.OK)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          }
+        } ~
       get {
         onSuccess(agentManager ? QueryAgents) {
           case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))

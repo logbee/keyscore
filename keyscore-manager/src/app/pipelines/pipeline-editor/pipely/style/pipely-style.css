@@ -1,26 +1,78 @@
-.draggable{
-    padding:10px;
-    border: solid 1px black;
-    cursor:move;
-    user-select:none;
+.pipely-wrapper{
+    box-sizing: border-box;
 }
 
-.dropzone{
-    border: solid 1px black;
-    min-height:600px;
+.draggable {
+    padding: 10px;
+    border: solid 1px darkgrey;
+    color: white;
+    background-color: #365880;
+    cursor: move;
+    -webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+
 }
 
-.is-droppable{
-    border: solid 3px green;
+.dropzone-workspace {
+
+position:relative;
+    height:100%;
 }
 
-.mirror{
-    position:absolute;
-    z-index: 9999;
-}
-
-.workspace{
-    height:650px;
+.workspace-scroll-wrapper{
+    border: solid 1px darkgrey;
+    border-radius: 2px;
+    height: 600px;
     overflow-x: scroll;
     overflow-y: scroll;
+}
+
+.dropzone-toolbar {
+    border: solid 1px darkgrey;
+    border-radius:2px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.dropzone-toolbar .draggable {
+    margin-right: 10px;
+}
+
+.connection{
+    min-height:100%;
+}
+
+.dropzone-connector.is-droppable{
+    min-width:100%;
+    min-height: 100%;
+
+    border: dashed 1px lime;
+
+}
+
+/*.previous-connection {
+    margin-right: 5px;
+    min-height: 100%;
+    border-right: dashed 2px black;
+}
+
+.next-connection{
+    min-height: 100%;
+    margin-left:5px;
+    border-left: dashed 2px black;
+}*/
+
+
+
+
+.mirror {
+    position: absolute;
+    z-index: 9999;
+    opacity: 0.6;
+}
+
+.workspace {
+    height: 650px;
 }
