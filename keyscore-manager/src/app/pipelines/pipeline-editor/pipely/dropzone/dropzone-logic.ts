@@ -13,9 +13,6 @@ export abstract class DropzoneLogic {
 
     abstract computeDraggableModel(mirror: Draggable, currentDragged: Draggable): DraggableModel;
 
-    insertNewDraggable(draggableModel: DraggableModel) {
-        return;
-    }
 
     drop(mirror: Draggable, currentDragged: Draggable) {
 
@@ -34,6 +31,9 @@ export abstract class DropzoneLogic {
         const draggableModel = this.computeDraggableModel(mirror, currentDragged);
         this.insertNewDraggable(draggableModel);
 
+    }
+
+    insertNewDraggable(draggableModel: DraggableModel) {
         const droppedDraggable = this.component.draggableFactory
             .createDraggable(this.component.getDraggableContainer(),
                 draggableModel,

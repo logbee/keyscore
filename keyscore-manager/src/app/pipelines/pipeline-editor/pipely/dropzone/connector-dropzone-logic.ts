@@ -34,27 +34,92 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         return currentDistance < pivotDistance ? this.component : pivot;
     }
 
-    computeDraggableModel(mirror: Draggable, currentDragged: Draggable) {
-        const componentRectangle = this.component.getRectangle();
-        const ownerRectangle = this.component.getOwner().getRectangle();
-        const position = {
-            x: Math.abs(ownerRectangle.right - componentRectangle.left),
-            y: -Math.abs(componentRectangle.top - ownerRectangle.top)
-        };
+    computeDraggableModel(mirror: Draggable, currentDragged: Draggable): DraggableModel {
 
-        const draggableModel = {
-            ...currentDragged.getDraggableModel(),
-            initialDropzone: this.component,
-            rootDropzone: DropzoneType.Workspace,
-            position: position
-        };
+        if (this.component.getOwner().getPreviousConnection().getId() === this.component.getId()) {
+            return this.prependModel(mirror, currentDragged);
+        }
+        else {
+            return this.appendModel(mirror, currentDragged);
 
-        return draggableModel;
+        }
+
     }
 
     insertNewDraggable(draggableModel: DraggableModel) {
+        if (this.component.getOwner().getPreviousConnection().getId() === this.component.getId()) {
+            this.prePendNewDraggable(draggableModel);
+        } else {
+            this.appendNewDraggable(draggableModel);
+        }
+    }
+
+    private prependModel(mirror: Draggable, currentDragged: Draggable): DraggableModel {
+        const droppedPosition = computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
+            this.component.workspace.getWorkspaceDropzone().getAbsolutePosition());
+
+        const nexDraggableModel = {
+            ...this.component.getOwner().getDraggableModel(),
+            position: this.computePrependPosition(droppedPosition, currentDragged.getDraggableSize().width)
+        };
+
+        return {
+            ...currentDragged.getDraggableModel(),
+            initialDropzone: this.component,
+            rootDropzone: DropzoneType.Workspace,
+            next: nexDraggableModel,
+            position: droppedPosition
+        };
+    }
+
+    private appendModel(mirror: Draggable, currentDragged: Draggable): DraggableModel {
+        return {
+            ...currentDragged.getDraggableModel(),
+            initialDropzone: this.component,
+            rootDropzone: DropzoneType.Workspace,
+            position: this.computeAppendPosition()
+        };
+    }
+
+    private prePendNewDraggable(draggableModel: DraggableModel) {
+        const droppedDraggable = this.component.draggableFactory
+            .createDraggable(this.component.workspace.getWorkspaceDropzone().getDraggableContainer(),
+                draggableModel,
+                this.component.workspace);
+
+        this.component.workspace.registerDraggable(droppedDraggable);
+        this.component.getOwner().destroy();
+    }
+
+    private appendNewDraggable(draggableModel: DraggableModel) {
         this.component.occupyDropzone();
         this.component.getOwner().setNextModel(draggableModel);
+
+        const droppedDraggable = this.component.draggableFactory
+            .createDraggable(this.component.getDraggableContainer(),
+                draggableModel,
+                this.component.workspace);
+
+        this.component.workspace.registerDraggable(droppedDraggable);
+
+    }
+
+    private computeAppendPosition(): { x: number, y: number } {
+        const componentRectangle = this.component.getRectangle();
+        const ownerRectangle = this.component.getOwner().getRectangle();
+        return {
+            x: Math.abs(ownerRectangle.right - componentRectangle.left),
+            y: -Math.abs(componentRectangle.top - ownerRectangle.top)
+        };
+    }
+
+    private computePrependPosition(droppedPosition: { x: number, y: number }, draggedWidth: number): { x: number, y: number } {
+        const componentRectangle = this.component.getRectangle();
+        const ownerRectangle = this.component.getOwner().getRectangle();
+        return {
+            x: Math.abs(ownerRectangle.left - componentRectangle.right),
+            y: -Math.abs(componentRectangle.top - ownerRectangle.top)
+        };
     }
 
 

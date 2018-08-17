@@ -33,7 +33,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     public dropzones: Set<Dropzone> = new Set();
 
-    public toolbar: Dropzone;
+    public toolbarDropzone: Dropzone;
+    public workspaceDropzone: Dropzone;
 
     private isDragging: boolean = false;
     private bestDropzone: Dropzone;
@@ -133,20 +134,25 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         draggable.dragStart$.subscribe(() => this.dragStart(draggable));
     }
 
-    ngOnInit() {
-        this.toolbar = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
+    getWorkspaceDropzone():Dropzone{
+        return this.workspaceDropzone;
+    }
 
-        this.dropzones.add(this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this));
+    ngOnInit() {
+        this.toolbarDropzone = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
+        this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this)
+
+        this.dropzones.add(this.workspaceDropzone);
 
         for (let i = 0; i < 2; i++) {
-            this.createAndRegisterDraggable(this.toolbar.getDraggableContainer(), {
-                name: "Test" + Math.random().toString().substr(0,4),
+            this.createAndRegisterDraggable(this.toolbarDropzone.getDraggableContainer(), {
+                name: "Test" + Math.random().toString().substr(0, 4),
                 draggableType: "general",
                 nextConnection: {isPermitted: true, connectableTypes: ["general"]},
                 previousConnection: {isPermitted: true, connectableTypes: ["general"]},
-                initialDropzone: this.toolbar,
+                initialDropzone: this.toolbarDropzone,
                 next: null,
-                rootDropzone: this.toolbar.getDropzoneModel().dropzoneType,
+                rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
                 isMirror: false
             });
         }

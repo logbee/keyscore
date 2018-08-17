@@ -13,6 +13,8 @@ export interface Workspace {
 
     registerMirror(mirror: Draggable);
 
+    getWorkspaceDropzone():Dropzone;
+
 }
 
 export interface Dropzone {
