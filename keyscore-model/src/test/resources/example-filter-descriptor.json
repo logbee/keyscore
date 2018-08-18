@@ -11,98 +11,49 @@
       "id": "description"
     },
     "category": {
-      "id": "aa5de1cd-1122-758f-97fa-228ca8911378"
+      "id": "filterCategory"
     },
     "parameters": [
       {
         "jsonClass": "io.logbee.keyscore.model.TextParameterDescriptor",
         "ref": {
-          "id": "37024d8b-4aec-4b3e-8074-21ef065e5ee2"
+          "id": "example.filter.simpleText"
         },
         "info": {
           "displayName": {
-            "id": "parameterADisplayName"
+            "id": "foo"
           },
           "description": {
-            "id": "parameterADescription"
+            "id": "bar"
           }
         },
         "defaultValue": "Hello World",
         "validator": {
           "pattern": "Hello*",
           "patternType": "Glob"
-        }
+        },
+        "mandatory": false
       },
       {
         "jsonClass": "io.logbee.keyscore.model.BooleanParameterDescriptor",
         "ref": {
-          "id": "b7cc9c84-ae6e-4ea3-bbff-f8d62af4caed"
+          "id": "example.filter.theTruth"
         },
         "info": {
           "displayName": {
-            "id": "parameterDDisplayName"
+            "id": "booleanParameterDisplayName"
           },
           "description": {
-            "id": "parameterDDescription"
+            "id": "booleanParameterDescription"
           }
         },
-        "defaultValue": true
-      },
-      {
-        "jsonClass": "io.logbee.keyscore.model.ConditionalParameterDescriptor",
-        "ref": {
-          "id": ""
-        },
-        "condition": {
-          "jsonClass": "io.logbee.keyscore.model.BooleanParameterCondition",
-          "parameter": {
-            "id": "b7cc9c84-ae6e-4ea3-bbff-f8d62af4caed"
-          },
-          "negate": true
-        },
-        "parameters": [
-          {
-            "jsonClass": "io.logbee.keyscore.model.PatternParameterDescriptor",
-            "ref": {
-              "id": "98276284-a309-4f21-a0d8-50ce20e3376a"
-            },
-            "patternType": "Grok",
-            "defaultValue": ""
-          },
-          {
-            "jsonClass": "io.logbee.keyscore.model.ListParameterDescriptor",
-            "ref": {
-              "id": "ff543cab-15bf-114a-47a1-ce1f065e5513"
-            },
-            "info": {
-              "displayName": {
-                "id": "parameterBDisplayName"
-              },
-              "description": {
-                "id": "parameterBDescription"
-              }
-            },
-            "kind": {
-              "jsonClass": "io.logbee.keyscore.model.FieldNameParameterDescriptor",
-              "ref": {
-                "id": ""
-              },
-              "defaultValue": "",
-              "hint": "PresentField",
-              "validator": {
-                "pattern": "^_.*",
-                "patternType": "RegEx"
-              }
-            },
-            "min": 1,
-            "max": 2147483647
-          }
-        ]
+        "defaultValue": true,
+        "mandatory": false
       },
       {
         "jsonClass": "io.logbee.keyscore.model.ChoiceParameterDescriptor",
         "ref": {
-          "id": "e84ad685-b7ad-421e-80b4-d12e5ca2b4ff"
+          "id": "example.filter.myChoice"
         },
         "min": 1,
         "max": 1,
@@ -117,61 +68,138 @@
             "name": "blue"
           }
         ]
+      },
+      {
+        "jsonClass": "io.logbee.keyscore.model.ConditionalParameterDescriptor",
+        "ref": {
+          "id": ""
+        },
+        "condition": {
+          "jsonClass": "io.logbee.keyscore.model.BooleanParameterCondition",
+          "parameter": {
+            "id": "example.filter.theTruth"
+          },
+          "negate": true
+        },
+        "parameters": [
+          {
+            "jsonClass": "io.logbee.keyscore.model.PatternParameterDescriptor",
+            "ref": {
+              "id": "example.filter.aGrokPattern"
+            },
+            "patternType": "Grok",
+            "defaultValue": "",
+            "mandatory": false
+          },
+          {
+            "jsonClass": "io.logbee.keyscore.model.ListParameterDescriptor",
+            "ref": {
+              "id": "ff543cab-15bf-114a-47a1-ce1f065e5513"
+            },
+            "info": {
+              "displayName": {
+                "id": "listParameterDisplayName"
+              },
+              "description": {
+                "id": "listParameterDescription"
+              }
+            },
+            "kind": {
+              "jsonClass": "io.logbee.keyscore.model.FieldNameParameterDescriptor",
+              "ref": {
+                "id": ""
+              },
+              "defaultValue": "",
+              "hint": "PresentField",
+              "validator": {
+                "pattern": "^_.*",
+                "patternType": "RegEx"
+              },
+              "mandatory": false
+            },
+            "min": 1,
+            "max": 2147483647
+          }
+        ]
       }
     ]
   },
   "localization": {
     "locales": [
       {
-        "language": "en",
-        "country": "US"
+        "language": "de",
+        "country": ""
       },
       {
-        "language": "de",
-        "country": "DE"
+        "language": "en",
+        "country": ""
       }
     ],
     "mapping": {
-      "parameterADisplayName": {
+      "fieldKeyName": {
         "translations": {
-          "en/US": "A Parameter",
-          "de/DE": "Ein Parameter"
+          "en": "Name",
+          "de": "Name"
         }
       },
       "description": {
         "translations": {
-          "en/US": "Adds the specified fields.",
-          "de/DE": "Fuegt die definierten Felder hinzu."
+          "en": "Adding new fields and their values.",
+          "de": "HinzufÃ¼gen von neuen Feldern mit dazugehÃ¶rigen Werten zum aktuellen Datensatz."
         }
       },
-      "parameterBDisplayName": {
+      "fieldValueName": {
         "translations": {
-          "en/US": "A Parameter",
-          "de/DE": "Ein Parameter"
+          "en": "Value",
+          "de": "Wert"
         }
       },
-      "aa5de1cd-1122-758f-97fa-228ca8911378": {
+      "bar": {
         "translations": {
-          "en/US": "Source",
-          "de/DE": "Quelle"
+          "en": "A simple text parameter as example.",
+          "de": "Ein einfacher Textparameter als Beispiel."
         }
       },
-      "parameterADescription": {
+      "fieldsToAddName": {
         "translations": {
-          "en/US": "A simple text parameter as example.",
-          "de/DE": "Ein einfacher Textparameter als Beispiel."
+          "en": "Fields to add",
+          "de": "HinzuzufÃ¼gende Felder"
+        }
+      },
+      "fieldsToAddDescription": {
+        "translations": {
+          "en": "These fields will be added by this filter.",
+          "de": "Diese Felder werden dem Datensatz hinzugefÃ¼gt."
+        }
+      },
+      "fieldKeyDescription": {
+        "translations": {
+          "en": "The identifier of this field.",
+          "de": "Der Name des neuen Feldes."
         }
       },
       "displayName": {
         "translations": {
-          "en/US": "Add Fields",
-          "de/DE": "Feld Hinzufuegen"
+          "en": "Add Fields Filter",
+          "de": "Felder hinzufÃ¼gen"
         }
       },
-      "parameterBDescription": {
+      "foo": {
         "translations": {
-          "en/US": "A simple text parameter as example.",
-          "de/DE": "Ein einfacher Textparameter als Beispiel."
+          "en": "A Parameter",
+          "de": "Ein Parameter"
+        }
+      },
+      "filterCategory": {
+        "translations": {
+          "en": "Source",
+          "de": "Quelle"
+        }
+      },
+      "fieldValueDescription": {
+        "translations": {
+          "en": "The value of the added field.",
+          "de": "Der Wert des neuen Feldes."
         }
       }
     }

@@ -1,14 +1,12 @@
 package io.logbee.keyscore.model
 
-import com.google.protobuf.`type`.Field.Cardinality
 import io.logbee.keyscore.model.FieldNameHint.{AbsentField, AnyField, PresentField}
-import io.logbee.keyscore.model.ParameterDescriptorMessage.SealedValue.ChoiceParameter
 import io.logbee.keyscore.model.PatternType.{Glob, Grok, RegEx}
 import io.logbee.keyscore.model.configuration.{Configuration, TextParameterConfiguration}
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import org.json4s.JsonAST.{JNull, JString}
 import org.json4s.native.Serialization
-import org.json4s.{CustomKeySerializer, CustomSerializer, FullTypeHints, NoTypeHints, ShortTypeHints}
+import org.json4s.{CustomKeySerializer, CustomSerializer, FullTypeHints}
 import org.scalatest.{FreeSpec, Matchers}
 
 import scala.io.Source
@@ -17,7 +15,7 @@ import scala.io.Source
 class DescriptorSpec extends FreeSpec with Matchers {
 
   import io.logbee.keyscore.model.ToOption._
-  import org.json4s.native.Serialization.{write, read, writePretty}
+  import org.json4s.native.Serialization.{read, write, writePretty}
 
   implicit val formats = Serialization.formats(FullTypeHints(List(
     classOf[Descriptor],
@@ -29,23 +27,28 @@ class DescriptorSpec extends FreeSpec with Matchers {
   "A Dataset" - {
     "should" in {
 
-      val EN = Locale("en", "US")
-      val DE = Locale("de/DE")
+      val EN = java.util.Locale.ENGLISH// Locale("en")
+      val DE = java.util.Locale.GERMAN //Locale("de")
 
       val filterDisplayName = TextRef("displayName")
       val filterDescription = TextRef("description")
-      val category = TextRef("aa5de1cd-1122-758f-97fa-228ca8911378")
+      val category = TextRef("filterCategory")
 
-      val parameterARef = ParameterRef("37024d8b-4aec-4b3e-8074-21ef065e5ee2")
-      val parameterADisplayName = TextRef("parameterADisplayName")
-      val parameterADescription = TextRef("parameterADescription")
+      val textParameterDisplayName = TextRef("foo")
+      val textParameterDescription = TextRef("bar")
 
-//      val parameterBRef = ParameterRef("ff543cab-15bf-114a-47a1-ce1f065e5513")
-      val parameterBDisplayName = TextRef("parameterBDisplayName")
-      val parameterBDescription = TextRef("parameterBDescription")
+      val textParameter = TextParameterDescriptor("example.filter.simpleText", ParameterInfo(textParameterDisplayName, textParameterDescription), defaultValue = "Hello World", validator = StringValidator("Hello*", PatternType.Glob))
 
-      val parameterCRef = ParameterRef("b7cc9c84-ae6e-4ea3-bbff-f8d62af4caed")
-//      val parameterDRef = ParameterRef("5f28c6dd-f88f-4530-afd1-c8b946bc5406")
+      val booleanParameterRef = ParameterRef("example.filter.theTruth")
+      val booleanParameter = BooleanParameterDescriptor(booleanParameterRef, ParameterInfo(TextRef("booleanParameterDisplayName"), TextRef("booleanParameterDescription")), defaultValue = true)
+
+      val patternParameter = PatternParameterDescriptor("example.filter.aGrokPattern", patternType = Grok)
+
+      val choiceParameter = ChoiceParameterDescriptor("example.filter.myChoice", min = 1, max = 1, choices = Seq(
+        Choice("red"),
+        Choice("green"),
+        Choice("blue")
+      ))
 
       val descriptor = Descriptor(
         id = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
@@ -54,24 +57,17 @@ class DescriptorSpec extends FreeSpec with Matchers {
           displayName = filterDisplayName,
           description = filterDescription,
           category = category,
-          parameters = Seq(
-            TextParameterDescriptor(parameterARef, ParameterInfo(parameterADisplayName, parameterADescription), defaultValue = "Hello World", validator = StringValidator("Hello*", PatternType.Glob)),
-            BooleanParameterDescriptor(parameterCRef, ParameterInfo(TextRef("parameterDDisplayName"), TextRef("parameterDDescription")), defaultValue = true),
-            ConditionalParameterDescriptor(condition = BooleanParameterCondition(parameterCRef, negate = true), parameters = Seq(
-              PatternParameterDescriptor("98276284-a309-4f21-a0d8-50ce20e3376a", patternType = Grok),
+          parameters = Seq(textParameter, booleanParameter, choiceParameter,
+            ConditionalParameterDescriptor(condition = BooleanParameterCondition(booleanParameterRef, negate = true), parameters = Seq(
+              patternParameter,
               ListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
-                ParameterInfo(parameterBDisplayName, parameterBDescription),
+                ParameterInfo("listParameterDisplayName", "listParameterDescription"),
                 FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*", PatternType.RegEx)),
                 min = 1, max = Int.MaxValue)
-            )),
-            ChoiceParameterDescriptor("e84ad685-b7ad-421e-80b4-d12e5ca2b4ff", min = 1, max = 1, choices = Seq(
-              Choice("red"),
-              Choice("green"),
-              Choice("blue")
             ))
           )
         ),
-        localization = Localization(Set(EN, DE), Map(
+        localization = Localization.fromJavaMapping(
           filterDisplayName -> Map(
             EN -> "Add Fields",
             DE -> "Feld Hinzufuegen"
@@ -84,24 +80,15 @@ class DescriptorSpec extends FreeSpec with Matchers {
             EN -> "Source",
             DE -> "Quelle"
           ),
-          parameterADisplayName -> Map(
+          textParameterDisplayName -> Map(
             EN -> "A Parameter",
             DE -> "Ein Parameter"
           ),
-          parameterADescription -> Map(
-            EN -> "A simple text parameter as example.",
-            DE -> "Ein einfacher Textparameter als Beispiel."
-          ),
-          parameterBDisplayName -> Map(
-            EN -> "A Parameter",
-            DE -> "Ein Parameter"
-          ),
-          parameterBDescription -> Map(
+          textParameterDescription -> Map(
             EN -> "A simple text parameter as example.",
             DE -> "Ein einfacher Textparameter als Beispiel."
           )
-        )
-      ))
+        ) ++ Localization.fromResourceBundle("ExampleFilter", java.util.Locale.ENGLISH, Locale("de")))
 
       val config = Configuration()
       val textConfig = TextParameterConfiguration()

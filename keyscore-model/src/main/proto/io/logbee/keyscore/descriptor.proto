@@ -36,7 +36,7 @@ message ParameterRef {
 
 message ParameterInfo {
     TextRef displayName = 2 [(scalapb.field).no_box = true];
-    TextRef description = 3;
+    TextRef description = 3 [(scalapb.field).no_box = true];
 }
 
 message ParameterDescriptor {

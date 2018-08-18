@@ -1,6 +1,5 @@
 package io.logbee.keyscore.model.localization
 
-import io.logbee.keyscore.model.localization.TextRef
 import scalapb.TypeMapper
 
 trait TextRefCompanion {

@@ -13,6 +13,7 @@ message TextRef {
 }
 
 message Locale {
+    option (scalapb.message).extends = "io.logbee.keyscore.model.localization.BaseLocale";
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.localization.LocaleCompanion";
     string language = 1;
     string country = 2;
@@ -24,6 +25,8 @@ message TranslationMapping {
 }
 
 message Localization {
+    option (scalapb.message).extends = "io.logbee.keyscore.model.localization.BaseLocalization";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.localization.LocalizationCompanion";
     repeated Locale locales = 1 [(scalapb.field).collection_type="collection.immutable.Set"];
     map<string, TranslationMapping> mapping = 3 [(scalapb.field).key_type = "io.logbee.keyscore.model.localization.TextRef"];
 }
