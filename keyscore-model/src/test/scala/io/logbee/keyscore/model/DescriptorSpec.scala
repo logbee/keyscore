@@ -22,7 +22,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
     classOf[FilterDescriptor],
     classOf[ParameterDescriptor],
     classOf[ConditionalParameterCondition]
-  ))) + TextRefKeySerializer + LocaleKeySerializer + PatternTypeSerializer + FieldNameHintSerializer
+  ))) + TextRefKeySerializer + LocaleKeySerializer + PatternTypeSerializer + FieldNameHintSerializer + FieldValueTypeSerializer
 
   "A Dataset" - {
     "should" in {
@@ -50,6 +50,8 @@ class DescriptorSpec extends FreeSpec with Matchers {
         Choice("blue")
       ))
 
+      val fieldParameter = FieldParameterDescriptor("example.filter.aConstField", defaultName = "message", hint = AbsentField, fieldValueType = FieldValueType.Text, mandatory = true)
+
       val descriptor = Descriptor(
         id = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
         describe = FilterDescriptor(
@@ -57,7 +59,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
           displayName = filterDisplayName,
           description = filterDescription,
           category = category,
-          parameters = Seq(textParameter, booleanParameter, choiceParameter,
+          parameters = Seq(textParameter, booleanParameter, choiceParameter, fieldParameter,
             ConditionalParameterDescriptor(condition = BooleanParameterCondition(booleanParameterRef, negate = true), parameters = Seq(
               patternParameter,
               ListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
@@ -152,5 +154,21 @@ class DescriptorSpec extends FreeSpec with Matchers {
   }, {
     case hint: FieldNameHint =>
       JString(hint.getClass.getSimpleName.replace("$", ""))
+  }))
+
+  case object FieldValueTypeSerializer extends CustomSerializer[FieldValueType](format => ({
+    case JString(fieldValueType) => fieldValueType match {
+      case "Unkown" => FieldValueType.Unkown
+      case "Boolean" => FieldValueType.Boolean
+      case "Number" => FieldValueType.Number
+      case "Decimal" => FieldValueType.Decimal
+      case "Text" => FieldValueType.Text
+      case "Timestamp" => FieldValueType.Timestamp
+      case "Duration" => FieldValueType.Duration
+    }
+    case JNull => FieldValueType.Unkown
+  }, {
+    case fieldValueType: FieldValueType =>
+      JString(fieldValueType.getClass.getSimpleName.replace("$", ""))
   }))
 }

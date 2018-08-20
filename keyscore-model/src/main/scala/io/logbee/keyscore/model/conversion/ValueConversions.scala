@@ -5,37 +5,25 @@ import io.logbee.keyscore.model._
 
 trait ValueConversion extends TextValueConversion with NumberValueConversion with DecimalValueConversion with TimestampValueConversion
 
+
+trait BooleanValueConversion {
+  implicit def booleanValueToBoolean(booleanValue: BooleanValue): Boolean = booleanValue.value
+  implicit def booleanValueFromString(value: Boolean): BooleanValue = BooleanValue(value)
+}
+
 trait TextValueConversion {
-
-  implicit def textValueToString(textValue: TextValue): String = {
-    textValue.value
-  }
-
-  implicit def textValueFromString(value: String): TextValue = {
-    TextValue(value)
-  }
+  implicit def textValueToString(textValue: TextValue): String = textValue.value
+  implicit def textValueFromString(value: String): TextValue = TextValue(value)
 }
 
 trait NumberValueConversion {
-
-  implicit def numberValueToInt(numberValue: NumberValue): Long = {
-    numberValue.value
-  }
-
-  implicit def numberValueFromInt(value: Long): NumberValue = {
-    NumberValue(value)
-  }
+  implicit def numberValueToInt(numberValue: NumberValue): Long = numberValue.value
+  implicit def numberValueFromInt(value: Long): NumberValue = NumberValue(value)
 }
 
 trait DecimalValueConversion {
-
-  implicit def decimalValueToDouble(decimalValue: DecimalValue): Double = {
-    decimalValue.value
-  }
-
-  implicit def doubleToDecimalValue(value: Double): DecimalValue = {
-    DecimalValue(value)
-  }
+  implicit def decimalValueToDouble(decimalValue: DecimalValue): Double = decimalValue.value
+  implicit def doubleToDecimalValue(value: Double): DecimalValue = DecimalValue(value)
 }
 
 trait TimestampValueConversion {

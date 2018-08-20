@@ -70,6 +70,16 @@
         ]
       },
       {
+        "jsonClass": "io.logbee.keyscore.model.FieldParameterDescriptor",
+        "ref": {
+          "id": "example.filter.aConstField"
+        },
+        "defaultName": "message",
+        "hint": "AbsentField",
+        "fieldValueType": "Text",
+        "mandatory": true
+      },
+      {
         "jsonClass": "io.logbee.keyscore.model.ConditionalParameterDescriptor",
         "ref": {
           "id": ""

@@ -38,17 +38,18 @@ message Field {
 message Value {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.ValueConversion";
     oneof sealed_value {
-        TextValue text = 1;
+        BooleanValue boolean = 1;
         NumberValue number = 2;
         DecimalValue decimal = 3;
-        TimestampValue timestamp = 4;
-        DurationValue duration = 5;
+        TextValue text = 4;
+        TimestampValue timestamp = 5;
+        DurationValue duration = 6;
     }
 }
 
-message TextValue {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.TextValueConversion";
-    string value = 1;
+message BooleanValue {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.BooleanValueConversion";
+    bool value = 1;
 }
 
 message NumberValue {
@@ -59,6 +60,11 @@ message NumberValue {
 message DecimalValue {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.DecimalValueConversion";
     double value = 1;
+}
+
+message TextValue {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.TextValueConversion";
+    string value = 1;
 }
 
 message TimestampValue {
@@ -78,4 +84,14 @@ message DurationValue {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.DurationValueConversion";
     int64 seconds = 1;
     int32 nanos = 2;
+}
+
+enum FieldValueType {
+    Unkown = 0;
+    Boolean = 1;
+    Number = 2;
+    Decimal = 3;
+    Text = 4;
+    Timestamp = 5;
+    Duration = 6;
 }

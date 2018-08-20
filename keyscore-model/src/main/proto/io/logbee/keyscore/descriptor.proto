@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "scalapb/scalapb.proto";
 import "localization.proto";
+import "model.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model"
@@ -42,12 +43,15 @@ message ParameterInfo {
 message ParameterDescriptor {
     oneof sealed_value {
         BooleanParameterDescriptor booleanParameter = 1;
-        TextParameterDescriptor textParameter = 2;
-        PatternParameterDescriptor patternParameter = 3;
-        FieldNameParameterDescriptor fieldNameParameter = 4;
-        ListParameterDescriptor listParameter = 5;
-        ChoiceParameterDescriptor choiceParameter = 6;
-        ConditionalParameterDescriptor conditionalParameter = 7;
+        NumberParameterDescriptor numberParameter = 2;
+        DecimalParameterDescriptor decimalParameter = 3;
+        TextParameterDescriptor textParameter = 4;
+        PatternParameterDescriptor patternParameter = 5;
+        FieldNameParameterDescriptor fieldNameParameter = 6;
+        FieldParameterDescriptor fieldParameter = 7;
+        ListParameterDescriptor listParameter = 8;
+        ChoiceParameterDescriptor choiceParameter = 9;
+        ConditionalParameterDescriptor conditionalParameter = 10;
     }
 }
 
@@ -74,6 +78,23 @@ message BooleanParameterDescriptor {
     bool mandatory = 4;
 }
 
+message NumberParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    sint64 defaultValue = 5;
+    NumberRange range = 6;
+    bool mandatory = 4;
+}
+
+message DecimalParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    sint64 defaultValue = 5;
+    DecimalRange range = 6;
+    uint32 decimals = 7;
+    bool mandatory = 4;
+}
+
 message FieldNameParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -81,6 +102,16 @@ message FieldNameParameterDescriptor {
     FieldNameHint hint = 4;
     StringValidator validator = 5;
     bool mandatory = 6;
+}
+
+message FieldParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    string defaultName = 3;
+    FieldNameHint hint = 4;
+    StringValidator nameValidator = 5;
+    FieldValueType fieldValueType = 6;
+    bool mandatory = 7;
 }
 
 enum FieldNameHint {
@@ -139,4 +170,16 @@ enum PatternType {
     RegEx = 0;
     Grok = 2;
     Glob = 3;
+}
+
+message NumberRange {
+    sint32 step = 1;
+    sint64 start = 2;
+    sint64 end = 3;
+}
+
+message DecimalRange {
+    double step = 1;
+    double start = 2;
+    double end = 3;
 }

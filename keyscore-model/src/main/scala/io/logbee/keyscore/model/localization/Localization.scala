@@ -23,22 +23,19 @@ trait LocalizationCompanion {
 
   def fromResourceBundle(bundleName: String, locales: Set[Locale]): Localization = {
 
-    val resourceBundles = locales.foldLeft(Map.empty[Locale, ResourceBundle]) {
-      case (result, locale) => Try(ResourceBundle.getBundle(bundleName, locale)) match {
+    val resourceBundles = locales.foldLeft(Map.empty[Locale, ResourceBundle]) { case (result, locale) =>
+      Try(ResourceBundle.getBundle(bundleName, locale)) match {
         case Success(bundle) => result + (locale -> bundle)
         case _ => result
       }
     }
 
-    val textRefs = resourceBundles.values.foldLeft(Set.empty[TextRef]) {
-      case (result, bundle) => result ++ bundle.getKeys.asScala.map(TextRef(_))
-    }
+    val textRefs = resourceBundles.values.flatMap(bundle => bundle.getKeys.asScala.map(key => TextRef(key)))
 
-    val mappings = textRefs.foldLeft(Map.empty[TextRef, TranslationMapping]) {
-      case (result, ref) =>
-        result + (ref -> TranslationMapping(resourceBundles.map {
-          case (locale, bundle) => locale -> bundle.getString(ref.id)
-        }))
+    val mappings = textRefs.foldLeft(Map.empty[TextRef, TranslationMapping]) { case (result, ref) =>
+      result + (ref -> TranslationMapping(resourceBundles.map { case (locale, bundle) =>
+        locale -> bundle.getString(ref.id)
+      }))
     }
 
     Localization(resourceBundles.keys.toSet, mappings)
