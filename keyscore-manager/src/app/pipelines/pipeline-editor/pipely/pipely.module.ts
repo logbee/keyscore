@@ -10,6 +10,7 @@ import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subco
 import {ConnectorDropzoneSubcomponent} from "./dropzone/connector-dropzone-subcomponent";
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {TrashDropzoneSubcomponent} from "./dropzone/trash-dropzone-subcomponent";
+import {HeaderBarModule} from "../../../common/headerbar.module";
 
 @NgModule({
     imports: [

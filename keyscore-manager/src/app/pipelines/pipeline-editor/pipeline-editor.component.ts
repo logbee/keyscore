@@ -36,11 +36,13 @@ import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration
     selector: "pipeline-editor",
     styles: [".filter-component{transition: 0.25s ease-in-out;}"],
     template: `
+        <header-bar [title]="'Pipeline Editor'"></header-bar>
+
         <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
 
         <ng-template #editor>
             <div [ngSwitch]="editingGUI">
-                <div class="row justify-content-center ml-2 mt-2">
+                <div class="row p-3">
                     <ng-container *ngSwitchCase="'default'">
                         <div class="col-3">
                             <pipeline-details [pipeline]="pipeline$ | async"

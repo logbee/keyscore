@@ -112,7 +112,7 @@ class PipelineIntegrationTest extends Matchers  {
 
     //     Delete Pipelines
 
-    removeElasticIndex(runner, "test")
+    /*removeElasticIndex(runner, "test")
 
     deletePipeline(runner, kafkaToElasticPipeLineConfig)
 
@@ -120,7 +120,7 @@ class PipelineIntegrationTest extends Matchers  {
 
     deleteAllPipelines(runner)
 
-    checkRunningInstances(runner, 0)
+    checkRunningInstances(runner, 0)*/
 
   }
 
