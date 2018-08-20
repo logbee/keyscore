@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
 import {Store} from "@ngrx/store";
-import {ParameterControlService} from "../../../services/parameter-control.service";
+import {ParameterControlService} from "../../../common/parameter/services/parameter-control.service";
 import {ParameterDescriptor} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
 import {Observable} from "rxjs/index";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";

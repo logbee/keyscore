@@ -19,10 +19,11 @@ import {StatuslightComponent} from "../common/health/statuslight.component";
 import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
 import {DatasetVisualizer} from "./filter-details/live-editing-modules/datasetVisualizer";
-import {ParameterControlService} from "../services/parameter-control.service";
-import {ParameterMap} from "../pipelines/pipeline-editor/filter-editor/parameter-map.component";
-import {ParameterComponent} from "../pipelines/pipeline-editor/filter-editor/parameter.component";
-import {ParameterList} from "../pipelines/pipeline-editor/filter-editor/parameter-list.component";
+import {ParameterControlService} from "../common/parameter/services/parameter-control.service";
+import {ParameterMap} from "../common/parameter/parameter-map.component";
+import {ParameterComponent} from "../common/parameter/parameter.component";
+import {ParameterList} from "../common/parameter/parameter-list.component";
+import {ParameterModule} from "../common/parameter/parameter.module";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -40,7 +41,8 @@ export const routes: Routes = [
         LoadingModule,
         HealthModule,
         AlertModule,
-        ErrorModule
+        ErrorModule,
+        ParameterModule
     ],
     declarations: [
         FilterDescriptionComponent,
@@ -49,13 +51,10 @@ export const routes: Routes = [
         FilterResultComponent,
         StatuslightComponent,
         LiveEditingComponent,
-        DatasetVisualizer,
-        ParameterMap,
-        ParameterList,
-        ParameterComponent
+        DatasetVisualizer
     ]
     ,
-    providers: [ParameterControlService],
+    providers: [],
 })
 export class LiveEditingModule {
 }
