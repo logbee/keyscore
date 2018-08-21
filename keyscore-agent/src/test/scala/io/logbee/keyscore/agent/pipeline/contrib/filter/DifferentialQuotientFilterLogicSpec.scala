@@ -9,9 +9,12 @@ import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionC
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextMapParameter, TextParameter}
+import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class DifferentialQuotientFilterLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
