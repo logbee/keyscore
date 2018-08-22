@@ -66,7 +66,6 @@ class DifferentialQuotientFilterLogic(context: StageContext, configuration: Filt
   override def onPush(): Unit = {
 
     val dataset = grab(in)
-    var outDataset = dataset
 
     push(out, Dataset(dataset.metadata, dataset.records.map(record => {
 
