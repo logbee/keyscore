@@ -96,7 +96,23 @@ task createDockerContainer(type: DockerCreateContainer) {
             'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
             'KEYSCORE_REMOTE_HOST=keyscore-frontier',
             'KEYSCORE_REMOTE_PORT=0',
-            'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
+            'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0',
+            'KEYSCORE_OPERATING_MODE=true'
+    ]
+    network = project.findProperty('containerNetwork') ?: 'host'
+}
+
+task createIdleContainer(type: DockerCreateContainer) {
+    dependsOn buildDockerImage
+    containerName = "keyscore-frontier-sleeping"
+    targetImageId { buildDockerImage.getImageId() }
+    hostName = project.name
+    env = [
+            'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
+            'KEYSCORE_REMOTE_HOST=keyscore-frontier',
+            'KEYSCORE_REMOTE_PORT=0',
+            'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0',
+            'KEYSCORE_OPERATING_MODE=false'
     ]
     network = project.findProperty('containerNetwork') ?: 'host'
 }
@@ -107,11 +123,28 @@ task startDockerContainer(type: DockerStartContainer) {
     targetContainerId { createDockerContainer.containerName }
 }
 
+task startIdleContainer(type: DockerStartContainer) {
+
+    dependsOn = ['createIdleContainer', ':setupDockerNetwork']
+    targetContainerId { createIdleContainer.containerName }
+}
+
 task stopDockerContainer(type: DockerStopContainer) {
     targetContainerId { createDockerContainer.containerName }
     onError { exception ->
         if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createDockerContainer.containerName + " has already been stopped")
+        }
+        else throw exception
+    }
+
+}
+
+task stopIdleContainer(type: DockerStopContainer) {
+    targetContainerId { createIdleContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createIdleContainer.containerName + " has already been stopped")
         }
         else throw exception
     }
@@ -129,11 +162,32 @@ task removeDockerContainer(type: DockerRemoveContainer) {
 
 }
 
+task removeIdleContainer(type: DockerRemoveContainer) {
+    dependsOn stopIdleContainer
+    targetContainerId { createIdleContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createIdleContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+
+}
+
 task stopDockerContainerOnStartup(type: DockerStopContainer) {
     targetContainerId { createDockerContainer.containerName }
     onError { exception ->
         if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createDockerContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+
+}
+
+task stopIdleContainerOnStartup(type: DockerStopContainer) {
+    targetContainerId { createIdleContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createIdleContainer.containerName + " has already been stopped")
         } else throw exception
     }
 
@@ -145,6 +199,16 @@ task removeDockerContainerOnStartup(type: DockerRemoveContainer) {
     onError { exception ->
         if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createDockerContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}
+
+task removeIdleContainerOnStartup(type: DockerRemoveContainer) {
+    dependsOn stopIdleContainerOnStartup
+    targetContainerId { createIdleContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createIdleContainer.containerName + " has already been removed")
         } else throw exception
     }
 }

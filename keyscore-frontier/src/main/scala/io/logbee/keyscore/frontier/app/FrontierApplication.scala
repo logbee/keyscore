@@ -16,7 +16,7 @@ object FrontierApplication extends App {
 
   val config = ConfigFactory.load()
   implicit val system = ActorSystem("keyscore")
-  private val isOperating: Boolean = config.getBoolean("keyscore.operation-mode")
+  private val isOperating: Boolean = config.getBoolean("keyscore.operating-mode")
   println(s"Frontier OperatingMode is ${isOperating}")
 
   val frontier = system.actorOf(Props[Frontier], "frontier")
