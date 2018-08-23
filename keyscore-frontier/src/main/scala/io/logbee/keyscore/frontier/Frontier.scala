@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.app
+package io.logbee.keyscore.frontier
 
 import java.util.Locale
 
@@ -18,7 +18,8 @@ import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster}
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.frontier.app.Frontier.{Idle, Init, StartServer, StopServer}
+import io.logbee.keyscore.frontier.Frontier.{Idle, Init, StartServer, StopServer}
+import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}

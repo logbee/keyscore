@@ -3,7 +3,8 @@ package io.logbee.keyscore.frontier.app
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.frontier.app.Frontier.Init
+import io.logbee.keyscore.frontier.Frontier
+import io.logbee.keyscore.frontier.Frontier.Init
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
