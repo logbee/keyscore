@@ -50,6 +50,7 @@ class Agent extends Actor with ActorLogging {
   private var joined: Boolean = false
 
   override def preStart(): Unit = {
+    log.info(s"Agent ${name} started.")
     Cluster(context.system) registerOnMemberUp {
       scheduler.scheduleOnce(5 second) {
         self ! SendJoin
