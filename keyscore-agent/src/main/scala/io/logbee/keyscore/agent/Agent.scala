@@ -43,7 +43,7 @@ class Agent extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val pipelineManager = context.actorOf(PipelineScheduler(filterManager), "PipelineScheduler")
+  private val pipelineScheduler = context.actorOf(PipelineScheduler(filterManager), "PipelineScheduler")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()
@@ -57,10 +57,15 @@ class Agent extends Actor with ActorLogging {
       }
     }
     mediator ! Subscribe("agents", self)
+    mediator ! Subscribe("cluster", self)
+    mediator ! Publish("cluster", ActorJoin("Agent", self))
   }
 
   override def postStop(): Unit = {
+    mediator ! Publish("cluster", ActorLeave("Agent", self))
     mediator ! Unsubscribe("agents", self)
+    mediator ! Unsubscribe("cluster", self)
+    log.info(s"Agent ${name} stopped.")
   }
 
   override def receive: Receive = {

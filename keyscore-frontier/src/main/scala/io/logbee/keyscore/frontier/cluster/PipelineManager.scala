@@ -2,9 +2,9 @@ package io.logbee.keyscore.frontier.cluster
 
 import java.util.UUID
 
-import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, ActorSystem, Props}
+import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
 import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
+import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{DeleteAllPipelines, RequestExistingConfigurations, RequestExistingPipelines}
@@ -44,7 +44,19 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
   var availableAgents: mutable.Map[ActorRef, List[MetaFilterDescriptor]] = mutable.Map.empty[ActorRef, List[MetaFilterDescriptor]]
 
-  mediator ! Subscribe("agents", self)
+  override def preStart(): Unit = {
+    mediator ! Subscribe("agents", self)
+    mediator ! Subscribe("cluster", self)
+    mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
+    log.info("PipelineManager started.")
+  }
+
+  override def postStop(): Unit = {
+    mediator ! Publish("cluster", ActorLeave("ClusterCapManager", self))
+    mediator ! Subscribe("agents", self)
+    mediator ! Unsubscribe("cluster", self)
+    log.info("PipelineManager stopped.")
+  }
 
   override def receive: Receive = {
     case PipelineManager.CreatePipeline(pipelineConfiguration) =>
@@ -95,7 +107,7 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
 
     case message: ConfigureFilter =>
       availableAgents.keys.foreach(agent => {
-        pipelineSchedulerSelector(agent,context) forward message
+        pipelineSchedulerSelector(agent, context) forward message
       })
     case message: CheckFilterState =>
       availableAgents.keys.foreach(agent => {
@@ -103,17 +115,17 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       })
     case message: ClearBuffer =>
       availableAgents.keys.foreach(agent => {
-        pipelineSchedulerSelector(agent,context) forward message
+        pipelineSchedulerSelector(agent, context) forward message
       })
-    case  RequestExistingPipelines() =>
-      val collector = context.system.actorOf(PipelineInstanceCollector(sender,availableAgents.keys))
-      availableAgents.keys.foreach( agent => {
+    case RequestExistingPipelines() =>
+      val collector = context.system.actorOf(PipelineInstanceCollector(sender, availableAgents.keys))
+      availableAgents.keys.foreach(agent => {
         pipelineSchedulerSelector(agent, context) ! RequestPipelineInstance(collector)
       })
 
     case RequestExistingConfigurations() =>
-      val collector = context.system.actorOf(PipelineConfigurationCollector(sender,availableAgents.keys))
-      availableAgents.keys.foreach( agent => {
+      val collector = context.system.actorOf(PipelineConfigurationCollector(sender, availableAgents.keys))
+      availableAgents.keys.foreach(agent => {
         pipelineSchedulerSelector(agent, context) ! RequestPipelineConfigurations(collector)
       })
   }

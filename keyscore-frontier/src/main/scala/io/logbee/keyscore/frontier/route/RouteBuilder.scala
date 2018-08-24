@@ -3,7 +3,7 @@ package io.logbee.keyscore.frontier.route
 import java.util.Locale
 
 import akka.actor.FSM.Failure
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.HttpOriginRange
@@ -23,7 +23,7 @@ import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
-import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
+import io.logbee.keyscore.frontier.cluster.{ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.route.RouteBuilder.BuildFullRoute
 import io.logbee.keyscore.model.WhichValve.whichValve
 import io.logbee.keyscore.model.filter.FilterConfiguration
@@ -38,9 +38,13 @@ object RouteBuilder {
 
   case object BuildFullRoute
 
+  def apply(agentManager: ActorRef): Props = {
+    Props(new RouteBuilder(agentManager))
+  }
+
 }
 
-class RouteBuilder extends Actor with ActorLogging with Json4sSupport {
+class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupport {
   val appInfo = AppInfo(classOf[Frontier])
 
   implicit val timeout: Timeout = 30 seconds
@@ -50,7 +54,7 @@ class RouteBuilder extends Actor with ActorLogging with Json4sSupport {
   implicit val serialization = Serialization
   implicit val formats = KeyscoreFormats.formats
 
-  val agentManager = system.actorOf(Props(classOf[AgentManager]), "AgentManager")
+  val agentManager = aM
   val pipelineManager = system.actorOf(PipelineManager(agentManager))
   val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
 
@@ -63,79 +67,79 @@ class RouteBuilder extends Actor with ActorLogging with Json4sSupport {
   val settings = cors(corsSettings)
 
   val pipelineRoute = pathPrefix("pipeline") {
-      pathPrefix("configuration") {
-        pathPrefix("*") {
+    pathPrefix("configuration") {
+      pathPrefix("*") {
+        get {
+          onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+            case PipelineConfigurationResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
+            case _ => complete(StatusCodes.InternalServerError)
+          }
+        } ~
+          delete {
+            pipelineManager ! PipelineManager.DeleteAllPipelines
+            complete(StatusCodes.OK)
+          }
+      } ~
+        pathPrefix(JavaUUID) { configId =>
           get {
             onSuccess(pipelineManager ? RequestExistingConfigurations()) {
-              case PipelineConfigurationResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
+              case PipelineConfigurationResponse(listOfConfigurations) =>
+                listOfConfigurations.find(pipelineConfiguration => pipelineConfiguration.id == configId) match {
+                  case Some(config) => complete(StatusCodes.OK, config)
+                  case None => complete(StatusCodes.NotFound)
+                }
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
             delete {
-              pipelineManager ! PipelineManager.DeleteAllPipelines
+              pipelineManager ! PipelineManager.DeletePipeline(id = configId)
               complete(StatusCodes.OK)
             }
         } ~
-          pathPrefix(JavaUUID) { configId =>
-            get {
-              onSuccess(pipelineManager ? RequestExistingConfigurations()) {
-                case PipelineConfigurationResponse(listOfConfigurations) =>
-                  listOfConfigurations.find(pipelineConfiguration => pipelineConfiguration.id == configId) match {
-                    case Some(config) => complete(StatusCodes.OK, config)
-                    case None => complete(StatusCodes.NotFound)
-                  }
-                case _ => complete(StatusCodes.InternalServerError)
-              }
-            } ~
-              delete {
-                pipelineManager ! PipelineManager.DeletePipeline(id = configId)
-                complete(StatusCodes.OK)
-              }
-          } ~
-          put {
-            entity(as[PipelineConfiguration]) { pipeline =>
-              pipelineManager ! PipelineManager.CreatePipeline(pipeline)
-              complete(StatusCodes.Created)
+        put {
+          entity(as[PipelineConfiguration]) { pipeline =>
+            pipelineManager ! PipelineManager.CreatePipeline(pipeline)
+            complete(StatusCodes.Created)
+          }
+        } ~
+        post {
+          entity(as[PipelineConfiguration]) { pipeline =>
+            complete(StatusCodes.NotImplemented)
+          }
+        }
+    } ~
+      pathPrefix("instance") {
+        pathPrefix("*") {
+          get {
+            onSuccess(pipelineManager ? RequestExistingPipelines()) {
+              case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
+              case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
-          post {
-            entity(as[PipelineConfiguration]) { pipeline =>
+            delete {
               complete(StatusCodes.NotImplemented)
             }
-          }
-      } ~
-        pathPrefix("instance") {
-          pathPrefix("*") {
-            get {
-              onSuccess(pipelineManager ? RequestExistingPipelines()) {
-                case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
-                case _ => complete(StatusCodes.InternalServerError)
-              }
+        } ~
+          pathPrefix(JavaUUID) { instanceId =>
+            put {
+              complete(StatusCodes.NotImplemented)
             } ~
               delete {
                 complete(StatusCodes.NotImplemented)
-              }
-          } ~
-            pathPrefix(JavaUUID) { instanceId =>
-              put {
-                complete(StatusCodes.NotImplemented)
               } ~
-                delete {
-                  complete(StatusCodes.NotImplemented)
-                } ~
-                get {
-                  onSuccess(pipelineManager ? RequestExistingPipelines()) {
-                    case PipelineInstanceResponse(listOfPipelines) =>
-                      listOfPipelines.find(instance => instance.id == instanceId) match {
-                        case Some(instance) => complete(StatusCodes.OK, instance)
-                        case None => complete(StatusCodes.NotFound)
-                      }
-                    case _ => complete(StatusCodes.InternalServerError)
-                  }
+              get {
+                onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                  case PipelineInstanceResponse(listOfPipelines) =>
+                    listOfPipelines.find(instance => instance.id == instanceId) match {
+                      case Some(instance) => complete(StatusCodes.OK, instance)
+                      case None => complete(StatusCodes.NotFound)
+                    }
+                  case _ => complete(StatusCodes.InternalServerError)
                 }
-            }
-        }
-    }
+              }
+          }
+      }
+  }
 
   val filterRoute = pathPrefix("filter") {
     pathPrefix(JavaUUID) { filterId =>
@@ -267,7 +271,9 @@ class RouteBuilder extends Actor with ActorLogging with Json4sSupport {
 
   override def receive: Receive = {
     case BuildFullRoute =>
-      val serverRoute = settings { pipelineRoute ~ filterRoute ~ descriptorsRoute ~ agentsRoute ~ infoRoute}
+      val serverRoute = settings {
+        pipelineRoute ~ filterRoute ~ descriptorsRoute ~ agentsRoute ~ infoRoute
+      }
       sender ! BuildServer(serverRoute)
   }
 }

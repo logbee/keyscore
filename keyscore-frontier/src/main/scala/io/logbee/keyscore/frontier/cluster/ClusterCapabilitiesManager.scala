@@ -4,8 +4,8 @@ import java.util.Locale
 
 import akka.actor.{Actor, ActorLogging, ActorPath, Props}
 import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
-import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved}
+import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
+import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.filter.{FilterDescriptor, MetaFilterDescriptor}
 
@@ -34,12 +34,16 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
-    log.info("StartUp complete")
+    mediator ! Subscribe("cluster", self)
+    mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
+    log.info("ClusterCapabilitiesManager started.")
   }
 
   override def postStop(): Unit = {
+    mediator ! Publish("cluster", ActorLeave("ClusterCapManager", self))
     mediator ! Unsubscribe("agents", self)
-    log.info("Shutdown complete")
+    mediator ! Unsubscribe("cluster", self)
+    log.info("ClusterCapabilitiesManager stopped.")
   }
 
   override def receive: Receive = {
