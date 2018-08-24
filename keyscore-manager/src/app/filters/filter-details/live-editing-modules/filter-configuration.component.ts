@@ -7,12 +7,13 @@ import {ParameterDescriptor} from "../../../models/pipeline-model/parameters/Par
 import {Observable} from "rxjs/index";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
+import "../../styles/filterstyle.css";
+
 @Component({
     selector: "filter-configuration",
-    styleUrls: ['/filterstyle.css'],
     template: `
-        <div class="card mt-3">
-            <div class="card-header alert-light font-weight-bold" style="color: black;">
+        <div  class="card mt-3">
+            <div id="custom-card-black" class="card-header alert-light font-weight-bold">
                 {{'FILTERLIVEEDITINGCOMPONENT.REGEXPATTERN' | translate}}
             </div>
             <div class="card-body">

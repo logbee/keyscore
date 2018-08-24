@@ -8,8 +8,8 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
     selector: "example-message",
     template: `
         <div class="card mt-3">
-            <div class="card-header alert-light font-weight-bold" style="color: black;">
-                <div class="row">
+            <div class="card-header alert-light font-weight-bold">
+                <div class="row" id="custom-card-black">
                     <div class="col-sm-1">
                         {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}
                     </div>

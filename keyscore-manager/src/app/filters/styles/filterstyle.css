@@ -1,0 +1,10 @@
+/*-------------Live-Editing------------------*/
+#custom-card-black {
+    color: black;
+}
+#custom-card-white {
+    color: white;
+}
+#custom-card-white .header-background {
+    background-color: #3a88b3;
+}
