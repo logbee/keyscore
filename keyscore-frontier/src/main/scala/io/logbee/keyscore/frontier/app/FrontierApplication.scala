@@ -4,7 +4,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.frontier.Frontier
-import io.logbee.keyscore.frontier.Frontier.Init
+import io.logbee.keyscore.frontier.Frontier.InitFrontier
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -21,7 +21,7 @@ object FrontierApplication extends App {
 
   val frontier = system.actorOf(Props[Frontier], "frontier")
 
-  frontier ! Init(isOperating)
+  frontier ! InitFrontier(isOperating)
 
   Await.ready(system.whenTerminated, Duration.Inf)
 

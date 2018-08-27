@@ -98,6 +98,7 @@ class Agent extends Actor with ActorLogging {
       joined = true
       (filterManager ? RequestDescriptors).mapTo[DescriptorsResponse].onComplete {
         case Success(message) =>
+          log.info("Published capabilities to the topic agents.")
           mediator ! Publish("agents", AgentCapabilities(message.descriptors))
         case Failure(e) =>
           log.error(e, "Failed to publish capabilities!")
@@ -110,7 +111,9 @@ class Agent extends Actor with ActorLogging {
       context.stop(self)
 
     case AgentManagerDied =>
+      log.info("Actual AgentManager dieded. Setting joined-status to false and trying to join again.")
       joined = false
       self ! SendJoin
+
   }
 }

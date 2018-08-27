@@ -1,15 +1,15 @@
 package io.logbee.keyscore.frontier.cluster
 
+import java.util.UUID
+
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.cluster.ClusterEvent.{MemberUp, UnreachableMember}
 import akka.cluster.MockableMember
 import akka.testkit.{TestKit, TestProbe}
 import io.logbee.keyscore.commons.cluster.{AgentJoin, AgentJoinAccepted, MemberAdded, MemberRemoved}
-import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers}
+import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers, QueryMembersResponse}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, WordSpecLike}
-
-import java.util.UUID
 
 class AgentManagerSpec extends TestKit(ActorSystem("AgentManagerSpec")) with WordSpecLike with ScalaFutures with BeforeAndAfter {
 
@@ -58,7 +58,7 @@ class AgentManagerSpec extends TestKit(ActorSystem("AgentManagerSpec")) with Wor
       agentManager tell (QueryMembers, probe.ref)
 
       probe.expectMsgType[MemberAdded]
-      probe.expectMsg(QueryMembers(List(mockerMember)))
+      probe.expectMsg(QueryMembersResponse(List(mockerMember)))
     }
 
     "decrease the list of members by one when removing a member with role keyscore-agent" in {

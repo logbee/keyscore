@@ -17,13 +17,20 @@ object AgentManager {
 
   case class QueryAgentsResponse(agents: List[RemoteAgent])
 
-  case class QueryMembers(members: List[Member])
+  case class QueryMembersResponse(members: List[Member])
 
   case class QueryMembersAddresses(addresses: List[UniqueAddress])
 
   case class AddAgent(member: Member)
 
   case class RemoveAgent(member: Member)
+
+  case class Init(isOperating: Boolean)
+
+  case class AgentManagerInitialized(isOperating: Boolean)
+
+  private case object ReInit
+  private case object Unsubscribe
 
 }
 
@@ -36,25 +43,40 @@ class AgentManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     log.info("AgentManager started.")
-    mediator ! Subscribe("agents", self)
-    mediator ! Subscribe("cluster", self)
-    mediator ! Publish("cluster", MemberJoin("AgentManager", cluster.selfMember))
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish("cluster", MemberLeave("AgentManager", cluster.selfMember))
-    cluster.unsubscribe(self)
-    mediator ! Unsubscribe("agents", self)
-    mediator ! Unsubscribe("cluster", self)
+    self ! Unsubscribe
     log.info("AgentManager stopped.")
   }
 
   override def receive: Receive = {
+    case Init(isOperating) =>
+      log.info("Initializing AgentManager ...")
+      if(isOperating) {
+        context.become(working)
+      } else {
+        context.become(sleeping)
+      }
+
+      sender ! AgentManagerInitialized(isOperating)
+      self ! ReInit
+  }
+
+  def working: Receive = {
+    case ReInit =>
+      mediator ! Subscribe("agents", self)
+      mediator ! Subscribe("cluster", self)
+      mediator ! Publish("cluster", MemberJoin("AgentManager", cluster.selfMember))
+
     case SubscribeAck(Subscribe("agents", None, `self`)) =>
       log.info("Subscribed to topic [agents]")
 
+    case SubscribeAck(Subscribe("cluster", None, `self`)) =>
+      log.info("Subscribed to topic [cluster]")
+
     case AgentJoin(id, name) =>
-      log.info(s"Member trys to join as Agent(${id} | ${name})...")
+      log.info(s"Member is trying to join as Agent(${id} | ${name})...")
       agents.find(member => sender.path.address.equals(member.address)) match {
         case Some(member) =>
           val agent = RemoteAgent(id, name, member.uniqueAddress.longUid, sender)
@@ -79,7 +101,7 @@ class AgentManager extends Actor with ActorLogging {
       sender ! QueryAgentsResponse(idToAgent.values.toList)
 
     case QueryMembers =>
-      sender ! QueryMembers(agents.toList)
+      sender ! QueryMembersResponse(agents.toList)
 
     case RemoveAgentFromCluster(agentID) =>
       log.info(s"Manually removing Agent with id ${agentID} from cluster.")
@@ -94,6 +116,28 @@ class AgentManager extends Actor with ActorLogging {
         case _ =>
           sender ! RemoveAgentFromClusterFailed
       }
+
+    case Unsubscribe =>
+      mediator ! Publish("cluster", MemberLeave("AgentManager", cluster.selfMember))
+      mediator ! Unsubscribe("cluster", self)
+      mediator ! Unsubscribe("agents", self)
+      cluster.unsubscribe(self)
+
+  }
+
+  def sleeping: Receive = {
+    case ReInit =>
+      mediator ! Subscribe("cluster", self)
+      mediator ! Publish("cluster", MemberJoin("AgentManager", cluster.selfMember))
+
+    case SubscribeAck(Subscribe("cluster", None, `self`)) =>
+      log.info("Subscribed to topic [cluster]")
+
+    case Unsubscribe =>
+      mediator ! Publish("cluster", MemberLeave("AgentManager", cluster.selfMember))
+      mediator ! Unsubscribe("cluster", self)
+      cluster.unsubscribe(self)
+
   }
 
   private def addAgentMember(member: Member): Unit = {
