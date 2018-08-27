@@ -88,33 +88,37 @@ task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, bui
 
 task createDockerContainer(type: DockerCreateContainer) {
     dependsOn buildDockerImage
-    containerName = project.name
+    containerName = "keyscore-frontier"
     targetImageId { buildDockerImage.getImageId() }
     portBindings = ['2551:2551', '4711:4711']
     hostName = project.name
     env = [
             'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
+            'KEYSCORE_CLUSTER_SEED_NODE_HOST_2=keyscore-frontier-sleeping',
             'KEYSCORE_REMOTE_HOST=keyscore-frontier',
-            'KEYSCORE_REMOTE_PORT=0',
+            'KEYSCORE_REMOTE_PORT=2551',
             'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0',
             'KEYSCORE_OPERATING_MODE=true'
     ]
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
-task createIdleContainer(type: DockerCreateContainer) {
+task createSleepingContainer(type: DockerCreateContainer) {
     dependsOn buildDockerImage
     containerName = "keyscore-frontier-sleeping"
     targetImageId { buildDockerImage.getImageId() }
-    hostName = project.name
+    portBindings = ['2552:2552']
+    hostName = "keyscore-frontier-sleeping"
+    network = project.findProperty('containerNetwork') ?: 'host'
     env = [
             'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
-            'KEYSCORE_REMOTE_HOST=keyscore-frontier',
-            'KEYSCORE_REMOTE_PORT=0',
+            'KEYSCORE_CLUSTER_SEED_NODE_HOST_2=keyscore-frontier-sleeping',
+            'KEYSCORE_REMOTE_HOST=keyscore-frontier-sleeping',
+            'KEYSCORE_REMOTE_PORT=2552',
             'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0',
+            'KEYSCORE_REMOTE_BIND_PORT=2552',
             'KEYSCORE_OPERATING_MODE=false'
     ]
-    network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startDockerContainer(type: DockerStartContainer) {
@@ -123,10 +127,10 @@ task startDockerContainer(type: DockerStartContainer) {
     targetContainerId { createDockerContainer.containerName }
 }
 
-task startIdleContainer(type: DockerStartContainer) {
+task startSleepingContainer(type: DockerStartContainer) {
 
-    dependsOn = ['createIdleContainer', ':setupDockerNetwork']
-    targetContainerId { createIdleContainer.containerName }
+    dependsOn = ['createSleepingContainer', ':setupDockerNetwork']
+    targetContainerId { createSleepingContainer.containerName }
 }
 
 task stopDockerContainer(type: DockerStopContainer) {
@@ -140,11 +144,11 @@ task stopDockerContainer(type: DockerStopContainer) {
 
 }
 
-task stopIdleContainer(type: DockerStopContainer) {
-    targetContainerId { createIdleContainer.containerName }
+task stopSleepingContainer(type: DockerStopContainer) {
+    targetContainerId { createSleepingContainer.containerName }
     onError { exception ->
         if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
-            println("Container " + createIdleContainer.containerName + " has already been stopped")
+            println("Container " + createSleepingContainer.containerName + " has already been stopped")
         }
         else throw exception
     }
@@ -162,12 +166,12 @@ task removeDockerContainer(type: DockerRemoveContainer) {
 
 }
 
-task removeIdleContainer(type: DockerRemoveContainer) {
-    dependsOn stopIdleContainer
-    targetContainerId { createIdleContainer.containerName }
+task removeSleepingContainer(type: DockerRemoveContainer) {
+    dependsOn stopSleepingContainer
+    targetContainerId { createSleepingContainer.containerName }
     onError { exception ->
         if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
-            println("Container " + createIdleContainer.containerName + " has already been removed")
+            println("Container " + createSleepingContainer.containerName + " has already been removed")
         } else throw exception
     }
 
@@ -183,11 +187,11 @@ task stopDockerContainerOnStartup(type: DockerStopContainer) {
 
 }
 
-task stopIdleContainerOnStartup(type: DockerStopContainer) {
-    targetContainerId { createIdleContainer.containerName }
+task stopSleepingContainerOnStartup(type: DockerStopContainer) {
+    targetContainerId { createSleepingContainer.containerName }
     onError { exception ->
         if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
-            println("Container " + createIdleContainer.containerName + " has already been stopped")
+            println("Container " + createSleepingContainer.containerName + " has already been stopped")
         } else throw exception
     }
 
@@ -203,12 +207,12 @@ task removeDockerContainerOnStartup(type: DockerRemoveContainer) {
     }
 }
 
-task removeIdleContainerOnStartup(type: DockerRemoveContainer) {
-    dependsOn stopIdleContainerOnStartup
-    targetContainerId { createIdleContainer.containerName }
+task removeSleepingContainerOnStartup(type: DockerRemoveContainer) {
+    dependsOn stopSleepingContainerOnStartup
+    targetContainerId { createSleepingContainer.containerName }
     onError { exception ->
         if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
-            println("Container " + createIdleContainer.containerName + " has already been removed")
+            println("Container " + createSleepingContainer.containerName + " has already been removed")
         } else throw exception
     }
 }

@@ -8,6 +8,8 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import io.logbee.keyscore.commons.cluster.{ActorJoin, ActorLeave, MemberJoin, MemberLeave}
 import io.logbee.keyscore.frontier.cluster.AgentManager.AddAgent
 
+import scala.concurrent.ExecutionContext
+
 object ClusterManager {
   def apply(agentManager: ActorRef): Props = {
     Props(new ClusterManager(agentManager))
@@ -15,9 +17,12 @@ object ClusterManager {
 }
 
 class ClusterManager(aM: ActorRef) extends Actor with ActorLogging {
+  private implicit val ec: ExecutionContext = context.dispatcher
+
   private val system = context.system
   private val cluster = Cluster(context.system)
   private val mediator = DistributedPubSub(system).mediator
+  private val scheduler = context.system.scheduler
 
   private val agentManager = aM
 
