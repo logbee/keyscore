@@ -7,7 +7,7 @@ import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
     selector: "app-parameter",
     template: `
         <div [formGroup]="form">
-            <label [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
+            <label class="mt-3 font-weight-bold" [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
             <div [ngSwitch]="parameterDescriptor.jsonClass">
                 <input class="form-control" *ngSwitchCase="'TextParameterDescriptor'"
                        [formControlName]="parameterDescriptor.name"
@@ -31,7 +31,7 @@ import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
 
                 </div>
 
-                <div class="text-danger" *ngIf="!isValid">{{parameterDescriptor.displayName}}
+                <div class="mt-2 mb-2 text-danger" *ngIf="!isValid">{{parameterDescriptor.displayName}}
                     {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}
                 </div>
             </div>

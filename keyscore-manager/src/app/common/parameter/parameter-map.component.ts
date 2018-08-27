@@ -5,32 +5,30 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
     selector: "parameter-map",
     template:
             `
-        <div class="form-row mt-2 pl-1">
+        <div class="form-row">
             <div class="form-group">
-                <input #addItemInputKey class="form-control" type="text" placeholder="Field Name">
+                <input #addItemInputKey class="form-control" type="text" placeholder="KEY">
             </div>
             <div class="form-group ml-1">
-                <input #addItemInputValue class="form-control" type="text" placeholder="Field Value">
+                <input #addItemInputValue class="form-control" type="text" placeholder="VALUE">
             </div>
             <div class="form-group ml-1">
-                <button class="btn btn-success"
-                        (click)="addItem(addItemInputKey.value,addItemInputValue.value)"><img
-                        src="/assets/images/ic_add_white_24px.svg" alt="Remove"/>
+                       <button class="btn btn-info ml-3" (click)="addItem(addItemInputKey.value,addItemInputValue.value)"><img
+                        width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Add"/>
                 </button>
             </div>
 
         </div>
 
-        <div class="card" (click)="onTouched()" *ngIf="objectKeys(parameterValues).length > 0">
-            <div class="list-group-flush col-12">
-                <li class="list-group-item d-flex justify-content-between"
-                    *ngFor="let key of objectKeys(parameterValues);index as i">
-                    <span class="align-self-center">{{key}} : {{parameterValues[key]}}</span>
-                    <button class="btn btn-danger d-inline-block " (click)="removeItem(key)"><img
-                            src="/assets/images/ic_delete_white_24px.svg" alt="Remove"/></button>
-                </li>
+        <div (click)="onTouched()" class="mb-3" *ngIf="objectKeys(parameterValues).length > 0">
+            <div style="display: inline-block; margin-left: 5px; margin-right: 5px;"
+                 *ngFor="let key of objectKeys(parameterValues);index as i">
+                <span class="badge badge-pill badge-info" style="font-size: large"><strong>{{key}} : {{parameterValues[key]}}</strong>
+                    <span (click)="removeItem(key)">
+                      <img class="pl-3"  alt="remove" src="/assets/images/ic_cancel_white_24px.svg"/>
+                    </span>
+                </span>
             </div>
-
         </div>
     `,
     providers: [
@@ -51,17 +49,16 @@ export class ParameterMap implements ControlValueAccessor {
 
     public onChange = (elements: Map<string, string>) => {
         return;
-    }
+    };
+
 
     public onTouched = () => {
         return;
-    }
+    };
 
     public writeValue(elements: Map<string, string>): void {
-
         this.parameterValues = Object.assign({}, elements);
         this.onChange(elements);
-
     }
 
     public registerOnChange(f: (elements: Map<string, string>) => void): void {

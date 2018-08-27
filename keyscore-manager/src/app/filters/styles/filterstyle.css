@@ -8,3 +8,14 @@
 #custom-card-white .header-background {
     background-color: #3a88b3;
 }
+
+.card-body-background {
+   background: #f3f2f2;
+}
+
+.custom-badge {
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
+    font-size: large;
+}
