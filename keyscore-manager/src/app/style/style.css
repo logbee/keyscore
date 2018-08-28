@@ -11,7 +11,6 @@
 
 .ios-toggle, .ios-toggle:active {
     position: absolute;
-    top: -5000px;
     height: 0;
     width: 0;
     opacity: 0;
@@ -72,7 +71,7 @@
 }
 
 .ios-toggle:checked + .checkbox-label {
-    box-shadow: inset 0 0 0 20px rgba(19, 191, 17, 1), 0 0 0 2px rgba(19, 191, 17, 1);
+    box-shadow: inset 0 0 0 20px #3a88b3, 0 0 0 2px #3a88b3;
     transition: 0.25s ease-in-out;
 
 }
@@ -93,19 +92,19 @@
 }
 
 .ios-toggle + .checkbox-label {
-    box-shadow: inset 0 0 0 0px rgba(19, 191, 17, 1), 0 0 0 2px #dddddd;
+    box-shadow: inset 0 0 0 0px #3a88b3, 0 0 0 2px #dddddd;
     transition: 0.25s ease-in-out;
 
 }
 
 .ios-toggle:checked + .checkbox-label {
-    box-shadow: inset 0 0 0 18px rgba(19, 191, 17, 1), 0 0 0 2px rgba(19, 191, 17, 1);
+    box-shadow: inset 0 0 0 18px #3a88b3, 0 0 0 2px #3a88b3;
     transition: 0.25s ease-in-out;
 
 }
 
 .ios-toggle:checked + .checkbox-label:after {
-    color: rgb(21, 187, 48);
+    color: #3a88b3;
     transition: 0.25s ease-in-out;
 
 }
@@ -288,18 +287,16 @@
 
 }
 
+.row{
+    margin-left:0;
+    margin-right:0;
+}
+
 /*-------side bar------------*/
 .wrapper {
     display: flex;
     align-items: stretch;
-}
-
-#content {
-    width: 100%;
-    padding: 20px;
-    min-height: 100vh;
-    transition: all 0.3s;
-}
+    position:relative;}
 
 #sidebar {
     min-width: 250px;

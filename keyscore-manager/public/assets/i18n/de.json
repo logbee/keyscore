@@ -9,6 +9,7 @@
     "OK": "Ok",
     "DASHBOARD": "Dashboard",
     "APPLY": "Anwenden",
+    "APPLY_TITLE": "Wendet die ausgewählte Konfiguration auf die geladenen Nachrichten an",
     "NEW": "Neu",
     "ADD": "Hinzufügen",
     "CLOSE": "Schließen",
@@ -113,5 +114,9 @@
     "0": "Die angegebene Url ist nicht valide.",
     "503": "Keyscore konnte die Anfrage leider  nicht erfüllen.",
     "999": "Dieses Feature ist nocht nicht verfügbar"
+  },
+  "ALERT": {
+    "DUPLICATE": "Duplikat!",
+    "DUPLICATETEXT":"Der Wert existiert bereits."
   }
 }

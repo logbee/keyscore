@@ -29,8 +29,12 @@ export class WorkspaceDropzoneLogic extends DropzoneLogic {
         return draggableModel;
     }
 
+    isPreviousConnection():boolean{
+        return false;
+    }
 
-    private isMirrorInRange(mirror: Draggable): boolean {
+
+    isMirrorInRange(mirror: Draggable): boolean {
 
         const dropzoneBoundingBox: Rectangle = this.component.getRectangleWithRadius();
 

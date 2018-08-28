@@ -26,7 +26,7 @@ import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
 import {LiveEditingModule} from "./filters/filter.module";
 import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
-import {ParameterList} from "./pipelines/pipeline-editor/filter-editor/parameter-list.component";
+import {ParameterList} from "./common/parameter/parameter-list.component";
 import {DropzoneComponent} from "./pipelines/pipeline-editor/pipely/dropzone.component";
 import {DraggableComponent} from "./pipelines/pipeline-editor/pipely/draggable.component";
 import {WorkspaceComponent} from "./pipelines/pipeline-editor/pipely/workspace.component";

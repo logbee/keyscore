@@ -10,15 +10,13 @@ import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState
 import {
     selectExtractedDatasets,
     selectLiveEditingFilter,
-    selectLiveEditingFilterState, selectResultDatasets
+    selectLiveEditingFilterState,
+    selectResultDatasets
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
-import {
-    LockCurrentExampleDatasetAction,
-    RestoreFilterConfiguration, UpdateDatasetCounter,
-    UpdateFilterConfiguration
-} from "../filters.actions";
+import {UpdateDatasetCounter, UpdateFilterConfiguration} from "../filters.actions";
 import {Location} from "@angular/common";
+
 @Component({
     selector: "live-editing",
     template: `
@@ -28,8 +26,7 @@ import {Location} from "@angular/common";
                 (onManualRelad)="reload()">    
         </header-bar>
         <div *ngIf="!(loading$ | async); else loading">
-            <div class="col-12" *ngIf="!errorHandling">
-                <div class="card-body badge-light">
+            <div class="col-12 mt-3" *ngIf="!errorHandling">
                     <filter-description [currentFilter]="filter$ | async"
                                         [currentFilterState]="filterState$ | async">
                     </filter-description>
@@ -41,14 +38,11 @@ import {Location} from "@angular/common";
                                           (apply)="reconfigureFilter($event)"></filter-configuration>
                     <filter-result [resultDatasets$] ="resultDatasets$"
                                    (currentDatasetCounter)="updateCounterInStore($event)"></filter-result>
-                </div>
             </div>
         </div>
-        <div class="col-12">
             <error-component *ngIf="errorHandling" [httpError]="httpError"
                              [message]="message">
             </error-component>
-        </div>
         <ng-template #loading>
             <loading-full-view></loading-full-view>
         </ng-template>

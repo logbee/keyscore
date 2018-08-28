@@ -63,7 +63,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     private lastDragX: number;
     private lastDragY: number;
     private visible: boolean = true;
-
+    private deleting: boolean = false;
     private preDragPosition: { x: number, y: number } = {x: 0, y: 0};
 
     private nextConnectionDropzone: Dropzone;
@@ -90,6 +90,9 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
         if (this.draggableModel.next) {
             this.createAndRegisterNext();
+        }
+        if(this.draggableModel.draggableType === "delete") {
+            this.triggerDelete();
         }
     }
 
@@ -260,9 +263,39 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         this.draggableModel.next = next;
     }
 
+    triggerDelete(){
+        this.deleting = true;
+        this.draggableElement.nativeElement.classList.add("delete");
+        console.log(this.draggableElement.nativeElement.classList);
+        this.draggableElement.nativeElement.addEventListener(this.whichTransitionEvent(),(e) => {
+            this.destroy();
+        },false);
+    }
+
+    isDeleting():boolean{
+        return this.deleting;
+    }
+
     private setPosition(pos: { x: number, y: number }) {
 
         this.draggableElement.nativeElement.style.left = pos.x + "px";
         this.draggableElement.nativeElement.style.top = pos.y + "px";
+    }
+
+    private whichTransitionEvent(){
+        let t;
+        const el = document.createElement('fakeelement');
+        const transitions = {
+            'transition': 'transitionend',
+            'OTransition': 'oTransitionEnd',
+            'MozTransition': 'transitionend',
+            'WebkitTransition': 'webkitTransitionEnd'
+        };
+
+        for(t in transitions){
+            if( el.style[t] !== undefined ){
+                return transitions[t];
+            }
+        }
     }
 }

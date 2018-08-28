@@ -172,7 +172,7 @@ export class FilterEffects {
         withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/extract?value=10&where=before").pipe(
+                "/filter/" + action.filterId + "/extract?value=10").pipe(
                 map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
@@ -186,7 +186,7 @@ export class FilterEffects {
         withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/extract?value=" + action.amount + "&where=after").pipe(
+                "/filter/" + action.filterId + "/extract?value=" + action.amount).pipe(
                 map((datasets: Dataset[]) => new ExtractDatasetsResultSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );

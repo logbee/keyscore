@@ -36,3 +36,8 @@ case class RemoveAgentFromCluster(agentID: UUID)
 case class AgentRemovedFromCluster(agentID: UUID)
 
 case object RemoveAgentFromClusterFailed
+
+case class MemberJoin(obj: String, member: Member)
+case class MemberLeave(obj: String, member: Member)
+case class ActorJoin(obj: String, actorRef: ActorRef)
+case class ActorLeave(obj: String, actorRef: ActorRef)

@@ -1,32 +1,35 @@
 import {Component, forwardRef, Input} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
+import {Observable} from "rxjs/index";
+import {delay} from "rxjs/internal/operators";
+import {__await} from "tslib";
 
 @Component({
     selector: "parameter-list",
     template:
             `
-        <div class="form-row mt-2 pl-1">
+        <div class="form-row">
             <div class="form-group">
-                <input #addItemInput class="form-control" type="text">
+                <input #addItemInput class="form-control" type="text" placeholder="NAME OF FIELD">
             </div>
             <div class="form-group ml-1">
-                <button class="btn btn-info" (click)="addItem(addItemInput.value)"><img
-                       width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Remove"/>
+                <button class="btn btn-info ml-3" (click)="addItem(addItemInput.value)"><img
+                       width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Add"/>
                 </button>
             </div>
-
         </div>
-
-
         <div (click)="onTouched()" class="mb-3" *ngIf="parameterValues.length > 0">
-            <div style="display: inline-block; margin-left: 5px; margin-right: 5px;"
+            <div class="custom-badge"
                  *ngFor="let value of parameterValues;index as i">
-                <span class="m-2 badge badge-pill badge-info" style="font-size: large"><strong>{{value}}</strong>
+                <span class="m-2 badge badge-pill badge-info" ><strong>{{value}}</strong>
                     <span (click)="removeItem(i)">
-                      <img class="pl-2" src="/assets/images/ic_cancel_white_24px.svg"/>
+                      <img class="pl-2"  alt="remove" src="/assets/images/ic_cancel_white_24px.svg"/>
                     </span>
                 </span>
             </div>
+        </div>
+        <div *ngIf="this.duplicate" class="alert alert-warning" role="alert">
+            <strong>{{'ALERT.DUPLICATE' | translate}}</strong> {{'ALERT.DUPLICATETEXT' | translate}}
         </div>
     `,
     providers: [
@@ -42,8 +45,8 @@ export class ParameterList implements ControlValueAccessor {
 
     @Input() public disabled = false;
     @Input() public distinctValues = true;
-
     public parameterValues: string[];
+    private duplicate: boolean = false;
 
     public onChange = (elements: string[]) => {
         return;
@@ -88,7 +91,16 @@ export class ParameterList implements ControlValueAccessor {
             const newValues = Object.assign([], this.parameterValues);
             newValues.push(value);
             this.writeValue(newValues);
+        } else {
+            this.duplicate = true;
+            this.delay(2000).then( _ => {
+                this.duplicate = false;
+            })
         }
 
+    }
+
+    private delay (ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms))
     }
 }

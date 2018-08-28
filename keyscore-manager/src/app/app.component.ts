@@ -23,12 +23,13 @@ export interface AppState {
 @Component({
     selector: "my-app",
     template: `
-        <div class="wrapper">
-            <sidemenu [showSettings]="settingsFeatureEnabled" (toggleSidebar)="toggleMenu()" (updateLanguage)="setLanguage($event)"></sidemenu>
+        <div class="wrapper container-fluid p-0">
+            <sidemenu [showSettings]="settingsFeatureEnabled" (toggleSidebar)="toggleMenu()"
+                      (updateLanguage)="setLanguage($event)"></sidemenu>
             <div id="modal">
                 <ng-template #modal></ng-template>
             </div>
-            <div class="container-fluid p-0" style="padding-left: 0">
+            <div class="container-fluid pl-0 pr-0">
                 <div class="row no-gutters">
                     <div class="col-12">
                         <router-outlet></router-outlet>

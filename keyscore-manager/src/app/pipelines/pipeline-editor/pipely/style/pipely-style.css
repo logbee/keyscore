@@ -15,8 +15,10 @@
 
 }
 
-.dropzone-workspace {
+.workspace{
+}
 
+.dropzone-workspace {
 position:relative;
     height:100%;
 }
@@ -26,7 +28,7 @@ position:relative;
     border-radius: 2px;
     height: 600px;
     overflow-x: scroll;
-    overflow-y: scroll;
+    overflow-y: hidden;
 }
 
 .dropzone-toolbar {
@@ -44,10 +46,17 @@ position:relative;
     min-height:100%;
 }
 
+.dropzone-connector{
+    position:relative;
+}
+
+.cursor-delete{
+    cursor: not-allowed;
+}
+
 .dropzone-connector.is-droppable{
     min-width:100%;
     min-height: 100%;
-
     border: dashed 1px lime;
 
 }
@@ -75,4 +84,135 @@ position:relative;
 
 .workspace {
     height: 650px;
+}
+
+/*Trash*/
+
+.dropzone-trash {
+    background:#365880;
+    width: 55px;
+    height: 70px;
+    display: inline-block;
+    margin:0 auto;
+
+    position: absolute;
+    right:35px;
+    top:calc(100% - 110px);
+    -webkit-border-bottom-right-radius: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -moz-border-radius-bottomleft: 6px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.dropzone-trash span {
+    position: absolute;
+    height: 12px;
+    background: #365880;
+    top: -15px;
+    left: -4px;
+    right: -4px;
+
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    transform: rotate(0deg);
+    transition: transform 250ms;
+    transform-origin: right bottom;
+}
+.dropzone-trash span:after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 7px;
+    background: #365880;
+    top: -10px;
+
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    transform: rotate(0deg);
+    transition: transform 250ms;
+    transform-origin: 19% 100%;
+    left: 22px;
+}
+
+
+.dropzone-trash i {
+    position:relative;
+    width: 5px;
+    height:50px;
+    background:#fff;
+    display:block;
+    margin:14px auto;
+    border-radius: 5px;
+}
+.dropzone-trash i:after {
+    content: '';
+    width: 5px;
+    height: 50px;
+    background: #fff;
+    position: absolute;
+    left: -18px;
+    border-radius: 5px;
+}
+.dropzone-trash i:before {
+    content: '';
+    width: 5px;
+    height: 50px;
+    background: #fff;
+    position: absolute;
+    right: -18px;
+    border-radius: 5px;
+}
+
+.dropzone-trash.is-droppable span {
+    transform-origin:right bottom;
+    transform: rotate(45deg);
+    transition: transform 250ms;
+}
+
+/*delete animation*/
+.delete {
+    z-index: 9999;
+
+    -webkit-animation-name: deleting;
+    animation-name: deleting;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+@-webkit-keyframes deleting {
+    0% {
+        opacity: 1;
+        -webkit-transform-origin: 50% 100%;
+        transform-origin: 50% 100%;
+        -webkit-transform: scale(1) translate(0%, 0%);
+        transform: scale(1) translate(0%, 0%);
+    }
+
+    100% {
+        opacity: 0;
+        -webkit-transform-origin: 50% 100%;
+        transform-origin: 50% 100%;
+        -webkit-transform: scale(.2) translate(0%, 200%);
+        transform: scale(.2) translate(0%, 200%);
+    }
+}
+@keyframes deleting {
+    0% {
+        opacity: 1;
+        -webkit-transform-origin: 50% 100%;
+        transform-origin: 50% 100%;
+        -webkit-transform: scale(1) translate(0%, 0%);
+        transform: scale(1) translate(0%, 0%);
+    }
+
+    100% {
+        opacity: 0;
+        -webkit-transform-origin: 50% 100%;
+        transform-origin: 50% 100%;
+        -webkit-transform: scale(.2) translate(0%, 200%);
+        transform: scale(.2) translate(0%, 200%);
+    }
 }

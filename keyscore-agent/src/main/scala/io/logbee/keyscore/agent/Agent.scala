@@ -43,23 +43,29 @@ class Agent extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val pipelineManager = context.actorOf(PipelineScheduler(filterManager), "PipelineScheduler")
+  private val pipelineScheduler = context.actorOf(PipelineScheduler(filterManager), "PipelineScheduler")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()
   private var joined: Boolean = false
 
   override def preStart(): Unit = {
+    log.info(s"Agent ${name} started.")
     Cluster(context.system) registerOnMemberUp {
       scheduler.scheduleOnce(5 second) {
         self ! SendJoin
       }
     }
     mediator ! Subscribe("agents", self)
+    mediator ! Subscribe("cluster", self)
+    mediator ! Publish("cluster", ActorJoin("Agent", self))
   }
 
   override def postStop(): Unit = {
+    mediator ! Publish("cluster", ActorLeave("Agent", self))
     mediator ! Unsubscribe("agents", self)
+    mediator ! Unsubscribe("cluster", self)
+    log.info(s"Agent ${name} stopped.")
   }
 
   override def receive: Receive = {
@@ -92,6 +98,7 @@ class Agent extends Actor with ActorLogging {
       joined = true
       (filterManager ? RequestDescriptors).mapTo[DescriptorsResponse].onComplete {
         case Success(message) =>
+          log.info("Published capabilities to the topic agents.")
           mediator ! Publish("agents", AgentCapabilities(message.descriptors))
         case Failure(e) =>
           log.error(e, "Failed to publish capabilities!")
@@ -104,7 +111,9 @@ class Agent extends Actor with ActorLogging {
       context.stop(self)
 
     case AgentManagerDied =>
+      log.info("Actual AgentManager dieded. Setting joined-status to false and trying to join again.")
       joined = false
       self ! SendJoin
+
   }
 }

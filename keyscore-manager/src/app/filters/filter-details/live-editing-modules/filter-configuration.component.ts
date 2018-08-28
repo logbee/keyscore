@@ -2,41 +2,46 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
 import {Store} from "@ngrx/store";
-import {ParameterControlService} from "../../../services/parameter-control.service";
+import {ParameterControlService} from "../../../common/parameter/services/parameter-control.service";
 import {ParameterDescriptor} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
 import {Observable} from "rxjs/index";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 
+import "../../styles/filterstyle.css";
+
 @Component({
     selector: "filter-configuration",
-    styleUrls: ['/filterstyle.css'],
     template: `
-        <div class="card mt-3">
-            <div class="card-header alert-light font-weight-bold" style="color: black;">
+        <div class="card mt-3 card-body-background">
+            <div id="custom-card-black" class="card-header alert-light font-weight-bold">
                 {{'FILTERLIVEEDITINGCOMPONENT.REGEXPATTERN' | translate}}
             </div>
-            <div class="card-body">
-                <div *ngIf="!noDataAvailable; else noparam">
-                    <form *ngIf="!noParamsAvailable; else noparam" class="form-horizontal col-12 mt-3"
-                          [formGroup]="form">
-                        <div *ngFor="let parameter of parameters" class="form-row">
-                            <app-parameter class="col-12" [parameterDescriptor]="parameter"
-                                           [form]="form"></app-parameter>
-                        </div>
+            <div *ngIf="!noDataAvailable; else noparam">
+                <form *ngIf="!noParamsAvailable; else noparam" class="form-horizontal col-12 ml-1"
+                      [formGroup]="form">
+                    <div *ngFor="let parameter of parameters" class="form-row">
+                        <app-parameter class="col-12" [parameterDescriptor]="parameter"
+                                       [form]="form"></app-parameter>
+                    </div>
 
-                        <div class="form-row" *ngIf="payLoad">
-                            {{'PIPELINECOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
-                        </div>
-                    </form>
+                    <div class="form-row" *ngIf="payLoad">
+                        {{'PIPELINECOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
+                    </div>
+                </form>
+                <div class="row mb-3">
+                    <div class="col-sm-2">
+                        <button *ngIf="!noParamsAvailable" title=" {{'GENERAL.APPLY_TITLE' | translate}}" class="float-left btn btn-success"
+                                (click)="applyFilter(filter,form.value)">{{'GENERAL.APPLY' | translate}}
+                            <img  width="20em" src="/assets/images/ic-remove-white.svg" alt=" {{'GENERAL.APPLY' | translate}}"/>
+                        </button>
+                    </div>
+                    <div class="col-sm-10"></div>
                 </div>
-                <button  id="buttonStyle" *ngIf="!noParamsAvailable" class="float-right btn btn-success mt-3"
-                        (click)="applyFilter(filter,form.value)">
-                    <img  width="20em" src="/assets/images/ic-remove-white.svg" alt=" {{'GENERAL.APPLY' | translate}}"/>
-                </button>
             </div>
         </div>
+        
         <ng-template #noparam>
-            <div class="col-sm-12" align="center">
+            <div class="col-sm-12 mt-3" align="center">
                 <h4>{{'FILTERLIVEEDITINGCOMPONENT.NODATACONFIG' | translate}}</h4>
             </div>
         </ng-template>

@@ -9,6 +9,7 @@
     "OK": "Ok",
     "DASHBOARD": "Dashboard",
     "APPLY": "Apply",
+    "APPLY_TITLE": "Applies the selected Configuration to the loaded messages",
     "NEW": "New",
     "ADD": "Add",
     "CLOSE": "Close",
@@ -112,5 +113,9 @@
     "503": "Keyscore was not able too process your request.",
     "0": "The url you requested was not valid.",
     "999": "This feature is not yet available"
+  },
+  "ALERT": {
+    "DUPLICATE": "Duplicate!",
+    "DUPLICATETEXT":"The value you tried to add already exists."
   }
 }

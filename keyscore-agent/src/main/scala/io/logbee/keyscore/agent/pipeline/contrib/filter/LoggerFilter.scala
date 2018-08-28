@@ -10,17 +10,17 @@ import io.logbee.keyscore.model.{Dataset, Described}
 
 object LoggerFilter extends Described {
 
-
   val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter"
   val filterId: UUID = UUID.fromString("9a6f5fd0-a21b-4056-7a2a-344e3b4e2488")
 
   override def describe: MetaFilterDescriptor = {
-    MetaFilterDescriptor(filterId, filterName, Map(Locale.ENGLISH -> FilterDescriptorFragment(
-      displayName = "Logger Filter",
-      description = "Logs every dataset which passes through.",
-      previousConnection = FilterConnection(isPermitted = true),
-      nextConnection = FilterConnection(isPermitted = true),
-      category = "Debug"
+    MetaFilterDescriptor(filterId, filterName, Map(
+      Locale.ENGLISH -> FilterDescriptorFragment(
+        displayName = "Logger Filter",
+        description = "Logs every dataset which passes through.",
+        previousConnection = FilterConnection(isPermitted = true),
+        nextConnection = FilterConnection(isPermitted = true),
+        category = "Debug"
     )))
   }
 }

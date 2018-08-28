@@ -19,7 +19,7 @@ import {getPipelineList, PipelinesState} from "./pipelines.reducer";
                 [title]="title"
                 (onManualRelad)="reload()"> 
         </header-bar>
-        <div class=" ml-2 mt-2">
+        <div class=" p-3">
             <div class="card">
                 <div class="card-header">
 
