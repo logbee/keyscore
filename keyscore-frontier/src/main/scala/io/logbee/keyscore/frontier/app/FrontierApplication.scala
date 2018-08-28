@@ -7,7 +7,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.headers.{HttpOrigin, HttpOriginRange}
+import akka.http.scaladsl.model.headers.HttpOriginRange
 import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
@@ -24,10 +24,10 @@ import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfi
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.model.WhichValve.whichValve
-import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s._
-import io.logbee.keyscore.model.{AgentModel, Dataset, PipelineConfiguration}
+import io.logbee.keyscore.model.{AgentModel, PipelineConfiguration}
 import org.json4s.native.Serialization
 
 import scala.concurrent.Await
@@ -177,7 +177,7 @@ object FrontierApplication extends App with Json4sSupport {
         } ~
         path("config") {
           put {
-            entity(as[FilterConfiguration]) { filterConfig =>
+            entity(as[Configuration]) { filterConfig =>
               onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
                 case ConfigureFilterResponse(state) => complete(StatusCodes.Accepted, state)
                 case _ => complete(StatusCodes.InternalServerError)

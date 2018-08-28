@@ -2,14 +2,14 @@ package io.logbee.keyscore.frontier.cluster
 
 import java.util.UUID
 
-import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, ActorSystem, Props}
+import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{DeleteAllPipelines, RequestExistingConfigurations, RequestExistingPipelines}
 import io.logbee.keyscore.model.PipelineConfiguration
-import io.logbee.keyscore.model.filter.MetaFilterDescriptor
+import io.logbee.keyscore.model.descriptor.Descriptor
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -42,7 +42,7 @@ object PipelineManager {
 class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
-  var availableAgents: mutable.Map[ActorRef, List[MetaFilterDescriptor]] = mutable.Map.empty[ActorRef, List[MetaFilterDescriptor]]
+  var availableAgents: mutable.Map[ActorRef, List[Descriptor]] = mutable.Map.empty[ActorRef, List[Descriptor]]
 
   mediator ! Subscribe("agents", self)
 
@@ -118,7 +118,7 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       })
   }
 
-  def checkIfCapabilitiesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[MetaFilterDescriptor])): Boolean = {
+  def checkIfCapabilitiesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[Descriptor])): Boolean = {
     var requiredFilters: ListBuffer[String] = ListBuffer.empty
 
     requiredFilters += pipelineConfiguration.sink.descriptor.name

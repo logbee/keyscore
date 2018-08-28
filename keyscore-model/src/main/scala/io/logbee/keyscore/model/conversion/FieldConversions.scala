@@ -1,7 +1,7 @@
 package io.logbee.keyscore.model.conversion
 
 import com.google.protobuf.Timestamp
-import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.data._
 
 case class BaseField(private val field: Field) {
   def isTextField: Boolean = field.value.isInstanceOf[TextValue]

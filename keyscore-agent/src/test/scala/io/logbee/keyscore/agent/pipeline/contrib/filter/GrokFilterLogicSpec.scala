@@ -8,8 +8,7 @@ import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.data.DecimalField
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures

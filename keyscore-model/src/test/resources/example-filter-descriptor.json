@@ -1,8 +1,8 @@
 {
-  "jsonClass": "io.logbee.keyscore.model.Descriptor",
+  "jsonClass": "io.logbee.keyscore.model.descriptor.Descriptor",
   "id": "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
   "describe": {
-    "jsonClass": "io.logbee.keyscore.model.FilterDescriptor",
+    "jsonClass": "io.logbee.keyscore.model.descriptor.FilterDescriptor",
     "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
     "displayName": {
       "id": "displayName"
@@ -10,12 +10,14 @@
     "description": {
       "id": "description"
     },
-    "category": {
-      "id": "filterCategory"
-    },
+    "categories": [
+      {
+        "id": "filterCategory"
+      }
+    ],
     "parameters": [
       {
-        "jsonClass": "io.logbee.keyscore.model.TextParameterDescriptor",
+        "jsonClass": "io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
         "ref": {
           "id": "example.filter.simpleText"
         },
@@ -35,7 +37,7 @@
         "mandatory": false
       },
       {
-        "jsonClass": "io.logbee.keyscore.model.BooleanParameterDescriptor",
+        "jsonClass": "io.logbee.keyscore.model.descriptor.BooleanParameterDescriptor",
         "ref": {
           "id": "example.filter.theTruth"
         },
@@ -51,7 +53,7 @@
         "mandatory": false
       },
       {
-        "jsonClass": "io.logbee.keyscore.model.ChoiceParameterDescriptor",
+        "jsonClass": "io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor",
         "ref": {
           "id": "example.filter.myChoice"
         },
@@ -70,7 +72,7 @@
         ]
       },
       {
-        "jsonClass": "io.logbee.keyscore.model.FieldParameterDescriptor",
+        "jsonClass": "io.logbee.keyscore.model.descriptor.FieldParameterDescriptor",
         "ref": {
           "id": "example.filter.aConstField"
         },
@@ -80,12 +82,12 @@
         "mandatory": true
       },
       {
-        "jsonClass": "io.logbee.keyscore.model.ConditionalParameterDescriptor",
+        "jsonClass": "io.logbee.keyscore.model.descriptor.ParameterGroupDescriptor",
         "ref": {
           "id": ""
         },
         "condition": {
-          "jsonClass": "io.logbee.keyscore.model.BooleanParameterCondition",
+          "jsonClass": "io.logbee.keyscore.model.descriptor.BooleanParameterCondition",
           "parameter": {
             "id": "example.filter.theTruth"
           },
@@ -93,7 +95,7 @@
         },
         "parameters": [
           {
-            "jsonClass": "io.logbee.keyscore.model.PatternParameterDescriptor",
+            "jsonClass": "io.logbee.keyscore.model.descriptor.PatternParameterDescriptor",
             "ref": {
               "id": "example.filter.aGrokPattern"
             },
@@ -102,7 +104,7 @@
             "mandatory": false
           },
           {
-            "jsonClass": "io.logbee.keyscore.model.ListParameterDescriptor",
+            "jsonClass": "io.logbee.keyscore.model.descriptor.FieldNameListParameterDescriptor",
             "ref": {
               "id": "ff543cab-15bf-114a-47a1-ce1f065e5513"
             },
@@ -114,8 +116,8 @@
                 "id": "listParameterDescription"
               }
             },
-            "kind": {
-              "jsonClass": "io.logbee.keyscore.model.FieldNameParameterDescriptor",
+            "descriptor": {
+              "jsonClass": "io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor",
               "ref": {
                 "id": ""
               },

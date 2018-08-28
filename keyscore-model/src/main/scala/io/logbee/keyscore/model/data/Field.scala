@@ -1,4 +1,4 @@
-package io.logbee.keyscore.model
+package io.logbee.keyscore.model.data
 
 import com.google.protobuf.Timestamp
 import io.logbee.keyscore.model.conversion._

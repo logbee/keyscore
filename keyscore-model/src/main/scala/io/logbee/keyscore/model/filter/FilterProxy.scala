@@ -2,6 +2,7 @@ package io.logbee.keyscore.model.filter
 import java.util.UUID
 
 import io.logbee.keyscore.model.Health
+import io.logbee.keyscore.model.configuration.Configuration
 
 import scala.concurrent.Future
 
@@ -9,6 +10,6 @@ case class FilterState(id:UUID, health: Health, throughPutTime: Long = 0, totalT
 
 trait FilterProxy {
   val id: UUID
-  def configure(configuration: FilterConfiguration): Future[FilterState]
+  def configure(configuration: Configuration): Future[FilterState]
   def state(): Future[FilterState]
 }

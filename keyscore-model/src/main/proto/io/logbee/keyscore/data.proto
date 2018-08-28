@@ -4,18 +4,18 @@ import "google/protobuf/timestamp.proto";
 import "scalapb/scalapb.proto";
 
 option (scalapb.options) = {
-    package_name: "io.logbee.keyscore.model"
+    package_name: "io.logbee.keyscore.model.data"
     flat_package: true
 };
 
 message Dataset {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.DatasetCompanion";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.data.DatasetCompanion";
     MetaData metadata = 1 [(scalapb.field).no_box = true];
     repeated Record records = 2 [(scalapb.field).collection_type="collection.immutable.List"];
 }
 
 message MetaData {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.MetaDataCompanion";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.data.MetaDataCompanion";
     repeated Label labels = 1 [(scalapb.field).collection_type="collection.immutable.Set"];
 }
 
@@ -25,7 +25,7 @@ message Label {
 }
 
 message Record {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.RecordCompanion";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.data.RecordCompanion";
     repeated Field fields = 2 [(scalapb.field).collection_type="collection.immutable.List"];
 }
 

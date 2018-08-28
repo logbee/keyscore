@@ -1,8 +1,9 @@
 package io.logbee.keyscore.model
 
-import io.logbee.keyscore.model.FieldNameHint.{AbsentField, AnyField, PresentField}
-import io.logbee.keyscore.model.PatternType.{Glob, Grok, RegEx}
-import io.logbee.keyscore.model.configuration.{Configuration, TextParameterConfiguration}
+import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, AnyField, PresentField}
+import io.logbee.keyscore.model.descriptor.PatternType.{Glob, Grok, RegEx}
+import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import org.json4s.JsonAST.{JNull, JString}
 import org.json4s.native.Serialization
@@ -21,7 +22,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
     classOf[Descriptor],
     classOf[FilterDescriptor],
     classOf[ParameterDescriptor],
-    classOf[ConditionalParameterCondition]
+    classOf[ParameterGroupCondition]
   ))) + TextRefKeySerializer + LocaleKeySerializer + PatternTypeSerializer + FieldNameHintSerializer + FieldValueTypeSerializer
 
   "A Dataset" - {
@@ -58,11 +59,11 @@ class DescriptorSpec extends FreeSpec with Matchers {
           name = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
           displayName = filterDisplayName,
           description = filterDescription,
-          category = category,
+          categories = Seq(category),
           parameters = Seq(textParameter, booleanParameter, choiceParameter, fieldParameter,
-            ConditionalParameterDescriptor(condition = BooleanParameterCondition(booleanParameterRef, negate = true), parameters = Seq(
+            ParameterGroupDescriptor(condition = BooleanParameterCondition(booleanParameterRef, negate = true), parameters = Seq(
               patternParameter,
-              ListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
+              FieldNameListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
                 ParameterInfo("listParameterDisplayName", "listParameterDescription"),
                 FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*", PatternType.RegEx)),
                 min = 1, max = Int.MaxValue)
@@ -91,9 +92,6 @@ class DescriptorSpec extends FreeSpec with Matchers {
             DE -> "Ein einfacher Textparameter als Beispiel."
           )
         ) ++ Localization.fromResourceBundle("ExampleFilter", java.util.Locale.ENGLISH, Locale("de")))
-
-      val config = Configuration()
-      val textConfig = TextParameterConfiguration()
 
       println(write(descriptor))
     }

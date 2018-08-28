@@ -5,12 +5,15 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{FlowShape, Inlet, Materializer, Outlet}
-import io.logbee.keyscore.model.{Dataset, Green}
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterProxy, FilterState}
+import io.logbee.keyscore.model.Green
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
+import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.filter.{FilterProxy, FilterState}
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
-abstract class FilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
+abstract class FilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
 
   val initPromise = Promise[FilterProxy]
 
@@ -22,7 +25,7 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
   protected val out: Outlet[Dataset] = shape.out
 
   private val filter = new FilterProxy {
-    private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[FilterState])] {
+    private val configureCallback = getAsyncCallback[(Configuration, Promise[FilterState])] {
       case (newConfiguration, promise) =>
         FilterLogic.this.configure(newConfiguration)
         try {
@@ -41,7 +44,7 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
 
     override val id: UUID = configuration.id
 
-    override def configure(configuration: FilterConfiguration): Future[FilterState] = {
+    override def configure(configuration: Configuration): Future[FilterState] = {
       val promise = Promise[FilterState]()
       log.info(s"Updating filter configuration: $configuration")
       configureCallback.invoke(configuration, promise)
@@ -63,9 +66,9 @@ abstract class FilterLogic(context: StageContext, configuration: FilterConfigura
     initPromise.success(filter)
   }
 
-  def initialize(configuration: FilterConfiguration): Unit = {}
+  def initialize(configuration: Configuration): Unit = {}
 
-  def configure(configuration: FilterConfiguration): Unit
+  def configure(configuration: Configuration): Unit
 
   def state(): FilterState = FilterState(configuration.id, Green)
 

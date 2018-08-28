@@ -1,7 +1,7 @@
 package io.logbee.keyscore.model.conversion
 
 import com.google.protobuf.{Duration, Timestamp}
-import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.data._
 
 trait ValueConversion extends TextValueConversion with NumberValueConversion with DecimalValueConversion with TimestampValueConversion
 

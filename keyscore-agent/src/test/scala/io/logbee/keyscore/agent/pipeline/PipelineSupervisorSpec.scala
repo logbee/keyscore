@@ -10,7 +10,7 @@ import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
 import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.commons.pipeline.RequestPipelineInstance
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
+import io.logbee.keyscore.model.data.TextField
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures

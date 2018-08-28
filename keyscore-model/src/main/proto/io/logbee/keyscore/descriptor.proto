@@ -2,23 +2,26 @@ syntax = "proto3";
 
 import "scalapb/scalapb.proto";
 import "localization.proto";
-import "model.proto";
+import "data.proto";
 
 option (scalapb.options) = {
-    package_name: "io.logbee.keyscore.model"
+    package_name: "io.logbee.keyscore.model.descriptor"
     flat_package: true
 };
 
 message Descriptor {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.DescriptorCompanion";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.DescriptorCompanion";
     string id = 1;
-    Describe describe = 2;
+    MetaData metadata = 2;
+    SealedDescriptor describe = 3;
     Localization localization = 15;
 }
 
-message Describe {
+message SealedDescriptor {
     oneof sealed_value {
         FilterDescriptor filter = 1;
+        SourceDescriptor source = 2;
+        SinkDescriptor sink = 3;
     }
 }
 
@@ -26,12 +29,28 @@ message FilterDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
-    TextRef category = 4;
+    repeated TextRef categories = 4;
+    repeated ParameterDescriptor parameters = 8;
+}
+
+message SourceDescriptor {
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+    repeated TextRef categories = 4;
+    repeated ParameterDescriptor parameters = 8;
+}
+
+message SinkDescriptor {
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+    repeated TextRef categories = 4;
     repeated ParameterDescriptor parameters = 8;
 }
 
 message ParameterRef {
-    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.ParameterRefCompanion";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.ParameterRefCompanion";
     string id = 1;
 }
 
@@ -49,9 +68,11 @@ message ParameterDescriptor {
         PatternParameterDescriptor patternParameter = 5;
         FieldNameParameterDescriptor fieldNameParameter = 6;
         FieldParameterDescriptor fieldParameter = 7;
-        ListParameterDescriptor listParameter = 8;
-        ChoiceParameterDescriptor choiceParameter = 9;
-        ConditionalParameterDescriptor conditionalParameter = 10;
+        ChoiceParameterDescriptor choiceParameter = 8;
+        ParameterGroupDescriptor conditionalParameter = 9;
+        TextListParameterDescriptor textListParameter = 10;
+        FieldNameListParameterDescriptor fieldNameListParameter = 11;
+        FieldListParameterDescriptor fieldListParameter = 12;
     }
 }
 
@@ -120,10 +141,26 @@ enum FieldNameHint {
     AbsentField = 2;
 }
 
-message ListParameterDescriptor {
+message TextListParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
-    ParameterDescriptor kind = 3;
+    TextParameterDescriptor descriptor = 3;
+    uint32 min = 4;
+    uint32 max = 5;
+}
+
+message FieldNameListParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    FieldNameParameterDescriptor descriptor = 3;
+    uint32 min = 4;
+    uint32 max = 5;
+}
+
+message FieldListParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    FieldParameterDescriptor descriptor = 3;
     uint32 min = 4;
     uint32 max = 5;
 }
@@ -142,14 +179,14 @@ message Choice {
     TextRef description = 3;
 }
 
-message ConditionalParameterDescriptor {
+message ParameterGroupDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
-    ConditionalParameterCondition condition = 3 [(scalapb.field).no_box = true];
+    ParameterGroupCondition condition = 3;
     repeated ParameterDescriptor parameters = 4;
 }
 
-message ConditionalParameterCondition {
+message ParameterGroupCondition {
     oneof sealed_value {
         BooleanParameterCondition booleanParameterCondition = 1;
     }

@@ -3,14 +3,14 @@ package io.logbee.keyscore.frontier.util
 import java.lang.reflect.InvocationTargetException
 
 import akka.actor.ActorSystem
-import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.model.configuration.Configuration
 
 import scala.reflect.runtime.{universe => ru}
 
 
 object Reflection {
 
-  def createFilterByClassname(objectName: String, config: FilterConfiguration,system:Option[ActorSystem]=None): Any = {
+  def createFilterByClassname(objectName: String, config: Configuration,system:Option[ActorSystem]=None): Any = {
     val createMethodName ="create"
 
     val m = ru.runtimeMirror(getClass.getClassLoader)

@@ -1,4 +1,4 @@
-package io.logbee.keyscore.model
+package io.logbee.keyscore.model.descriptor
 
 import scalapb.TypeMapper
 
