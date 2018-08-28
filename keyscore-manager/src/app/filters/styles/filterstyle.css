@@ -1,3 +1,5 @@
+@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+
 /*-------------Live-Editing------------------*/
 #custom-card-black {
     color: black;

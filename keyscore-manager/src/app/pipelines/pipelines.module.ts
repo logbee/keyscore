@@ -23,6 +23,10 @@ import {ErrorModule} from "../common/error/error.module";
 import {PipelyComponent} from "./pipeline-editor/pipely/pipely.component";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {ParameterModule} from "../common/parameter/parameter.module";
+import {MatButtonModule} from '@angular/material/button';
+import {MatGridListModule} from '@angular/material/grid-list';
+import {MatListModule} from '@angular/material/list';
+import {MatDividerModule} from '@angular/material/divider';
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -45,7 +49,11 @@ export const routes: Routes = [
         AlertModule,
         ErrorModule,
         PipelyModule,
-        ParameterModule
+        ParameterModule,
+        MatButtonModule,
+        MatGridListModule,
+        MatListModule,
+        MatDividerModule
     ],
     declarations: [
         PipelinesComponent,

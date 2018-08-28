@@ -19,12 +19,11 @@ import {StatuslightComponent} from "../common/health/statuslight.component";
 import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
 import {DatasetVisualizer} from "./filter-details/live-editing-modules/datasetVisualizer";
-import {ParameterControlService} from "../common/parameter/services/parameter-control.service";
-import {ParameterMap} from "../common/parameter/parameter-map.component";
-import {ParameterComponent} from "../common/parameter/parameter.component";
-import {ParameterList} from "../common/parameter/parameter-list.component";
 import {ParameterModule} from "../common/parameter/parameter.module";
-
+import {MatCardModule} from '@angular/material/card';
+import {MatGridListModule} from "@angular/material/grid-list";
+import {MatListModule} from "@angular/material/list";
+import {MatDividerModule} from "@angular/material/divider";
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
 ];
@@ -42,7 +41,11 @@ export const routes: Routes = [
         HealthModule,
         AlertModule,
         ErrorModule,
-        ParameterModule
+        ParameterModule,
+        MatCardModule,
+        MatGridListModule,
+        MatListModule,
+        MatDividerModule
     ],
     declarations: [
         FilterDescriptionComponent,

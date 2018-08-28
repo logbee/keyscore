@@ -10,15 +10,13 @@ import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState
 import {
     selectExtractedDatasets,
     selectLiveEditingFilter,
-    selectLiveEditingFilterState, selectResultDatasets
+    selectLiveEditingFilterState,
+    selectResultDatasets
 } from "../filter.reducer";
 import {Dataset} from "../../models/filter-model/dataset/Dataset";
-import {
-    LockCurrentExampleDatasetAction,
-    RestoreFilterConfiguration, UpdateDatasetCounter,
-    UpdateFilterConfiguration
-} from "../filters.actions";
+import {UpdateDatasetCounter, UpdateFilterConfiguration} from "../filters.actions";
 import {Location} from "@angular/common";
+
 @Component({
     selector: "live-editing",
     template: `
