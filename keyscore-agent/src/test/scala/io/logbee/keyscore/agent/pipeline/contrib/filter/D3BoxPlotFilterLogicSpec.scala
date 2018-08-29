@@ -85,72 +85,6 @@ class D3BoxPlotFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
         Field("count", NumberValue(25))
       )
     )
-    val d3 = Dataset(
-      Record(
-        Field("id", NumberValue(3)),
-        Field("count", NumberValue(12))
-      ),
-      Record(
-        Field("id", NumberValue(3)),
-        Field("count", NumberValue(14))
-      ),
-      Record(
-        Field("id", NumberValue(3)),
-        Field("count", NumberValue(17))
-      ),
-      Record(
-        Field("id", NumberValue(3)),
-        Field("count", NumberValue(13))
-      ),
-      Record(
-        Field("id", NumberValue(3)),
-        Field("count", NumberValue(19))
-      )
-    )
-    val d4 = Dataset(
-      Record(
-        Field("id", NumberValue(4)),
-        Field("count", NumberValue(27))
-      ),
-      Record(
-        Field("id", NumberValue(4)),
-        Field("count", NumberValue(31))
-      ),
-      Record(
-        Field("id", NumberValue(4)),
-        Field("count", NumberValue(22))
-      ),
-      Record(
-        Field("id", NumberValue(4)),
-        Field("count", NumberValue(29))
-      ),
-      Record(
-        Field("id", NumberValue(4)),
-        Field("count", NumberValue(32))
-      )
-    )
-    val d5 = Dataset(
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(24))
-      ),
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(11))
-      ),
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(24))
-      ),
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(25))
-      ),
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(27))
-      )
-    )
 
     val resultDataset = Dataset(
       Record(Field("d3_boxplot",TextValue(ExampleData.boxplot_html))
@@ -161,11 +95,9 @@ class D3BoxPlotFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
   "A D3 BoxPlot" should {
     "generate the correct html data" in new TestStream {
       whenReady(filterFuture) { f =>
-        sink.request(2)
+        sink.request(1)
         source.sendNext(d1)
-        source.sendNext(d2)
 
-        sink.requestNext()
         val resultRecords = sink.requestNext().records
         resultRecords should contain theSameElementsAs resultDataset.records
 
