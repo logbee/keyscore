@@ -10,6 +10,7 @@ trait QueryableConfiguration {
   private val parameterMapping = parameters.foldLeft(scala.collection.mutable.Map.empty[String, Any]) {
     case (result, parameter: BooleanParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: TextParameter) => result + (parameter.ref.id -> parameter.value)
+    case (result, parameter: ExpressionParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: NumberParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: DecimalParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: FieldNameParameter) => result + (parameter.ref.id -> parameter.value)
@@ -37,6 +38,11 @@ trait QueryableConfiguration {
   }
 
   def findValue(descriptor: TextParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
+    case Some(value) if value.isInstanceOf[String] => Option(value.asInstanceOf[String])
+    case _ => None
+  }
+
+  def findValue(descriptor: ExpressionParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
     case Some(value) if value.isInstanceOf[String] => Option(value.asInstanceOf[String])
     case _ => None
   }
@@ -78,6 +84,8 @@ trait QueryableConfiguration {
   def getValueOrDefault(descriptor: DecimalParameterDescriptor, default: Double): Double = findValue(descriptor).getOrElse(default)
 
   def getValueOrDefault(descriptor: TextParameterDescriptor, default: String): String = findValue(descriptor).getOrElse(default)
+
+  def getValueOrDefault(descriptor: ExpressionParameterDescriptor, default: String): String = findValue(descriptor).getOrElse(default)
 
   def getValueOrDefault(descriptor: FieldNameParameterDescriptor, default: String): String = findValue(descriptor).getOrElse(default)
 

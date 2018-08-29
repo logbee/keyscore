@@ -1,18 +1,21 @@
 package io.logbee.keyscore.model
 
 import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.descriptor.ExpressionType.{Glob, Grok, JSONPath, RegEx}
 import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, AnyField, PresentField}
-import io.logbee.keyscore.model.descriptor.PatternType.{Glob, Grok, RegEx}
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import org.json4s.JsonAST.{JNull, JString}
 import org.json4s.native.Serialization
 import org.json4s.{CustomKeySerializer, CustomSerializer, FullTypeHints}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 import scala.io.Source
 
 
+@RunWith(classOf[JUnitRunner])
 class DescriptorSpec extends FreeSpec with Matchers {
 
   import io.logbee.keyscore.model.ToOption._
@@ -38,12 +41,12 @@ class DescriptorSpec extends FreeSpec with Matchers {
       val textParameterDisplayName = TextRef("foo")
       val textParameterDescription = TextRef("bar")
 
-      val textParameter = TextParameterDescriptor("example.filter.simpleText", ParameterInfo(textParameterDisplayName, textParameterDescription), defaultValue = "Hello World", validator = StringValidator("Hello*", PatternType.Glob))
+      val textParameter = TextParameterDescriptor("example.filter.simpleText", ParameterInfo(textParameterDisplayName, textParameterDescription), defaultValue = "Hello World", validator = StringValidator("Hello*", ExpressionType.Glob))
 
       val booleanParameterRef = ParameterRef("example.filter.theTruth")
       val booleanParameter = BooleanParameterDescriptor(booleanParameterRef, ParameterInfo(TextRef("booleanParameterDisplayName"), TextRef("booleanParameterDescription")), defaultValue = true)
 
-      val patternParameter = PatternParameterDescriptor("example.filter.aGrokPattern", patternType = Grok)
+      val patternParameter = ExpressionParameterDescriptor("example.filter.aGrokPattern", expressionType = Grok)
 
       val choiceParameter = ChoiceParameterDescriptor("example.filter.myChoice", min = 1, max = 1, choices = Seq(
         Choice("red"),
@@ -54,7 +57,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
       val fieldParameter = FieldParameterDescriptor("example.filter.aConstField", defaultName = "message", hint = AbsentField, fieldValueType = FieldValueType.Text, mandatory = true)
 
       val descriptor = Descriptor(
-        id = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
+        uuid = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
         describe = FilterDescriptor(
           name = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
           displayName = filterDisplayName,
@@ -65,7 +68,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
               patternParameter,
               FieldNameListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
                 ParameterInfo("listParameterDisplayName", "listParameterDescription"),
-                FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*", PatternType.RegEx)),
+                FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*", ExpressionType.RegEx)),
                 min = 1, max = Int.MaxValue)
             ))
           )
@@ -131,15 +134,16 @@ class DescriptorSpec extends FreeSpec with Matchers {
       JString(ref.id)
   }))
 
-  case object PatternTypeSerializer extends CustomSerializer[PatternType](format => ( {
+  case object PatternTypeSerializer extends CustomSerializer[ExpressionType](format => ( {
     case JString(patternType) => patternType match {
       case "RegEx" => RegEx
       case "Grok" => Grok
       case "Glob" => Glob
+      case "JSONPath" => JSONPath
     }
     case JNull => RegEx
   }, {
-    case patternType: PatternType => JString(patternType.getClass.getSimpleName.replace("$", ""))
+    case expressionType: ExpressionType => JString(expressionType.getClass.getSimpleName.replace("$", ""))
   }))
 
   case object FieldNameHintSerializer extends CustomSerializer[FieldNameHint](format => ( {

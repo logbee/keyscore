@@ -11,7 +11,7 @@ option (scalapb.options) = {
 
 message Descriptor {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.DescriptorCompanion";
-    string id = 1;
+    string uuid = 1;
     MetaData metadata = 2;
     SealedDescriptor describe = 3;
     Localization localization = 15;
@@ -22,6 +22,8 @@ message SealedDescriptor {
         FilterDescriptor filter = 1;
         SourceDescriptor source = 2;
         SinkDescriptor sink = 3;
+        BranchDescriptor branch = 4;
+        MergeDescriptor merge = 5;
     }
 }
 
@@ -49,6 +51,14 @@ message SinkDescriptor {
     repeated ParameterDescriptor parameters = 8;
 }
 
+message BranchDescriptor {
+
+}
+
+message MergeDescriptor {
+
+}
+
 message ParameterRef {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.ParameterRefCompanion";
     string id = 1;
@@ -65,7 +75,7 @@ message ParameterDescriptor {
         NumberParameterDescriptor numberParameter = 2;
         DecimalParameterDescriptor decimalParameter = 3;
         TextParameterDescriptor textParameter = 4;
-        PatternParameterDescriptor patternParameter = 5;
+        ExpressionParameterDescriptor expressionParameter = 5;
         FieldNameParameterDescriptor fieldNameParameter = 6;
         FieldParameterDescriptor fieldParameter = 7;
         ChoiceParameterDescriptor choiceParameter = 8;
@@ -76,6 +86,13 @@ message ParameterDescriptor {
     }
 }
 
+message BooleanParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    bool defaultValue = 5;
+    bool mandatory = 4;
+}
+
 message TextParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -84,19 +101,12 @@ message TextParameterDescriptor {
     bool mandatory = 5;
 }
 
-message PatternParameterDescriptor {
+message ExpressionParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
-    PatternType patternType = 3;
+    ExpressionType expressionType = 3;
     string defaultValue = 4;
     bool mandatory = 5;
-}
-
-message BooleanParameterDescriptor {
-    ParameterRef ref = 1 [(scalapb.field).no_box = true];
-    ParameterInfo info = 2;
-    bool defaultValue = 5;
-    bool mandatory = 4;
 }
 
 message NumberParameterDescriptor {
@@ -198,15 +208,16 @@ message BooleanParameterCondition {
 }
 
 message StringValidator {
-    string pattern = 1;
-    PatternType patternType = 2;
+    string expression = 1;
+    ExpressionType expressionType = 2;
     TextRef description = 3;
 }
 
-enum PatternType {
+enum ExpressionType {
     RegEx = 0;
     Grok = 2;
     Glob = 3;
+    JSONPath = 4;
 }
 
 message NumberRange {

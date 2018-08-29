@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "descriptor.proto";
+import "configuration.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.model.blueprint"
+    flat_package: true
+};
+
+message PipelineBlueprint {
+    string uuid = 1;
+    Configuration configuration = 2;
+    map<string, SealedBlueprint> blueprints = 3;
+}
+
+message SealedBlueprint {
+    oneof sealed_value {
+        FilterBlueprint filter = 1;
+        SourceBlueprint source = 2;
+        SinkBlueprint sink = 3;
+        BranchBlueprint branch = 4;
+        MergeBlueprint merge = 5;
+    }
+}
+
+message FilterBlueprint {
+    string uuid = 1;
+    FilterDescriptor descriptor = 2;
+    Configuration configuration = 3;
+    string in = 8;
+    string out = 9;
+}
+
+message SourceBlueprint {
+    string uuid = 1;
+    SourceDescriptor descriptor = 2;
+    Configuration configuration = 3;
+    string out = 8;
+}
+
+message SinkBlueprint {
+    string uuid = 1;
+    SinkDescriptor descriptor = 2;
+    Configuration configuration = 3;
+    string in = 8;
+}
+
+message BranchBlueprint {
+    string uuid = 1;
+    BranchDescriptor descriptor = 2;
+    Configuration configuration = 3;
+    string in = 8;
+    string outA = 9;
+    string outB = 10;
+}
+
+message MergeBlueprint {
+    string uuid = 1;
+    MergeDescriptor descriptor = 2;
+    Configuration configuration = 3;
+    string out = 8;
+    string inA = 9;
+    string inB = 10;
+}

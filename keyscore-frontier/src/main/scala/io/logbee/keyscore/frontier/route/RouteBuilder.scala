@@ -26,9 +26,10 @@ import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfi
 import io.logbee.keyscore.frontier.cluster.{ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.route.RouteBuilder.BuildFullRoute
 import io.logbee.keyscore.model.WhichValve.whichValve
-import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s._
-import io.logbee.keyscore.model.{AgentModel, Dataset, PipelineConfiguration}
+import io.logbee.keyscore.model.{AgentModel, PipelineConfiguration}
 import org.json4s.native.Serialization
 
 import scala.concurrent.duration._
@@ -188,8 +189,8 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
         } ~
         path("config") {
           put {
-            entity(as[FilterConfiguration]) { filterConfig =>
-              onSuccess(pipelineManager ? ConfigureFilter(filterId, filterConfig)) {
+            entity(as[Configuration]) { configuration =>
+              onSuccess(pipelineManager ? ConfigureFilter(filterId, configuration)) {
                 case ConfigureFilterResponse(state) => complete(StatusCodes.Accepted, state)
                 case _ => complete(StatusCodes.InternalServerError)
               }

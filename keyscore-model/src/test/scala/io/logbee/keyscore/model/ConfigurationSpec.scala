@@ -4,14 +4,18 @@ import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class ConfigurationSpec extends FreeSpec with Matchers {
 
   "A Configuration" - {
 
     val booleanParameter = BooleanParameterDescriptor("booleanParameter")
     val textParameter = TextParameterDescriptor("textParameter")
+    val expressionParameter = ExpressionParameterDescriptor("expressionParameter")
     val numberParameter = NumberParameterDescriptor("numberParameter")
     val decimalParameter = DecimalParameterDescriptor("decimalParameter")
     val fieldNameParameter = FieldNameParameterDescriptor("fieldNameParameter")
@@ -24,6 +28,7 @@ class ConfigurationSpec extends FreeSpec with Matchers {
     val configuration = Configuration(parameters = List(
       BooleanParameter("booleanParameter", true),
       TextParameter("textParameter", "Hello World"),
+      ExpressionParameter("expressionParameter", ".*"),
       NumberParameter("numberParameter", 42),
       DecimalParameter("decimalParameter", 7.3),
       FieldNameParameter("fieldNameParameter", "specialField"),
@@ -41,6 +46,9 @@ class ConfigurationSpec extends FreeSpec with Matchers {
 
       configuration.findValue(textParameter) shouldBe Option("Hello World")
       configuration.getValueOrDefault(textParameter, "") shouldBe "Hello World"
+
+      configuration.findValue(expressionParameter) shouldBe Option(".*")
+      configuration.getValueOrDefault(expressionParameter, "") shouldBe ".*"
 
       configuration.findValue(numberParameter) shouldBe Option(42)
       configuration.getValueOrDefault(numberParameter, 0) shouldBe 42
