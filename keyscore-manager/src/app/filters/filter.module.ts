@@ -24,6 +24,9 @@ import {MatCardModule} from '@angular/material/card';
 import {MatGridListModule} from "@angular/material/grid-list";
 import {MatListModule} from "@angular/material/list";
 import {MatDividerModule} from "@angular/material/divider";
+import {FlexLayoutModule} from '@angular/flex-layout';
+import {MatTableModule} from '@angular/material/table';
+
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
 ];
@@ -45,7 +48,9 @@ export const routes: Routes = [
         MatCardModule,
         MatGridListModule,
         MatListModule,
-        MatDividerModule
+        MatDividerModule,
+        FlexLayoutModule,
+        MatTableModule
     ],
     declarations: [
         FilterDescriptionComponent,

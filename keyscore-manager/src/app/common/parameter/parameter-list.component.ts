@@ -8,28 +8,28 @@ import {__await} from "tslib";
     selector: "parameter-list",
     template:
             `
-        <div class="form-row">
-            <div class="form-group">
-                <input #addItemInput class="form-control" type="text" placeholder="NAME OF FIELD">
+        <div>
+            <div>
+                <input #addItemInput type="text" placeholder="NAME OF FIELD">
             </div>
-            <div class="form-group ml-1">
-                <button class="btn btn-info ml-3" (click)="addItem(addItemInput.value)"><img
+            <div>
+                <button (click)="addItem(addItemInput.value)"><img
                        width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Add"/>
                 </button>
             </div>
         </div>
-        <div (click)="onTouched()" class="mb-3" *ngIf="parameterValues.length > 0">
+        <div (click)="onTouched()" *ngIf="parameterValues.length > 0">
             <div class="custom-badge"
                  *ngFor="let value of parameterValues;index as i">
-                <span class="m-2 badge badge-pill badge-info" ><strong>{{value}}</strong>
+                <span class="m-2 badge badge-pill badge-info" >{{value}}
                     <span (click)="removeItem(i)">
-                      <img class="pl-2"  alt="remove" src="/assets/images/ic_cancel_white_24px.svg"/>
+                      <img alt="remove" src="/assets/images/ic_cancel_white_24px.svg"/>
                     </span>
                 </span>
             </div>
         </div>
-        <div *ngIf="this.duplicate" class="alert alert-warning" role="alert">
-            <strong>{{'ALERT.DUPLICATE' | translate}}</strong> {{'ALERT.DUPLICATETEXT' | translate}}
+        <div *ngIf="this.duplicate" role="alert">
+            {{'ALERT.DUPLICATE' | translate}} {{'ALERT.DUPLICATETEXT' | translate}}
         </div>
     `,
     providers: [

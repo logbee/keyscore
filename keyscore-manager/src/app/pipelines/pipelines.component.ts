@@ -25,9 +25,10 @@ import {getPipelineList, PipelinesState} from "./pipelines.reducer";
 
                     <div class="row">
                         <div class="col-1 mr-5">
-                            <button type="button" class="btn btn-success" (click)="createPipeline(true)">
-                                {{'PIPELINECOMPONENT.CREATE' | translate}}
-                            </button>
+                            <button mat-raised-button="" color="primary">sfsdafasdfklas+dfl</button>
+                            <!--<button type="button" class="btn btn-success" (click)="createPipeline(true)">-->
+                                <!--{{'PIPELINECOMPONENT.CREATE' | translate}}-->
+                            <!--</button>-->    
                         </div>
                         <div class="col-1">
                             <refresh-time [refreshTime]="refreshTime$|async"

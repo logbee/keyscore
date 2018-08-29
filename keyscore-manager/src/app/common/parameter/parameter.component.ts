@@ -6,14 +6,14 @@ import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
 @Component({
     selector: "app-parameter",
     template: `
-        <div [formGroup]="form">
-            <label class="mt-3 font-weight-bold" [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
+        <div fxFill="" [formGroup]="form">
+            <label class="mat-subheading-1 font-weight-bold" [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
             <div [ngSwitch]="parameterDescriptor.jsonClass">
-                <input class="form-control" *ngSwitchCase="'TextParameterDescriptor'"
+                <input *ngSwitchCase="'TextParameterDescriptor'"
                        [formControlName]="parameterDescriptor.name"
                        [id]="parameterDescriptor.name" [type]="'text'">
 
-                <input class="form-control" *ngSwitchCase="'IntParameterDescriptor'"
+                <input *ngSwitchCase="'IntParameterDescriptor'"
                        [formControlName]="parameterDescriptor.name"
                        [id]="parameterDescriptor.name" [type]="'number'">
                 <parameter-list *ngSwitchCase="'ListParameterDescriptor'" [formControlName]="parameterDescriptor.name"
@@ -28,10 +28,8 @@ import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
                            [formControlName]="parameterDescriptor.name">
                     <label for="checkbox{{parameterDescriptor.name}}" class="checkbox-label" data-off=""
                            data-on=""></label>
-
                 </div>
-
-                <div class="mt-2 mb-2 text-danger" *ngIf="!isValid">{{parameterDescriptor.displayName}}
+                <div *ngIf="!isValid">{{parameterDescriptor.displayName}}
                     {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}
                 </div>
             </div>

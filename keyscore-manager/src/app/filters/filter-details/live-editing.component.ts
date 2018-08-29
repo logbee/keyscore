@@ -23,26 +23,28 @@ import {Location} from "@angular/common";
         <header-bar
                 [showManualReload]="false"
                 [title]="filterName"
-                (onManualRelad)="reload()">    
+                (onManualRelad)="reload()">
         </header-bar>
-        <div *ngIf="!(loading$ | async); else loading">
-            <div class="col-12 mt-3" *ngIf="!errorHandling">
-                    <filter-description [currentFilter]="filter$ | async"
+        <div class="live-editing-wrapper">
+            <div fxLayout="" fxLayoutGap="15px" *ngIf="!(loading$ | async); else loading">
+                <div fxFlexFill="" fxLayoutGap="15px" fxLayout="column" fxLayout.xs="column" *ngIf="!errorHandling">
+                    <filter-description fxFlex="20%" [currentFilter]="filter$ | async"
                                         [currentFilterState]="filterState$ | async">
                     </filter-description>
-                    <example-message [extractedDatasets$]="extractedDatasets$"
+                    <example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"
                                      (currentDatasetCounter)="updateCounterInStore($event)">
                     </example-message>
-                    <filter-configuration [filter$]="filter$"
+                    <filter-configuration fxFlex="20%" [filter$]="filter$"
                                           [extractedDatasets$]="extractedDatasets$"
                                           (apply)="reconfigureFilter($event)"></filter-configuration>
-                    <filter-result [resultDatasets$] ="resultDatasets$"
+                    <filter-result fxFlex="35%" [resultDatasets$]="resultDatasets$"
                                    (currentDatasetCounter)="updateCounterInStore($event)"></filter-result>
+                </div>
             </div>
         </div>
-            <error-component *ngIf="errorHandling" [httpError]="httpError"
-                             [message]="message">
-            </error-component>
+        <error-component *ngIf="errorHandling" [httpError]="httpError"
+                         [message]="message">
+        </error-component>
         <ng-template #loading>
             <loading-full-view></loading-full-view>
         </ng-template>
@@ -70,7 +72,7 @@ export class LiveEditingComponent implements OnInit, OnDestroy {
 
         if (!this.liveEditingFlag) {
             this.triggerErrorComponent("999");
-        }  else {
+        } else {
             this.filterState$ = this.store.select(selectLiveEditingFilterState);
             this.filter$ = this.store.select(selectLiveEditingFilter);
             this.error$ = this.store.select(errorState);
@@ -91,7 +93,7 @@ export class LiveEditingComponent implements OnInit, OnDestroy {
         this.store.dispatch(new UpdateFilterConfiguration(update.filterConfiguration, update.values));
     }
 
-    private updateCounterInStore(count:number) {
+    private updateCounterInStore(count: number) {
         this.store.dispatch(new UpdateDatasetCounter(count));
     }
 
