@@ -1,14 +1,6 @@
 package io.logbee.keyscore.agent.pipeline
 
-import java.util.Locale
-import java.util.UUID.randomUUID
-
-import io.logbee.keyscore.agent.pipeline.contrib.filter.{AddFieldsFilterLogic, CSVParserFilterLogic}
-import io.logbee.keyscore.agent.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.model.filter._
-
-import scala.collection.mutable
 
 object ExampleData {
 
