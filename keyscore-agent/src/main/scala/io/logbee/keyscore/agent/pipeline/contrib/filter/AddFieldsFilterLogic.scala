@@ -31,14 +31,14 @@ object AddFieldsFilterLogic extends Described {
 
   override def describe: Descriptor = {
     Descriptor(filterId,
-      FilterDescriptor(
+      describes = FilterDescriptor(
         name = filterName,
         displayName = TextRef("displayName"),
         description = TextRef("description"),
-        category = TextRef("category"),
+        categories = Seq(TextRef("category")),
         parameters = Seq(fieldListParameter)
       ),
-      Localization.fromResourceBundle(bundleName, ENGLISH, GERMAN)
+      localization = Localization.fromResourceBundle(bundleName, ENGLISH, GERMAN)
     )
   }
 }

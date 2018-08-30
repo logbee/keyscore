@@ -81,10 +81,10 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
       log.info("Start sending messages to FilterManager ")
 
-      filterManager ! CreateSinkStage(stageContext, pipelineConfiguration.sink)
-      filterManager ! CreateSourceStage(stageContext, pipelineConfiguration.source)
+      filterManager ! CreateSinkStage(stageContext, null, pipelineConfiguration.sink)
+      filterManager ! CreateSourceStage(stageContext, null, pipelineConfiguration.source)
 
-      pipelineConfiguration.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, filter))
+      pipelineConfiguration.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, null, filter))
 
       scheduleStart(pipeline, pipelineStartTrials)
 

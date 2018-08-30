@@ -13,7 +13,7 @@ message Descriptor {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.DescriptorCompanion";
     string uuid = 1;
     MetaData metadata = 2;
-    SealedDescriptor describe = 3;
+    SealedDescriptor describes = 3;
     Localization localization = 15;
 }
 

@@ -5,13 +5,15 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
 import akka.stream.{Inlet, Materializer, SinkShape}
-import io.logbee.keyscore.model.{Dataset, Green}
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState}
+import io.logbee.keyscore.model.Green
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.filter.FilterState
 import io.logbee.keyscore.model.sink.SinkProxy
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
-abstract class SinkLogic(context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends GraphStageLogic(shape) with InHandler with StageLogging {
+abstract class SinkLogic(context: StageContext, configuration: Configuration, shape: SinkShape[Dataset]) extends GraphStageLogic(shape) with InHandler with StageLogging {
 
   val initPromise = Promise[SinkProxy]
 
@@ -23,7 +25,7 @@ abstract class SinkLogic(context: StageContext, configuration: FilterConfigurati
 
   private val sink = new SinkProxy {
 
-    private val configureCallback = getAsyncCallback[(FilterConfiguration, Promise[FilterState])] {
+    private val configureCallback = getAsyncCallback[(Configuration, Promise[FilterState])] {
       case (newConfiguration, promise) =>
         SinkLogic.this.configure(newConfiguration)
         promise.success(state)
@@ -32,7 +34,7 @@ abstract class SinkLogic(context: StageContext, configuration: FilterConfigurati
 
     override val id: UUID = configuration.id
 
-    override def configure(configuration: FilterConfiguration): Future[FilterState] = {
+    override def configure(configuration: Configuration): Future[FilterState] = {
       val promise = Promise[FilterState]()
       log.info(s"Updating sink configuration: $configuration")
       configureCallback.invoke(configuration, promise)
@@ -48,9 +50,9 @@ abstract class SinkLogic(context: StageContext, configuration: FilterConfigurati
     initPromise.success(sink)
   }
 
-  def initialize(configuration: FilterConfiguration): Unit = {}
+  def initialize(configuration: Configuration): Unit = {}
 
-  def configure(configuration: FilterConfiguration): Unit
+  def configure(configuration: Configuration): Unit
 
   def state(): FilterState = FilterState(configuration.id, Green)
 

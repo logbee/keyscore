@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.elasticsearch
 
-import java.util.{Locale, ResourceBundle, UUID}
+import java.util.Locale
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods.POST
@@ -9,16 +9,21 @@ import akka.http.scaladsl.model.{HttpEntity, HttpRequest, HttpResponse}
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, SinkShape}
 import com.google.protobuf.util.Timestamps
+import io.logbee.keyscore.agent.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic.{hostParameter, indexParameter, portParameter}
 import io.logbee.keyscore.agent.pipeline.stage.{SinkLogic, StageContext}
 import io.logbee.keyscore.commons.util.Hashing._
+import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
+import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.localization.{Localization, TextRef}
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
 
-import scala.collection.mutable
 import scala.concurrent.Promise
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
@@ -27,42 +32,53 @@ object ElasticSearchSinkLogic extends Described {
 
   private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic"
   private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.ElasticSearchSinkLogic"
-  private val filterId = "6693c39e-6261-11e8-adc0-fa7ae01bbebc"
 
-  val descriptorMap = mutable.Map.empty[Locale, FilterDescriptorFragment]
+  private val hostParameter = TextParameterDescriptor(
+    "elastic.host",
+    ParameterInfo(TextRef("host"), TextRef("hostDescription")),
+    validator = StringValidator(
+      expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
+      expressionType = RegEx
+    ),
+    defaultValue = "example.com",
+    mandatory = true
+  )
 
+  private val portParameter = NumberParameterDescriptor(
+    "elastic.port",
+    ParameterInfo(TextRef("port"), TextRef("portDescription")),
+    defaultValue = 9200,
+    range = NumberRange(1, 0, 65535),
+    mandatory = true
+  )
 
-  override def describe: MetaFilterDescriptor = {
-    val fragments = Map(
-      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
-      Locale.GERMAN -> descriptor(Locale.GERMAN)
-    )
+  private val indexParameter = TextParameterDescriptor(
+    "elastic.index",
+    ParameterInfo(TextRef("index"), TextRef("indexDescription")),
+    defaultValue = "doc",
+    mandatory = true
+  )
 
-    MetaFilterDescriptor(UUID.fromString(filterId), filterName, fragments)
-  }
-
-  private def descriptor(language: Locale) = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
-    FilterDescriptorFragment(
-      displayName = translatedText.getString("displayName"),
-      description = translatedText.getString("description"),
-      previousConnection = FilterConnection(isPermitted = true),
-      nextConnection = FilterConnection(isPermitted = false),
-      parameters = List(
-        TextParameterDescriptor("host", translatedText.getString("host"), "description"),
-        IntParameterDescriptor("port", translatedText.getString("port"), "description"),
-        TextParameterDescriptor("index", translatedText.getString("index"), "description")
-      ), translatedText.getString("category"))
-  }
+  override def describe = Descriptor(
+    uuid = "6693c39e-6261-11e8-adc0-fa7ae01bbebc",
+    describes = SinkDescriptor(
+      name = filterName,
+      displayName = TextRef("displayName"),
+      description = TextRef("description"),
+      categories = Seq(TextRef("category")),
+      parameters = Seq(hostParameter, portParameter, indexParameter)
+    ),
+    localization = Localization.fromResourceBundle(bundleName, Locale.ENGLISH, Locale.GERMAN)
+  )
 
   private case class Document(_id: String, fields: Map[String, _])
 }
 
-class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfiguration, shape: SinkShape[Dataset]) extends SinkLogic(context, configuration, shape) {
+class ElasticSearchSinkLogic(context: StageContext, configuration: Configuration, shape: SinkShape[Dataset]) extends SinkLogic(context, configuration, shape) {
 
-  private var elasticHost: String = _
-  private var elasticPort: Int = _
-  private var elasticIndex: String = _
+  private var elasticHost: String = hostParameter.defaultValue
+  private var elasticPort: Int = portParameter.defaultValue.asInstanceOf[Int]
+  private var elasticIndex: String = indexParameter.defaultValue
 
   private var queue:  SourceQueueWithComplete[(HttpRequest, Promise[HttpResponse])] = _
 
@@ -70,18 +86,18 @@ class ElasticSearchSinkLogic(context: StageContext, configuration: FilterConfigu
 
   private implicit val formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
 
-  override def initialize(configuration: FilterConfiguration): Unit = {
+  override def initialize(configuration: Configuration): Unit = {
 
-    elasticHost = configuration.getParameterValue[String]("host")
-    elasticPort = configuration.getParameterValue[Int]("port")
-    elasticIndex = configuration.getParameterValue[String]("index")
+    elasticHost = configuration.getValueOrDefault(hostParameter, elasticHost)
+    elasticPort = configuration.getValueOrDefault(portParameter, elasticPort).asInstanceOf[Int]
+    elasticIndex = configuration.getValueOrDefault(indexParameter, elasticIndex)
 
     configure(configuration)
 
     pull(in)
   }
 
-  override def configure(configuration: FilterConfiguration): Unit = {
+  override def configure(configuration: Configuration): Unit = {
 
     val pool = Http().cachedHostConnectionPool[Promise[HttpResponse]](host = elasticHost, port = elasticPort)
     queue = Source.queue[(HttpRequest, Promise[HttpResponse])](1, OverflowStrategy.dropNew)

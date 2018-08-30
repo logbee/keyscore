@@ -58,7 +58,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
 
       val descriptor = Descriptor(
         uuid = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
-        describe = FilterDescriptor(
+        describes = FilterDescriptor(
           name = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
           displayName = filterDisplayName,
           description = filterDescription,

@@ -3,8 +3,10 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import io.logbee.keyscore.agent.pipeline.valve.ValveProxy
-import io.logbee.keyscore.model.{Dataset, WhichValve}
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState}
+import io.logbee.keyscore.model.WhichValve
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.filter.FilterState
 import io.logbee.keyscore.model.sink.SinkProxy
 
 import scala.concurrent.Future
@@ -13,7 +15,7 @@ private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends
 
   override val id: UUID = sink.id
 
-  override def configure(configuration: FilterConfiguration): Future[FilterState] = sink.configure(configuration)
+  override def configure(configuration: Configuration): Future[FilterState] = sink.configure(configuration)
 
   override def pause(doClose: Boolean): Future[FilterState] = ???
 

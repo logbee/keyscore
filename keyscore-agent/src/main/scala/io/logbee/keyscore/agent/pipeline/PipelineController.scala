@@ -2,9 +2,10 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
-import com.sun.xml.internal.bind.util.Which
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState}
 import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.filter.FilterState
 
 import scala.concurrent.Future
 
@@ -16,7 +17,7 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
 
   def id: UUID = configuration.id
 
-  def configure(id: UUID, configuration: FilterConfiguration): Option[Future[FilterState]] = {
+  def configure(id: UUID, configuration: Configuration): Option[Future[FilterState]] = {
     controllerMap.get(id).map(_.configure(configuration))
   }
 

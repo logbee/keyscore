@@ -3,8 +3,10 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, ValveState}
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{After, Dataset, WhichValve}
+import io.logbee.keyscore.model.{After, WhichValve}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -12,7 +14,7 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
 
   override val id: UUID = filter.id
 
-  override def configure(configuration: FilterConfiguration): Future[FilterState] = {
+  override def configure(configuration: Configuration): Future[FilterState] = {
     for {
     inValveState <- inValve.state()
     outValveState <- outValve.state()

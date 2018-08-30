@@ -1,65 +1,65 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
-import java.util.{Locale, ResourceBundle, UUID}
+import java.util.Locale
 
 import akka.stream.FlowShape
+import io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilterLogic.{headerParameter, separatorParameter}
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
+import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
-import scala.collection.mutable
+import scala.Int.MaxValue
 import scala.collection.mutable.ListBuffer
 
 object CSVParserFilterLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilterLogic"
-  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilter"
-  private val filterId = "292d368e-6e50-4c52-aed5-1a6826d78c22"
+  private val headerParameter = TextListParameterDescriptor(
+    ref = "csv.header",
+    info = ParameterInfo(TextRef("headerToParse"), TextRef("headerToParseDescription")),
+    min = 1,
+    max = MaxValue
+  )
 
-  override def describe: MetaFilterDescriptor = {
-    val descriptorMap = mutable.Map.empty[Locale,FilterDescriptorFragment]
-    descriptorMap ++= Map(
-      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
-      Locale.GERMAN -> descriptor(Locale.GERMAN)
+  private val separatorParameter = TextParameterDescriptor(
+    ref = "csv.separator",
+    info = ParameterInfo(TextRef("fieldKeyNameSeparator"), TextRef("fieldKeyDescriptionSeparator")),
+    defaultValue = ",",
+    mandatory = true
+  )
+
+  override def describe = Descriptor(
+    uuid = "292d368e-6e50-4c52-aed5-1a6826d78c22",
+    describes = FilterDescriptor(
+      name = classOf[CSVParserFilterLogic].getName,
+      displayName = TextRef("displayName"),
+      description = TextRef("description"),
+      categories = Seq(TextRef("category")),
+      parameters = Seq(headerParameter, separatorParameter)
+    ),
+    localization = Localization.fromResourceBundle(
+      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilter",
+      Locale.ENGLISH, Locale.GERMAN
     )
-
-    MetaFilterDescriptor(UUID.fromString(filterId),filterName,descriptorMap.toMap)
-  }
-
-  private def descriptor(language:Locale):FilterDescriptorFragment = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName,language)
-    FilterDescriptorFragment(
-      displayName = translatedText.getString("displayName"),
-      description = translatedText.getString("description"),
-      previousConnection = FilterConnection(isPermitted = true),
-      nextConnection = FilterConnection(isPermitted = true),
-      parameters = List(
-        ListParameterDescriptor("headers",
-          translatedText.getString("headerToParse"),
-          translatedText.getString("headerToParseDescription"),
-          TextParameterDescriptor("headerName",translatedText.getString("fieldKeyNameHeader"), translatedText.getString("fieldKeyDescriptionHeader"))
-        ),
-        TextParameterDescriptor("separator",translatedText.getString("fieldKeyNameSeparator"), translatedText.getString("fieldKeyDescriptionSeparator"))
-      ))
-  }
+  )
 }
 
-class CSVParserFilterLogic(context:StageContext,configuration:FilterConfiguration,shape:FlowShape[Dataset,Dataset]) extends FilterLogic(context,configuration,shape) {
+class CSVParserFilterLogic(context:StageContext, configuration: Configuration, shape:FlowShape[Dataset,Dataset]) extends FilterLogic(context,configuration,shape) {
 
-  private var headerList : List[String] = List.empty
-  private var separator : String = ""
+  private var headerList : Seq[String] = Seq.empty
+  private var separator : String = separatorParameter.defaultValue
 
-  override def initialize(configuration: FilterConfiguration): Unit = {
+  override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
 
-  override def configure(configuration: FilterConfiguration): Unit = {
-    for (parameter <- configuration.parameters)
-      parameter match {
-        case TextParameter("separator", value) => separator = value
-        case TextListParameter("headers", value) => headerList = value
-        case _ =>
-      }
+  override def configure(configuration: Configuration): Unit = {
+
+    headerList = configuration.getValueOrDefault(headerParameter, headerList)
+    separator = configuration.getValueOrDefault(separatorParameter, separator)
   }
 
   override def onPush(): Unit = {

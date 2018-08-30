@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.valve
 
-import io.logbee.keyscore.model.Dataset
+import io.logbee.keyscore.model.data.Dataset
 
 import scala.concurrent.Future
 

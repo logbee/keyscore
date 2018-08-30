@@ -2,15 +2,16 @@ package io.logbee.keyscore.agent.pipeline.stage
 
 import akka.stream._
 import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue}
-import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.source.SourceProxy
 
 import scala.concurrent.Future
 
-class SourceStage(context: StageContext,configuration:FilterConfiguration,provider: (StageContext, FilterConfiguration, SourceShape[Dataset]) => SourceLogic) extends GraphStageWithMaterializedValue[SourceShape[Dataset], Future[SourceProxy]] {
+class SourceStage(context: StageContext,configuration:Configuration,provider: (StageContext, Configuration, SourceShape[Dataset]) => SourceLogic) extends GraphStageWithMaterializedValue[SourceShape[Dataset], Future[SourceProxy]] {
 
-  private val out = Outlet[Dataset](s"${configuration.id}:outlet")
+  // TODO: Fix Outlet name.
+  private val out = Outlet[Dataset](s"${configuration}:outlet")
 
   override def shape: SourceShape[Dataset] = SourceShape(out)
 

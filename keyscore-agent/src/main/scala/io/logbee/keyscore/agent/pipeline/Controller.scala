@@ -3,8 +3,10 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import io.logbee.keyscore.agent.pipeline.valve.ValveProxy
-import io.logbee.keyscore.model.{Dataset, WhichValve}
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterProxy, FilterState}
+import io.logbee.keyscore.model.WhichValve
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.filter.{FilterProxy, FilterState}
 import io.logbee.keyscore.model.sink.SinkProxy
 import io.logbee.keyscore.model.source.SourceProxy
 
@@ -29,7 +31,7 @@ abstract class Controller {
 
   val id: UUID
 
-  def configure(configuration: FilterConfiguration): Future[FilterState]
+  def configure(configuration: Configuration): Future[FilterState]
 
   def pause(doClose: Boolean): Future[FilterState]
 

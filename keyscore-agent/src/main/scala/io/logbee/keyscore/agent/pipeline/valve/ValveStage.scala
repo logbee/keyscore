@@ -10,7 +10,7 @@ import com.google.protobuf.util.Timestamps.between
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open, ValvePosition}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage.{FirstValveTimestamp, PreviousDatasetThroughputTime, PreviousValveTimestamp, TotalDatasetThroughputTime}
 import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
-import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.data._
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
