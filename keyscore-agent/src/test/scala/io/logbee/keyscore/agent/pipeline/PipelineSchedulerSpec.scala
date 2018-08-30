@@ -6,7 +6,7 @@ import akka.testkit.TestProbe
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
 import io.logbee.keyscore.model.PipelineConfiguration
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
+import io.logbee.keyscore.model.configuration.Configuration
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -22,8 +22,8 @@ class PipelineSchedulerSpec extends WordSpec with Matchers with ScalaFutures wit
   implicit val timeout: Timeout = 30 seconds
 
   val streamId = UUID.randomUUID()
-  val sourceConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-source"))
-  val sinkConfiguration = FilterConfiguration(FilterDescriptor(UUID.randomUUID(), "test-sink"))
+  val sourceConfiguration = Configuration()
+  val sinkConfiguration = Configuration()
 
   "A PipelineScheduler " should {
 
