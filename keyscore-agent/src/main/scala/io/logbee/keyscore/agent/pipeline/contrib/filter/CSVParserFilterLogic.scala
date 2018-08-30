@@ -17,14 +17,14 @@ import scala.collection.mutable.ListBuffer
 
 object CSVParserFilterLogic extends Described {
 
-  private val headerParameter = TextListParameterDescriptor(
+  private[filter] val headerParameter = TextListParameterDescriptor(
     ref = "csv.header",
     info = ParameterInfo(TextRef("headerToParse"), TextRef("headerToParseDescription")),
     min = 1,
     max = MaxValue
   )
 
-  private val separatorParameter = TextParameterDescriptor(
+  private[filter] val separatorParameter = TextParameterDescriptor(
     ref = "csv.separator",
     info = ParameterInfo(TextRef("fieldKeyNameSeparator"), TextRef("fieldKeyDescriptionSeparator")),
     defaultValue = ",",

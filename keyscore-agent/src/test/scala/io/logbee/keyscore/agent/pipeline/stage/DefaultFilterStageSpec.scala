@@ -20,6 +20,15 @@ import scala.language.postfixOps
 @RunWith(classOf[JUnitRunner])
 class DefaultFilterStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
+  //old api
+  // descriptors
+  val filterDescriptorA = FilterDescriptor(randomUUID(), "filterA", List.empty)
+  val filterDescriptorB = FilterDescriptor(randomUUID(), "filterB", List.empty)
+
+  //configurations
+  val configA = FilterConfiguration(filterDescriptorA)
+  val configB = FilterConfiguration(filterDescriptorB)
+
   trait TestStream {
     val (filterFuture, probe) = Source(List(dataset1, dataset2))
       .viaMat(new DefaultFilterStage())(Keep.right)

@@ -1,13 +1,15 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
+import java.util.UUID
+
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.agent.pipeline.ExampleData.{csvDatasetA, csvHeader, csvHeader2}
+import io.logbee.keyscore.agent.pipeline.ExampleData.csvDatasetA
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.FilterConfiguration
+import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
+import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter, TextParameter}
+import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -19,6 +21,24 @@ import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+
+  val csv1 = Configuration(
+    parameters = Seq(
+      TextParameter(CSVParserFilterLogic.separatorParameter.ref, ";"),
+      TextListParameter(CSVParserFilterLogic.headerParameter.ref, Seq(
+        "Philosophy", "Maths", "Latin", "Astrophysics"
+      ))
+    )
+  )
+
+  val csv2 = Configuration(
+    parameters = Seq(
+      TextParameter(CSVParserFilterLogic.separatorParameter.ref, ";"),
+      TextListParameter(CSVParserFilterLogic.headerParameter.ref, Seq(
+        "Philosophy2", "Maths2", "Latin2", "Astrophysics2"
+      ))
+    )
+  )
 
   val csvAResult = Dataset(Record(
     Field("Philosophy", TextValue("13")),
@@ -37,8 +57,8 @@ class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset,Dataset]) => new CSVParserFilterLogic(ctx, c, s)
-    val filterStage = new FilterStage(context, csvHeader, provider)
+    val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset,Dataset]) => new CSVParserFilterLogic(LogicParameters(UUID.randomUUID(), ctx, c), s)
+    val filterStage = new FilterStage(context, csv1, provider)
 
     val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
@@ -58,7 +78,7 @@ class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
         sink.request(1)
         sink.expectNext(csvAResult)
 
-        Await.ready(filter.configure(csvHeader2),10 seconds)
+        Await.ready(filter.configure(csv2), 10 seconds)
 
         source.sendNext(csvDatasetA)
         sink.request(1)

@@ -5,7 +5,7 @@ import java.util.UUID.randomUUID
 
 import io.logbee.keyscore.agent.pipeline.contrib.filter.{AddFieldsFilterLogic, CSVParserFilterLogic}
 import io.logbee.keyscore.agent.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
-import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.filter._
 
 import scala.collection.mutable
@@ -84,43 +84,6 @@ object ExampleData {
   val datasetMultiModified = Dataset(multiRecordModified)
   val datasetMultiModified2 = Dataset(multiRecordModified2)
 
-  // descriptors
-  val filterDescriptorA = FilterDescriptor(randomUUID(), "filterA", List.empty)
-  val filterDescriptorB = FilterDescriptor(randomUUID(), "filterB", List.empty)
-
-  //configurations
-  val configA = FilterConfiguration(filterDescriptorA)
-  val configB = FilterConfiguration(filterDescriptorB)
-
-  //CSV
-  val csvHeader = FilterConfiguration(randomUUID(), CSVParserFilterLogic.describe.describe(), List(
-    TextParameter("separator", ";"),
-    TextListParameter("headers", List("Philosophy", "Maths", "Latin", "Astrophysics")))
-  )
-  val csvHeader2 = FilterConfiguration(randomUUID(), CSVParserFilterLogic.describe.describe(), List(
-    TextParameter("separator", ";"),
-    TextListParameter("headers", List("Philosophy2", "Maths2", "Latin2", "Astrophysics2")))
-  )
-
-  //Kafka
-  val kafkaSourceConfiguration = FilterConfiguration(randomUUID(), KafkaSourceLogic.describe.describe(), List(
-    TextParameter("bootstrapServer", "localhost:9092"),
-    TextParameter("groupID", "keyscore-agent"),
-    TextParameter("offsetCommit", "earliest"),
-    TextParameter("sourceTopic", "testTopic")
-  ))
-
-  val kafkaSinkConfiguration = FilterConfiguration(randomUUID(), KafkaSinkLogic.describe.describe(), List(
-    TextParameter("bootstrapServer", "localhost:9092"),
-    TextParameter("topic", "sinkTopic")
-  ))
-
-  val addFieldsFilterConfiguration = FilterConfiguration(randomUUID(), AddFieldsFilterLogic.describe.describe(Locale.ENGLISH),List(TextMapParameter("test",Map("test"->"test"))))
-
-  var filterList = mutable.ListBuffer[FilterConfiguration]()
-  filterList += addFieldsFilterConfiguration
-
-  val pipelineConfiguration = PipelineConfiguration(randomUUID(),"Testpipeline", "Valid PipelineConfiguration for testing",kafkaSourceConfiguration, filterList.toList, kafkaSinkConfiguration)
 
 }
 
