@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
-import java.util.UUID.randomUUID
+import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.stream.FlowShape
@@ -10,9 +10,9 @@ import akka.testkit.EventFilter
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.pipeline.ExampleData.{dataset1, messageTextField1}
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
@@ -25,9 +25,10 @@ class LoggerFilterSpec extends WordSpec with Matchers with ScalaFutures with Tes
     """akka.loggers = ["akka.testkit.TestEventListener"]"""
   ))
 
-  val configurationA = FilterConfiguration(randomUUID(), FilterDescriptor(LoggerFilter.filterId, LoggerFilter.filterName), List.empty)
+  val configurationA = Configuration(parameters = Seq())
   val context = StageContext(system, executionContext)
-  val filterStage = new FilterStage(context, configurationA, (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset, Dataset]) => new LoggerFilter(ctx, c, s))
+  val filterStage = new FilterStage(context, configurationA, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) =>
+    new LoggerFilter(LogicParameters(UUID.randomUUID(), ctx, c), s))
 
   val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
     .viaMat(filterStage)(Keep.both)
