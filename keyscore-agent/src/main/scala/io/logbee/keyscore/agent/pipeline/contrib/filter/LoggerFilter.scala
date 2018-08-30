@@ -14,8 +14,6 @@ import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
 object LoggerFilter extends Described {
 
-  val filterId: UUID = UUID.fromString("9a6f5fd0-a21b-4056-7a2a-344e3b4e2488")
-
   override def describe = Descriptor(
     uuid = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter",
     describes = FilterDescriptor(
