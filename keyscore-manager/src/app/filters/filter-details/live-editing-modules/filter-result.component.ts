@@ -11,17 +11,20 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
         <mat-card>
             <mat-card-header class="fix-div">
                 <div class="container" fxFlexFill="" fxLayout="row" fxLayout.xs="column">
-                    <div fxFlexAlign="start" fxFlex="30%">
+                    <div fxFlexAlign="start" fxFlex="15%">
                         <mat-card-title><h1 class="mat-headline font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.RESULT' | translate}}</h1></mat-card-title>
                     </div>
                     <div fxFlex>
                     <span (click)="goLeft()">
-                        <img width="18em" src="/assets/images/chevron-left.svg"/>
-                    </span>
+                            <button mat-icon-button color="none">
+                                <mat-icon class="font-weight-bold">chevron_left</mat-icon>
+                            </button>                          </span>
                         {{count + 1}}/ {{(resultDatasets$ | async)?.length}}
                         <span (click)="goRight()">
-                    <img width="18em" src="/assets/images/chevron-right.svg"/>
-                    </span>
+                            <button mat-icon-button color="none">
+                                <mat-icon class="font-weight-bold">chevron_right</mat-icon>
+                            </button>      
+                        </span>
                     </div>
                 </div>
             </mat-card-header>
@@ -32,33 +35,6 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
                 <!--</div>-->
             </mat-card-content>
         </mat-card>
-        <!--<div class="card mt-3">-->
-            <!--<div class="card-header alert-light font-weight-bold">-->
-                <!--<div class="row"  id="custom-card-black">-->
-                    <!--<div class="col-sm-1">-->
-                        <!--{{'FILTERLIVEEDITINGCOMPONENT.RESULT' | translate}}-->
-                    <!--</div>-->
-                    <!--<div class="col-sm-2" *ngIf="(loading$ | async)">-->
-                      <!--<span (click)="goLeft()">-->
-                            <!--<img width="18em" src="/assets/images/chevron-left.svg"/>-->
-                      <!--</span>-->
-                        <!--{{count + 1}} / {{(resultDatasets$ | async)?.length}}-->
-                        <!--<span (click)="goRight()">-->
-                            <!--<img width="18em" src="/assets/images/chevron-right.svg"/>-->
-                      <!--</span>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<div class="col-sm-9"></div>-->
-            <!--</div>-->
-            <!--<div class="card-body">-->
-                <!--<div class="row" align="center" *ngIf="(loading$ | async); else loading">-->
-        <!--<div class="col-sm-12">-->
-        <!--<dataset-visualizer [dataset]="(resultDatasets$ | async)[count]">-->
-        <!--</dataset-visualizer>-->
-        <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
         <ng-template #loading>
             <div class="row">
                 <div class="col-sm-12" align="center">

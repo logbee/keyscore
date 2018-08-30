@@ -5,29 +5,23 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
     selector: "parameter-map",
     template:
             `
-        <div class="form-row">
-            <div>
+        <div fxLayout="row" fxLayoutGap="15px">
                 <mat-form-field>
                     <input matInput #addItemInputKey  type="text" placeholder="Key">
                 </mat-form-field>    
-            </div>
-            <div>
                 <mat-form-field>
                     <input matInput #addItemInputValue type="text" placeholder="Value">
                 </mat-form-field>
-            </div>
-            <div>
-                <button mat-raised-button color="accent" (click)="addItem(addItemInputKey.value,addItemInputValue.value)"><img
-                        width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Add"/>
+                <button mat-icon-button color="accent" (click)="addItem(addItemInputKey.value,addItemInputValue.value)">
+                    <mat-icon>add_circle_outline</mat-icon>
                 </button>
-            </div>
         </div>
 
         <div (click)="onTouched()" *ngIf="objectKeys(parameterValues).length > 0">
             <div style="display: inline-block; margin: 10px;"
                  *ngFor="let key of objectKeys(parameterValues);index as i">
                 <mat-chip-list class="mat-chip-list-stacked">
-                    <mat-chip color="primary" selected>{{key}} : {{parameterValues[key]}}
+                    <mat-chip>{{key}} : {{parameterValues[key]}}
                         <mat-icon (click)="removeItem(key)" >close</mat-icon>
                     </mat-chip>
                 </mat-chip-list>

@@ -8,24 +8,20 @@ import {__await} from "tslib";
     selector: "parameter-list",
     template:
             `
-        <div>
-            <div>
-                <mat-form-field>
-                    <input #addItemInput matInput type="text" placeholder="Name of Field">
-                </mat-form-field>
-            </div>
-            <div>
-                <button mat-raised-button color="accent" (click)="addItem(addItemInput.value)"><img
-                       width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Add"/>
-                </button>
-            </div>
+        <div fxLayout="row" fxLayoutGap="15px">
+            <mat-form-field>
+                <input #addItemInput matInput type="text" placeholder="Name of Field">
+            </mat-form-field>
+            <button mat-icon-button color="accent" (click)="addItem(addItemInput.value)">
+                <mat-icon>add_circle_outline</mat-icon>
+            </button>
         </div>
         <div (click)="onTouched()" *ngIf="parameterValues.length > 0">
             <div style="display: inline-block; margin: 10px"
                  *ngFor="let value of parameterValues;index as i">
                 <mat-chip-list class="mat-chip-list-stacked">
-                    <mat-chip color="primary" selected>{{value}} 
-                        <mat-icon (click)="removeItem(i)">close</mat-icon>
+                    <mat-chip>{{value}}
+                        <mat-icon class="badge-icon" (click)="removeItem(i)">close</mat-icon>
                     </mat-chip>
                 </mat-chip-list>
             </div>

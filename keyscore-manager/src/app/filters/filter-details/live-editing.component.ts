@@ -31,12 +31,13 @@ import {Location} from "@angular/common";
                     <filter-description fxFlex="20%" [currentFilter]="filter$ | async"
                                         [currentFilterState]="filterState$ | async">
                     </filter-description>
-                    <example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"
-                                     (currentDatasetCounter)="updateCounterInStore($event)">
-                    </example-message>
                     <filter-configuration fxFlex="20%" [filter$]="filter$"
                                           [extractedDatasets$]="extractedDatasets$"
                                           (apply)="reconfigureFilter($event)"></filter-configuration>
+                    <example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"
+                                     (currentDatasetCounter)="updateCounterInStore($event)">
+                    </example-message>
+                   
                     <filter-result fxFlex="35%" [resultDatasets$]="resultDatasets$"
                                    (currentDatasetCounter)="updateCounterInStore($event)"></filter-result>
                 </div>

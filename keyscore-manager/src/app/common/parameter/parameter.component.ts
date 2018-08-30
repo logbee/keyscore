@@ -7,9 +7,8 @@ import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
     selector: "app-parameter",
     template: `
         <div [formGroup]="form">
-            <label class="mat-subheading-1 font-weight-bold" [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
-            <div [ngSwitch]="parameterDescriptor.jsonClass">
-                <mat-form-field *ngSwitchCase="'TextParameterDescriptor'">
+            <div [ngSwitch]="parameterDescriptor.jsonClass">    
+                <mat-form-field  *ngSwitchCase="'TextParameterDescriptor'">
                     <input matInput type="text" placeholder="Field name" [formControlName]="parameterDescriptor.name"
                            [id]="parameterDescriptor.name" [type]="'text'" [(ngModel)]="value">
                     <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">

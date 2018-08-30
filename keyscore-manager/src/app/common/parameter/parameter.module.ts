@@ -13,6 +13,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatButtonModule} from "@angular/material/button";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatChipsModule} from "@angular/material/chips";
+import {FlexLayoutModule} from "@angular/flex-layout";
 
 @NgModule({
     imports: [
@@ -26,7 +27,9 @@ import {MatChipsModule} from "@angular/material/chips";
         MatIconModule,
         MatFormFieldModule,
         MatCheckboxModule,
-        MatChipsModule
+        MatChipsModule,
+        FlexLayoutModule,
+
     ],
     declarations: [
         ParameterMap,

@@ -70,7 +70,7 @@
     "ID": "Id: ",
     "EXAMPLE_MESSAGE": "Example Message: ",
     "REGEXPATTERN": "Configuration: ",
-    "RESULT": "Result: ",
+    "RESULT": "Result Message: ",
     "VALUE": "Value: ",
     "TYPE": "Type: ",
     "REGEX_PLACEHOLDER": "Add your Regex here",

@@ -25,7 +25,7 @@ import "../../styles/filterstyle.css";
             </mat-card-header>
             <mat-card-content>
                 <div fxFill="" fxLayoutGap="5px" fxLayout="column" fxLayout.xs="row">
-                    <div fxFlex="100%" *ngIf="!noDataAvailable; else noparam">
+                    <div fxFill="" fxLayoutGap="15px" fxLayout="column" *ngIf="!noDataAvailable; else noparam">
                         <form *ngIf="!noParamsAvailable; else noparam"
                               [formGroup]="form">
                             <div *ngFor="let parameter of parameters">
@@ -39,8 +39,7 @@ import "../../styles/filterstyle.css";
                         <div>
                             <button mat-raised-button="" color="primary" *ngIf="!noParamsAvailable" title=" {{'GENERAL.APPLY_TITLE' | translate}}"
                                     (click)="applyFilter(filter,form.value)">{{'GENERAL.APPLY' | translate}}
-                                <img width="20em" src="/assets/images/ic-remove-white.svg"
-                                     alt=" {{'GENERAL.APPLY' | translate}}"/>
+                                    <mat-icon>check_circle_outline</mat-icon>
                             </button>
                         </div>
                     </div>

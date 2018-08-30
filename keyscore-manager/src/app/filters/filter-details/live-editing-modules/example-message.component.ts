@@ -11,16 +11,20 @@ import "../../styles/filterstyle.css";
         <mat-card>
             <mat-card-header class="fix-div">
                 <div class="container" fxFlexFill="" fxLayout="row" fxLayout.xs="column">
-                    <div fxFlexAlign="start" fxFlex="30%">
+                    <div fxFlexAlign="start" fxFlex="15%">
                         <mat-card-title><h1 class="mat-headline font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}</h1></mat-card-title>
                     </div>
                     <div fxFlex>
                     <span (click)="goLeft()">
-                        <img width="18em" src="/assets/images/chevron-left.svg"/>
+                        <button mat-icon-button color="none">
+                            <mat-icon class="font-weight-bold">chevron_left</mat-icon>
+                        </button>
                     </span>
                         {{count + 1}}/ {{(extractedDatasets$ | async)?.length}}
                         <span (click)="goRight()">
-                    <img width="18em" src="/assets/images/chevron-right.svg"/>
+                            <button mat-icon-button color="none">
+                                <mat-icon class="font-weight-bold">chevron_right</mat-icon>
+                            </button>
                     </span>
                     </div>
                 </div>
