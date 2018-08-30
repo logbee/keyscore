@@ -14,11 +14,7 @@ import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
 object AddFieldsFilterLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic"
-  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilter"
-  private val filterId = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
-
-  private val fieldListParameter = FieldListParameterDescriptor(
+  private[filter] val fieldListParameter = FieldListParameterDescriptor(
     ParameterRef("fieldList"),
     ParameterInfo(
       displayName = TextRef("fieldsToAddName"),
@@ -30,15 +26,18 @@ object AddFieldsFilterLogic extends Described {
   )
 
   override def describe: Descriptor = {
-    Descriptor(filterId,
+    Descriptor(
+      uuid = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
       describes = FilterDescriptor(
-        name = filterName,
+        name = classOf[AddFieldsFilterLogic].getName,
         displayName = TextRef("displayName"),
         description = TextRef("description"),
         categories = Seq(TextRef("category")),
         parameters = Seq(fieldListParameter)
       ),
-      localization = Localization.fromResourceBundle(bundleName, ENGLISH, GERMAN)
+      localization = Localization.fromResourceBundle(
+        bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilter",
+        ENGLISH, GERMAN)
     )
   }
 }

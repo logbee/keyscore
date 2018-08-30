@@ -1,15 +1,14 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
-import java.util.UUID.randomUUID
-
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData.dataset1
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic.fieldListParameter
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter}
+import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -25,10 +24,18 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
 
   trait TestStream {
 
-    val configuration = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(TextMapParameter("fieldsToAdd", Map.empty)))
-    val configuration2 = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(TextMapParameter("fieldsToAdd", Map("message3" -> "testValue", "message4" -> "testValue2"))))
+    val configuration = Configuration(parameters = Seq(
+      FieldListParameter(fieldListParameter.ref, Seq())
+    ))
+
+    val configuration2 = Configuration(parameters = Seq(
+      FieldListParameter(fieldListParameter.ref, Seq(
+        Field("message3", TextValue("testValue")),
+        Field("message4", TextValue("testValue2"))
+    ))))
+
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset, Dataset]) => new AddFieldsFilterLogic(ctx, c, s))
+    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new AddFieldsFilterLogic(ctx, c, s))
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
