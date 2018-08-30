@@ -6,13 +6,27 @@ import {ParameterList} from "./parameter-list.component";
 import {ParameterComponent} from "./parameter.component";
 import {ParameterControlService} from "./services/parameter-control.service";
 import {TranslateModule} from "@ngx-translate/core";
+import {MatInputModule} from "@angular/material/input";
+import {MatTableModule} from "@angular/material/table";
+import {MatIconModule} from "@angular/material/icon";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatButtonModule} from "@angular/material/button";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatChipsModule} from "@angular/material/chips";
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        TranslateModule
+        TranslateModule,
+        MatTableModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatCheckboxModule,
+        MatChipsModule
     ],
     declarations: [
         ParameterMap,

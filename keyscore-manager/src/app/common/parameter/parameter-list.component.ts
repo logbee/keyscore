@@ -10,22 +10,24 @@ import {__await} from "tslib";
             `
         <div>
             <div>
-                <input #addItemInput type="text" placeholder="NAME OF FIELD">
+                <mat-form-field>
+                    <input #addItemInput matInput type="text" placeholder="Name of Field">
+                </mat-form-field>
             </div>
             <div>
-                <button (click)="addItem(addItemInput.value)"><img
+                <button mat-raised-button color="accent" (click)="addItem(addItemInput.value)"><img
                        width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Add"/>
                 </button>
             </div>
         </div>
         <div (click)="onTouched()" *ngIf="parameterValues.length > 0">
-            <div class="custom-badge"
+            <div style="display: inline-block; margin: 10px"
                  *ngFor="let value of parameterValues;index as i">
-                <span class="m-2 badge badge-pill badge-info" >{{value}}
-                    <span (click)="removeItem(i)">
-                      <img alt="remove" src="/assets/images/ic_cancel_white_24px.svg"/>
-                    </span>
-                </span>
+                <mat-chip-list class="mat-chip-list-stacked">
+                    <mat-chip color="primary" selected>{{value}} 
+                        <mat-icon (click)="removeItem(i)">close</mat-icon>
+                    </mat-chip>
+                </mat-chip-list>
             </div>
         </div>
         <div *ngIf="this.duplicate" role="alert">

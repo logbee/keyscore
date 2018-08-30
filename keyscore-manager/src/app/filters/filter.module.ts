@@ -26,6 +26,10 @@ import {MatListModule} from "@angular/material/list";
 import {MatDividerModule} from "@angular/material/divider";
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {MatTableModule} from '@angular/material/table';
+import {MatInputModule} from "@angular/material/input";
+import {MatFormFieldModule}  from '@angular/material/form-field';
+import {MatButtonModule} from "@angular/material/button";
+import {MatIconModule} from "@angular/material/icon";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -50,7 +54,13 @@ export const routes: Routes = [
         MatListModule,
         MatDividerModule,
         FlexLayoutModule,
-        MatTableModule
+        MatTableModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule
+
+
+
     ],
     declarations: [
         FilterDescriptionComponent,

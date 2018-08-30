@@ -6,16 +6,25 @@ import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
 @Component({
     selector: "app-parameter",
     template: `
-        <div fxFill="" [formGroup]="form">
+        <div [formGroup]="form">
             <label class="mat-subheading-1 font-weight-bold" [attr.for]="parameterDescriptor.name">{{parameterDescriptor.displayName}}</label>
             <div [ngSwitch]="parameterDescriptor.jsonClass">
-                <input *ngSwitchCase="'TextParameterDescriptor'"
-                       [formControlName]="parameterDescriptor.name"
-                       [id]="parameterDescriptor.name" [type]="'text'">
+                <mat-form-field *ngSwitchCase="'TextParameterDescriptor'">
+                    <input matInput type="text" placeholder="Field name" [formControlName]="parameterDescriptor.name"
+                           [id]="parameterDescriptor.name" [type]="'text'" [(ngModel)]="value">
+                    <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
 
-                <input *ngSwitchCase="'IntParameterDescriptor'"
-                       [formControlName]="parameterDescriptor.name"
-                       [id]="parameterDescriptor.name" [type]="'number'">
+                <mat-form-field *ngSwitchCase="'IntParameterDescriptor'">
+                    <input matInput type="number" placeholder="Value" [formControlName]="parameterDescriptor.name"
+                           [id]="parameterDescriptor.name" [type]="'number'" [(ngModel)]="value">
+                    <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+                         
                 <parameter-list *ngSwitchCase="'ListParameterDescriptor'" [formControlName]="parameterDescriptor.name"
                                 [id]="parameterDescriptor.name"></parameter-list>
                 <parameter-map *ngSwitchCase="'MapParameterDescriptor'" [formControlName]="parameterDescriptor.name"
@@ -23,11 +32,9 @@ import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
 
                 <div *ngSwitchCase="'BooleanParameterDescriptor'"
                      class="toggleCheckbox" [id]="parameterDescriptor.name">
-
-                    <input type="checkbox" id="checkbox{{parameterDescriptor.name}}" class="ios-toggle"
-                           [formControlName]="parameterDescriptor.name">
-                    <label for="checkbox{{parameterDescriptor.name}}" class="checkbox-label" data-off=""
-                           data-on=""></label>
+                    <mat-checkbox [(ngModel)]="checked" id="checkbox{{parameterDescriptor.name}}" 
+                                  [formControlName]="parameterDescriptor.name">
+                    </mat-checkbox>
                 </div>
                 <div *ngIf="!isValid">{{parameterDescriptor.displayName}}
                     {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}

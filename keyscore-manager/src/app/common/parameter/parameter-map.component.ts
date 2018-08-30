@@ -6,28 +6,31 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
     template:
             `
         <div class="form-row">
-            <div class="form-group">
-                <input #addItemInputKey class="form-control" type="text" placeholder="KEY">
+            <div>
+                <mat-form-field>
+                    <input matInput #addItemInputKey  type="text" placeholder="Key">
+                </mat-form-field>    
             </div>
-            <div class="form-group ml-1">
-                <input #addItemInputValue class="form-control" type="text" placeholder="VALUE">
+            <div>
+                <mat-form-field>
+                    <input matInput #addItemInputValue type="text" placeholder="Value">
+                </mat-form-field>
             </div>
-            <div class="form-group ml-1">
-                       <button class="btn btn-info ml-3" (click)="addItem(addItemInputKey.value,addItemInputValue.value)"><img
+            <div>
+                <button mat-raised-button color="accent" (click)="addItem(addItemInputKey.value,addItemInputValue.value)"><img
                         width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Add"/>
                 </button>
             </div>
-
         </div>
 
-        <div (click)="onTouched()" class="mb-3" *ngIf="objectKeys(parameterValues).length > 0">
-            <div style="display: inline-block; margin-left: 5px; margin-right: 5px;"
+        <div (click)="onTouched()" *ngIf="objectKeys(parameterValues).length > 0">
+            <div style="display: inline-block; margin: 10px;"
                  *ngFor="let key of objectKeys(parameterValues);index as i">
-                <span class="badge badge-pill badge-info" style="font-size: large"><strong>{{key}} : {{parameterValues[key]}}</strong>
-                    <span (click)="removeItem(key)">
-                      <img class="pl-3"  alt="remove" src="/assets/images/ic_cancel_white_24px.svg"/>
-                    </span>
-                </span>
+                <mat-chip-list class="mat-chip-list-stacked">
+                    <mat-chip color="primary" selected>{{key}} : {{parameterValues[key]}}
+                        <mat-icon (click)="removeItem(key)" >close</mat-icon>
+                    </mat-chip>
+                </mat-chip-list>
             </div>
         </div>
     `,
