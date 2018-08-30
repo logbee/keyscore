@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 import akka.stream.FlowShape
@@ -7,9 +8,9 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData.{datasetMulti1, datasetMultiModified, datasetMultiModified2}
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextListParameter}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
+import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter}
+import io.logbee.keyscore.model.data.Dataset
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -25,14 +26,22 @@ class RetainFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset, Dataset]) => new RetainFieldsFilterLogic(ctx, c, s)
+    val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) =>
+      new RetainFieldsFilterLogic(LogicParameters(UUID.randomUUID(),ctx, c), s)
 
-    val fieldsToRetain = TextListParameter("fieldsToRetain", List("bar", "bbq"))
-    val fieldsToRetain2 = TextListParameter("fieldsToRetain", List("foo", "notPresent"))
-    val initialConfig = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "fieldsToRetain"), List(fieldsToRetain))
-    val config2 = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "fieldsToRetain"), List(fieldsToRetain2))
+    val config1 = Configuration(
+      parameters = Seq(
+        TextListParameter(RetainFieldsFilterLogic.fieldNamesParameter.ref,Seq("bar", "bbq"))
+      )
+    )
 
-    val filterStage = new FilterStage(context,initialConfig,provider)
+    val config2 = Configuration(
+      parameters = Seq(
+        TextListParameter(RetainFieldsFilterLogic.fieldNamesParameter.ref,Seq("foo", "notPresent"))
+      )
+    )
+
+    val filterStage = new FilterStage(context,config1,provider)
 
    val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)

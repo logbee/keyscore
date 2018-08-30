@@ -17,7 +17,7 @@ import scala.Int.MaxValue
 
 object RetainFieldsFilterLogic extends Described {
 
-  private val fieldNamesParameter = FieldNameListParameterDescriptor(
+  private[filter] val fieldNamesParameter = FieldNameListParameterDescriptor(
     ref = "retain.fieldNames",
     info = ParameterInfo(TextRef("fieldNamesDisplayName"), TextRef("fieldNamesDescription")),
     descriptor = FieldNameParameterDescriptor(
