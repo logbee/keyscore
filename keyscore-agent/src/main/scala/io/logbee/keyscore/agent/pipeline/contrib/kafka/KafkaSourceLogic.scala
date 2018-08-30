@@ -8,7 +8,7 @@ import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.Attributes.InputBuffer
 import akka.stream.scaladsl.{Sink, SinkQueueWithCancel}
 import akka.stream.{Attributes, SourceShape}
-import io.logbee.keyscore.agent.pipeline.stage.{SourceLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{LogicParameters, SourceLogic, StageContext}
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -43,7 +43,7 @@ object KafkaSourceLogic extends Described {
   private val portParameter = NumberParameterDescriptor(
     "kafka.source.port",
     ParameterInfo(
-      TextRef("port"), 
+      TextRef("port"),
       TextRef("portDescription")),
     defaultValue = 9092L,
     range = NumberRange(1, 0, 65535),
@@ -105,7 +105,7 @@ object KafkaSourceLogic extends Described {
 
 }
 
-class KafkaSourceLogic(context: StageContext, configuration: Configuration, shape: SourceShape[Dataset]) extends SourceLogic(context, configuration, shape) {
+class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
 
   implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
 

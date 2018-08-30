@@ -4,7 +4,7 @@ import java.util.Locale
 
 import akka.stream.FlowShape
 import io.logbee.keyscore.agent.pipeline.contrib.filter.RetainFieldsFilterLogic.fieldNamesParameter
-import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model.configuration.Configuration
@@ -43,7 +43,7 @@ object RetainFieldsFilterLogic extends Described {
   )
 }
 
-class RetainFieldsFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
+class RetainFieldsFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var fieldsToRetain = Seq.empty[String]
 

@@ -4,7 +4,7 @@ import java.util.Locale.{ENGLISH, GERMAN}
 
 import akka.stream.FlowShape
 import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic.fieldListParameter
-import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -40,7 +40,7 @@ object AddFieldsFilterLogic extends Described {
     )
 }
 
-class AddFieldsFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
+class AddFieldsFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var fieldsToAdd = Seq.empty[Field]
 

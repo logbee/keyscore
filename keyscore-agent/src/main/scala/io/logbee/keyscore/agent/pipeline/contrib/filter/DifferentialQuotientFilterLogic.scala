@@ -5,7 +5,7 @@ import java.util.Locale
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.agent.pipeline.contrib.filter.DifferentialQuotientFilterLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
-import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -64,7 +64,7 @@ object DifferentialQuotientFilterLogic extends Described {
     )
   )
 }
-class DifferentialQuotientFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) with StageLogging {
+class DifferentialQuotientFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private var xFieldName = xFieldNameParameter.defaultValue
   private var yFieldName = yFieldNameParameter.defaultValue

@@ -10,7 +10,7 @@ import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, SinkShape}
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.agent.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic.{hostParameter, indexParameter, portParameter}
-import io.logbee.keyscore.agent.pipeline.stage.{SinkLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.commons.util.Hashing._
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
@@ -74,7 +74,7 @@ object ElasticSearchSinkLogic extends Described {
   private case class Document(_id: String, fields: Map[String, _])
 }
 
-class ElasticSearchSinkLogic(context: StageContext, configuration: Configuration, shape: SinkShape[Dataset]) extends SinkLogic(context, configuration, shape) {
+class ElasticSearchSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) extends SinkLogic(parameters, shape) {
 
   private var elasticHost: String = hostParameter.defaultValue
   private var elasticPort: Int = portParameter.defaultValue.asInstanceOf[Int]

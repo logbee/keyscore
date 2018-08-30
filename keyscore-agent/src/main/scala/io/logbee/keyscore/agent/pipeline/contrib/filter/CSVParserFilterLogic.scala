@@ -4,7 +4,7 @@ import java.util.Locale
 
 import akka.stream.FlowShape
 import io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilterLogic.{headerParameter, separatorParameter}
-import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -47,10 +47,10 @@ object CSVParserFilterLogic extends Described {
   )
 }
 
-class CSVParserFilterLogic(context:StageContext, configuration: Configuration, shape:FlowShape[Dataset,Dataset]) extends FilterLogic(context,configuration,shape) {
+class CSVParserFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
-  private var headerList : Seq[String] = Seq.empty
-  private var separator : String = separatorParameter.defaultValue
+  private var headerList: Seq[String] = Seq.empty
+  private var separator: String = separatorParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)

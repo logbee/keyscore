@@ -1,10 +1,10 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
-import java.util.{Locale, UUID}
+import java.util.Locale
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
-import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model.configuration.Configuration
@@ -30,7 +30,7 @@ object LoggerFilter extends Described {
   )
 }
 
-class LoggerFilter(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) with StageLogging {
+class LoggerFilter(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   override def configure(configuration: Configuration): Unit = {
   }

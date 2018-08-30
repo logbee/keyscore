@@ -3,7 +3,7 @@ package io.logbee.keyscore.agent.pipeline.contrib.filter
 import java.util.Locale
 
 import akka.stream.FlowShape
-import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model.configuration.Configuration
@@ -48,7 +48,7 @@ object DropMessageFilterLogic extends Described {
 
 }
 
-class DropMessageFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
+class DropMessageFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var messagesToRetain = Seq.empty[String]
 

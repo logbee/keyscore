@@ -17,7 +17,7 @@ class FilterStage(context:StageContext, configuration:Configuration, provider:(S
   override def shape:FlowShape[Dataset,Dataset] = FlowShape(in,out)
 
   override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[FilterProxy]) = {
-    val logic = provider(context,configuration,shape)
+    val logic = provider(context, configuration, shape)
     (logic,logic.initPromise.future)
   }
 }

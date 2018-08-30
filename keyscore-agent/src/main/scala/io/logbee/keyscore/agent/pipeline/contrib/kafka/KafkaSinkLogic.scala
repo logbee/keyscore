@@ -8,7 +8,7 @@ import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, SinkShape}
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic.{bootstrapServerParameter, bootstrapServerPortParameter, topicParameter}
-import io.logbee.keyscore.agent.pipeline.stage.{SinkLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -70,7 +70,7 @@ object KafkaSinkLogic extends Described {
   )
 }
 
-class KafkaSinkLogic(context: StageContext, configuration: Configuration, shape: SinkShape[Dataset]) extends SinkLogic(context, configuration, shape) {
+class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) extends SinkLogic(parameters, shape) {
 
   private implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
   private var queue: SourceQueueWithComplete[ProducerMessage.Message[Array[Byte], String, Promise[Unit]]] = _

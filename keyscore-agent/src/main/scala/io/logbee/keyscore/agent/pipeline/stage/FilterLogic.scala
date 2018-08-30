@@ -12,12 +12,12 @@ import io.logbee.keyscore.model.filter.{FilterProxy, FilterState}
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
-abstract class FilterLogic(uuid: UUID, context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
+abstract class FilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
 
   val initPromise = Promise[FilterProxy]
 
-  protected implicit val system: ActorSystem = context.system
-  protected implicit val dispatcher: ExecutionContextExecutor = context.dispatcher
+  protected implicit val system: ActorSystem = parameters.context.system
+  protected implicit val dispatcher: ExecutionContextExecutor = parameters.context.dispatcher
   protected override implicit lazy val materializer: Materializer = super.materializer
 
   protected val in: Inlet[Dataset] = shape.in
@@ -41,7 +41,7 @@ abstract class FilterLogic(uuid: UUID, context: StageContext, configuration: Con
       promise.success(FilterLogic.this.state())
     })
 
-    override val id: UUID = uuid
+    override val id: UUID = parameters.uuid
 
     override def configure(configuration: Configuration): Future[FilterState] = {
       val promise = Promise[FilterState]()
@@ -60,8 +60,8 @@ abstract class FilterLogic(uuid: UUID, context: StageContext, configuration: Con
   setHandlers(in, out, this)
 
   override def preStart(): Unit = {
-    log.info(s"Initializing with configuration: $configuration")
-    initialize(configuration)
+    log.info(s"Initializing with configuration: ${parameters.configuration}")
+    initialize(parameters.configuration)
     initPromise.success(filter)
   }
 
@@ -69,5 +69,5 @@ abstract class FilterLogic(uuid: UUID, context: StageContext, configuration: Con
 
   def configure(configuration: Configuration): Unit
 
-  def state(): FilterState = FilterState(uuid, Green)
+  def state(): FilterState = FilterState(parameters.uuid, Green)
 }

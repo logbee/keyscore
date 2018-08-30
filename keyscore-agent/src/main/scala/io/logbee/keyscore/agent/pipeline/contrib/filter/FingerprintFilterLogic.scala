@@ -7,12 +7,12 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import com.google.common.base.Charsets
 import com.google.common.io.BaseEncoding.base64
-import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.data.{Dataset, _}
+import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
 object FingerprintFilterLogic extends Described {
@@ -54,7 +54,7 @@ object FingerprintFilterLogic extends Described {
 
 }
 
-class FingerprintFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) with StageLogging {
+class FingerprintFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private var targetFieldName = "fingerprint"
   private var base64Encoding = false
