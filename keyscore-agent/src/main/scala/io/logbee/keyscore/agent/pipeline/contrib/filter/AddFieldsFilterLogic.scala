@@ -14,7 +14,7 @@ import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
 object AddFieldsFilterLogic extends Described {
 
-  private[filter] val fieldListParameter = FieldListParameterDescriptor(
+  private[pipeline] val fieldListParameter = FieldListParameterDescriptor(
     ParameterRef("fieldList"),
     ParameterInfo(
       displayName = TextRef("fieldsToAddName"),

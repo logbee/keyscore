@@ -1,16 +1,17 @@
 package io.logbee.keyscore.agent.pipeline
 
-import java.util.UUID.randomUUID
+import java.util.UUID
 
 import akka.stream.FlowShape
 import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{After, Before, Dataset}
+import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter}
+import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.{After, Before}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -29,11 +30,14 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
   override implicit val patienceConfig = PatienceConfig(Span(10, Seconds), Span(1, Second))
 
   trait TestSetup {
-    val configuration = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(TextMapParameter("fieldsToAdd", Map.empty)))
+    val configuration = Configuration(parameters = Seq(
+      FieldListParameter(AddFieldsFilterLogic.fieldListParameter.ref, Seq()
+      )))
     val testSource = TestSource.probe[Dataset]
     val testsink = TestSink.probe[Dataset]
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset, Dataset]) => new AddFieldsFilterLogic(ctx, c, s))
+    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) =>
+      new AddFieldsFilterLogic(LogicParameters(UUID.randomUUID(),ctx, c), s))
 
     val ((source, controllerFuture), sink) =
       testSource.viaMat(new ValveStage())(Keep.both)
@@ -64,21 +68,21 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       sink.requestNext().records should contain theSameElementsAs dataset3.records
     }
 
-//    TODO: Fix flaky ValveStage throughputTime computation test
-//    "valve computes and sets the throughputTime and totalThroughputTime in valvestate" in new TestSetup {
-//      whenReady(controllerFuture) { controller =>
-//
-//        source.sendNext(dataset1)
-//        sink.requestNext().records should contain theSameElementsAs dataset1.records
-//
-//        whenReady(controller.state()) { state =>
-//          state.throughPutTime.toInt should be > 0
-//          state.totalThroughputTime.toInt should be > 0
-//          state.health shouldBe Green
-//          state.status shouldBe Running
-//        }
-//      }
-//    }
+    //    TODO: Fix flaky ValveStage throughputTime computation test
+    //    "valve computes and sets the throughputTime and totalThroughputTime in valvestate" in new TestSetup {
+    //      whenReady(controllerFuture) { controller =>
+    //
+    //        source.sendNext(dataset1)
+    //        sink.requestNext().records should contain theSameElementsAs dataset1.records
+    //
+    //        whenReady(controller.state()) { state =>
+    //          state.throughPutTime.toInt should be > 0
+    //          state.totalThroughputTime.toInt should be > 0
+    //          state.health shouldBe Green
+    //          state.status shouldBe Running
+    //        }
+    //      }
+    //    }
 
     "close inValve and outValve on pause" in new TestSetup {
       source.sendNext(dataset1)
