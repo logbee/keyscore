@@ -11,6 +11,7 @@ option (scalapb.options) = {
 
 message Configuration {
     option (scalapb.message).extends = "io.logbee.keyscore.model.configuration.QueryableConfiguration";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.configuration.ConfigurationCompanion";
     Configuration parent = 2;
     repeated Parameter parameters = 3;
 }
