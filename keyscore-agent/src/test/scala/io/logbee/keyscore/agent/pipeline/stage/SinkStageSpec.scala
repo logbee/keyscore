@@ -27,8 +27,8 @@ class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFa
       val updateConfiguration = Promise[Configuration]
       val initializeConfiguration = Promise[Configuration]
 
-      val configurationA = Configuration(parameters = Seq())
-      val configurationB =  Configuration(parameters = Seq())
+      val configurationA = Configuration()
+      val configurationB =  Configuration()
       val context: StageContext = StageContext(system, executionContext)
 
       val provider = (ctx: StageContext, c: Configuration, s: SinkShape[Dataset]) =>
