@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpecLike}
+import org.scalatest.{FreeSpecLike, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -22,28 +22,64 @@ import scala.language.postfixOps
 
 
 @RunWith(classOf[JUnitRunner])
-class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with WordSpecLike with Matchers with ScalaFutures with MockFactory {
-  "A FilterManager" should {
+class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with FreeSpecLike with Matchers with ScalaFutures with MockFactory {
+
+  implicit val timeout: Timeout = 5 seconds
+
+  "A FilterManager" - {
 
     val filterManager = system.actorOf(Props[FilterManager])
 
-    implicit val timeout: Timeout = 5 seconds
-
-    "load filter extensions " in {
+    "should load filter extensions " in {
 
       filterManager ! RegisterExtension(FilterExtension, classOf[ExampleFilter])
       filterManager ! RequestDescriptors
 
       val message = receiveOne(5 seconds).asInstanceOf[DescriptorsResponse]
-      message.descriptors should (contain (ExampleFilter.describe) and have length 1)
+      message.descriptors should (contain(ExampleFilter.describe) and have length 1)
     }
 
-    "instantiate a filter stage" in {
+    "should instantiate a filter stage" in {
 
-      val result = Await.ready(filterManager ? CreateFilterStage(StageContext(system, system.dispatcher), ExampleFilter.describe, Configuration()),10 seconds)
+      val result = Await.ready(filterManager ? CreateFilterStage(StageContext(system, system.dispatcher), ExampleFilter.describe, Configuration()), 10 seconds)
 
-      result shouldBe a [Future[_]]
-
+      result shouldBe a[Future[_]]
     }
+  }
+
+  "A FilterManager with registered extensions" - {
+
+    val filterManager = system.actorOf(Props[FilterManager])
+    val ctx = StageContext(system, system.dispatcher)
+
+    filterManager ! RegisterExtension(FilterExtension, classOf[ExampleFilter])
+
+    "should create a sink stage" in {
+
+      filterManager ! CreateSinkStage(ctx, ExampleFilter.describe, Configuration.empty)
+
+      val message = receiveOne(5 seconds).asInstanceOf[SinkStageCreated]
+
+      message.stage should not be (null)
+    }
+
+    "should create a source stage" in {
+
+      filterManager ! CreateSourceStage(ctx, ExampleFilter.describe, Configuration.empty)
+
+      val message = receiveOne(5 seconds).asInstanceOf[SourceStageCreated]
+
+      message.stage should not be (null)
+    }
+
+    "should create a filter stage" in {
+
+      filterManager ! CreateFilterStage(ctx, ExampleFilter.describe, Configuration.empty)
+
+      val message = receiveOne(5 seconds).asInstanceOf[FilterStageCreated]
+
+      message.stage should not be (null)
+    }
+
   }
 }
