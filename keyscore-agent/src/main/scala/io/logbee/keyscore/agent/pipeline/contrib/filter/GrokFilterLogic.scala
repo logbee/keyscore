@@ -19,7 +19,7 @@ import scala.util.matching.Regex
 
 object GrokFilterLogic extends Described {
 
-  private val fieldNamesParameter = FieldNameListParameterDescriptor(
+  private[filter] val fieldNamesParameter = FieldNameListParameterDescriptor(
     ref = "grok.fieldNames",
     info = ParameterInfo(
       displayName = TextRef("fieldNames"),
@@ -32,7 +32,7 @@ object GrokFilterLogic extends Described {
     max = MaxValue
   )
 
-  private val patternParameter = ExpressionParameterDescriptor(
+  private[filter] val patternParameter = ExpressionParameterDescriptor(
     ref = "grok.pattern",
     info = ParameterInfo(
       displayName = TextRef("patternKeyNameHeader"),

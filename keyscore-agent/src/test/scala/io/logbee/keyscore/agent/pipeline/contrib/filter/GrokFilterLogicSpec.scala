@@ -7,8 +7,11 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.model.data.DecimalField
+import io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic.{fieldNamesParameter, patternParameter}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
+import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter, TextParameter}
+import io.logbee.keyscore.model.data.{Dataset, DecimalField, Record}
+import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -25,7 +28,7 @@ class GrokFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with 
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(context, configurationA, (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset, Dataset]) => new GrokFilterLogic(ctx, c, s))
+    val filterStage = new FilterStage(context, configurationA, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new GrokFilterLogic(LogicParameters(randomUUID(), ctx, c), s))
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
@@ -33,10 +36,10 @@ class GrokFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with 
       .run()
   }
 
-  val configurationA = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List.empty)
-  val configurationB = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "test"), List(
-    TextListParameter("fieldNames", List("message")),
-    TextParameter("pattern", ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*")
+  val configurationA = Configuration()
+  val configurationB = Configuration(parameters = Seq(
+    TextListParameter(fieldNamesParameter, Seq("message")),
+    TextParameter(patternParameter, ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*")
   ))
 
   val modified1 = Dataset(Record(messageTextField1, DecimalField("temperature", -11.5)))
