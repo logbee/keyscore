@@ -5,7 +5,7 @@ import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open}
-import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.data._
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
