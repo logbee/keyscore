@@ -1,64 +1,73 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
 import java.security.MessageDigest
-import java.util.UUID.fromString
-import java.util.{Locale, ResourceBundle}
+import java.util.Locale
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import com.google.common.base.Charsets
 import com.google.common.io.BaseEncoding.base64
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
-import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Described, _}
-
-import scala.collection.mutable
+import io.logbee.keyscore.model.Described
+import io.logbee.keyscore.model.ToOption.T2OptionT
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.data.{Dataset, _}
+import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
 object FingerprintFilterLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.FingerprintFilterLogic"
-  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.FingerprintFilter"
-  private val filterId = "ed3ab993-1eca-4651-857d-fd4f72355251"
-
-  override def describe: MetaFilterDescriptor = {
-    val descriptorMap = mutable.Map.empty[Locale, FilterDescriptorFragment]
-    descriptorMap ++= Map(
-      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
-      Locale.GERMAN -> descriptor(Locale.GERMAN)
+  private val targetParameter = TextParameterDescriptor(
+    ref = "fingerprint.target",
+    info = ParameterInfo(
+      displayName = TextRef("target"),
+      description = TextRef("targetDescription")
+    ),
+    validator = StringValidator(
+      expression = ".*",
+      expressionType = ExpressionType.Glob
     )
+  )
 
-    MetaFilterDescriptor(fromString(filterId), filterName, descriptorMap.toMap)
-  }
-
-  private def descriptor(language: Locale): FilterDescriptorFragment = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
-    FilterDescriptorFragment(
-      displayName = translatedText.getString("displayName"),
-      description = translatedText.getString("description"),
-      previousConnection = FilterConnection(isPermitted = true),
-      nextConnection = FilterConnection(isPermitted = true),
-      parameters = List(
-        TextParameterDescriptor("target", displayName = translatedText.getString("target"), description = translatedText.getString("targetDescription"), mandatory = false, validator = ".*"),
-        BooleanParameterDescriptor("base64Encoding", displayName = translatedText.getString("base64Encoding"), description = translatedText.getString("base64EncodingDescription"), mandatory = false)
-      )
+  private val encodingParameter = BooleanParameterDescriptor(
+    ref = "fingerprint.encoding",
+    info = ParameterInfo(
+      displayName = TextRef("base64Encoding"),
+      description = TextRef("base64EncodingDescription")
     )
-  }
+  )
+
+  override def describe = Descriptor(
+    uuid = "ed3ab993-1eca-4651-857d-fd4f72355251",
+    describes = FilterDescriptor(
+      name = classOf[FingerprintFilterLogic].getName,
+      displayName = TextRef("displayName"),
+      description = TextRef("description"),
+      categories = Seq(TextRef("category")),
+      parameters = Seq(targetParameter,encodingParameter)
+    ),
+    localization = Localization.fromResourceBundle(
+      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.FingerprintFilter",
+      Locale.ENGLISH, Locale.GERMAN
+    )
+  )
+
 }
 
-class FingerprintFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) with StageLogging {
+class FingerprintFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) with StageLogging {
 
   private var targetFieldName = "fingerprint"
   private var base64Encoding = false
 
   private val digest = MessageDigest.getInstance("MD5")
 
-  override def configure(configuration: FilterConfiguration): Unit = {
-    configuration.parameters.foreach {
-      case TextParameter("target", value) if value != null && value.nonEmpty => targetFieldName = value
-      case BooleanParameter("base64Encoding", value) => base64Encoding = value
-      case _ =>
-    }
+  override def configure(configuration: Configuration): Unit = {
+
+    targetFieldName = configuration.getValueOrDefault(FingerprintFilterLogic.targetParameter, targetFieldName)
+    base64Encoding = configuration.getValueOrDefault(FingerprintFilterLogic.encodingParameter, base64Encoding)
   }
+
+
 
   override def onPush(): Unit = {
 
