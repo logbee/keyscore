@@ -10,6 +10,7 @@ import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -18,7 +19,7 @@ import scala.util.{Failure, Success, Try}
 
 object PipelineSupervisor {
 
-  case class CreatePipeline(configuration: PipelineConfiguration)
+  case class CreatePipeline(blueprint: PipelineBlueprint)
 
   case class StartPipeline(trials: Int)
 
@@ -70,23 +71,23 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
   override def receive: Receive = {
 
-    case CreatePipeline(pipelineConfiguration) =>
+    case CreatePipeline(blueprint) =>
 
-      log.info(s"Creating pipeline <${pipelineConfiguration.id}>.")
+      log.info(s"Creating pipeline <${blueprint.ref.uuid}>.")
+//
+//      val pipeline = Pipeline(blueprint)
+//      val stageContext = StageContext(context.system, context.dispatcher)
+//
+//      become(configuring(pipeline))
+//
+//      log.info("Start sending messages to FilterManager ")
+//
+//      filterManager ! CreateSinkStage(stageContext, null, blueprint.sink)
+//      filterManager ! CreateSourceStage(stageContext, null, blueprint.source)
+//
+//      blueprint.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, null, filter))
 
-      val pipeline = Pipeline(pipelineConfiguration)
-      val stageContext = StageContext(context.system, context.dispatcher)
-
-      become(configuring(pipeline))
-
-      log.info("Start sending messages to FilterManager ")
-
-      filterManager ! CreateSinkStage(stageContext, null, pipelineConfiguration.sink)
-      filterManager ! CreateSourceStage(stageContext, null, pipelineConfiguration.source)
-
-      pipelineConfiguration.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, null, filter))
-
-      scheduleStart(pipeline, pipelineStartTrials)
+//      scheduleStart(pipeline, pipelineStartTrials)
 
     case RequestPipelineInstance(receiver) =>
       receiver ! PipelineInstance(Red)

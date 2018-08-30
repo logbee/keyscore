@@ -7,7 +7,7 @@ import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.PipelineScheduler._
 import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeleteAllPipelinesOrder, DeletePipelineOrder}
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.model.PipelineConfiguration
+import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -16,11 +16,11 @@ object PipelineScheduler {
 
   private val SUPERVISOR_NAME_PREFIX = "pipeline:"
 
-  case class CreateNewPipeline(configuration: PipelineConfiguration)
+  case class CreateNewPipeline(blueprint: PipelineBlueprint)
 
-  case class UpdatePipeline(configuration: PipelineConfiguration)
+  case class UpdatePipeline(blueprint: PipelineBlueprint)
 
-  private case class SupervisorTerminated(supervisor: ActorRef, configuration: PipelineConfiguration)
+  private case class SupervisorTerminated(supervisor: ActorRef, blueprint: PipelineBlueprint)
 
   def apply(filterManager: ActorRef): Props = Props(new PipelineScheduler(filterManager))
 }
@@ -40,24 +40,24 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
 
   override def receive: Receive = {
 
-    case CreatePipelineOrder(configuration) =>
-      child(nameFrom(configuration)) match {
-        case Some(_) => self ! UpdatePipeline(configuration)
-        case None => self ! CreateNewPipeline(configuration)
+    case CreatePipelineOrder(blueprint) =>
+      child(nameFrom(blueprint)) match {
+        case Some(_) => self ! UpdatePipeline(blueprint)
+        case None => self ! CreateNewPipeline(blueprint)
       }
-    case CreateNewPipeline(configuration) =>
-      log.info("Received Create Pipeline: " + configuration.id)
-      val supervisor = actorOf(PipelineSupervisor(filterManager), nameFrom(configuration))
+    case CreateNewPipeline(blueprint) =>
+      log.info("Received Create Pipeline: " + blueprint.ref.uuid)
+      val supervisor = actorOf(PipelineSupervisor(filterManager), nameFrom(blueprint))
       log.info("Send CreatePipelineMessage to" + supervisor.toString())
-      supervisor ! PipelineSupervisor.CreatePipeline(configuration)
-      watchWith(supervisor, SupervisorTerminated(supervisor, configuration))
+      supervisor ! PipelineSupervisor.CreatePipeline(blueprint)
+      watchWith(supervisor, SupervisorTerminated(supervisor, blueprint))
 
-    case UpdatePipeline(configuration) =>
-      log.info("Received Update Pipeline: " + configuration.id)
-      child(nameFrom(configuration)).foreach(child => {
-        log.info(s"Stopping PipelineSupervisor for pipeline: ${configuration.id}")
+    case UpdatePipeline(blueprint) =>
+      log.info("Received Update Pipeline: " + blueprint.ref.uuid)
+      child(nameFrom(blueprint)).foreach(child => {
+        log.info(s"Stopping PipelineSupervisor for pipeline: ${blueprint.ref.uuid}")
         unwatch(child)
-        watchWith(child, CreateNewPipeline(configuration))
+        watchWith(child, CreateNewPipeline(blueprint))
         context.stop(child)
       })
 
@@ -116,8 +116,8 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
     case _ => log.info("Failure")
   }
 
-  def nameFrom(configuration: PipelineConfiguration): String = {
-    nameFrom(configuration.id)
+  def nameFrom(blueprint: PipelineBlueprint): String = {
+    nameFrom(blueprint.ref)
   }
 
   def nameFrom(id: UUID): String = {
