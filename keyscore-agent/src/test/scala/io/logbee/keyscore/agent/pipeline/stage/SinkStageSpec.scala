@@ -1,13 +1,13 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
-import java.util.UUID.randomUUID
+import java.util.UUID
 
 import akka.stream.SinkShape
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -24,22 +24,21 @@ class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFa
 
     "pass the appropriate configuration to it's logic" in {
 
-      val updateConfiguration = Promise[FilterConfiguration]
-      val initializeConfiguration = Promise[FilterConfiguration]
+      val updateConfiguration = Promise[Configuration]
+      val initializeConfiguration = Promise[Configuration]
 
-      val uuid = randomUUID()
-      val descriptor = FilterDescriptor(randomUUID(), "testA")
-      val configurationA = FilterConfiguration(uuid, descriptor, List.empty)
-      val configurationB = FilterConfiguration(uuid, descriptor, List.empty)
+      val configurationA = Configuration(parameters = Seq())
+      val configurationB =  Configuration(parameters = Seq())
       val context: StageContext = StageContext(system, executionContext)
 
-      val provider = (ctx: StageContext, c: FilterConfiguration, s: SinkShape[Dataset]) => new SinkLogic(ctx, c, s) {
+      val provider = (ctx: StageContext, c: Configuration, s: SinkShape[Dataset]) =>
+        new SinkLogic(LogicParameters(UUID.randomUUID(), ctx, c), s) {
 
-        override def initialize(configuration: FilterConfiguration): Unit = {
+        override def initialize(configuration: Configuration): Unit = {
           initializeConfiguration.success(configuration)
         }
 
-        override def configure(configuration: FilterConfiguration): Unit = {
+        override def configure(configuration: Configuration): Unit = {
           updateConfiguration.success(configuration)
         }
 
