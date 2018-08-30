@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.kafka
 
-import java.util.{Locale, ResourceBundle, UUID}
+import java.util.Locale.{ENGLISH, GERMAN}
 
 import akka.kafka
 import akka.kafka.scaladsl.Consumer
@@ -9,8 +9,13 @@ import akka.stream.Attributes.InputBuffer
 import akka.stream.scaladsl.{Sink, SinkQueueWithCancel}
 import akka.stream.{Attributes, SourceShape}
 import io.logbee.keyscore.agent.pipeline.stage.{SourceLogic, StageContext}
+import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
+import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.localization.{Localization, TextRef}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.ext.JavaTypesSerializers
@@ -22,46 +27,101 @@ import scala.util.Success
 
 object KafkaSourceLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic"
-  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSourceLogic"
-  private val filterId = "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
-
-  override def describe: MetaFilterDescriptor = {
-    val fragments = Map(
-      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
-      Locale.GERMAN -> descriptor(Locale.GERMAN)
+  private val serverParameter = TextParameterDescriptor(
+    ref = "kafka.source.server",
+    info = ParameterInfo(
+      displayName = TextRef("bootstrapServer"),
+      description = TextRef("serverDescription")
+    ),
+    validator = StringValidator(
+      expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
+      expressionType = RegEx
+    ),
+    defaultValue = "example.com",
+    mandatory = true
+  )
+  private val portParameter = NumberParameterDescriptor(
+    "kafka.source.port",
+    ParameterInfo(
+      TextRef("port"), 
+      TextRef("portDescription")),
+    defaultValue = 9092L,
+    range = NumberRange(1, 0, 65535),
+    mandatory = true
+  )
+  private val groupIdParameter = TextParameterDescriptor(
+    ref = "kafka.source.group",
+    info = ParameterInfo(
+      displayName = TextRef("groupID"),
+      description = TextRef("groupDescription")
+    ),
+    defaultValue = "groupID",
+    mandatory = true
+  )
+  private val offsetParameter = ChoiceParameterDescriptor(
+    ref = "kafka.source.offset",
+    info = ParameterInfo(
+      displayName = TextRef("offsetCommit"),
+      description = TextRef("offsetDescription")
+    ),
+    min = 1,
+    max = 1,
+    choices = Seq(
+      Choice(
+        name = "earliest",
+        displayName = TextRef("choiceEarliest"),
+        description = TextRef("choiceEarliestDescription")
+      ),
+      Choice(
+        name = "latest",
+        displayName = TextRef("choiceLatest"),
+        description = TextRef("choiceLatestDescription")
+      )
     )
+  )
+  private val topicParameter = TextParameterDescriptor(
+    ref = "kafka.source.topic",
+    info = ParameterInfo(
+      displayName = TextRef("topic"),
+      description = TextRef("topicDescription")
+    ),
+    defaultValue = "topic",
+    mandatory = true
+  )
 
-    MetaFilterDescriptor(UUID.fromString(filterId), filterName, fragments)
-  }
+  override def describe = Descriptor(
+    uuid = "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
+    describes = SourceDescriptor(
+      name = classOf[KafkaSourceLogic].getName,
+      displayName = TextRef("displayName"),
+      description = TextRef("description"),
+      categories = Seq(TextRef("categorySource"), TextRef("categoryKafka")),
+      parameters = Seq(serverParameter,portParameter,groupIdParameter,offsetParameter,topicParameter)
+    ),
+    localization = Localization.fromResourceBundle(
+      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSourceLogic",
+      ENGLISH, GERMAN)
+  )
 
-  private def descriptor(language: Locale) = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
-    FilterDescriptorFragment(
-      displayName = translatedText.getString("displayName"),
-      description = translatedText.getString("description"),
-      previousConnection = FilterConnection(isPermitted = true,connectionType = List(FilterConnectionType.SOURCE)),
-      nextConnection = FilterConnection(isPermitted = true),
-      parameters = List(
-        TextParameterDescriptor("bootstrapServer", translatedText.getString("bootstrapServer"), "description"),
-        TextParameterDescriptor("groupID", translatedText.getString("groupID"), "description"),
-        TextParameterDescriptor("offsetCommit", translatedText.getString("offsetCommit"), "description"),
-        TextParameterDescriptor("topic", translatedText.getString("topic"), "description")
-      ), translatedText.getString("category"))
-  }
 }
 
-class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration, shape: SourceShape[Dataset]) extends SourceLogic(context, configuration, shape) {
+class KafkaSourceLogic(context: StageContext, configuration: Configuration, shape: SourceShape[Dataset]) extends SourceLogic(context, configuration, shape) {
 
   implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
 
   private var sinkQueue: SinkQueueWithCancel[Dataset] = _
 
+  private var server = ""
+  private var port = 9092L
+  private var groupID = ""
+  private var offsetConfig = ""
+  private var topic = ""
+
   private val pushAsync = getAsyncCallback[Dataset] { dataset =>
     push(shape.out, dataset)
   }
 
-  override def initialize(configuration: FilterConfiguration): Unit = {
+  override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
 
@@ -70,11 +130,14 @@ class KafkaSourceLogic(context: StageContext, configuration: FilterConfiguration
     sinkQueue.cancel()
   }
 
-  override def configure(configuration: FilterConfiguration): Unit = {
-    val bootstrapServer: String = configuration.getParameterValue[String]("bootstrapServer")
-    val groupID: String = configuration.getParameterValue[String]("groupID")
-    val offsetConfig: String = configuration.getParameterValue[String]("offsetCommit")
-    val topic: String = configuration.getParameterValue[String]("topic")
+  override def configure(configuration: Configuration): Unit = {
+
+    server = configuration.getValueOrDefault(KafkaSourceLogic.serverParameter, server)
+    port = configuration.getValueOrDefault(KafkaSourceLogic.portParameter, port)
+    groupID = configuration.getValueOrDefault(KafkaSourceLogic.groupIdParameter, groupID)
+    offsetConfig = configuration.getValueOrDefault(KafkaSourceLogic.offsetParameter, offsetConfig)
+    topic = configuration.getValueOrDefault(KafkaSourceLogic.topicParameter, topic)
+    val bootstrapServer = s"$server:$port"
 
     val settings = consumerSettings(bootstrapServer, groupID, offsetConfig)
 

@@ -25,8 +25,7 @@ object AddFieldsFilterLogic extends Described {
     )
   )
 
-  override def describe: Descriptor = {
-    Descriptor(
+  override def describe = Descriptor(
       uuid = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
       describes = FilterDescriptor(
         name = classOf[AddFieldsFilterLogic].getName,
@@ -39,7 +38,6 @@ object AddFieldsFilterLogic extends Described {
         bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilter",
         ENGLISH, GERMAN)
     )
-  }
 }
 
 class AddFieldsFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
