@@ -52,7 +52,7 @@ object GrokFilterLogic extends Described {
       parameters = Seq(fieldNamesParameter, patternParameter)
     ),
     localization = Localization.fromResourceBundle(
-      "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilter",
+      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilter",
       Locale.ENGLISH, Locale.GERMAN
     )
   )
