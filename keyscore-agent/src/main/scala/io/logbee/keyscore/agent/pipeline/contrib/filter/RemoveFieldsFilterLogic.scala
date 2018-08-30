@@ -19,7 +19,7 @@ object RemoveFieldsFilterLogic extends Described {
 
   private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilter"
 
-  private val fieldsToRemoveParameter = FieldNameListParameterDescriptor(
+  private[filter] val fieldsToRemoveParameter = FieldNameListParameterDescriptor(
     ref = "removeFields.removeFields",
     info = ParameterInfo(
       displayName = "fieldsToRemoveName",
