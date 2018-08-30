@@ -3,15 +3,15 @@ package io.logbee.keyscore.agent.pipeline.stage
 import java.util.UUID
 
 import akka.actor.ActorSystem
-import akka.stream.{Materializer, SourceShape}
 import akka.stream.stage.{GraphStageLogic, OutHandler, StageLogging}
-import io.logbee.keyscore.model.{Dataset, Green}
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterState}
+import akka.stream.{Materializer, SourceShape}
+import io.logbee.keyscore.model.Green
+import io.logbee.keyscore.model.filter.FilterState
 import io.logbee.keyscore.model.source.SourceProxy
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
-abstract class SourceLogic(context: StageContext, configuration: FilterConfiguration, shape: SourceShape[Dataset]) extends GraphStageLogic(shape) with OutHandler with StageLogging {
+abstract class SourceLogic(uuid: UUID, context: StageContext, configuration: FilterConfiguration, shape: SourceShape[Dataset]) extends GraphStageLogic(shape) with OutHandler with StageLogging {
 
   val initPromise = Promise[SourceProxy]
 
@@ -28,7 +28,7 @@ abstract class SourceLogic(context: StageContext, configuration: FilterConfigura
         log.info(s"Configuration has been updated: $newConfiguration")
     }
 
-    override val id: UUID = configuration.id
+    override val id: UUID = uuid
 
     override def configure(configuration: FilterConfiguration): Future[FilterState] = {
       val promise = Promise[FilterState]()
@@ -50,6 +50,6 @@ abstract class SourceLogic(context: StageContext, configuration: FilterConfigura
 
   def configure(configuration: FilterConfiguration): Unit
 
-  def state(): FilterState = FilterState(configuration.id, Green)
+  def state(): FilterState = FilterState(uuid, Green)
 
 }

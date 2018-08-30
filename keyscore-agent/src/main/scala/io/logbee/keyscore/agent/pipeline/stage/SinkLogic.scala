@@ -13,7 +13,7 @@ import io.logbee.keyscore.model.sink.SinkProxy
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
-abstract class SinkLogic(context: StageContext, configuration: Configuration, shape: SinkShape[Dataset]) extends GraphStageLogic(shape) with InHandler with StageLogging {
+abstract class SinkLogic(uuid: UUID, context: StageContext, configuration: Configuration, shape: SinkShape[Dataset]) extends GraphStageLogic(shape) with InHandler with StageLogging {
 
   val initPromise = Promise[SinkProxy]
 
@@ -32,7 +32,7 @@ abstract class SinkLogic(context: StageContext, configuration: Configuration, sh
         log.info(s"Configuration has been updated: $newConfiguration")
     }
 
-    override val id: UUID = configuration.id
+    override val id: UUID = uuid
 
     override def configure(configuration: Configuration): Future[FilterState] = {
       val promise = Promise[FilterState]()
@@ -54,6 +54,6 @@ abstract class SinkLogic(context: StageContext, configuration: Configuration, sh
 
   def configure(configuration: Configuration): Unit
 
-  def state(): FilterState = FilterState(configuration.id, Green)
+  def state(): FilterState = FilterState(uuid, Green)
 
 }

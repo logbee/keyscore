@@ -7,13 +7,12 @@ import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler, StageLogging}
 import akka.stream.{FlowShape, Inlet, Materializer, Outlet}
 import io.logbee.keyscore.model.Green
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.filter.{FilterProxy, FilterState}
 
 import scala.concurrent.{ExecutionContextExecutor, Future, Promise}
 
-abstract class FilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
+abstract class FilterLogic(uuid: UUID, context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
 
   val initPromise = Promise[FilterProxy]
 
@@ -42,7 +41,7 @@ abstract class FilterLogic(context: StageContext, configuration: Configuration, 
       promise.success(FilterLogic.this.state())
     })
 
-    override val id: UUID = configuration.id
+    override val id: UUID = uuid
 
     override def configure(configuration: Configuration): Future[FilterState] = {
       val promise = Promise[FilterState]()
@@ -70,6 +69,5 @@ abstract class FilterLogic(context: StageContext, configuration: Configuration, 
 
   def configure(configuration: Configuration): Unit
 
-  def state(): FilterState = FilterState(configuration.id, Green)
-
+  def state(): FilterState = FilterState(uuid, Green)
 }
