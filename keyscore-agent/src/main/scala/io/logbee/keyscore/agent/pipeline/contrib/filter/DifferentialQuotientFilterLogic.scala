@@ -1,66 +1,83 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
-import java.util.{Locale, UUID}
+import java.util.Locale
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
+import io.logbee.keyscore.agent.pipeline.contrib.filter.DifferentialQuotientFilterLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
+import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.{Dataset, DecimalValue, Field, Record}
+import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, PresentField}
+import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
 object DifferentialQuotientFilterLogic extends Described {
 
-  val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.DifferentialQuotientFilterLogic"
-  val filterId: UUID = UUID.fromString("a83715fd-bc0f-4012-9527-59c6d4a1f6cd")
+  private val xFieldNameParameter = FieldNameParameterDescriptor(
+    ref = "dqf.xFieldName",
+    info = ParameterInfo(
+      displayName = TextRef("xFieldDisplayName"),
+      description = TextRef("xFieldDescription"),
+    ),
+    hint = PresentField,
+    defaultValue = "x",
+    mandatory = true
+  )
 
-  override def describe: MetaFilterDescriptor = {
-    MetaFilterDescriptor(filterId, filterName, Map(
-      Locale.ENGLISH -> FilterDescriptorFragment(
-        displayName = "Differential Quotient",
-        description = "Computes the differential quotient based on the specified fields between two consecutive records.",
-        previousConnection = FilterConnection(isPermitted = true),
-        nextConnection = FilterConnection(isPermitted = true),
-        category = "Math",
-        parameters = List(
-          TextParameterDescriptor(
-            name = "xFieldName",
-            displayName = "x-Field",
-            description = "Name of the field containing the x value.",
-            mandatory = true,
-            validator = ".*"),
-          TextParameterDescriptor(
-            name = "yFieldName",
-            displayName = "y-Field",
-            description = "Name of the field containing the y value.",
-            mandatory = true,
-            validator = ".*"),
-          TextParameterDescriptor(
-            name = "targetFieldName",
-            displayName = "Target Field",
-            description = "Name of the field where the computed value should be stored.",
-            mandatory = true,
-            validator = ".*"
-          )
-        ))))
-  }
+  private val yFieldNameParameter = FieldNameParameterDescriptor(
+    ref = "dqf.yFieldName",
+    info = ParameterInfo(
+      displayName = TextRef("yFieldDisplayName"),
+      description = TextRef("yFieldDescription"),
+    ),
+    hint = PresentField,
+    defaultValue = "y",
+    mandatory = true
+  )
+
+  private val targetFieldNameParameter = FieldNameParameterDescriptor(
+    ref = "dqf.targetFieldName",
+    info = ParameterInfo(
+      displayName = TextRef("targetFieldDisplayName"),
+      description = TextRef("targetFieldDescription"),
+    ),
+    hint = AbsentField,
+    defaultValue = "m",
+    mandatory = true
+  )
+
+  override def describe = Descriptor(
+    uuid = "a83715fd-bc0f-4012-9527-59c6d4a1f6cd",
+    describes = FilterDescriptor(
+        name = classOf[DifferentialQuotientFilterLogic].getName,
+        displayName = TextRef("displayName"),
+        description = TextRef("description"),
+        categories = Seq(TextRef("categories")),
+        parameters = List(xFieldNameParameter, yFieldNameParameter, targetFieldNameParameter)
+    ),
+    localization = Localization.fromResourceBundle(
+      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.DifferentialQuotientFilter",
+      Locale.ENGLISH, Locale.GERMAN
+    )
+  )
 }
-class DifferentialQuotientFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) with StageLogging {
+class DifferentialQuotientFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) with StageLogging {
 
-  private var xFieldName = "x"
-  private var yFieldName = "y"
-  private var targetFieldName = "m"
+  private var xFieldName = xFieldNameParameter.defaultValue
+  private var yFieldName = yFieldNameParameter.defaultValue
+  private var targetFieldName = targetFieldNameParameter.defaultValue
 
   private var lastValues: Option[(Double, Double)] = None
 
-  override def initialize(configuration: FilterConfiguration): Unit = configure(configuration)
+  override def initialize(configuration: Configuration): Unit = configure(configuration)
 
-  override def configure(configuration: FilterConfiguration): Unit = {
-    configuration.parameters.foreach {
-      case TextParameter("xFieldName", value) => xFieldName = value
-      case TextParameter("yFieldName", value) => yFieldName = value
-      case TextParameter("targetFieldName", value) => targetFieldName = value
-      case _ =>
-    }
+  override def configure(configuration: Configuration): Unit = {
+    xFieldName = configuration.getValueOrDefault(xFieldNameParameter, xFieldName)
+    yFieldName = configuration.getValueOrDefault(yFieldNameParameter, xFieldName)
+    targetFieldName = configuration.getValueOrDefault(targetFieldNameParameter, xFieldName)
   }
 
   override def onPush(): Unit = {
