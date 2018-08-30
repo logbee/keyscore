@@ -9,7 +9,7 @@ import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.{FilterExtension, SinkExtension, SourceExtension}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.descriptor.Descriptor
+import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 import scala.collection.mutable
 
@@ -40,7 +40,7 @@ class FilterManager extends Actor with ActorLogging {
   private val eventBus = context.system.eventStream
   private val filterLoader = new FilterLoader
 
-  private val descriptors = mutable.HashMap.empty[String, Registration]
+  private val descriptors = mutable.HashMap.empty[DescriptorRef, Registration]
 
   override def preStart(): Unit = {
     eventBus.subscribe(self, classOf[RegisterExtension])

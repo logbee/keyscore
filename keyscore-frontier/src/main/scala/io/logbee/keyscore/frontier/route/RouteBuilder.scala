@@ -198,11 +198,12 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
           } ~
             get {
               onSuccess(pipelineManager ? RequestExistingConfigurations()) {
-                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
-                  case Some(filter) => complete(StatusCodes.OK, filter)
-                  case None => complete(StatusCodes.NotFound
-                  )
-                }
+                // TODO: Fix Me!
+//                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
+//                  case Some(filter) => complete(StatusCodes.OK, filter)
+//                  case None => complete(StatusCodes.NotFound
+//                  )
+//                }
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }

@@ -9,10 +9,16 @@ option (scalapb.options) = {
     flat_package: true
 };
 
+message ConfigurationRef {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.configuration.ConfigurationRefCompanion";
+    string uuid = 1;
+}
+
 message Configuration {
     option (scalapb.message).extends = "io.logbee.keyscore.model.configuration.QueryableConfiguration";
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.configuration.ConfigurationCompanion";
-    Configuration parent = 2;
+    ConfigurationRef uuid = 1 [(scalapb.field).no_box = true];
+    ConfigurationRef parent = 2;
     repeated Parameter parameters = 3;
 }
 

@@ -1,4 +1,5 @@
 package io.logbee.keyscore.commons.pipeline
+
 import akka.actor.ActorRef
 import io.logbee.keyscore.model.{PipelineConfiguration, PipelineInstance}
 

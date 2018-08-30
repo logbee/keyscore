@@ -133,18 +133,18 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
   def checkIfCapabilitiesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[Descriptor])): Boolean = {
     var requiredFilters: ListBuffer[String] = ListBuffer.empty
 
-    requiredFilters += pipelineConfiguration.sink.descriptor.name
-    requiredFilters += pipelineConfiguration.source.descriptor.name
-    pipelineConfiguration.filter.foreach(filter => {
-      requiredFilters += filter.descriptor.name
-    })
-
-    if (requiredFilters.count(filtername => agent._2.map(descriptor => descriptor.name).contains(filtername)) ==
-      requiredFilters.size) {
-      return true
-    } else {
-      log.info("")
-    }
+//    requiredFilters += pipelineConfiguration.sink.descriptor.name
+//    requiredFilters += pipelineConfiguration.source.descriptor.name
+//    pipelineConfiguration.filter.foreach(filter => {
+//      requiredFilters += filter.descriptor.name
+//    })
+//
+//    if (requiredFilters.count(filtername => agent._2.map(descriptor => descriptor.name).contains(filtername)) ==
+//      requiredFilters.size) {
+//      return true
+//    } else {
+//      log.info("")
+//    }
     false
   }
 
