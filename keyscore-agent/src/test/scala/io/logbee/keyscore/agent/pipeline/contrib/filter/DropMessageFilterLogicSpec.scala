@@ -7,9 +7,9 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData.{datasetMulti1, datasetMulti2}
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor, TextListParameter}
+import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
+import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter}
+import io.logbee.keyscore.model.data.Dataset
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -25,11 +25,11 @@ class DropMessageFilterLogicSpec extends WordSpec with Matchers with ScalaFuture
 
 
     val context = StageContext(system, executionContext)
-    val provider = (ctx: StageContext, c: FilterConfiguration, s: FlowShape[Dataset, Dataset]) => new DropMessageFilterLogic(ctx, c, s)
+    val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new DropMessageFilterLogic(LogicParameters(randomUUID(), ctx, c), s)
 
     val messagesToDrop = TextListParameter("messagesToRetain", List("non.+", "bartolemaeus"))
-    val initialConfig = FilterConfiguration(randomUUID(), FilterDescriptor(randomUUID(), "retainMessageFilterLogic"), List(messagesToDrop))
-    val filterStage = new FilterStage(context,initialConfig,provider)
+    val initialConfig = Configuration(parameters = Seq(messagesToDrop))
+    val filterStage = new FilterStage(context, initialConfig, provider)
 
     val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
