@@ -12,7 +12,7 @@ option (scalapb.options) = {
 message PipelineBlueprint {
     string uuid = 1;
     Configuration configuration = 2;
-    map<string, SealedBlueprint> blueprints = 3;
+    repeated SealedBlueprint blueprints = 3;
 }
 
 message SealedBlueprint {

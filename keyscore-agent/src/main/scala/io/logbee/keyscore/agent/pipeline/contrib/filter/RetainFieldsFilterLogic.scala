@@ -1,61 +1,59 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
-import java.util.UUID.fromString
-import java.util.{Locale, ResourceBundle}
+import java.util.Locale
 
 import akka.stream.FlowShape
+import io.logbee.keyscore.agent.pipeline.contrib.filter.RetainFieldsFilterLogic.fieldNamesParameter
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, StageContext}
-import io.logbee.keyscore.model.filter._
-import io.logbee.keyscore.model.{Dataset, Described, Record}
+import io.logbee.keyscore.model.Described
+import io.logbee.keyscore.model.ToOption.T2OptionT
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.{Dataset, Record}
+import io.logbee.keyscore.model.descriptor.FieldNameHint.PresentField
+import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
-import scala.collection.mutable
+import scala.Int.MaxValue
 
 object RetainFieldsFilterLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RetainFieldsFilterLogic"
-  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RetainFieldsFilter"
-  private val filterId = "99f4aa2a-ee96-4cf9-bda5-261efb3a8ef6"
+  private val fieldNamesParameter = FieldNameListParameterDescriptor(
+    ref = "retain.fieldNames",
+    info = ParameterInfo(TextRef("fieldNamesDisplayName"), TextRef("fieldNamesDescription")),
+    descriptor = FieldNameParameterDescriptor(
+      hint = PresentField
+    ),
+    min = 1,
+    max = MaxValue
+  )
 
-  override def describe: MetaFilterDescriptor = {
-    val descriptorMap = mutable.Map.empty[Locale, FilterDescriptorFragment]
-    descriptorMap ++= Map(
-      Locale.ENGLISH -> descriptor(Locale.ENGLISH),
-      Locale.GERMAN -> descriptor(Locale.GERMAN)
+  override def describe = Descriptor(
+    uuid = "99f4aa2a-ee96-4cf9-bda5-261efb3a8ef6",
+    describes = FilterDescriptor(
+      name = classOf[RetainFieldsFilterLogic].getName,
+      displayName = TextRef("displayName"),
+      description = TextRef("description"),
+      categories = Seq(TextRef("category")),
+      parameters = Seq(fieldNamesParameter)
+    ),
+    localization = Localization.fromResourceBundle(
+      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RetainFieldsFilter",
+      Locale.ENGLISH, Locale.GERMAN
     )
-
-    MetaFilterDescriptor(fromString(filterId), filterName, descriptorMap.toMap)
-  }
-
-  private def descriptor(language: Locale): FilterDescriptorFragment = {
-    val translatedText: ResourceBundle = ResourceBundle.getBundle(bundleName, language)
-    FilterDescriptorFragment(
-      displayName = translatedText.getString("displayName"),
-      description = translatedText.getString("description"),
-      previousConnection = FilterConnection(isPermitted = true),
-      nextConnection = FilterConnection(isPermitted = true),
-      parameters = List(
-        ListParameterDescriptor("fieldsToRetain", translatedText.getString("fieldsToRetainName"), translatedText.getString("fieldsToRetainDescription"),
-          TextParameterDescriptor("fieldName", translatedText.getString("fieldValueName"), translatedText.getString("fieldValueDescription")))
-      ))
-  }
+  )
 }
 
-class RetainFieldsFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
+class RetainFieldsFilterLogic(context: StageContext, configuration: Configuration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
 
-  private var fieldsToRetain = List.empty[String]
+  private var fieldsToRetain = Seq.empty[String]
 
-  override def initialize(configuration: FilterConfiguration): Unit = {
+  override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
 
-  override def configure(configuration: FilterConfiguration): Unit = {
-    for (parameter <- configuration.parameters)
-      parameter.name match {
-        case "fieldsToRetain" =>
-          fieldsToRetain = parameter.value.asInstanceOf[List[String]]
-        case _ =>
-      }
+  override def configure(configuration: Configuration): Unit = {
 
+    fieldsToRetain = configuration.getValueOrDefault(fieldNamesParameter, fieldsToRetain)
   }
 
   override def onPush(): Unit = {
