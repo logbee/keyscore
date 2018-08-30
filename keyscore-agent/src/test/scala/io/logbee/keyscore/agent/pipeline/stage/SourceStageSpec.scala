@@ -6,8 +6,8 @@ import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.model.Dataset
-import io.logbee.keyscore.model.filter.{FilterConfiguration, FilterDescriptor}
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -24,21 +24,21 @@ class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with Mock
 
     "pass the appropriate configuration to it's logic" in {
 
-      val updateConfiguration = Promise[FilterConfiguration]
-      val initializeConfiguration = Promise[FilterConfiguration]
+      val updateConfiguration = Promise[Configuration]
+      val initializeConfiguration = Promise[Configuration]
 
       val uuid = randomUUID()
-      val descriptor = FilterDescriptor(randomUUID(), "test")
-      val configurationA = FilterConfiguration(uuid, descriptor, List.empty)
-      val configurationB = FilterConfiguration(uuid, descriptor, List.empty)
+      val configurationA = Configuration()
+      val configurationB = Configuration()
       val context = StageContext(system, executionContext)
-      val provider = (ctx: StageContext, c: FilterConfiguration, s: SourceShape[Dataset]) => new SourceLogic(ctx, c, s) {
 
-        override def initialize(configuration: FilterConfiguration): Unit = {
+      val provider = (ctx: StageContext, c: Configuration, s: SourceShape[Dataset]) => new SourceLogic(LogicParameters(randomUUID(), ctx, c), s) {
+
+        override def initialize(configuration: Configuration): Unit = {
           initializeConfiguration.success(configuration)
         }
 
-        override def configure(configuration: FilterConfiguration): Unit = {
+        override def configure(configuration: Configuration): Unit = {
           updateConfiguration.success(configuration)
         }
 
