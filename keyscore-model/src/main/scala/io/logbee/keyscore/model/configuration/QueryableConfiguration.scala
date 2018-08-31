@@ -22,6 +22,16 @@ trait QueryableConfiguration {
     case (result, _) => result
   }.toMap
 
+  def findBooleanValue(ref: ParameterRef): Option[Boolean] = parameterMapping.get(ref.id) match {
+    case Some(value: Boolean) => Some(value)
+    case _ => None
+  }
+
+  def findTextValue(ref: ParameterRef): Option[String] = parameterMapping.get(ref.id) match {
+    case Some(value: String) => Some(value)
+    case _ => None
+  }
+
   def findValue(descriptor: BooleanParameterDescriptor): Option[Boolean] = parameterMapping.get(descriptor.ref.id) match {
     case Some(value) if value.isInstanceOf[Boolean] => Option(value.asInstanceOf[Boolean])
     case _ => None
