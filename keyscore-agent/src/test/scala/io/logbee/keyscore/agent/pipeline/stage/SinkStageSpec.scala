@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.stream.SinkShape
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import org.junit.runner.RunWith

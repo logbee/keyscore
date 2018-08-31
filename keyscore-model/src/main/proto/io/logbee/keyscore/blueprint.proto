@@ -17,7 +17,8 @@ message BlueprintRef {
 message PipelineBlueprint {
     BlueprintRef ref = 1 [(scalapb.field).no_box = true];
     repeated SealedBlueprint blueprints = 3;
-//    repeated Configuration configurations = 5;
+    string name = 5;
+    string description = 6;
 }
 
 message SealedBlueprint {

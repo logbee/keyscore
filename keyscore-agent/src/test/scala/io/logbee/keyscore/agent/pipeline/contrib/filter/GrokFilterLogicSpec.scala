@@ -6,9 +6,9 @@ import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic.{fieldNamesParameter, patternParameter}
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter, TextParameter}
 import io.logbee.keyscore.model.data.{Dataset, DecimalField, Record}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef

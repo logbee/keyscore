@@ -5,7 +5,7 @@ import java.util.UUID.randomUUID
 import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
-import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import org.junit.runner.RunWith

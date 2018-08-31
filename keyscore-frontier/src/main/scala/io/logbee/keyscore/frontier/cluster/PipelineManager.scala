@@ -64,7 +64,8 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       if (availableAgents.nonEmpty) {
         val agent = createListOfPossibleAgents(pipelineConfiguration).head
         log.info("Selected Agent is " + agent.toString())
-        pipelineSchedulerSelector(agent, context) ! CreatePipelineOrder(pipelineConfiguration)
+        // TODO: Fix Me!
+//        pipelineSchedulerSelector(agent, context) ! CreatePipelineOrder(pipelineConfiguration)
       } else {
         log.error("No Agent available")
       }

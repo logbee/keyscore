@@ -5,6 +5,7 @@ import java.util.UUID
 import akka.testkit.TestProbe
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.configuration.Configuration
 import org.junit.runner.RunWith
@@ -34,7 +35,7 @@ class PipelineSchedulerSpec extends WordSpec with Matchers with ScalaFutures wit
 
       val streamConfiguration = PipelineConfiguration(streamId, "test", "A test pipeline.", sourceConfiguration, List.empty, sinkConfiguration)
 
-      testee ! CreatePipeline(streamConfiguration)
+//      testee ! CreatePipeline(streamConfiguration)
 
 //      whenReady(().mapTo[ActorRef]) { ref =>
 //        whenReady((ref ? RequestPipelineInstance).mapTo[PipelineInstance]) { state =>

@@ -38,6 +38,8 @@ dependencies {
 
     runtime dependency.logback
 
+    testCompile project(':keyscore-frontier')
+
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit
 

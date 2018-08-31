@@ -9,8 +9,8 @@ import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import akka.testkit.EventFilter
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.pipeline.ExampleData.{dataset1, messageTextField1}
-import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import org.junit.runner.RunWith

@@ -7,6 +7,7 @@ import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.TestSource
 import io.logbee.keyscore.agent.pipeline._
 import io.logbee.keyscore.agent.pipeline.stage.{LogicParameters, SinkStage, StageContext}
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, NumberParameter, TextParameter}
 import io.logbee.keyscore.model.data.Dataset
 import org.scalamock.scalatest.MockFactory

@@ -3,6 +3,7 @@ package io.logbee.keyscore.agent.pipeline
 import akka.testkit.TestProbe
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.FreeSpec
 import org.scalatest.junit.JUnitRunner

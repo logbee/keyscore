@@ -6,8 +6,8 @@ import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData.csvDatasetA
-import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter, TextParameter}
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import org.junit.runner.RunWith

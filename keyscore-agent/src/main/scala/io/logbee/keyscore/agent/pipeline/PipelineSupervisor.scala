@@ -73,21 +73,19 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case CreatePipeline(blueprint) =>
 
-      log.info(s"Creating pipeline <${blueprint.ref.uuid}>.")
-//
-//      val pipeline = Pipeline(blueprint)
-//      val stageContext = StageContext(context.system, context.dispatcher)
-//
-//      become(configuring(pipeline))
-//
-//      log.info("Start sending messages to FilterManager ")
-//
-//      filterManager ! CreateSinkStage(stageContext, null, blueprint.sink)
-//      filterManager ! CreateSourceStage(stageContext, null, blueprint.source)
-//
-//      blueprint.filter.foreach(filter => filterManager ! CreateFilterStage(stageContext, null, filter))
+      val stageContext = StageContext(context.system, context.dispatcher)
 
-//      scheduleStart(pipeline, pipelineStartTrials)
+      log.info(s"Creating pipeline <${blueprint.ref.uuid}>.")
+
+      val pipeline = Pipeline(blueprint)
+
+      become(configuring(pipeline))
+
+      blueprint.blueprints.foreach { stageBlueprint =>
+        context.actorOf(BlueprintMaterializer(stageContext, stageBlueprint, filterManager))
+      }
+
+      scheduleStart(pipeline, pipelineStartTrials)
 
     case RequestPipelineInstance(receiver) =>
       receiver ! PipelineInstance(Red)
@@ -110,14 +108,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case StartPipeline(trials) =>
 
       if (trials <= 1) {
-        log.error(s"Failed to start pipeline <${pipeline.id}> with ${pipeline.configuration}")
+        log.error(s"Failed to start pipeline <${pipeline.id}> with ${pipeline.pipelineBlueprint}")
         context.stop(self)
       }
       else {
 
         if (pipeline.isComplete) {
 
-          log.info(s"Constructing pipeline <${pipeline.configuration}>")
+          log.info(s"Constructing pipeline <${pipeline.pipelineBlueprint}>")
 
           val head = Source.fromGraph(pipeline.source.get).viaMat(new ValveStage) { (sourceProxyFuture, valveProxyFuture) =>
             val controller = for {
@@ -162,10 +160,10 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       }
 
     case RequestPipelineInstance(receiver) =>
-      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Red)
+      receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.name, pipeline.pipelineBlueprint.description, Red)
 
     case RequestPipelineConfigurations(receiver) =>
-      receiver ! pipeline.configuration
+      receiver ! pipeline.pipelineBlueprint
   }
 
   private def materializing(pipeline: Pipeline, controllers: List[Controller]): Receive = {
@@ -183,10 +181,10 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       context.stop(self)
 
     case RequestPipelineInstance(receiver) =>
-      receiver ! PipelineInstance(pipeline.configuration.id, pipeline.configuration.name, pipeline.configuration.description, Yellow)
+      receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.name, pipeline.pipelineBlueprint.description, Yellow)
 
     case RequestPipelineConfigurations(receiver) =>
-      receiver ! pipeline.configuration
+      receiver ! pipeline.pipelineBlueprint
   }
 
   private def running(controller: PipelineController): Receive = {
@@ -195,10 +193,10 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.info(s"Updating pipeline <${configuration.id}>")
 
     case RequestPipelineInstance(receiver) =>
-      receiver ! PipelineInstance(controller.configuration.id, controller.configuration.name, controller.configuration.description, Green)
+      receiver ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.name, controller.pipelineBlueprint.description, Green)
 
     case RequestPipelineConfigurations(receiver) =>
-      receiver ! controller.configuration
+      receiver ! controller.pipelineBlueprint
 
     case PauseFilter(filterId, doPause) =>
       val lastSender = sender

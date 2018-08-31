@@ -3,8 +3,8 @@ package io.logbee.keyscore.agent.pipeline.valve
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.agent.pipeline.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open}
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.data._
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures

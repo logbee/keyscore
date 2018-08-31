@@ -9,6 +9,7 @@ import io.logbee.keyscore.agent.pipeline.ExampleData._
 import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
+import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.{After, Before}

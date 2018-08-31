@@ -3,9 +3,12 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.filter.FilterState
+
+import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 
 import scala.concurrent.Future
 
@@ -13,9 +16,9 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
 
   private val controllerMap = controllers.map(controller => controller.id -> controller).toMap
 
-  def configuration: PipelineConfiguration = pipeline.configuration
+  def pipelineBlueprint: PipelineBlueprint = pipeline.pipelineBlueprint
 
-  def id: UUID = configuration.id
+  def id: UUID = pipelineBlueprint.ref.uuid
 
   def configure(id: UUID, configuration: Configuration): Option[Future[FilterState]] = {
     controllerMap.get(id).map(_.configure(configuration))
