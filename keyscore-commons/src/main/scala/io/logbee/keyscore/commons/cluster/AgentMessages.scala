@@ -6,7 +6,7 @@ import akka.actor.ActorRef
 import akka.cluster.Member
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
-import io.logbee.keyscore.model.descriptor.Descriptor
+import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 case class AgentJoin(id: UUID, name: String)
 case class AgentJoinAccepted()

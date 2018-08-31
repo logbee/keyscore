@@ -162,7 +162,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case RequestPipelineInstance(receiver) =>
       receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.name, pipeline.pipelineBlueprint.description, Red)
 
-    case RequestPipelineConfigurations(receiver) =>
+    case RequestPipelineBlueprints(receiver) =>
       receiver ! pipeline.pipelineBlueprint
   }
 
@@ -183,7 +183,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case RequestPipelineInstance(receiver) =>
       receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.name, pipeline.pipelineBlueprint.description, Yellow)
 
-    case RequestPipelineConfigurations(receiver) =>
+    case RequestPipelineBlueprints(receiver) =>
       receiver ! pipeline.pipelineBlueprint
   }
 
@@ -195,7 +195,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case RequestPipelineInstance(receiver) =>
       receiver ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.name, controller.pipelineBlueprint.description, Green)
 
-    case RequestPipelineConfigurations(receiver) =>
+    case RequestPipelineBlueprints(receiver) =>
       receiver ! controller.pipelineBlueprint
 
     case PauseFilter(filterId, doPause) =>

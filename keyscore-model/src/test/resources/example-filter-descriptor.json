@@ -1,7 +1,9 @@
 {
   "jsonClass": "io.logbee.keyscore.model.descriptor.Descriptor",
-  "id": "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
-  "describe": {
+  "ref": {
+    "uuid": "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610"
+  },
+  "describes": {
     "jsonClass": "io.logbee.keyscore.model.descriptor.FilterDescriptor",
     "name": "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic",
     "displayName": {
@@ -31,8 +33,8 @@
         },
         "defaultValue": "Hello World",
         "validator": {
-          "pattern": "Hello*",
-          "patternType": "Glob"
+          "expression": "Hello*",
+          "expressionType": "Glob"
         },
         "mandatory": false
       },
@@ -95,11 +97,11 @@
         },
         "parameters": [
           {
-            "jsonClass": "io.logbee.keyscore.model.descriptor.PatternParameterDescriptor",
+            "jsonClass": "io.logbee.keyscore.model.descriptor.ExpressionParameterDescriptor",
             "ref": {
               "id": "example.filter.aGrokPattern"
             },
-            "patternType": "Grok",
+            "expressionType": "Grok",
             "defaultValue": "",
             "mandatory": false
           },
@@ -124,8 +126,8 @@
               "defaultValue": "",
               "hint": "PresentField",
               "validator": {
-                "pattern": "^_.*",
-                "patternType": "RegEx"
+                "expression": "^_.*",
+                "expressionType": "RegEx"
               },
               "mandatory": false
             },
@@ -156,13 +158,13 @@
       },
       "description": {
         "translations": {
-          "en": "Adding new fields and their values.",
+          "en": "HinzufÃ¼gen von neuen Feldern mit dazugehÃ¶rigen Werten zum aktuellen Datensatz.",
           "de": "HinzufÃ¼gen von neuen Feldern mit dazugehÃ¶rigen Werten zum aktuellen Datensatz."
         }
       },
       "fieldValueName": {
         "translations": {
-          "en": "Value",
+          "en": "Wert",
           "de": "Wert"
         }
       },
@@ -174,25 +176,25 @@
       },
       "fieldsToAddName": {
         "translations": {
-          "en": "Fields to add",
+          "en": "HinzuzufÃ¼gende Felder",
           "de": "HinzuzufÃ¼gende Felder"
         }
       },
       "fieldsToAddDescription": {
         "translations": {
-          "en": "These fields will be added by this filter.",
+          "en": "Diese Felder werden dem Datensatz hinzugefÃ¼gt.",
           "de": "Diese Felder werden dem Datensatz hinzugefÃ¼gt."
         }
       },
       "fieldKeyDescription": {
         "translations": {
-          "en": "The identifier of this field.",
+          "en": "Der Name des neuen Feldes.",
           "de": "Der Name des neuen Feldes."
         }
       },
       "displayName": {
         "translations": {
-          "en": "Add Fields Filter",
+          "en": "Felder hinzufÃ¼gen",
           "de": "Felder hinzufÃ¼gen"
         }
       },
@@ -210,7 +212,7 @@
       },
       "fieldValueDescription": {
         "translations": {
-          "en": "The value of the added field.",
+          "en": "Der Wert des neuen Feldes.",
           "de": "Der Wert des neuen Feldes."
         }
       }

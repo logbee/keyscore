@@ -7,9 +7,9 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{DeleteAllPipelines, RequestExistingConfigurations, RequestExistingPipelines}
-import io.logbee.keyscore.model.PipelineConfiguration
-import io.logbee.keyscore.model.descriptor.Descriptor
+import io.logbee.keyscore.frontier.cluster.PipelineManager.{DeleteAllPipelines, RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.model.blueprint._
+import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -19,9 +19,9 @@ object PipelineManager {
 
   case class RequestExistingPipelines()
 
-  case class RequestExistingConfigurations()
+  case class RequestExistingBlueprints()
 
-  case class CreatePipeline(pipelineConfiguration: PipelineConfiguration)
+  case class CreatePipeline(pipelineBlueprint: PipelineBlueprint)
 
   case class DeletePipeline(id: UUID)
 
@@ -59,13 +59,12 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
   }
 
   override def receive: Receive = {
-    case PipelineManager.CreatePipeline(pipelineConfiguration) =>
+    case PipelineManager.CreatePipeline(pipelineBlueprint) =>
       log.info("Received CreatePipeline")
       if (availableAgents.nonEmpty) {
-        val agent = createListOfPossibleAgents(pipelineConfiguration).head
+        val agent = createListOfPossibleAgents(pipelineBlueprint).head
         log.info("Selected Agent is " + agent.toString())
-        // TODO: Fix Me!
-//        pipelineSchedulerSelector(agent, context) ! CreatePipelineOrder(pipelineConfiguration)
+        pipelineSchedulerSelector(agent, context) ! CreatePipelineOrder(pipelineBlueprint)
       } else {
         log.error("No Agent available")
       }
@@ -124,35 +123,35 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
         pipelineSchedulerSelector(agent, context) ! RequestPipelineInstance(collector)
       })
 
-    case RequestExistingConfigurations() =>
+    case RequestExistingBlueprints() =>
       val collector = context.system.actorOf(PipelineConfigurationCollector(sender, availableAgents.keys))
       availableAgents.keys.foreach(agent => {
-        pipelineSchedulerSelector(agent, context) ! RequestPipelineConfigurations(collector)
+        pipelineSchedulerSelector(agent, context) ! RequestPipelineBlueprints(collector)
       })
   }
 
-  def checkIfCapabilitiesMatchRequirements(pipelineConfiguration: PipelineConfiguration, agent: (ActorRef, List[Descriptor])): Boolean = {
-    var requiredFilters: ListBuffer[String] = ListBuffer.empty
+  def checkIfCapabilitiesMatchRequirements(requiredDescriptors: List[DescriptorRef], agent: (ActorRef, List[Descriptor])): Boolean = {
 
-//    requiredFilters += pipelineConfiguration.sink.descriptor.name
-//    requiredFilters += pipelineConfiguration.source.descriptor.name
-//    pipelineConfiguration.filter.foreach(filter => {
-//      requiredFilters += filter.descriptor.name
-//    })
-//
-//    if (requiredFilters.count(filtername => agent._2.map(descriptor => descriptor.name).contains(filtername)) ==
-//      requiredFilters.size) {
-//      return true
-//    } else {
-//      log.info("")
-//    }
+    if (requiredDescriptors.count(descriptorRef => agent._2.map(descriptor => descriptor.ref).contains(descriptorRef)) ==
+      requiredDescriptors.size) {
+      return true
+    }
     false
   }
 
-  def createListOfPossibleAgents(pipelineConfiguration: PipelineConfiguration): List[ActorRef] = {
+  def createListOfPossibleAgents(pipelineBlueprint: PipelineBlueprint): List[ActorRef] = {
+
+    val requiredDescriptors = pipelineBlueprint.blueprints.foldLeft(List.empty[DescriptorRef]) {
+      case (result, blueprint: SourceBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
+      case (result, blueprint: FilterBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
+      case (result, blueprint: SinkBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
+      case (result, blueprint: BranchBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
+      case (result, blueprint: MergeBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
+    }
+
     var possibleAgents: ListBuffer[ActorRef] = ListBuffer.empty
     availableAgents.foreach { agent =>
-      if (checkIfCapabilitiesMatchRequirements(pipelineConfiguration, agent)) {
+      if (checkIfCapabilitiesMatchRequirements(requiredDescriptors, agent)) {
         possibleAgents += agent._1
       } else {
         log.info(s"Agent '$agent' doesn't match requirements.")

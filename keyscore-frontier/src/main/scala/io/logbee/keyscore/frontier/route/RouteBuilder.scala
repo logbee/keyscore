@@ -4,10 +4,13 @@ import java.util.Locale
 
 import akka.actor.FSM.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.Publish
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.HttpOriginRange
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
@@ -15,17 +18,20 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster}
+import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
+import io.logbee.keyscore.commons.{BlueprintService, HereIam, WhoIs}
+import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster, Topics}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.Frontier.BuildServer
 import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingConfigurations, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.{ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.route.RouteBuilder.BuildFullRoute
 import io.logbee.keyscore.model.WhichValve.whichValve
+import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s._
@@ -55,8 +61,11 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   implicit val serialization = Serialization
   implicit val formats = KeyscoreFormats.formats
 
+  private val mediator = DistributedPubSub(context.system).mediator
+
   val agentManager = aM
   val pipelineManager = system.actorOf(PipelineManager(agentManager))
+  var blueprintManager = null
   val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
 
   private val corsSettings = CorsSettings.defaultSettings.copy(
@@ -67,81 +76,82 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
 
   val settings = cors(corsSettings)
 
-  val pipelineRoute = pathPrefix("pipeline") {
-    pathPrefix("configuration") {
-      pathPrefix("*") {
-        get {
-          onSuccess(pipelineManager ? RequestExistingConfigurations()) {
-            case PipelineConfigurationResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
-            case _ => complete(StatusCodes.InternalServerError)
-          }
-        } ~
-          delete {
-            pipelineManager ! PipelineManager.DeleteAllPipelines
-            complete(StatusCodes.OK)
-          }
-      } ~
-        pathPrefix(JavaUUID) { configId =>
+  def pipelineRoute(blueprintManager: ActorRef): Route = {
+    pathPrefix("pipeline") {
+      pathPrefix("configuration") {
+        pathPrefix("*") {
           get {
-            onSuccess(pipelineManager ? RequestExistingConfigurations()) {
-              case PipelineConfigurationResponse(listOfConfigurations) =>
-                listOfConfigurations.find(pipelineConfiguration => pipelineConfiguration.id == configId) match {
-                  case Some(config) => complete(StatusCodes.OK, config)
-                  case None => complete(StatusCodes.NotFound)
-                }
+            onSuccess(pipelineManager ? RequestExistingBlueprints()) {
+              case PipelineBlueprintsResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
             delete {
-              pipelineManager ! PipelineManager.DeletePipeline(id = configId)
+              pipelineManager ! PipelineManager.DeleteAllPipelines
               complete(StatusCodes.OK)
             }
         } ~
-        put {
-          entity(as[PipelineConfiguration]) { pipeline =>
-            pipelineManager ! PipelineManager.CreatePipeline(pipeline)
-            complete(StatusCodes.Created)
-          }
-        } ~
-        post {
-          entity(as[PipelineConfiguration]) { pipeline =>
-            complete(StatusCodes.NotImplemented)
-          }
-        }
-    } ~
-      pathPrefix("instance") {
-        pathPrefix("*") {
-          get {
-            onSuccess(pipelineManager ? RequestExistingPipelines()) {
-              case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
-              case _ => complete(StatusCodes.InternalServerError)
+          pathPrefix(JavaUUID) { configId =>
+            get {
+              onSuccess(blueprintManager ? GetAllPipelineBlueprintsRequest) {
+                case GetAllPipelineBlueprintsResponse(blueprints) =>
+                  blueprints.find(blueprint => blueprint.ref.uuid == configId.toString) match {
+                    case Some(config) => complete(StatusCodes.OK, config)
+                    case None => complete(StatusCodes.NotFound)
+                  }
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            } ~
+              delete {
+                pipelineManager ! PipelineManager.DeletePipeline(id = configId)
+                complete(StatusCodes.OK)
+              }
+          } ~
+          put {
+            entity(as[PipelineBlueprint]) { blueprint =>
+              pipelineManager ! PipelineManager.CreatePipeline(blueprint)
+              complete(StatusCodes.Created)
             }
           } ~
-            delete {
+          post {
+            entity(as[PipelineBlueprint]) { blueprint =>
               complete(StatusCodes.NotImplemented)
             }
-        } ~
-          pathPrefix(JavaUUID) { instanceId =>
-            put {
-              complete(StatusCodes.NotImplemented)
+          }
+      } ~
+        pathPrefix("instance") {
+          pathPrefix("*") {
+            get {
+              onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
             } ~
               delete {
                 complete(StatusCodes.NotImplemented)
-              } ~
-              get {
-                onSuccess(pipelineManager ? RequestExistingPipelines()) {
-                  case PipelineInstanceResponse(listOfPipelines) =>
-                    listOfPipelines.find(instance => instance.id == instanceId) match {
-                      case Some(instance) => complete(StatusCodes.OK, instance)
-                      case None => complete(StatusCodes.NotFound)
-                    }
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
               }
-          }
-      }
+          } ~
+            pathPrefix(JavaUUID) { instanceId =>
+              put {
+                complete(StatusCodes.NotImplemented)
+              } ~
+                delete {
+                  complete(StatusCodes.NotImplemented)
+                } ~
+                get {
+                  onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                    case PipelineInstanceResponse(listOfPipelines) =>
+                      listOfPipelines.find(instance => instance.id == instanceId) match {
+                        case Some(instance) => complete(StatusCodes.OK, instance)
+                        case None => complete(StatusCodes.NotFound)
+                      }
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                }
+            }
+        }
+    }
   }
-
   val filterRoute = pathPrefix("filter") {
     pathPrefix(JavaUUID) { filterId =>
       path("pause") {
@@ -197,7 +207,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
             }
           } ~
             get {
-              onSuccess(pipelineManager ? RequestExistingConfigurations()) {
+              onSuccess(pipelineManager ? RequestExistingBlueprints()) {
                 // TODO: Fix Me!
 //                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
 //                  case Some(filter) => complete(StatusCodes.OK, filter)
@@ -271,11 +281,27 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-  override def receive: Receive = {
+
+  override def preStart(): Unit = {
+    mediator ! Publish(Topics.WhoIsTopic, WhoIs(BlueprintService))
+    context.become(initialize())
+  }
+
+  private def initialize() : Receive = {
+    case HereIam(BlueprintService, ref) =>
+      context.become(running(ref))
+  }
+
+  private def running(blueprintManager: ActorRef): Receive = {
     case BuildFullRoute =>
       val serverRoute = settings {
-        pipelineRoute ~ filterRoute ~ descriptorsRoute ~ agentsRoute ~ infoRoute
+        pipelineRoute(blueprintManager) ~ filterRoute ~ descriptorsRoute ~ agentsRoute ~ infoRoute
       }
       sender ! BuildServer(serverRoute)
+  }
+
+  override def receive: Receive = {
+    case _=>
+      log.error("Illegal State")
   }
 }

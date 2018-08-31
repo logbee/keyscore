@@ -72,7 +72,7 @@ class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging
         supervisor forward message
       })
 
-    case message: RequestPipelineConfigurations =>
+    case message: RequestPipelineBlueprints =>
       children.foreach( supervisor => {
         supervisor forward message
       })
