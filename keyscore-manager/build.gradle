@@ -43,7 +43,7 @@ task createDockerfile(type: Dockerfile) {
 }
 
 task copyResources(type: Copy) {
-    from file('../media/keyscore.light.svg')
+    from file('../media/svg/light/keyscore.light.svg')
     into "$buildDir/resources/"
 }
 

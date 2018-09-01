@@ -7,7 +7,7 @@ import {Component} from "@angular/core";
         <div class="loading-background">
             <div class="row justify-content-center">
                 <div class="col-12 justify-content-center d-flex mt-5">
-                    <img src="/assets/images/logos/keyscore.dark.svg">
+                    <img src="/assets/images/logos/svg/dark/keyscore.dark.svg">
                 </div>
             </div>
             <div class="row">

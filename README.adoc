@@ -1,4 +1,4 @@
-image::media/keyscore.light.svg[align=center]
+image::media/svg/light/keyscore.light.svg[align=center]
 ++++
 <p>
 <h1>KeyScore</h1>

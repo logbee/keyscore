@@ -8,7 +8,7 @@ import {TranslateService} from "@ngx-translate/core";
             <a routerLink="/dashboard"
                routerLinkActive="active">
                 <div class="sidebar-header">
-                    <img src="/assets/images/logos/keyscore-header.dark.svg">
+                    <img src="/assets/images/logos/svg/dark/keyscore.font.dark.svg">
                     <strong>KS</strong>
                 </div>
             </a>
