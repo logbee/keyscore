@@ -123,7 +123,7 @@ class BlueprintMaterializer(stageContext: StageContext, blueprint: SealedBluepri
   }
 
   private def becomeMaterializing(preparation: Preparation): Unit = {
-    if (preparation.isComplete()) {
+    if (preparation.isComplete) {
       become(materializing(Materialization(preparation.blueprint, preparation.descriptor.get, preparation.configuration.get)), discardOld = true)
       self ! InstantiateStage
     }
@@ -139,9 +139,8 @@ class BlueprintMaterializer(stageContext: StageContext, blueprint: SealedBluepri
   }
 
   case class Preparation(blueprint: SealedBlueprint, descriptor: Option[Descriptor] = None, configuration: Option[Configuration] = None) {
-    def isComplete(): Boolean = descriptor.isDefined && configuration.isDefined
+    def isComplete: Boolean = descriptor.isDefined && configuration.isDefined
   }
 
   case class Materialization(blueprint: SealedBlueprint, descriptor: Descriptor, configuration: Configuration)
-
 }
