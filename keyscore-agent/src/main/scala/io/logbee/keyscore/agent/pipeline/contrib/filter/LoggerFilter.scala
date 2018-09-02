@@ -6,11 +6,11 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.Described
-import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.{Descriptor, FilterDescriptor}
 import io.logbee.keyscore.model.localization.{Localization, TextRef}
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 object LoggerFilter extends Described {
 

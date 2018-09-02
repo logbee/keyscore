@@ -1,4 +1,4 @@
-package io.logbee.keyscore.commons.util
+package io.logbee.keyscore.model.util
 
 object Using {
   def using[A <: AutoCloseable, B](resource: A)(f: A => B): B =

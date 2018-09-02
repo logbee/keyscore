@@ -9,11 +9,11 @@ import com.google.common.base.Charsets
 import com.google.common.io.BaseEncoding.base64
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.model.Described
-import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, _}
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Localization, TextRef}
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 object FingerprintFilterLogic extends Described {
 

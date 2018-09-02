@@ -5,12 +5,12 @@ import java.util.Locale.{ENGLISH, GERMAN}
 import akka.stream.FlowShape
 import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic.fieldListParameter
 import io.logbee.keyscore.agent.pipeline.stage.{FilterLogic, LogicParameters}
-import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, Field, Record}
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Localization, TextRef}
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 object AddFieldsFilterLogic extends Described {
 

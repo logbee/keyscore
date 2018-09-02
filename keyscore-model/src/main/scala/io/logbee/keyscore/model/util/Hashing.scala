@@ -1,4 +1,4 @@
-package io.logbee.keyscore.commons.util
+package io.logbee.keyscore.model.util
 
 import java.security.MessageDigest
 import java.util.{Base64, UUID}

@@ -1,9 +1,9 @@
 package io.logbee.keyscore.model
 
-import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}

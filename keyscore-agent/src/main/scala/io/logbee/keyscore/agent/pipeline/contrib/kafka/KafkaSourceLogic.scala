@@ -9,13 +9,13 @@ import akka.stream.Attributes.InputBuffer
 import akka.stream.scaladsl.{Sink, SinkQueueWithCancel}
 import akka.stream.{Attributes, SourceShape}
 import io.logbee.keyscore.agent.pipeline.stage.{LogicParameters, SourceLogic}
-import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Localization, TextRef}
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.ext.JavaTypesSerializers

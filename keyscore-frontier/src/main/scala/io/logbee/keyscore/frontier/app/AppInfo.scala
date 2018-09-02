@@ -2,7 +2,7 @@ package io.logbee.keyscore.frontier.app
 
 import java.util.jar.Attributes
 
-import io.logbee.keyscore.commons.util.Using.using
+import io.logbee.keyscore.model.util.Using.using
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._

@@ -3,7 +3,7 @@ package io.logbee.keyscore.model
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ExpressionType.{Glob, Grok, JSONPath, RegEx}
 import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, AnyField, PresentField}
-import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.descriptor.{IconEncoding, IconFormat, _}
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import org.json4s.JsonAST.{JNull, JString}
 import org.json4s.native.Serialization
@@ -18,7 +18,7 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class DescriptorSpec extends FreeSpec with Matchers {
 
-  import io.logbee.keyscore.model.ToOption._
+  import io.logbee.keyscore.model.util.ToOption._
   import org.json4s.native.Serialization.{read, write, writePretty}
 
   implicit val formats = Serialization.formats(FullTypeHints(List(
@@ -26,7 +26,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
     classOf[FilterDescriptor],
     classOf[ParameterDescriptor],
     classOf[ParameterGroupCondition]
-  ))) + TextRefKeySerializer + LocaleKeySerializer + PatternTypeSerializer + FieldNameHintSerializer + FieldValueTypeSerializer
+  ))) + TextRefKeySerializer + LocaleKeySerializer + PatternTypeSerializer + FieldNameHintSerializer + FieldValueTypeSerializer + IconFormatSerializer + IconEncodingSerializer
 
   "A Dataset" - {
     "should" in {
@@ -71,7 +71,8 @@ class DescriptorSpec extends FreeSpec with Matchers {
                 FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*", ExpressionType.RegEx)),
                 min = 1, max = Int.MaxValue)
             ))
-          )
+          ),
+          icon = Icon.fromResource("/example-icon.svg")
         ),
         localization = Localization.fromJavaMapping(
           filterDisplayName -> Map(
@@ -172,5 +173,26 @@ class DescriptorSpec extends FreeSpec with Matchers {
   }, {
     case fieldValueType: FieldValueType =>
       JString(fieldValueType.getClass.getSimpleName.replace("$", ""))
+  }))
+
+  case object IconFormatSerializer extends CustomSerializer[IconFormat](format => ( {
+    case JString(format) => format match {
+      case "SVG" => IconFormat.SVG
+    }
+    case JNull => IconFormat.SVG
+  }, {
+    case format: IconFormat =>
+      JString(format.getClass.getSimpleName.replace("$", ""))
+  }))
+
+  case object IconEncodingSerializer extends CustomSerializer[IconEncoding](format => ( {
+    case JString(encoding) => encoding match {
+      case "RAW" => IconEncoding.RAW
+      case "Base64" => IconEncoding.Base64
+    }
+    case JNull => IconEncoding.RAW
+  }, {
+    case encoding: IconEncoding =>
+      JString(encoding.getClass.getSimpleName.replace("$", ""))
   }))
 }

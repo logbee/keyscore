@@ -9,13 +9,13 @@ import akka.stream.{OverflowStrategy, SinkShape}
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic.{bootstrapServerParameter, bootstrapServerPortParameter, topicParameter}
 import io.logbee.keyscore.agent.pipeline.stage.{LogicParameters, SinkLogic}
-import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Localization, TextRef}
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.json4s.ext.JavaTypesSerializers

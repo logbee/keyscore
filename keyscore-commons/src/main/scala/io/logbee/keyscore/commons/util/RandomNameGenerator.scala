@@ -1,6 +1,6 @@
 package io.logbee.keyscore.commons.util
 
-import io.logbee.keyscore.commons.util.Using.using
+import io.logbee.keyscore.model.util.Using.using
 
 import scala.io.Source
 import scala.util.Random

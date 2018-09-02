@@ -38,6 +38,7 @@ message FilterDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated TextRef categories = 4;
     repeated ParameterDescriptor parameters = 8;
+    Icon icon = 12;
 }
 
 message SourceDescriptor {
@@ -46,6 +47,7 @@ message SourceDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated TextRef categories = 4;
     repeated ParameterDescriptor parameters = 8;
+    Icon icon = 12;
 }
 
 message SinkDescriptor {
@@ -54,6 +56,7 @@ message SinkDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated TextRef categories = 4;
     repeated ParameterDescriptor parameters = 8;
+    Icon icon = 12;
 }
 
 message BranchDescriptor {
@@ -235,4 +238,20 @@ message DecimalRange {
     double step = 1;
     double start = 2;
     double end = 3;
+}
+
+message Icon {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.IconLoader";
+    string data = 1;
+    IconFormat format = 2;
+    IconEncoding encoding = 3;
+}
+
+enum IconFormat {
+    SVG = 0;
+}
+
+enum IconEncoding {
+    RAW = 0;
+    Base64 = 1;
 }
