@@ -15,7 +15,7 @@ object FrontierApplication extends App {
   implicit val timeout: Timeout = 5 seconds
 
   val config = ConfigFactory.load()
-  implicit val system = ActorSystem("keyscore")
+  implicit val system = ActorSystem("keyscore", config.getConfig("production").withFallback(config))
   private val isOperating: Boolean = config.getBoolean("keyscore.operating-mode")
   println(s"Frontier OperatingMode is ${isOperating}")
 

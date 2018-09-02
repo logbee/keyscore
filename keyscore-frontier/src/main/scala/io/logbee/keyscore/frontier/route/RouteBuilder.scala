@@ -19,23 +19,22 @@ import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
-import io.logbee.keyscore.commons.{BlueprintService, HereIam, WhoIs}
 import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster, Topics}
 import io.logbee.keyscore.commons.pipeline._
+import io.logbee.keyscore.commons.{BlueprintService, HereIam, WhoIs}
 import io.logbee.keyscore.frontier.Frontier
-import io.logbee.keyscore.frontier.Frontier.BuildServer
 import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.{ClusterCapabilitiesManager, PipelineManager}
-import io.logbee.keyscore.frontier.route.RouteBuilder.BuildFullRoute
+import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
+import io.logbee.keyscore.model.AgentModel
 import io.logbee.keyscore.model.WhichValve.whichValve
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s._
-import io.logbee.keyscore.model.{AgentModel, PipelineConfiguration}
 import org.json4s.native.Serialization
 
 import scala.concurrent.duration._
@@ -43,15 +42,19 @@ import scala.concurrent.duration._
 
 object RouteBuilder {
 
+  case object RouteBuilderInitialized
+
   case object BuildFullRoute
+
+  case class RouteResponse(route: Route)
 
   def apply(agentManager: ActorRef): Props = {
     Props(new RouteBuilder(agentManager))
   }
-
 }
 
 class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupport {
+
   val appInfo = AppInfo(classOf[Frontier])
 
   implicit val timeout: Timeout = 30 seconds
@@ -281,27 +284,27 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-
   override def preStart(): Unit = {
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(BlueprintService))
-    context.become(initialize())
+    context.become(initializing())
   }
 
-  private def initialize() : Receive = {
+  private def initializing(): Receive = {
     case HereIam(BlueprintService, ref) =>
       context.become(running(ref))
+      context.parent ! RouteBuilderInitialized
   }
 
   private def running(blueprintManager: ActorRef): Receive = {
     case BuildFullRoute =>
-      val serverRoute = settings {
+      log.debug("Routes built.")
+      sender ! RouteResponse(settings {
         pipelineRoute(blueprintManager) ~ filterRoute ~ descriptorsRoute ~ agentsRoute ~ infoRoute
-      }
-      sender ! BuildServer(serverRoute)
+      })
   }
 
   override def receive: Receive = {
-    case _=>
+    case _ =>
       log.error("Illegal State")
   }
 }
