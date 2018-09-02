@@ -26,7 +26,7 @@ object AddFieldsFilterLogic extends Described {
   )
 
   override def describe = Descriptor(
-      uuid = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
+      ref = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
       describes = FilterDescriptor(
         name = classOf[AddFieldsFilterLogic].getName,
         displayName = TextRef("displayName"),

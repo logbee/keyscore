@@ -55,7 +55,7 @@ object KafkaSinkLogic extends Described {
   )
 
   override def describe = Descriptor(
-    uuid = "4fedbe8e-115e-4408-ba53-5b627b6e2eaf",
+    ref = "4fedbe8e-115e-4408-ba53-5b627b6e2eaf",
     describes = SinkDescriptor(
       name = classOf[KafkaSinkLogic].getName,
       displayName = TextRef("displayName"),

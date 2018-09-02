@@ -8,7 +8,7 @@ import {Component, Input} from "@angular/core";
             <a routerLink="/dashboard"
                routerLinkActive="active">
                 <div class="col text-center">
-                    <img class="mt-lg-4 pr-lg-5" src="/assets/images/logos/keyscore.dark.svg"
+                    <img class="mt-lg-4 pr-lg-5" src="/assets/images/logos/svg/dark/keyscore.dark.svg"
                          style=" height:40vh; width: 100vw">
                 </div>
             </a>

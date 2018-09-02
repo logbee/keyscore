@@ -1,4 +1,5 @@
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+@import "~material-design-icons/iconfont/material-icons.css";
 
 /*-------------Live-Editing------------------*/
 #custom-card-black {
@@ -20,4 +21,16 @@
     margin-left: 5px;
     margin-right: 5px;
     font-size: large;
+}
+
+.fix-div {
+    margin-left: -16px;
+}
+
+.live-editing-wrapper {
+    margin: 15px ;
+}
+
+.badge-icon {
+    margin-left: 15px;
 }

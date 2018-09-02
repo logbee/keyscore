@@ -17,7 +17,7 @@ import scala.Int.MaxValue
 
 object DropMessageFilterLogic extends Described {
 
-  private val retainMessagesParameter = FieldNameListParameterDescriptor(
+  private[filter] val retainMessagesParameter = FieldNameListParameterDescriptor(
     ref = "dropMessages.retain",
     info = ParameterInfo(
       displayName = TextRef("messagesToRetainName"),
@@ -31,7 +31,7 @@ object DropMessageFilterLogic extends Described {
   )
 
   override def describe = Descriptor(
-    uuid = "2f117a41-8bf1-4830-9228-7342f3f3fd64",
+    ref = "2f117a41-8bf1-4830-9228-7342f3f3fd64",
     describes = FilterDescriptor(
       name = classOf[DropMessageFilterLogic].getName,
       displayName = TextRef("displayName"),
@@ -44,8 +44,6 @@ object DropMessageFilterLogic extends Described {
       Locale.ENGLISH, Locale.GERMAN
     )
   )
-
-
 }
 
 class DropMessageFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {

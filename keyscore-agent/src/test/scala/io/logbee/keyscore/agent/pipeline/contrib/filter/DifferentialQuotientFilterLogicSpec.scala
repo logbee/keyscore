@@ -5,6 +5,7 @@ import java.util.UUID.randomUUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
+import io.logbee.keyscore.agent.pipeline.contrib.filter.DifferentialQuotientFilterLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
 import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, TextParameter}
@@ -20,10 +21,11 @@ class DifferentialQuotientFilterLogicSpec extends FreeSpec with Matchers with Sc
   trait TestStream {
 
     val context = StageContext(system, executionContext)
+
     val configuration = Configuration(parameters = Seq(
-      TextParameter("xFieldName", "time"),
-      TextParameter("yFieldName", "voltage"),
-      TextParameter("targetFieldName", "slope")
+      TextParameter(xFieldNameParameter.ref, "time"),
+      TextParameter(yFieldNameParameter.ref, "voltage"),
+      TextParameter(targetFieldNameParameter.ref, "slope")
     ))
 
     val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new DifferentialQuotientFilterLogic(LogicParameters(randomUUID(), ctx, c), s))

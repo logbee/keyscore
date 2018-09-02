@@ -2,9 +2,9 @@ package io.logbee.keyscore.frontier.cluster
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.testkit.{TestKit, TestProbe}
+import akka.testkit.TestProbe
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder}
+import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.frontier.cluster.PipelineManager.CreatePipeline
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SinkBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
@@ -16,7 +16,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpecLike, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class PipelineManagerSpec extends TestKit(ActorSystem("actorSystem")) with FreeSpecLike with Matchers with ScalaFutures with MockFactory {
+class PipelineManagerSpec extends ProductionSystemWithMaterializerAndExecutionContext with FreeSpecLike with Matchers with ScalaFutures with MockFactory {
 
   trait TestSetup {
 

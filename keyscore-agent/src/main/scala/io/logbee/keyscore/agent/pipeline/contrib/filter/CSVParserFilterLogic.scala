@@ -32,7 +32,7 @@ object CSVParserFilterLogic extends Described {
   )
 
   override def describe = Descriptor(
-    uuid = "292d368e-6e50-4c52-aed5-1a6826d78c22",
+    ref = "292d368e-6e50-4c52-aed5-1a6826d78c22",
     describes = FilterDescriptor(
       name = classOf[CSVParserFilterLogic].getName,
       displayName = TextRef("displayName"),

@@ -38,7 +38,7 @@ object FingerprintFilterLogic extends Described {
   )
 
   override def describe = Descriptor(
-    uuid = "ed3ab993-1eca-4651-857d-fd4f72355251",
+    ref = "ed3ab993-1eca-4651-857d-fd4f72355251",
     describes = FilterDescriptor(
       name = classOf[FingerprintFilterLogic].getName,
       displayName = TextRef("displayName"),

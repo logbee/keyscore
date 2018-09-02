@@ -30,6 +30,7 @@ import {ParameterList} from "./common/parameter/parameter-list.component";
 import {DropzoneComponent} from "./pipelines/pipeline-editor/pipely/dropzone.component";
 import {DraggableComponent} from "./pipelines/pipeline-editor/pipely/draggable.component";
 import {WorkspaceComponent} from "./pipelines/pipeline-editor/pipely/workspace.component";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 
 const routes: Routes = [
@@ -47,6 +48,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
     imports: [
         BrowserModule,
+        BrowserAnimationsModule,
         FormsModule,
         HttpClientModule,
         ReactiveFormsModule,

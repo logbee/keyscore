@@ -43,7 +43,7 @@ object GrokFilterLogic extends Described {
   )
 
   override def describe = Descriptor(
-    uuid = "8912a691-e982-4680-8fc7-fea6803fcef0",
+    ref = "8912a691-e982-4680-8fc7-fea6803fcef0",
     describes = FilterDescriptor(
       name = classOf[GrokFilterLogic].getName,
       displayName = TextRef("displayName"),

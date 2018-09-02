@@ -60,7 +60,7 @@ object ElasticSearchSinkLogic extends Described {
   )
 
   override def describe = Descriptor(
-    uuid = "6693c39e-6261-11e8-adc0-fa7ae01bbebc",
+    ref = "6693c39e-6261-11e8-adc0-fa7ae01bbebc",
     describes = SinkDescriptor(
       name = filterName,
       displayName = TextRef("displayName"),

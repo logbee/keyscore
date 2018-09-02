@@ -6,6 +6,7 @@ import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.ExampleData.{datasetMulti1, datasetMulti2}
+import io.logbee.keyscore.agent.pipeline.contrib.filter.DropMessageFilterLogic.retainMessagesParameter
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
 import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter}
@@ -27,7 +28,7 @@ class DropMessageFilterLogicSpec extends WordSpec with Matchers with ScalaFuture
     val context = StageContext(system, executionContext)
     val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new DropMessageFilterLogic(LogicParameters(randomUUID(), ctx, c), s)
 
-    val messagesToDrop = TextListParameter("messagesToRetain", List("non.+", "bartolemaeus"))
+    val messagesToDrop = TextListParameter(retainMessagesParameter.ref, List("non.+", "bartolemaeus"))
     val initialConfig = Configuration(parameters = Seq(messagesToDrop))
     val filterStage = new FilterStage(context, initialConfig, provider)
 

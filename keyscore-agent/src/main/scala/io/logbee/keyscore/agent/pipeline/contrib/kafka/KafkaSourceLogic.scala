@@ -8,7 +8,7 @@ import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.Attributes.InputBuffer
 import akka.stream.scaladsl.{Sink, SinkQueueWithCancel}
 import akka.stream.{Attributes, SourceShape}
-import io.logbee.keyscore.agent.pipeline.stage.{LogicParameters, SourceLogic, StageContext}
+import io.logbee.keyscore.agent.pipeline.stage.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.model.ToOption.T2OptionT
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -90,7 +90,7 @@ object KafkaSourceLogic extends Described {
   )
 
   override def describe = Descriptor(
-    uuid = "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
+    ref = "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
     describes = SourceDescriptor(
       name = classOf[KafkaSourceLogic].getName,
       displayName = TextRef("displayName"),

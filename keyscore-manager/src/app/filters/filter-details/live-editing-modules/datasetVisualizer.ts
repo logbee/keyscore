@@ -4,6 +4,12 @@ import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 @Component({
     selector: "dataset-visualizer",
     template: `
+        <!--<table mat-table datasrc="datset" class="mat-elevation-z8">-->
+            <!--<ng-container matRowDef="Field name">-->
+                <!--<mat-header-cell *matHeaderCellDef>Field name</mat-header-cell>-->
+                <!--<mat-cell *matCellDef="let record of dataset?.records">test</mat-cell>-->
+            <!--</ng-container>-->
+        <!--</table>-->
         <div *ngFor="let record of dataset?.records">
             <table class="table table-bordered">
                 <tr *ngFor="let field of record.fields" [ngSwitch]="field.value.jsonClass">

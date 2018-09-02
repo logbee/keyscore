@@ -3,39 +3,41 @@ import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
 import {selectcurrentDatasetCounter, selectExtractFinish, selectUpdateConfigurationFlag} from "../../filter.reducer";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
+import "../../styles/filterstyle.css";
 
 @Component({
     selector: "example-message",
     template: `
-        <div class="card mt-3">
-            <div class="card-header alert-light font-weight-bold">
-                <div class="row" id="custom-card-black">
-                    <div class="col-sm-1">
-                        {{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}
+        <mat-card>
+            <mat-card-header class="fix-div">
+                <div class="container" fxFlexFill="" fxLayout="row" fxLayout.xs="column">
+                    <div fxFlexAlign="start" fxFlex="15%">
+                        <mat-card-title><h1 class="mat-headline font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.EXAMPLE_MESSAGE' | translate}}</h1></mat-card-title>
                     </div>
-                    <div class="col-sm-2" *ngIf="!noDataAvailable">
-                        <span class="mr-1" (click)="goLeft()">
-                            <img width="18em" src="/assets/images/chevron-left.svg"/>
-                        </span>
+                    <div fxFlex>
+                    <span (click)="goLeft()">
+                        <button mat-icon-button color="none">
+                            <mat-icon class="font-weight-bold">chevron_left</mat-icon>
+                        </button>
+                    </span>
                         {{count + 1}}/ {{(extractedDatasets$ | async)?.length}}
                         <span (click)="goRight()">
-                            <img width="18em" src="/assets/images/chevron-right.svg"/>
-                        </span>
-                    </div>
-                    <div class="col-sm-9"></div>
-                </div>
-            </div>
-            <div class="card-body p-0 pr-3">
-                <div class="ml-3">
-                    <div class="row" *ngIf="(!noDataAvailable); else noData">
-                        <div class="col-sm-12 mb-2" *ngIf="(extractFinish$ | async); else loading">
-                            <dataset-visualizer [dataset]="(extractedDatasets$ | async)[count]">
-                            </dataset-visualizer>
-                        </div>
+                            <button mat-icon-button color="none">
+                                <mat-icon class="font-weight-bold">chevron_right</mat-icon>
+                            </button>
+                    </span>
                     </div>
                 </div>
-            </div>
-        </div>
+            </mat-card-header>
+            <mat-card-content>
+                <div *ngIf="(!noDataAvailable); else noData">
+                    <div *ngIf="(extractFinish$ | async); else loading">
+                        <dataset-visualizer [dataset]="(extractedDatasets$ | async)[count]">
+                        </dataset-visualizer>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
         <ng-template #loading>
             <div class="col-sm-10 mb-2" align="center">
                 <loading></loading>
@@ -80,7 +82,7 @@ export class ExampleMessageComponent implements OnInit {
         if (this.count == 0) {
             this.count = this.numberOfDatasets - 1;
             this.emitCounter(this.count);
-        } else  {
+        } else {
             this.count -= 1;
             this.emitCounter(this.count)
         }
@@ -90,7 +92,7 @@ export class ExampleMessageComponent implements OnInit {
         if (this.count == this.numberOfDatasets - 1) {
             this.count = 0;
             this.emitCounter(this.count);
-        } else  {
+        } else {
             this.count += 1;
             this.emitCounter(this.count)
         }

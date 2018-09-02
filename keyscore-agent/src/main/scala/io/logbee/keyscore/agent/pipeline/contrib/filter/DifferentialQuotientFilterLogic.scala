@@ -16,7 +16,7 @@ import io.logbee.keyscore.model.localization.{Localization, TextRef}
 
 object DifferentialQuotientFilterLogic extends Described {
 
-  private val xFieldNameParameter = FieldNameParameterDescriptor(
+  private[filter] val xFieldNameParameter = FieldNameParameterDescriptor(
     ref = "dqf.xFieldName",
     info = ParameterInfo(
       displayName = TextRef("xFieldDisplayName"),
@@ -27,7 +27,7 @@ object DifferentialQuotientFilterLogic extends Described {
     mandatory = true
   )
 
-  private val yFieldNameParameter = FieldNameParameterDescriptor(
+  private[filter] val yFieldNameParameter = FieldNameParameterDescriptor(
     ref = "dqf.yFieldName",
     info = ParameterInfo(
       displayName = TextRef("yFieldDisplayName"),
@@ -38,7 +38,7 @@ object DifferentialQuotientFilterLogic extends Described {
     mandatory = true
   )
 
-  private val targetFieldNameParameter = FieldNameParameterDescriptor(
+  private[filter] val targetFieldNameParameter = FieldNameParameterDescriptor(
     ref = "dqf.targetFieldName",
     info = ParameterInfo(
       displayName = TextRef("targetFieldDisplayName"),
@@ -50,7 +50,7 @@ object DifferentialQuotientFilterLogic extends Described {
   )
 
   override def describe = Descriptor(
-    uuid = "a83715fd-bc0f-4012-9527-59c6d4a1f6cd",
+    ref = "a83715fd-bc0f-4012-9527-59c6d4a1f6cd",
     describes = FilterDescriptor(
         name = classOf[DifferentialQuotientFilterLogic].getName,
         displayName = TextRef("displayName"),

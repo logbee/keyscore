@@ -8,28 +8,26 @@ import {__await} from "tslib";
     selector: "parameter-list",
     template:
             `
-        <div class="form-row">
-            <div class="form-group">
-                <input #addItemInput class="form-control" type="text" placeholder="NAME OF FIELD">
-            </div>
-            <div class="form-group ml-1">
-                <button class="btn btn-info ml-3" (click)="addItem(addItemInput.value)"><img
-                       width="20em" src="/assets/images/ic_add_circle_white.svg" alt="Add"/>
-                </button>
-            </div>
+        <div fxLayout="row" fxLayoutGap="15px">
+            <mat-form-field>
+                <input #addItemInput matInput type="text" placeholder="Name of Field">
+            </mat-form-field>
+            <button mat-icon-button color="accent" (click)="addItem(addItemInput.value)">
+                <mat-icon>add_circle_outline</mat-icon>
+            </button>
         </div>
-        <div (click)="onTouched()" class="mb-3" *ngIf="parameterValues.length > 0">
-            <div class="custom-badge"
+        <div (click)="onTouched()" *ngIf="parameterValues.length > 0">
+            <div style="display: inline-block; margin: 10px"
                  *ngFor="let value of parameterValues;index as i">
-                <span class="m-2 badge badge-pill badge-info" ><strong>{{value}}</strong>
-                    <span (click)="removeItem(i)">
-                      <img class="pl-2"  alt="remove" src="/assets/images/ic_cancel_white_24px.svg"/>
-                    </span>
-                </span>
+                <mat-chip-list class="mat-chip-list-stacked">
+                    <mat-chip>{{value}}
+                        <mat-icon class="badge-icon" (click)="removeItem(i)">close</mat-icon>
+                    </mat-chip>
+                </mat-chip-list>
             </div>
         </div>
-        <div *ngIf="this.duplicate" class="alert alert-warning" role="alert">
-            <strong>{{'ALERT.DUPLICATE' | translate}}</strong> {{'ALERT.DUPLICATETEXT' | translate}}
+        <div *ngIf="this.duplicate" role="alert">
+            {{'ALERT.DUPLICATE' | translate}} {{'ALERT.DUPLICATETEXT' | translate}}
         </div>
     `,
     providers: [

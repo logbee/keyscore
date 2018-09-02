@@ -15,7 +15,7 @@ import io.logbee.keyscore.model.localization.{Localization, TextRef}
 object LoggerFilter extends Described {
 
   override def describe = Descriptor(
-    uuid = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter",
+    ref = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter",
     describes = FilterDescriptor(
       name = classOf[LoggerFilter].getName,
       displayName = TextRef("displayName"),

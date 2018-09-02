@@ -27,6 +27,10 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatListModule} from '@angular/material/list';
 import {MatDividerModule} from '@angular/material/divider';
+import {MatInputModule} from "@angular/material/input";
+import {MatTableModule} from "@angular/material/table";
+import {MatIconModule} from "@angular/material/icon";
+import {MatFormFieldModule} from "@angular/material/form-field";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -53,7 +57,12 @@ export const routes: Routes = [
         MatButtonModule,
         MatGridListModule,
         MatListModule,
-        MatDividerModule
+        MatDividerModule,
+        MatTableModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule
     ],
     declarations: [
         PipelinesComponent,

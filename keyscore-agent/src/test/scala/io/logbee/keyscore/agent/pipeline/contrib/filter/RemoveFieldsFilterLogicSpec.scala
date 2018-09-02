@@ -5,12 +5,11 @@ import java.util.UUID.randomUUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.agent.pipeline.ExampleData.{datasetMulti1, datasetMultiModified, datasetMultiModified2}
 import io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilterLogic.fieldsToRemoveParameter
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
 import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter}
-import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -30,11 +29,33 @@ class RemoveFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
     val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new RemoveFieldsFilterLogic(LogicParameters(randomUUID(), ctx, c), s)
 
     val config1 = Configuration(
-      TextListParameter(fieldsToRemoveParameter, Seq("bbq", "beer","bar","notPresent"))
+      TextListParameter(fieldsToRemoveParameter, Seq("current", "timestamp"))
     )
 
     val config2 = Configuration(
-      TextListParameter("fieldsToRemove", List("foo", "beer","beer"))
+      TextListParameter(fieldsToRemoveParameter, List("temperature", "voltage"))
+    )
+
+    val sample = Dataset(
+      Record(
+        Field("message", TextValue("Hello World!")),
+        Field("temperature", NumberValue(42))
+      ),
+      Record(
+        Field("message", TextValue("Have a nice day!")),
+        Field("voltage", DecimalValue(7.3))
+      )
+    )
+
+    val expectedUnchanged = sample
+
+    val expected = Dataset(
+      Record(
+        Field("message", TextValue("Hello World!")),
+      ),
+      Record(
+        Field("message", TextValue("Have a nice day!")),
+      )
     )
 
     val filterStage = new FilterStage(context, config1, provider)
@@ -53,15 +74,15 @@ class RemoveFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
 
     "remove specified fields" in new TestStream {
       whenReady(filterFuture) { filter =>
-        source.sendNext(datasetMulti1)
+        source.sendNext(sample)
         sink.request(1)
-        sink.expectNext(datasetMultiModified)
+        sink.expectNext(expectedUnchanged)
 
         Await.ready(filter.configure(config2),10 seconds)
 
-        source.sendNext(datasetMulti1)
+        source.sendNext(sample)
         sink.request(1)
-        sink.expectNext(datasetMultiModified2)
+        sink.expectNext(expected)
       }
     }
   }
