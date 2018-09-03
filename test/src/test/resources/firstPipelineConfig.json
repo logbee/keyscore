@@ -1,0 +1,31 @@
+{
+  "uuid": "69c47c52-157e-4ce8-9db6-213f80972b6c",
+  "configuration": null,
+  "blueprints": [
+    // LoggerFilter
+    {
+      "uuid": "9d970425-bbfc-4277-ae97-4115f8beb333",
+      "descriptor": {
+        "name": "LoggerFilter",
+        "displayName": "Logger Filter",
+        "description": "Logs datasets",
+        "categories": "????",
+        "parameters": null
+      }
+    },
+    // Source
+    {
+      "uuid": "d2db5dec-71b3-4999-a1a6-f2db18f7e3e1",
+      "descriptor": {
+
+      }
+    },
+    {
+      "uuid":"0884ecad-ffd4-410e-b89f-7edcd0620b7e",
+      "descriptor": {
+
+      }
+    }
+
+  ]
+}
