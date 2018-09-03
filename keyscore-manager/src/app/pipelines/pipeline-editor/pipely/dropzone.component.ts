@@ -25,6 +25,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
     @Input() workspace:Workspace;
 
     @HostBinding('class.col-12') isCol12: boolean;
+    @HostBinding('class.p-0') isP0: boolean;
 
 
     @ViewChild("dropzoneContainer", {read: ViewContainerRef}) dropzoneContainer: ViewContainerRef;
@@ -35,6 +36,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
     constructor(public draggableFactory:DraggableFactory) {
         this.isCol12 = true;
+        this.isP0 = true;
         this.id = uuid();
     }
 
@@ -127,6 +129,10 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
     getDropzoneElement(): ElementRef {
         return this.subComponent.dropzoneElement;
+    }
+
+    getSubComponent():DropzoneSubcomponent{
+        return this.subComponent;
     }
 
 }

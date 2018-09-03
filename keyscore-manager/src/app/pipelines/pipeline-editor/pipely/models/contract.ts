@@ -3,6 +3,7 @@ import {DraggableModel} from "./draggable.model";
 import {Observable} from "rxjs/index";
 import {DropzoneModel} from "./dropzone.model";
 import {Rectangle} from "./rectangle";
+import {DropzoneSubcomponent} from "../dropzone/dropzone-subcomponent";
 
 export interface Workspace {
     addDropzone(dropzone: Dropzone): void;
@@ -25,6 +26,8 @@ export interface Dropzone {
     getDraggableContainer(): ViewContainerRef;
 
     getDropzoneElement(): ElementRef;
+
+    getSubComponent():DropzoneSubcomponent;
 
     getIsDroppable(): boolean;
 

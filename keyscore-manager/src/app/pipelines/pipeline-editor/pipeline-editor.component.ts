@@ -92,7 +92,7 @@ import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration
                                        [isLoading$]="isLoading$"
                                        [isMenuExpanded$]="isMenuExpanded$"
                                        (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
-                    <pipely-workspace *ngSwitchCase="'pipely'" class="col-12"></pipely-workspace>
+                    <pipely-workspace *ngSwitchCase="'pipely'" class="col-12 p-0"></pipely-workspace>
                 </div>
 
                 <alert [level]="'success'" [message]="'BLOCKLY.SAVE_SUCCESS'"

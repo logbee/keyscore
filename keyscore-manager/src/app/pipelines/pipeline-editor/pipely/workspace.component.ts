@@ -3,20 +3,19 @@ import {v4 as uuid} from "uuid";
 import {DraggableModel} from "./models/draggable.model";
 import {Draggable, Dropzone, Workspace} from "./models/contract";
 import {DropzoneType} from "./models/dropzone-type";
-import {deepcopy} from "../../../util";
 import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {computeRelativePositionToParent} from "./util/util";
+import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
 
 @Component({
     selector: "workspace",
     template: `
-        <div #workspace class="workspace col-12">
+        <div #workspace class="workspace">
             <div class="row">
                 <ng-template #toolbarContainer></ng-template>
-            </div>
-            <div class="row">
-                <ng-template #workspaceContainer></ng-template>
+                <ng-template #workspaceContainer>
+                </ng-template>
             </div>
         </div>
     `
@@ -24,10 +23,11 @@ import {computeRelativePositionToParent} from "./util/util";
 
 
 export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
-    @ViewChild("toolbarContainer", {read: ViewContainerRef}) toolbarContainer: ViewContainerRef;
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
+    @ViewChild("toolbarContainer", {read: ViewContainerRef}) toolbarContainer: ViewContainerRef;
+
 
     public id: string;
 
@@ -93,8 +93,13 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     private initialiseMirrorComponent(): DraggableModel {
         const workspaceRect = this.workspaceElement.nativeElement.getBoundingClientRect();
+        const scrollContainer: ElementRef =
+            (this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent)
+                .workspaceScrollContainer;
+        const draggedPos = this.dragged.getAbsoluteDraggablePosition();
+        const absolutePos = {x: draggedPos.x + scrollContainer.nativeElement.scrollLeft, y: draggedPos.y};
         const relativeMirrorPosition = computeRelativePositionToParent(
-            this.dragged.getAbsoluteDraggablePosition(),
+            absolutePos,
             {x: workspaceRect.left, y: workspaceRect.top});
 
         return {
@@ -110,7 +115,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     }
 
     private createAndRegisterMirror(model: DraggableModel) {
-        this.mirror = this.draggableFactory.createDraggable(this.mirrorContainer, model, this);
+        this.mirror = this.draggableFactory.createDraggable(this.workspaceDropzone.getDraggableContainer(), model, this);
         console.log("Mirror: ", this.mirror.getDraggableModel());
         this.registerMirror(this.mirror);
 
@@ -136,16 +141,16 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         draggable.dragStart$.subscribe(() => this.dragStart(draggable));
     }
 
-    getWorkspaceDropzone():Dropzone{
+    getWorkspaceDropzone(): Dropzone {
         return this.workspaceDropzone;
     }
 
     ngOnInit() {
-        this.toolbarDropzone = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
         this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this);
+        this.toolbarDropzone = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
 
         this.dropzones.add(this.workspaceDropzone);
-        this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer,this));
+        this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
 
         for (let i = 0; i < 2; i++) {
             this.createAndRegisterDraggable(this.toolbarDropzone.getDraggableContainer(), {
