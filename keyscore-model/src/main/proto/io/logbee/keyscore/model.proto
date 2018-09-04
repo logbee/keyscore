@@ -38,12 +38,18 @@ message Field {
 message Value {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.ValueConversion";
     oneof sealed_value {
-        TextValue text = 1;
-        NumberValue number = 2;
-        DecimalValue decimal = 3;
-        TimestampValue timestamp = 4;
-        DurationValue duration = 5;
+        BooleanValue boolean = 1;
+        TextValue text = 2;
+        NumberValue number = 3;
+        DecimalValue decimal = 4;
+        TimestampValue timestamp = 5;
+        DurationValue duration = 6;
     }
+}
+
+message BooleanValue {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.BooleanValueConversion";
+    bool value = 1;
 }
 
 message TextValue {

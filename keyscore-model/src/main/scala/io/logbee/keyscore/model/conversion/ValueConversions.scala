@@ -5,6 +5,17 @@ import io.logbee.keyscore.model._
 
 trait ValueConversion extends TextValueConversion with NumberValueConversion with DecimalValueConversion with TimestampValueConversion
 
+trait BooleanValueConversion {
+
+  implicit def booleanValueToBoolean(booleanValue: BooleanValue): Boolean = {
+    booleanValue.value
+  }
+
+  implicit def textValueFromString(value: Boolean): BooleanValue = {
+    BooleanValue(value)
+  }
+}
+
 trait TextValueConversion {
 
   implicit def textValueToString(textValue: TextValue): String = {
