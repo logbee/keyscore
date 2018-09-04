@@ -14,6 +14,9 @@ dependencies {
     compile dependency.akka_cluster
     compile dependency.json4s
 
+    compile "com.google.protobuf:protobuf-java-util:3.5.1"
+    compile "com.thesamet.scalapb:scalapb-runtime_2.12:0.8.0-RC1"
+
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit
 }
@@ -30,4 +33,11 @@ jar {
         'Implementation-Title': project.name,
         'Implementation-Version': version,
     ])
+}
+
+
+idea {
+    module {
+        generatedSourceDirs += file("${project.buildDir}/generated/source/scalpb/main/scala")
+    }
 }

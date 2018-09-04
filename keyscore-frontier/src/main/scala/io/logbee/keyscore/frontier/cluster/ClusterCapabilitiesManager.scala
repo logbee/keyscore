@@ -8,6 +8,7 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.descriptor.Descriptor
+import io.logbee.keyscore.model.messages.AgentCapabilities
 
 import scala.collection.mutable
 
@@ -54,11 +55,6 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
       sender() ! ActiveDescriptors(listOfActiveDescriptors)
 
     case AgentCapabilities(filterDescriptors) =>
-      log.info("Received AgentCapabilities")
-      filterDescriptors.foreach(descriptors => {
-        log.info(s" Descriptor ${descriptors}")
-      })
-
       filterDescriptors.foreach(descriptors => {
         listOfFilterDescriptors.getOrElseUpdate(descriptors, mutable.Set.empty) += sender.path
       })

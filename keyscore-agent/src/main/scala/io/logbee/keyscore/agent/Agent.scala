@@ -17,6 +17,7 @@ import io.logbee.keyscore.commons.extension.ExtensionLoader
 import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
 import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
 import io.logbee.keyscore.commons.util.{RandomNameGenerator, StartUpWatch}
+import io.logbee.keyscore.model.messages.AgentCapabilities
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -102,9 +103,7 @@ class Agent extends Actor with ActorLogging {
             log.info(s"Descriptor: s${desc}")
           }
           mediator ! Publish("agents", AgentCapabilities(message.descriptors))
-          scheduler.scheduleOnce(5 seconds){
             log.info("Published capabilities to the topic agents.")
-          }
         case Failure(e) =>
           log.error(e, "Failed to publish capabilities!")
           context.stop(self)

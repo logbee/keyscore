@@ -42,7 +42,7 @@ object PipelineManager {
 class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
-  var availableAgents: mutable.Map[ActorRef, List[Descriptor]] = mutable.Map.empty[ActorRef, List[Descriptor]]
+  var availableAgents: mutable.Map[ActorRef, Seq[Descriptor]] = mutable.Map.empty[ActorRef, Seq[Descriptor]]
 
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
@@ -79,11 +79,7 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
         context.actorSelection(agent.path / "PipelineScheduler") ! DeleteAllPipelinesOrder
       )
 
-    case AgentCapabilities(metaFilterDescriptors) =>
-      log.info("Received AgentCapabilities")
-      metaFilterDescriptors.foreach(descriptors => {
-        log.info(s" Descriptor ${descriptors}")
-      })
+    case io.logbee.keyscore.model.messages.AgentCapabilities(metaFilterDescriptors) =>
       availableAgents.getOrElseUpdate(sender, metaFilterDescriptors)
 
     case AgentLeaved(ref) =>
@@ -134,7 +130,7 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       })
   }
 
-  def checkIfCapabilitiesMatchRequirements(requiredDescriptors: List[DescriptorRef], agent: (ActorRef, List[Descriptor])): Boolean = {
+  def checkIfCapabilitiesMatchRequirements(requiredDescriptors: List[DescriptorRef], agent: (ActorRef, Seq[Descriptor])): Boolean = {
 
     if (requiredDescriptors.count(descriptorRef => agent._2.map(descriptor => descriptor.ref).contains(descriptorRef)) ==
       requiredDescriptors.size) {
