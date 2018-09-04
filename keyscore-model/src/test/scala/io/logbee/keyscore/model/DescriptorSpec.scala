@@ -4,6 +4,7 @@ import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ExpressionType.{Glob, Grok, JSONPath, RegEx}
 import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, AnyField, PresentField}
 import io.logbee.keyscore.model.descriptor.{IconEncoding, IconFormat, _}
+import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import org.json4s.JsonAST.{JNull, JString}
 import org.json4s.native.Serialization
@@ -21,12 +22,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
   import io.logbee.keyscore.model.util.ToOption._
   import org.json4s.native.Serialization.{read, write, writePretty}
 
-  implicit val formats = Serialization.formats(FullTypeHints(List(
-    classOf[Descriptor],
-    classOf[FilterDescriptor],
-    classOf[ParameterDescriptor],
-    classOf[ParameterGroupCondition]
-  ))) + TextRefKeySerializer + LocaleKeySerializer + PatternTypeSerializer + FieldNameHintSerializer + FieldValueTypeSerializer + IconFormatSerializer + IconEncodingSerializer
+  implicit val formats = KeyscoreFormats.formats
 
   "A Dataset" - {
     "should" in {
@@ -161,7 +157,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
 
   case object FieldValueTypeSerializer extends CustomSerializer[FieldValueType](format => ({
     case JString(fieldValueType) => fieldValueType match {
-      case "Unkown" => FieldValueType.Unkown
+      case "Unknown" => FieldValueType.Unknown
       case "Boolean" => FieldValueType.Boolean
       case "Number" => FieldValueType.Number
       case "Decimal" => FieldValueType.Decimal
@@ -169,7 +165,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
       case "Timestamp" => FieldValueType.Timestamp
       case "Duration" => FieldValueType.Duration
     }
-    case JNull => FieldValueType.Unkown
+    case JNull => FieldValueType.Unknown
   }, {
     case fieldValueType: FieldValueType =>
       JString(fieldValueType.getClass.getSimpleName.replace("$", ""))

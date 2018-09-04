@@ -6,6 +6,7 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import com.consol.citrus.message.MessageType
+import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import org.json4s._
 import org.json4s.native.JsonMethods._
 import org.junit.jupiter.api.Test
@@ -15,6 +16,9 @@ import org.springframework.http.HttpStatus
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class AgentTest extends Matchers {
+
+  implicit val formats = KeyscoreFormats.formats
+
   private val httpClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
@@ -34,6 +38,7 @@ class AgentTest extends Matchers {
       .response(HttpStatus.OK)
       .validationCallback((message,context) => {
         val payload = message.getPayload.asInstanceOf[String]
+
 
         val agentList = parse(payload) \\ classOf[JObject]
 

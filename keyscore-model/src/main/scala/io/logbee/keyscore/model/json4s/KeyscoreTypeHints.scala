@@ -1,35 +1,19 @@
 package io.logbee.keyscore.model.json4s
 
-import org.json4s.{ShortTypeHints, TypeHints}
+import io.logbee.keyscore.model.descriptor.{Descriptor, FilterDescriptor, ParameterDescriptor, ParameterGroupCondition}
+import org.json4s.{FullTypeHints, TypeHints}
 
 object KeyscoreTypeHints {
 
-  val parameterDescriptorHints = ShortTypeHints(List(
-//    classOf[BooleanParameterDescriptor],
-//    classOf[TextParameterDescriptor],
-//    classOf[IntParameterDescriptor],
-//    classOf[ListParameterDescriptor],
-//    classOf[MapParameterDescriptor]
+  val hints = FullTypeHints(List(
+    classOf[Descriptor],
+    classOf[FilterDescriptor],
+    classOf[ParameterDescriptor],
+    classOf[ParameterGroupCondition]
   ))
 
-  val parameterHints = ShortTypeHints(List(
-//    classOf[TextParameter],
-//    classOf[BooleanParameter],
-//    classOf[IntParameter],
-//    classOf[FloatParameter],
-//    classOf[TextMapParameter],
-//    classOf[TextListParameter]
-  ))
 
-  val fieldHints = ShortTypeHints(List(
-//    classOf[TextValue],
-//    classOf[NumberValue],
-//    classOf[DecimalValue],
-//    classOf[TimestampValue],
-//    classOf[DurationValue]
-  ))
-
-  val all: TypeHints = parameterDescriptorHints + parameterHints + fieldHints
+  val all: TypeHints = hints
 
 
 }

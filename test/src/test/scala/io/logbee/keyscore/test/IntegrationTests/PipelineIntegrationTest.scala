@@ -250,55 +250,55 @@ class PipelineIntegrationTest extends Matchers  {
 //    )
 //  }
 
-  private def startPipeline(runner: TestRunner, pipelineConfigString: String, pipelineConfiguration: PipelineConfiguration) = {
-    runner.http(action => action.client(httpClient)
-      .send()
-      .put("/pipeline/configuration")
-      .contentType("application/json")
-      .payload(pipelineConfigString)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.CREATED)
-    )
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/pipeline/configuration/${pipelineConfiguration.id}")
-    )
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val config = read[PipelineConfiguration](payload)
-        config.filter should have size 1
-        config.name should equal(pipelineConfiguration.name)
-        config.source.id should equal(pipelineConfiguration.source.id)
-        config.sink.id should equal(pipelineConfiguration.sink.id)
-        config.filter.head.id should equal(pipelineConfiguration.filter.head.id)
-      }))
-
-    Thread.sleep(5000)
-
-    runner.http(action => action.client(httpClient)
-      .send()
-      .get(s"/pipeline/instance/${pipelineConfiguration.id}")
-    )
-
-
-    runner.http(action => action.client(httpClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val instance = read[PipelineInstance](payload)
-        instance.health should equal(Green)
-      })
-    )
-    log.info(s"Created ${pipelineConfiguration.name} with ${pipelineConfiguration.filter.head.descriptor.displayName}: ${pipelineConfiguration.filter.head.id}")
-  }
+//  private def startPipeline(runner: TestRunner, pipelineConfigString: String, pipelineConfiguration: PipelineConfiguration) = {
+//    runner.http(action => action.client(httpClient)
+//      .send()
+//      .put("/pipeline/configuration")
+//      .contentType("application/json")
+//      .payload(pipelineConfigString)
+//    )
+//
+//    runner.http(action => action.client(httpClient)
+//      .receive()
+//      .response(HttpStatus.CREATED)
+//    )
+//
+//    runner.http(action => action.client(httpClient)
+//      .send()
+//      .get(s"/pipeline/configuration/${pipelineConfiguration.id}")
+//    )
+//
+//    runner.http(action => action.client(httpClient)
+//      .receive()
+//      .response(HttpStatus.OK)
+//      .validationCallback((message, context) => {
+//        val payload = message.getPayload.asInstanceOf[String]
+//        val config = read[PipelineConfiguration](payload)
+//        config.filter should have size 1
+//        config.name should equal(pipelineConfiguration.name)
+//        config.source.id should equal(pipelineConfiguration.source.id)
+//        config.sink.id should equal(pipelineConfiguration.sink.id)
+//        config.filter.head.id should equal(pipelineConfiguration.filter.head.id)
+//      }))
+//
+//    Thread.sleep(5000)
+//
+//    runner.http(action => action.client(httpClient)
+//      .send()
+//      .get(s"/pipeline/instance/${pipelineConfiguration.id}")
+//    )
+//
+//
+//    runner.http(action => action.client(httpClient)
+//      .receive()
+//      .response(HttpStatus.OK)
+//      .validationCallback((message, context) => {
+//        val payload = message.getPayload.asInstanceOf[String]
+//        val instance = read[PipelineInstance](payload)
+//        instance.health should equal(Green)
+//      })
+//    )
+//    log.info(s"Created ${pipelineConfiguration.name} with ${pipelineConfiguration.filter.head.descriptor.displayName}: ${pipelineConfiguration.filter.head.id}")
+//  }
 }
 

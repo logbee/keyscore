@@ -87,7 +87,7 @@ message DurationValue {
 }
 
 enum FieldValueType {
-    Unkown = 0;
+    Unknown = 0;
     Boolean = 1;
     Number = 2;
     Decimal = 3;
