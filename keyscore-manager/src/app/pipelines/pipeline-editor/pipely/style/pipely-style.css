@@ -1,4 +1,4 @@
-.pipely-wrapper{
+.pipely-wrapper {
     box-sizing: border-box;
 }
 
@@ -15,47 +15,61 @@
 
 }
 
-.workspace{
-}
-
 .dropzone-workspace {
-position:relative;
-    height:100%;
+    position: relative;
+    height: 100%;
+    padding: 0;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 13px, #CCF 13px, #CCF 14px), repeating-linear-gradient(-90deg, transparent, transparent 13px, #CCF 13px, #CCF 14px);
+    background-size: 18px 18px;
+    min-width:120%;
 }
 
-.workspace-scroll-wrapper{
+.workspace-scroll-wrapper {
     border: solid 1px darkgrey;
     border-radius: 2px;
     height: 600px;
     overflow-x: scroll;
     overflow-y: hidden;
+    padding: 0;
+    position:relative;
+    width:100%;
+}
+
+toolbar-dropzone {
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    z-index:200;
+
 }
 
 .dropzone-toolbar {
     border: solid 1px darkgrey;
-    border-radius:2px;
-    margin-bottom: 10px;
-    padding: 10px;
+    border-radius: 2px;
+    padding: 12px;
+    background-color: white;
+
 }
 
 .dropzone-toolbar .draggable {
     margin-right: 10px;
 }
 
-.connection{
-    min-height:100%;
+.connection {
+    min-height: 100%;
 }
 
-.dropzone-connector{
-    position:relative;
+.dropzone-connector {
+    position: relative;
 }
 
-.cursor-delete{
+.cursor-delete {
     cursor: not-allowed;
 }
 
-.dropzone-connector.is-droppable{
-    min-width:100%;
+.dropzone-connector.is-droppable {
+    min-width: 100%;
     min-height: 100%;
     border: dashed 1px lime;
 
@@ -73,9 +87,6 @@ position:relative;
     border-left: dashed 2px black;
 }*/
 
-
-
-
 .mirror {
     position: absolute;
     z-index: 9999;
@@ -89,15 +100,15 @@ position:relative;
 /*Trash*/
 
 .dropzone-trash {
-    background:#365880;
+    background: #365880;
     width: 55px;
     height: 70px;
     display: inline-block;
-    margin:0 auto;
+    margin: 0 auto;
 
     position: absolute;
-    right:35px;
-    top:calc(100% - 110px);
+    right: 35px;
+    top: calc(100% - 110px);
     -webkit-border-bottom-right-radius: 6px;
     -webkit-border-bottom-left-radius: 6px;
     -moz-border-radius-bottomright: 6px;
@@ -120,6 +131,7 @@ position:relative;
     transition: transform 250ms;
     transform-origin: right bottom;
 }
+
 .dropzone-trash span:after {
     content: '';
     position: absolute;
@@ -136,16 +148,16 @@ position:relative;
     left: 22px;
 }
 
-
 .dropzone-trash i {
-    position:relative;
+    position: relative;
     width: 5px;
-    height:50px;
-    background:#fff;
-    display:block;
-    margin:14px auto;
+    height: 50px;
+    background: #fff;
+    display: block;
+    margin: 14px auto;
     border-radius: 5px;
 }
+
 .dropzone-trash i:after {
     content: '';
     width: 5px;
@@ -155,6 +167,7 @@ position:relative;
     left: -18px;
     border-radius: 5px;
 }
+
 .dropzone-trash i:before {
     content: '';
     width: 5px;
@@ -166,7 +179,7 @@ position:relative;
 }
 
 .dropzone-trash.is-droppable span {
-    transform-origin:right bottom;
+    transform-origin: right bottom;
     transform: rotate(45deg);
     transition: transform 250ms;
 }
@@ -182,6 +195,7 @@ position:relative;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
 }
+
 @-webkit-keyframes deleting {
     0% {
         opacity: 1;
@@ -199,6 +213,7 @@ position:relative;
         transform: scale(.2) translate(0%, 200%);
     }
 }
+
 @keyframes deleting {
     0% {
         opacity: 1;
@@ -215,4 +230,8 @@ position:relative;
         -webkit-transform: scale(.2) translate(0%, 200%);
         transform: scale(.2) translate(0%, 200%);
     }
+}
+
+.move-cursor{
+    cursor:move;
 }

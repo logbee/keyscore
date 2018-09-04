@@ -4,6 +4,7 @@ import com.github.os72.protocjar.Protoc
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskExecutionException
 import protocbridge.JvmGenerator
 import protocbridge.ProtocBridge
 import protocbridge.Target
@@ -27,16 +28,26 @@ class ScalaPBGenerateTask extends DefaultTask {
     @TaskAction
     void generate() {
 
-        List<String> schemas = inputs.files.collect { it.getCanonicalPath() }
-        List<String> includePaths = externalProtoFiles().plus(inputs.files.collect { it.parentFile }).collect { "-I${it.getCanonicalPath()}"} as String[]
+        try {
 
-        if (outputBaseDir.exists()) {
-            outputBaseDir.deleteDir()
-            outputBaseDir.mkdirs()
+            List<String> schemas = inputs.files.collect { it.getCanonicalPath() }
+            List<String> includePaths = externalProtoFiles().plus(inputs.files.collect { it.parentFile }).collect { "-I${it.getCanonicalPath()}"} as String[]
+
+            if (outputBaseDir.exists()) {
+                outputBaseDir.deleteDir()
+                outputBaseDir.mkdirs()
+            }
+
+            Target target = new Target(scalapbGenerator, outputBaseDir, emptySeq)
+            Integer exit = Integer.valueOf(ProtocBridge.run(protocCommandFunction, toSeq([target]), toSeq([] + includePaths + schemas), PluginFrontend.newInstance()))
+
+            if (exit != 0) {
+                throw new ScalaPBGenerationException("ProtocBridge exited with a non zero return value (" + exit + ")! See previous logs for more information.")
+            }
         }
-
-        def target = new Target(scalapbGenerator, outputBaseDir, emptySeq)
-        ProtocBridge.run(protocCommandFunction, toSeq([target]), toSeq([] + includePaths + schemas), PluginFrontend.newInstance())
+        catch (Exception e) {
+            throw new TaskExecutionException(this, e)
+        }
     }
 
     Function1<Seq<String>, String> protocCommandFunction = new Function1<Seq<String>, String>() {
