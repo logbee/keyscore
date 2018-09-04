@@ -78,7 +78,9 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
 
         let mostRightPosition: number = 0;
         draggables.forEach((draggable, index, array) => {
-            mostRightPosition = Math.max(mostRightPosition, draggable.getDraggableModel().position.x + draggable.getRectangle().width);
+            console.log("X: "+draggable.getAbsoluteDraggablePosition().x);
+            console.log("Width: "+draggable.getDraggableSize().width);
+            mostRightPosition = Math.max(mostRightPosition, draggable.getAbsoluteDraggablePosition().x + draggable.getDraggableSize().width);
             console.log("Right: " + mostRightPosition);
         });
         console.log("Initial Workspace Width: " + this.initialWorkspaceWidth);
@@ -103,7 +105,7 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
 
         console.log("Shrink");
         const delta =
-            Math.min(mostLeftPosition - workspacePadding, -(workspaceWidth - mostRightPosition) - workspacePadding);
+            Math.min(mostLeftPosition - workspacePadding, (workspaceWidth - mostRightPosition) - workspacePadding);
         console.log("Delta: " + delta);
         console.log("MostLeft: " + mostLeftPosition);
         console.log("workspacePadding: " + workspacePadding);
