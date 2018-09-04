@@ -80,6 +80,10 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
       )
 
     case AgentCapabilities(metaFilterDescriptors) =>
+      log.info("Received AgentCapabilities")
+      metaFilterDescriptors.foreach(descriptors => {
+        log.info(s" Descriptor ${descriptors}")
+      })
       availableAgents.getOrElseUpdate(sender, metaFilterDescriptors)
 
     case AgentLeaved(ref) =>

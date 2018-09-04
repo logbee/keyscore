@@ -256,6 +256,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   val agentsRoute = pathPrefix("agent") {
     pathPrefix("number") {
       get {
+        log.info(s"Start sending a agents query with actorRef: ${self}")
         onSuccess(agentManager ? QueryAgents) {
           case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.size)
           case _ => complete(StatusCodes.InternalServerError)

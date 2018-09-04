@@ -98,6 +98,10 @@ class AgentManager extends Actor with ActorLogging {
       addAgentMember(member)
 
     case QueryAgents =>
+      log.info(s"QueryAgents: Id of sender is: ${sender}")
+      idToAgent.foreach { kv =>
+        log.info(s"AgentId: ${kv._1}")
+      }
       sender ! QueryAgentsResponse(idToAgent.values.toList)
 
     case QueryMembers =>

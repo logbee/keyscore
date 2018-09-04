@@ -98,8 +98,13 @@ class Agent extends Actor with ActorLogging {
       joined = true
       (filterManager ? RequestDescriptors).mapTo[DescriptorsResponse].onComplete {
         case Success(message) =>
-          log.info("Published capabilities to the topic agents.")
+          message.descriptors.foreach { desc =>
+            log.info(s"Descriptor: s${desc}")
+          }
           mediator ! Publish("agents", AgentCapabilities(message.descriptors))
+          scheduler.scheduleOnce(5 seconds){
+            log.info("Published capabilities to the topic agents.")
+          }
         case Failure(e) =>
           log.error(e, "Failed to publish capabilities!")
           context.stop(self)

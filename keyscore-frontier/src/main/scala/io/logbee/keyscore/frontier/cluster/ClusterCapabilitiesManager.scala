@@ -54,6 +54,11 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
       sender() ! ActiveDescriptors(listOfActiveDescriptors)
 
     case AgentCapabilities(filterDescriptors) =>
+      log.info("Received AgentCapabilities")
+      filterDescriptors.foreach(descriptors => {
+        log.info(s" Descriptor ${descriptors}")
+      })
+
       filterDescriptors.foreach(descriptors => {
         listOfFilterDescriptors.getOrElseUpdate(descriptors, mutable.Set.empty) += sender.path
       })

@@ -15,7 +15,7 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 object LoggerFilter extends Described {
 
   override def describe = Descriptor(
-    ref = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter",
+    ref = "634bce93-64a3-4469-a105-1be441fdc2e0",
     describes = FilterDescriptor(
       name = classOf[LoggerFilter].getName,
       displayName = TextRef("displayName"),
