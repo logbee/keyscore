@@ -4,6 +4,8 @@ import {computeRelativePositionToParent, intersects} from "../util/util";
 import {Rectangle} from "../models/rectangle";
 import {DropzoneComponent} from "../dropzone.component";
 import {DropzoneType} from "../models/dropzone-type";
+import {DraggableModel} from "../models/draggable.model";
+import {WorkspaceDropzoneSubcomponent} from "./workspace-dropzone-subcomponent";
 
 export class WorkspaceDropzoneLogic extends DropzoneLogic {
 
@@ -18,7 +20,7 @@ export class WorkspaceDropzoneLogic extends DropzoneLogic {
         return pivot === null ? this.component : pivot;
     }
 
-    computeDraggableModel(mirror:Draggable,currentDragged:Draggable){
+    computeDraggableModel(mirror: Draggable, currentDragged: Draggable) {
         const draggableModel = {
             ...currentDragged.getDraggableModel(),
             initialDropzone: this.component,
@@ -29,10 +31,9 @@ export class WorkspaceDropzoneLogic extends DropzoneLogic {
         return draggableModel;
     }
 
-    isPreviousConnection():boolean{
+    isPreviousConnection(): boolean {
         return false;
     }
-
 
     isMirrorInRange(mirror: Draggable): boolean {
 

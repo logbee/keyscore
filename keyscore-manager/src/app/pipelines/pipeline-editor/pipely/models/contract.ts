@@ -10,6 +10,8 @@ export interface Workspace {
 
     removeAllDropzones(predicate: (dropzone: Dropzone) => boolean): void;
 
+    removeDraggables(predicate: (draggable: Draggable) => boolean): void;
+
     registerDraggable(draggable: Draggable);
 
     registerMirror(mirror: Draggable);
@@ -92,6 +94,10 @@ export interface Draggable {
     triggerDelete():void;
 
     isDeleting():boolean;
+
+    getTail():Draggable;
+
+    moveXAxis(deltaX:number):void;
 
 
 }

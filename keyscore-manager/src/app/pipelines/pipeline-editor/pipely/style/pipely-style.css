@@ -18,10 +18,10 @@
 .dropzone-workspace {
     position: relative;
     height: 100%;
-    padding: 0;
+    padding-right: 200px;
     background-image: repeating-linear-gradient(0deg, transparent, transparent 13px, #CCF 13px, #CCF 14px), repeating-linear-gradient(-90deg, transparent, transparent 13px, #CCF 13px, #CCF 14px);
     background-size: 18px 18px;
-    min-width:120%;
+    min-width: 120%;
 }
 
 .workspace-scroll-wrapper {
@@ -31,16 +31,16 @@
     overflow-x: scroll;
     overflow-y: hidden;
     padding: 0;
-    position:relative;
-    width:100%;
+    width: 100%;
+    max-width: 100%;
 }
 
 toolbar-dropzone {
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    z-index:200;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
 
 }
 
@@ -232,6 +232,6 @@ toolbar-dropzone {
     }
 }
 
-.move-cursor{
-    cursor:move;
+.move-cursor {
+    cursor: move;
 }

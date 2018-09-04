@@ -1,4 +1,7 @@
-import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, ViewContainerRef} from "@angular/core";
+import {
+    AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild,
+    ViewContainerRef
+} from "@angular/core";
 import {v4 as uuid} from "uuid";
 import {DraggableModel} from "./models/draggable.model";
 import {Draggable, Dropzone, Workspace} from "./models/contract";
@@ -22,7 +25,7 @@ import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subco
 })
 
 
-export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
+export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterViewInit {
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
@@ -32,6 +35,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     public id: string;
 
     public dropzones: Set<Dropzone> = new Set();
+    public draggables: Draggable[] = [];
 
     public toolbarDropzone: Dropzone;
     public workspaceDropzone: Dropzone;
@@ -49,7 +53,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     private dragStart(draggable: Draggable) {
         this.dragged = draggable;
-        console.log("Dragged: ", this.dragged.getDraggableModel());
         this.isDragging = true;
 
         const mirrorModel = this.initialiseMirrorComponent();
@@ -74,7 +77,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         this.bestDropzone = lastDropzone;
     }
 
-    @HostListener('document:mouseup', ['$event'])
+    @HostListener('mouseup', ['$event'])
     dragStop(event: MouseEvent) {
         if (this.isDragging) {
             if (this.bestDropzone) {
@@ -116,8 +119,20 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
 
     private createAndRegisterMirror(model: DraggableModel) {
         this.mirror = this.draggableFactory.createDraggable(this.workspaceDropzone.getDraggableContainer(), model, this);
-        console.log("Mirror: ", this.mirror.getDraggableModel());
         this.registerMirror(this.mirror);
+
+    }
+
+    computeWorkspaceSize() {
+        const workspacePadding = 200;
+
+        const compResult =
+            (this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent)
+                .resizeWorkspace(this.draggables, workspacePadding);
+
+            this.draggables.filter(draggable =>
+                draggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Workspace)
+                .forEach(draggable => draggable.moveXAxis(compResult));
 
     }
 
@@ -133,12 +148,25 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         });
     }
 
+    removeDraggables(predicate: (draggable: Draggable) => boolean) {
+        this.draggables.forEach((draggable, index, array) => {
+            if (predicate(draggable)) {
+                array.splice(index, 1);
+            }
+        });
+    }
+
     registerMirror(mirror: Draggable) {
         mirror.dragMove$.subscribe(() => this.dragMove(mirror));
     }
 
     registerDraggable(draggable: Draggable) {
         draggable.dragStart$.subscribe(() => this.dragStart(draggable));
+        if (draggable.getDraggableModel().initialDropzone
+                .getDropzoneModel().dropzoneType === DropzoneType.Workspace) {
+            this.draggables.push(draggable);
+            this.computeWorkspaceSize();
+        }
     }
 
     getWorkspaceDropzone(): Dropzone {
@@ -164,6 +192,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                 isMirror: false
             });
         }
+    }
+
+    ngAfterViewInit() {
+
     }
 
     ngOnDestroy() {

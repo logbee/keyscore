@@ -91,7 +91,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         if (this.draggableModel.next) {
             this.createAndRegisterNext();
         }
-        if(this.draggableModel.draggableType === "delete") {
+        if (this.draggableModel.draggableType === "delete") {
             this.triggerDelete();
         }
     }
@@ -111,16 +111,12 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
                 y: currentPosition.y + y
             };
 
-
             this.draggableElement.nativeElement.style.left = newPosition.x + "px";
             this.draggableElement.nativeElement.style.top = newPosition.y + "px";
 
             this.triggerDragMove();
-
-
         }
     }
-
 
     private initialiseConncetions() {
         if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
@@ -168,6 +164,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
     public ngOnDestroy() {
         this.workspace.removeAllDropzones(dropzone => dropzone.getOwner() === this);
+        this.workspace.removeDraggables(draggable => draggable.getId() === this.id);
         this.isAlive.next();
     }
 
@@ -183,6 +180,21 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         event.stopPropagation();
         this.triggerDragStart();
 
+    }
+
+    getTail(): Draggable {
+        let tail: Draggable = this;
+        while (tail.getNext()) {
+            tail = tail.getNext();
+        }
+        return tail;
+    }
+
+    moveXAxis(deltaX: number) {
+        if (deltaX !== 0) {
+            this.draggableModel.position.x += deltaX;
+            this.draggableElement.nativeElement.style.left = this.draggableModel.position.x + "px";
+        }
     }
 
     removeNextFromModel() {
@@ -217,7 +229,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
             top: clientRect.top,
             left: clientRect.left,
             right: clientRect.right,
-            bottom: clientRect.bottom
+            bottom: clientRect.bottom,
+            width: clientRect.width
         };
     }
 
@@ -263,16 +276,16 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         this.draggableModel.next = next;
     }
 
-    triggerDelete(){
+    triggerDelete() {
         this.deleting = true;
         this.draggableElement.nativeElement.classList.add("delete");
         console.log(this.draggableElement.nativeElement.classList);
-        this.draggableElement.nativeElement.addEventListener(this.whichTransitionEvent(),(e) => {
+        this.draggableElement.nativeElement.addEventListener(this.whichTransitionEvent(), (e) => {
             this.destroy();
-        },false);
+        }, false);
     }
 
-    isDeleting():boolean{
+    isDeleting(): boolean {
         return this.deleting;
     }
 
@@ -282,7 +295,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         this.draggableElement.nativeElement.style.top = pos.y + "px";
     }
 
-    private whichTransitionEvent(){
+    private whichTransitionEvent() {
         let t;
         const el = document.createElement('fakeelement');
         const transitions = {
@@ -292,8 +305,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
             'WebkitTransition': 'webkitTransitionEnd'
         };
 
-        for(t in transitions){
-            if( el.style[t] !== undefined ){
+        for (t in transitions) {
+            if (el.style[t] !== undefined) {
                 return transitions[t];
             }
         }

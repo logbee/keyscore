@@ -97,7 +97,8 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
             top: clientRect.top,
             left: clientRect.left,
             right: clientRect.right,
-            bottom: clientRect.bottom
+            bottom: clientRect.bottom,
+            width: clientRect.width
         };
     }
 
@@ -107,7 +108,8 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
             top: rect.top - this.dropzoneModel.dropzoneRadius,
             left: rect.left - this.dropzoneModel.dropzoneRadius,
             right: rect.right + this.dropzoneModel.dropzoneRadius,
-            bottom: rect.bottom + this.dropzoneModel.dropzoneRadius
+            bottom: rect.bottom + this.dropzoneModel.dropzoneRadius,
+            width: rect.right + 2*this.dropzoneModel.dropzoneRadius - rect.left
         };
     }
 
