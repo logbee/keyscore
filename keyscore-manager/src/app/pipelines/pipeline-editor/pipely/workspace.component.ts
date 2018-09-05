@@ -113,10 +113,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     }
 
 
-    private createAndRegisterDraggable(container: ViewContainerRef, model: DraggableModel) {
-        this.registerDraggable(this.draggableFactory.createDraggable(container, model, this));
-    }
-
     private createAndRegisterMirror(model: DraggableModel) {
         this.mirror = this.draggableFactory.createDraggable(this.workspaceDropzone.getDraggableContainer(), model, this);
         this.registerMirror(this.mirror);
@@ -130,9 +126,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
             (this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent)
                 .resizeWorkspace(this.draggables, workspacePadding);
 
-            this.draggables.filter(draggable =>
-                draggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Workspace)
-                .forEach(draggable => draggable.moveXAxis(compResult));
+        this.draggables.filter(draggable =>
+            draggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Workspace)
+            .forEach(draggable => draggable.moveXAxis(compResult));
 
     }
 
@@ -181,7 +177,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
         this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
 
         for (let i = 0; i < 2; i++) {
-            this.createAndRegisterDraggable(this.toolbarDropzone.getDraggableContainer(), {
+            this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
                 name: "Test" + Math.random().toString().substr(0, 4),
                 draggableType: "general",
                 nextConnection: {isPermitted: true, connectableTypes: ["general"]},
@@ -190,8 +186,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                 next: null,
                 rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
                 isMirror: false
-            });
+            }, this);
         }
+
     }
 
     ngAfterViewInit() {

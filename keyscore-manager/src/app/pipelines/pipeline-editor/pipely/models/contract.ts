@@ -18,6 +18,8 @@ export interface Workspace {
 
     getWorkspaceDropzone():Dropzone;
 
+    registerDraggable(draggable:Draggable);
+
 }
 
 export interface Dropzone {

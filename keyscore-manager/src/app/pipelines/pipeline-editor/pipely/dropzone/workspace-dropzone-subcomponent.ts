@@ -78,14 +78,16 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
 
         let mostRightPosition: number = 0;
         draggables.forEach((draggable, index, array) => {
-            console.log("X: "+draggable.getAbsoluteDraggablePosition().x);
-            console.log("Width: "+draggable.getDraggableSize().width);
-            mostRightPosition = Math.max(mostRightPosition, draggable.getAbsoluteDraggablePosition().x + draggable.getDraggableSize().width);
-            console.log("Right: " + mostRightPosition);
+                mostRightPosition =
+                    Math.max(
+                        mostRightPosition,
+                        draggable.getAbsoluteDraggablePosition().x + draggable.getDraggableSize().width);
         });
-        console.log("Initial Workspace Width: " + this.initialWorkspaceWidth);
+
         if (mostLeftPosition > workspacePadding &&
-            workspaceWidth > this.initialWorkspaceWidth) {
+            workspaceWidth > this.initialWorkspaceWidth &&
+            mostRightPosition < (workspaceWidth - workspacePadding)
+        ) {
             return this.shrinkRight(workspacePadding, mostLeftPosition, mostRightPosition, workspaceWidth, wrapperWidth);
         }
 
@@ -107,10 +109,7 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
         const delta =
             Math.min(mostLeftPosition - workspacePadding, (workspaceWidth - mostRightPosition) - workspacePadding);
         console.log("Delta: " + delta);
-        console.log("MostLeft: " + mostLeftPosition);
-        console.log("workspacePadding: " + workspacePadding);
-        console.log("mostRight: " + mostRightPosition);
-        console.log("workspaceWidth: " + workspaceWidth);
+
         this.dropzoneElement.nativeElement.style.width =
             Math.max(this.initialWorkspaceWidth, (workspaceWidth - delta)) + "px";
         return 0;

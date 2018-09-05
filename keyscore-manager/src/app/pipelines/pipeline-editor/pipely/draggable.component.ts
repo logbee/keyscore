@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     Component, ComponentFactoryResolver,
     ComponentRef,
     ElementRef,
@@ -40,7 +41,7 @@ import {takeUntil} from "rxjs/internal/operators";
     `
 })
 
-export class DraggableComponent implements OnInit, OnDestroy, Draggable {
+export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterViewInit {
 
     workspace: Workspace;
     draggableModel: DraggableModel;
@@ -82,19 +83,31 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
         this.positionDraggable();
 
-        this.initialiseConncetions();
+        this.initialiseConnections();
 
         if (this.draggableModel.initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
             this.occupyPreviousConnection();
         }
 
         if (this.draggableModel.next) {
-            this.createAndRegisterNext();
+            this.createNext();
         }
         if (this.draggableModel.draggableType === "delete") {
             this.triggerDelete();
         }
+
     }
+
+
+    public ngAfterViewInit() {
+        if (!this.draggableModel.isMirror) {
+            this.workspace.registerDraggable(this);
+        }
+        else {
+            this.workspace.registerMirror(this);
+        }
+    }
+
 
     @HostListener('document:mousemove', ['$event'])
     onMouseMove(event: MouseEvent) {
@@ -118,7 +131,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         }
     }
 
-    private initialiseConncetions() {
+    private initialiseConnections() {
         if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
             this.previousConnectionDropzone =
                 this.createConnection(this.draggableModel.previousConnection, this.previousConnectionContainer);
@@ -153,13 +166,12 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         }
     }
 
-    private createAndRegisterNext() {
+    private createNext() {
         const draggableFactory = new DraggableFactory(this.resolver);
         this.draggableModel.next =
             {...this.draggableModel.next, initialDropzone: this.nextConnectionDropzone};
         this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(), this.draggableModel.next, this.workspace);
         this.nextConnectionDropzone.occupyDropzone();
-        this.workspace.registerDraggable(this.next);
     }
 
     public ngOnDestroy() {
@@ -217,6 +229,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     getDraggableSize(): { width: number, height: number } {
+        console.log("Draggable in GETSIZE: ", this.draggableElement);
+        console.log("Width in get SIZE: ", this.draggableElement.nativeElement.offsetWidth);
         return {
             width: this.draggableElement.nativeElement.offsetWidth,
             height: this.draggableElement.nativeElement.offsetHeight
