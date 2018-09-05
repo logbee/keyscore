@@ -1,0 +1,27 @@
+{
+  "ref":{
+    "uuid":"bae4e0bc-2784-416a-a93d-0e36ed80d6e0"
+  },
+  "parameters":[
+    {
+      "ref":"kafka.source.server",
+      "value":"localhost"
+    },
+    {
+      "ref":"kafka.source.port",
+      "value":9092
+    },
+    {
+      "ref":"kafka.source.group",
+      "value":"groupId"
+    },
+    {
+      "ref":"kafka.source.offset",
+      "value":"earliest"
+    },
+    {
+      "ref":"kafka.source.topic",
+      "value":"TopicA"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "ref":{
+    "uuid":"d2588462-b5f4-4b10-8cbb-7bcceb178cb5"
+  },
+  "parameters":[
+    {
+      "ref":"removeFields.fieldsToRemove",
+      "value":[
+        "message"
+      ]
+    }
+  ]
+}
