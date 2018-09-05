@@ -30,11 +30,12 @@ class ScalaPBPlugin implements Plugin<Project> {
             Task processResourcesTask = project.tasks.getByName(sourceSet.getTaskName('process', 'resources'))
             Task scalapb = project.tasks.create(scalapbTaskName(sourceSet), ScalaPBGenerateTask) {
                 it.description = "Compiles protobuf '${sourceSet.name}' sources and generates scala code.'"
-                it.inputs.files(sourceSet.proto)
+                it.protoFiles = sourceSet.proto
                 it.outputBaseDir = project.file("${project.buildDir}/generated/source/scalapb/${sourceSet.name}/scala")
             }
 
             compileScala.dependsOn scalapb
+
             processResourcesTask.from(project.tasks.getByName(scalapbTaskName(sourceSet)).inputs.files) {
                 include '**/*.proto'
             }
