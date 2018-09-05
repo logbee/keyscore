@@ -29,7 +29,7 @@ class DifferentialQuotientFilterLogicSpec extends FreeSpec with Matchers with Sc
       TextParameter(targetFieldNameParameter.ref, "slope")
     ))
 
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new CSVParserFilterLogic(parameters, s)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new DifferentialQuotientFilterLogic(parameters, s)
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
