@@ -12,12 +12,12 @@ import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent.{AgentManagerDied, CheckJoin, Initialize, SendJoin}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
 import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineScheduler}
+import io.logbee.keyscore.commons.cluster.Topics.AgentsTopic
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.extension.ExtensionLoader
 import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
 import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
 import io.logbee.keyscore.commons.util.{RandomNameGenerator, StartUpWatch}
-import io.logbee.keyscore.model.messages.AgentCapabilities
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -102,8 +102,9 @@ class Agent extends Actor with ActorLogging {
           message.descriptors.foreach { desc =>
             log.info(s"Descriptor: s${desc}")
           }
-          mediator ! Publish("agents", AgentCapabilities(message.descriptors))
-            log.info("Published capabilities to the topic agents.")
+
+          mediator ! Publish(AgentsTopic, AgentCapabilities(message.descriptors))
+          log.info("Published capabilities to the topic agents.")
         case Failure(e) =>
           log.error(e, "Failed to publish capabilities!")
           context.stop(self)
@@ -115,7 +116,7 @@ class Agent extends Actor with ActorLogging {
       context.stop(self)
 
     case AgentManagerDied =>
-      log.info("Actual AgentManager dieded. Setting joined-status to false and trying to join again.")
+      log.info("Actual AgentManager diededed. Setting joined-status to false and trying to join again.")
       joined = false
       self ! SendJoin
 

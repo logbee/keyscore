@@ -1,14 +1,11 @@
 package io.logbee.keyscore.model
 
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.model.descriptor.ExpressionType.{Glob, Grok, JSONPath, RegEx}
-import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, AnyField, PresentField}
-import io.logbee.keyscore.model.descriptor.{IconEncoding, IconFormat, _}
+import io.logbee.keyscore.model.descriptor.ExpressionType.Grok
+import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, PresentField}
+import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
-import org.json4s.JsonAST.{JNull, JString}
-import org.json4s.native.Serialization
-import org.json4s.{CustomKeySerializer, CustomSerializer, FullTypeHints}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
@@ -91,7 +88,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
             EN -> "A simple text parameter as example.",
             DE -> "Ein einfacher Textparameter als Beispiel."
           )
-        ) ++ Localization.fromResourceBundle("ExampleFilter", java.util.Locale.ENGLISH, Locale("de")))
+        ) ++ Localization.fromResourceBundle("ExampleFilter", Locale.ENGLISH, Locale("de")))
 
       println(write(descriptor))
     }
@@ -104,91 +101,4 @@ class DescriptorSpec extends FreeSpec with Matchers {
       println(writePretty(parsedDescriptor))
     }
   }
-
-  object TextRefKeySerializer extends CustomKeySerializer[TextRef](format => ({
-    case id: String => TextRef(id)
-  }, {
-    case ref: TextRef => ref.id
-  }))
-
-  object LocaleKeySerializer extends CustomKeySerializer[Locale](format => ({
-    case locale: String => Locale(locale)
-  }, {
-    case locale: Locale => Locale.localeToString(locale)
-  }))
-
-  object ParameterRefKeySerializer extends CustomKeySerializer[ParameterRef](format => ({
-    case id: String => ParameterRef(id)
-  }, {
-    case ref: ParameterRef => ref.id
-  }))
-
-  case object ParameterRefSerializer extends CustomSerializer[ParameterRef](format => ( {
-    case JString(ref) => ParameterRef(ref)
-    case JNull => null
-  }, {
-    case ref: ParameterRef =>
-      JString(ref.id)
-  }))
-
-  case object PatternTypeSerializer extends CustomSerializer[ExpressionType](format => ( {
-    case JString(patternType) => patternType match {
-      case "RegEx" => RegEx
-      case "Grok" => Grok
-      case "Glob" => Glob
-      case "JSONPath" => JSONPath
-    }
-    case JNull => RegEx
-  }, {
-    case expressionType: ExpressionType => JString(expressionType.getClass.getSimpleName.replace("$", ""))
-  }))
-
-  case object FieldNameHintSerializer extends CustomSerializer[FieldNameHint](format => ( {
-    case JString(hint) => hint match {
-      case "AnyField" => AnyField
-      case "PresentField" => PresentField
-      case "AbsentField" => AbsentField
-    }
-    case JNull => AnyField
-  }, {
-    case hint: FieldNameHint =>
-      JString(hint.getClass.getSimpleName.replace("$", ""))
-  }))
-
-  case object FieldValueTypeSerializer extends CustomSerializer[FieldValueType](format => ({
-    case JString(fieldValueType) => fieldValueType match {
-      case "Unknown" => FieldValueType.Unknown
-      case "Boolean" => FieldValueType.Boolean
-      case "Number" => FieldValueType.Number
-      case "Decimal" => FieldValueType.Decimal
-      case "Text" => FieldValueType.Text
-      case "Timestamp" => FieldValueType.Timestamp
-      case "Duration" => FieldValueType.Duration
-    }
-    case JNull => FieldValueType.Unknown
-  }, {
-    case fieldValueType: FieldValueType =>
-      JString(fieldValueType.getClass.getSimpleName.replace("$", ""))
-  }))
-
-  case object IconFormatSerializer extends CustomSerializer[IconFormat](format => ( {
-    case JString(format) => format match {
-      case "SVG" => IconFormat.SVG
-    }
-    case JNull => IconFormat.SVG
-  }, {
-    case format: IconFormat =>
-      JString(format.getClass.getSimpleName.replace("$", ""))
-  }))
-
-  case object IconEncodingSerializer extends CustomSerializer[IconEncoding](format => ( {
-    case JString(encoding) => encoding match {
-      case "RAW" => IconEncoding.RAW
-      case "Base64" => IconEncoding.Base64
-    }
-    case JNull => IconEncoding.RAW
-  }, {
-    case encoding: IconEncoding =>
-      JString(encoding.getClass.getSimpleName.replace("$", ""))
-  }))
 }

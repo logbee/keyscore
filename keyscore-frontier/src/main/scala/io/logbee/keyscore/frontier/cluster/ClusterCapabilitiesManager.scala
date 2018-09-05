@@ -8,7 +8,6 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.descriptor.Descriptor
-import io.logbee.keyscore.model.messages.AgentCapabilities
 
 import scala.collection.mutable
 

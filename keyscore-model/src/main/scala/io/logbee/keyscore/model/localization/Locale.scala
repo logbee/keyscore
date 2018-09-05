@@ -15,7 +15,10 @@ trait LocaleCompanion {
 
   private val separator = "_"
 
-  def apply(locale: java.util.Locale): Locale = locale
+  val ENGLISH = Locale("en")
+  val GERMAN = Locale("de")
+
+  def apply(locale: java.util.Locale): Locale = Locale(locale.getLanguage, locale.getCountry)
 
   def apply(locale: String): Locale = {
     val split = locale.split(separator)
@@ -35,10 +38,6 @@ trait LocaleCompanion {
       s"${locale.language}"
     }
   }
-
-  implicit def localeToJavaLocale(locale: Locale): java.util.Locale =  locale.asJava
-
-  implicit def localeFromJavaLocale(locale: java.util.Locale): Locale = Locale(locale.getLanguage, locale.getCountry)
 
   implicit val typeMapper = TypeMapper[String, Locale](locale => Locale(locale))(locale => locale)
 }

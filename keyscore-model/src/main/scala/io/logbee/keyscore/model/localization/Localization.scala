@@ -24,7 +24,7 @@ trait LocalizationCompanion {
   def fromResourceBundle(bundleName: String, locales: Set[Locale]): Localization = {
 
     val resourceBundles = locales.foldLeft(Map.empty[Locale, ResourceBundle]) { case (result, locale) =>
-      Try(ResourceBundle.getBundle(bundleName, locale)) match {
+      Try(ResourceBundle.getBundle(bundleName, locale.asJava)) match {
         case Success(bundle) => result + (locale -> bundle)
         case _ => result
       }
@@ -38,7 +38,7 @@ trait LocalizationCompanion {
       }))
     }
 
-    Localization(resourceBundles.keys.toSet, mappings)
+    Localization(locales, mappings)
   }
 
   def fromMapping(mapping: (TextRef, Map[Locale, String])*): Localization = {

@@ -1,7 +1,5 @@
 package io.logbee.keyscore.agent.pipeline.contrib.elasticsearch
 
-import java.util.Locale
-
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods.POST
 import akka.http.scaladsl.model.MediaTypes._
@@ -16,7 +14,7 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor._
-import io.logbee.keyscore.model.localization.{Localization, TextRef}
+import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.Hashing._
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.json4s.NoTypeHints

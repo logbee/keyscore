@@ -69,7 +69,6 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
       configurationManager = context.actorOf(ConfigurationManager())
       descriptorManager = context.actorOf(DescriptorManager())
       blueprintManager = context.actorOf(PipelineBlueprintManager())
-      routeBuilder = context.actorOf(RouteBuilder(agentManager), "RouteBuilder")
 
       self ! InitAgentManager(isOperating)
 
@@ -79,7 +78,10 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
 
     case AgentManagerInitialized(isOperating) =>
       clusterManager = context.actorOf(ClusterManager(agentManager), "ClusterManager")
+      routeBuilder = context.actorOf(RouteBuilder(agentManager), "RouteBuilder")
+
       if(isOperating) {
+
         self ! InitServer
       } else {
         self ! InitSleep

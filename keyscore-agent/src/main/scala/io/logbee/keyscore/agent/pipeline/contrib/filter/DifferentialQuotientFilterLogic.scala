@@ -1,6 +1,5 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
-import java.util.Locale
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
@@ -11,7 +10,7 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, DecimalValue, Field, Record}
 import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, PresentField}
 import io.logbee.keyscore.model.descriptor._
-import io.logbee.keyscore.model.localization.{Localization, TextRef}
+import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 object DifferentialQuotientFilterLogic extends Described {

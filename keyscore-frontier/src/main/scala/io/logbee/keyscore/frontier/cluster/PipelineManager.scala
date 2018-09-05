@@ -79,7 +79,7 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
         context.actorSelection(agent.path / "PipelineScheduler") ! DeleteAllPipelinesOrder
       )
 
-    case io.logbee.keyscore.model.messages.AgentCapabilities(metaFilterDescriptors) =>
+    case AgentCapabilities(metaFilterDescriptors) =>
       availableAgents.getOrElseUpdate(sender, metaFilterDescriptors)
 
     case AgentLeaved(ref) =>

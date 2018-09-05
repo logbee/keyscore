@@ -1,6 +1,5 @@
 package io.logbee.keyscore.agent.pipeline.contrib.kafka
 
-import java.util.Locale.{ENGLISH, GERMAN}
 
 import akka.kafka
 import akka.kafka.scaladsl.Consumer
@@ -14,7 +13,7 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor._
-import io.logbee.keyscore.model.localization.{Localization, TextRef}
+import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
@@ -100,7 +99,7 @@ object KafkaSourceLogic extends Described {
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSourceLogic",
-      ENGLISH, GERMAN)
+      Locale.ENGLISH, Locale.GERMAN)
   )
 
 }

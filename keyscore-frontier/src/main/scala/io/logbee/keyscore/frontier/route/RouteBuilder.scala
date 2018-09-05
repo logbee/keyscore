@@ -254,29 +254,20 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   }
 
   val agentsRoute = pathPrefix("agent") {
-    pathPrefix("number") {
-      get {
-        log.info(s"Start sending a agents query with actorRef: ${self}")
-        onSuccess(agentManager ? QueryAgents) {
-          case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.size)
+    pathPrefix(JavaUUID) { agentID =>
+      delete {
+        onSuccess(agentManager ? RemoveAgentFromCluster(agentID)) {
+          case AgentRemovedFromCluster(agentID) => complete(StatusCodes.OK)
           case _ => complete(StatusCodes.InternalServerError)
         }
       }
     } ~
-      pathPrefix(JavaUUID) { agentID =>
-        delete {
-          onSuccess(agentManager ? RemoveAgentFromCluster(agentID)) {
-            case AgentRemovedFromCluster(agentID) => complete(StatusCodes.OK)
-            case _ => complete(StatusCodes.InternalServerError)
-          }
-        }
-      } ~
-      get {
-        onSuccess(agentManager ? QueryAgents) {
-          case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
-          case _ => complete(StatusCodes.InternalServerError)
-        }
+    get {
+      onSuccess(agentManager ? QueryAgents) {
+        case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
+        case _ => complete(StatusCodes.InternalServerError)
       }
+    }
   }
 
   val infoRoute = pathSingleSlash {
