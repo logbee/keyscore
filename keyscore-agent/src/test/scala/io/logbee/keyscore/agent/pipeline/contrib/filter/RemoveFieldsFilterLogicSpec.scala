@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 import akka.stream.FlowShape
@@ -26,7 +27,6 @@ class RemoveFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new RemoveFieldsFilterLogic(LogicParameters(randomUUID(), ctx, c), s)
 
     val config1 = Configuration(
       TextListParameter(fieldsToRemoveParameter, Seq("current", "timestamp"))
@@ -35,6 +35,8 @@ class RemoveFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
     val config2 = Configuration(
       TextListParameter(fieldsToRemoveParameter, List("temperature", "voltage"))
     )
+
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new RemoveFieldsFilterLogic(LogicParameters(randomUUID(), context, config1), s)
 
     val sample = Dataset(
       Record(
@@ -58,7 +60,7 @@ class RemoveFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
       )
     )
 
-    val filterStage = new FilterStage(context, config1, provider)
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, config1), provider)
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)

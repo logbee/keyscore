@@ -8,16 +8,15 @@ import io.logbee.keyscore.model.sink.SinkProxy
 
 import scala.concurrent.Future
 
-class SinkStage(context: StageContext, configuration: Configuration, provider: (StageContext, Configuration, SinkShape[Dataset]) => SinkLogic) extends GraphStageWithMaterializedValue[SinkShape[Dataset], Future[SinkProxy]] {
+class SinkStage(parameters: LogicParameters, provider: (LogicParameters, SinkShape[Dataset]) => SinkLogic) extends GraphStageWithMaterializedValue[SinkShape[Dataset], Future[SinkProxy]] {
 
-  // TODO: Fix Inlet name.
-  private val in = Inlet[Dataset](s"${configuration}:inlet")
+  private val in = Inlet[Dataset](s"${parameters.uuid}:inlet")
 
   override def shape: SinkShape[Dataset] = SinkShape(in)
 
   override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[SinkProxy]) = {
 
-    val logic = provider(context, configuration, shape)
+    val logic = provider(parameters, shape)
     (logic, logic.initPromise.future)
   }
 }

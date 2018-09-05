@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.pipeline
 
+import java.util.UUID
+
 import akka.actor.ActorRef
 import akka.stream.{FlowShape, SinkShape, SourceShape}
 import akka.testkit.{TestActor, TestProbe}
@@ -64,10 +66,10 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
     val supervisor = system.actorOf(PipelineSupervisor(filterManager.ref))
 
     trait SupervisorSpecSetup {
-      val sinkStage = new SinkStage(stub[StageContext], Configuration(), sinkLogicProvider)
-      val sourceStage = new SourceStage(stub[StageContext], Configuration(), sourceLogicProvider)
-      val filterStage = new FilterStage(stub[StageContext], Configuration(), filterLogicProvider)
-      val filterStage2 = new FilterStage(stub[StageContext], Configuration(), filterLogicProvider)
+      val sinkStage = new SinkStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), sinkLogicProvider)
+      val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), sourceLogicProvider)
+      val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), filterLogicProvider)
+      val filterStage2 = new FilterStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), filterLogicProvider)
 
       filterManager.setAutoPilot((sender: ActorRef, message: Any) => message match {
         case _: CreateSinkStage =>
@@ -111,8 +113,8 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
     }
   }
 
-  val sourceLogicProvider = (ctx: StageContext, config: Configuration, shape: SourceShape[Dataset]) => {
-    new SourceLogic(LogicParameters(null, ctx, config), shape) {
+  val sourceLogicProvider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => {
+    new SourceLogic(parameters, shape) {
       val input: List[String] = List("first", "second", "third")
       var outputCounter = 0
 
@@ -127,8 +129,8 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
     }
   }
 
-  val sinkLogicProvider = (ctx: StageContext, config: Configuration, shape: SinkShape[Dataset]) => {
-    new SinkLogic(LogicParameters(null, ctx, config), shape) {
+  val sinkLogicProvider = (parameters: LogicParameters, shape: SinkShape[Dataset]) => {
+    new SinkLogic(parameters, shape) {
       override def initialize(configuration: Configuration): Unit = {
         pull(in)
       }
@@ -144,8 +146,8 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
     }
   }
 
-  val filterLogicProvider = (ctx: StageContext, config: Configuration, shape: FlowShape[Dataset, Dataset]) => {
-    new FilterLogic(LogicParameters(null, ctx, config), shape) {
+  val filterLogicProvider = (parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) => {
+    new FilterLogic(parameters, shape) {
 
       override def configure(configuration: Configuration): Unit = ???
 

@@ -37,8 +37,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
     val testSource = TestSource.probe[Dataset]
     val testsink = TestSink.probe[Dataset]
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) =>
-      new AddFieldsFilterLogic(LogicParameters(UUID.randomUUID(),ctx, c), s))
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new AddFieldsFilterLogic(p, s))
 
     val ((source, controllerFuture), sink) =
       testSource.viaMat(new ValveStage())(Keep.both)

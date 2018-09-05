@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 import akka.stream.FlowShape
@@ -26,11 +27,11 @@ class DropMessageFilterLogicSpec extends WordSpec with Matchers with ScalaFuture
 
 
     val context = StageContext(system, executionContext)
-    val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new DropMessageFilterLogic(LogicParameters(randomUUID(), ctx, c), s)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new DropMessageFilterLogic(parameters, s)
 
     val messagesToDrop = TextListParameter(retainMessagesParameter.ref, List("non.+", "bartolemaeus"))
     val initialConfig = Configuration(parameters = Seq(messagesToDrop))
-    val filterStage = new FilterStage(context, initialConfig, provider)
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, initialConfig), provider)
 
     val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)

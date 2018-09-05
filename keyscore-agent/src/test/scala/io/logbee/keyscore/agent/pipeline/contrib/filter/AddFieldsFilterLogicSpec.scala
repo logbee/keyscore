@@ -37,7 +37,7 @@ class AddFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
     ))))
 
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new AddFieldsFilterLogic(LogicParameters(randomUUID(), ctx, c), s))
+    val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new AddFieldsFilterLogic(p, s))
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)

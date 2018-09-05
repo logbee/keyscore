@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 import akka.stream.FlowShape
@@ -28,8 +29,8 @@ class DifferentialQuotientFilterLogicSpec extends FreeSpec with Matchers with Sc
       TextParameter(targetFieldNameParameter.ref, "slope")
     ))
 
-    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new DifferentialQuotientFilterLogic(LogicParameters(randomUUID(), ctx, c), s))
-
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new CSVParserFilterLogic(parameters, s)
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
       .toMat(TestSink.probe[Dataset])(Keep.both)

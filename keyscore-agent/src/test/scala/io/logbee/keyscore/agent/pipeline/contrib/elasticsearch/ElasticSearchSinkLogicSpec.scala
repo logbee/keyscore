@@ -37,9 +37,9 @@ class ElasticSearchSinkLogicSpec  extends WordSpec with Matchers with ScalaFutur
       )
 
       val context = StageContext(system, executionContext)
-      val provider = (ctx: StageContext, c: Configuration, s: SinkShape[Dataset]) =>
-        new ElasticSearchSinkLogic(LogicParameters(UUID.randomUUID(), ctx, c), s)
-      val elasticSink = new SinkStage(context, configuration, provider)
+      val provider = (parameters: LogicParameters, s: SinkShape[Dataset]) =>
+        new ElasticSearchSinkLogic(parameters, s)
+      val elasticSink = new SinkStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
 
       val (src, sinkFuture) = TestSource.probe[Dataset]
         .toMat(elasticSink)(Keep.both)

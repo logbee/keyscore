@@ -7,7 +7,7 @@ trait QueryableConfiguration {
 
   this: Configuration =>
 
-  private val parameterMapping = parameters.foldLeft(scala.collection.mutable.Map.empty[String, Any]) {
+  private def parameterMapping = parameters.foldLeft(scala.collection.mutable.Map.empty[String, Any]) {
     case (result, parameter: BooleanParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: TextParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: ExpressionParameter) => result + (parameter.ref.id -> parameter.value)

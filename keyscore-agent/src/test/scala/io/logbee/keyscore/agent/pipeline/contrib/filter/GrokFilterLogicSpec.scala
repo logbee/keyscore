@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 import akka.stream.FlowShape
@@ -10,6 +11,7 @@ import io.logbee.keyscore.agent.pipeline.contrib.filter.GrokFilterLogic.{fieldNa
 import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
 import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter, TextParameter}
+import io.logbee.keyscore.model.conversion.UUIDConversion
 import io.logbee.keyscore.model.data.{Dataset, DecimalField, Record}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import org.junit.runner.RunWith
@@ -28,7 +30,8 @@ class GrokFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with 
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(context, configurationA, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) => new GrokFilterLogic(LogicParameters(randomUUID(), ctx, c), s))
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new GrokFilterLogic(parameters, s)
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)

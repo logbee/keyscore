@@ -27,8 +27,8 @@ class LoggerFilterSpec extends WordSpec with Matchers with ScalaFutures with Tes
 
   val configurationA = Configuration(parameters = Seq())
   val context = StageContext(system, executionContext)
-  val filterStage = new FilterStage(context, configurationA, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) =>
-    new LoggerFilter(LogicParameters(UUID.randomUUID(), ctx, c), s))
+  val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new CSVParserFilterLogic(parameters, s)
+  val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)
 
   val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
     .viaMat(filterStage)(Keep.both)

@@ -27,7 +27,7 @@ import scala.util.Success
 
 object KafkaSinkLogic extends Described {
 
-  private[kafka] val bootstrapServerParameter = TextParameterDescriptor(
+ val bootstrapServerParameter = TextParameterDescriptor(
     ref = "kafka.sink.bootstrapServer",
     info = ParameterInfo(TextRef("bootstrapServer"), TextRef("bootstrapServerDescription")),
     defaultValue = "example.com",
@@ -38,7 +38,7 @@ object KafkaSinkLogic extends Described {
     mandatory = true
   )
 
-  private[kafka] val bootstrapServerPortParameter = NumberParameterDescriptor(
+ val bootstrapServerPortParameter = NumberParameterDescriptor(
     ref = "kafka.sink.bootstrapServerPort",
     info = ParameterInfo(TextRef("bootstrapServerPort"), TextRef("bootstrapServerPortDescription")),
     defaultValue = 9092,
@@ -46,7 +46,7 @@ object KafkaSinkLogic extends Described {
     mandatory = true
   )
 
-  private[kafka] val topicParameter = TextParameterDescriptor(
+  val topicParameter = TextParameterDescriptor(
     ref = "kafka.sink.topic",
     info = ParameterInfo(TextRef("topic"), TextRef("topicDescription")),
     defaultValue = "topic",

@@ -100,15 +100,15 @@ class BlueprintMaterializer(stageContext: StageContext, blueprint: SealedBluepri
       blueprint match {
         case filterBlueprint: FilterBlueprint =>
           log.info(s"Creating FilterStage: ${filterBlueprint.ref.uuid}")
-          filterManager ! CreateFilterStage(stageContext, materialization.descriptor, materialization.configuration)
+          filterManager ! CreateFilterStage(filterBlueprint.ref, stageContext, materialization.descriptor, materialization.configuration)
 
         case sourceBlueprint: SourceBlueprint =>
           log.info(s"Creating SourceStage: ${sourceBlueprint.ref.uuid}")
-          filterManager ! CreateSourceStage(stageContext, materialization.descriptor, materialization.configuration)
+          filterManager ! CreateSourceStage(sourceBlueprint.ref, stageContext, materialization.descriptor, materialization.configuration)
 
         case sinkBlueprint: SinkBlueprint =>
           log.info(s"Creating SinkStage: ${sinkBlueprint.ref.uuid}")
-          filterManager ! CreateSinkStage(stageContext, materialization.descriptor, materialization.configuration)
+          filterManager ! CreateSinkStage(sinkBlueprint.ref,stageContext, materialization.descriptor, materialization.configuration)
 
       }
 

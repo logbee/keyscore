@@ -26,7 +26,7 @@ import scala.util.Success
 
 object KafkaSourceLogic extends Described {
 
-  private val serverParameter = TextParameterDescriptor(
+  val serverParameter = TextParameterDescriptor(
     ref = "kafka.source.server",
     info = ParameterInfo(
       displayName = TextRef("bootstrapServer"),
@@ -39,7 +39,7 @@ object KafkaSourceLogic extends Described {
     defaultValue = "example.com",
     mandatory = true
   )
-  private val portParameter = NumberParameterDescriptor(
+  val portParameter = NumberParameterDescriptor(
     "kafka.source.port",
     ParameterInfo(
       TextRef("port"),
@@ -48,7 +48,7 @@ object KafkaSourceLogic extends Described {
     range = NumberRange(1, 0, 65535),
     mandatory = true
   )
-  private val groupIdParameter = TextParameterDescriptor(
+  val groupIdParameter = TextParameterDescriptor(
     ref = "kafka.source.group",
     info = ParameterInfo(
       displayName = TextRef("groupID"),
@@ -57,7 +57,7 @@ object KafkaSourceLogic extends Described {
     defaultValue = "groupID",
     mandatory = true
   )
-  private val offsetParameter = ChoiceParameterDescriptor(
+  val offsetParameter = ChoiceParameterDescriptor(
     ref = "kafka.source.offset",
     info = ParameterInfo(
       displayName = TextRef("offsetCommit"),
@@ -78,7 +78,7 @@ object KafkaSourceLogic extends Described {
       )
     )
   )
-  private val topicParameter = TextParameterDescriptor(
+  val topicParameter = TextParameterDescriptor(
     ref = "kafka.source.topic",
     info = ParameterInfo(
       displayName = TextRef("topic"),

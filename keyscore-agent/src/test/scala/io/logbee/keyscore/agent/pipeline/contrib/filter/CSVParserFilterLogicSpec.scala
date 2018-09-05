@@ -57,8 +57,8 @@ class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset,Dataset]) => new CSVParserFilterLogic(LogicParameters(UUID.randomUUID(), ctx, c), s)
-    val filterStage = new FilterStage(context, csv1, provider)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new CSVParserFilterLogic(parameters, s)
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, csv1), provider)
 
     val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)

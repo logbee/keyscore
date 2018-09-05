@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 import akka.stream.SourceShape
@@ -32,7 +33,7 @@ class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with Mock
       val configurationB = Configuration()
       val context = StageContext(system, executionContext)
 
-      val provider = (ctx: StageContext, c: Configuration, s: SourceShape[Dataset]) => new SourceLogic(LogicParameters(randomUUID(), ctx, c), s) {
+      val provider = (parameters: LogicParameters, s: SourceShape[Dataset]) => new SourceLogic(LogicParameters(randomUUID(), context, configurationA), s) {
 
         override def initialize(configuration: Configuration): Unit = {
           initializeConfiguration.success(configuration)
@@ -45,7 +46,7 @@ class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with Mock
         override def onPull(): Unit = ???
       }
 
-      val sourceFuture = Source.fromGraph(new SourceStage(context, configurationA, provider))
+      val sourceFuture = Source.fromGraph(new SourceStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider))
         .toMat(TestSink.probe[Dataset])(Keep.left)
         .run()
 

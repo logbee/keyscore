@@ -1,6 +1,7 @@
 package io.logbee.keyscore.agent.pipeline.contrib.filter
 
 import java.io.{File, PrintWriter}
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 import akka.stream.FlowShape
@@ -32,8 +33,8 @@ class D3BoxPlotGeneratorLogicSpec extends WordSpec with Matchers with ScalaFutur
       TextParameter(itemIdentifierParameter.ref, itemIdentifier)
     )
 
-    val filterStage = new FilterStage(context, configuration, (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) =>
-      new D3BoxPlotGeneratorLogic(LogicParameters(randomUUID(), ctx, c), s))
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new D3BoxPlotGeneratorLogic(parameters, s)
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)

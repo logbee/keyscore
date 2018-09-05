@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent
 
+import java.util.UUID
+
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
@@ -9,17 +11,18 @@ import io.logbee.keyscore.agent.pipeline.stage.StageContext
 import io.logbee.keyscore.agent.pipeline.{ExampleFilter, FilterManager}
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
+import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.conversion.UUIDConversion.uuidToString
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FreeSpecLike, Matchers, WordSpecLike}
+import org.scalatest.{FreeSpecLike, Matchers}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
-
 
 @RunWith(classOf[JUnitRunner])
 class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with FreeSpecLike with Matchers with ScalaFutures with MockFactory {
@@ -41,7 +44,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should instantiate a filter stage" in {
 
-      val result = Await.ready(filterManager ? CreateFilterStage(StageContext(system, system.dispatcher), ExampleFilter.describe, Configuration()), 10 seconds)
+      val result = Await.ready(filterManager ? CreateFilterStage(BlueprintRef(UUID.randomUUID()), StageContext(system, system.dispatcher), ExampleFilter.describe, Configuration()), 10 seconds)
 
       result shouldBe a[Future[_]]
     }
@@ -56,7 +59,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should create a sink stage" in {
 
-      filterManager ! CreateSinkStage(ctx, ExampleFilter.describe, Configuration.empty)
+      filterManager ! CreateSinkStage(BlueprintRef(UUID.randomUUID()), ctx , ExampleFilter.describe, Configuration.empty)
 
       val message = receiveOne(5 seconds).asInstanceOf[SinkStageCreated]
 
@@ -65,7 +68,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should create a source stage" in {
 
-      filterManager ! CreateSourceStage(ctx, ExampleFilter.describe, Configuration.empty)
+      filterManager ! CreateSourceStage(BlueprintRef(UUID.randomUUID()), ctx, ExampleFilter.describe, Configuration.empty)
 
       val message = receiveOne(5 seconds).asInstanceOf[SourceStageCreated]
 
@@ -74,7 +77,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should create a filter stage" in {
 
-      filterManager ! CreateFilterStage(ctx, ExampleFilter.describe, Configuration.empty)
+      filterManager ! CreateFilterStage(BlueprintRef(UUID.randomUUID()), ctx, ExampleFilter.describe, Configuration.empty)
 
       val message = receiveOne(5 seconds).asInstanceOf[FilterStageCreated]
 

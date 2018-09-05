@@ -8,16 +8,15 @@ import io.logbee.keyscore.model.filter.FilterProxy
 
 import scala.concurrent.Future
 
-class FilterStage(context:StageContext, configuration:Configuration, provider:(StageContext, Configuration, FlowShape[Dataset,Dataset]) => FilterLogic) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[FilterProxy]] {
+class FilterStage(parameters: LogicParameters, provider:(LogicParameters, FlowShape[Dataset,Dataset]) => FilterLogic) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[FilterProxy]] {
 
-  // TODO: Fix Inlet and Outlet name.
-  private val in = Inlet[Dataset](s"${configuration}:inlet")
-  private val out = Outlet[Dataset](s"${configuration}:outlet")
+  private val in = Inlet[Dataset](s"${parameters.uuid}:inlet")
+  private val out = Outlet[Dataset](s"${parameters.uuid}:outlet")
 
   override def shape:FlowShape[Dataset,Dataset] = FlowShape(in,out)
 
   override def createLogicAndMaterializedValue(inheritedAttributes: Attributes): (GraphStageLogic, Future[FilterProxy]) = {
-    val logic = provider(context, configuration, shape)
+    val logic = provider(parameters, shape)
     (logic,logic.initPromise.future)
   }
 }

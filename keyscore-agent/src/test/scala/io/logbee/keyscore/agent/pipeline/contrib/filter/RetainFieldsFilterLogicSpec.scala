@@ -26,8 +26,6 @@ class RetainFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (ctx: StageContext, c: Configuration, s: FlowShape[Dataset, Dataset]) =>
-      new RetainFieldsFilterLogic(LogicParameters(UUID.randomUUID(),ctx, c), s)
 
     val config1 = Configuration(
       parameters = Seq(
@@ -35,13 +33,16 @@ class RetainFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
       )
     )
 
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) =>
+      new RetainFieldsFilterLogic(LogicParameters(UUID.randomUUID(), context, config1), s)
+
     val config2 = Configuration(
       parameters = Seq(
         TextListParameter(RetainFieldsFilterLogic.fieldNamesParameter.ref,Seq("foo", "notPresent"))
       )
     )
 
-    val filterStage = new FilterStage(context,config1,provider)
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, config1),provider)
 
    val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
