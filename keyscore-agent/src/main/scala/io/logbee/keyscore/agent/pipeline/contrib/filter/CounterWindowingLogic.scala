@@ -12,7 +12,7 @@ import scala.collection.mutable
 
 object CounterWindowingLogic extends Described {
 
-  val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CounterWindowing"
+  val filterName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CounterWindowingLogic"
   val filterId: UUID = UUID.fromString("3bf6b11f-2fda-40a8-ab93-e3a71d6b132f")
 
   override def describe: MetaFilterDescriptor = {
