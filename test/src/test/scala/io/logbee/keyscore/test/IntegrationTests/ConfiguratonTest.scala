@@ -7,7 +7,7 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.Using
 import org.junit.jupiter.api.Test
@@ -35,10 +35,11 @@ class ConfiguratonTest extends Matchers {
     val sourceConfiguration = Using.using(getClass.getResourceAsStream("/JSONFiles/configurations/sinkConfig.json")) { stream =>
       scala.io.Source.fromInputStream(stream).mkString
     }
-//    val sourceConfigurationReader = new InputStreamReader(getClass.getResourceAsStream("JSONFiles/configurations/sinkConfig.json"))
+    //    val sourceConfigurationReader = new InputStreamReader(getClass.getResourceAsStream("JSONFiles/configurations/sinkConfig.json"))
     val sourceConfig = read[Configuration](sourceConfiguration)
 
-    putConfiguration(runner, sourceConfig,sourceConfiguration)
+    putConfiguration(runner, sourceConfig, sourceConfiguration)
+    getConfiguration(runner)
   }
 
   def putConfiguration(runner: TestRunner, sourceObject: Configuration, sourceConfig: String) = {
@@ -50,8 +51,26 @@ class ConfiguratonTest extends Matchers {
     )
 
     runner.http(action => action.client(frontierClient)
-          .receive()
-          .response(HttpStatus.ACCEPTED)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+  }
+
+  def getConfiguration(runner: TestRunner) = {
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .get(s"resources/configuration")
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .receive()
+      .response(HttpStatus.OK)
+//      .validationCallback((message, context) => {
+//        val payload = message.getPayload.asInstanceOf[String]
+//        val configurations = read[Map[ConfigurationRef, Configuration]](payload)
+//        configurations should have size 1
+//        log.info(configurations.head._1.uuid)
+//      })
     )
   }
 

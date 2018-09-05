@@ -22,7 +22,7 @@ import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPip
 import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster, Topics}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.commons._
-import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{StoreConfigurationRequest, StoreConfigurationResponse}
+import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetAllConfigurationRequest, GetAllConfigurationResponse, StoreConfigurationRequest, StoreConfigurationResponse}
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
@@ -290,6 +290,12 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
             }
           }
         }
+      }
+    }
+    get {
+      onSuccess(configurationManager ? GetAllConfigurationRequest) {
+        case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
+        case _ => complete(StatusCodes.InternalServerError)
       }
     }
   }
