@@ -79,6 +79,8 @@ export interface Draggable {
 
     getNext(): Draggable;
 
+    getPrevious():Draggable;
+
     removeNextFromModel():void;
 
     setNextModel(next:DraggableModel):void;
@@ -98,6 +100,8 @@ export interface Draggable {
     isDeleting():boolean;
 
     getTail():Draggable;
+
+    getHead():Draggable;
 
     getTotalWidth():number;
 

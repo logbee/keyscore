@@ -99,7 +99,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
         const scrollContainer: ElementRef =
             (this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent)
                 .workspaceScrollContainer;
-        const draggedPos = this.dragged.getAbsoluteDraggablePosition();
+        let draggedPos = this.dragged.getAbsoluteDraggablePosition();
+
         const absolutePos = {x: draggedPos.x + scrollContainer.nativeElement.scrollLeft, y: draggedPos.y};
         const relativeMirrorPosition = computeRelativePositionToParent(
             absolutePos,
@@ -182,6 +183,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                 previousConnection: {isPermitted: true, connectableTypes: ["general"]},
                 initialDropzone: this.toolbarDropzone,
                 next: null,
+                previous:null,
                 rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
                 isMirror: false
             }, this);

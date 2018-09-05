@@ -100,10 +100,11 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
 
     public ngAfterViewInit() {
-        if (!this.draggableModel.isMirror) {
+        console.log(this.getHead());
+        if (!this.getHead().getDraggableModel().isMirror) {
             this.workspace.registerDraggable(this);
         }
-        else {
+        else if (this.draggableModel.isMirror) {
             this.workspace.registerMirror(this);
         }
     }
@@ -169,7 +170,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     public createNext() {
         const draggableFactory = new DraggableFactory(this.resolver);
         this.draggableModel.next =
-            {...this.draggableModel.next, initialDropzone: this.nextConnectionDropzone};
+            {...this.draggableModel.next, initialDropzone: this.nextConnectionDropzone, previous: this};
         this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(), this.draggableModel.next, this.workspace);
         this.nextConnectionDropzone.occupyDropzone();
     }
@@ -200,6 +201,14 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
             tail = tail.getNext();
         }
         return tail;
+    }
+
+    getHead(): Draggable {
+        let head: Draggable = this;
+        while (head.getPrevious()) {
+            head = head.getPrevious();
+        }
+        return head;
     }
 
     getTotalWidth(): number {
@@ -290,6 +299,11 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     getNext(): Draggable {
         return this.next;
     }
+
+    getPrevious(): Draggable {
+        return this.draggableModel.previous;
+    }
+
 
     getPreviousConnection(): Dropzone {
         return this.previousConnectionDropzone;
