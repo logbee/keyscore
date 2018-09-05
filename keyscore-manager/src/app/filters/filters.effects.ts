@@ -89,7 +89,7 @@ export class FilterEffects {
         withLatestFrom(this.store.select(selectAppConfig)),
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
-                "/filter/" + action.filterId + "/config").pipe(
+                "/filter/" + action.filterId + "/configurations").pipe(
                 map((data: FilterConfiguration) => new LoadLiveEditingFilterSuccess(data, action.filterId)),
                 catchError((cause: any) => of(new LoadLiveEditingFilterFailure(cause)))
             );
@@ -199,7 +199,7 @@ export class FilterEffects {
         switchMap(([filterConfiguration, appconfig, triggerCall]) => {
             if (triggerCall) {
                 return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
-                    "/filter/" + filterConfiguration.id + "/config", filterConfiguration, {
+                    "/filter/" + filterConfiguration.id + "/configurations", filterConfiguration, {
                     headers: new HttpHeaders().set("Content-Type", "application/json"),
                     responseType: "json"
                 }).pipe(

@@ -29,6 +29,7 @@ class ConfigurationManager extends Actor with ActorLogging {
   override def receive: Receive = {
     case StoreConfigurationRequest(configuration) =>
       configurations.put(configuration.ref, configuration)
+      sender ! StoreConfigurationResponse
 
     case DeleteConfigurationRequest(ref) =>
       configurations.remove(ref)

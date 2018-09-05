@@ -19,7 +19,7 @@ class ExtensionLoaderSpec extends TestKit(ActorSystem("spec")) with ImplicitSend
 
     system.eventStream.subscribe(probe.ref, classOf[RegisterExtension])
 
-    "emit RegisterExtension messages for all extensions of passed config" in {
+    "emit RegisterExtension messages for all extensions of passed configurations" in {
 
       val config = ConfigFactory.parseString("test.extensions: [" +
             "{ type = \"filter\", class = \"io.logbee.keyscore.commons.extension.ExampleFilter\" }," +

@@ -6,6 +6,8 @@ object ConfigurationMessages {
 
     case class StoreConfigurationRequest(configuration: Configuration)
 
+    case object StoreConfigurationResponse
+
     case class DeleteConfigurationRequest(ref: ConfigurationRef)
 
     case class GetConfigurationRequest(ref: ConfigurationRef)

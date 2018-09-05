@@ -21,12 +21,14 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
 import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster, Topics}
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.commons.{BlueprintService, HereIam, WhoIs}
+import io.logbee.keyscore.commons._
+import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{StoreConfigurationRequest, StoreConfigurationResponse}
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.resources.{BlueprintManager, ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.frontier.cluster.{ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.model.AgentModel
@@ -155,6 +157,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
         }
     }
   }
+
   val filterRoute = pathPrefix("filter") {
     pathPrefix(JavaUUID) { filterId =>
       path("pause") {
@@ -200,7 +203,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
             }
           }
         } ~
-        path("config") {
+        path("configurations") {
           put {
             entity(as[Configuration]) { configuration =>
               onSuccess(pipelineManager ? ConfigureFilter(filterId, configuration)) {
@@ -212,11 +215,11 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
             get {
               onSuccess(pipelineManager ? RequestExistingBlueprints()) {
                 // TODO: Fix Me!
-//                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
-//                  case Some(filter) => complete(StatusCodes.OK, filter)
-//                  case None => complete(StatusCodes.NotFound
-//                  )
-//                }
+                //                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
+                //                  case Some(filter) => complete(StatusCodes.OK, filter)
+                //                  case None => complete(StatusCodes.NotFound
+                //                  )
+                //                }
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
@@ -262,12 +265,12 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
         }
       }
     } ~
-    get {
-      onSuccess(agentManager ? QueryAgents) {
-        case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
-        case _ => complete(StatusCodes.InternalServerError)
+      get {
+        onSuccess(agentManager ? QueryAgents) {
+          case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
+          case _ => complete(StatusCodes.InternalServerError)
+        }
       }
-    }
   }
 
   val infoRoute = pathSingleSlash {
@@ -276,22 +279,59 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
+  def configurationResources(configurationManager: ActorRef) = pathPrefix("resources") {
+    pathPrefix("configuration") {
+      pathPrefix(JavaUUID) { configurationId =>
+        put {
+          entity(as[Configuration]) { configuration =>
+            onSuccess(configurationManager ? StoreConfigurationRequest(configuration)) {
+              case StoreConfigurationResponse => complete(StatusCodes.Accepted)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  //  def descriptorRessources(descriptorManager: DescriptorManager) = pathPrefix("resources") {
+  //    pathPrefix("descriptor")
+  //    pathPrefix(JavaUUID) { descriptorId =>
+  //      put {
+  //
+  //      }
+  //    }
+  //  }
+
+  //  def BluePrintRessources(blueprintManager: BlueprintManager) = pathPrefix("resources") {
+  //        pathPrefix("blueprint")
+  //        pathPrefix(JavaUUID) { blueprintId =>
+  //          put {
+  //          }
+  //        }
+  //      }
   override def preStart(): Unit = {
+    mediator ! Publish(Topics.WhoIsTopic, WhoIs(ConfigurationService))
+    mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(BlueprintService))
-    context.become(initializing())
+    context.become(initializing(RouteBuilderState()))
   }
 
-  private def initializing(): Receive = {
+  private def initializing(state: RouteBuilderState): Receive = {
     case HereIam(BlueprintService, ref) =>
-      context.become(running(ref))
-      context.parent ! RouteBuilderInitialized
+      becomeMaybeRunning(state.copy(blueprintManager = ref))
+    case HereIam(ConfigurationService, ref) =>
+      becomeMaybeRunning(state.copy(configurationManager = ref))
+      this.route = this.route ~ configurationResources(ref)
+    case HereIam(DescriptorService, ref) =>
+      becomeMaybeRunning(state.copy(descriptorManager = ref))
   }
 
-  private def running(blueprintManager: ActorRef): Receive = {
+  private def running(state: RouteBuilderState): Receive = {
     case BuildFullRoute =>
       log.debug("Routes built.")
       sender ! RouteResponse(settings {
-        pipelineRoute(blueprintManager) ~ filterRoute ~ descriptorsRoute ~ agentsRoute ~ infoRoute
+        this.route
       })
   }
 
@@ -299,4 +339,21 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     case _ =>
       log.error("Illegal State")
   }
+
+  private def becomeMaybeRunning(state: RouteBuilderState): Unit = {
+    if (state.isComplete) {
+      context.become(running(state))
+      context.parent ! RouteBuilderInitialized
+    }
+    else {
+      context.become(initializing(state))
+    }
+  }
+
+  private var route = pipelineRoute(blueprintManager) ~ filterRoute ~ descriptorsRoute ~ agentsRoute ~ infoRoute
+
+  case class RouteBuilderState(configurationManager: ActorRef = null, blueprintManager: ActorRef = null, descriptorManager: ActorRef = null) {
+    def isComplete: Boolean = configurationManager != null && blueprintManager != null && descriptorManager != null
+  }
+
 }
