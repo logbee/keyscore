@@ -3,4 +3,5 @@ export interface Rectangle{
     left:number;
     right:number;
     bottom:number;
+    width:number;
 }

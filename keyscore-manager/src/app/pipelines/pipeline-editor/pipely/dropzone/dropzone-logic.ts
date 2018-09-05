@@ -97,6 +97,5 @@ export abstract class DropzoneLogic {
                 draggableModel,
                 this.component.workspace);
 
-        this.component.workspace.registerDraggable(droppedDraggable);
     }
 }

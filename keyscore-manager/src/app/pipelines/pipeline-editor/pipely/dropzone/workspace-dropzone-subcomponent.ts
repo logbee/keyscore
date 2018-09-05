@@ -3,6 +3,8 @@ import {
     ViewContainerRef
 } from "@angular/core";
 import {DropzoneSubcomponent} from "./dropzone-subcomponent";
+import {DraggableModel} from "../models/draggable.model";
+import {Draggable} from "../models/contract";
 
 @Component({
     selector: "workspace-dropzone",
@@ -26,10 +28,11 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
 
     @ViewChild("workspaceScrollContainer", {read: ElementRef}) workspaceScrollContainer: ElementRef;
 
+    private initialWorkspaceWidth;
 
 
     isDroppable: boolean;
-    @HostBinding('class.move-cursor')isSwiping: boolean = false;
+    @HostBinding('class.move-cursor') isSwiping: boolean = false;
     lastClientX: number = 0;
 
     @HostListener('mousedown', ['$event'])
@@ -47,13 +50,79 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
         }
     }
 
-    @HostListener('document:mouseup', ['$event'])
+    @HostListener('mouseup', ['$event'])
     stopSwipeWorkspace(event: MouseEvent) {
         this.isSwiping = false;
     }
 
     ngAfterViewInit() {
         this.centerScrollbar();
+        this.initialWorkspaceWidth = this.dropzoneElement.nativeElement.scrollWidth;
+    }
+
+    resizeWorkspace(draggables: Draggable[], workspacePadding: number): number {
+        const workspaceWidth = this.dropzoneElement.nativeElement.scrollWidth;
+        console.log("WorkspaceWidth: " + workspaceWidth);
+        const wrapperWidth = this.workspaceScrollContainer.nativeElement.offsetWidth;
+        const draggableModels = draggables
+            .map(draggable => draggable.getDraggableModel());
+
+        let mostLeftPosition: number = workspaceWidth;
+        draggableModels.forEach(draggableModel =>
+            mostLeftPosition = Math.min(mostLeftPosition, draggableModel.position.x)
+        );
+
+        if (mostLeftPosition <= workspacePadding) {
+            return this.growLeft(workspacePadding, mostLeftPosition, workspaceWidth, wrapperWidth);
+        }
+
+        let mostRightPosition: number = 0;
+        draggables.forEach((draggable, index, array) => {
+                mostRightPosition =
+                    Math.max(
+                        mostRightPosition,
+                        draggable.getAbsoluteDraggablePosition().x + draggable.getDraggableSize().width);
+        });
+
+        if (mostLeftPosition > workspacePadding &&
+            workspaceWidth > this.initialWorkspaceWidth &&
+            mostRightPosition < (workspaceWidth - workspacePadding)
+        ) {
+            return this.shrinkRight(workspacePadding, mostLeftPosition, mostRightPosition, workspaceWidth, wrapperWidth);
+        }
+
+        /*if (mostRightPosition >= workspaceWidth - workspacePadding) {
+            const delta = workspacePadding - (workspaceWidth - mostRightPosition);
+            this.dropzoneElement.nativeElement.style.width =
+                Math.max(this.initialWorkspaceWidth, (workspaceWidth + delta)) + "px";
+            //this.workspaceScrollContainer.nativeElement.scrollLeft += delta;
+            this.workspaceScrollContainer.nativeElement.style.width = wrapperWidth + "px";
+            return 0;
+        }*/
+
+        return 0;
+    }
+
+    private shrinkRight(workspacePadding: number, mostLeftPosition: number, mostRightPosition: number, workspaceWidth: number, wrapperWidth: number) {
+
+        console.log("Shrink");
+        const delta =
+            Math.min(mostLeftPosition - workspacePadding, (workspaceWidth - mostRightPosition) - workspacePadding);
+        console.log("Delta: " + delta);
+
+        this.dropzoneElement.nativeElement.style.width =
+            Math.max(this.initialWorkspaceWidth, (workspaceWidth - delta)) + "px";
+        return 0;
+    }
+
+    private growLeft(workspacePadding: number, mostLeftPosition: number, workspaceWidth: number, wrapperWidth: number) {
+        console.log("Grow Left");
+        const delta = workspacePadding - mostLeftPosition;
+        this.dropzoneElement.nativeElement.style.width =
+            Math.max(this.initialWorkspaceWidth, (workspaceWidth + delta)) + "px";
+        this.workspaceScrollContainer.nativeElement.scrollLeft += delta;
+        this.workspaceScrollContainer.nativeElement.style.width = wrapperWidth + "px";
+        return delta;
     }
 
     private centerScrollbar() {

@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     Component, ComponentFactoryResolver,
     ComponentRef,
     ElementRef,
@@ -40,7 +41,7 @@ import {takeUntil} from "rxjs/internal/operators";
     `
 })
 
-export class DraggableComponent implements OnInit, OnDestroy, Draggable {
+export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterViewInit {
 
     workspace: Workspace;
     draggableModel: DraggableModel;
@@ -82,19 +83,31 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
 
         this.positionDraggable();
 
-        this.initialiseConncetions();
+        this.initialiseConnections();
 
         if (this.draggableModel.initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
             this.occupyPreviousConnection();
         }
 
         if (this.draggableModel.next) {
-            this.createAndRegisterNext();
+            this.createNext();
         }
-        if(this.draggableModel.draggableType === "delete") {
+        if (this.draggableModel.draggableType === "delete") {
             this.triggerDelete();
         }
+
     }
+
+
+    public ngAfterViewInit() {
+        if (!this.draggableModel.isMirror) {
+            this.workspace.registerDraggable(this);
+        }
+        else {
+            this.workspace.registerMirror(this);
+        }
+    }
+
 
     @HostListener('document:mousemove', ['$event'])
     onMouseMove(event: MouseEvent) {
@@ -111,18 +124,14 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
                 y: currentPosition.y + y
             };
 
-
             this.draggableElement.nativeElement.style.left = newPosition.x + "px";
             this.draggableElement.nativeElement.style.top = newPosition.y + "px";
 
             this.triggerDragMove();
-
-
         }
     }
 
-
-    private initialiseConncetions() {
+    private initialiseConnections() {
         if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
             this.previousConnectionDropzone =
                 this.createConnection(this.draggableModel.previousConnection, this.previousConnectionContainer);
@@ -157,17 +166,17 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         }
     }
 
-    private createAndRegisterNext() {
+    private createNext() {
         const draggableFactory = new DraggableFactory(this.resolver);
         this.draggableModel.next =
             {...this.draggableModel.next, initialDropzone: this.nextConnectionDropzone};
         this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(), this.draggableModel.next, this.workspace);
         this.nextConnectionDropzone.occupyDropzone();
-        this.workspace.registerDraggable(this.next);
     }
 
     public ngOnDestroy() {
         this.workspace.removeAllDropzones(dropzone => dropzone.getOwner() === this);
+        this.workspace.removeDraggables(draggable => draggable.getId() === this.id);
         this.isAlive.next();
     }
 
@@ -183,6 +192,21 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         event.stopPropagation();
         this.triggerDragStart();
 
+    }
+
+    getTail(): Draggable {
+        let tail: Draggable = this;
+        while (tail.getNext()) {
+            tail = tail.getNext();
+        }
+        return tail;
+    }
+
+    moveXAxis(deltaX: number) {
+        if (deltaX !== 0) {
+            this.draggableModel.position.x += deltaX;
+            this.draggableElement.nativeElement.style.left = this.draggableModel.position.x + "px";
+        }
     }
 
     removeNextFromModel() {
@@ -205,6 +229,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
     }
 
     getDraggableSize(): { width: number, height: number } {
+        console.log("Draggable in GETSIZE: ", this.draggableElement);
+        console.log("Width in get SIZE: ", this.draggableElement.nativeElement.offsetWidth);
         return {
             width: this.draggableElement.nativeElement.offsetWidth,
             height: this.draggableElement.nativeElement.offsetHeight
@@ -217,7 +243,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
             top: clientRect.top,
             left: clientRect.left,
             right: clientRect.right,
-            bottom: clientRect.bottom
+            bottom: clientRect.bottom,
+            width: clientRect.width
         };
     }
 
@@ -263,16 +290,16 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         this.draggableModel.next = next;
     }
 
-    triggerDelete(){
+    triggerDelete() {
         this.deleting = true;
         this.draggableElement.nativeElement.classList.add("delete");
         console.log(this.draggableElement.nativeElement.classList);
-        this.draggableElement.nativeElement.addEventListener(this.whichTransitionEvent(),(e) => {
+        this.draggableElement.nativeElement.addEventListener(this.whichTransitionEvent(), (e) => {
             this.destroy();
-        },false);
+        }, false);
     }
 
-    isDeleting():boolean{
+    isDeleting(): boolean {
         return this.deleting;
     }
 
@@ -282,7 +309,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
         this.draggableElement.nativeElement.style.top = pos.y + "px";
     }
 
-    private whichTransitionEvent(){
+    private whichTransitionEvent() {
         let t;
         const el = document.createElement('fakeelement');
         const transitions = {
@@ -292,8 +319,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable {
             'WebkitTransition': 'webkitTransitionEnd'
         };
 
-        for(t in transitions){
-            if( el.style[t] !== undefined ){
+        for (t in transitions) {
+            if (el.style[t] !== undefined) {
                 return transitions[t];
             }
         }

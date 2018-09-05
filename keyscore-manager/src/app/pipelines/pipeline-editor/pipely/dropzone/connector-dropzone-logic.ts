@@ -43,14 +43,14 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
             position: this.computePrependPosition(droppedPosition, currentDragged.getDraggableSize().width)
         };
 
-        let draggedCopy:DraggableModel = deepcopy(currentDragged.getDraggableModel());
+        let draggedCopy: DraggableModel = deepcopy(currentDragged.getDraggableModel());
         let draggedTailModel: DraggableModel = draggedCopy;
         while (draggedTailModel.next) {
             draggedTailModel = draggedTailModel.next;
         }
         draggedTailModel.next = nexDraggableModel;
 
-        return{
+        return {
             ...draggedCopy,
             initialDropzone: this.component.workspace.getWorkspaceDropzone(),
             rootDropzone: DropzoneType.Workspace,
@@ -69,12 +69,11 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
     }
 
     private prependNewDraggable(draggableModel: DraggableModel) {
-        const droppedDraggable = this.component.draggableFactory
+        this.component.draggableFactory
             .createDraggable(this.component.workspace.getWorkspaceDropzone().getDraggableContainer(),
                 draggableModel,
                 this.component.workspace);
 
-        this.component.workspace.registerDraggable(droppedDraggable);
         this.component.getOwner().destroy();
     }
 
@@ -82,12 +81,10 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         this.component.occupyDropzone();
         this.component.getOwner().setNextModel(draggableModel);
 
-        const droppedDraggable = this.component.draggableFactory
+        this.component.draggableFactory
             .createDraggable(this.component.getDraggableContainer(),
                 draggableModel,
                 this.component.workspace);
-
-        this.component.workspace.registerDraggable(droppedDraggable);
 
     }
 
