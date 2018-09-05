@@ -166,7 +166,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         }
     }
 
-    private createNext() {
+    public createNext() {
         const draggableFactory = new DraggableFactory(this.resolver);
         this.draggableModel.next =
             {...this.draggableModel.next, initialDropzone: this.nextConnectionDropzone};
@@ -202,6 +202,17 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         return tail;
     }
 
+    getTotalWidth(): number {
+        let totalWidth = 0;
+        let tail: Draggable = this;
+        while (tail.getNext()) {
+            totalWidth += tail.getDraggableSize().width;
+            tail = tail.getNext();
+        }
+
+        return totalWidth;
+    }
+
     moveXAxis(deltaX: number) {
         if (deltaX !== 0) {
             this.draggableModel.position.x += deltaX;
@@ -229,8 +240,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     }
 
     getDraggableSize(): { width: number, height: number } {
-        console.log("Draggable in GETSIZE: ", this.draggableElement);
-        console.log("Width in get SIZE: ", this.draggableElement.nativeElement.offsetWidth);
         return {
             width: this.draggableElement.nativeElement.offsetWidth,
             height: this.draggableElement.nativeElement.offsetHeight

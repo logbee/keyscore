@@ -120,16 +120,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     }
 
     computeWorkspaceSize() {
-        const workspacePadding = 200;
-
         const compResult =
             (this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent)
-                .resizeWorkspace(this.draggables, workspacePadding);
+                .resizeWorkspace(this.draggables);
 
-        this.draggables.filter(draggable =>
-            draggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Workspace)
-            .forEach(draggable => draggable.moveXAxis(compResult));
-
+        this.draggables.forEach(draggable => draggable.moveXAxis(compResult));
     }
 
     addDropzone(dropzone: Dropzone) {
@@ -161,6 +156,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
         if (draggable.getDraggableModel().initialDropzone
                 .getDropzoneModel().dropzoneType === DropzoneType.Workspace) {
             this.draggables.push(draggable);
+        }
+        if (draggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType !==
+            DropzoneType.Toolbar) {
             this.computeWorkspaceSize();
         }
     }

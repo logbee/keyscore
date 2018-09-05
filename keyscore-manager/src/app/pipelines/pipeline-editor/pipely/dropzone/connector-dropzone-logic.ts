@@ -78,13 +78,9 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
     }
 
     private appendNewDraggable(draggableModel: DraggableModel) {
-        this.component.occupyDropzone();
-        this.component.getOwner().setNextModel(draggableModel);
 
-        this.component.draggableFactory
-            .createDraggable(this.component.getDraggableContainer(),
-                draggableModel,
-                this.component.workspace);
+        this.component.getOwner().setNextModel(draggableModel);
+        this.component.getOwner().createNext();
 
     }
 

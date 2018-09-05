@@ -60,7 +60,8 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
         this.initialWorkspaceWidth = this.dropzoneElement.nativeElement.scrollWidth;
     }
 
-    resizeWorkspace(draggables: Draggable[], workspacePadding: number): number {
+    resizeWorkspace(draggables: Draggable[]): number {
+        const workspacePadding = 200;
         const workspaceWidth = this.dropzoneElement.nativeElement.scrollWidth;
         console.log("WorkspaceWidth: " + workspaceWidth);
         const wrapperWidth = this.workspaceScrollContainer.nativeElement.offsetWidth;
@@ -77,15 +78,15 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
         }
 
         let mostRightPosition: number = 0;
-        draggables.forEach((draggable, index, array) => {
+        draggables.forEach((draggable) => {
+
             mostRightPosition =
                 Math.max(
                     mostRightPosition,
-                    draggable.getDraggableModel().position.x + draggable.getDraggableSize().width);
+                    draggable.getDraggableModel().position.x + draggable.getTotalWidth());
         });
+        console.log("Most Right: " + mostRightPosition);
 
-        console.log("mostRight: ", mostRightPosition);
-        console.log("weidth-opadding: ", workspaceWidth - workspacePadding);
         if (mostRightPosition >= workspaceWidth - workspacePadding) {
             return this.growRight(workspacePadding, mostRightPosition, workspaceWidth, wrapperWidth);
         }
@@ -94,22 +95,13 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
             workspaceWidth > this.initialWorkspaceWidth &&
             mostRightPosition < (workspaceWidth - workspacePadding)
         ) {
-            return this.shrinkRight(workspacePadding, mostLeftPosition, mostRightPosition, workspaceWidth, wrapperWidth);
+            return this.shrinkRight(workspacePadding, mostLeftPosition, mostRightPosition, workspaceWidth);
         }
-
-        /*if (mostRightPosition >= workspaceWidth - workspacePadding) {
-            const delta = workspacePadding - (workspaceWidth - mostRightPosition);
-            this.dropzoneElement.nativeElement.style.width =
-                Math.max(this.initialWorkspaceWidth, (workspaceWidth + delta)) + "px";
-            //this.workspaceScrollContainer.nativeElement.scrollLeft += delta;
-            this.workspaceScrollContainer.nativeElement.style.width = wrapperWidth + "px";
-            return 0;
-        }*/
 
         return 0;
     }
 
-    private shrinkRight(workspacePadding: number, mostLeftPosition: number, mostRightPosition: number, workspaceWidth: number, wrapperWidth: number) {
+    private shrinkRight(workspacePadding: number, mostLeftPosition: number, mostRightPosition: number, workspaceWidth: number) {
 
         const delta =
             Math.min(mostLeftPosition - workspacePadding, (workspaceWidth - mostRightPosition) - workspacePadding);
