@@ -57,6 +57,10 @@ object RouteBuilder {
 
 class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupport {
 
+  case class RouteBuilderState(configurationManager: ActorRef = null, blueprintManager: ActorRef = null, descriptorManager: ActorRef = null) {
+    def isComplete: Boolean = configurationManager != null && blueprintManager != null && descriptorManager != null
+  }
+
   val appInfo = AppInfo(classOf[Frontier])
 
   implicit val timeout: Timeout = 30 seconds
@@ -68,10 +72,16 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
 
   private val mediator = DistributedPubSub(context.system).mediator
 
-  val agentManager = aM
-  val pipelineManager = system.actorOf(PipelineManager(agentManager))
-  var blueprintManager = null
-  val filterDescriptorManager = system.actorOf(ClusterCapabilitiesManager.props())
+  private var route = pathSingleSlash {
+    complete {
+      appInfo
+    }
+  }
+
+  private val agentManager = aM
+  private var blueprintManager = null
+  private val pipelineManager = system.actorOf(PipelineManager(agentManager))
+  private val clusterCapabilitiesManager = system.actorOf(ClusterCapabilitiesManager.props())
 
   private val corsSettings = CorsSettings.defaultSettings.copy(
     allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS),
@@ -158,135 +168,137 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-  val filterRoute = pathPrefix("filter") {
-    pathPrefix(JavaUUID) { filterId =>
-      path("pause") {
-        post {
-          parameter('value.as[Boolean]) { doPause =>
-            onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
-              case PauseFilterResponse(state) => complete(StatusCodes.Accepted, state)
-              case Failure => complete(StatusCodes.InternalServerError)
-            }
-          }
-        }
-      } ~
-        path("drain") {
+  def filterRoute: Route = {
+    pathPrefix("filter") {
+      pathPrefix(JavaUUID) { filterId =>
+        path("pause") {
           post {
-            parameter('value.as[Boolean]) { doDrain =>
-              onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
-                case DrainFilterResponse(state) => complete(StatusCodes.Accepted, state)
-                case _ => complete(StatusCodes.InternalServerError)
+            parameter('value.as[Boolean]) { doPause =>
+              onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
+                case PauseFilterResponse(state) => complete(StatusCodes.Accepted, state)
+                case Failure => complete(StatusCodes.InternalServerError)
               }
             }
           }
         } ~
-        path("insert") {
-          put {
-            entity(as[List[Dataset]]) { datasets =>
-              parameter("where" ? "before") { where =>
-                onSuccess(pipelineManager ? InsertDatasets(filterId, datasets, where)) {
-                  case
-                    InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
+          path("drain") {
+            post {
+              parameter('value.as[Boolean]) { doDrain =>
+                onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
+                  case DrainFilterResponse(state) => complete(StatusCodes.Accepted, state)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
               }
             }
-          }
-        } ~
-        path("extract") {
-          get {
-            parameters('value.as[Int], "where" ? "after") { (amount, where) =>
-              onSuccess(pipelineManager ? ExtractDatasets(filterId, amount, where)) {
-                case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
-                case _ => complete(StatusCodes.InternalServerError)
+          } ~
+          path("insert") {
+            put {
+              entity(as[List[Dataset]]) { datasets =>
+                parameter("where" ? "before") { where =>
+                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets, where)) {
+                    case
+                      InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                }
               }
             }
-          }
-        } ~
-        path("configurations") {
-          put {
-            entity(as[Configuration]) { configuration =>
-              onSuccess(pipelineManager ? ConfigureFilter(filterId, configuration)) {
-                case ConfigureFilterResponse(state) => complete(StatusCodes.Accepted, state)
+          } ~
+          path("extract") {
+            get {
+              parameters('value.as[Int], "where" ? "after") { (amount, where) =>
+                onSuccess(pipelineManager ? ExtractDatasets(filterId, amount, where)) {
+                  case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            }
+          } ~
+          path("configurations") {
+            put {
+              entity(as[Configuration]) { configuration =>
+                onSuccess(pipelineManager ? ConfigureFilter(filterId, configuration)) {
+                  case ConfigureFilterResponse(state) => complete(StatusCodes.Accepted, state)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            } ~
+              get {
+                onSuccess(pipelineManager ? RequestExistingBlueprints()) {
+                  // TODO: Fix Me!
+                  //                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
+                  //                  case Some(filter) => complete(StatusCodes.OK, filter)
+                  //                  case None => complete(StatusCodes.NotFound
+                  //                  )
+                  //                }
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+          } ~
+          path("state") {
+            get {
+              onSuccess(pipelineManager ? CheckFilterState(filterId)) {
+                case CheckFilterStateResponse(state) =>
+                  complete(StatusCodes.Accepted, state)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
           } ~
+          path("clear") {
             get {
-              onSuccess(pipelineManager ? RequestExistingBlueprints()) {
-                // TODO: Fix Me!
-                //                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
-                //                  case Some(filter) => complete(StatusCodes.OK, filter)
-                //                  case None => complete(StatusCodes.NotFound
-                //                  )
-                //                }
+              onSuccess(pipelineManager ? ClearBuffer(filterId)) {
+                case ClearBufferResponse(state) =>
+                  complete(StatusCodes.Accepted, state)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
-        } ~
-        path("state") {
-          get {
-            onSuccess(pipelineManager ? CheckFilterState(filterId)) {
-              case CheckFilterStateResponse(state) =>
-                complete(StatusCodes.Accepted, state)
-              case _ => complete(StatusCodes.InternalServerError)
-            }
           }
-        } ~
-        path("clear") {
-          get {
-            onSuccess(pipelineManager ? ClearBuffer(filterId)) {
-              case ClearBufferResponse(state) =>
-                complete(StatusCodes.Accepted, state)
-              case _ => complete(StatusCodes.InternalServerError)
-            }
-          }
-        }
-    }
-  }
-
-  val descriptorsRoute = pathPrefix("descriptors") {
-    get {
-      parameters('language.as[String]) { language =>
-        onSuccess(filterDescriptorManager ? GetStandardDescriptors(Locale.forLanguageTag(language))) {
-          case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
-          case _ => complete(StatusCodes.InternalServerError)
-        }
       }
     }
   }
 
-  val agentsRoute = pathPrefix("agent") {
-    pathPrefix(JavaUUID) { agentID =>
-      delete {
-        onSuccess(agentManager ? RemoveAgentFromCluster(agentID)) {
-          case AgentRemovedFromCluster(agentID) => complete(StatusCodes.OK)
-          case _ => complete(StatusCodes.InternalServerError)
-        }
-      }
-    } ~
+  def descriptorsRoute: Route = {
+    pathPrefix("descriptors") {
       get {
-        onSuccess(agentManager ? QueryAgents) {
-          case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
-          case _ => complete(StatusCodes.InternalServerError)
+        parameters('language.as[String]) { language =>
+          onSuccess(clusterCapabilitiesManager ? GetStandardDescriptors(Locale.forLanguageTag(language))) {
+            case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
+            case _ => complete(StatusCodes.InternalServerError)
+          }
         }
       }
-  }
-
-  val infoRoute = pathSingleSlash {
-    complete {
-      appInfo
     }
   }
 
-  def configurationResources(configurationManager: ActorRef) = pathPrefix("resources") {
-    pathPrefix("configuration") {
-      pathPrefix(JavaUUID) { configurationId =>
-        put {
-          entity(as[Configuration]) { configuration =>
-            onSuccess(configurationManager ? StoreConfigurationRequest(configuration)) {
-              case StoreConfigurationResponse => complete(StatusCodes.Created)
-              case _ => complete(StatusCodes.InternalServerError)
+  def agentsRoute = {
+    pathPrefix("agent") {
+      pathPrefix(JavaUUID) { agentID =>
+        delete {
+          onSuccess(agentManager ? RemoveAgentFromCluster(agentID)) {
+            case AgentRemovedFromCluster(agentID) => complete(StatusCodes.OK)
+            case _ => complete(StatusCodes.InternalServerError)
+          }
+        }
+      } ~
+        get {
+          onSuccess(agentManager ? QueryAgents) {
+            case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
+            case _ => complete(StatusCodes.InternalServerError)
+          }
+        }
+    }
+  }
+
+  def configurationResources(configurationManager: ActorRef) = {
+    pathPrefix("resources") {
+      pathPrefix("configuration") {
+        pathPrefix(JavaUUID) { configurationId =>
+          put {
+            entity(as[Configuration]) { configuration =>
+              onSuccess(configurationManager ? StoreConfigurationRequest(configuration)) {
+                case StoreConfigurationResponse => complete(StatusCodes.Created)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
             }
           }
         } ~
@@ -296,13 +308,13 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
             case _ => complete(StatusCodes.InternalServerError)
           }
         }
-      }
-    } ~
-    get {
-      onSuccess(configurationManager ? GetAllConfigurationRequest) {
-        case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
-        case _ => complete(StatusCodes.InternalServerError)
-      }
+      } ~
+        get {
+          onSuccess(configurationManager ? GetAllConfigurationRequest) {
+            case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
+            case _ => complete(StatusCodes.InternalServerError)
+          }
+        }
     }
   }
 
@@ -342,9 +354,8 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   private def running(state: RouteBuilderState): Receive = {
     case BuildFullRoute =>
       log.debug("Routes built.")
-      sender ! RouteResponse(settings {
-        this.route
-      })
+      val r = buildFullRoute
+      sender ! RouteResponse(r)
   }
 
   override def receive: Receive = {
@@ -362,10 +373,10 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-  private var route = pipelineRoute(blueprintManager) ~ filterRoute ~ descriptorsRoute ~ agentsRoute ~ infoRoute
-
-  case class RouteBuilderState(configurationManager: ActorRef = null, blueprintManager: ActorRef = null, descriptorManager: ActorRef = null) {
-    def isComplete: Boolean = configurationManager != null && blueprintManager != null && descriptorManager != null
+  private def buildFullRoute: Route = {
+    val fullRoute = route ~ pipelineRoute(blueprintManager) ~ filterRoute ~ descriptorsRoute ~ agentsRoute
+    settings { fullRoute }
   }
+
 
 }
