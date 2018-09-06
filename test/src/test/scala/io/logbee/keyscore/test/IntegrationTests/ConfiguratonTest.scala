@@ -39,7 +39,7 @@ class ConfiguratonTest extends Matchers {
 
     putSingleConfiguration(runner, sourceObject, sourceConfiguration)
     getSingleConfiguration(runner, sourceObject)
-    postSingleConfig (runner, sourceConfiguration, sourceObject)
+    postSingleConfig(runner, sourceConfiguration, sourceObject)
 
     getAllConfigurations(runner, 1)
     deleteSingleConfig(runner, sourceObject)
@@ -66,13 +66,13 @@ class ConfiguratonTest extends Matchers {
 
   def getSingleConfiguration(runner: TestRunner, sourceObject: Configuration): TestAction = {
     runner.http(action => action.client(frontierClient)
-          .send()
-          .get(s"resources/configuration/${sourceObject.ref.uuid}")
+      .send()
+      .get(s"resources/configuration/${sourceObject.ref.uuid}")
     )
 
     runner.http(action => action.client(frontierClient)
-          .receive()
-          .response(HttpStatus.OK)
+      .receive()
+      .response(HttpStatus.OK)
       .validationCallback((message, context) => {
         val payload = message.getPayload().asInstanceOf[String]
         val configuration = read[Configuration](payload)
@@ -84,16 +84,16 @@ class ConfiguratonTest extends Matchers {
 
   def deleteSingleConfig(runner: TestRunner, sourceObject: Configuration): TestAction = {
     runner.http(action => action.client(frontierClient)
-          .send()
-          .delete(s"resources/configuration/${sourceObject.ref.uuid}")
+      .send()
+      .delete(s"resources/configuration/${sourceObject.ref.uuid}")
     )
 
     runner.http(action => action.client(frontierClient)
-          .receive()
-          .response(HttpStatus.OK))
+      .receive()
+      .response(HttpStatus.OK))
   }
 
-  def postSingleConfig(runner: TestRunner, sourceConfigString: String, sourceObject: Configuration ): TestAction = {
+  def postSingleConfig(runner: TestRunner, sourceConfigString: String, sourceObject: Configuration): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"resources/configuration/${sourceObject.ref.uuid}")
@@ -103,8 +103,8 @@ class ConfiguratonTest extends Matchers {
     )
 
     runner.http(action => action.client(frontierClient)
-          .receive()
-          .response(HttpStatus.OK))
+      .receive()
+      .response(HttpStatus.OK))
   }
 
 
@@ -120,20 +120,20 @@ class ConfiguratonTest extends Matchers {
         val payload = message.getPayload().asInstanceOf[String]
         val configurations = read[Map[ConfigurationRef, Configuration]](payload)
         configurations should have size expected
-        if(configurations.nonEmpty) {
+        if (configurations.nonEmpty) {
           log.info("GetAllConfigurations successfully: " + configurations.head._1.uuid)
         }
       })
     )
   }
 
-  def deleteAllConfigurations(runner: TestRunner) : TestAction =  {
+  def deleteAllConfigurations(runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
-          .send()
-          .delete(s"resources/configuration/*"))
+      .send()
+      .delete(s"resources/configuration/*"))
 
     runner.http(action => action.client(frontierClient)
-          .receive()
-          .response(HttpStatus.OK))
+      .receive()
+      .response(HttpStatus.OK))
   }
 }

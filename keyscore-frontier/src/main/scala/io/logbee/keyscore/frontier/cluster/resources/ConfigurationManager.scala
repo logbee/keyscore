@@ -19,7 +19,6 @@ class ConfigurationManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
 
-
   override def preStart(): Unit = {
     mediator ! Subscribe(Topics.WhoIsTopic, self)
   }
@@ -33,21 +32,26 @@ class ConfigurationManager extends Actor with ActorLogging {
 
     case GetAllConfigurationRequest =>
       sender ! GetAllConfigurationResponse(configurations.toMap)
+
     case DeleteConfigurationRequest(ref) =>
       configurations.remove(ref)
       sender ! DeleteConfigurationResponse
+
     case DeleteAllConfigurationsRequest =>
       configurations.clear()
       sender ! DeleteAllConfigurationsResponse
+
     case GetConfigurationRequest(ref) =>
       sender ! GetConfigurationResponse(configurations.get(ref))
+
     case UpdateConfigurationRequest(configuration) =>
-      if(configurations.contains(configuration.ref)) {
+      if (configurations.contains(configuration.ref)) {
         configurations.put(configuration.ref, configuration)
         sender ! UpdateConfigurationSuccessResponse
-      } else{
+      } else {
         sender ! UpdateConfigurationFailureResponse
       }
+
     case WhoIs(ConfigurationService) =>
       sender ! HereIam(ConfigurationService, self)
   }

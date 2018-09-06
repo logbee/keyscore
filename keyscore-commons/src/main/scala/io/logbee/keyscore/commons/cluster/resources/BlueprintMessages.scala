@@ -4,21 +4,22 @@ import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, Seal
 
 object BlueprintMessages {
 
-    case class StorePipelineBlueprintRequest(pipelineBlueprint: PipelineBlueprint)
-    case class StoreBlueprintRequest(blueprint: SealedBlueprint)
+  case class StorePipelineBlueprintRequest(pipelineBlueprint: PipelineBlueprint)
+  case class StoreBlueprintRequest(blueprint: SealedBlueprint)
 
-    case class DeletePipelineBlueprintsRequest(ref: BlueprintRef)
-    case class DeleteBlueprintRequest(ref: BlueprintRef)
+  case class DeletePipelineBlueprintsRequest(ref: BlueprintRef)
+  case class DeleteBlueprintRequest(ref: BlueprintRef)
 
-    case object GetAllPipelineBlueprintsRequest
-    case object GetAllBlueprintsRequest
+  case object GetAllPipelineBlueprintsRequest
+  case class GetAllPipelineBlueprintsResponse(blueprints: List[PipelineBlueprint])
 
-    case class GetPipelineBlueprintRequest(ref: BlueprintRef)
-    case class GetBlueprintRequest(ref: BlueprintRef)
+  case object GetAllBlueprintsRequest
+  case class GetAllBlueprintsResponse(blueprints: List[SealedBlueprint])
 
-    case class GetAllPipelineBlueprintsResponse(blueprints: List[PipelineBlueprint])
-    case class GetAllBlueprintsResponse(blueprints: List[SealedBlueprint])
+  case class GetPipelineBlueprintRequest(ref: BlueprintRef)
+  case class GetPipelineBlueprintResponse(pipelineBlueprint: Option[PipelineBlueprint])
 
-    case class GetPipelineBlueprintResponse(pipelineBlueprint: Option[PipelineBlueprint])
-    case class GetBlueprintResponse(blueprint: Option[SealedBlueprint])
+  case class GetBlueprintRequest(ref: BlueprintRef)
+  case class GetBlueprintResponse(blueprint: Option[SealedBlueprint])
+
 }

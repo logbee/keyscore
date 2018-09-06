@@ -24,11 +24,19 @@ class BlueprintManager extends Actor with ActorLogging {
   override def postStop(): Unit = super.postStop()
 
   override def receive: Receive = {
+
+    //Single Request
     case StorePipelineBlueprintRequest(pipelineBlueprint) =>
       pipelineBlueprints.put(pipelineBlueprint.ref, pipelineBlueprint)
 
     case StoreBlueprintRequest(blueprint) =>
       blueprints.put(blueprint.ref, blueprint)
+
+    case GetPipelineBlueprintRequest(ref) =>
+      sender ! GetPipelineBlueprintResponse(pipelineBlueprints.get(ref))
+
+    case GetBlueprintRequest(ref) =>
+      sender ! GetBlueprintResponse(blueprints.get(ref))
 
     case DeletePipelineBlueprintsRequest(ref) =>
       pipelineBlueprints.remove(ref)
@@ -36,17 +44,13 @@ class BlueprintManager extends Actor with ActorLogging {
     case DeleteBlueprintRequest(ref) =>
       blueprints.remove(ref)
 
+    //Multiple Request
+
     case GetAllPipelineBlueprintsRequest =>
       sender ! GetAllPipelineBlueprintsResponse(pipelineBlueprints.values.toList)
 
-    case GetPipelineBlueprintRequest(ref) =>
-      sender ! GetPipelineBlueprintResponse(pipelineBlueprints.get(ref))
-
-    case GetBlueprintRequest =>
+    case GetAllBlueprintsRequest =>
       sender ! GetAllBlueprintsResponse(blueprints.values.toList)
-
-    case GetBlueprintRequest(ref) =>
-      sender ! GetBlueprintResponse(blueprints.get(ref))
 
     case WhoIs(DescriptorService) =>
       sender ! HereIam(DescriptorService, self)
