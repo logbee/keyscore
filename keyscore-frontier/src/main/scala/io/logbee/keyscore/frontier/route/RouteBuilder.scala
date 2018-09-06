@@ -284,7 +284,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
         put {
           entity(as[Configuration]) { configuration =>
             onSuccess(configurationManager ? StoreConfigurationRequest(configuration)) {
-              case StoreConfigurationResponse => complete(StatusCodes.Accepted)
+              case StoreConfigurationResponse => complete(StatusCodes.Created)
               case _ => complete(StatusCodes.InternalServerError)
             }
           }

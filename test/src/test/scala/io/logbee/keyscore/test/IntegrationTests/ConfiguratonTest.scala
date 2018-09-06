@@ -34,14 +34,18 @@ class ConfiguratonTest extends Matchers {
     val sourceConfiguration = Using.using(getClass.getResourceAsStream("/JSONFiles/configurations/sinkConfig.json")) { stream =>
       scala.io.Source.fromInputStream(stream).mkString
     }
-    //    val sourceConfigurationReader = new InputStreamReader(getClass.getResourceAsStream("JSONFiles/configurations/sinkConfig.json"))
     val sourceConfig = read[Configuration](sourceConfiguration)
 
-    putConfiguration(runner, sourceConfig, sourceConfiguration)
-    getConfiguration(runner)
+    putSingleConfiguration(runner, sourceConfig, sourceConfiguration)
+//    getSingleConfiguration(runner, sourceConfig)
+//    deleteSingleConfig(runner, sourceConfig)
+//    postSingleConfig (runner, sourceConfig)
+
+    getAllConfiurations(runner)
+//    deleteAllConfigurations(runner)
   }
 
-  def putConfiguration(runner: TestRunner, sourceObject: Configuration, sourceConfig: String): TestAction = {
+  def putSingleConfiguration(runner: TestRunner, sourceObject: Configuration, sourceConfig: String): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/configuration/${sourceObject.ref.uuid}")
@@ -51,11 +55,53 @@ class ConfiguratonTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.ACCEPTED)
+      .response(HttpStatus.CREATED)
     )
   }
 
-  def getConfiguration(runner: TestRunner): TestAction = {
+  def getSingleConfiguration(runner: TestRunner, sourceObject: Configuration): TestAction = {
+    runner.http(action => action.client(frontierClient)
+          .send()
+          .get(s"resources/configuration/${sourceObject.ref.uuid}")
+    )
+
+    runner.http(action => action.client(frontierClient)
+          .receive()
+          .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload().asInstanceOf[String]
+        val configuration = read[Configuration](payload)
+        log.info(configuration.ref.uuid)
+      })
+    )
+  }
+
+  def deleteSingleConfig(runner: TestRunner, sourceObject: Configuration): TestAction = {
+    runner.http(action => action.client(frontierClient)
+          .send()
+          .delete(s"resources/configuration/${sourceObject.ref.uuid}")
+    )
+
+    runner.http(action => action.client(frontierClient)
+          .receive()
+          .response(HttpStatus.OK))
+  }
+
+  def postSingleConfig(runner: TestRunner, sourceObject: Configuration): TestAction = {
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .post(s"resources/configuration/${sourceObject.ref.uuid}")
+      .contentType("application/json")
+      .payload(s"config=$sourceObject")
+    )
+
+    runner.http(action => action.client(frontierClient)
+          .receive()
+          .response(HttpStatus.CREATED))
+  }
+
+
+  def getAllConfiurations(runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/configuration")
@@ -65,10 +111,19 @@ class ConfiguratonTest extends Matchers {
       .response(HttpStatus.OK)
       .validationCallback((message, context) => {
         val payload = message.getPayload().asInstanceOf[String]
-        val configuration = read[Map[ConfigurationRef, Configuration]](payload)
-        log.info(configuration.head._1.uuid)
+        val configurations = read[Map[ConfigurationRef, Configuration]](payload)
+        log.info(configurations.head._1.uuid)
       })
     )
   }
 
+  def deleteAllConfigurations(runner: TestRunner) : TestAction =  {
+    runner.http(action => action.client(frontierClient)
+          .send()
+          .delete(s"resources/configuration/*"))
+
+    runner.http(action => action.client(frontierClient)
+          .receive()
+          .response(HttpStatus.OK))
+  }
 }
