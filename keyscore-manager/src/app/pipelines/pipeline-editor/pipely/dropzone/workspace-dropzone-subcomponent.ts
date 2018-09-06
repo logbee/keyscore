@@ -63,7 +63,6 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
     resizeWorkspace(draggables: Draggable[]): number {
         const workspacePadding = 200;
         const workspaceWidth = this.dropzoneElement.nativeElement.scrollWidth;
-        console.log("WorkspaceWidth: " + workspaceWidth);
         const wrapperWidth = this.workspaceScrollContainer.nativeElement.offsetWidth;
         const draggableModels = draggables
             .map(draggable => draggable.getDraggableModel());
@@ -85,7 +84,6 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
                     mostRightPosition,
                     draggable.getDraggableModel().position.x + draggable.getTotalWidth());
         });
-        console.log("Most Right: " + mostRightPosition);
 
         if (mostRightPosition >= workspaceWidth - workspacePadding) {
             return this.growRight(workspacePadding, mostRightPosition, workspaceWidth, wrapperWidth);

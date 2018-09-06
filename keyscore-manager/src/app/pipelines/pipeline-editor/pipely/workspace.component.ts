@@ -162,6 +162,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
             DropzoneType.Toolbar) {
             this.computeWorkspaceSize();
         }
+        console.log(this.draggables);
     }
 
     getWorkspaceDropzone(): Dropzone {

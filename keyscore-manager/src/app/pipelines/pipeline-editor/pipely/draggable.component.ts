@@ -32,7 +32,38 @@ import {takeUntil} from "rxjs/internal/operators";
             <div class="connection previous-connection">
                 <ng-template #previousConnection></ng-template>
             </div>
-            {{draggableModel.name}}
+            <div class="blockContainer">
+                <svg
+                        xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+                        xmlns:dc="http://purl.org/dc/elements/1.1/"
+                        xmlns:cc="http://creativecommons.org/ns#"
+                        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                        xmlns:svg="http://www.w3.org/2000/svg"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                        id="svg4491"
+                        version="1.1"
+                        viewBox="0 0 971 567.929"
+                >
+                    <g>
+                        <path d="M282.75 567.429H0.536V453.792l0.096,0.457v-0.587l85.557-115.387l0.064-87.628
+	L0.632,135.915v-0.91l-0.096,0.781V0.5H282.75 M0.632,453.662l-0.096,0.13l0.096,0.457V453.662z M0.632,135.005l-0.096,0.781
+	l0.096,0.129V135.005z" style="fill:#365880;stroke:lime;stroke-width:8"/>
+
+                    </g>
+                    <g id="layer1">
+                    <path d="M282.75 0 H 687.75 V 567.929 H 282.75 V 0"
+                              id="rect5038"
+                              style="fill:#365880;fill-opacity:1;stroke:#365880;stroke-width:8"/>
+                    
+                    </g>
+                    <g>
+                        <path d="M886.215,453.784v112.585H688.25V0.5h197.465v134.041l-0.097,0.781l86.097,
+114.861l-0.064,87.628l-86.032,115.517L886.215,455.784z" style="fill:#365880;stroke:white;stroke-width:8"/>
+                    </g>
+                </svg>
+            </div>
+
             <div class="connection next-connection">
                 <ng-template #nextConnection></ng-template>
             </div>
@@ -100,7 +131,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
 
     public ngAfterViewInit() {
-        console.log(this.getHead());
         if (!this.getHead().getDraggableModel().isMirror) {
             this.workspace.registerDraggable(this);
         }
