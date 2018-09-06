@@ -6,6 +6,7 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
+import com.consol.citrus.message.MessageType
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.Using
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
+import org.springframework.http.{HttpStatus, MediaType}
 
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
@@ -34,18 +35,17 @@ class ConfiguratonTest extends Matchers {
     val sourceConfiguration = Using.using(getClass.getResourceAsStream("/JSONFiles/configurations/sinkConfig.json")) { stream =>
       scala.io.Source.fromInputStream(stream).mkString
     }
-    val sourceConfig = read[Configuration](sourceConfiguration)
+    val sourceObject = read[Configuration](sourceConfiguration)
 
-    putSingleConfiguration(runner, sourceConfig, sourceConfiguration)
-    getSingleConfiguration(runner, sourceConfig)
-//    postSingleConfig (runner, sourceConfig)
-
+    putSingleConfiguration(runner, sourceObject, sourceConfiguration)
+    getSingleConfiguration(runner, sourceObject)
+    postSingleConfig (runner, sourceConfiguration, sourceObject)
 
     getAllConfigurations(runner, 1)
-    deleteSingleConfig(runner, sourceConfig)
+    deleteSingleConfig(runner, sourceObject)
     getAllConfigurations(runner, 0)
 
-    putSingleConfiguration(runner, sourceConfig, sourceConfiguration)
+    putSingleConfiguration(runner, sourceObject, sourceConfiguration)
     deleteAllConfigurations(runner)
     getAllConfigurations(runner, 0)
   }
@@ -92,17 +92,18 @@ class ConfiguratonTest extends Matchers {
           .response(HttpStatus.OK))
   }
 
-  def postSingleConfig(runner: TestRunner, sourceObject: Configuration): TestAction = {
+  def postSingleConfig(runner: TestRunner, sourceConfigString: String, sourceObject: Configuration ): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"resources/configuration/${sourceObject.ref.uuid}")
-      .contentType("application/json")
-      .payload(s"config=$sourceObject")
+      .contentType(MediaType.APPLICATION_JSON_VALUE)
+      .messageType(MessageType.PLAINTEXT)
+      .payload(sourceConfigString)
     )
 
     runner.http(action => action.client(frontierClient)
           .receive()
-          .response(HttpStatus.CREATED))
+          .response(HttpStatus.OK))
   }
 
 

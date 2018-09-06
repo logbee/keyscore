@@ -23,4 +23,10 @@ object ConfigurationMessages {
     case class GetAllConfigurationResponse(configuations: Map[ConfigurationRef, Configuration])
 
     case class GetConfigurationResponse(configuration: Option[Configuration])
+
+    case class UpdateConfigurationRequest(configuration: Configuration)
+
+    case object UpdateConfigurationSuccessResponse
+
+    case object UpdateConfigurationFailureResponse
 }

@@ -346,6 +346,14 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
             }
         } ~
         pathPrefix(JavaUUID) { configurationId =>
+          post {
+            entity(as[Configuration]) { configuration =>
+              onSuccess(configurationManager ? UpdateConfigurationRequest(configuration)) {
+                case UpdateConfigurationSuccessResponse => complete(StatusCodes.OK)
+                case _ => complete(StatusCodes.NoContent)
+              }
+            }
+          } ~
           put {
             entity(as[Configuration]) { configuration =>
               onSuccess(configurationManager ? StoreConfigurationRequest(configuration)) {

@@ -41,7 +41,13 @@ class ConfigurationManager extends Actor with ActorLogging {
       sender ! DeleteAllConfigurationsResponse
     case GetConfigurationRequest(ref) =>
       sender ! GetConfigurationResponse(configurations.get(ref))
-
+    case UpdateConfigurationRequest(configuration) =>
+      if(configurations.contains(configuration.ref)) {
+        configurations.put(configuration.ref, configuration)
+        sender ! UpdateConfigurationSuccessResponse
+      } else{
+        sender ! UpdateConfigurationFailureResponse
+      }
     case WhoIs(ConfigurationService) =>
       sender ! HereIam(ConfigurationService, self)
   }
