@@ -300,13 +300,13 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
-          }
-        } ~
-        get {
-          onSuccess((configurationManager ? GetConfigurationRequest(ConfigurationRef(configurationId.toString))).mapTo[GetConfigurationResponse]) {
-            case GetConfigurationResponse(configuration) => complete(StatusCodes.OK, configuration)
-            case _ => complete(StatusCodes.InternalServerError)
-          }
+          }~
+            get {
+              onSuccess((configurationManager ? GetConfigurationRequest(ConfigurationRef(configurationId.toString))).mapTo[GetConfigurationResponse]) {
+                case GetConfigurationResponse(configuration) => complete(StatusCodes.OK, configuration)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
         }
       } ~
         get {

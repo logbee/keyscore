@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
+import akka.util.Timeout
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.PipelineManager.RequestExistingBlueprints
@@ -16,6 +17,8 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s._
 import org.json4s.native.Serialization
 
+import scala.concurrent.duration._
+
 
 object FilterRoute {
   case class FilterRouteRequest(pipelineManager: ActorRef)
@@ -24,6 +27,7 @@ object FilterRoute {
 
 class FilterRoute extends Actor with ActorLogging with Json4sSupport {
 
+  implicit val timeout: Timeout = 30 seconds
   implicit val system = context.system
   implicit val executionContext = system.dispatcher
   implicit val serialization = Serialization
@@ -31,8 +35,8 @@ class FilterRoute extends Actor with ActorLogging with Json4sSupport {
 
   override def receive: Receive = {
     case FilterRouteRequest(pipelineManager) =>
-      val filterRoute = filterRoute(pipelineManager)
-      sender ! FilterRouteResponse(filterRoute)
+      val r = filterRoute(pipelineManager)
+      sender ! FilterRouteResponse(r)
   }
 
   def filterRoute(pipelineManager: ActorRef): Route = {
