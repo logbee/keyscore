@@ -35,6 +35,7 @@ class ConfigurationManager extends Actor with ActorLogging {
       sender ! GetAllConfigurationResponse(configurations.toMap)
     case DeleteConfigurationRequest(ref) =>
       configurations.remove(ref)
+      sender ! DeleteConfigurationResponse
 
     case GetConfigurationRequest(ref) =>
       sender ! GetConfigurationResponse(configurations.get(ref))

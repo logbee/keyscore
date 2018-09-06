@@ -38,10 +38,13 @@ class ConfiguratonTest extends Matchers {
 
     putSingleConfiguration(runner, sourceConfig, sourceConfiguration)
     getSingleConfiguration(runner, sourceConfig)
-//    deleteSingleConfig(runner, sourceConfig)
 //    postSingleConfig (runner, sourceConfig)
+    getAllConfigurations(runner, 1)
 
-    getAllConfiurations(runner)
+    deleteSingleConfig(runner, sourceConfig)
+
+    getAllConfigurations(runner, 0)
+
 //    deleteAllConfigurations(runner)
   }
 
@@ -101,7 +104,7 @@ class ConfiguratonTest extends Matchers {
   }
 
 
-  def getAllConfiurations(runner: TestRunner): TestAction = {
+  def getAllConfigurations(runner: TestRunner, expected: Int): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/configuration")
@@ -112,7 +115,10 @@ class ConfiguratonTest extends Matchers {
       .validationCallback((message, context) => {
         val payload = message.getPayload().asInstanceOf[String]
         val configurations = read[Map[ConfigurationRef, Configuration]](payload)
-        log.info("GetAllConfigurations successfully: " + configurations.head._1.uuid)
+        configurations should have size expected
+        if(configurations.nonEmpty) {
+          log.info("GetAllConfigurations successfully: " + configurations.head._1.uuid)
+        }
       })
     )
   }
