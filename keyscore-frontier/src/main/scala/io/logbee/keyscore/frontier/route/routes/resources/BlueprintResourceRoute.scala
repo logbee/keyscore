@@ -10,6 +10,7 @@ object BlueprintResourceRoute {
   case object BlueprintResourceRouteResponse
 }
 
+//TODO Update this when the routes are tested
 class BlueprintResourceRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
   implicit val system = context.system

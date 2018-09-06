@@ -62,7 +62,6 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   implicit val executionContext = system.dispatcher
   implicit val materializer = ActorMaterializer()
 
-
   private val mediator = DistributedPubSub(context.system).mediator
 
   private val corsSettings = CorsSettings.defaultSettings.copy(
@@ -129,7 +128,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   }
 
   //Defining all the routes
-  //TODO Handle this with the the Route Helper Classes
+  //TODO Handle this with the new Route Helper Classes
 
   def pipelineRoute(blueprintManager: ActorRef): Route = {
     pathPrefix("pipeline") {

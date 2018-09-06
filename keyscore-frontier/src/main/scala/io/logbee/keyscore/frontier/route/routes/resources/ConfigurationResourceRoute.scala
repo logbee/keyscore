@@ -16,6 +16,7 @@ object ConfigurationResourceRoute {
   case class ConfigurationResourceRouteResponse(configurationRoute: Route)
 }
 
+//TODO Update this when the routes are tested
 class ConfigurationResourceRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
   implicit val system = context.system
