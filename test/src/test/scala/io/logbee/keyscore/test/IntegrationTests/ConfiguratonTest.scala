@@ -76,6 +76,7 @@ class ConfiguratonTest extends Matchers {
       .validationCallback((message, context) => {
         val payload = message.getPayload().asInstanceOf[String]
         val configuration = read[Configuration](payload)
+        configuration.ref.uuid should equal(sourceObject.ref.uuid)
         log.info("GetSingleConfiguration successfully: " + configuration.ref.uuid)
       })
     )
