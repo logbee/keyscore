@@ -1,7 +1,6 @@
 package io.logbee.keyscore.test.IntegrationTests
 
-import java.io.InputStreamReader
-
+import com.consol.citrus.TestAction
 import com.consol.citrus.annotations.{CitrusResource, CitrusTest}
 import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
@@ -10,8 +9,8 @@ import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.Using
-import org.junit.jupiter.api.Test
 import org.json4s.native.Serialization.read
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
@@ -42,7 +41,7 @@ class ConfiguratonTest extends Matchers {
     getConfiguration(runner)
   }
 
-  def putConfiguration(runner: TestRunner, sourceObject: Configuration, sourceConfig: String) = {
+  def putConfiguration(runner: TestRunner, sourceObject: Configuration, sourceConfig: String): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/configuration/${sourceObject.ref.uuid}")
@@ -56,22 +55,20 @@ class ConfiguratonTest extends Matchers {
     )
   }
 
-  def getConfiguration(runner: TestRunner) = {
+  def getConfiguration(runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/configuration")
     )
-
-//    runner.http(action => action.client(frontierClient)
-//      .receive()
-//      .response(HttpStatus.OK)
-//      .validationCallback((message, context) => {
-//        val payload = message.getPayload.asInstanceOf[String]
-//        val configurations = read[Map[ConfigurationRef, Configuration]](payload)
-//        configurations should have size 1
-//        log.info(configurations.head._1.uuid)
-//      })
-//    )
+    runner.http(action => action.client(frontierClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload().asInstanceOf[String]
+        val configuration = read[Map[ConfigurationRef, Configuration]](payload)
+        log.info(configuration.head._1.uuid)
+      })
+    )
   }
 
 }

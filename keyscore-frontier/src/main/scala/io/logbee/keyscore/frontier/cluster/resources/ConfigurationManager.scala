@@ -5,7 +5,7 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.Topics
 import io.logbee.keyscore.commons.{ConfigurationService, HereIam, WhoIs}
-import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages._
+import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetAllConfigurationRequest, _}
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 
 object ConfigurationManager {
@@ -31,6 +31,8 @@ class ConfigurationManager extends Actor with ActorLogging {
       configurations.put(configuration.ref, configuration)
       sender ! StoreConfigurationResponse
 
+    case GetAllConfigurationRequest =>
+      sender ! GetAllConfigurationResponse(configurations.toMap)
     case DeleteConfigurationRequest(ref) =>
       configurations.remove(ref)
 

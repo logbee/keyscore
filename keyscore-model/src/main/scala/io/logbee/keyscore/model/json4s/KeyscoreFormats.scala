@@ -7,7 +7,7 @@ import org.json4s.native.Serialization
 object KeyscoreFormats {
 
   val formats: Formats = Serialization.formats(KeyscoreTypeHints.all) ++
-    JavaTypesSerializers.all + LocaleKeySerializer + ParameterRefKeySerializer + TextRefKeySerializer +
+    JavaTypesSerializers.all + ConfigurationRefKeySerializer +LocaleKeySerializer + ParameterRefKeySerializer + TextRefKeySerializer +
     HealthSerializer+ FilterStatusSerializer+ FieldNameHintSerializer+ FieldValueTypeSerializer+
       IconFormatSerializer+ IconEncodingSerializer+ ParameterRefSerializer+PatternTypeSerializer
 
