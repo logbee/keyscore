@@ -71,7 +71,7 @@ class ConfiguratonTest extends Matchers {
 //        configurations should have size 1
 //        log.info(configurations.head._1.uuid)
 //      })
-    )
+//    )
   }
 
 }
