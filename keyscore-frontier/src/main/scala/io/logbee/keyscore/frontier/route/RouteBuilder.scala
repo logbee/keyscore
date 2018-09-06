@@ -21,7 +21,7 @@ import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
-import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetAllConfigurationRequest, GetAllConfigurationResponse, StoreConfigurationRequest, StoreConfigurationResponse}
+import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages._
 import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster, Topics}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.Frontier
@@ -34,7 +34,7 @@ import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuil
 import io.logbee.keyscore.model.AgentModel
 import io.logbee.keyscore.model.WhichValve.whichValve
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
-import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s._
 import org.json4s.native.Serialization
@@ -288,6 +288,12 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
               case StoreConfigurationResponse => complete(StatusCodes.Created)
               case _ => complete(StatusCodes.InternalServerError)
             }
+          }
+        } ~
+        get {
+          onSuccess((configurationManager ? GetConfigurationRequest(ConfigurationRef(configurationId.toString))).mapTo[GetConfigurationResponse]) {
+            case GetConfigurationResponse(configuration) => complete(StatusCodes.OK, configuration)
+            case _ => complete(StatusCodes.InternalServerError)
           }
         }
       }

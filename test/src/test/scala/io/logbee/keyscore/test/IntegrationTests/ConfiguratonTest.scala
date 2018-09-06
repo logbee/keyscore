@@ -37,7 +37,7 @@ class ConfiguratonTest extends Matchers {
     val sourceConfig = read[Configuration](sourceConfiguration)
 
     putSingleConfiguration(runner, sourceConfig, sourceConfiguration)
-//    getSingleConfiguration(runner, sourceConfig)
+    getSingleConfiguration(runner, sourceConfig)
 //    deleteSingleConfig(runner, sourceConfig)
 //    postSingleConfig (runner, sourceConfig)
 
@@ -71,7 +71,7 @@ class ConfiguratonTest extends Matchers {
       .validationCallback((message, context) => {
         val payload = message.getPayload().asInstanceOf[String]
         val configuration = read[Configuration](payload)
-        log.info(configuration.ref.uuid)
+        log.info("GetSingleConfiguration successfully: " + configuration.ref.uuid)
       })
     )
   }
@@ -112,7 +112,7 @@ class ConfiguratonTest extends Matchers {
       .validationCallback((message, context) => {
         val payload = message.getPayload().asInstanceOf[String]
         val configurations = read[Map[ConfigurationRef, Configuration]](payload)
-        log.info(configurations.head._1.uuid)
+        log.info("GetAllConfigurations successfully: " + configurations.head._1.uuid)
       })
     )
   }
