@@ -72,6 +72,14 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
 
   private val mediator = DistributedPubSub(context.system).mediator
 
+  private val corsSettings = CorsSettings.defaultSettings.copy(
+    allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS),
+    allowedOrigins = HttpOriginRange.*,
+    allowedHeaders = HttpHeaderRange.*
+  )
+
+  val settings = cors(corsSettings)
+
   private var route = pathSingleSlash {
     complete {
       appInfo
@@ -82,14 +90,6 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   private var blueprintManager = null
   private val pipelineManager = system.actorOf(PipelineManager(agentManager))
   private val clusterCapabilitiesManager = system.actorOf(ClusterCapabilitiesManager.props())
-
-  private val corsSettings = CorsSettings.defaultSettings.copy(
-    allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS),
-    allowedOrigins = HttpOriginRange.*,
-    allowedHeaders = HttpHeaderRange.*
-  )
-
-  val settings = cors(corsSettings)
 
   def pipelineRoute(blueprintManager: ActorRef): Route = {
     pathPrefix("pipeline") {
@@ -340,6 +340,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   //          }
   //        }
   //      }
+
   override def preStart(): Unit = {
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(ConfigurationService))
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
