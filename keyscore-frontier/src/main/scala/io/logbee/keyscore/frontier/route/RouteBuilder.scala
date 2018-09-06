@@ -91,6 +91,53 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   private val pipelineManager = system.actorOf(PipelineManager(agentManager))
   private val clusterCapabilitiesManager = system.actorOf(ClusterCapabilitiesManager.props())
 
+  override def preStart(): Unit = {
+    mediator ! Publish(Topics.WhoIsTopic, WhoIs(ConfigurationService))
+    mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
+    mediator ! Publish(Topics.WhoIsTopic, WhoIs(BlueprintService))
+    context.become(initializing(RouteBuilderState()))
+  }
+
+  override def receive: Receive = {
+    case _ =>
+      log.error("Illegal State")
+  }
+
+  private def initializing(state: RouteBuilderState): Receive = {
+    case HereIam(BlueprintService, ref) =>
+      maybeRunning(state.copy(blueprintManager = ref))
+    case HereIam(ConfigurationService, ref) =>
+      maybeRunning(state.copy(configurationManager = ref))
+      this.route = this.route ~ configurationResources(ref)
+    case HereIam(DescriptorService, ref) =>
+      maybeRunning(state.copy(descriptorManager = ref))
+  }
+
+  private def maybeRunning(state: RouteBuilderState): Unit = {
+    if (state.isComplete) {
+      context.become(running(state))
+      context.parent ! RouteBuilderInitialized
+    }
+    else {
+      context.become(initializing(state))
+    }
+  }
+
+  private def running(state: RouteBuilderState): Receive = {
+    case BuildFullRoute =>
+      log.debug("Routes built.")
+      val r = buildFullRoute
+      sender ! RouteResponse(r)
+  }
+
+  private def buildFullRoute: Route = {
+    val fullRoute = route ~ pipelineRoute(blueprintManager) ~ filterRoute ~ descriptorsRoute ~ agentsRoute
+    settings { fullRoute }
+  }
+
+  //Defining all the routes
+  //TODO Handle this with the the Route Helper Classes
+
   def pipelineRoute(blueprintManager: ActorRef): Route = {
     pathPrefix("pipeline") {
       pathPrefix("configuration") {
@@ -340,50 +387,5 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   //          }
   //        }
   //      }
-
-  override def preStart(): Unit = {
-    mediator ! Publish(Topics.WhoIsTopic, WhoIs(ConfigurationService))
-    mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
-    mediator ! Publish(Topics.WhoIsTopic, WhoIs(BlueprintService))
-    context.become(initializing(RouteBuilderState()))
-  }
-
-  private def initializing(state: RouteBuilderState): Receive = {
-    case HereIam(BlueprintService, ref) =>
-      becomeMaybeRunning(state.copy(blueprintManager = ref))
-    case HereIam(ConfigurationService, ref) =>
-      becomeMaybeRunning(state.copy(configurationManager = ref))
-      this.route = this.route ~ configurationResources(ref)
-    case HereIam(DescriptorService, ref) =>
-      becomeMaybeRunning(state.copy(descriptorManager = ref))
-  }
-
-  private def running(state: RouteBuilderState): Receive = {
-    case BuildFullRoute =>
-      log.debug("Routes built.")
-      val r = buildFullRoute
-      sender ! RouteResponse(r)
-  }
-
-  override def receive: Receive = {
-    case _ =>
-      log.error("Illegal State")
-  }
-
-  private def becomeMaybeRunning(state: RouteBuilderState): Unit = {
-    if (state.isComplete) {
-      context.become(running(state))
-      context.parent ! RouteBuilderInitialized
-    }
-    else {
-      context.become(initializing(state))
-    }
-  }
-
-  private def buildFullRoute: Route = {
-    val fullRoute = route ~ pipelineRoute(blueprintManager) ~ filterRoute ~ descriptorsRoute ~ agentsRoute
-    settings { fullRoute }
-  }
-
 
 }
