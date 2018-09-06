@@ -39,13 +39,15 @@ class ConfiguratonTest extends Matchers {
     putSingleConfiguration(runner, sourceConfig, sourceConfiguration)
     getSingleConfiguration(runner, sourceConfig)
 //    postSingleConfig (runner, sourceConfig)
+
+
     getAllConfigurations(runner, 1)
-
     deleteSingleConfig(runner, sourceConfig)
-
     getAllConfigurations(runner, 0)
 
-//    deleteAllConfigurations(runner)
+    putSingleConfiguration(runner, sourceConfig, sourceConfiguration)
+    deleteAllConfigurations(runner)
+    getAllConfigurations(runner, 0)
   }
 
   def putSingleConfiguration(runner: TestRunner, sourceObject: Configuration, sourceConfig: String): TestAction = {
@@ -107,7 +109,7 @@ class ConfiguratonTest extends Matchers {
   def getAllConfigurations(runner: TestRunner, expected: Int): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
-      .get(s"resources/configuration")
+      .get(s"resources/configuration/*")
     )
     runner.http(action => action.client(frontierClient)
       .receive()

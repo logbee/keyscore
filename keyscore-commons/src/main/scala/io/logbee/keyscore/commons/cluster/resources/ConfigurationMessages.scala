@@ -12,6 +12,10 @@ object ConfigurationMessages {
 
     case object  DeleteConfigurationResponse
 
+    case object DeleteAllConfigurationsRequest
+
+    case object DeleteAllConfigurationsResponse
+
     case class GetConfigurationRequest(ref: ConfigurationRef)
 
     case object GetAllConfigurationRequest

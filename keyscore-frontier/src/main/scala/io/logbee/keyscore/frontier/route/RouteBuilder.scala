@@ -339,6 +339,20 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   def configurationResources(configurationManager: ActorRef) = {
     pathPrefix("resources") {
       pathPrefix("configuration") {
+        pathPrefix("*") {
+          get {
+            onSuccess(configurationManager ? GetAllConfigurationRequest) {
+              case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          } ~
+            delete{
+              onSuccess(configurationManager ? DeleteAllConfigurationsRequest) {
+                case DeleteAllConfigurationsResponse => complete(StatusCodes.OK)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+        } ~
         pathPrefix(JavaUUID) { configurationId =>
           put {
             entity(as[Configuration]) { configuration =>
@@ -347,13 +361,13 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
-          }~
+          } ~
             get {
               onSuccess((configurationManager ? GetConfigurationRequest(ConfigurationRef(configurationId.toString))).mapTo[GetConfigurationResponse]) {
                 case GetConfigurationResponse(configuration) => complete(StatusCodes.OK, configuration)
                 case _ => complete(StatusCodes.InternalServerError)
               }
-            }~
+            } ~
             delete {
               onSuccess(configurationManager ? DeleteConfigurationRequest(ConfigurationRef(configurationId.toString))) {
                 case DeleteConfigurationResponse => complete(StatusCodes.OK)
@@ -361,13 +375,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
               }
             }
         }
-      } ~
-        get {
-          onSuccess(configurationManager ? GetAllConfigurationRequest) {
-            case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
-            case _ => complete(StatusCodes.InternalServerError)
-          }
-        }
+      }
     }
   }
 
