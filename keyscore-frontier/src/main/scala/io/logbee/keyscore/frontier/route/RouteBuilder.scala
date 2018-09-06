@@ -314,21 +314,13 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
               }
             }
         }
-        pathPrefix("*") {
-          get {
-            onSuccess(configurationManager ? GetAllConfigurationRequest) {
-              case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
-              case _ => complete(StatusCodes.InternalServerError)
-            }
+      } ~
+        get {
+          onSuccess(configurationManager ? GetAllConfigurationRequest) {
+            case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
+            case _ => complete(StatusCodes.InternalServerError)
           }
-          //        ~
-          //          delete {
-          //            onSuccess(configurationManager ? DeleteAllConfigurations) {
-          //
-          //            }
-          //          }
         }
-      }
     }
   }
 
