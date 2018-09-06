@@ -5,28 +5,21 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
-import akka.util.Timeout
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages._
+import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.frontier.route.routes.resources.ConfigurationResourceRoute.{ConfigurationResourceRouteRequest, ConfigurationResourceRouteResponse}
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
-import io.logbee.keyscore.model.json4s._
-import org.json4s.native.Serialization
-
-import scala.concurrent.duration._
 
 object ConfigurationResourceRoute {
   case class ConfigurationResourceRouteRequest(configurationManager: ActorRef)
   case class ConfigurationResourceRouteResponse(configurationRoute: Route)
 }
 
-class ConfigurationResourceRoute extends Actor with ActorLogging with Json4sSupport{
+class ConfigurationResourceRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
-  implicit val timeout: Timeout = 30 seconds
   implicit val system = context.system
   implicit val executionContext = system.dispatcher
-  implicit val serialization = Serialization
-  implicit val formats = KeyscoreFormats.formats
 
   override def receive: Receive = {
     case ConfigurationResourceRouteRequest(configurationManager) =>

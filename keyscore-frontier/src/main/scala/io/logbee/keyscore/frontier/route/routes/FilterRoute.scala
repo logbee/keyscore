@@ -6,18 +6,14 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
-import akka.util.Timeout
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.PipelineManager.RequestExistingBlueprints
+import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.frontier.route.routes.FilterRoute.{FilterRouteRequest, FilterRouteResponse}
 import io.logbee.keyscore.model.WhichValve.whichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.json4s._
-import org.json4s.native.Serialization
-
-import scala.concurrent.duration._
 
 
 object FilterRoute {
@@ -25,13 +21,10 @@ object FilterRoute {
   case class FilterRouteResponse(filterRoute: Route)
 }
 
-class FilterRoute extends Actor with ActorLogging with Json4sSupport {
+class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
-  implicit val timeout: Timeout = 30 seconds
   implicit val system = context.system
   implicit val executionContext = system.dispatcher
-  implicit val serialization = Serialization
-  implicit val formats = KeyscoreFormats.formats
 
   override def receive: Receive = {
     case FilterRouteRequest(pipelineManager) =>
