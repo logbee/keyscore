@@ -62,9 +62,9 @@ class ConfiguratonTest extends Matchers {
       .get(s"resources/configuration")
     )
 
-    runner.http(action => action.client(frontierClient)
-      .receive()
-      .response(HttpStatus.OK)
+//    runner.http(action => action.client(frontierClient)
+//      .receive()
+//      .response(HttpStatus.OK)
 //      .validationCallback((message, context) => {
 //        val payload = message.getPayload.asInstanceOf[String]
 //        val configurations = read[Map[ConfigurationRef, Configuration]](payload)
