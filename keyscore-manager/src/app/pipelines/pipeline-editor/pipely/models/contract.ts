@@ -55,7 +55,7 @@ export interface Dropzone {
 
     clearDropzone();
 
-    drop(mirros: Draggable, currentDragged: Draggable): void;
+    drop(mirrors: Draggable, currentDragged: Draggable): void;
 
 }
 
@@ -79,6 +79,8 @@ export interface Draggable {
 
     getNext(): Draggable;
 
+    getPrevious():Draggable;
+
     removeNextFromModel():void;
 
     setNextModel(next:DraggableModel):void;
@@ -98,6 +100,12 @@ export interface Draggable {
     isDeleting():boolean;
 
     getTail():Draggable;
+
+    getHead():Draggable;
+
+    getTotalWidth():number;
+
+    createNext();
 
     moveXAxis(deltaX:number):void;
 

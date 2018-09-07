@@ -9,6 +9,7 @@ export interface DraggableModel {
     nextConnection: Connection;
     isMirror: boolean;
     next:DraggableModel;
+    previous:Draggable;
     initialDropzone: Dropzone;
     rootDropzone: DropzoneType;
     position?: { x: number, y: number };

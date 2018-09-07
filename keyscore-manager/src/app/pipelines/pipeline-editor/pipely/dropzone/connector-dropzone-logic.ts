@@ -78,13 +78,9 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
     }
 
     private appendNewDraggable(draggableModel: DraggableModel) {
-        this.component.occupyDropzone();
-        this.component.getOwner().setNextModel(draggableModel);
 
-        this.component.draggableFactory
-            .createDraggable(this.component.getDraggableContainer(),
-                draggableModel,
-                this.component.workspace);
+        this.component.getOwner().setNextModel(draggableModel);
+        this.component.getOwner().createNext();
 
     }
 
@@ -92,7 +88,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const componentRectangle = this.component.getRectangle();
         const ownerRectangle = this.component.getOwner().getRectangle();
         return {
-            x: Math.abs(ownerRectangle.right - componentRectangle.left),
+            x: Math.abs(ownerRectangle.right - componentRectangle.left) - 10,
             y: -Math.abs(componentRectangle.top - ownerRectangle.top)
         };
     }
@@ -101,7 +97,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const componentRectangle = this.component.getRectangle();
         const ownerRectangle = this.component.getOwner().getRectangle();
         return {
-            x: Math.abs(ownerRectangle.left - componentRectangle.right),
+            x: Math.abs(ownerRectangle.left - componentRectangle.right) - 10,
             y: -Math.abs(componentRectangle.top - ownerRectangle.top)
         };
     }
