@@ -7,7 +7,7 @@ import akka.util.Timeout
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.frontier.Frontier._
 import io.logbee.keyscore.frontier.cluster.AgentManager.{AgentManagerInitialized, Init}
-import io.logbee.keyscore.frontier.cluster.resources.{ConfigurationManager, DescriptorManager}
+import io.logbee.keyscore.frontier.cluster.resources.{BlueprintManager, ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterManager, PipelineBlueprintManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.route.RouteBuilder
@@ -71,7 +71,7 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
     case InitServices =>
       configurationManager = context.actorOf(ConfigurationManager())
       descriptorManager = context.actorOf(DescriptorManager())
-      blueprintManager = context.actorOf(PipelineBlueprintManager())
+      blueprintManager = context.actorOf(BlueprintManager())
 
     case InitFrontier(isOperating) =>
       log.info("Initializing Frontier ...")
