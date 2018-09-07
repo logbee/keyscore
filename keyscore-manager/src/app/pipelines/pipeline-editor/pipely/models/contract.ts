@@ -23,6 +23,8 @@ export interface Workspace {
 }
 
 export interface Dropzone {
+    isDroppable$:Observable<boolean>;
+
     getId(): string;
 
     computeBestDropzone(mirror: Draggable, pivot: Dropzone): Dropzone;

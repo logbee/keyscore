@@ -22,6 +22,16 @@
     height:100%;
 }
 
+.draggableDockingIndicator{
+    stroke:none;
+    fill:none;
+    stroke-width:20px;
+}
+
+.draggableDockingIndicator.is-droppable{
+    stroke:lime;
+}
+
 
 .dropzone-workspace {
     position: relative;
@@ -80,8 +90,6 @@ toolbar-dropzone {
 .dropzone-connector.is-droppable{
     min-width: 100%;
     min-height: 100%;
-    border: dashed 1px lime;
-
 }
 
 .mirror {
