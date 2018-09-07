@@ -38,7 +38,9 @@ message FilterDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated TextRef categories = 4;
     repeated ParameterDescriptor parameters = 8;
-    Icon icon = 12;
+    InputDescriptor in = 9;
+    OutputDescriptor out = 10;
+    Icon icon = 13;
 }
 
 message SourceDescriptor {
@@ -47,7 +49,8 @@ message SourceDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated TextRef categories = 4;
     repeated ParameterDescriptor parameters = 8;
-    Icon icon = 12;
+    OutputDescriptor out = 9;
+    Icon icon = 13;
 }
 
 message SinkDescriptor {
@@ -56,15 +59,32 @@ message SinkDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated TextRef categories = 4;
     repeated ParameterDescriptor parameters = 8;
-    Icon icon = 12;
+    InputDescriptor in = 9;
+    Icon icon = 13;
 }
 
 message BranchDescriptor {
-
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+    repeated TextRef categories = 4;
+    repeated ParameterDescriptor parameters = 8;
+    InputDescriptor in = 9;
+    OutputDescriptor left = 10;
+    OutputDescriptor right = 11;
+    Icon icon = 13;
 }
 
 message MergeDescriptor {
-
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+    repeated TextRef categories = 4;
+    repeated ParameterDescriptor parameters = 8;
+    InputDescriptor left = 9;
+    InputDescriptor right = 10;
+    OutputDescriptor out = 11;
+    Icon icon = 13;
 }
 
 message ParameterRef {
@@ -254,4 +274,12 @@ enum IconFormat {
 enum IconEncoding {
     RAW = 0;
     Base64 = 1;
+}
+
+message InputDescriptor {
+    string name = 1;
+}
+
+message OutputDescriptor {
+    string name = 1;
 }
