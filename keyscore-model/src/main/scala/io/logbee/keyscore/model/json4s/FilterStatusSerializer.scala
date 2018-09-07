@@ -1,6 +1,6 @@
 package io.logbee.keyscore.model.json4s
 
-import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.pipeline._
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.{JNull, JString}
 

@@ -67,6 +67,10 @@ class GrokFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
   private var pattern = ""
   private var regex: Regex = "".r
 
+  override def initialize(configuration: Configuration): Unit = {
+    configure(configuration)
+  }
+
   override def configure(configuration: Configuration): Unit = {
 
     fieldNames = configuration.getValueOrDefault(fieldNamesParameter, fieldNames)

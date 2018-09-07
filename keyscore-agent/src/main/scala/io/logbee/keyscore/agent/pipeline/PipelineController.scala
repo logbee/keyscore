@@ -5,10 +5,9 @@ import java.util.UUID
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.filter.FilterState
-
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
+import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.pipeline.FilterState
 
 import scala.concurrent.Future
 

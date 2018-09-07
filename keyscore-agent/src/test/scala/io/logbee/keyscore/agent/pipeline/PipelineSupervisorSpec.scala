@@ -16,6 +16,7 @@ import io.logbee.keyscore.frontier.cluster.resources.{ConfigurationManager, Desc
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
+import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 import io.logbee.keyscore.model.data.{Dataset, Record, TextField, TextValue}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import org.junit.runner.RunWith
@@ -23,7 +24,6 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
-import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 
 import scala.concurrent.duration._
 
@@ -118,7 +118,9 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
       val input: List[String] = List("first", "second", "third")
       var outputCounter = 0
 
-      override def configure(configuration: Configuration): Unit = ???
+      override def initialize(configuration: Configuration): Unit = {}
+
+      override def configure(configuration: Configuration): Unit = {}
 
       override def onPull(): Unit = {
         if (outputCounter < input.size) {
@@ -126,6 +128,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
           outputCounter += 1
         }
       }
+
     }
   }
 
@@ -135,7 +138,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
         pull(in)
       }
 
-      override def configure(configuration: Configuration): Unit = ???
+      override def configure(configuration: Configuration): Unit = {}
 
       override def onPush(): Unit = {
         val result = grab(in)
@@ -149,7 +152,9 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
   val filterLogicProvider = (parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) => {
     new FilterLogic(parameters, shape) {
 
-      override def configure(configuration: Configuration): Unit = ???
+      override def initialize(configuration: Configuration): Unit = {}
+
+      override def configure(configuration: Configuration): Unit = {}
 
       override def onPush(): Unit = {
         val dataset = grab(in)

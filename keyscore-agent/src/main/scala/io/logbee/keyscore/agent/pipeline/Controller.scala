@@ -6,9 +6,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveProxy
 import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.filter.{FilterProxy, FilterState}
-import io.logbee.keyscore.model.sink.SinkProxy
-import io.logbee.keyscore.model.source.SourceProxy
+import io.logbee.keyscore.model.pipeline.{FilterProxy, FilterState, SinkProxy, SourceProxy}
 
 import scala.concurrent.{ExecutionContext, Future}
 

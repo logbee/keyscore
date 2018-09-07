@@ -1,19 +1,5 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
-import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.TestSink
-import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.model._
-import io.logbee.keyscore.model.filter._
-import org.junit.runner.RunWith
-import org.scalamock.scalatest.MockFactory
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 /*

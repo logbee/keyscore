@@ -1,4 +1,4 @@
-package io.logbee.keyscore.model.filter
+package io.logbee.keyscore.model.pipeline
 
 sealed trait FilterStatus
 

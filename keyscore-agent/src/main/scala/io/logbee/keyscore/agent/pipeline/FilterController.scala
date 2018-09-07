@@ -5,7 +5,7 @@ import java.util.UUID
 import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, ValveState}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.filter._
+import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.model.{After, WhichValve}
 
 import scala.concurrent.{ExecutionContext, Future}

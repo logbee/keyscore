@@ -60,13 +60,15 @@ class FingerprintFilterLogic(parameters: LogicParameters, shape: FlowShape[Datas
 
   private val digest = MessageDigest.getInstance("MD5")
 
+  override def initialize(configuration: Configuration): Unit = {
+    configure(configuration)
+  }
+
   override def configure(configuration: Configuration): Unit = {
 
     targetFieldName = configuration.getValueOrDefault(FingerprintFilterLogic.targetParameter, targetFieldName)
     base64Encoding = configuration.getValueOrDefault(FingerprintFilterLogic.encodingParameter, base64Encoding)
   }
-
-
 
   override def onPush(): Unit = {
 

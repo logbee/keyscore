@@ -5,7 +5,7 @@ import java.util.UUID
 import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.filter.FilterState
+import io.logbee.keyscore.model.pipeline.FilterState
 
 case class PauseFilter(id: UUID, pause: Boolean)
 case class PauseFilterResponse(state: FilterState)
