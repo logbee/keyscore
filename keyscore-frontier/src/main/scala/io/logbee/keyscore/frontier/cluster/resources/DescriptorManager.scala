@@ -20,7 +20,6 @@ class DescriptorManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
 
-
   override def preStart(): Unit = {
     mediator ! Subscribe(Topics.WhoIsTopic, self)
   }
@@ -30,12 +29,29 @@ class DescriptorManager extends Actor with ActorLogging {
   override def receive: Receive = {
     case StoreDescriptorRequest(descriptor) =>
       descriptors.put(descriptor.ref, descriptor)
+      sender ! StoreDescriptorResponse
+
+    case GetAllDescriptorsRequest =>
+      sender ! GetAllDescriptorsResponse(descriptors.toMap)
 
     case DeleteDescriptorRequest(ref) =>
       descriptors.remove(ref)
+      sender ! DeleteDescriptorResponse
+
+    case DeleteAllDescriptorsRequest =>
+      descriptors.clear()
+      sender ! DeleteAllDescriptorsResponse
 
     case GetDescriptorRequest(ref) =>
       sender ! GetDescriptorResponse(descriptors.get(ref))
+
+    case UpdateDescriptorRequest(descriptor) =>
+      if (descriptors.contains(descriptor.ref)) {
+        descriptors.put(descriptor.ref, descriptor)
+        sender ! UpdateDescriptorSuccessResponse
+      } else {
+        sender ! UpdateDescriptorFailureResponse
+      }
 
     case WhoIs(DescriptorService) =>
       sender ! HereIam(DescriptorService, self)

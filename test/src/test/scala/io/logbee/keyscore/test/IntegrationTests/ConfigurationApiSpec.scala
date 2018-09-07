@@ -19,9 +19,9 @@ import org.springframework.http.{HttpStatus, MediaType}
 
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
-class ConfiguratonTest extends Matchers {
+class ConfigurationApiSpec extends Matchers {
   implicit val formats = KeyscoreFormats.formats
-  private val log = LoggerFactory.getLogger(classOf[ConfiguratonTest])
+  private val log = LoggerFactory.getLogger(classOf[ConfigurationApiSpec])
 
   private val frontierClient: HttpClient = CitrusEndpoints.http()
     .client()
@@ -39,7 +39,7 @@ class ConfiguratonTest extends Matchers {
 
     putSingleConfiguration(runner, sourceObject, sourceConfiguration)
     getSingleConfiguration(runner, sourceObject)
-    postSingleConfig(runner, sourceConfiguration, sourceObject)
+    postSingleConfiguration(runner, sourceConfiguration, sourceObject)
 
     getAllConfigurations(runner, 1)
     deleteSingleConfig(runner, sourceObject)
@@ -93,7 +93,7 @@ class ConfiguratonTest extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def postSingleConfig(runner: TestRunner, sourceConfigString: String, sourceObject: Configuration): TestAction = {
+  def postSingleConfiguration(runner: TestRunner, sourceConfigString: String, sourceObject: Configuration): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"resources/configuration/${sourceObject.ref.uuid}")

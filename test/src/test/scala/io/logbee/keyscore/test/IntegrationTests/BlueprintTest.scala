@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 //TOOD Implement the tests and the routs @mlandth
 class BlueprintTest extends Matchers {
   implicit val formats = KeyscoreFormats.formats
-  private val log = LoggerFactory.getLogger(classOf[ConfiguratonTest])
+  private val log = LoggerFactory.getLogger(classOf[BlueprintTest])
 
   private val frontierClient: HttpClient = CitrusEndpoints.http()
     .client()

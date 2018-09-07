@@ -21,6 +21,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages._
+import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages._
 import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster, Topics}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.Frontier
@@ -28,6 +29,7 @@ import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.resources.DescriptorManager
 import io.logbee.keyscore.frontier.cluster.{ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.model.AgentModel
@@ -35,6 +37,7 @@ import io.logbee.keyscore.model.WhichValve.whichValve
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 
 object RouteBuilder {
@@ -103,6 +106,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
       this.route = this.route ~ configurationResources(ref)
     case HereIam(DescriptorService, ref) =>
       maybeRunning(state.copy(descriptorManager = ref))
+      this.route = this.route ~ descriptorResources(ref)
   }
 
   private def maybeRunning(state: RouteBuilderState): Unit = {
@@ -379,14 +383,58 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-  //  def descriptorRessources(descriptorManager: DescriptorManager) = pathPrefix("resources") {
-  //    pathPrefix("descriptor")
-  //    pathPrefix(JavaUUID) { descriptorId =>
-  //      put {
-  //
-  //      }
-  //    }
-  //  }
+  def descriptorResources(descriptorManager: ActorRef) = {
+    pathPrefix("resources") {
+      pathPrefix("descriptor") {
+        pathPrefix("*") {
+          get {
+            onSuccess(descriptorManager ? GetAllDescriptorsRequest) {
+              case GetAllDescriptorsResponse(descriptors) => complete(StatusCodes.OK, descriptors)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          } ~
+            delete{
+              onSuccess(descriptorManager ? DeleteAllDescriptorsRequest) {
+                case DeleteAllDescriptorsResponse => complete(StatusCodes.OK)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+        } ~
+          pathPrefix(JavaUUID) { descriptorId =>
+            post {
+              entity(as[Descriptor]) { descriptor =>
+                onSuccess(descriptorManager ? UpdateDescriptorRequest(descriptor)) {
+                  case UpdateDescriptorSuccessResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.NoContent)
+                }
+              }
+            } ~
+              put {
+                entity(as[Descriptor]) { descriptor =>
+                  onSuccess(descriptorManager ? StoreDescriptorRequest(descriptor)) {
+                    case StoreDescriptorResponse => complete(StatusCodes.Created)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                }
+              } ~
+              get {
+                onSuccess((descriptorManager ? GetDescriptorRequest(DescriptorRef(descriptorId.toString))).mapTo[GetDescriptorResponse]) {
+                  case GetDescriptorResponse(descriptor) => complete(StatusCodes.OK, descriptor)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              } ~
+              delete {
+                onSuccess(descriptorManager ? DeleteDescriptorRequest(DescriptorRef(descriptorId.toString))) {
+                  case DeleteDescriptorResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+          }
+      }
+    }
+  }
+
+
 
   //  def BluePrintRessources(blueprintManager: BlueprintManager) = pathPrefix("resources") {
   //        pathPrefix("blueprint")

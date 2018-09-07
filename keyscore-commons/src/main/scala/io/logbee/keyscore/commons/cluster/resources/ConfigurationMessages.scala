@@ -18,11 +18,11 @@ object ConfigurationMessages {
 
     case class GetConfigurationRequest(ref: ConfigurationRef)
 
+    case class GetConfigurationResponse(configuration: Option[Configuration])
+
     case object GetAllConfigurationRequest
 
     case class GetAllConfigurationResponse(configuations: Map[ConfigurationRef, Configuration])
-
-    case class GetConfigurationResponse(configuration: Option[Configuration])
 
     case class UpdateConfigurationRequest(configuration: Configuration)
 
