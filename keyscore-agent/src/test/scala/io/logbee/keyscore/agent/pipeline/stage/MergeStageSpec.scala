@@ -8,7 +8,7 @@ import akka.stream.scaladsl.GraphDSL
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
+import io.logbee.keyscore.model.data._
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -19,9 +19,9 @@ import scala.concurrent.Promise
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class BranchStageSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class MergeStageSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
-  "A BranchStage" - {
+  "A MergeStage" - {
 
     val context = StageContext(system, executionContext)
 
@@ -31,7 +31,7 @@ class BranchStageSpec extends FreeSpec with Matchers with ScalaFutures with Mock
     val updateConfiguration = Promise[Configuration]
     val initializeConfiguration = Promise[Configuration]
 
-    val provider = (parameters: LogicParameters, shape: BranchShape[Dataset, Dataset, Dataset]) => new BranchLogic(parameters, shape) {
+    val provider = (parameters: LogicParameters, shape: MergeShape[Dataset, Dataset, Dataset]) => new MergeLogic(parameters, shape) {
 
       override def initialize(configuration: Configuration): Unit = {
         initializeConfiguration.success(configuration)
@@ -42,31 +42,30 @@ class BranchStageSpec extends FreeSpec with Matchers with ScalaFutures with Mock
       }
 
       override def onPush(): Unit = {
-        val dataset = grab(in)
-        push(left, dataset)
-        push(right, dataset)
+        if (isAvailable(left) && isAvailable(right)) {
+          push(out, Dataset(grab(left).records ++ grab(right).records))
+        }
       }
 
       override def onPull(): Unit = {
-        if (isAvailable(left) && isAvailable(right)) {
-          pull(in)
-        }
+        if (!hasBeenPulled(left)) pull(left)
+        if (!hasBeenPulled(right)) pull(right)
       }
     }
 
     trait TestGraph {
 
-      val stage = new BranchStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)
+      val stage = new MergeStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)
 
-      val (source, branchFuture, left, right) = RunnableGraph.fromGraph(
-        GraphDSL.create(TestSource.probe[Dataset], stage, TestSink.probe[Dataset], TestSink.probe[Dataset]) { (source, branch, left, right) =>
-          (source, branch, left, right)
-        } { implicit builder => (source, branch, left, right) =>
+      val (left, right, mergeFuture, sink) = RunnableGraph.fromGraph(
+        GraphDSL.create(TestSource.probe[Dataset], TestSource.probe[Dataset], stage, TestSink.probe[Dataset]) { (left, right, merge, sink) =>
+          (left, right, merge, sink)
+        } { implicit builder => (left, right, merge, sink) =>
           import GraphDSL.Implicits._
 
-          source.out ~> branch.in
-          branch.left ~> left.in
-          branch.right ~> right.in
+          left.out ~> merge.left
+          right.out ~> merge.right
+          merge.out ~> sink.in
 
           ClosedShape
         }).run(materializer)
@@ -74,7 +73,7 @@ class BranchStageSpec extends FreeSpec with Matchers with ScalaFutures with Mock
 
     "should pass the appropriate configuration to it's logic" in new TestGraph {
 
-      whenReady(branchFuture) { branch =>
+      whenReady(mergeFuture) { branch =>
         branch.configure(configurationB)
       }
 
@@ -87,19 +86,19 @@ class BranchStageSpec extends FreeSpec with Matchers with ScalaFutures with Mock
       }
     }
 
-    "should pass dataset to the left and right outputs" in new TestGraph {
+    "should pass the merged dataset to the output" in new TestGraph {
 
-      val sample = Dataset(Record(Field("message", TextValue("The weather is cloudy with a current temperature of: -11.5 C"))))
+      val sampleA = Dataset(Record(Field("message", TextValue("The weather is cloudy with a current temperature of: -11.5 C"))))
+      val sampleB = Dataset(Record(Field("temperture", DecimalValue(-11.5))))
 
-      whenReady(branchFuture) { branch =>
+      whenReady(mergeFuture) { merge =>
 
-        left.request(1)
-        right.request(1)
+        left.sendNext(sampleA)
+        right.sendNext(sampleB)
 
-        source.sendNext(sample)
+        sink.request(1)
 
-        left.expectNext(sample)
-        right.expectNext(sample)
+        sink.expectNext(Dataset(sampleA.records ++ sampleB.records))
       }
     }
   }
