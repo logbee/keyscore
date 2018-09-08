@@ -1,7 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
 import java.util.UUID
-import java.util.UUID.randomUUID
 
 import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
@@ -13,27 +12,26 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{FreeSpec, Matchers}
 
 import scala.concurrent.Promise
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class SourceStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class SourceStageSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
-  "A source stage" should {
+  "A SourceStage" - {
 
-    "pass the appropriate configuration to it's logic" in {
+    "should pass the appropriate configuration to it's logic" in {
 
       val updateConfiguration = Promise[Configuration]
       val initializeConfiguration = Promise[Configuration]
 
-      val uuid = randomUUID()
       val configurationA = Configuration()
       val configurationB = Configuration()
       val context = StageContext(system, executionContext)
 
-      val provider = (parameters: LogicParameters, s: SourceShape[Dataset]) => new SourceLogic(LogicParameters(randomUUID(), context, configurationA), s) {
+      val provider = (parameters: LogicParameters, s: SourceShape[Dataset]) => new SourceLogic(parameters, s) {
 
         override def initialize(configuration: Configuration): Unit = {
           initializeConfiguration.success(configuration)

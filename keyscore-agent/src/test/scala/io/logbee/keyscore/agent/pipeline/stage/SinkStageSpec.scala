@@ -12,17 +12,17 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{FreeSpec, Matchers}
 
 import scala.concurrent.Promise
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class SinkStageSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
-  "A sink stage" should {
+  "A sink stage" - {
 
-    "pass the appropriate configuration to it's logic" in {
+    "should pass the appropriate configuration to it's logic" in {
 
       val updateConfiguration = Promise[Configuration]
       val initializeConfiguration = Promise[Configuration]
@@ -31,8 +31,7 @@ class SinkStageSpec extends WordSpec with Matchers with ScalaFutures with MockFa
       val configurationB =  Configuration()
       val context: StageContext = StageContext(system, executionContext)
 
-      val provider = (parameters: LogicParameters, s: SinkShape[Dataset]) =>
-        new SinkLogic(LogicParameters(UUID.randomUUID(), context, configurationA), s) {
+      val provider = (parameters: LogicParameters, s: SinkShape[Dataset]) => new SinkLogic(parameters, s) {
 
         override def initialize(configuration: Configuration): Unit = {
           initializeConfiguration.success(configuration)
