@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require("webpack");
+const helpers = require('./helpers');
 
 module.exports = {
     entry: {
@@ -81,8 +82,12 @@ module.exports = {
         }),
         new webpack.ProvidePlugin({
             Blockly:'node-blockly/browser.js'
-        })
-    ],
+        }),
+        new webpack.ContextReplacementPlugin(
+            /\@angular(\\|\/)core(\\|\/)fesm5/,
+            helpers.root('./src'),
+            {}
+        )    ],
     devServer: {
         contentBase: [
             path.join(__dirname, "/public"),
