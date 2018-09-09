@@ -38,15 +38,16 @@ import {takeUntil} from "rxjs/internal/operators";
                         version="1.1"
                         viewBox="0 0 971 567.929"
                 >
-                    <svg:g default-connector-in [connectorIndicatorColor]="connectorIndicatorColorPrevious"></svg:g>
-                    
+                    <svg:g svg-connector [isDroppable]="isPreviousConncetionDroppable" [connectionType]="'default-in'"></svg:g>
+
                     <svg:g>
                         <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
-                              id="rect5038"
-                              style="fill:#365880;fill-opacity:1;stroke:#398033;stroke-width:0px"/>
+                                  id="rect5038"
+                                  style="fill:#365880;fill-opacity:1;stroke:#398033;stroke-width:0px"/>
 
                     </svg:g>
-                    <svg:g default-connector-out [connectorIndicatorColor]="connectorIndicatorColorNext"></svg:g>
+                    <svg:g svg-connector [isDroppable]="isNextConnectionDroppable"
+                           [connectionType]="'default-out'"></svg:g>
                 </svg>
             </div>
 
@@ -87,8 +88,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     private nextConnectionDropzone: Dropzone;
     private previousConnectionDropzone: Dropzone;
 
-    private connectorIndicatorColorPrevious: string = "white";
-    private connectorIndicatorColorNext: string = "white";
+    private isPreviousConncetionDroppable: boolean = false;
+    private isNextConnectionDroppable: boolean = false;
 
     private next: Draggable;
 
@@ -159,12 +160,12 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
                 this.createConnection(this.draggableModel.nextConnection, this.nextConnectionContainer);
             if (this.previousConnectionDropzone) {
                 this.previousConnectionDropzone.isDroppable$.subscribe(isDroppable =>
-                    this.connectorIndicatorColorPrevious = isDroppable ? "lime" : "white"
+                    this.isPreviousConncetionDroppable = isDroppable
                 )
             }
             if (this.nextConnectionDropzone) {
                 this.nextConnectionDropzone.isDroppable$.subscribe(isDroppable => {
-                        this.connectorIndicatorColorNext = isDroppable ? "lime" : "white";
+                        this.isNextConnectionDroppable = isDroppable
                     }
                 )
             }

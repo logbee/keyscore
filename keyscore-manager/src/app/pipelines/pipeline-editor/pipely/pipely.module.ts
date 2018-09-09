@@ -11,10 +11,8 @@ import {ConnectorDropzoneSubcomponent} from "./dropzone/connector-dropzone-subco
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {TrashDropzoneSubcomponent} from "./dropzone/trash-dropzone-subcomponent";
 import {HeaderBarModule} from "../../../common/headerbar.module";
-import {DefaultConnectorInComponent} from "./connectors/default-connector-in.component";
 import {NO_ERRORS_SCHEMA} from "@angular/core";
-import {DefaultConnectorOutComponent} from "./connectors/default-connector-out.component";
-import {ConnectorTypeDirective} from "./connectors/connector-type.directive";
+import {ConnectorComponent} from "./connectors/connector.component";
 
 
 @NgModule({
@@ -30,9 +28,7 @@ import {ConnectorTypeDirective} from "./connectors/connector-type.directive";
         WorkspaceDropzoneSubcomponent,
         ConnectorDropzoneSubcomponent,
         TrashDropzoneSubcomponent,
-        DefaultConnectorInComponent,
-        DefaultConnectorOutComponent,
-        ConnectorTypeDirective
+        ConnectorComponent
     ],
     entryComponents: [
         DraggableComponent,
