@@ -35,33 +35,18 @@ import {takeUntil} from "rxjs/internal/operators";
             <div class="blockContainer">
                 <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        id="svg4491"
                         version="1.1"
                         viewBox="0 0 971 567.929"
                 >
-                    <g id="previous">
-                        <path d="M292.75 567.429H0.536V453.792l0.096,0.457v-0.587l85.557-115.387l0.064-87.628
-	L0.632,135.915v-0.91l-0.096,0.781V0.5H292.75 M0.632,453.662l-0.096,0.13l0.096,0.457V453.662z M0.632,135.005l-0.096,0.781
-	l0.096,0.129V135.005z" style="fill:#365880;stroke:white;stroke-width:0px"/>
-                        <path d="M14.536 567.429 V453.792l0.096,0.457v-0.587l85.557-115.387l0.064-87.628
-L14.632,135.915v-0.91 l-0.096,0.781V0.5" fill="none" stroke-width="25px"
-                              attr.stroke="{{isPreviousConnectionDroppable}}"></path>
-
-                    </g>
-                    <g id="center">
-                        <path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
+                    <svg:g default-connector-in [connectorIndicatorColor]="connectorIndicatorColorPrevious"></svg:g>
+                    
+                    <svg:g>
+                        <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
                               id="rect5038"
-                              style="fill:#365880;fill-opacity:1;stroke:#365880;stroke-width:0px"/>
+                              style="fill:#365880;fill-opacity:1;stroke:#398033;stroke-width:0px"/>
 
-                    </g>
-                    <g id="next">
-                        <path d="M876.215,453.784v113.5H677.75V0.5h197.465v134.041l-0.097,0.781l86.097,
-114.861l-0.064,87.628l-86.032,115.517L886.215,455.784z" style="fill:#365880;stroke:white;stroke-width:0px"/>
-                        <path
-                                d="M860.215,0.5 v134.041l-0.097,0.781l86.097,
-114.861l-0.064,87.628l-86.032,115.517L860.215,455.784v113.5" fill="none" stroke-width="25px"
-                                attr.stroke="{{isNextConnectionDroppable}}"></path>
-                    </g>
+                    </svg:g>
+                    <svg:g default-connector-out [connectorIndicatorColor]="connectorIndicatorColorNext"></svg:g>
                 </svg>
             </div>
 
@@ -102,8 +87,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     private nextConnectionDropzone: Dropzone;
     private previousConnectionDropzone: Dropzone;
 
-    private isPreviousConnectionDroppable: string = "white";
-    private isNextConnectionDroppable: string = "white";
+    private connectorIndicatorColorPrevious: string = "white";
+    private connectorIndicatorColorNext: string = "white";
 
     private next: Draggable;
 
@@ -174,12 +159,12 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
                 this.createConnection(this.draggableModel.nextConnection, this.nextConnectionContainer);
             if (this.previousConnectionDropzone) {
                 this.previousConnectionDropzone.isDroppable$.subscribe(isDroppable =>
-                    this.isPreviousConnectionDroppable = isDroppable ? "lime" : "white"
+                    this.connectorIndicatorColorPrevious = isDroppable ? "lime" : "white"
                 )
             }
             if (this.nextConnectionDropzone) {
                 this.nextConnectionDropzone.isDroppable$.subscribe(isDroppable => {
-                        this.isNextConnectionDroppable = isDroppable ? "lime" : "white";
+                        this.connectorIndicatorColorNext = isDroppable ? "lime" : "white";
                     }
                 )
             }

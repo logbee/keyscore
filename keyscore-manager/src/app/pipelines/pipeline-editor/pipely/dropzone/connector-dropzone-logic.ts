@@ -88,7 +88,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const componentRectangle = this.component.getRectangle();
         const ownerRectangle = this.component.getOwner().getRectangle();
         return {
-            x: Math.abs(ownerRectangle.right - componentRectangle.left) - 10,
+            x: Math.abs(ownerRectangle.right - componentRectangle.left) - 15,
             y: -Math.abs(componentRectangle.top - ownerRectangle.top)
         };
     }
@@ -97,7 +97,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const componentRectangle = this.component.getRectangle();
         const ownerRectangle = this.component.getOwner().getRectangle();
         return {
-            x: Math.abs(ownerRectangle.left - componentRectangle.right) - 10,
+            x: Math.abs(ownerRectangle.left - componentRectangle.right) - 15,
             y: -Math.abs(componentRectangle.top - ownerRectangle.top)
         };
     }
