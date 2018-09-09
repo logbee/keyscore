@@ -175,12 +175,20 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
         this.dropzones.add(this.workspaceDropzone);
         this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
 
-        for (let i = 0; i < 2; i++) {
+        let inType:string="no-connection-in";
+        let outType:string="default-out";
+        for (let i = 0; i < 3; i++) {
+
+            if(i===1){
+                inType = "default-in";
+            }else if(i==2){
+                outType ="no-connection-out"
+            }
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
                 name: "Test" + Math.random().toString().substr(0, 4),
-                draggableType: "general",
-                nextConnection: {isPermitted: true, connectableTypes: ["general"]},
-                previousConnection: {isPermitted: true, connectableTypes: ["general"]},
+                draggableType: "default",
+                previousConnection: {isPermitted: true, connectableTypes: inType !== "no-connection-in" ? ["default"]:[],connectionType:inType},
+                nextConnection: {isPermitted: true, connectableTypes: outType !== "no-connection-out" ? ["default"]:[],connectionType:outType},
                 initialDropzone: this.toolbarDropzone,
                 next: null,
                 previous:null,

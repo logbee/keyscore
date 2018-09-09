@@ -38,7 +38,8 @@ import {takeUntil} from "rxjs/internal/operators";
                         version="1.1"
                         viewBox="0 0 971 567.929"
                 >
-                    <svg:g svg-connector [isDroppable]="isPreviousConncetionDroppable" [connectionType]="'default-in'"></svg:g>
+                    <svg:g svg-connector [isDroppable]="isPreviousConncetionDroppable"
+                           [connectionType]="draggableModel.previousConnection.connectionType"></svg:g>
 
                     <svg:g>
                         <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
@@ -47,7 +48,7 @@ import {takeUntil} from "rxjs/internal/operators";
 
                     </svg:g>
                     <svg:g svg-connector [isDroppable]="isNextConnectionDroppable"
-                           [connectionType]="'default-out'"></svg:g>
+                           [connectionType]="draggableModel.nextConnection.connectionType"></svg:g>
                 </svg>
             </div>
 
@@ -116,6 +117,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         if (this.draggableModel.draggableType === "delete") {
             this.triggerDelete();
         }
+
 
     }
 
