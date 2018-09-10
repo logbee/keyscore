@@ -55,7 +55,7 @@ export abstract class DropzoneLogic {
 
         if (this.isNextConnection() &&
             !this.component.dropzoneModel.acceptedDraggableTypes.includes("all") &&
-            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirrorTail.getDraggableModel().previousConnection.connectionType)) {
+            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirror.getDraggableModel().previousConnection.connectionType)) {
             return false;
         }
         if (this.isPreviousConnection() &&
@@ -73,7 +73,7 @@ export abstract class DropzoneLogic {
         }
 
         const dropzoneBoundingBox: Rectangle = this.component.getRectangleWithRadius();
-        let draggableBoundingBox: Rectangle = mirrorTail.getRectangle();
+        let draggableBoundingBox: Rectangle = this.isPreviousConnection() ? mirrorTail.getRectangle(): mirror.getRectangle();
 
         return intersects(dropzoneBoundingBox, draggableBoundingBox);
     }
