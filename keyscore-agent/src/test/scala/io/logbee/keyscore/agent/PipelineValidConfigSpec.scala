@@ -29,7 +29,7 @@ import scala.concurrent.duration._
 
 class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
 
-  import org.json4s.native.Serialization.writePretty
+  import org.json4s.native.Serialization.{write, writePretty}
 
   implicit val formats = KeyscoreFormats.formats
   "A running PipelineSupervisor" should {
@@ -85,22 +85,22 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     )
 
 
-    configurationManager ! StoreConfigurationRequest(sourceConfig)
-    configurationManager ! StoreConfigurationRequest(sinkConfig)
-    configurationManager ! StoreConfigurationRequest(removeFieldsFilterConfig)
+//    configurationManager ! StoreConfigurationRequest(sourceConfig)
+//    configurationManager ! StoreConfigurationRequest(sinkConfig)
+//    configurationManager ! StoreConfigurationRequest(removeFieldsFilterConfig)
 
-    descriptorManager ! StoreDescriptorRequest(KafkaSourceLogic.describe)
-    descriptorManager ! StoreDescriptorRequest(KafkaSinkLogic.describe)
-    descriptorManager ! StoreDescriptorRequest(RemoveFieldsFilterLogic.describe)
+//    descriptorManager ! StoreDescriptorRequest(KafkaSourceLogic.describe)
+//    descriptorManager ! StoreDescriptorRequest(KafkaSinkLogic.describe)
+//    descriptorManager ! StoreDescriptorRequest(RemoveFieldsFilterLogic.describe)
 
-    println(writePretty(sourceBluePrint))
-    println(writePretty(sinkBluePrint))
-    println(writePretty(filterBluePrint))
+//    println(writePretty(sourceBluePrint))
+//    println(writePretty(sinkBluePrint))
+//    println(writePretty(filterBluePrint))
 //    println(writePretty(pipelineBlueprint))
-//    println(writePretty(sourceConfig))
-//    println(writePretty(sinkConfig))
-//    println(writePretty(removeFieldsFilterConfig))
-//
+      println(writePretty(sourceConfig))
+      println(writePretty(sinkConfig))
+      println(writePretty(removeFieldsFilterConfig))
+
 //    println(writePretty(KafkaSinkLogic.describe))
 //    println(writePretty(KafkaSourceLogic.describe))
 //    println(writePretty(RemoveFieldsFilterLogic.describe))

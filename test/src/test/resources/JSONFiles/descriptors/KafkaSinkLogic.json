@@ -4,6 +4,7 @@
     "uuid":"4fedbe8e-115e-4408-ba53-5b627b6e2eaf"
   },
   "describes":{
+    "jsonClass":"io.logbee.keyscore.model.descriptor.SinkDescriptor",
     "name":"io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic",
     "displayName":{
       "id":"displayName"
@@ -22,7 +23,9 @@
     "parameters":[
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
-        "ref":"kafka.sink.bootstrapServer",
+        "ref":{
+          "id":"kafka.sink.bootstrapServer"
+        },
         "info":{
           "displayName":{
             "id":"bootstrapServer"
@@ -40,7 +43,9 @@
       },
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.NumberParameterDescriptor",
-        "ref":"kafka.sink.bootstrapServerPort",
+        "ref":{
+          "id":"kafka.sink.bootstrapServerPort"
+        },
         "info":{
           "displayName":{
             "id":"bootstrapServerPort"
@@ -59,7 +64,9 @@
       },
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
-        "ref":"kafka.sink.topic",
+        "ref":{
+          "id":"kafka.sink.topic"
+        },
         "info":{
           "displayName":{
             "id":"topic"

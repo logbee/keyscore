@@ -1,10 +1,11 @@
 {
   "jsonClass":"io.logbee.keyscore.model.descriptor.Descriptor",
   "ref":{
-    "uuid":"6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
+    "uuid":"b7ee17ad-582f-494c-9f89-2c9da7b4e467"
   },
   "describes":{
-    "name":"io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
+    "jsonClass":"io.logbee.keyscore.model.descriptor.FilterDescriptor",
+    "name":"io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilterLogic",
     "displayName":{
       "id":"displayName"
     },
@@ -13,111 +14,34 @@
     },
     "categories":[
       {
-        "id":"categorySource"
-      },
-      {
-        "id":"categoryKafka"
+        "id":"category"
       }
     ],
     "parameters":[
       {
-        "jsonClass":"io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
-        "ref":"kafka.source.server",
+        "jsonClass":"io.logbee.keyscore.model.descriptor.FieldNameListParameterDescriptor",
+        "ref":{
+          "id":"removeFields.fieldsToRemove"
+        },
         "info":{
           "displayName":{
-            "id":"bootstrapServer"
+            "id":"fieldsToRemoveName"
           },
           "description":{
-            "id":"serverDescription"
+            "id":"fieldsToRemoveDescription"
           }
         },
-        "defaultValue":"example.com",
-        "validator":{
-          "expression":"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$",
-          "expressionType":"RegEx"
-        },
-        "mandatory":true
-      },
-      {
-        "jsonClass":"io.logbee.keyscore.model.descriptor.NumberParameterDescriptor",
-        "ref":"kafka.source.port",
-        "info":{
-          "displayName":{
-            "id":"port"
+        "descriptor":{
+          "jsonClass":"io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor",
+          "ref":{
+            "id":""
           },
-          "description":{
-            "id":"portDescription"
-          }
-        },
-        "defaultValue":9092,
-        "range":{
-          "step":1,
-          "start":0,
-          "end":65535
-        },
-        "mandatory":true
-      },
-      {
-        "jsonClass":"io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
-        "ref":"kafka.source.group",
-        "info":{
-          "displayName":{
-            "id":"groupID"
-          },
-          "description":{
-            "id":"groupDescription"
-          }
-        },
-        "defaultValue":"groupID",
-        "mandatory":true
-      },
-      {
-        "jsonClass":"io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor",
-        "ref":"kafka.source.offset",
-        "info":{
-          "displayName":{
-            "id":"offsetCommit"
-          },
-          "description":{
-            "id":"offsetDescription"
-          }
+          "defaultValue":"",
+          "hint":"PresentField",
+          "mandatory":false
         },
         "min":1,
-        "max":1,
-        "choices":[
-          {
-            "name":"earliest",
-            "displayName":{
-              "id":"choiceEarliest"
-            },
-            "description":{
-              "id":"choiceEarliestDescription"
-            }
-          },
-          {
-            "name":"latest",
-            "displayName":{
-              "id":"choiceLatest"
-            },
-            "description":{
-              "id":"choiceLatestDescription"
-            }
-          }
-        ]
-      },
-      {
-        "jsonClass":"io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
-        "ref":"kafka.source.topic",
-        "info":{
-          "displayName":{
-            "id":"topic"
-          },
-          "description":{
-            "id":"topicDescription"
-          }
-        },
-        "defaultValue":"topic",
-        "mandatory":true
+        "max":2147483647
       }
     ]
   },
@@ -133,112 +57,46 @@
       }
     ],
     "mapping":{
-      "port":{
+      "category":{
         "translations":{
-          "en":"port",
-          "de":"port"
+          "en":"Fields",
+          "de":"Felder"
         }
       },
-      "choiceLatestDescription":{
+      "fieldKeyName":{
         "translations":{
-          "en":"consume only the newest data",
-          "de":"Konsum ausschlieÃ\u009flich der neuesten Daten"
+          "en":"tbd",
+          "de":"tbd"
         }
       },
       "description":{
         "translations":{
-          "en":"A Kafka Source",
-          "de":"Eine Kafka Quelle"
+          "en":"Removes all given fields and their values",
+          "de":"Filter zum entfernen von Feldern einschlieÃ\u009flich ihrer Werte."
         }
       },
-      "groupID":{
+      "fieldKeyDescription":{
         "translations":{
-          "en":"groupId",
-          "de":"groupId"
+          "en":"tbd",
+          "de":"tbd"
         }
       },
-      "categoryKafka":{
+      "fieldsToRemoveDescription":{
         "translations":{
-          "en":"Kafka",
-          "de":"Kafka"
-        }
-      },
-      "choiceEarliestDescription":{
-        "translations":{
-          "en":"consume all data from beginning",
-          "de":"Konsum aller Daten im Kafka Topic"
-        }
-      },
-      "topicDescription":{
-        "translations":{
-          "en":"name of the kafka topic",
-          "de":"Name des Kafka Topics"
-        }
-      },
-      "choiceEarliest":{
-        "translations":{
-          "en":"earliest",
-          "de":"earliest"
-        }
-      },
-      "categorySource":{
-        "translations":{
-          "en":"Source",
-          "de":"Quelle"
-        }
-      },
-      "offsetCommit":{
-        "translations":{
-          "en":"offsetCommit",
-          "de":"offsetCommit"
-        }
-      },
-      "topic":{
-        "translations":{
-          "en":"topic",
-          "de":"topic"
+          "en":"Field will be removed by filter",
+          "de":"Feld wird vom Filter entfernt"
         }
       },
       "displayName":{
         "translations":{
-          "en":"Kafka Source",
-          "de":"Kafka Quelle"
+          "en":"Remove Fields",
+          "de":"Felder entfernen"
         }
       },
-      "portDescription":{
+      "fieldsToRemoveName":{
         "translations":{
-          "en":"kafka port",
-          "de":"Der Kafka Port"
-        }
-      },
-      "serverDescription":{
-        "translations":{
-          "en":"kafka host",
-          "de":"Der Kafka Host"
-        }
-      },
-      "bootstrapServer":{
-        "translations":{
-          "en":"bootstrapServer",
-          "de":"bootstrapServer"
-        }
-      },
-      "groupDescription":{
-        "translations":{
-          "en":"groupID of the kafka consumer",
-          "de":"GroupID des Kafka Konsumenten"
-        }
-      },
-      "choiceLatest":{
-        "translations":{
-          "en":"latest",
-          "de":"latest"
-        }
-      },
-      "offsetDescription":{
-        "translations":{
-          "en":"initial offset strategy",
-          "de":"Strategie der initialen Daten Konsumierung"
+          "en":"fields to be removed",
+          "de":"Feld das entfernt werden soll"
         }
       }
     }

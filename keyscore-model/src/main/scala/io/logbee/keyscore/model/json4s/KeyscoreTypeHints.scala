@@ -1,7 +1,7 @@
 package io.logbee.keyscore.model.json4s
 
-import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.descriptor.{Descriptor, FilterDescriptor, ParameterDescriptor, ParameterGroupCondition}
+import io.logbee.keyscore.model.configuration.{Configuration, Parameter}
+import io.logbee.keyscore.model.descriptor._
 import org.json4s.{FullTypeHints, TypeHints}
 
 object KeyscoreTypeHints {
@@ -10,6 +10,9 @@ object KeyscoreTypeHints {
     classOf[Configuration],
     classOf[Descriptor],
     classOf[FilterDescriptor],
+    classOf[SinkDescriptor],
+    classOf[SourceDescriptor],
+    classOf[Parameter],
     classOf[ParameterDescriptor],
     classOf[ParameterGroupCondition]
   ))

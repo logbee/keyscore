@@ -90,6 +90,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
           )
         ) ++ Localization.fromResourceBundle("ExampleFilter", Locale.ENGLISH, Locale("de")))
 
+      println(descriptor.toString())
       println(write(descriptor))
     }
 

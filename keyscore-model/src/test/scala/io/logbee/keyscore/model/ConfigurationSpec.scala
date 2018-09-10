@@ -3,13 +3,17 @@ package io.logbee.keyscore.model
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.json4s.native.Serialization.{read, write, writePretty}
+
 
 @RunWith(classOf[JUnitRunner])
 class ConfigurationSpec extends FreeSpec with Matchers {
+  implicit val formats = KeyscoreFormats.formats
 
   "A Configuration" - {
 
@@ -37,7 +41,11 @@ class ConfigurationSpec extends FreeSpec with Matchers {
       FieldNameListParameter("fieldNameListParameter", Seq("fieldA", "fieldB")),
       FieldListParameter("fieldListParameter", Seq(Field("aText", TextValue("Yeah")), Field("aNumber", NumberValue(42)))),
       ChoiceParameter("choiceParameter", "BLUE")
+
     ))
+
+    println(write(configuration))
+
 
     "should find all configured values" in {
 

@@ -1,18 +1,28 @@
 {
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
   "ref":{
     "uuid":"05dc6d8a-50ff-41bd-b637-5132be1f2415"
   },
   "parameters":[
     {
-      "ref":"kafka.sink.bootstrapServer",
+      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+      "ref":{
+        "id":"kafka.sink.bootstrapServer"
+      },
       "value":"localhost"
     },
     {
-      "ref":"kafka.sink.bootstrapServerPort",
+      "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
+      "ref":{
+        "id":"kafka.sink.bootstrapServerPort"
+      },
       "value":9092
     },
     {
-      "ref":"kafka.sink.topic",
+      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+      "ref":{
+        "id":"kafka.sink.topic"
+      },
       "value":"TopicB"
     }
   ]

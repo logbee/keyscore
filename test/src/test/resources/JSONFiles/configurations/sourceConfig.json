@@ -1,26 +1,42 @@
 {
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
   "ref":{
     "uuid":"bae4e0bc-2784-416a-a93d-0e36ed80d6e0"
   },
   "parameters":[
     {
-      "ref":"kafka.source.server",
+      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+      "ref":{
+        "id":"kafka.source.server"
+      },
       "value":"localhost"
     },
     {
-      "ref":"kafka.source.port",
+      "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
+      "ref":{
+        "id":"kafka.source.port"
+      },
       "value":9092
     },
     {
-      "ref":"kafka.source.group",
+      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+      "ref":{
+        "id":"kafka.source.group"
+      },
       "value":"groupId"
     },
     {
-      "ref":"kafka.source.offset",
+      "jsonClass":"io.logbee.keyscore.model.configuration.ChoiceParameter",
+      "ref":{
+        "id":"kafka.source.offset"
+      },
       "value":"earliest"
     },
     {
-      "ref":"kafka.source.topic",
+      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+      "ref":{
+        "id":"kafka.source.topic"
+      },
       "value":"TopicA"
     }
   ]

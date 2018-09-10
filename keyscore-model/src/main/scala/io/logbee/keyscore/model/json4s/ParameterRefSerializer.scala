@@ -2,12 +2,12 @@ package io.logbee.keyscore.model.json4s
 
 import io.logbee.keyscore.model.descriptor.ParameterRef
 import org.json4s.CustomSerializer
-import org.json4s.JsonAST.{JNull, JString}
+import org.json4s.JsonAST.{JNull, JObject, JString}
 
 case object ParameterRefSerializer extends CustomSerializer[ParameterRef](format => ( {
-  case JString(ref) => ParameterRef(ref)
+  case JObject(List(("id", JString(id)))) => ParameterRef(id)
   case JNull => null
 }, {
   case ref: ParameterRef =>
-    JString(ref.id)
+    JObject(("id", JString(ref.id)))
 }))

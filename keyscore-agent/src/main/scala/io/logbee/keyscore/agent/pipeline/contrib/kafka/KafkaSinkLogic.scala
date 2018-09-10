@@ -13,6 +13,7 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -71,7 +72,7 @@ object KafkaSinkLogic extends Described {
 
 class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) extends SinkLogic(parameters, shape) {
 
-  private implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
+  private implicit val formats: Formats = KeyscoreFormats.formats
   private var queue: SourceQueueWithComplete[ProducerMessage.Message[Array[Byte], String, Promise[Unit]]] = _
 
   private val pullAsync = getAsyncCallback[Unit](_ => {

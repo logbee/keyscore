@@ -4,6 +4,7 @@
     "uuid":"6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
   },
   "describes":{
+    "jsonClass":"io.logbee.keyscore.model.descriptor.SourceDescriptor",
     "name":"io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
     "displayName":{
       "id":"displayName"
@@ -22,7 +23,9 @@
     "parameters":[
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
-        "ref":"kafka.source.server",
+        "ref":{
+          "id":"kafka.source.server"
+        },
         "info":{
           "displayName":{
             "id":"bootstrapServer"
@@ -40,7 +43,9 @@
       },
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.NumberParameterDescriptor",
-        "ref":"kafka.source.port",
+        "ref":{
+          "id":"kafka.source.port"
+        },
         "info":{
           "displayName":{
             "id":"port"
@@ -59,7 +64,9 @@
       },
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
-        "ref":"kafka.source.group",
+        "ref":{
+          "id":"kafka.source.group"
+        },
         "info":{
           "displayName":{
             "id":"groupID"
@@ -73,7 +80,9 @@
       },
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor",
-        "ref":"kafka.source.offset",
+        "ref":{
+          "id":"kafka.source.offset"
+        },
         "info":{
           "displayName":{
             "id":"offsetCommit"
@@ -107,7 +116,9 @@
       },
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
-        "ref":"kafka.source.topic",
+        "ref":{
+          "id":"kafka.source.topic"
+        },
         "info":{
           "displayName":{
             "id":"topic"

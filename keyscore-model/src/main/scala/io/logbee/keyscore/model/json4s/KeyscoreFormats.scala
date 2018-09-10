@@ -8,7 +8,7 @@ object KeyscoreFormats {
 
   val formats: Formats = Serialization.formats(KeyscoreTypeHints.all) ++
     JavaTypesSerializers.all + ConfigurationRefKeySerializer + DescriptorRefKeySerializer +  LocaleKeySerializer + ParameterRefKeySerializer + TextRefKeySerializer +
-    HealthSerializer+ FilterStatusSerializer+ FieldNameHintSerializer+ FieldValueTypeSerializer+
-      IconFormatSerializer+ IconEncodingSerializer+ ParameterRefSerializer+PatternTypeSerializer
+    HealthSerializer + FilterStatusSerializer + FieldNameHintSerializer + FieldValueTypeSerializer +
+      IconFormatSerializer + IconEncodingSerializer + ParameterRefSerializer +PatternTypeSerializer
 
 }
