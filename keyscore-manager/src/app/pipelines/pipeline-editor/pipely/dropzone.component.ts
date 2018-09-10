@@ -133,6 +133,11 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
         this.occupied = false;
     }
 
+    detachNext(){
+        this.clearDropzone();
+        this.getOwner().removeNextFromModel();
+    }
+
     getDraggableContainer(): ViewContainerRef {
         return this.subComponent.draggableContainer;
     }

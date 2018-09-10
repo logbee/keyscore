@@ -109,7 +109,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
         return {
             ...this.dragged.getDraggableModel(),
             isMirror: true,
-            position: relativeMirrorPosition
+            position: relativeMirrorPosition,
+            previous:null
         };
     }
 
@@ -120,10 +121,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
 
     }
 
-    computeWorkspaceSize() {
+    private computeWorkspaceSize() {
         const compResult =
             (this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent)
-                .resizeWorkspace(this.draggables);
+                .resizeWorkspaceOnDrop(this.draggables);
 
         this.draggables.forEach(draggable => draggable.moveXAxis(compResult));
     }

@@ -57,6 +57,8 @@ export interface Dropzone {
 
     clearDropzone();
 
+    detachNext();
+
     drop(mirrors: Draggable, currentDragged: Draggable): void;
 
 }

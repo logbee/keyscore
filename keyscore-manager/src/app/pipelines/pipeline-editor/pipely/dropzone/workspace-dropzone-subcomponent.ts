@@ -60,30 +60,19 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
         this.initialWorkspaceWidth = this.dropzoneElement.nativeElement.scrollWidth;
     }
 
-    resizeWorkspace(draggables: Draggable[]): number {
+    resizeWorkspaceOnDrop(draggables: Draggable[]): number {
+        console.log("resizeWorkspace");
         const workspacePadding = 200;
         const workspaceWidth = this.dropzoneElement.nativeElement.scrollWidth;
         const wrapperWidth = this.workspaceScrollContainer.nativeElement.offsetWidth;
-        const draggableModels = draggables
-            .map(draggable => draggable.getDraggableModel());
 
-        let mostLeftPosition: number = workspaceWidth;
-        draggableModels.forEach(draggableModel =>
-            mostLeftPosition = Math.min(mostLeftPosition, draggableModel.position.x)
-        );
+        let mostLeftPosition: number = this.getMostLeftPosition(draggables, workspaceWidth);
 
         if (mostLeftPosition <= workspacePadding) {
             return this.growLeft(workspacePadding, mostLeftPosition, workspaceWidth, wrapperWidth);
         }
 
-        let mostRightPosition: number = 0;
-        draggables.forEach((draggable) => {
-
-            mostRightPosition =
-                Math.max(
-                    mostRightPosition,
-                    draggable.getDraggableModel().position.x + draggable.getTotalWidth());
-        });
+        let mostRightPosition: number = this.getMostRightPosition(draggables);
 
         if (mostRightPosition >= workspaceWidth - workspacePadding) {
             return this.growRight(workspacePadding, mostRightPosition, workspaceWidth, wrapperWidth);
@@ -110,7 +99,6 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
     }
 
     private growLeft(workspacePadding: number, mostLeftPosition: number, workspaceWidth: number, wrapperWidth: number) {
-        console.log("Grow Left");
         const delta = workspacePadding - mostLeftPosition;
         this.dropzoneElement.nativeElement.style.width =
             Math.max(this.initialWorkspaceWidth, (workspaceWidth + delta)) + "px";
@@ -120,12 +108,31 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
     }
 
     private growRight(workspacePadding: number, mostRightPosition: number, workspaceWidth: number, wrapperWidth: number) {
-        console.log("Grow Right");
         const delta = workspacePadding - (workspaceWidth - mostRightPosition);
         this.dropzoneElement.nativeElement.style.width =
             Math.max(this.initialWorkspaceWidth, (workspaceWidth + delta)) + "px";
         this.workspaceScrollContainer.nativeElement.style.width = wrapperWidth + "px";
         return 0;
+    }
+
+    private getMostRightPosition(draggables: Draggable[]): number {
+        let mostRightPosition: number = 0;
+        draggables.forEach((draggable) => {
+
+            mostRightPosition =
+                Math.max(
+                    mostRightPosition,
+                    draggable.getDraggableModel().position.x + draggable.getTotalWidth());
+        });
+        return mostRightPosition;
+    }
+
+    private getMostLeftPosition(draggables: Draggable[], workspaceWidth: number) {
+        let mostLeftPosition: number = workspaceWidth;
+        draggables.forEach(draggable =>
+            mostLeftPosition = Math.min(mostLeftPosition, draggable.getDraggableModel().position.x)
+        );
+        return mostLeftPosition;
     }
 
     private centerScrollbar() {

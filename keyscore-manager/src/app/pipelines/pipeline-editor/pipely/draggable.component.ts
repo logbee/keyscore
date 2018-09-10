@@ -39,7 +39,7 @@ import {takeUntil} from "rxjs/internal/operators";
                         viewBox="0 0 971 567.929"
                 >
                     <svg:g svg-connector [isDroppable]="isPreviousConncetionDroppable"
-                           [connectionType]="draggableModel.previousConnection.connectionType"></svg:g>
+                           [connectionType]="draggableModel.previousConnection.connectionType"/>
 
                     <svg:g>
                         <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
@@ -48,7 +48,7 @@ import {takeUntil} from "rxjs/internal/operators";
 
                     </svg:g>
                     <svg:g svg-connector [isDroppable]="isNextConnectionDroppable"
-                           [connectionType]="draggableModel.nextConnection.connectionType"></svg:g>
+                           [connectionType]="draggableModel.nextConnection.connectionType"/>
                 </svg>
             </div>
 
@@ -123,6 +123,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
 
     public ngAfterViewInit() {
+        console.log("New Draggable: ",this.getHead().getDraggableModel());
         if (!this.getHead().getDraggableModel().isMirror) {
             this.workspace.registerDraggable(this);
         }

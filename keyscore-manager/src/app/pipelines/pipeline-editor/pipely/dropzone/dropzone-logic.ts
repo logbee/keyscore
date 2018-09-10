@@ -13,7 +13,7 @@ export abstract class DropzoneLogic {
 
     abstract computeDraggableModel(mirror: Draggable, currentDragged: Draggable): DraggableModel;
 
-    abstract isPreviousConnection():boolean;
+    abstract isPreviousConnection(): boolean;
 
     computeBestDropzone(mirror: Draggable, pivot: Dropzone): Dropzone {
         if (!this.isMirrorInRange(mirror)) {
@@ -71,16 +71,13 @@ export abstract class DropzoneLogic {
     }
 
 
-
     drop(mirror: Draggable, currentDragged: Draggable) {
 
         this.component.setIsDroppable(false);
 
         const initialDropzone = currentDragged.getDraggableModel().initialDropzone;
         if (initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
-            initialDropzone.clearDropzone();
-            initialDropzone.getOwner().removeNextFromModel();
-
+            initialDropzone.detachNext();
         }
         if (currentDragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             currentDragged.destroy();
@@ -92,7 +89,7 @@ export abstract class DropzoneLogic {
     }
 
     insertNewDraggable(draggableModel: DraggableModel) {
-        const droppedDraggable = this.component.draggableFactory
+        this.component.draggableFactory
             .createDraggable(this.component.getDraggableContainer(),
                 draggableModel,
                 this.component.workspace);
