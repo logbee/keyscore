@@ -66,6 +66,7 @@ export interface Dropzone {
 export interface Draggable {
     dragStart$: Observable<void>;
     dragMove$: Observable<void>;
+    click$: Observable<void>;
 
     getId(): string;
 

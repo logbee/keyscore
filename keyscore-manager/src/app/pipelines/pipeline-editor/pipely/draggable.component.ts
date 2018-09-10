@@ -75,10 +75,15 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
     private dragStartSource = new Subject<void>();
     private dragMoveSource = new Subject<void>();
+    private clickEventSource = new Subject<void>();
     private isAlive = new Subject<void>();
 
     dragStart$ = this.dragStartSource.asObservable().pipe(takeUntil(this.isAlive));
     dragMove$ = this.dragMoveSource.asObservable().pipe(takeUntil(this.isAlive));
+    click$ = this.clickEventSource.asObservable().pipe(takeUntil(this.isAlive));
+
+    private mouseDownStartX: number;
+    private mouseDownStartY: number;
 
     private lastDragX: number;
     private lastDragY: number;
@@ -123,7 +128,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
 
     public ngAfterViewInit() {
-        console.log("New Draggable: ",this.getHead().getDraggableModel());
         if (!this.getHead().getDraggableModel().isMirror) {
             this.workspace.registerDraggable(this);
         }
@@ -154,6 +158,17 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
             this.triggerDragMove();
         }
     }
+
+    @HostListener('mouseup',['$event'])
+    onMouseUp(event:MouseEvent){
+        console.log(this.mouseDownStartX);
+        if(this.mouseDownStartX < this.lastDragX - 5 || this.mouseDownStartX > this.lastDragX + 5 ||
+            this.mouseDownStartY < this.lastDragY - 5 || this.mouseDownStartY > this.lastDragY + 5){
+            this.clickEventSource.next();
+        }
+    }
+
+
 
     private initialiseConnections() {
         if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
@@ -225,6 +240,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
     private dragStart(event: MouseEvent) {
         event.stopPropagation();
+        this.mouseDownStartX = event.clientX;
+        this.mouseDownStartY = event.clientY;
         this.triggerDragStart();
 
     }

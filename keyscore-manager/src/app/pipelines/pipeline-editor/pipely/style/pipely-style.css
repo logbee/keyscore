@@ -44,7 +44,7 @@
 .workspace-scroll-wrapper {
     border: solid 1px darkgrey;
     border-radius: 2px;
-    height: 600px;
+    height: calc(60vh - 10px);
     overflow-x: scroll;
     overflow-y: hidden;
     padding: 0;
@@ -99,7 +99,11 @@ toolbar-dropzone {
 }
 
 .workspace {
-    height: 650px;
+    height: 60vh;
+}
+
+.mat-drawer-container{
+    background-color:white !important;
 }
 
 /*Trash*/

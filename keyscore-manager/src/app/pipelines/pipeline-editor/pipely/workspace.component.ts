@@ -14,13 +14,24 @@ import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subco
 @Component({
     selector: "workspace",
     template: `
-        <div #workspace class="workspace">
-            <div class="row">
-                <ng-template #toolbarContainer></ng-template>
-                <ng-template #workspaceContainer>
-                </ng-template>
-            </div>
-        </div>
+        <mat-sidenav-container class="workspace-container">
+            <!--
+                        <configurator [(opened)]="isConfiguratorOpened"></configurator>
+            -->
+            <mat-sidenav class="configurator" #sidenav #right position="end" mode="over"
+                         [(opened)]="isConfiguratorOpened">
+                testcontent
+            </mat-sidenav>
+            <mat-sidenav-content>
+                <div #workspace class="workspace">
+                    <div class="row">
+                        <ng-template #toolbarContainer></ng-template>
+                        <ng-template #workspaceContainer>
+                        </ng-template>
+                    </div>
+                </div>
+            </mat-sidenav-content>
+        </mat-sidenav-container>
     `
 })
 
@@ -44,6 +55,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     private bestDropzone: Dropzone;
     private dragged: Draggable;
     private mirror: Draggable;
+
+    private isConfiguratorOpened: boolean = false;
 
     constructor(private dropzoneFactory: DropzoneFactory,
                 private draggableFactory: DraggableFactory) {
@@ -90,8 +103,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
             this.mirror.destroy();
 
             this.isDragging = false;
+            this.bestDropzone = null;
         }
-        this.bestDropzone = null;
+
     }
 
     private initialiseMirrorComponent(): DraggableModel {
@@ -110,7 +124,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
             ...this.dragged.getDraggableModel(),
             isMirror: true,
             position: relativeMirrorPosition,
-            previous:null
+            previous: null
         };
     }
 
@@ -155,6 +169,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
 
     registerDraggable(draggable: Draggable) {
         draggable.dragStart$.subscribe(() => this.dragStart(draggable));
+        draggable.click$.subscribe(() => this.isConfiguratorOpened = true);
         if (draggable.getDraggableModel().initialDropzone
                 .getDropzoneModel().dropzoneType === DropzoneType.Workspace) {
             this.draggables.push(draggable);
@@ -176,23 +191,31 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
         this.dropzones.add(this.workspaceDropzone);
         this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
 
-        let inType:string="no-connection-in";
-        let outType:string="default-out";
+        let inType: string = "no-connection-in";
+        let outType: string = "default-out";
         for (let i = 0; i < 3; i++) {
 
-            if(i===1){
+            if (i === 1) {
                 inType = "default-in";
-            }else if(i==2){
-                outType ="no-connection-out"
+            } else if (i == 2) {
+                outType = "no-connection-out"
             }
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
                 name: "Test" + Math.random().toString().substr(0, 4),
                 draggableType: "default",
-                previousConnection: {isPermitted: true, connectableTypes: inType !== "no-connection-in" ? ["default-out"]:[],connectionType:inType},
-                nextConnection: {isPermitted: true, connectableTypes: outType !== "no-connection-out" ? ["default-in"]:[],connectionType:outType},
+                previousConnection: {
+                    isPermitted: true,
+                    connectableTypes: inType !== "no-connection-in" ? ["default-out"] : [],
+                    connectionType: inType
+                },
+                nextConnection: {
+                    isPermitted: true,
+                    connectableTypes: outType !== "no-connection-out" ? ["default-in"] : [],
+                    connectionType: outType
+                },
                 initialDropzone: this.toolbarDropzone,
                 next: null,
-                previous:null,
+                previous: null,
                 rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
                 isMirror: false
             }, this);

@@ -13,12 +13,15 @@ import {TrashDropzoneSubcomponent} from "./dropzone/trash-dropzone-subcomponent"
 import {HeaderBarModule} from "../../../common/headerbar.module";
 import {NO_ERRORS_SCHEMA} from "@angular/core";
 import {ConnectorComponent} from "./connectors/connector.component";
+import {MaterialModule} from "../../../material.module";
+import {ConfigurationComponent} from "./configuration.component";
 
 
 @NgModule({
     imports: [
         CommonModule,
-        TranslateModule
+        TranslateModule,
+        MaterialModule
     ],
     declarations: [
         WorkspaceComponent,
@@ -28,7 +31,8 @@ import {ConnectorComponent} from "./connectors/connector.component";
         WorkspaceDropzoneSubcomponent,
         ConnectorDropzoneSubcomponent,
         TrashDropzoneSubcomponent,
-        ConnectorComponent
+        ConnectorComponent,
+        ConfigurationComponent
     ],
     entryComponents: [
         DraggableComponent,
