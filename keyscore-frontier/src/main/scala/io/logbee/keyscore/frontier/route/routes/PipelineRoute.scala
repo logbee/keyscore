@@ -46,16 +46,16 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
             }
         } ~
           pathPrefix(JavaUUID) { configId =>
-//            get {
-//              onSuccess(blueprintManager ? GetAllPipelineBlueprintsRequest) {
-//                case GetAllPipelineBlueprintsResponse(blueprints) =>
-//                  blueprints.find(blueprint => blueprint.ref.uuid == configId.toString) match {
-//                    case Some(config) => complete(StatusCodes.OK, config)
-//                    case None => complete(StatusCodes.NotFound)
-//                  }
-//                case _ => complete(StatusCodes.InternalServerError)
-//              }
-//            } ~
+            get {
+              onSuccess(blueprintManager ? GetAllPipelineBlueprintsRequest) {
+                case GetAllPipelineBlueprintsResponse(blueprints) =>
+                  blueprints.find(blueprintEntry => blueprintEntry._1.uuid == configId.toString) match {
+                    case Some(config) => complete(StatusCodes.OK, config)
+                    case None => complete(StatusCodes.NotFound)
+                  }
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            } ~
               delete {
                 pipelineManager ! PipelineManager.DeletePipeline(id = configId)
                 complete(StatusCodes.OK)
@@ -67,6 +67,7 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
               complete(StatusCodes.Created)
             }
           } ~
+          //TODO
           post {
             entity(as[PipelineBlueprint]) { blueprint =>
               complete(StatusCodes.NotImplemented)
@@ -105,5 +106,4 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
             }
         }
     }
-  }
 }

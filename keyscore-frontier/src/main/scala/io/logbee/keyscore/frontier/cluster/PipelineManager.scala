@@ -7,7 +7,7 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{DeleteAllPipelines, RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.PipelineManager.{CreatePipeline, DeleteAllPipelines, RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
@@ -59,7 +59,7 @@ class PipelineManager(agentManager: ActorRef, pipelineSchedulerSelector: (ActorR
   }
 
   override def receive: Receive = {
-    case PipelineManager.CreatePipeline(pipelineBlueprint) =>
+    case CreatePipeline(pipelineBlueprint) =>
       log.info("Received CreatePipeline")
       if (availableAgents.nonEmpty) {
         val agent = createListOfPossibleAgents(pipelineBlueprint).head
