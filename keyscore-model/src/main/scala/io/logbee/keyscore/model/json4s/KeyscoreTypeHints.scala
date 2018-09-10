@@ -1,5 +1,6 @@
 package io.logbee.keyscore.model.json4s
 
+import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.{Configuration, Parameter}
 import io.logbee.keyscore.model.descriptor._
 import org.json4s.{FullTypeHints, TypeHints}
@@ -12,6 +13,9 @@ object KeyscoreTypeHints {
     classOf[FilterDescriptor],
     classOf[SinkDescriptor],
     classOf[SourceDescriptor],
+    classOf[PipelineBlueprint],
+    classOf[SealedBlueprint],
+    classOf[SourceBlueprint],
     classOf[Parameter],
     classOf[ParameterDescriptor],
     classOf[ParameterGroupCondition]

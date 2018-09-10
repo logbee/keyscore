@@ -1,4 +1,5 @@
 {
+  "jsonClass":"io.logbee.keyscore.model.blueprint.SinkBlueprint",
   "ref":{
     "uuid":"80851e06-7191-4d96-8e4d-de66a5a12e81"
   },

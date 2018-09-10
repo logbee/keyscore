@@ -19,7 +19,7 @@ import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons._
-import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
+import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages._
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages._
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages._
 import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentFromCluster, Topics}
@@ -29,12 +29,11 @@ import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
-import io.logbee.keyscore.frontier.cluster.resources.DescriptorManager
 import io.logbee.keyscore.frontier.cluster.{ClusterCapabilitiesManager, PipelineManager}
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.model.AgentModel
 import io.logbee.keyscore.model.WhichValve.whichValve
-import io.logbee.keyscore.model.blueprint.PipelineBlueprint
+import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
@@ -101,6 +100,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   private def initializing(state: RouteBuilderState): Receive = {
     case HereIam(BlueprintService, ref) =>
       maybeRunning(state.copy(blueprintManager = ref))
+      this.route = this.route ~ blueprintResourceRoute(ref)
     case HereIam(ConfigurationService, ref) =>
       maybeRunning(state.copy(configurationManager = ref))
       this.route = this.route ~ configurationResources(ref)
@@ -313,7 +313,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-  def agentsRoute = {
+  def agentsRoute: Route = {
     pathPrefix("agent") {
       pathPrefix(JavaUUID) { agentID =>
         delete {
@@ -383,7 +383,91 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-  def descriptorResources(descriptorManager: ActorRef) = {
+  def blueprintResourceRoute(blueprintManager: ActorRef): Route = {
+    pathPrefix("resources") {
+      pathPrefix("blueprint") {
+        pathPrefix("pipeline") {
+          pathPrefix("*") {
+            get {
+              onSuccess(blueprintManager ? GetAllPipelineBlueprintsRequest) {
+                case GetAllPipelineBlueprintsResponse(pipelineBlueprints) => complete(StatusCodes.OK, pipelineBlueprints)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+          } ~
+          pathPrefix(JavaUUID) { pipelineBlueprintId =>
+            post {
+              entity(as[PipelineBlueprint]) { pipelineBlueprint =>
+                onSuccess(blueprintManager ? UpdatePipelineBlueprintRequest(pipelineBlueprint)) {
+                  case UpdatePipelineBlueprintResponseSuccess => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.NoContent)
+                }
+              }
+            } ~
+              put {
+                entity(as[PipelineBlueprint]) { pipelineBlueprint =>
+                  onSuccess(blueprintManager ? StorePipelineBlueprintRequest(pipelineBlueprint)) {
+                    case StorePipelineBlueprintResponse => complete(StatusCodes.Created)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                }
+              } ~
+              get {
+                onSuccess((blueprintManager ? GetPipelineBlueprintRequest(BlueprintRef(pipelineBlueprintId.toString))).mapTo[GetPipelineBlueprintResponse]) {
+                  case GetPipelineBlueprintResponse(blueprint) => complete(StatusCodes.OK, blueprint)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              } ~
+              delete {
+                onSuccess(blueprintManager ? DeletePipelineBlueprintRequest(BlueprintRef(pipelineBlueprintId.toString))) {
+                  case DeletePipelineBlueprintResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+          }
+        } ~
+          pathPrefix(JavaUUID) { blueprintId =>
+            post {
+              entity(as[SealedBlueprint]) { blueprint =>
+                onSuccess(blueprintManager ? UpdateBlueprintRequest(blueprint)) {
+                  case UpdateBlueprintResponseSuccess => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.NoContent)
+                }
+              }
+            } ~
+              put {
+                entity(as[SealedBlueprint]) { blueprint =>
+                  onSuccess(blueprintManager ? StoreBlueprintRequest(blueprint)) {
+                    case StoreBlueprintResponse => complete(StatusCodes.Created)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                }
+              } ~
+              get {
+                onSuccess((blueprintManager ? GetBlueprintRequest(BlueprintRef(blueprintId.toString))).mapTo[GetBlueprintResponse]) {
+                  case GetBlueprintResponse(blueprint) => complete(StatusCodes.OK, blueprint)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              } ~
+              delete {
+                onSuccess(blueprintManager ? DeleteBlueprintRequest(BlueprintRef(blueprintId.toString))) {
+                  case DeleteBlueprintResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+          } ~
+          pathPrefix("*") {
+            get {
+              onSuccess(blueprintManager ? GetAllBlueprintsRequest) {
+                case GetAllBlueprintsResponse(blueprints) => complete(StatusCodes.OK, blueprints)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+          }
+      }
+    }
+  }
+  def descriptorResources(descriptorManager: ActorRef): Route = {
     pathPrefix("resources") {
       pathPrefix("descriptor") {
         pathPrefix("*") {
@@ -433,15 +517,4 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
       }
     }
   }
-
-
-
-  //  def BluePrintRessources(blueprintManager: BlueprintManager) = pathPrefix("resources") {
-  //        pathPrefix("blueprint")
-  //        pathPrefix(JavaUUID) { blueprintId =>
-  //          put {
-  //          }
-  //        }
-  //      }
-
 }

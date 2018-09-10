@@ -29,7 +29,7 @@ import scala.concurrent.duration._
 
 class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
 
-  import org.json4s.native.Serialization.{write, writePretty}
+  import org.json4s.native.Serialization.writePretty
 
   implicit val formats = KeyscoreFormats.formats
   "A running PipelineSupervisor" should {
@@ -96,10 +96,11 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 //    println(writePretty(sourceBluePrint))
 //    println(writePretty(sinkBluePrint))
 //    println(writePretty(filterBluePrint))
+
 //    println(writePretty(pipelineBlueprint))
-      println(writePretty(sourceConfig))
-      println(writePretty(sinkConfig))
-      println(writePretty(removeFieldsFilterConfig))
+//    println(writePretty(sourceConfig))
+//    println(writePretty(sinkConfig))
+//    println(writePretty(removeFieldsFilterConfig))
 
 //    println(writePretty(KafkaSinkLogic.describe))
 //    println(writePretty(KafkaSourceLogic.describe))

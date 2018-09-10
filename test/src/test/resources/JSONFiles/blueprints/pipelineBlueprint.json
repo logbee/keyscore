@@ -1,9 +1,11 @@
 {
+  "jsonClass":"io.logbee.keyscore.model.blueprint.PipelineBlueprint",
   "ref":{
     "uuid":"10d3e280-cb7c-4a77-be1f-8ccf5f1b0df2"
   },
   "blueprints":[
     {
+      "jsonClass":"io.logbee.keyscore.model.blueprint.SourceBlueprint",
       "ref":{
         "uuid":"d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"
       },
@@ -15,6 +17,7 @@
       }
     },
     {
+      "jsonClass":"io.logbee.keyscore.model.blueprint.FilterBlueprint",
       "ref":{
         "uuid":"24a88215-cfe0-47a1-a889-7f3e9f8260ef"
       },
@@ -26,6 +29,7 @@
       }
     },
     {
+      "jsonClass":"io.logbee.keyscore.model.blueprint.SinkBlueprint",
       "ref":{
         "uuid":"80851e06-7191-4d96-8e4d-de66a5a12e81"
       },

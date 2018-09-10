@@ -1,4 +1,5 @@
 {
+  "jsonClass":"io.logbee.keyscore.model.blueprint.SourceBlueprint",
   "ref":{
     "uuid":"d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"
   },
