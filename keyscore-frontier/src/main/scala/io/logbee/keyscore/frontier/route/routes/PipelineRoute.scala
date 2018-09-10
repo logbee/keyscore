@@ -106,4 +106,5 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
             }
         }
     }
+  }
 }

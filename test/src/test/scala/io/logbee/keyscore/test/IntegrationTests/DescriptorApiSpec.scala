@@ -7,9 +7,10 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import com.consol.citrus.message.MessageType
+import io.logbee.keyscore.JsonData
+import io.logbee.keyscore.JsonData._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.util.Using
 import org.json4s.native.Serialization.read
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -29,30 +30,28 @@ class DescriptorApiSpec extends Matchers {
   @Test
   @CitrusTest
   def checkDescriptor(@CitrusResource runner: TestRunner): Unit = {
-    val descriptorConfiguration = Using.using(getClass.getResourceAsStream("/JSONFiles/descriptors/KafkaSinkLogic.json")) { stream =>
-      scala.io.Source.fromInputStream(stream).mkString
-    }
-    val sinkObject = read[Descriptor](descriptorConfiguration)
+    val descriptorDescriptor = loadJson(JsonData.KafkaSinkDescriptorPath)
+    val sinkObject = loadExampleSinkDescriptor
 
-    putSingleDescriptor(runner, sinkObject, descriptorConfiguration)
+    putSingleDescriptor(runner, sinkObject, descriptorDescriptor)
     getSingleDescriptor(runner, sinkObject)
-    postSingleDescriptor(runner, descriptorConfiguration, sinkObject)
+    postSingleDescriptor(runner, descriptorDescriptor, sinkObject)
 
     getAllDescriptors(runner, 1)
     deleteSingleDescriptor(runner, sinkObject)
     getAllDescriptors(runner, 0)
 
-    putSingleDescriptor(runner, sinkObject, descriptorConfiguration)
+    putSingleDescriptor(runner, sinkObject, descriptorDescriptor)
     deleteAllDescriptors(runner)
     getAllDescriptors(runner, 0)
   }
 
-  def putSingleDescriptor(runner: TestRunner, sourceObject: Descriptor, sinkConfig: String): TestAction = {
+  def putSingleDescriptor(runner: TestRunner, sinkObj: Descriptor, sinkDesc: String): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
-      .put(s"/resources/descriptor/${sourceObject.ref.uuid}")
+      .put(s"/resources/descriptor/${sinkObj.ref.uuid}")
       .contentType("application/json")
-      .payload(sinkConfig)
+      .payload(sinkDesc)
     )
 
     runner.http(action => action.client(frontierClient)
@@ -61,10 +60,10 @@ class DescriptorApiSpec extends Matchers {
     )
   }
 
-  def getSingleDescriptor(runner: TestRunner, sourceObject: Descriptor): TestAction = {
+  def getSingleDescriptor(runner: TestRunner, sinkObj: Descriptor): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
-      .get(s"resources/descriptor/${sourceObject.ref.uuid}")
+      .get(s"resources/descriptor/${sinkObj.ref.uuid}")
     )
 
     runner.http(action => action.client(frontierClient)
@@ -73,19 +72,19 @@ class DescriptorApiSpec extends Matchers {
       .validationCallback((message, context) => {
         val payload = message.getPayload().asInstanceOf[String]
         val descriptor = read[Descriptor](payload)
-        descriptor.ref.uuid should equal(sourceObject.ref.uuid)
-        descriptor should equal(sourceObject)
-        descriptor.describes shouldBe sourceObject.describes
-        descriptor.localization shouldBe sourceObject.localization
+        descriptor.ref.uuid should equal(sinkObj.ref.uuid)
+        descriptor should equal(sinkObj)
+        descriptor.describes shouldBe sinkObj.describes
+        descriptor.localization shouldBe sinkObj.localization
         log.info("GetSingleDescriptor successfully: " + descriptor.ref.uuid)
       })
     )
   }
 
-  def deleteSingleDescriptor(runner: TestRunner, sourceObject: Descriptor): TestAction = {
+  def deleteSingleDescriptor(runner: TestRunner, sinkObj: Descriptor): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
-      .delete(s"resources/descriptor/${sourceObject.ref.uuid}")
+      .delete(s"resources/descriptor/${sinkObj.ref.uuid}")
     )
 
     runner.http(action => action.client(frontierClient)
@@ -93,13 +92,13 @@ class DescriptorApiSpec extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def postSingleDescriptor(runner: TestRunner, sourceConfigString: String, sourceObject: Descriptor): TestAction = {
+  def postSingleDescriptor(runner: TestRunner, sinkDescString: String, sinkObj: Descriptor): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
-      .post(s"resources/descriptor/${sourceObject.ref.uuid}")
+      .post(s"resources/descriptor/${sinkObj.ref.uuid}")
       .contentType(MediaType.APPLICATION_JSON_VALUE)
       .messageType(MessageType.PLAINTEXT)
-      .payload(sourceConfigString)
+      .payload(sinkDescString)
     )
 
     runner.http(action => action.client(frontierClient)

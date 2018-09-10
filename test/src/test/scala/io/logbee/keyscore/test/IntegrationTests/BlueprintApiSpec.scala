@@ -7,6 +7,8 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import com.consol.citrus.message.MessageType
+import io.logbee.keyscore.JsonData
+import io.logbee.keyscore.JsonData._
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.Using
@@ -34,10 +36,8 @@ class BlueprintApiSpec extends Matchers {
   @CitrusTest
   def checkPipelineBlueprint(@CitrusResource runner: TestRunner): Unit = {
 
-    val pipelineBlueprint = Using.using(getClass.getResourceAsStream("/JSONFiles/blueprints/pipelineBlueprint.json")) { stream =>
-      fromInputStream(stream).mkString
-    }
-    val pipelineObject = read[PipelineBlueprint](pipelineBlueprint)
+    val pipelineBlueprint = loadJson(JsonData.PipelineBlueprintPath)
+    val pipelineObject = loadExamplePipelineBlueprint
 
     putSinglePipelineBlueprint(runner, pipelineObject, pipelineBlueprint)
     getSinglePipelineBlueprint(runner, pipelineObject)
@@ -53,10 +53,8 @@ class BlueprintApiSpec extends Matchers {
   @CitrusTest
   def checkBlueprint(@CitrusResource runner: TestRunner): Unit = {
 
-    val sourceBlueprint = Using.using(getClass.getResourceAsStream("/JSONFiles/blueprints/sourceBlueprint.json")) { stream =>
-      fromInputStream(stream).mkString
-    }
-    val sourceObject = read[SealedBlueprint](sourceBlueprint).asInstanceOf[SourceBlueprint]
+    val sourceBlueprint = loadJson(JsonData.SourceBlueprintPath)
+    val sourceObject = loadExampleSourceBlueprint
 
 
     putSingleBlueprint(runner, sourceObject, sourceBlueprint)
