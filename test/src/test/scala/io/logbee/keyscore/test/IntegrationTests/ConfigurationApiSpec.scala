@@ -38,7 +38,7 @@ class ConfigurationApiSpec extends Matchers {
     val sourceObject = read[Configuration](sourceConfiguration)
 
     putSingleConfiguration(runner, sourceObject, sourceConfiguration)
-    getSingleConfiguration(runner, sourceObject)
+    getSingleConfiguration(runner, sourceObject, 3)
     postSingleConfiguration(runner, sourceConfiguration, sourceObject)
 
     getAllConfigurations(runner, 1)
@@ -64,7 +64,7 @@ class ConfigurationApiSpec extends Matchers {
     )
   }
 
-  def getSingleConfiguration(runner: TestRunner, sourceObject: Configuration): TestAction = {
+  def getSingleConfiguration(runner: TestRunner, sourceObject: Configuration, expectedNumberOfParams: Int): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/configuration/${sourceObject.ref.uuid}")
@@ -76,8 +76,10 @@ class ConfigurationApiSpec extends Matchers {
       .validationCallback((message, context) => {
         val payload = message.getPayload().asInstanceOf[String]
         val configuration = read[Configuration](payload)
-        configuration.ref.uuid should equal(sourceObject.ref.uuid)
-        log.info("GetSingleConfiguration successfully: " + configuration.ref.uuid)
+        configuration should equal(sourceObject)
+        configuration.parameters should have size expectedNumberOfParams
+        configuration.ref.uuid shouldBe sourceObject.ref.uuid
+        log.info("GetSingleConfiguration successfully: " + configuration)
       })
     )
   }

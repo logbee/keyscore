@@ -74,6 +74,9 @@ class DescriptorApiSpec extends Matchers {
         val payload = message.getPayload().asInstanceOf[String]
         val descriptor = read[Descriptor](payload)
         descriptor.ref.uuid should equal(sourceObject.ref.uuid)
+        descriptor should equal(sourceObject)
+        descriptor.describes shouldBe sourceObject.describes
+        descriptor.localization shouldBe sourceObject.localization
         log.info("GetSingleDescriptor successfully: " + descriptor.ref.uuid)
       })
     )
