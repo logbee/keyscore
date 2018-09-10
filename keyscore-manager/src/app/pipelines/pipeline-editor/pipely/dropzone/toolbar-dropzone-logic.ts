@@ -22,7 +22,4 @@ export class ToolbarDropzoneLogic extends DropzoneLogic {
         return;
     }
 
-    isPreviousConnection():boolean{
-        return false;
-    }
 }

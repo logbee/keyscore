@@ -105,4 +105,8 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
     isPreviousConnection(): boolean {
         return this.component.getOwner().getPreviousConnection().getId() === this.component.getId();
     }
+
+    isNextConnection(): boolean{
+        return this.component.getOwner().getNextConnection().getId() === this.component.getId();
+    }
 }

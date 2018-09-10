@@ -13,7 +13,13 @@ export abstract class DropzoneLogic {
 
     abstract computeDraggableModel(mirror: Draggable, currentDragged: Draggable): DraggableModel;
 
-    abstract isPreviousConnection(): boolean;
+    isPreviousConnection(): boolean {
+        return false;
+    }
+
+    isNextConnection(): boolean {
+        return false;
+    }
 
     computeBestDropzone(mirror: Draggable, pivot: Dropzone): Dropzone {
         if (!this.isMirrorInRange(mirror)) {
@@ -37,8 +43,24 @@ export abstract class DropzoneLogic {
     }
 
     isMirrorInRange(mirror: Draggable): boolean {
-        if (!this.component.dropzoneModel.acceptedDraggableTypes.includes("all") &&
-            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirror.getDraggableModel().draggableType)) {
+        let nextDraggable = mirror;
+        let mirrorTail = null;
+        do {
+            if (nextDraggable.getNextConnection() &&
+                nextDraggable.getNextConnection().getId() === this.component.getId()) {
+                return false;
+            }
+            mirrorTail = nextDraggable;
+        } while (nextDraggable = nextDraggable.getNext());
+
+        if (this.isNextConnection() &&
+            !this.component.dropzoneModel.acceptedDraggableTypes.includes("all") &&
+            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirrorTail.getDraggableModel().previousConnection.connectionType)) {
+            return false;
+        }
+        if (this.isPreviousConnection() &&
+            !this.component.dropzoneModel.acceptedDraggableTypes.includes("all") &&
+            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirrorTail.getDraggableModel().nextConnection.connectionType)) {
             return false;
         }
 
@@ -50,22 +72,8 @@ export abstract class DropzoneLogic {
             return false;
         }
 
-        let nextDraggable = mirror;
-        let mirrorTail = null;
-        do {
-            if (nextDraggable.getNextConnection() &&
-                nextDraggable.getNextConnection().getId() === this.component.getId()) {
-                return false;
-            }
-            mirrorTail = nextDraggable;
-        } while (nextDraggable = nextDraggable.getNext());
-
         const dropzoneBoundingBox: Rectangle = this.component.getRectangleWithRadius();
-        let draggableBoundingBox: Rectangle = mirror.getRectangle();
-
-        if (this.isPreviousConnection() && mirror.getDraggableModel().next) {
-            draggableBoundingBox = mirrorTail.getRectangle();
-        }
+        let draggableBoundingBox: Rectangle = mirrorTail.getRectangle();
 
         return intersects(dropzoneBoundingBox, draggableBoundingBox);
     }
