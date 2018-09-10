@@ -2,10 +2,12 @@ package io.logbee.keyscore.frontier.cluster
 
 import java.util.Locale
 
-import akka.actor.{Actor, ActorLogging, ActorPath, Props}
+import akka.actor.{Actor, ActorLogging, ActorPath, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster._
+import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
+import io.logbee.keyscore.commons.{DescriptorService, HereIam, WhoIs}
 import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.descriptor.Descriptor
 
@@ -29,6 +31,7 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
 
+  private var descriptorManager: ActorRef = _
   private val listOfFilterDescriptors = mutable.Map.empty[Descriptor, mutable.Set[ActorPath]]
   private val listOfActiveDescriptors = List[Descriptor]()
 
@@ -36,6 +39,7 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
     mediator ! Subscribe("agents", self)
     mediator ! Subscribe("cluster", self)
     mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
+    mediator ! WhoIs(DescriptorService)
     log.info("ClusterCapabilitiesManager started.")
   }
 
@@ -47,15 +51,22 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
+    case HereIam(DescriptorService, ref) =>
+      descriptorManager = ref
+      context.become(running)
+  }
+
+  private def running: Receive = {
     case GetStandardDescriptors(selectedLanguage) =>
       sender ! StandardDescriptors(listOfFilterDescriptors.keys.toList)
 
     case GetActiveDescriptors =>
       sender() ! ActiveDescriptors(listOfActiveDescriptors)
 
-    case AgentCapabilities(filterDescriptors) =>
-      filterDescriptors.foreach(descriptors => {
-        listOfFilterDescriptors.getOrElseUpdate(descriptors, mutable.Set.empty) += sender.path
+    case AgentCapabilities(descriptors) =>
+      descriptors.foreach(descriptor => {
+        listOfFilterDescriptors.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
+        descriptorManager ! StoreDescriptorRequest(descriptor)
       })
 
     case AgentLeaved(ref) =>
@@ -63,5 +74,6 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
         paths.retain(path => ref.path.address != path.address)
         paths.nonEmpty
       })
+
   }
 }
