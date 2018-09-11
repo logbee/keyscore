@@ -136,7 +136,7 @@ task stopDockerContainerOnStartup(type: DockerStopContainer) {
     onError { exception ->
         if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
             println("Container " + createDockerContainer.containerName + " has already been stopped")
-        } else if (ex)throw exception
+        } else throw exception
     }
 
 }
