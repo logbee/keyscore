@@ -12,7 +12,9 @@ import {
     MatTableModule,
     MatInputModule,
     MatFormFieldModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatCheckboxModule,
+    MatChipsModule
 
 } from '@angular/material';
 import {FlexLayoutModule} from '@angular/flex-layout';
@@ -32,7 +34,9 @@ import {FlexLayoutModule} from '@angular/flex-layout';
         MatTableModule,
         MatInputModule,
         MatFormFieldModule,
-        MatSidenavModule
+        MatSidenavModule,
+        MatCheckboxModule,
+        MatChipsModule,
 
     ],
     exports: [
@@ -48,7 +52,9 @@ import {FlexLayoutModule} from '@angular/flex-layout';
         MatTableModule,
         MatInputModule,
         MatFormFieldModule,
-        MatSidenavModule
+        MatSidenavModule,
+        MatCheckboxModule,
+        MatChipsModule
     ]
 })
 export class MaterialModule {

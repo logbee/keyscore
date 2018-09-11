@@ -15,13 +15,15 @@ import {NO_ERRORS_SCHEMA} from "@angular/core";
 import {ConnectorComponent} from "./connectors/connector.component";
 import {MaterialModule} from "../../../material.module";
 import {ConfigurationComponent} from "./configuration.component";
+import {ParameterModule} from "../../../common/parameter/parameter.module";
 
 
 @NgModule({
     imports: [
         CommonModule,
         TranslateModule,
-        MaterialModule
+        MaterialModule,
+        ParameterModule
     ],
     declarations: [
         WorkspaceComponent,

@@ -55,12 +55,12 @@ export abstract class DropzoneLogic {
 
         if (this.isNextConnection() &&
             !this.component.dropzoneModel.acceptedDraggableTypes.includes("all") &&
-            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirror.getDraggableModel().previousConnection.connectionType)) {
+            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirror.getDraggableModel().blockDescriptor.previousConnection.connectionType)) {
             return false;
         }
         if (this.isPreviousConnection() &&
             !this.component.dropzoneModel.acceptedDraggableTypes.includes("all") &&
-            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirrorTail.getDraggableModel().nextConnection.connectionType)) {
+            !this.component.dropzoneModel.acceptedDraggableTypes.includes(mirrorTail.getDraggableModel().blockDescriptor.nextConnection.connectionType)) {
             return false;
         }
 

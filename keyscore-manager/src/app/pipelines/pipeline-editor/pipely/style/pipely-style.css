@@ -106,6 +106,12 @@ toolbar-dropzone {
     background-color:white !important;
 }
 
+.configurator {
+    padding: 10px;
+    border-radius: 2px 0 0 2px;
+    background-color: #e2e1e0 !important;
+}
+
 /*Trash*/
 
 .dropzone-trash {

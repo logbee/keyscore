@@ -1,5 +1,5 @@
 import {
-    AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild,
+    AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild,
     ViewContainerRef
 } from "@angular/core";
 import {v4 as uuid} from "uuid";
@@ -10,18 +10,20 @@ import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {computeRelativePositionToParent} from "./util/util";
 import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
+import {BlockDescriptor} from "./models/block-descriptor.model";
+import {InternalPipelineConfiguration} from "../../../models/pipeline-model/InternalPipelineConfiguration";
+import {PipelyPipelineConfiguration} from "./models/pipeline-configuration.model";
+import {parameterDescriptorToParameter} from "../../../util";
 
 @Component({
     selector: "workspace",
     template: `
         <mat-sidenav-container class="workspace-container">
-            <!--
-                        <configurator [(opened)]="isConfiguratorOpened"></configurator>
-            -->
-            <mat-sidenav class="configurator" #sidenav #right position="end" mode="over"
+            <mat-sidenav configurator class="configurator" #sidenav #right position="end" mode="over"
                          [(opened)]="isConfiguratorOpened">
-                testcontent
+                <configurator [selectedDraggable]="selectedDraggable"></configurator>
             </mat-sidenav>
+
             <mat-sidenav-content>
                 <div #workspace class="workspace">
                     <div class="row">
@@ -37,6 +39,8 @@ import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subco
 
 
 export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterViewInit {
+    @Input() pipeline: PipelyPipelineConfiguration;
+
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
@@ -253,19 +257,16 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
             } else if (i == 2) {
                 outType = "no-connection-out"
             }
+            let blockDescriptor = this.createDummyBlockDescriptor(inType, outType);
+            let parameters = blockDescriptor.parameters.map(parameterDescriptor => parameterDescriptorToParameter(parameterDescriptor))
+            let blockConfiguration = {
+                id: uuid(),
+                descriptor: blockDescriptor,
+                parameters: parameters
+            }
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
-                name: "Test" + Math.random().toString().substr(0, 4),
-                draggableType: "default",
-                previousConnection: {
-                    isPermitted: true,
-                    connectableTypes: inType !== "no-connection-in" ? ["default-out"] : [],
-                    connectionType: inType
-                },
-                nextConnection: {
-                    isPermitted: true,
-                    connectableTypes: outType !== "no-connection-out" ? ["default-in"] : [],
-                    connectionType: outType
-                },
+                blockDescriptor: blockDescriptor,
+                blockConfiguration: blockConfiguration,
                 initialDropzone: this.toolbarDropzone,
                 next: null,
                 previous: null,
@@ -273,6 +274,44 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                 isMirror: false
             }, this);
         }
+
+    }
+
+    private createDummyBlockDescriptor(inType: string, outType: string): BlockDescriptor {
+        let name = Math.random().toString().substr(0, 4);
+        return {
+            name: name,
+            displayName: "Block " + name,
+            description: "Ipsum lorem, bla bla bla!",
+            previousConnection: {
+                isPermitted: true,
+                connectableTypes: inType !== "no-connection-in" ? ["default-out"] : [],
+                connectionType: inType
+            },
+            nextConnection: {
+                isPermitted: true,
+                connectableTypes: outType !== "no-connection-out" ? ["default-in"] : [],
+                connectionType: outType
+            },
+            parameters: [
+                {
+                    name: "TestFeld1",
+                    displayName: "Test Feld 1",
+                    jsonClass: "TextParameterDescriptor",
+                    mandatory: true
+
+                },
+                {
+                    name: "TestList1",
+                    displayName: "Test Liste 1",
+                    jsonClass: "ListParameterDescriptor",
+                    mandatory: true
+
+                }
+            ],
+            category: "Test"
+        };
+
 
     }
 

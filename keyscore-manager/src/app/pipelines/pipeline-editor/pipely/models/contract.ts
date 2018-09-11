@@ -95,10 +95,6 @@ export interface Draggable {
 
     isVisible(): boolean;
 
-    triggerDelete(): void;
-
-    isDeleting(): boolean;
-
     getTail(): Draggable;
 
     getHead(): Draggable;
