@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.cluster
+package io.logbee.keyscore.frontier.cluster.pipeline.manager
 
 import akka.actor.{Actor, Props}
 import akka.cluster.pubsub.DistributedPubSub

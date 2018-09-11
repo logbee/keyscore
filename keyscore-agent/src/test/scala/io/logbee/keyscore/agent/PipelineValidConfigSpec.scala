@@ -2,34 +2,22 @@ package io.logbee.keyscore.agent
 
 import akka.actor.Props
 import akka.testkit.TestProbe
-import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
 import io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
 import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineSupervisor}
-import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.StoreConfigurationRequest
-import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
-import io.logbee.keyscore.commons.pipeline.RequestPipelineInstance
 import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.frontier.cluster.resources.{ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
-import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.{Green, PipelineInstance, Red}
-import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
-
-import scala.concurrent.duration._
 
 
 class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
-
-  import org.json4s.native.Serialization.writePretty
 
   implicit val formats = KeyscoreFormats.formats
   "A running PipelineSupervisor" should {

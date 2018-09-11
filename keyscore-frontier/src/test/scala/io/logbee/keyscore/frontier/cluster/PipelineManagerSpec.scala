@@ -5,7 +5,8 @@ import java.util.UUID
 import akka.testkit.TestProbe
 import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder}
 import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.frontier.cluster.PipelineManager.CreatePipeline
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager.CreatePipeline
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SinkBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.descriptor.Descriptor
@@ -22,12 +23,12 @@ class PipelineManagerSpec extends ProductionSystemWithMaterializerAndExecutionCo
 
     val sinkId = UUID.randomUUID()
     val sourceId = UUID.randomUUID()
-    val agentManager = TestProbe("agent-manager")
+    val agentClusterManager = TestProbe("agent-manager")
     val agent1 = TestProbe("agent1")
     val agent2 = TestProbe("agent2")
     val scheduler = TestProbe("scheduler")
 
-    val pipelineManager = system.actorOf(PipelineManager(agentManager.ref, (_, context) => {
+    val pipelineManager = system.actorOf(PipelineManager(agentClusterManager.ref, (_, context) => {
       context.actorSelection(scheduler.ref.path)
     }))
 

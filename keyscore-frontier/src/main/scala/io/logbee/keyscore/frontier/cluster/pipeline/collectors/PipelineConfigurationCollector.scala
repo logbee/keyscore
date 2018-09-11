@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.cluster
+package io.logbee.keyscore.frontier.cluster.pipeline.collectors
 
 import akka.actor.{Actor, ActorRef, Props}
 import io.logbee.keyscore.commons.pipeline.PipelineBlueprintsResponse

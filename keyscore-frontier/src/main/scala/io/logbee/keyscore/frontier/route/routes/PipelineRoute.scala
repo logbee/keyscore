@@ -8,8 +8,8 @@ import akka.pattern.ask
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.frontier.cluster.PipelineManager
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.frontier.route.routes.PipelineRoute.{PipelineRouteRequest, PipelineRouteResponse}
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint

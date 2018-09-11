@@ -6,9 +6,9 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.frontier.Frontier._
-import io.logbee.keyscore.frontier.cluster.AgentManager.{AgentManagerInitialized, Init}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.{AgentClusterManager, ClusterManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager.{AgentClusterManagerInitialized, Init}
 import io.logbee.keyscore.frontier.cluster.resources.{BlueprintManager, ConfigurationManager, DescriptorManager}
-import io.logbee.keyscore.frontier.cluster.{AgentManager, ClusterManager, PipelineBlueprintManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.route.RouteBuilder
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
@@ -32,7 +32,7 @@ object Frontier {
 
   case object StopServer
 
-  private case class InitAgentManager(isOperation: Boolean)
+  private case class InitAgentClusterManager(isOperation: Boolean)
 }
 
 class Frontier extends Actor with ActorLogging with Json4sSupport {
@@ -49,7 +49,7 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
   private var blueprintManager: ActorRef = _
   private var routeBuilder: ActorRef = _
 
-  private var agentManager: ActorRef = _
+  private var agentClusterManager: ActorRef = _
   private var clusterManager: ActorRef = _
 
   private val configuration = FrontierConfigProvider(system)
@@ -76,14 +76,14 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
     case InitFrontier(isOperating) =>
       log.info("Initializing Frontier ...")
 
-      self ! InitAgentManager(isOperating)
+      self ! InitAgentClusterManager(isOperating)
 
-    case InitAgentManager(isOperating) =>
-      agentManager = context.actorOf(Props(classOf[AgentManager]), "AgentManager")
-      agentManager ! Init(isOperating)
+    case InitAgentClusterManager(isOperating) =>
+      agentClusterManager = context.actorOf(Props(classOf[AgentClusterManager]), "AgentClusterManager")
+      agentClusterManager ! Init(isOperating)
 
-    case AgentManagerInitialized(isOperating) =>
-      clusterManager = context.actorOf(ClusterManager(agentManager), "ClusterManager")
+    case AgentClusterManagerInitialized(isOperating) =>
+      clusterManager = context.actorOf(ClusterManager(agentClusterManager), "ClusterManager")
 
       if(isOperating) {
         log.info("Frontier started in Running Mode.")
@@ -98,7 +98,7 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
 
   private def running(): Receive = {
     case InitRouteBuilder =>
-      routeBuilder = context.actorOf(RouteBuilder(agentManager), "RouteBuilder")
+      routeBuilder = context.actorOf(RouteBuilder(agentClusterManager), "RouteBuilder")
 
     case RouteBuilderInitialized =>
       routeBuilder ! BuildFullRoute

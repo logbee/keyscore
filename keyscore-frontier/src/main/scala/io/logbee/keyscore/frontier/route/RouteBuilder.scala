@@ -1,7 +1,5 @@
 package io.logbee.keyscore.frontier.route
 
-import java.util.Locale
-
 import akka.actor.FSM.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
@@ -26,10 +24,9 @@ import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentF
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.app.AppInfo
-import io.logbee.keyscore.frontier.cluster.AgentManager.{QueryAgents, QueryAgentsResponse}
-import io.logbee.keyscore.frontier.cluster.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
-import io.logbee.keyscore.frontier.cluster.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
-import io.logbee.keyscore.frontier.cluster.{ClusterCapabilitiesManager, PipelineManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager.{QueryAgents, QueryAgentsResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.{ClusterCapabilitiesManager, PipelineManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.model.AgentModel
 import io.logbee.keyscore.model.WhichValve.whichValve
@@ -47,8 +44,8 @@ object RouteBuilder {
 
   case class RouteResponse(route: Flow[HttpRequest, HttpResponse, Any])
 
-  def apply(agentManager: ActorRef): Props = {
-    Props(new RouteBuilder(agentManager))
+  def apply(agentClusterManager: ActorRef): Props = {
+    Props(new RouteBuilder(agentClusterManager))
   }
 }
 
@@ -80,9 +77,9 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-  private val agentManager = aM
+  private val agentClusterManager = aM
   private var blueprintManager = null
-  private val pipelineManager = system.actorOf(PipelineManager(agentManager))
+  private val pipelineManager = system.actorOf(PipelineManager(agentClusterManager))
   private val clusterCapabilitiesManager = system.actorOf(ClusterCapabilitiesManager.props())
 
   override def preStart(): Unit = {
@@ -166,8 +163,8 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
               }
           } ~
           put {
-            entity(as[PipelineBlueprint]) { blueprint =>
-              pipelineManager ! PipelineManager.CreatePipeline(blueprint)
+            entity(as[PipelineBlueprint]) { pipelineBlueprint =>
+              pipelineManager ! PipelineManager.CreatePipeline(pipelineBlueprint)
               complete(StatusCodes.Created)
             }
           } ~
@@ -305,14 +302,14 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     pathPrefix("agent") {
       pathPrefix(JavaUUID) { agentID =>
         delete {
-          onSuccess(agentManager ? RemoveAgentFromCluster(agentID)) {
+          onSuccess(agentClusterManager ? RemoveAgentFromCluster(agentID)) {
             case AgentRemovedFromCluster(agentID) => complete(StatusCodes.OK)
             case _ => complete(StatusCodes.InternalServerError)
           }
         }
       } ~
         get {
-          onSuccess(agentManager ? QueryAgents) {
+          onSuccess(agentClusterManager ? QueryAgents) {
             case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
             case _ => complete(StatusCodes.InternalServerError)
           }

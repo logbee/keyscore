@@ -9,7 +9,7 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.Agent.{AgentManagerDied, CheckJoin, Initialize, SendJoin}
+import io.logbee.keyscore.agent.Agent.{AgentClusterManagerDied, CheckJoin, Initialize, SendJoin}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
 import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineScheduler}
 import io.logbee.keyscore.commons.cluster.Topics.AgentsTopic
@@ -30,7 +30,7 @@ object Agent {
   private case object SendJoin
   private case object CheckJoin
 
-  private case object AgentManagerDied
+  private case object AgentClusterManagerDied
 }
 
 class Agent extends Actor with ActorLogging {
@@ -105,14 +105,14 @@ class Agent extends Actor with ActorLogging {
           log.error(e, "Failed to publish capabilities!")
           context.stop(self)
       }
-      context.watchWith(sender, AgentManagerDied)
+      context.watchWith(sender, AgentClusterManagerDied)
 
     case AgentJoinFailure =>
       log.error("Agent join failed")
       context.stop(self)
 
-    case AgentManagerDied =>
-      log.info("Actual AgentManager diededed. Setting joined-status to false and trying to join again.")
+    case AgentClusterManagerDied =>
+      log.info("Actual AgentClusterManager diededed. Setting joined-status to false and trying to join again.")
       joined = false
       self ! SendJoin
 

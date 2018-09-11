@@ -1,22 +1,17 @@
 
 package io.logbee.keyscore.test.IntegrationTests
 
-import java.io.InputStreamReader
-
 import com.consol.citrus.annotations.{CitrusResource, CitrusTest}
 import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import org.json4s.native.Serialization.read
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
 
-import scala.io.Source
 import scala.language.postfixOps
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))

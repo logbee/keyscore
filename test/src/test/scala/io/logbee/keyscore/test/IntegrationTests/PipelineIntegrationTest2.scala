@@ -5,7 +5,6 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.JsonData
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -31,7 +30,14 @@ class PipelineIntegrationTest2 extends Matchers {
   @Test
   @CitrusTest
   def createPipeline(@CitrusResource runner: TestRunner): Unit = {
-//    val pipelineBlueprint = JsonData.loadExamplePipelineBlueprintJson
+//    1. sourceBlueprint
+//    2. sinkBlueprint
+//    3. filterBlueprint
 
+//    4. sourceConfiguration
+//    5. sinkConfiguration
+//    6. filterConfiguration
+
+//    7. pipelineBlueprint
   }
 }
