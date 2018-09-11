@@ -14,16 +14,14 @@ export interface Workspace {
 
     registerDraggable(draggable: Draggable);
 
-    registerMirror(mirror: Draggable);
+    getWorkspaceDropzone(): Dropzone;
 
-    getWorkspaceDropzone():Dropzone;
-
-    registerDraggable(draggable:Draggable);
+    registerDraggable(draggable: Draggable);
 
 }
 
 export interface Dropzone {
-    isDroppable$:Observable<boolean>;
+    isDroppable$: Observable<boolean>;
 
     getId(): string;
 
@@ -33,7 +31,7 @@ export interface Dropzone {
 
     getDropzoneElement(): ElementRef;
 
-    getSubComponent():DropzoneSubcomponent;
+    getSubComponent(): DropzoneSubcomponent;
 
     getIsDroppable(): boolean;
 
@@ -64,10 +62,7 @@ export interface Dropzone {
 }
 
 export interface Draggable {
-    dragStart$: Observable<void>;
-    dragMove$: Observable<void>;
-    click$: Observable<void>;
-
+    dragStart$: Observable<MouseEvent>;
     getId(): string;
 
     getDraggablePosition(): { x: number, y: number };
@@ -84,11 +79,11 @@ export interface Draggable {
 
     getNext(): Draggable;
 
-    getPrevious():Draggable;
+    getPrevious(): Draggable;
 
-    removeNextFromModel():void;
+    removeNextFromModel(): void;
 
-    setNextModel(next:DraggableModel):void;
+    setNextModel(next: DraggableModel): void;
 
     getPreviousConnection(): Dropzone;
 
@@ -100,19 +95,27 @@ export interface Draggable {
 
     isVisible(): boolean;
 
-    triggerDelete():void;
+    triggerDelete(): void;
 
-    isDeleting():boolean;
+    isDeleting(): boolean;
 
-    getTail():Draggable;
+    getTail(): Draggable;
 
-    getHead():Draggable;
+    getHead(): Draggable;
 
-    getTotalWidth():number;
+    getTotalWidth(): number;
 
     createNext();
 
-    moveXAxis(deltaX:number):void;
+    moveXAxis(deltaX: number): void;
+
+    moveYAxis(deltaY: number): void;
+
+    moveMirror(deltaX: number, deltaY: number): void;
+
+    setLastDrag(x: number, y: number): void;
+
+    getLastDrag(): { x: number, y: number };
 
 
 }

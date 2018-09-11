@@ -28,7 +28,7 @@ import {takeUntil} from "rxjs/internal/operators";
              [class.mirror]="draggableModel.isMirror"
              [class.d-flex]="visible"
              [class.d-none]="!visible"
-             (mousedown)="dragStart($event)">
+             (mousedown)="triggerDragStart($event)">
             <div class="connection previous-connection">
                 <ng-template #previousConnection></ng-template>
             </div>
@@ -73,17 +73,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
     public id: string;
 
-    private dragStartSource = new Subject<void>();
-    private dragMoveSource = new Subject<void>();
-    private clickEventSource = new Subject<void>();
+    private dragStartSource = new Subject<MouseEvent>();
     private isAlive = new Subject<void>();
 
     dragStart$ = this.dragStartSource.asObservable().pipe(takeUntil(this.isAlive));
-    dragMove$ = this.dragMoveSource.asObservable().pipe(takeUntil(this.isAlive));
-    click$ = this.clickEventSource.asObservable().pipe(takeUntil(this.isAlive));
-
-    private mouseDownStartX: number;
-    private mouseDownStartY: number;
 
     private lastDragX: number;
     private lastDragY: number;
@@ -123,52 +116,22 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
             this.triggerDelete();
         }
 
-
     }
-
 
     public ngAfterViewInit() {
         if (!this.getHead().getDraggableModel().isMirror) {
             this.workspace.registerDraggable(this);
         }
-        else if (this.draggableModel.isMirror) {
-            this.workspace.registerMirror(this);
-        }
     }
 
-
-    @HostListener('document:mousemove', ['$event'])
-    onMouseMove(event: MouseEvent) {
-        if (
-            this.draggableModel.isMirror) {
-
-            const x = event.clientX - this.lastDragX;
-            const y = event.clientY - this.lastDragY;
-            this.lastDragX = event.clientX;
-            this.lastDragY = event.clientY;
-            const currentPosition = this.getDraggablePosition();
-            const newPosition = {
-                x: currentPosition.x + x,
-                y: currentPosition.y + y
-            };
-
-            this.draggableElement.nativeElement.style.left = newPosition.x + "px";
-            this.draggableElement.nativeElement.style.top = newPosition.y + "px";
-
-            this.triggerDragMove();
-        }
+    setLastDrag(x: number, y: number) {
+        this.lastDragX = x;
+        this.lastDragY = y;
     }
 
-    @HostListener('mouseup',['$event'])
-    onMouseUp(event:MouseEvent){
-        console.log(this.mouseDownStartX);
-        if(this.mouseDownStartX < this.lastDragX - 5 || this.mouseDownStartX > this.lastDragX + 5 ||
-            this.mouseDownStartY < this.lastDragY - 5 || this.mouseDownStartY > this.lastDragY + 5){
-            this.clickEventSource.next();
-        }
+    getLastDrag(): { x: number, y: number } {
+        return {x: this.lastDragX, y: this.lastDragY};
     }
-
-
 
     private initialiseConnections() {
         if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
@@ -230,20 +193,9 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         this.isAlive.next();
     }
 
-    private triggerDragStart() {
-        this.dragStartSource.next();
-    }
-
-    private triggerDragMove() {
-        this.dragMoveSource.next();
-    }
-
-    private dragStart(event: MouseEvent) {
+    private triggerDragStart(event:MouseEvent) {
         event.stopPropagation();
-        this.mouseDownStartX = event.clientX;
-        this.mouseDownStartY = event.clientY;
-        this.triggerDragStart();
-
+        this.dragStartSource.next(event);
     }
 
     getTail(): Draggable {
@@ -278,6 +230,24 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
             this.draggableModel.position.x += deltaX;
             this.draggableElement.nativeElement.style.left = this.draggableModel.position.x + "px";
         }
+    }
+
+    moveYAxis(deltaY: number) {
+        if (deltaY !== 0) {
+            this.draggableModel.position.y += deltaY;
+            this.draggableElement.nativeElement.style.top = this.draggableModel.position.y + "px";
+        }
+    }
+
+    moveMirror(deltaX: number, deltaY: number) {
+        const currentPosition = this.getDraggablePosition();
+        const newPosition = {
+            x: currentPosition.x + deltaX,
+            y: currentPosition.y + deltaY
+        };
+
+        this.draggableElement.nativeElement.style.left = newPosition.x + "px";
+        this.draggableElement.nativeElement.style.top = newPosition.y + "px";
     }
 
     removeNextFromModel() {
@@ -343,6 +313,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         return this.visible;
     }
 
+    getPreviousConnection(): Dropzone {
+        return this.previousConnectionDropzone;
+    }
+
     getNextConnection(): Dropzone {
         return this.nextConnectionDropzone;
     }
@@ -355,11 +329,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         return this.draggableModel.previous;
     }
 
-
-    getPreviousConnection(): Dropzone {
-        return this.previousConnectionDropzone;
-    }
-
     setNextModel(next: DraggableModel): void {
         this.draggableModel.next = next;
     }
@@ -367,7 +336,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     triggerDelete() {
         this.deleting = true;
         this.draggableElement.nativeElement.classList.add("delete");
-        console.log(this.draggableElement.nativeElement.classList);
         this.draggableElement.nativeElement.addEventListener(this.whichTransitionEvent(), (e) => {
             this.destroy();
         }, false);

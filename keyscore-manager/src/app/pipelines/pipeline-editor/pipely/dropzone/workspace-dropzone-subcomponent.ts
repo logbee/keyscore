@@ -61,7 +61,6 @@ export class WorkspaceDropzoneSubcomponent implements DropzoneSubcomponent, Afte
     }
 
     resizeWorkspaceOnDrop(draggables: Draggable[]): number {
-        console.log("resizeWorkspace");
         const workspacePadding = 200;
         const workspaceWidth = this.dropzoneElement.nativeElement.scrollWidth;
         const wrapperWidth = this.workspaceScrollContainer.nativeElement.offsetWidth;
