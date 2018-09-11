@@ -80,7 +80,6 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
   private val agentClusterManager = aM
   private var blueprintManager = null
   private val pipelineManager = system.actorOf(PipelineManager(agentClusterManager))
-  private val clusterCapabilitiesManager = system.actorOf(ClusterCapabilitiesManager.props())
 
   override def preStart(): Unit = {
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(ConfigurationService))

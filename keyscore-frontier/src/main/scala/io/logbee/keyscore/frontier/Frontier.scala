@@ -6,7 +6,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.frontier.Frontier._
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.{AgentClusterManager, ClusterManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.{AgentClusterManager, AgentManager, ClusterManager}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager.{AgentClusterManagerInitialized, Init}
 import io.logbee.keyscore.frontier.cluster.resources.{BlueprintManager, ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
@@ -52,13 +52,18 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
   private var agentClusterManager: ActorRef = _
   private var clusterManager: ActorRef = _
 
+  private var agentManager: ActorRef = _
+
   private val configuration = FrontierConfigProvider(system)
 
   var httpBinding: Future[Http.ServerBinding] = null
 
   override def preStart(): Unit = {
     log.info("Frontier started")
-    self ! InitServices
+    configurationManager = context.actorOf(ConfigurationManager())
+    descriptorManager = context.actorOf(DescriptorManager())
+    blueprintManager = context.actorOf(BlueprintManager())
+    agentManager = context.actorOf(AgentManager())
   }
 
   override def postStop(): Unit = {
@@ -68,10 +73,6 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
   }
 
   override def receive: Receive = {
-    case InitServices =>
-      configurationManager = context.actorOf(ConfigurationManager())
-      descriptorManager = context.actorOf(DescriptorManager())
-      blueprintManager = context.actorOf(BlueprintManager())
 
     case InitFrontier(isOperating) =>
       log.info("Initializing Frontier ...")

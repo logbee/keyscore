@@ -8,8 +8,8 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.{DescriptorService, HereIam, WhoIs}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
-import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 import scala.collection.mutable
@@ -17,7 +17,7 @@ import scala.collection.mutable.ListBuffer
 
 
 object ClusterCapabilitiesManager {
-  def props(): Props = Props(new ClusterCapabilitiesManager())
+  def apply(): Props = Props(new ClusterCapabilitiesManager())
 
   case class GetStandardDescriptors(language: Locale)
 
@@ -80,30 +80,26 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
         paths.nonEmpty
       })
 
+    case AgentsForPipelineRequest(receiver, descriptorRefs) =>
+      val possibleAgents = createListOfPossibleAgents(descriptorRefs)
+      sender ! AgentsForPipelineResponse(receiver, possibleAgents)
+
   }
 
-  def checkIfCapabilitiesMatchRequirements(requiredDescriptors: List[DescriptorRef], agent: (ActorRef, Seq[Descriptor])): Boolean = {
+  def checkIfCapabilitiesMatchRequirements(descriptorRefs: List[DescriptorRef], agent: (ActorRef, Seq[Descriptor])): Boolean = {
 
-    if (requiredDescriptors.count(descriptorRef => agent._2.map(descriptor => descriptor.ref).contains(descriptorRef)) ==
-      requiredDescriptors.size) {
+    if (descriptorRefs.count(descriptorRef => agent._2.map(descriptor => descriptor.ref).contains(descriptorRef)) ==
+      descriptorRefs.size) {
       return true
     }
     false
   }
 
-  def createListOfPossibleAgents(pipelineBlueprint: PipelineBlueprint): List[ActorRef] = {
-
-    val requiredDescriptors = pipelineBlueprint.blueprints.foldLeft(List.empty[DescriptorRef]) {
-      case (result, blueprint: SourceBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
-      case (result, blueprint: FilterBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
-      case (result, blueprint: SinkBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
-      case (result, blueprint: BranchBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
-      case (result, blueprint: MergeBlueprint) => result :+ DescriptorRef(blueprint.descriptor.uuid)
-    }
+  def createListOfPossibleAgents(descriptorRefs: List[DescriptorRef]): List[ActorRef] = {
 
     var possibleAgents: ListBuffer[ActorRef] = ListBuffer.empty
     availableAgents.foreach { agent =>
-      if (checkIfCapabilitiesMatchRequirements(requiredDescriptors, agent)) {
+      if (checkIfCapabilitiesMatchRequirements(descriptorRefs, agent)) {
         possibleAgents += agent._1
       } else {
         log.info(s"Agent '$agent' doesn't match requirements.")

@@ -6,7 +6,7 @@ import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.Topics
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages._
 import io.logbee.keyscore.commons.{BlueprintService, HereIam, WhoIs}
-import io.logbee.keyscore.model.blueprint.ToBaseBlueprint.sealedToBase
+import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 
 object BlueprintManager {
@@ -61,12 +61,12 @@ class BlueprintManager extends Actor with ActorLogging {
     //Sealed Blueprint
     case StoreBlueprintRequest(blueprint) =>
       log.info(s"Store Blueprint Request: ${blueprint}")
-      blueprints.put(blueprint.ref, blueprint)
+      blueprints.put(blueprint.blueprintRef, blueprint)
       sender ! StoreBlueprintResponse
 
     case UpdateBlueprintRequest(blueprint) =>
-      if(blueprints.contains(blueprint.ref)){
-        blueprints.put(blueprint.ref, blueprint)
+      if(blueprints.contains(blueprint.blueprintRef)){
+        blueprints.put(blueprint.blueprintRef, blueprint)
         sender ! UpdateBlueprintResponseSuccess
       } else {
         sender ! UpdateBlueprintResponseFailure

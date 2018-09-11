@@ -42,8 +42,6 @@ class AgentClusterManager extends Actor with ActorLogging {
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
   val idToAgent: mutable.HashMap[Long, RemoteAgent] = mutable.HashMap.empty
   val agents: mutable.ListBuffer[Member] = mutable.ListBuffer.empty
-  var availableAgents: mutable.Map[ActorRef, Seq[Descriptor]] = mutable.Map.empty[ActorRef, Seq[Descriptor]]
-
 
   override def preStart(): Unit = {
     log.info("AgentClusterManager started.")

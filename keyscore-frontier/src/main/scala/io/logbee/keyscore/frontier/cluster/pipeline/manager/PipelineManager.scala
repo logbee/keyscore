@@ -7,6 +7,9 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster._
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager.CreatePipeline
+import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer
+import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.CreatePipelineRequest
 import io.logbee.keyscore.model.blueprint._
 
 
@@ -17,7 +20,6 @@ object PipelineManager {
   case class RequestExistingBlueprints()
 
   case class CreatePipeline(pipelineBlueprint: PipelineBlueprint)
-
   case class DeletePipeline(id: UUID)
 
   case object DeleteAllPipelines
@@ -43,7 +45,7 @@ class PipelineManager(agentClusterManager: ActorRef, pipelineSchedulerSelector: 
     mediator ! Subscribe("agents", self)
     mediator ! Subscribe("cluster", self)
     mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
-    mediator ! WhoIs(ClusterCapabilitiesService)
+    mediator ! WhoIs(AgentManagerService)
     log.info("PipelineManager started.")
   }
 
@@ -57,12 +59,15 @@ class PipelineManager(agentClusterManager: ActorRef, pipelineSchedulerSelector: 
   override def receive: Receive = {
     case HereIam(AgentManagerService, ref) =>
       agentManager = ref
-//      context.become(running)
+      context.become(running)
   }
 
-//  private def running: Receive = {
-//
-//  }
+  private def running: Receive = {
+    case CreatePipeline(pipelineBlueprint) =>
+      val createPipelineSupervisor = context.actorOf(PipelineDeployer())
+      log.info("Received CreatePipelineRequest")
+      createPipelineSupervisor ! CreatePipelineRequest(pipelineBlueprint.ref, sender)
+  }
 
 //  private def running: Receive = {
 //    case CreatePipeline(pipelineBlueprint) =>
