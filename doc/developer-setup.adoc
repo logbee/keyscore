@@ -1,0 +1,208 @@
+= Developer setup
+
+== Pre-Requisites ==
+
+ - Docker
+ - Gradle
+ - JDK 8
+
+Under Debian-based distributions, these can be installed like so:
+----
+ # apt install docker.io gradle openjdk-8-jdk
+----
+
+
+== Behind a corporate proxy ==
+
+In order to run this setup behind a corporate proxy, you need to add proxy settings in several places.
+
+First, make sure that your package manager is configured for your proxy.
+
+=== Installing and configuring Squid ===
+
+We recommend to install `squid`, which provides a local proxy on your system,
+and which you can then configure to route everything to your corporate proxy.
+This has the advantage that you only need to set the information for your corporate proxy in one place
+and can quickly toggle the use of the proxy for when you're connecting to the internet directly.
+
+To do so, run the following from CLI:
+
+----
+ # apt install squid
+----
+
+Now configure `squid` by putting the following into your
+
+./etc/squid/squid.conf
+----
+acl SSL_ports port 443
+acl Safe_ports port 80          # http
+acl Safe_ports port 21          # ftp
+acl Safe_ports port 443         # https
+acl Safe_ports port 70          # gopher
+acl Safe_ports port 210         # wais
+acl Safe_ports port 1025-65535  # unregistered ports
+acl Safe_ports port 280         # http-mgmt
+acl Safe_ports port 488         # gss-http
+acl Safe_ports port 591         # filemaker
+acl Safe_ports port 777         # multiling http
+acl CONNECT method CONNECT
+
+acl corporate src 1.2.3.0/8 # *<1>
+
+acl docker src 172.0.0.0/8
+acl flannel src 10.0.0.0/8
+
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+http_access allow localhost manager
+http_access deny manager
+http_access allow localhost
+http_access allow docker
+http_access allow flannel
+http_access deny all
+http_port 3128
+
+acl local-servers dstdomain .example.com # *<2>
+always_direct allow local-servers
+always_direct allow docker
+always_direct allow flannel
+
+#cache_peer 127.0.0.1 parent 3128 0 no-query default
+cache_peer myproxy.example.com parent 3128 0 no-query default login=username:password # *<3>
+#cache_peer_domain 127.0.0.1 !.example.com # *<4>
+#never_direct deny local-servers
+never_direct allow all
+----
+
+<1> Replace `1.2.3.0/8` with the network address and subnet mask of your corporate network.
+<2> Replace `example.com` with the domain name of your corporation.
+<3> Replace `myproxy.example.com` with the hostname or address of your proxy server,
+    and replace `username` and `password` with your username and password.
+    Commenting this line out allows you to toggle the use of the corporate proxy.
+<4> Same as 2.
+
+
+To start squid and have it start automatically on subsequent system boots, run the following from CLI:
+----
+ # systemctl start squid
+ # systemctl enable squid
+----
+
+
+
+=== Configuring the components to use the proxy ===
+
+
+[NOTE]
+====
+The configuration as shown here assumes that you're using Squid.
+If you're running without Squid, replace "localhost" and "3128" with the username, password, address and port of your corporate proxy.
+====
+Adjust the following files to contain the respective contents (create the files, if needed):
+
+./etc/profile.d/proxy.sh
+----
+export http_proxy="http://localhost:3128"
+export https_proxy="http://localhost:3128"
+----
+
+
+./etc/environment
+----
+http_proxy="http://localhost:3128"
+https_proxy="http://localhost:3128"
+----
+
+
+
+
+.~/.gradle/gradle.properties
+----
+systemProp.http.proxyHost=localhost
+systemProp.http.proxyPort=3128
+systemProp.https.proxyHost=localhost
+systemProp.https.proxyPort=3128
+----
+
+
+
+
+./etc/systemd/system/docker.service.d/http-proxy.conf
+----
+[Service]
+Environment="HTTP_PROXY=http://localhost:3128/"
+Environment="HTTPS_PROXY=http://localhost:3128/"
+Environment="NO_PROXY=localhost,127.0.0.1"
+----
+
+
+Finally, you need to configure your IDE to use the proxy.
+
+
+== Project Checkout ==
+
+.Clone with SSH
+----
+git clone ssh://github.com/logbee/keyscore.git
+----
+
+.Clone with HTTP
+----
+git clone https://github.com/logbee/keyscore.git
+----
+
+
+== How to run ==
+
+To start all KEYSCORE subsystems, run in the root of the project:
+
+----
+gradle startContainers
+----
+
+To stop all KEYSCORE subsystems, run in the root of the project:
+
+----
+gradle stopContainers
+----
+
+To start an Agent, run the following from CLI:
+
+----
+cd keyscore-agent
+gradle startDockerContainer
+----
+
+To start the Frontier, run the following from CLI:
+
+----
+cd keyscore-frontier
+gradle startDockerContainer
+----
+
+
+To start the Manager-WebUI, run the following from CLI:
+
+----
+cd keyscore-manager
+gradle startDockerContainer
+----
+
+== How to run without Docker ==
+
+Running individual subsystems without Docker can be helpful for development, as the startup of the subsystems is much quicker this way.
+
+To start an agent or the frontier without Docker, start the following applications in your IDE:
+
+ - `io.logbee.keyscore.agent.app.AgentApplication`
+ - `io.logbee.keyscore.frontier.app.FrontierApplication`
+
+
+To start the manager without Docker, run the following from CLI:
+
+
+----
+cd keyscore-manager
+gradle serve
+----
