@@ -40,9 +40,9 @@ object ClusterPipelineManager {
   * The ClusterPipelineManager<br>
   * - starts the PipelineDeployer and send the  CreatePipeline Message with the BlueprintRef
   * @param clusterAgentManager
-  * @param localPipelineManager
+  * @param localPipelineManagerResolution
   */
-class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
+class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
   var agentStatsManager: ActorRef = _
@@ -70,7 +70,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
   private def running: Receive = {
     case CreatePipeline(pipelineBlueprint) =>
-      val pipelineDeployer = context.actorOf(PipelineDeployer())
+      val pipelineDeployer = context.actorOf(PipelineDeployer(localPipelineManagerResolution))
       log.info("Received CreatePipelineRequest")
       pipelineDeployer ! CreatePipelineRequest(pipelineBlueprint.ref, sender)
   }

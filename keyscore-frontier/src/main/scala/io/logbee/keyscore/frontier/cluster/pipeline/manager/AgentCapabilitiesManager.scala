@@ -7,15 +7,17 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
-import io.logbee.keyscore.commons.{DescriptorService, HereIam, WhoIs}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
+import io.logbee.keyscore.commons.{AgentCapabilitiesService, DescriptorService, HereIam, WhoIs}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-
+/**
+  * The AgentCapabilitiesManager holds the capabilities of all agents in the cluster
+  * and returns all the possible agents for a specific set of descriptors.
+  */
 object AgentCapabilitiesManager {
   def apply(): Props = Props(new AgentCapabilitiesManager())
 
@@ -27,12 +29,12 @@ object AgentCapabilitiesManager {
 
   case class ActiveDescriptors(listOfDescriptors: List[Descriptor])
 
+  case class AgentsForPipelineRequest(descriptorRefs: List[DescriptorRef])
+
+  case class AgentsForPipelineResponse(possibleAgents: List[ActorRef])
+
 }
 
-/**
-  * The AgentCapabilitiesManager holds the capabilities of all agents in the cluster
-  * and returns all the possible agents for a specific set of descriptors.
-  */
 class AgentCapabilitiesManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
@@ -45,6 +47,7 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
     mediator ! Subscribe("cluster", self)
+    mediator ! Subscribe(Topics.WhoIsTopic, self)
     mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
     mediator ! WhoIs(DescriptorService)
     log.info("AgentCapabilitiesManager started.")
@@ -64,6 +67,9 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
   }
 
   private def running: Receive = {
+    case WhoIs(AgentCapabilitiesService) =>
+      HereIam(AgentCapabilitiesService,self)
+
     case GetStandardDescriptors(selectedLanguage) =>
       sender ! StandardDescriptors(listOfFilterDescriptors.keys.toList)
 
@@ -84,9 +90,9 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
         paths.nonEmpty
       })
 
-    case AgentsForPipelineRequest(receiver, descriptorRefs) =>
+    case AgentsForPipelineRequest(descriptorRefs) =>
       val possibleAgents = createListOfPossibleAgents(descriptorRefs)
-      sender ! AgentsForPipelineResponse(receiver, possibleAgents)
+      sender ! AgentsForPipelineResponse(possibleAgents)
 
   }
 

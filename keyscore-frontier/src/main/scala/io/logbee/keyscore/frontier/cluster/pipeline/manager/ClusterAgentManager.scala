@@ -11,6 +11,11 @@ import io.logbee.keyscore.model.descriptor.Descriptor
 
 import scala.collection.mutable
 
+/**
+  * ClusterAgentManager does manages all the agent members in the cluster <br>
+  * - starts AgentStatsManager<br>
+  * - starts AgentCapabilitiesManager.<br>
+  */
 object ClusterAgentManager {
 
   case object QueryAgents
@@ -35,17 +40,16 @@ object ClusterAgentManager {
   private case object Unsubscribe
 
 }
-/**
- * ClusterAgentManager does manages all the agent members in the cluster <br>
- * - starts AgentStatsManager<br>
- * - starts AgentCapabilitiesManager.<br>
- */
+
 class ClusterAgentManager extends Actor with ActorLogging {
 
   val cluster = Cluster(context.system)
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
   val idToAgent: mutable.HashMap[Long, RemoteAgent] = mutable.HashMap.empty
   val agents: mutable.ListBuffer[Member] = mutable.ListBuffer.empty
+
+  val agentStatsManager = context.actorOf(AgentStatsManager())
+  val agentCapabilitiesManager = context.actorOf(AgentCapabilitiesManager())
 
   override def preStart(): Unit = {
     log.info("ClusterAgentManager started.")

@@ -9,6 +9,7 @@ case object DescriptorService extends Service
 case object BlueprintService extends Service
 case object AgentCapabilitiesService extends Service
 case object AgentStatsService extends Service
+case object LocalPipelineService extends Service
 
 case class WhoIs(service: Service)
 

@@ -63,7 +63,6 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
     configurationManager = context.actorOf(ConfigurationManager())
     descriptorManager = context.actorOf(DescriptorManager())
     blueprintManager = context.actorOf(BlueprintManager())
-    agentStatsManager = context.actorOf(AgentStatsManager())
   }
 
   override def postStop(): Unit = {
