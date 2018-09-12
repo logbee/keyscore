@@ -1,7 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from "@angular/core";
 import {Subject} from "rxjs/index";
 
-import "./style/pipely-style.css";
+import "./style/pipely-style.scss";
 import {PipelyPipelineConfiguration} from "./models/pipeline-configuration.model";
 
 @Component({

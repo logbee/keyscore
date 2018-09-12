@@ -10,31 +10,32 @@ import "./style/parameter-module-style.scss"
         <div [formGroup]="form">
             <div [ngSwitch]="parameterDescriptor.jsonClass">    
                 <mat-form-field  *ngSwitchCase="'TextParameterDescriptor'">
-                    <input matInput type="text" placeholder="Field name" [formControlName]="parameterDescriptor.name"
-                           [id]="parameterDescriptor.name" [type]="'text'" [(ngModel)]="value">
+                    <input matInput type="text" [placeholder]="parameterDescriptor.displayName" [formControlName]="parameterDescriptor.name"
+                           [id]="parameterDescriptor.name" [type]="'text'" [value]="parameter.value">
                     <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                         <mat-icon>close</mat-icon>
                     </button>
                 </mat-form-field>
 
                 <mat-form-field *ngSwitchCase="'IntParameterDescriptor'">
-                    <input matInput type="number" placeholder="Value" [formControlName]="parameterDescriptor.name"
-                           [id]="parameterDescriptor.name" [type]="'number'" [(ngModel)]="value">
+                    <input matInput type="number" [value]="parameter.value" [placeholder]="parameterDescriptor.displayName" [formControlName]="parameterDescriptor.name"
+                           [id]="parameterDescriptor.name" [type]="'number'">
                     <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                         <mat-icon>close</mat-icon>
                     </button>
                 </mat-form-field>
                          
                 <parameter-list *ngSwitchCase="'ListParameterDescriptor'" [formControlName]="parameterDescriptor.name"
-                                [id]="parameterDescriptor.name"></parameter-list>
+                                [id]="parameterDescriptor.name" [parameter]="parameter"></parameter-list>
                 <parameter-map *ngSwitchCase="'MapParameterDescriptor'" [formControlName]="parameterDescriptor.name"
                                [id]="parameterDescriptor.name"></parameter-map>
 
                 <div *ngSwitchCase="'BooleanParameterDescriptor'"
                      class="toggleCheckbox" [id]="parameterDescriptor.name">
-                    <mat-checkbox [(ngModel)]="checked" id="checkbox{{parameterDescriptor.name}}" 
+                    <mat-slide-toggle [checked]="parameter.value" id="checkbox{{parameterDescriptor.name}}"  
                                   [formControlName]="parameterDescriptor.name">
-                    </mat-checkbox>
+                        {{parameterDescriptor.displayName}} Value: {{parameter.value}}
+                    </mat-slide-toggle>
                 </div>
                 <div  class="parameter-required" *ngIf="!isValid">{{parameterDescriptor.displayName}}
                     {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}

@@ -303,19 +303,27 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
             parameters: [
                 {
                     name: "TestFeld1",
-                    displayName: "Test Feld 1",
+                    displayName: "Text Parameter",
                     jsonClass: "TextParameterDescriptor",
-                    mandatory: true,
-                    value: ""
-
+                    mandatory: true
                 },
                 {
                     name: "TestList1",
-                    displayName: "Test Liste 1",
+                    displayName: "Liste ",
                     jsonClass: "ListParameterDescriptor",
-                    mandatory: true,
-                    value: ["test1", "test2"]
-
+                    mandatory: true
+                },
+                {
+                    name: "TestFeld3",
+                    displayName: "Int Parameter",
+                    jsonClass: "IntParameterDescriptor",
+                    mandatory: true
+                },
+                {
+                    name: "TestFeld4",
+                    displayName: "Boolean Parameter",
+                    jsonClass: "BooleanParameterDescriptor",
+                    mandatory: true
                 }
             ],
             category: "Test"

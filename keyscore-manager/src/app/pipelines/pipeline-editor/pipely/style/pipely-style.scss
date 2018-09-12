@@ -109,8 +109,12 @@ toolbar-dropzone {
 .configurator {
     padding: 10px;
     border-radius: 5px 0 0 5px;
-    background-color: #e2e1e0 !important;
-    max-width:33.33%;
+    border-right:1px solid rgba(0,0,0,0.5);
+    border-top:1px solid rgba(0,0,0,0.5);
+    border-bottom:1px solid rgba(0,0,0,0.5);
+    /*background-color: #e2e1e0 !important;*/
+    /*background-color: rgba(225, 225, 225, 0.84) !important;*/
+    width:25%;
 }
 
 /*Trash*/

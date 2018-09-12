@@ -1,7 +1,10 @@
 @import '~@angular/material/theming';
 
-$app-error: #B00020;
+$app-error: mat-palette($mat-red);
+
+$error:mat-color($app-error);
 
 .parameter-required {
-  color: $app-error;
+  color: $error;
+  font-size:0.8em;
 }

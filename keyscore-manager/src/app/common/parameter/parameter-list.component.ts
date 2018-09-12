@@ -1,8 +1,9 @@
-import {Component, forwardRef, Input} from "@angular/core";
+import {Component, forwardRef, Input, OnInit} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Observable} from "rxjs/index";
 import {delay} from "rxjs/internal/operators";
 import {__await} from "tslib";
+import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
 
 @Component({
     selector: "parameter-list",
@@ -40,10 +41,11 @@ import {__await} from "tslib";
     ]
 })
 
-export class ParameterList implements ControlValueAccessor {
+export class ParameterList implements ControlValueAccessor,OnInit {
 
     @Input() public disabled = false;
     @Input() public distinctValues = true;
+    @Input() public parameter: Parameter;
     public parameterValues: string[];
     private duplicate: boolean = false;
 
@@ -54,6 +56,10 @@ export class ParameterList implements ControlValueAccessor {
     public onTouched = () => {
         return;
     };
+
+    public ngOnInit(): void{
+        this.parameterValues = this.parameter.value;
+    }
 
     public writeValue(elements: string[]): void {
 
