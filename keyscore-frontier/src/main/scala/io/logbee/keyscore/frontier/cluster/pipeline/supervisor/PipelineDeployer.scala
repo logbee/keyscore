@@ -8,7 +8,7 @@ import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetPipeli
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{StatsForAgentsRequest, StatsForAgentsResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.{BlueprintsResponse, CreatePipelineRequest, StartResolvingBlueprintRef}
+import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer._
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToDescriptor
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
@@ -21,14 +21,17 @@ object PipelineDeployer {
 
   def apply(localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection): Props = Props(new PipelineDeployer(localPipelineManagerResolution))
 
-
-  case class CreatePipelineRequest(blueprintRef: BlueprintRef, sender: ActorRef)
+  case class CreatePipelineRequest(blueprintRef: BlueprintRef)
 
   case object CreatePipelineResponse
 
   case class BlueprintsResponse(blueprints: List[SealedBlueprint])
 
   case class DescriptorsResponse(descriptors: List[Descriptor])
+
+  case object NoAvailableAgents
+
+  case object PipelineDeployed
 
   private case object StartResolvingBlueprintRef
 
@@ -41,7 +44,6 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
   private val mediator: ActorRef = DistributedPubSub(context.system).mediator
   private var blueprintManager: ActorRef = _
-  private var descriptorManager: ActorRef = _
   private var agentStatsManager: ActorRef = _
   private var agentCapabilitiesManager: ActorRef = _
   var blueprintRef: BlueprintRef = _
@@ -50,14 +52,13 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
   var descriptorRefs: ListBuffer[DescriptorRef] = mutable.ListBuffer.empty[DescriptorRef]
 
-  case class CreatePipelineSupervisorState(blueprintManager: ActorRef = null, descriptorManager: ActorRef = null, agentStatsManager: ActorRef = null, agentCapabilitiesManager: ActorRef = null) {
-    def isComplete: Boolean = blueprintManager != null && descriptorManager != null && agentStatsManager != null && agentCapabilitiesManager != null
+  case class CreatePipelineSupervisorState(blueprintManager: ActorRef = null, agentStatsManager: ActorRef = null, agentCapabilitiesManager: ActorRef = null) {
+    def isComplete: Boolean = blueprintManager != null && agentStatsManager != null && agentCapabilitiesManager != null
   }
 
   override def receive: Receive = {
 
-    case CreatePipelineRequest(ref, sender) =>
-      mediator ! WhoIs(DescriptorService)
+    case CreatePipelineRequest(ref) =>
       mediator ! WhoIs(BlueprintService)
       mediator ! WhoIs(AgentStatsService)
       mediator ! WhoIs(AgentCapabilitiesService)
@@ -70,9 +71,6 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
     case HereIam(BlueprintService, ref) =>
       blueprintManager = ref
       maybeRunning(state.copy(blueprintManager = ref))
-    case HereIam(DescriptorService, ref) =>
-      descriptorManager = ref
-      maybeRunning(state.copy(descriptorManager = ref))
     case HereIam(AgentStatsService, ref) =>
       agentStatsManager = ref
       maybeRunning(state.copy(agentStatsManager = ref))
@@ -83,18 +81,20 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
 
   private def running: Receive = {
-
     case StartResolvingBlueprintRef =>
+      log.info("Start Resolving")
       blueprintManager ! GetPipelineBlueprintRequest(blueprintRef)
 
     case GetPipelineBlueprintResponse(blueprint) => blueprint match {
       case Some(pipelineBlueprint) => {
+        log.info("Get PipelineBlueprint")
         context.system.actorOf(BlueprintCollector(self, pipelineBlueprint, blueprintManager))
         blueprintForPipeline = pipelineBlueprint
       }
     }
 
     case BlueprintsResponse(blueprints) =>
+      log.info("Blueprints Response")
       blueprints.foreach(current => {
         descriptorRefs += current.descriptorRef
       })
@@ -102,11 +102,18 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
       agentCapabilitiesManager ! AgentsForPipelineRequest(descriptorRefs.toList)
 
     case AgentsForPipelineResponse(possibleAgents) =>
-      agentStatsManager ! StatsForAgentsRequest(possibleAgents)
+      log.info("Agents Response")
+      if (!possibleAgents.isEmpty) {
+        agentStatsManager ! StatsForAgentsRequest(possibleAgents)
+      } else {
+        messenger ! NoAvailableAgents
+      }
 
-    case StatsForAgentsResponse(possibleAgents)   =>
+    case StatsForAgentsResponse(possibleAgents) =>
+      log.info("Stats Response")
       val selectedAgent = scala.util.Random.shuffle(possibleAgents).head._1
-      localPipelineManagerResolution(selectedAgent, context) !  CreatePipelineOrder(blueprintForPipeline)
+      localPipelineManagerResolution(selectedAgent, context) ! CreatePipelineOrder(blueprintForPipeline)
+      messenger ! PipelineDeployed
   }
 
   private def maybeRunning(state: CreatePipelineSupervisorState): Unit = {

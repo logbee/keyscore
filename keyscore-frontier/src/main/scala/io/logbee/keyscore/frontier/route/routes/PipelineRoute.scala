@@ -12,7 +12,7 @@ import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManag
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.frontier.route.routes.PipelineRoute.{PipelineRouteRequest, PipelineRouteResponse}
-import io.logbee.keyscore.model.blueprint.PipelineBlueprint
+import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
 
 object PipelineRoute {
   case class PipelineRouteRequest(clusterPipelineManager: ActorRef, blueprintManager: ActorRef)
@@ -62,8 +62,8 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
               }
           } ~
           put {
-            entity(as[PipelineBlueprint]) { blueprint =>
-              pipelineManager ! ClusterPipelineManager.CreatePipeline(blueprint)
+            entity(as[BlueprintRef]) { blueprintRef =>
+              pipelineManager ! ClusterPipelineManager.CreatePipeline(blueprintRef)
               complete(StatusCodes.Created)
             }
           } ~

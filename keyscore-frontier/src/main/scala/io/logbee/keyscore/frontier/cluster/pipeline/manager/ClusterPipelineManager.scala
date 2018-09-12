@@ -19,7 +19,7 @@ object ClusterPipelineManager {
 
   case class RequestExistingBlueprints()
 
-  case class CreatePipeline(pipelineBlueprint: PipelineBlueprint)
+  case class CreatePipeline(blueprintRef: BlueprintRef)
   case class DeletePipeline(id: UUID)
 
   case object DeleteAllPipelines
@@ -69,10 +69,10 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
   }
 
   private def running: Receive = {
-    case CreatePipeline(pipelineBlueprint) =>
+    case CreatePipeline(blueprintRef) =>
       val pipelineDeployer = context.actorOf(PipelineDeployer(localPipelineManagerResolution))
       log.info("Received CreatePipelineRequest")
-      pipelineDeployer ! CreatePipelineRequest(pipelineBlueprint.ref, sender)
+      pipelineDeployer tell (CreatePipelineRequest(blueprintRef), sender)
   }
 
 //  private def running: Receive = {

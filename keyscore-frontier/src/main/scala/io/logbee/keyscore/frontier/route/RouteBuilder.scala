@@ -27,6 +27,7 @@ import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.{QueryAgents, QueryAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.{AgentCapabilitiesManager, ClusterPipelineManager}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.{NoAvailableAgents, PipelineDeployed}
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.model.AgentModel
 import io.logbee.keyscore.model.WhichValve.whichValve
@@ -162,9 +163,12 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
               }
           } ~
           put {
-            entity(as[PipelineBlueprint]) { pipelineBlueprint =>
-              clusterPipelineManager ! ClusterPipelineManager.CreatePipeline(pipelineBlueprint)
-              complete(StatusCodes.Created)
+            entity(as[BlueprintRef]) { blueprintRef =>
+              onSuccess(clusterPipelineManager ? ClusterPipelineManager.CreatePipeline(blueprintRef)) {
+                case NoAvailableAgents => complete(StatusCodes.NoContent)
+                case PipelineDeployed  => complete(StatusCodes.Created)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
             }
           } ~
           //TODO
