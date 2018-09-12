@@ -38,12 +38,27 @@ module.exports = {
                 }]
             },
             {
+                test: /\.scss$/,
+                use: [
+                    {
+                        loader: 'style-loader'
+                    },
+                    {
+                        loader: 'css-loader'
+                    },
+                    {
+                        loader: 'sass-loader'
+                    }
+                ]
+            },
+            {
                 test: /\.css$/,
                 use: [
                     'style-loader',
                     'css-loader'
                 ]
             },
+
             {
                 test: /\.(png|jpg|jpeg|gif|svg|ttf|woff2|woff|eot)$/,
                 use: [{

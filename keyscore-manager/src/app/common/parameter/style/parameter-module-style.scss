@@ -1,0 +1,7 @@
+@import '~@angular/material/theming';
+
+$app-error: #B00020;
+
+.parameter-required {
+  color: $app-error;
+}
