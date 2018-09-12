@@ -22,11 +22,6 @@ object FrontierApplication extends App {
   val frontier = system.actorOf(Props[Frontier], "frontier")
 
   frontier ! InitFrontier(isOperating)
-
-  Await.ready(system.whenTerminated, Duration.Inf)
-
-  println(" # # # Stopped FrontierApplication. # # #")
-
 }
 
 class FrontierApplication {

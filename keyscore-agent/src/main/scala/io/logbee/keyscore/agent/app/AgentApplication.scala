@@ -20,6 +20,4 @@ object AgentApplication extends App {
   val agent = system.actorOf(Props[Agent], "agent")
 
   agent ! Initialize
-
-  Await.ready(system.whenTerminated, Duration.Inf)
 }
