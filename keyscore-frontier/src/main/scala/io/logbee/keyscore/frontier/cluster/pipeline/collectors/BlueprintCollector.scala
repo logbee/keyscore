@@ -22,7 +22,8 @@ class BlueprintCollector(receiver: ActorRef, pipelineBlueprint: PipelineBlueprin
     pipelineBlueprint.blueprints.foreach(current => {
       blueprintManager ! GetBlueprintRequest(current.blueprintRef)
     })
-    context.system.scheduler.scheduleOnce(5 seconds) {
+    val context = this.context
+    system.scheduler.scheduleOnce(5 seconds) {
       receiver ! BlueprintsResponse(blueprints.toList)
       context.stop(self)
     }

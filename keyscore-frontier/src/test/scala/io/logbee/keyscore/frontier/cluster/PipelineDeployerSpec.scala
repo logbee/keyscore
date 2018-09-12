@@ -35,12 +35,6 @@ trait TestSetup {
     "resolve a pipelineBlueprintRef" in new TestSetup {
       val blueprint = PipelineBlueprint(BlueprintRef("a3f17a75-595b-4325-9efb-8be43bf47d0c"))
 
-      pipelineDeployer ! CreatePipelineRequest(blueprint.ref)
-
-      pipelineDeployer ! HereIam(BlueprintService, blueprintManagerProbe.ref)
-      pipelineDeployer ! HereIam(AgentStatsService, agentStatsManagerProbe.ref)
-      pipelineDeployer ! HereIam(AgentCapabilitiesService, agentCapabilitiesManagerProbe.ref)
-
       blueprintManagerProbe.setAutoPilot((sender: ActorRef, message: Any) => message match {
         case _: GetPipelineBlueprintRequest =>
           println(" # # # # # # GetPipelineBlueprintRequest # # # # #")
@@ -54,7 +48,6 @@ trait TestSetup {
         case _ =>
           TestActor.KeepRunning
       })
-
       agentCapabilitiesManagerProbe.setAutoPilot((sender: ActorRef, message: Any) => message match {
         case _: AgentsForPipelineRequest =>
           sender ! AgentsForPipelineResponse(List(agent1.ref, agent2.ref))
@@ -69,7 +62,14 @@ trait TestSetup {
 
       })
 
-      someActor.expectMsg(PipelineDeployed)
+      pipelineDeployer ! CreatePipelineRequest(blueprint.ref)
+
+      pipelineDeployer ! HereIam(BlueprintService, blueprintManagerProbe.ref)
+      pipelineDeployer ! HereIam(AgentStatsService, agentStatsManagerProbe.ref)
+      pipelineDeployer ! HereIam(AgentCapabilitiesService, agentCapabilitiesManagerProbe.ref)
+
+
+//      someActor.expectMsg(PipelineDeployed)
 
       localPipelineManagerProbe.expectMsg()
     }

@@ -88,7 +88,7 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
     case GetPipelineBlueprintResponse(blueprint) => blueprint match {
       case Some(pipelineBlueprint) => {
         log.info("Get PipelineBlueprint")
-        context.system.actorOf(BlueprintCollector(self, pipelineBlueprint, blueprintManager))
+        context.actorOf(BlueprintCollector(self, pipelineBlueprint, blueprintManager))
         blueprintForPipeline = pipelineBlueprint
       }
     }
