@@ -8,13 +8,13 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.frontier.route.routes.DescriptorRoute.{DescriptorRouteRequest, DescriptorRouteResponse}
 
 object DescriptorRoute {
 
-  case class DescriptorRouteRequest(clusterCapabilitiesManager: ActorRef)
+  case class DescriptorRouteRequest(agentCapabilitiesManager: ActorRef)
 
   case class DescriptorRouteResponse(descriptorRoute: Route)
 
@@ -26,16 +26,16 @@ class DescriptorRoute extends Actor with ActorLogging with Json4sSupport with Ro
   implicit val executionContext = system.dispatcher
 
   override def receive: Receive = {
-    case DescriptorRouteRequest(clusterCapabilitiesManager) =>
-      val r = descriptorsRoute(clusterCapabilitiesManager)
+    case DescriptorRouteRequest(agentCapabilitiesManager) =>
+      val r = descriptorsRoute(agentCapabilitiesManager)
       sender ! DescriptorRouteResponse(r)
   }
 
-  def descriptorsRoute(clusterCapabilitiesManager: ActorRef): Route = {
+  def descriptorsRoute(agentCapabilitiesManager: ActorRef): Route = {
     pathPrefix("descriptors") {
       get {
         parameters('language.as[String]) { language =>
-          onSuccess(clusterCapabilitiesManager ? GetStandardDescriptors(Locale.forLanguageTag(language))) {
+          onSuccess(agentCapabilitiesManager ? GetStandardDescriptors(Locale.forLanguageTag(language))) {
             case StandardDescriptors(listOfDescriptors) => complete(StatusCodes.OK, listOfDescriptors)
             case _ => complete(StatusCodes.InternalServerError)
           }

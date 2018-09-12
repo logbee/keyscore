@@ -7,33 +7,33 @@ import akka.cluster.ClusterEvent.{MemberUp, UnreachableMember}
 import akka.cluster.MockableMember
 import akka.testkit.{TestKit, TestProbe}
 import io.logbee.keyscore.commons.cluster.{AgentJoin, AgentJoinAccepted, MemberAdded, MemberRemoved}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager.{QueryAgents, QueryAgentsResponse, QueryMembers, QueryMembersResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers, QueryMembersResponse}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, WordSpecLike}
 
-class AgentClusterManagerSpec extends TestKit(ActorSystem("AgentClusterManagerSpec")) with WordSpecLike with ScalaFutures with BeforeAndAfter {
+class ClusterAgentManagerSpec extends TestKit(ActorSystem("ClusterAgentManagerSpec")) with WordSpecLike with ScalaFutures with BeforeAndAfter {
 
-  var agentClusterManager: ActorRef = _
+  var clusterAgentManager: ActorRef = _
 
   val actorUUID = UUID.randomUUID()
 
 
   before {
-    agentClusterManager = system.actorOf(Props[AgentClusterManager])
+    clusterAgentManager = system.actorOf(Props[ClusterAgentManager])
   }
 
   after {
-    system.stop(agentClusterManager)
+    system.stop(clusterAgentManager)
   }
 
-  "A AgentClusterManager" should {
+  "A ClusterAgentManager" should {
 
     "return an empty list if no agent has joined" in {
 
       val probe = TestProbe()
 
-      agentClusterManager tell (QueryAgents, probe.ref)
+      clusterAgentManager tell (QueryAgents, probe.ref)
 
       probe.expectMsg(QueryAgentsResponse(List.empty))
     }
@@ -42,8 +42,8 @@ class AgentClusterManagerSpec extends TestKit(ActorSystem("AgentClusterManagerSp
 
       val probe = TestProbe()
 
-      agentClusterManager tell (AgentJoin(actorUUID, "test-agent"), probe.ref)
-      agentClusterManager tell (QueryAgents, probe.ref)
+      clusterAgentManager tell (AgentJoin(actorUUID, "test-agent"), probe.ref)
+      clusterAgentManager tell (QueryAgents, probe.ref)
 
       probe.expectMsgType[AgentJoinAccepted]
       probe.expectMsg(QueryAgentsResponse(List(RemoteAgent(actorUUID, "test-agent", 0, probe.ref))))
@@ -55,8 +55,8 @@ class AgentClusterManagerSpec extends TestKit(ActorSystem("AgentClusterManagerSp
 
       val mockerMember = new MockableMember(roles = Set("keyscore-agent"))
 
-      agentClusterManager tell (MemberUp(mockerMember), probe.ref)
-      agentClusterManager tell (QueryMembers, probe.ref)
+      clusterAgentManager tell (MemberUp(mockerMember), probe.ref)
+      clusterAgentManager tell (QueryMembers, probe.ref)
 
       probe.expectMsgType[MemberAdded]
       probe.expectMsg(QueryMembersResponse(List(mockerMember)))
@@ -68,7 +68,7 @@ class AgentClusterManagerSpec extends TestKit(ActorSystem("AgentClusterManagerSp
 
       val mockerMember = new MockableMember()
 
-      agentClusterManager tell(UnreachableMember(mockerMember), probe.ref)
+      clusterAgentManager tell(UnreachableMember(mockerMember), probe.ref)
 
       probe.expectMsgType[MemberRemoved]
     }

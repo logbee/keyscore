@@ -8,14 +8,14 @@ import akka.pattern.ask
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.frontier.route.routes.PipelineRoute.{PipelineRouteRequest, PipelineRouteResponse}
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 
 object PipelineRoute {
-  case class PipelineRouteRequest(pipelineManager: ActorRef, blueprintManager: ActorRef)
+  case class PipelineRouteRequest(clusterPipelineManager: ActorRef, blueprintManager: ActorRef)
   case class PipelineRouteResponse(pipelineRoute: Route)
 }
 
@@ -41,7 +41,7 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
             }
           } ~
             delete {
-              pipelineManager ! PipelineManager.DeleteAllPipelines
+              pipelineManager ! ClusterPipelineManager.DeleteAllPipelines
               complete(StatusCodes.OK)
             }
         } ~
@@ -57,13 +57,13 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
               }
             } ~
               delete {
-                pipelineManager ! PipelineManager.DeletePipeline(id = configId)
+                pipelineManager ! ClusterPipelineManager.DeletePipeline(id = configId)
                 complete(StatusCodes.OK)
               }
           } ~
           put {
             entity(as[PipelineBlueprint]) { blueprint =>
-              pipelineManager ! PipelineManager.CreatePipeline(blueprint)
+              pipelineManager ! ClusterPipelineManager.CreatePipeline(blueprint)
               complete(StatusCodes.Created)
             }
           } ~

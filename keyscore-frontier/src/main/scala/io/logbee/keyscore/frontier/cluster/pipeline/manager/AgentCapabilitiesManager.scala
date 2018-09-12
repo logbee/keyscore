@@ -8,16 +8,16 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.{DescriptorService, HereIam, WhoIs}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{ActiveDescriptors, GetActiveDescriptors, GetStandardDescriptors, StandardDescriptors}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 
-object ClusterCapabilitiesManager {
-  def apply(): Props = Props(new ClusterCapabilitiesManager())
+object AgentCapabilitiesManager {
+  def apply(): Props = Props(new AgentCapabilitiesManager())
 
   case class GetStandardDescriptors(language: Locale)
 
@@ -29,7 +29,11 @@ object ClusterCapabilitiesManager {
 
 }
 
-class ClusterCapabilitiesManager extends Actor with ActorLogging {
+/**
+  * The AgentCapabilitiesManager holds the capabilities of all agents in the cluster
+  * and returns all the possible agents for a specific set of descriptors.
+  */
+class AgentCapabilitiesManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
 
@@ -43,14 +47,14 @@ class ClusterCapabilitiesManager extends Actor with ActorLogging {
     mediator ! Subscribe("cluster", self)
     mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
     mediator ! WhoIs(DescriptorService)
-    log.info("ClusterCapabilitiesManager started.")
+    log.info("AgentCapabilitiesManager started.")
   }
 
   override def postStop(): Unit = {
     mediator ! Publish("cluster", ActorLeave("ClusterCapManager", self))
     mediator ! Unsubscribe("agents", self)
     mediator ! Unsubscribe("cluster", self)
-    log.info("ClusterCapabilitiesManager stopped.")
+    log.info("AgentCapabilitiesManager stopped.")
   }
 
   override def receive: Receive = {

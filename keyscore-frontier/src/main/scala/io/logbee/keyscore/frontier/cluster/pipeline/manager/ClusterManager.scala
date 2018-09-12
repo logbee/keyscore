@@ -6,13 +6,13 @@ import akka.cluster.ClusterEvent._
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.{ActorJoin, ActorLeave, MemberJoin, MemberLeave}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager.AddAgent
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.AddAgent
 
 import scala.concurrent.ExecutionContext
 
 object ClusterManager {
-  def apply(agentClusterManager: ActorRef): Props = {
-    Props(new ClusterManager(agentClusterManager))
+  def apply(clusterAgentManager: ActorRef): Props = {
+    Props(new ClusterManager(clusterAgentManager))
   }
 }
 
@@ -24,7 +24,7 @@ class ClusterManager(aM: ActorRef) extends Actor with ActorLogging {
   private val mediator = DistributedPubSub(system).mediator
   private val scheduler = context.system.scheduler
 
-  private val agentClusterManager = aM
+  private val clusterAgentManager = aM
 
   override def preStart(): Unit = {
     log.info("ClusterManager started.")
@@ -58,13 +58,13 @@ class ClusterManager(aM: ActorRef) extends Actor with ActorLogging {
     case MemberUp(member) =>
       log.info(s"[Cluster] Member is up: ${member.uniqueAddress} with roles ${member.roles}")
       if (member.hasRole("keyscore-agent")) {
-        agentClusterManager ! AddAgent(member)
+        clusterAgentManager ! AddAgent(member)
       }
 
     case ReachableMember(member) =>
       log.info(s"[Cluster] Member is reachable: ${member.uniqueAddress} with roles ${member.roles}")
       if (member.hasRole("keyscore-agent")) {
-        agentClusterManager ! AddAgent(member)
+        clusterAgentManager ! AddAgent(member)
       }
 
     case UnreachableMember(member) =>

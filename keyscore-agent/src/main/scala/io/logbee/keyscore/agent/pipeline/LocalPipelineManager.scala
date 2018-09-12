@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
-import io.logbee.keyscore.agent.pipeline.PipelineScheduler._
+import io.logbee.keyscore.agent.pipeline.LocalPipelineManager._
 import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeleteAllPipelinesOrder, DeletePipelineOrder}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
@@ -12,7 +12,8 @@ import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-object PipelineScheduler {
+
+object LocalPipelineManager {
 
   private val SUPERVISOR_NAME_PREFIX = "pipeline:"
 
@@ -22,10 +23,19 @@ object PipelineScheduler {
 
   private case class SupervisorTerminated(supervisor: ActorRef, blueprint: PipelineBlueprint)
 
-  def apply(filterManager: ActorRef): Props = Props(new PipelineScheduler(filterManager))
+  def apply(filterManager: ActorRef): Props = Props(new LocalPipelineManager(filterManager))
 }
 
-class PipelineScheduler(filterManager: ActorRef) extends Actor with ActorLogging {
+/**
+  * The LocalPipelineManager does:
+  *
+  * - manage alle the local pipelines of an agent
+  *
+  * - create, delete, update and forwarding of ControllerMessages
+  *
+  * @param filterManager ActorRef of filterManager
+  */
+class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogging {
 
   import context._
   implicit val timeout: Timeout = 10 seconds

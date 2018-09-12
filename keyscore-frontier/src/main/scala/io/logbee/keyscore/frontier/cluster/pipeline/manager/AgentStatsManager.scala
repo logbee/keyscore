@@ -1,34 +1,39 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.manager
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentManager.{AgentForPipeline, AgentsForPipelineRequest, AgentsForPipelineResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentForPipeline, AgentsForPipelineRequest, AgentsForPipelineResponse}
 import io.logbee.keyscore.model.descriptor.DescriptorRef
 
-object AgentManager {
-  def apply(): Props = Props(new AgentManager())
+object AgentStatsManager {
+  def apply(): Props = Props(new AgentStatsManager())
 
   case class AgentsForPipelineRequest(ref: ActorRef, descriptorRefs: List[DescriptorRef])
   case class AgentsForPipelineResponse(ref: ActorRef, agents: List[ActorRef])
   case class AgentForPipeline(agent: ActorRef)
 }
 
-class AgentManager extends Actor with ActorLogging {
+/**
+ * AgentStatsManager holds stats for all agents in the cluster and retrieves them.
+ */
+class AgentStatsManager extends Actor with ActorLogging {
 
-  private var clusterCapabilitiesManager: ActorRef = _
+  var agentCapabilitiesManager: ActorRef = _
 
   override def preStart(): Unit = {
-   clusterCapabilitiesManager = context.actorOf(ClusterCapabilitiesManager())
+   agentCapabilitiesManager = context.actorOf(AgentCapabilitiesManager())
   }
 
   override def postStop(): Unit = super.postStop()
 
   override def receive: Receive = {
     case AgentsForPipelineRequest(receiver, descriptorRefs) =>
-      clusterCapabilitiesManager ! AgentsForPipelineRequest(receiver, descriptorRefs)
+      agentCapabilitiesManager ! AgentsForPipelineRequest(receiver, descriptorRefs)
 
     case AgentsForPipelineResponse(receiver, agents) =>
       val selectedAgent: ActorRef = chooseAgent(agents)
       receiver ! AgentForPipeline(selectedAgent)
+
+
   }
 
   private def chooseAgent(agents: List[ActorRef]): ActorRef = {

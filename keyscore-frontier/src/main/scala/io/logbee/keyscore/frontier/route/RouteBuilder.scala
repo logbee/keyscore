@@ -24,9 +24,9 @@ import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentF
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.app.AppInfo
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager.{QueryAgents, QueryAgentsResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.{ClusterCapabilitiesManager, PipelineManager}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.{QueryAgents, QueryAgentsResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.{AgentCapabilitiesManager, ClusterPipelineManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.model.AgentModel
 import io.logbee.keyscore.model.WhichValve.whichValve
@@ -44,8 +44,8 @@ object RouteBuilder {
 
   case class RouteResponse(route: Flow[HttpRequest, HttpResponse, Any])
 
-  def apply(agentClusterManager: ActorRef): Props = {
-    Props(new RouteBuilder(agentClusterManager))
+  def apply(clusterAgentManager: ActorRef): Props = {
+    Props(new RouteBuilder(clusterAgentManager))
   }
 }
 
@@ -77,9 +77,9 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     }
   }
 
-  private val agentClusterManager = aM
+  private val clusterAgentManager = aM
   private var blueprintManager = null
-  private val pipelineManager = system.actorOf(PipelineManager(agentClusterManager))
+  private val clusterPipelineManager = system.actorOf(ClusterPipelineManager(clusterAgentManager))
 
   override def preStart(): Unit = {
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(ConfigurationService))
@@ -135,13 +135,13 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
       pathPrefix("configuration") {
         pathPrefix("*") {
           get {
-            onSuccess(pipelineManager ? RequestExistingBlueprints()) {
+            onSuccess(clusterPipelineManager ? RequestExistingBlueprints()) {
               case PipelineBlueprintsResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
             delete {
-              pipelineManager ! PipelineManager.DeleteAllPipelines
+              clusterPipelineManager ! ClusterPipelineManager.DeleteAllPipelines
               complete(StatusCodes.OK)
             }
         } ~
@@ -157,13 +157,13 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
               }
             } ~
               delete {
-                pipelineManager ! PipelineManager.DeletePipeline(id = configId)
+                clusterPipelineManager ! ClusterPipelineManager.DeletePipeline(id = configId)
                 complete(StatusCodes.OK)
               }
           } ~
           put {
             entity(as[PipelineBlueprint]) { pipelineBlueprint =>
-              pipelineManager ! PipelineManager.CreatePipeline(pipelineBlueprint)
+              clusterPipelineManager ! ClusterPipelineManager.CreatePipeline(pipelineBlueprint)
               complete(StatusCodes.Created)
             }
           } ~
@@ -177,7 +177,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
         pathPrefix("instance") {
           pathPrefix("*") {
             get {
-              onSuccess(pipelineManager ? RequestExistingPipelines()) {
+              onSuccess(clusterPipelineManager ? RequestExistingPipelines()) {
                 case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
                 case _ => complete(StatusCodes.InternalServerError)
               }
@@ -194,7 +194,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
                   complete(StatusCodes.NotImplemented)
                 } ~
                 get {
-                  onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                  onSuccess(clusterPipelineManager ? RequestExistingPipelines()) {
                     case PipelineInstanceResponse(listOfPipelines) =>
                       listOfPipelines.find(instance => instance.id == instanceId) match {
                         case Some(instance) => complete(StatusCodes.OK, instance)
@@ -214,7 +214,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
         path("pause") {
           post {
             parameter('value.as[Boolean]) { doPause =>
-              onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
+              onSuccess(clusterPipelineManager ? PauseFilter(filterId, doPause)) {
                 case PauseFilterResponse(state) => complete(StatusCodes.Accepted, state)
                 case Failure => complete(StatusCodes.InternalServerError)
               }
@@ -224,7 +224,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
           path("drain") {
             post {
               parameter('value.as[Boolean]) { doDrain =>
-                onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
+                onSuccess(clusterPipelineManager ? DrainFilterValve(filterId, doDrain)) {
                   case DrainFilterResponse(state) => complete(StatusCodes.Accepted, state)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
@@ -235,7 +235,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
             put {
               entity(as[List[Dataset]]) { datasets =>
                 parameter("where" ? "before") { where =>
-                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets, where)) {
+                  onSuccess(clusterPipelineManager ? InsertDatasets(filterId, datasets, where)) {
                     case
                       InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
@@ -247,7 +247,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
           path("extract") {
             get {
               parameters('value.as[Int], "where" ? "after") { (amount, where) =>
-                onSuccess(pipelineManager ? ExtractDatasets(filterId, amount, where)) {
+                onSuccess(clusterPipelineManager ? ExtractDatasets(filterId, amount, where)) {
                   case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
@@ -257,14 +257,14 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
           path("configurations") {
             put {
               entity(as[Configuration]) { configuration =>
-                onSuccess(pipelineManager ? ConfigureFilter(filterId, configuration)) {
+                onSuccess(clusterPipelineManager ? ConfigureFilter(filterId, configuration)) {
                   case ConfigureFilterResponse(state) => complete(StatusCodes.Accepted, state)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
               }
             } ~
               get {
-                onSuccess(pipelineManager ? RequestExistingBlueprints()) {
+                onSuccess(clusterPipelineManager ? RequestExistingBlueprints()) {
                   // TODO: Fix Me!
                   //                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
                   //                  case Some(filter) => complete(StatusCodes.OK, filter)
@@ -277,7 +277,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
           } ~
           path("state") {
             get {
-              onSuccess(pipelineManager ? CheckFilterState(filterId)) {
+              onSuccess(clusterPipelineManager ? CheckFilterState(filterId)) {
                 case CheckFilterStateResponse(state) =>
                   complete(StatusCodes.Accepted, state)
                 case _ => complete(StatusCodes.InternalServerError)
@@ -286,7 +286,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
           } ~
           path("clear") {
             get {
-              onSuccess(pipelineManager ? ClearBuffer(filterId)) {
+              onSuccess(clusterPipelineManager ? ClearBuffer(filterId)) {
                 case ClearBufferResponse(state) =>
                   complete(StatusCodes.Accepted, state)
                 case _ => complete(StatusCodes.InternalServerError)
@@ -301,14 +301,14 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     pathPrefix("agent") {
       pathPrefix(JavaUUID) { agentID =>
         delete {
-          onSuccess(agentClusterManager ? RemoveAgentFromCluster(agentID)) {
+          onSuccess(clusterAgentManager ? RemoveAgentFromCluster(agentID)) {
             case AgentRemovedFromCluster(agentID) => complete(StatusCodes.OK)
             case _ => complete(StatusCodes.InternalServerError)
           }
         }
       } ~
         get {
-          onSuccess(agentClusterManager ? QueryAgents) {
+          onSuccess(clusterAgentManager ? QueryAgents) {
             case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
             case _ => complete(StatusCodes.InternalServerError)
           }

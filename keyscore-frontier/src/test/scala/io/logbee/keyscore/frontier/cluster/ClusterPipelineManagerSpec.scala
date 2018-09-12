@@ -3,10 +3,8 @@ package io.logbee.keyscore.frontier.cluster
 import java.util.UUID
 
 import akka.testkit.TestProbe
-import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved, CreatePipelineOrder}
 import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager.CreatePipeline
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.{AgentStatsManager, ClusterPipelineManager}
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SinkBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.descriptor.Descriptor
@@ -17,18 +15,20 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpecLike, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class PipelineManagerSpec extends ProductionSystemWithMaterializerAndExecutionContext with FreeSpecLike with Matchers with ScalaFutures with MockFactory {
+class ClusterPipelineManagerSpec extends ProductionSystemWithMaterializerAndExecutionContext with FreeSpecLike with Matchers with ScalaFutures with MockFactory {
 
   trait TestSetup {
 
     val sinkId = UUID.randomUUID()
     val sourceId = UUID.randomUUID()
-    val agentClusterManager = TestProbe("agent-manager")
+    val clusterAgentManager = TestProbe("cluster-agent-manager")
     val agent1 = TestProbe("agent1")
     val agent2 = TestProbe("agent2")
     val scheduler = TestProbe("scheduler")
 
-    val pipelineManager = system.actorOf(PipelineManager(agentClusterManager.ref, (_, context) => {
+    val agentStatsManager = system.actorOf(AgentStatsManager())
+
+    val clusterPipelineManager = system.actorOf(ClusterPipelineManager(clusterAgentManager.ref, (_, context) => {
       context.actorSelection(scheduler.ref.path)
     }))
 
@@ -46,24 +46,12 @@ class PipelineManagerSpec extends ProductionSystemWithMaterializerAndExecutionCo
   }
 
 
-  "A PipelineManager" - {
+  "A ClusterPipelineManager" - {
 
-    "should send CreatePipelineOrder when an agent is available" in new TestSetup {
+    "should send CreatePipelineRequest when a request comes in" in new TestSetup {
+      // TODO: Enhance me !
+      //      pipelineManager.tell(CreatePipeline(pipelineBlueprint), agent1.ref)
 
-      pipelineManager.tell(AgentCapabilities(List(sourceDescriptor, sinkDescriptor)), agent2.ref)
-
-      pipelineManager ! CreatePipeline(pipelineBlueprint)
-      scheduler.expectMsg(CreatePipelineOrder(pipelineBlueprint))
-    }
-
-    "should remove agents from the availableAgents list after he left cluster" in new TestSetup {
-      pipelineManager.tell(AgentCapabilities(List(sourceDescriptor, sinkDescriptor)), agent1.ref)
-      pipelineManager.tell(AgentCapabilities(List(sinkDescriptor, sourceDescriptor)), agent2.ref)
-
-      pipelineManager ! AgentLeaved(agent1.ref)
-      pipelineManager ! CreatePipeline(pipelineBlueprint)
-
-      scheduler.expectMsg(CreatePipelineOrder(pipelineBlueprint))
     }
   }
 }

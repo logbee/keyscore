@@ -3,13 +3,15 @@ package io.logbee.keyscore.frontier.cluster.pipeline.supervisor
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import io.logbee.keyscore.commons._
+import io.logbee.keyscore.commons.cluster.CreatePipelineOrder
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentManager.AgentsForPipelineRequest
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentForPipeline, AgentsForPipelineRequest, AgentsForPipelineResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.{BlueprintsResponse, CreatePipelineRequest, StartResolvingBlueprintRef}
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToDescriptor
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import sun.management.resources.agent
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -32,20 +34,23 @@ object PipelineDeployer {
 
 }
 
-class PipelineDeployer extends Actor with ActorLogging {
+/**
+  * The PipelineDeployer gathers all the required information to schedule a pipeline on an agent.
+  */
+class PipelineDeployer() extends Actor with ActorLogging {
 
   private val mediator: ActorRef = DistributedPubSub(context.system).mediator
   private var blueprintManager: ActorRef = _
   private var descriptorManager: ActorRef = _
-  private var agentManager: ActorRef = _
+  private var agentStatsManager: ActorRef = _
   var blueprintRef: BlueprintRef = _
   var messenger: ActorRef = _
-  var blueprint: PipelineBlueprint = _
+  var blueprintForPipeline: PipelineBlueprint = _
 
   var descriptorRefs: ListBuffer[DescriptorRef] = mutable.ListBuffer.empty[DescriptorRef]
 
-  case class CreatePipelineSupervisorState(blueprintManager: ActorRef = null, descriptorManager: ActorRef = null, agentManager: ActorRef = null) {
-    def isComplete: Boolean = blueprintManager != null && descriptorManager != null && agentManager != null
+  case class CreatePipelineSupervisorState(blueprintManager: ActorRef = null, descriptorManager: ActorRef = null, agentStatsManager: ActorRef = null) {
+    def isComplete: Boolean = blueprintManager != null && descriptorManager != null && agentStatsManager != null
   }
 
   override def receive: Receive = {
@@ -53,7 +58,7 @@ class PipelineDeployer extends Actor with ActorLogging {
     case CreatePipelineRequest(ref, sender) =>
       mediator ! WhoIs(DescriptorService)
       mediator ! WhoIs(BlueprintService)
-      mediator ! WhoIs(AgentManagerService)
+      mediator ! WhoIs(AgentStatsService)
       blueprintRef = ref
       messenger = sender
       context.become(initializing(CreatePipelineSupervisorState()))
@@ -66,9 +71,9 @@ class PipelineDeployer extends Actor with ActorLogging {
     case HereIam(DescriptorService, ref) =>
       descriptorManager = ref
       maybeRunning(state.copy(descriptorManager = ref))
-    case HereIam(AgentManagerService, ref) =>
-      agentManager = ref
-      maybeRunning(state.copy(agentManager = ref))
+    case HereIam(AgentStatsService, ref) =>
+      agentStatsManager = ref
+      maybeRunning(state.copy(agentStatsManager = ref))
   }
 
 
@@ -80,6 +85,7 @@ class PipelineDeployer extends Actor with ActorLogging {
     case GetPipelineBlueprintResponse(blueprint) => blueprint match {
       case Some(pipelineBlueprint) => {
         context.system.actorOf(BlueprintCollector(self, pipelineBlueprint, blueprintManager))
+        blueprintForPipeline = pipelineBlueprint
       }
     }
 
@@ -88,11 +94,11 @@ class PipelineDeployer extends Actor with ActorLogging {
         descriptorRefs += current.descriptorRef
       })
 
-      agentManager ! AgentsForPipelineRequest(self, descriptorRefs.toList)
+      agentStatsManager ! AgentsForPipelineRequest(self, descriptorRefs.toList)
 
-
-    //    case GetAgentForPiplineResonse(agentref) =>
-    //      pipelineSchedulerSelector(agent, context) ! CreatePipelineOrder(pipelineBlueprint)
+//
+//        case  AgentForPipeline(agentref) =>
+//          localPipelineManager(agent, context) ! CreatePipelineOrder(blueprintForPipeline)
 
   }
 

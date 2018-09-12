@@ -18,7 +18,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class PipelineSchedulerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class LocalPipelineManagerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   implicit val timeout: Timeout = 30 seconds
 
@@ -26,12 +26,12 @@ class PipelineSchedulerSpec extends WordSpec with Matchers with ScalaFutures wit
   val sourceConfiguration = Configuration()
   val sinkConfiguration = Configuration()
 
-  "A PipelineScheduler " should {
+  "A LocalPipelineManager " should {
 
     "start a StreamSupervisor for a pipeline" in {
 
       val filterManagerProbe = TestProbe("filter-manager")
-      val testee = system.actorOf(PipelineScheduler(filterManagerProbe.ref), "PipelineScheduler")
+      val testee = system.actorOf(LocalPipelineManager(filterManagerProbe.ref), "LocalPipelineManager")
 
       val streamConfiguration = PipelineConfiguration(streamId, "test", "A test pipeline.", sourceConfiguration, List.empty, sinkConfiguration)
 

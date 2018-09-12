@@ -9,9 +9,9 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.Agent.{AgentClusterManagerDied, CheckJoin, Initialize, SendJoin}
+import io.logbee.keyscore.agent.Agent.{ClusterAgentManagerDied, CheckJoin, Initialize, SendJoin}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
-import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineScheduler}
+import io.logbee.keyscore.agent.pipeline.{FilterManager, LocalPipelineManager}
 import io.logbee.keyscore.commons.cluster.Topics.AgentsTopic
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.extension.ExtensionLoader
@@ -30,7 +30,7 @@ object Agent {
   private case object SendJoin
   private case object CheckJoin
 
-  private case object AgentClusterManagerDied
+  private case object ClusterAgentManagerDied
 }
 
 class Agent extends Actor with ActorLogging {
@@ -44,7 +44,7 @@ class Agent extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val pipelineScheduler = context.actorOf(PipelineScheduler(filterManager), "PipelineScheduler")
+  private val localPipelineManager = context.actorOf(LocalPipelineManager(filterManager), "LocalPipelineManager")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
   private val name: String = new RandomNameGenerator("/agents.txt").nextName()
@@ -105,14 +105,14 @@ class Agent extends Actor with ActorLogging {
           log.error(e, "Failed to publish capabilities!")
           context.stop(self)
       }
-      context.watchWith(sender, AgentClusterManagerDied)
+      context.watchWith(sender, ClusterAgentManagerDied)
 
     case AgentJoinFailure =>
       log.error("Agent join failed")
       context.stop(self)
 
-    case AgentClusterManagerDied =>
-      log.info("Actual AgentClusterManager diededed. Setting joined-status to false and trying to join again.")
+    case ClusterAgentManagerDied =>
+      log.info("Actual ClusterAgentManager diededed. Setting joined-status to false and trying to join again.")
       joined = false
       self ! SendJoin
 

@@ -7,13 +7,13 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster._
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.PipelineManager.CreatePipeline
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.CreatePipeline
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.CreatePipelineRequest
 import io.logbee.keyscore.model.blueprint._
 
 
-object PipelineManager {
+object ClusterPipelineManager {
 
   case class RequestExistingPipelines()
 
@@ -24,49 +24,55 @@ object PipelineManager {
 
   case object DeleteAllPipelines
 
-  def apply(agentClusterManager: ActorRef): Props = {
-    Props(new PipelineManager(
-      agentClusterManager,
-      (ref, context) => context.actorSelection(ref.path / "PipelineScheduler")
+  def apply(clusterAgentManager: ActorRef): Props = {
+    Props(new ClusterPipelineManager(
+      clusterAgentManager,
+      (ref, context) => context.actorSelection(ref.path / "LocalPipelineManager")
     ))
   }
 
-  def apply(agentClusterManager: ActorRef, pipelineSchedulerSelector: (ActorRef, ActorContext) => ActorSelection): Props = {
-    Props(new PipelineManager(agentClusterManager, pipelineSchedulerSelector))
+  def apply(clusterAgentManager: ActorRef, localPipelineManager: (ActorRef, ActorContext) => ActorSelection): Props = {
+    Props(new ClusterPipelineManager(clusterAgentManager, localPipelineManager))
   }
 }
 
-class PipelineManager(agentClusterManager: ActorRef, pipelineSchedulerSelector: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
+/**
+  * The ClusterPipelineManager<br>
+  * - starts the PipelineDeployer and send the  CreatePipeline Message with the BlueprintRef
+  * @param clusterAgentManager
+  * @param localPipelineManager
+  */
+class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
-  var agentManager: ActorRef = _
+  var agentStatsManager: ActorRef = _
 
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
     mediator ! Subscribe("cluster", self)
     mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
-    mediator ! WhoIs(AgentManagerService)
-    log.info("PipelineManager started.")
+    mediator ! WhoIs(AgentStatsService)
+    log.info("ClusterPipelineManager started.")
   }
 
   override def postStop(): Unit = {
     mediator ! Publish("cluster", ActorLeave("ClusterCapManager", self))
     mediator ! Subscribe("agents", self)
     mediator ! Unsubscribe("cluster", self)
-    log.info("PipelineManager stopped.")
+    log.info("ClusterPipelineManager stopped.")
   }
 
   override def receive: Receive = {
-    case HereIam(AgentManagerService, ref) =>
-      agentManager = ref
+    case HereIam(AgentStatsService, ref) =>
+      agentStatsManager = ref
       context.become(running)
   }
 
   private def running: Receive = {
     case CreatePipeline(pipelineBlueprint) =>
-      val createPipelineSupervisor = context.actorOf(PipelineDeployer())
+      val pipelineDeployer = context.actorOf(PipelineDeployer())
       log.info("Received CreatePipelineRequest")
-      createPipelineSupervisor ! CreatePipelineRequest(pipelineBlueprint.ref, sender)
+      pipelineDeployer ! CreatePipelineRequest(pipelineBlueprint.ref, sender)
   }
 
 //  private def running: Receive = {

@@ -6,8 +6,8 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.frontier.Frontier._
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.{AgentClusterManager, AgentManager, ClusterManager}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager.{AgentClusterManagerInitialized, Init}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.{ClusterAgentManager, AgentStatsManager, ClusterManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.{ClusterAgentManagerInitialized, Init}
 import io.logbee.keyscore.frontier.cluster.resources.{BlueprintManager, ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.route.RouteBuilder
@@ -32,7 +32,7 @@ object Frontier {
 
   case object StopServer
 
-  private case class InitAgentClusterManager(isOperation: Boolean)
+  private case class InitClusterAgentManager(isOperation: Boolean)
 }
 
 class Frontier extends Actor with ActorLogging with Json4sSupport {
@@ -49,10 +49,10 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
   private var blueprintManager: ActorRef = _
   private var routeBuilder: ActorRef = _
 
-  private var agentClusterManager: ActorRef = _
+  private var clusterAgentManager: ActorRef = _
   private var clusterManager: ActorRef = _
 
-  private var agentManager: ActorRef = _
+  private var agentStatsManager: ActorRef = _
 
   private val configuration = FrontierConfigProvider(system)
 
@@ -63,7 +63,7 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
     configurationManager = context.actorOf(ConfigurationManager())
     descriptorManager = context.actorOf(DescriptorManager())
     blueprintManager = context.actorOf(BlueprintManager())
-    agentManager = context.actorOf(AgentManager())
+    agentStatsManager = context.actorOf(AgentStatsManager())
   }
 
   override def postStop(): Unit = {
@@ -77,14 +77,14 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
     case InitFrontier(isOperating) =>
       log.info("Initializing Frontier ...")
 
-      self ! InitAgentClusterManager(isOperating)
+      self ! InitClusterAgentManager(isOperating)
 
-    case InitAgentClusterManager(isOperating) =>
-      agentClusterManager = context.actorOf(Props(classOf[AgentClusterManager]), "AgentClusterManager")
-      agentClusterManager ! Init(isOperating)
+    case InitClusterAgentManager(isOperating) =>
+      clusterAgentManager = context.actorOf(Props(classOf[ClusterAgentManager]), "ClusterAgentManager")
+      clusterAgentManager ! Init(isOperating)
 
-    case AgentClusterManagerInitialized(isOperating) =>
-      clusterManager = context.actorOf(ClusterManager(agentClusterManager), "ClusterManager")
+    case ClusterAgentManagerInitialized(isOperating) =>
+      clusterManager = context.actorOf(ClusterManager(clusterAgentManager), "ClusterManager")
 
       if(isOperating) {
         log.info("Frontier started in Running Mode.")
@@ -99,7 +99,7 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
 
   private def running(): Receive = {
     case InitRouteBuilder =>
-      routeBuilder = context.actorOf(RouteBuilder(agentClusterManager), "RouteBuilder")
+      routeBuilder = context.actorOf(RouteBuilder(clusterAgentManager), "RouteBuilder")
 
     case RouteBuilderInitialized =>
       routeBuilder ! BuildFullRoute

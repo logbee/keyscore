@@ -6,12 +6,12 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Subscr
 import akka.cluster.{Cluster, Member, UniqueAddress}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.frontier.cluster.RemoteAgent
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentClusterManager._
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager._
 import io.logbee.keyscore.model.descriptor.Descriptor
 
 import scala.collection.mutable
 
-object AgentClusterManager {
+object ClusterAgentManager {
 
   case object QueryAgents
 
@@ -29,14 +29,18 @@ object AgentClusterManager {
 
   case class Init(isOperating: Boolean)
 
-  case class AgentClusterManagerInitialized(isOperating: Boolean)
+  case class ClusterAgentManagerInitialized(isOperating: Boolean)
 
   private case object ReInit
   private case object Unsubscribe
 
 }
-
-class AgentClusterManager extends Actor with ActorLogging {
+/**
+ * ClusterAgentManager does manages all the agent members in the cluster <br>
+ * - starts AgentStatsManager<br>
+ * - starts AgentCapabilitiesManager.<br>
+ */
+class ClusterAgentManager extends Actor with ActorLogging {
 
   val cluster = Cluster(context.system)
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
@@ -44,24 +48,24 @@ class AgentClusterManager extends Actor with ActorLogging {
   val agents: mutable.ListBuffer[Member] = mutable.ListBuffer.empty
 
   override def preStart(): Unit = {
-    log.info("AgentClusterManager started.")
+    log.info("ClusterAgentManager started.")
   }
 
   override def postStop(): Unit = {
     self ! Unsubscribe
-    log.info("AgentClusterManager stopped.")
+    log.info("ClusterAgentManager stopped.")
   }
 
   override def receive: Receive = {
     case Init(isOperating) =>
-      log.info("Initializing AgentClusterManager ...")
+      log.info("Initializing ClusterAgentManager ...")
       if(isOperating) {
         context.become(working)
       } else {
         context.become(sleeping)
       }
 
-      sender ! AgentClusterManagerInitialized(isOperating)
+      sender ! ClusterAgentManagerInitialized(isOperating)
       self ! ReInit
   }
 
@@ -69,7 +73,7 @@ class AgentClusterManager extends Actor with ActorLogging {
     case ReInit =>
       mediator ! Subscribe("agents", self)
       mediator ! Subscribe("cluster", self)
-      mediator ! Publish("cluster", MemberJoin("AgentClusterManager", cluster.selfMember))
+      mediator ! Publish("cluster", MemberJoin("ClusterAgentManager", cluster.selfMember))
 
     case SubscribeAck(Subscribe("agents", None, `self`)) =>
       log.info("Subscribed to topic [agents]")
@@ -124,7 +128,7 @@ class AgentClusterManager extends Actor with ActorLogging {
       }
 
     case Unsubscribe =>
-      mediator ! Publish("cluster", MemberLeave("AgentClusterManager", cluster.selfMember))
+      mediator ! Publish("cluster", MemberLeave("ClusterAgentManager", cluster.selfMember))
       mediator ! Unsubscribe("cluster", self)
       mediator ! Unsubscribe("agents", self)
       cluster.unsubscribe(self)
@@ -134,13 +138,13 @@ class AgentClusterManager extends Actor with ActorLogging {
   def sleeping: Receive = {
     case ReInit =>
       mediator ! Subscribe("cluster", self)
-      mediator ! Publish("cluster", MemberJoin("AgentClusterManager", cluster.selfMember))
+      mediator ! Publish("cluster", MemberJoin("ClusterAgentManager", cluster.selfMember))
 
     case SubscribeAck(Subscribe("cluster", None, `self`)) =>
       log.info("Subscribed to topic [cluster]")
 
     case Unsubscribe =>
-      mediator ! Publish("cluster", MemberLeave("AgentClusterManager", cluster.selfMember))
+      mediator ! Publish("cluster", MemberLeave("ClusterAgentManager", cluster.selfMember))
       mediator ! Unsubscribe("cluster", self)
       cluster.unsubscribe(self)
 
