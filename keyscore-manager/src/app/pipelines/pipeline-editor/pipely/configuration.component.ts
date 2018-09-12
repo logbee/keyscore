@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Draggable} from "./models/contract";
 import {FormGroup} from "@angular/forms";
 import {ParameterControlService} from "../../../common/parameter/services/parameter-control.service";
@@ -12,7 +12,7 @@ import {deepcopy, zip} from "../../../util";
     template: `
         <div fxLayout="column" fxLayoutWrap fxLayoutGap="10px" fxLayoutAlign="center">
             <div fxLayout="row" fxLayoutAlign="space-between" class="configurator-header">
-                <button mat-raised-button color="default">
+                <button mat-raised-button (click)="cancel()" color="default">
                     <mat-icon>cancel</mat-icon>
                     Cancel
                 </button>
@@ -37,6 +37,7 @@ import {deepcopy, zip} from "../../../util";
 export class ConfigurationComponent implements OnInit {
     @Input() selectedDraggable$: Observable<Draggable>;
     @Input() isOpened: boolean;
+    @Output() closeConfigurator:EventEmitter<void> = new EventEmitter();
     public form: FormGroup;
     public selectedDraggable: Draggable;
     public zippedParameters;
@@ -55,14 +56,22 @@ export class ConfigurationComponent implements OnInit {
                 selectedDraggable.getDraggableModel().blockConfiguration.parameters);
             this.zippedParameters = zip(
                 [selectedDraggable.getDraggableModel().blockConfiguration.parameters,
-                selectedDraggable.getDraggableModel().blockDescriptor.parameters]
+                    selectedDraggable.getDraggableModel().blockDescriptor.parameters]
             );
 
         })
 
     }
 
-    saveConfiguration(){
+    cancel() {
+        this.selectedDraggable.getDraggableModel().blockConfiguration.parameters.forEach(parameter =>
+            this.form.controls[parameter.name].setValue(parameter.value)
+        );
+        this.closeConfigurator.emit();
+
+    }
+
+    saveConfiguration() {
         let blockConfiguration = deepcopy(this.selectedDraggable.getDraggableModel().blockConfiguration);
         blockConfiguration.parameters.forEach(parameter => {
             parameter.value = this.form.controls[parameter.name].value;

@@ -23,7 +23,8 @@ import {share} from "rxjs/operators";
         <mat-sidenav-container class="workspace-container">
             <mat-sidenav configurator class="configurator" #sidenav #right position="end" mode="over"
                          [(opened)]="isConfiguratorOpened">
-                <configurator [isOpened]="isConfiguratorOpened" [selectedDraggable$]="selectedDraggable$"></configurator>
+                <configurator (closeConfigurator)="closeConfigurator()" [isOpened]="isConfiguratorOpened"
+                              [selectedDraggable$]="selectedDraggable$"></configurator>
             </mat-sidenav>
 
             <mat-sidenav-content>
@@ -210,6 +211,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                 .resizeWorkspaceOnDrop(this.draggables);
 
         this.draggables.forEach(draggable => draggable.moveXAxis(compResult));
+    }
+
+    private closeConfigurator(){
+        this.isConfiguratorOpened = false;
     }
 
     addDropzone(dropzone: Dropzone) {
