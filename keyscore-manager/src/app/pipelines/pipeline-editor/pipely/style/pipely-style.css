@@ -108,8 +108,9 @@ toolbar-dropzone {
 
 .configurator {
     padding: 10px;
-    border-radius: 2px 0 0 2px;
+    border-radius: 5px 0 0 5px;
     background-color: #e2e1e0 !important;
+    max-width:33.33%;
 }
 
 /*Trash*/

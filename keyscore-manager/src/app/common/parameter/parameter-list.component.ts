@@ -20,8 +20,9 @@ import {__await} from "tslib";
             <div style="display: inline-block; margin: 10px"
                  *ngFor="let value of parameterValues;index as i">
                 <mat-chip-list class="mat-chip-list-stacked">
-                    <mat-chip>{{value}}
-                        <mat-icon class="badge-icon" (click)="removeItem(i)">close</mat-icon>
+                    <mat-chip [color]="'accent'">
+                        {{value}}
+                        <mat-icon class="badge-icon cursor-pointer" (click)="removeItem(i)">close</mat-icon>
                     </mat-chip>
                 </mat-chip-list>
             </div>

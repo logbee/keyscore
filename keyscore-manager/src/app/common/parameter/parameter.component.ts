@@ -2,6 +2,7 @@ import {Component, Input} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {ParameterDescriptor} from "../../models/pipeline-model/parameters/ParameterDescriptor";
 import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
+import "./style/parameter-module-style.scss"
 
 @Component({
     selector: "app-parameter",
@@ -35,7 +36,7 @@ import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
                                   [formControlName]="parameterDescriptor.name">
                     </mat-checkbox>
                 </div>
-                <div *ngIf="!isValid">{{parameterDescriptor.displayName}}
+                <div  class="parameter-required" *ngIf="!isValid">{{parameterDescriptor.displayName}}
                     {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}
                 </div>
             </div>

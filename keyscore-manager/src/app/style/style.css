@@ -1,4 +1,8 @@
 
+.cursor-pointer{
+    cursor: pointer;
+}
+
 /*-------------FilterChooser-----------*/
 .modal-lg {
     max-width: 80% !important;

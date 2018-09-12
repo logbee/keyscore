@@ -3,10 +3,11 @@ import {Draggable} from "./models/contract";
 import {FormGroup} from "@angular/forms";
 import {ParameterControlService} from "../../../common/parameter/services/parameter-control.service";
 import {BlockConfiguration} from "./models/block-configuration.model";
+import {Observable} from "rxjs";
 
 @Component({
-    selector:"configurator",
-    template:`
+    selector: "configurator",
+    template: `
         <div fxLayout="column" fxLayoutWrap fxLayoutGap="10px" fxLayoutAlign="center">
             <div fxLayoutAlign="end" class="configurator-header">
                 <button mat-raised-button color="primary">Done</button>
@@ -21,17 +22,26 @@ import {BlockConfiguration} from "./models/block-configuration.model";
     `
 })
 
-export class ConfigurationComponent implements OnInit{
-    @Input() selectedDraggable:Draggable;
+export class ConfigurationComponent implements OnInit {
+    @Input() selectedDraggable$: Observable<Draggable>;
+    @Input() isOpened: boolean;
     public form: FormGroup;
+    public selectedDraggable: Draggable;
 
-    constructor(private parameterService: ParameterControlService){
+    constructor(private parameterService: ParameterControlService) {
 
     }
 
-    public ngOnInit():void{
-        this.form = this.parameterService.toFormGroup(this.selectedDraggable.getDraggableModel().blockDescriptor.parameters,
-            this.selectedDraggable.getDraggableModel().blockConfiguration.parameters);
+    public ngOnInit(): void {
+        this.selectedDraggable$.subscribe(selectedDraggable => {
+            console.log("configuration on init subscribe");
+            this.selectedDraggable = selectedDraggable;
+            this.form = this.parameterService.toFormGroup(
+                selectedDraggable.getDraggableModel().blockDescriptor.parameters,
+                selectedDraggable.getDraggableModel().blockConfiguration.parameters)
+
+        })
+
     }
 
 }

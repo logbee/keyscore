@@ -14,6 +14,8 @@ import {BlockDescriptor} from "./models/block-descriptor.model";
 import {InternalPipelineConfiguration} from "../../../models/pipeline-model/InternalPipelineConfiguration";
 import {PipelyPipelineConfiguration} from "./models/pipeline-configuration.model";
 import {parameterDescriptorToParameter} from "../../../util";
+import {Observable, Subject} from "rxjs";
+import {share} from "rxjs/operators";
 
 @Component({
     selector: "workspace",
@@ -21,7 +23,7 @@ import {parameterDescriptorToParameter} from "../../../util";
         <mat-sidenav-container class="workspace-container">
             <mat-sidenav configurator class="configurator" #sidenav #right position="end" mode="over"
                          [(opened)]="isConfiguratorOpened">
-                <configurator [selectedDraggable]="selectedDraggable"></configurator>
+                <configurator [isOpened]="isConfiguratorOpened" [selectedDraggable$]="selectedDraggable$"></configurator>
             </mat-sidenav>
 
             <mat-sidenav-content>
@@ -60,6 +62,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
 
     private draggedDraggable: Draggable;
     private mirrorDraggable: Draggable;
+
+    private selectedDraggableSource: Subject<Draggable> = new Subject();
+    private selectedDraggable$: Observable<Draggable> = this.selectedDraggableSource.asObservable().pipe(share());
     private selectedDraggable: Draggable;
 
     private mouseDownStart: { x: number, y: number } = {x: -1, y: -1};
@@ -80,9 +85,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     @HostListener('mousemove', ['$event'])
     private mouseMove(event: MouseEvent) {
         if (this.isMouseDown() && !this.isDragging && this.movedOverTolerance({
-                x: event.clientX,
-                y: event.clientY
-            })) {
+            x: event.clientX,
+            y: event.clientY
+        })) {
             this.startDragging();
         }
 
@@ -109,6 +114,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     private click(event: MouseEvent) {
         if (this.selectedDraggable.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             this.isConfiguratorOpened = true;
+            this.selectedDraggableSource.next(this.selectedDraggable);
+
         }
     }
 
@@ -228,7 +235,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     registerDraggable(draggable: Draggable) {
         draggable.dragStart$.subscribe((event) => this.draggableMouseDown(draggable, event));
         if (draggable.getDraggableModel().initialDropzone
-                .getDropzoneModel().dropzoneType === DropzoneType.Workspace) {
+            .getDropzoneModel().dropzoneType === DropzoneType.Workspace) {
             this.draggables.push(draggable);
         }
         if (draggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType !==
@@ -258,12 +265,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                 outType = "no-connection-out"
             }
             let blockDescriptor = this.createDummyBlockDescriptor(inType, outType);
-            let parameters = blockDescriptor.parameters.map(parameterDescriptor => parameterDescriptorToParameter(parameterDescriptor))
+            let parameters = blockDescriptor.parameters.map(parameterDescriptor => parameterDescriptorToParameter(parameterDescriptor));
             let blockConfiguration = {
                 id: uuid(),
                 descriptor: blockDescriptor,
                 parameters: parameters
-            }
+            };
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
                 blockDescriptor: blockDescriptor,
                 blockConfiguration: blockConfiguration,
@@ -298,14 +305,16 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                     name: "TestFeld1",
                     displayName: "Test Feld 1",
                     jsonClass: "TextParameterDescriptor",
-                    mandatory: true
+                    mandatory: true,
+                    value: ""
 
                 },
                 {
                     name: "TestList1",
                     displayName: "Test Liste 1",
                     jsonClass: "ListParameterDescriptor",
-                    mandatory: true
+                    mandatory: true,
+                    value: ["test1", "test2"]
 
                 }
             ],
