@@ -31,6 +31,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatTableModule} from "@angular/material/table";
 import {MatIconModule} from "@angular/material/icon";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import {MaterialModule} from "../material.module";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -54,15 +55,7 @@ export const routes: Routes = [
         ErrorModule,
         PipelyModule,
         ParameterModule,
-        MatButtonModule,
-        MatGridListModule,
-        MatListModule,
-        MatDividerModule,
-        MatTableModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule
+        MaterialModule
     ],
     declarations: [
         PipelinesComponent,

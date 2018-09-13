@@ -39,7 +39,4 @@ export class TrashDropzoneLogic extends DropzoneLogic {
             deleteModel, this.component.workspace);*/
     }
 
-    isPreviousConnection(): boolean {
-        return false;
-    }
 }

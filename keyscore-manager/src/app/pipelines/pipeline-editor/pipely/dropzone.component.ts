@@ -6,6 +6,9 @@ import {Rectangle} from "./models/rectangle";
 import {DropzoneLogic} from "./dropzone/dropzone-logic";
 import {DropzoneSubcomponent} from "./dropzone/dropzone-subcomponent";
 import {DraggableFactory} from "./draggable/draggable-factory";
+import {Observable} from "rxjs/internal/Observable";
+import {Subject} from "rxjs/internal/Subject";
+import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 
 @Component({
     selector: "dropzone",
@@ -29,6 +32,10 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
 
     @ViewChild("dropzoneContainer", {read: ViewContainerRef}) dropzoneContainer: ViewContainerRef;
+
+
+    private isDroppableSubject$:Subject<boolean> = new BehaviorSubject(false);
+    public isDroppable$:Observable<boolean> = this.isDroppableSubject$.asObservable();
 
 
     private id: string;
@@ -68,6 +75,7 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
     setIsDroppable(isDroppable: boolean): void {
         this.subComponent.isDroppable = isDroppable;
+        this.isDroppableSubject$.next(isDroppable);
     }
 
     getId(): string {
@@ -123,6 +131,11 @@ export class DropzoneComponent implements OnInit, OnDestroy, Dropzone {
 
     clearDropzone() {
         this.occupied = false;
+    }
+
+    detachNext(){
+        this.clearDropzone();
+        this.getOwner().removeNextFromModel();
     }
 
     getDraggableContainer(): ViewContainerRef {

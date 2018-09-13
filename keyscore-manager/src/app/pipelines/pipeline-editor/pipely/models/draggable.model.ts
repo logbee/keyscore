@@ -1,12 +1,11 @@
 import {Draggable, Dropzone} from "./contract";
 import {DropzoneType} from "./dropzone-type";
-import {Connection} from "./connection.model";
+import {BlockDescriptor} from "./block-descriptor.model";
+import {BlockConfiguration} from "./block-configuration.model";
 
 export interface DraggableModel {
-    name: string;
-    draggableType: string;
-    previousConnection: Connection;
-    nextConnection: Connection;
+    blockDescriptor:BlockDescriptor;
+    blockConfiguration:BlockConfiguration;
     isMirror: boolean;
     next:DraggableModel;
     previous:Draggable;

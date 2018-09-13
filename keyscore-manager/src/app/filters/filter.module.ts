@@ -31,6 +31,7 @@ import {MatFormFieldModule}  from '@angular/material/form-field';
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {MaterialModule} from "../material.module";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -50,15 +51,7 @@ export const routes: Routes = [
         AlertModule,
         ErrorModule,
         ParameterModule,
-        MatCardModule,
-        MatGridListModule,
-        MatListModule,
-        MatDividerModule,
-        FlexLayoutModule,
-        MatTableModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule
+        MaterialModule
 
 
 

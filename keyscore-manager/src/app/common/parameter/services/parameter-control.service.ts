@@ -17,7 +17,7 @@ export class ParameterControlService {
                     parameter.value = parameter.value ? parameter.value : [];
                     break;
                 case "BooleanParameterDescriptor":
-                    parameter.value = parameter.value ? parameter.value : true;
+                    parameter.value = parameter.value !== null ? parameter.value : true;
                     break;
                 case "MapParameterDescriptor":
                     parameter.value = parameter.value ? parameter.value : {};

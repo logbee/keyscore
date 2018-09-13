@@ -31,9 +31,6 @@ export class WorkspaceDropzoneLogic extends DropzoneLogic {
         return draggableModel;
     }
 
-    isPreviousConnection(): boolean {
-        return false;
-    }
 
     isMirrorInRange(mirror: Draggable): boolean {
 

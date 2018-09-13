@@ -14,6 +14,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatChipsModule} from "@angular/material/chips";
 import {FlexLayoutModule} from "@angular/flex-layout";
+import {MaterialModule} from "../../material.module";
 
 @NgModule({
     imports: [
@@ -21,14 +22,7 @@ import {FlexLayoutModule} from "@angular/flex-layout";
         FormsModule,
         ReactiveFormsModule,
         TranslateModule,
-        MatTableModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatCheckboxModule,
-        MatChipsModule,
-        FlexLayoutModule,
+        MaterialModule
 
     ],
     declarations: [

@@ -28,39 +28,27 @@ import {takeUntil} from "rxjs/internal/operators";
              [class.mirror]="draggableModel.isMirror"
              [class.d-flex]="visible"
              [class.d-none]="!visible"
-             (mousedown)="dragStart($event)">
+             (mousedown)="triggerDragStart($event)">
             <div class="connection previous-connection">
                 <ng-template #previousConnection></ng-template>
             </div>
             <div class="blockContainer">
                 <svg
-                        xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-                        xmlns:dc="http://purl.org/dc/elements/1.1/"
-                        xmlns:cc="http://creativecommons.org/ns#"
-                        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                        xmlns:svg="http://www.w3.org/2000/svg"
                         xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                        id="svg4491"
                         version="1.1"
                         viewBox="0 0 971 567.929"
                 >
-                    <g>
-                        <path d="M282.75 567.429H0.536V453.792l0.096,0.457v-0.587l85.557-115.387l0.064-87.628
-	L0.632,135.915v-0.91l-0.096,0.781V0.5H282.75 M0.632,453.662l-0.096,0.13l0.096,0.457V453.662z M0.632,135.005l-0.096,0.781
-	l0.096,0.129V135.005z" style="fill:#365880;stroke:lime;stroke-width:8"/>
+                    <svg:g svg-connector [isDroppable]="isPreviousConncetionDroppable"
+                           [connectionType]="draggableModel.blockDescriptor.previousConnection.connectionType"/>
 
-                    </g>
-                    <g id="layer1">
-                    <path d="M282.75 0 H 687.75 V 567.929 H 282.75 V 0"
-                              id="rect5038"
-                              style="fill:#365880;fill-opacity:1;stroke:#365880;stroke-width:8"/>
-                    
-                    </g>
-                    <g>
-                        <path d="M886.215,453.784v112.585H688.25V0.5h197.465v134.041l-0.097,0.781l86.097,
-114.861l-0.064,87.628l-86.032,115.517L886.215,455.784z" style="fill:#365880;stroke:white;stroke-width:8"/>
-                    </g>
+                    <svg:g>
+                        <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
+                                  id="rect5038"
+                                  style="fill:#365880;fill-opacity:1;stroke:#398033;stroke-width:0px"/>
+
+                    </svg:g>
+                    <svg:g svg-connector [isDroppable]="isNextConnectionDroppable"
+                           [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>
                 </svg>
             </div>
 
@@ -85,21 +73,21 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
     public id: string;
 
-    private dragStartSource = new Subject<void>();
-    private dragMoveSource = new Subject<void>();
+    private dragStartSource = new Subject<MouseEvent>();
     private isAlive = new Subject<void>();
 
     dragStart$ = this.dragStartSource.asObservable().pipe(takeUntil(this.isAlive));
-    dragMove$ = this.dragMoveSource.asObservable().pipe(takeUntil(this.isAlive));
 
     private lastDragX: number;
     private lastDragY: number;
     private visible: boolean = true;
-    private deleting: boolean = false;
     private preDragPosition: { x: number, y: number } = {x: 0, y: 0};
 
     private nextConnectionDropzone: Dropzone;
     private previousConnectionDropzone: Dropzone;
+
+    private isPreviousConncetionDroppable: boolean = false;
+    private isNextConnectionDroppable: boolean = false;
 
     private next: Draggable;
 
@@ -123,51 +111,41 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         if (this.draggableModel.next) {
             this.createNext();
         }
-        if (this.draggableModel.draggableType === "delete") {
-            this.triggerDelete();
-        }
 
     }
-
 
     public ngAfterViewInit() {
         if (!this.getHead().getDraggableModel().isMirror) {
             this.workspace.registerDraggable(this);
         }
-        else if (this.draggableModel.isMirror) {
-            this.workspace.registerMirror(this);
-        }
     }
 
+    setLastDrag(x: number, y: number) {
+        this.lastDragX = x;
+        this.lastDragY = y;
+    }
 
-    @HostListener('document:mousemove', ['$event'])
-    onMouseMove(event: MouseEvent) {
-        if (
-            this.draggableModel.isMirror) {
-
-            const x = event.clientX - this.lastDragX;
-            const y = event.clientY - this.lastDragY;
-            this.lastDragX = event.clientX;
-            this.lastDragY = event.clientY;
-            const currentPosition = this.getDraggablePosition();
-            const newPosition = {
-                x: currentPosition.x + x,
-                y: currentPosition.y + y
-            };
-
-            this.draggableElement.nativeElement.style.left = newPosition.x + "px";
-            this.draggableElement.nativeElement.style.top = newPosition.y + "px";
-
-            this.triggerDragMove();
-        }
+    getLastDrag(): { x: number, y: number } {
+        return {x: this.lastDragX, y: this.lastDragY};
     }
 
     private initialiseConnections() {
         if (this.draggableModel.rootDropzone === DropzoneType.Workspace) {
             this.previousConnectionDropzone =
-                this.createConnection(this.draggableModel.previousConnection, this.previousConnectionContainer);
+                this.createConnection(this.draggableModel.blockDescriptor.previousConnection, this.previousConnectionContainer);
             this.nextConnectionDropzone =
-                this.createConnection(this.draggableModel.nextConnection, this.nextConnectionContainer);
+                this.createConnection(this.draggableModel.blockDescriptor.nextConnection, this.nextConnectionContainer);
+            if (this.previousConnectionDropzone) {
+                this.previousConnectionDropzone.isDroppable$.subscribe(isDroppable =>
+                    this.isPreviousConncetionDroppable = isDroppable
+                )
+            }
+            if (this.nextConnectionDropzone) {
+                this.nextConnectionDropzone.isDroppable$.subscribe(isDroppable => {
+                        this.isNextConnectionDroppable = isDroppable
+                    }
+                )
+            }
         }
     }
 
@@ -211,18 +189,9 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         this.isAlive.next();
     }
 
-    private triggerDragStart() {
-        this.dragStartSource.next();
-    }
-
-    private triggerDragMove() {
-        this.dragMoveSource.next();
-    }
-
-    private dragStart(event: MouseEvent) {
+    private triggerDragStart(event:MouseEvent) {
         event.stopPropagation();
-        this.triggerDragStart();
-
+        this.dragStartSource.next(event);
     }
 
     getTail(): Draggable {
@@ -257,6 +226,24 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
             this.draggableModel.position.x += deltaX;
             this.draggableElement.nativeElement.style.left = this.draggableModel.position.x + "px";
         }
+    }
+
+    moveYAxis(deltaY: number) {
+        if (deltaY !== 0) {
+            this.draggableModel.position.y += deltaY;
+            this.draggableElement.nativeElement.style.top = this.draggableModel.position.y + "px";
+        }
+    }
+
+    moveMirror(deltaX: number, deltaY: number) {
+        const currentPosition = this.getDraggablePosition();
+        const newPosition = {
+            x: currentPosition.x + deltaX,
+            y: currentPosition.y + deltaY
+        };
+
+        this.draggableElement.nativeElement.style.left = newPosition.x + "px";
+        this.draggableElement.nativeElement.style.top = newPosition.y + "px";
     }
 
     removeNextFromModel() {
@@ -322,6 +309,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         return this.visible;
     }
 
+    getPreviousConnection(): Dropzone {
+        return this.previousConnectionDropzone;
+    }
+
     getNextConnection(): Dropzone {
         return this.nextConnectionDropzone;
     }
@@ -334,26 +325,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         return this.draggableModel.previous;
     }
 
-
-    getPreviousConnection(): Dropzone {
-        return this.previousConnectionDropzone;
-    }
-
     setNextModel(next: DraggableModel): void {
         this.draggableModel.next = next;
-    }
-
-    triggerDelete() {
-        this.deleting = true;
-        this.draggableElement.nativeElement.classList.add("delete");
-        console.log(this.draggableElement.nativeElement.classList);
-        this.draggableElement.nativeElement.addEventListener(this.whichTransitionEvent(), (e) => {
-            this.destroy();
-        }, false);
-    }
-
-    isDeleting(): boolean {
-        return this.deleting;
     }
 
     private setPosition(pos: { x: number, y: number }) {
@@ -362,20 +335,4 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         this.draggableElement.nativeElement.style.top = pos.y + "px";
     }
 
-    private whichTransitionEvent() {
-        let t;
-        const el = document.createElement('fakeelement');
-        const transitions = {
-            'transition': 'transitionend',
-            'OTransition': 'oTransitionEnd',
-            'MozTransition': 'transitionend',
-            'WebkitTransition': 'webkitTransitionEnd'
-        };
-
-        for (t in transitions) {
-            if (el.style[t] !== undefined) {
-                return transitions[t];
-            }
-        }
-    }
 }
