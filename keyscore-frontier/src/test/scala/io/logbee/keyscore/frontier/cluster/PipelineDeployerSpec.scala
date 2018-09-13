@@ -11,9 +11,9 @@ import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{A
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.{CreatePipelineRequest, PipelineDeployed}
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SourceBlueprint}
-import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
+import org.scalatest.WordSpecLike
 
-class PipelineDeployerSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with BeforeAndAfter {
+class PipelineDeployerSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike {
 
 trait TestSetup {
   val someActor = TestProbe("someActor")

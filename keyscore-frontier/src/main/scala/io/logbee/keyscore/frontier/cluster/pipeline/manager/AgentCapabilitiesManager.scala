@@ -21,9 +21,9 @@ import scala.collection.mutable.ListBuffer
 object AgentCapabilitiesManager {
   def apply(): Props = Props(new AgentCapabilitiesManager())
 
-  case class GetStandardDescriptors(language: Locale)
+  case object GetDescriptors
 
-  case class StandardDescriptors(listOfDescriptorsAndType: List[Descriptor])
+  case class GetDescriptorsResponse(listOfDescriptorsAndType: List[Descriptor])
 
   case object GetActiveDescriptors
 
@@ -40,8 +40,7 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
   private val mediator = DistributedPubSub(context.system).mediator
 
   private var descriptorManager: ActorRef = _
-  private val listOfFilterDescriptors = mutable.Map.empty[Descriptor, mutable.Set[ActorPath]]
-  private val listOfActiveDescriptors = List[Descriptor]()
+  private val descriptorToActorPaths = mutable.Map.empty[Descriptor, mutable.Set[ActorPath]]
   var availableAgents: mutable.Map[ActorRef, Seq[Descriptor]] = mutable.Map.empty[ActorRef, Seq[Descriptor]]
 
   override def preStart(): Unit = {
@@ -70,22 +69,19 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
     case WhoIs(AgentCapabilitiesService) =>
       HereIam(AgentCapabilitiesService,self)
 
-    case GetStandardDescriptors(selectedLanguage) =>
-      sender ! StandardDescriptors(listOfFilterDescriptors.keys.toList)
-
-    case GetActiveDescriptors =>
-      sender() ! ActiveDescriptors(listOfActiveDescriptors)
+    case GetDescriptors =>
+      sender ! GetDescriptorsResponse(descriptorToActorPaths.keys.toList)
 
     case AgentCapabilities(descriptors) =>
       availableAgents.getOrElseUpdate(sender, descriptors)
       descriptors.foreach(descriptor => {
-        listOfFilterDescriptors.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
+        descriptorToActorPaths.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
         descriptorManager ! StoreDescriptorRequest(descriptor)
       })
 
     case AgentLeaved(ref) =>
       availableAgents.remove(ref)
-      listOfFilterDescriptors.retain((_, paths) => {
+      descriptorToActorPaths.retain((_, paths) => {
         paths.retain(path => ref.path.address != path.address)
         paths.nonEmpty
       })
