@@ -71,7 +71,6 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
   private def running: Receive = {
     case CreatePipeline(blueprintRef) =>
       val pipelineDeployer = context.actorOf(PipelineDeployer(localPipelineManagerResolution))
-      log.info("Received CreatePipelineRequest")
       pipelineDeployer tell (CreatePipelineRequest(blueprintRef), sender)
   }
 

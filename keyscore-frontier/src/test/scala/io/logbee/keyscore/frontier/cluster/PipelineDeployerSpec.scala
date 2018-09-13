@@ -3,8 +3,9 @@ package io.logbee.keyscore.frontier.cluster
 import akka.actor.{ActorContext, ActorRef, ActorSelection}
 import akka.testkit.{TestActor, TestProbe}
 import io.logbee.keyscore.commons._
+import io.logbee.keyscore.commons.cluster.CreatePipelineOrder
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse, GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
-import io.logbee.keyscore.commons.test.{ProductionSystemWithMaterializerAndExecutionContext, TestSystemWithMaterializerAndExecutionContext}
+import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentStats, StatsForAgentsRequest, StatsForAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer
@@ -37,7 +38,6 @@ trait TestSetup {
 
       blueprintManagerProbe.setAutoPilot((sender: ActorRef, message: Any) => message match {
         case _: GetPipelineBlueprintRequest =>
-          println(" # # # # # # GetPipelineBlueprintRequest # # # # #")
           sender ! GetPipelineBlueprintResponse(Option(pipelineBlueprint))
           TestActor.KeepRunning
 
@@ -62,20 +62,16 @@ trait TestSetup {
 
       })
 
-      pipelineDeployer ! CreatePipelineRequest(blueprint.ref)
+      pipelineDeployer tell (CreatePipelineRequest(blueprint.ref), someActor.ref)
 
       pipelineDeployer ! HereIam(BlueprintService, blueprintManagerProbe.ref)
       pipelineDeployer ! HereIam(AgentStatsService, agentStatsManagerProbe.ref)
       pipelineDeployer ! HereIam(AgentCapabilitiesService, agentCapabilitiesManagerProbe.ref)
 
 
-//      someActor.expectMsg(PipelineDeployed)
+      localPipelineManagerProbe.expectMsg(CreatePipelineOrder(pipelineBlueprint))
 
-      localPipelineManagerProbe.expectMsg()
+      someActor.expectMsg(PipelineDeployed)
     }
-
-
-
-
   }
 }

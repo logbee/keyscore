@@ -6,6 +6,7 @@ import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster.CreatePipelineOrder
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector
+import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector.{BlueprintsCollectorResponse, BlueprintsCollectorResponseFailure}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{StatsForAgentsRequest, StatsForAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer._
@@ -25,13 +26,13 @@ object PipelineDeployer {
 
   case object CreatePipelineResponse
 
-  case class BlueprintsResponse(blueprints: List[SealedBlueprint])
-
   case class DescriptorsResponse(descriptors: List[Descriptor])
 
   case object NoAvailableAgents
 
   case object PipelineDeployed
+
+  case object BlueprintResolveFailure
 
   private case object StartResolvingBlueprintRef
 
@@ -47,7 +48,7 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
   private var agentStatsManager: ActorRef = _
   private var agentCapabilitiesManager: ActorRef = _
   var blueprintRef: BlueprintRef = _
-  var messenger: ActorRef = _
+  var routeBuilderRef: ActorRef = _
   var blueprintForPipeline: PipelineBlueprint = _
 
   var descriptorRefs: ListBuffer[DescriptorRef] = mutable.ListBuffer.empty[DescriptorRef]
@@ -63,7 +64,7 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
       mediator ! WhoIs(AgentStatsService)
       mediator ! WhoIs(AgentCapabilitiesService)
       blueprintRef = ref
-      messenger = sender
+      routeBuilderRef = sender
       context.become(initializing(CreatePipelineSupervisorState()))
   }
 
@@ -82,38 +83,37 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
   private def running: Receive = {
     case StartResolvingBlueprintRef =>
-      log.info("Start Resolving")
       blueprintManager ! GetPipelineBlueprintRequest(blueprintRef)
 
     case GetPipelineBlueprintResponse(blueprint) => blueprint match {
       case Some(pipelineBlueprint) => {
-        log.info("Get PipelineBlueprint")
-        context.actorOf(BlueprintCollector(self, pipelineBlueprint, blueprintManager))
+        context.actorOf(BlueprintCollector(pipelineBlueprint, blueprintManager))
         blueprintForPipeline = pipelineBlueprint
       }
     }
 
-    case BlueprintsResponse(blueprints) =>
-      log.info("Blueprints Response")
+    case BlueprintsCollectorResponse(blueprints) =>
       blueprints.foreach(current => {
         descriptorRefs += current.descriptorRef
       })
-
       agentCapabilitiesManager ! AgentsForPipelineRequest(descriptorRefs.toList)
 
+    case BlueprintsCollectorResponseFailure =>
+      routeBuilderRef ! BlueprintResolveFailure
+      context.stop(self)
+
     case AgentsForPipelineResponse(possibleAgents) =>
-      log.info("Agents Response")
       if (!possibleAgents.isEmpty) {
         agentStatsManager ! StatsForAgentsRequest(possibleAgents)
       } else {
-        messenger ! NoAvailableAgents
+        routeBuilderRef ! NoAvailableAgents
       }
 
     case StatsForAgentsResponse(possibleAgents) =>
-      log.info("Stats Response")
       val selectedAgent = scala.util.Random.shuffle(possibleAgents).head._1
+      log.info(s"selected Agent is $selectedAgent")
       localPipelineManagerResolution(selectedAgent, context) ! CreatePipelineOrder(blueprintForPipeline)
-      messenger ! PipelineDeployed
+      routeBuilderRef ! PipelineDeployed
   }
 
   private def maybeRunning(state: CreatePipelineSupervisorState): Unit = {
