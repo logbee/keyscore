@@ -37,13 +37,13 @@
 }
 
 .workspace {
-  height: calc(100vh - 100px);
+  height: calc(100vh - 50px);
 }
 
 .workspace-scroll-wrapper {
   border: solid 1px darkgrey;
   border-radius: 2px;
-  height: calc(50vh - 10px);
+  height: calc(50vh);
   overflow-x: scroll;
   overflow-y: hidden;
   padding: 0;
@@ -52,7 +52,7 @@
 }
 
 puzzle-box {
-  height: calc(50vh - 100px);
+  height: calc(50vh - 50px);
   width: 100%;
   max-width: 100%;
   border: 1px solid darkgrey;
@@ -120,7 +120,7 @@ puzzle-box {
   background-color: white !important;
 }
 
-.configurator {
+configurator {
   padding: 10px;
   border-radius: 5px 0 0 5px;
   border-right: 1px solid rgba(0, 0, 0, 0.5);

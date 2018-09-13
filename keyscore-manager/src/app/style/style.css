@@ -1,5 +1,5 @@
 
-.cursor-pointer{
+.cursor-pointer {
     cursor: pointer;
 }
 
@@ -167,10 +167,11 @@
 }
 
 .removeX {
-    color:white;
+    color: white;
     font-size: larger;
     font-weight: bold;
 }
+
 /*------------------ Status-Light----------------*/
 
 .status-light {
@@ -292,187 +293,65 @@
 
 }
 
-.row{
-    margin-left:0;
-    margin-right:0;
+.row {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /*-------side bar------------*/
-.wrapper {
+.app-container {
     display: flex;
-    align-items: stretch;
-    position:relative;}
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
 
-#sidebar {
-    min-width: 250px;
-    max-width: 250px;
-    min-height: 100vh;
+.sidenav-container {
+    flex: 1;
+}
+
+.sidenav-content {
+    display: flex;
     height: 100%;
-    position: relative;
-    background: #365880;
-    color: #fff;
-    transition: all 0.3s;
 }
 
-#sidebar p {
-    font-size: 1.1em;
-    font-weight: 300;
-    line-height: 1.7em;
-    color: #999;
+.main-drawer {
+    background: #365880 !important;
+    color: white !important;
+    transition: width 0.3s ease-in;
+    max-width:250px;
 }
 
-#sidebar img {
-    display: inline-block;
+.main-drawer a {
+    color: white !important;
+    transition: 0.3s all ease-in;
 }
 
-#sidebar a, #sidebar a:hover, #sidebar a:focus {
-    color: inherit;
-    text-decoration: none;
-    transition: all 0.3s;
+.main-drawer a:hover {
+    background: #3a88b3 !important;
+    transition: 0.3s all ease-out;
+
 }
 
-#sidebar img {
-    margin-right: 10px;
-}
-
-#sidebar .sidebar-header {
+.sidebar-header {
     padding: 20px;
 }
 
-#sidebar .sidebar-header img {
+.sidebar-header img {
     width: 100%;
     height: 100%;
 }
 
-#sidebar .sidebar-footer {
-    cursor: pointer;
-    position: absolute;
-    bottom: 0;
-    padding: 0;
-    width: 100%;
-}
 
-#sidebar ul.components {
-    padding: 20px 0;
-    border-bottom: 1px solid #344d74;
-}
 
-#sidebar ul p {
-    color: #fff;
-    padding: 10px;
-}
 
-#sidebar ul li a {
-    padding: 10px;
-    font-size: 1.1em;
-    display: block;
-}
-
-#sidebar ul li a:hover {
-    color: #ffffff;
-    background: #3a88b3;
-}
-
-/* Shrinking the sidebar from 250px to 80px and center aligning its content*/
-#sidebar.active {
-    min-width: 80px;
-    max-width: 80px;
-    text-align: center;
-}
-
-#sidebar.active img {
-    display: block;
-    margin: 0 auto;
-}
-
-#sidebar .sidebar-header strong {
-    display: none;
-}
-
-#sidebar.active .sidebar-header img {
-    display: none;
-}
-
-#sidebar.active .sidebar-header strong {
-    display: block;
-}
-
-#sidebar .sidebar-footer strong {
-    display: none;
-}
-
-#sidebar .hide-on-expand {
-    display: none;
-}
-
-#sidebar .hide-on-collapse {
-    display: inline-block;
-}
-
-#sidebar.active .hide-on-collapse {
-    display: none;
-}
-
-#sidebar.active .hide-on-expand {
-    display: block;
-}
-
-#sidebar.active .sidebar-footer strong {
-    display: block;
-}
-
-#sidebar ul li a {
-    text-align: left;
-}
-
-#sidebar.active ul li a {
-    padding: 20px 10px;
-    text-align: center;
-    font-size: 0.75em;
-}
-
-@media (max-width: 768px) {
-    /* 80px and its content aligned to centre. Pushing it off the screen with the
-       negative left margin
-    */
-    #sidebar.active {
-        min-width: 80px;
-        max-width: 80px;
-        text-align: center;
-        margin-left: -80px !important;
-    }
-
-    /* Reappearing the sidebar on toggle button click */
-    #sidebar {
-        margin-left: 0;
-    }
-
-    /* Toggling the sidebar header content,
-       hide the big heading [img] and showing the small heading [strong] and vice versa
-    */
-    #sidebar .sidebar-header strong {
-        display: none;
-    }
-
-    #sidebar.active .sidebar-header img {
-        display: none;
-    }
-
-    #sidebar.active .sidebar-header strong {
-        display: block;
-    }
-
-    /* Downsize the navigation links font size */
-    #sidebar.active ul li a {
-        padding: 20px 10px;
-        font-size: 0.85em;
-    }
-
-}
 /*------------------header-bar---------------------*/
 #header-bar {
     min-height: 5vh;
-    background-color:  #365880;
+    background-color: #365880;
     color: white;
 }
 

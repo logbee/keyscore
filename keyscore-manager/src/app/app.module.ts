@@ -31,6 +31,7 @@ import {DropzoneComponent} from "./pipelines/pipeline-editor/pipely/dropzone.com
 import {DraggableComponent} from "./pipelines/pipeline-editor/pipely/draggable.component";
 import {WorkspaceComponent} from "./pipelines/pipeline-editor/pipely/workspace.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {MaterialModule} from "./material.module";
 
 
 const routes: Routes = [
@@ -67,7 +68,8 @@ export function HttpLoaderFactory(http: HttpClient) {
          StoreDevtoolsModule.instrument({
              maxAge: 20
          }),
-        HeaderBarModule
+        HeaderBarModule,
+        MaterialModule
     ],
     declarations: [
         AppComponent,

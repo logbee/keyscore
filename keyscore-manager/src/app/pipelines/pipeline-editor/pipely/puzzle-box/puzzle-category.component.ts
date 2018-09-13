@@ -12,7 +12,7 @@ import {v4 as uuid} from "uuid";
     template: `
         <div class="category-container" fxLayout="row">
             <div fxFlex="10" fxLayoutAlign="start center" style="color:black">{{category}}:</div>
-            <div fxFlex="80" class="category-block-container" >
+            <div fxFlex="90" class="category-block-container" >
                 <ng-template #blockContainer></ng-template>
             </div>
         </div>`

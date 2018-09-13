@@ -20,26 +20,18 @@ import {share} from "rxjs/operators";
 @Component({
     selector: "workspace",
     template: `
-        <mat-sidenav-container class="workspace-container">
-            <mat-sidenav configurator class="configurator" #sidenav #right position="end" mode="over"
-                         [(opened)]="isConfiguratorOpened">
-                <configurator (closeConfigurator)="closeConfigurator()" [isOpened]="isConfiguratorOpened"
-                              [selectedDraggable$]="selectedDraggable$"></configurator>
-            </mat-sidenav>
-
-            <mat-sidenav-content>
-                <div #workspace class="workspace">
+        <div class="workspace-container" fxLayout="row" fxFill>
+            <div #workspace class="workspace" fxFlex="75">
                     <div class="row">
-<!--
-                        <ng-template #toolbarContainer></ng-template>
--->
                         <ng-template #workspaceContainer>
                         </ng-template>
                         <puzzle-box [workspace]="this" [descriptors]="dummyDescriptors"></puzzle-box>
                     </div>
-                </div>
-            </mat-sidenav-content>
-        </mat-sidenav-container>
+            </div>
+
+            <configurator (closeConfigurator)="closeConfigurator()" [isOpened]="isConfiguratorOpened"
+                          [selectedDraggable$]="selectedDraggable$"></configurator>
+        </div>
     `
 })
 

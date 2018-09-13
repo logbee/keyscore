@@ -41,8 +41,8 @@ import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration
         <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
 
         <ng-template #editor>
-            <div [ngSwitch]="editingGUI">
-                <div class="row p-3">
+            <div [ngSwitch]="editingGUI" fxFill>
+                <div fxFill>
                     <ng-container *ngSwitchCase="'default'">
                         <div class="col-3">
                             <pipeline-details [pipeline]="pipeline$ | async"
@@ -85,14 +85,14 @@ import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration
                             </div>
                         </div>
                     </ng-container>
-                    <blockly-workspace *ngSwitchCase="'blockly'" class="col-12"
+                    <blockly-workspace *ngSwitchCase="'blockly'"
                                        [filterDescriptors$]="filterDescriptors$"
                                        [categories$]="categories$"
                                        [pipeline]="(pipeline$ | async)"
                                        [isLoading$]="isLoading$"
                                        [isMenuExpanded$]="isMenuExpanded$"
                                        (update)="updatePipelineWithBlockly($event)"></blockly-workspace>
-                    <pipely-workspace *ngSwitchCase="'pipely'" [pipeline]="(pipeline$ | async)" class="col-12 p-0"></pipely-workspace>
+                    <pipely-workspace *ngSwitchCase="'pipely'" [pipeline]="(pipeline$ | async)" fxFill=""></pipely-workspace>
                 </div>
 
                 <alert [level]="'success'" [message]="'BLOCKLY.SAVE_SUCCESS'"
