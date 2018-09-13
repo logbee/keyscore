@@ -16,7 +16,7 @@ import org.scalatest.{Matchers, WordSpec}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class LocalPipelineManagerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with ProductionSystemWithMaterializerAndExecutionContext {
 
   implicit val timeout: Timeout = 30 seconds
