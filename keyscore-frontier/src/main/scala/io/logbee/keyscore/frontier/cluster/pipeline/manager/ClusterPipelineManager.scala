@@ -5,13 +5,23 @@ import java.util.UUID
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
-import io.logbee.keyscore.commons._
+import akka.pattern.ask
+import akka.util.Timeout
+import io.logbee.keyscore.commons.cluster.Paths.{LocalPipelineManagerPath, PipelineSchedulerPath}
+import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic}
 import io.logbee.keyscore.commons.cluster._
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.{CreatePipeline, GetAvailableAgentsRequest, InitializeMessage}
+import io.logbee.keyscore.commons.pipeline._
+import io.logbee.keyscore.commons.{AgentCapabilitiesService, AgentStatsService, HereIam, WhoIs}
+import io.logbee.keyscore.frontier.cluster.pipeline.collectors.{PipelineConfigurationCollector, PipelineInstanceCollector}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.GetAvailableAgentsRequest
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager._
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.CreatePipelineRequest
 import io.logbee.keyscore.model.blueprint._
 
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 object ClusterPipelineManager {
 
@@ -20,18 +30,17 @@ object ClusterPipelineManager {
   case class RequestExistingBlueprints()
 
   case class CreatePipeline(blueprintRef: BlueprintRef)
+
   case class DeletePipeline(id: UUID)
 
   case object DeleteAllPipelines
 
   case object InitializeMessage
 
-  case object GetAvailableAgentsRequest
-
   def apply(clusterAgentManager: ActorRef): Props = {
     Props(new ClusterPipelineManager(
       clusterAgentManager,
-      (ref, context) => context.actorSelection(ref.path / "LocalPipelineManager")
+      (ref, context) => context.actorSelection(ref.path / LocalPipelineManagerPath)
     ))
   }
 
@@ -42,28 +51,34 @@ object ClusterPipelineManager {
 
 /**
   * The ClusterPipelineManager<br>
-  * - starts the PipelineDeployer and send the  CreatePipeline Message with the BlueprintRef
+  * - starts a new PipelineDeployer to deploy a new Pipeline from a BlueprintRef <br>
+  * - deletes a specific or all pipelines <br>
+  * - forwards all Controller messages
+  * - creates Blueprint- and ConfigurationCollectors and send them to all agents.
+  *
   * @param clusterAgentManager
   * @param localPipelineManagerResolution
   */
 class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
+
+  implicit val timeout = Timeout(15 seconds)
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
   var agentStatsManager: ActorRef = _
   var agentCapabilitiesManager: ActorRef = _
 
   override def preStart(): Unit = {
-    mediator ! Subscribe("agents", self)
-    mediator ! Subscribe("cluster", self)
-    mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
+    mediator ! Subscribe(AgentsTopic, self)
+    mediator ! Subscribe(ClusterTopic, self)
+    mediator ! Publish(ClusterTopic, ActorJoin("ClusterPipelineManager", self))
     log.info("ClusterPipelineManager started.")
     self ! InitializeMessage
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish("cluster", ActorLeave("ClusterCapManager", self))
-    mediator ! Subscribe("agents", self)
-    mediator ! Unsubscribe("cluster", self)
+    mediator ! Publish(ClusterTopic, ActorLeave("ClusterPipelineManager", self))
+    mediator ! Subscribe(AgentsTopic, self)
+    mediator ! Unsubscribe(ClusterTopic, self)
     log.info("ClusterPipelineManager stopped.")
   }
 
@@ -71,7 +86,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
     def isComplete: Boolean = agentStatsManager != null && agentCapabilitiesManager != null
   }
 
-  override def receive: Receive  = {
+  override def receive: Receive = {
     case InitializeMessage =>
       mediator ! WhoIs(AgentStatsService)
       mediator ! WhoIs(AgentCapabilitiesService)
@@ -91,12 +106,122 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
   private def running: Receive = {
     case CreatePipeline(blueprintRef) =>
       val pipelineDeployer = context.actorOf(PipelineDeployer(localPipelineManagerResolution))
-      pipelineDeployer tell (CreatePipelineRequest(blueprintRef), sender)
+      pipelineDeployer tell(CreatePipelineRequest(blueprintRef), sender)
 
-    case ClusterPipelineManager.DeletePipeline(id) =>
-      // TODO Ask
-      agentStatsManager ! GetAvailableAgentsRequest
+    case DeletePipeline(id) =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            context.actorSelection(agent.path / PipelineSchedulerPath) ! DeletePipelineOrder(id)
+          })
+        case Failure(e) => log.warning(s"Failed to delete Pipeline with id ($id): $e")
+      }
+
+    case DeleteAllPipelines =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            context.actorSelection(agent.path / PipelineSchedulerPath) ! DeleteAllPipelinesOrder
+          })
+        case Failure(e) => log.warning(s"Failed to delete all pipelines: $e")
+      }
+
+    case message: PauseFilter =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) forward message
+          })
+        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
+      }
+
+    case message: DrainFilterValve =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) forward message
+          })
+        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
+      }
+
+    case message: InsertDatasets =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) forward message
+          })
+        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
+      }
+
+    case message: ExtractDatasets =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) forward message
+          })
+        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
+      }
+
+    case message: ConfigureFilter =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) forward message
+          })
+        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
+      }
+
+    case message: CheckFilterState =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) forward message
+          })
+        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
+      }
+
+    case message: ClearBuffer =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) forward message
+          })
+        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
+      }
+
+    //TODO Are these both collectors still useful?
+    case RequestExistingPipelines() =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          val collector = context.system.actorOf(PipelineInstanceCollector(sender, agents))
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) ! RequestPipelineInstance(collector)
+          })
+        case Failure(e) => log.warning(s"Failed to get existing pipelines: $e")
+      }
+
+    case RequestExistingBlueprints() =>
+      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+      future.onComplete {
+        case Success(agents) =>
+          val collector = context.system.actorOf(PipelineConfigurationCollector(sender, agents))
+          agents.foreach(agent => {
+            localPipelineManagerResolution(agent, context) ! RequestPipelineBlueprints(collector)
+          })
+        case Failure(e) => log.warning(s"Failed to get existing blueprints: $e")
+      }
   }
+
   private def maybeRunning(state: CreateClusterPipelineManagerState): Unit = {
     if (state.isComplete) {
       context.become(running)
@@ -106,61 +231,5 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
     }
   }
 
-//
-//    case PipelineManager.DeletePipeline(id) =>
-//      availableAgents.keys.foreach(agent => {
-//        context.actorSelection(agent.path / "PipelineScheduler") ! DeletePipelineOrder(id)
-//      })
-//
-//    case DeleteAllPipelines =>
-//      availableAgents.keys.foreach(agent =>
-//        context.actorSelection(agent.path / "PipelineScheduler") ! DeleteAllPipelinesOrder
-//      )
-//    case message: PauseFilter =>
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) forward message
-//      })
-//
-//    case message: DrainFilterValve =>
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) forward message
-//      })
-//
-//    case message: InsertDatasets =>
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) forward message
-//      })
-//
-//    case message: ExtractDatasets =>
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) forward message
-//      })
-//
-//    case message: ConfigureFilter =>
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) forward message
-//      })
-//    case message: CheckFilterState =>
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) forward message
-//      })
-//    case message: ClearBuffer =>
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) forward message
-//      })
-//
-//
-//
-//    case RequestExistingPipelines() =>
-//      val collector = context.system.actorOf(PipelineInstanceCollector(sender, availableAgents.keys))
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) ! RequestPipelineInstance(collector)
-//      })
-//
-//    case RequestExistingBlueprints() =>
-//      val collector = context.system.actorOf(PipelineConfigurationCollector(sender, availableAgents.keys))
-//      availableAgents.keys.foreach(agent => {
-//        pipelineSchedulerSelector(agent, context) ! RequestPipelineBlueprints(collector)
-//      })
-//  }
+
 }

@@ -7,6 +7,9 @@ import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import scala.collection.mutable
 import scala.concurrent.duration._
 
+/**
+  * Returns a list of Blueprints.
+  */
 object PipelineConfigurationCollector {
   def apply(receiver: ActorRef, children: Iterable[ActorRef]) = Props(new PipelineConfigurationCollector(receiver, children))
 }

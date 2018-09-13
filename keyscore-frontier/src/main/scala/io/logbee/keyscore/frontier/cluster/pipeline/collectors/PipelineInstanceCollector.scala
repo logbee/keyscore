@@ -8,6 +8,9 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
+/**
+  * Returns a list of PipelineInstances.
+  */
 object PipelineInstanceCollector {
   def apply(receiver: ActorRef, children: Iterable[ActorRef]) = Props(new PipelineInstanceCollector(receiver, children))
 }

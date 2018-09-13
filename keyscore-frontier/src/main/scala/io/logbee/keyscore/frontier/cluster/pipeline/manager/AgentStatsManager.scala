@@ -4,8 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.{AgentJoined, Topics}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentStats, GetAvailableAgentsResponse, StatsForAgentsRequest, StatsForAgentsResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.GetAvailableAgentsRequest
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -19,6 +18,7 @@ object AgentStatsManager {
   case class AgentStats(numberOfRunningPipelines: Int)
   case class StatsForAgentsRequest(possibleAgents: List[ActorRef])
   case class StatsForAgentsResponse(possibleAgents: Map[ActorRef, AgentStats])
+  case object GetAvailableAgentsRequest
   case class GetAvailableAgentsResponse(availableAgents: List[ActorRef])
 }
 
@@ -34,8 +34,7 @@ class AgentStatsManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case AgentJoined(joinedActor) =>
-      // TODO: Check duplicates
-      availableAgents += joinedActor
+      availableAgents = (availableAgents += joinedActor).distinct
 
     case GetAvailableAgentsRequest =>
       sender ! GetAvailableAgentsResponse(availableAgents.toList)
