@@ -4,4 +4,5 @@ object Topics {
 
   val WhoIsTopic = "whois"
   val AgentsTopic = "agents"
+  val ClusterTopic = "cluster"
 }

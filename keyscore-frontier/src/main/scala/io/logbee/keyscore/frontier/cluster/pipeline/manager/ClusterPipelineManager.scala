@@ -7,7 +7,7 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster._
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.CreatePipeline
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.{CreatePipeline, GetAvailableAgentsRequest, InitializeMessage}
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer
 import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.CreatePipelineRequest
 import io.logbee.keyscore.model.blueprint._
@@ -23,6 +23,10 @@ object ClusterPipelineManager {
   case class DeletePipeline(id: UUID)
 
   case object DeleteAllPipelines
+
+  case object InitializeMessage
+
+  case object GetAvailableAgentsRequest
 
   def apply(clusterAgentManager: ActorRef): Props = {
     Props(new ClusterPipelineManager(
@@ -46,13 +50,14 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
   var agentStatsManager: ActorRef = _
+  var agentCapabilitiesManager: ActorRef = _
 
   override def preStart(): Unit = {
     mediator ! Subscribe("agents", self)
     mediator ! Subscribe("cluster", self)
     mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
-    mediator ! WhoIs(AgentStatsService)
     log.info("ClusterPipelineManager started.")
+    self ! InitializeMessage
   }
 
   override def postStop(): Unit = {
@@ -62,28 +67,45 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
     log.info("ClusterPipelineManager stopped.")
   }
 
-  override def receive: Receive = {
+  case class CreateClusterPipelineManagerState(agentStatsManager: ActorRef = null, agentCapabilitiesManager: ActorRef = null) {
+    def isComplete: Boolean = agentStatsManager != null && agentCapabilitiesManager != null
+  }
+
+  override def receive: Receive  = {
+    case InitializeMessage =>
+      mediator ! WhoIs(AgentStatsService)
+      mediator ! WhoIs(AgentCapabilitiesService)
+      context.become(initializing(CreateClusterPipelineManagerState()))
+  }
+
+  private def initializing(state: CreateClusterPipelineManagerState): Receive = {
     case HereIam(AgentStatsService, ref) =>
       agentStatsManager = ref
-      context.become(running)
+      maybeRunning(state.copy(agentStatsManager = ref))
+    case HereIam(AgentCapabilitiesService, ref) =>
+      agentCapabilitiesManager = ref
+      maybeRunning(state.copy(agentCapabilitiesManager = ref))
+
   }
 
   private def running: Receive = {
     case CreatePipeline(blueprintRef) =>
       val pipelineDeployer = context.actorOf(PipelineDeployer(localPipelineManagerResolution))
       pipelineDeployer tell (CreatePipelineRequest(blueprintRef), sender)
+
+    case ClusterPipelineManager.DeletePipeline(id) =>
+      // TODO Ask
+      agentStatsManager ! GetAvailableAgentsRequest
+  }
+  private def maybeRunning(state: CreateClusterPipelineManagerState): Unit = {
+    if (state.isComplete) {
+      context.become(running)
+    }
+    else {
+      context.become(initializing(state))
+    }
   }
 
-//  private def running: Receive = {
-//    case CreatePipeline(pipelineBlueprint) =>
-//      log.info("Received CreatePipeline")
-//      if (availableAgents.nonEmpty) {
-//        val agent = createListOfPossibleAgents(pipelineBlueprint).head
-//        log.info("Selected Agent is " + agent.toString())
-//        pipelineSchedulerSelector(agent, context) ! CreatePipelineOrder(pipelineBlueprint)
-//      } else {
-//        log.error("No Agent available")
-//      }
 //
 //    case PipelineManager.DeletePipeline(id) =>
 //      availableAgents.keys.foreach(agent => {

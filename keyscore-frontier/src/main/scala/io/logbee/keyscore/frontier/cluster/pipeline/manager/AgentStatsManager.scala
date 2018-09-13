@@ -3,8 +3,12 @@ package io.logbee.keyscore.frontier.cluster.pipeline.manager
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
-import io.logbee.keyscore.commons.cluster.Topics
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentStats, StatsForAgentsRequest, StatsForAgentsResponse}
+import io.logbee.keyscore.commons.cluster.{AgentJoined, Topics}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentStats, GetAvailableAgentsResponse, StatsForAgentsRequest, StatsForAgentsResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.GetAvailableAgentsRequest
+
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 
 /**
@@ -15,11 +19,12 @@ object AgentStatsManager {
   case class AgentStats(numberOfRunningPipelines: Int)
   case class StatsForAgentsRequest(possibleAgents: List[ActorRef])
   case class StatsForAgentsResponse(possibleAgents: Map[ActorRef, AgentStats])
-
+  case class GetAvailableAgentsResponse(availableAgents: List[ActorRef])
 }
 
 class AgentStatsManager extends Actor with ActorLogging {
   private val mediator = DistributedPubSub(context.system).mediator
+  var availableAgents: ListBuffer[ActorRef] = mutable.ListBuffer.empty[ActorRef]
 
   override def preStart(): Unit = {
     mediator ! Subscribe(Topics.WhoIsTopic, self)
@@ -28,6 +33,13 @@ class AgentStatsManager extends Actor with ActorLogging {
   override def postStop(): Unit = super.postStop()
 
   override def receive: Receive = {
+    case AgentJoined(joinedActor) =>
+      // TODO: Check duplicates
+      availableAgents += joinedActor
+
+    case GetAvailableAgentsRequest =>
+      sender ! GetAvailableAgentsResponse(availableAgents.toList)
+
     case StatsForAgentsRequest(requestedAgents) =>
       var statsMap = scala.collection.mutable.Map.empty[ActorRef, AgentStats]
       requestedAgents.foreach(agent => {
