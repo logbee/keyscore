@@ -4,7 +4,7 @@ import {DropzoneSubcomponent} from "./dropzone-subcomponent";
 @Component({
     selector:"toolbar-dropzone",
     template:`
-        <div #dropzone [class]="'dropzone-toolbar d-flex flex-row justify-content-start'" [class.is-droppable]="isDroppable">
+        <div #dropzone fxLayoutGap="15px" fxLayout="row" fxLayoutAlign="start center" [class.is-droppable]="isDroppable">
             <ng-template #draggableContainer></ng-template>
         </div>
     `

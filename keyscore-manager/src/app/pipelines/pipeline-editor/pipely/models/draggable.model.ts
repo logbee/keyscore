@@ -6,6 +6,7 @@ import {BlockConfiguration} from "./block-configuration.model";
 export interface DraggableModel {
     blockDescriptor:BlockDescriptor;
     blockConfiguration:BlockConfiguration;
+    color:string;
     isMirror: boolean;
     next:DraggableModel;
     previous:Draggable;

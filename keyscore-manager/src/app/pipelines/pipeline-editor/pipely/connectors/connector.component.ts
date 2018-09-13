@@ -4,7 +4,7 @@ import {Component, Input} from "@angular/core";
     selector: 'g[svg-connector]',
     template: `
         <svg:path attr.d="{{connectionTypes.get(connectionType).connectorPath}}"
-                  style="fill:#365880;stroke:white;stroke-width:0px"/>
+                  attr.fill="{{color}}" style="stroke:white;stroke-width:0px"/>
         <svg:path
                 attr.d="{{connectionTypes.get(connectionType).indicatorPath}}" fill="none" stroke-width="25px"
                 attr.stroke="{{isDroppable ? droppableIndicatorColor : defaultIndicatorColor}}"/>
@@ -15,6 +15,7 @@ import {Component, Input} from "@angular/core";
 export class ConnectorComponent {
     @Input() isDroppable: boolean;
     @Input() connectionType: string;
+    @Input() color:string;
 
     private readonly droppableIndicatorColor = "lime";
     private readonly defaultIndicatorColor = "white";

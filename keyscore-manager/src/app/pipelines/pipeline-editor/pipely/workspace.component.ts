@@ -30,9 +30,12 @@ import {share} from "rxjs/operators";
             <mat-sidenav-content>
                 <div #workspace class="workspace">
                     <div class="row">
+<!--
                         <ng-template #toolbarContainer></ng-template>
+-->
                         <ng-template #workspaceContainer>
                         </ng-template>
+                        <puzzle-box [workspace]="this" [descriptors]="dummyDescriptors"></puzzle-box>
                     </div>
                 </div>
             </mat-sidenav-content>
@@ -47,8 +50,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
-    @ViewChild("toolbarContainer", {read: ViewContainerRef}) toolbarContainer: ViewContainerRef;
+    // @ViewChild("toolbarContainer", {read: ViewContainerRef}) toolbarContainer: ViewContainerRef;
 
+    public dummyDescriptors:BlockDescriptor[] = [];
 
     public id: string;
 
@@ -255,36 +259,39 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
 
     ngOnInit() {
         this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this);
-        this.toolbarDropzone = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
+        // this.toolbarDropzone = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
 
         this.dropzones.add(this.workspaceDropzone);
         this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
 
-        let inType: string = "no-connection-in";
-        let outType: string = "default-out";
-        for (let i = 0; i < 3; i++) {
+        for(let j = 0;j<8;j++) {
+            let inType: string = "no-connection-in";
+            let outType: string = "default-out";
+            for (let i = 0; i < 3; i++) {
 
-            if (i === 1) {
-                inType = "default-in";
-            } else if (i == 2) {
-                outType = "no-connection-out"
+                if (i === 1) {
+                    inType = "default-in";
+                } else if (i == 2) {
+                    outType = "no-connection-out"
+                }
+                let blockDescriptor = this.createDummyBlockDescriptor(inType, outType);
+                this.dummyDescriptors.push(blockDescriptor);
+                /*let parameters = blockDescriptor.parameters.map(parameterDescriptor => parameterDescriptorToParameter(parameterDescriptor))
+                let blockConfiguration = {
+                    id: uuid(),
+                    descriptor: blockDescriptor,
+                    parameters: parameters
+                };
+                this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
+                    blockDescriptor: blockDescriptor,
+                    blockConfiguration: blockConfiguration,
+                    initialDropzone: this.toolbarDropzone,
+                    next: null,
+                    previous: null,
+                    rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
+                    isMirror: false
+                }, this);*/
             }
-            let blockDescriptor = this.createDummyBlockDescriptor(inType, outType);
-            let parameters = blockDescriptor.parameters.map(parameterDescriptor => parameterDescriptorToParameter(parameterDescriptor));
-            let blockConfiguration = {
-                id: uuid(),
-                descriptor: blockDescriptor,
-                parameters: parameters
-            };
-            this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
-                blockDescriptor: blockDescriptor,
-                blockConfiguration: blockConfiguration,
-                initialDropzone: this.toolbarDropzone,
-                next: null,
-                previous: null,
-                rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
-                isMirror: false
-            }, this);
         }
 
     }
