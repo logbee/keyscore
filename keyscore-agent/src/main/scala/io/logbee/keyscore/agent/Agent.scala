@@ -9,10 +9,10 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.Agent.{ClusterAgentManagerDied, CheckJoin, Initialize, SendJoin}
+import io.logbee.keyscore.agent.Agent.{CheckJoin, ClusterAgentManagerDied, Initialize, SendJoin}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
 import io.logbee.keyscore.agent.pipeline.{FilterManager, LocalPipelineManager}
-import io.logbee.keyscore.commons.cluster.Topics.AgentsTopic
+import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.extension.ExtensionLoader
 import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
@@ -57,15 +57,15 @@ class Agent extends Actor with ActorLogging {
         self ! SendJoin
       }
     }
-    mediator ! Subscribe("agents", self)
-    mediator ! Subscribe("cluster", self)
-    mediator ! Publish("cluster", ActorJoin("Agent", self))
+    mediator ! Subscribe(AgentsTopic, self)
+    mediator ! Subscribe(ClusterTopic, self)
+    mediator ! Publish(ClusterTopic, ActorJoin("Agent", self))
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish("cluster", ActorLeave("Agent", self))
-    mediator ! Unsubscribe("agents", self)
-    mediator ! Unsubscribe("cluster", self)
+    mediator ! Publish(ClusterTopic, ActorLeave("Agent", self))
+    mediator ! Unsubscribe(AgentsTopic, self)
+    mediator ! Unsubscribe(ClusterTopic, self)
     log.info(s"Agent ${name} stopped.")
   }
 
@@ -84,7 +84,7 @@ class Agent extends Actor with ActorLogging {
     case SendJoin =>
       val agentJoin = AgentJoin(UUID.randomUUID(), name)
       log.info(s"Trying to join cluster: $agentJoin")
-      mediator ! Publish("agents", agentJoin)
+      mediator ! Publish(AgentsTopic, agentJoin)
       scheduler.scheduleOnce(10 seconds) {
         self ! CheckJoin
       }

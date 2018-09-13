@@ -1,10 +1,9 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.manager
 
-import java.util.Locale
-
 import akka.actor.{Actor, ActorLogging, ActorPath, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
+import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, WhoIsTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.{AgentCapabilitiesService, DescriptorService, HereIam, WhoIs}
@@ -15,7 +14,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
-  * The AgentCapabilitiesManager holds the capabilities of all agents in the cluster
+  * The AgentCapabilitiesManager holds the capabilities of all agents in the cluster <br>
   * and returns all the possible agents for a specific set of descriptors.
   */
 object AgentCapabilitiesManager {
@@ -44,18 +43,18 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
   var availableAgents: mutable.Map[ActorRef, Seq[Descriptor]] = mutable.Map.empty[ActorRef, Seq[Descriptor]]
 
   override def preStart(): Unit = {
-    mediator ! Subscribe("agents", self)
-    mediator ! Subscribe("cluster", self)
-    mediator ! Subscribe(Topics.WhoIsTopic, self)
-    mediator ! Publish("cluster", ActorJoin("ClusterCapManager", self))
+    mediator ! Subscribe(AgentsTopic, self)
+    mediator ! Subscribe(ClusterTopic, self)
+    mediator ! Subscribe(WhoIsTopic, self)
+    mediator ! Publish(ClusterTopic, ActorJoin("ClusterCapManager", self))
     mediator ! WhoIs(DescriptorService)
     log.info("AgentCapabilitiesManager started.")
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish("cluster", ActorLeave("ClusterCapManager", self))
-    mediator ! Unsubscribe("agents", self)
-    mediator ! Unsubscribe("cluster", self)
+    mediator ! Publish(ClusterTopic, ActorLeave("ClusterCapManager", self))
+    mediator ! Unsubscribe(AgentsTopic, self)
+    mediator ! Unsubscribe(ClusterTopic, self)
     log.info("AgentCapabilitiesManager stopped.")
   }
 

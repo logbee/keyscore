@@ -5,7 +5,8 @@ import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
-import io.logbee.keyscore.commons.cluster.{ActorJoin, ActorLeave, MemberJoin, MemberLeave}
+import io.logbee.keyscore.commons.cluster.Topics._
+import io.logbee.keyscore.commons.cluster.{MemberRemoved => _, _}
 import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.AddAgent
 
 import scala.concurrent.ExecutionContext
@@ -40,14 +41,14 @@ class ClusterManager(aM: ActorRef) extends Actor with ActorLogging {
 
     cluster.subscribe(self, classOf[LeaderChanged])
 
-    mediator ! Subscribe("cluster", self)
-    mediator ! Publish("cluster", MemberJoin("ClusterManager", cluster.selfMember))
+    mediator ! Subscribe(ClusterTopic, self)
+    mediator ! Publish(ClusterTopic, MemberJoin("ClusterManager", cluster.selfMember))
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish("cluster", MemberLeave("ClusterManager", cluster.selfMember))
+    mediator ! Publish(ClusterTopic, MemberLeave("ClusterManager", cluster.selfMember))
     cluster.unsubscribe(self)
-    mediator ! Unsubscribe("cluster", self)
+    mediator ! Unsubscribe(ClusterTopic, self)
     log.info("ClusterManager stopped.")
   }
 
