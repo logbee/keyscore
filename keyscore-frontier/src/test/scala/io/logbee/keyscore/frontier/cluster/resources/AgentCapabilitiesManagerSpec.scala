@@ -2,7 +2,7 @@ package io.logbee.keyscore.frontier.cluster.resources
 
 import akka.actor.ActorRef
 import akka.testkit.TestProbe
-import io.logbee.keyscore.commons.cluster.AgentCapabilities
+import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved}
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.commons.{DescriptorService, HereIam}
@@ -43,14 +43,13 @@ class AgentCapabilitiesManagerSpec extends ProductionSystemWithMaterializerAndEx
     responseMap.put(descriptor3.ref, descriptor3)
     responseMap.put(descriptor4.ref, descriptor4)
 
-    agentCapabilitiesManager tell(AgentCapabilities(descriptors1.toList), agent1.ref)
-    agentCapabilitiesManager tell(AgentCapabilities(descriptors2.toList), agent2.ref)
-
-
   }
     "An AgentCapabilitiesManager" should {
 
       "add descriptors to it's lists when an agent publishes his capabilities" in new TestSetup {
+        agentCapabilitiesManager tell(AgentCapabilities(descriptors1.toList), agent1.ref)
+        agentCapabilitiesManager tell(AgentCapabilities(descriptors2.toList), agent2.ref)
+
         descriptorManagerProbe.expectMsg(StoreDescriptorRequest(descriptor1))
         descriptorManagerProbe.expectMsg(StoreDescriptorRequest(descriptor2))
 
@@ -59,6 +58,9 @@ class AgentCapabilitiesManagerSpec extends ProductionSystemWithMaterializerAndEx
       }
 
       "retrieve all StandardDescriptors" in new TestSetup {
+        agentCapabilitiesManager tell(AgentCapabilities(descriptors1.toList), agent1.ref)
+        agentCapabilitiesManager tell(AgentCapabilities(descriptors2.toList), agent2.ref)
+
         agentCapabilitiesManager tell (GetDescriptors, someActor.ref)
         val descriptorResponseMessage = someActor.expectMsgType[GetDescriptorsResponse]
 
@@ -67,8 +69,21 @@ class AgentCapabilitiesManagerSpec extends ProductionSystemWithMaterializerAndEx
       }
 
       "retrieve all the agents that can build the requested pipeline" in new TestSetup {
+        agentCapabilitiesManager tell(AgentCapabilities(descriptors1.toList), agent1.ref)
+        agentCapabilitiesManager tell(AgentCapabilities(descriptors2.toList), agent2.ref)
+
         agentCapabilitiesManager tell (AgentsForPipelineRequest(descriptors1.map(desc => desc.ref).toList), someActor.ref)
         someActor.expectMsg(AgentsForPipelineResponse(List(agent1.ref)))
+      }
+
+      "remove an agent from the available agents list" in new TestSetup {
+        agentCapabilitiesManager tell(AgentCapabilities(descriptors1.toList), agent1.ref)
+        agentCapabilitiesManager tell(AgentCapabilities(descriptors2.toList), agent2.ref)
+
+        agentCapabilitiesManager tell (AgentLeaved(agent1.ref), someActor.ref)
+        agentCapabilitiesManager tell (AgentsForPipelineRequest(descriptors1.map(desc => desc.ref).toList), someActor.ref)
+        val agentsForPipelineResponseMessage = someActor.expectMsgType[AgentsForPipelineResponse]
+        agentsForPipelineResponseMessage.possibleAgents should have size 0
       }
     }
 }
