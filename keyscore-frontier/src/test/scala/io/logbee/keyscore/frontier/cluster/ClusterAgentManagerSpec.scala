@@ -7,8 +7,8 @@ import akka.cluster.ClusterEvent.{MemberUp, UnreachableMember}
 import akka.cluster.MockableMember
 import akka.testkit.{TestKit, TestProbe}
 import io.logbee.keyscore.commons.cluster.{AgentJoin, AgentJoinAccepted, MemberAdded, MemberRemoved}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers, QueryMembersResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.{QueryAgents, QueryAgentsResponse, QueryMembers, QueryMembersResponse}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, WordSpecLike}
 

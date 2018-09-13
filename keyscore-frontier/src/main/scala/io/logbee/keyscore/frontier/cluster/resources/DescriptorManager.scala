@@ -8,6 +8,10 @@ import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages._
 import io.logbee.keyscore.commons.{DescriptorService, HereIam, WhoIs}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
+/**
+  * The DescriptorManager holds a map for all Descriptors and <br>
+  * resolves a DescriptorRef to the specific Descriptor.
+  */
 object DescriptorManager {
 
   def apply(): Props = Props(new DescriptorManager())

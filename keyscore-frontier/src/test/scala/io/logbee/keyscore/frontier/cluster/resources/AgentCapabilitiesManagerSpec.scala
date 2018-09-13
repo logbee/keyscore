@@ -6,8 +6,8 @@ import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved}
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.commons.{DescriptorService, HereIam}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse, GetDescriptors, GetDescriptorsResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse, GetDescriptors, GetDescriptorsResponse}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import org.scalatest.{Matchers, WordSpecLike}
 

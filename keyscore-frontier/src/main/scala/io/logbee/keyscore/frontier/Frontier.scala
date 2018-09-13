@@ -6,8 +6,8 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.frontier.Frontier._
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.{ClusterAgentManager, AgentStatsManager, ClusterManager}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.{ClusterAgentManagerInitialized, Init}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.{ClusterAgentManager, AgentStatsManager, ClusterManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.{ClusterAgentManagerInitialized, Init}
 import io.logbee.keyscore.frontier.cluster.resources.{BlueprintManager, ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.route.RouteBuilder
@@ -18,6 +18,9 @@ import org.json4s.native.Serialization
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
+/**
+  * The Frontier is the heart of the frontier package and starts the rest-end for the keyscore-manager or other clients so HTTP-Requests can be translated and directed to the agents.
+  */
 object Frontier {
 
   case class InitFrontier(isOperating: Boolean)

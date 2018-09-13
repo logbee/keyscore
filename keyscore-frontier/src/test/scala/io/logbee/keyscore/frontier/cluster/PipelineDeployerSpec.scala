@@ -6,10 +6,10 @@ import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster.CreatePipelineOrder
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse, GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
 import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{AgentStats, StatsForAgentsRequest, StatsForAgentsResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer
-import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.{CreatePipelineRequest, PipelineDeployed}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.{AgentStats, StatsForAgentsRequest, StatsForAgentsResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{CreatePipelineRequest, PipelineDeployed}
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SourceBlueprint}
 import org.scalatest.WordSpecLike
 

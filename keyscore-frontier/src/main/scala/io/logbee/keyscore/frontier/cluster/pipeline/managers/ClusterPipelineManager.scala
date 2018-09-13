@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.cluster.pipeline.manager
+package io.logbee.keyscore.frontier.cluster.pipeline.managers
 
 import java.util.UUID
 
@@ -13,13 +13,13 @@ import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.commons.{AgentCapabilitiesService, AgentStatsService, HereIam, WhoIs}
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.{PipelineConfigurationCollector, PipelineInstanceCollector}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.GetAvailableAgentsRequest
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager._
-import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer
-import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.CreatePipelineRequest
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.GetAvailableAgentsRequest
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager._
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.CreatePipelineRequest
 import io.logbee.keyscore.model.blueprint._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
@@ -62,6 +62,7 @@ object ClusterPipelineManager {
 class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
 
   implicit val timeout = Timeout(15 seconds)
+  private implicit val executionContext: ExecutionContextExecutor = context.dispatcher
 
   val mediator: ActorRef = DistributedPubSub(context.system).mediator
   var agentStatsManager: ActorRef = _

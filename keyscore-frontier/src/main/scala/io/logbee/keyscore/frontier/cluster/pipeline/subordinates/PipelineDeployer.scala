@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.cluster.pipeline.supervisor
+package io.logbee.keyscore.frontier.cluster.pipeline.subordinates
 
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
 import akka.cluster.pubsub.DistributedPubSub
@@ -7,9 +7,9 @@ import io.logbee.keyscore.commons.cluster.CreatePipelineOrder
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector.{BlueprintsCollectorResponse, BlueprintsCollectorResponseFailure}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager.{StatsForAgentsRequest, StatsForAgentsResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer._
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.{StatsForAgentsRequest, StatsForAgentsResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer._
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToDescriptor
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}

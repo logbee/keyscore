@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.cluster.pipeline.manager
+package io.logbee.keyscore.frontier.cluster.pipeline.managers
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.Cluster
@@ -7,10 +7,14 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.Topics._
 import io.logbee.keyscore.commons.cluster.{MemberRemoved => _, _}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.AddAgent
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.AddAgent
 
 import scala.concurrent.ExecutionContext
 
+/**
+  * The ClusterManager manages all the members in the cluster. <br>
+  * He forwards all the messages to the specific Member-Managers regarding to the role of the member of the message.
+  */
 object ClusterManager {
   def apply(clusterAgentManager: ActorRef): Props = {
     Props(new ClusterManager(clusterAgentManager))

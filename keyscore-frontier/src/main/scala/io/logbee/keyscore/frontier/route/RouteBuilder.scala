@@ -24,10 +24,10 @@ import io.logbee.keyscore.commons.cluster.{AgentRemovedFromCluster, RemoveAgentF
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.app.AppInfo
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager.{QueryAgents, QueryAgentsResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.{AgentCapabilitiesManager, ClusterPipelineManager}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
-import io.logbee.keyscore.frontier.cluster.pipeline.supervisor.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.{QueryAgents, QueryAgentsResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.{AgentCapabilitiesManager, ClusterPipelineManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.model.AgentModel
 import io.logbee.keyscore.model.WhichValve.whichValve
@@ -36,7 +36,9 @@ import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
-
+/**
+  * The RouteBuilder combines multiple routes to one specific server route for the Frontier.
+  */
 object RouteBuilder {
 
   case object RouteBuilderInitialized

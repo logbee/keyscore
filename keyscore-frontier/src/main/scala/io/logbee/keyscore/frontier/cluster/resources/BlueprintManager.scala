@@ -9,6 +9,10 @@ import io.logbee.keyscore.commons.{BlueprintService, HereIam, WhoIs}
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 
+/**
+  * The BlueprintManager holds maps for all Pipeline- and SealedBlueprints and <br>
+  * resolves a BlueprintRef to the specific Blueprint.
+  */
 object BlueprintManager {
 
   def apply(): Props = Props(new BlueprintManager())
@@ -60,7 +64,6 @@ class BlueprintManager extends Actor with ActorLogging {
 
     //Sealed Blueprint
     case StoreBlueprintRequest(blueprint) =>
-      log.info(s"Store Blueprint Request: ${blueprint}")
       blueprints.put(blueprint.blueprintRef, blueprint)
       sender ! StoreBlueprintResponse
 

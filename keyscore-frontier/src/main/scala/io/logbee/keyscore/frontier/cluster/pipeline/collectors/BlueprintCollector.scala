@@ -8,7 +8,9 @@ import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint}
 
 import scala.concurrent.duration._
 
-
+/**
+  * Returns a List of SealedBlueprints from a list of BlueprintRefs after collecting them from the BlueprintManager.
+  */
 object BlueprintCollector {
   def apply(pipelineBlueprint: PipelineBlueprint, blueprintManager: ActorRef) = Props(new BlueprintCollector(pipelineBlueprint, blueprintManager))
 

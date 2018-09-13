@@ -4,10 +4,14 @@ import akka.actor.{Actor, ActorLogging, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.Topics
-import io.logbee.keyscore.commons.{ConfigurationService, HereIam, WhoIs}
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetAllConfigurationRequest, _}
+import io.logbee.keyscore.commons.{ConfigurationService, HereIam, WhoIs}
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 
+/**
+  * The ConfigurationManager holds a map for all Configurations and <br>
+  * resolves a ConfigurationRef to the specific Configuration.
+  */
 object ConfigurationManager {
 
   def apply(): Props = Props(new ConfigurationManager())

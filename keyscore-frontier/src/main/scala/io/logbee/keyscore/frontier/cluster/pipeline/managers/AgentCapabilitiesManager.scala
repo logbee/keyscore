@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.cluster.pipeline.manager
+package io.logbee.keyscore.frontier.cluster.pipeline.managers
 
 import akka.actor.{Actor, ActorLogging, ActorPath, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
@@ -7,15 +7,15 @@ import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, Who
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.{AgentCapabilitiesService, DescriptorService, HereIam, WhoIs}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager._
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
-  * The AgentCapabilitiesManager holds the capabilities of all agents in the cluster <br>
-  * and returns all the possible agents for a specific set of descriptors.
+  * The AgentCapabilitiesManager holds the capabilities (Descriptors) of all agents in the cluster <br>
+  * and returns all the possible agents for a specific set of descriptors if request.
   */
 object AgentCapabilitiesManager {
   def apply(): Props = Props(new AgentCapabilitiesManager())

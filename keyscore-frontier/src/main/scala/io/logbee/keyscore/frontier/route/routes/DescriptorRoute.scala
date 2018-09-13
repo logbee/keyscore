@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentCapabilitiesManager.{GetDescriptors, GetDescriptorsResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager.{GetDescriptors, GetDescriptorsResponse}
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.frontier.route.routes.DescriptorRoute.{DescriptorRouteRequest, DescriptorRouteResponse}
 

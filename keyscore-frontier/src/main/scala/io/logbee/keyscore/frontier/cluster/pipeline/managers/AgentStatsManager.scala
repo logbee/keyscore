@@ -1,10 +1,10 @@
-package io.logbee.keyscore.frontier.cluster.pipeline.manager
+package io.logbee.keyscore.frontier.cluster.pipeline.managers
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.{AgentJoined, Topics}
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.AgentStatsManager._
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

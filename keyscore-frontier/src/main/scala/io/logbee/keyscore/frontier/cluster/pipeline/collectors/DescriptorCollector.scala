@@ -8,15 +8,18 @@ import io.logbee.keyscore.model.descriptor.Descriptor
 
 import scala.concurrent.duration._
 
+
+/**
+  * Returns a List of Descriptors from a list of DescriptorRefs after collecting them from the DescriptorManager.
+  */
 object DescriptorCollector {
-  def apply(receiver: ActorRef, sealedblueprints: List[SealedBlueprint], descriptorManager: ActorRef) = Props(new DescriptorCollector(receiver, sealedblueprints, descriptorManager))
+  def apply(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) = Props(new DescriptorCollector(receiver, sealedBlueprints, descriptorManager))
 
 }
 class DescriptorCollector(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) extends Actor {
   import context.{dispatcher, system}
 
   private var descriptors = scala.collection.mutable.ListBuffer.empty[Descriptor]
-
 
   override def preStart(): Unit = {
     sealedBlueprints.foreach( current => {

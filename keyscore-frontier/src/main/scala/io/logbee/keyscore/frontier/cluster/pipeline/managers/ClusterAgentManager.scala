@@ -1,4 +1,4 @@
-package io.logbee.keyscore.frontier.cluster.pipeline.manager
+package io.logbee.keyscore.frontier.cluster.pipeline.managers
 
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill}
 import akka.cluster.pubsub.DistributedPubSub
@@ -7,15 +7,13 @@ import akka.cluster.{Cluster, Member, UniqueAddress}
 import io.logbee.keyscore.commons.cluster.Topics._
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.frontier.cluster.RemoteAgent
-import io.logbee.keyscore.frontier.cluster.pipeline.manager.ClusterAgentManager._
-import io.logbee.keyscore.model.descriptor.Descriptor
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager._
 
 import scala.collection.mutable
 
 /**
-  * ClusterAgentManager does manages all the agent members in the cluster <br>
-  * - starts AgentStatsManager<br>
-  * - starts AgentCapabilitiesManager.<br>
+  * The ClusterAgentManager manages all the members with the rolese "agent" in the cluster and <br>
+  * starts the AgentStatsManager and the AgentCapabilitiesManager.<br>
   */
 object ClusterAgentManager {
 
