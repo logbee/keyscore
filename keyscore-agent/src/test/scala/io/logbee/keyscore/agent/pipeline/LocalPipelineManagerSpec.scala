@@ -4,8 +4,7 @@ import java.util.UUID
 
 import akka.testkit.TestProbe
 import akka.util.Timeout
-import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
-import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.configuration.Configuration
 import org.junit.runner.RunWith
@@ -18,7 +17,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class LocalPipelineManagerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class LocalPipelineManagerSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with ProductionSystemWithMaterializerAndExecutionContext {
 
   implicit val timeout: Timeout = 30 seconds
 
