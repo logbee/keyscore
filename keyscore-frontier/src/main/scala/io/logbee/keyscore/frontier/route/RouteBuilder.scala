@@ -104,6 +104,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
       maybeRunning(state.copy(configurationManager = ref))
       this.route = this.route ~ configurationResources(ref)
     case HereIam(DescriptorService, ref) =>
+      log.info("RouteBuilder knows DescService")
       maybeRunning(state.copy(descriptorManager = ref))
       this.route = this.route ~ descriptorResources(ref)
   }
@@ -184,7 +185,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
         pathPrefix("instance") {
           pathPrefix("*") {
             get {
-              onSuccess(clusterPipelineManager ? RequestExistingPipelines()) {
+              onSuccess(clusterPipelineManager ? RequestExistingPipelines) {
                 case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
                 case _ => complete(StatusCodes.InternalServerError)
               }
@@ -201,7 +202,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
                   complete(StatusCodes.NotImplemented)
                 } ~
                 get {
-                  onSuccess(clusterPipelineManager ? RequestExistingPipelines()) {
+                  onSuccess(clusterPipelineManager ? RequestExistingPipelines) {
                     case PipelineInstanceResponse(listOfPipelines) =>
                       listOfPipelines.find(instance => instance.id == instanceId) match {
                         case Some(instance) => complete(StatusCodes.OK, instance)

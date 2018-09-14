@@ -11,6 +11,8 @@ import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import io.logbee.keyscore.model.{Green, PipelineInstance}
+import org.json4s.native.Serialization.write
 import org.json4s.native.Serialization.read
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -42,13 +44,16 @@ class PipelineIntegrationTest2 extends Matchers {
 
     creatingKafkaToKafkaPipeline(runner)
     getSinglePipelineBlueprint(runner, k2kObject)
+//    Thread.sleep(6000000)
+//
+//    creatingKafkaToElasticPipeline(runner)
+//    getSinglePipelineBlueprint(runner, k2eObject)
 
-    creatingKafkaToElasticPipeline(runner)
-    getSinglePipelineBlueprint(runner, k2eObject)
+//    checkHealthStateOfPipelines(runner)
 
-    getAllPipelineBlueprints(runner, 2)
-    deleteAllPipelineBlueprints(runner)
-    getAllPipelineBlueprints(runner, 0)
+//    getAllPipelineBlueprints(runner, 2)
+//    deleteAllPipelineBlueprints(runner)
+//    getAllPipelineBlueprints(runner, 0)
 
 
   }
@@ -82,6 +87,8 @@ class PipelineIntegrationTest2 extends Matchers {
     val pipelineBlueprint = loadJson(K2KBlueprintsPath, PipelineBlueprintPath)
     val pipelineObject = loadK2KPipelineBlueprint
     putSinglePipelineBlueprint(runner, pipelineObject, pipelineBlueprint)
+    val pipelineRefString = write(pipelineObject.ref)
+    startPipeline(runner, pipelineObject, pipelineRefString)
   }
 
   private def creatingKafkaToElasticPipeline(runner: TestRunner): TestAction = {
@@ -113,6 +120,8 @@ class PipelineIntegrationTest2 extends Matchers {
     val pipelineBlueprint = loadJson(K2EBlueprintsPath, PipelineBlueprintPath)
     val pipelineObject = loadK2EPipelineBlueprint
     putSinglePipelineBlueprint(runner, pipelineObject, pipelineBlueprint)
+    val pipelineRefString = write(pipelineObject.ref)
+    startPipeline(runner, pipelineObject, pipelineRefString)
   }
 
 
@@ -207,14 +216,41 @@ class PipelineIntegrationTest2 extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def deleteAllPipelineBlueprints(runner: TestRunner): TestAction =  {
+  def deleteAllPipelineBlueprints(runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
-          .send()
-          .delete(s"resources/blueprint/pipeline/*")
+      .send()
+      .delete(s"resources/blueprint/pipeline/*")
     )
 
     runner.http(action => action.client(frontierClient)
-          .receive()
-          .response(HttpStatus.OK))
+      .receive()
+      .response(HttpStatus.OK))
+  }
+
+  def checkHealthStateOfPipelines(runner: TestRunner): TestAction = {
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .get(s"pipeline/instance/*")
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        val instances = read[List[PipelineInstance]](payload)
+        instances.foreach(instance => {
+          instance.health shouldBe Green
+        })
+      }))
+  }
+
+  def startPipeline(runner: TestRunner, pipelineObject: PipelineBlueprint, pipelineRef: String): TestAction = {
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .put(s"/pipeline/configuration/${pipelineObject.ref.uuid}")
+      .contentType("application/json")
+      .payload(pipelineRef)
+    )
   }
 }

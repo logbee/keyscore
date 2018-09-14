@@ -208,7 +208,7 @@ message ChoiceParameterDescriptor {
     ParameterInfo info = 2;
     uint32 min = 3;
     uint32 max = 4;
-    repeated Choice Choices = 5;
+    repeated Choice choices = 5;
 }
 
 message Choice {

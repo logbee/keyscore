@@ -2,8 +2,9 @@ package io.logbee.keyscore.frontier.cluster.pipeline.subordinates
 
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
 import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.Publish
 import io.logbee.keyscore.commons._
-import io.logbee.keyscore.commons.cluster.CreatePipelineOrder
+import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, Topics}
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector.{BlueprintsCollectorResponse, BlueprintsCollectorResponseFailure}
@@ -60,9 +61,10 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
   override def receive: Receive = {
 
     case CreatePipelineRequest(ref) =>
-      mediator ! WhoIs(BlueprintService)
-      mediator ! WhoIs(AgentStatsService)
-      mediator ! WhoIs(AgentCapabilitiesService)
+      mediator ! Publish(Topics.WhoIsTopic, WhoIs(BlueprintService))
+      mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentStatsService))
+      mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentCapabilitiesService))
+
       blueprintRef = ref
       routeBuilderRef = sender
       context.become(initializing(CreatePipelineSupervisorState()))
@@ -87,12 +89,16 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
     case GetPipelineBlueprintResponse(blueprint) => blueprint match {
       case Some(pipelineBlueprint) => {
+        log.info("Received blueprint")
         context.actorOf(BlueprintCollector(pipelineBlueprint, blueprintManager))
         blueprintForPipeline = pipelineBlueprint
       }
+      case _ =>
+        log.info("GetPipelineBlueprintResponse Error")
     }
 
     case BlueprintsCollectorResponse(blueprints) =>
+      log.info("Received blueprints")
       blueprints.foreach(current => {
         descriptorRefs += current.descriptorRef
       })
@@ -104,14 +110,18 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
     case AgentsForPipelineResponse(possibleAgents) =>
       if (!possibleAgents.isEmpty) {
+        log.info("Agents are not empty")
         agentStatsManager ! StatsForAgentsRequest(possibleAgents)
       } else {
+        log.info("Agents are empty")
         routeBuilderRef ! NoAvailableAgents
       }
 
     case StatsForAgentsResponse(possibleAgents) =>
+      log.info("Received StatsForAgentsResponse")
       val selectedAgent = scala.util.Random.shuffle(possibleAgents).head._1
       log.info(s"selected Agent is $selectedAgent")
+      //CreateNewPipeline
       localPipelineManagerResolution(selectedAgent, context) ! CreatePipelineOrder(blueprintForPipeline)
       routeBuilderRef ! PipelineDeployed
   }

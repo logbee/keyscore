@@ -47,7 +47,8 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
     mediator ! Subscribe(ClusterTopic, self)
     mediator ! Subscribe(WhoIsTopic, self)
     mediator ! Publish(ClusterTopic, ActorJoin("ClusterCapManager", self))
-    mediator ! WhoIs(DescriptorService)
+    log.info(s"Asking for Descriptor: $self")
+    mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
     log.info("AgentCapabilitiesManager started.")
   }
 
@@ -60,13 +61,15 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case HereIam(DescriptorService, ref) =>
+      log.info(s"AgentCapabilitiesManager knows now the DescriptorManager")
       descriptorManager = ref
       context.become(running)
   }
 
   private def running: Receive = {
     case WhoIs(AgentCapabilitiesService) =>
-      HereIam(AgentCapabilitiesService,self)
+      log.debug("Received AgentCapabilitiesService Request")
+      sender ! HereIam(AgentCapabilitiesService, self)
 
     case GetDescriptors =>
       sender ! GetDescriptorsResponse(descriptorToActorPaths.keys.toList)

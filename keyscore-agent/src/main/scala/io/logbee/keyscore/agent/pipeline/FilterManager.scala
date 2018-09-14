@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent.pipeline
 
+import java.lang.reflect.Constructor
 import java.util.UUID
 
 import akka.actor
@@ -18,7 +19,6 @@ import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 
 object FilterManager {
@@ -116,37 +116,36 @@ class FilterManager extends Actor with ActorLogging {
       sender ! Ready
   }
 
-  private def createSinkLogicProvider(logicClass: Class[_]) = {
+  private def createSinkLogicProvider(logicClass: Class[_]): (LogicParameters, SinkShape[Dataset]) => SinkLogic = {
     val constructor = getSinkStageLogicConstructor(logicClass)
     (parameters: LogicParameters, shape: SinkShape[Dataset]) => {
       constructor.newInstance(parameters, shape).asInstanceOf[SinkLogic]
     }
   }
 
-  private def createSourceLogicProvider(logicClass: Class[_]) = {
+  private def createSourceLogicProvider(logicClass: Class[_]): (LogicParameters, SourceShape[Dataset]) => SourceLogic = {
     val constructor = getSourceStageLogicConstructor(logicClass)
     (parameters: LogicParameters, shape: SourceShape[Dataset]) => {
       constructor.newInstance(parameters, shape).asInstanceOf[SourceLogic]
     }
   }
 
-  private def createFilterLogicProvider(logicClass: Class[_]) = {
+  private def createFilterLogicProvider(logicClass: Class[_]): (LogicParameters, FlowShape[Dataset, Dataset]) => FilterLogic = {
     val constructor = getFilterStageLogicConstructor(logicClass)
     (parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) => {
       constructor.newInstance(parameters, shape).asInstanceOf[FilterLogic]
     }
   }
 
-  private def getSinkStageLogicConstructor(logicClass: Class[_]) = {
-    log.info("FilterManager " + logicClass)
+  private def getSinkStageLogicConstructor(logicClass: Class[_]): Constructor[_] = {
     logicClass.getConstructors()(0)
   }
 
-  private def getSourceStageLogicConstructor(logicClass: Class[_]) = {
+  private def getSourceStageLogicConstructor(logicClass: Class[_]): Constructor[_] = {
     logicClass.getConstructors()(0)
   }
 
-  private def getFilterStageLogicConstructor(logicClass: Class[_]) = {
+  private def getFilterStageLogicConstructor(logicClass: Class[_]): Constructor[_] = {
     logicClass.getConstructors()(0)
   }
 

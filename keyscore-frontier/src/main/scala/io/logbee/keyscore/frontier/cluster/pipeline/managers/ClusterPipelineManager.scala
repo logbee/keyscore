@@ -11,9 +11,9 @@ import io.logbee.keyscore.commons.cluster.Paths.{LocalPipelineManagerPath, Pipel
 import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.commons.{AgentCapabilitiesService, AgentStatsService, HereIam, WhoIs}
-import io.logbee.keyscore.frontier.cluster.pipeline.collectors.{PipelineConfigurationCollector, PipelineInstanceCollector}
-import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.GetAvailableAgentsRequest
+import io.logbee.keyscore.commons._
+import io.logbee.keyscore.frontier.cluster.pipeline.collectors.{PipelineBlueprintCollector, PipelineInstanceCollector}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.{GetAvailableAgentsRequest, GetAvailableAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager._
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.CreatePipelineRequest
@@ -25,7 +25,7 @@ import scala.util.{Failure, Success}
 
 object ClusterPipelineManager {
 
-  case class RequestExistingPipelines()
+  case object RequestExistingPipelines
 
   case class RequestExistingBlueprints()
 
@@ -89,16 +89,21 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
   override def receive: Receive = {
     case InitializeMessage =>
-      mediator ! WhoIs(AgentStatsService)
-      mediator ! WhoIs(AgentCapabilitiesService)
+      log.debug("WhoIs AgentStats")
+      mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentStatsService))
+      log.debug("WhoIs AgentCapabilities")
+      mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentCapabilitiesService))
+
       context.become(initializing(CreateClusterPipelineManagerState()))
   }
 
   private def initializing(state: CreateClusterPipelineManagerState): Receive = {
     case HereIam(AgentStatsService, ref) =>
+      log.debug("Received AgentStatsService")
       agentStatsManager = ref
       maybeRunning(state.copy(agentStatsManager = ref))
     case HereIam(AgentCapabilitiesService, ref) =>
+      log.debug("Received AgentCapabilitiesService")
       agentCapabilitiesManager = ref
       maybeRunning(state.copy(agentCapabilitiesManager = ref))
 
@@ -200,11 +205,14 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
       }
 
     //TODO Are these both collectors still useful?
-    case RequestExistingPipelines() =>
-      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
+    case RequestExistingPipelines =>
+      log.info(s"ClusterPipelineManager reachedRequestExistingPipelines")
+      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
       future.onComplete {
-        case Success(agents) =>
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          log.info(s"Success: $agents")
           val collector = context.system.actorOf(PipelineInstanceCollector(sender, agents))
+          log.info(s"started PipelineInstanceCollector")
           agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) ! RequestPipelineInstance(collector)
           })
@@ -212,10 +220,13 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
       }
 
     case RequestExistingBlueprints() =>
+      log.info(s"ClusterPipelineManager reached RequestExistingPipelines Message")
       val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
       future.onComplete {
         case Success(agents) =>
-          val collector = context.system.actorOf(PipelineConfigurationCollector(sender, agents))
+          log.info(s"Success: $agents")
+          val collector = context.system.actorOf(PipelineBlueprintCollector(sender, agents))
+          log.info(s"started PipelineConfigurationCollector")
           agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) ! RequestPipelineBlueprints(collector)
           })
@@ -226,6 +237,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
   private def maybeRunning(state: CreateClusterPipelineManagerState): Unit = {
     if (state.isComplete) {
       context.become(running)
+      log.info("became running.")
     }
     else {
       context.become(initializing(state))

@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.collectors
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import io.logbee.keyscore.commons.pipeline.PipelineInstanceResponse
 import io.logbee.keyscore.model.PipelineInstance
 
@@ -15,7 +15,7 @@ object PipelineInstanceCollector {
   def apply(receiver: ActorRef, children: Iterable[ActorRef]) = Props(new PipelineInstanceCollector(receiver, children))
 }
 
-class PipelineInstanceCollector(receiver: ActorRef, children: Iterable[ActorRef]) extends Actor {
+class PipelineInstanceCollector(receiver: ActorRef, children: Iterable[ActorRef]) extends Actor with ActorLogging {
 
   import context.{dispatcher, system}
 
@@ -23,6 +23,7 @@ class PipelineInstanceCollector(receiver: ActorRef, children: Iterable[ActorRef]
 
   override def preStart(): Unit = {
     system.scheduler.scheduleOnce(5 seconds) {
+      log.info("PipelineInstanceCollector return states")
       receiver ! PipelineInstanceResponse(states.toList)
       context.stop(self)
     }
@@ -30,6 +31,7 @@ class PipelineInstanceCollector(receiver: ActorRef, children: Iterable[ActorRef]
 
   override def receive: Receive = {
     case state: PipelineInstance =>
+      log.info("PipelineInstanceCollector received PipelineInstance")
       states += state
   }
 }

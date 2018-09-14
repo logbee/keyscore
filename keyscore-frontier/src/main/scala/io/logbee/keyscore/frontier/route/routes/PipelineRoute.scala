@@ -77,7 +77,7 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
         pathPrefix("instance") {
           pathPrefix("*") {
             get {
-              onSuccess(pipelineManager ? RequestExistingPipelines()) {
+              onSuccess(pipelineManager ? RequestExistingPipelines) {
                 case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
                 case _ => complete(StatusCodes.InternalServerError)
               }
@@ -94,7 +94,7 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
                   complete(StatusCodes.NotImplemented)
                 } ~
                 get {
-                  onSuccess(pipelineManager ? RequestExistingPipelines()) {
+                  onSuccess(pipelineManager ? RequestExistingPipelines) {
                     case PipelineInstanceResponse(listOfPipelines) =>
                       listOfPipelines.find(instance => instance.id == instanceId) match {
                         case Some(instance) => complete(StatusCodes.OK, instance)

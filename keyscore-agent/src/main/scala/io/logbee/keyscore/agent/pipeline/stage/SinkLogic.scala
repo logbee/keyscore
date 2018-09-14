@@ -13,7 +13,7 @@ abstract class SinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset])
 
   protected val in: Inlet[Dataset] = shape.in
 
-  setHandler(shape.in, this)
+  setHandler(in, this)
 
   def state(): FilterState = FilterState(parameters.uuid, Green)
 }

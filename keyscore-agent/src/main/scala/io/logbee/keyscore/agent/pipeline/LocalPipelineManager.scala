@@ -59,6 +59,7 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       sender ! HereIam(LocalPipelineService, self)
 
     case CreatePipelineOrder(blueprint) =>
+      log.info(s"Received Pipeline Creation Order for: $blueprint")
       child(nameFrom(blueprint)) match {
         case Some(_) => self ! UpdatePipeline(blueprint)
         case None => self ! CreateNewPipeline(blueprint)
@@ -131,7 +132,7 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       children.foreach( supervisor => {
         supervisor forward message
       })
-    case _ => log.info("Failure")
+    case e => log.info(s"Failure: $e")
   }
 
   def nameFrom(blueprint: PipelineBlueprint): String = {

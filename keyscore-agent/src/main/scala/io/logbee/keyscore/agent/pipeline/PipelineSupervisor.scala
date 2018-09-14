@@ -77,6 +77,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
       log.info(s"Creating pipeline <${blueprint.ref.uuid}>.")
 
+      //TODO Source and Sink of a pipeline is 'None'
       val pipeline = Pipeline(blueprint)
 
       become(configuring(pipeline))
@@ -88,6 +89,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       scheduleStart(pipeline, pipelineStartTrials)
 
     case RequestPipelineInstance(receiver) =>
+      log.info(s"got RequestPipelineInstance Message")
       receiver ! PipelineInstance(Red)
   }
 
@@ -160,6 +162,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       }
 
     case RequestPipelineInstance(receiver) =>
+      log.info(s"got RequestPipelineInstance Message")
       receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.name, pipeline.pipelineBlueprint.description, Red)
 
     case RequestPipelineBlueprints(receiver) =>
@@ -181,6 +184,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       context.stop(self)
 
     case RequestPipelineInstance(receiver) =>
+      log.info(s"got RequestPipelineInstance Message")
       receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.name, pipeline.pipelineBlueprint.description, Yellow)
 
     case RequestPipelineBlueprints(receiver) =>
@@ -193,6 +197,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.info(s"Updating pipeline <${configuration.id}>")
 
     case RequestPipelineInstance(receiver) =>
+      log.info(s"got RequestPipelineInstance Message")
       receiver ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.name, controller.pipelineBlueprint.description, Green)
 
     case RequestPipelineBlueprints(receiver) =>

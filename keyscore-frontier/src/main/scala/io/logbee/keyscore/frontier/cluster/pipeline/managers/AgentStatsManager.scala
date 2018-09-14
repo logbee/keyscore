@@ -3,6 +3,8 @@ package io.logbee.keyscore.frontier.cluster.pipeline.managers
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
+import io.logbee.keyscore.commons.cluster.Topics.AgentsTopic
+import io.logbee.keyscore.commons.{AgentStatsService, HereIam, WhoIs}
 import io.logbee.keyscore.commons.cluster.{AgentJoined, Topics}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager._
 
@@ -28,9 +30,13 @@ class AgentStatsManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     mediator ! Subscribe(Topics.WhoIsTopic, self)
+    mediator ! Subscribe(AgentsTopic, self)
+    log.info(s"AgentStatsManager started")
   }
 
-  override def postStop(): Unit = super.postStop()
+  override def postStop(): Unit = {
+    log.info(s"AgentStatsManager stopped")
+  }
 
   override def receive: Receive = {
     case AgentJoined(joinedActor) =>
@@ -40,11 +46,16 @@ class AgentStatsManager extends Actor with ActorLogging {
       sender ! GetAvailableAgentsResponse(availableAgents.toList)
 
     case StatsForAgentsRequest(requestedAgents) =>
+      log.info("Stats Request")
       var statsMap = scala.collection.mutable.Map.empty[ActorRef, AgentStats]
       requestedAgents.foreach(agent => {
         statsMap.put(agent, AgentStats(-1))
       })
       sender ! StatsForAgentsResponse(statsMap.toMap)
+
+    case WhoIs(AgentStatsService) =>
+      log.debug("Received AgentsStatsService Request")
+      sender ! HereIam(AgentStatsService, self)
   }
 
 
