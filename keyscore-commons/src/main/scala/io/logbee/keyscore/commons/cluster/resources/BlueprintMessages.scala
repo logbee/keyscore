@@ -21,6 +21,8 @@ object BlueprintMessages {
   case class DeletePipelineBlueprintRequest(ref: BlueprintRef)
   case object DeletePipelineBlueprintResponse
 
+  case object DeleteAllPipelineBlueprintsRequest
+  case object DeleteAllPipelineBlueprintsResponse
   // Sealed Blueprints
   case class StoreBlueprintRequest(blueprint: SealedBlueprint)
   case object StoreBlueprintResponse

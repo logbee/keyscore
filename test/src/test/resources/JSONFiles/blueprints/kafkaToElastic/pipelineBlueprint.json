@@ -1,0 +1,46 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.blueprint.PipelineBlueprint",
+  "ref":{
+    "uuid":"34db6f58-0090-4b7d-b32c-aba2706a58bf"
+  },
+  "blueprints":[
+    {
+      "jsonClass":"io.logbee.keyscore.model.blueprint.SourceBlueprint",
+      "ref":{
+        "uuid":"4a696573-ce73-4bb2-8d9a-b2a90e834153"
+      },
+      "descriptor":{
+        "uuid":"6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
+      },
+      "configuration":{
+        "uuid":"83094e3e-ec35-4c99-8411-c06271e38591"
+      }
+    },
+    {
+      "jsonClass":"io.logbee.keyscore.model.blueprint.FilterBlueprint",
+      "ref":{
+        "uuid":"dc882c27-3de2-4603-b272-b35cf81080e2"
+      },
+      "descriptor":{
+        "uuid":"b7ee17ad-582f-494c-9f89-2c9da7b4e467"
+      },
+      "configuration":{
+        "uuid":"07fbf227-3cde-4acd-853a-4aa733f5f482"
+      }
+    },
+    {
+      "jsonClass":"io.logbee.keyscore.model.blueprint.SinkBlueprint",
+      "ref":{
+        "uuid":"0f7b4607-b60a-46b8-a396-424466b7618b"
+      },
+      "descriptor":{
+        "uuid":"6693c39e-6261-11e8-adc0-fa7ae01bbebc"
+      },
+      "configuration":{
+        "uuid":"d35d1f46-cd41-4a25-8d83-02cf9348d87e"
+      }
+    }
+  ],
+  "name":"KafkaToElastic",
+  "description":"It's valid"
+}

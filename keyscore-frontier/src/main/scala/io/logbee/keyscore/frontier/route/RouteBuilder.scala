@@ -333,6 +333,12 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
                 case GetAllPipelineBlueprintsResponse(pipelineBlueprints) => complete(StatusCodes.OK, pipelineBlueprints)
                 case _ => complete(StatusCodes.InternalServerError)
               }
+            }~
+            delete {
+              onSuccess(blueprintManager ? DeleteAllPipelineBlueprintsRequest) {
+                case DeleteAllPipelineBlueprintsResponse => complete(StatusCodes.OK)
+                case _  => complete(StatusCodes.InternalServerError)
+              }
             }
           } ~
             pathPrefix(JavaUUID) { pipelineBlueprintId =>

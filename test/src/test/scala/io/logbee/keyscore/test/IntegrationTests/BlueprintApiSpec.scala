@@ -11,15 +11,12 @@ import io.logbee.keyscore.JsonData
 import io.logbee.keyscore.JsonData._
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.util.Using
 import org.json4s.native.Serialization.read
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
 import org.springframework.http.{HttpStatus, MediaType}
-
-import scala.io.Source.fromInputStream
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class BlueprintApiSpec extends Matchers {
@@ -36,8 +33,8 @@ class BlueprintApiSpec extends Matchers {
   @CitrusTest
   def checkPipelineBlueprint(@CitrusResource runner: TestRunner): Unit = {
 
-    val pipelineBlueprint = loadJson(JsonData.PipelineBlueprintPath)
-    val pipelineObject = loadExamplePipelineBlueprint
+    val pipelineBlueprint = loadJson(K2KBlueprintsPath, JsonData.PipelineBlueprintPath)
+    val pipelineObject = loadK2KPipelineBlueprint
 
     putSinglePipelineBlueprint(runner, pipelineObject, pipelineBlueprint)
     getSinglePipelineBlueprint(runner, pipelineObject)
@@ -53,8 +50,8 @@ class BlueprintApiSpec extends Matchers {
   @CitrusTest
   def checkBlueprint(@CitrusResource runner: TestRunner): Unit = {
 
-    val sourceBlueprint = loadJson(JsonData.SourceBlueprintPath)
-    val sourceObject = loadExampleSourceBlueprint
+    val sourceBlueprint = loadJson(K2KBlueprintsPath, JsonData.SourceBlueprintPath)
+    val sourceObject = loadK2KSourceBlueprint
 
 
     putSingleBlueprint(runner, sourceObject, sourceBlueprint)

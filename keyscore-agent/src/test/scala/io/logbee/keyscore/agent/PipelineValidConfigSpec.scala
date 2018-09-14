@@ -1,17 +1,13 @@
 package io.logbee.keyscore.agent
 
-import akka.actor.Props
-import akka.testkit.TestProbe
+import io.logbee.keyscore.agent.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
 import io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilterLogic
 import io.logbee.keyscore.agent.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
-import io.logbee.keyscore.agent.pipeline.{FilterManager, PipelineSupervisor}
-import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
-import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
-import io.logbee.keyscore.frontier.cluster.resources.{ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import org.json4s.native.Serialization.writePretty
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpecLike}
@@ -20,19 +16,8 @@ import org.scalatest.{Matchers, WordSpecLike}
 class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
 
   implicit val formats = KeyscoreFormats.formats
-  "A running PipelineSupervisor" should {
 
-    val filterManager = system.actorOf(Props[FilterManager], "filterManager")
-    val supervisor = system.actorOf(PipelineSupervisor(filterManager))
-    val descriptorManager = system.actorOf(DescriptorManager())
-    val configurationManager = system.actorOf(ConfigurationManager())
-    val agent = TestProbe("agent")
-
-
-    filterManager ! RegisterExtension(FilterExtension, classOf[KafkaSourceLogic])
-    filterManager ! RegisterExtension(FilterExtension, classOf[KafkaSinkLogic])
-    filterManager ! RegisterExtension(FilterExtension, classOf[RemoveFieldsFilterLogic])
-
+  trait KafkaToKafka {
     val sourceConfigurationRef = ConfigurationRef("bae4e0bc-2784-416a-a93d-0e36ed80d6e0")
     val sourceConfig = Configuration(sourceConfigurationRef,
       parameters = Seq(
@@ -71,55 +56,84 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
       name = "IntegrationTestPipeline",
       description = "It's valid"
     )
+  }
+
+  trait KafkaToElastic {
+    val sourceConfigurationRef = ConfigurationRef("83094e3e-ec35-4c99-8411-c06271e38591")
+    val sourceConfig = Configuration(sourceConfigurationRef,
+      parameters = Seq(
+        TextParameter(KafkaSourceLogic.serverParameter.ref, "localhost"),
+        NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
+        TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
+        ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
+        TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicB")
+      )
+    )
+
+    val removeFieldsFilterConfigurationRef = ConfigurationRef("07fbf227-3cde-4acd-853a-4aa733f5f482")
+    val removeFieldsFilterConfig = Configuration(removeFieldsFilterConfigurationRef,
+      parameters = Seq(
+        FieldNameListParameter(RemoveFieldsFilterLogic.fieldsToRemoveParameter.ref, Seq("message"))
+      ))
+
+    val sinkConfigurationRef = ConfigurationRef("d35d1f46-cd41-4a25-8d83-02cf9348d87e")
+    val sinkConfig = Configuration(sinkConfigurationRef,
+      parameters = Seq(
+        TextParameter("host", "localhost"),
+        NumberParameter("port", 9200),
+        TextParameter("index", "test")
+      )
+    )
 
 
-//    configurationManager ! StoreConfigurationRequest(sourceConfig)
-//    configurationManager ! StoreConfigurationRequest(sinkConfig)
-//    configurationManager ! StoreConfigurationRequest(removeFieldsFilterConfig)
+    val sourceBluePrint = SourceBlueprint(BlueprintRef("4a696573-ce73-4bb2-8d9a-b2a90e834153"), KafkaSourceLogic.describe.ref, sourceConfigurationRef)
+    val filterBluePrint = FilterBlueprint(BlueprintRef("dc882c27-3de2-4603-b272-b35cf81080e2"), RemoveFieldsFilterLogic.describe.ref, removeFieldsFilterConfigurationRef)
+    val sinkBluePrint = SinkBlueprint(BlueprintRef("0f7b4607-b60a-46b8-a396-424466b7618b"), ElasticSearchSinkLogic.describe.ref, sinkConfigurationRef)
 
-//    descriptorManager ! StoreDescriptorRequest(KafkaSourceLogic.describe)
-//    descriptorManager ! StoreDescriptorRequest(KafkaSinkLogic.describe)
-//    descriptorManager ! StoreDescriptorRequest(RemoveFieldsFilterLogic.describe)
+    val pipelineBlueprint = PipelineBlueprint(BlueprintRef("34db6f58-0090-4b7d-b32c-aba2706a58bf"), Seq(
+      sourceBluePrint,
+      filterBluePrint,
+      sinkBluePrint),
+      name = "KafkaToElastic",
+      description = "It's valid"
+    )
+  }
 
-//    println(writePretty(sourceBluePrint))
-//    println(writePretty(sinkBluePrint))
-//    println(writePretty(filterBluePrint))
+  "A running PipelineSupervisor" should {
 
-//    println(writePretty(pipelineBlueprint))
-//    println(writePretty(sourceConfig))
-//    println(writePretty(sinkConfig))
-//    println(writePretty(removeFieldsFilterConfig))
+    "Generate json files for KafkaToKafka" in new KafkaToKafka {
+      println(writePretty(sourceBluePrint))
+      println(writePretty(sinkBluePrint))
+      println(writePretty(filterBluePrint))
 
-//    println(writePretty(KafkaSinkLogic.describe))
-//    println(writePretty(KafkaSourceLogic.describe))
-//    println(writePretty(RemoveFieldsFilterLogic.describe))
+      println(writePretty(pipelineBlueprint))
+
+      println(writePretty(sourceConfig))
+      println(writePretty(sinkConfig))
+      println(writePretty(removeFieldsFilterConfig))
+
+      println(writePretty(KafkaSinkLogic.describe))
+      println(writePretty(KafkaSourceLogic.describe))
+      println(writePretty(RemoveFieldsFilterLogic.describe))
+    }
+
+    "Generate json files KafkaToElastic" in new KafkaToElastic {
+      println(writePretty(sourceBluePrint))
+      println(writePretty(sinkBluePrint))
+      println(writePretty(filterBluePrint))
+
+      println(writePretty(pipelineBlueprint))
+
+      println(writePretty(sourceConfig))
+      println(writePretty(sinkConfig))
+      println(writePretty(removeFieldsFilterConfig))
+
+      println(writePretty(KafkaSinkLogic.describe))
+      println(writePretty(KafkaSourceLogic.describe))
+      println(writePretty(RemoveFieldsFilterLogic.describe))
+    }
 
 
-//    def pollPipelineHealthState(maxRetries: Int, sleepTimeMs: Long): Boolean = {
-//      var retries = maxRetries
-//      while (retries > 0) {
-//
-//        supervisor tell(RequestPipelineInstance(agent.ref), agent.ref)
-//        val pipelineInstance = agent.receiveOne(2 seconds).asInstanceOf[PipelineInstance]
-//        if (pipelineInstance.health.equals(Green)) {
-//          return true
-//        }
-//        Thread.sleep(sleepTimeMs)
-//        retries -= 1
-//      }
-//
-//      false
-//    }
-//
-//    "start a pipeline with a working configuration" in {
-//      supervisor ! CreatePipeline(pipelineBlueprint)
-//
-//      supervisor tell(RequestPipelineInstance(agent.ref), agent.ref)
-//      agent.expectMsg(PipelineInstance(pipelineBlueprint.ref.uuid, pipelineBlueprint.name, pipelineBlueprint.description, Red))
-//
-//      pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000) shouldBe true
-//
-//    }
   }
 }
 

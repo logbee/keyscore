@@ -30,8 +30,8 @@ class DescriptorApiSpec extends Matchers {
   @Test
   @CitrusTest
   def checkDescriptor(@CitrusResource runner: TestRunner): Unit = {
-    val descriptorDescriptor = loadJson(JsonData.KafkaSinkDescriptorPath)
-    val sinkObject = loadExampleSinkDescriptor
+    val descriptorDescriptor = loadJson(K2KDescriptorsPath, JsonData.KafkaSinkDescriptorPath)
+    val sinkObject = loadK2KExampleSinkDescriptor
 
     putSingleDescriptor(runner, sinkObject, descriptorDescriptor)
     getSingleDescriptor(runner, sinkObject)

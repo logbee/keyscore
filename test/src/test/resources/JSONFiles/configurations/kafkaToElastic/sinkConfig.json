@@ -1,0 +1,29 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"d35d1f46-cd41-4a25-8d83-02cf9348d87e"
+  },
+  "parameters":[
+    {
+      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+      "ref":{
+        "id":"host"
+      },
+      "value":"localhost"
+    },
+    {
+      "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
+      "ref":{
+        "id":"port"
+      },
+      "value":9200
+    },
+    {
+      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+      "ref":{
+        "id":"index"
+      },
+      "value":"test"
+    }
+  ]
+}

@@ -16,68 +16,100 @@ object JsonData {
   val ResourcePath = "/JSONFiles/"
   val ResourceType = ".json"
 
-  val PipelineBlueprintPath = "blueprints/pipelineBlueprint"
-  val SourceBlueprintPath = "blueprints/sourceBlueprint"
-  val FilterBlueprintPath = "blueprints/filterBlueprint"
-  val SinkBlueprintPath = "blueprints/sinkBlueprint"
+  val K2KBlueprintsPath = "blueprints/kafkaToKafka/"
+  val K2KConfigurationsPath = "configurations/kafkaToKafka/"
+  val K2KDescriptorsPath = "descriptors/"
 
-  val KafkaSourceConfigurationPath = "configurations/sourceConfig"
-  val FilterConfigurationPath = "configurations/removeFieldsFilterConfig"
-  val KafkaSinkConfigurationPath = "configurations/sinkConfig"
+  val K2EBlueprintsPath = "blueprints/kafkaToElastic/"
+  val K2EConfigurationsPath = "configurations/kafkaToElastic/"
 
-  val KafkaSourceDescriptorPath = "descriptors/KafkaSourceLogic"
-  val FilterDescriptorPath = "descriptors/RemoveFieldsFilter"
-  val KafkaSinkDescriptorPath = "descriptors/KafkaSinkLogic"
+  val PipelineBlueprintPath = "pipelineBlueprint"
+  val SourceBlueprintPath = "sourceBlueprint"
+  val FilterBlueprintPath = "filterBlueprint"
+  val SinkBlueprintPath = "sinkBlueprint"
 
-  def loadJson(path: String): String = {
-    Using.using(getClass.getResourceAsStream(ResourcePath + path + ResourceType)) { stream =>
+  val KafkaSourceConfigurationPath = "sourceConfig"
+  val FilterConfigurationPath = "removeFieldsFilterConfig"
+  val KafkaSinkConfigurationPath = "sinkConfig"
+
+  val KafkaSourceDescriptorPath = "KafkaSourceLogic"
+  val FilterDescriptorPath = "RemoveFieldsFilter"
+  val KafkaSinkDescriptorPath = "KafkaSinkLogic"
+
+  def loadJson(pipeline: String, name: String): String = {
+    Using.using(getClass.getResourceAsStream(ResourcePath + pipeline + name + ResourceType)) { stream =>
       fromInputStream(stream).mkString
     }
   }
 
-  def loadExamplePipelineBlueprint: PipelineBlueprint = {
-    read[PipelineBlueprint](loadJson(PipelineBlueprintPath))
+  //Kafka To Kafka Pipeline
+  def loadK2KPipelineBlueprint: PipelineBlueprint = {
+    read[PipelineBlueprint](loadJson(K2KBlueprintsPath, PipelineBlueprintPath))
   }
 
-  def loadExampleSourceBlueprint: SourceBlueprint = {
-    read[SourceBlueprint](loadJson(SourceBlueprintPath))
+  def loadK2KSourceBlueprint: SourceBlueprint = {
+    read[SourceBlueprint](loadJson(K2KBlueprintsPath, SourceBlueprintPath))
   }
 
-  def loadExampleFilterBlueprint: FilterBlueprint = {
-    read[FilterBlueprint](loadJson(FilterBlueprintPath))
+  def loadK2KFilterBlueprint: FilterBlueprint = {
+    read[FilterBlueprint](loadJson(K2KBlueprintsPath, FilterBlueprintPath))
   }
 
-  def loadExampleSinkBlueprint: SinkBlueprint = {
-    read[SinkBlueprint](loadJson(SinkBlueprintPath))
+  def loadK2KSinkBlueprint: SinkBlueprint = {
+    read[SinkBlueprint](loadJson(K2KBlueprintsPath, SinkBlueprintPath))
   }
 
-  def loadExampleSourceConfiguration: Configuration = {
-    read[Configuration](loadJson(KafkaSourceConfigurationPath))
+  def loadK2KSourceConfiguration: Configuration = {
+    read[Configuration](loadJson(K2KConfigurationsPath, KafkaSourceConfigurationPath))
   }
 
-  def loadExampleFilterConfiguration: Configuration = {
-    read[Configuration](loadJson(FilterConfigurationPath))
-
+  def loadK2KFilterConfiguration: Configuration = {
+    read[Configuration](loadJson(K2KConfigurationsPath, FilterConfigurationPath))
   }
 
-  def loadExampleSinkConfiguration: Configuration = {
-    read[Configuration](loadJson(KafkaSinkConfigurationPath))
-
+  def loadK2KSinkConfiguration: Configuration = {
+    read[Configuration](loadJson(K2KConfigurationsPath, KafkaSinkConfigurationPath))
   }
 
-  def loadExampleSourceDescriptor: Descriptor = {
-    read[Descriptor](loadJson(KafkaSourceDescriptorPath))
-
+  def loadK2KSourceDescriptor: Descriptor = {
+    read[Descriptor](loadJson(K2KDescriptorsPath, KafkaSourceDescriptorPath))
   }
 
-  def loadExampleFilterDescriptor: Descriptor = {
-    read[Descriptor](loadJson(FilterDescriptorPath))
-
+  def loadK2KExampleFilterDescriptor: Descriptor = {
+    read[Descriptor](loadJson(K2KDescriptorsPath, FilterDescriptorPath))
   }
 
-  def loadExampleSinkDescriptor: Descriptor = {
-    read[Descriptor](loadJson(KafkaSinkDescriptorPath))
+  def loadK2KExampleSinkDescriptor: Descriptor = {
+    read[Descriptor](loadJson(K2KDescriptorsPath, KafkaSinkDescriptorPath))
+  }
 
+  //Kafka To Elastic Pipeline
+  def loadK2EPipelineBlueprint: PipelineBlueprint = {
+    read[PipelineBlueprint](loadJson(K2KBlueprintsPath, PipelineBlueprintPath))
+  }
+
+  def loadK2ESourceBlueprint: SourceBlueprint = {
+    read[SourceBlueprint](loadJson(K2KBlueprintsPath, SourceBlueprintPath))
+  }
+
+  def loadK2EFilterBlueprint: FilterBlueprint = {
+    read[FilterBlueprint](loadJson(K2KBlueprintsPath, FilterBlueprintPath))
+  }
+
+  def loadK2ESinkBlueprint: SinkBlueprint = {
+    read[SinkBlueprint](loadJson(K2KBlueprintsPath, SinkBlueprintPath))
+  }
+
+  def loadK2ESourceConfiguration: Configuration = {
+    read[Configuration](loadJson(K2KConfigurationsPath, KafkaSourceConfigurationPath))
+  }
+
+  def loadK2EFilterConfiguration: Configuration = {
+    read[Configuration](loadJson(K2KConfigurationsPath, FilterConfigurationPath))
+  }
+
+  def loadK2ESinkConfiguration: Configuration = {
+    read[Configuration](loadJson(K2KConfigurationsPath, KafkaSinkConfigurationPath))
   }
 
 }

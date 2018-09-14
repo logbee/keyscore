@@ -33,8 +33,8 @@ class ConfigurationApiSpec extends Matchers {
   @CitrusTest
   def checkConfiguration(@CitrusResource runner: TestRunner): Unit = {
 
-    val sinkConfiguration = loadJson(JsonData.KafkaSinkConfigurationPath)
-    val sinkObject = loadExampleSinkConfiguration
+    val sinkConfiguration = loadJson(K2KConfigurationsPath, JsonData.KafkaSinkConfigurationPath)
+    val sinkObject = loadK2KSinkConfiguration
 
     putSingleConfiguration(runner, sinkObject, sinkConfiguration)
     getSingleConfiguration(runner, sinkObject, 3)

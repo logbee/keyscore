@@ -62,6 +62,9 @@ class BlueprintManager extends Actor with ActorLogging {
       pipelineBlueprints.remove(ref)
       sender ! DeletePipelineBlueprintResponse
 
+    case DeleteAllPipelineBlueprintsRequest =>
+      pipelineBlueprints.clear()
+      sender ! DeleteAllPipelineBlueprintsResponse
     //Sealed Blueprint
     case StoreBlueprintRequest(blueprint) =>
       blueprints.put(blueprint.blueprintRef, blueprint)
