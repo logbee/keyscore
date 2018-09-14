@@ -1,3 +1,4 @@
+/*
 import {Blockly} from "node-blockly/browser";
 import {Injectable} from "@angular/core";
 import {separatedStringFromMap} from "../../util";
@@ -56,3 +57,4 @@ export class BlockBuilderService {
         return serializer.serializeToString(xmlDoc);
     }
 }
+*/

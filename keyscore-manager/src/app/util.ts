@@ -1,67 +1,14 @@
 import "jquery";
 import {InternalPipelineConfiguration} from "./models/pipeline-model/InternalPipelineConfiguration";
 import {PipelineConfiguration} from "./models/pipeline-model/PipelineConfiguration";
-import {ParameterDescriptor} from "./models/pipeline-model/parameters/ParameterDescriptor";
+import {
+    ParameterDescriptor, ParameterDescriptorJsonClass,
+    ResolvedParameterDescriptor
+} from "./models/pipeline-model/parameters/ParameterDescriptor";
 import {Parameter} from "./models/pipeline-model/parameters/Parameter";
 
 export function deepcopy(source: any, target?: any): any {
     return jQuery.extend(true, target == null ? {} : target, source);
-}
-
-export function extractTopLevelJSONObjectsFromString(str: string): any[] {
-    const result: any[] = [];
-    while (str.length) {
-        const firstObject = extractFirstJSONObjectFromString(str);
-        result.push(firstObject.firstObject);
-        str = firstObject.tail;
-    }
-    return result;
-
-}
-
-export function extractFirstJSONObjectFromString(str: string): { firstObject: any, tail: string } {
-    let firstOpen = -1;
-    let firstClose;
-    let candidate;
-
-    firstOpen = str.indexOf("{", firstOpen + 1);
-    firstClose = firstOpen;
-    do {
-        firstClose = str.indexOf("}", firstClose + 1);
-        candidate = str.substring(firstOpen, firstClose + 1);
-        if ((candidate.match(/{/g) || []).length !== (candidate.match(/}/g) || []).length) {
-            continue;
-        }
-        try {
-            const result = JSON.parse(candidate);
-            const tail = str.substr(firstClose + 1, str.length - firstClose);
-            return {firstObject: result, tail};
-        } catch (e) {
-            firstClose++;
-        }
-    } while (firstClose < str.length);
-
-    return null;
-}
-
-export function mapFromSeparatedString(mapString: string, elementSeparator: string, keyValueSeparator: string) {
-    const elementList = mapString.split(elementSeparator);
-    const resultAsList = elementList.map((e) => e.split(keyValueSeparator));
-
-    const resultMap: Map<string, string> = new Map<string, string>();
-    resultAsList.forEach((e) => resultMap[e[0]] = e[1]);
-
-    return resultMap;
-}
-
-export function separatedStringFromMap(map: any, elementSeparator: string, keyValueSeparator: string) {
-    let resultString = "";
-
-    for (const [key, value] of Object.entries(map)) {
-        resultString += key + keyValueSeparator + value + elementSeparator;
-    }
-
-    return resultString.substr(0, resultString.length - 1);
 }
 
 export function toInternalPipelineConfig(pipe: PipelineConfiguration): InternalPipelineConfiguration {
@@ -80,26 +27,26 @@ export function toPipelineConfiguration(pipe: InternalPipelineConfiguration): Pi
     return {id: pipe.id, name: pipe.name, description: pipe.description, source, filter, sink};
 }
 
-export function parameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): Parameter {
+export function parameterDescriptorToParameter(parameterDescriptor: ResolvedParameterDescriptor): Parameter {
     let type = parameterDescriptor.jsonClass;
     switch (type) {
-        case "ListParameterDescriptor":
+        case ParameterDescriptorJsonClass.TextListParameterDescriptor:
             type = "TextListParameter";
             break;
-        case "MapParameterDescriptor":
+        case ParameterDescriptorJsonClass.FieldListParameterDescriptor:
             type = "TextMapParameter";
             break;
-        case "TextParameterDescriptor":
+        case ParameterDescriptorJsonClass.TextParameterDescriptor:
             type = "TextParameter";
             break;
-        case "IntParameterDescriptor":
+        case ParameterDescriptorJsonClass.NumberParameterDescriptor:
             type = "IntParameter";
             break;
-        case "BooleanParameterDescriptor":
+        case ParameterDescriptorJsonClass.BooleanParameterDescriptor:
             type = "BooleanParameter";
             break;
     }
-    return {name: parameterDescriptor.name, value: null, jsonClass: type};
+    return {name: parameterDescriptor.ref.uuid, value: null, jsonClass: type};
 }
 
 export function zip(arrays) {

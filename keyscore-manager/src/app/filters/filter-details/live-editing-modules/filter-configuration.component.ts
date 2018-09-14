@@ -3,7 +3,10 @@ import {FormGroup} from "@angular/forms";
 import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
 import {Store} from "@ngrx/store";
 import {ParameterControlService} from "../../../common/parameter/services/parameter-control.service";
-import {ParameterDescriptor} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
+import {
+    ParameterDescriptor,
+    ResolvedParameterDescriptor
+} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
 import {Observable} from "rxjs/index";
 import {Dataset} from "../../../models/filter-model/dataset/Dataset";
 import "../../styles/filterstyle.css";
@@ -89,7 +92,7 @@ export class FilterConfigurationComponent implements OnInit {
 
     public form: FormGroup;
     public filter: FilterConfiguration;
-    public parameters: ParameterDescriptor[];
+    public parameters: ResolvedParameterDescriptor[];
     private noParamsAvailable: boolean = true;
     private noDataAvailable: boolean = true;
 

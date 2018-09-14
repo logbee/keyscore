@@ -189,7 +189,7 @@ export class DeletePipelineFailureAction implements Action {
 export class AddFilterAction implements Action {
     public readonly type = ADD_FILTER;
 
-    constructor(readonly filter: FilterDescriptor) {
+    constructor(readonly filter: ResolvedFilterDescriptor) {
 
     }
 }

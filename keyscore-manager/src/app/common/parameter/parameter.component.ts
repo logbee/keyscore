@@ -1,7 +1,6 @@
 import {Component, Input} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {
-    ParameterDescriptor,
     ResolvedParameterDescriptor,
     ParameterDescriptorJsonClass
 } from "../../models/pipeline-model/parameters/ParameterDescriptor";
@@ -12,7 +11,7 @@ import "./style/parameter-module-style.scss"
     selector: "app-parameter",
     template: `
         <div [formGroup]="form">
-            <div [ngSwitch]="parameterDescriptor.jsonClass">   // io.log.be...Boolean  
+            <div [ngSwitch]="parameterDescriptor.jsonClass">  
                 <mat-form-field  *ngSwitchCase="jsonClass.TextParameterDescriptor">
                     <input matInput type="text" [placeholder]="parameterDescriptor.info.displayName"
                            [formControlName]="parameterDescriptor.ref.uuid"
@@ -22,7 +21,7 @@ import "./style/parameter-module-style.scss"
                     </button>
                 </mat-form-field>
 
-                <mat-form-field *ngSwitchCase="'IntParameterDescriptor'">
+                <mat-form-field *ngSwitchCase="jsonClass.NumberParameterDescriptor">
                     <input matInput type="number" [value]="parameter.value" [placeholder]="parameterDescriptor.info.displayName"
                            [formControlName]="parameterDescriptor.ref.uuid"
                            [id]="parameterDescriptor.ref.uuid" [type]="'number'">
@@ -31,12 +30,12 @@ import "./style/parameter-module-style.scss"
                     </button>
                 </mat-form-field>
                          
-                <parameter-list *ngSwitchCase="'ListParameterDescriptor'" [formControlName]="parameterDescriptor.ref.uuid"
+                <parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor" [formControlName]="parameterDescriptor.ref.uuid"
                                 [id]="parameterDescriptor.ref.uuid" [parameter]="parameter"></parameter-list>
-                <parameter-map *ngSwitchCase="'MapParameterDescriptor'" [formControlName]="parameterDescriptor.ref.uuid"
+                <parameter-map *ngSwitchCase="jsonClass.FieldListParameterDescriptor" [formControlName]="parameterDescriptor.ref.uuid"
                                [id]="parameterDescriptor.ref.uuid"></parameter-map>
 
-                <div *ngSwitchCase="'BooleanParameterDescriptor'"
+                <div *ngSwitchCase="jsonClass.BooleanParameterDescriptor"
                      class="toggleCheckbox" [id]="parameterDescriptor.ref.uuid">
                     <mat-slide-toggle [checked]="parameter.value" id="checkbox{{parameterDescriptor.ref.uuid}}"  
                                   [formControlName]="parameterDescriptor.name">
@@ -59,7 +58,7 @@ export class ParameterComponent {
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
 
-    public jsonClass = ParameterDescrioptorJsonClass;
+    public jsonClass: typeof  ParameterDescriptorJsonClass = ParameterDescriptorJsonClass;
 
     get isValid() {
         return this.form.controls[this.parameterDescriptor.ref.uuid].valid;
