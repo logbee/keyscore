@@ -6,41 +6,10 @@ import {Workspace} from "../models/contract";
     selector: "puzzle-box",
     template: `
         <div fxLayout="column">
+
             <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory'">
-
             </puzzle-category>
             <mat-divider></mat-divider>
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory2'">
-
-            </puzzle-category>
-            <mat-divider></mat-divider>
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory3'">
-
-            </puzzle-category>
-            <mat-divider></mat-divider>
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory'">
-
-            </puzzle-category>
-            <mat-divider></mat-divider>
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory2'">
-
-            </puzzle-category>
-            <mat-divider></mat-divider>
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory3'">
-
-            </puzzle-category>
-            <mat-divider></mat-divider>
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory'">
-
-            </puzzle-category>
-            <mat-divider></mat-divider>
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory2'">
-
-            </puzzle-category>
-            <mat-divider></mat-divider>
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory3'">
-
-            </puzzle-category>
         </div>
     `
 })
@@ -49,8 +18,16 @@ export class PuzzleBoxComponent implements OnInit {
     @Input() descriptors: BlockDescriptor[];
     @Input() workspace: Workspace;
 
-    ngOnInit() {
+    categorySeparatedDescriptors: Map<string, BlockDescriptor[]> = new Map();
 
+    ngOnInit() {
+        this.separateCategories();
+    }
+
+    private separateCategories() {
+        this.descriptors.forEach(descriptor => {
+
+        })
     }
 
 
