@@ -25,11 +25,11 @@ import {share} from "rxjs/operators";
                     <div class="row">
                         <ng-template #workspaceContainer>
                         </ng-template>
-                        <puzzle-box [workspace]="this" [descriptors]="dummyDescriptors"></puzzle-box>
+                        <puzzle-box class="top-shadow" [workspace]="this" [descriptors]="dummyDescriptors"></puzzle-box>
                     </div>
             </div>
 
-            <configurator (closeConfigurator)="closeConfigurator()" [isOpened]="isConfiguratorOpened"
+            <configurator class="mat-elevation-z6" (closeConfigurator)="closeConfigurator()" [isOpened]="isConfiguratorOpened"
                           [selectedDraggable$]="selectedDraggable$"></configurator>
         </div>
     `

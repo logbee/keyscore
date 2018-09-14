@@ -30,9 +30,9 @@ export interface AppState {
                               (updateLanguage)="setLanguage($event)"></sidemenu>
                 </mat-sidenav>
 
-                <!--<div id="modal">
+                <div id="modal">
                     <ng-template #modal></ng-template>
-                </div>-->
+                </div>
                 <mat-sidenav-content class="sidenav-content">
                     <router-outlet></router-outlet>
                 </mat-sidenav-content>

@@ -37,30 +37,32 @@
 }
 
 .workspace {
-  height: calc(100vh - 50px);
+  height: 95vh;
 }
 
 .workspace-scroll-wrapper {
-  border: solid 1px darkgrey;
-  border-radius: 2px;
-  height: calc(50vh);
+  /*border: solid 1px darkgrey;*/
+  height: 50vh;
   overflow-x: scroll;
   overflow-y: hidden;
   padding: 0;
   width: 100%;
   max-width: 100%;
+
+}
+
+.workspace-scroll-wrapper::-webkit-scrollbar{
+  display:none;
 }
 
 puzzle-box {
-  height: calc(50vh - 50px);
+  height: 45vh;
+  margin-top:-1px;
   width: 100%;
   max-width: 100%;
-  border: 1px solid darkgrey;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
   overflow-y: scroll;
   overflow-x: hidden;
+  z-index:400;
 }
 
 .category-block-container {
@@ -71,27 +73,6 @@ puzzle-box {
 .category-container {
   padding: 10px;
 }
-
-/*toolbar-dropzone {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 200;
-
-}
-
-.dropzone-toolbar {
-    border: solid 1px darkgrey;
-    border-radius: 2px;
-    padding: 12px;
-    background-color: white;
-
-}*/
-
-/*.dropzone-toolbar .draggable {
-    margin-right: 10px;
-}*/
 
 .connection {
   min-height: 100%;
@@ -116,19 +97,10 @@ puzzle-box {
   opacity: 0.6;
 }
 
-.mat-drawer-container {
-  background-color: white !important;
-}
-
 configurator {
   padding: 10px;
-  border-radius: 5px 0 0 5px;
-  border-right: 1px solid rgba(0, 0, 0, 0.5);
-  border-top: 1px solid rgba(0, 0, 0, 0.5);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-  /*background-color: #e2e1e0 !important;*/
-  /*background-color: rgba(225, 225, 225, 0.84) !important;*/
   width: 25%;
+  z-index: 500;
 }
 
 /*Trash*/

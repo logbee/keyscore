@@ -46,8 +46,6 @@ import {takeUntil} from "rxjs/internal/operators";
                                   id="rect5038"
                                   attr.fill="{{draggableModel.color}}"
                                   style="fill-opacity:1;stroke:#398033;stroke-width:0px"/>
-                        <svg:text font-size="100px" x="290" y="355" fill="white">I love Keyscore!</svg:text>
-
                     </svg:g>
                     <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
                            [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>

@@ -41,8 +41,8 @@ import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration
         <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
 
         <ng-template #editor>
-            <div [ngSwitch]="editingGUI" fxFill>
-                <div fxFill>
+            <div [ngSwitch]="editingGUI">
+                <div>
                     <ng-container *ngSwitchCase="'default'">
                         <div class="col-3">
                             <pipeline-details [pipeline]="pipeline$ | async"
