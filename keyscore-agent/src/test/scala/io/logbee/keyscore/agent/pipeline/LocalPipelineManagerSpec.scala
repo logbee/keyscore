@@ -4,13 +4,11 @@ import java.util.UUID
 
 import akka.testkit.TestProbe
 import akka.util.Timeout
-import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.PipelineConfiguration
 import io.logbee.keyscore.model.configuration.Configuration
-import org.junit.runner.RunWith
+import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.duration._

@@ -2,9 +2,9 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, SinkStage, SourceStage}
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
+import io.logbee.keyscore.pipeline.api.stage.{FilterStage, SinkStage, SourceStage}
 
 
 case class Pipeline(pipelineBlueprint: PipelineBlueprint, source: Option[SourceStage] = None, sink: Option[SinkStage] = None, filters: List[FilterStage] = List.empty) {

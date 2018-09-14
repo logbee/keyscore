@@ -6,11 +6,11 @@ import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.agent.pipeline.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
-import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
+import io.logbee.keyscore.pipeline.api.stage.StageContext
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._

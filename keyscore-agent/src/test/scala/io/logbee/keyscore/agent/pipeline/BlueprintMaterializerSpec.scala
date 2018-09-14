@@ -1,8 +1,8 @@
 package io.logbee.keyscore.agent.pipeline
 
-import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.blueprint.FilterBlueprint
 import io.logbee.keyscore.model.blueprint.ToBlueprintRef._
+import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FreeSpecLike, Matchers}
 

@@ -2,13 +2,13 @@ package io.logbee.keyscore.frontier.cluster.resources
 
 import akka.actor.ActorRef
 import akka.testkit.TestProbe
-import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved}
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
-import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.commons.cluster.{AgentCapabilities, AgentLeaved}
 import io.logbee.keyscore.commons.{DescriptorService, HereIam}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse, GetDescriptors, GetDescriptorsResponse}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.collection.mutable

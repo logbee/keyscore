@@ -3,8 +3,8 @@ package io.logbee.keyscore.frontier.cluster.resources
 import akka.pattern._
 import akka.util.Timeout
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages._
-import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.descriptor.Descriptor
+import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FreeSpecLike, Matchers}
 

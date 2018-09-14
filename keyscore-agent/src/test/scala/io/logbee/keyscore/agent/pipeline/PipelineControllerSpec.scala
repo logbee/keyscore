@@ -5,14 +5,15 @@ import java.util.UUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.agent.pipeline.ExampleData._
-import io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilterLogic
-import io.logbee.keyscore.agent.pipeline.stage.{FilterStage, LogicParameters, StageContext}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.commons.test.TestSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.{After, Before}
+import io.logbee.keyscore.pipeline.api.LogicParameters
+import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
+import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsFilterLogic
+import io.logbee.keyscore.test.fixtures.ExampleData._
+import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -32,12 +33,12 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
   trait TestSetup {
     val configuration = Configuration(parameters = Seq(
-      FieldListParameter(AddFieldsFilterLogic.fieldListParameter.ref, Seq()
-      )))
+      FieldListParameter(AddFieldsFilterLogic.fieldListParameter.ref, Seq())
+    ))
     val testSource = TestSource.probe[Dataset]
     val testsink = TestSink.probe[Dataset]
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new AddFieldsFilterLogic(p, s))
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new ExampleFilter(p, s))
 
     val ((source, controllerFuture), sink) =
       testSource.viaMat(new ValveStage())(Keep.both)

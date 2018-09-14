@@ -7,13 +7,13 @@ import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.FilterManager._
-import io.logbee.keyscore.agent.pipeline.stage.StageContext
 import io.logbee.keyscore.agent.pipeline.{ExampleFilter, FilterManager}
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidToString
+import io.logbee.keyscore.pipeline.api.stage.StageContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures

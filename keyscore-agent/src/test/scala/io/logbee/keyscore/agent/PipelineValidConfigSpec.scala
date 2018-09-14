@@ -1,12 +1,12 @@
 package io.logbee.keyscore.agent
 
-import io.logbee.keyscore.agent.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
-import io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilterLogic
-import io.logbee.keyscore.agent.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
-import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
+import io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilterLogic
+import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
+import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.json4s.native.Serialization.writePretty
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures

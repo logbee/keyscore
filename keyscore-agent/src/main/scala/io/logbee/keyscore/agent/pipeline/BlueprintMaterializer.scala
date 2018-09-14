@@ -5,15 +5,15 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Publish
 import io.logbee.keyscore.agent.pipeline.BlueprintMaterializer.{InstantiateStage, StartMaterializing}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
-import io.logbee.keyscore.agent.pipeline.stage.StageContext
+import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster.Topics
 import io.logbee.keyscore.commons.cluster.Topics.WhoIsTopic
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetConfigurationRequest, GetConfigurationResponse}
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.{GetDescriptorRequest, GetDescriptorResponse}
-import io.logbee.keyscore.commons._
 import io.logbee.keyscore.model.blueprint.{FilterBlueprint, SealedBlueprint, SinkBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.descriptor.Descriptor
+import io.logbee.keyscore.pipeline.api.stage.StageContext
 
 object BlueprintMaterializer {
 

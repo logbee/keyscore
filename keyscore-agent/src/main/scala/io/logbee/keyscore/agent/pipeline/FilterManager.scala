@@ -1,13 +1,11 @@
 package io.logbee.keyscore.agent.pipeline
 
 import java.lang.reflect.Constructor
-import java.util.UUID
 
 import akka.actor
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.stream.{ActorMaterializer, FlowShape, SinkShape, SourceShape}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
-import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.{FilterExtension, SinkExtension, SourceExtension}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
@@ -15,10 +13,11 @@ import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.pipeline.api.stage.{FilterStage, SinkStage, SourceStage, StageContext}
+import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters, SinkLogic, SourceLogic}
 
 import scala.collection.mutable
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
+
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 
 object FilterManager {

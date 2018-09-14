@@ -7,11 +7,9 @@ import akka.stream.{FlowShape, SinkShape, SourceShape}
 import akka.testkit.{TestActor, TestProbe}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{CreateFilterStage, CreateSinkStage, CreateSourceStage}
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
-import io.logbee.keyscore.agent.pipeline.stage._
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.StoreConfigurationRequest
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.pipeline.RequestPipelineInstance
-import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.frontier.cluster.resources.{ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint._
@@ -19,6 +17,9 @@ import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 import io.logbee.keyscore.model.data.{Dataset, Record, TextField, TextValue}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.pipeline.api._
+import io.logbee.keyscore.pipeline.api.stage._
+import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures

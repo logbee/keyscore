@@ -5,12 +5,12 @@ import akka.testkit.{TestActor, TestProbe}
 import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster.CreatePipelineOrder
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse, GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
-import io.logbee.keyscore.commons.test.ProductionSystemWithMaterializerAndExecutionContext
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager.{AgentsForPipelineRequest, AgentsForPipelineResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.{AgentStats, StatsForAgentsRequest, StatsForAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{CreatePipelineRequest, PipelineDeployed}
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SourceBlueprint}
+import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.scalatest.WordSpecLike
 
 class PipelineDeployerSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike {
