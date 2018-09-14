@@ -4,6 +4,12 @@ include 'keyscore-frontier'
 include 'keyscore-manager'
 include 'keyscore-model'
 
+include 'keyscore-pipeline'
+include 'keyscore-pipeline:keyscore-pipeline-api'
+include 'keyscore-pipeline:keyscore-pipeline-contrib'
+
+include 'keyscore-test-fixtures'
+
 include 'test'
 include 'test:elasticsearch'
 include 'test:kafka'

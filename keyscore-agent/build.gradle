@@ -16,6 +16,7 @@ repositories {
 project.ext {
     distributionDir = "$buildDir/distribution"
 }
+
 configurations {
     testOutput
 }
@@ -25,6 +26,8 @@ dependencies {
     compile project(':keyscore-commons')
     compile project(':keyscore-model')
 
+    compile project(':keyscore-pipeline:keyscore-pipeline-api')
+
     compile dependency.scala_lang
     compile dependency.akka_actor
     compile dependency.akka_persistence
@@ -32,12 +35,14 @@ dependencies {
     compile dependency.akka_slf4j
     compile dependency.akka_http
     compile dependency.akka_http_json
-    compile dependency.akka_persistence
     compile dependency.akka_cluster
-    compile dependency.akka_stream_kafka
+
+    runtime project(':keyscore-pipeline:keyscore-pipeline-contrib')
 
     runtime dependency.logback
 
+    testCompile project(':keyscore-test-fixtures')
+    testCompile project(':keyscore-pipeline:keyscore-pipeline-contrib')
     testCompile project(':keyscore-frontier')
 
     testCompile dependency.scala_test

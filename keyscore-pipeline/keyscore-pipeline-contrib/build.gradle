@@ -1,0 +1,40 @@
+apply plugin: 'scala'
+apply from: rootProject.file('dependencies.gradle')
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile project(':keyscore-pipeline:keyscore-pipeline-api')
+
+    compile dependency.scala_lang
+    compile dependency.akka_actor
+    compile dependency.akka_stream
+    compile dependency.akka_slf4j
+    compile dependency.akka_http
+    compile dependency.akka_http_json
+    compile dependency.akka_stream_kafka
+
+    testCompile project(':keyscore-test-fixtures')
+
+    testCompile dependency.scala_test
+    testCompile dependency.akka_testkit
+
+    testCompile dependency.junit
+}
+
+test {
+    testLogging {
+        events 'started', 'passed', 'skipped', 'failed'
+        exceptionFormat "full"
+    }
+}
+
+jar {
+    manifest.attributes([
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': version,
+    ])
+}
