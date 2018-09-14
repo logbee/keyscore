@@ -9,7 +9,7 @@ export class ParameterControlService {
 
     public toFormGroup(parameterDescriptors: ParameterDescriptor[], parameters: Parameter[]) {
         const group: any = {};
-        const zippedParameters = zip([parameters, parameterDescriptors]);
+        const zippedParameters = zip([parameteparamrs, parameterDescriptors]);
         zippedParameters.forEach(([parameter, parameterDescriptor]) => {
 
             switch (parameterDescriptor.jsonClass) {

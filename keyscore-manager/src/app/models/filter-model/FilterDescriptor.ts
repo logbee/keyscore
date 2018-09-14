@@ -5,22 +5,12 @@ import {InputDescriptor} from "../descriptors/InputDescriptor";
 import {OutputDescriptor} from "../descriptors/OutputDescriptor";
 import {Icon} from "../descriptors/Icon";
 
-export interface FilterDescriptor {
-    name: string;
-    displayName: string;
-    description: string;
-    previousConnection: FilterConnection;
-    nextConnection: FilterConnection;
-    parameters: ParameterDescriptor[];
-    category: string;
-}
-
-export interface FilterDescriptorNew{
+export interface FilterDescriptor{
     name:string;
     displayName:TextRef;
     description:TextRef;
     categories:TextRef[];
-    parameters:ParameterDescriptorNew[];
+    parameters:ParameterDescriptor[];
     in?:InputDescriptor;
     out?:OutputDescriptor;
     icon?:Icon;
