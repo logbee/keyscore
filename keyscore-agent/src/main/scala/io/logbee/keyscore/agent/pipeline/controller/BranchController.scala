@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline
+package io.logbee.keyscore.agent.pipeline.controller
 
 import java.util.UUID
 
@@ -6,15 +6,15 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveProxy
 import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.pipeline.{FilterState, SourceProxy}
+import io.logbee.keyscore.model.pipeline.{BranchProxy, FilterState}
 
 import scala.concurrent.Future
 
-private class SourceController(val source: SourceProxy, val valve: ValveProxy) extends Controller {
+private class BranchController(val inValve: ValveProxy, val branch: BranchProxy, val leftValve: ValveProxy, val rightValve: ValveProxy) extends Controller {
 
-  override val id: UUID = source.id
+  override val id: UUID = branch.id
 
-  override def configure(configuration: Configuration): Future[FilterState] = source.configure(configuration)
+  override def configure(configuration: Configuration): Future[FilterState] = branch.configure(configuration)
 
   override def pause(doClose: Boolean): Future[FilterState] = ???
 
@@ -22,7 +22,7 @@ private class SourceController(val source: SourceProxy, val valve: ValveProxy) e
 
   override def insert(dataset: List[Dataset], whichValve: WhichValve): Future[FilterState] = ???
 
-  override def extract(n: Int, whichValve: WhichValve): Future[List[Dataset]] = valve.extract(n)
+  override def extract(n: Int, whichValve: WhichValve): Future[List[Dataset]] = ???
 
   override def state(): Future[FilterState] = ???
 

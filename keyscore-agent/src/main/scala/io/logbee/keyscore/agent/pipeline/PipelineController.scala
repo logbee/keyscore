@@ -2,6 +2,7 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
+import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.configuration.Configuration

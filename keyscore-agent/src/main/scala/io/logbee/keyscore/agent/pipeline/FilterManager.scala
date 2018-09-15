@@ -74,7 +74,7 @@ class FilterManager extends Actor with ActorLogging {
       }
 
     case RequestDescriptors =>
-      sender ! DescriptorsResponse(descriptors.values.map(_.filterDescriptor).toList)
+      sender ! DescriptorsResponse(descriptors.values.map(_.descriptor).toList)
 
     case CreateSinkStage(ref, stageContext, descriptor, configuration) =>
 

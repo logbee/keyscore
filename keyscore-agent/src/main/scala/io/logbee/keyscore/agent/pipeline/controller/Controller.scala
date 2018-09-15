@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline
+package io.logbee.keyscore.agent.pipeline.controller
 
 import java.util.UUID
 
@@ -6,7 +6,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveProxy
 import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.pipeline.{FilterProxy, FilterState, SinkProxy, SourceProxy}
+import io.logbee.keyscore.model.pipeline._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -22,6 +22,14 @@ object Controller {
 
   def sinkController(valveProxy: ValveProxy, sinkProxy: SinkProxy): Controller = {
     new SinkController(valveProxy, sinkProxy)
+  }
+
+  def branchController(inValve: ValveProxy, branch: BranchProxy, leftValve: ValveProxy, rightValve: ValveProxy): Controller = {
+    new BranchController(inValve, branch, leftValve, rightValve)
+  }
+
+  def mergeController(leftValve: ValveProxy, rightValve: ValveProxy, merge: MergeProxy, outValve: ValveProxy): Controller = {
+    new MergeController(leftValve, rightValve, merge, outValve)
   }
 }
 

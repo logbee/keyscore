@@ -3,9 +3,10 @@ package io.logbee.keyscore.agent.pipeline
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
-import io.logbee.keyscore.agent.pipeline.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
+import io.logbee.keyscore.agent.pipeline.controller.Controller
+import io.logbee.keyscore.agent.pipeline.controller.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
