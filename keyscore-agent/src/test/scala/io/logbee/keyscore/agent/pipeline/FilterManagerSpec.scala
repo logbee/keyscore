@@ -1,56 +1,104 @@
 package io.logbee.keyscore.agent.pipeline
 
-import akka.testkit.TestProbe
+import java.util.UUID.randomUUID
+
+import akka.actor.{ActorSystem, Props}
+import akka.pattern.ask
+import akka.testkit.{ImplicitSender, TestKit}
+import akka.util.Timeout
+import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.FilterExtension
-import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.model.blueprint.BlueprintRef
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.conversion.UUIDConversion.uuidToString
+import io.logbee.keyscore.pipeline.api.stage.StageContext
 import org.junit.runner.RunWith
-import org.scalatest.FreeSpec
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FreeSpecLike, Matchers}
 
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 
-
 @RunWith(classOf[JUnitRunner])
-class FilterManagerSpec extends FreeSpec with TestSystemWithMaterializerAndExecutionContext {
+class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with FreeSpecLike with Matchers with ScalaFutures with MockFactory {
+
+  implicit val timeout: Timeout = 5 seconds
 
   "A FilterManager" - {
 
-    val filterManager = system.actorOf(FilterManager.props())
+    val filterManager = system.actorOf(Props[FilterManager])
 
-    "should gather all registered filters" in {
-
-      val probe = TestProbe()
+    "should load filter extensions " in {
 
       filterManager ! RegisterExtension(FilterExtension, classOf[ExampleFilter])
+      filterManager ! RequestDescriptors
 
-      filterManager tell(FilterManager.RequestDescriptors, probe.ref)
-
-      val response = probe.receiveOne(10 seconds).asInstanceOf[FilterManager.DescriptorsResponse]
-
-
+      val message = receiveOne(5 seconds).asInstanceOf[DescriptorsResponse]
+      message.descriptors should (contain(ExampleFilter.describe) and have length 1)
     }
 
-    "send a stage" in {
+    "should instantiate a filter stage" in {
 
-      //      val stageContext = StageContext(system, executionContext)
-      //      val configuration = FilterConfiguration(FilterDescriptor(randomUUID(), "io.logbee.keyscore.agent.pipeline.DummyFilterLogic"))
-      //
-      //      val probe = TestProbe()
-      //      filterManager tell (FilterManager.CreateFilterStage(stageContext, configuration), probe.ref)
-      //
-      //      val message = probe.receiveOne(10 seconds).asInstanceOf[FilterManager.FilterStageCreated]
+      val result = Await.ready(filterManager ? CreateFilterStage(BlueprintRef(randomUUID()), StageContext(system, system.dispatcher), ExampleFilter.describe.ref, Configuration()), 10 seconds)
+
+      result shouldBe a[Future[_]]
+    }
+  }
+
+  "A FilterManager with registered extensions" - {
+
+    val filterManager = system.actorOf(Props[FilterManager])
+    val ctx = StageContext(system, system.dispatcher)
+
+    filterManager ! RegisterExtension(FilterExtension, classOf[ExampleFilter])
+
+    "should create a sink stage" in {
+
+      filterManager ! CreateSinkStage(BlueprintRef(randomUUID()), ctx , ExampleFilter.describe.ref, Configuration.empty)
+
+      val message = receiveOne(5 seconds).asInstanceOf[SinkStageCreated]
+
+      message.stage should not be (null)
+    }
+
+    "should create a source stage" in {
+
+      filterManager ! CreateSourceStage(BlueprintRef(randomUUID()), ctx, ExampleFilter.describe.ref, Configuration.empty)
+
+      val message = receiveOne(5 seconds).asInstanceOf[SourceStageCreated]
+
+      message.stage should not be (null)
+    }
+
+    "should create a filter stage" in {
+
+      filterManager ! CreateFilterStage(BlueprintRef(randomUUID()), ctx, ExampleFilter.describe.ref, Configuration.empty)
+
+      val message = receiveOne(5 seconds).asInstanceOf[FilterStageCreated]
+
+      message.stage should not be (null)
+    }
+
+    "should create a branch stage" in {
+
+      filterManager ! CreateBranchStage(BlueprintRef(randomUUID()), ctx, ExampleFilter.describe.ref, Configuration.empty)
+
+      val message = receiveOne(5 seconds).asInstanceOf[BranchStageCreated]
+
+      message.stage should not be (null)
+    }
+
+    "should create a merge stage" in {
+
+      filterManager ! CreateMergeStage(BlueprintRef(randomUUID()), ctx, ExampleFilter.describe.ref, Configuration.empty)
+
+      val message = receiveOne(5 seconds).asInstanceOf[MergeStageCreated]
+
+      message.stage should not be (null)
     }
   }
 }
-
-//class DummyFilterLogic(context: StageContext, configuration: FilterConfiguration, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(context, configuration, shape) {
-//
-//  override def configure(configuration: FilterConfiguration): Unit = {}
-//
-//  override def onPush(): Unit = {}
-//
-//  override def onPull(): Unit = {}
-//}
-
