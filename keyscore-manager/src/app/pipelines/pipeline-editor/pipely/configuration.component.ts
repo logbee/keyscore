@@ -42,7 +42,7 @@ export class ConfigurationComponent implements OnInit {
     public selectedDraggable: Draggable;
     public zippedParameters;
 
-    constructor(private parameterService: ParameterControlService) {
+    constructor(private parameterService: ParameterControlService){
 
     }
 

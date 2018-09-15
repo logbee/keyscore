@@ -22,14 +22,16 @@ import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Health} from "../models/common/Health";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
-import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
+import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/filter-model/FilterDescriptor";
 import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
+import {Descriptor} from "../models/descriptors/Descriptor";
 
 export class PipelinesState {
     public pipelineList: PipelineInstance[];
     public editingPipeline: InternalPipelineConfiguration;
     public editingFilter: FilterConfiguration;
-    public filterDescriptors: FilterDescriptor[];
+    public descriptors: Descriptor[];
+    public filterDescriptors: ResolvedFilterDescriptor[];
     public filterCategories: string[];
     public editingPipelineIsLocked: boolean;
     public pipelineInstancePolling: boolean;
@@ -39,6 +41,7 @@ const initialState: PipelinesState = {
     pipelineList: [],
     editingPipeline: null,
     editingFilter: null,
+    descriptors:[],
     filterDescriptors: [],
     filterCategories: [],
     editingPipelineIsLocked: true,

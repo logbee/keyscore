@@ -1,3 +1,4 @@
+/*
 import {Injectable} from "@angular/core";
 import {Blockly} from "node-blockly/browser";
 import {v4 as uuid} from "uuid";
@@ -169,3 +170,4 @@ export class ToolBarBuilderService {
     }
 
 }
+*/

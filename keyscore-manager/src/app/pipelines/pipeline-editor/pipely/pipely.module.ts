@@ -16,6 +16,8 @@ import {ConnectorComponent} from "./connectors/connector.component";
 import {MaterialModule} from "../../../material.module";
 import {ConfigurationComponent} from "./configuration.component";
 import {ParameterModule} from "../../../common/parameter/parameter.module";
+import {PuzzleBoxComponent} from "./puzzle-box/puzzle-box.component";
+import {PuzzleCategoryComponent} from "./puzzle-box/puzzle-category.component";
 
 
 @NgModule({
@@ -34,7 +36,9 @@ import {ParameterModule} from "../../../common/parameter/parameter.module";
         ConnectorDropzoneSubcomponent,
         TrashDropzoneSubcomponent,
         ConnectorComponent,
-        ConfigurationComponent
+        ConfigurationComponent,
+        PuzzleBoxComponent,
+        PuzzleCategoryComponent
     ],
     entryComponents: [
         DraggableComponent,

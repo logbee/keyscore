@@ -9,9 +9,7 @@ import {PipelyPipelineConfiguration} from "./models/pipeline-configuration.model
     template:
             `
         <div class="pipely-wrapper">
-            <div class="row">
-                <workspace [pipeline]="pipeline" class="col-12 p-0"></workspace>
-            </div>
+                <workspace [pipeline]="pipeline"></workspace>
         </div>
 
     `

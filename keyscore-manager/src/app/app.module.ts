@@ -17,7 +17,6 @@ import {AppConfigEffects, AppConfigLoader} from "./app.config";
 import {reducers} from "./app.reducers";
 import {DashboardComponent} from "./dashboard/dashboard.component";
 import {metaReducers} from "./meta.reducers";
-import {FilterChooser} from "./pipelines/pipeline-editor/filter-chooser/filter-chooser.component";
 import {PipelinesModule} from "./pipelines/pipelines.module";
 import {RouterEffects} from "./router/router.effects";
 import {SettingsComponent} from "./settings/settings.component";
@@ -26,11 +25,8 @@ import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
 import {LiveEditingModule} from "./filters/filter.module";
 import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
-import {ParameterList} from "./common/parameter/parameter-list.component";
-import {DropzoneComponent} from "./pipelines/pipeline-editor/pipely/dropzone.component";
-import {DraggableComponent} from "./pipelines/pipeline-editor/pipely/draggable.component";
-import {WorkspaceComponent} from "./pipelines/pipeline-editor/pipely/workspace.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {MaterialModule} from "./material.module";
 
 
 const routes: Routes = [
@@ -67,12 +63,12 @@ export function HttpLoaderFactory(http: HttpClient) {
          StoreDevtoolsModule.instrument({
              maxAge: 20
          }),
-        HeaderBarModule
+        HeaderBarModule,
+        MaterialModule
     ],
     declarations: [
         AppComponent,
         DashboardComponent,
-        FilterChooser,
         SettingsComponent,
         SidemenuComponent
     ],
@@ -84,7 +80,6 @@ export function HttpLoaderFactory(http: HttpClient) {
             multi: true}
     ],
     entryComponents: [
-        FilterChooser,
         SettingsComponent
     ],
     bootstrap: [

@@ -38,16 +38,16 @@ import {takeUntil} from "rxjs/internal/operators";
                         version="1.1"
                         viewBox="0 0 971 567.929"
                 >
-                    <svg:g svg-connector [isDroppable]="isPreviousConncetionDroppable"
+                    <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isPreviousConncetionDroppable"
                            [connectionType]="draggableModel.blockDescriptor.previousConnection.connectionType"/>
 
                     <svg:g>
                         <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
                                   id="rect5038"
-                                  style="fill:#365880;fill-opacity:1;stroke:#398033;stroke-width:0px"/>
-
+                                  attr.fill="{{draggableModel.color}}"
+                                  style="fill-opacity:1;stroke:#398033;stroke-width:0px"/>
                     </svg:g>
-                    <svg:g svg-connector [isDroppable]="isNextConnectionDroppable"
+                    <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
                            [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>
                 </svg>
             </div>

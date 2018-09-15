@@ -23,20 +23,21 @@ export interface AppState {
 @Component({
     selector: "my-app",
     template: `
-        <div class="wrapper container-fluid p-0">
-            <sidemenu [showSettings]="settingsFeatureEnabled" (toggleSidebar)="toggleMenu()"
-                      (updateLanguage)="setLanguage($event)"></sidemenu>
-            <div id="modal">
-                <ng-template #modal></ng-template>
-            </div>
-            <div class="container-fluid pl-0 pr-0">
-                <div class="row no-gutters">
-                    <div class="col-12">
-                        <router-outlet></router-outlet>
-                    </div>
-                </div>
-            </div>
+        <div class="app-container">
+            <mat-sidenav-container class="sidenav-container" autosize>
+                <mat-sidenav mode="side" class="main-drawer" opened="true">
+                    <sidemenu [showSettings]="settingsFeatureEnabled" (toggleSidebar)="toggleMenu()"
+                              (updateLanguage)="setLanguage($event)"></sidemenu>
+                </mat-sidenav>
 
+                <div id="modal">
+                    <ng-template #modal></ng-template>
+                </div>
+                <mat-sidenav-content class="sidenav-content">
+                    <router-outlet></router-outlet>
+                </mat-sidenav-content>
+
+            </mat-sidenav-container>
         </div>
     `,
     providers: [
