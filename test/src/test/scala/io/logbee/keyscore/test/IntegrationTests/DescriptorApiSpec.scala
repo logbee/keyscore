@@ -20,33 +20,35 @@ import org.springframework.http.{HttpStatus, MediaType}
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class DescriptorApiSpec extends Matchers {
-  implicit val formats = KeyscoreFormats.formats
+
+  private implicit val formats = KeyscoreFormats.formats
   private val log = LoggerFactory.getLogger(classOf[DescriptorApiSpec])
 
   private val frontierClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
     .build()
+
   @Test
   @CitrusTest
-  def checkDescriptor(@CitrusResource runner: TestRunner): Unit = {
+  def checkDescriptor(implicit @CitrusResource runner: TestRunner): Unit = {
     val descriptorDescriptor = loadJson(K2KDescriptorsPath, JsonData.KafkaSinkDescriptorPath)
     val sinkObject = loadK2KExampleSinkDescriptor
 
-    putSingleDescriptor(runner, sinkObject, descriptorDescriptor)
-    getSingleDescriptor(runner, sinkObject)
-    postSingleDescriptor(runner, descriptorDescriptor, sinkObject)
+    putSingleDescriptor(sinkObject, descriptorDescriptor)
+    getSingleDescriptor(sinkObject)
+    postSingleDescriptor(descriptorDescriptor, sinkObject)
 
-    getAllDescriptors(runner, 1)
-    deleteSingleDescriptor(runner, sinkObject)
-    getAllDescriptors(runner, 0)
+    getAllDescriptors(1)
+    deleteSingleDescriptor(sinkObject)
+    getAllDescriptors(0)
 
-    putSingleDescriptor(runner, sinkObject, descriptorDescriptor)
-    deleteAllDescriptors(runner)
-    getAllDescriptors(runner, 0)
+    putSingleDescriptor(sinkObject, descriptorDescriptor)
+    deleteAllDescriptors()
+    getAllDescriptors(0)
   }
 
-  def putSingleDescriptor(runner: TestRunner, sinkObj: Descriptor, sinkDesc: String): TestAction = {
+  def putSingleDescriptor(sinkObj: Descriptor, sinkDesc: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/descriptor/${sinkObj.ref.uuid}")
@@ -60,7 +62,7 @@ class DescriptorApiSpec extends Matchers {
     )
   }
 
-  def getSingleDescriptor(runner: TestRunner, sinkObj: Descriptor): TestAction = {
+  def getSingleDescriptor(sinkObj: Descriptor)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/descriptor/${sinkObj.ref.uuid}")
@@ -81,7 +83,7 @@ class DescriptorApiSpec extends Matchers {
     )
   }
 
-  def deleteSingleDescriptor(runner: TestRunner, sinkObj: Descriptor): TestAction = {
+  def deleteSingleDescriptor(sinkObj: Descriptor)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/descriptor/${sinkObj.ref.uuid}")
@@ -92,7 +94,7 @@ class DescriptorApiSpec extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def postSingleDescriptor(runner: TestRunner, sinkDescString: String, sinkObj: Descriptor): TestAction = {
+  def postSingleDescriptor(sinkDescString: String, sinkObj: Descriptor)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"resources/descriptor/${sinkObj.ref.uuid}")
@@ -107,7 +109,7 @@ class DescriptorApiSpec extends Matchers {
   }
 
 
-  def getAllDescriptors(runner: TestRunner, expected: Int): TestAction = {
+  def getAllDescriptors(expected: Int)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/descriptor/*")
@@ -126,7 +128,7 @@ class DescriptorApiSpec extends Matchers {
     )
   }
 
-  def deleteAllDescriptors(runner: TestRunner): TestAction = {
+  def deleteAllDescriptors()(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/descriptor/*"))
