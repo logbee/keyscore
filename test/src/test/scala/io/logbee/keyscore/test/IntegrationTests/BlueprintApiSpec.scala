@@ -20,7 +20,8 @@ import org.springframework.http.{HttpStatus, MediaType}
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class BlueprintApiSpec extends Matchers {
-  implicit val formats = KeyscoreFormats.formats
+
+  private implicit val formats = KeyscoreFormats.formats
   private val log = LoggerFactory.getLogger(classOf[BlueprintApiSpec])
 
   private val frontierClient: HttpClient = CitrusEndpoints.http()
@@ -31,39 +32,39 @@ class BlueprintApiSpec extends Matchers {
 
   @Test
   @CitrusTest
-  def checkPipelineBlueprint(@CitrusResource runner: TestRunner): Unit = {
+  def checkPipelineBlueprint(implicit @CitrusResource runner: TestRunner): Unit = {
 
     val pipelineBlueprint = loadJson(K2KBlueprintsPath, JsonData.PipelineBlueprintPath)
     val pipelineObject = loadK2KPipelineBlueprint
 
-    putSinglePipelineBlueprint(runner, pipelineObject, pipelineBlueprint)
-    getSinglePipelineBlueprint(runner, pipelineObject)
-    postSinglePipelineBlueprint(runner, pipelineObject, pipelineBlueprint)
+    putSinglePipelineBlueprint(pipelineObject, pipelineBlueprint)
+    getSinglePipelineBlueprint(pipelineObject)
+    postSinglePipelineBlueprint(pipelineObject, pipelineBlueprint)
 
-    getAllPipelineBlueprints(runner, 1)
-    deleteSinglePipelineBlueprint(runner, pipelineObject)
-    getAllPipelineBlueprints(runner, 0)
+    getAllPipelineBlueprints(1)
+    deleteSinglePipelineBlueprint(pipelineObject)
+    getAllPipelineBlueprints(0)
 
   }
 
   @Test
   @CitrusTest
-  def checkBlueprint(@CitrusResource runner: TestRunner): Unit = {
+  def checkBlueprint(implicit @CitrusResource runner: TestRunner): Unit = {
 
     val sourceBlueprint = loadJson(K2KBlueprintsPath, JsonData.SourceBlueprintPath)
     val sourceObject = loadK2KSourceBlueprint
 
 
-    putSingleBlueprint(runner, sourceObject, sourceBlueprint)
-    getSingleBlueprint(runner, sourceObject)
-    postSingleBlueprint(runner, sourceObject, sourceBlueprint)
+    putSingleBlueprint(sourceObject, sourceBlueprint)
+    getSingleBlueprint(sourceObject)
+    postSingleBlueprint(sourceObject, sourceBlueprint)
 
-    getAllBlueprints(runner, 1)
-    deleteSingleBlueprint(runner, sourceObject)
-    getAllBlueprints(runner, 0)
+    getAllBlueprints(1)
+    deleteSingleBlueprint(sourceObject)
+    getAllBlueprints(0)
   }
 
-  def putSinglePipelineBlueprint(runner: TestRunner, pipelineObject: PipelineBlueprint, pipelineConfig: String): TestAction = {
+  def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -77,7 +78,7 @@ class BlueprintApiSpec extends Matchers {
     )
   }
 
-  def postSinglePipelineBlueprint(runner: TestRunner, pipelineObject: PipelineBlueprint, pipelineConfig: String): TestAction = {
+  def postSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -91,7 +92,7 @@ class BlueprintApiSpec extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def getSinglePipelineBlueprint(runner: TestRunner, pipelineObject: PipelineBlueprint): TestAction = {
+  def getSinglePipelineBlueprint(pipelineObject: PipelineBlueprint)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -109,7 +110,7 @@ class BlueprintApiSpec extends Matchers {
     )
   }
 
-  def getAllPipelineBlueprints(runner: TestRunner, expected: Int): TestAction = {
+  def getAllPipelineBlueprints(expected: Int)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/blueprint/pipeline/*")
@@ -128,7 +129,7 @@ class BlueprintApiSpec extends Matchers {
     )
   }
 
-  def deleteSinglePipelineBlueprint(runner: TestRunner, pipelineObject: PipelineBlueprint): TestAction = {
+  def deleteSinglePipelineBlueprint(pipelineObject: PipelineBlueprint)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -139,7 +140,7 @@ class BlueprintApiSpec extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def putSingleBlueprint(runner: TestRunner, sourceObject: SourceBlueprint, pipelineConfig: String): TestAction = {
+  def putSingleBlueprint(sourceObject: SourceBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/blueprint/${sourceObject.ref.uuid}")
@@ -153,7 +154,7 @@ class BlueprintApiSpec extends Matchers {
     )
   }
 
-  def postSingleBlueprint(runner: TestRunner, sourceObject: SourceBlueprint, pipelineConfig: String) = {
+  def postSingleBlueprint(sourceObject: SourceBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"resources/blueprint/${sourceObject.ref.uuid}")
@@ -167,7 +168,7 @@ class BlueprintApiSpec extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def getSingleBlueprint(runner: TestRunner, sourceObject: SourceBlueprint) = {
+  def getSingleBlueprint(sourceObject: SourceBlueprint)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/blueprint/${sourceObject.ref.uuid}")
@@ -185,7 +186,7 @@ class BlueprintApiSpec extends Matchers {
     )
   }
 
-  def getAllBlueprints(runner: TestRunner, expected: Int) = {
+  def getAllBlueprints(expected: Int)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/blueprint/*")
@@ -204,7 +205,7 @@ class BlueprintApiSpec extends Matchers {
     )
   }
 
-  def deleteSingleBlueprint(runner: TestRunner, sourceObject: SourceBlueprint) = {
+  def deleteSingleBlueprint(sourceObject: SourceBlueprint)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/blueprint/${sourceObject.ref.uuid}")

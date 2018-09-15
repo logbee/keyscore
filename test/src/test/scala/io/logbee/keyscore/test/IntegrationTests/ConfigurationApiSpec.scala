@@ -21,7 +21,8 @@ import org.springframework.http.{HttpStatus, MediaType}
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class ConfigurationApiSpec extends Matchers {
-  implicit val formats = KeyscoreFormats.formats
+
+  private implicit val formats = KeyscoreFormats.formats
   private val log = LoggerFactory.getLogger(classOf[ConfigurationApiSpec])
 
   private val frontierClient: HttpClient = CitrusEndpoints.http()
@@ -31,25 +32,25 @@ class ConfigurationApiSpec extends Matchers {
 
   @Test
   @CitrusTest
-  def checkConfiguration(@CitrusResource runner: TestRunner): Unit = {
+  def checkConfiguration(implicit @CitrusResource runner: TestRunner): Unit = {
 
     val sinkConfiguration = loadJson(K2KConfigurationsPath, JsonData.KafkaSinkConfigurationPath)
     val sinkObject = loadK2KSinkConfiguration
 
-    putSingleConfiguration(runner, sinkObject, sinkConfiguration)
-    getSingleConfiguration(runner, sinkObject, 3)
-    postSingleConfiguration(runner, sinkConfiguration, sinkObject)
+    putSingleConfiguration(sinkObject, sinkConfiguration)
+    getSingleConfiguration(sinkObject, 3)
+    postSingleConfiguration(sinkConfiguration, sinkObject)
 
-    getAllConfigurations(runner, 1)
-    deleteSingleConfig(runner, sinkObject)
-    getAllConfigurations(runner, 0)
+    getAllConfigurations(1)
+    deleteSingleConfig(sinkObject)
+    getAllConfigurations(0)
 
-    putSingleConfiguration(runner, sinkObject, sinkConfiguration)
+    putSingleConfiguration(sinkObject, sinkConfiguration)
     deleteAllConfigurations(runner)
-    getAllConfigurations(runner, 0)
+    getAllConfigurations(0)
   }
 
-  def putSingleConfiguration(runner: TestRunner, sinkObject: Configuration, sinkConfig: String): TestAction = {
+  def putSingleConfiguration(sinkObject: Configuration, sinkConfig: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/configuration/${sinkObject.ref.uuid}")
@@ -63,7 +64,7 @@ class ConfigurationApiSpec extends Matchers {
     )
   }
 
-  def getSingleConfiguration(runner: TestRunner, sinkObject: Configuration, expectedNumberOfParams: Int): TestAction = {
+  def getSingleConfiguration(sinkObject: Configuration, expectedNumberOfParams: Int)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/configuration/${sinkObject.ref.uuid}")
@@ -83,7 +84,7 @@ class ConfigurationApiSpec extends Matchers {
     )
   }
 
-  def deleteSingleConfig(runner: TestRunner, sinkObject: Configuration): TestAction = {
+  def deleteSingleConfig(sinkObject: Configuration)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/configuration/${sinkObject.ref.uuid}")
@@ -94,7 +95,7 @@ class ConfigurationApiSpec extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def postSingleConfiguration(runner: TestRunner, sinkConfigString: String, sinkObject: Configuration): TestAction = {
+  def postSingleConfiguration(sinkConfigString: String, sinkObject: Configuration)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"resources/configuration/${sinkObject.ref.uuid}")
@@ -109,7 +110,7 @@ class ConfigurationApiSpec extends Matchers {
   }
 
 
-  def getAllConfigurations(runner: TestRunner, expected: Int): TestAction = {
+  def getAllConfigurations(expected: Int)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/configuration/*")

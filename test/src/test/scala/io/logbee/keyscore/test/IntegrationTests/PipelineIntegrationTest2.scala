@@ -12,8 +12,7 @@ import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, Seal
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.{Green, PipelineInstance}
-import org.json4s.native.Serialization.write
-import org.json4s.native.Serialization.read
+import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
@@ -23,7 +22,7 @@ import org.springframework.http.HttpStatus
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest2 extends Matchers {
 
-  implicit val formats = KeyscoreFormats.formats
+  private implicit val formats = KeyscoreFormats.formats
   private val log = LoggerFactory.getLogger(classOf[PipelineIntegrationTest2])
 
   private val frontierClient: HttpClient = CitrusEndpoints.http()
@@ -38,94 +37,91 @@ class PipelineIntegrationTest2 extends Matchers {
 
   @Test
   @CitrusTest
-  def createPipeline(@CitrusResource runner: TestRunner): Unit = {
+  def createPipeline(implicit @CitrusResource runner: TestRunner): Unit = {
     val k2kObject = loadK2KPipelineBlueprint
     val k2eObject = loadK2EPipelineBlueprint
 
     creatingKafkaToKafkaPipeline(runner)
-    getSinglePipelineBlueprint(runner, k2kObject)
+    getSinglePipelineBlueprint(k2kObject)
 //    Thread.sleep(6000000)
 //
-//    creatingKafkaToElasticPipeline(runner)
-//    getSinglePipelineBlueprint(runner, k2eObject)
+//    creatingKafkaToElasticPipeline()
+//    getSinglePipelineBlueprint(k2eObject)
 
-//    checkHealthStateOfPipelines(runner)
+//    checkHealthStateOfPipelines()
 
-//    getAllPipelineBlueprints(runner, 2)
-//    deleteAllPipelineBlueprints(runner)
-//    getAllPipelineBlueprints(runner, 0)
-
-
+//    getAllPipelineBlueprints(2)
+//    deleteAllPipelineBlueprints()
+//    getAllPipelineBlueprints(0)
   }
 
-  private def creatingKafkaToKafkaPipeline(runner: TestRunner) = {
+  private def creatingKafkaToKafkaPipeline(implicit runner: TestRunner): TestAction = {
     //    1. sourceBlueprint
     val sourceBlueprint = loadJson(K2KBlueprintsPath, SourceBlueprintPath)
     val sourceObject = loadK2KSourceBlueprint
-    putSingleBlueprint(runner, sourceObject, sourceBlueprint)
+    putSingleBlueprint(sourceObject, sourceBlueprint)
     //    2. sinkBlueprint
     val sinkBlueprint = loadJson(K2KBlueprintsPath, SinkBlueprintPath)
     val sinkObject = loadK2KSinkBlueprint
-    putSingleBlueprint(runner, sinkObject, sinkBlueprint)
+    putSingleBlueprint(sinkObject, sinkBlueprint)
     //    3. filterBlueprint
     val filterBlueprint = loadJson(K2KBlueprintsPath, FilterBlueprintPath)
     val filterObject = loadK2KFilterBlueprint
-    putSingleBlueprint(runner, filterObject, filterBlueprint)
+    putSingleBlueprint(filterObject, filterBlueprint)
     //    4. sourceConfiguration
     val sourceConfiguration = loadJson(K2KConfigurationsPath, KafkaSourceConfigurationPath)
     val sourceConfiugrationObject = loadK2KSourceConfiguration
-    putSingleConfiguration(runner, sourceConfiugrationObject, sourceConfiguration)
+    putSingleConfiguration(sourceConfiugrationObject, sourceConfiguration)
     //    5. sinkConfiguration
     val sinkConfiguration = loadJson(K2KConfigurationsPath, KafkaSinkConfigurationPath)
     val sinkConfigurationObject = loadK2KSinkConfiguration
-    putSingleConfiguration(runner, sinkConfigurationObject, sinkConfiguration)
+    putSingleConfiguration(sinkConfigurationObject, sinkConfiguration)
     //    6. filterConfiguration
     val filterConfiguration = loadJson(K2KConfigurationsPath, FilterConfigurationPath)
     val filiterConfigurationObject = loadK2KFilterConfiguration
-    putSingleConfiguration(runner, filiterConfigurationObject, filterConfiguration)
+    putSingleConfiguration(filiterConfigurationObject, filterConfiguration)
     //    7. pipelineBlueprint
     val pipelineBlueprint = loadJson(K2KBlueprintsPath, PipelineBlueprintPath)
     val pipelineObject = loadK2KPipelineBlueprint
-    putSinglePipelineBlueprint(runner, pipelineObject, pipelineBlueprint)
+    putSinglePipelineBlueprint(pipelineObject, pipelineBlueprint)
     val pipelineRefString = write(pipelineObject.ref)
-    startPipeline(runner, pipelineObject, pipelineRefString)
+    startPipeline(pipelineObject, pipelineRefString)
   }
 
-  private def creatingKafkaToElasticPipeline(runner: TestRunner): TestAction = {
+  private def creatingKafkaToElasticPipeline(implicit runner: TestRunner): TestAction = {
     //    1. sourceBlueprint
     val sourceBlueprint = loadJson(K2EBlueprintsPath, SourceBlueprintPath)
     val sourceObject = loadK2ESourceBlueprint
-    putSingleBlueprint(runner, sourceObject, sourceBlueprint)
+    putSingleBlueprint(sourceObject, sourceBlueprint)
     //    2. sinkBlueprint
     val sinkBlueprint = loadJson(K2EBlueprintsPath, SinkBlueprintPath)
     val sinkObject = loadK2ESinkBlueprint
-    putSingleBlueprint(runner, sinkObject, sinkBlueprint)
+    putSingleBlueprint(sinkObject, sinkBlueprint)
     //    3. filterBlueprint
     val filterBlueprint = loadJson(K2EBlueprintsPath, FilterBlueprintPath)
     val filterObject = loadK2EFilterBlueprint
-    putSingleBlueprint(runner, filterObject, filterBlueprint)
+    putSingleBlueprint(filterObject, filterBlueprint)
     //    4. sourceConfiguration
     val sourceConfiguration = loadJson(K2EConfigurationsPath, KafkaSourceConfigurationPath)
     val sourceConfiugrationObject = loadK2ESourceConfiguration
-    putSingleConfiguration(runner, sourceConfiugrationObject, sourceConfiguration)
+    putSingleConfiguration(sourceConfiugrationObject, sourceConfiguration)
     //    5. sinkConfiguration
     val sinkConfiguration = loadJson(K2EConfigurationsPath, KafkaSinkConfigurationPath)
     val sinkConfigurationObject = loadK2ESinkConfiguration
-    putSingleConfiguration(runner, sinkConfigurationObject, sinkConfiguration)
+    putSingleConfiguration(sinkConfigurationObject, sinkConfiguration)
     //    6. filterConfiguration
     val filterConfiguration = loadJson(K2EConfigurationsPath, FilterConfigurationPath)
     val filiterConfigurationObject = loadK2EFilterConfiguration
-    putSingleConfiguration(runner, filiterConfigurationObject, filterConfiguration)
+    putSingleConfiguration(filiterConfigurationObject, filterConfiguration)
     //    7. pipelineBlueprint
     val pipelineBlueprint = loadJson(K2EBlueprintsPath, PipelineBlueprintPath)
     val pipelineObject = loadK2EPipelineBlueprint
-    putSinglePipelineBlueprint(runner, pipelineObject, pipelineBlueprint)
+    putSinglePipelineBlueprint(pipelineObject, pipelineBlueprint)
     val pipelineRefString = write(pipelineObject.ref)
-    startPipeline(runner, pipelineObject, pipelineRefString)
+    startPipeline(pipelineObject, pipelineRefString)
   }
 
-
-  def putSinglePipelineBlueprint(runner: TestRunner, pipelineObject: PipelineBlueprint, pipelineConfig: String): TestAction = {
+  def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -139,7 +135,7 @@ class PipelineIntegrationTest2 extends Matchers {
     )
   }
 
-  def putSingleBlueprint(runner: TestRunner, blueprintObject: SealedBlueprint, pipelineConfig: String): TestAction = {
+  def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
 
     runner.http(action => action.client(frontierClient)
       .send()
@@ -154,7 +150,7 @@ class PipelineIntegrationTest2 extends Matchers {
     )
   }
 
-  def putSingleConfiguration(runner: TestRunner, configurationObject: Configuration, sinkConfig: String): TestAction = {
+  def putSingleConfiguration(configurationObject: Configuration, sinkConfig: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/configuration/${configurationObject.ref.uuid}")
@@ -168,7 +164,7 @@ class PipelineIntegrationTest2 extends Matchers {
     )
   }
 
-  def getAllPipelineBlueprints(runner: TestRunner, expected: Int): TestAction = {
+  def getAllPipelineBlueprints(expected: Int)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/blueprint/pipeline/*")
@@ -187,7 +183,7 @@ class PipelineIntegrationTest2 extends Matchers {
     )
   }
 
-  def getSinglePipelineBlueprint(runner: TestRunner, pipelineObject: PipelineBlueprint): TestAction = {
+  def getSinglePipelineBlueprint(pipelineObject: PipelineBlueprint)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -205,7 +201,7 @@ class PipelineIntegrationTest2 extends Matchers {
     )
   }
 
-  def deleteSinglePipelineBlueprint(runner: TestRunner, pipelineObject: PipelineBlueprint): TestAction = {
+  def deleteSinglePipelineBlueprint(pipelineObject: PipelineBlueprint)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -216,7 +212,7 @@ class PipelineIntegrationTest2 extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def deleteAllPipelineBlueprints(runner: TestRunner): TestAction = {
+  def deleteAllPipelineBlueprints()(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/blueprint/pipeline/*")
@@ -227,7 +223,7 @@ class PipelineIntegrationTest2 extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def checkHealthStateOfPipelines(runner: TestRunner): TestAction = {
+  def checkHealthStateOfPipelines()(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"pipeline/instance/*")
@@ -245,7 +241,7 @@ class PipelineIntegrationTest2 extends Matchers {
       }))
   }
 
-  def startPipeline(runner: TestRunner, pipelineObject: PipelineBlueprint, pipelineRef: String): TestAction = {
+  def startPipeline(pipelineObject: PipelineBlueprint, pipelineRef: String)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/pipeline/configuration/${pipelineObject.ref.uuid}")
