@@ -9,6 +9,8 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.filter.RetainFieldsFilterLogic.fieldNamesParameter
 
 import scala.Int.MaxValue
@@ -31,13 +33,13 @@ object RetainFieldsFilterLogic extends Described {
       name = classOf[RetainFieldsFilterLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(TextRef("category")),
+      categories = Seq(CommonCategories.REMOVE_DROP),
       parameters = Seq(fieldNamesParameter)
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RetainFieldsFilter",
       Locale.ENGLISH, Locale.GERMAN
-    )
+    ) ++ CATEGORY_LOCALIZATION
   )
 }
 

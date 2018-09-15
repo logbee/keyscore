@@ -16,6 +16,8 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.Hashing._
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic.{hostParameter, indexParameter, portParameter}
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTypesSerializers
@@ -63,10 +65,10 @@ object ElasticSearchSinkLogic extends Described {
       name = filterName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(TextRef("category")),
+      categories = Seq(CommonCategories.SINK, Category("Elasticsearch")),
       parameters = Seq(hostParameter, portParameter, indexParameter)
     ),
-    localization = Localization.fromResourceBundle(bundleName, Locale.ENGLISH, Locale.GERMAN)
+    localization = Localization.fromResourceBundle(bundleName, Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
   )
 
   private case class Document(_id: String, fields: Map[String, _])

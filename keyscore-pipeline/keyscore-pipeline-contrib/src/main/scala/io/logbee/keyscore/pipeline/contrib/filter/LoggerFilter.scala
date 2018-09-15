@@ -9,6 +9,8 @@ import io.logbee.keyscore.model.descriptor.{Descriptor, FilterDescriptor}
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 
 object LoggerFilter extends Described {
 
@@ -18,13 +20,13 @@ object LoggerFilter extends Described {
       name = classOf[LoggerFilter].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(TextRef("category")),
+      categories = Seq(CommonCategories.DEBUG),
       parameters = Seq()
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter",
       Locale.ENGLISH, Locale.GERMAN
-    )
+    ) ++ CATEGORY_LOCALIZATION
   )
 }
 

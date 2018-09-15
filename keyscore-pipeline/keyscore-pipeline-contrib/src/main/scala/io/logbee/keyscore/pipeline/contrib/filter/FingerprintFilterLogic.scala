@@ -42,7 +42,7 @@ object FingerprintFilterLogic extends Described {
       name = classOf[FingerprintFilterLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(TextRef("category")),
+      categories = Seq(Category("fingerprint", TextRef("category.fingerprint.displayName"))),
       parameters = Seq(targetParameter,encodingParameter)
     ),
     localization = Localization.fromResourceBundle(
@@ -50,7 +50,6 @@ object FingerprintFilterLogic extends Described {
       Locale.ENGLISH, Locale.GERMAN
     )
   )
-
 }
 
 class FingerprintFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {

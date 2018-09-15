@@ -14,6 +14,8 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.json4s.ext.JavaTypesSerializers
@@ -93,14 +95,14 @@ object KafkaSourceLogic extends Described {
       name = classOf[KafkaSourceLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(TextRef("categorySource"), TextRef("categoryKafka")),
+      categories = Seq(CommonCategories.SOURCE, Category("Kafka")),
       parameters = Seq(serverParameter,portParameter,groupIdParameter,offsetParameter,topicParameter)
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSourceLogic",
-      Locale.ENGLISH, Locale.GERMAN)
+      Locale.ENGLISH, Locale.GERMAN
+    ) ++ CATEGORY_LOCALIZATION
   )
-
 }
 
 class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {

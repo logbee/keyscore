@@ -10,6 +10,8 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.filter.JsonExtractorLogic.{removeSourceFieldParameter, sourceFieldNameParameter}
 import org.json4s.JsonAST._
 import org.json4s.native.JsonParser._
@@ -43,9 +45,10 @@ object JsonExtractorLogic extends Described {
       name = classOf[JsonExtractorLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(TextRef("category")),
+      categories = Seq(CommonCategories.DATA_EXTRACTION, CommonCategories.JSON),
       parameters = Seq(sourceFieldNameParameter, removeSourceFieldParameter)
-    )
+    ),
+    localization = CATEGORY_LOCALIZATION
   )
 }
 

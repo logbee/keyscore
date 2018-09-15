@@ -10,6 +10,8 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.filter.D3BoxPlotGeneratorLogic.{groupIdentifierParameter, itemIdentifierParameter}
 
 import scala.collection.mutable
@@ -40,7 +42,7 @@ object D3BoxPlotGeneratorLogic extends Described {
         name = classOf[D3BoxPlotGeneratorLogic].getName,
         displayName = TextRef("displayName"),
         description = TextRef("description"),
-        categories = Seq(TextRef("category1"), TextRef("category2")),
+        categories = Seq(CommonCategories.VISUALIZATION),
         parameters = Seq(
           groupIdentifierParameter,
           itemIdentifierParameter
@@ -49,7 +51,7 @@ object D3BoxPlotGeneratorLogic extends Described {
       localization = Localization.fromResourceBundle(
         bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.D3BoxPlotGenerator",
         Locale.ENGLISH, Locale.GERMAN
-      )
+      ) ++ CATEGORY_LOCALIZATION
     )
 }
 

@@ -36,7 +36,7 @@ message FilterDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
-    repeated TextRef categories = 4;
+    repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     InputDescriptor in = 9;
     OutputDescriptor out = 10;
@@ -47,7 +47,7 @@ message SourceDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
-    repeated TextRef categories = 4;
+    repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     OutputDescriptor out = 9;
     Icon icon = 13;
@@ -57,7 +57,7 @@ message SinkDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
-    repeated TextRef categories = 4;
+    repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     InputDescriptor in = 9;
     Icon icon = 13;
@@ -67,7 +67,7 @@ message BranchDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
-    repeated TextRef categories = 4;
+    repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     InputDescriptor in = 9;
     OutputDescriptor left = 10;
@@ -79,7 +79,7 @@ message MergeDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
-    repeated TextRef categories = 4;
+    repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
     InputDescriptor left = 9;
     InputDescriptor right = 10;
@@ -258,6 +258,11 @@ message DecimalRange {
     double step = 1;
     double start = 2;
     double end = 3;
+}
+
+message Category {
+    string name = 1;
+    TextRef displayName = 2;
 }
 
 message Icon {

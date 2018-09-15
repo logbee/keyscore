@@ -14,6 +14,8 @@ import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.{bootstrapServerParameter, bootstrapServerPortParameter, topicParameter}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
@@ -57,13 +59,13 @@ object KafkaSinkLogic extends Described {
       name = classOf[KafkaSinkLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(TextRef("category1"), TextRef("category2")),
+      categories = Seq(CommonCategories.SINK, Category("Kafka")),
       parameters = Seq(bootstrapServerParameter, bootstrapServerPortParameter, topicParameter)
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSinkLogic",
       Locale.ENGLISH, Locale.GERMAN
-    )
+    ) ++ CATEGORY_LOCALIZATION
   )
 }
 

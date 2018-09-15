@@ -29,7 +29,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
 
       val filterDisplayName = TextRef("displayName")
       val filterDescription = TextRef("description")
-      val category = TextRef("filterCategory")
+      val category = Category("filter", TextRef("filterCategory"))
 
       val textParameterDisplayName = TextRef("foo")
       val textParameterDescription = TextRef("bar")
@@ -76,7 +76,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
             EN -> "Adds the specified fields.",
             DE -> "Fuegt die definierten Felder hinzu."
           ),
-          category -> Map(
+          category.displayName.get -> Map(
             EN -> "Source",
             DE -> "Quelle"
           ),

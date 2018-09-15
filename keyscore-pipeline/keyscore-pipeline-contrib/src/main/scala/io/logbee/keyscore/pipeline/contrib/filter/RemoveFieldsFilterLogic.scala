@@ -9,6 +9,8 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 
 import scala.Int.MaxValue
 
@@ -36,13 +38,13 @@ object RemoveFieldsFilterLogic extends Described {
       name = classOf[RemoveFieldsFilterLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq("category"),
+      categories = Seq(CommonCategories.REMOVE_DROP),
       parameters = Seq(fieldsToRemoveParameter)
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilter",
       Locale.ENGLISH, Locale.GERMAN
-    )
+    ) ++ CATEGORY_LOCALIZATION
   )
 }
 

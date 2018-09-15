@@ -35,7 +35,7 @@ object CSVParserFilterLogic extends Described {
       name = classOf[CSVParserFilterLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(TextRef("category")),
+      categories = Seq(Category("CSV")),
       parameters = Seq(headerParameter, separatorParameter)
     ),
     localization = Localization.fromResourceBundle(
