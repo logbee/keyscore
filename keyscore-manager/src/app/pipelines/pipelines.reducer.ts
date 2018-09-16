@@ -115,7 +115,8 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case UPDATE_PIPELINE_POLLING:
             result.pipelineInstancePolling = action.isPolling;
             break;
-        case ADD_FILTER:
+            //commented due to api change
+        /*case ADD_FILTER:
             const parameters = action.filter.parameters.map((parameterDescriptor) =>
                 parameterDescriptorToParameter(parameterDescriptor));
             result.editingPipeline.filters.push({
@@ -123,7 +124,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 descriptor: action.filter,
                 parameters,
             });
-            break;
+            break;*/
         case MOVE_FILTER:
             const filterIndex = result.editingPipeline.filters.findIndex((filter) =>
                 filter.id === action.filterId);
@@ -146,11 +147,11 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 filter.id === action.filterId);
             result.editingPipeline.filters.splice(removeIndex, 1);
             break;
-        case LOAD_FILTER_DESCRIPTORS_SUCCESS:
+        /*case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
             result.filterCategories = result.filterDescriptors.map((descriptor) =>
                 descriptor.category).filter((category, i, array) => array.indexOf(category) === i);
-            break;
+            break;*/
     }
 
     return result;

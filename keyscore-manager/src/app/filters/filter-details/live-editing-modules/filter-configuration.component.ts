@@ -106,11 +106,14 @@ export class FilterConfigurationComponent implements OnInit {
         this.extractedDatasets$.subscribe((datasets) => {
             this.noDataAvailable = datasets.length === 0;
         });
-        this.filter$.subscribe((filter) => {
+
+        //Uncommented while changing api to get build
+
+        /*this.filter$.subscribe((filter) => {
             this.parameters = filter.descriptor.parameters;
             this.noParamsAvailable = filter.descriptor.parameters.length === 0;
             this.filter = filter;
-        });
+        });*/
         this.form = this.parameterService.toFormGroup(this.parameters, this.filter.parameters);
 
     }

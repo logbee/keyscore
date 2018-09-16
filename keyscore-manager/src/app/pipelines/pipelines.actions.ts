@@ -2,7 +2,7 @@ import {Action} from "@ngrx/store";
 import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
 import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
+import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/filter-model/FilterDescriptor";
 import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";

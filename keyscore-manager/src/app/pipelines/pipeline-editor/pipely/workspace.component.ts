@@ -306,28 +306,44 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
             },
             parameters: [
                 {
-                    name: "TestFeld1",
-                    displayName: "Text Parameter",
-                    jsonClass: "TextParameterDescriptor",
-                    mandatory: true
+                    ref:{
+                        uuid:"TestFeld1"
+                    },
+                    info:{
+                        displayName: "Text Parameter",
+                        description:"adasjdasjdad"
+                    },
+                    jsonClass: "TextParameterDescriptor"
                 },
                 {
-                    name: "TestList1",
-                    displayName: "Liste ",
-                    jsonClass: "ListParameterDescriptor",
-                    mandatory: true
+                    ref:{
+                        uuid:"TestFeld2"
+                    },
+                    info:{
+                        displayName: "Text Parameter",
+                        description:"adasjdasjdad"
+                    },
+                    jsonClass: "TextParameterDescriptor"
                 },
                 {
-                    name: "TestFeld3",
-                    displayName: "Int Parameter",
-                    jsonClass: "IntParameterDescriptor",
-                    mandatory: true
+                    ref:{
+                        uuid:"TestFeld3"
+                    },
+                    info:{
+                        displayName: "Text Parameter",
+                        description:"adasjdasjdad"
+                    },
+                    jsonClass: "TextParameterDescriptor"
                 },
                 {
-                    name: "TestFeld4",
-                    displayName: "Boolean Parameter",
-                    jsonClass: "BooleanParameterDescriptor",
-                    mandatory: true
+                    ref:{
+                        uuid:"TestFeld4"
+                    },
+                    info:{
+                        displayName: "Text Parameter",
+                        description:"adasjdasjdad"
+                    },
+                    jsonClass: "TextParameterDescriptor"
                 }
             ],
             category: "Test"

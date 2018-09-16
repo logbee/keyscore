@@ -19,7 +19,7 @@ import {
 import {map, share, takeUntil} from "rxjs/internal/operators";
 import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
 import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
-import {FilterDescriptor} from "../../models/filter-model/FilterDescriptor";
+import {FilterDescriptor, ResolvedFilterDescriptor} from "../../models/filter-model/FilterDescriptor";
 import {
     getEditingPipeline,
     getEditingPipelineIsLocked,
@@ -40,7 +40,7 @@ import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration
 
         <ng-template #editor>
             
-            <pipely-workspace *ngSwitchCase="'pipely'" [pipeline]="(pipeline$ | async)" fxFill=""></pipely-workspace>
+            <pipely-workspace [pipeline]="(pipeline$ | async)" fxFill=""></pipely-workspace>
 
             <alert [level]="'success'" [message]="'BLOCKLY.SAVE_SUCCESS'"
                    [trigger$]="successAlertTrigger$"></alert>
@@ -52,7 +52,7 @@ import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration
 export class PipelineEditorComponent implements OnDestroy {
     public pipeline$: Observable<InternalPipelineConfiguration>;
     public isLocked$: Observable<boolean>;
-    public filterDescriptors$: Observable<FilterDescriptor[]>;
+    public filterDescriptors$: Observable<ResolvedFilterDescriptor[]>;
     public categories$: Observable<string[]>;
     public isLoading$: Observable<boolean>;
     public isMenuExpanded$: Observable<boolean>;

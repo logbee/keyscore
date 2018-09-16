@@ -6,6 +6,7 @@ module.exports = {
     entry: {
         app: ['./src/main.ts']
     },
+    mode: 'development',
     // devtool: 'inline-source-map', // Slows down the build
     module: {
         rules: [
@@ -79,24 +80,26 @@ module.exports = {
         path: path.resolve(__dirname, 'build/webpack'),
         publicPath:"/"
     },
+    optimization:{
+       runtimeChunk: "single",
+       splitChunks: {
+           cacheGroups: {
+               vendor:{
+                   test: /[\\/]node_modules[\\/]/,
+                   name: "vendors",
+                   chunks: "all"
+               }
+           }
+       }
+    },
     plugins: [
         new webpack.ProvidePlugin({
             "window.jQuery": "jquery"
-        }),
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendors',
-            minChunks: function(module) {
-                return isExternal(module);
-            },
-            filename: 'vendor.bundle.js'
         }),
         new webpack.ProvidePlugin({
             jQuery: 'jquery',
             $: 'jquery',
             jquery: 'jquery'
-        }),
-        new webpack.ProvidePlugin({
-            Blockly:'node-blockly/browser.js'
         }),
         new webpack.ContextReplacementPlugin(
             /\@angular(\\|\/)core(\\|\/)fesm5/,
@@ -117,13 +120,3 @@ module.exports = {
         watchContentBase:true
     }
 };
-
-function isExternal(module) {
-    var context = module.context;
-
-    if (typeof context !== 'string') {
-        return false;
-    }
-
-    return context.indexOf('node_modules') !== -1;
-}

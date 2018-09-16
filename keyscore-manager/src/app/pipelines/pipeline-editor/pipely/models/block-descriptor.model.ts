@@ -1,5 +1,7 @@
 import {Connection} from "./connection.model";
-import {ParameterDescriptor} from "../../../../models/pipeline-model/parameters/ParameterDescriptor";
+import {
+    ResolvedParameterDescriptor
+} from "../../../../models/pipeline-model/parameters/ParameterDescriptor";
 
 export interface BlockDescriptor {
     name: string;
@@ -7,6 +9,6 @@ export interface BlockDescriptor {
     description: string;
     previousConnection: Connection;
     nextConnection: Connection;
-    parameters: ParameterDescriptor[];
+    parameters: ResolvedParameterDescriptor[];
     category: string;
 }
