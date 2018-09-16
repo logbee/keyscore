@@ -1,4 +1,4 @@
-import {Component, OnDestroy} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
 import {select, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
@@ -63,13 +63,17 @@ import {getPipelineList, PipelinesState} from "./pipelines.reducer";
         </div>
     `
 })
-export class PipelinesComponent implements OnDestroy {
+export class PipelinesComponent implements OnDestroy, OnInit {
     public pipelines$: Observable<PipelineInstance[]>;
     public isLoading$: Observable<boolean>;
     public refreshTime$: Observable<number>;
     public title: string = "Pipelines";
 
     constructor(private store: Store<PipelinesState>, private router: Router, private translate: TranslateService) {
+
+    }
+
+    public ngOnInit(){
         this.pipelines$ = this.store.pipe(select(getPipelineList));
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing));
         this.refreshTime$ = this.store.pipe(select(selectRefreshTime));
