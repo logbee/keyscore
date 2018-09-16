@@ -115,8 +115,4 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
     }
     possibleAgents.toList
   }
-
-
-
-
 }
