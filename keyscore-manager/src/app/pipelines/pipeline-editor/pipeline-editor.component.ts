@@ -2,37 +2,28 @@ import {Location} from "@angular/common";
 import {Component, OnDestroy} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable, Subject} from "rxjs";
-import {ModalService} from "../../services/modal.service";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {Go} from "../../router/router.actions";
 import {
     DeletePipelineAction,
     LoadFilterDescriptorsAction,
-    LockEditingPipelineAction,
-    MoveFilterAction,
-    RemoveFilterAction,
     ResetPipelineAction,
-    UpdateFilterAction,
-    UpdatePipelineAction,
-    UpdatePipelineWithBlocklyAction,
+    UpdatePipelineAction
 } from "../pipelines.actions";
-import {map, share, takeUntil} from "rxjs/internal/operators";
+import {map, share} from "rxjs/internal/operators";
 import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
 import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
-import {FilterDescriptor, ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
 import {
     getEditingPipeline,
-    getEditingPipelineIsLocked,
     getFilterCategories,
     getFilterDescriptors,
     getLastUpdateSuccess
 } from "../pipelines.reducer";
-import {PipelineConfiguration} from "../../models/pipeline-model/PipelineConfiguration";
 import {Configuration} from "../../models/common/Configuration";
 
 @Component({
     selector: "pipeline-editor",
-    styles: [".filter-component{transition: 0.25s ease-in-out;}"],
     template: `
         <header-bar [title]="'Pipeline Editor'"></header-bar>
 
@@ -51,7 +42,6 @@ import {Configuration} from "../../models/common/Configuration";
 })
 export class PipelineEditorComponent implements OnDestroy {
     public pipeline$: Observable<InternalPipelineConfiguration>;
-    public isLocked$: Observable<boolean>;
     public filterDescriptors$: Observable<ResolvedFilterDescriptor[]>;
     public categories$: Observable<string[]>;
     public isLoading$: Observable<boolean>;
@@ -63,7 +53,7 @@ export class PipelineEditorComponent implements OnDestroy {
 
     private alive: Subject<void> = new Subject();
 
-    constructor(private store: Store<any>, private location: Location, private modalService: ModalService) {
+    constructor(private store: Store<any>, private location: Location) {
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
         this.filterDescriptors$ = this.store.select(getFilterDescriptors);
@@ -71,13 +61,7 @@ export class PipelineEditorComponent implements OnDestroy {
         this.isLoading$ = this.store.select(isSpinnerShowing).pipe(share());
         this.updateSuccess$ = this.store.select(getLastUpdateSuccess).pipe(share());
         this.isMenuExpanded$ = this.store.select(isMenuExpanded);
-        this.isLocked$ = this.store.select(getEditingPipelineIsLocked);
         this.pipeline$ = this.store.select(getEditingPipeline);
-        this.pipeline$.pipe(takeUntil(this.alive)).subscribe((pipeline) => {
-            if (pipeline) {
-                this.store.dispatch(new LockEditingPipelineAction(pipeline.filters && pipeline.filters.length > 0));
-            }
-        });
 
         this.successAlertTrigger$ = this.updateSuccess$.pipe(map((success) => success[0]));
         this.failureAlertTrigger$ = this.updateSuccess$.pipe(
@@ -104,28 +88,8 @@ export class PipelineEditorComponent implements OnDestroy {
         }));
     }
 
-    public updatePipelineWithBlockly(pipelineConfiguration: PipelineConfiguration) {
-        this.store.dispatch(new UpdatePipelineWithBlocklyAction(pipelineConfiguration));
-    }
-
     public resetPipeline(pipeline: InternalPipelineConfiguration) {
         this.store.dispatch(new ResetPipelineAction(pipeline.id));
-    }
-
-    public setLocked(locked: boolean, pipeline: InternalPipelineConfiguration) {
-        this.store.dispatch(new LockEditingPipelineAction(locked));
-    }
-
-    public moveFilter(filter: { id: string, position: number }) {
-        this.store.dispatch(new MoveFilterAction(filter.id, filter.position));
-    }
-
-    public updateFilter(update: { filterConfiguration: Configuration, values: any }) {
-        this.store.dispatch(new UpdateFilterAction(update.filterConfiguration, update.values));
-    }
-
-    public removeFilter(filter: Configuration) {
-        this.store.dispatch(new RemoveFilterAction(filter.ref.uuid));
     }
 
     public callLiveEditing(filter: Configuration) {

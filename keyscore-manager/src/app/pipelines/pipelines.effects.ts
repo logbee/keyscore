@@ -28,11 +28,9 @@ import {
     LoadFilterDescriptorsFailureAction,
     LoadFilterDescriptorsSuccessAction,
     UPDATE_PIPELINE,
-    UPDATE_PIPELINE_BLOCKLY,
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
-    UpdatePipelineWithBlocklyAction
 } from "./pipelines.actions";
 import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
