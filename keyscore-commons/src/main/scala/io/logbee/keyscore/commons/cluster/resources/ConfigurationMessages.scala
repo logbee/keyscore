@@ -18,7 +18,9 @@ object ConfigurationMessages {
 
     case class GetConfigurationRequest(ref: ConfigurationRef)
 
-    case class GetConfigurationResponse(configuration: Option[Configuration])
+    case class GetConfigurationSuccess(configuration: Configuration)
+
+    case class GetConfigurationFailure(ref: ConfigurationRef)
 
     case object GetAllConfigurationRequest
 

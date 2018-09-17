@@ -25,28 +25,40 @@ class ConfigurationManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     mediator ! Subscribe(Topics.WhoIsTopic, self)
+
+    log.info(s"Start-up complete: $self")
   }
 
-  override def postStop(): Unit = super.postStop()
+  override def postStop(): Unit = {
+    log.info("Stopped.")
+  }
 
   override def receive: Receive = {
     case StoreConfigurationRequest(configuration) =>
       configurations.put(configuration.ref, configuration)
+      log.info(s"DEBUG Store Configuration: $configuration")
       sender ! StoreConfigurationResponse
 
     case GetAllConfigurationRequest =>
       sender ! GetAllConfigurationResponse(configurations.toMap)
 
     case DeleteConfigurationRequest(ref) =>
+      log.info(s"DEBUG Delete a config: $ref")
       configurations.remove(ref)
       sender ! DeleteConfigurationResponse
 
     case DeleteAllConfigurationsRequest =>
+      log.info("DEBUG Delete all configs")
       configurations.clear()
       sender ! DeleteAllConfigurationsResponse
 
     case GetConfigurationRequest(ref) =>
-      sender ! GetConfigurationResponse(configurations.get(ref))
+      log.info(s"DEBUG Configuration Request for $ref")
+      configurations.get(ref) match {
+        case Some(configuration) =>
+          sender ! GetConfigurationSuccess(configuration)
+        case _ => GetConfigurationFailure(ref)
+      }
 
     case UpdateConfigurationRequest(configuration) =>
       if (configurations.contains(configuration.ref)) {
@@ -58,5 +70,8 @@ class ConfigurationManager extends Actor with ActorLogging {
 
     case WhoIs(ConfigurationService) =>
       sender ! HereIam(ConfigurationService, self)
+
+    case e =>
+      log.info(s"DEBUG Received unknown message: $e")
   }
 }

@@ -7,15 +7,16 @@ import akka.stream.{FlowShape, SinkShape, SourceShape}
 import akka.testkit.{TestActor, TestProbe}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{CreateFilterStage, CreateSinkStage, CreateSourceStage}
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
+import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.StoreConfigurationRequest
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
 import io.logbee.keyscore.commons.pipeline.RequestPipelineInstance
-import io.logbee.keyscore.frontier.cluster.resources.{ConfigurationManager, DescriptorManager}
+import io.logbee.keyscore.frontier.cluster.resources.{BlueprintManager, ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
-import io.logbee.keyscore.model.data.{Dataset, Record, TextField, TextValue}
+import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import io.logbee.keyscore.pipeline.api._
 import io.logbee.keyscore.pipeline.api.stage._
@@ -27,6 +28,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 @RunWith(classOf[JUnitRunner])
 class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
@@ -44,6 +46,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
     val sinkConfigurationRef = ConfigurationRef("05dc6d8a-50ff-41bd-b637-5132be1f2415")
     val sinkDescriptorRef = DescriptorRef("10afeaa0-6395-464b-935d-227b160c1412")
 
+    val blueprintManager = system.actorOf(BlueprintManager())
     val descriptorManager = system.actorOf(DescriptorManager())
     val configurationManager = system.actorOf(ConfigurationManager())
 
@@ -55,12 +58,22 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
     descriptorManager ! StoreDescriptorRequest(Descriptor(filterDescriptorRef))
     descriptorManager ! StoreDescriptorRequest(Descriptor(sinkDescriptorRef))
 
+    val sourceBlueprint = SourceBlueprint(BlueprintRef("d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"), sourceDescriptorRef, sourceConfigurationRef)
+    val filterBlueprint = FilterBlueprint(BlueprintRef("24a88215-cfe0-47a1-a889-7f3e9f8260ef"), filterDescriptorRef, filterConfigurationRef)
+    val sinkBlueprint = SinkBlueprint(BlueprintRef("80851e06-7191-4d96-8e4d-de66a5a12e81"), sinkDescriptorRef, sinkConfigurationRef)
+
+    blueprintManager ! BlueprintMessages.StoreBlueprintRequest(sourceBlueprint)
+    blueprintManager ! BlueprintMessages.StoreBlueprintRequest(filterBlueprint)
+    blueprintManager ! BlueprintMessages.StoreBlueprintRequest(sinkBlueprint)
+
     val pipelineBlueprint = PipelineBlueprint(BlueprintRef("10d3e280-cb7c-4a77-be1f-8ccf5f1b0df2"), Seq(
-      SourceBlueprint(BlueprintRef("d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"), sourceDescriptorRef, sourceConfigurationRef),
-      FilterBlueprint(BlueprintRef("24a88215-cfe0-47a1-a889-7f3e9f8260ef"), filterDescriptorRef, filterConfigurationRef),
-      SinkBlueprint(BlueprintRef("80851e06-7191-4d96-8e4d-de66a5a12e81"), sinkDescriptorRef, sinkConfigurationRef)),
-      name = "exampeBlueprint",
-      description = "Hello World!"
+      sourceBlueprint.ref,
+      filterBlueprint.ref,
+      sinkBlueprint.ref),
+      metadata = MetaData(
+        Label("pipeline.name", TextValue("IntegrationTestPipeline")),
+        Label("pipeline.description", TextValue("It's valid"))
+      )
     )
 
     val agent = TestProbe("agent")
@@ -107,7 +120,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
       supervisor ! CreatePipeline(pipelineBlueprint)
 
       supervisor tell(RequestPipelineInstance(agent.ref), agent.ref)
-      agent.expectMsg(PipelineInstance(pipelineBlueprint.ref.uuid, pipelineBlueprint.name, pipelineBlueprint.description, Red))
+      agent.expectMsg(PipelineInstance(pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, Red))
 
       pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000) shouldBe true
 

@@ -90,7 +90,6 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       scheduleStart(pipeline, pipelineStartTrials)
 
     case RequestPipelineInstance(receiver) =>
-      log.info(s"got RequestPipelineInstance Message")
       receiver ! PipelineInstance(Red)
   }
 
@@ -163,8 +162,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       }
 
     case RequestPipelineInstance(receiver) =>
-      log.info(s"got RequestPipelineInstance Message")
-      receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.name, pipeline.pipelineBlueprint.description, Red)
+      receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Red)
 
     case RequestPipelineBlueprints(receiver) =>
       receiver ! pipeline.pipelineBlueprint
@@ -186,7 +184,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info(s"got RequestPipelineInstance Message")
-      receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.name, pipeline.pipelineBlueprint.description, Yellow)
+      receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Yellow)
 
     case RequestPipelineBlueprints(receiver) =>
       receiver ! pipeline.pipelineBlueprint
@@ -199,16 +197,22 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case RequestPipelineInstance(receiver) =>
       log.info(s"got RequestPipelineInstance Message")
-      receiver ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.name, controller.pipelineBlueprint.description, Green)
+      receiver ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.ref.uuid, controller.pipelineBlueprint.ref.uuid, Green)
 
     case RequestPipelineBlueprints(receiver) =>
       receiver ! controller.pipelineBlueprint
 
     case PauseFilter(filterId, doPause) =>
+      log.info(s"supervisor received PauseFilter; controller is $controller")
       val lastSender = sender
-      controller.close(filterId, doPause).foreach(_.onComplete {
-        case Success(state) => lastSender ! PauseFilterResponse(state)
-        case Failure(e) => lastSender ! Failure
+      val x = controller.close(filterId, doPause)
+      x.foreach(_.onComplete {
+        case Success(state) =>
+          log.info(s"sending PauseFilterResponse")
+          lastSender ! PauseFilterResponse(state)
+        case Failure(e) =>
+          log.error(e, s"failed to send close")
+          lastSender ! Failure
       })
 
     case DrainFilterValve(filterId, doDrain) =>

@@ -28,15 +28,15 @@ class ConfigurationManagerSpec extends ProductionSystemWithMaterializerAndExecut
       configurationManager ! StoreConfigurationRequest(configurationA)
       configurationManager ! StoreConfigurationRequest(configurationB)
 
-      whenReady((configurationManager ? GetConfigurationRequest(uuidA)).mapTo[GetConfigurationResponse]) { response =>
+      whenReady((configurationManager ? GetConfigurationRequest(uuidA)).mapTo[GetConfigurationSuccess]) { response =>
 
         response.configuration shouldBe 'defined
-        response.configuration.get.findTextValue("message") shouldBe Option("Hello World")
+        response.configuration.findTextValue("message") shouldBe Option("Hello World")
       }
 
       configurationManager ! DeleteConfigurationRequest(uuidA)
 
-      whenReady((configurationManager ? GetConfigurationRequest(uuidA)).mapTo[GetConfigurationResponse]) { response =>
+      whenReady((configurationManager ? GetConfigurationRequest(uuidA)).mapTo[GetConfigurationSuccess]) { response =>
 
         response.configuration shouldNot be ('defined)
       }

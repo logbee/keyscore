@@ -43,7 +43,7 @@ class PipelineIntegrationTest2 extends Matchers {
 
   @Test
   @CitrusTest
-  def createPipeline(implicit @CitrusResource runner: TestRunner): Unit = {
+  def integrationTest(implicit @CitrusResource runner: TestRunner): Unit = {
     val k2kObject = loadK2KPipelineBlueprint
     val k2eObject = loadK2EPipelineBlueprint
 
@@ -53,13 +53,12 @@ class PipelineIntegrationTest2 extends Matchers {
     getSinglePipelineBlueprint(k2kObject)
 
     creatingKafkaToElasticPipeline(runner)
-    getSinglePipelineBlueprint(k2eObject)
 
-    Thread.sleep(7000)
+    Thread.sleep(8000)
     checkHealthStateOfPipelines()
 
     //    ---insertDatasetsIntok2kPipeline---
-//        pauseFilter(k2kFilterId, "true")
+        pauseFilter(k2kFilterId, "true")
 //        checkFilterState(k2kFilterId, Green, Paused)
 //        drainFilter(k2kFilterId, "true")
 //        checkFilterState(k2kFilterId, Green, Ready)
@@ -78,9 +77,9 @@ class PipelineIntegrationTest2 extends Matchers {
 //        checkElasticElements(3)
 
 
-    //    getAllPipelineBlueprints(2)
-    //    deleteAllPipelineBlueprints()
-    //    getAllPipelineBlueprints(0)
+        getAllPipelineBlueprints(2)
+        deleteAllPipelineBlueprints()
+        getAllPipelineBlueprints(0)
   }
 
   private def creatingKafkaToKafkaPipeline(implicit runner: TestRunner): TestAction = {
@@ -140,8 +139,8 @@ class PipelineIntegrationTest2 extends Matchers {
     putSingleConfiguration(sinkConfigurationObject, sinkConfiguration)
     //    6. filterConfiguration
     val filterConfiguration = loadJson(K2EConfigurationsPath, FilterConfigurationPath)
-    val filiterConfigurationObject = loadK2EFilterConfiguration
-    putSingleConfiguration(filiterConfigurationObject, filterConfiguration)
+    val filterConfigurationObject = loadK2EFilterConfiguration
+    putSingleConfiguration(filterConfigurationObject, filterConfiguration)
     //    7. pipelineBlueprint
     val pipelineBlueprint = loadJson(K2EBlueprintsPath, PipelineBlueprintPath)
     val pipelineObject = loadK2EPipelineBlueprint

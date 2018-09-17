@@ -38,7 +38,6 @@ task removeContainerNetwork(type: DockerRemoveNetwork) {
 task runContainers(){
     dependsOn = [
             ':keyscore-frontier:startDockerContainer',
-            ':keyscore-frontier:startSleepingContainer',
             ':keyscore-agent:startDockerContainer',
             'elasticsearch:startContainer',
             'kafka:createKafkaTopics_with_a_lightning_fast_script_created_by_max',
@@ -51,7 +50,6 @@ task runContainers(){
 task stopContainers() {
     dependsOn = [
             ':keyscore-frontier:removeDockerContainer',
-            ':keyscore-frontier:removeSleepingContainer',
             ':keyscore-agent:removeDockerContainer',
             'elasticsearch:removeContainer',
             'kafka:removeContainer'
@@ -62,7 +60,6 @@ task stopContainers() {
 task removeOldContainers() {
     dependsOn = [
             ':keyscore-frontier:removeDockerContainerOnStartup',
-            ':keyscore-frontier:removeSleepingContainerOnStartup',
             ':keyscore-agent:removeDockerContainerOnStartup',
             'elasticsearch:removeContainerOnStartup',
             'kafka:removeContainerOnStartup'

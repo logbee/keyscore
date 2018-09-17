@@ -3,7 +3,6 @@ package io.logbee.keyscore.frontier.cluster.pipeline.collectors
 import akka.actor.{Actor, ActorRef, Props}
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector.{BlueprintsCollectorResponse, BlueprintsCollectorResponseFailure, CheckForBlueprintList}
-import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint}
 
 import scala.concurrent.duration._
@@ -30,7 +29,7 @@ class BlueprintCollector(pipelineBlueprint: PipelineBlueprint, blueprintManager:
 
   override def preStart(): Unit = {
     pipelineBlueprint.blueprints.foreach(current => {
-      blueprintManager ! GetBlueprintRequest(current.blueprintRef)
+      blueprintManager ! GetBlueprintRequest(current)
     })
     system.scheduler.scheduleOnce(5 seconds) {
       self ! CheckForBlueprintList

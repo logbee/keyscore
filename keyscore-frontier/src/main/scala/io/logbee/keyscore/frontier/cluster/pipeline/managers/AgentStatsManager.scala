@@ -43,6 +43,7 @@ class AgentStatsManager extends Actor with ActorLogging {
       availableAgents = (availableAgents += joinedActor).distinct
 
     case GetAvailableAgentsRequest =>
+      log.info(s"Received GetAvailableAgentsRequest; sending back ${availableAgents.toList}")
       sender ! GetAvailableAgentsResponse(availableAgents.toList)
 
     case StatsForAgentsRequest(requestedAgents) =>

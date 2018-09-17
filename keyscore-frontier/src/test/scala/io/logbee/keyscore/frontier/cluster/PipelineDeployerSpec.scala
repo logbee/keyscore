@@ -26,7 +26,7 @@ trait TestSetup {
 
   val sourceBlueprintRef = BlueprintRef("fd8003d2-9c37-41fb-be4b-cafe91c6e0db")
   val sourceBlueprint = SourceBlueprint(sourceBlueprintRef)
-  val pipelineBlueprint = PipelineBlueprint(BlueprintRef("b7458edb-9132-4694-9a74-8ed760747bb7"), Seq(sourceBlueprint))
+  val pipelineBlueprint = PipelineBlueprint(BlueprintRef("b7458edb-9132-4694-9a74-8ed760747bb7"), Seq(sourceBlueprint.ref))
 
   var localPipelineManager: (ActorRef, ActorContext) => ActorSelection = (_, _) => system.actorSelection(localPipelineManagerProbe.ref.path.toSerializationFormat)
   val pipelineDeployer = system.actorOf(PipelineDeployer(localPipelineManager))

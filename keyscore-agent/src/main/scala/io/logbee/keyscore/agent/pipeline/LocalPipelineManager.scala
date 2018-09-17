@@ -100,6 +100,7 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       log.info(s"PipelineSupervisor terminated: $configuration")
 
     case message: PauseFilter =>
+      log.info(s"received PausFilter message")
       children.foreach( supervisor => {
         supervisor forward  message
       })

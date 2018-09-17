@@ -2,6 +2,8 @@ package io.logbee.keyscore.agent
 
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
+import io.logbee.keyscore.model.data
+import io.logbee.keyscore.model.data.{Label, MetaData, TextValue}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
 import io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilterLogic
@@ -12,6 +14,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpecLike}
 
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
 
@@ -50,11 +53,13 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sinkBluePrint = SinkBlueprint(BlueprintRef("80851e06-7191-4d96-8e4d-de66a5a12e81"), KafkaSinkLogic.describe.ref, sinkConfigurationRef)
 
     val pipelineBlueprint = PipelineBlueprint(BlueprintRef("10d3e280-cb7c-4a77-be1f-8ccf5f1b0df2"), Seq(
-      sourceBluePrint,
-      filterBluePrint,
-      sinkBluePrint),
-      name = "IntegrationTestPipeline",
-      description = "It's valid"
+      sourceBluePrint.ref,
+      filterBluePrint.ref,
+      sinkBluePrint.ref),
+      metadata = MetaData(
+        Label("pipeline.name", TextValue("IntegrationTestPipeline")),
+        Label("pipeline.description", TextValue("It's valid"))
+      )
     )
   }
 
@@ -91,11 +96,13 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sinkBluePrint = SinkBlueprint(BlueprintRef("0f7b4607-b60a-46b8-a396-424466b7618b"), ElasticSearchSinkLogic.describe.ref, sinkConfigurationRef)
 
     val pipelineBlueprint = PipelineBlueprint(BlueprintRef("34db6f58-0090-4b7d-b32c-aba2706a58bf"), Seq(
-      sourceBluePrint,
-      filterBluePrint,
-      sinkBluePrint),
-      name = "KafkaToElastic",
-      description = "It's valid"
+      sourceBluePrint.ref,
+      filterBluePrint.ref,
+      sinkBluePrint.ref),
+      metadata = MetaData(
+        Label("pipeline.name", TextValue("IntegrationTestPipeline")),
+        Label("pipeline.description", TextValue("It's valid"))
+      )
     )
   }
 

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "scalapb/scalapb.proto";
 import "descriptor.proto";
+import "data.proto";
 import "configuration.proto";
 
 option (scalapb.options) = {
@@ -16,9 +17,8 @@ message BlueprintRef {
 
 message PipelineBlueprint {
     BlueprintRef ref = 1 [(scalapb.field).no_box = true];
-    repeated SealedBlueprint blueprints = 3;
-    string name = 5;
-    string description = 6;
+    repeated BlueprintRef blueprints = 3;
+    MetaData metadata = 15;
 }
 
 message SealedBlueprint {
@@ -37,6 +37,7 @@ message FilterBlueprint {
     ConfigurationRef configuration = 3 [(scalapb.field).no_box = true];
     BlueprintRef in = 8;
     BlueprintRef out = 9;
+    MetaData metadata = 15;
 }
 
 message SourceBlueprint {
@@ -44,6 +45,7 @@ message SourceBlueprint {
     DescriptorRef descriptor = 2 [(scalapb.field).no_box = true];
     ConfigurationRef configuration = 3 [(scalapb.field).no_box = true];
     BlueprintRef out = 8;
+    MetaData metadata = 15;
 }
 
 message SinkBlueprint {
@@ -51,6 +53,7 @@ message SinkBlueprint {
     DescriptorRef descriptor = 2 [(scalapb.field).no_box = true];
     ConfigurationRef configuration = 3 [(scalapb.field).no_box = true];
     BlueprintRef in = 8;
+    MetaData metadata = 15;
 }
 
 message BranchBlueprint {
@@ -60,6 +63,7 @@ message BranchBlueprint {
     BlueprintRef in = 8;
     BlueprintRef outA = 9;
     BlueprintRef outB = 10;
+    MetaData metadata = 15;
 }
 
 message MergeBlueprint {
@@ -69,4 +73,5 @@ message MergeBlueprint {
     BlueprintRef out = 8;
     BlueprintRef inA = 9;
     BlueprintRef inB = 10;
+    MetaData metadata = 15;
 }
