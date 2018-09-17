@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
 import {selectcurrentDatasetCounter, selectExtractFinish, selectUpdateConfigurationFlag} from "../../filter.reducer";
-import {Dataset} from "../../../models/filter-model/dataset/Dataset";
+import {Dataset} from "../../../models/dataset/Dataset";
 import "../../styles/filterstyle.css";
 
 @Component({

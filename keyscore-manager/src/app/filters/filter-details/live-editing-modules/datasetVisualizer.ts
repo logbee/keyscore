@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from "@angular/core";
-import {Dataset} from "../../../models/filter-model/dataset/Dataset";
+import {Dataset} from "../../../models/dataset/Dataset";
 
 @Component({
     selector: "dataset-visualizer",

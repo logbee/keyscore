@@ -7,14 +7,14 @@ import {
     PAUSE_FILTER_SUCCESS, RECONFIGURE_FILTER_SUCCESS, UPDATE_DATASET_COUNTER, UPDATE_FILTER_CONFIGURATION
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
+import {Configuration} from "../models/common/Configuration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {FilterStatus} from "../models/filter-model/FilterStatus";
-import {Dataset} from "../models/filter-model/dataset/Dataset";
+import {Dataset} from "../models/dataset/Dataset";
 import {deepcopy} from "../util";
 
 export class FilterState {
-    public filter: FilterConfiguration;
+    public filter: Configuration;
     public filterState: FilterInstanceState;
     public exampleDatasets: Dataset[];
     public resultDatasets: Dataset[];
@@ -26,8 +26,10 @@ export class FilterState {
 
 const initialState: FilterState = {
     filter: {
-        id: "",
-        descriptor: null,
+        ref:{
+          uuid:""
+        } ,
+        parent: null,
         parameters: []
     },
     filterState: {
@@ -80,9 +82,9 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             result.filter = deepcopy(action.filter);
             result.filter.parameters.forEach((p) => {
                 if (p.jsonClass === "IntParameter") {
-                    p.value = +action.values[p.name];
+                    p.value = +action.values[p.ref.uuid];
                 } else {
-                    p.value = action.values[p.name];
+                    p.value = action.values[p.ref.uuid];
                 }
             });
             break;
@@ -105,7 +107,7 @@ export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
 );
 export const selectFilterId = createSelector(getFilterState,
-    (state: FilterState) => state.filter.id);
+    (state: FilterState) => state.filter.ref.uuid);
 
 export const selectLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
 

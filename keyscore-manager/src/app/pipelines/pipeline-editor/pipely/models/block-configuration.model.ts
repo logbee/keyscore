@@ -1,4 +1,4 @@
-import {Parameter} from "../../../../models/pipeline-model/parameters/Parameter";
+import {Parameter} from "../../../../models/parameters/Parameter";
 import {BlockDescriptor} from "./block-descriptor.model";
 
 export interface BlockConfiguration {

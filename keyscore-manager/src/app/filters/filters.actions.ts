@@ -1,7 +1,7 @@
 import {Action} from "@ngrx/store";
-import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
+import {Configuration} from "../models/common/Configuration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
-import {Dataset} from "../models/filter-model/dataset/Dataset";
+import {Dataset} from "../models/dataset/Dataset";
 
 export const LOAD_LIVE_EDITING_FILTER = "[Filter] LoadLiveEditingFilter";
 export const LOAD_LIVE_EDITING_FILTER_FAILURE = "[Filter] LoadLiveEditingFilterFailure";
@@ -71,7 +71,7 @@ export class LoadLiveEditingFilterAction implements Action {
 export class LoadLiveEditingFilterSuccess implements Action {
     public readonly type = LOAD_LIVE_EDITING_FILTER_SUCCESS;
 
-    constructor(readonly filter: FilterConfiguration, readonly filterId: string) {
+    constructor(readonly filter: Configuration, readonly filterId: string) {
     }
 }
 
@@ -213,7 +213,7 @@ export class LockCurrentExampleDatasetAction implements Action {
 export class ReconfigureFilterAction implements Action {
     public readonly type = RECONFIGURE_FILTER_ACTION;
 
-    constructor(readonly filterId: string, readonly configuration: FilterConfiguration) {
+    constructor(readonly filterId: string, readonly configuration: Configuration) {
     }
 }
 
@@ -234,14 +234,14 @@ export class ReconfigureFilterFailure implements Action {
 export class UpdateFilterConfiguration implements Action {
     public readonly type = UPDATE_FILTER_CONFIGURATION;
 
-    constructor(readonly filter: FilterConfiguration, readonly values: any) {
+    constructor(readonly filter: Configuration, readonly values: any) {
     }
 }
 
 export class RestoreFilterConfiguration implements  Action {
     public readonly type = RESTORE_FILTER_CONFIGURATIOM;
 
-    constructor(readonly  filter: FilterConfiguration) {
+    constructor(readonly  filter: Configuration) {
     }
 }
 

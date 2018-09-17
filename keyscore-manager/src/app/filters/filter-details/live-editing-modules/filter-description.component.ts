@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
+import {Configuration} from "../../../models/common/Configuration";
 import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceState";
 import "../../styles/filterstyle.css";
 
@@ -46,7 +46,7 @@ import "../../styles/filterstyle.css";
 
 export class FilterDescriptionComponent {
 
-    @Input() public currentFilter: FilterConfiguration;
+    @Input() public currentFilter: Configuration;
     @Input() public currentFilterState: FilterInstanceState;
 
     constructor() {

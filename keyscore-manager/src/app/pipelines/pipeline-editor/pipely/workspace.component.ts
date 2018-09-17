@@ -16,6 +16,7 @@ import {PipelyPipelineConfiguration} from "./models/pipeline-configuration.model
 import {parameterDescriptorToParameter} from "../../../util";
 import {Observable, Subject} from "rxjs";
 import {share} from "rxjs/operators";
+import {ExpressionType, ParameterDescriptorJsonClass} from "../../../models/parameters/ParameterDescriptor";
 
 @Component({
     selector: "workspace",
@@ -306,28 +307,72 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
             },
             parameters: [
                 {
-                    name: "TestFeld1",
-                    displayName: "Text Parameter",
-                    jsonClass: "TextParameterDescriptor",
-                    mandatory: true
+                    ref:{
+                        uuid:"TestFeld1"
+                    },
+                    info:{
+                        displayName: "Text Parameter",
+                        description:"adasjdasjdad"
+                    },
+                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+                    defaultValue:"DefaultValue",
+                    mandatory: true,
+                    validator: {
+                        expression:".*",
+                        expressionType: ExpressionType.RegEx,
+                        description: "Example Description"
+                    }
                 },
                 {
-                    name: "TestList1",
-                    displayName: "Liste ",
-                    jsonClass: "ListParameterDescriptor",
-                    mandatory: true
+                    ref:{
+                        uuid:"TestFeld2"
+                    },
+                    info:{
+                        displayName: "Text Parameter",
+                        description:"adasjdasjdad"
+                    },
+                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+                    defaultValue:"DefaultValue",
+                    mandatory: true,
+                    validator: {
+                        expression:".*",
+                        expressionType: ExpressionType.RegEx,
+                        description: "Example Description"
+                    }
                 },
                 {
-                    name: "TestFeld3",
-                    displayName: "Int Parameter",
-                    jsonClass: "IntParameterDescriptor",
-                    mandatory: true
+                    ref:{
+                        uuid:"TestFeld3"
+                    },
+                    info:{
+                        displayName: "Text Parameter",
+                        description:"adasjdasjdad"
+                    },
+                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+                    defaultValue:"DefaultValue",
+                    mandatory: true,
+                    validator: {
+                        expression:".*",
+                        expressionType: ExpressionType.RegEx,
+                        description: "Example Description"
+                    }
                 },
                 {
-                    name: "TestFeld4",
-                    displayName: "Boolean Parameter",
-                    jsonClass: "BooleanParameterDescriptor",
-                    mandatory: true
+                    ref:{
+                        uuid:"TestFeld4"
+                    },
+                    info:{
+                        displayName: "Text Parameter",
+                        description:"adasjdasjdad"
+                    },
+                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+                    defaultValue:"DefaultValue",
+                    mandatory: true,
+                    validator: {
+                        expression:".*",
+                        expressionType: ExpressionType.RegEx,
+                        description: "Example Description"
+                    }
                 }
             ],
             category: "Test"

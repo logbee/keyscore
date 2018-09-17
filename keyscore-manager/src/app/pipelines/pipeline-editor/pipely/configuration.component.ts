@@ -65,7 +65,7 @@ export class ConfigurationComponent implements OnInit {
 
     cancel() {
         this.selectedDraggable.getDraggableModel().blockConfiguration.parameters.forEach(parameter =>
-            this.form.controls[parameter.name].setValue(parameter.value)
+            this.form.controls[parameter.ref.uuid].setValue(parameter.value)
         );
         this.closeConfigurator.emit();
 
@@ -74,7 +74,7 @@ export class ConfigurationComponent implements OnInit {
     saveConfiguration() {
         let blockConfiguration = deepcopy(this.selectedDraggable.getDraggableModel().blockConfiguration);
         blockConfiguration.parameters.forEach(parameter => {
-            parameter.value = this.form.controls[parameter.name].value;
+            parameter.value = this.form.controls[parameter.ref.uuid].value;
         });
         this.selectedDraggable.getDraggableModel().blockConfiguration = blockConfiguration;
         console.log(this.selectedDraggable.getDraggableModel().blockConfiguration.parameters);

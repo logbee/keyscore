@@ -1,10 +1,10 @@
-import {FilterConfiguration} from "../filter-model/FilterConfiguration";
+import {Configuration} from "../common/Configuration";
 
 export interface PipelineConfiguration {
     id: string;
     name: string;
     description: string;
-    source: FilterConfiguration;
-    filter: FilterConfiguration[];
-    sink: FilterConfiguration;
+    source: Configuration;
+    filter: Configuration[];
+    sink: Configuration;
 }

@@ -3,8 +3,8 @@ import {FormGroup} from "@angular/forms";
 import {
     ResolvedParameterDescriptor,
     ParameterDescriptorJsonClass
-} from "../../models/pipeline-model/parameters/ParameterDescriptor";
-import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
+} from "../../models/parameters/ParameterDescriptor";
+import {Parameter} from "../../models/parameters/Parameter";
 import "./style/parameter-module-style.scss"
 
 @Component({

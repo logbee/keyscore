@@ -1,5 +1,5 @@
 import {Ref} from "../common/Ref";
-import {FilterDescriptor} from "../filter-model/FilterDescriptor";
+import {FilterDescriptor} from "./FilterDescriptor";
 import {Localization} from "../common/Localization";
 
 export interface Descriptor{

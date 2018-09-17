@@ -5,7 +5,7 @@ import {Observable} from "rxjs/index";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {ErrorState, errorState} from "../../common/error/error.reducer";
 import {selectAppConfig} from "../../app.config";
-import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
+import {Configuration} from "../../models/common/Configuration";
 import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
 import {
     selectExtractedDatasets,
@@ -13,7 +13,7 @@ import {
     selectLiveEditingFilterState,
     selectResultDatasets
 } from "../filter.reducer";
-import {Dataset} from "../../models/filter-model/dataset/Dataset";
+import {Dataset} from "../../models/dataset/Dataset";
 import {UpdateDatasetCounter, UpdateFilterConfiguration} from "../filters.actions";
 import {Location} from "@angular/common";
 
@@ -59,7 +59,7 @@ export class LiveEditingComponent implements OnInit, OnDestroy {
     private httpError: string = "Ups!";
     private message: string = "The requested resource could not be shown";
     // Observables
-    private filter$: Observable<FilterConfiguration>;
+    private filter$: Observable<Configuration>;
     private filterState$: Observable<FilterInstanceState>;
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
@@ -90,7 +90,7 @@ export class LiveEditingComponent implements OnInit, OnDestroy {
     public ngOnDestroy(): void {
     }
 
-    public reconfigureFilter(update: { filterConfiguration: FilterConfiguration, values: any }) {
+    public reconfigureFilter(update: { filterConfiguration: Configuration, values: any }) {
         this.store.dispatch(new UpdateFilterConfiguration(update.filterConfiguration, update.values));
     }
 
