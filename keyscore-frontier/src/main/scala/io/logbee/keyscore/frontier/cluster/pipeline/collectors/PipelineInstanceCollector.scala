@@ -23,8 +23,8 @@ class PipelineInstanceCollector(receiver: ActorRef, children: Iterable[ActorRef]
 
   override def preStart(): Unit = {
     system.scheduler.scheduleOnce(5 seconds) {
-      log.info("PipelineInstanceCollector return states")
       receiver ! PipelineInstanceResponse(states.toList)
+      log.info("PipelineInstanceCollector returned states")
       context.stop(self)
     }
   }

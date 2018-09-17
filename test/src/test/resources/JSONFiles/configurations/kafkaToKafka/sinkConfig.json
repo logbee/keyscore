@@ -9,7 +9,7 @@
       "ref":{
         "id":"kafka.sink.bootstrapServer"
       },
-      "value":"localhost"
+      "value":"keyscore-kafka"
     },
     {
       "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",

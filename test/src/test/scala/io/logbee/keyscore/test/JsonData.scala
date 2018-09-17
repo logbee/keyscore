@@ -85,31 +85,31 @@ object JsonData {
 
   //Kafka To Elastic Pipeline
   def loadK2EPipelineBlueprint: PipelineBlueprint = {
-    read[PipelineBlueprint](loadJson(K2KBlueprintsPath, PipelineBlueprintPath))
+    read[PipelineBlueprint](loadJson(K2EBlueprintsPath, PipelineBlueprintPath))
   }
 
   def loadK2ESourceBlueprint: SourceBlueprint = {
-    read[SourceBlueprint](loadJson(K2KBlueprintsPath, SourceBlueprintPath))
+    read[SourceBlueprint](loadJson(K2EBlueprintsPath, SourceBlueprintPath))
   }
 
   def loadK2EFilterBlueprint: FilterBlueprint = {
-    read[FilterBlueprint](loadJson(K2KBlueprintsPath, FilterBlueprintPath))
+    read[FilterBlueprint](loadJson(K2EBlueprintsPath, FilterBlueprintPath))
   }
 
   def loadK2ESinkBlueprint: SinkBlueprint = {
-    read[SinkBlueprint](loadJson(K2KBlueprintsPath, SinkBlueprintPath))
+    read[SinkBlueprint](loadJson(K2EBlueprintsPath, SinkBlueprintPath))
   }
 
   def loadK2ESourceConfiguration: Configuration = {
-    read[Configuration](loadJson(K2KConfigurationsPath, KafkaSourceConfigurationPath))
+    read[Configuration](loadJson(K2EConfigurationsPath, KafkaSourceConfigurationPath))
   }
 
   def loadK2EFilterConfiguration: Configuration = {
-    read[Configuration](loadJson(K2KConfigurationsPath, FilterConfigurationPath))
+    read[Configuration](loadJson(K2EConfigurationsPath, FilterConfigurationPath))
   }
 
   def loadK2ESinkConfiguration: Configuration = {
-    read[Configuration](loadJson(K2KConfigurationsPath, KafkaSinkConfigurationPath))
+    read[Configuration](loadJson(K2EConfigurationsPath, KafkaSinkConfigurationPath))
   }
 
 }

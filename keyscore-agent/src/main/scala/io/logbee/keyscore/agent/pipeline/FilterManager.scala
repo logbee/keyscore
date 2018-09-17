@@ -45,6 +45,7 @@ object FilterManager {
   case class CreateMergeStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
   case class MergeStageCreated(stage: MergeStage)
+
 }
 
 class FilterManager extends Actor with ActorLogging {
@@ -84,7 +85,7 @@ class FilterManager extends Actor with ActorLogging {
         case Some(registration) =>
           val provider = createSinkLogicProvider(registration.logicClass)
           val stage = new SinkStage(LogicParameters(ref, stageContext, configuration), provider)
-            sender ! SinkStageCreated(stage)
+          sender ! SinkStageCreated(stage)
         case _ =>
           log.error(s"Could not create SinkStage: ${descriptor.uuid}")
       }
@@ -183,4 +184,5 @@ class FilterManager extends Actor with ActorLogging {
   private def getLogicConstructor(logicClass: Class[_]): Constructor[_] = {
     logicClass.getConstructors()(0)
   }
+
 }

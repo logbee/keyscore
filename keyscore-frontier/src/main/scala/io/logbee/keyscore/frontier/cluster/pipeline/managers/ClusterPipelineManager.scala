@@ -204,14 +204,14 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
         case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
       }
 
-    //TODO Are these both collectors still useful?
     case RequestExistingPipelines =>
       log.info(s"ClusterPipelineManager reachedRequestExistingPipelines")
+      val routeBuilderRef = sender
       val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
       future.onComplete {
         case Success(GetAvailableAgentsResponse(agents)) =>
           log.info(s"Success: $agents")
-          val collector = context.system.actorOf(PipelineInstanceCollector(sender, agents))
+          val collector = context.system.actorOf(PipelineInstanceCollector(routeBuilderRef, agents))
           log.info(s"started PipelineInstanceCollector")
           agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) ! RequestPipelineInstance(collector)

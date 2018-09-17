@@ -132,7 +132,7 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       children.foreach( supervisor => {
         supervisor forward message
       })
-    case e => log.info(s"Failure: $e")
+    case e => log.info(s"Unknown message received: $e")
   }
 
   def nameFrom(blueprint: PipelineBlueprint): String = {

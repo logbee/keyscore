@@ -8,6 +8,7 @@ import io.logbee.keyscore.commons.extension.ExtensionType.fromString
 
 import scala.collection.JavaConverters._
 import scala.reflect.internal.util.ScalaClassLoader
+import scala.util.{Failure, Success, Try}
 
 
 object ExtensionLoader {
@@ -29,8 +30,8 @@ class ExtensionLoader extends Actor with ActorLogging {
       config.getConfigList(path).asScala.foreach(config => {
         val extensionTypeName = config.getString("type")
         val extensionClassName = config.getString("class")
-        ScalaClassLoader(getClass.getClassLoader).tryToLoadClass(extensionClassName) match {
-          case Some(extensionClass) =>
+        Try(getClass.getClassLoader.loadClass(extensionClassName)) match {
+          case Success(extensionClass) =>
             fromString(extensionTypeName) match {
               case Some(extensionType) =>
                 val registerExtension = RegisterExtension(extensionType, extensionClass)
@@ -39,8 +40,8 @@ class ExtensionLoader extends Actor with ActorLogging {
               case None =>
                 log.error(s"Unknown extension type: $extensionTypeName")
             }
-          case None =>
-            log.error(s"Could not load extension class: $extensionClassName")
+          case Failure(exception) =>
+            log.error(exception, s"Could not load extension class: $extensionClassName")
         }
       })
 

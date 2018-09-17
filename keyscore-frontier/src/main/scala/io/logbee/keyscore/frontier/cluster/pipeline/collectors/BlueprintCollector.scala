@@ -2,7 +2,7 @@ package io.logbee.keyscore.frontier.cluster.pipeline.collectors
 
 import akka.actor.{Actor, ActorRef, Props}
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector.{BlueprintsCollectorResponse, BlueprintsCollectorResponseFailure}
+import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector.{BlueprintsCollectorResponse, BlueprintsCollectorResponseFailure, CheckForBlueprintList}
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint}
 
@@ -18,6 +18,8 @@ object BlueprintCollector {
 
   case object BlueprintsCollectorResponseFailure
 
+  private case object CheckForBlueprintList
+
 }
 
 class BlueprintCollector(pipelineBlueprint: PipelineBlueprint, blueprintManager: ActorRef) extends Actor {
@@ -30,10 +32,8 @@ class BlueprintCollector(pipelineBlueprint: PipelineBlueprint, blueprintManager:
     pipelineBlueprint.blueprints.foreach(current => {
       blueprintManager ! GetBlueprintRequest(current.blueprintRef)
     })
-    val context = this.context
     system.scheduler.scheduleOnce(5 seconds) {
-      context.parent ! BlueprintsCollectorResponseFailure
-      context.stop(self)
+      self ! CheckForBlueprintList
     }
   }
 
@@ -48,5 +48,10 @@ class BlueprintCollector(pipelineBlueprint: PipelineBlueprint, blueprintManager:
         }
       case _ =>
     }
+    case CheckForBlueprintList =>
+      if (blueprints.size != pipelineBlueprint.blueprints.size) {
+        context.parent ! BlueprintsCollectorResponseFailure
+        context.stop(self)
+      }
   }
 }

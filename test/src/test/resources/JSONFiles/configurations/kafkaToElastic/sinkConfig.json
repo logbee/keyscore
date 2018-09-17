@@ -9,7 +9,7 @@
       "ref":{
         "id":"host"
       },
-      "value":"localhost"
+      "value":"keyscore-elasticsearch"
     },
     {
       "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",

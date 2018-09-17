@@ -58,6 +58,14 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
     def isComplete: Boolean = blueprintManager != null && agentStatsManager != null && agentCapabilitiesManager != null
   }
 
+  override def preStart(): Unit = {
+    log.info(s"PipelineDeployer started")
+  }
+
+  override def postStop(): Unit = {
+    log.info(s"PipelineDeployer stopped")
+  }
+
   override def receive: Receive = {
 
     case CreatePipelineRequest(ref) =>
