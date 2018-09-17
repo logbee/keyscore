@@ -1,14 +1,14 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FormGroup} from "@angular/forms";
-import {FilterConfiguration} from "../../../models/filter-model/FilterConfiguration";
+import {Configuration} from "../../../models/common/Configuration";
 import {Store} from "@ngrx/store";
 import {ParameterControlService} from "../../../common/parameter/services/parameter-control.service";
 import {
     ParameterDescriptor,
     ResolvedParameterDescriptor
-} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
+} from "../../../models/parameters/ParameterDescriptor";
 import {Observable} from "rxjs/index";
-import {Dataset} from "../../../models/filter-model/dataset/Dataset";
+import {Dataset} from "../../../models/dataset/Dataset";
 import "../../styles/filterstyle.css";
 
 @Component({
@@ -87,16 +87,16 @@ import "../../styles/filterstyle.css";
 })
 
 export class FilterConfigurationComponent implements OnInit {
-    @Input() public filter$: Observable<FilterConfiguration>;
+    @Input() public filter$: Observable<Configuration>;
     @Input() public extractedDatasets$: Observable<Dataset[]>;
 
     public form: FormGroup;
-    public filter: FilterConfiguration;
+    public filter: Configuration;
     public parameters: ResolvedParameterDescriptor[];
     private noParamsAvailable: boolean = true;
     private noDataAvailable: boolean = true;
 
-    @Output() private apply: EventEmitter<{ filterConfiguration: FilterConfiguration, values: any }> =
+    @Output() private apply: EventEmitter<{ filterConfiguration: Configuration, values: any }> =
         new EventEmitter();
 
     constructor(private parameterService: ParameterControlService, private store: Store<any>) {
@@ -118,7 +118,7 @@ export class FilterConfigurationComponent implements OnInit {
 
     }
 
-    public applyFilter(filterConfiguration: FilterConfiguration, values: any) {
+    public applyFilter(filterConfiguration: Configuration, values: any) {
         this.apply.emit({filterConfiguration, values});
     }
 }

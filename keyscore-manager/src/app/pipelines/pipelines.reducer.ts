@@ -1,5 +1,4 @@
-import {v4 as uuid} from "uuid";
-import {deepcopy, parameterDescriptorToParameter, toInternalPipelineConfig} from "../util";
+import {deepcopy} from "../util";
 import {
     ADD_FILTER,
     CREATE_PIPELINE,
@@ -14,37 +13,33 @@ import {
     PipelineActions,
     REMOVE_FILTER,
     RESET_PIPELINE,
-    UPDATE_FILTER, UPDATE_PIPELINE_FAILURE,
+    UPDATE_FILTER,
+    UPDATE_PIPELINE_FAILURE,
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "./pipelines.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Health} from "../models/common/Health";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
-import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/filter-model/FilterDescriptor";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
 import {Descriptor} from "../models/descriptors/Descriptor";
 
 export class PipelinesState {
     public pipelineList: PipelineInstance[];
     public editingPipeline: InternalPipelineConfiguration;
-    public editingFilter: FilterConfiguration;
     public descriptors: Descriptor[];
     public filterDescriptors: ResolvedFilterDescriptor[];
     public filterCategories: string[];
-    public editingPipelineIsLocked: boolean;
     public pipelineInstancePolling: boolean;
     public wasLastUpdateSuccessful: boolean[];
 }
 const initialState: PipelinesState = {
     pipelineList: [],
     editingPipeline: null,
-    editingFilter: null,
     descriptors:[],
     filterDescriptors: [],
     filterCategories: [],
-    editingPipelineIsLocked: true,
     pipelineInstancePolling: false,
     wasLastUpdateSuccessful: []
 };
@@ -61,7 +56,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             };
             break;
         case EDIT_PIPELINE_SUCCESS:
-            result.editingPipeline = {...toInternalPipelineConfig(action.pipelineConfiguration), isRunning: false};
+            // result.editingPipeline = {...action.pipelineConfiguration, isRunning: false};
             result.wasLastUpdateSuccessful = [];
             break;
         case EDIT_PIPELINE_FAILURE:
@@ -70,9 +65,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 isRunning: false
             };
             result.wasLastUpdateSuccessful = [];
-            break;
-        case LOCK_EDITING_PIPELINE:
-            result.editingPipelineIsLocked = action.isLocked;
             break;
         case RESET_PIPELINE:
             break;
@@ -115,54 +107,15 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case UPDATE_PIPELINE_POLLING:
             result.pipelineInstancePolling = action.isPolling;
             break;
-            //commented due to api change
-        /*case ADD_FILTER:
-            const parameters = action.filter.parameters.map((parameterDescriptor) =>
-                parameterDescriptorToParameter(parameterDescriptor));
-            result.editingPipeline.filters.push({
-                id: uuid(),
-                descriptor: action.filter,
-                parameters,
-            });
-            break;*/
-        case MOVE_FILTER:
-            const filterIndex = result.editingPipeline.filters.findIndex((filter) =>
-                filter.id === action.filterId);
-            swap(result.editingPipeline.filters, filterIndex, action.position);
-            break;
-        case UPDATE_FILTER:
-            const updateFilterIndex = result.editingPipeline.filters.findIndex((filter) =>
-                filter.id === action.filter.id);
-            result.editingPipeline.filters[updateFilterIndex] = deepcopy(action.filter);
-            result.editingPipeline.filters[updateFilterIndex].parameters.forEach((p) => {
-                if (p.jsonClass === "IntParameter") {
-                    p.value = +action.values[p.name];
-                } else {
-                    p.value = action.values[p.name];
-                }
-            });
-            break;
-        case REMOVE_FILTER:
-            const removeIndex = result.editingPipeline.filters.findIndex((filter) =>
-                filter.id === action.filterId);
-            result.editingPipeline.filters.splice(removeIndex, 1);
-            break;
-        /*case LOAD_FILTER_DESCRIPTORS_SUCCESS:
+        //commented due to api change
+        case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             result.filterDescriptors = action.descriptors;
             result.filterCategories = result.filterDescriptors.map((descriptor) =>
                 descriptor.category).filter((category, i, array) => array.indexOf(category) === i);
-            break;*/
+            break;
     }
 
     return result;
-}
-
-function swap<T>(arr: T[], a: number, b: number) {
-    if (a >= 0 && a < arr.length && b >= 0 && b < arr.length) {
-        const temp = arr[a];
-        arr[a] = arr[b];
-        arr[b] = temp;
-    }
 }
 
 export const getPipelinesState = createFeatureSelector<PipelinesState>(

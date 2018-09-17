@@ -1,3 +1,8 @@
+export interface BooleanValue{
+    jsonClass: string;
+    value:boolean;
+}
+
 export interface TextValue {
     jsonClass: string;
     value: string;
@@ -30,4 +35,5 @@ export type Value =
     | DecimalValue
     | DurationValue
     | TimestampValue
-    | NumberValue;
+    | NumberValue
+    | BooleanValue;

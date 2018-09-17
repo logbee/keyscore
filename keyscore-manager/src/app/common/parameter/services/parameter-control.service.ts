@@ -4,8 +4,8 @@ import {zip} from "../../../util";
 import {
     ParameterDescriptor,
     ParameterDescriptorJsonClass, ResolvedParameterDescriptor
-} from "../../../models/pipeline-model/parameters/ParameterDescriptor";
-import {Parameter} from "../../../models/pipeline-model/parameters/Parameter";
+} from "../../../models/parameters/ParameterDescriptor";
+import {Parameter} from "../../../models/parameters/Parameter";
 
 @Injectable()
 export class ParameterControlService {

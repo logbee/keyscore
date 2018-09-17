@@ -16,6 +16,7 @@ import {PipelyPipelineConfiguration} from "./models/pipeline-configuration.model
 import {parameterDescriptorToParameter} from "../../../util";
 import {Observable, Subject} from "rxjs";
 import {share} from "rxjs/operators";
+import {ExpressionType, ParameterDescriptorJsonClass} from "../../../models/parameters/ParameterDescriptor";
 
 @Component({
     selector: "workspace",
@@ -313,7 +314,14 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                         displayName: "Text Parameter",
                         description:"adasjdasjdad"
                     },
-                    jsonClass: "TextParameterDescriptor"
+                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+                    defaultValue:"DefaultValue",
+                    mandatory: true,
+                    validator: {
+                        expression:".*",
+                        expressionType: ExpressionType.RegEx,
+                        description: "Example Description"
+                    }
                 },
                 {
                     ref:{
@@ -323,7 +331,14 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                         displayName: "Text Parameter",
                         description:"adasjdasjdad"
                     },
-                    jsonClass: "TextParameterDescriptor"
+                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+                    defaultValue:"DefaultValue",
+                    mandatory: true,
+                    validator: {
+                        expression:".*",
+                        expressionType: ExpressionType.RegEx,
+                        description: "Example Description"
+                    }
                 },
                 {
                     ref:{
@@ -333,7 +348,14 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                         displayName: "Text Parameter",
                         description:"adasjdasjdad"
                     },
-                    jsonClass: "TextParameterDescriptor"
+                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+                    defaultValue:"DefaultValue",
+                    mandatory: true,
+                    validator: {
+                        expression:".*",
+                        expressionType: ExpressionType.RegEx,
+                        description: "Example Description"
+                    }
                 },
                 {
                     ref:{
@@ -343,7 +365,14 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                         displayName: "Text Parameter",
                         description:"adasjdasjdad"
                     },
-                    jsonClass: "TextParameterDescriptor"
+                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+                    defaultValue:"DefaultValue",
+                    mandatory: true,
+                    validator: {
+                        expression:".*",
+                        expressionType: ExpressionType.RegEx,
+                        description: "Example Description"
+                    }
                 }
             ],
             category: "Test"

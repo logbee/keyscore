@@ -19,7 +19,7 @@ import {
 import {map, share, takeUntil} from "rxjs/internal/operators";
 import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
 import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
-import {FilterDescriptor, ResolvedFilterDescriptor} from "../../models/filter-model/FilterDescriptor";
+import {FilterDescriptor, ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
 import {
     getEditingPipeline,
     getEditingPipelineIsLocked,
@@ -28,7 +28,7 @@ import {
     getLastUpdateSuccess
 } from "../pipelines.reducer";
 import {PipelineConfiguration} from "../../models/pipeline-model/PipelineConfiguration";
-import {FilterConfiguration} from "../../models/filter-model/FilterConfiguration";
+import {Configuration} from "../../models/common/Configuration";
 
 @Component({
     selector: "pipeline-editor",
@@ -120,15 +120,15 @@ export class PipelineEditorComponent implements OnDestroy {
         this.store.dispatch(new MoveFilterAction(filter.id, filter.position));
     }
 
-    public updateFilter(update: { filterConfiguration: FilterConfiguration, values: any }) {
+    public updateFilter(update: { filterConfiguration: Configuration, values: any }) {
         this.store.dispatch(new UpdateFilterAction(update.filterConfiguration, update.values));
     }
 
-    public removeFilter(filter: FilterConfiguration) {
-        this.store.dispatch(new RemoveFilterAction(filter.id));
+    public removeFilter(filter: Configuration) {
+        this.store.dispatch(new RemoveFilterAction(filter.ref.uuid));
     }
 
-    public callLiveEditing(filter: FilterConfiguration) {
-        this.store.dispatch(new Go({path: ["pipelines/filter/" + filter.id + "/"]}));
+    public callLiveEditing(filter: Configuration) {
+        this.store.dispatch(new Go({path: ["pipelines/filter/" + filter.ref.uuid + "/"]}));
     }
 }

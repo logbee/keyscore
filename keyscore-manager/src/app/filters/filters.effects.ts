@@ -41,17 +41,17 @@ import {
     ReconfigureFilterSuccess
 } from "./filters.actions";
 import {selectAppConfig} from "../app.config";
-import {FilterConfiguration} from "../models/filter-model/FilterConfiguration";
+import {Configuration} from "../models/common/Configuration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
-import {Dataset} from "../models/filter-model/dataset/Dataset";
-import {Record} from "../models/filter-model/dataset/Record";
+import {Dataset} from "../models/dataset/Dataset";
+import {Record} from "../models/dataset/Record";
 import {
     selectExtractedDatasets,
     selectFilterId,
     selectLiveEditingFilter,
     selectUpdateConfigurationFlag
 } from "./filter.reducer";
-import {Field} from "../models/filter-model/dataset/Field";
+import {Field} from "../models/dataset/Field";
 
 @Injectable()
 export class FilterEffects {
@@ -90,7 +90,7 @@ export class FilterEffects {
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/config").pipe(
-                map((data: FilterConfiguration) => new LoadLiveEditingFilterSuccess(data, action.filterId)),
+                map((data: Configuration) => new LoadLiveEditingFilterSuccess(data, action.filterId)),
                 catchError((cause: any) => of(new LoadLiveEditingFilterFailure(cause)))
             );
         })
@@ -199,7 +199,7 @@ export class FilterEffects {
         switchMap(([filterConfiguration, appconfig, triggerCall]) => {
             if (triggerCall) {
                 return this.http.put(appconfig.getString("keyscore.frontier.base-url") +
-                    "/filter/" + filterConfiguration.id + "/config", filterConfiguration, {
+                    "/filter/" + filterConfiguration.ref.uuid + "/config", filterConfiguration, {
                     headers: new HttpHeaders().set("Content-Type", "application/json"),
                     responseType: "json"
                 }).pipe(

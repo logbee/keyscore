@@ -1,7 +1,7 @@
 import {Connection} from "./connection.model";
 import {
     ResolvedParameterDescriptor
-} from "../../../../models/pipeline-model/parameters/ParameterDescriptor";
+} from "../../../../models/parameters/ParameterDescriptor";
 
 export interface BlockDescriptor {
     name: string;

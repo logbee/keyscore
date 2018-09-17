@@ -3,7 +3,7 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Observable} from "rxjs/index";
 import {delay} from "rxjs/internal/operators";
 import {__await} from "tslib";
-import {Parameter} from "../../models/pipeline-model/parameters/Parameter";
+import {Parameter} from "../../models/parameters/Parameter";
 
 @Component({
     selector: "parameter-list",

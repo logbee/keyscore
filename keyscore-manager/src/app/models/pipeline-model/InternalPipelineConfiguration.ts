@@ -1,9 +1,9 @@
-import {FilterConfiguration} from "../filter-model/FilterConfiguration";
+import {Configuration} from "../common/Configuration";
 
 export interface InternalPipelineConfiguration {
     id: string;
     name: string;
     description: string;
-    filters: FilterConfiguration[];
+    filters: Configuration[];
     isRunning: boolean;
 }

@@ -11,7 +11,6 @@ import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operator
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
 import {selectRefreshTime} from "../common/loading/loading.reducer";
-import {toInternalPipelineConfig, toPipelineConfiguration} from "../util";
 import {
     DELETE_PIPELINE,
     DeletePipelineAction,
@@ -38,7 +37,7 @@ import {
 import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {getPipelinePolling} from "./pipelines.reducer";
-import {FilterDescriptor} from "../models/filter-model/FilterDescriptor";
+import {FilterDescriptor} from "../models/descriptors/FilterDescriptor";
 
 @Injectable()
 export class PipelinesEffects {
@@ -74,33 +73,12 @@ export class PipelinesEffects {
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([pipeline, config]) => {
             const pipelineUrl: string = config.getString("keyscore.frontier.base-url") + "/pipeline/configuration";
-            const pipelineConfig = toPipelineConfiguration(pipeline);
-            return this.http.put(pipelineUrl, pipelineConfig, {
+            return this.http.put(pipelineUrl, pipeline, {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "text"
             }).pipe(
                 map((data) => new UpdatePipelineSuccessAction(pipeline)),
                 catchError((cause: any) => of(new UpdatePipelineFailureAction(cause, pipeline)))
-            );
-        })
-    );
-
-    @Effect() public updatePipelineBlockly$: Observable<Action> = this.actions$.pipe(
-        ofType(UPDATE_PIPELINE_BLOCKLY),
-        map((action) => (action as UpdatePipelineWithBlocklyAction)),
-        combineLatest(this.store.select(selectAppConfig)),
-        mergeMap(([updateAction, config]) => {
-            const pipelineUrl: string = config.getString("keyscore.frontier.base-url") + "/pipeline/configuration";
-            return this.http.put(pipelineUrl, updateAction.pipelineConfiguration, {
-                headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "text"
-            }).pipe(
-                map((data: any) =>
-                    new UpdatePipelineSuccessAction(toInternalPipelineConfig(updateAction.pipelineConfiguration))),
-                catchError((cause: any) =>
-                    of(new UpdatePipelineFailureAction(
-                        cause, toInternalPipelineConfig(updateAction.pipelineConfiguration)
-                    )))
             );
         })
     );

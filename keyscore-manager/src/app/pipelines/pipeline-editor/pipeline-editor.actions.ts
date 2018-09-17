@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor} from "../../models/filter-model/FilterDescriptor";
+import {FilterDescriptor} from "../../models/descriptors/FilterDescriptor";
 
 export const REMOVE_FILTER = "[Pipelines] REMOVE_FILTER";
 export const MOVE_FILTER = "[Pipelines] MOVE_FILTER";

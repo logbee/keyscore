@@ -1,15 +1,15 @@
-import {FilterConnection} from "./FilterConnection";
-import {ParameterDescriptor, ResolvedParameterDescriptor} from "../pipeline-model/parameters/ParameterDescriptor";
+import {ParameterDescriptor, ResolvedParameterDescriptor} from "../parameters/ParameterDescriptor";
 import {TextRef} from "../common/Localization";
-import {InputDescriptor} from "../descriptors/InputDescriptor";
-import {OutputDescriptor} from "../descriptors/OutputDescriptor";
-import {Icon} from "../descriptors/Icon";
+import {InputDescriptor} from "./InputDescriptor";
+import {OutputDescriptor} from "./OutputDescriptor";
+import {Icon} from "./Icon";
+import {Category, ResolvedCategory} from "./Category";
 
 export interface FilterDescriptor{
     name:string;
     displayName:TextRef;
     description:TextRef;
-    categories:TextRef[];
+    categories:Category[];
     parameters:ParameterDescriptor[];
     in?:InputDescriptor;
     out?:OutputDescriptor;
@@ -20,7 +20,7 @@ export interface ResolvedFilterDescriptor{
     name:string;
     displayName:string;
     description:string;
-    categories:string[];
+    categories:ResolvedCategory[];
     parameters:ResolvedParameterDescriptor[];
     in?:InputDescriptor;
     out?:OutputDescriptor;
