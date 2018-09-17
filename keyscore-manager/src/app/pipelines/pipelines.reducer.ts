@@ -6,7 +6,6 @@ import {
     EDIT_PIPELINE_FAILURE,
     EDIT_PIPELINE_SUCCESS,
     LOAD_ALL_PIPELINES_SUCCESS,
-    LOAD_FILTER_DESCRIPTORS_SUCCESS,
     PipelineActions,
     RESET_PIPELINE,
     UPDATE_PIPELINE_FAILURE,
@@ -17,12 +16,12 @@ import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Health} from "../models/common/Health";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
 import {Descriptor} from "../models/descriptors/Descriptor";
+import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
 
 export class PipelinesState {
     public pipelineList: PipelineInstance[];
-    public editingPipeline: InternalPipelineConfiguration;
+    public editingPipeline: EditingPipelineModel;
     public descriptors: Descriptor[];
     public filterDescriptors: ResolvedFilterDescriptor[];
     public filterCategories: string[];
@@ -31,7 +30,6 @@ export class PipelinesState {
 }
 const initialState: PipelinesState = {
     pipelineList: [
-
     ],
     editingPipeline: null,
     descriptors:[],
@@ -47,20 +45,18 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
 
     switch (action.type) {
         case CREATE_PIPELINE:
-            result.editingPipeline = {
-                id: action.id, name: action.name, description: action.description, filters: [],
-                isRunning: false
-            };
+
             break;
         case EDIT_PIPELINE_SUCCESS:
-            // result.editingPipeline = {...action.pipelineConfiguration, isRunning: false};
+            result.editingPipeline = {
+                pipelineBlueprint: action.pipelineBlueprint,
+                blueprints: action.blueprints,
+                configurations: action.configurations
+            };
             result.wasLastUpdateSuccessful = [];
             break;
         case EDIT_PIPELINE_FAILURE:
-            result.editingPipeline = {
-                id: action.id, name: "New Pipeline", description: "", filters: [],
-                isRunning: false
-            };
+
             result.wasLastUpdateSuccessful = [];
             break;
         case RESET_PIPELINE:

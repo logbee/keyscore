@@ -3,12 +3,18 @@ import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfigurat
 import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {FilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
+import {Configuration} from "../models/common/Configuration";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 
 export const EDIT_PIPELINE = "[Pipeline] EditPipeline";
 export const EDIT_PIPELINE_SUCCESS = "[Pipeline] EditPipelineSuccess";
 export const EDIT_PIPELINE_FAILURE = "[Pipeline] EditPipelineFailure";
+
+export const LOAD_EDIT_PIPELINE_BLUEPRINTS = "[Pipeline] LoadEditPipelineBlueprints";
+export const LOAD_EDIT_PIPELINE_CONFIG = "[Pipeline] LoadEditPipelineConfig";
+
 
 export const RESET_PIPELINE = "[Pipeline] ResetPipeline";
 
@@ -35,6 +41,8 @@ export type PipelineActions =
     | EditPipelineAction
     | EditPipelineSuccessAction
     | EditPipelineFailureAction
+    | LoadEditBlueprintsAction
+    | LoadEditPipelineConfigAction
     | ResetPipelineAction
     | UpdatePipelineAction
     | UpdatePipelineSuccessAction
@@ -69,7 +77,10 @@ export class EditPipelineAction implements Action {
 export class EditPipelineSuccessAction implements Action {
     public readonly type = EDIT_PIPELINE_SUCCESS;
 
-    constructor(readonly pipelineConfiguration: PipelineConfiguration) {
+    constructor(readonly pipelineBlueprint: PipelineBlueprint,
+                readonly blueprints:Blueprint[],
+                readonly configurations:Configuration[]
+    ){
 
     }
 }
@@ -78,6 +89,28 @@ export class EditPipelineFailureAction implements Action {
     public readonly type = EDIT_PIPELINE_FAILURE;
 
     constructor(readonly id: string, readonly cause: any) {
+
+    }
+}
+
+export class LoadEditBlueprintsAction implements Action {
+    public readonly type = LOAD_EDIT_PIPELINE_BLUEPRINTS;
+
+    constructor(readonly pipelineBlueprint: PipelineBlueprint,
+                readonly index:number,
+                readonly blueprints:Blueprint[]) {
+
+    }
+}
+
+export class LoadEditPipelineConfigAction implements Action{
+    public readonly type = LOAD_EDIT_PIPELINE_CONFIG;
+
+    constructor(readonly pipelineBlueprint: PipelineBlueprint,
+                readonly index:number,
+                readonly blueprints:Blueprint[],
+                readonly configurations:Configuration[]
+                ){
 
     }
 }

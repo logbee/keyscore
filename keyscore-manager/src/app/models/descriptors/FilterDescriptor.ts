@@ -4,6 +4,7 @@ import {InputDescriptor} from "./InputDescriptor";
 import {OutputDescriptor} from "./OutputDescriptor";
 import {Icon} from "./Icon";
 import {Category, ResolvedCategory} from "./Category";
+import {Ref} from "../common/Ref";
 
 export interface FilterDescriptor{
     name:string;
@@ -17,6 +18,7 @@ export interface FilterDescriptor{
 }
 
 export interface ResolvedFilterDescriptor{
+    descriptorRef:Ref;
     name:string;
     displayName:string;
     description:string;

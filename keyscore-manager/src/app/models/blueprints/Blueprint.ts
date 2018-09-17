@@ -3,7 +3,7 @@ import {MetaData} from "../common/MetaData";
 
 export interface PipelineBlueprint {
     ref: Ref;
-    blueprints: Blueprint[];
+    blueprints: Ref[];
     metadata: MetaData;
 }
 
@@ -14,8 +14,17 @@ export type Blueprint =
     | BranchBlueprint
     | MergeBlueprint;
 
+export enum BlueprintJsonClass {
+    FilterBlueprint = "io.logbee.keyscore.model.blueprint.FilterBlueprint",
+    SourceBlueprint = "io.logbee.keyscore.model.blueprint.SourceBlueprint",
+    SinkBlueprint = "io.logbee.keyscore.model.blueprint.SinkBlueprint",
+    BranchBlueprint = "io.logbee.keyscore.model.blueprint.BranchBlueprint",
+    MergeBlueprint = "io.logbee.keyscore.model.blueprint.MergeBlueprint"
+};
+
 
 export interface FilterBlueprint {
+    jsonClass: string;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;
@@ -24,6 +33,7 @@ export interface FilterBlueprint {
 }
 
 export interface SourceBlueprint {
+    jsonClass: string;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;
@@ -31,6 +41,7 @@ export interface SourceBlueprint {
 }
 
 export interface SinkBlueprint {
+    jsonClass: string;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;
@@ -38,6 +49,7 @@ export interface SinkBlueprint {
 }
 
 export interface BranchBlueprint {
+    jsonClass: string;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;
@@ -47,6 +59,7 @@ export interface BranchBlueprint {
 }
 
 export interface MergeBlueprint {
+    jsonClass: string;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;

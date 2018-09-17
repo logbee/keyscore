@@ -21,6 +21,7 @@ import {
     getLastUpdateSuccess
 } from "../pipelines.reducer";
 import {Configuration} from "../../models/common/Configuration";
+import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
 
 @Component({
     selector: "pipeline-editor",
@@ -41,7 +42,7 @@ import {Configuration} from "../../models/common/Configuration";
     `,
 })
 export class PipelineEditorComponent implements OnDestroy {
-    public pipeline$: Observable<InternalPipelineConfiguration>;
+    public pipeline$: Observable<EditingPipelineModel>;
     public filterDescriptors$: Observable<ResolvedFilterDescriptor[]>;
     public categories$: Observable<string[]>;
     public isLoading$: Observable<boolean>;
@@ -73,8 +74,8 @@ export class PipelineEditorComponent implements OnDestroy {
         this.alive.next();
     }
 
-    public deletePipeline(pipeline: InternalPipelineConfiguration) {
-        this.store.dispatch(new DeletePipelineAction(pipeline.id));
+    public deletePipeline(pipeline: EditingPipelineModel) {
+        this.store.dispatch(new DeletePipelineAction(pipeline.pipelineBlueprint.ref.uuid));
         this.location.back();
     }
 
