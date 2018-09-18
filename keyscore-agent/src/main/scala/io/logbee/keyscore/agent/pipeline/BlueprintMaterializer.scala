@@ -104,21 +104,17 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
     case InstantiateStage =>
       wrapper.blueprint match {
         case blueprint: FilterBlueprint =>
-          log.debug(s"Initiated instantiation of FilterStage from blueprint <${wrapper.blueprintRef.uuid}>")
           filterManager ! CreateFilterStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: SourceBlueprint =>
-          log.debug(s"Initiated instantiation of SourceStage from blueprint <${wrapper.blueprintRef.uuid}>")
           filterManager ! CreateSourceStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: SinkBlueprint =>
-          log.debug(s"Initiated instantiation of SinkStage from blueprint <${wrapper.blueprintRef.uuid}>")
           filterManager ! CreateSinkStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: BranchBlueprint =>
-          log.debug(s"Initiated instantiation of BranchStage from blueprint <${wrapper.blueprintRef.uuid}>")
           filterManager ! CreateBranchStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: MergeBlueprint =>
-          log.debug(s"Initiated instantiation of MergeStage from blueprint <${wrapper.blueprintRef.uuid}>")
           filterManager ! CreateMergeStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
       }
+      log.debug(s"Initiated instantiation of ${wrapper.blueprint.getClass.getSimpleName} from blueprint <${wrapper.blueprintRef.uuid}>")
 
     case message: StageCreated =>
       log.debug(s"Finishing materialization of blueprint <${blueprintRef.uuid}>")
