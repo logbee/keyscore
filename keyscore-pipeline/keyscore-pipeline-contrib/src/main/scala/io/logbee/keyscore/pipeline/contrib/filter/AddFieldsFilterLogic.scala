@@ -31,7 +31,7 @@ object AddFieldsFilterLogic extends Described {
         name = classOf[AddFieldsFilterLogic].getName,
         displayName = TextRef("displayName"),
         description = TextRef("description"),
-        categories = Seq(CommonCategories.FILTER, CommonCategories.FIELDS),
+        categories = Seq(CommonCategories.AUGMENT, CommonCategories.FIELDS),
         parameters = Seq(fieldListParameter)
       ),
       localization = Localization.fromResourceBundle(

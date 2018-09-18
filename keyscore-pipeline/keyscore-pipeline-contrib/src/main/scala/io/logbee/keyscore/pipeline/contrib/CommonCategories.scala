@@ -6,11 +6,11 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 object CommonCategories {
 
+  val AUGMENT = Category("contrib.augment", TextRef("contrib.category.augment.displayName"))
   val BATCH_COMPOSITION = Category("contrib.batch-composition", TextRef("contrib.category.batch-composition.displayName"))
   val DATA_EXTRACTION = Category("contrib.data-extraction", TextRef("contrib.category.data-extraction.displayName"))
   val DEBUG = Category("contrib.debug", TextRef("contrib.category.debug.displayName"))
   val FIELDS = Category("contrib.fields", TextRef("contrib.category.fields.displayName"))
-  val FILTER = Category("contrib.filter", TextRef("contrib.category.filter.displayName"))
   val JSON = Category("contrib.json", TextRef("contrib.category.json.displayName"))
   val MATH = Category("contrib.math", TextRef("contrib.category.math.displayName"))
   val REMOVE_DROP = Category("contrib.remove-drop", TextRef("contrib.category.remove-drop.displayName"))
@@ -23,6 +23,10 @@ object CommonCategories {
   val CATEGORY_LOCALIZATION = Localization(
     locales = Set(ENGLISH, GERMAN),
     mapping = Map(
+      AUGMENT.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "Augment",
+        GERMAN -> "Anreichern"
+      )),
       BATCH_COMPOSITION.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Batch-Composition",
         GERMAN -> "Stapelbildung"
@@ -39,10 +43,7 @@ object CommonCategories {
         ENGLISH -> "Fields",
         GERMAN -> "Felder"
       )),
-      FILTER.displayName.get -> TranslationMapping(Map(
-        ENGLISH -> "Filter",
-        GERMAN -> "Filter"
-      )),
+
       JSON.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "JSON",
         GERMAN -> "JSON"
