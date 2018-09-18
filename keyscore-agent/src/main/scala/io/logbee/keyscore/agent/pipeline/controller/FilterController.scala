@@ -76,7 +76,7 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
   private def determineFilterStatus(in: ValveState, out: ValveState): FilterStatus = {
     val status = (in.position, out.position) match {
       case (ValvePosition.Closed, ValvePosition.Open) => Paused
-      case (ValvePosition.Closed, ValvePosition.Drain) => Ready
+      case (ValvePosition.Closed, ValvePosition.Drain) => Dismantled
       case (ValvePosition.Open, ValvePosition.Open) => Running
       case (ValvePosition.Open, ValvePosition.Drain) => Drained
       case _ => Unknown

@@ -10,7 +10,7 @@ case object FilterStatusSerializer extends CustomSerializer[FilterStatus](format
     case "Paused" => Paused
     case "Running" => Running
     case "Drained" => Drained
-    case "Ready" => Ready
+    case "Dismantled" => Dismantled
   }
   case JNull => null
 }, {

@@ -66,7 +66,7 @@ class PipelineIntegrationTest2 extends Matchers {
     pauseFilter(k2kFilterId, "true")
     checkFilterState(k2kFilterId, Green, Paused)
     drainFilter(k2kFilterId, "true")
-    checkFilterState(k2kFilterId, Green, Ready)
+    checkFilterState(k2kFilterId, Green, Dismantled)
 
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
     extractDatsetsFromFilter(k2kFilterId, 1, 1)
@@ -80,7 +80,7 @@ class PipelineIntegrationTest2 extends Matchers {
 //    pauseFilter(k2eFilterId, "true")
 //    checkFilterState(k2eFilterId, Green, Paused)
 //    drainFilter(k2eFilterId, "true")
-//    checkFilterState(k2eFilterId, Green, Ready)
+//    checkFilterState(k2eFilterId, Green, Dismantled)
 //    insertDatasetsIntoFilter(k2eFilterId, datasetsSerialized)
 //    checkElasticElements(3)
 
