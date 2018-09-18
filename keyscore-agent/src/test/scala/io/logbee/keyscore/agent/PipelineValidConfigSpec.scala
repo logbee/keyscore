@@ -2,9 +2,9 @@ package io.logbee.keyscore.agent
 
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
-import io.logbee.keyscore.model.data
 import io.logbee.keyscore.model.data.{Label, MetaData, TextValue}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
 import io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilterLogic
 import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
@@ -14,8 +14,6 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpecLike}
 
-import io.logbee.keyscore.model.util.ToOption.T2OptionT
-
 class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
 
   implicit val formats = KeyscoreFormats.formats
@@ -24,7 +22,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sourceConfigurationRef = ConfigurationRef("bae4e0bc-2784-416a-a93d-0e36ed80d6e0")
     val sourceConfig = Configuration(sourceConfigurationRef,
       parameters = Seq(
-        TextParameter(KafkaSourceLogic.serverParameter.ref, "localhost"),
+        TextParameter(KafkaSourceLogic.serverParameter.ref, "keyscore-kafka"),
         NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
         TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
         ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
@@ -41,7 +39,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sinkConfigurationRef = ConfigurationRef("05dc6d8a-50ff-41bd-b637-5132be1f2415")
     val sinkConfig = Configuration(sinkConfigurationRef,
       parameters = Seq(
-        TextParameter(KafkaSinkLogic.bootstrapServerParameter.ref, "localhost"),
+        TextParameter(KafkaSinkLogic.bootstrapServerParameter.ref, "keyscore-kafka"),
         NumberParameter(KafkaSinkLogic.bootstrapServerPortParameter.ref, 9092),
         TextParameter(KafkaSinkLogic.topicParameter.ref, "TopicB")
       )
@@ -67,7 +65,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sourceConfigurationRef = ConfigurationRef("83094e3e-ec35-4c99-8411-c06271e38591")
     val sourceConfig = Configuration(sourceConfigurationRef,
       parameters = Seq(
-        TextParameter(KafkaSourceLogic.serverParameter.ref, "localhost"),
+        TextParameter(KafkaSourceLogic.serverParameter.ref, "keyscore-kafka"),
         NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
         TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
         ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
@@ -84,7 +82,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sinkConfigurationRef = ConfigurationRef("d35d1f46-cd41-4a25-8d83-02cf9348d87e")
     val sinkConfig = Configuration(sinkConfigurationRef,
       parameters = Seq(
-        TextParameter("host", "localhost"),
+        TextParameter("host", "keyscore-elasticsearch"),
         NumberParameter("port", 9200),
         TextParameter("index", "test")
       )
@@ -108,37 +106,40 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 
   "A running PipelineSupervisor" should {
 
-    "Generate json files for KafkaToKafka" in new KafkaToKafka {
-      println(writePretty(sourceBluePrint))
-      println(writePretty(sinkBluePrint))
-      println(writePretty(filterBluePrint))
+//    "Generate json files for KafkaToKafka" in new KafkaToKafka {
+//      println("KafkaToKafka Jsons")
+//      println(writePretty(sourceBluePrint))
+//      println(writePretty(sinkBluePrint))
+//      println(writePretty(filterBluePrint))
+//
+//      println(writePretty(pipelineBlueprint))
+//
+//      println(writePretty(sourceConfig))
+//      println(writePretty(sinkConfig))
+//      println(writePretty(removeFieldsFilterConfig))
+//
+//      println(writePretty(KafkaSinkLogic.describe))
+//      println(writePretty(KafkaSourceLogic.describe))
+//      println(writePretty(RemoveFieldsFilterLogic.describe))
+//    }
 
-      println(writePretty(pipelineBlueprint))
+        "Generate json files KafkaToElastic" in new KafkaToElastic {
+        println("KafkaToElastic Jsons")
 
-      println(writePretty(sourceConfig))
-      println(writePretty(sinkConfig))
-      println(writePretty(removeFieldsFilterConfig))
+          println(writePretty(sourceBluePrint))
+          println(writePretty(sinkBluePrint))
+          println(writePretty(filterBluePrint))
 
-      println(writePretty(KafkaSinkLogic.describe))
-      println(writePretty(KafkaSourceLogic.describe))
-      println(writePretty(RemoveFieldsFilterLogic.describe))
-    }
+          println(writePretty(pipelineBlueprint))
 
-    "Generate json files KafkaToElastic" in new KafkaToElastic {
-      println(writePretty(sourceBluePrint))
-      println(writePretty(sinkBluePrint))
-      println(writePretty(filterBluePrint))
+          println(writePretty(sourceConfig))
+          println(writePretty(sinkConfig))
+          println(writePretty(removeFieldsFilterConfig))
 
-      println(writePretty(pipelineBlueprint))
-
-      println(writePretty(sourceConfig))
-      println(writePretty(sinkConfig))
-      println(writePretty(removeFieldsFilterConfig))
-
-      println(writePretty(KafkaSinkLogic.describe))
-      println(writePretty(KafkaSourceLogic.describe))
-      println(writePretty(RemoveFieldsFilterLogic.describe))
-    }
+          println(writePretty(KafkaSinkLogic.describe))
+          println(writePretty(KafkaSourceLogic.describe))
+          println(writePretty(RemoveFieldsFilterLogic.describe))
+        }
 
 
   }
