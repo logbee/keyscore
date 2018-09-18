@@ -6,6 +6,7 @@ import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, SinkStage, SourceStage}
 
+//TODO make this usable for branch and merging
 
 case class Pipeline(pipelineBlueprint: PipelineBlueprint, source: Option[SourceStage] = None, sink: Option[SinkStage] = None, filters: List[FilterStage] = List.empty) {
 
@@ -24,6 +25,6 @@ case class Pipeline(pipelineBlueprint: PipelineBlueprint, source: Option[SourceS
   }
 
   def isComplete: Boolean = {
-    source.isDefined && sink.isDefined
+    source.isDefined && sink.isDefined && (filters.size == pipelineBlueprint.blueprints.size -2)
   }
 }

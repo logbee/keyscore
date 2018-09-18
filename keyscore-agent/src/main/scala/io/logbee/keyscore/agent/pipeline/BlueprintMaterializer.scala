@@ -74,6 +74,7 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
       blueprintManager ! GetBlueprintRequest(blueprintRef)
 
     case GetBlueprintResponse(Some(blueprint)) =>
+      log.info(s"Resolved blueprint: $blueprint")
       val wrapper = wrap(blueprint)
       descriptorManager ! GetDescriptorRequest(wrapper.descriptorRef)
       configurationManager ! GetConfigurationRequest(wrapper.configurationRef)

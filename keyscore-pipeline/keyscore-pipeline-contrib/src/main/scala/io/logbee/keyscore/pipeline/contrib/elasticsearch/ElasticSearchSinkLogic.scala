@@ -33,7 +33,7 @@ object ElasticSearchSinkLogic extends Described {
   private val filterName = "io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic"
   private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.ElasticSearchSinkLogic"
 
-  private val hostParameter = TextParameterDescriptor(
+  val hostParameter = TextParameterDescriptor(
     "elastic.host",
     ParameterInfo(TextRef("host"), TextRef("hostDescription")),
     validator = StringValidator(
@@ -44,7 +44,7 @@ object ElasticSearchSinkLogic extends Described {
     mandatory = true
   )
 
-  private val portParameter = NumberParameterDescriptor(
+  val portParameter = NumberParameterDescriptor(
     "elastic.port",
     ParameterInfo(TextRef("port"), TextRef("portDescription")),
     defaultValue = 9200,
@@ -52,7 +52,7 @@ object ElasticSearchSinkLogic extends Described {
     mandatory = true
   )
 
-  private val indexParameter = TextParameterDescriptor(
+  val indexParameter = TextParameterDescriptor(
     "elastic.index",
     ParameterInfo(TextRef("index"), TextRef("indexDescription")),
     defaultValue = "doc",

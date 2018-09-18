@@ -84,6 +84,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       become(configuring(pipeline))
 
       blueprint.blueprints.foreach { stageBlueprint =>
+        log.debug(s"Blueprint of pipeline is $stageBlueprint")
         context.actorOf(BlueprintMaterializer(stageContext, stageBlueprint, filterManager))
       }
 
@@ -204,12 +205,13 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case PauseFilter(filterId, doPause) =>
       val _sender = sender
-      log.debug(s"sender is ${_sender}")
+      log.debug(s"Reached PauseFilter with $filterId from sender ${_sender}")
       controller.close(filterId, doPause).foreach(_.onComplete {
         case Success(state) =>
-          log.debug(s"Sending PauseFilterResponse to ${_sender}")
+          log.debug(s"Sending PauseFilterResponse: $state")
           _sender ! PauseFilterResponse(state)
         case Failure(e) =>
+          log.debug(s"Sending PauseFilterResponse failed: $e")
           _sender ! Failure
       })
 
@@ -221,6 +223,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       })
 
     case InsertDatasets(filterId, datasets, where) =>
+      log.debug(s"Received InsertDatasets for $filterId with $datasets")
       val lastSender = sender
       controller.insert(filterId, datasets, where).foreach(_.onComplete {
         case Success(state) => lastSender ! InsertDatasetsResponse(state)

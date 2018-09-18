@@ -82,9 +82,9 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val sinkConfigurationRef = ConfigurationRef("d35d1f46-cd41-4a25-8d83-02cf9348d87e")
     val sinkConfig = Configuration(sinkConfigurationRef,
       parameters = Seq(
-        TextParameter("host", "keyscore-elasticsearch"),
-        NumberParameter("port", 9200),
-        TextParameter("index", "test")
+        TextParameter(ElasticSearchSinkLogic.hostParameter.ref, "keyscore-elasticsearch"),
+        NumberParameter(ElasticSearchSinkLogic.portParameter.ref, 9200),
+        TextParameter(ElasticSearchSinkLogic.indexParameter.ref, "test")
       )
     )
 

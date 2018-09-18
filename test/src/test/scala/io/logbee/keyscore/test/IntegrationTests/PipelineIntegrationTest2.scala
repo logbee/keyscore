@@ -12,7 +12,7 @@ import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, Seal
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.pipeline.{FilterState, FilterStatus, Paused, Ready}
+import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.model.{Green, Health, PipelineInstance}
 import io.logbee.keyscore.test.fixtures.ExampleData
 import io.logbee.keyscore.test.fixtures.ExampleData._
@@ -41,48 +41,53 @@ class PipelineIntegrationTest2 extends Matchers {
     .build()
 
   private val k2kFilterId = "24a88215-cfe0-47a1-a889-7f3e9f8260ef"
-  private val k2eFilterId = "07fbf227-3cde-4acd-853a-4aa733f5f482"
+  private val k2eFilterId = "dc882c27-3de2-4603-b272-b35cf81080e2"
 
   @Test
   @CitrusTest
   def integrationTest(implicit @CitrusResource runner: TestRunner): Unit = {
     val k2kObject = loadK2KPipelineBlueprint
     val k2eObject = loadK2EPipelineBlueprint
+
     val dataset = dataset1
     val datasets = List(dataset)
     val datasetsSerialized = write(datasets)
-    println(datasetsSerialized)
+
     creatingKafkaToKafkaPipeline(runner)
     getSinglePipelineBlueprint(k2kObject)
 
     creatingKafkaToElasticPipeline(runner)
     getSinglePipelineBlueprint(k2eObject)
 
-    Thread.sleep(8000)
+    Thread.sleep(10000)
     checkHealthStateOfPipelines()
-    //    ---insertDatasetsIntok2kPipeline---
-        pauseFilter(k2kFilterId, "true")
-        checkFilterState(k2kFilterId, Green, Paused)
-        drainFilter(k2kFilterId, "true")
-        checkFilterState(k2kFilterId, Green, Ready)
-        insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
-        extractDatsetsFromFilter(k2kFilterId, 1, 1)
-        extractDatsetsFromFilter(k2kFilterId, 5, 1)
-        pauseFilter(k2kFilterId, "false")
-        drainFilter(k2kFilterId, "false")
+
+    println(" # # # Inserting into K2K")
+    pauseFilter(k2kFilterId, "true")
+    checkFilterState(k2kFilterId, Green, Paused)
+    drainFilter(k2kFilterId, "true")
+    checkFilterState(k2kFilterId, Green, Ready)
+
+    insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
+    extractDatsetsFromFilter(k2kFilterId, 1, 1)
+    extractDatsetsFromFilter(k2kFilterId, 5, 1)
+    pauseFilter(k2kFilterId, "false")
+    drainFilter(k2kFilterId, "false")
+    checkFilterState(k2kFilterId, Green, Running)
+    insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
+
+    println(" # # # Inserting into K2E")
+//    pauseFilter(k2eFilterId, "true")
+//    checkFilterState(k2eFilterId, Green, Paused)
+//    drainFilter(k2eFilterId, "true")
+//    checkFilterState(k2eFilterId, Green, Ready)
+//    insertDatasetsIntoFilter(k2eFilterId, datasetsSerialized)
+//    checkElasticElements(3)
 
 
-        pauseFilter(k2eFilterId, "true")
-        checkFilterState(k2eFilterId,Green, Paused)
-        drainFilter(k2eFilterId, "true")
-        checkFilterState(k2eFilterId,Green, Ready)
-        insertDatasetsIntoFilter(k2eFilterId, datasetsSerialized)
-        checkElasticElements(3)
-
-
-        getAllPipelineBlueprints(2)
-        deleteAllPipelineBlueprints()
-        getAllPipelineBlueprints(0)
+    getAllPipelineBlueprints(2)
+    deleteAllPipelineBlueprints()
+    getAllPipelineBlueprints(0)
   }
 
   private def creatingKafkaToKafkaPipeline(implicit runner: TestRunner): TestAction = {
@@ -354,19 +359,19 @@ class PipelineIntegrationTest2 extends Matchers {
 
   def checkElasticElements(expectedHits: Int)(implicit runner: TestRunner): TestAction = {
     runner.http(action => action.client(elasticClient)
-          .send()
-          .get("/test/_search")
-        )
+      .send()
+      .get("/test/_search")
+    )
 
-  runner.http(action => action.client(elasticClient)
-        .receive()
-        .response(HttpStatus.OK)
-        .validationCallback((message, context) => {
-          val response = message.getPayload.asInstanceOf[String]
-          val json = parse(response)
-          val hits = (json \ "hits" \ "total").extract[Int]
-          hits shouldBe hits
-        }))
+    runner.http(action => action.client(elasticClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val response = message.getPayload.asInstanceOf[String]
+        val json = parse(response)
+        val hits = (json \ "hits" \ "total").extract[Int]
+        hits shouldBe expectedHits
+      }))
   }
 
 }

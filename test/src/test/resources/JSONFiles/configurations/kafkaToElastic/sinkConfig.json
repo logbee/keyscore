@@ -7,21 +7,21 @@
     {
       "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
       "ref":{
-        "id":"host"
+        "id":"elastic.host"
       },
       "value":"keyscore-elasticsearch"
     },
     {
       "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
       "ref":{
-        "id":"port"
+        "id":"elastic.port"
       },
       "value":9200
     },
     {
       "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
       "ref":{
-        "id":"index"
+        "id":"elastic.index"
       },
       "value":"test"
     }

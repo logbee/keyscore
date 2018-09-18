@@ -223,6 +223,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
       pathPrefix(JavaUUID) { filterId =>
         path("pause") {
           post {
+            log.debug(s"Asking for pause filter with id: $filterId")
             parameter('value.as[Boolean]) { doPause =>
               onSuccess(clusterPipelineManager ? PauseFilter(filterId, doPause)) {
                 case PauseFilterResponse(state) =>
@@ -230,9 +231,6 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
                   complete(StatusCodes.Accepted, state)
                 case Failure =>
                   log.info(s"PauseFilterResponse Failure")
-                  complete(StatusCodes.InternalServerError)
-                case _ =>
-                  log.info(s"Something strange happened")
                   complete(StatusCodes.InternalServerError)
 
               }
