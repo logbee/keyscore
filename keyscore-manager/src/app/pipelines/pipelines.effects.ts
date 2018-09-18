@@ -31,6 +31,7 @@ import {
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction, LoadEditPipelineConfigAction, LOAD_EDIT_PIPELINE_CONFIG,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS,
 } from "./pipelines.actions";
 import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
@@ -39,6 +40,7 @@ import {FilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {PipelineService} from "../services/rest-api/pipeline.service";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
+import {Descriptor} from "../models/descriptors/Descriptor";
 
 @Injectable()
 export class PipelinesEffects {
@@ -116,6 +118,24 @@ export class PipelinesEffects {
         })
     );
 
+    @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_FILTER_DESCRIPTORS),
+        switchMap((action) =>
+           this.pipelineService.getAllDescriptors().pipe(
+                map((data: Descriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
+                catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
+            )
+        )
+    );
+
+    @Effect() public resolveFilterDescriptors$: Observable<Action> = this.action$.pipe(
+        ofType(LOAD_FILTER_DESCRIPTORS_SUCCESS),
+        map(descriptors => (action as LoadFilterDescriptorsSuccessAction).descriptors),
+        map(descriptors => {
+
+        })
+    )
+
 
     @Effect() public updatePipeline$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE),
@@ -144,18 +164,6 @@ export class PipelinesEffects {
                 catchError((cause: any) => of(new DeletePipelineFailureAction(cause, pipelineId)))
             );
         })
-    );
-
-    @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
-        ofType(LOAD_FILTER_DESCRIPTORS),
-        combineLatest(this.store.select(selectAppConfig)),
-        switchMap(([action, config]) =>
-            this.http.get(config.getString(
-                "keyscore.frontier.base-url") + "/descriptors?language=" + this.translate.currentLang).pipe(
-                map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
-                catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
-            )
-        )
     );
 
     @Effect() public loadPipelineInstances$: Observable<Action> = this.actions$.pipe(

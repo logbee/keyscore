@@ -5,6 +5,7 @@ import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {FilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
+import {Descriptor} from "../models/descriptors/Descriptor";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 
@@ -207,7 +208,7 @@ export class LoadFilterDescriptorsAction implements Action {
 export class LoadFilterDescriptorsSuccessAction implements Action {
     public readonly type = LOAD_FILTER_DESCRIPTORS_SUCCESS;
 
-    constructor(readonly descriptors: FilterDescriptor[]) {
+    constructor(readonly descriptors: Descriptor[]) {
     }
 }
 

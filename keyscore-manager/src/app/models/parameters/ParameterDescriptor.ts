@@ -1,5 +1,5 @@
 import {TextRef} from "../common/Localization";
-import {Ref} from "../common/Ref";
+import {ParameterRef, Ref} from "../common/Ref";
 
 export interface StringValidator {
     expression: string;
@@ -21,9 +21,9 @@ export enum ExpressionType {
 }
 
 export enum FieldNameHint {
-    AnyField = 0,
-    PresentField = 1,
-    AbsentField = 2
+    AnyField = "AnyField",
+    PresentField = "PresentField",
+    AbsentField = "AbsentField"
 }
 
 export enum FieldValueType {
@@ -54,9 +54,25 @@ export interface ResolvedParameterInfo {
 }
 
 export interface ParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
+    validator?:StringValidator;
+    nameValidator?:StringValidator;
+    mandatory?:boolean;
+    defaultValue?:any;
+    expressionType?:ExpressionType;
+    range?:NumberRange;
+    decimals?:number;
+    hint?:FieldNameHint;
+    min?:number;
+    max?:number;
+    choices?:Choice[];
+    descriptor?:ParameterDescriptor;
+    fieldValueType:FieldValueType;
+
+
+
 }
 
 export const ParameterDescriptorPackagePrefix = "io.logbee.keyscore.model.descriptor";
@@ -87,22 +103,21 @@ export type ResolvedParameterDescriptor =
     | TextListParameterDescriptor
     | FieldNameListParameterDescriptor
     | FieldListParameterDescriptor
-    | ChoiceParameterDescriptor
-    | ParameterGroupDescriptor;
+    | ChoiceParameterDescriptor;
 
 export interface BooleanParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     defaultValue: boolean;
     mandatory: boolean;
 
 }
 
 export interface TextParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     defaultValue: string;
     validator: ResolvedStringValidator;
     mandatory: boolean;
@@ -110,9 +125,9 @@ export interface TextParameterDescriptor {
 }
 
 export interface ExpressionParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     defaultValue: string;
     expressionType: ExpressionType;
     mandatory: boolean;
@@ -120,18 +135,18 @@ export interface ExpressionParameterDescriptor {
 }
 
 export interface NumberParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     defaultValue: number;
     range: NumberRange;
     mandatory: boolean;
 }
 
 export interface DecimalParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     defaultValue: number;
     range: NumberRange;
     decimals: number;
@@ -140,9 +155,9 @@ export interface DecimalParameterDescriptor {
 }
 
 export interface FieldNameParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     defaultValue: string;
     hint: FieldNameHint;
     validator: ResolvedStringValidator;
@@ -151,9 +166,9 @@ export interface FieldNameParameterDescriptor {
 }
 
 export interface FieldParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     defaultName: string;
     hint: FieldNameHint;
     nameValidator: ResolvedStringValidator;
@@ -163,39 +178,39 @@ export interface FieldParameterDescriptor {
 }
 
 export interface TextListParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     descriptor: TextParameterDescriptor;
     min: number;
     max: number;
 }
 
 export interface FieldNameListParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     descriptor: FieldNameParameterDescriptor;
     min: number;
     max: number;
 }
 
 export interface FieldListParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     descriptor: FieldParameterDescriptor;
     min: number;
     max: number;
 }
 
 export interface ChoiceParameterDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     min: number;
     max: number;
-    choices: Choice[];
+    choices: ResolvedChoice[];
 }
 
 export interface Choice {
@@ -204,10 +219,16 @@ export interface Choice {
     description: TextRef;
 }
 
+export interface ResolvedChoice{
+    name:string;
+    displayName:string;
+    description:string;
+}
+
 export interface ParameterGroupDescriptor {
-    ref: Ref;
+    ref: ParameterRef;
     info: ResolvedParameterInfo;
-    jsonClass: string;
+    jsonClass: ParameterDescriptorJsonClass;
     condition: ParameterGroupCondition;
     parameters: ParameterDescriptor[];
 
@@ -218,7 +239,7 @@ export interface ParameterGroupCondition {
 }
 
 export interface BooleanParameterCondition {
-    parameter: Ref;
+    parameter: ParameterRef;
     negate: boolean;
 }
 

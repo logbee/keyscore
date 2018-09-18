@@ -5,7 +5,7 @@ import {
     DELETE_PIPELINE_SUCCESS,
     EDIT_PIPELINE_FAILURE,
     EDIT_PIPELINE_SUCCESS,
-    LOAD_ALL_PIPELINES_SUCCESS,
+    LOAD_ALL_PIPELINES_SUCCESS, LOAD_FILTER_DESCRIPTORS_SUCCESS,
     PipelineActions,
     RESET_PIPELINE,
     UPDATE_PIPELINE_FAILURE,
@@ -100,12 +100,11 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case UPDATE_PIPELINE_POLLING:
             result.pipelineInstancePolling = action.isPolling;
             break;
-        //commented due to api change
-        /*case LOAD_FILTER_DESCRIPTORS_SUCCESS:
-            result.filterDescriptors = action.descriptors;
+        case LOAD_FILTER_DESCRIPTORS_SUCCESS:
+            result.descriptors = action.descriptors;
             result.filterCategories = result.filterDescriptors.map((descriptor) =>
                 descriptor.category).filter((category, i, array) => array.indexOf(category) === i);
-            break;*/
+            break;
     }
 
     return result;

@@ -5,7 +5,7 @@ import {
     Blueprint, BlueprintJsonClass, FilterBlueprint, PipelineBlueprint,
     SinkBlueprint, SourceBlueprint
 } from "../../app/models/blueprints/Blueprint";
-import {Ref} from "../../app/models/common/Ref";
+import {ParameterRef, Ref} from "../../app/models/common/Ref";
 import {Value} from "../../app/models/dataset/Value";
 import {count} from "rxjs/internal/operators";
 import {Label} from "../../app/models/common/MetaData";
@@ -173,6 +173,16 @@ export const generateRef = (): Ref => {
 
 export const generateRefs = (count = faker.random.number({min: 1, max: 10})): Ref[] => {
     return Array.apply(null, Array(count)).map(() => generateRef());
+};
+
+export const generateParameterRef = (): ParameterRef => {
+    return {
+        uuid: faker.random.uuid()
+    }
+};
+
+export const generateParameterRefs = (count = faker.random.number({min: 1, max: 10})): ParameterRef[] => {
+    return Array.apply(null, Array(count)).map(() => generateParameterRef());
 };
 
 export const generateValue = (): Value => {
