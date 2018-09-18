@@ -7,8 +7,14 @@ import {Store} from "@ngrx/store";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
-import {generatePipelineBlueprint} from "../fake-data/pipeline-fakes";
-import {EditPipelineAction, LoadEditBlueprintsAction} from "../../app/pipelines/pipelines.actions";
+import {
+    generateBlueprint, generateBlueprints, generateConfiguration, generateConfigurations,
+    generatePipelineBlueprint
+} from "../fake-data/pipeline-fakes";
+import {
+    EditPipelineAction, EditPipelineFailureAction, EditPipelineSuccessAction,
+    LoadEditBlueprintsAction, LoadEditPipelineConfigAction
+} from "../../app/pipelines/pipelines.actions";
 import {cold, hot} from "jasmine-marbles";
 
 export class TestActions extends Actions {
@@ -51,7 +57,8 @@ describe('PipelinesEffects', () => {
                 {
                     provide: PipelineService,
                     useValue: {
-                        getPipelineBlueprint: jest.fn()
+                        getPipelineBlueprint: jest.fn(),
+                        getBlueprint: jest.fn()
                     }
                 },
                 {
@@ -75,7 +82,7 @@ describe('PipelinesEffects', () => {
     });
 
     describe('getEditPipelineBlueprint', () => {
-        it('should return a LoadEditBlueprintsAction, with the blueprint, index 0 and empty blueprints array, on success', () => {
+        it('should return an LoadEditBlueprints action, with the blueprint, index 0 and empty blueprints array, on success', () => {
             const pipelineBlueprint = generatePipelineBlueprint();
             const action = new EditPipelineAction(pipelineBlueprint.ref.uuid);
             const outcome = new LoadEditBlueprintsAction(pipelineBlueprint, 0, []);
@@ -87,6 +94,121 @@ describe('PipelinesEffects', () => {
 
             expect(effects.getEditPipelineBlueprint$).toBeObservable(expected);
 
+        });
+
+        it('should return an EditPipelineFailure action with the pipeline id and an error, on failure', () => {
+            const pipelineBlueprint = generatePipelineBlueprint();
+            const action = new EditPipelineAction(pipelineBlueprint.ref.uuid);
+            const error = new Error();
+            const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
+
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-#|', {}, error);
+            const expected = cold('--b', {b: outcome});
+            pipelineService.getPipelineBlueprint = jest.fn(() => response);
+
+            expect(effects.getEditPipelineBlueprint$).toBeObservable(expected);
         })
-    })
+    });
+
+    describe('getBlueprints', () => {
+        describe('given index less than number of blueprints', () => {
+            it('should return an LoadEditBlueprints action containing the last blueprint and index +1', () => {
+                const pipelineBlueprint = generatePipelineBlueprint(10);
+                const blueprint = generateBlueprint();
+                const action = new LoadEditBlueprintsAction(pipelineBlueprint, 0, []);
+                const outcome = new LoadEditBlueprintsAction(pipelineBlueprint, 1, [blueprint]);
+
+                actions.stream = hot('-a', {a: action});
+                const response = cold('-a|', {a: blueprint});
+                const expected = cold('--b', {b: outcome});
+                pipelineService.getBlueprint = jest.fn(() => response);
+
+                expect(effects.getBlueprints$).toBeObservable(expected);
+            });
+        });
+        describe('given index equal the number of blueprints', () => {
+            it('should return an LoadEditPipelineConfig action with the pipelineBlueprint and all loaded blueprints', () => {
+                const pipelineBlueprint = generatePipelineBlueprint(10);
+                const blueprints = generateBlueprints(9);
+                const blueprint = generateBlueprint();
+                const action = new LoadEditBlueprintsAction(pipelineBlueprint, 9, blueprints);
+                const outcome = new LoadEditPipelineConfigAction(pipelineBlueprint, 0, [...blueprints, blueprint], []);
+
+                actions.stream = hot('-a', {a: action});
+                const response = cold('-a|', {a: blueprint});
+                const expected = cold('--b', {b: outcome});
+                pipelineService.getBlueprint = jest.fn(() => response);
+
+                expect(effects.getBlueprints$).toBeObservable(expected);
+
+            });
+        });
+        it('should return an EditPipelineFailure action, on failure',() =>{
+            const pipelineBlueprint = generatePipelineBlueprint();
+            const action = new LoadEditBlueprintsAction(pipelineBlueprint,0,[]);
+            const error = new Error();
+            const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
+
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-#|', {}, error);
+            const expected = cold('--b', {b: outcome});
+            pipelineService.getBlueprint = jest.fn(() => response);
+
+            expect(effects.getBlueprints$).toBeObservable(expected);
+        });
+    });
+    describe('getConfigurations',() =>{
+        describe('given index less than number of blueprints', () => {
+            it('should return an LoadEditPipelineConfig action containing the last configuration and index + 1', () => {
+                const pipelineBlueprint = generatePipelineBlueprint(10);
+                const blueprints = generateBlueprints(10);
+                const configuration = generateConfiguration();
+                const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 0,blueprints, []);
+                const outcome = new LoadEditPipelineConfigAction(pipelineBlueprint, 1, blueprints,[configuration]);
+
+                actions.stream = hot('-a', {a: action});
+                const response = cold('-a|', {a: configuration});
+                const expected = cold('--b', {b: outcome});
+                pipelineService.getConfiguration = jest.fn(() => response);
+
+                expect(effects.getConfigurations$).toBeObservable(expected);
+            });
+        });
+        describe('given index equal the number of blueprints', () => {
+            it('should return an EditPipelineSuccess action with the EditingPipelineModel', () => {
+                const pipelineBlueprint = generatePipelineBlueprint(10);
+                const blueprints = generateBlueprints(10);
+                const configurations = generateConfigurations(9);
+                const configuration = generateConfiguration();
+                const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 9, blueprints,configurations);
+                const outcome = new EditPipelineSuccessAction(pipelineBlueprint,blueprints,[...configurations,configuration]);
+
+                actions.stream = hot('-a', {a: action});
+                const response = cold('-a|', {a: configuration});
+                const expected = cold('--b', {b: outcome});
+                pipelineService.getConfiguration = jest.fn(() => response);
+
+                expect(effects.getConfigurations$).toBeObservable(expected);
+
+            });
+        });
+
+        it('should return an EditPipelineFailure action with pipelineid and error, on failure',() =>{
+            const pipelineBlueprint = generatePipelineBlueprint();
+            const blueprints = generateBlueprints(10);
+            const action = new LoadEditPipelineConfigAction(pipelineBlueprint,0,blueprints,[]);
+            const error = new Error();
+            const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
+
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-#|', {}, error);
+            const expected = cold('--b', {b: outcome});
+            pipelineService.getConfiguration = jest.fn(() => response);
+
+            expect(effects.getConfigurations$).toBeObservable(expected);
+        })
+    });
+
+
 });

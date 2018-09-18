@@ -73,7 +73,7 @@ export class PipelinesEffects {
             return this.pipelineService.getBlueprint(action.pipelineBlueprint.blueprints[action.index].uuid).pipe(
                 map((data: Blueprint) => {
                     action.blueprints.push(data);
-                    if (action.index < action.pipelineBlueprint.blueprints.length) {
+                    if (action.index < action.pipelineBlueprint.blueprints.length - 1) {
                         return new LoadEditBlueprintsAction(action.pipelineBlueprint, action.index + 1, action.blueprints);
                     }
                     else {
@@ -98,7 +98,7 @@ export class PipelinesEffects {
             return this.pipelineService.getConfiguration(action.blueprints[action.index].configuration.uuid).pipe(
                 map((data: Configuration) => {
                     action.configurations.push(data);
-                    if (action.index < action.blueprints.length) {
+                    if (action.index < action.blueprints.length - 1) {
                         return new LoadEditPipelineConfigAction(
                             action.pipelineBlueprint,
                             action.index + 1,
