@@ -1,7 +1,8 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.collectors
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import io.logbee.keyscore.commons.pipeline.PipelineInstanceResponse
+import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
+import io.logbee.keyscore.commons.pipeline.{PipelineInstanceResponse, RequestPipelineInstance}
+import io.logbee.keyscore.frontier.cluster.pipeline.collectors.PipelineInstanceCollector.Finish
 import io.logbee.keyscore.model.PipelineInstance
 
 import scala.collection.mutable
@@ -12,26 +13,30 @@ import scala.language.postfixOps
   * Returns a list of PipelineInstances.
   */
 object PipelineInstanceCollector {
-  def apply(receiver: ActorRef, children: Iterable[ActorRef]) = Props(new PipelineInstanceCollector(receiver, children))
+  def apply(receiver: ActorRef, agents: Seq[ActorRef], localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection)(implicit timeout: FiniteDuration) = Props(new PipelineInstanceCollector(receiver, agents, localPipelineManagerResolution, timeout))
+
+  private case object Finish
 }
 
-class PipelineInstanceCollector(receiver: ActorRef, children: Iterable[ActorRef]) extends Actor with ActorLogging {
+class PipelineInstanceCollector(receiver: ActorRef, agents: Seq[ActorRef], localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection, timeout: FiniteDuration) extends Actor with ActorLogging {
 
   import context.{dispatcher, system}
 
-  private var states = mutable.ListBuffer.empty[PipelineInstance]
+  private val states = mutable.ListBuffer.empty[PipelineInstance]
 
   override def preStart(): Unit = {
-    system.scheduler.scheduleOnce(5 seconds) {
-      receiver ! PipelineInstanceResponse(states.toList)
-      log.info("PipelineInstanceCollector returned states")
-      context.stop(self)
-    }
+    agents.foreach(agent => {
+      localPipelineManagerResolution(agent, context) ! RequestPipelineInstance
+    })
+    system.scheduler.scheduleOnce(timeout, self, Finish)
   }
 
   override def receive: Receive = {
     case state: PipelineInstance =>
-      log.info("PipelineInstanceCollector received PipelineInstance")
       states += state
+
+    case Finish =>
+      receiver ! PipelineInstanceResponse(states.toList)
+      context.stop(self)
   }
 }

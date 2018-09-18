@@ -89,8 +89,8 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
       scheduleStart(pipeline, pipelineStartTrials)
 
-    case RequestPipelineInstance(receiver) =>
-      receiver ! PipelineInstance(Red)
+    case RequestPipelineInstance =>
+      sender ! PipelineInstance(Red)
   }
 
   private def configuring(pipeline: Pipeline): Receive = {
@@ -161,9 +161,8 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
         }
       }
 
-    case RequestPipelineInstance(receiver) =>
-
-      receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Red)
+    case RequestPipelineInstance =>
+      sender ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Red)
 
     case RequestPipelineBlueprints(receiver) =>
       receiver ! pipeline.pipelineBlueprint
@@ -183,10 +182,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.error(message = s"Could not construct pipeline <${pipeline.id}> due to a failed materialization a controller!", cause = cause)
       context.stop(self)
 
-    case RequestPipelineInstance(receiver) =>
-
+    case RequestPipelineInstance =>
       log.info(s"got RequestPipelineInstance Message")
-      receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Yellow)
+      sender ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Yellow)
 
     case RequestPipelineBlueprints(receiver) =>
       receiver ! pipeline.pipelineBlueprint
@@ -197,10 +195,9 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ConfigurePipeline(configuration) =>
       log.info(s"Updating pipeline <${configuration.id}>")
 
-    case RequestPipelineInstance(receiver) =>
-
+    case RequestPipelineInstance =>
       log.info(s"got RequestPipelineInstance Message")
-      receiver ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.ref.uuid, controller.pipelineBlueprint.ref.uuid, Green)
+      sender ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.ref.uuid, controller.pipelineBlueprint.ref.uuid, Green)
 
     case RequestPipelineBlueprints(receiver) =>
       receiver ! controller.pipelineBlueprint

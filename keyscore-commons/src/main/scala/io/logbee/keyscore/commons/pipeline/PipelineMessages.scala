@@ -6,5 +6,5 @@ import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 
 case class PipelineBlueprintsResponse(pipelineBlueprints: List[PipelineBlueprint])
 case class PipelineInstanceResponse(pipelineInstances: List[PipelineInstance])
-case class RequestPipelineInstance(receiver: ActorRef)
+case object RequestPipelineInstance
 case class RequestPipelineBlueprints(receiver: ActorRef)

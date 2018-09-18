@@ -115,9 +115,8 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
       pipelineDeployer forward CreatePipelineRequest(blueprintRef)
 
     case DeletePipeline(id) =>
-      val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
-      future.onComplete {
-        case Success(agents) =>
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
           agents.foreach(agent => {
             context.actorSelection(agent.path / PipelineSchedulerPath) ! DeletePipelineOrder(id)
           })
@@ -125,10 +124,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
       }
 
     case DeleteAllPipelines =>
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
-        case Success(response) =>
-          response.availableAgents.foreach(agent => {
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          agents.foreach(agent => {
             context.actorSelection(agent.path / PipelineSchedulerPath) ! DeleteAllPipelinesOrder
           })
         case Failure(e) => log.warning(s"Failed to delete all pipelines: $e")
@@ -136,10 +134,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
     case message: PauseFilter =>
       val _sender = sender
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
-        case Success(response) =>
-          response.availableAgents.foreach(agent => {
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) tell (message, _sender)
           })
         case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
@@ -147,10 +144,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
     case message: DrainFilterValve =>
       val _sender = sender
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
-        case Success(response) =>
-          response.availableAgents.foreach(agent => {
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) tell (message, _sender)
           })
         case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
@@ -158,10 +154,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
     case message: InsertDatasets =>
       val _sender = sender
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
-        case Success(response) =>
-          response.availableAgents.foreach(agent => {
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) tell (message, _sender)
           })
         case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
@@ -169,10 +164,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
     case message: ExtractDatasets =>
       val _sender = sender
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
-        case Success(response) =>
-          response.availableAgents.foreach(agent => {
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) tell (message, _sender)
           })
         case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
@@ -180,10 +174,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
     case message: ConfigureFilter =>
       val _sender = sender
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
-        case Success(response) =>
-          response.availableAgents.foreach(agent => {
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) tell (message, _sender)
           })
         case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
@@ -191,10 +184,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
     case message: CheckFilterState =>
       val _sender = sender
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
-        case Success(response) =>
-          response.availableAgents.foreach(agent => {
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) tell (message, _sender)
           })
         case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
@@ -202,25 +194,19 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
     case message: ClearBuffer =>
       val _sender = sender
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
-        case Success(response) =>
-          response.availableAgents.foreach(agent => {
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+        case Success(GetAvailableAgentsResponse(agents)) =>
+          agents.foreach(agent => {
             localPipelineManagerResolution(agent, context) tell (message, _sender)
           })
         case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
       }
 
     case RequestExistingPipelines =>
-      val routeBuilderRef = sender
-      val future: Future[GetAvailableAgentsResponse] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[GetAvailableAgentsResponse]
-      future.onComplete {
+      val _sender = sender
+      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
         case Success(GetAvailableAgentsResponse(agents)) =>
-          log.info(s"Success: $agents")
-          val collector = context.system.actorOf(PipelineInstanceCollector(routeBuilderRef, agents))
-          agents.foreach(agent => {
-            localPipelineManagerResolution(agent, context) ! RequestPipelineInstance(collector)
-          })
+          context.system.actorOf(PipelineInstanceCollector(_sender, agents, localPipelineManagerResolution)(5 seconds))
         case Failure(e) => log.warning(s"Failed to get existing pipelines: $e")
       }
 
@@ -248,6 +234,4 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
       context.become(initializing(state))
     }
   }
-
-
 }

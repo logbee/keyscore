@@ -103,7 +103,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
       var retries = maxRetries
       while (retries > 0) {
 
-        supervisor tell(RequestPipelineInstance(agent.ref), agent.ref)
+        supervisor tell(RequestPipelineInstance, agent.ref)
         val pipelineInstance = agent.receiveOne(2 seconds).asInstanceOf[PipelineInstance]
         if (pipelineInstance.health.equals(Green)) {
           return true
@@ -119,7 +119,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
 
       supervisor ! CreatePipeline(pipelineBlueprint)
 
-      supervisor tell(RequestPipelineInstance(agent.ref), agent.ref)
+      supervisor tell(RequestPipelineInstance, agent.ref)
       agent.expectMsg(PipelineInstance(pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, Red))
 
       pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000) shouldBe true

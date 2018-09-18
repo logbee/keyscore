@@ -86,10 +86,10 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
     case DeleteAllPipelinesOrder =>
       children.foreach(child => context.stop(child))
 
-    case message: RequestPipelineInstance =>
+    case RequestPipelineInstance =>
       log.debug(s"Sender of ReqInstance is: ${sender()}")
       children.foreach( supervisor => {
-        supervisor forward message
+        supervisor forward RequestPipelineInstance
       })
 
     case message: RequestPipelineBlueprints =>
