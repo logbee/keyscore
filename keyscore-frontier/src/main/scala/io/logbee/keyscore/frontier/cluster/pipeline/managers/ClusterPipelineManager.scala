@@ -123,84 +123,21 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
         case Failure(e) => log.warning(s"Failed to delete Pipeline with id ($id): $e")
       }
 
-    case DeleteAllPipelines =>
-      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
-        case Success(GetAvailableAgentsResponse(agents)) =>
-          agents.foreach(agent => {
-            context.actorSelection(agent.path / PipelineSchedulerPath) ! DeleteAllPipelinesOrder
-          })
-        case Failure(e) => log.warning(s"Failed to delete all pipelines: $e")
-      }
+    case DeleteAllPipelines => forwardToLocalPipelineManagerOfAvailableAgents(sender, DeleteAllPipelines)
 
-    case message: PauseFilter =>
-      val _sender = sender
-      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
-        case Success(GetAvailableAgentsResponse(agents)) =>
-          agents.foreach(agent => {
-            localPipelineManagerResolution(agent, context) tell (message, _sender)
-          })
-        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
-      }
+    case message: PauseFilter => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
-    case message: DrainFilterValve =>
-      val _sender = sender
-      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
-        case Success(GetAvailableAgentsResponse(agents)) =>
-          agents.foreach(agent => {
-            localPipelineManagerResolution(agent, context) tell (message, _sender)
-          })
-        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
-      }
+    case message: DrainFilterValve => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
-    case message: InsertDatasets =>
-      val _sender = sender
-      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
-        case Success(GetAvailableAgentsResponse(agents)) =>
-          agents.foreach(agent => {
-            localPipelineManagerResolution(agent, context) tell (message, _sender)
-          })
-        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
-      }
+    case message: InsertDatasets => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
-    case message: ExtractDatasets =>
-      val _sender = sender
-      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
-        case Success(GetAvailableAgentsResponse(agents)) =>
-          agents.foreach(agent => {
-            localPipelineManagerResolution(agent, context) tell (message, _sender)
-          })
-        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
-      }
+    case message: ExtractDatasets => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
-    case message: ConfigureFilter =>
-      val _sender = sender
-      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
-        case Success(GetAvailableAgentsResponse(agents)) =>
-          agents.foreach(agent => {
-            localPipelineManagerResolution(agent, context) tell (message, _sender)
-          })
-        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
-      }
+    case message: ConfigureFilter => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
-    case message: CheckFilterState =>
-      val _sender = sender
-      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
-        case Success(GetAvailableAgentsResponse(agents)) =>
-          agents.foreach(agent => {
-            localPipelineManagerResolution(agent, context) tell (message, _sender)
-          })
-        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
-      }
+    case message: CheckFilterState => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
-    case message: ClearBuffer =>
-      val _sender = sender
-      (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
-        case Success(GetAvailableAgentsResponse(agents)) =>
-          agents.foreach(agent => {
-            localPipelineManagerResolution(agent, context) tell (message, _sender)
-          })
-        case Failure(e) => log.warning(s"Failed to forward message [$message]: $e")
-      }
+    case message: ClearBuffer => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
     case RequestExistingPipelines =>
       val _sender = sender
@@ -223,6 +160,16 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
           })
         case Failure(e) => log.warning(s"Failed to get existing blueprints: $e")
       }
+  }
+
+  private def forwardToLocalPipelineManagerOfAvailableAgents(sender: ActorRef, message: Any): Unit = {
+    (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
+      case Success(GetAvailableAgentsResponse(agents)) =>
+        agents.foreach(agent => {
+          localPipelineManagerResolution(agent, context) tell(message, sender)
+        })
+      case Failure(e) => log.error(e, s"Failed to forward message [${message.getClass.getSimpleName}]")
+    }
   }
 
   private def maybeRunning(state: CreateClusterPipelineManagerState): Unit = {
