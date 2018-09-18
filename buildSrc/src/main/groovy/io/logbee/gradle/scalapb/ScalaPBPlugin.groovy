@@ -31,6 +31,7 @@ class ScalaPBPlugin implements Plugin<Project> {
             File outputBaseDir = project.file("${project.buildDir}/generated/source/scalapb/${sourceSet.name}/scala")
             Task scalapb = project.tasks.create(scalapbTaskName(sourceSet), ScalaPBGenerateTask) {
                 it.description = "Compiles protobuf '${sourceSet.name}' sources and generates scala code.'"
+                it.group = "generate"
                 it.protoFiles = sourceSet.proto
                 it.outputBaseDir = outputBaseDir
             }
