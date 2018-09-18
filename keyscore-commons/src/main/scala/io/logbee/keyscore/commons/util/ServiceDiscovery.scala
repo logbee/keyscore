@@ -41,10 +41,6 @@ class ServiceDiscovery(services: Seq[Service], strict: Boolean = true, promise: 
     log.debug(s"Started service discovery (strict=$strict) for: ${services.mkString(", ")}")
   }
 
-  override def postStop(): Unit = {
-    log.debug(s"Stopped service discovery (strict=$strict) for: ${services.mkString(", ")}")
-  }
-
   override def receive: Receive = {
     case _ =>
   }
@@ -58,6 +54,7 @@ class ServiceDiscovery(services: Seq[Service], strict: Boolean = true, promise: 
         become(discovering(newMapping), discardOld = true)
       }
       else {
+        log.debug(s"Successfully finished service discovery (strict=$strict) for: ${services.mkString(", ")}")
         promise.success(newMapping)
         context.stop(self)
       }
@@ -68,6 +65,7 @@ class ServiceDiscovery(services: Seq[Service], strict: Boolean = true, promise: 
       context.stop(self)
 
     case Timeout =>
+      log.debug(s"Stopped service discovery (strict=$strict) for: ${services.mkString(", ")}")
       promise.success(mapping)
       context.stop(self)
   }
