@@ -1,17 +1,21 @@
 import "jquery";
 import {v4 as uuid} from "uuid";
-import {ParameterDescriptorPackagePrefix, ResolvedParameterDescriptor} from "./models/parameters/ParameterDescriptor";
-import {Parameter} from "./models/parameters/Parameter";
+import {
+    ParameterDescriptorJsonClass, ParameterDescriptorPackagePrefix,
+    ResolvedParameterDescriptor
+} from "./models/parameters/ParameterDescriptor";
+import {Parameter, ParameterJsonClass} from "./models/parameters/Parameter";
 
 export function deepcopy(source: any, target?: any): any {
     return jQuery.extend(true, target == null ? {} : target, source);
 }
 
 export function parameterDescriptorToParameter(parameterDescriptor: ResolvedParameterDescriptor): Parameter {
-    let type = parameterDescriptor.jsonClass;
+    let type = ParameterDescriptorJsonClass[parameterDescriptor.jsonClass];
     type = type.replace(ParameterDescriptorPackagePrefix,ParameterDescriptorPackagePrefix);
     type = type.substr(0,type.length - "Descriptor".length);
-    return {ref:{uuid:uuid()}, value: null, jsonClass: type};
+
+    return {ref:{uuid:uuid()}, value: null, jsonClass: ParameterJsonClass[type]};
 }
 
 export function zip(arrays) {

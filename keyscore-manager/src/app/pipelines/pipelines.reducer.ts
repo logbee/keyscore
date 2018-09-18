@@ -5,9 +5,9 @@ import {
     DELETE_PIPELINE_SUCCESS,
     EDIT_PIPELINE_FAILURE,
     EDIT_PIPELINE_SUCCESS,
-    LOAD_ALL_PIPELINES_SUCCESS,
+    LOAD_ALL_PIPELINES_SUCCESS, LOAD_FILTER_DESCRIPTORS_SUCCESS,
     PipelineActions,
-    RESET_PIPELINE,
+    RESET_PIPELINE, RESOLVE_FILTER_DESCRIPTORS_SUCCESS,
     UPDATE_PIPELINE_FAILURE,
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
@@ -18,21 +18,22 @@ import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
+import {ResolvedCategory} from "../models/descriptors/Category";
 
 export class PipelinesState {
     public pipelineList: PipelineInstance[];
     public editingPipeline: EditingPipelineModel;
     public descriptors: Descriptor[];
     public filterDescriptors: ResolvedFilterDescriptor[];
-    public filterCategories: string[];
+    public filterCategories: ResolvedCategory[];
     public pipelineInstancePolling: boolean;
     public wasLastUpdateSuccessful: boolean[];
 }
+
 const initialState: PipelinesState = {
-    pipelineList: [
-    ],
+    pipelineList: [],
     editingPipeline: null,
-    descriptors:[],
+    descriptors: [],
     filterDescriptors: [],
     filterCategories: [],
     pipelineInstancePolling: false,
@@ -44,6 +45,15 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
     const result: PipelinesState = Object.assign({}, state);
 
     switch (action.type) {
+        case RESOLVE_FILTER_DESCRIPTORS_SUCCESS:
+            result.filterDescriptors = action.resolvedDescriptors;
+            result.filterCategories = result.filterDescriptors.map((descriptor) =>
+                descriptor.categories).reduce((acc, val) => acc.concat(val), [])
+                .filter((category, i, array) => array.indexOf(category) === i);
+            break;
+        case LOAD_FILTER_DESCRIPTORS_SUCCESS:
+            result.descriptors = action.descriptors;
+            break;
         case CREATE_PIPELINE:
 
             break;
@@ -100,12 +110,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case UPDATE_PIPELINE_POLLING:
             result.pipelineInstancePolling = action.isPolling;
             break;
-        //commented due to api change
-        /*case LOAD_FILTER_DESCRIPTORS_SUCCESS:
-            result.filterDescriptors = action.descriptors;
-            result.filterCategories = result.filterDescriptors.map((descriptor) =>
-                descriptor.category).filter((category, i, array) => array.indexOf(category) === i);
-            break;*/
+
     }
 
     return result;

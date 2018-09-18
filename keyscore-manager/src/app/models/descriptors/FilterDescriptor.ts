@@ -8,6 +8,7 @@ import {Ref} from "../common/Ref";
 
 export interface FilterDescriptor{
     name:string;
+    jsonClass:FilterDescriptorJsonClass;
     displayName:TextRef;
     description:TextRef;
     categories:Category[];
@@ -17,9 +18,16 @@ export interface FilterDescriptor{
     icon?:Icon;
 }
 
+export enum FilterDescriptorJsonClass{
+    FilterDescriptor = "io.logbee.keyscore.model.descriptor.FilterDescriptor",
+    SinkDescriptor ="io.logbee.keyscore.model.descriptor.SinkDescriptor",
+    SourceDescriptor ="io.logbee.keyscore.model.descriptor.SourceDescriptor"
+}
+
 export interface ResolvedFilterDescriptor{
     descriptorRef:Ref;
     name:string;
+    jsonClass:FilterDescriptorJsonClass;
     displayName:string;
     description:string;
     categories:ResolvedCategory[];

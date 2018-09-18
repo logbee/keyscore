@@ -31,14 +31,17 @@ import {
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction, LoadEditPipelineConfigAction, LOAD_EDIT_PIPELINE_CONFIG,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS, ResolveFilterDescriptorSuccessAction,
 } from "./pipelines.actions";
 import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {getPipelinePolling} from "./pipelines.reducer";
-import {FilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {PipelineService} from "../services/rest-api/pipeline.service";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
+import {Descriptor} from "../models/descriptors/Descriptor";
+import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 
 @Injectable()
 export class PipelinesEffects {
@@ -73,7 +76,7 @@ export class PipelinesEffects {
             return this.pipelineService.getBlueprint(action.pipelineBlueprint.blueprints[action.index].uuid).pipe(
                 map((data: Blueprint) => {
                     action.blueprints.push(data);
-                    if (action.index < action.pipelineBlueprint.blueprints.length) {
+                    if (action.index < action.pipelineBlueprint.blueprints.length - 1) {
                         return new LoadEditBlueprintsAction(action.pipelineBlueprint, action.index + 1, action.blueprints);
                     }
                     else {
@@ -98,7 +101,7 @@ export class PipelinesEffects {
             return this.pipelineService.getConfiguration(action.blueprints[action.index].configuration.uuid).pipe(
                 map((data: Configuration) => {
                     action.configurations.push(data);
-                    if (action.index < action.blueprints.length) {
+                    if (action.index < action.blueprints.length - 1) {
                         return new LoadEditPipelineConfigAction(
                             action.pipelineBlueprint,
                             action.index + 1,
@@ -113,6 +116,26 @@ export class PipelinesEffects {
                 catchError((cause: any) =>
                     of(new EditPipelineFailureAction(action.pipelineBlueprint.ref.uuid, cause)))
             )
+        })
+    );
+
+    @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_FILTER_DESCRIPTORS),
+        switchMap((action) =>
+           this.pipelineService.getAllDescriptors().pipe(
+                map((data: Descriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
+                catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
+            )
+        )
+    );
+
+    @Effect() public resolveFilterDescriptors$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_FILTER_DESCRIPTORS_SUCCESS),
+        map(action => (action as LoadFilterDescriptorsSuccessAction).descriptors),
+        map(descriptors => {
+            let resolvedDescriptors:ResolvedFilterDescriptor[] = descriptors.map(descriptor =>
+                this.descriptorResolver.resolveDescriptor(descriptor));
+            return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);
         })
     );
 
@@ -146,18 +169,6 @@ export class PipelinesEffects {
         })
     );
 
-    @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
-        ofType(LOAD_FILTER_DESCRIPTORS),
-        combineLatest(this.store.select(selectAppConfig)),
-        switchMap(([action, config]) =>
-            this.http.get(config.getString(
-                "keyscore.frontier.base-url") + "/descriptors?language=" + this.translate.currentLang).pipe(
-                map((data: FilterDescriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
-                catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
-            )
-        )
-    );
-
     @Effect() public loadPipelineInstances$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_ALL_PIPELINES),
         withLatestFrom(this.store.select(selectAppConfig)),
@@ -182,6 +193,7 @@ export class PipelinesEffects {
                 private actions$: Actions,
                 private http: HttpClient,
                 private pipelineService: PipelineService,
+                private descriptorResolver:DescriptorResolverService,
                 private translate: TranslateService) {
     }
 

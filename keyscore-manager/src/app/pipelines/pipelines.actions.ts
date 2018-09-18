@@ -2,9 +2,10 @@ import {Action} from "@ngrx/store";
 import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
 import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {FilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
+import {Descriptor} from "../models/descriptors/Descriptor";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 
@@ -35,6 +36,8 @@ export const UPDATE_PIPELINE_POLLING = "[Pipeline] UpdatePipelinePolling";
 export const LOAD_FILTER_DESCRIPTORS_SUCCESS = "[Pipeline] LoadFilterDescriptorsSuccess";
 export const LOAD_FILTER_DESCRIPTORS_FAILURE = "[Pipeline] LoadFilterDescriptorsFailed";
 export const LOAD_FILTER_DESCRIPTORS = "[Pipeline] LoadFilterDescriptors";
+export const RESOLVE_FILTER_DESCRIPTORS_SUCCESS = "[Pipeline] ResolveFilterDescriptorsSuccess";
+
 
 export type PipelineActions =
     | CreatePipelineAction
@@ -54,6 +57,7 @@ export type PipelineActions =
     | UpdatePipelinePollingAction
     | LoadFilterDescriptorsSuccessAction
     | LoadFilterDescriptorsFailureAction
+    | ResolveFilterDescriptorSuccessAction
     | LoadFilterDescriptorsAction
     | DeletePipelineSuccessAction
     | DeletePipelineFailureAction;
@@ -78,9 +82,8 @@ export class EditPipelineSuccessAction implements Action {
     public readonly type = EDIT_PIPELINE_SUCCESS;
 
     constructor(readonly pipelineBlueprint: PipelineBlueprint,
-                readonly blueprints:Blueprint[],
-                readonly configurations:Configuration[]
-    ){
+                readonly blueprints: Blueprint[],
+                readonly configurations: Configuration[]) {
 
     }
 }
@@ -97,20 +100,19 @@ export class LoadEditBlueprintsAction implements Action {
     public readonly type = LOAD_EDIT_PIPELINE_BLUEPRINTS;
 
     constructor(readonly pipelineBlueprint: PipelineBlueprint,
-                readonly index:number,
-                readonly blueprints:Blueprint[]) {
+                readonly index: number,
+                readonly blueprints: Blueprint[]) {
 
     }
 }
 
-export class LoadEditPipelineConfigAction implements Action{
+export class LoadEditPipelineConfigAction implements Action {
     public readonly type = LOAD_EDIT_PIPELINE_CONFIG;
 
     constructor(readonly pipelineBlueprint: PipelineBlueprint,
-                readonly index:number,
-                readonly blueprints:Blueprint[],
-                readonly configurations:Configuration[]
-                ){
+                readonly index: number,
+                readonly blueprints: Blueprint[],
+                readonly configurations: Configuration[]) {
 
     }
 }
@@ -207,7 +209,7 @@ export class LoadFilterDescriptorsAction implements Action {
 export class LoadFilterDescriptorsSuccessAction implements Action {
     public readonly type = LOAD_FILTER_DESCRIPTORS_SUCCESS;
 
-    constructor(readonly descriptors: FilterDescriptor[]) {
+    constructor(readonly descriptors: Descriptor[]) {
     }
 }
 
@@ -215,5 +217,13 @@ export class LoadFilterDescriptorsFailureAction implements Action {
     public readonly type = LOAD_FILTER_DESCRIPTORS_FAILURE;
 
     constructor(readonly cause: any) {
+    }
+}
+
+export class ResolveFilterDescriptorSuccessAction implements Action {
+    public readonly type = RESOLVE_FILTER_DESCRIPTORS_SUCCESS;
+
+    constructor(readonly resolvedDescriptors: ResolvedFilterDescriptor[]) {
+
     }
 }
