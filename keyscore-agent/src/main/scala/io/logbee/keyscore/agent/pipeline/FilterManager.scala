@@ -26,25 +26,27 @@ object FilterManager {
 
   case class DescriptorsResponse(descriptors: List[Descriptor])
 
+  trait StageCreated
+
   case class CreateSourceStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class SourceStageCreated(stage: SourceStage)
+  case class SourceStageCreated(stage: SourceStage) extends StageCreated
 
   case class CreateSinkStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class SinkStageCreated(stage: SinkStage)
+  case class SinkStageCreated(stage: SinkStage) extends StageCreated
 
   case class CreateFilterStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class FilterStageCreated(stage: FilterStage)
+  case class FilterStageCreated(stage: FilterStage) extends StageCreated
 
   case class CreateBranchStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class BranchStageCreated(stage: BranchStage)
+  case class BranchStageCreated(stage: BranchStage) extends StageCreated
 
   case class CreateMergeStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class MergeStageCreated(stage: MergeStage)
+  case class MergeStageCreated(stage: MergeStage) extends StageCreated
 
 }
 

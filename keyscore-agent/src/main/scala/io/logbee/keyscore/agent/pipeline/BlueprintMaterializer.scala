@@ -9,6 +9,7 @@ import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBluepr
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetConfigurationFailure, GetConfigurationRequest, GetConfigurationSuccess}
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.{GetDescriptorRequest, GetDescriptorResponse}
 import io.logbee.keyscore.commons.util.ServiceDiscovery.discover
+import io.logbee.keyscore.model.blueprint.BlueprintWrapper.wrap
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.descriptor.Descriptor
@@ -55,13 +56,13 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
   }
 
   override def postStop(): Unit = {
-    log.info(s"Stopped for blueprint <${blueprintRef.uuid}>.")
+    log.info(s"Stopped <${blueprintRef.uuid}>")
   }
 
   override def receive: Receive = {
 
     case Initialize(blueprintManager, descriptorManager, configurationManager) =>
-      log.debug("Initializing.")
+      log.debug(s"Initializing <${blueprintRef.uuid}>")
       become(initializing(blueprintManager, descriptorManager, configurationManager), discardOld = true)
       self ! ResolveBlueprint
   }
@@ -73,133 +74,64 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
       blueprintManager ! GetBlueprintRequest(blueprintRef)
 
     case GetBlueprintResponse(Some(blueprint)) =>
-      blueprint match {
-        case filterBlueprint: FilterBlueprint =>
-          descriptorManager ! GetDescriptorRequest(filterBlueprint.descriptor)
-          configurationManager ! GetConfigurationRequest(filterBlueprint.configuration)
-          become(preparing(filterBlueprint, Preparation()))
-        case sourceBlueprint: SourceBlueprint =>
-          descriptorManager ! GetDescriptorRequest(sourceBlueprint.descriptor)
-          configurationManager ! GetConfigurationRequest(sourceBlueprint.configuration)
-          become(preparing(sourceBlueprint, Preparation()))
-        case sinkBlueprint: SinkBlueprint =>
-          descriptorManager ! GetDescriptorRequest(sinkBlueprint.descriptor)
-          configurationManager ! GetConfigurationRequest(sinkBlueprint.configuration)
-          become(preparing(sinkBlueprint, Preparation()))
-      }
+      val wrapper = wrap(blueprint)
+      descriptorManager ! GetDescriptorRequest(wrapper.descriptorRef)
+      configurationManager ! GetConfigurationRequest(wrapper.configurationRef)
+      become(preparing(wrapper, Preparation()))
   }
 
-  private def preparing(blueprint: FilterBlueprint, preparation: Preparation): Receive = {
+  private def preparing(wrapper: BlueprintWrapper[_], preparation: Preparation): Receive = {
     case GetConfigurationSuccess(configuration) =>
-      log.debug(s"Got configuration of blueprint <${blueprint.ref}>: $configuration")
-      maybeBecomeMaterializing(blueprint, preparation.copy(configuration = Option(configuration)))
+      log.debug(s"Resolved configuration of blueprint <${wrapper.blueprintRef.uuid}>: $configuration")
+      maybeBecomeMaterializing(wrapper, preparation.copy(configuration = Option(configuration)))
 
     case GetConfigurationFailure(_) =>
-      log.error(s"Did not get configuration <${blueprint.configuration.uuid}> of blueprint <${blueprint.ref.uuid}>")
+      log.error(s"Could not resolve configuration <${wrapper.configurationRef.uuid}> of blueprint <${wrapper.blueprintRef.uuid}>")
       context.stop(self)
 
     case GetDescriptorResponse(descriptor) =>
       if (descriptor.isDefined) {
-        log.debug(s"Got descriptor of blueprint <${blueprint.ref}>: ${descriptor.get}")
-        maybeBecomeMaterializing(blueprint, preparation.copy(descriptor = descriptor))
+        log.debug(s"Resolved descriptor of blueprint <${wrapper.blueprintRef.uuid}>: ${descriptor.get}")
+        maybeBecomeMaterializing(wrapper, preparation.copy(descriptor = descriptor))
       } else {
-        log.error(s"Did not get descriptor <${blueprint.descriptor.uuid}> of blueprint <${blueprint.ref.uuid}>")
+        log.error(s"Could not resolve descriptor <${wrapper.descriptorRef.uuid}> of blueprint <${wrapper.blueprintRef.uuid}>")
         context.stop(self)
       }
   }
 
-  private def preparing(blueprint: SinkBlueprint, preparation: Preparation): Receive = {
-    case GetConfigurationSuccess(configuration) =>
-      log.debug(s"Got configuration of blueprint <${blueprint.ref}>: $configuration")
-      maybeBecomeMaterializing(blueprint, preparation.copy(configuration = Option(configuration)))
+  private def materializing(wrapper: BlueprintWrapper[_], materialization: Materialization): Receive = {
+    case InstantiateStage =>
+      wrapper.blueprint match {
+        case blueprint: FilterBlueprint =>
+          log.debug(s"Initiated instantiation of FilterStage from blueprint <${wrapper.blueprintRef.uuid}>")
+          filterManager ! CreateFilterStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+        case blueprint: SourceBlueprint =>
+          log.debug(s"Initiated instantiation of SourceStage from blueprint <${wrapper.blueprintRef.uuid}>")
+          filterManager ! CreateSourceStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+        case blueprint: SinkBlueprint =>
+          log.debug(s"Initiated instantiation of SinkStage from blueprint <${wrapper.blueprintRef.uuid}>")
+          filterManager ! CreateSinkStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+        case blueprint: BranchBlueprint =>
+          log.debug(s"Initiated instantiation of BranchStage from blueprint <${wrapper.blueprintRef.uuid}>")
+          filterManager ! CreateBranchStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+        case blueprint: MergeBlueprint =>
+          log.debug(s"Initiated instantiation of MergeStage from blueprint <${wrapper.blueprintRef.uuid}>")
+          filterManager ! CreateMergeStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+      }
 
-    case GetConfigurationFailure(_) =>
-      log.error(s"Did not get configuration <${blueprint.configuration.uuid}> of blueprint <${blueprint.ref.uuid}>")
+    case message: StageCreated =>
+      log.debug(s"Finishing materialization of blueprint <${blueprintRef.uuid}>")
+      parent ! message
       context.stop(self)
-
-    case GetDescriptorResponse(descriptor) =>
-      if (descriptor.isDefined) {
-        log.debug(s"Got descriptor of blueprint <${blueprint.ref}>: ${descriptor.get}")
-        maybeBecomeMaterializing(blueprint, preparation.copy(descriptor = descriptor))
-      } else {
-        log.error(s"Did not get descriptor <${blueprint.descriptor.uuid}> of blueprint <${blueprint.ref.uuid}>")
-        context.stop(self)
-      }
   }
 
-  private def preparing(blueprint: SourceBlueprint, preparation: Preparation): Receive = {
-    case GetConfigurationSuccess(configuration) =>
-      log.debug(s"Got configuration of blueprint <${blueprint.ref}>: $configuration")
-      maybeBecomeMaterializing(blueprint, preparation.copy(configuration = Option(configuration)))
-
-    case GetConfigurationFailure(_) =>
-      log.error(s"Did not get configuration <${blueprint.configuration.uuid}> of blueprint <${blueprint.ref.uuid}>")
-      context.stop(self)
-
-    case GetDescriptorResponse(descriptor) =>
-      if (descriptor.isDefined) {
-        log.debug(s"Got descriptor of blueprint <${blueprint.ref}>: ${descriptor.get}")
-        maybeBecomeMaterializing(blueprint, preparation.copy(descriptor = descriptor))
-      } else {
-        log.error(s"Did not get descriptor <${blueprint.descriptor.uuid}> of blueprint <${blueprint.ref.uuid}>")
-        context.stop(self)
-      }
-  }
-
-  private def materializing(blueprint: FilterBlueprint, materialization: Materialization): Receive = {
-    case InstantiateStage =>
-        log.info(s"Creating FilterStage: ${blueprint.ref.uuid}")
-        filterManager ! CreateFilterStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
-
-    case filterStageMessage: FilterStageCreated =>
-      parent ! filterStageMessage
-  }
-
-  private def materializing(blueprint: SinkBlueprint, materialization: Materialization): Receive = {
-    case InstantiateStage =>
-        log.info(s"Creating SinkStage: ${blueprint.ref.uuid}")
-        filterManager ! CreateSinkStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
-
-    case sinkStageMessage: SinkStageCreated =>
-      parent ! sinkStageMessage
-  }
-
-  private def materializing(blueprint: SourceBlueprint, materialization: Materialization): Receive = {
-    case InstantiateStage =>
-        log.info(s"Creating SourceStage: ${blueprint.ref.uuid}")
-        filterManager ! CreateSourceStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
-
-    case sourceStageMessage: SourceStageCreated =>
-      parent ! sourceStageMessage
-  }
-
-  private def maybeBecomeMaterializing(blueprint: FilterBlueprint, preparation: Preparation): Unit = {
+  private def maybeBecomeMaterializing(wrapper: BlueprintWrapper[_], preparation: Preparation): Unit = {
     if (preparation.isComplete) {
-      become(materializing(blueprint, Materialization(preparation.descriptor.get, preparation.configuration.get)), discardOld = true)
+      become(materializing(wrapper, Materialization(preparation.descriptor.get, preparation.configuration.get)), discardOld = true)
       self ! InstantiateStage
     }
     else {
-      become(preparing(blueprint, preparation), discardOld = true)
-    }
-  }
-
-  private def maybeBecomeMaterializing(blueprint: SinkBlueprint, preparation: Preparation): Unit = {
-    if (preparation.isComplete) {
-      become(materializing(blueprint, Materialization(preparation.descriptor.get, preparation.configuration.get)), discardOld = true)
-      self ! InstantiateStage
-    }
-    else {
-      become(preparing(blueprint, preparation), discardOld = true)
-    }
-  }
-
-  private def maybeBecomeMaterializing(blueprint: SourceBlueprint, preparation: Preparation): Unit = {
-    if (preparation.isComplete) {
-      become(materializing(blueprint, Materialization(preparation.descriptor.get, preparation.configuration.get)), discardOld = true)
-      self ! InstantiateStage
-    }
-    else {
-      become(preparing(blueprint, preparation), discardOld = true)
+      become(preparing(wrapper, preparation), discardOld = true)
     }
   }
 
