@@ -24,6 +24,7 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
   }
 
   override def pause(doPause: Boolean): Future[FilterState] = {
+    println(s"reached pause method of FilterController")
     for {
     inValveState <- inValve.state()
     outValveState <- outValve.state()

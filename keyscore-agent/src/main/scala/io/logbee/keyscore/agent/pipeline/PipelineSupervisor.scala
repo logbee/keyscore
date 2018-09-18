@@ -162,6 +162,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       }
 
     case RequestPipelineInstance(receiver) =>
+
       receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Red)
 
     case RequestPipelineBlueprints(receiver) =>
@@ -183,6 +184,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       context.stop(self)
 
     case RequestPipelineInstance(receiver) =>
+
       log.info(s"got RequestPipelineInstance Message")
       receiver ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Yellow)
 
@@ -196,6 +198,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.info(s"Updating pipeline <${configuration.id}>")
 
     case RequestPipelineInstance(receiver) =>
+
       log.info(s"got RequestPipelineInstance Message")
       receiver ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.ref.uuid, controller.pipelineBlueprint.ref.uuid, Green)
 
@@ -203,16 +206,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       receiver ! controller.pipelineBlueprint
 
     case PauseFilter(filterId, doPause) =>
-      log.info(s"supervisor received PauseFilter; controller is $controller")
-      val lastSender = sender
-      val x = controller.close(filterId, doPause)
-      x.foreach(_.onComplete {
+      val _sender = sender
+      log.debug(s"sender is ${_sender}")
+      controller.close(filterId, doPause).foreach(_.onComplete {
         case Success(state) =>
-          log.info(s"sending PauseFilterResponse")
-          lastSender ! PauseFilterResponse(state)
+          log.debug(s"Sending PauseFilterResponse to ${_sender}")
+          _sender ! PauseFilterResponse(state)
         case Failure(e) =>
-          log.error(e, s"failed to send close")
-          lastSender ! Failure
+          _sender ! Failure
       })
 
     case DrainFilterValve(filterId, doDrain) =>

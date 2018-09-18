@@ -25,7 +25,7 @@ import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.app.AppInfo
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.{QueryAgents, QueryAgentsResponse}
-import io.logbee.keyscore.frontier.cluster.pipeline.managers.{AgentCapabilitiesManager, ClusterPipelineManager}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, RouteBuilderInitialized, RouteResponse}
@@ -89,6 +89,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(BlueprintService))
     context.become(initializing(RouteBuilderState()))
+    log.info(s"RouteBuilderRef $self")
   }
 
   override def receive: Receive = {
@@ -124,6 +125,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
       log.debug("Routes built.")
       val r = buildFullRoute
       sender ! RouteResponse(r)
+    case PauseFilterResponse(state) => log.info("Wrong Behaviour reached ###")
   }
 
   private def buildFullRoute: Route = {
@@ -223,8 +225,16 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with Json4sSupp
           post {
             parameter('value.as[Boolean]) { doPause =>
               onSuccess(clusterPipelineManager ? PauseFilter(filterId, doPause)) {
-                case PauseFilterResponse(state) => complete(StatusCodes.Accepted, state)
-                case Failure => complete(StatusCodes.InternalServerError)
+                case PauseFilterResponse(state) =>
+                  log.info(s"PauseFilterResponse: $state")
+                  complete(StatusCodes.Accepted, state)
+                case Failure =>
+                  log.info(s"PauseFilterResponse Failure")
+                  complete(StatusCodes.InternalServerError)
+                case _ =>
+                  log.info(s"Something strange happened")
+                  complete(StatusCodes.InternalServerError)
+
               }
             }
           }

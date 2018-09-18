@@ -28,6 +28,8 @@ dependencies {
     testRuntime dependency.logback
 
     testCompile project(path: ':keyscore-agent', configuration: 'testOutput')
+    testCompile project(':keyscore-test-fixtures')
+
 }
 
 task removeContainerNetwork(type: DockerRemoveNetwork) {

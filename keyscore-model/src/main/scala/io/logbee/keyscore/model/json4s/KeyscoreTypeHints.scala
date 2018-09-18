@@ -1,8 +1,10 @@
 package io.logbee.keyscore.model.json4s
 
+import io.logbee.keyscore.model.Health
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.{Configuration, Parameter}
 import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.pipeline.FilterStatus
 import org.json4s.{FullTypeHints, TypeHints}
 
 object KeyscoreTypeHints {
@@ -18,7 +20,9 @@ object KeyscoreTypeHints {
     classOf[SourceBlueprint],
     classOf[Parameter],
     classOf[ParameterDescriptor],
-    classOf[ParameterGroupCondition]
+    classOf[ParameterGroupCondition],
+    classOf[FilterStatus],
+    classOf[Health]
   ))
 
 

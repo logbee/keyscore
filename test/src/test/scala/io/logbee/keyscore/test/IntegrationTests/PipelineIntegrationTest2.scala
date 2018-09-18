@@ -14,6 +14,8 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline.{FilterState, FilterStatus, Paused, Ready}
 import io.logbee.keyscore.model.{Green, Health, PipelineInstance}
+import io.logbee.keyscore.test.fixtures.ExampleData
+import io.logbee.keyscore.test.fixtures.ExampleData._
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -38,7 +40,7 @@ class PipelineIntegrationTest2 extends Matchers {
     .requestUrl("http://localhost:9200")
     .build()
 
-  private val k2kFilterId = "d2588462-b5f4-4b10-8cbb-7bcceb178cb5"
+  private val k2kFilterId = "24a88215-cfe0-47a1-a889-7f3e9f8260ef"
   private val k2eFilterId = "07fbf227-3cde-4acd-853a-4aa733f5f482"
 
   @Test
@@ -46,35 +48,36 @@ class PipelineIntegrationTest2 extends Matchers {
   def integrationTest(implicit @CitrusResource runner: TestRunner): Unit = {
     val k2kObject = loadK2KPipelineBlueprint
     val k2eObject = loadK2EPipelineBlueprint
-
-
-
+    val dataset = dataset1
+    val datasets = List(dataset)
+    val datasetsSerialized = write(datasets)
+    println(datasetsSerialized)
     creatingKafkaToKafkaPipeline(runner)
     getSinglePipelineBlueprint(k2kObject)
 
     creatingKafkaToElasticPipeline(runner)
+    getSinglePipelineBlueprint(k2eObject)
 
     Thread.sleep(8000)
     checkHealthStateOfPipelines()
-
     //    ---insertDatasetsIntok2kPipeline---
         pauseFilter(k2kFilterId, "true")
-//        checkFilterState(k2kFilterId, Green, Paused)
-//        drainFilter(k2kFilterId, "true")
-//        checkFilterState(k2kFilterId, Green, Ready)
-//        insertDatasetsIntoFilter(k2kFilterId, datasets)
-//        extractDatsetsFromFilter(1, 1, 1)
-//        extractDatsetsFromFilter(1, 5, 3)
-//        pauseFilter(k2kFilterId, "false")
-//        drainFilter(k2kFilterId, "false")
-//
-//
-//        pauseFilter(k2eFilterId, "true")
-//        checkFilterState(k2eFilterId,Green, Paused)
-//        drainFilter(k2eFilterId, "true")
-//        checkFilterState(k2eFilterId,Green, Ready)
-//        insertDatasetsIntoFilter(k2eFilterId, datasets)
-//        checkElasticElements(3)
+        checkFilterState(k2kFilterId, Green, Paused)
+        drainFilter(k2kFilterId, "true")
+        checkFilterState(k2kFilterId, Green, Ready)
+        insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
+        extractDatsetsFromFilter(k2kFilterId, 1, 1)
+        extractDatsetsFromFilter(k2kFilterId, 5, 1)
+        pauseFilter(k2kFilterId, "false")
+        drainFilter(k2kFilterId, "false")
+
+
+        pauseFilter(k2eFilterId, "true")
+        checkFilterState(k2eFilterId,Green, Paused)
+        drainFilter(k2eFilterId, "true")
+        checkFilterState(k2eFilterId,Green, Ready)
+        insertDatasetsIntoFilter(k2eFilterId, datasetsSerialized)
+        checkElasticElements(3)
 
 
         getAllPipelineBlueprints(2)

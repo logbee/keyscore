@@ -87,6 +87,7 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       children.foreach(child => context.stop(child))
 
     case message: RequestPipelineInstance =>
+      log.debug(s"Sender of ReqInstance is: ${sender()}")
       children.foreach( supervisor => {
         supervisor forward message
       })
@@ -100,7 +101,7 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       log.info(s"PipelineSupervisor terminated: $configuration")
 
     case message: PauseFilter =>
-      log.info(s"received PausFilter message")
+      log.info(s"Received PauseFilter with ${message} from $sender")
       children.foreach( supervisor => {
         supervisor forward  message
       })

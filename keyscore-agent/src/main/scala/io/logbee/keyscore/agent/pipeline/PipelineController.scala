@@ -25,6 +25,10 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
   }
 
   def close(id: UUID, doClose: Boolean): Option[Future[FilterState]] = {
+    println(s"closing valve <$id>")
+    controllerMap.foreach( kv => {
+      println(s"Key: ${kv._1} -> Value: ${kv._2}")
+    })
     controllerMap.get(id).map(_.pause(doClose))
   }
 

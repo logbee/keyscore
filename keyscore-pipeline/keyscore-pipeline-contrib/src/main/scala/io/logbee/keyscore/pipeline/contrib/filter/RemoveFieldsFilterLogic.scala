@@ -42,7 +42,7 @@ object RemoveFieldsFilterLogic extends Described {
       parameters = Seq(fieldsToRemoveParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilter",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

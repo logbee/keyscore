@@ -36,24 +36,20 @@ class ConfigurationManager extends Actor with ActorLogging {
   override def receive: Receive = {
     case StoreConfigurationRequest(configuration) =>
       configurations.put(configuration.ref, configuration)
-      log.info(s"DEBUG Store Configuration: $configuration")
       sender ! StoreConfigurationResponse
 
     case GetAllConfigurationRequest =>
       sender ! GetAllConfigurationResponse(configurations.toMap)
 
     case DeleteConfigurationRequest(ref) =>
-      log.info(s"DEBUG Delete a config: $ref")
       configurations.remove(ref)
       sender ! DeleteConfigurationResponse
 
     case DeleteAllConfigurationsRequest =>
-      log.info("DEBUG Delete all configs")
       configurations.clear()
       sender ! DeleteAllConfigurationsResponse
 
     case GetConfigurationRequest(ref) =>
-      log.info(s"DEBUG Configuration Request for $ref")
       configurations.get(ref) match {
         case Some(configuration) =>
           sender ! GetConfigurationSuccess(configuration)
@@ -70,8 +66,5 @@ class ConfigurationManager extends Actor with ActorLogging {
 
     case WhoIs(ConfigurationService) =>
       sender ! HereIam(ConfigurationService, self)
-
-    case e =>
-      log.info(s"DEBUG Received unknown message: $e")
   }
 }

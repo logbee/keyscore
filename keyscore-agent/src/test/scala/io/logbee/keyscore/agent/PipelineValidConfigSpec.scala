@@ -106,7 +106,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 
   "A running PipelineSupervisor" should {
 
-//    "Generate json files for KafkaToKafka" in new KafkaToKafka {
+    "Generate json files for KafkaToKafka" in new KafkaToKafka {
 //      println("KafkaToKafka Jsons")
 //      println(writePretty(sourceBluePrint))
 //      println(writePretty(sinkBluePrint))
@@ -120,8 +120,8 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 //
 //      println(writePretty(KafkaSinkLogic.describe))
 //      println(writePretty(KafkaSourceLogic.describe))
-//      println(writePretty(RemoveFieldsFilterLogic.describe))
-//    }
+      println(writePretty(RemoveFieldsFilterLogic.describe))
+    }
 
         "Generate json files KafkaToElastic" in new KafkaToElastic {
         println("KafkaToElastic Jsons")
