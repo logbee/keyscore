@@ -51,11 +51,16 @@ class ServiceDiscovery(services: Seq[Service], strict: Boolean = true, promise: 
 
   private def discovering(mapping: Map[Service, ActorRef]): Receive = {
 
-    case HereIam(service, ref) if mapping.size < services.size =>
-      become(discovering(mapping + (service -> ref)), discardOld = true)
-
     case HereIam(service, ref) =>
-      promise.success(mapping + (service -> ref))
+      val newMapping = mapping + (service -> ref)
+      log.debug(s"Discoverd: $service -> $ref (${newMapping.size}/${services.size})")
+      if (newMapping.size < services.size) {
+        become(discovering(newMapping), discardOld = true)
+      }
+      else {
+        promise.success(newMapping)
+        context.stop(self)
+      }
 
     case Timeout if strict =>
       promise.failure(new TimeoutException(s"Service discovery did not complete within $timeout. " +

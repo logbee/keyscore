@@ -2,23 +2,25 @@ package io.logbee.keyscore.agent.pipeline
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.Publish
-import io.logbee.keyscore.agent.pipeline.BlueprintMaterializer.{InstantiateStage, ResolveBlueprint}
+import io.logbee.keyscore.agent.pipeline.BlueprintMaterializer.{Initialize, InstantiateStage, ResolveBlueprint}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.commons._
-import io.logbee.keyscore.commons.cluster.Topics
-import io.logbee.keyscore.commons.cluster.Topics.WhoIsTopic
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse}
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetConfigurationFailure, GetConfigurationRequest, GetConfigurationSuccess}
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.{GetDescriptorRequest, GetDescriptorResponse}
+import io.logbee.keyscore.commons.util.ServiceDiscovery.discover
 import io.logbee.keyscore.model.blueprint._
-import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
-import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.descriptor.Descriptor
 import io.logbee.keyscore.pipeline.api.stage.StageContext
+
+import scala.util.{Failure, Success}
 
 object BlueprintMaterializer {
 
   def apply(stagecontext: StageContext, blueprintRef: BlueprintRef, filterManager: ActorRef): Props = Props(new BlueprintMaterializer(stagecontext, blueprintRef, filterManager))
+
+  private case class Initialize(blueprintManager: ActorRef, descriptorManager: ActorRef, configurationManager: ActorRef)
 
   private case object StartMaterializing
 
@@ -31,37 +33,25 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
 
   private val mediator = DistributedPubSub(context.system).mediator
 
-  private var blueprintManager: ActorRef = null
-  private var configurationMananger: ActorRef = null
-  private var descriptorMananger: ActorRef = null
+  private implicit val ec = context.dispatcher
 
   import context.{become, parent}
 
   override def preStart(): Unit = {
 
-    if (initialBlueprintManager.isDefined) {
-      blueprintManager = initialBlueprintManager.get
-    }
-    else {
-      mediator ! Publish(WhoIsTopic, WhoIs(BlueprintService))
-    }
-
-    if (initialConfigurationManager.isDefined) {
-      configurationMananger = initialConfigurationManager.get
-    }
-    else {
-      mediator ! Publish(WhoIsTopic, WhoIs(ConfigurationService))
-    }
-
-    if (initialDescriptorManager.isDefined) {
-      descriptorMananger = initialDescriptorManager.get
-    }
-    else {
-      mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
-    }
-
     log.info(s"Started for blueprint <${blueprintRef.uuid}>.")
-    maybeStartPreparation()
+
+    if (initialBlueprintManager.isEmpty || initialDescriptorManager.isEmpty || initialConfigurationManager.isEmpty) {
+      discover(Seq(BlueprintService, DescriptorService, ConfigurationService)).onComplete {
+        case Success(services) =>
+          self ! Initialize(services(BlueprintService), services(DescriptorService), services(ConfigurationService))
+        case Failure(exception) =>
+        // TODO: Handle this case!
+      }
+    }
+    else {
+      self ! Initialize(initialBlueprintManager.get, initialDescriptorManager.get, initialConfigurationManager.get)
+    }
   }
 
   override def postStop(): Unit = {
@@ -70,33 +60,33 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
 
   override def receive: Receive = {
 
+    case Initialize(blueprintManager, descriptorManager, configurationManager) =>
+      log.debug("Initializing.")
+      become(initializing(blueprintManager, descriptorManager, configurationManager), discardOld = true)
+      self ! ResolveBlueprint
+  }
+
+  private def initializing(blueprintManager: ActorRef, descriptorManager: ActorRef, configurationManager: ActorRef): Receive = {
+
     case ResolveBlueprint =>
+      log.debug(s"Resolving blueprint <${blueprintRef.uuid}>")
       blueprintManager ! GetBlueprintRequest(blueprintRef)
 
     case GetBlueprintResponse(Some(blueprint)) =>
       blueprint match {
         case filterBlueprint: FilterBlueprint =>
-          requestDescriptorAndConfiguration(filterBlueprint.descriptor, filterBlueprint.configuration)
+          descriptorManager ! GetDescriptorRequest(filterBlueprint.descriptor)
+          configurationManager ! GetConfigurationRequest(filterBlueprint.configuration)
           become(preparing(filterBlueprint, Preparation()))
         case sourceBlueprint: SourceBlueprint =>
-          requestDescriptorAndConfiguration(sourceBlueprint.descriptor, sourceBlueprint.configuration)
+          descriptorManager ! GetDescriptorRequest(sourceBlueprint.descriptor)
+          configurationManager ! GetConfigurationRequest(sourceBlueprint.configuration)
           become(preparing(sourceBlueprint, Preparation()))
         case sinkBlueprint: SinkBlueprint =>
-          requestDescriptorAndConfiguration(sinkBlueprint.descriptor, sinkBlueprint.configuration)
+          descriptorManager ! GetDescriptorRequest(sinkBlueprint.descriptor)
+          configurationManager ! GetConfigurationRequest(sinkBlueprint.configuration)
           become(preparing(sinkBlueprint, Preparation()))
       }
-
-    case HereIam(BlueprintService, ref) =>
-      blueprintManager = ref
-      maybeStartPreparation()
-
-    case HereIam(DescriptorService, ref) =>
-      descriptorMananger = ref
-      maybeStartPreparation()
-
-    case HereIam(ConfigurationService, ref) =>
-      configurationMananger = ref
-      maybeStartPreparation()
   }
 
   private def preparing(blueprint: FilterBlueprint, preparation: Preparation): Receive = {
@@ -213,22 +203,9 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
     }
   }
 
-  private def maybeStartPreparation(): Unit = {
-    if (blueprintManager != null && descriptorMananger != null && configurationMananger != null) {
-      log.debug("Starting preparation.")
-      self ! ResolveBlueprint
-    }
-  }
-
-  private def requestDescriptorAndConfiguration(descriptorRef: DescriptorRef, configurationRef: ConfigurationRef): Unit = {
-    descriptorMananger ! GetDescriptorRequest(descriptorRef)
-    configurationMananger ! GetConfigurationRequest(configurationRef)
-  }
-
   case class Preparation(descriptor: Option[Descriptor] = None, configuration: Option[Configuration] = None) {
     def isComplete: Boolean = descriptor.isDefined && configuration.isDefined
   }
 
   case class Materialization(descriptor: Descriptor, configuration: Configuration)
-
 }
