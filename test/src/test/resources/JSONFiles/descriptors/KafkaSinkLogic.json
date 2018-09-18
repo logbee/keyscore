@@ -5,7 +5,7 @@
   },
   "describes":{
     "jsonClass":"io.logbee.keyscore.model.descriptor.SinkDescriptor",
-    "name":"io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSinkLogic",
+    "name":"io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic",
     "displayName":{
       "id":"displayName"
     },
@@ -14,10 +14,13 @@
     },
     "categories":[
       {
-        "id":"category1"
+        "name":"contrib.source",
+        "displayName":{
+          "id":"contrib.category.sink.displayName"
+        }
       },
       {
-        "id":"category2"
+        "name":"Kafka"
       }
     ],
     "parameters":[
@@ -92,64 +95,70 @@
       }
     ],
     "mapping":{
-      "bootstrapServerDescription":{
+      "contrib.category.data-extraction.displayName":{
         "translations":{
-          "en":"bootstrap-server",
-          "de":"Der Kafka Host"
+          "en":"Data-Extraction",
+          "de":"Datengewinnung"
         }
       },
-      "description":{
-        "translations":{
-          "en":"A Kafka Sink.",
-          "de":"Eine Kafka Senke."
-        }
-      },
-      "category1":{
+      "contrib.category.sink.displayName":{
         "translations":{
           "en":"Sink",
           "de":"Senke"
         }
       },
-      "topicDescription":{
+      "contrib.category.filter.displayName":{
         "translations":{
-          "en":"topic",
-          "de":"Name des Kafka Topics"
+          "en":"Filter",
+          "de":"Filter"
         }
       },
-      "category2":{
+      "contrib.category.json.displayName":{
         "translations":{
-          "en":"Kafka",
-          "de":"Kafka"
+          "en":"JSON",
+          "de":"JSON"
         }
       },
-      "topic":{
+      "contrib.category.source.displayName":{
         "translations":{
-          "en":"topic",
-          "de":"topic"
+          "en":"Source",
+          "de":"Quelle"
         }
       },
-      "displayName":{
+      "contrib.category.fields.displayName":{
         "translations":{
-          "en":"Kafka Sink",
-          "de":"Kafka Senke"
+          "en":"Fields",
+          "de":"Felder"
         }
       },
-      "bootstrapServerPort":{
+      "contrib.category.batch-composition.displayName":{
         "translations":{
-          "en":"Port",
-          "de":"Port"
+          "en":"Batch-Composition",
+          "de":"Stapelbildung"
         }
       },
-      "bootstrapServer":{
+      "contrib.category.remove-drop.displayName":{
         "translations":{
-          "en":"bootstrap-server",
-          "de":"bootstrap-server"
+          "en":"Remove/Drop",
+          "de":"Entfernen/Verwerfen"
         }
       },
-      "bootstrapServerPortDescription":{
+      "contrib.category.math.displayName":{
         "translations":{
-          "en":"Port",
-          "de":"Der Kafka Port"
+          "en":"Math",
+          "de":"Mathematik"
+        }
+      },
+      "contrib.category.visualization.displayName":{
+        "translations":{
+          "en":"Visualization",
+          "de":"Visualisierung"
+        }
+      },
+      "contrib.category.debug.displayName":{
+        "translations":{
+          "en":"Debug",
+          "de":"Debug"
         }
       }
     }

@@ -5,42 +5,29 @@
   },
   "blueprints":[
     {
-      "jsonClass":"io.logbee.keyscore.model.blueprint.SourceBlueprint",
-      "ref":{
-        "uuid":"d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"
-      },
-      "descriptor":{
-        "uuid":"6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
-      },
-      "configuration":{
-        "uuid":"bae4e0bc-2784-416a-a93d-0e36ed80d6e0"
-      }
+      "uuid":"d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"
     },
     {
-      "jsonClass":"io.logbee.keyscore.model.blueprint.FilterBlueprint",
-      "ref":{
-        "uuid":"24a88215-cfe0-47a1-a889-7f3e9f8260ef"
-      },
-      "descriptor":{
-        "uuid":"b7ee17ad-582f-494c-9f89-2c9da7b4e467"
-      },
-      "configuration":{
-        "uuid":"d2588462-b5f4-4b10-8cbb-7bcceb178cb5"
-      }
+      "uuid":"24a88215-cfe0-47a1-a889-7f3e9f8260ef"
     },
     {
-      "jsonClass":"io.logbee.keyscore.model.blueprint.SinkBlueprint",
-      "ref":{
-        "uuid":"80851e06-7191-4d96-8e4d-de66a5a12e81"
-      },
-      "descriptor":{
-        "uuid":"4fedbe8e-115e-4408-ba53-5b627b6e2eaf"
-      },
-      "configuration":{
-        "uuid":"05dc6d8a-50ff-41bd-b637-5132be1f2415"
-      }
+      "uuid":"80851e06-7191-4d96-8e4d-de66a5a12e81"
     }
   ],
-  "name":"IntegrationTestPipeline",
-  "description":"It's valid"
+  "metadata":{
+    "labels":[
+      {
+        "name":"pipeline.name",
+        "value":{
+          "value":"IntegrationTestPipeline"
+        }
+      },
+      {
+        "name":"pipeline.description",
+        "value":{
+          "value":"It's valid"
+        }
+      }
+    ]
+  }
 }

@@ -5,7 +5,7 @@
   },
   "describes":{
     "jsonClass":"io.logbee.keyscore.model.descriptor.SourceDescriptor",
-    "name":"io.logbee.keyscore.agent.pipeline.contrib.kafka.KafkaSourceLogic",
+    "name":"io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic",
     "displayName":{
       "id":"displayName"
     },
@@ -14,10 +14,13 @@
     },
     "categories":[
       {
-        "id":"categorySource"
+        "name":"contrib.source",
+        "displayName":{
+          "id":"contrib.category.source.displayName"
+        }
       },
       {
-        "id":"categoryKafka"
+        "name":"Kafka"
       }
     ],
     "parameters":[
@@ -144,112 +147,70 @@
       }
     ],
     "mapping":{
-      "port":{
+      "contrib.category.data-extraction.displayName":{
         "translations":{
-          "en":"port",
-          "de":"port"
+          "en":"Data-Extraction",
+          "de":"Datengewinnung"
         }
       },
-      "choiceLatestDescription":{
+      "contrib.category.sink.displayName":{
         "translations":{
-          "en":"consume only the newest data",
-          "de":"Konsum ausschlieÃ\u009flich der neuesten Daten"
+          "en":"Sink",
+          "de":"Senke"
         }
       },
-      "description":{
+      "contrib.category.filter.displayName":{
         "translations":{
-          "en":"A Kafka Source",
-          "de":"Eine Kafka Quelle"
+          "en":"Filter",
+          "de":"Filter"
         }
       },
-      "groupID":{
+      "contrib.category.json.displayName":{
         "translations":{
-          "en":"groupId",
-          "de":"groupId"
+          "en":"JSON",
+          "de":"JSON"
         }
       },
-      "categoryKafka":{
-        "translations":{
-          "en":"Kafka",
-          "de":"Kafka"
-        }
-      },
-      "choiceEarliestDescription":{
-        "translations":{
-          "en":"consume all data from beginning",
-          "de":"Konsum aller Daten im Kafka Topic"
-        }
-      },
-      "topicDescription":{
-        "translations":{
-          "en":"name of the kafka topic",
-          "de":"Name des Kafka Topics"
-        }
-      },
-      "choiceEarliest":{
-        "translations":{
-          "en":"earliest",
-          "de":"earliest"
-        }
-      },
-      "categorySource":{
+      "contrib.category.source.displayName":{
         "translations":{
           "en":"Source",
           "de":"Quelle"
         }
       },
-      "offsetCommit":{
+      "contrib.category.fields.displayName":{
         "translations":{
-          "en":"offsetCommit",
-          "de":"offsetCommit"
+          "en":"Fields",
+          "de":"Felder"
         }
       },
-      "topic":{
+      "contrib.category.batch-composition.displayName":{
         "translations":{
-          "en":"topic",
-          "de":"topic"
+          "en":"Batch-Composition",
+          "de":"Stapelbildung"
         }
       },
-      "displayName":{
+      "contrib.category.remove-drop.displayName":{
         "translations":{
-          "en":"Kafka Source",
-          "de":"Kafka Quelle"
+          "en":"Remove/Drop",
+          "de":"Entfernen/Verwerfen"
         }
       },
-      "portDescription":{
+      "contrib.category.math.displayName":{
         "translations":{
-          "en":"kafka port",
-          "de":"Der Kafka Port"
+          "en":"Math",
+          "de":"Mathematik"
         }
       },
-      "serverDescription":{
+      "contrib.category.visualization.displayName":{
         "translations":{
-          "en":"kafka host",
-          "de":"Der Kafka Host"
+          "en":"Visualization",
+          "de":"Visualisierung"
         }
       },
-      "bootstrapServer":{
+      "contrib.category.debug.displayName":{
         "translations":{
-          "en":"bootstrapServer",
-          "de":"bootstrapServer"
-        }
-      },
-      "groupDescription":{
-        "translations":{
-          "en":"groupID of the kafka consumer",
-          "de":"GroupID des Kafka Konsumenten"
-        }
-      },
-      "choiceLatest":{
-        "translations":{
-          "en":"latest",
-          "de":"latest"
-        }
-      },
-      "offsetDescription":{
-        "translations":{
-          "en":"initial offset strategy",
-          "de":"Strategie der initialen Daten Konsumierung"
+          "en":"Debug",
+          "de":"Debug"
         }
       }
     }

@@ -5,7 +5,7 @@
   },
   "describes":{
     "jsonClass":"io.logbee.keyscore.model.descriptor.FilterDescriptor",
-    "name":"io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilterLogic",
+    "name":"io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilterLogic",
     "displayName":{
       "id":"displayName"
     },
@@ -14,7 +14,10 @@
     },
     "categories":[
       {
-        "id":"category"
+        "name":"contrib.remove-drop",
+        "displayName":{
+          "id":"contrib.category.remove-drop.displayName"
+        }
       }
     ],
     "parameters":[
@@ -57,46 +60,70 @@
       }
     ],
     "mapping":{
-      "category":{
+      "contrib.category.data-extraction.displayName":{
+        "translations":{
+          "en":"Data-Extraction",
+          "de":"Datengewinnung"
+        }
+      },
+      "contrib.category.sink.displayName":{
+        "translations":{
+          "en":"Sink",
+          "de":"Senke"
+        }
+      },
+      "contrib.category.filter.displayName":{
+        "translations":{
+          "en":"Filter",
+          "de":"Filter"
+        }
+      },
+      "contrib.category.json.displayName":{
+        "translations":{
+          "en":"JSON",
+          "de":"JSON"
+        }
+      },
+      "contrib.category.source.displayName":{
+        "translations":{
+          "en":"Source",
+          "de":"Quelle"
+        }
+      },
+      "contrib.category.fields.displayName":{
         "translations":{
           "en":"Fields",
           "de":"Felder"
         }
       },
-      "fieldKeyName":{
+      "contrib.category.batch-composition.displayName":{
         "translations":{
-          "en":"tbd",
-          "de":"tbd"
+          "en":"Batch-Composition",
+          "de":"Stapelbildung"
         }
       },
-      "description":{
+      "contrib.category.remove-drop.displayName":{
         "translations":{
-          "en":"Removes all given fields and their values",
-          "de":"Filter zum entfernen von Feldern einschlieÃ\u009flich ihrer Werte."
+          "en":"Remove/Drop",
+          "de":"Entfernen/Verwerfen"
         }
       },
-      "fieldKeyDescription":{
+      "contrib.category.math.displayName":{
         "translations":{
-          "en":"tbd",
-          "de":"tbd"
+          "en":"Math",
+          "de":"Mathematik"
         }
       },
-      "fieldsToRemoveDescription":{
+      "contrib.category.visualization.displayName":{
         "translations":{
-          "en":"Field will be removed by filter",
-          "de":"Feld wird vom Filter entfernt"
+          "en":"Visualization",
+          "de":"Visualisierung"
         }
       },
-      "displayName":{
+      "contrib.category.debug.displayName":{
         "translations":{
-          "en":"Remove Fields",
-          "de":"Felder entfernen"
-        }
-      },
-      "fieldsToRemoveName":{
-        "translations":{
-          "en":"fields to be removed",
-          "de":"Feld das entfernt werden soll"
+          "en":"Debug",
+          "de":"Debug"
         }
       }
     }
