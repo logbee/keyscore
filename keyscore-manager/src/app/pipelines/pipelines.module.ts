@@ -20,6 +20,8 @@ import {PipelyComponent} from "./pipeline-editor/pipely/pipely.component";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {ParameterModule} from "../common/parameter/parameter.module";
 import {MaterialModule} from "../material.module";
+import {PipelineService} from "../services/rest-api/pipeline.service";
+import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -51,7 +53,10 @@ export const routes: Routes = [
         PipelyComponent,
         RefreshTimeComponent
     ],
-    providers: []
+    providers: [
+        DescriptorResolverService,
+        PipelineService
+    ]
 })
 export class PipelinesModule {
 }

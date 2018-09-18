@@ -31,16 +31,17 @@ import {
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction, LoadEditPipelineConfigAction, LOAD_EDIT_PIPELINE_CONFIG,
-    LOAD_FILTER_DESCRIPTORS_SUCCESS,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS, ResolveFilterDescriptorSuccessAction,
 } from "./pipelines.actions";
 import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {getPipelinePolling} from "./pipelines.reducer";
-import {FilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {PipelineService} from "../services/rest-api/pipeline.service";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
+import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 
 @Injectable()
 export class PipelinesEffects {
@@ -128,13 +129,15 @@ export class PipelinesEffects {
         )
     );
 
-    @Effect() public resolveFilterDescriptors$: Observable<Action> = this.action$.pipe(
+    @Effect() public resolveFilterDescriptors$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_FILTER_DESCRIPTORS_SUCCESS),
-        map(descriptors => (action as LoadFilterDescriptorsSuccessAction).descriptors),
+        map(action => (action as LoadFilterDescriptorsSuccessAction).descriptors),
         map(descriptors => {
-
+            let resolvedDescriptors:ResolvedFilterDescriptor[] = descriptors.map(descriptor =>
+                this.descriptorResolver.resolveDescriptor(descriptor));
+            return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);
         })
-    )
+    );
 
 
     @Effect() public updatePipeline$: Observable<Action> = this.actions$.pipe(
@@ -190,6 +193,7 @@ export class PipelinesEffects {
                 private actions$: Actions,
                 private http: HttpClient,
                 private pipelineService: PipelineService,
+                private descriptorResolver:DescriptorResolverService,
                 private translate: TranslateService) {
     }
 

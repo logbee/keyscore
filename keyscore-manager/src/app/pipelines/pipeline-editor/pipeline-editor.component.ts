@@ -22,6 +22,7 @@ import {
 } from "../pipelines.reducer";
 import {Configuration} from "../../models/common/Configuration";
 import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
+import {ResolvedCategory} from "../../models/descriptors/Category";
 
 @Component({
     selector: "pipeline-editor",
@@ -44,7 +45,7 @@ import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineM
 export class PipelineEditorComponent implements OnDestroy {
     public pipeline$: Observable<EditingPipelineModel>;
     public filterDescriptors$: Observable<ResolvedFilterDescriptor[]>;
-    public categories$: Observable<string[]>;
+    public categories$: Observable<ResolvedCategory[]>;
     public isLoading$: Observable<boolean>;
     public isMenuExpanded$: Observable<boolean>;
     public updateSuccess$: Observable<boolean[]>;
