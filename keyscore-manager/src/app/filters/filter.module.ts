@@ -19,7 +19,7 @@ import {StatuslightComponent} from "../common/health/statuslight.component";
 import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
 import {DatasetVisualizer} from "./filter-details/live-editing-modules/datasetVisualizer";
-import {ParameterModule} from "../common/parameter/parameter.module";
+import {ParameterModule} from "../common/configuration/parameter/parameter.module";
 import {MatCardModule} from '@angular/material/card';
 import {MatGridListModule} from "@angular/material/grid-list";
 import {MatListModule} from "@angular/material/list";

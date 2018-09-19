@@ -18,7 +18,7 @@ import {AlertModule} from "../common/alert/alert.module";
 import {ErrorModule} from "../common/error/error.module";
 import {PipelyComponent} from "./pipeline-editor/pipely/pipely.component";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
-import {ParameterModule} from "../common/parameter/parameter.module";
+import {ParameterModule} from "../common/configuration/parameter/parameter.module";
 import {MaterialModule} from "../material.module";
 import {PipelineService} from "../services/rest-api/pipeline.service";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";

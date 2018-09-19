@@ -1,11 +1,11 @@
 import {Injectable} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {zip} from "../../../util";
+import {zip} from "../../../../util";
 import {
     ParameterDescriptor,
     ParameterDescriptorJsonClass, ResolvedParameterDescriptor
-} from "../../../models/parameters/ParameterDescriptor";
-import {Parameter} from "../../../models/parameters/Parameter";
+} from "../../../../models/parameters/ParameterDescriptor";
+import {Parameter} from "../../../../models/parameters/Parameter";
 
 @Injectable()
 export class ParameterControlService {

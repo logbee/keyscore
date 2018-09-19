@@ -15,7 +15,7 @@ import {NO_ERRORS_SCHEMA} from "@angular/core";
 import {ConnectorComponent} from "./connectors/connector.component";
 import {MaterialModule} from "../../../material.module";
 import {ConfigurationComponent} from "./configuration.component";
-import {ParameterModule} from "../../../common/parameter/parameter.module";
+import {ParameterModule} from "../../../common/configuration/parameter/parameter.module";
 import {PuzzleBoxComponent} from "./puzzle-box/puzzle-box.component";
 import {PuzzleCategoryComponent} from "./puzzle-box/puzzle-category.component";
 

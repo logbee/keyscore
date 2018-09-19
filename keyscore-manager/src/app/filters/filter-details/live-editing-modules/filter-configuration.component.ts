@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {Configuration} from "../../../models/common/Configuration";
 import {Store} from "@ngrx/store";
-import {ParameterControlService} from "../../../common/parameter/services/parameter-control.service";
+import {ParameterControlService} from "../../../common/configuration/parameter/services/parameter-control.service";
 import {
     ParameterDescriptor,
     ResolvedParameterDescriptor

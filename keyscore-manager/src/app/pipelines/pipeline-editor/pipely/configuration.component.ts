@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Draggable} from "./models/contract";
 import {FormGroup} from "@angular/forms";
-import {ParameterControlService} from "../../../common/parameter/services/parameter-control.service";
+import {ParameterControlService} from "../../../common/configuration/parameter/services/parameter-control.service";
 import {BlockConfiguration} from "./models/block-configuration.model";
 import {Observable} from "rxjs";
 import {distinctUntilChanged} from "rxjs/operators";

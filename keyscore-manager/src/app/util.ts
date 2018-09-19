@@ -11,7 +11,7 @@ export function deepcopy(source: any, target?: any): any {
 }
 
 export function parameterDescriptorToParameter(parameterDescriptor: ResolvedParameterDescriptor): Parameter {
-    let type = ParameterDescriptorJsonClass[parameterDescriptor.jsonClass];
+    let type = parameterDescriptor.jsonClass.toString();
     type = type.replace(ParameterDescriptorPackagePrefix,ParameterDescriptorPackagePrefix);
     type = type.substr(0,type.length - "Descriptor".length);
 
