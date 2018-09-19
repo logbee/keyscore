@@ -30,7 +30,7 @@ export class PipelinesState {
     public wasLastUpdateSuccessful: boolean[];
 }
 
-const initialState: PipelinesState = {
+export const initialState: PipelinesState = {
     pipelineList: [],
     editingPipeline: null,
     descriptors: [],

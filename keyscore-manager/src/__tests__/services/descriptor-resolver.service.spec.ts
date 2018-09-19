@@ -44,4 +44,4 @@ describe('Service: DescriptorResolverService', () => {
             expect(result).toEqual(expected);
         })
     })
-})
+});

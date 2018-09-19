@@ -51,7 +51,6 @@ export class PipelinesEffects {
             const regex = /\/pipelines\/.+/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 const id = this.getPipelineIdfromRouterAction(action as RouterNavigationAction);
-                console.log("Reached:", id);
                 return of(new EditPipelineAction(id));
             }
             return of();
