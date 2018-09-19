@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "metrics.proto";
+import "blueprint.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.model.instance"
+    flat_package: true
+};
+
+message InstanceRef {
+    string uuid = 1;
+}
+
+message Instance {
+    InstanceRef uuid = 1;
+    BlueprintRef blueprintref = 3;
+
+}

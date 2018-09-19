@@ -44,6 +44,7 @@ message Value {
         TextValue text = 4;
         TimestampValue timestamp = 5;
         DurationValue duration = 6;
+        HealthValue health = 7;
     }
 }
 
@@ -84,6 +85,17 @@ message DurationValue {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.DurationValueConversion";
     int64 seconds = 1;
     int32 nanos = 2;
+}
+
+message HealthValue {
+    Health value = 1;
+}
+
+enum Health {
+    Gray = 0;
+    Green = 1;
+    Yellow = 2;
+    Red = 3;
 }
 
 enum FieldValueType {

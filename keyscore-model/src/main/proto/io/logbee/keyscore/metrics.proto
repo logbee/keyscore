@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "data.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.model.metrics"
+    flat_package: true
+};
+
+message Metrics {
+    TimestampValue timestamp = 1;
+    repeated Field metrics = 3;
+}
