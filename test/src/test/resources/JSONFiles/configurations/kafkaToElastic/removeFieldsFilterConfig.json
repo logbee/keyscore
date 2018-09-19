@@ -10,7 +10,7 @@
         "id":"removeFields.fieldsToRemove"
       },
       "value":[
-        "message"
+        "notMessage"
       ]
     }
   ]
