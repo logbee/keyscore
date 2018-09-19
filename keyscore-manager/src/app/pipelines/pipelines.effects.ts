@@ -122,7 +122,7 @@ export class PipelinesEffects {
     @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_FILTER_DESCRIPTORS),
         switchMap((action) =>
-           this.pipelineService.getAllDescriptors().pipe(
+            this.pipelineService.getAllDescriptors().pipe(
                 map((data: Descriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
                 catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
             )
@@ -133,7 +133,7 @@ export class PipelinesEffects {
         ofType(LOAD_FILTER_DESCRIPTORS_SUCCESS),
         map(action => (action as LoadFilterDescriptorsSuccessAction).descriptors),
         map(descriptors => {
-            let resolvedDescriptors:ResolvedFilterDescriptor[] = descriptors.map(descriptor =>
+            let resolvedDescriptors: ResolvedFilterDescriptor[] = descriptors.map(descriptor =>
                 this.descriptorResolver.resolveDescriptor(descriptor));
             return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);
         })
@@ -193,8 +193,7 @@ export class PipelinesEffects {
                 private actions$: Actions,
                 private http: HttpClient,
                 private pipelineService: PipelineService,
-                private descriptorResolver:DescriptorResolverService,
-                private translate: TranslateService) {
+                private descriptorResolver: DescriptorResolverService,) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {

@@ -6,16 +6,22 @@ import {TestBed} from "@angular/core/testing";
 import {Store} from "@ngrx/store";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
-import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
+import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {
     generateBlueprint, generateBlueprints, generateConfiguration, generateConfigurations,
     generatePipelineBlueprint
 } from "../fake-data/pipeline-fakes";
 import {
     EditPipelineAction, EditPipelineFailureAction, EditPipelineSuccessAction,
-    LoadEditBlueprintsAction, LoadEditPipelineConfigAction
+    LoadEditBlueprintsAction, LoadEditPipelineConfigAction, LoadFilterDescriptorsAction,
+    LoadFilterDescriptorsFailureAction,
+    LoadFilterDescriptorsSuccessAction, ResolveFilterDescriptorSuccessAction
 } from "../../app/pipelines/pipelines.actions";
 import {cold, hot} from "jasmine-marbles";
+import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/descriptor-resolver-fakes";
+import {Descriptor} from "../../app/models/descriptors/Descriptor";
+import {DescriptorResolverService} from "../../app/services/descriptor-resolver.service";
+import {ResolvedFilterDescriptor} from "../../app/models/descriptors/FilterDescriptor";
 
 export class TestActions extends Actions {
     constructor() {
@@ -35,6 +41,7 @@ describe('PipelinesEffects', () => {
     let actions: TestActions;
     let effects: PipelinesEffects;
     let pipelineService: PipelineService;
+    let resolverService: DescriptorResolverService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -68,6 +75,12 @@ describe('PipelinesEffects', () => {
                         pipe: jest.fn(),
                         select: jest.fn()
                     }
+                },
+                {
+                    provide: DescriptorResolverService,
+                    useValue: {
+                        resolveDescriptor: jest.fn()
+                    }
                 }
             ]
         });
@@ -75,6 +88,7 @@ describe('PipelinesEffects', () => {
         actions = TestBed.get(Actions);
         effects = TestBed.get(PipelinesEffects);
         pipelineService = TestBed.get(PipelineService);
+        resolverService = TestBed.get(DescriptorResolverService);
     });
 
     it('should be created', () => {
@@ -144,9 +158,9 @@ describe('PipelinesEffects', () => {
 
             });
         });
-        it('should return an EditPipelineFailure action, on failure',() =>{
+        it('should return an EditPipelineFailure action, on failure', () => {
             const pipelineBlueprint = generatePipelineBlueprint();
-            const action = new LoadEditBlueprintsAction(pipelineBlueprint,0,[]);
+            const action = new LoadEditBlueprintsAction(pipelineBlueprint, 0, []);
             const error = new Error();
             const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
 
@@ -158,14 +172,14 @@ describe('PipelinesEffects', () => {
             expect(effects.getBlueprints$).toBeObservable(expected);
         });
     });
-    describe('getConfigurations',() =>{
+    describe('getConfigurations', () => {
         describe('given index less than number of blueprints', () => {
             it('should return an LoadEditPipelineConfig action containing the last configuration and index + 1', () => {
                 const pipelineBlueprint = generatePipelineBlueprint(10);
                 const blueprints = generateBlueprints(10);
                 const configuration = generateConfiguration();
-                const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 0,blueprints, []);
-                const outcome = new LoadEditPipelineConfigAction(pipelineBlueprint, 1, blueprints,[configuration]);
+                const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 0, blueprints, []);
+                const outcome = new LoadEditPipelineConfigAction(pipelineBlueprint, 1, blueprints, [configuration]);
 
                 actions.stream = hot('-a', {a: action});
                 const response = cold('-a|', {a: configuration});
@@ -181,8 +195,8 @@ describe('PipelinesEffects', () => {
                 const blueprints = generateBlueprints(10);
                 const configurations = generateConfigurations(9);
                 const configuration = generateConfiguration();
-                const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 9, blueprints,configurations);
-                const outcome = new EditPipelineSuccessAction(pipelineBlueprint,blueprints,[...configurations,configuration]);
+                const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 9, blueprints, configurations);
+                const outcome = new EditPipelineSuccessAction(pipelineBlueprint, blueprints, [...configurations, configuration]);
 
                 actions.stream = hot('-a', {a: action});
                 const response = cold('-a|', {a: configuration});
@@ -194,10 +208,10 @@ describe('PipelinesEffects', () => {
             });
         });
 
-        it('should return an EditPipelineFailure action with pipelineid and error, on failure',() =>{
+        it('should return an EditPipelineFailure action with pipelineid and error, on failure', () => {
             const pipelineBlueprint = generatePipelineBlueprint();
             const blueprints = generateBlueprints(10);
-            const action = new LoadEditPipelineConfigAction(pipelineBlueprint,0,blueprints,[]);
+            const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 0, blueprints, []);
             const error = new Error();
             const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
 
@@ -209,6 +223,51 @@ describe('PipelinesEffects', () => {
             expect(effects.getConfigurations$).toBeObservable(expected);
         })
     });
+    describe('loadFilterDescriptors', () => {
+        it('should return an LoadFilterDescriptorsSuccess action with the descriptor, on success', () => {
+            const descriptor: Descriptor = JSON.parse(removeFieldFilterDescriptorJson);
+            const descriptors: Descriptor[] = [descriptor];
+            const action = new LoadFilterDescriptorsAction();
+            const outcome = new LoadFilterDescriptorsSuccessAction(descriptors);
+
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-a|', {a: descriptors});
+            const expected = cold('--b', {b: outcome});
+            pipelineService.getAllDescriptors = jest.fn(() => response);
+
+            expect(effects.loadFilterDescriptors$).toBeObservable(expected);
+        });
+        it('should return an LoadFilterDescriptorsFailure action with the error cause on failure', () => {
+            const action = new LoadFilterDescriptorsAction();
+            const error = new Error();
+            const outcome = new LoadFilterDescriptorsFailureAction(error);
+
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-#|', {}, error);
+            const expected = cold('--b', {b: outcome});
+            pipelineService.getAllDescriptors = jest.fn(() => response);
+
+            expect(effects.loadFilterDescriptors$).toBeObservable(expected);
+
+        });
+
+    });
+    describe('resolveFilterDescriptors', () => {
+        it('should return an ResolveFilterDescriptorSuccess action on success', () => {
+            const descriptors: Descriptor[] = [JSON.parse(removeFieldFilterDescriptorJson)];
+            const resolvedDescriptor: ResolvedFilterDescriptor = resolvedRemoveFieldsFilterDE;
+
+            const action = new LoadFilterDescriptorsSuccessAction(descriptors);
+            const outcome = new ResolveFilterDescriptorSuccessAction([resolvedDescriptor]);
+
+            actions.stream = hot('-a', {a: action});
+            const expected = cold('-b', {b: outcome});
+            resolverService.resolveDescriptor = jest.fn(() => resolvedDescriptor);
+
+            expect(effects.resolveFilterDescriptors$).toBeObservable(expected);
+
+        })
+    })
 
 
 });

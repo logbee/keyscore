@@ -12,6 +12,7 @@ import {Label} from "../../app/models/common/MetaData";
 import {Configuration} from "../../app/models/common/Configuration";
 import {Parameter, ParameterJsonClass} from "../../app/models/parameters/Parameter";
 import {Field} from "../../app/models/dataset/Field";
+import {ParameterDescriptor, ParameterDescriptorJsonClass} from "../../app/models/parameters/ParameterDescriptor";
 
 export const generatePipeline = (): PipelineInstance => {
     return {
@@ -163,7 +164,6 @@ export const generateSourceBlueprint = (): SourceBlueprint => {
         out: generateRef()
     }
 };
-
 
 export const generateRef = (): Ref => {
     return {
