@@ -38,20 +38,25 @@ class Agent extends Actor with ActorLogging {
   private implicit val ec: ExecutionContext = context.dispatcher
   private implicit val timeout: Timeout = 30 seconds
 
-  private val config = ConfigFactory.load()
+  //Agent properties
+  private val agentName: String = new RandomNameGenerator("/agents.txt").nextName()
+  private var joined: Boolean = false
+
+  //Cluster
   private val cluster = Cluster(context.system)
+  private val mediator = DistributedPubSub(context.system).mediator
+
+  //System
+  private val config = ConfigFactory.load()
   private val scheduler = context.system.scheduler
 
-  private val mediator = DistributedPubSub(context.system).mediator
+  //Necessary Actors for the whole keyscore-agent system
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
   private val localPipelineManager = context.actorOf(LocalPipelineManager(filterManager), "LocalPipelineManager")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
 
-  private val name: String = new RandomNameGenerator("/agents.txt").nextName()
-  private var joined: Boolean = false
-
   override def preStart(): Unit = {
-    log.info(s"Agent ${name} started.")
+    log.info(s"The Agent ${agentName} has started.")
     Cluster(context.system) registerOnMemberUp {
       scheduler.scheduleOnce(5 second) {
         self ! SendJoin
@@ -59,30 +64,29 @@ class Agent extends Actor with ActorLogging {
     }
     mediator ! Subscribe(AgentsTopic, self)
     mediator ! Subscribe(ClusterTopic, self)
-    mediator ! Publish(ClusterTopic, ActorJoin("Agent", self))
+    mediator ! Publish(ClusterTopic, ActorJoin(Roles.AgentRole, self))
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish(ClusterTopic, ActorLeave("Agent", self))
+    mediator ! Publish(ClusterTopic, ActorLeave(Roles.AgentRole, self))
     mediator ! Unsubscribe(AgentsTopic, self)
     mediator ! Unsubscribe(ClusterTopic, self)
-    log.info(s"Agent ${name} stopped.")
+    log.info(s"The Agent ${agentName} has stopped.")
   }
 
   override def receive: Receive = {
     case Initialize =>
-      val currentSender = sender
       val startUpWatch = context.actorOf(StartUpWatch(filterManager))
       (startUpWatch ? StartUpComplete).onComplete {
         case Success(_) =>
-          extensionLoader ! LoadExtensions(config, "keyscore.agent.extensions")
+          extensionLoader ! LoadExtensions(config, Paths.ExtensionPath)
         case Failure(e) =>
           log.error(e, "Failed to initialize agent!")
           context.stop(self)
       }
 
     case SendJoin =>
-      val agentJoin = AgentJoin(UUID.randomUUID(), name)
+      val agentJoin = AgentJoin(UUID.randomUUID(), agentName)
       log.info(s"Trying to join cluster: $agentJoin")
       mediator ! Publish(AgentsTopic, agentJoin)
       scheduler.scheduleOnce(10 seconds) {
@@ -100,15 +104,15 @@ class Agent extends Actor with ActorLogging {
       (filterManager ? RequestDescriptors).mapTo[DescriptorsResponse].onComplete {
         case Success(message) =>
           mediator ! Publish(AgentsTopic, AgentCapabilities(message.descriptors))
-          log.info("Published capabilities to the topic agents.")
+          log.info(s"Published ${agentName}'s capabilities to the topic agents.")
         case Failure(e) =>
-          log.error(e, "Failed to publish capabilities!")
+          log.error(e, s"Failed to publish ${agentName}'s capabilities!")
           context.stop(self)
       }
       context.watchWith(sender, ClusterAgentManagerDied)
 
     case AgentJoinFailure =>
-      log.error("Agent join failed")
+      log.error(s"Agent ${agentName}'s join failed")
       context.stop(self)
 
     case ClusterAgentManagerDied =>

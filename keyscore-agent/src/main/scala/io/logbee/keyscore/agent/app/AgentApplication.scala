@@ -6,11 +6,13 @@ import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent
 import io.logbee.keyscore.agent.Agent.Initialize
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-
+/**
+  * The '''AgentApplication''' is the Main Class in the keyscore-agent package. <br><br>
+  * The AgentApplication loads the ''Configuration'' for the package and creates an ''Agent''.
+  */
 object AgentApplication extends App {
 
   implicit val timeout: Timeout = 5 seconds
