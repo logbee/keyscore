@@ -14,8 +14,8 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
-  * The AgentCapabilitiesManager holds the capabilities (Descriptors) of all agents in the cluster <br>
-  * and returns all the possible agents for a specific set of descriptors if request.
+  * The '''AgentCapabilitiesManager''' holds the `Capabilities` (Descriptors) of all agents in the cluster <br>
+  * and returns all the possible agents for a specific set of descriptors if requested.
   */
 object AgentCapabilitiesManager {
   def apply(): Props = Props(new AgentCapabilitiesManager())
@@ -46,29 +46,26 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
     mediator ! Subscribe(AgentsTopic, self)
     mediator ! Subscribe(ClusterTopic, self)
     mediator ! Subscribe(WhoIsTopic, self)
-    mediator ! Publish(ClusterTopic, ActorJoin("ClusterCapManager", self))
-    log.info(s"Asking for Descriptor: $self")
+    mediator ! Publish(ClusterTopic, ActorJoin(Roles.ClusterCapabilitiesManager, self))
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
-    log.info("AgentCapabilitiesManager started.")
+    log.info(" started.")
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish(ClusterTopic, ActorLeave("ClusterCapManager", self))
+    mediator ! Publish(ClusterTopic, ActorLeave(Roles.ClusterCapabilitiesManager, self))
     mediator ! Unsubscribe(AgentsTopic, self)
     mediator ! Unsubscribe(ClusterTopic, self)
-    log.info("AgentCapabilitiesManager stopped.")
+    log.info(" stopped.")
   }
 
   override def receive: Receive = {
     case HereIam(DescriptorService, ref) =>
-      log.info(s"AgentCapabilitiesManager knows now the DescriptorManager")
       descriptorManager = ref
       context.become(running)
   }
 
   private def running: Receive = {
     case WhoIs(AgentCapabilitiesService) =>
-      log.debug("Received AgentCapabilitiesService Request")
       sender ! HereIam(AgentCapabilitiesService, self)
 
     case GetDescriptors =>
@@ -109,8 +106,6 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
     availableAgents.foreach { agent =>
       if (checkIfCapabilitiesMatchRequirements(descriptorRefs, agent)) {
         possibleAgents += agent._1
-      } else {
-        log.info(s"Agent '$agent' doesn't match requirements.")
       }
     }
     possibleAgents.toList

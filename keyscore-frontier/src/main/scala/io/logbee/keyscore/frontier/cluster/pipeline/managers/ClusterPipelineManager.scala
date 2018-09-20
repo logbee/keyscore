@@ -50,14 +50,14 @@ object ClusterPipelineManager {
 }
 
 /**
-  * The ClusterPipelineManager<br>
-  * - starts a new PipelineDeployer to deploy a new Pipeline from a BlueprintRef <br>
+  * The '''ClusterPipelineManager''' <br>
+  * - starts a new `PipelineDeployer` to deploy a new Pipeline from a BlueprintRef <br>
   * - deletes a specific or all pipelines <br>
-  * - forwards all Controller messages
-  * - creates Blueprint- and ConfigurationCollectors and send them to all agents.
+  * - forwards all `Controller` messages <br>
+  * - creates Blueprint- and Configuration `Collectors` and send them to all agents.
   *
-  * @param clusterAgentManager
-  * @param localPipelineManagerResolution
+  * @param clusterAgentManager The [[io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager]]
+  * @param localPipelineManagerResolution ~anonymous
   */
 class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
 
@@ -71,16 +71,16 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
   override def preStart(): Unit = {
     mediator ! Subscribe(AgentsTopic, self)
     mediator ! Subscribe(ClusterTopic, self)
-    mediator ! Publish(ClusterTopic, ActorJoin("ClusterPipelineManager", self))
-    log.info("ClusterPipelineManager started.")
+    mediator ! Publish(ClusterTopic, ActorJoin(Roles.ClusterPipelineManager, self))
+    log.info(" started.")
     self ! InitializeMessage
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish(ClusterTopic, ActorLeave("ClusterPipelineManager", self))
+    mediator ! Publish(ClusterTopic, ActorLeave(Roles.ClusterPipelineManager, self))
     mediator ! Subscribe(AgentsTopic, self)
     mediator ! Unsubscribe(ClusterTopic, self)
-    log.info("ClusterPipelineManager stopped.")
+    log.info(" stopped.")
   }
 
   case class CreateClusterPipelineManagerState(agentStatsManager: ActorRef = null, agentCapabilitiesManager: ActorRef = null) {
@@ -89,9 +89,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
   override def receive: Receive = {
     case InitializeMessage =>
-      log.debug("WhoIs AgentStats")
       mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentStatsService))
-      log.debug("WhoIs AgentCapabilities")
       mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentCapabilitiesService))
 
       context.become(initializing(CreateClusterPipelineManagerState()))
@@ -99,11 +97,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
   private def initializing(state: CreateClusterPipelineManagerState): Receive = {
     case HereIam(AgentStatsService, ref) =>
-      log.debug("Received AgentStatsService")
       agentStatsManager = ref
       maybeRunning(state.copy(agentStatsManager = ref))
     case HereIam(AgentCapabilitiesService, ref) =>
-      log.debug("Received AgentCapabilitiesService")
       agentCapabilitiesManager = ref
       maybeRunning(state.copy(agentCapabilitiesManager = ref))
 
@@ -120,7 +116,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
           agents.foreach(agent => {
             context.actorSelection(agent.path / PipelineSchedulerPath) ! DeletePipelineOrder(id)
           })
-        case Failure(e) => log.warning(s"Failed to delete Pipeline with id ($id): $e")
+        case Failure(e) => log.warning(s"Failed to delete Pipeline with id <$id>: $e")
       }
 
     case DeleteAllPipelines => forwardToLocalPipelineManagerOfAvailableAgents(sender, DeleteAllPipelines)
@@ -148,7 +144,6 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
       }
 
     case RequestExistingBlueprints() =>
-      //TODO Let the PBCollector use the sender ref
       val _sender = sender
       val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
       future.onComplete {
@@ -175,7 +170,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
   private def maybeRunning(state: CreateClusterPipelineManagerState): Unit = {
     if (state.isComplete) {
       context.become(running)
-      log.info("became running.")
+      log.debug("became running.")
     }
     else {
       context.become(initializing(state))

@@ -12,7 +12,7 @@ import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager
 import scala.concurrent.ExecutionContext
 
 /**
-  * The ClusterManager manages all the members in the cluster. <br>
+  * The '''ClusterManager''' manages all the members in the cluster. <br>
   * He forwards all the messages to the specific Member-Managers regarding to the role of the member of the message.
   */
 object ClusterManager {
@@ -32,7 +32,7 @@ class ClusterManager(aM: ActorRef) extends Actor with ActorLogging {
   private val clusterAgentManager = aM
 
   override def preStart(): Unit = {
-    log.info("ClusterManager started.")
+    log.info(" started.")
     cluster.subscribe(self, classOf[MemberJoined])
     cluster.subscribe(self, classOf[MemberUp])
 
@@ -46,58 +46,58 @@ class ClusterManager(aM: ActorRef) extends Actor with ActorLogging {
     cluster.subscribe(self, classOf[LeaderChanged])
 
     mediator ! Subscribe(ClusterTopic, self)
-    mediator ! Publish(ClusterTopic, MemberJoin("ClusterManager", cluster.selfMember))
+    mediator ! Publish(ClusterTopic, MemberJoin(Roles.ClusterManager, cluster.selfMember))
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish(ClusterTopic, MemberLeave("ClusterManager", cluster.selfMember))
+    mediator ! Publish(ClusterTopic, MemberLeave(Roles.ClusterManager, cluster.selfMember))
     cluster.unsubscribe(self)
     mediator ! Unsubscribe(ClusterTopic, self)
-    log.info("ClusterManager stopped.")
+    log.info(" stopped.")
   }
 
   override def receive: Receive = {
     case MemberJoined(member) =>
-      log.info(s"[Cluster] Member joined: ${member.uniqueAddress} with roles ${member.roles}")
+      log.debug(s"[Cluster] Member joined: ${member.uniqueAddress} with roles ${member.roles}")
 
     case MemberUp(member) =>
-      log.info(s"[Cluster] Member is up: ${member.uniqueAddress} with roles ${member.roles}")
-      if (member.hasRole("keyscore-agent")) {
+      log.debug(s"[Cluster] Member is up: ${member.uniqueAddress} with roles ${member.roles}")
+      if (member.hasRole(Roles.KeyscoreAgent)) {
         clusterAgentManager ! AddAgent(member)
       }
 
     case ReachableMember(member) =>
-      log.info(s"[Cluster] Member is reachable: ${member.uniqueAddress} with roles ${member.roles}")
-      if (member.hasRole("keyscore-agent")) {
+      log.debug(s"[Cluster] Member is reachable: ${member.uniqueAddress} with roles ${member.roles}")
+      if (member.hasRole(Roles.KeyscoreAgent)) {
         clusterAgentManager ! AddAgent(member)
       }
 
     case UnreachableMember(member) =>
-      log.info(s"[Cluster] Member is unreachable: ${member.uniqueAddress} with roles ${member.roles}")
+      log.debug(s"[Cluster] Member is unreachable: ${member.uniqueAddress} with roles ${member.roles}")
 
     case MemberLeft(member) =>
-      log.info(s"[Cluster] Member left: ${member.uniqueAddress} with roles ${member.roles}")
+      log.debug(s"[Cluster] Member left: ${member.uniqueAddress} with roles ${member.roles}")
 
     case MemberExited(member) =>
-      log.info(s"[Cluster] Member exited: ${member.uniqueAddress} with roles ${member.roles}")
+      log.debug(s"[Cluster] Member exited: ${member.uniqueAddress} with roles ${member.roles}")
 
     case MemberRemoved(member, previousStatus) =>
-      log.info(s"[Cluster] Member is up: ${member.uniqueAddress} with previous status ${previousStatus} with roles ${member.roles}")
+      log.debug(s"[Cluster] Member is up: ${member.uniqueAddress} with previous status ${previousStatus} with roles ${member.roles}")
 
     case LeaderChanged(leader) =>
-      log.info(s"[Cluster] Leader changed: ${leader.get}")
+      log.debug(s"[Cluster] Leader changed: ${leader.get}")
 
     case MemberJoin(name, member) =>
-      log.info(s"[Mediator] Member [${name}] is ${member.status}: ${member.uniqueAddress} | ${member.roles}")
+      log.debug(s"[Mediator] Member [${name}] is ${member.status}: ${member.uniqueAddress} | ${member.roles}")
 
     case MemberLeave(name, member) =>
-      log.info(s"[Mediator] Member [${name}] is ${member.status}: ${member.uniqueAddress} | ${member.roles}")
+      log.debug(s"[Mediator] Member [${name}] is ${member.status}: ${member.uniqueAddress} | ${member.roles}")
 
     case ActorJoin(name, actor) =>
-      log.info(s"[Mediator] Member [${name}] started: ${actor}")
+      log.debug(s"[Mediator] Member [${name}] started: ${actor}")
 
     case ActorLeave(name, actor) =>
-      log.info(s"[Mediator] Member [${name}] stopped: ${actor}")
+      log.debug(s"[Mediator] Member [${name}] stopped: ${actor}")
 
   }
 }
