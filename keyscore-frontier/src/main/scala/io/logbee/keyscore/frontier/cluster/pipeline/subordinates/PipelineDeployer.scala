@@ -59,11 +59,11 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
   }
 
   override def preStart(): Unit = {
-    log.info(s"PipelineDeployer started")
+    log.info(s" started.")
   }
 
   override def postStop(): Unit = {
-    log.info(s"PipelineDeployer stopped")
+    log.info(s" stopped.")
   }
 
   override def receive: Receive = {
@@ -97,16 +97,13 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
     case GetPipelineBlueprintResponse(blueprint) => blueprint match {
       case Some(pipelineBlueprint) => {
-        log.info("Received blueprint")
         context.actorOf(BlueprintCollector(pipelineBlueprint, blueprintManager))
         blueprintForPipeline = pipelineBlueprint
       }
       case _ =>
-        log.info("GetPipelineBlueprintResponse Error")
     }
 
     case BlueprintsCollectorResponse(blueprints) =>
-      log.info("Received blueprints")
       blueprints.foreach(current => {
         descriptorRefs += current.descriptorRef
       })
@@ -118,17 +115,14 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
     case AgentsForPipelineResponse(possibleAgents) =>
       if (!possibleAgents.isEmpty) {
-        log.info("Agents are not empty")
         agentStatsManager ! StatsForAgentsRequest(possibleAgents)
       } else {
-        log.info("Agents are empty")
+        log.warning("No available agents.")
         routeBuilderRef ! NoAvailableAgents
       }
 
     case StatsForAgentsResponse(possibleAgents) =>
-      log.info("Received StatsForAgentsResponse")
       val selectedAgent = scala.util.Random.shuffle(possibleAgents).head._1
-      log.info(s"selected Agent is $selectedAgent")
       //CreateNewPipeline
       localPipelineManagerResolution(selectedAgent, context) ! CreatePipelineOrder(blueprintForPipeline)
       routeBuilderRef ! PipelineDeployed

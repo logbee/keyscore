@@ -25,12 +25,11 @@ class ConfigurationManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     mediator ! Subscribe(Topics.WhoIsTopic, self)
-
-    log.info(s"Start-up complete: $self")
+    log.debug(s" started.")
   }
 
   override def postStop(): Unit = {
-    log.info("Stopped.")
+    log.debug(s" stopped.")
   }
 
   override def receive: Receive = {

@@ -26,12 +26,12 @@ class BlueprintManager extends Actor with ActorLogging {
   private val mediator = DistributedPubSub(context.system).mediator
 
   override def preStart(): Unit = {
-    log.info("BlueprintManager started.")
     mediator ! Subscribe(Topics.WhoIsTopic, self)
+    log.debug(" started.")
   }
 
   override def postStop(): Unit = {
-    log.info("BlueprintManager stopped.")
+    log.debug(" stopped.")
   }
 
   override def receive: Receive = {
@@ -65,6 +65,7 @@ class BlueprintManager extends Actor with ActorLogging {
     case DeleteAllPipelineBlueprintsRequest =>
       pipelineBlueprints.clear()
       sender ! DeleteAllPipelineBlueprintsResponse
+
     //Sealed Blueprint
     case StoreBlueprintRequest(blueprint) =>
       blueprints.put(blueprint.blueprintRef, blueprint)

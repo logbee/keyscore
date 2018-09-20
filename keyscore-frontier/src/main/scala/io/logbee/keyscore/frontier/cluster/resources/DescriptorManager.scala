@@ -26,16 +26,15 @@ class DescriptorManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     mediator ! Subscribe(Topics.WhoIsTopic, self)
-    log.info(s"DescriptorManager started")
+    log.debug(s" started.")
   }
 
   override def postStop(): Unit = {
-    log.info(s"DescriptorManager stopped")
+    log.debug(s" stopped.")
   }
 
   override def receive: Receive = {
     case StoreDescriptorRequest(descriptor) =>
-      log.info(s"### IntegrationTest Stored Descriptors ###")
       descriptors.put(descriptor.ref, descriptor)
       sender ! StoreDescriptorResponse
 
@@ -62,7 +61,6 @@ class DescriptorManager extends Actor with ActorLogging {
       }
 
     case WhoIs(DescriptorService) =>
-      log.info(s"HereIam to $sender")
       sender ! HereIam(DescriptorService, self)
   }
 }

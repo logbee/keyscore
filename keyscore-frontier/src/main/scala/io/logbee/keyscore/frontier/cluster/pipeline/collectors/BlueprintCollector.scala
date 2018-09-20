@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.collectors
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.BlueprintCollector.{BlueprintsCollectorResponse, BlueprintsCollectorResponseFailure, CheckForBlueprintList}
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint}
@@ -21,13 +21,14 @@ object BlueprintCollector {
 
 }
 
-class BlueprintCollector(pipelineBlueprint: PipelineBlueprint, blueprintManager: ActorRef) extends Actor {
+class BlueprintCollector(pipelineBlueprint: PipelineBlueprint, blueprintManager: ActorRef) extends Actor with ActorLogging {
 
   import context.{dispatcher, system}
 
   private var blueprints = scala.collection.mutable.ListBuffer.empty[SealedBlueprint]
 
   override def preStart(): Unit = {
+    log.debug(" started.")
     pipelineBlueprint.blueprints.foreach(current => {
       blueprintManager ! GetBlueprintRequest(current)
     })
@@ -41,7 +42,6 @@ class BlueprintCollector(pipelineBlueprint: PipelineBlueprint, blueprintManager:
       case Some(blueprint) =>
         blueprints += blueprint
         if (blueprints.size == pipelineBlueprint.blueprints.size) {
-          println(s"sending BlueprintsResponse ${blueprints.toList}")
           context.parent ! BlueprintsCollectorResponse(blueprints.toList)
           context.stop(self)
         }

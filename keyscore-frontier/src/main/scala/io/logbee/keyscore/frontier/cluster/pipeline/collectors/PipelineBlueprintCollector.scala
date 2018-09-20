@@ -20,18 +20,15 @@ class PipelineBlueprintCollector(receiver: ActorRef, children: Iterable[ActorRef
   private var blueprints = mutable.ListBuffer.empty[PipelineBlueprint]
 
   override def preStart(): Unit = {
-    log.info(s"PipelineBlueprintCollector started")
+    log.debug(s" started")
     system.scheduler.scheduleOnce(5 seconds) {
       receiver ! PipelineBlueprintsResponse(blueprints.toList)
-      log.info(s"PipelineBlueprintCollector stopped")
       context.stop(self)
     }
   }
 
-
   override def receive: Receive = {
     case pipelineBlueprint: PipelineBlueprint =>
-      log.info("PipelineBlueprintCollector received PipelineBlueprint")
       blueprints += pipelineBlueprint
   }
 

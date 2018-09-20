@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.collectorsCreatePipeline
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.{GetDescriptorRequest, GetDescriptorResponse}
 import io.logbee.keyscore.model.blueprint.SealedBlueprint
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToDescriptor
@@ -16,12 +16,13 @@ object DescriptorCollector {
   def apply(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) = Props(new DescriptorCollector(receiver, sealedBlueprints, descriptorManager))
 
 }
-class DescriptorCollector(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) extends Actor {
+class DescriptorCollector(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) extends Actor with ActorLogging {
   import context.{dispatcher, system}
 
   private var descriptors = scala.collection.mutable.ListBuffer.empty[Descriptor]
 
   override def preStart(): Unit = {
+    log.debug(" started.")
     sealedBlueprints.foreach( current => {
       descriptorManager ! GetDescriptorRequest(current.descriptorRef)
     })

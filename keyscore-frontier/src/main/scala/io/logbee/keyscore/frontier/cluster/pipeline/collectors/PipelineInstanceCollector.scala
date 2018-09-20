@@ -25,6 +25,7 @@ class PipelineInstanceCollector(receiver: ActorRef, agents: Seq[ActorRef], local
   private val states = mutable.ListBuffer.empty[PipelineInstance]
 
   override def preStart(): Unit = {
+    log.debug(" started.")
     agents.foreach(agent => {
       localPipelineManagerResolution(agent, context) ! RequestPipelineInstance
     })
