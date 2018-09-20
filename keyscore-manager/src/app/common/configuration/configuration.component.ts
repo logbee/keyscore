@@ -29,8 +29,11 @@ export class ConfigurationComponent implements OnInit {
 
     ngOnInit(): void {
         const group:any = {};
-        this.parameterDescriptors.forEach(parameterDescriptor => {
+        console.log(this.parameterDescriptors.length);
+        console.log(this.parameterDescriptors);
+        this.parameterDescriptors.forEach((parameterDescriptor,index,array) => {
             group[parameterDescriptor.ref.uuid] = new FormControl();
+            console.log(index);
         });
         this.form = new FormGroup(group);
     }

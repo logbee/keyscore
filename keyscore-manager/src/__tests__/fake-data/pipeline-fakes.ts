@@ -144,11 +144,16 @@ export const generateResolvedParameterDescriptor = (type: ParameterDescriptorJso
         case  ParameterDescriptorJsonClass.ChoiceParameterDescriptor:
             return {
                 ...initialize,
-                descriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.ChoiceParameterDescriptor) as ChoiceParameterDescriptor,
                 min: faker.random.number({min: 1, max: 10}),
                 max: faker.random.number({min: 11, max: 20}),
                 choices: generateResolvedChoices()
             };
+        case ParameterDescriptorJsonClass.BooleanParameterDescriptor:
+            return{
+                ...initialize,
+                defaultValue:faker.random.boolean(),
+                mandatory:faker.random.boolean()
+            }
     }
 };
 

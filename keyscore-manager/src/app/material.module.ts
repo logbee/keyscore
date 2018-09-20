@@ -15,7 +15,7 @@ import {
     MatSidenavModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatSlideToggleModule, MatTooltip, MatSelect
+    MatSlideToggleModule, MatTooltipModule, MatSelectModule
 
 } from '@angular/material';
 import {FlexLayoutModule} from '@angular/flex-layout';
@@ -39,8 +39,8 @@ import {FlexLayoutModule} from '@angular/flex-layout';
         MatCheckboxModule,
         MatChipsModule,
         MatSlideToggleModule,
-        MatTooltip,
-        MatSelect
+        MatTooltipModule,
+        MatSelectModule
 
     ],
     exports: [
@@ -60,8 +60,8 @@ import {FlexLayoutModule} from '@angular/flex-layout';
         MatCheckboxModule,
         MatChipsModule,
         MatSlideToggleModule,
-        MatTooltip,
-        MatSelect
+        MatTooltipModule,
+        MatSelectModule
     ]
 })
 export class MaterialModule {

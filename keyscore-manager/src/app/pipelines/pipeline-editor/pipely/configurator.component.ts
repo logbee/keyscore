@@ -25,10 +25,9 @@ import {deepcopy, zip} from "../../../util";
             <mat-divider></mat-divider>
             <div fxLayoutAlign="start">{{selectedDraggable?.getDraggableModel().blockDescriptor.displayName}}</div>
 
-            <div *ngFor="let parameters of zippedParameters">
-                <app-parameter [parameterDescriptor]="parameters[1]" [parameter]="parameters[0]"
-                               [form]="form"></app-parameter>
-            </div>
+            <configuration [parameters]="selectedDraggable.getDraggableModel().blockDescriptor.parameters"
+                           [parameterDescriptors]="selectedDraggable.getDraggableModel().blockConfiguration.parameters">
+            </configuration>
         </div>
     `
 })
@@ -36,12 +35,10 @@ import {deepcopy, zip} from "../../../util";
 export class ConfiguratorComponent implements OnInit {
     @Input() selectedDraggable$: Observable<Draggable>;
     @Input() isOpened: boolean;
-    @Output() closeConfigurator:EventEmitter<void> = new EventEmitter();
-    public form: FormGroup;
+    @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     public selectedDraggable: Draggable;
-    public zippedParameters;
 
-    constructor(){
+    constructor() {
 
     }
 
@@ -50,14 +47,6 @@ export class ConfiguratorComponent implements OnInit {
             console.log("configuration on init subscribe");
             console.log(selectedDraggable.getDraggableModel().blockConfiguration.parameters);
             this.selectedDraggable = selectedDraggable;
-            /*this.form = this.parameterService.toFormGroup(
-                selectedDraggable.getDraggableModel().blockDescriptor.parameters,
-                selectedDraggable.getDraggableModel().blockConfiguration.parameters);
-            */this.zippedParameters = zip(
-                [selectedDraggable.getDraggableModel().blockConfiguration.parameters,
-                    selectedDraggable.getDraggableModel().blockDescriptor.parameters]
-            );
-
         })
 
     }
