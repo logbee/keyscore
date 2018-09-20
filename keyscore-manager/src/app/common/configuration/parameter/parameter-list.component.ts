@@ -58,7 +58,9 @@ export class ParameterList implements ControlValueAccessor,OnInit {
     };
 
     public ngOnInit(): void{
-        this.parameterValues = this.parameter.value;
+        console.log(this.parameter);
+        this.parameterValues = this.parameter.value ? this.parameter.value : [];
+        console.log(this.parameterValues);
     }
 
     public writeValue(elements: string[]): void {

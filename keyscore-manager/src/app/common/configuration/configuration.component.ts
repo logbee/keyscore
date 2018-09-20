@@ -7,35 +7,37 @@ import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 @Component({
     selector: "configuration",
     template: `
-        <div class="configuration">
-            <app-parameter *ngFor="let parameter of parameters; let i = index" [parameter]="parameter"
-                           [parameterDescriptor]="parameterDescriptors[i]"></app-parameter>
-        </div>
+        <form class="configuration" [formGroup]="form" *ngIf="form">
+            <app-parameter *ngFor="let parameter of getKeys(parametersMapping)" [parameter]="parameter"
+                           [parameterDescriptor]="parametersMapping.get(parameter)" [form]="form"></app-parameter>
+        </form>
 
     `
 })
 
 export class ConfigurationComponent implements OnInit {
-    @Input() parameters: Parameter[];
-    @Input() parameterDescriptors: ResolvedParameterDescriptor[];
+    @Input() parametersMapping: Map<Parameter,ResolvedParameterDescriptor>;
 
     @Output() configuration: EventEmitter<Configuration> = new EventEmitter();
 
     form:FormGroup;
 
-    constructor(private formBuilder:FormBuilder) {
+    constructor() {
 
     }
 
     ngOnInit(): void {
         const group:any = {};
-        console.log(this.parameterDescriptors.length);
-        console.log(this.parameterDescriptors);
-        this.parameterDescriptors.forEach((parameterDescriptor,index,array) => {
+
+        this.parametersMapping.forEach((parameterDescriptor) => {
             group[parameterDescriptor.ref.uuid] = new FormControl();
-            console.log(index);
         });
+
         this.form = new FormGroup(group);
+    }
+
+    getKeys(map:Map<any,any>){
+        return Array.from(map.keys());
     }
 
 }

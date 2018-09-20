@@ -5,6 +5,8 @@ import {BlockConfiguration} from "./models/block-configuration.model";
 import {Observable} from "rxjs";
 import {distinctUntilChanged} from "rxjs/operators";
 import {deepcopy, zip} from "../../../util";
+import {Parameter} from "../../../models/parameters/Parameter";
+import {ResolvedParameterDescriptor} from "../../../models/parameters/ParameterDescriptor";
 
 @Component({
     selector: "configurator",
@@ -25,8 +27,7 @@ import {deepcopy, zip} from "../../../util";
             <mat-divider></mat-divider>
             <div fxLayoutAlign="start">{{selectedDraggable?.getDraggableModel().blockDescriptor.displayName}}</div>
 
-            <configuration [parameters]="selectedDraggable.getDraggableModel().blockDescriptor.parameters"
-                           [parameterDescriptors]="selectedDraggable.getDraggableModel().blockConfiguration.parameters">
+            <configuration [parametersMapping]="parametersMapping">
             </configuration>
         </div>
     `
@@ -38,6 +39,8 @@ export class ConfiguratorComponent implements OnInit {
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     public selectedDraggable: Draggable;
 
+    parametersMapping:Map<Parameter,ResolvedParameterDescriptor> = new Map();
+
     constructor() {
 
     }
@@ -47,11 +50,14 @@ export class ConfiguratorComponent implements OnInit {
             console.log("configuration on init subscribe");
             console.log(selectedDraggable.getDraggableModel().blockConfiguration.parameters);
             this.selectedDraggable = selectedDraggable;
+            this.parametersMapping =
+                new Map(zip([selectedDraggable.getDraggableModel().blockConfiguration.parameters,
+                selectedDraggable.getDraggableModel().blockDescriptor.parameters]))
         })
 
     }
 
-    cancel() {
+    /*cancel() {
         this.selectedDraggable.getDraggableModel().blockConfiguration.parameters.forEach(parameter =>
             this.form.controls[parameter.ref.uuid].setValue(parameter.value)
         );
@@ -66,6 +72,6 @@ export class ConfiguratorComponent implements OnInit {
         });
         this.selectedDraggable.getDraggableModel().blockConfiguration = blockConfiguration;
         console.log(this.selectedDraggable.getDraggableModel().blockConfiguration.parameters);
-    }
+    }*/
 
 }

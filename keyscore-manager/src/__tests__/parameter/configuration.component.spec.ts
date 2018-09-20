@@ -13,6 +13,8 @@ import {ParameterMap} from "../../app/common/configuration/parameter/parameter-m
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {HttpLoaderFactory} from "../../app/app.module";
+import {zip} from "../../app/util";
+import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
 
 describe('ConfiguratorComponent', () => {
     let component: ConfigurationComponent;
@@ -28,6 +30,7 @@ describe('ConfiguratorComponent', () => {
                 ParameterMap
             ],
             imports: [
+                NoopAnimationsModule,
                 RouterTestingModule,
                 MaterialModule,
                 ReactiveFormsModule,
@@ -65,25 +68,25 @@ describe('ConfiguratorComponent', () => {
         ParameterDescriptorJsonClass.FieldParameterDescriptor, ParameterDescriptorJsonClass.NumberParameterDescriptor,
         ParameterDescriptorJsonClass.TextListParameterDescriptor, ParameterDescriptorJsonClass.TextParameterDescriptor];
 
-    const parameterJsonClasses = [ParameterJsonClass.BooleanParameter, ParameterJsonClass.TextParameter,
-        ParameterJsonClass.ExpressionParameter, ParameterJsonClass.NumberParameter,
-        ParameterJsonClass.DecimalParameter, ParameterJsonClass.FieldNameParameter, ParameterJsonClass.FieldParameter,
-        ParameterJsonClass.TextListParameter, ParameterJsonClass.FieldNameListParameter,
-        ParameterJsonClass.FieldListParameter, ParameterJsonClass.ChoiceParameter];
+    const parameterJsonClasses = [ParameterJsonClass.ExpressionParameter, ParameterJsonClass.ChoiceParameter,
+        ParameterJsonClass.BooleanParameter, ParameterJsonClass.DecimalParameter, ParameterJsonClass.FieldListParameter,
+        ParameterJsonClass.FieldNameListParameter, ParameterJsonClass.FieldNameParameter, ParameterJsonClass.FieldParameter,
+        ParameterJsonClass.NumberParameter, ParameterJsonClass.TextListParameter, ParameterJsonClass.TextParameter];
 
     describe('ngOnInit', () => {
         it('should create the form group with all given parameters', () => {
-            component.parameterDescriptors = descriptorJsonClasses.map(jsonClass => generateResolvedParameterDescriptor(jsonClass));
-            component.parameters = parameterJsonClasses.map(jsonClass => generateParameter(jsonClass));
+            let parameterDescriptors = descriptorJsonClasses.map(jsonClass => generateResolvedParameterDescriptor(jsonClass));
+            let parameters = parameterJsonClasses.map(jsonClass => generateParameter(jsonClass));
+            component.parametersMapping = new Map(zip([parameters, parameterDescriptors]));
 
             fixture.detectChanges();
 
             let hasValue = 0;
-            component.parameterDescriptors.forEach(descriptor => {
+            component.parametersMapping.forEach((_,descriptor) => {
                 hasValue = component.form.controls[descriptor.ref.uuid].value !== null ? hasValue + 1 : hasValue;
             });
 
-            expect(hasValue).toBe(component.parameterDescriptors.length);
+            expect(hasValue).toBe(component.parametersMapping.size);
         })
     });
 });

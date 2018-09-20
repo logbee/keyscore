@@ -30,6 +30,9 @@ Object.defineProperty(window, 'matchMedia', {
 Object.defineProperty(window, 'getComputedStyle', {
     value: () => {
         return {
+            getPropertyValue: (prop) => {
+                return ''
+            },
             display: 'none',
             appearance: ['-webkit-appearance']
         };
