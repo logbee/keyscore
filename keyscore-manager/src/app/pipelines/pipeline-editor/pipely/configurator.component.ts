@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Draggable} from "./models/contract";
 import {FormGroup} from "@angular/forms";
-import {ParameterControlService} from "../../../common/configuration/parameter/services/parameter-control.service";
 import {BlockConfiguration} from "./models/block-configuration.model";
 import {Observable} from "rxjs";
 import {distinctUntilChanged} from "rxjs/operators";
@@ -34,7 +33,7 @@ import {deepcopy, zip} from "../../../util";
     `
 })
 
-export class ConfigurationComponent implements OnInit {
+export class ConfiguratorComponent implements OnInit {
     @Input() selectedDraggable$: Observable<Draggable>;
     @Input() isOpened: boolean;
     @Output() closeConfigurator:EventEmitter<void> = new EventEmitter();
@@ -42,7 +41,7 @@ export class ConfigurationComponent implements OnInit {
     public selectedDraggable: Draggable;
     public zippedParameters;
 
-    constructor(private parameterService: ParameterControlService){
+    constructor(){
 
     }
 
@@ -51,10 +50,10 @@ export class ConfigurationComponent implements OnInit {
             console.log("configuration on init subscribe");
             console.log(selectedDraggable.getDraggableModel().blockConfiguration.parameters);
             this.selectedDraggable = selectedDraggable;
-            this.form = this.parameterService.toFormGroup(
+            /*this.form = this.parameterService.toFormGroup(
                 selectedDraggable.getDraggableModel().blockDescriptor.parameters,
                 selectedDraggable.getDraggableModel().blockConfiguration.parameters);
-            this.zippedParameters = zip(
+            */this.zippedParameters = zip(
                 [selectedDraggable.getDraggableModel().blockConfiguration.parameters,
                     selectedDraggable.getDraggableModel().blockDescriptor.parameters]
             );

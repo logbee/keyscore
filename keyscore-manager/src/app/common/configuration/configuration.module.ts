@@ -4,7 +4,6 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ParameterMap} from "./parameter/parameter-map.component";
 import {ParameterList} from "./parameter/parameter-list.component";
 import {ParameterComponent} from "./parameter/parameter.component";
-import {ParameterControlService} from "./parameter/services/parameter-control.service";
 import {TranslateModule} from "@ngx-translate/core";
 import {MaterialModule} from "../../material.module";
 import {ConfigurationComponent} from "./configuration.component";
@@ -27,7 +26,7 @@ import {ConfigurationComponent} from "./configuration.component";
     exports:[
         ConfigurationComponent
     ],
-    providers: [ParameterControlService]
+    providers: []
 })
-export class ParameterModule {
+export class ConfigurationModule {
 }

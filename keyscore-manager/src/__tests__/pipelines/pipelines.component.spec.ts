@@ -17,14 +17,8 @@ import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
 import {generatePipelines} from "../fake-data/pipeline-fakes";
 import {cold, hot} from "jasmine-marbles";
-import * as RouterActions from "../../app/router/router.actions";
-import * as faker from 'faker/locale/en_US';
 
-import {
-    CreatePipelineAction,
-    LoadAllPipelinesAction,
-    UpdatePipelinePollingAction
-} from "../../app/pipelines/pipelines.actions";
+import {LoadAllPipelinesAction, UpdatePipelinePollingAction} from "../../app/pipelines/pipelines.actions";
 
 describe('PipelinesComponent', () => {
     let component: PipelinesComponent;

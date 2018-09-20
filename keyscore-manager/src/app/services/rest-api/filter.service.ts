@@ -1,3 +1,4 @@
+/*
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Store} from "@ngrx/store";
@@ -16,4 +17,4 @@ export class FilterService {
         )
     }
 
-}
+}*/

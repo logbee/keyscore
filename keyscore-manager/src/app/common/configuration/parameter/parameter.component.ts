@@ -15,7 +15,7 @@ import "./style/parameter-module-style.scss"
                 <mat-form-field  *ngSwitchCase="jsonClass.TextParameterDescriptor">
                     <input matInput type="text" [placeholder]="parameterDescriptor.info.displayName"
                            [formControlName]="parameterDescriptor.ref.uuid"
-                           [id]="parameterDescriptor.ref.uuid" [type]="'text'" [value]="parameter.value">
+                           [id]="parameterDescriptor.ref.uuid" [value]="parameter.value">
                     <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                         <mat-icon>close</mat-icon>
                     </button>
@@ -24,7 +24,7 @@ import "./style/parameter-module-style.scss"
                 <mat-form-field *ngSwitchCase="jsonClass.NumberParameterDescriptor">
                     <input matInput type="number" [value]="parameter.value" [placeholder]="parameterDescriptor.info.displayName"
                            [formControlName]="parameterDescriptor.ref.uuid"
-                           [id]="parameterDescriptor.ref.uuid" [type]="'number'">
+                           [id]="parameterDescriptor.ref.uuid">
                     <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                         <mat-icon>close</mat-icon>
                     </button>
@@ -38,10 +38,29 @@ import "./style/parameter-module-style.scss"
                 <div *ngSwitchCase="jsonClass.BooleanParameterDescriptor"
                      class="toggleCheckbox" [id]="parameterDescriptor.ref.uuid">
                     <mat-slide-toggle [checked]="parameter.value" id="checkbox{{parameterDescriptor.ref.uuid}}"  
-                                  [formControlName]="parameterDescriptor.name">
-                        {{parameterDescriptor.info.displayName}} Value: {{parameter.value}}
+                                  [formControlName]="parameterDescriptor.ref.uuid">
+                        {{parameterDescriptor.info.displayName}} 
                     </mat-slide-toggle>
                 </div>
+                
+                <div *ngSwitchCase="jsonClass.ChoiceParameterDescriptor" [id]="parameterDescriptor.ref.uuid">
+                    <mat-select [formControlName]="parameterDescriptor.ref.uuid" [placeholder]="parameterDescriptor.defaultValue">
+                        <mat-option *ngFor="let choice of parameterDescriptor.choices" [value]="choice.displayName"
+                                    [matTooltip]="choice.description" matTooltipPosition="before"></mat-option>
+                    </mat-select>
+                </div>
+                
+                <mat-form-field *ngSwitchCase="jsonClass.ExpressionParameterDescriptor" [id]="parameterDescriptor.ref.uuid">
+                    <input matInput type="text" [placeholder]="parameterDescriptor.info.displayName"
+                           [formControlName]="parameterDescriptor.ref.uuid"
+                           [id]="parameterDescriptor.ref.uuid" [value]="parameter.value">
+                    <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+                
+                <
+                
                 <div  class="parameter-required" *ngIf="!isValid">{{parameterDescriptor.info.displayName}}
                     {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}
                 </div>

@@ -12,7 +12,21 @@ import {Label} from "../../app/models/common/MetaData";
 import {Configuration} from "../../app/models/common/Configuration";
 import {Parameter, ParameterJsonClass} from "../../app/models/parameters/Parameter";
 import {Field} from "../../app/models/dataset/Field";
-import {ParameterDescriptor, ParameterDescriptorJsonClass} from "../../app/models/parameters/ParameterDescriptor";
+import {
+    ChoiceParameterDescriptor,
+    ExpressionType,
+    FieldListParameterDescriptor,
+    FieldNameHint,
+    FieldNameParameterDescriptor, FieldParameterDescriptor,
+    FieldValueType,
+    NumberRange,
+    ParameterDescriptor,
+    ParameterDescriptorJsonClass, ResolvedChoice,
+    ResolvedParameterDescriptor,
+    ResolvedParameterInfo,
+    ResolvedStringValidator,
+    TextParameterDescriptor
+} from "../../app/models/parameters/ParameterDescriptor";
 
 export const generatePipeline = (): PipelineInstance => {
     return {
@@ -40,6 +54,151 @@ export const generateConfiguration = (parameterCount = faker.random.number({min:
     }
 };
 
+export const generateResolvedParameterDescriptor = (type: ParameterDescriptorJsonClass = null): ResolvedParameterDescriptor => {
+    const types: ParameterDescriptorJsonClass[] = [ParameterDescriptorJsonClass.ExpressionParameterDescriptor,
+        ParameterDescriptorJsonClass.ChoiceParameterDescriptor, ParameterDescriptorJsonClass.BooleanParameterDescriptor,
+        ParameterDescriptorJsonClass.DecimalParameterDescriptor, ParameterDescriptorJsonClass.FieldListParameterDescriptor,
+        ParameterDescriptorJsonClass.FieldNameListParameterDescriptor, ParameterDescriptorJsonClass.FieldNameParameterDescriptor,
+        ParameterDescriptorJsonClass.FieldParameterDescriptor, ParameterDescriptorJsonClass.NumberParameterDescriptor,
+        ParameterDescriptorJsonClass.TextListParameterDescriptor, ParameterDescriptorJsonClass.TextParameterDescriptor];
+    if (type === null) {
+        type = types[faker.random.number({min: 0, max: types.length - 1})];
+    }
+
+    const initialize = {
+        ref: generateParameterRef(),
+        info: generateInfo(),
+        jsonClass: type
+    };
+
+    switch (type) {
+        case ParameterDescriptorJsonClass.TextParameterDescriptor:
+            return {
+                ...initialize,
+                defaultValue: faker.random.word(),
+                validator: generateValidator(),
+                mandatory: faker.random.boolean()
+            };
+        case ParameterDescriptorJsonClass.ExpressionParameterDescriptor:
+            return {
+                ...initialize,
+                defaultValue: ".*",
+                expressionType: ExpressionType.RegEx,
+                mandatory: faker.random.boolean()
+            };
+        case ParameterDescriptorJsonClass.NumberParameterDescriptor:
+            let range = generateNumberRange();
+            return {
+                ...initialize,
+                defaultValue: faker.random.number({min: range.start, max: range.end}),
+                range: range,
+                mandatory: faker.random.boolean()
+            };
+        case ParameterDescriptorJsonClass.DecimalParameterDescriptor:
+            let rangeDecimal = generateNumberRange();
+            return {
+                ...initialize,
+                defaultValue: faker.random.number({min: rangeDecimal.start, max: rangeDecimal.end}),
+                range: rangeDecimal,
+                decimals: faker.random.number({min: 1, max: 2}),
+                mandatory: faker.random.boolean()
+            };
+        case ParameterDescriptorJsonClass.FieldParameterDescriptor:
+            return {
+                ...initialize,
+                defaultName: faker.random.word(),
+                hint: generateFieldNameHint(),
+                nameValidator: generateValidator(),
+                fieldValueType: generateFieldValueType(),
+                mandatory: faker.random.boolean()
+            };
+        case ParameterDescriptorJsonClass.FieldNameParameterDescriptor:
+            return {
+                ...initialize,
+                defaultValue: faker.random.word(),
+                hint: generateFieldNameHint(),
+                validator: generateValidator(),
+                mandatory: faker.random.boolean()
+            };
+        case ParameterDescriptorJsonClass.TextListParameterDescriptor:
+            return {
+                ...initialize,
+                descriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.TextParameterDescriptor) as TextParameterDescriptor,
+                min: faker.random.number({min: 1, max: 10}),
+                max: faker.random.number({min: 11, max: 20})
+            };
+        case ParameterDescriptorJsonClass.FieldNameListParameterDescriptor:
+            return {
+                ...initialize,
+                descriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.FieldNameParameterDescriptor) as FieldNameParameterDescriptor,
+                min: faker.random.number({min: 1, max: 10}),
+                max: faker.random.number({min: 11, max: 20})
+            };
+        case ParameterDescriptorJsonClass.FieldListParameterDescriptor:
+            return {
+                ...initialize,
+                descriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.FieldParameterDescriptor) as FieldParameterDescriptor,
+                min: faker.random.number({min: 1, max: 10}),
+                max: faker.random.number({min: 11, max: 20})
+            };
+        case  ParameterDescriptorJsonClass.ChoiceParameterDescriptor:
+            return {
+                ...initialize,
+                descriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.ChoiceParameterDescriptor) as ChoiceParameterDescriptor,
+                min: faker.random.number({min: 1, max: 10}),
+                max: faker.random.number({min: 11, max: 20}),
+                choices: generateResolvedChoices()
+            };
+    }
+};
+
+export const generateResolvedChoices = (count = faker.random.number({min: 1, max: 10})) => {
+    return Array.apply(null, Array(count)).map(() => generateResolvedChoice());
+};
+
+export const generateResolvedChoice = (): ResolvedChoice => {
+    return {
+        name: faker.random.uuid(),
+        displayName: faker.random.word(),
+        description: faker.lorem.sentence()
+    }
+};
+
+export const generateFieldValueType = (): FieldValueType => {
+    const types = [FieldValueType.Boolean, FieldValueType.Decimal, FieldValueType.Duration, FieldValueType.Number,
+        FieldValueType.Text, FieldValueType.Timestamp, FieldValueType.Unknown];
+
+    return types[faker.random.number({min: 0, max: types.length - 1})];
+
+};
+export const generateFieldNameHint = (): FieldNameHint => {
+    const types = [FieldNameHint.AbsentField, FieldNameHint.PresentField, FieldNameHint.AnyField];
+
+    return types[faker.random.number({min: 0, max: types.length - 1})];
+};
+
+export const generateNumberRange = (): NumberRange => {
+    return {
+        step: faker.random.number({min: 1, max: 10}),
+        start: faker.random.number({min: 1, max: 10}),
+        end: faker.random.number({min: 11, max: 30})
+    };
+};
+
+export const generateValidator = (): ResolvedStringValidator => {
+    return {
+        expression: ".*",
+        expressionType: ExpressionType.RegEx,
+        description: "Everything is fine here"
+    };
+};
+
+export const generateInfo = (): ResolvedParameterInfo => {
+    return {
+        displayName: faker.random.word(),
+        description: faker.lorem.sentence()
+    };
+};
 export const generateParameters = (count: number = faker.random.number({min: 1, max: 10})): Parameter[] => {
     return Array.apply(null, Array(count)).map(() => generateParameter());
 };

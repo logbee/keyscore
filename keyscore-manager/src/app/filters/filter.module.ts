@@ -20,7 +20,9 @@ import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
 import {DatasetVisualizer} from "./filter-details/live-editing-modules/datasetVisualizer";
 import {MaterialModule} from "../material.module";
+/*
 import {FilterService} from "../services/rest-api/filter.service";
+*/
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -55,7 +57,7 @@ export const routes: Routes = [
     ]
     ,
     providers: [
-        FilterService
+        /*FilterService*/
     ],
 })
 export class LiveEditingModule {

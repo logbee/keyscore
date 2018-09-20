@@ -1,6 +1,8 @@
 import {Injectable} from "@angular/core";
 import {AppState} from "../app.component";
+/*
 import {FilterService} from "../services/rest-api/filter.service";
+*/
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Observable, of} from "rxjs/index";
 import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
@@ -36,7 +38,7 @@ export class FiltersEffects2 {
 
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
-                private filterService: FilterService) {
+                ) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {

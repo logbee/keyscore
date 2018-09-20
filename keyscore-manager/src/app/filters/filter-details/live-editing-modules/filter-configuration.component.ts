@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {Configuration} from "../../../models/common/Configuration";
 import {Store} from "@ngrx/store";
-import {ParameterControlService} from "../../../common/configuration/parameter/services/parameter-control.service";
 import {
     ParameterDescriptor,
     ResolvedParameterDescriptor
@@ -99,7 +98,7 @@ export class FilterConfigurationComponent implements OnInit {
     @Output() private apply: EventEmitter<{ filterConfiguration: Configuration, values: any }> =
         new EventEmitter();
 
-    constructor(private parameterService: ParameterControlService, private store: Store<any>) {
+    constructor(private store: Store<any>) {
     }
 
     public ngOnInit(): void {
@@ -114,7 +113,7 @@ export class FilterConfigurationComponent implements OnInit {
             this.noParamsAvailable = filter.descriptor.parameters.length === 0;
             this.filter = filter;
         });*/
-        this.form = this.parameterService.toFormGroup(this.parameters, this.filter.parameters);
+       // this.form = this.parameterService.toFormGroup(this.parameters, this.filter.parameters);
 
     }
 
