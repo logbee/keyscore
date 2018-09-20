@@ -11,7 +11,7 @@ import scala.language.postfixOps
 
 /**
   * The '''AgentApplication''' is the Main Class in the keyscore-agent package. <br><br>
-  * The AgentApplication loads the ''Configuration'' for the package and creates an ''Agent''.
+  * The AgentApplication loads the `Configuration` for the package and creates an [[io.logbee.keyscore.agent.Agent]].
   */
 object AgentApplication extends App {
 

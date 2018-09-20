@@ -33,6 +33,15 @@ object Agent {
   private case object ClusterAgentManagerDied
 }
 
+/**
+  * The '''Agent''' is the main Actor in the keyscore-agent package. <br><br>
+  * On Startup, the Agent tries to join the `Cluster` and loads his `Extensions`. <br>
+  * If the Join was accepted, he publishes his `Capabilites` to the cluster. <br><br>
+  * The Agent creates: <br>
+  *   * [[io.logbee.keyscore.agent.pipeline.FilterManager]] <br>
+  *   * [[io.logbee.keyscore.agent.pipeline.LocalPipelineManager]] <br>
+  *   * [[io.logbee.keyscore.commons.extension.ExtensionLoader]] <br>
+  */
 class Agent extends Actor with ActorLogging {
 
   private implicit val ec: ExecutionContext = context.dispatcher

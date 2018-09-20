@@ -30,64 +30,58 @@ object LocalPipelineManager {
 }
 
 /**
-  * The LocalPipelineManager does:
+  * The '''LocalPipelineManager''' manages the requests for all Pipelines on his Agent. <br><br>
+  * For creating a new Pipeline he creates a [[io.logbee.keyscore.agent.pipeline.PipelineSupervisor]] <br>
+  * He can also delete a single or all Pipelines. <br><br>
+  * The LocalPipelineManager also forwards all `Controller` requests to the corresponding `Supervisor`.
   *
-  * - manage all the local pipelines of an agent
-  *
-  * - create, delete, update and forwarding of ControllerMessages
-  *
-  * @param filterManager ActorRef of filterManager
+  * @param filterManager [[io.logbee.keyscore.agent.pipeline.FilterManager]]
   */
 class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogging {
 
-
   import context._
   implicit val timeout: Timeout = 10 seconds
-  private val mediator = DistributedPubSub(context.system).mediator
 
   override def preStart(): Unit = {
-    mediator ! Subscribe(Topics.WhoIsTopic, self)
-    log.info("StartUp complete.")
+    log.info(s" started.")
   }
 
   override def postStop(): Unit = {
-    log.info("Stopped")
+    log.info(s" stopped.")
   }
 
   override def receive: Receive = {
-    case WhoIs(LocalPipelineService) =>
-      sender ! HereIam(LocalPipelineService, self)
-
     case CreatePipelineOrder(blueprint) =>
-      log.info(s"Received Pipeline Creation Order for: $blueprint")
+      log.info(s"Received Order to create a Pipeline for: <$blueprint>")
       child(nameFrom(blueprint)) match {
         case Some(_) => self ! UpdatePipeline(blueprint)
         case None => self ! CreateNewPipeline(blueprint)
       }
     case CreateNewPipeline(blueprint) =>
-      log.info("Received Create Pipeline: " + blueprint.ref.uuid)
+      log.info(s"Creating Pipeline: <${blueprint.ref.uuid}>")
       val supervisor = actorOf(PipelineSupervisor(filterManager), nameFrom(blueprint))
-      log.info("Send CreatePipelineMessage to" + supervisor.toString())
+      log.debug(s"Send CreatePipelineMessage to ${supervisor.toString()}")
       supervisor ! PipelineSupervisor.CreatePipeline(blueprint)
       watchWith(supervisor, SupervisorTerminated(supervisor, blueprint))
 
     case UpdatePipeline(blueprint) =>
-      log.info("Received Update Pipeline: " + blueprint.ref.uuid)
+      log.debug(s"Received Update Pipeline: <${blueprint.ref.uuid}>")
       child(nameFrom(blueprint)).foreach(child => {
-        log.info(s"Stopping PipelineSupervisor for pipeline: ${blueprint.ref.uuid}")
+        log.debug(s"Stopping child for pipeline: <${blueprint.ref.uuid}>")
         unwatch(child)
         watchWith(child, CreateNewPipeline(blueprint))
         context.stop(child)
       })
 
     case DeletePipelineOrder(id) =>
+      log.debug(s"Stopping child for pipeline <$id>")
       child(nameFrom(id)).foreach(child => context.stop(child))
 
     case DeleteAllPipelinesOrder =>
+      log.warning("Received Order to delete all Pipelines. Stopping all children.")
       children.foreach(child => context.stop(child))
 
     case RequestPipelineInstance =>
-      log.debug(s"Sender of ReqInstance is: ${sender()}")
       children.foreach( supervisor => {
         supervisor forward RequestPipelineInstance
       })
@@ -98,10 +92,9 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       })
 
     case SupervisorTerminated(supervisor, configuration) =>
-      log.info(s"PipelineSupervisor terminated: $configuration")
+      log.warning(s"PipelineSupervisor <$supervisor> has terminated: $configuration")
 
     case message: PauseFilter =>
-      log.debug(s"Rached PauseFilter: $message")
       children.foreach( supervisor => {
         supervisor forward  message
       })
@@ -112,7 +105,6 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       })
 
     case message: InsertDatasets =>
-      log.debug(s"Received InsertDatasets: $message")
       children.foreach( supervisor => {
         supervisor forward message
       })
@@ -131,11 +123,11 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       children.foreach( supervisor => {
         supervisor forward message
       })
+
     case message: ClearBuffer =>
       children.foreach( supervisor => {
         supervisor forward message
       })
-    case e => log.info(s"Unknown message received: $e")
   }
 
   def nameFrom(blueprint: PipelineBlueprint): String = {

@@ -34,15 +34,21 @@ object PipelineSupervisor {
 }
 
 /**
-  * PipelineSupervisor
+  * A '''PipelineSupervisor''' is responsible for only __one single Pipeline__. <br><br>
+  * When he creates a Pipeline, he first collects all necessary `Stages` from each [[io.logbee.keyscore.agent.pipeline.BlueprintMaterializer]]. <br>
+  * After the `PipelineSupervisor` has all Stages, he begins to __materialize__ the Stages to a Stream.<br><br>
+  * When the Pipeline is running, he forwards all `Controller` requests to the `PipelineController`.
   *
-  * States:       <br>
-  * initial:      <br>
-  * configuring:  <br>
+  * @todo Add Logic to the `ConfigurePipeline` case.
+  *
+  * <br><br>
+  * __States:__       <br>
+  * initial      <br>
+  * configuring  <br>
   * materializing <br>
-  * running:      <br>
+  * running      <br>
   * <br>
-  * Transitions:<br>
+  * __Transitions:__<br>
   * ''initial''   x CreatePipeline                  -> configuring                <br>
   * configuring   x SinkStageCreated                -> configuring                <br>
   * configuring   x SourceStageCreated              -> configuring                <br>
@@ -63,11 +69,11 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
   private val pipelineStartTrials = 3
 
   override def preStart(): Unit = {
-    log.info(" StartUp complete.")
+    log.info(" started.")
   }
 
   override def postStop(): Unit = {
-    log.info(" Supervisor stopped.")
+    log.info(" stopped.")
   }
 
   override def receive: Receive = {
@@ -78,13 +84,12 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
       log.info(s"Creating pipeline <${blueprint.ref.uuid}>.")
 
-      //TODO Source and Sink of a pipeline is 'None'
       val pipeline = Pipeline(blueprint)
 
       become(configuring(pipeline))
 
       blueprint.blueprints.foreach { stageBlueprint =>
-        log.debug(s"Blueprint of pipeline is $stageBlueprint")
+        log.debug(s"Starting Materializer for blueprint: <${stageBlueprint.uuid}>")
         context.actorOf(BlueprintMaterializer(stageContext, stageBlueprint, filterManager))
       }
 
@@ -97,15 +102,15 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
   private def configuring(pipeline: Pipeline): Receive = {
 
     case SinkStageCreated(stage) =>
-      log.info(s"Received SinkStage: $stage")
+      log.debug(s"Received SinkStage: $stage")
       become(configuring(pipeline.withSinkStage(stage)), discardOld = true)
 
     case SourceStageCreated(stage) =>
-      log.info(s"Received SourceStage: $stage")
+      log.debug(s"Received SourceStage: $stage")
       become(configuring(pipeline.withSourceStage(stage)), discardOld = true)
 
     case FilterStageCreated(stage) =>
-      log.info(s"Received FilterStage: $stage")
+      log.debug(s"Received FilterStage: $stage")
       become(configuring(pipeline.withFilterStage(stage)), discardOld = true)
 
     case StartPipeline(trials) =>
@@ -118,7 +123,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
         if (pipeline.isComplete) {
 
-          log.info(s"Constructing pipeline <${pipeline.pipelineBlueprint}>")
+          log.info(s"Constructing pipeline: <${pipeline.pipelineBlueprint}>")
 
           val head = Source.fromGraph(pipeline.source.get).viaMat(new ValveStage) { (sourceProxyFuture, valveProxyFuture) =>
             val controller = for {
@@ -172,11 +177,11 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
   private def materializing(pipeline: Pipeline, controllers: List[Controller]): Receive = {
 
     case ControllerMaterialized(controller) if controllers.size < pipeline.filters.size + 1 =>
-      log.info(s"Controller <${controller.id}> has been materialized.")
+      log.debug(s"Controller <${controller.id}> has been materialized.")
       become(materializing(pipeline, controllers :+ controller), discardOld = true)
 
     case ControllerMaterialized(controller) =>
-      log.info(s"Last Controller <${controller.id}> has been materialized.")
+      log.debug(s"Last Controller <${controller.id}> has been materialized.")
       become(running(new PipelineController(pipeline, controllers :+ controller)), discardOld = true)
 
     case ControllerMaterializationFailed(cause) =>
@@ -184,10 +189,11 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       context.stop(self)
 
     case RequestPipelineInstance =>
-      log.info(s"got RequestPipelineInstance Message")
+      log.debug(s"Received Request for Pipeline Instance: <${pipeline.id}>")
       sender ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Yellow)
 
     case RequestPipelineBlueprints(receiver) =>
+      log.debug(s"Received Request for Pipeline Blueprints: <${pipeline.id}>")
       receiver ! pipeline.pipelineBlueprint
   }
 
@@ -197,72 +203,65 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.info(s"Updating pipeline <${configuration.id}>")
 
     case RequestPipelineInstance =>
-      log.info(s"got RequestPipelineInstance Message")
+      log.debug(s"Received Request for Pipeline Instance")
       sender ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.ref.uuid, controller.pipelineBlueprint.ref.uuid, Green)
 
     case RequestPipelineBlueprints(receiver) =>
+      log.debug(s"Received Request for Pipeline Blueprints")
       receiver ! controller.pipelineBlueprint
 
     case PauseFilter(filterId, doPause) =>
       val _sender = sender
-      log.debug(s"Reached PauseFilter with $filterId from sender ${_sender}")
       controller.close(filterId, doPause).foreach(_.onComplete {
-        case Success(state) =>
-          log.debug(s"Sending PauseFilterResponse: $state")
-          _sender ! PauseFilterResponse(state)
-        case Failure(e) =>
-          log.debug(s"Sending PauseFilterResponse failed: $e")
-          _sender ! Failure
+        case Success(state) => _sender ! PauseFilterResponse(state)
+        case Failure(e) => _sender ! Failure
       })
 
     case DrainFilterValve(filterId, doDrain) =>
-      val lastSender = sender
+      val _sender = sender
       controller.drain(filterId, doDrain).foreach(_.onComplete {
-        case Success(state) => lastSender ! DrainFilterResponse(state)
-        case Failure(e) => lastSender ! Failure
+        case Success(state) => _sender ! DrainFilterResponse(state)
+        case Failure(e) => _sender ! Failure
       })
 
     case InsertDatasets(filterId, datasets, where) =>
-      log.debug(s"Received InsertDatasets for $filterId with $datasets")
-      val lastSender = sender
+      val _sender = sender
       controller.insert(filterId, datasets, where).foreach(_.onComplete {
-        case Success(state) => lastSender ! InsertDatasetsResponse(state)
-        case Failure(e) => lastSender ! Failure
+        case Success(state) => _sender ! InsertDatasetsResponse(state)
+        case Failure(e) => _sender ! Failure
       })
 
     case ExtractDatasets(filterId, amount, where) =>
-      val lastSender = sender
+      val _sender = sender
       controller.extract(filterId, amount, where).foreach(_.onComplete {
-        case Success(datasets) => lastSender ! ExtractDatasetsResponse(datasets)
-        case Failure(e) => lastSender ! Failure
+        case Success(datasets) => _sender ! ExtractDatasetsResponse(datasets)
+        case Failure(e) => _sender ! Failure
       })
 
     case ConfigureFilter(filterId, filterConfig) =>
-      val lastSender = sender
+      val _sender = sender
       controller.configure(filterId, filterConfig).foreach(_.onComplete {
-        case Success(state) => lastSender ! ConfigureFilterResponse(state)
-        case Failure(e) => lastSender ! Failure
+        case Success(state) => _sender ! ConfigureFilterResponse(state)
+        case Failure(e) => _sender ! Failure
       })
 
     case CheckFilterState(filterId) =>
-      val lastSender = sender
+      val _sender = sender
       controller.state(filterId).foreach(_.onComplete {
-        case Success(state) =>
-          lastSender ! CheckFilterStateResponse(state)
-        case Failure(e) => lastSender ! Failure
+        case Success(state) => _sender ! CheckFilterStateResponse(state)
+        case Failure(e) => _sender ! Failure
       })
 
     case ClearBuffer(filterId) =>
-      val lastSender = sender
+      val _sender = sender
       controller.clear(filterId).foreach(_.onComplete {
-        case Success(state) => lastSender ! ClearBufferResponse(state)
-        case Failure(e) => lastSender ! Failure
+        case Success(state) => _sender ! ClearBufferResponse(state)
+        case Failure(e) => _sender ! Failure
       })
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {
     if (trials > 0) {
-
       log.info(s"Scheduling start of pipeline <${pipeline.id}> in $pipelineStartDelay. (trials=$trials)")
       context.system.scheduler.scheduleOnce(pipelineStartDelay) {
         self ! StartPipeline(trials)
