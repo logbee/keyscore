@@ -3,7 +3,7 @@ import {FilterDescriptor} from "./FilterDescriptor";
 import {Localization} from "../common/Localization";
 import {MetaData} from "../common/MetaData";
 
-export interface Descriptor{
+export interface Descriptor {
     jsonClass:string;
     ref:Ref;
     describes:FilterDescriptor;

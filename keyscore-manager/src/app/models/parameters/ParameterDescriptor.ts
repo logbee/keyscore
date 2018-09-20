@@ -1,5 +1,5 @@
 import {TextRef} from "../common/Localization";
-import {ParameterRef, Ref} from "../common/Ref";
+import {ParameterRef} from "../common/Ref";
 
 export interface StringValidator {
     expression: string;

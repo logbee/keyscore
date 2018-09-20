@@ -19,19 +19,8 @@ import {StatuslightComponent} from "../common/health/statuslight.component";
 import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./filter-details/live-editing.component";
 import {DatasetVisualizer} from "./filter-details/live-editing-modules/datasetVisualizer";
-import {ParameterModule} from "../common/configuration/parameter/parameter.module";
-import {MatCardModule} from '@angular/material/card';
-import {MatGridListModule} from "@angular/material/grid-list";
-import {MatListModule} from "@angular/material/list";
-import {MatDividerModule} from "@angular/material/divider";
-import {FlexLayoutModule} from '@angular/flex-layout';
-import {MatTableModule} from '@angular/material/table';
-import {MatInputModule} from "@angular/material/input";
-import {MatFormFieldModule}  from '@angular/material/form-field';
-import {MatButtonModule} from "@angular/material/button";
-import {MatIconModule} from "@angular/material/icon";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MaterialModule} from "../material.module";
+import {FilterService} from "../services/rest-api/filter.service";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -50,7 +39,6 @@ export const routes: Routes = [
         HealthModule,
         AlertModule,
         ErrorModule,
-        ParameterModule,
         MaterialModule
 
 
@@ -66,7 +54,9 @@ export const routes: Routes = [
         DatasetVisualizer
     ]
     ,
-    providers: [],
+    providers: [
+        FilterService
+    ],
 })
 export class LiveEditingModule {
 }

@@ -4,7 +4,6 @@ import {Actions, Effect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {Action, Store} from "@ngrx/store";
-import {TranslateService} from "@ngx-translate/core";
 import {combineLatest, Observable, of} from "rxjs/index";
 import {catchError, concatMap, map, mergeMap, switchMap, withLatestFrom} from "rxjs/internal/operators";
 import {AppState} from "../app.component";
@@ -44,14 +43,12 @@ import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
 import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
 import {Dataset} from "../models/dataset/Dataset";
-import {Record} from "../models/dataset/Record";
 import {
     selectExtractedDatasets,
     selectFilterId,
     selectLiveEditingFilter,
     selectUpdateConfigurationFlag
 } from "./filter.reducer";
-import {Field} from "../models/dataset/Field";
 
 @Injectable()
 export class FilterEffects {

@@ -4,7 +4,6 @@ import {Actions, Effect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {Action, Store} from "@ngrx/store";
-import {TranslateService} from "@ngx-translate/core";
 import {Observable, of} from "rxjs";
 import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
 import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
@@ -19,24 +18,28 @@ import {
     EDIT_PIPELINE,
     EditPipelineAction,
     EditPipelineFailureAction,
-    EditPipelineSuccessAction, LOAD_EDIT_PIPELINE_BLUEPRINTS, LoadEditBlueprintsAction,
+    EditPipelineSuccessAction,
     LOAD_ALL_PIPELINES,
+    LOAD_EDIT_PIPELINE_BLUEPRINTS,
+    LOAD_EDIT_PIPELINE_CONFIG,
     LOAD_FILTER_DESCRIPTORS,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LoadAllPipelinesAction,
     LoadAllPipelinesFailureAction,
     LoadAllPipelinesSuccessAction,
+    LoadEditBlueprintsAction,
+    LoadEditPipelineConfigAction,
     LoadFilterDescriptorsFailureAction,
     LoadFilterDescriptorsSuccessAction,
+    ResolveFilterDescriptorSuccessAction,
     UPDATE_PIPELINE,
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
-    UpdatePipelineSuccessAction, LoadEditPipelineConfigAction, LOAD_EDIT_PIPELINE_CONFIG,
-    LOAD_FILTER_DESCRIPTORS_SUCCESS, ResolveFilterDescriptorSuccessAction,
+    UpdatePipelineSuccessAction,
 } from "./pipelines.actions";
-import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {getPipelinePolling} from "./pipelines.reducer";
-import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {PipelineService} from "../services/rest-api/pipeline.service";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
@@ -192,7 +195,7 @@ export class PipelinesEffects {
                 private actions$: Actions,
                 private http: HttpClient,
                 private pipelineService: PipelineService,
-                private descriptorResolver: DescriptorResolverService,) {
+                private descriptorResolver: DescriptorResolverService) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {
