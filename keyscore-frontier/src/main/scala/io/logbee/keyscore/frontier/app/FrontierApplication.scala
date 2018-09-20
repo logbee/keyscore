@@ -6,12 +6,11 @@ import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.Frontier.InitFrontier
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 
 /**
-  * The FrontierApplication is the Main class of the so called frontier package. <br>
-  * It starts an actor system and a Frontier.
+  * The '''FrontierApplication''' is the Main class of the keyscore-frontier package. <br><br>
+  * The FrontierApplication loads the `Configuration` for the package and creates an [[io.logbee.keyscore.frontier.Frontier]].
   */
 object FrontierApplication extends App {
 

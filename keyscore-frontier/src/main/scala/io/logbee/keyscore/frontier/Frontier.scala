@@ -18,14 +18,10 @@ import org.json4s.native.Serialization
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-/**
-  * The Frontier is the heart of the frontier package and starts the rest-end for the keyscore-manager or other clients so HTTP-Requests can be translated and directed to the agents.
-  */
+
 object Frontier {
 
   case class InitFrontier(isOperating: Boolean)
-
-  private case object InitServices
 
   private case object InitRouteBuilder
 
@@ -38,6 +34,14 @@ object Frontier {
   private case class InitClusterAgentManager(isOperation: Boolean)
 }
 
+/**
+  * The '''Frontier''' is the Main Actor of the keyscore-frontier package. <br><br>
+  *
+  * The `Frontier` starts the following Actors on StartUp:  `ConfigurationManager` | `DescriptorManager` | `BlueprintManager`
+  *
+  * @todo Handle the Operation/Sleeping mode better
+  *
+  */
 class Frontier extends Actor with ActorLogging with Json4sSupport {
 
   implicit val timeout: Timeout = 10 seconds
@@ -50,19 +54,18 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
   private var configurationManager: ActorRef = _
   private var descriptorManager: ActorRef = _
   private var blueprintManager: ActorRef = _
+
   private var routeBuilder: ActorRef = _
 
   private var clusterAgentManager: ActorRef = _
   private var clusterManager: ActorRef = _
-
-  private var agentStatsManager: ActorRef = _
 
   private val configuration = FrontierConfigProvider(system)
 
   var httpBinding: Future[Http.ServerBinding] = null
 
   override def preStart(): Unit = {
-    log.info("Frontier started")
+    log.info("Frontier started.")
     configurationManager = context.actorOf(ConfigurationManager())
     descriptorManager = context.actorOf(DescriptorManager())
     blueprintManager = context.actorOf(BlueprintManager())
@@ -78,10 +81,6 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
 
     case InitFrontier(isOperating) =>
       log.info("Initializing Frontier ...")
-
-      self ! InitClusterAgentManager(isOperating)
-
-    case InitClusterAgentManager(isOperating) =>
       clusterAgentManager = context.actorOf(Props(classOf[ClusterAgentManager]), "ClusterAgentManager")
       clusterAgentManager ! Init(isOperating)
 
@@ -89,11 +88,11 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
       clusterManager = context.actorOf(ClusterManager(clusterAgentManager), "ClusterManager")
 
       if(isOperating) {
-        log.info("Frontier started in Running Mode.")
+        log.debug("Frontier started in Running Mode.")
         context.become(running)
         self ! InitRouteBuilder
       } else {
-        log.info("Frontier started in Sleeping Mode.")
+        log.debug("Frontier started in Sleeping Mode.")
         context.become(sleeping)
       }
 
@@ -101,25 +100,29 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
 
   private def running(): Receive = {
     case InitRouteBuilder =>
+      log.info("Initializing RouteBuilder ...")
       routeBuilder = context.actorOf(RouteBuilder(clusterAgentManager), "RouteBuilder")
 
     case RouteBuilderInitialized =>
+      log.info("RouteBuilder initialized. Building route and starting Server...")
       routeBuilder ! BuildFullRoute
 
     case RouteResponse(route) =>
       log.info(s"Frontier Server online at http://${configuration.bindAddress}:${configuration.port}/")
       httpBinding = Http().bindAndHandle(route, configuration.bindAddress, configuration.port)
+      log.info("Frontier startup complete.")
 
     case StopServer =>
       httpBinding
         .flatMap(_.unbind())
-        .onComplete(_ => log.info("Stopped REST Server"))
+        .onComplete(_ => log.info("Stopped Frontier Server"))
 
     case GetFrontierState =>
       sender ! GetFrontierStateResponse(true)
 
   }
 
+  /** Sets the Frontier in an `sleeping` state so that the Frontier should do nothing except of being a seed node for the cluster. */
   private def sleeping(): Receive = {
     case GetFrontierState =>
       sender ! GetFrontierStateResponse(false)
