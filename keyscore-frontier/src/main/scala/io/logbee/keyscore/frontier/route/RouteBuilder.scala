@@ -123,9 +123,10 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with RouteImpli
   }
 
   private def buildFullRoute: Route = {
-    val fullRoute = mainRoute ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager) ~ agentsRoute(clusterPipelineManager)
+    val fullRoute = mainRoute ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager) ~ agentsRoute(clusterAgentManager)
 
-    settings { fullRoute }
+    val route = settings { fullRoute }
+    route
   }
 
 }
