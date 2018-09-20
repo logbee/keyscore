@@ -39,6 +39,7 @@ class PipelineIntegrationTest extends Matchers {
     .requestUrl("http://localhost:9200")
     .build()
 
+  //The FilterID must equal the BlueprintRefs of the Filters
   private val k2kFilterId = "24a88215-cfe0-47a1-a889-7f3e9f8260ef"
   private val k2eFilterId = "dc882c27-3de2-4603-b272-b35cf81080e2"
 
@@ -51,37 +52,41 @@ class PipelineIntegrationTest extends Matchers {
     val datasets = List(dataset1, dataset2, dataset3)
     val datasetsSerialized = write(datasets)
 
-    println(s"datasets $datasetsSerialized")
-
+    //Create the first Pipeline: Kafka -> Kafka
     creatingKafkaToKafkaPipeline(runner)
     getSinglePipelineBlueprint(k2kObject)
 
+    //Kreate the second Pipeline: Kafka -> Elastic
     creatingKafkaToElasticPipeline(runner)
     getSinglePipelineBlueprint(k2eObject)
 
-    Thread.sleep(10000)
+    //Wait until both Pipelines are materialized
+    Thread.sleep(16000)
     checkHealthStateOfPipelines()
 
-    println(" # # # Inserting into K2K")
+    //Test the Valves of the first Pipeline Filter
     pauseFilter(k2kFilterId, "true")
     checkFilterState(k2kFilterId, Green, Paused)
     drainFilter(k2kFilterId, "true")
     checkFilterState(k2kFilterId, Green, Dismantled)
-
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
+    Thread.sleep(1000)
     extractDatsetsFromFilter(k2kFilterId, 3, 3)
     extractDatsetsFromFilter(k2kFilterId, 5, 3)
     pauseFilter(k2kFilterId, "false")
     drainFilter(k2kFilterId, "false")
     checkFilterState(k2kFilterId, Green, Running)
+
+    //Test the Valves of the second Pipeline Filter
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
+    Thread.sleep(1000)
     extractDatsetsFromFilter(k2eFilterId, 3, 3)
 
-    Thread.sleep(6000)
-
+    //Wait until all Dataset are pushed to the Elastic index
+    Thread.sleep(12000)
     checkElasticElements(3)
 
-
+    //Cleanup
     removeElasticIndex("test")
     getAllPipelineBlueprints(2)
     deleteAllPipelineBlueprints()
@@ -157,6 +162,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached PUT PipelineBlueprint for ${pipelineObject.ref.uuid}")
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -171,7 +177,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
-
+    log.debug(s"Reached PUT Blueprint")
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/blueprint/${blueprintObject.blueprintRef.uuid}")
@@ -186,6 +192,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def putSingleConfiguration(configurationObject: Configuration, sinkConfig: String)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached PUT Configuraiton for ${configurationObject.ref.uuid}")
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/configuration/${configurationObject.ref.uuid}")
@@ -200,10 +207,12 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def getAllPipelineBlueprints(expected: Int)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached GET All PipelineBlueprints")
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/blueprint/pipeline/*")
     )
+
     runner.http(action => action.client(frontierClient)
       .receive()
       .response(HttpStatus.OK)
@@ -211,14 +220,12 @@ class PipelineIntegrationTest extends Matchers {
         val payload = message.getPayload().asInstanceOf[String]
         val pipelineBlueprints = read[Map[BlueprintRef, PipelineBlueprint]](payload)
         pipelineBlueprints should have size expected
-        if (pipelineBlueprints.nonEmpty) {
-          log.info("GetAllPipelineBlueprints successfully: " + pipelineBlueprints.head._1.uuid)
-        }
       })
     )
   }
 
   def getSinglePipelineBlueprint(pipelineObject: PipelineBlueprint)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached GET PipelineBlueprint for ${pipelineObject.ref.uuid}")
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -231,12 +238,12 @@ class PipelineIntegrationTest extends Matchers {
         val payload = message.getPayload().asInstanceOf[String]
         val pipelineBlueprint = read[PipelineBlueprint](payload)
         pipelineBlueprint.ref.uuid should equal(pipelineObject.ref.uuid)
-        log.info("GetSinglePipelineBlueprint successfully: " + pipelineBlueprint.ref.uuid)
       })
     )
   }
 
   def deleteSinglePipelineBlueprint(pipelineObject: PipelineBlueprint)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached DELETE PipelineBlueprint for ${pipelineObject.ref.uuid}")
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
@@ -248,6 +255,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def deleteAllPipelineBlueprints()(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached DELETE All PipelineBlueprints")
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"resources/blueprint/pipeline/*")
@@ -259,6 +267,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def checkHealthStateOfPipelines()(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Check Health State")
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"pipeline/instance/*")
@@ -277,6 +286,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def startPipeline(pipelineObject: PipelineBlueprint, pipelineRef: String)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Start Pipeline for ${pipelineObject.ref.uuid}")
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/pipeline/configuration/${pipelineObject.ref.uuid}")
@@ -286,6 +296,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def pauseFilter(filterId: String, toggle: String)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Pause Filter for ${filterId}")
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"/filter/${filterId}/pause?value=" + toggle))
@@ -297,6 +308,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def drainFilter(filterId: String, toggle: String)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Drain Filter for ${filterId}")
     runner.http(action => action.client(frontierClient)
       .send()
       .post(s"/filter/${filterId}/drain?value=" + toggle))
@@ -308,6 +320,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def checkFilterState(filterId: String, health: Health, status: FilterStatus)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Check Filter State for ${filterId}")
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"/filter/${filterId}/state")
@@ -326,6 +339,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def insertDatasetsIntoFilter(filterId: String, datasets: String)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Insert Dataset for ${filterId} with ${datasets}")
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/filter/${filterId}/insert")
@@ -340,6 +354,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def extractDatsetsFromFilter(filterId: String, amount: Int, expect: Int)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Extract Datasets for ${filterId}")
     runner.http(action => action.client(frontierClient)
       .send()
       .get(s"/filter/${filterId}/extract?value=" + amount)
@@ -357,6 +372,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   def checkElasticElements(expectedHits: Int)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Check Elastic")
     runner.http(action => action.client(elasticClient)
       .send()
       .get("/test/_search")
@@ -374,6 +390,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
     private def removeElasticIndex(index: String)(implicit runner: TestRunner): TestAction = {
+      log.debug(s"Reached Remove Elastic Index for ${index}")
       runner.http(action => action.client(elasticClient)
         .send()
         .delete("/" + index))
