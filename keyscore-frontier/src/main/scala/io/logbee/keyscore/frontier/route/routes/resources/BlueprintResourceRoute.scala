@@ -1,23 +1,13 @@
 package io.logbee.keyscore.frontier.route.routes.resources
 
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.actor.ActorRef
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages._
 import io.logbee.keyscore.frontier.route.RouteImplicits
-import io.logbee.keyscore.frontier.route.routes.resources.BlueprintResourceRoute.{BlueprintResourceRouteRequest, BlueprintResourceRouteResponse}
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
-
-object BlueprintResourceRoute {
-
-  case class BlueprintResourceRouteRequest(blueprintManager: ActorRef)
-
-  case class BlueprintResourceRouteResponse(blueprintRoute: Route)
-
-}
 
 /**
   * The '''BlueprintResourceRoute''' holds the REST route for all `Blueprint` Resources.<br><br>
@@ -25,16 +15,7 @@ object BlueprintResourceRoute {
   * Operations: For all `Blueprints` or a single one. <br>
   * Differentiation: `PipelineBlueprint` | `SealedBlueprint`
   */
-class BlueprintResourceRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
-
-  implicit val system = context.system
-  implicit val executionContext = system.dispatcher
-
-  override def receive: Receive = {
-    case BlueprintResourceRouteRequest(blueprintManager) =>
-      val r = blueprintResourceRoute(blueprintManager)
-      sender ! BlueprintResourceRouteResponse(r)
-  }
+object BlueprintResourceRoute extends RouteImplicits {
 
   def blueprintResourceRoute(blueprintManager: ActorRef): Route = {
     pathPrefix("resources") {

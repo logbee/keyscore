@@ -1,24 +1,17 @@
 package io.logbee.keyscore.frontier.route.routes
 
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.actor.ActorRef
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
 import io.logbee.keyscore.frontier.route.RouteImplicits
-import io.logbee.keyscore.frontier.route.routes.PipelineRoute.{PipelineRouteRequest, PipelineRouteResponse}
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
-
-object PipelineRoute {
-  case class PipelineRouteRequest(pipelineManager: ActorRef, blueprintManager: ActorRef, clusterPipelineManager: ActorRef)
-  case class PipelineRouteResponse(pipelineRoute: Route)
-}
 
 /**
   * The '''PipelineRoute''' holds the REST route for all `Pipelines`.<br><br>
@@ -27,18 +20,9 @@ object PipelineRoute {
   *
   * @todo Implement Route for Updating Pipelines
   */
-class PipelineRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
+object PipelineRoute extends RouteImplicits {
 
-  implicit val system = context.system
-  implicit val executionContext = system.dispatcher
-
-  override def receive: Receive = {
-    case PipelineRouteRequest(pipelineManager, blueprintManager, clusterPipelineManager) =>
-      val r = pipelineRoute(pipelineManager, blueprintManager, clusterPipelineManager)
-      sender ! PipelineRouteResponse(r)
-  }
-
-  def pipelineRoute(pipelineManager: ActorRef, blueprintManager: ActorRef, clusterPipelineManager: ActorRef): Route = {
+  def pipelineRoute(clusterPipelineManager: ActorRef, blueprintManager: ActorRef): Route = {
     pathPrefix("pipeline") {
       pathPrefix("configuration") {
         pathPrefix("*") {

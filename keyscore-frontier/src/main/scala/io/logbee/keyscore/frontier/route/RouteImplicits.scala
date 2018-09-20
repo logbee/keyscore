@@ -1,9 +1,12 @@
 package io.logbee.keyscore.frontier.route
 
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+
 /** Implicits values for all Routes. <br><br>
-  * `timeout` | `serialization` | `formats`
+  * `timeout` | `serialization` | `formats` <br>
+  * __extends__ `Json4sSupport`
   */
-trait RouteImplicits {
+trait RouteImplicits extends Json4sSupport{
 
   import akka.util.Timeout
   import io.logbee.keyscore.model.json4s.KeyscoreFormats

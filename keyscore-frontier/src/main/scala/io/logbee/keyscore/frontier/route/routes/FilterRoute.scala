@@ -1,25 +1,17 @@
 package io.logbee.keyscore.frontier.route.routes
 
+import akka.actor.ActorRef
 import akka.actor.FSM.Failure
-import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.RequestExistingBlueprints
 import io.logbee.keyscore.frontier.route.RouteImplicits
-import io.logbee.keyscore.frontier.route.routes.FilterRoute.{FilterRouteRequest, FilterRouteResponse}
 import io.logbee.keyscore.model.WhichValve.whichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-
-
-object FilterRoute {
-  case class FilterRouteRequest(pipelineManager: ActorRef, clusterPipelineManager: ActorRef)
-  case class FilterRouteResponse(filterRoute: Route)
-}
 
 /**
   * The '''FilterRoute''' holds the REST route for all `Filters`.<br><br>
@@ -28,30 +20,18 @@ object FilterRoute {
   *
   * @todo Fix RequestExistingPipelines
   */
-class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
+object FilterRoute extends RouteImplicits {
 
-  implicit val system = context.system
-  implicit val executionContext = system.dispatcher
-
-  override def receive: Receive = {
-    case FilterRouteRequest(pipelineManager, clusterPipelineManager) =>
-      val r = filterRoute(pipelineManager, clusterPipelineManager)
-      sender ! FilterRouteResponse(r)
-  }
-
-  def filterRoute(pipelineManager: ActorRef, clusterPipelineManager: ActorRef): Route = {
+  def filterRoute(clusterPipelineManager: ActorRef): Route = {
     pathPrefix("filter") {
       pathPrefix(JavaUUID) { filterId =>
         path("pause") {
           post {
-            log.debug(s"Asking for pause filter with id: $filterId")
             parameter('value.as[Boolean]) { doPause =>
               onSuccess(clusterPipelineManager ? PauseFilter(filterId, doPause)) {
                 case PauseFilterResponse(state) =>
-                  log.info(s"PauseFilterResponse: $state")
                   complete(StatusCodes.Accepted, state)
                 case Failure =>
-                  log.info(s"PauseFilterResponse Failure")
                   complete(StatusCodes.InternalServerError)
 
               }
