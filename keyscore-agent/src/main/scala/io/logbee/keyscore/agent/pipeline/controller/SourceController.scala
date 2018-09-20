@@ -10,6 +10,15 @@ import io.logbee.keyscore.model.pipeline.{FilterState, SourceProxy}
 
 import scala.concurrent.Future
 
+/**
+  * The '''SourceController''' manages all requests for a running Source. <br><br>
+  * He can change the Configuration of his Source on runtime, do live-edition operations or retrieve live-stats of the Source.
+  *
+  * @todo Implement
+  *
+  * @param source The corresponding Source
+  * @param valve The Valve after the Source
+  */
 private class SourceController(val source: SourceProxy, val valve: ValveProxy) extends Controller {
 
   override val id: UUID = source.id

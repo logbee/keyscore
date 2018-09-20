@@ -10,6 +10,15 @@ import io.logbee.keyscore.model.{After, WhichValve}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * The '''FilterController''' manages all requests for a running Filter. <br><br>
+  * He can change the Configuration of his Filter on runtime, do live-edition operations or retrieve live-stats of the Filter.
+  *
+  * @param inValve The Valve before the Filter
+  * @param filter The corresponding Filter
+  * @param outValve The Valve after the Filter
+  * @param executionContext ~implicit
+  */
 private class FilterController(val inValve: ValveProxy, val filter: FilterProxy, val outValve: ValveProxy)(implicit val executionContext: ExecutionContext) extends Controller {
 
   override val id: UUID = filter.id
@@ -24,7 +33,6 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
   }
 
   override def pause(doPause: Boolean): Future[FilterState] = {
-    println(s"reached pause method of FilterController")
     for {
     inValveState <- inValve.state()
     outValveState <- outValve.state()

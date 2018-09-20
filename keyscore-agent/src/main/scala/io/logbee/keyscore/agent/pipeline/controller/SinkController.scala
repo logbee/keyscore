@@ -10,6 +10,15 @@ import io.logbee.keyscore.model.pipeline.{FilterState, SinkProxy}
 
 import scala.concurrent.Future
 
+/**
+  * The '''SinkController''' manages all requests for a running Sink. <br><br>
+  * He can change the Configuration of his Sink on runtime, do live-edition operations or retrieve live-stats of the Sink.
+  *
+  * @todo Implement
+  *
+  * @param valve The Valve before the Sink
+  * @param sink The corresponding Sink
+  */
 private class SinkController(val valve: ValveProxy, val sink: SinkProxy) extends Controller {
 
   override val id: UUID = sink.id

@@ -10,6 +10,17 @@ import io.logbee.keyscore.model.pipeline.{FilterState, MergeProxy}
 
 import scala.concurrent.Future
 
+/**
+  * The '''MergeController''' manages all requests for a running ~Merge~. <br><br>
+  * He can change the Configuration of his ~Merge~ on runtime, do live-edition operations or retrieve live-stats of the ~Merge~. 
+  *
+  * @todo Implement
+  *
+  * @param leftValve The left Valve before the ~Merge~
+  * @param rightValve The right Valve before the ~Merge~
+  * @param merge The corresponding ~Merge~
+  * @param outValve The Valve before the ~Merge~
+  */
 private class MergeController(val leftValve: ValveProxy, val rightValve: ValveProxy, val merge: MergeProxy, val outValve: ValveProxy) extends Controller {
 
   override val id: UUID = merge.id

@@ -12,6 +12,13 @@ import io.logbee.keyscore.model.pipeline.FilterState
 
 import scala.concurrent.Future
 
+/**
+  * The '''PipelineController''' holds the `Pipeline` and a list of `Controllers` for each ~Filter~. <br><br>
+  * He forwards all requests to the matching `Controllers`.
+  *
+  * @param pipeline The Pipeline object.
+  * @param controllers The list of Controllers.
+  */
 class PipelineController(val pipeline: Pipeline, val controllers: List[Controller]) {
 
   private val controllerMap = controllers.map(controller => controller.id -> controller).toMap
@@ -25,10 +32,6 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
   }
 
   def close(id: UUID, doClose: Boolean): Option[Future[FilterState]] = {
-    println(s"closing valve <$id>")
-    controllerMap.foreach( kv => {
-      println(s"Key: ${kv._1} -> Value: ${kv._2}")
-    })
     controllerMap.get(id).map(_.pause(doClose))
   }
 

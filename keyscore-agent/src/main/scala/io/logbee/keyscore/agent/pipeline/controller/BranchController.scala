@@ -10,6 +10,17 @@ import io.logbee.keyscore.model.pipeline.{BranchProxy, FilterState}
 
 import scala.concurrent.Future
 
+/**
+  * The '''BranchController''' manages all requests for a running ~Branch~. <br><br>
+  * He can change the Configuration of his ~Branch~ on runtime, do live-edition operations or retrieve live-stats of the ~Branch~.
+  *
+  * @todo Implement
+  *
+  * @param inValve The Valve before the ~Branch~
+  * @param branch The corresponding ~Branch~
+  * @param leftValve The left Valve after the ~Branch~
+  * @param rightValve The right Valve after the ~Branch~
+  */
 private class BranchController(val inValve: ValveProxy, val branch: BranchProxy, val leftValve: ValveProxy, val rightValve: ValveProxy) extends Controller {
 
   override val id: UUID = branch.id
