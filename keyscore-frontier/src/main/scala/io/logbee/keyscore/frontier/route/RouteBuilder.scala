@@ -37,7 +37,7 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 /**
-  * The RouteBuilder combines multiple routes to one specific server route for the Frontier.
+  * The '''RouteBuilder''' combines multiple routes to one specific server route for the Frontier.
   */
 object RouteBuilder {
 

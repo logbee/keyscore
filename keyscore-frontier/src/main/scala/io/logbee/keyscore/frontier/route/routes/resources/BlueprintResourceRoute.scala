@@ -12,11 +12,19 @@ import io.logbee.keyscore.frontier.route.routes.resources.BlueprintResourceRoute
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 
 object BlueprintResourceRoute {
+
   case class BlueprintResourceRouteRequest(blueprintManager: ActorRef)
+
   case class BlueprintResourceRouteResponse(blueprintRoute: Route)
+
 }
 
-//TODO Update this when the routes are tested
+/**
+  * The '''BlueprintResourceRoute''' holds the REST route for all `Blueprint` Resources.<br><br>
+  * `Directives`: GET | PUT | POST | DELETE <br>
+  * Operations: For all `Blueprints` or a single one. <br>
+  * Differentiation: `PipelineBlueprint` | `SealedBlueprint`
+  */
 class BlueprintResourceRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
   implicit val system = context.system
@@ -27,51 +35,57 @@ class BlueprintResourceRoute extends Actor with ActorLogging with Json4sSupport 
       val r = blueprintResourceRoute(blueprintManager)
       sender ! BlueprintResourceRouteResponse(r)
   }
-  
+
   def blueprintResourceRoute(blueprintManager: ActorRef): Route = {
     pathPrefix("resources") {
       pathPrefix("blueprint") {
         pathPrefix("pipeline") {
-          pathPrefix(JavaUUID) { pipelineBlueprintId =>
-            post {
-              entity(as[PipelineBlueprint]) { pipelineBlueprint =>
-                onSuccess(blueprintManager ? UpdatePipelineBlueprintRequest(pipelineBlueprint)) {
-                  case UpdatePipelineBlueprintResponseSuccess => complete(StatusCodes.OK)
-                  case _ => complete(StatusCodes.NoContent)
-                }
-              }
-            } ~
-              put {
-                entity(as[PipelineBlueprint]) { pipelineBlueprint =>
-                  onSuccess(blueprintManager ? StorePipelineBlueprintRequest(pipelineBlueprint)) {
-                    case StorePipelineBlueprintResponse => complete(StatusCodes.Created)
-                    case _ => complete(StatusCodes.InternalServerError)
-                  }
-                }
-              } ~
-              get {
-                onSuccess((blueprintManager ? GetPipelineBlueprintRequest(BlueprintRef(pipelineBlueprintId.toString))).mapTo[GetPipelineBlueprintResponse]) {
-                  case GetPipelineBlueprintResponse(blueprint) => complete(StatusCodes.OK, blueprint)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              } ~
-              delete {
-                onSuccess(blueprintManager ? DeletePipelineBlueprintRequest(BlueprintRef(pipelineBlueprintId.toString))) {
-                  case DeletePipelineBlueprintResponse => complete(StatusCodes.OK)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              }
-          } ~
           pathPrefix("*") {
             get {
               onSuccess(blueprintManager ? GetAllPipelineBlueprintsRequest) {
                 case GetAllPipelineBlueprintsResponse(pipelineBlueprints) => complete(StatusCodes.OK, pipelineBlueprints)
                 case _ => complete(StatusCodes.InternalServerError)
               }
+            } ~
+              delete {
+                onSuccess(blueprintManager ? DeleteAllPipelineBlueprintsRequest) {
+                  case DeleteAllPipelineBlueprintsResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+          } ~
+            pathPrefix(JavaUUID) { pipelineBlueprintId =>
+              post {
+                entity(as[PipelineBlueprint]) { pipelineBlueprint =>
+                  onSuccess(blueprintManager ? UpdatePipelineBlueprintRequest(pipelineBlueprint)) {
+                    case UpdatePipelineBlueprintResponseSuccess => complete(StatusCodes.OK)
+                    case _ => complete(StatusCodes.NoContent)
+                  }
+                }
+              } ~
+                put {
+                  entity(as[PipelineBlueprint]) { pipelineBlueprint =>
+                    onSuccess(blueprintManager ? StorePipelineBlueprintRequest(pipelineBlueprint)) {
+                      case StorePipelineBlueprintResponse => complete(StatusCodes.Created)
+                      case _ => complete(StatusCodes.InternalServerError)
+                    }
+                  }
+                } ~
+                get {
+                  onSuccess((blueprintManager ? GetPipelineBlueprintRequest(BlueprintRef(pipelineBlueprintId.toString))).mapTo[GetPipelineBlueprintResponse]) {
+                    case GetPipelineBlueprintResponse(blueprint) => complete(StatusCodes.OK, blueprint)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                } ~
+                delete {
+                  onSuccess(blueprintManager ? DeletePipelineBlueprintRequest(BlueprintRef(pipelineBlueprintId.toString))) {
+                    case DeletePipelineBlueprintResponse => complete(StatusCodes.OK)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                }
             }
-          }
         } ~
-        pathPrefix(JavaUUID) { blueprintId =>
+          pathPrefix(JavaUUID) { blueprintId =>
             post {
               entity(as[SealedBlueprint]) { blueprint =>
                 onSuccess(blueprintManager ? UpdateBlueprintRequest(blueprint)) {
@@ -109,7 +123,7 @@ class BlueprintResourceRoute extends Actor with ActorLogging with Json4sSupport 
               }
             }
           }
-      } 
+      }
     }
   }
 }

@@ -13,10 +13,18 @@ import io.logbee.keyscore.frontier.route.routes.AgentRoute.{AgentRouteRequest, A
 import io.logbee.keyscore.model.AgentModel
 
 object AgentRoute {
+
   case class AgentRouteRequest(agentClusterManager: ActorRef)
+
   case class AgentRouteResponse(agentRoute: Route)
+
 }
 
+/**
+  * The '''AgentRoute''' holds the REST route for all `Agents`.<br><br>
+  * `Directives`: GET | DELETE <br>
+  * Operations: For a single Agent. <br>
+  */
 class AgentRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
   implicit val system = context.system
@@ -28,18 +36,18 @@ class AgentRoute extends Actor with ActorLogging with Json4sSupport with RouteIm
       sender ! AgentRouteResponse(r)
   }
 
-  def agentsRoute(agentClusterManager: ActorRef): Route = {
+  def agentsRoute(clusterAgentManager: ActorRef): Route = {
     pathPrefix("agent") {
       pathPrefix(JavaUUID) { agentID =>
         delete {
-          onSuccess(agentClusterManager ? RemoveAgentFromCluster(agentID)) {
+          onSuccess(clusterAgentManager ? RemoveAgentFromCluster(agentID)) {
             case AgentRemovedFromCluster(agentID) => complete(StatusCodes.OK)
             case _ => complete(StatusCodes.InternalServerError)
           }
         }
       } ~
         get {
-          onSuccess(agentClusterManager ? QueryAgents) {
+          onSuccess(clusterAgentManager ? QueryAgents) {
             case QueryAgentsResponse(agents) => complete(StatusCodes.OK, agents.map(agent => AgentModel(agent.id.toString, agent.name, agent.ref.path.address.host.get)))
             case _ => complete(StatusCodes.InternalServerError)
           }

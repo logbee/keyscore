@@ -17,30 +17,43 @@ import io.logbee.keyscore.model.data.Dataset
 
 
 object FilterRoute {
-  case class FilterRouteRequest(pipelineManager: ActorRef)
+  case class FilterRouteRequest(pipelineManager: ActorRef, clusterPipelineManager: ActorRef)
   case class FilterRouteResponse(filterRoute: Route)
 }
 
+/**
+  * The '''FilterRoute''' holds the REST route for all `Filters`.<br><br>
+  * `Directives`: GET | PUT | POST | DELETE <br>
+  * Operations: For a single Filter. <br>
+  *
+  * @todo Fix RequestExistingPipelines
+  */
 class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
   implicit val system = context.system
   implicit val executionContext = system.dispatcher
 
   override def receive: Receive = {
-    case FilterRouteRequest(pipelineManager) =>
-      val r = filterRoute(pipelineManager)
+    case FilterRouteRequest(pipelineManager, clusterPipelineManager) =>
+      val r = filterRoute(pipelineManager, clusterPipelineManager)
       sender ! FilterRouteResponse(r)
   }
 
-  def filterRoute(pipelineManager: ActorRef): Route = {
+  def filterRoute(pipelineManager: ActorRef, clusterPipelineManager: ActorRef): Route = {
     pathPrefix("filter") {
       pathPrefix(JavaUUID) { filterId =>
         path("pause") {
           post {
+            log.debug(s"Asking for pause filter with id: $filterId")
             parameter('value.as[Boolean]) { doPause =>
-              onSuccess(pipelineManager ? PauseFilter(filterId, doPause)) {
-                case PauseFilterResponse(state) => complete(StatusCodes.Accepted, state)
-                case Failure => complete(StatusCodes.InternalServerError)
+              onSuccess(clusterPipelineManager ? PauseFilter(filterId, doPause)) {
+                case PauseFilterResponse(state) =>
+                  log.info(s"PauseFilterResponse: $state")
+                  complete(StatusCodes.Accepted, state)
+                case Failure =>
+                  log.info(s"PauseFilterResponse Failure")
+                  complete(StatusCodes.InternalServerError)
+
               }
             }
           }
@@ -48,7 +61,7 @@ class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteI
           path("drain") {
             post {
               parameter('value.as[Boolean]) { doDrain =>
-                onSuccess(pipelineManager ? DrainFilterValve(filterId, doDrain)) {
+                onSuccess(clusterPipelineManager ? DrainFilterValve(filterId, doDrain)) {
                   case DrainFilterResponse(state) => complete(StatusCodes.Accepted, state)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
@@ -59,7 +72,7 @@ class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteI
             put {
               entity(as[List[Dataset]]) { datasets =>
                 parameter("where" ? "before") { where =>
-                  onSuccess(pipelineManager ? InsertDatasets(filterId, datasets, where)) {
+                  onSuccess(clusterPipelineManager ? InsertDatasets(filterId, datasets, where)) {
                     case
                       InsertDatasetsResponse(state) => complete(StatusCodes.Accepted, state)
                     case _ => complete(StatusCodes.InternalServerError)
@@ -71,7 +84,7 @@ class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteI
           path("extract") {
             get {
               parameters('value.as[Int], "where" ? "after") { (amount, where) =>
-                onSuccess(pipelineManager ? ExtractDatasets(filterId, amount, where)) {
+                onSuccess(clusterPipelineManager ? ExtractDatasets(filterId, amount, where)) {
                   case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
@@ -81,14 +94,14 @@ class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteI
           path("configurations") {
             put {
               entity(as[Configuration]) { configuration =>
-                onSuccess(pipelineManager ? ConfigureFilter(filterId, configuration)) {
+                onSuccess(clusterPipelineManager ? ConfigureFilter(filterId, configuration)) {
                   case ConfigureFilterResponse(state) => complete(StatusCodes.Accepted, state)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
               }
             } ~
               get {
-                onSuccess(pipelineManager ? RequestExistingBlueprints()) {
+                onSuccess(clusterPipelineManager ? RequestExistingBlueprints()) {
                   // TODO: Fix Me!
                   //                case PipelineConfigurationResponse(listOfConfigurations) => listOfConfigurations.flatMap(_.filter).find(_.id == filterId) match {
                   //                  case Some(filter) => complete(StatusCodes.OK, filter)
@@ -101,7 +114,7 @@ class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteI
           } ~
           path("state") {
             get {
-              onSuccess(pipelineManager ? CheckFilterState(filterId)) {
+              onSuccess(clusterPipelineManager ? CheckFilterState(filterId)) {
                 case CheckFilterStateResponse(state) =>
                   complete(StatusCodes.Accepted, state)
                 case _ => complete(StatusCodes.InternalServerError)
@@ -110,7 +123,7 @@ class FilterRoute extends Actor with ActorLogging with Json4sSupport with RouteI
           } ~
           path("clear") {
             get {
-              onSuccess(pipelineManager ? ClearBuffer(filterId)) {
+              onSuccess(clusterPipelineManager ? ClearBuffer(filterId)) {
                 case ClearBufferResponse(state) =>
                   complete(StatusCodes.Accepted, state)
                 case _ => complete(StatusCodes.InternalServerError)

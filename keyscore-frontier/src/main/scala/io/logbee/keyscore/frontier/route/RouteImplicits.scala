@@ -1,5 +1,8 @@
 package io.logbee.keyscore.frontier.route
 
+/** Implicits values for all Routes. <br><br>
+  * `timeout` | `serialization` | `formats`
+  */
 trait RouteImplicits {
 
   import akka.util.Timeout

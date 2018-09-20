@@ -10,38 +10,46 @@ import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPip
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.frontier.route.routes.PipelineRoute.{PipelineRouteRequest, PipelineRouteResponse}
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
 
 object PipelineRoute {
-  case class PipelineRouteRequest(clusterPipelineManager: ActorRef, blueprintManager: ActorRef)
+  case class PipelineRouteRequest(pipelineManager: ActorRef, blueprintManager: ActorRef, clusterPipelineManager: ActorRef)
   case class PipelineRouteResponse(pipelineRoute: Route)
 }
 
+/**
+  * The '''PipelineRoute''' holds the REST route for all `Pipelines`.<br><br>
+  * `Directives`: GET | PUT | POST | DELETE <br>
+  * Operations: For a single Pipeline. | For a single or multiple Instances. <br>
+  *
+  * @todo Implement Route for Updating Pipelines
+  */
 class PipelineRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
   implicit val system = context.system
   implicit val executionContext = system.dispatcher
 
   override def receive: Receive = {
-    case PipelineRouteRequest(pipelineManager, blueprintManager) =>
-      val r = pipelineRoute(pipelineManager, blueprintManager)
+    case PipelineRouteRequest(pipelineManager, blueprintManager, clusterPipelineManager) =>
+      val r = pipelineRoute(pipelineManager, blueprintManager, clusterPipelineManager)
       sender ! PipelineRouteResponse(r)
   }
 
-  def pipelineRoute(pipelineManager: ActorRef, blueprintManager: ActorRef): Route = {
+  def pipelineRoute(pipelineManager: ActorRef, blueprintManager: ActorRef, clusterPipelineManager: ActorRef): Route = {
     pathPrefix("pipeline") {
       pathPrefix("configuration") {
         pathPrefix("*") {
           get {
-            onSuccess(pipelineManager ? RequestExistingBlueprints()) {
+            onSuccess(clusterPipelineManager ? RequestExistingBlueprints()) {
               case PipelineBlueprintsResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
             delete {
-              pipelineManager ! ClusterPipelineManager.DeleteAllPipelines
+              clusterPipelineManager ! ClusterPipelineManager.DeleteAllPipelines
               complete(StatusCodes.OK)
             }
         } ~
@@ -57,14 +65,18 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
               }
             } ~
               delete {
-                pipelineManager ! ClusterPipelineManager.DeletePipeline(id = configId)
+                clusterPipelineManager ! ClusterPipelineManager.DeletePipeline(id = configId)
                 complete(StatusCodes.OK)
               }
           } ~
           put {
             entity(as[BlueprintRef]) { blueprintRef =>
-              pipelineManager ! ClusterPipelineManager.CreatePipeline(blueprintRef)
-              complete(StatusCodes.Created)
+              onSuccess(clusterPipelineManager ? ClusterPipelineManager.CreatePipeline(blueprintRef)) {
+                case NoAvailableAgents => complete(StatusCodes.NoContent)
+                case BlueprintResolveFailure => complete(StatusCodes.Conflict)
+                case PipelineDeployed  => complete(StatusCodes.Created)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
             }
           } ~
           //TODO
@@ -77,7 +89,7 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
         pathPrefix("instance") {
           pathPrefix("*") {
             get {
-              onSuccess(pipelineManager ? RequestExistingPipelines) {
+              onSuccess(clusterPipelineManager ? RequestExistingPipelines) {
                 case PipelineInstanceResponse(listOfPipelines) => complete(StatusCodes.OK, listOfPipelines)
                 case _ => complete(StatusCodes.InternalServerError)
               }
@@ -94,7 +106,7 @@ class PipelineRoute extends Actor with ActorLogging with Json4sSupport with Rout
                   complete(StatusCodes.NotImplemented)
                 } ~
                 get {
-                  onSuccess(pipelineManager ? RequestExistingPipelines) {
+                  onSuccess(clusterPipelineManager ? RequestExistingPipelines) {
                     case PipelineInstanceResponse(listOfPipelines) =>
                       listOfPipelines.find(instance => instance.id == instanceId) match {
                         case Some(instance) => complete(StatusCodes.OK, instance)

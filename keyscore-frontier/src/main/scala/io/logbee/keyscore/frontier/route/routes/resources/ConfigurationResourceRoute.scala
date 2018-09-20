@@ -12,11 +12,18 @@ import io.logbee.keyscore.frontier.route.routes.resources.ConfigurationResourceR
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 
 object ConfigurationResourceRoute {
+
   case class ConfigurationResourceRouteRequest(configurationManager: ActorRef)
+
   case class ConfigurationResourceRouteResponse(configurationRoute: Route)
+
 }
 
-//TODO Update this when the routes are tested
+/**
+  * The '''ConfigurationResourceRoute''' holds the REST route for all `Configuration` Resources.<br><br>
+  * `Directives`: GET | PUT | POST | DELETE <br>
+  * Operations: For all `Configurations` or a single one.
+  */
 class ConfigurationResourceRoute extends Actor with ActorLogging with Json4sSupport with RouteImplicits {
 
   implicit val system = context.system
@@ -31,35 +38,51 @@ class ConfigurationResourceRoute extends Actor with ActorLogging with Json4sSupp
   def configurationResourcesRoute(configurationManager: ActorRef) = {
     pathPrefix("resources") {
       pathPrefix("configuration") {
-        pathPrefix(JavaUUID) { configurationId =>
-          put {
-            entity(as[Configuration]) { configuration =>
-              onSuccess(configurationManager ? StoreConfigurationRequest(configuration)) {
-                case StoreConfigurationResponse => complete(StatusCodes.Created)
-                case _ => complete(StatusCodes.InternalServerError)
-              }
+        pathPrefix("*") {
+          get {
+            onSuccess(configurationManager ? GetAllConfigurationRequest) {
+              case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
+              case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
-            get {
-              onSuccess((configurationManager ? GetConfigurationRequest(ConfigurationRef(configurationId.toString))).mapTo[GetConfigurationSuccess]) {
-                case GetConfigurationSuccess(configuration) => complete(StatusCodes.OK, configuration)
-                case _ => complete(StatusCodes.InternalServerError)
-              }
-            } ~
             delete {
-              onSuccess(configurationManager ? DeleteConfigurationRequest(ConfigurationRef(configurationId.toString))) {
-                case DeleteConfigurationResponse => complete(StatusCodes.OK)
+              onSuccess(configurationManager ? DeleteAllConfigurationsRequest) {
+                case DeleteAllConfigurationsResponse => complete(StatusCodes.OK)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
-        }
-      } ~
-        get {
-          onSuccess(configurationManager ? GetAllConfigurationRequest) {
-            case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
-            case _ => complete(StatusCodes.InternalServerError)
+        } ~
+          pathPrefix(JavaUUID) { configurationId =>
+            post {
+              entity(as[Configuration]) { configuration =>
+                onSuccess(configurationManager ? UpdateConfigurationRequest(configuration)) {
+                  case UpdateConfigurationSuccessResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.NoContent)
+                }
+              }
+            } ~
+              put {
+                entity(as[Configuration]) { configuration =>
+                  onSuccess(configurationManager ? StoreConfigurationRequest(configuration)) {
+                    case StoreConfigurationResponse => complete(StatusCodes.Created)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                }
+              } ~
+              get {
+                onSuccess((configurationManager ? GetConfigurationRequest(ConfigurationRef(configurationId.toString))).mapTo[GetConfigurationSuccess]) {
+                  case GetConfigurationSuccess(configuration) => complete(StatusCodes.OK, configuration)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              } ~
+              delete {
+                onSuccess(configurationManager ? DeleteConfigurationRequest(ConfigurationRef(configurationId.toString))) {
+                  case DeleteConfigurationResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
           }
-        }
+      }
     }
   }
 }
