@@ -22,6 +22,14 @@ object ValveStage {
   val TotalDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_TOTAL_THROUGHPUT_TIME"
 }
 
+/**
+  * The '''ValveStage''' is a Stage for live-editing operations for a ~Filter~.
+  *
+  * @todo Enhance Docu @EndallBatan
+  *
+  * @param bufferLimit
+  * @param dispatcher
+  */
 class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContext) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {
   private val id = UUID.randomUUID()
   private val in = Inlet[Dataset]("inlet")
@@ -56,21 +64,21 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         update(ValveState(id, Open, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         pullIn()
         promise.success(state)
-        log.info(s"Valve <$id> is now open.")
+        log.debug(s"Valve <$id> is now open.")
 
       case (promise, `Closed`) =>
         totalThroughputTime.reset()
         throughputTime.reset()
         update(ValveState(id, Closed, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         promise.success(state)
-        log.info(s"Valve <$id> is now closed.")
+        log.debug(s"Valve <$id> is now closed.")
 
       case (promise, `Drain`) =>
         ringBuffer.clear()
         update(ValveState(id, Drain, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         pullIn()
         promise.success(state)
-        log.info(s"Valve <$id> does now drain.")
+        log.debug(s"Valve <$id> does now drain.")
     })
 
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
@@ -79,7 +87,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         promise.success(state)
         pushOut()
-        log.info(s"Inserted ${datasets.size} datasets into valve <$id>")
+        log.debug(s"Inserted ${datasets.size} datasets into valve <$id>")
     })
 
     private val extractCallback = getAsyncCallback[(Promise[List[Dataset]], Int)]({
@@ -87,13 +95,13 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         val datasets = ringBuffer.last(amount)
         promise.success(datasets)
 
-        log.info(s"Extracted ${datasets.size} datasets from valve <$id>")
+        log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
 
     private val clearCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
       ringBuffer.clear()
       promise.success(update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime))))
-      log.info(s"Cleared buffer of valve <$id>")
+      log.debug(s"Cleared buffer of valve <$id>")
     })
 
     private val valveProxy = new ValveProxy {
@@ -106,28 +114,28 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
       override def open(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.info(s"Open valve <$id>")
+        log.debug(s"Open valve <$id>")
         positionCallback.invoke(promise, Open)
         promise.future
       }
 
       override def close(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.info(s"Close valve <$id>")
+        log.debug(s"Close valve <$id>")
         positionCallback.invoke(promise, Closed)
         promise.future
       }
 
       override def drain(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.info(s"Drain Valve <$id>")
+        log.debug(s"Drain Valve <$id>")
         positionCallback.invoke(promise, Drain)
         promise.future
       }
 
       override def extract(amount: Int): Future[List[Dataset]] = {
         val promise = Promise[List[Dataset]]()
-        log.info(s"Extracting $amount datasets from valve <$id>")
+        log.debug(s"Extracting $amount datasets from valve <$id>")
         extractCallback.invoke(promise, amount)
         promise.future
       }
@@ -135,14 +143,14 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       override def insert(datasets: List[Dataset]): Future[ValveState] = {
         val promise = Promise[ValveState]()
         val list = datasets
-        log.info(s"Inserting ${list.size} datasets into valve <$id>")
+        log.debug(s"Inserting ${list.size} datasets into valve <$id>")
         insertCallback.invoke(promise, list)
         promise.future
       }
 
       override def clear(): Future[ValveState] = {
         val promise = Promise[ValveState]()
-        log.info(s"Clearing buffer of valve <$id>: ")
+        log.debug(s"Clearing buffer of valve <$id>: ")
         clearCallback.invoke(promise)
         promise.future
       }

@@ -5,6 +5,11 @@ import io.logbee.keyscore.model.descriptor.Descriptor
 
 class LoadFilterDescriptorException extends RuntimeException {}
 
+/**
+  * The '''FilterLoader''' returns a `Descriptor` for a given Class.
+  *
+  * @todo Renaming?
+  */
 class FilterLoader {
 
   import scala.reflect.runtime.{universe => ru}

@@ -50,6 +50,11 @@ object FilterManager {
 
 }
 
+/**
+  * The '''FilterManager''' manages all `Extensions` of the corresponding `Agent` and creates all `Stages` for a `Pipeline`.
+  *
+  * @todo Renaming?
+  */
 class FilterManager extends Actor with ActorLogging {
 
   private val eventBus = context.system.eventStream
@@ -59,17 +64,19 @@ class FilterManager extends Actor with ActorLogging {
 
   override def preStart(): Unit = {
     eventBus.subscribe(self, classOf[RegisterExtension])
-    log.info("[Filtermanager]: StartUp complete.")
+    log.info(" started.")
   }
 
   override def postStop(): Unit = {
+    log.info(" stopped.")
     eventBus.unsubscribe(self)
   }
 
   override def receive: Receive = {
 
     case RegisterExtension(extensionType, extensionClass) =>
-      log.info(s"Registering extension '$extensionClass' of type '$extensionType'.")
+      log.debug(s"Registering extension '$extensionClass' of type '$extensionType'.")
+
       extensionType match {
         case FilterExtension | SinkExtension | SourceExtension =>
           val descriptor = filterLoader.loadDescriptors(extensionClass)
@@ -77,11 +84,11 @@ class FilterManager extends Actor with ActorLogging {
       }
 
     case RequestDescriptors =>
+      log.debug("Sending Descriptors.")
       sender ! DescriptorsResponse(descriptors.values.map(_.descriptor).toList)
 
     case CreateSinkStage(ref, stageContext, descriptor, configuration) =>
-
-      log.info(s"Creating SinkStage: ${descriptor.uuid}")
+      log.debug(s"Creating SinkStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
@@ -94,7 +101,7 @@ class FilterManager extends Actor with ActorLogging {
 
     case CreateSourceStage(ref, stageContext, descriptor, configuration) =>
 
-      log.info(s"Creating SourceStage: ${descriptor.uuid}")
+      log.debug(s"Creating SourceStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
@@ -107,7 +114,7 @@ class FilterManager extends Actor with ActorLogging {
 
     case CreateFilterStage(ref, stageContext, descriptor, configuration) =>
 
-      log.info(s"Creating FilterStage: ${descriptor.uuid}")
+      log.debug(s"Creating FilterStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
@@ -120,7 +127,7 @@ class FilterManager extends Actor with ActorLogging {
 
     case CreateBranchStage(ref, stageContext, descriptor, configuration) =>
 
-      log.info(s"Creating BranchStage: ${descriptor.uuid}")
+      log.debug(s"Creating BranchStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
@@ -133,7 +140,7 @@ class FilterManager extends Actor with ActorLogging {
 
     case CreateMergeStage(ref, stageContext, descriptor, configuration) =>
 
-      log.info(s"Creating MergeStage: ${descriptor.uuid}")
+      log.debug(s"Creating MergeStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>

@@ -30,6 +30,18 @@ object BlueprintMaterializer {
   private case object ResolveBlueprint
 }
 
+/**
+  * The '''BlueprintMaterializer''' collects all necessary information to send the `FilterManager` an message to create a `Stage`.
+  *
+  * @todo Handle errors
+  *
+  * @param blueprintRef The UUID of the Blueprint
+  * @param filterManager The [[io.logbee.keyscore.agent.pipeline.FilterManager]]
+  * @param initialBlueprintManager A ''optional'' BlueprintManager Ref
+  * @param initialDescriptorManager A ''optional'' DescriptorManager Ref
+  * @param initialConfigurationManager A ''optional'' ConfigurationManager Ref
+  * @param stageContext ~
+  */
 class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintRef, filterManager: ActorRef, initialBlueprintManager: Option[ActorRef] = None, initialDescriptorManager: Option[ActorRef] = None, initialConfigurationManager: Option[ActorRef] = None) extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
