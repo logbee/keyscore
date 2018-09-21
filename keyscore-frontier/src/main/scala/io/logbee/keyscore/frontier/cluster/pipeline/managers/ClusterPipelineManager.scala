@@ -107,6 +107,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
   private def running: Receive = {
     case CreatePipeline(blueprintRef) =>
+      log.debug(s"Started a PipelineDeployer for <${blueprintRef.uuid}>")
       val pipelineDeployer = context.actorOf(PipelineDeployer(localPipelineManagerResolution))
       pipelineDeployer forward CreatePipelineRequest(blueprintRef)
 
@@ -114,9 +115,11 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
       (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
         case Success(GetAvailableAgentsResponse(agents)) =>
           agents.foreach(agent => {
+            log.debug(s"Forwarding DeletePipeline($id) to $agent")
             context.actorSelection(agent.path / PipelineSchedulerPath) ! DeletePipelineOrder(id)
           })
-        case Failure(e) => log.warning(s"Failed to delete Pipeline with id <$id>: $e")
+        case Failure(e) =>
+          log.warning(s"Failed to delete Pipeline with id <$id>: $e")
       }
 
     case DeleteAllPipelines => forwardToLocalPipelineManagerOfAvailableAgents(sender, DeleteAllPipelines)
@@ -140,20 +143,21 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
       (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
         case Success(GetAvailableAgentsResponse(agents)) =>
           context.system.actorOf(PipelineInstanceCollector(_sender, agents, localPipelineManagerResolution)(5 seconds))
-        case Failure(e) => log.warning(s"Failed to get existing pipelines: $e")
+        case Failure(e) =>
+          log.warning(s"Failed to get existing pipelines: $e")
       }
 
     case RequestExistingBlueprints() =>
-      val _sender = sender
       val future: Future[List[ActorRef]] = ask(agentStatsManager, GetAvailableAgentsRequest).mapTo[List[ActorRef]]
       future.onComplete {
         case Success(agents) =>
-          log.info(s"Success: $agents")
           val collector = context.system.actorOf(PipelineBlueprintCollector(sender, agents))
           agents.foreach(agent => {
+            log.debug(s"Collecting PipelineBlueprints at $agent")
             localPipelineManagerResolution(agent, context) ! RequestPipelineBlueprints(collector)
           })
-        case Failure(e) => log.warning(s"Failed to get existing blueprints: $e")
+        case Failure(e) =>
+          log.warning(s"Failed to request existing blueprints: $e")
       }
   }
 
@@ -161,6 +165,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
     (agentStatsManager ? GetAvailableAgentsRequest).onComplete {
       case Success(GetAvailableAgentsResponse(agents)) =>
         agents.foreach(agent => {
+          log.debug(s"Forwarded message $message to $agent")
           localPipelineManagerResolution(agent, context) tell(message, sender)
         })
       case Failure(e) => log.error(e, s"Failed to forward message [${message.getClass.getSimpleName}]")

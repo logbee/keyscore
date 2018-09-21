@@ -40,7 +40,9 @@ object PipelineDeployer {
 }
 
 /**
-  * The PipelineDeployer gathers all the required information to schedule a pipeline on an agent.
+  * The '''PipelineDeployer''' gathers all the required information to schedule a `Pipeline` on an agent.
+  *
+  * @todo Error Handling
   */
 class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
 
@@ -93,39 +95,49 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
   private def running: Receive = {
     case StartResolvingBlueprintRef =>
+      log.debug(s"Start resolving BlueprintRef <${blueprintRef.uuid}>")
       blueprintManager ! GetPipelineBlueprintRequest(blueprintRef)
 
     case GetPipelineBlueprintResponse(blueprint) => blueprint match {
       case Some(pipelineBlueprint) => {
+        log.debug(s"Starting BlueprintCollector for <${pipelineBlueprint.ref.uuid}>")
         context.actorOf(BlueprintCollector(pipelineBlueprint, blueprintManager))
         blueprintForPipeline = pipelineBlueprint
       }
       case _ =>
+        log.error(s"Received unknown type of Blueprint for $blueprint.")
     }
 
     case BlueprintsCollectorResponse(blueprints) =>
+      log.debug(s"Received list of Blueprints for <${blueprintForPipeline.ref.uuid}>")
       blueprints.foreach(current => {
         descriptorRefs += current.descriptorRef
       })
       agentCapabilitiesManager ! AgentsForPipelineRequest(descriptorRefs.toList)
 
     case BlueprintsCollectorResponseFailure =>
+      log.error(s"Couldn't receive blueprint for <${blueprintForPipeline.ref.uuid}>")
       routeBuilderRef ! BlueprintResolveFailure
       context.stop(self)
 
     case AgentsForPipelineResponse(possibleAgents) =>
+      log.debug(s"Received list of possible Agents: $possibleAgents")
       if (!possibleAgents.isEmpty) {
+        log.debug("Requesting Stats for list of possible Agents.")
         agentStatsManager ! StatsForAgentsRequest(possibleAgents)
       } else {
-        log.warning("No available agents.")
+        log.error(s"No available agents for Pipeline <${blueprintForPipeline.ref.uuid}>.")
         routeBuilderRef ! NoAvailableAgents
       }
 
     case StatsForAgentsResponse(possibleAgents) =>
+      log.debug(s"Received list of possible Agents with matching stats: $possibleAgents")
       val selectedAgent = scala.util.Random.shuffle(possibleAgents).head._1
       //CreateNewPipeline
       localPipelineManagerResolution(selectedAgent, context) ! CreatePipelineOrder(blueprintForPipeline)
+      log.info(s"Sent an order to create a Pipeline to the $selectedAgent")
       routeBuilderRef ! PipelineDeployed
+      log.info(s"Pipeline for <${blueprintForPipeline.ref}> deployed.")
   }
 
   private def maybeRunning(state: CreatePipelineSupervisorState): Unit = {

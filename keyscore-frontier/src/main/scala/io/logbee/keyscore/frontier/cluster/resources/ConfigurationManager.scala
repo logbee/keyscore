@@ -9,8 +9,11 @@ import io.logbee.keyscore.commons.{ConfigurationService, HereIam, WhoIs}
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 
 /**
-  * The ConfigurationManager holds a map for all Configurations and <br>
+  * The '''ConfigurationManager''' holds a map for all `Configurations` and <br>
   * resolves a ConfigurationRef to the specific Configuration.
+  *
+  * @todo Error Handling
+  *
   */
 object ConfigurationManager {
 
@@ -43,7 +46,7 @@ class ConfigurationManager extends Actor with ActorLogging {
       sender ! GetAllConfigurationResponse(configurations.toMap)
 
     case DeleteConfigurationRequest(ref) =>
-      log.debug(s"DeleteConfigurationRequest for $ref")
+      log.debug(s"DeleteConfigurationRequest for <${ref.uuid}>")
       configurations.remove(ref)
       sender ! DeleteConfigurationResponse
 
@@ -53,13 +56,13 @@ class ConfigurationManager extends Actor with ActorLogging {
       sender ! DeleteAllConfigurationsResponse
 
     case GetConfigurationRequest(ref) =>
-      log.debug(s"Received GetConfigurationRequest for $ref")
+      log.debug(s"Received GetConfigurationRequest for <${ref.uuid}>")
       configurations.get(ref) match {
         case Some(configuration) =>
           log.debug(s"Get Configuration for $ref")
           sender ! GetConfigurationSuccess(configuration)
         case _ =>
-          log.warning(s"Couldn't get Configuration for $ref")
+          log.warning(s"Couldn't get Configuration for <${ref.uuid}>")
           GetConfigurationFailure(ref)
       }
 

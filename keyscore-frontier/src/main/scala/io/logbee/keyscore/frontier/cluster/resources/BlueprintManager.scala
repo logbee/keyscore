@@ -10,7 +10,7 @@ import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 
 /**
-  * The BlueprintManager holds maps for all Pipeline- and SealedBlueprints and <br>
+  * The '''BlueprintManager''' holds maps for all `PipelineBlueprints` and `SealedBlueprints` and <br>
   * resolves a BlueprintRef to the specific Blueprint.
   *
   * @todo Error Handling
@@ -64,11 +64,11 @@ class BlueprintManager extends Actor with ActorLogging {
       sender ! GetAllPipelineBlueprintsResponse(pipelineBlueprints.toMap)
 
     case GetPipelineBlueprintRequest(ref) =>
-      log.debug(s"Received GetPipelineBlueprintRequest")
+      log.debug(s"Received GetPipelineBlueprintRequest for <${ref.uuid}>")
       sender ! GetPipelineBlueprintResponse(pipelineBlueprints.get(ref))
 
     case DeletePipelineBlueprintRequest(ref) =>
-      log.debug(s"Received DeletePipelineBlueprintRequest for $ref")
+      log.debug(s"Received DeletePipelineBlueprintRequest for <${ref.uuid}>")
       pipelineBlueprints.remove(ref)
       sender ! DeletePipelineBlueprintResponse
 
@@ -95,7 +95,7 @@ class BlueprintManager extends Actor with ActorLogging {
       }
 
     case GetBlueprintRequest(ref) =>
-      log.debug(s"Received GetBlueprintRequest for $ref")
+      log.debug(s"Received GetBlueprintRequest for <${ref.uuid}>")
       sender ! GetBlueprintResponse(blueprints.get(ref))
 
     case GetAllBlueprintsRequest =>
@@ -103,7 +103,7 @@ class BlueprintManager extends Actor with ActorLogging {
       sender ! GetAllBlueprintsResponse(blueprints.toMap)
 
     case DeleteBlueprintRequest(ref) =>
-      log.debug(s"Received DeleteBlueprintRequest for $ref")
+      log.debug(s"Received DeleteBlueprintRequest for <${ref.uuid}>")
       blueprints.remove(ref)
       sender ! DeleteBlueprintResponse
   }

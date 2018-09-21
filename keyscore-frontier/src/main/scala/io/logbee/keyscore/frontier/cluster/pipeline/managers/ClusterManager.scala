@@ -12,7 +12,7 @@ import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager
 import scala.concurrent.ExecutionContext
 
 /**
-  * The '''ClusterManager''' manages all the members in the cluster. <br>
+  * The '''ClusterManager''' manages all the `Members` in the cluster. <br>
   * He forwards all the messages to the specific Member-Managers regarding to the role of the member of the message.
   */
 object ClusterManager {

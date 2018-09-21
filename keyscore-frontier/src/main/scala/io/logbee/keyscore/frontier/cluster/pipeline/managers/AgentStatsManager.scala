@@ -40,12 +40,15 @@ class AgentStatsManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case AgentJoined(joinedActor) =>
+      log.debug(s"Agent Joined: $joinedActor")
       availableAgents = (availableAgents += joinedActor).distinct
 
     case GetAvailableAgentsRequest =>
+      log.debug("Responding list of available Agents")
       sender ! GetAvailableAgentsResponse(availableAgents.toList)
 
     case StatsForAgentsRequest(requestedAgents) =>
+      log.debug(s"Responding Stats for $requestedAgents")
       var statsMap = scala.collection.mutable.Map.empty[ActorRef, AgentStats]
       requestedAgents.foreach(agent => {
         statsMap.put(agent, AgentStats(-1))

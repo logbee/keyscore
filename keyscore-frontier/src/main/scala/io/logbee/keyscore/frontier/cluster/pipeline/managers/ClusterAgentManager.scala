@@ -13,7 +13,9 @@ import scala.collection.mutable
 
 /**
   * The '''ClusterAgentManager''' manages all the members with the role ''Agent'' in the cluster and <br>
-  * starts the ``AgentStatsManager` and the `AgentCapabilitiesManager`.<br>
+  * starts the `AgentStatsManager` and the `AgentCapabilitiesManager`.<br>
+  *
+  * @todo Handle Operating / Sleeping
   */
 object ClusterAgentManager {
 
@@ -63,8 +65,10 @@ class ClusterAgentManager extends Actor with ActorLogging {
     case Init(isOperating) =>
       log.debug("Initializing ClusterAgentManager ...")
       if(isOperating) {
+        log.debug("Become [working]")
         context.become(working)
       } else {
+        log.debug("Become [sleeping]")
         context.become(sleeping)
       }
 
@@ -92,7 +96,6 @@ class ClusterAgentManager extends Actor with ActorLogging {
           idToAgent += (agent.memberId -> agent)
           sender ! AgentJoinAccepted()
           mediator ! Publish(AgentsTopic, AgentJoined(agent.ref))
-
           log.info(s"Member joint as Agent: $agent")
 
         case _ =>
@@ -101,27 +104,35 @@ class ClusterAgentManager extends Actor with ActorLogging {
       }
 
     case RemoveAgent(member) =>
+      log.debug(s"Removing agent <${member.uniqueAddress.longUid}>")
       removeAgent(member)
 
     case AddAgent(member) =>
+      log.debug(s"Adding agent <${member.uniqueAddress.longUid}>")
       addAgentMember(member)
 
     case QueryAgents =>
+      log.debug("Responding RemoteAgents")
       sender ! QueryAgentsResponse(idToAgent.values.toList)
 
     case QueryMembers =>
+      log.debug("Responding Members")
       sender ! QueryMembersResponse(agents.toList)
 
     case RemoveAgentFromCluster(agentID) =>
+      log.debug(s"Removing Agent($agentID) from cluster...")
       idToAgent.find(agent => agent._2.id.equals(agentID)) match {
         case Some((memberID, remoteAgent)) =>
           agents.find(member => member.uniqueAddress.longUid.equals(memberID)) match {
             case Some(member) =>
+              log.debug(s"Stopping Agent($agentID)")
               stopAgent(member, sender(), remoteAgent)
             case _ =>
+              log.warning(s"Couldn't find Agent($agentID) to remove from cluster.")
               sender ! RemoveAgentFromClusterFailed
           }
         case _ =>
+          log.error(s"Couldn't remove Agent($agentID)")
           sender ! RemoveAgentFromClusterFailed
       }
 
@@ -139,7 +150,7 @@ class ClusterAgentManager extends Actor with ActorLogging {
       mediator ! Publish(ClusterTopic, MemberJoin(Roles.ClusterAgentManager, cluster.selfMember))
 
     case SubscribeAck(Subscribe(ClusterTopic, None, `self`)) =>
-      log.info(s"Subscribed to topic [$ClusterTopic]")
+      log.debug(s"Subscribed to topic [$ClusterTopic]")
 
     case Unsubscribe =>
       mediator ! Publish(ClusterTopic, MemberLeave(Roles.ClusterAgentManager, cluster.selfMember))
@@ -155,7 +166,7 @@ class ClusterAgentManager extends Actor with ActorLogging {
 
   private def removeAgent(member: Member): Unit = {
     val uid = member.uniqueAddress.longUid
-
+    log.debug(s"Removing Agent($uid) from cluster.")
     idToAgent.get(uid) match {
       case Some(agent) =>
         log.debug(s"Agent ${member.uniqueAddress} removed.")
@@ -169,8 +180,7 @@ class ClusterAgentManager extends Actor with ActorLogging {
 
   private def stopAgent(member: Member, senderRef: ActorRef, agent: RemoteAgent): Unit = {
     cluster.down(member.uniqueAddress.address)
-    //stop the agent actor
-    log.info(s"Agent stopped: <${agent.id}>")
+    log.warning(s"Agent [${agent.name}] stopped: <${agent.id}>")
     removeAgent(member)
     senderRef ! AgentRemovedFromCluster(agent.id)
   }

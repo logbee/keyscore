@@ -9,8 +9,10 @@ import io.logbee.keyscore.commons.{DescriptorService, HereIam, WhoIs}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 /**
-  * The DescriptorManager holds a map for all Descriptors and <br>
+  * The '''DescriptorManager''' holds a map for all `Descriptors` and <br>
   * resolves a DescriptorRef to the specific Descriptor.
+  *
+  * @todo Error Handling
   */
 object DescriptorManager {
 
@@ -44,7 +46,7 @@ class DescriptorManager extends Actor with ActorLogging {
       sender ! GetAllDescriptorsResponse(descriptors.toMap)
 
     case DeleteDescriptorRequest(ref) =>
-      log.debug(s"Received DeleteDescriptorRequest for $ref")
+      log.debug(s"Received DeleteDescriptorRequest for <${ref.uuid}>")
       descriptors.remove(ref)
       sender ! DeleteDescriptorResponse
 
@@ -54,7 +56,7 @@ class DescriptorManager extends Actor with ActorLogging {
       sender ! DeleteAllDescriptorsResponse
 
     case GetDescriptorRequest(ref) =>
-      log.debug(s"Received GetDescriptorRequest for $ref")
+      log.debug(s"Received GetDescriptorRequest for <${ref.uuid}>")
       sender ! GetDescriptorResponse(descriptors.get(ref))
 
     case UpdateDescriptorRequest(descriptor) =>

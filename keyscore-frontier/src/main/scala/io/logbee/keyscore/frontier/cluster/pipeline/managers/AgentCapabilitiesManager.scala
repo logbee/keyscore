@@ -69,9 +69,11 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
       sender ! HereIam(AgentCapabilitiesService, self)
 
     case GetDescriptors =>
+      log.debug("Responding list of Descriptors")
       sender ! GetDescriptorsResponse(descriptorToActorPaths.keys.toList)
 
     case AgentCapabilities(descriptors) =>
+      log.debug(s"Received AgentCapabilities with $descriptors")
       availableAgents.getOrElseUpdate(sender, descriptors)
       descriptors.foreach(descriptor => {
         descriptorToActorPaths.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
@@ -79,6 +81,7 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
       })
 
     case AgentLeaved(ref) =>
+      log.debug(s"Agent($ref) leaved.")
       availableAgents.remove(ref)
       descriptorToActorPaths.retain((_, paths) => {
         paths.retain(path => ref.path.address != path.address)
@@ -86,6 +89,7 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
       })
 
     case AgentsForPipelineRequest(descriptorRefs) =>
+      log.debug(s"Received AgentsForPipelineRequest with $descriptorRefs")
       val possibleAgents = createListOfPossibleAgents(descriptorRefs)
       sender ! AgentsForPipelineResponse(possibleAgents)
 
