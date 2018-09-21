@@ -1,13 +1,12 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Draggable} from "./models/contract";
 import {FormGroup} from "@angular/forms";
-import {BlockConfiguration} from "./models/block-configuration.model";
-import {BehaviorSubject, fromEvent, Observable, Subject} from "rxjs";
+import {Observable} from "rxjs";
 import {distinctUntilChanged} from "rxjs/operators";
 import {deepcopy, zip} from "../../../util";
 import {Parameter} from "../../../models/parameters/Parameter";
 import {ResolvedParameterDescriptor} from "../../../models/parameters/ParameterDescriptor";
-import {Configuration} from "../../../models/common/Configuration";
+import {ParameterControlService} from "../../../common/parameter/service/parameter-control.service";
 
 @Component({
     selector: "configurator",
@@ -19,7 +18,7 @@ import {Configuration} from "../../../models/common/Configuration";
                     Cancel
                 </button>
                 <div>
-                    <button #save mat-raised-button color="primary" (click)="saveSource$.next()">
+                    <button #save mat-raised-button color="primary" (click)="saveConfiguration()">
                         <mat-icon>save</mat-icon>
                         Save
                     </button>
@@ -28,8 +27,11 @@ import {Configuration} from "../../../models/common/Configuration";
             <mat-divider></mat-divider>
             <div fxLayoutAlign="start">{{selectedDraggable?.getDraggableModel().blockDescriptor.displayName}}</div>
 
-            <configuration [parametersMapping$]="parametersMapping$" [saveConfiguration$]="save$" (updateConfiguration)="onUpdateConfiguration($event)">
-            </configuration>
+            <div *ngIf="form" [formGroup]="form">
+                <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
+                               [parameterDescriptor]="parameterMapping.get(parameter)" [form]="form"></app-parameter>
+            </div>
+
         </div>
     `
 })
@@ -40,41 +42,51 @@ export class ConfiguratorComponent implements OnInit {
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     public selectedDraggable: Draggable;
 
-    saveSource$:Subject<void> = new Subject();
-    save$: Observable<void> = this.saveSource$.asObservable();
+    form: FormGroup;
 
-    parametersMappingSource$: BehaviorSubject<Map<Parameter, ResolvedParameterDescriptor>> = new BehaviorSubject(new Map());
-    parametersMapping$: Observable<Map<Parameter, ResolvedParameterDescriptor>> = this.parametersMappingSource$.asObservable();
+    parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map();
 
-    constructor() {
+    constructor(private parameterService: ParameterControlService) {
 
     }
 
     public ngOnInit(): void {
+
         this.selectedDraggable$.pipe(distinctUntilChanged()).subscribe(selectedDraggable => {
             console.log("configuration on init subscribe");
             console.log(selectedDraggable.getDraggableModel().blockConfiguration.parameters);
             this.selectedDraggable = selectedDraggable;
-            this.parametersMappingSource$.next(
+            this.parameterMapping =
                 new Map(zip([selectedDraggable.getDraggableModel().blockConfiguration.parameters,
-                    selectedDraggable.getDraggableModel().blockDescriptor.parameters])));
+                    selectedDraggable.getDraggableModel().blockDescriptor.parameters
+                ]));
+            if(this.form){
+                this.form.reset();
+            }
+            this.form = this.parameterService.toFormGroup(this.parameterMapping);
         });
 
     }
 
-    /*cancel() {
+    cancel() {
         this.selectedDraggable.getDraggableModel().blockConfiguration.parameters.forEach(parameter =>
             this.form.controls[parameter.ref.uuid].setValue(parameter.value)
         );
         this.closeConfigurator.emit();
 
-    }*/
+    }
 
-    onUpdateConfiguration(configuration:Configuration) {
+    saveConfiguration() {
         let blockConfiguration = deepcopy(this.selectedDraggable.getDraggableModel().blockConfiguration);
-        blockConfiguration.parameters = configuration.parameters;
+        blockConfiguration.parameters.forEach(parameter => {
+            parameter.value = this.form.controls[parameter.ref.uuid].value;
+        });
         this.selectedDraggable.getDraggableModel().blockConfiguration = blockConfiguration;
         console.log(this.selectedDraggable.getDraggableModel().blockConfiguration.parameters);
+    }
+
+    getKeys(map: Map<any, any>): any[] {
+        return Array.from(map.keys());
     }
 
 }

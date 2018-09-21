@@ -1,0 +1,21 @@
+@import '../../../../../node_modules/@angular/material/theming';
+
+$app-error: mat-palette($mat-red);
+
+$error:mat-color($app-error);
+
+.parameter-required {
+  color: $error;
+  font-size:0.8em;
+}
+
+.parameter-wrapper{
+  width:100%;
+  padding:0;
+}
+.mat-form-field-wrapper{
+  width:100% !important;
+}
+.mat-input-wrapper{
+  width:100% !important;
+}

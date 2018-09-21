@@ -104,6 +104,21 @@ export type ResolvedParameterDescriptor =
     | FieldListParameterDescriptor
     | ChoiceParameterDescriptor;
 
+export type SingleResolvedParameterDescriptor =
+    | BooleanParameterDescriptor
+    | TextParameterDescriptor
+    | ExpressionParameterDescriptor
+    | NumberParameterDescriptor
+    | DecimalParameterDescriptor
+    | FieldNameParameterDescriptor
+    | FieldParameterDescriptor;
+
+export type ListResolvedParameterDescriptor =
+    | TextListParameterDescriptor
+    | FieldNameListParameterDescriptor
+    | FieldListParameterDescriptor
+    | ChoiceParameterDescriptor;
+
 export interface BooleanParameterDescriptor {
     ref: ParameterRef;
     info: ResolvedParameterInfo;

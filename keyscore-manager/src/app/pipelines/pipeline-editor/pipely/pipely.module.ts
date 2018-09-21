@@ -15,7 +15,8 @@ import {MaterialModule} from "../../../material.module";
 import {ConfiguratorComponent} from "./configurator.component";
 import {PuzzleBoxComponent} from "./puzzle-box/puzzle-box.component";
 import {PuzzleCategoryComponent} from "./puzzle-box/puzzle-category.component";
-import {ConfigurationModule} from "../../../common/configuration/configuration.module";
+import {ParameterModule} from "../../../common/parameter/parameter.module";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 
 @NgModule({
@@ -23,7 +24,9 @@ import {ConfigurationModule} from "../../../common/configuration/configuration.m
         CommonModule,
         TranslateModule,
         MaterialModule,
-        ConfigurationModule
+        ParameterModule,
+        ReactiveFormsModule,
+        FormsModule
     ],
     declarations: [
         WorkspaceComponent,

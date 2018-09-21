@@ -42,7 +42,6 @@ export class PuzzleCategoryComponent implements OnInit {
             let parameters = blockDescriptor.parameters.map(parameterDescriptor =>
                 parameterDescriptorToParameter(parameterDescriptor));
 
-            parameters.forEach(parameter => parameter.value = "FUCK YOU");
             let blockConfiguration = {
                 id: uuid(),
                 descriptor: blockDescriptor,

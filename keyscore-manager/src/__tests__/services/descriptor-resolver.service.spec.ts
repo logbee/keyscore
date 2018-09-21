@@ -1,5 +1,4 @@
 import {Descriptor} from "../../app/models/descriptors/Descriptor";
-import {generateRef} from "../../app/models/common/Ref";
 import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/descriptor-resolver-fakes";
 import {ResolvedFilterDescriptor} from "../../app/models/descriptors/FilterDescriptor";
 import {DescriptorResolverService} from "../../app/services/descriptor-resolver.service";

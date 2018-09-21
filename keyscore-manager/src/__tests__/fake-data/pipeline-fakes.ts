@@ -56,6 +56,13 @@ export const generateConfiguration = (parameterCount = faker.random.number({min:
     }
 };
 
+export const generateResolvedParameterDescriptors = (count: number = faker.random.number({
+    min: 1,
+    max: 10
+})): ResolvedParameterDescriptor[] => {
+    return Array.apply(null, Array(count)).map(() => generateResolvedParameterDescriptor());
+}
+
 export const generateResolvedParameterDescriptor = (type: ParameterDescriptorJsonClass = null): ResolvedParameterDescriptor => {
     const types: ParameterDescriptorJsonClass[] = [ParameterDescriptorJsonClass.ExpressionParameterDescriptor,
         ParameterDescriptorJsonClass.ChoiceParameterDescriptor, ParameterDescriptorJsonClass.BooleanParameterDescriptor,
@@ -151,10 +158,10 @@ export const generateResolvedParameterDescriptor = (type: ParameterDescriptorJso
                 choices: generateResolvedChoices()
             };
         case ParameterDescriptorJsonClass.BooleanParameterDescriptor:
-            return{
+            return {
                 ...initialize,
-                defaultValue:faker.random.boolean(),
-                mandatory:faker.random.boolean()
+                defaultValue: faker.random.boolean(),
+                mandatory: faker.random.boolean()
             }
     }
 };
@@ -365,7 +372,7 @@ function getRandomHealth(): Health {
     return healthArray[faker.random.number({min: 0, max: 3})];
 };
 
-function generateWordList(count = faker.random.number({min: 1, max: 10})): string[] {
+export const generateWordList = (count = faker.random.number({min: 1, max: 10})): string[] => {
     return Array.apply(null, Array(count)).map(() => faker.random.word());
-}
+};
 

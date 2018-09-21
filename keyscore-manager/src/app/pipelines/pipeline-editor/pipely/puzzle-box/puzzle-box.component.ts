@@ -7,9 +7,11 @@ import {Workspace} from "../models/contract";
     template: `
         <div fxLayout="column">
 
-            <puzzle-category [workspace]="workspace" [descriptors]="descriptors" [category]="'TestCategory'">
-            </puzzle-category>
-            <mat-divider></mat-divider>
+            <ng-container *ngFor="let category of categories">
+                <puzzle-category [workspace]="workspace" [descriptors]="categorySeparatedDescriptors.get(category)" [category]="category">
+                </puzzle-category>
+                <mat-divider></mat-divider>
+            </ng-container>
         </div>
     `
 })
@@ -19,15 +21,22 @@ export class PuzzleBoxComponent implements OnInit {
     @Input() workspace: Workspace;
 
     categorySeparatedDescriptors: Map<string, BlockDescriptor[]> = new Map();
+    categories: string[] = [];
 
     ngOnInit() {
         this.separateCategories();
     }
 
     private separateCategories() {
-        this.descriptors.forEach(descriptor => {
+        this.categories = this.descriptors.map(descriptor => descriptor.categories)
+            .reduce((acc, val) => acc.concat(val), []).filter((category, i, array) => array.indexOf(category) === i);
+        this.categories.forEach(category =>
+            this.categorySeparatedDescriptors.set(category, this.descriptors.filter(descriptor => descriptor.categories.includes(category))));
 
-        })
+    }
+
+    getKeys(map: Map<any, any>) {
+        return Array.from(map.keys());
     }
 
 

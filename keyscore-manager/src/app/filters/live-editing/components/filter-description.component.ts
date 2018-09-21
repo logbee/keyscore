@@ -10,14 +10,14 @@ import "../filter-styles/filterstyle.css";
             <mat-card-header class="fix-div">
                 <div class="container" fxFlexFill="" fxLayout="row" fxLayout.xs="column">
                     <div fxFlexAlign="start" fxFlex="100%">
-                        <mat-card-title >
+                        <mat-card-title>
                             <h1 class="mat-headline font-weight-bold">{{currentFilter?.descriptor.displayName}}</h1>
                         </mat-card-title>
                     </div>
                 </div>
             </mat-card-header>
             <mat-card-content>
-                
+
                 <mat-list role="list">
                     <mat-list-item role="listitem"><span
                             class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}</span>
@@ -25,7 +25,7 @@ import "../filter-styles/filterstyle.css";
                     </mat-list-item>
                     <mat-list-item role="listitem"><span
                             class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}</span>
-                        <span class="mat-subheading-1">{{currentFilter?.descriptor.category}}</span>
+                        <span class="mat-subheading-1">{{currentFilter?.descriptor.categories}}</span>
                     </mat-list-item>
                     <mat-list-item role="listitem"><span
                             class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}

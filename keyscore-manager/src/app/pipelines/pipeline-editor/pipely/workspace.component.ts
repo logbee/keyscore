@@ -10,7 +10,7 @@ import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {computeRelativePositionToParent} from "./util/util";
 import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
-import {BlockDescriptor} from "./models/block-descriptor.model";
+import {BlockDescriptor, generateBlockDescriptors} from "./models/block-descriptor.model";
 import {InternalPipelineConfiguration} from "../../../models/pipeline-model/InternalPipelineConfiguration";
 import {PipelyPipelineConfiguration} from "./models/pipeline-configuration.model";
 import {parameterDescriptorToParameter} from "../../../util";
@@ -43,7 +43,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
-    // @ViewChild("toolbarContainer", {read: ViewContainerRef}) toolbarContainer: ViewContainerRef;
 
     public dummyDescriptors:BlockDescriptor[] = [];
 
@@ -52,7 +51,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     public dropzones: Set<Dropzone> = new Set();
     public draggables: Draggable[] = [];
 
-    public toolbarDropzone: Dropzone;
     public workspaceDropzone: Dropzone;
 
     private isDragging: boolean = false;
@@ -252,116 +250,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
 
     ngOnInit() {
         this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this);
-        // this.toolbarDropzone = this.dropzoneFactory.createToolbarDropzone(this.toolbarContainer, this);
 
         this.dropzones.add(this.workspaceDropzone);
         this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
 
-        for(let j = 0;j<8;j++) {
-            let inType: string = "no-connection-in";
-            let outType: string = "default-out";
-            for (let i = 0; i < 3; i++) {
-
-                if (i === 1) {
-                    inType = "default-in";
-                } else if (i == 2) {
-                    outType = "no-connection-out"
-                }
-                let blockDescriptor = this.createDummyBlockDescriptor(inType, outType);
-                this.dummyDescriptors.push(blockDescriptor);
-            }
-        }
-
-    }
-
-    private createDummyBlockDescriptor(inType: string, outType: string): BlockDescriptor {
-        let name = Math.random().toString().substr(0, 4);
-        return {
-            name: name,
-            displayName: "Block " + name,
-            description: "Ipsum lorem, bla bla bla!",
-            previousConnection: {
-                isPermitted: true,
-                connectableTypes: inType !== "no-connection-in" ? ["default-out"] : [],
-                connectionType: inType
-            },
-            nextConnection: {
-                isPermitted: true,
-                connectableTypes: outType !== "no-connection-out" ? ["default-in"] : [],
-                connectionType: outType
-            },
-            parameters: [
-                {
-                    ref:{
-                        uuid:"TestFeld1"
-                    },
-                    info:{
-                        displayName: "Text Parameter",
-                        description:"adasjdasjdad"
-                    },
-                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
-                    defaultValue:"DefaultValue",
-                    mandatory: true,
-                    validator: {
-                        expression:".*",
-                        expressionType: ExpressionType.RegEx,
-                        description: "Example Description"
-                    }
-                },
-                {
-                    ref:{
-                        uuid:"TestFeld2"
-                    },
-                    info:{
-                        displayName: "Text Parameter",
-                        description:"adasjdasjdad"
-                    },
-                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
-                    defaultValue:"DefaultValue",
-                    mandatory: true,
-                    validator: {
-                        expression:".*",
-                        expressionType: ExpressionType.RegEx,
-                        description: "Example Description"
-                    }
-                },
-                {
-                    ref:{
-                        uuid:"TestFeld3"
-                    },
-                    info:{
-                        displayName: "Text Parameter",
-                        description:"adasjdasjdad"
-                    },
-                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
-                    defaultValue:"DefaultValue",
-                    mandatory: true,
-                    validator: {
-                        expression:".*",
-                        expressionType: ExpressionType.RegEx,
-                        description: "Example Description"
-                    }
-                },
-                {
-                    ref:{
-                        uuid:"TestFeld4"
-                    },
-                    info:{
-                        displayName: "Text Parameter",
-                        description:"adasjdasjdad"
-                    },
-                    jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
-                    defaultValue:"DefaultValue",
-                    mandatory: true,
-                    validator: {
-                        expression:".*",
-                        expressionType: ExpressionType.RegEx,
-                        description: "Example Description"
-                    }
-                }
-            ],
-            category: "Test"
-        };
+        this.dummyDescriptors = generateBlockDescriptors();
 
 
     }

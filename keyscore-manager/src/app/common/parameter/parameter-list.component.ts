@@ -1,9 +1,6 @@
 import {Component, forwardRef, Input, OnInit} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {Observable} from "rxjs/index";
-import {delay} from "rxjs/internal/operators";
-import {__await} from "tslib";
-import {Parameter} from "../../../models/parameters/Parameter";
+import {Parameter} from "../../models/parameters/Parameter";
 
 @Component({
     selector: "parameter-list",
@@ -46,7 +43,7 @@ export class ParameterList implements ControlValueAccessor,OnInit {
     @Input() public disabled = false;
     @Input() public distinctValues = true;
     @Input() public parameter: Parameter;
-    public parameterValues: string[];
+    public parameterValues: string[] = [];
     private duplicate: boolean = false;
 
     public onChange = (elements: string[]) => {
@@ -58,9 +55,9 @@ export class ParameterList implements ControlValueAccessor,OnInit {
     };
 
     public ngOnInit(): void{
-        console.log(this.parameter);
-        this.parameterValues = this.parameter.value ? this.parameter.value : [];
-        console.log(this.parameterValues);
+        console.log("LISTONINIT: ",this.parameter);
+        this.parameterValues = this.parameter.value;
+        console.log("LISTONINIT Values: ",this.parameterValues);
     }
 
     public writeValue(elements: string[]): void {

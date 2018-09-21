@@ -1,12 +1,12 @@
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {ParameterMap} from "./parameter/parameter-map.component";
-import {ParameterList} from "./parameter/parameter-list.component";
-import {ParameterComponent} from "./parameter/parameter.component";
+import {ParameterMap} from "../parameter/parameter-map.component";
+import {ParameterList} from "../parameter/parameter-list.component";
+import {ParameterComponent} from "../parameter/parameter.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {MaterialModule} from "../../material.module";
-import {ConfigurationComponent} from "./configuration.component";
+import {ParameterControlService} from "./service/parameter-control.service";
 
 @NgModule({
     imports: [
@@ -20,13 +20,13 @@ import {ConfigurationComponent} from "./configuration.component";
         ParameterMap,
         ParameterList,
         ParameterComponent,
-        ConfigurationComponent
-    ]
-    ,
-    exports:[
-        ConfigurationComponent
     ],
-    providers: []
+    exports: [
+        ParameterComponent
+    ],
+    providers: [
+        ParameterControlService
+    ]
 })
-export class ConfigurationModule {
+export class ParameterModule {
 }
