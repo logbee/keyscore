@@ -62,14 +62,16 @@ test {
 }
 
 jar {
-    manifest.attributes([
+    doFirst {
+        manifest.attributes([
             'Main-Class'            : mainClass,
             'Implementation-Title'  : project.name,
             'Implementation-Version': version,
             'Class-Path'            : (configurations.runtime + configurations.compile).collect {
-                "libs/" + it.getName()
-            }.join(' ')
-    ])
+                                        "libs/" + it.getName() 
+                                      }.join(' ')
+        ])
+    }
 }
 
 task buildDistribution(type: Copy, dependsOn: [jar]) {
