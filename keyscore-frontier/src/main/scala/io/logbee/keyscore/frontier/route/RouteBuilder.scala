@@ -29,11 +29,16 @@ import io.logbee.keyscore.frontier.route.routes.resources.DescriptorResourceRout
 
 /**
   * The '''RouteBuilder''' combines multiple routes to one specific server route for the Frontier.
+  *
+  * @todo Use the new ServiceDiscovery
   */
 object RouteBuilder {
 
   case object RouteBuilderInitialized
 
+  /**
+    * Builds the full Route: AppInfo | Resources | Agent | Pipeline | Filter <br>
+    */
   case object BuildFullRoute
 
   case class RouteResponse(route: Flow[HttpRequest, HttpResponse, Any])
@@ -43,7 +48,7 @@ object RouteBuilder {
   }
 }
 
-class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with RouteImplicits {
+class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLogging with RouteImplicits {
 
   case class RouteBuilderState(configurationManager: ActorRef = null, blueprintManager: ActorRef = null, descriptorManager: ActorRef = null) {
     def isComplete: Boolean = configurationManager != null && blueprintManager != null && descriptorManager != null
@@ -71,9 +76,9 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with RouteImpli
     }
   }
 
-  private val clusterAgentManager = aM
-  private var blueprintManager = null
   private val clusterPipelineManager = system.actorOf(ClusterPipelineManager(clusterAgentManager))
+  private val clusterAgentManager = clusterAgentManagerRef
+  private var blueprintManager: ActorRef = _
 
   override def preStart(): Unit = {
     mediator ! Publish(Topics.WhoIsTopic, WhoIs(ConfigurationService))
@@ -96,6 +101,7 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with RouteImpli
     case HereIam(BlueprintService, ref) =>
       maybeRunning(state.copy(blueprintManager = ref))
       this.mainRoute = this.mainRoute ~ blueprintResourceRoute(ref)
+      blueprintManager = ref
     case HereIam(ConfigurationService, ref) =>
       maybeRunning(state.copy(configurationManager = ref))
       this.mainRoute = this.mainRoute ~ configurationResourcesRoute(ref)
@@ -116,17 +122,20 @@ class RouteBuilder(aM: ActorRef) extends Actor with ActorLogging with RouteImpli
 
   private def running(state: RouteBuilderState): Receive = {
     case BuildFullRoute =>
-      log.debug("Routes built.")
       val r = buildFullRoute
       sender ! RouteResponse(r)
-    case PauseFilterResponse(state) => log.info("Wrong Behaviour reached ###")
+      log.debug("Routes built.")
   }
 
+  /**
+    * __Route__: AppInfo | Resources | Agent | Pipeline | Filter
+    *
+    * @return The complete Route for a Standard Full-Operating Frontier
+    */
   private def buildFullRoute: Route = {
-    val fullRoute = mainRoute ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager) ~ agentsRoute(clusterAgentManager)
+    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager)
 
-    val route = settings { fullRoute }
-    route
+    settings { fullRoute }
   }
 
 }

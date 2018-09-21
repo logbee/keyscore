@@ -34,36 +34,48 @@ class ConfigurationManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case StoreConfigurationRequest(configuration) =>
+      log.debug(s"Received StoreConfigurationRequest for $configuration")
       configurations.put(configuration.ref, configuration)
       sender ! StoreConfigurationResponse
 
     case GetAllConfigurationRequest =>
+      log.debug("Received GetAllConfigurationRequest")
       sender ! GetAllConfigurationResponse(configurations.toMap)
 
     case DeleteConfigurationRequest(ref) =>
+      log.debug(s"DeleteConfigurationRequest for $ref")
       configurations.remove(ref)
       sender ! DeleteConfigurationResponse
 
     case DeleteAllConfigurationsRequest =>
+      log.debug("Received DeleteAllConfigurationsRequest")
       configurations.clear()
       sender ! DeleteAllConfigurationsResponse
 
     case GetConfigurationRequest(ref) =>
+      log.debug(s"Received GetConfigurationRequest for $ref")
       configurations.get(ref) match {
         case Some(configuration) =>
+          log.debug(s"Get Configuration for $ref")
           sender ! GetConfigurationSuccess(configuration)
-        case _ => GetConfigurationFailure(ref)
+        case _ =>
+          log.warning(s"Couldn't get Configuration for $ref")
+          GetConfigurationFailure(ref)
       }
 
     case UpdateConfigurationRequest(configuration) =>
+      log.debug(s"Received UpdateConfigurationRequest for $configuration")
       if (configurations.contains(configuration.ref)) {
+        log.debug(s"Updated Configuration for $configuration")
         configurations.put(configuration.ref, configuration)
         sender ! UpdateConfigurationSuccessResponse
       } else {
+        log.warning(s"Couldn't update Configuration for $configuration")
         sender ! UpdateConfigurationFailureResponse
       }
 
     case WhoIs(ConfigurationService) =>
+      log.debug("Received WhoIs(ConfigurationService)")
       sender ! HereIam(ConfigurationService, self)
   }
 }

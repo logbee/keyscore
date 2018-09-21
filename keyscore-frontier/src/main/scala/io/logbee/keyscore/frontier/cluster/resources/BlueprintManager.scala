@@ -12,6 +12,8 @@ import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, Seal
 /**
   * The BlueprintManager holds maps for all Pipeline- and SealedBlueprints and <br>
   * resolves a BlueprintRef to the specific Blueprint.
+  *
+  * @todo Error Handling
   */
 object BlueprintManager {
 
@@ -37,55 +39,71 @@ class BlueprintManager extends Actor with ActorLogging {
   override def receive: Receive = {
 
     case WhoIs(BlueprintService) =>
+      log.debug("Received WhoIs(BlueprintService)")
       sender ! HereIam(BlueprintService, self)
 
     //Pipeline Blueprint
     case StorePipelineBlueprintRequest(pipelineBlueprint) =>
+      log.debug(s"Received StorePipelineBlueprintRequest for $pipelineBlueprint")
       pipelineBlueprints.put(pipelineBlueprint.ref, pipelineBlueprint)
       sender ! StorePipelineBlueprintResponse
 
     case UpdatePipelineBlueprintRequest(pipelineBlueprint) =>
+      log.debug(s"Received UpdatePipelineBlueprintRequest for $pipelineBlueprint")
       if(pipelineBlueprints.contains(pipelineBlueprint.ref)){
         pipelineBlueprints.put(pipelineBlueprint.ref, pipelineBlueprint)
+        log.debug(s"Updated PipelineBlueprint for $pipelineBlueprint")
         sender ! UpdatePipelineBlueprintResponseSuccess
       } else {
+        log.warning(s"Couldn't update PipelineBlueprint for $pipelineBlueprint")
         sender ! UpdatePipelineBlueprintResponseFailure
       }
 
     case GetAllPipelineBlueprintsRequest =>
+      log.debug(s"Received GetAllPipelineBlueprintsRequest")
       sender ! GetAllPipelineBlueprintsResponse(pipelineBlueprints.toMap)
 
     case GetPipelineBlueprintRequest(ref) =>
+      log.debug(s"Received GetPipelineBlueprintRequest")
       sender ! GetPipelineBlueprintResponse(pipelineBlueprints.get(ref))
 
     case DeletePipelineBlueprintRequest(ref) =>
+      log.debug(s"Received DeletePipelineBlueprintRequest for $ref")
       pipelineBlueprints.remove(ref)
       sender ! DeletePipelineBlueprintResponse
 
     case DeleteAllPipelineBlueprintsRequest =>
+      log.debug("Received DeleteAllPipelineBlueprintsRequest")
       pipelineBlueprints.clear()
       sender ! DeleteAllPipelineBlueprintsResponse
 
     //Sealed Blueprint
     case StoreBlueprintRequest(blueprint) =>
+      log.debug(s"Received StoreBlueprintRequest for $blueprint")
       blueprints.put(blueprint.blueprintRef, blueprint)
       sender ! StoreBlueprintResponse
 
     case UpdateBlueprintRequest(blueprint) =>
+      log.debug(s"Received UpdateBlueprintRequest for $blueprint")
       if(blueprints.contains(blueprint.blueprintRef)){
+        log.debug(s"Updated Blueprint for $blueprint")
         blueprints.put(blueprint.blueprintRef, blueprint)
         sender ! UpdateBlueprintResponseSuccess
       } else {
+        log.warning(s"Couldn't update Blueprint for $blueprint")
         sender ! UpdateBlueprintResponseFailure
       }
 
     case GetBlueprintRequest(ref) =>
+      log.debug(s"Received GetBlueprintRequest for $ref")
       sender ! GetBlueprintResponse(blueprints.get(ref))
 
     case GetAllBlueprintsRequest =>
+      log.debug("Received GetAllBlueprintsRequest")
       sender ! GetAllBlueprintsResponse(blueprints.toMap)
 
     case DeleteBlueprintRequest(ref) =>
+      log.debug(s"Received DeleteBlueprintRequest for $ref")
       blueprints.remove(ref)
       sender ! DeleteBlueprintResponse
   }
