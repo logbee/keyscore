@@ -9,6 +9,7 @@ option (scalapb.options) = {
 };
 
 message Metrics {
-    TimestampValue timestamp = 1;
+    string uuid = 1;
+    TimestampValue timestamp = 2;
     repeated Field metrics = 3;
 }

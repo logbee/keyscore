@@ -61,7 +61,7 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
           log.debug("Now initialising.")
           self ! Initialize(services(BlueprintService), services(DescriptorService), services(ConfigurationService))
         case Failure(exception) =>
-          log.error(exception, "Couldn't retrieve missing actors")
+          log.error(exception, "Couldn't retrieve missing services.")
         // TODO: Handle this case!
       }
     }
