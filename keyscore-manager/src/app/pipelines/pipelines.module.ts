@@ -16,11 +16,11 @@ import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {AlertModule} from "../common/alert/alert.module";
 import {ErrorModule} from "../common/error/error.module";
-import {PipelyComponent} from "./pipeline-editor/pipely/pipely.component";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {MaterialModule} from "../material.module";
 import {PipelineService} from "../services/rest-api/pipeline.service";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
+import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -48,12 +48,12 @@ export const routes: Routes = [
     declarations: [
         PipelinesComponent,
         PipelineEditorComponent,
-        PipelyComponent,
         RefreshTimeComponent
     ],
     providers: [
         DescriptorResolverService,
-        PipelineService
+        PipelineService,
+        PipelyKeyscoreAdapter
     ]
 })
 export class PipelinesModule {

@@ -10,7 +10,7 @@ import {
     ResetPipelineAction,
     UpdatePipelineAction
 } from "../pipelines.actions";
-import {map, share} from "rxjs/internal/operators";
+import {map, share, takeUntil} from "rxjs/internal/operators";
 import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
 import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
@@ -23,6 +23,8 @@ import {
 import {Configuration} from "../../models/common/Configuration";
 import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
 import {ResolvedCategory} from "../../models/descriptors/Category";
+import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
+import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 
 @Component({
     selector: "pipeline-editor",
@@ -32,42 +34,34 @@ import {ResolvedCategory} from "../../models/descriptors/Category";
         <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
 
         <ng-template #editor>
-            
-            <pipely-workspace [pipeline]="(pipeline$ | async)" fxFill=""></pipely-workspace>
 
-            <alert [level]="'success'" [message]="'BLOCKLY.SAVE_SUCCESS'"
-                   [trigger$]="successAlertTrigger$"></alert>
-            <alert [level]="'danger'" [message]="'BLOCKLY.SAVE_FAILURE'"
-                   [trigger$]="failureAlertTrigger$"></alert>
+            <pipely-workspace [pipeline]="(pipeline$ | async)" [blockDescriptors]="pipelyBlockDescriptors"  fxFill=""></pipely-workspace>
+            
         </ng-template>
     `,
 })
 export class PipelineEditorComponent implements OnDestroy {
     public pipeline$: Observable<EditingPipelineModel>;
     public filterDescriptors$: Observable<ResolvedFilterDescriptor[]>;
-    public categories$: Observable<ResolvedCategory[]>;
     public isLoading$: Observable<boolean>;
     public isMenuExpanded$: Observable<boolean>;
-    public updateSuccess$: Observable<boolean[]>;
-
-    public successAlertTrigger$: Observable<boolean>;
-    public failureAlertTrigger$: Observable<boolean>;
 
     private alive: Subject<void> = new Subject();
 
-    constructor(private store: Store<any>, private location: Location) {
+    public pipelyBlockDescriptors: BlockDescriptor[] = [];
+
+    constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
-        this.filterDescriptors$ = this.store.select(getFilterDescriptors);
-        this.categories$ = this.store.select(getFilterCategories);
+        this.filterDescriptors$ = this.store.select(getFilterDescriptors).pipe(takeUntil(this.alive));
         this.isLoading$ = this.store.select(isSpinnerShowing).pipe(share());
-        this.updateSuccess$ = this.store.select(getLastUpdateSuccess).pipe(share());
         this.isMenuExpanded$ = this.store.select(isMenuExpanded);
         this.pipeline$ = this.store.select(getEditingPipeline);
 
-        this.successAlertTrigger$ = this.updateSuccess$.pipe(map((success) => success[0]));
-        this.failureAlertTrigger$ = this.updateSuccess$.pipe(
-            map((successList) => !successList[0]));
+        this.filterDescriptors$.subscribe(descriptors => {
+            this.pipelyBlockDescriptors = descriptors.map(descriptor =>
+                this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor))
+        });
 
     }
 

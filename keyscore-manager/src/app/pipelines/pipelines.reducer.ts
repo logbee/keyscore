@@ -19,6 +19,7 @@ import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
 import {ResolvedCategory} from "../models/descriptors/Category";
+import {generateRef} from "../models/common/Ref";
 
 export class PipelinesState {
     public pipelineList: PipelineInstance[];
@@ -55,7 +56,30 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             result.descriptors = action.descriptors;
             break;
         case CREATE_PIPELINE:
-
+            result.editingPipeline = {
+                pipelineBlueprint: {
+                    ref: generateRef(),
+                    blueprints: [],
+                    metadata: {
+                        labels: [{
+                            name: "displayName",
+                            value: {
+                                jsonClass: "",
+                                value: "New Pipeline"
+                            }
+                        }, {
+                            name: "description",
+                            value: {
+                                jsonClass: "",
+                                value: "Your new Pipeline"
+                            }
+                        }
+                        ]
+                    }
+                },
+                blueprints: [],
+                configurations: []
+            };
             break;
         case EDIT_PIPELINE_SUCCESS:
             result.editingPipeline = {

@@ -1,5 +1,14 @@
 import {
-    AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild,
+    AfterViewInit,
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    ViewChild,
     ViewContainerRef
 } from "@angular/core";
 import {v4 as uuid} from "uuid";
@@ -11,40 +20,45 @@ import {DraggableFactory} from "./draggable/draggable-factory";
 import {computeRelativePositionToParent} from "./util/util";
 import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
 import {BlockDescriptor, generateBlockDescriptors} from "./models/block-descriptor.model";
-import {InternalPipelineConfiguration} from "../../../models/pipeline-model/InternalPipelineConfiguration";
-import {PipelyPipelineConfiguration} from "./models/pipeline-configuration.model";
-import {parameterDescriptorToParameter} from "../../../util";
 import {Observable, Subject} from "rxjs";
 import {share} from "rxjs/operators";
-import {ExpressionType, ParameterDescriptorJsonClass} from "../../../models/parameters/ParameterDescriptor";
+import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
+import "./style/pipely-style.scss";
+
 
 @Component({
-    selector: "workspace",
+    selector: "pipely-workspace",
     template: `
-        <div class="workspace-container" fxLayout="row" fxFill>
-            <div #workspace class="workspace" fxFlex="75">
+        <div class="pipely-wrapper">
+            <div class="workspace-container" fxLayout="row" fxFill>
+                <div #workspace class="workspace" fxFlex="75">
                     <div class="row">
                         <ng-template #workspaceContainer>
                         </ng-template>
                         <puzzle-box class="top-shadow" [workspace]="this" [descriptors]="dummyDescriptors"></puzzle-box>
                     </div>
-            </div>
+                </div>
 
-            <configurator class="mat-elevation-z6" fxFlex="" (closeConfigurator)="closeConfigurator()" [isOpened]="isConfiguratorOpened"
-                          [selectedDraggable$]="selectedDraggable$"></configurator>
+                <configurator class="mat-elevation-z6" fxFlex="" (closeConfigurator)="closeConfigurator()"
+                              [isOpened]="isConfiguratorOpened"
+                              [selectedDraggable$]="selectedDraggable$"></configurator>
+            </div>
         </div>
     `
 })
 
 
 export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterViewInit {
-    @Input() pipeline: PipelyPipelineConfiguration;
+    @Input() pipeline: EditingPipelineModel;
+    @Input() blockDescriptors: BlockDescriptor[];
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
 
-    public dummyDescriptors:BlockDescriptor[] = [];
+    @Output() updatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
+
+    public dummyDescriptors: BlockDescriptor[] = [];
 
     public id: string;
 
@@ -208,7 +222,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
         this.draggables.forEach(draggable => draggable.moveXAxis(compResult));
     }
 
-    private closeConfigurator(){
+    private closeConfigurator() {
         this.isConfiguratorOpened = false;
     }
 

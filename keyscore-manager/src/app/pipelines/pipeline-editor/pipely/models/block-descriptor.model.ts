@@ -16,6 +16,8 @@ export interface BlockDescriptor {
     categories: string[];
 }
 
+
+
 export const generateBlockDescriptor = (categories: string[] = null): BlockDescriptor => {
     const defaultCategories = ['Sink', 'Source', 'Filter'];
     const specialCategories = ['Elastic', 'Kafka', 'Amazon'];
@@ -34,12 +36,10 @@ export const generateBlockDescriptor = (categories: string[] = null): BlockDescr
         description: faker.lorem.sentence(),
         previousConnection: {
             connectableTypes: previousPermitted ? ['default-out'] : [],
-            isPermitted: true,
             connectionType: previousPermitted ? 'default-in' : 'no-connection-in'
         },
         nextConnection: {
             connectableTypes: nextPermitted ? ['default-in'] : [],
-            isPermitted: true,
             connectionType: nextPermitted ? 'default-out' : 'no-connection-out'
         },
         parameters: generateResolvedParameterDescriptors(),

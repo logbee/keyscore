@@ -167,12 +167,11 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     }
 
     private createConnection(connection: Connection, container: ViewContainerRef) {
-        if (connection.isPermitted) {
-            const connectionDropzone =
-                this.dropzoneFactory.createConnectorDropzone(container, this.workspace, this, connection.connectableTypes);
-            this.workspace.addDropzone(connectionDropzone);
-            return connectionDropzone;
-        }
+        const connectionDropzone =
+            this.dropzoneFactory.createConnectorDropzone(container, this.workspace, this, connection.connectableTypes);
+        this.workspace.addDropzone(connectionDropzone);
+        return connectionDropzone;
+
     }
 
     public createNext() {
@@ -189,7 +188,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         this.isAlive.next();
     }
 
-    private triggerDragStart(event:MouseEvent) {
+    private triggerDragStart(event: MouseEvent) {
         event.stopPropagation();
         this.dragStartSource.next(event);
     }

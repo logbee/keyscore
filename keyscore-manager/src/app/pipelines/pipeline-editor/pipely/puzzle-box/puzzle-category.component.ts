@@ -44,7 +44,7 @@ export class PuzzleCategoryComponent implements OnInit {
 
             let blockConfiguration = {
                 id: uuid(),
-                descriptor: blockDescriptor,
+                descriptor:blockDescriptor,
                 parameters: parameters
             };
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {

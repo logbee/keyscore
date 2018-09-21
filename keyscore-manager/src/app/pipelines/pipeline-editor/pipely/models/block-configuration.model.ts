@@ -3,6 +3,6 @@ import {BlockDescriptor} from "./block-descriptor.model";
 
 export interface BlockConfiguration {
     id: string;
-    descriptor: BlockDescriptor;
+    descriptor:BlockDescriptor;
     parameters: Parameter[];
 }
