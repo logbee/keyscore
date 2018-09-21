@@ -2,26 +2,28 @@ import * as faker from 'faker/locale/en_US';
 import {PipelineInstance} from "../../app/models/pipeline-model/PipelineInstance";
 import {Health} from "../../app/models/common/Health";
 import {
-    Blueprint, BlueprintJsonClass, FilterBlueprint, PipelineBlueprint,
-    SinkBlueprint, SourceBlueprint
+    Blueprint,
+    BlueprintJsonClass,
+    FilterBlueprint,
+    PipelineBlueprint,
+    SinkBlueprint,
+    SourceBlueprint
 } from "../../app/models/blueprints/Blueprint";
-import {ParameterRef, Ref} from "../../app/models/common/Ref";
+import {generateParameterRef, generateRef, generateRefs} from "../../app/models/common/Ref";
 import {Value} from "../../app/models/dataset/Value";
-import {count} from "rxjs/internal/operators";
 import {Label} from "../../app/models/common/MetaData";
 import {Configuration} from "../../app/models/common/Configuration";
 import {Parameter, ParameterJsonClass} from "../../app/models/parameters/Parameter";
 import {Field} from "../../app/models/dataset/Field";
 import {
-    ChoiceParameterDescriptor,
     ExpressionType,
-    FieldListParameterDescriptor,
     FieldNameHint,
-    FieldNameParameterDescriptor, FieldParameterDescriptor,
+    FieldNameParameterDescriptor,
+    FieldParameterDescriptor,
     FieldValueType,
     NumberRange,
-    ParameterDescriptor,
-    ParameterDescriptorJsonClass, ResolvedChoice,
+    ParameterDescriptorJsonClass,
+    ResolvedChoice,
     ResolvedParameterDescriptor,
     ResolvedParameterInfo,
     ResolvedStringValidator,
@@ -327,26 +329,6 @@ export const generateSourceBlueprint = (): SourceBlueprint => {
         configuration: generateRef(),
         out: generateRef()
     }
-};
-
-export const generateRef = (): Ref => {
-    return {
-        uuid: faker.random.uuid()
-    }
-};
-
-export const generateRefs = (count = faker.random.number({min: 1, max: 10})): Ref[] => {
-    return Array.apply(null, Array(count)).map(() => generateRef());
-};
-
-export const generateParameterRef = (): ParameterRef => {
-    return {
-        uuid: faker.random.uuid()
-    }
-};
-
-export const generateParameterRefs = (count = faker.random.number({min: 1, max: 10})): ParameterRef[] => {
-    return Array.apply(null, Array(count)).map(() => generateParameterRef());
 };
 
 export const generateValue = (): Value => {

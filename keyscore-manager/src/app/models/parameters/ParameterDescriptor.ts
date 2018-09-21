@@ -7,7 +7,7 @@ export interface StringValidator {
     description: TextRef;
 }
 
-export interface ResolvedStringValidator{
+export interface ResolvedStringValidator {
     expression: string;
     expressionType: ExpressionType;
     description: string;
@@ -57,20 +57,19 @@ export interface ParameterDescriptor {
     ref: ParameterRef;
     info: ParameterInfo;
     jsonClass: ParameterDescriptorJsonClass;
-    validator?:StringValidator;
-    nameValidator?:StringValidator;
-    mandatory?:boolean;
-    defaultValue?:any;
-    expressionType?:ExpressionType;
-    range?:NumberRange;
-    decimals?:number;
-    hint?:FieldNameHint;
-    min?:number;
-    max?:number;
-    choices?:Choice[];
-    descriptor?:ParameterDescriptor;
-    fieldValueType:FieldValueType;
-
+    validator?: StringValidator;
+    nameValidator?: StringValidator;
+    mandatory?: boolean;
+    defaultValue?: any;
+    expressionType?: ExpressionType;
+    range?: NumberRange;
+    decimals?: number;
+    hint?: FieldNameHint;
+    min?: number;
+    max?: number;
+    choices?: Choice[];
+    descriptor?: ParameterDescriptor;
+    fieldValueType: FieldValueType;
 
 
 }
@@ -213,16 +212,17 @@ export interface ChoiceParameterDescriptor {
     choices: ResolvedChoice[];
 }
 
+
 export interface Choice {
     name: string;
     displayName: TextRef;
     description: TextRef;
 }
 
-export interface ResolvedChoice{
-    name:string;
-    displayName:string;
-    description:string;
+export interface ResolvedChoice {
+    name: string;
+    displayName: string;
+    description: string;
 }
 
 export interface ParameterGroupDescriptor {

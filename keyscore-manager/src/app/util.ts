@@ -4,7 +4,7 @@ import {
     ParameterDescriptorJsonClass, ParameterDescriptorPackagePrefix,
     ResolvedParameterDescriptor
 } from "./models/parameters/ParameterDescriptor";
-import {Parameter, ParameterJsonClass} from "./models/parameters/Parameter";
+import {Parameter, ParameterJsonClass, ParameterPackagePrefix} from "./models/parameters/Parameter";
 
 export function deepcopy(source: any, target?: any): any {
     return jQuery.extend(true, target == null ? {} : target, source);
@@ -12,7 +12,7 @@ export function deepcopy(source: any, target?: any): any {
 
 export function parameterDescriptorToParameter(parameterDescriptor: ResolvedParameterDescriptor): Parameter {
     let type = parameterDescriptor.jsonClass.toString();
-    type = type.replace(ParameterDescriptorPackagePrefix,ParameterDescriptorPackagePrefix);
+    type = type.substr(type.lastIndexOf('.') +1 );
     type = type.substr(0,type.length - "Descriptor".length);
 
     return {ref:{uuid:uuid()}, value: null, jsonClass: ParameterJsonClass[type]};

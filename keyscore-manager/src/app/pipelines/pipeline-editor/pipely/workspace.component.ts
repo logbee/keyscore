@@ -269,21 +269,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
                 }
                 let blockDescriptor = this.createDummyBlockDescriptor(inType, outType);
                 this.dummyDescriptors.push(blockDescriptor);
-                /*let parameters = blockDescriptor.parameters.map(parameterDescriptor => parameterDescriptorToParameter(parameterDescriptor))
-                let blockConfiguration = {
-                    id: uuid(),
-                    descriptor: blockDescriptor,
-                    parameters: parameters
-                };
-                this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
-                    blockDescriptor: blockDescriptor,
-                    blockConfiguration: blockConfiguration,
-                    initialDropzone: this.toolbarDropzone,
-                    next: null,
-                    previous: null,
-                    rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
-                    isMirror: false
-                }, this);*/
             }
         }
 

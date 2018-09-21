@@ -1,12 +1,15 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {async, ComponentFixture, fakeAsync, TestBed, tick} from "@angular/core/testing";
 import {Subject} from "rxjs";
 import {RouterTestingModule} from "@angular/router/testing";
 import {MaterialModule} from "../../app/material.module";
 import {ConfigurationComponent} from "../../app/common/configuration/configuration.component";
-import {ParameterDescriptorJsonClass} from "../../app/models/parameters/ParameterDescriptor";
+import {
+    ParameterDescriptorJsonClass,
+    ResolvedParameterDescriptor
+} from "../../app/models/parameters/ParameterDescriptor";
 import {generateParameter, generateResolvedParameterDescriptor} from "../fake-data/pipeline-fakes";
-import {ParameterJsonClass} from "../../app/models/parameters/Parameter";
-import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {Parameter, ParameterJsonClass} from "../../app/models/parameters/Parameter";
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ParameterComponent} from "../../app/common/configuration/parameter/parameter.component";
 import {ParameterList} from "../../app/common/configuration/parameter/parameter-list.component";
 import {ParameterMap} from "../../app/common/configuration/parameter/parameter-map.component";
@@ -34,6 +37,7 @@ describe('ConfiguratorComponent', () => {
                 RouterTestingModule,
                 MaterialModule,
                 ReactiveFormsModule,
+                FormsModule,
                 HttpClientModule,
                 TranslateModule.forRoot({
                     loader: {
@@ -74,19 +78,22 @@ describe('ConfiguratorComponent', () => {
         ParameterJsonClass.NumberParameter, ParameterJsonClass.TextListParameter, ParameterJsonClass.TextParameter];
 
     describe('ngOnInit', () => {
-        it('should create the form group with all given parameters', () => {
-            let parameterDescriptors = descriptorJsonClasses.map(jsonClass => generateResolvedParameterDescriptor(jsonClass));
-            let parameters = parameterJsonClasses.map(jsonClass => generateParameter(jsonClass));
-            component.parametersMapping = new Map(zip([parameters, parameterDescriptors]));
+        it('should create the form group with formControls for each descriptor named by them', fakeAsync(() => {
+            let parameterDescriptors:ResolvedParameterDescriptor[] = descriptorJsonClasses.map(jsonClass => generateResolvedParameterDescriptor(jsonClass));
+            let parameters:Parameter[] = parameterJsonClasses.map(jsonClass => generateParameter(jsonClass));
+            let parametersSource$:Subject<Map<Parameter,ResolvedParameterDescriptor>> = new Subject();
+            component.parametersMapping$ = parametersSource$.asObservable();
 
             fixture.detectChanges();
+            parametersSource$.next(new Map(zip([parameters, parameterDescriptors])));
 
-            let hasValue = 0;
-            component.parametersMapping.forEach((_,descriptor) => {
-                hasValue = component.form.controls[descriptor.ref.uuid].value !== null ? hasValue + 1 : hasValue;
+            tick();
+            let formControlCount = 0;
+            parameterDescriptors.forEach(descriptor => {
+                formControlCount = component.form.controls[descriptor.ref.uuid] !== null ? formControlCount +1 : formControlCount;
             });
 
-            expect(hasValue).toBe(component.parametersMapping.size);
-        })
+            expect(formControlCount).toBe(parameterDescriptors.length);
+        }));
     });
 });

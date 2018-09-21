@@ -12,7 +12,7 @@ import {v4 as uuid} from "uuid";
     template: `
         <div class="category-container" fxLayout="row">
             <div fxFlex="10" fxLayoutAlign="start center" style="color:black">{{category}}:</div>
-            <div fxFlex="90" class="category-block-container" >
+            <div fxFlex="90" class="category-block-container">
                 <ng-template #blockContainer></ng-template>
             </div>
         </div>`
@@ -26,7 +26,7 @@ export class PuzzleCategoryComponent implements OnInit {
     @ViewChild("blockContainer", {read: ViewContainerRef}) blockContainer: ViewContainerRef;
     private toolbarDropzone: Dropzone;
 
-    private exampleColor:string[] = ['#cc0000','#e69138','#f1c232','#6aa84f','#45818e','#3d85c6','#674ea7'];
+    private exampleColor: string[] = ['#cc0000', '#e69138', '#f1c232', '#6aa84f', '#45818e', '#3d85c6', '#674ea7'];
 
     constructor(private dropzoneFactory: DropzoneFactory, private draggableFactory: DraggableFactory) {
 
@@ -41,6 +41,8 @@ export class PuzzleCategoryComponent implements OnInit {
         this.descriptors.forEach(blockDescriptor => {
             let parameters = blockDescriptor.parameters.map(parameterDescriptor =>
                 parameterDescriptorToParameter(parameterDescriptor));
+
+            parameters.forEach(parameter => parameter.value = "FUCK YOU");
             let blockConfiguration = {
                 id: uuid(),
                 descriptor: blockDescriptor,
@@ -51,7 +53,7 @@ export class PuzzleCategoryComponent implements OnInit {
                 blockConfiguration: blockConfiguration,
                 initialDropzone: this.toolbarDropzone,
                 next: null,
-                color:this.exampleColor[this.getRandomInt(0,6)],
+                color: this.exampleColor[this.getRandomInt(0, 6)],
                 previous: null,
                 rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
                 isMirror: false
@@ -59,7 +61,7 @@ export class PuzzleCategoryComponent implements OnInit {
         })
     }
 
-    private getRandomInt(min:number, max:number):number {
+    private getRandomInt(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }
