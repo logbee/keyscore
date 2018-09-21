@@ -82,12 +82,16 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       children.foreach(child => context.stop(child))
 
     case RequestPipelineInstance =>
+      log.debug("Forwarding RequestPipelineInstance to:")
       children.foreach( supervisor => {
+        log.debug(s"$supervisor")
         supervisor forward RequestPipelineInstance
       })
 
     case message: RequestPipelineBlueprints =>
+      log.debug(s"Forwarding RequestPipelineBlueprints ($message) to:")
       children.foreach( supervisor => {
+        log.debug(s"$supervisor")
         supervisor forward message
       })
 
@@ -95,37 +99,51 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
       log.warning(s"PipelineSupervisor <$supervisor> has terminated: $configuration")
 
     case message: PauseFilter =>
+      log.debug(s"Forwarding PauseFilter ($message) to:")
       children.foreach( supervisor => {
+        log.debug(s"$supervisor")
         supervisor forward  message
       })
 
     case message: DrainFilterValve =>
+      log.debug(s"Forwarding DrainFilterValve ($message) to:")
       children.foreach(supervisor => {
+        log.debug(s"$supervisor")
         supervisor forward message
       })
 
     case message: InsertDatasets =>
+      log.debug(s"Forwarding InsertDatasets ($message) to:")
       children.foreach( supervisor => {
+        log.debug(s"$supervisor")
         supervisor forward message
       })
 
     case message: ExtractDatasets =>
+      log.debug(s"Forwarding ExtractDatasets ($message) to:")
       children.foreach( supervisor =>  {
+        log.debug(s"$supervisor")
         supervisor forward message
       })
 
     case message: ConfigureFilter =>
+      log.debug(s"Forwarding ConfigureFilter ($message) to:")
       children.foreach( supervisor => {
+        log.debug(s"$supervisor")
         supervisor forward message
       })
 
     case message: CheckFilterState =>
+      log.debug(s"Forwarding CheckFilterState ($message) to:")
       children.foreach( supervisor => {
+        log.debug(s"$supervisor")
         supervisor forward message
       })
 
     case message: ClearBuffer =>
+      log.debug(s"Forwarding ClearBuffer ($message) to:")
       children.foreach( supervisor => {
+        log.debug(s"$supervisor")
         supervisor forward message
       })
   }

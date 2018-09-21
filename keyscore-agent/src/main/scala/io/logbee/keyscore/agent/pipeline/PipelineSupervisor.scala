@@ -41,22 +41,22 @@ object PipelineSupervisor {
   *
   * @todo Add Logic to the `ConfigurePipeline` case.
   *
-  * <br><br>
-  * __States:__       <br>
-  * initial      <br>
-  * configuring  <br>
-  * materializing <br>
-  * running      <br>
-  * <br>
-  * __Transitions:__<br>
-  * ''initial''   x CreatePipeline                  -> configuring                <br>
-  * configuring   x SinkStageCreated                -> configuring                <br>
-  * configuring   x SourceStageCreated              -> configuring                <br>
-  * configuring   x FilterStageCreated              -> configuring                <br>
-  * configuring   x StartPipeline                   -> [configuring|materializing]<br>
-  * materializing x ControllerMaterialized          -> [materializing|running]    <br>
-  * materializing x ControllerMaterializationFailed -> ''kill actor''             <br>
-  * running       x ConfigurePipeline               -> configuring                <br>
+  *       <br><br>
+  *       __States:__       <br>
+  *       initial      <br>
+  *       configuring  <br>
+  *       materializing <br>
+  *       running      <br>
+  *       <br>
+  *       __Transitions:__<br>
+  *       ''initial''   x CreatePipeline                  -> configuring                <br>
+  *       configuring   x SinkStageCreated                -> configuring                <br>
+  *       configuring   x SourceStageCreated              -> configuring                <br>
+  *       configuring   x FilterStageCreated              -> configuring                <br>
+  *       configuring   x StartPipeline                   -> [configuring|materializing]<br>
+  *       materializing x ControllerMaterialized          -> [materializing|running]    <br>
+  *       materializing x ControllerMaterializationFailed -> ''kill actor''             <br>
+  *       running       x ConfigurePipeline               -> configuring                <br>
   */
 class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLogging {
 
@@ -96,6 +96,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       scheduleStart(pipeline, pipelineStartTrials)
 
     case RequestPipelineInstance =>
+      log.debug("Received RequestPipelineInstance")
       sender ! PipelineInstance(Red)
   }
 
@@ -114,6 +115,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       become(configuring(pipeline.withFilterStage(stage)), discardOld = true)
 
     case StartPipeline(trials) =>
+      log.info(s"Received StartPipeline with $trials trials.")
 
       if (trials <= 1) {
         log.error(s"Failed to start pipeline <${pipeline.id}> with ${pipeline.pipelineBlueprint}")
@@ -163,14 +165,17 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
           tail.run()
         }
         else {
+          log.debug("Pipeline wasn't complete. Scheduling start.")
           scheduleStart(pipeline, trials - 1)
         }
       }
 
     case RequestPipelineInstance =>
+      log.debug("Received RequestPipelineInstance")
       sender ! PipelineInstance(pipeline.pipelineBlueprint.ref, pipeline.pipelineBlueprint.ref.uuid, pipeline.pipelineBlueprint.ref.uuid, Red)
 
     case RequestPipelineBlueprints(receiver) =>
+      log.debug(s"Received RequestPipelineBlueprints from $receiver")
       receiver ! pipeline.pipelineBlueprint
   }
 
@@ -211,6 +216,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       receiver ! controller.pipelineBlueprint
 
     case PauseFilter(filterId, doPause) =>
+      log.debug(s"Received PauseFilter($doPause) <$filterId>")
       val _sender = sender
       controller.close(filterId, doPause).foreach(_.onComplete {
         case Success(state) => _sender ! PauseFilterResponse(state)
@@ -218,6 +224,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       })
 
     case DrainFilterValve(filterId, doDrain) =>
+      log.debug(s"Received DrainFilter($doDrain) <$filterId>")
       val _sender = sender
       controller.drain(filterId, doDrain).foreach(_.onComplete {
         case Success(state) => _sender ! DrainFilterResponse(state)
@@ -225,6 +232,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       })
 
     case InsertDatasets(filterId, datasets, where) =>
+      log.debug(s"Received InsertDatasets with $datasets in <$filterId>")
       val _sender = sender
       controller.insert(filterId, datasets, where).foreach(_.onComplete {
         case Success(state) => _sender ! InsertDatasetsResponse(state)
@@ -232,6 +240,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       })
 
     case ExtractDatasets(filterId, amount, where) =>
+      log.debug(s"Received ExtractDatasets($amount) in <$filterId>")
       val _sender = sender
       controller.extract(filterId, amount, where).foreach(_.onComplete {
         case Success(datasets) => _sender ! ExtractDatasetsResponse(datasets)
@@ -239,6 +248,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       })
 
     case ConfigureFilter(filterId, filterConfig) =>
+      log.debug(s"Received ConfigureFilter with $filterConfig <$filterId>")
       val _sender = sender
       controller.configure(filterId, filterConfig).foreach(_.onComplete {
         case Success(state) => _sender ! ConfigureFilterResponse(state)
@@ -246,6 +256,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       })
 
     case CheckFilterState(filterId) =>
+      log.debug(s"Received CheckFilterState <$filterId>")
       val _sender = sender
       controller.state(filterId).foreach(_.onComplete {
         case Success(state) => _sender ! CheckFilterStateResponse(state)
@@ -253,6 +264,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       })
 
     case ClearBuffer(filterId) =>
+      log.debug(s"Received ClearBuffer <$filterId>")
       val _sender = sender
       controller.clear(filterId).foreach(_.onComplete {
         case Success(state) => _sender ! ClearBufferResponse(state)

@@ -55,14 +55,18 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
     log.info(s"Started for blueprint <${blueprintRef.uuid}>.")
 
     if (initialBlueprintManager.isEmpty || initialDescriptorManager.isEmpty || initialConfigurationManager.isEmpty) {
+      log.debug("Couldn't start with given actors. Retrieving missing ones...")
       discover(Seq(BlueprintService, DescriptorService, ConfigurationService)).onComplete {
         case Success(services) =>
+          log.debug("Now initialising.")
           self ! Initialize(services(BlueprintService), services(DescriptorService), services(ConfigurationService))
         case Failure(exception) =>
+          log.error(exception, "Couldn't retrieve missing actors")
         // TODO: Handle this case!
       }
     }
     else {
+      log.debug("Initialising with given Actors.")
       self ! Initialize(initialBlueprintManager.get, initialDescriptorManager.get, initialConfigurationManager.get)
     }
   }
@@ -86,7 +90,7 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
       blueprintManager ! GetBlueprintRequest(blueprintRef)
 
     case GetBlueprintResponse(Some(blueprint)) =>
-      log.info(s"Resolved blueprint: $blueprint")
+      log.debug(s"Resolved blueprint: $blueprint")
       val wrapper = wrap(blueprint)
       descriptorManager ! GetDescriptorRequest(wrapper.descriptorRef)
       configurationManager ! GetConfigurationRequest(wrapper.configurationRef)
@@ -125,11 +129,12 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
           filterManager ! CreateBranchStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: MergeBlueprint =>
           filterManager ! CreateMergeStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+        case e => log.error("Received unknown blueprint for InstantiateStage: ", e)
       }
       log.debug(s"Initiated instantiation of ${wrapper.blueprint.getClass.getSimpleName} from blueprint <${wrapper.blueprintRef.uuid}>")
 
     case message: StageCreated =>
-      log.debug(s"Finishing materialization of blueprint <${blueprintRef.uuid}>")
+      log.info(s"Finishing materialization of blueprint <${blueprintRef.uuid}>")
       parent ! message
       context.stop(self)
   }

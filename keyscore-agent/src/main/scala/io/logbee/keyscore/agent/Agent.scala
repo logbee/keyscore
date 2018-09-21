@@ -85,9 +85,11 @@ class Agent extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case Initialize =>
+      log.debug("Initializing Agent with FilterManager ...")
       val startUpWatch = context.actorOf(StartUpWatch(filterManager))
       (startUpWatch ? StartUpComplete).onComplete {
         case Success(_) =>
+          log.debug("Initializing Agent completed.")
           extensionLoader ! LoadExtensions(config, Paths.ExtensionPath)
         case Failure(e) =>
           log.error(e, "Failed to initialize agent!")
