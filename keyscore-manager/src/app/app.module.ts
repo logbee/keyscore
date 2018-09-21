@@ -22,11 +22,12 @@ import {RouterEffects} from "./router/router.effects";
 import {SettingsComponent} from "./settings/settings.component";
 import {HeaderBarModule} from "./common/headerbar.module";
 import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
-import {LiveEditingModule} from "./filters/filter.module";
+import {LiveEditingModule} from "./filters/live-editing/filter.module";
 import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MaterialModule} from "./material.module";
+import {ResourceViewerModule} from "./filters/resource-viewer/resource-viewer.module";
 
 
 const routes: Routes = [
@@ -35,7 +36,8 @@ const routes: Routes = [
     {path: "agent", loadChildren: () => AgentsModule},
     {path: "pipelines", loadChildren: () => PipelinesModule},
     {path: "filter/:id", loadChildren: () => LiveEditingModule},
-    {path: "settings", component: SettingsComponent}
+    {path: "settings", component: SettingsComponent},
+    {path: "resources", loadChildren: () => ResourceViewerModule}
 ];
 
 export function HttpLoaderFactory(http: HttpClient) {

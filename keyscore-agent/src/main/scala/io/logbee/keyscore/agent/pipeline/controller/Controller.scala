@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object Controller {
 
-  def sourceController(sourceProxy: SourceProxy, valveProxy: ValveProxy): Controller = {
+  def sourceController(sourceProxy: SourceProxy, valveProxy: ValveProxy)(implicit executionContext: ExecutionContext): Controller = {
     new SourceController(sourceProxy, valveProxy)
   }
 
@@ -20,7 +20,7 @@ object Controller {
     new FilterController(inValveProxy, filterProxy, outValveProxy)
   }
 
-  def sinkController(valveProxy: ValveProxy, sinkProxy: SinkProxy): Controller = {
+  def sinkController(valveProxy: ValveProxy, sinkProxy: SinkProxy)(implicit executionContext: ExecutionContext): Controller = {
     new SinkController(valveProxy, sinkProxy)
   }
 

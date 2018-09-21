@@ -20,7 +20,7 @@ export enum BlueprintJsonClass {
     SinkBlueprint = "io.logbee.keyscore.model.blueprint.SinkBlueprint",
     BranchBlueprint = "io.logbee.keyscore.model.blueprint.BranchBlueprint",
     MergeBlueprint = "io.logbee.keyscore.model.blueprint.MergeBlueprint"
-};
+}
 
 
 export interface FilterBlueprint {

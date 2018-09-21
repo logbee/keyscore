@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
-import {LOAD_LIVE_EDITING_FILTER_FAILURE, LoadLiveEditingFilterFailure} from "../../filters/filters.actions";
+import {LOAD_LIVE_EDITING_FILTER_FAILURE, LoadLiveEditingFilterFailure} from "../../filters/live-editing/filters.actions";
 import {ErrorAction} from "./error.actions";
 import {map} from "rxjs/operators";
 import {tap} from "rxjs/internal/operators";

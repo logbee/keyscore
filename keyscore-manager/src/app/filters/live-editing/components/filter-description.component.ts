@@ -1,7 +1,7 @@
 import {Component, Input} from "@angular/core";
 import {Configuration} from "../../../models/common/Configuration";
 import {FilterInstanceState} from "../../../models/filter-model/FilterInstanceState";
-import "../../styles/filterstyle.css";
+import "../filter-styles/filterstyle.css";
 
 @Component({
     selector: "filter-description",

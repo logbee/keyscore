@@ -7,11 +7,11 @@ import {
     PAUSE_FILTER_SUCCESS, RECONFIGURE_FILTER_SUCCESS, UPDATE_DATASET_COUNTER, UPDATE_FILTER_CONFIGURATION
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Configuration} from "../models/common/Configuration";
-import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
-import {FilterStatus} from "../models/filter-model/FilterStatus";
-import {Dataset} from "../models/dataset/Dataset";
-import {deepcopy} from "../util";
+import {Configuration} from "../../models/common/Configuration";
+import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
+import {FilterStatus} from "../../models/filter-model/FilterStatus";
+import {Dataset} from "../../models/dataset/Dataset";
+import {deepcopy} from "../../util";
 
 export class FilterState {
     public filter: Configuration;

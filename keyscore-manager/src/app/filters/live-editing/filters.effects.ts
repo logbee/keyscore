@@ -6,7 +6,7 @@ import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module
 import {Action, Store} from "@ngrx/store";
 import {combineLatest, Observable, of} from "rxjs/index";
 import {catchError, concatMap, map, mergeMap, switchMap, withLatestFrom} from "rxjs/internal/operators";
-import {AppState} from "../app.component";
+import {AppState} from "../../app.component";
 import {
     DRAIN_FILTER,
     DrainFilterAction,
@@ -39,10 +39,10 @@ import {
     ReconfigureFilterFailure,
     ReconfigureFilterSuccess
 } from "./filters.actions";
-import {selectAppConfig} from "../app.config";
-import {Configuration} from "../models/common/Configuration";
-import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
-import {Dataset} from "../models/dataset/Dataset";
+import {selectAppConfig} from "../../app.config";
+import {Configuration} from "../../models/common/Configuration";
+import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
+import {Dataset} from "../../models/dataset/Dataset";
 import {
     selectExtractedDatasets,
     selectFilterId,

@@ -19,7 +19,8 @@
   "APPCOMPONENT": {
     "AGENTS": "Agents",
     "PIPELINES": "Pipelines",
-    "FILTERS": "Filters"
+    "FILTERS": "Filters",
+    "RESOURCES": "Resources"
   },
   "SETTINGS": {
     "TITLE": "Settings",

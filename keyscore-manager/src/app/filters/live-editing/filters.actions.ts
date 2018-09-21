@@ -1,7 +1,7 @@
 import {Action} from "@ngrx/store";
-import {Configuration} from "../models/common/Configuration";
-import {FilterInstanceState} from "../models/filter-model/FilterInstanceState";
-import {Dataset} from "../models/dataset/Dataset";
+import {Configuration} from "../../models/common/Configuration";
+import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
+import {Dataset} from "../../models/dataset/Dataset";
 
 export const LOAD_LIVE_EDITING_FILTER = "[Filter] LoadLiveEditingFilter";
 export const LOAD_LIVE_EDITING_FILTER_FAILURE = "[Filter] LoadLiveEditingFilterFailure";

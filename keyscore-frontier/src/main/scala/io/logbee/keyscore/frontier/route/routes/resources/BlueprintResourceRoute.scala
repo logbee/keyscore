@@ -99,7 +99,7 @@ object BlueprintResourceRoute extends RouteImplicits {
           pathPrefix("*") {
             get {
               onSuccess(blueprintManager ? GetAllBlueprintsRequest) {
-                case GetAllBlueprintsResponse(blueprints) => complete(StatusCodes.OK, blueprints)
+                case GetAllBlueprintsResponse(blueprints) => complete(StatusCodes.OK, blueprints.values.toSeq)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }

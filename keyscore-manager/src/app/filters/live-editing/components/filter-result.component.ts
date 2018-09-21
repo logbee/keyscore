@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
-import {selectcurrentDatasetCounter, selectResultAvailable} from "../../filter.reducer";
+import {selectcurrentDatasetCounter, selectResultAvailable} from "../filter.reducer";
 import {Dataset} from "../../../models/dataset/Dataset";
 
 @Component({

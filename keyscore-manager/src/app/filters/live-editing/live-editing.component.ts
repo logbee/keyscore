@@ -12,9 +12,9 @@ import {
     selectLiveEditingFilter,
     selectLiveEditingFilterState,
     selectResultDatasets
-} from "../filter.reducer";
+} from "./filter.reducer";
 import {Dataset} from "../../models/dataset/Dataset";
-import {UpdateDatasetCounter, UpdateFilterConfiguration} from "../filters.actions";
+import {UpdateDatasetCounter, UpdateFilterConfiguration} from "./filters.actions";
 import {Location} from "@angular/common";
 
 @Component({

@@ -30,6 +30,11 @@ import {TranslateService} from "@ngx-translate/core";
                         <p matLine *ngIf="isExpanded">{{'APPCOMPONENT.PIPELINES' | translate}}</p>
                         <mat-icon>device_hub</mat-icon>
                     </a>
+                    
+                    <a mat-list-item routerLink="/resources" routerLinkActive="active">
+                        <p matLine *ngIf="isExpanded">{{'APPCOMPONENT.RESOURCES' | translate}}</p>
+                        <mat-icon>low_priority</mat-icon>
+                    </a>
 
                 </mat-nav-list>
                 <mat-divider></mat-divider>

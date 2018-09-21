@@ -29,7 +29,7 @@ import {
     LOAD_LIVE_EDITING_FILTER, LOAD_LIVE_EDITING_FILTER_FAILURE,
     LoadLiveEditingFilterSuccess,
     LoadLiveEditingFilterFailure, LOAD_LIVE_EDITING_FILTER_SUCCESS
-} from "../../filters/filters.actions";
+} from "../../filters/live-editing/filters.actions";
 import {
     LOAD_AGENTS,
     LOAD_AGENTS_FAILURE, LOAD_AGENTS_SUCCESS,

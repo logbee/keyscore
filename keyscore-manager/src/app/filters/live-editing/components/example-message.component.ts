@@ -1,9 +1,9 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
-import {selectcurrentDatasetCounter, selectExtractFinish, selectUpdateConfigurationFlag} from "../../filter.reducer";
+import {selectcurrentDatasetCounter, selectExtractFinish, selectUpdateConfigurationFlag} from "../filter.reducer";
 import {Dataset} from "../../../models/dataset/Dataset";
-import "../../styles/filterstyle.css";
+import "../filter-styles/filterstyle.css";
 
 @Component({
     selector: "example-message",
