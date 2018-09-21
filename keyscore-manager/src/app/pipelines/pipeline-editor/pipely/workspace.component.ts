@@ -30,7 +30,7 @@ import {ExpressionType, ParameterDescriptorJsonClass} from "../../../models/para
                     </div>
             </div>
 
-            <configurator class="mat-elevation-z6" (closeConfigurator)="closeConfigurator()" [isOpened]="isConfiguratorOpened"
+            <configurator class="mat-elevation-z6" fxFlex="" (closeConfigurator)="closeConfigurator()" [isOpened]="isConfiguratorOpened"
                           [selectedDraggable$]="selectedDraggable$"></configurator>
         </div>
     `

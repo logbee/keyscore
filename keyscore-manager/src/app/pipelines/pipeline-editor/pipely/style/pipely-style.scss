@@ -37,7 +37,7 @@
 }
 
 .workspace {
-  height: 95vh;
+  height: calc(95vh - 3px);
 }
 
 .workspace-scroll-wrapper {
@@ -51,18 +51,18 @@
 
 }
 
-.workspace-scroll-wrapper::-webkit-scrollbar{
-  display:none;
+.workspace-scroll-wrapper::-webkit-scrollbar {
+  display: none;
 }
 
 puzzle-box {
-  height: 45vh;
-  margin-top:-1px;
+  height: calc(45vh - 3px);
+  margin-top: -1px;
   width: 100%;
   max-width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
-  z-index:400;
+  z-index: 400;
 }
 
 .category-block-container {
@@ -99,8 +99,17 @@ puzzle-box {
 
 configurator {
   padding: 10px;
-  width: 25%;
   z-index: 500;
+  max-height:calc(95vh - 3px);
+}
+
+.configurator-body{
+  overflow-y: scroll;
+  max-height:calc(95vh - 100px);
+}
+
+.configurator-body::-webkit-scrollbar {
+  display: none;
 }
 
 /*Trash*/

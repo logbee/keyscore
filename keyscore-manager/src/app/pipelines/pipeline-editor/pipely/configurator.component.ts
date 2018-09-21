@@ -25,11 +25,14 @@ import {ParameterControlService} from "../../../common/parameter/service/paramet
                 </div>
             </div>
             <mat-divider></mat-divider>
-            <div fxLayoutAlign="start">{{selectedDraggable?.getDraggableModel().blockDescriptor.displayName}}</div>
+            <div class="configurator-body">
+                <div fxLayoutAlign="start">{{selectedDraggable?.getDraggableModel().blockDescriptor.displayName}}</div>
 
-            <div *ngIf="form" [formGroup]="form">
-                <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
-                               [parameterDescriptor]="parameterMapping.get(parameter)" [form]="form"></app-parameter>
+                <div *ngIf="form" [formGroup]="form">
+                    <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
+                                   [parameterDescriptor]="parameterMapping.get(parameter)"
+                                   [form]="form"></app-parameter>
+                </div>
             </div>
 
         </div>
@@ -60,7 +63,7 @@ export class ConfiguratorComponent implements OnInit {
                 new Map(zip([selectedDraggable.getDraggableModel().blockConfiguration.parameters,
                     selectedDraggable.getDraggableModel().blockDescriptor.parameters
                 ]));
-            if(this.form){
+            if (this.form) {
                 this.form.reset();
             }
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
