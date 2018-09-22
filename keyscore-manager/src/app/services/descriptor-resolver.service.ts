@@ -3,9 +3,17 @@ import {TranslateService} from "@ngx-translate/core";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {
-    Choice, FieldNameParameterDescriptor, FieldParameterDescriptor,
-    ParameterDescriptor, ParameterDescriptorJsonClass, ResolvedChoice, ResolvedParameterDescriptor,
-    ResolvedParameterInfo, ResolvedStringValidator, StringValidator, TextParameterDescriptor
+    Choice,
+    FieldNameParameterDescriptor,
+    FieldParameterDescriptor,
+    ParameterDescriptor,
+    ParameterDescriptorJsonClass,
+    ResolvedChoice,
+    ResolvedParameterDescriptor,
+    ResolvedParameterInfo,
+    ResolvedStringValidator,
+    StringValidator,
+    TextParameterDescriptor
 } from "../models/parameters/ParameterDescriptor";
 
 @Injectable()
@@ -15,7 +23,6 @@ export class DescriptorResolverService {
     }
 
     resolveDescriptor(descriptor: Descriptor): ResolvedFilterDescriptor {
-        console.log("RESOLVEDESCRIPTOR: ",descriptor);
         const filterDescriptor: FilterDescriptor = descriptor.describes;
         const possibleLanguages = descriptor.localization.locales.map(locale => locale.language);
         const lang = this.translateService.currentLang;
@@ -48,7 +55,6 @@ export class DescriptorResolverService {
     }
 
     private resolveParameterDescriptor(settings: { descriptor: Descriptor, language: string }, parameterDescriptor: ParameterDescriptor): ResolvedParameterDescriptor {
-        console.log("RESOVE PARAMTER: ",parameterDescriptor);
         const resolvedInfo: ResolvedParameterInfo = parameterDescriptor.info ? {
             displayName: parameterDescriptor.info.displayName ? this.getTranslation(settings, parameterDescriptor.info.displayName.id) : "",
             description: parameterDescriptor.info.description ? this.getTranslation(settings, parameterDescriptor.info.description.id) : ""
@@ -137,6 +143,12 @@ export class DescriptorResolverService {
                     min: parameterDescriptor.min,
                     max: parameterDescriptor.max,
                     choices: parameterDescriptor.choices.map(choice => this.resolveChoice(settings, choice))
+                };
+            case ParameterDescriptorJsonClass.BooleanParameterDescriptor:
+                return{
+                    ...initialize,
+                    mandatory:parameterDescriptor.mandatory,
+                    defaultValue:parameterDescriptor.defaultValue
                 };
             default:
                 return null;
