@@ -20,6 +20,7 @@ import {Descriptor} from "../models/descriptors/Descriptor";
 import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
 import {ResolvedCategory} from "../models/descriptors/Category";
 import {generateRef} from "../models/common/Ref";
+import {StringTMap} from "../common/object-maps";
 
 export class PipelinesState {
     public pipelineList: PipelineInstance[];

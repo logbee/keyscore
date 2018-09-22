@@ -6,6 +6,7 @@ import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
+import {StringTMap} from "../common/object-maps";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 

@@ -7,6 +7,7 @@ import {AppConfig, selectAppConfig} from "../../app.config";
 import {Store,select} from "@ngrx/store";
 import {Configuration} from "../../models/common/Configuration";
 import {Descriptor} from "../../models/descriptors/Descriptor";
+import {StringTMap} from "../../common/object-maps";
 
 @Injectable({
     providedIn: 'root'
@@ -32,8 +33,8 @@ export class PipelineService {
         return this.httpClient.get<Configuration>(`${PipelineService.BASE_URL}/configuration/${id}`);
     }
 
-    getAllDescriptors():Observable<Descriptor>{
-        return this.httpClient.get<Descriptor>(`${PipelineService.BASE_URL}/descriptor/*`);
+    getAllDescriptors():Observable<StringTMap<Descriptor>>{
+        return this.httpClient.get<StringTMap<Descriptor>>(`${PipelineService.BASE_URL}/descriptor/*`);
     }
 
 }

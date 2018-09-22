@@ -41,6 +41,8 @@ describe('Service: DescriptorResolverService', () => {
         it('should resolve the given descriptor',() => {
             let result = service.resolveDescriptor(testDescriptor);
             expect(result).toEqual(expected);
-        })
+        });
+
+
     })
 });

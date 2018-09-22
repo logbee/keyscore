@@ -15,18 +15,21 @@ export class DescriptorResolverService {
     }
 
     resolveDescriptor(descriptor: Descriptor): ResolvedFilterDescriptor {
+        console.log("RESOLVEDESCRIPTOR: ",descriptor);
         const filterDescriptor: FilterDescriptor = descriptor.describes;
         const possibleLanguages = descriptor.localization.locales.map(locale => locale.language);
         const lang = this.translateService.currentLang;
         const currentLang = possibleLanguages.includes(lang) ? lang :
             possibleLanguages.includes('en') ? 'en' : possibleLanguages[0];
         const settings = {descriptor: descriptor, language: currentLang};
-        const displayName = this.getTranslation(settings, filterDescriptor.displayName.id);
-        const description = this.getTranslation(settings, filterDescriptor.description.id);
+        const displayName = filterDescriptor.displayName ?
+            this.getTranslation(settings, filterDescriptor.displayName.id) : "N/A";
+        const description = filterDescriptor.description ?
+            this.getTranslation(settings, filterDescriptor.description.id) : "N/A";
         const categories = filterDescriptor.categories.map(category => {
             return {
                 name: category.name,
-                displayName: this.getTranslation(settings, category.displayName.id)
+                displayName: category.displayName ? this.getTranslation(settings, category.displayName.id) : category.name
             }
         });
         const resolvedParameters = filterDescriptor.parameters.map(parameter =>
@@ -45,9 +48,10 @@ export class DescriptorResolverService {
     }
 
     private resolveParameterDescriptor(settings: { descriptor: Descriptor, language: string }, parameterDescriptor: ParameterDescriptor): ResolvedParameterDescriptor {
+        console.log("RESOVE PARAMTER: ",parameterDescriptor);
         const resolvedInfo: ResolvedParameterInfo = parameterDescriptor.info ? {
-            displayName: this.getTranslation(settings, parameterDescriptor.info.displayName.id),
-            description: this.getTranslation(settings, parameterDescriptor.info.description.id)
+            displayName: parameterDescriptor.info.displayName ? this.getTranslation(settings, parameterDescriptor.info.displayName.id) : "",
+            description: parameterDescriptor.info.description ? this.getTranslation(settings, parameterDescriptor.info.description.id) : ""
         } : {displayName: "", description: ""};
 
         let initialize = {
@@ -105,7 +109,8 @@ export class DescriptorResolverService {
             case ParameterDescriptorJsonClass.TextListParameterDescriptor:
                 return {
                     ...initialize,
-                    descriptor: this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as TextParameterDescriptor,
+                    descriptor: parameterDescriptor.descriptor ?
+                        this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as TextParameterDescriptor : null,
                     min: parameterDescriptor.min,
                     max: parameterDescriptor.max,
 
@@ -113,7 +118,7 @@ export class DescriptorResolverService {
             case ParameterDescriptorJsonClass.FieldNameListParameterDescriptor:
                 return {
                     ...initialize,
-                    descriptor: this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as FieldNameParameterDescriptor,
+                    descriptor: parameterDescriptor.descriptor ? this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as FieldNameParameterDescriptor : null,
                     min: parameterDescriptor.min,
                     max: parameterDescriptor.max,
 
@@ -121,7 +126,7 @@ export class DescriptorResolverService {
             case ParameterDescriptorJsonClass.FieldListParameterDescriptor:
                 return {
                     ...initialize,
-                    descriptor: this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as FieldParameterDescriptor,
+                    descriptor: parameterDescriptor.descriptor ? this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as FieldParameterDescriptor : null,
                     min: parameterDescriptor.min,
                     max: parameterDescriptor.max,
 
@@ -144,19 +149,20 @@ export class DescriptorResolverService {
     private resolveChoice(settings: { descriptor: Descriptor, language: string }, choice: Choice): ResolvedChoice {
         return choice ? {
             ...choice,
-            displayName: this.getTranslation(settings, choice.displayName.id),
-            description: this.getTranslation(settings, choice.description.id)
+            displayName: choice.displayName ? this.getTranslation(settings, choice.displayName.id) : "N/A",
+            description: choice.description ? this.getTranslation(settings, choice.description.id) : "N/A"
         } : null;
     }
 
     private resolveValidator(settings: { descriptor: Descriptor, language: string }, validator: StringValidator): ResolvedStringValidator {
         return validator ? {
             ...validator,
-            description: this.getTranslation(settings, validator.description.id)
+            description: validator.description ? this.getTranslation(settings, validator.description.id) : "N/A"
         } : null;
     }
 
     private getTranslation(settings: { descriptor: Descriptor, language: string }, key: string) {
-        return settings.descriptor.localization.mapping[key].translations[settings.language];
+        return settings.descriptor.localization.mapping[key] ?
+            settings.descriptor.localization.mapping[key].translations[settings.language] : null;
     }
 }

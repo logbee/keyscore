@@ -35,7 +35,7 @@ import "./style/pipely-style.scss";
                     <div class="row">
                         <ng-template #workspaceContainer>
                         </ng-template>
-                        <puzzle-box class="top-shadow" [workspace]="this" [descriptors]="dummyDescriptors"></puzzle-box>
+                        <puzzle-box class="top-shadow" [workspace]="this" [descriptors]="blockDescriptors"></puzzle-box>
                     </div>
                 </div>
 

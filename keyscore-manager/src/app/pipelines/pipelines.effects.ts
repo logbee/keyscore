@@ -45,6 +45,7 @@ import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
+import {StringTMap} from "../common/object-maps";
 
 @Injectable()
 export class PipelinesEffects {
@@ -65,7 +66,17 @@ export class PipelinesEffects {
         map((action) => (action as EditPipelineAction).id),
         switchMap((pipelineId) => {
             return this.pipelineService.getPipelineBlueprint(pipelineId).pipe(
-                map((data: PipelineBlueprint) => new LoadEditBlueprintsAction(data, 0, [])),
+                map((pipelineBlueprint: PipelineBlueprint) => {
+                    if (pipelineBlueprint === null) {
+                        return new EditPipelineFailureAction(pipelineId, "NotFound");
+                    }
+                    if (pipelineBlueprint.blueprints.length > 0) {
+                        return new LoadEditBlueprintsAction(pipelineBlueprint, 0, []);
+                    }
+                    else {
+                        return new EditPipelineSuccessAction(pipelineBlueprint, [], []);
+                    }
+                }),
                 catchError((cause: any) => of(new EditPipelineFailureAction(pipelineId, cause)))
             );
         })
@@ -76,8 +87,8 @@ export class PipelinesEffects {
         map(action => (action as LoadEditBlueprintsAction)),
         mergeMap((action) => {
             return this.pipelineService.getBlueprint(action.pipelineBlueprint.blueprints[action.index].uuid).pipe(
-                map((data: Blueprint) => {
-                    action.blueprints.push(data);
+                map((blueprint: Blueprint) => {
+                    action.blueprints.push(blueprint);
                     if (action.index < action.pipelineBlueprint.blueprints.length - 1) {
                         return new LoadEditBlueprintsAction(action.pipelineBlueprint, action.index + 1, action.blueprints);
                     }
@@ -125,7 +136,7 @@ export class PipelinesEffects {
         ofType(LOAD_FILTER_DESCRIPTORS),
         switchMap((action) =>
             this.pipelineService.getAllDescriptors().pipe(
-                map((data: Descriptor[]) => new LoadFilterDescriptorsSuccessAction(data)),
+                map((descriptorsMap: StringTMap<Descriptor>) => new LoadFilterDescriptorsSuccessAction(Object.values(descriptorsMap))),
                 catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
             )
         )
@@ -136,7 +147,8 @@ export class PipelinesEffects {
         map(action => (action as LoadFilterDescriptorsSuccessAction).descriptors),
         map(descriptors => {
             let resolvedDescriptors: ResolvedFilterDescriptor[] = descriptors.map(descriptor =>
-                this.descriptorResolver.resolveDescriptor(descriptor));
+                this.descriptorResolver.resolveDescriptor(descriptor)
+            );
             return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);
         })
     );
