@@ -35,7 +35,7 @@ import "./style/pipely-style.scss";
                     <div class="row">
                         <ng-template #workspaceContainer>
                         </ng-template>
-                        <puzzle-box class="top-shadow" [workspace]="this" [descriptors]="blockDescriptors"></puzzle-box>
+                        <puzzle-box class="top-shadow" [workspace]="this" [descriptors$]="blockDescriptors$"></puzzle-box>
                     </div>
                 </div>
 
@@ -50,7 +50,7 @@ import "./style/pipely-style.scss";
 
 export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterViewInit {
     @Input() pipeline: EditingPipelineModel;
-    @Input() blockDescriptors: BlockDescriptor[];
+    @Input() blockDescriptors$: Observable<BlockDescriptor[]>;
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;

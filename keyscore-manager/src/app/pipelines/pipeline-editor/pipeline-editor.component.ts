@@ -35,7 +35,7 @@ import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 
         <ng-template #editor>
 
-            <pipely-workspace [pipeline]="(pipeline$ | async)" [blockDescriptors]="pipelyBlockDescriptors"  fxFill=""></pipely-workspace>
+            <pipely-workspace [pipeline]="(pipeline$ | async)" [blockDescriptors$]="pipelyBlockDescriptors$"  fxFill=""></pipely-workspace>
             
         </ng-template>
     `,
@@ -48,7 +48,8 @@ export class PipelineEditorComponent implements OnDestroy {
 
     private alive: Subject<void> = new Subject();
 
-    public pipelyBlockDescriptors: BlockDescriptor[] = [];
+    public blockDescriptorSource$:Subject<BlockDescriptor[]> = new Subject();
+    public pipelyBlockDescriptors$: Observable<BlockDescriptor[]> = this.blockDescriptorSource$.asObservable();
 
     constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
         this.store.dispatch(new LoadFilterDescriptorsAction());
@@ -59,8 +60,8 @@ export class PipelineEditorComponent implements OnDestroy {
         this.pipeline$ = this.store.select(getEditingPipeline);
 
         this.filterDescriptors$.subscribe(descriptors => {
-            this.pipelyBlockDescriptors = descriptors.map(descriptor =>
-                this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor))
+            this.blockDescriptorSource$.next(descriptors.map(descriptor =>
+                this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
         });
 
     }

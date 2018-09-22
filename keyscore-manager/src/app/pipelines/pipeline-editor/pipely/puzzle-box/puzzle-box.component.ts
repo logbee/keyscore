@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {Workspace} from "../models/contract";
+import {Observable} from "rxjs";
 
 @Component({
     selector: "puzzle-box",
@@ -8,7 +9,8 @@ import {Workspace} from "../models/contract";
         <div fxLayout="column">
 
             <ng-container *ngFor="let category of categories">
-                <puzzle-category [workspace]="workspace" [descriptors]="categorySeparatedDescriptors.get(category)" [category]="category">
+                <puzzle-category [workspace]="workspace" [descriptors]="categorySeparatedDescriptors.get(category)"
+                                 [category]="category">
                 </puzzle-category>
                 <mat-divider></mat-divider>
             </ng-container>
@@ -17,14 +19,18 @@ import {Workspace} from "../models/contract";
 })
 
 export class PuzzleBoxComponent implements OnInit {
-    @Input() descriptors: BlockDescriptor[];
+    @Input() descriptors$: Observable<BlockDescriptor[]>;
     @Input() workspace: Workspace;
 
+    descriptors: BlockDescriptor[];
     categorySeparatedDescriptors: Map<string, BlockDescriptor[]> = new Map();
     categories: string[] = [];
 
     ngOnInit() {
-        this.separateCategories();
+        this.descriptors$.subscribe(descriptors => {
+            this.descriptors = descriptors;
+            this.separateCategories();
+        });
     }
 
     private separateCategories() {
