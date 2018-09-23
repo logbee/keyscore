@@ -4,7 +4,7 @@ import {CommonModule} from "@angular/common";
 import {StoreModule} from "@ngrx/store";
 import {EffectsModule} from "@ngrx/effects";
 import {TranslateModule} from "@ngx-translate/core";
-import {HeaderBarModule} from "../../common/headerbar.module";
+import {HeaderBarModule} from "../../common/headerbar/headerbar.module";
 import {LoadingModule} from "../../common/loading/loading.module";
 import {HealthModule} from "../../common/health/health.module";
 import {MaterialModule} from "../../material.module";

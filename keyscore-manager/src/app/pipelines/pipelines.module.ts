@@ -11,7 +11,7 @@ import {PipelineEditorComponent} from "./pipeline-editor/pipeline-editor.compone
 import {PipelinesComponent} from "./pipelines.component";
 import {PipelinesEffects} from "./pipelines.effects";
 import {PipelinesReducer} from "./pipelines.reducer";
-import {HeaderBarModule} from "../common/headerbar.module";
+import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {AlertModule} from "../common/alert/alert.module";

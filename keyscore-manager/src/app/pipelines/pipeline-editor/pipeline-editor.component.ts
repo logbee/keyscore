@@ -10,26 +10,20 @@ import {
     ResetPipelineAction,
     UpdatePipelineAction
 } from "../pipelines.actions";
-import {map, share, takeUntil} from "rxjs/internal/operators";
+import {share, takeUntil} from "rxjs/internal/operators";
 import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
 import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
-import {
-    getEditingPipeline,
-    getFilterCategories,
-    getFilterDescriptors,
-    getLastUpdateSuccess
-} from "../pipelines.reducer";
+import {getEditingPipeline, getFilterDescriptors} from "../pipelines.reducer";
 import {Configuration} from "../../models/common/Configuration";
 import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
-import {ResolvedCategory} from "../../models/descriptors/Category";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 
 @Component({
     selector: "pipeline-editor",
     template: `
-        <header-bar [title]="'Pipeline Editor'"></header-bar>
+        <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true"></header-bar>
 
         <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
 

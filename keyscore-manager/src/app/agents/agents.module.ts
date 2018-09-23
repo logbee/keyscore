@@ -9,7 +9,7 @@ import {AgentsDetails} from "./agents-details/agents-details";
 import {AgentsComponent} from "./agents.component";
 import {AgentsEffects} from "./agents.effects";
 import {AgentsReducer} from "./agents.reducer";
-import {HeaderBarModule} from "../common/headerbar.module";
+import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 
 export const routes: Routes = [

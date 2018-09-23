@@ -7,7 +7,7 @@ import {EffectsModule} from "@ngrx/effects";
 import {FilterEffects} from "./filters.effects";
 import {LoadingModule} from "../../common/loading/loading.module";
 import {TranslateModule} from "@ngx-translate/core";
-import {HeaderBarModule} from "../../common/headerbar.module";
+import {HeaderBarModule} from "../../common/headerbar/headerbar.module";
 import {ErrorModule} from "../../common/error/error.module";
 import {HealthModule} from "../../common/health/health.module";
 import {AlertModule} from "../../common/alert/alert.module";

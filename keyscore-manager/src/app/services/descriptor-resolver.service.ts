@@ -175,6 +175,6 @@ export class DescriptorResolverService {
 
     private getTranslation(settings: { descriptor: Descriptor, language: string }, key: string) {
         return settings.descriptor.localization.mapping[key] ?
-            settings.descriptor.localization.mapping[key].translations[settings.language] : null;
+            settings.descriptor.localization.mapping[key].translations[settings.language] : "N/A";
     }
 }

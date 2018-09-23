@@ -5,7 +5,7 @@ import {PipelineEditorComponent} from "../../app/pipelines/pipeline-editor/pipel
 import {RefreshTimeComponent} from "../../app/common/loading/refresh.component";
 import {RouterTestingModule} from "@angular/router/testing";
 import {Store} from "@ngrx/store";
-import {HeaderBarModule} from "../../app/common/headerbar.module";
+import {HeaderBarModule} from "../../app/common/headerbar/headerbar.module";
 import {MaterialModule} from "../../app/material.module";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {LoadingModule} from "../../app/common/loading/loading.module";

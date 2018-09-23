@@ -1,0 +1,16 @@
+@import "../../../style/variables";
+
+#header-bar .header-button-wrapper{
+  padding-right: 10px;
+}
+
+#header-bar .mat-success{
+  border-color:$success !important;
+  color:$success !important;
+}
+
+#header-bar .mat-success:hover{
+  background-color: $success !important;
+  color:white !important;
+
+}

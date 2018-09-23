@@ -1,8 +1,4 @@
-@import '../../../../../node_modules/@angular/material/theming';
-
-$app-error: mat-palette($mat-red);
-
-$error:mat-color($app-error);
+@import "../../../style/variables";
 
 .parameter-required {
   color: $error;

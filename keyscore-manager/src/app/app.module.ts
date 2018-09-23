@@ -20,7 +20,7 @@ import {metaReducers} from "./meta.reducers";
 import {PipelinesModule} from "./pipelines/pipelines.module";
 import {RouterEffects} from "./router/router.effects";
 import {SettingsComponent} from "./settings/settings.component";
-import {HeaderBarModule} from "./common/headerbar.module";
+import {HeaderBarModule} from "./common/headerbar/headerbar.module";
 import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
 import {LiveEditingModule} from "./filters/live-editing/filter.module";
 import {LoadingEffects} from "./common/loading/loading.effects";
