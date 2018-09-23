@@ -59,7 +59,7 @@ object DifferentialQuotientFilterLogic extends Described {
         parameters = List(xFieldNameParameter, yFieldNameParameter, targetFieldNameParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.DifferentialQuotientFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientFilter",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

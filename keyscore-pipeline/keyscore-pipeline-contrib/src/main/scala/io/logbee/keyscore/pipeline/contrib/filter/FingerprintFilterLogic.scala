@@ -46,7 +46,7 @@ object FingerprintFilterLogic extends Described {
       parameters = Seq(targetParameter,encodingParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.FingerprintFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.FingerprintFilter",
       Locale.ENGLISH, Locale.GERMAN
     )
   )

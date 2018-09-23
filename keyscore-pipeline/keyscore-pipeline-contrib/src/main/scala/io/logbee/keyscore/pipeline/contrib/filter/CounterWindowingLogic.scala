@@ -39,7 +39,7 @@ object CounterWindowingLogic extends Described {
       parameters = Seq(amountParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CounterWindowing",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CounterWindowing",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

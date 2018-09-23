@@ -99,7 +99,7 @@ object KafkaSourceLogic extends Described {
       parameters = Seq(serverParameter,portParameter,groupIdParameter,offsetParameter,topicParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSourceLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.KafkaSourceLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

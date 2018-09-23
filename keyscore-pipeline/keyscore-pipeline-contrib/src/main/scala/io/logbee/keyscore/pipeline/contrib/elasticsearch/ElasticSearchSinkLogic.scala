@@ -31,7 +31,7 @@ import scala.util.{Failure, Success}
 object ElasticSearchSinkLogic extends Described {
 
   private val filterName = "io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic"
-  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.ElasticSearchSinkLogic"
+  private val bundleName = "io.logbee.keyscore.pipeline.contrib.filter.ElasticSearchSinkLogic"
 
   val hostParameter = TextParameterDescriptor(
     "elastic.host",

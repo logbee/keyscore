@@ -49,7 +49,7 @@ object D3BoxPlotGeneratorLogic extends Described {
         )
       ),
       localization = Localization.fromResourceBundle(
-        bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.D3BoxPlotGenerator",
+        bundleName = "io.logbee.keyscore.pipeline.contrib.filter.D3BoxPlotGenerator",
         Locale.ENGLISH, Locale.GERMAN
       ) ++ CATEGORY_LOCALIZATION
     )

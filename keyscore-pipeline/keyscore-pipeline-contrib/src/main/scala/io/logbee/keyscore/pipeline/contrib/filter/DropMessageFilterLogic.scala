@@ -40,7 +40,7 @@ object DropMessageFilterLogic extends Described {
       parameters = Seq(retainMessagesParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.DropMessageFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DropMessageFilter",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

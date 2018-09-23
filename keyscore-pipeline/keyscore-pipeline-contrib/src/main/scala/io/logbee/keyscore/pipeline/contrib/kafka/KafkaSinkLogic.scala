@@ -27,7 +27,7 @@ import scala.util.Success
 
 object KafkaSinkLogic extends Described {
 
- val bootstrapServerParameter = TextParameterDescriptor(
+  val bootstrapServerParameter = TextParameterDescriptor(
     ref = "kafka.sink.bootstrapServer",
     info = ParameterInfo(TextRef("bootstrapServer"), TextRef("bootstrapServerDescription")),
     defaultValue = "example.com",
@@ -38,7 +38,7 @@ object KafkaSinkLogic extends Described {
     mandatory = true
   )
 
- val bootstrapServerPortParameter = NumberParameterDescriptor(
+  val bootstrapServerPortParameter = NumberParameterDescriptor(
     ref = "kafka.sink.bootstrapServerPort",
     info = ParameterInfo(TextRef("bootstrapServerPort"), TextRef("bootstrapServerPortDescription")),
     defaultValue = 9092,
@@ -63,7 +63,7 @@ object KafkaSinkLogic extends Described {
       parameters = Seq(bootstrapServerParameter, bootstrapServerPortParameter, topicParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.KafkaSinkLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.KafkaSinkLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
@@ -145,4 +145,5 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
   }
 
   case class SinkEntry(dataset: Dataset, promise: Promise[Unit])
+
 }

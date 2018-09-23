@@ -39,7 +39,7 @@ object CSVParserFilterLogic extends Described {
       parameters = Seq(headerParameter, separatorParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.CSVParserFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CSVParserFilter",
       Locale.ENGLISH, Locale.GERMAN
     )
   )

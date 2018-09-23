@@ -24,7 +24,7 @@ object LoggerFilter extends Described {
       parameters = Seq()
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.LoggerFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.LoggerFilter",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

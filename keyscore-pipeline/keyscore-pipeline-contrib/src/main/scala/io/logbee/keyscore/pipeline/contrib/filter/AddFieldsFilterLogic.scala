@@ -35,7 +35,7 @@ object AddFieldsFilterLogic extends Described {
         parameters = Seq(fieldListParameter)
       ),
       localization = Localization.fromResourceBundle(
-        bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.AddFieldsFilter",
+        bundleName = "io.logbee.keyscore.pipeline.contrib.filter.AddFieldsFilter",
         Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
     )
 }

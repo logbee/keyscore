@@ -37,7 +37,7 @@ object RetainFieldsFilterLogic extends Described {
       parameters = Seq(fieldNamesParameter)
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RetainFieldsFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RetainFieldsFilter",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
