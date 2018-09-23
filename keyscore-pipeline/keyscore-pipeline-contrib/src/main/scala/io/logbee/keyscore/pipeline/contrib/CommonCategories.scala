@@ -14,7 +14,7 @@ object CommonCategories {
   val JSON = Category("contrib.json", TextRef("contrib.category.json.displayName"))
   val MATH = Category("contrib.math", TextRef("contrib.category.math.displayName"))
   val REMOVE_DROP = Category("contrib.remove-drop", TextRef("contrib.category.remove-drop.displayName"))
-  val SINK = Category("contrib.source", TextRef("contrib.category.sink.displayName"))
+  val SINK = Category("contrib.sink", TextRef("contrib.category.sink.displayName"))
   val SOURCE = Category("contrib.source", TextRef("contrib.category.source.displayName"))
   val VISUALIZATION = Category("contrib.visualization", TextRef("contrib.category.visualization.displayName"))
 
