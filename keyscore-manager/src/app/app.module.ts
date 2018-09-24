@@ -5,8 +5,6 @@ import {BrowserModule} from "@angular/platform-browser";
 import {RouterModule, Routes} from "@angular/router";
 
 import {StoreModule} from "@ngrx/store";
-
-import {EffectsModule} from "@ngrx/effects";
 import {StoreRouterConnectingModule} from "@ngrx/router-store";
 import {StoreDevtoolsModule} from "@ngrx/store-devtools";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
@@ -28,6 +26,7 @@ import {ErrorEffects} from "./common/error/error.effects";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MaterialModule} from "./material.module";
 import {ResourcesModule} from "./resources/resources.module";
+import {EffectsModule} from "@ngrx/effects";
 
 
 const routes: Routes = [

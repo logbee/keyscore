@@ -15,10 +15,17 @@ import {
     MatSidenavModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatSlideToggleModule, MatTooltipModule, MatSelectModule
+    MatSlideToggleModule,
+    MatTooltipModule,
+    MatSelectModule,
+    MatAutocompleteModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatTableDataSource
 
 } from '@angular/material';
 import {FlexLayoutModule} from '@angular/flex-layout';
+import {HttpClientModule} from "@angular/common/http";
 
 
 @NgModule({
@@ -40,7 +47,13 @@ import {FlexLayoutModule} from '@angular/flex-layout';
         MatChipsModule,
         MatSlideToggleModule,
         MatTooltipModule,
-        MatSelectModule
+        MatSelectModule,
+        HttpClientModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatAutocompleteModule,
+
+
 
     ],
     exports: [
@@ -61,7 +74,11 @@ import {FlexLayoutModule} from '@angular/flex-layout';
         MatChipsModule,
         MatSlideToggleModule,
         MatTooltipModule,
-        MatSelectModule
+        MatSelectModule,
+        HttpClientModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatAutocompleteModule,
     ]
 })
 export class MaterialModule {

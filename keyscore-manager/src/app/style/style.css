@@ -156,7 +156,6 @@
 .health-light-Green.Green {
     background-color: lime;
     box-shadow: inset #460 0 -1px 9px;
-
 }
 
 /*-------------------Filter-LiveEditing----------*/
@@ -178,8 +177,8 @@
 /*------------------ Status-Light----------------*/
 
 .status-light {
-    width: 36px;
-    height: 36px;
+    width: 12px;
+    height: 12px;
     background-color: rgba(99, 96, 96, 0.48);
     border-radius: 50%;
 }

@@ -8,6 +8,7 @@ import {Health} from "../../models/common/Health";
             <div class="health-light-Red {{health}}"></div>
             <div class="health-light-Yellow {{health}}"></div>
             <div class="health-light-Green {{health}}"></div>
+            <div class="health-light-Unknown {{health}}"></div>
         </div>
     `,
 

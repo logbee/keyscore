@@ -7,14 +7,15 @@ import {TranslateModule} from "@ngx-translate/core";
 import {ResourcesComponent} from "./resources.component";
 import {ResourcesReducer} from "./resources.reducer";
 import {ResourcesEffects} from "./resources.effects";
-import {MatTableModule} from "@angular/material";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {MaterialModule} from "../material.module";
 import {FilterService} from "../services/rest-api/filter.service";
 import {ResourceType} from "./resource-type";
-import {HttpClientModule} from "@angular/common/http";
+import {ReactiveFormsModule} from "@angular/forms";
+import {StatuslightComponent} from "../common/health/statuslight.component";
+
 
 export const routes: Routes = [
     {path:"", component: ResourcesComponent}
@@ -31,12 +32,12 @@ export const routes: Routes = [
         LoadingModule,
         HealthModule,
         MaterialModule,
-        MatTableModule,
-        HttpClientModule
+        ReactiveFormsModule
     ],
     declarations: [
         ResourcesComponent,
-        ResourceType
+        ResourceType,
+        StatuslightComponent
     ],
     providers: [
         FilterService
