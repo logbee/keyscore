@@ -14,7 +14,12 @@
     "ADD": "Hinzufügen",
     "CLOSE": "Schließen",
     "COLLAPSE": "Zusammenklappen",
-    "EXPAND": "Ausklappen"
+    "EXPAND": "Ausklappen",
+    "FILTER": "Filter",
+    "SOURCE": "Quelle",
+    "SINK": "Senke",
+    "MERGE": "Fusionierungsblock",
+    "BRANCH": "Verzweigungsblock"
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",

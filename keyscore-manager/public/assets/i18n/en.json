@@ -14,7 +14,12 @@
     "ADD": "Add",
     "CLOSE": "Close",
     "COLLAPSE": "Collapse",
-    "EXPAND": "Expand"
+    "EXPAND": "Expand",
+    "FILTER": "Filter",
+    "SOURCE": "Source",
+    "SINK": "Sink",
+    "MERGE": "Merge Block",
+    "BRANCH": "Branch Block"
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",

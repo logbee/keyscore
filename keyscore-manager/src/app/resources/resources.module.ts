@@ -13,6 +13,8 @@ import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {MaterialModule} from "../material.module";
 import {FilterService} from "../services/rest-api/filter.service";
+import {ResourceType} from "./resource-type";
+import {HttpClientModule} from "@angular/common/http";
 
 export const routes: Routes = [
     {path:"", component: ResourcesComponent}
@@ -29,10 +31,12 @@ export const routes: Routes = [
         LoadingModule,
         HealthModule,
         MaterialModule,
-        MatTableModule
+        MatTableModule,
+        HttpClientModule
     ],
     declarations: [
-        ResourcesComponent
+        ResourcesComponent,
+        ResourceType
     ],
     providers: [
         FilterService

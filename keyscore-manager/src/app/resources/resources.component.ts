@@ -15,7 +15,7 @@ import "../resources/resources-styles.css";
                 [title]="title">
         </header-bar>
         <div fxFlexFill="" fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
-            <table fxFlex="95%" mat-table [dataSource]="blueprints$ | async" class="mat-elevation-z8 table-position">
+            <table fxFlex mat-table [dataSource]="blueprints$ | async" class="mat-elevation-z8 table-position">
 
                 <ng-container matColumnDef="position">
                     <th mat-header-cell *matHeaderCellDef>No.</th>
@@ -24,19 +24,23 @@ import "../resources/resources-styles.css";
                 
                 <ng-container matColumnDef="id">
                     <th mat-header-cell *matHeaderCellDef>Resource Id</th>
-                    <td mat-cell *matCellDef="let element">{{element.ref.uuid}}</td>
+                    <td mat-cell *matCellDef="let element">{{element?.ref.uuid}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef>Type</th>
-                    <td mat-cell *matCellDef="let element">{{element.jsonClass}}</td>
+                    <td mat-cell *matCellDef="let element">
+                       <resource-type [type]="element?.jsonClass"></resource-type>
+                    </td>
                 </ng-container>
+                
+                
                 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
         </div>
-    `
+  `
 })
 export class ResourcesComponent implements OnInit{
     displayedColumns: string[] = ['position', 'type', 'id'];
@@ -50,3 +54,8 @@ export class ResourcesComponent implements OnInit{
     }
 
 }
+
+// sink  arrow-back
+// source arrow-forward
+// filter transform
+// default outlined_flag
