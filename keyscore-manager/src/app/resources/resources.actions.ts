@@ -1,11 +1,11 @@
 import {Action} from "@ngrx/store";
-import {Blueprint} from "../../models/blueprints/Blueprint";
+import {Blueprint} from "../models/blueprints/Blueprint";
 
 export const LOAD_ALL_BLUEPRINTS = "[RunningFilters]GetAllBluePrintsACtion";
 export const LOAD_ALL_BLUEPRINTS_SUCCESS = "[RunningFilters]LoadAllBlueprintsSuccess";
 export const LOAD_ALL_BLUEPRINTS_FAILURE = "[RunningFilters]LoadAllBlueprintsFailure";
 
-export type ResourceViewerActions =
+export type ResourcesActions =
     | LoadAllBlueprintsActions
     | LoadAllBlueprintsActionsSuccess
     | LoadAllBlueprintsActionsFailure;

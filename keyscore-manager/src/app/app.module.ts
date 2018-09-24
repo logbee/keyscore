@@ -27,7 +27,7 @@ import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MaterialModule} from "./material.module";
-import {ResourceViewerModule} from "./filters/resource-viewer/resource-viewer.module";
+import {ResourcesModule} from "./resources/resources.module";
 
 
 const routes: Routes = [
@@ -37,7 +37,7 @@ const routes: Routes = [
     {path: "pipelines", loadChildren: () => PipelinesModule},
     {path: "filter/:id", loadChildren: () => LiveEditingModule},
     {path: "settings", component: SettingsComponent},
-    {path: "resources", loadChildren: () => ResourceViewerModule}
+    {path: "resources", loadChildren: () => ResourcesModule}
 ];
 
 export function HttpLoaderFactory(http: HttpClient) {

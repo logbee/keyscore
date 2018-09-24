@@ -1,9 +1,9 @@
 import {
     LOAD_ALL_BLUEPRINTS_SUCCESS,
-    ResourceViewerActions
-} from "./resource-viewer.actions";
-import {Blueprint} from "../../models/blueprints/Blueprint";
+    ResourcesActions
+} from "./resources.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
+import {Blueprint} from "../models/blueprints/Blueprint";
 
 export class ResourceViewerState {
     public blueprints: Blueprint[]
@@ -13,7 +13,7 @@ const initialState: ResourceViewerState = {
     blueprints: []
 };
 
-export function ResourceViewerReducer(state: ResourceViewerState = initialState, action: ResourceViewerActions): ResourceViewerState {
+export function ResourcesReducer(state: ResourceViewerState = initialState, action: ResourcesActions): ResourceViewerState {
     const result: ResourceViewerState = Object.assign({}, state);
     switch (action.type) {
         case LOAD_ALL_BLUEPRINTS_SUCCESS:

@@ -2,18 +2,18 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
 import {Observable, of} from "rxjs/index";
-import {AppState} from "../../app.component";
 import {HttpClient} from "@angular/common/http";
-import {FilterService} from "../../services/rest-api/filter.service";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {mergeMap} from "rxjs/internal/operators";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {catchError, map} from "rxjs/operators";
-import {Blueprint} from "../../models/blueprints/Blueprint";
-import {LoadAllBlueprintsActionsFailure, LoadAllBlueprintsActionsSuccess} from "./resource-viewer.actions";
+import {LoadAllBlueprintsActionsFailure, LoadAllBlueprintsActionsSuccess} from "./resources.actions";
+import {Blueprint} from "../models/blueprints/Blueprint";
+import {AppState} from "../app.component";
+import {FilterService} from "../services/rest-api/filter.service";
 
 @Injectable()
-export class ResourceViewerEffects {
+export class ResourcesEffects {
     @Effect()
     public initializing$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
