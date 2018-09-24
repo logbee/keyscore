@@ -1,8 +1,7 @@
 .table-position {
-    margin: 15px;
+    width: 100%;
 }
 
-.search-position {
-    margin-left: 15px;
-    margin-right: 15px;
+.table-wrapper {
+    padding: 15px;
 }

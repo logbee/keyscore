@@ -1,12 +1,11 @@
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
-import {Observable} from "rxjs/index";
-import {selectBlueprints} from "./resources.reducer";
-import {Blueprint} from "../models/blueprints/Blueprint";
 
 import "../resources/resources-styles.css";
-import {MatPaginator, MatSort, MatTableDataSource} from "@angular/material";
+import {MatPaginator, MatSort} from "@angular/material";
 import * as RouterActions from "../router/router.actions";
+import {selectBlueprints} from "./resources.reducer";
+import {BlueprintDataSource} from "../dataSources/BlueprintDataSource";
 
 @Component({
     selector: "resource-viewer",
@@ -15,13 +14,13 @@ import * as RouterActions from "../router/router.actions";
                 [showManualReload]="false"
                 [title]="title">
         </header-bar>
-        <div fxFlexFill="" fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
-            <mat-form-field fxFlex="5%" class="search-position">
+        <div fxFlexFill fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
+            <mat-form-field fxFlex="5" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
                        placeholder="{{'GENERAL.FILTER' | translate}}">
             </mat-form-field>
 
-            <table fxFlex="95%" mat-table matSort [dataSource]="dataSource"
+            <table fxFlex="95" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position">
 
                 <ng-container matColumnDef="health">
@@ -45,42 +44,23 @@ import * as RouterActions from "../router/router.actions";
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"(click) ="rowClicked(row)"></tr>
-                
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click) ="rowClicked(row)"></tr>
             </table>
             <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons ></mat-paginator>
         </div>
     `
 })
 
-export class ResourcesComponent implements AfterViewInit {
-
+ export class ResourcesComponent implements AfterViewInit {
 
     displayedColumns: string[] = ['health', 'uuid', 'jsonClass'];
     private title: string = "Resources Overview";
-    private blueprints$: Observable<Blueprint[]>;
-    dataSource: MatTableDataSource<any> = new MatTableDataSource([]);
+    dataSource: BlueprintDataSource = new BlueprintDataSource(this.store.select(selectBlueprints));
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
     constructor(private store: Store<any>) {
-        this.blueprints$ = this.store.select(selectBlueprints);
-        this.blueprints$.subscribe(blueprints => {
-            this.dataSource.data = blueprints;
-        });
-
-        this.dataSource.sortingDataAccessor = (blueprint: Blueprint, property: string) => {
-            switch (property) {
-                case "uuid": return blueprint.ref.uuid;
-                default: return blueprint[property];
-            }
-        };
-
-        this.dataSource.filterPredicate = (blueprint: Blueprint, filter: string) => {
-            let searchString = filter.trim().toLowerCase();
-            return blueprint.ref.uuid.includes(searchString) || blueprint.jsonClass.toLowerCase().includes(searchString);
-        };
     }
 
     rowClicked(row: any) {
@@ -103,5 +83,4 @@ export class ResourcesComponent implements AfterViewInit {
             this.dataSource.paginator.firstPage()
         }
     }
-
 }

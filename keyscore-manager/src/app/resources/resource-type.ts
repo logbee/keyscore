@@ -16,6 +16,7 @@ import {DomSanitizer} from "@angular/platform-browser";
             </div>
             <div *ngSwitchCase="sink">
                 <mat-icon matTooltipPosition="after" matTooltip="{{'GENERAL.SINK' | translate}}">arrow_back</mat-icon>
+
             </div>
             <div *ngSwitchCase="mergeing">
                 <mat-icon matTooltipPosition="after" matTooltip="{{'GENERAL.MERGE' | translate}}">call_merge</mat-icon>
@@ -34,10 +35,10 @@ export class ResourceType {
 
     constructor(private translate: TranslateService, private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer) {
       //TODO: Custom Icons for types
-        // this.matIconRegistry.addSvgIcon(
-        //     'source',
-        //             this.domSanitizer.bypassSecurityTrustResourceUrl("keyscore-manager/public/assets/chevron-left.svg")
-        // )
+      //   this.matIconRegistry.addSvgIcon(
+      //       'source',
+      //               this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/chevron-left.svg")
+      //   )
     }
 
     private transform: string = BlueprintJsonClass.FilterBlueprint;

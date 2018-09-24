@@ -16,7 +16,6 @@ import {ResourceType} from "./resource-type";
 import {ReactiveFormsModule} from "@angular/forms";
 import {StatuslightComponent} from "../common/health/statuslight.component";
 
-
 export const routes: Routes = [
     {path:"", component: ResourcesComponent}
 ];
@@ -37,12 +36,13 @@ export const routes: Routes = [
     declarations: [
         ResourcesComponent,
         ResourceType,
-        StatuslightComponent
+        StatuslightComponent,
     ],
     providers: [
-        FilterService
+        FilterService,
     ]
 })
 
 export class ResourcesModule {
+
 }
