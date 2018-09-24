@@ -11,6 +11,7 @@ import {AgentsEffects} from "./agents.effects";
 import {AgentsReducer} from "./agents.reducer";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
+import {MaterialModule} from "../material.module";
 
 export const routes: Routes = [
     {path: "", component: AgentsComponent},
@@ -26,7 +27,8 @@ export const routes: Routes = [
         EffectsModule.forFeature([AgentsEffects]),
         TranslateModule,
         HeaderBarModule,
-        LoadingModule
+        LoadingModule,
+        MaterialModule
     ],
     declarations: [
         AgentsComponent,

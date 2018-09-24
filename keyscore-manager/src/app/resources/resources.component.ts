@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
 import {selectBlueprints} from "./resources.reducer";
@@ -6,6 +6,7 @@ import {Blueprint} from "../models/blueprints/Blueprint";
 
 import "../resources/resources-styles.css";
 import {MatPaginator, MatSort, MatTableDataSource} from "@angular/material";
+import * as RouterActions from "../router/router.actions";
 
 @Component({
     selector: "resource-viewer",
@@ -44,7 +45,8 @@ import {MatPaginator, MatSort, MatTableDataSource} from "@angular/material";
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"(click) ="rowClicked(row)"></tr>
+                
             </table>
             <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons ></mat-paginator>
         </div>
@@ -53,7 +55,6 @@ import {MatPaginator, MatSort, MatTableDataSource} from "@angular/material";
 
 export class ResourcesComponent implements AfterViewInit {
 
-    testData = [{jsonClass: "io.logbee.Red", foo: {bar: "a"}}, {jsonClass: "io.logbee.Blue", foo: {bar: "x"}}, {jsonClass: "io.logbee.Green", foo: {bar: "b"}}, {jsonClass: "io.logbee.Yellow", foo: {bar: "c"}}];
 
     displayedColumns: string[] = ['health', 'uuid', 'jsonClass'];
     private title: string = "Resources Overview";
@@ -80,6 +81,15 @@ export class ResourcesComponent implements AfterViewInit {
             let searchString = filter.trim().toLowerCase();
             return blueprint.ref.uuid.includes(searchString) || blueprint.jsonClass.toLowerCase().includes(searchString);
         };
+    }
+
+    rowClicked(row: any) {
+        let id = row.ref.uuid;
+        this.store.dispatch(new RouterActions.Go({
+            path: ["filter/" + id, {}],
+            query: {},
+            extras: {}
+        }));
     }
 
     ngAfterViewInit() {
