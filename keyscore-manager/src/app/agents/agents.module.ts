@@ -5,7 +5,6 @@ import {RouterModule, Routes} from "@angular/router";
 import {EffectsModule} from "@ngrx/effects";
 import {StoreModule} from "@ngrx/store";
 import {TranslateModule} from "@ngx-translate/core";
-import {AgentsDetails} from "./agents-details/agents-details";
 import {AgentsComponent} from "./agents.component";
 import {AgentsEffects} from "./agents.effects";
 import {AgentsReducer} from "./agents.reducer";
@@ -14,8 +13,7 @@ import {LoadingModule} from "../common/loading/loading.module";
 import {MaterialModule} from "../material.module";
 
 export const routes: Routes = [
-    {path: "", component: AgentsComponent},
-    {path: ":id", component: AgentsDetails},
+    {path: "", component: AgentsComponent}
 ];
 
 @NgModule({
@@ -31,8 +29,7 @@ export const routes: Routes = [
         MaterialModule
     ],
     declarations: [
-        AgentsComponent,
-        AgentsDetails,
+        AgentsComponent
     ],
     providers: []
 })

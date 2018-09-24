@@ -1,11 +1,11 @@
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {Action, Store} from "@ngrx/store";
 import {Observable, of} from "rxjs";
-import {exhaustMap, tap, withLatestFrom} from "rxjs/internal/operators";
+import {exhaustMap, withLatestFrom} from "rxjs/internal/operators";
 import {catchError, map, mergeMap} from "rxjs/operators";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
@@ -17,10 +17,12 @@ import {
     LOAD_AGENTS,
     LoadAgentsAction,
     LoadAgentsFailureAction,
-    LoadAgentsSuccessAction, REMOVE_AGENT, RemoveCurrentAgentAction
+    LoadAgentsSuccessAction,
+    REMOVE_AGENT,
+    RemoveCurrentAgentAction
 } from "./agents.actions";
-import {AgentModel} from "./agents.model";
 import {Go} from "../router/router.actions";
+import {Agent} from "../models/common/Agent";
 
 @Injectable()
 export class AgentsEffects {
@@ -63,7 +65,7 @@ export class AgentsEffects {
                 );
             }
         )
-    )
+    );
 
     @Effect() public loadAgents$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_AGENTS),
@@ -72,7 +74,7 @@ export class AgentsEffects {
             try {
                 const url: string = appConfig.getString("keyscore.frontier.base-url") + "/agents/";
                 return this.http.get(url).pipe(
-                    map((data) => new LoadAgentsSuccessAction((data as AgentModel[]))),
+                    map((data) => new LoadAgentsSuccessAction((data as Agent[]))),
                     catchError((cause: any) => of(new LoadAgentsFailureAction(cause)))
                 );
             } catch (exception) {

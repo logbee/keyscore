@@ -3,12 +3,12 @@ import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs";
 import {Go} from "../../router/router.actions";
-import {AgentModel, AgentsState, getCurrentAgent} from "../agents.model";
+import {AgentsState, getCurrentAgent} from "../agents.reducer";
 import {RemoveCurrentAgentAction} from "../agents.actions";
-import {skipWhile, take, takeLast, takeUntil, takeWhile} from "rxjs/operators";
+import {skipWhile, take, takeUntil} from "rxjs/operators";
 import {Subject} from "rxjs/internal/Subject";
-import {select} from "@ngrx/core/operator/select";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
+import {Agent} from "../../models/common/Agent";
 
 @Component({
     selector: "agents-details",
@@ -68,7 +68,7 @@ import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 })
 
 export class AgentsDetails implements OnDestroy {
-    private agent$: Observable<AgentModel>;
+    private agent$: Observable<Agent>;
     private agentId: string;
     private isAlive$: Subject<void> = new Subject();
     private isLoading$: Observable<boolean>;

@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {AgentModel} from "./agents.model";
+import {Agent} from "../models/common/Agent";
 
 export const LOAD_AGENTS = "[Agents] Load";
 export const LOAD_AGENTS_SUCCESS = "[Agents] LoadSuccess";
@@ -25,7 +25,7 @@ export class LoadAgentsAction implements Action {
 export class LoadAgentsSuccessAction implements Action {
     public readonly type = LOAD_AGENTS_SUCCESS;
 
-    constructor(readonly agents: AgentModel[]) {
+    constructor(readonly agents: Agent[]) {
     }
 }
 

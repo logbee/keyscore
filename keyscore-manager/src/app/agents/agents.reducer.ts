@@ -3,11 +3,16 @@ import {
     DELETE_AGENT_SUCCESS,
     INSPECT_AGENT,
     LOAD_AGENTS_FAILURE,
-    LOAD_AGENTS_SUCCESS,
-    REMOVE_AGENT
+    LOAD_AGENTS_SUCCESS
 } from "./agents.actions";
 
-import {AgentsState} from "./agents.model";
+import {createFeatureSelector, createSelector} from "@ngrx/store";
+import {Agent} from "../models/common/Agent";
+
+export class AgentsState {
+    agents: Agent[];
+    currentAgentid: string;
+}
 
 const initialState: AgentsState = {
     agents: [],
@@ -33,7 +38,17 @@ export function AgentsReducer(state: AgentsState = initialState, action: AgentsA
 
         case DELETE_AGENT_SUCCESS:
             result.currentAgentid = "";
+
     }
 
     return result;
 }
+
+export const getAgentState = createFeatureSelector<AgentsState>("agents");
+
+export const getAgents = createSelector(getAgentState, (state: AgentsState) => state.agents);
+
+export const getCurrentAgent = createSelector(getAgentState,
+    (state: AgentsState) => state.agents.filter((agent) => agent.id === state.currentAgentid)[0]);
+
+export const getCurrentAgentId = createSelector(getAgentState, (state: AgentsState) => state.currentAgentid);
