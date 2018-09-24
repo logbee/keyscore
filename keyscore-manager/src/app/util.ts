@@ -15,7 +15,7 @@ export function parameterDescriptorToParameter(parameterDescriptor: ResolvedPara
     type = type.substr(type.lastIndexOf('.') +1 );
     type = type.substr(0,type.length - "Descriptor".length);
 
-    return {ref:{uuid:uuid()}, value: null, jsonClass: ParameterJsonClass[type]};
+    return {ref:parameterDescriptor.ref, value: null, jsonClass: ParameterJsonClass[type]};
 }
 
 export function zip(arrays) {

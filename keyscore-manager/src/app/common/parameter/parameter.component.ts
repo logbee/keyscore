@@ -53,14 +53,15 @@ import "./style/parameter-module-style.scss"
                 </mat-slide-toggle>
             </div>
 
-            <div *ngSwitchCase="jsonClass.ChoiceParameterDescriptor" [id]="parameter.ref.uuid">
+            <mat-form-field *ngSwitchCase="jsonClass.ChoiceParameterDescriptor" [id]="parameter.ref.uuid">
                 <mat-select [formControlName]="parameter.ref.uuid"
                             [placeholder]="parameterDescriptor.defaultValue"
                             [attr.multiple]="parameterDescriptor.max > 1 ? '' :null">
                     <mat-option *ngFor="let choice of parameterDescriptor.choices" [value]="choice.name"
                                 [matTooltip]="choice.description" matTooltipPosition="before">{{choice.displayName}}</mat-option>
                 </mat-select>
-            </div>
+                <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
+            </mat-form-field>
 
             <mat-form-field *ngSwitchCase="jsonClass.ExpressionParameterDescriptor"
                             [id]="parameter.ref.uuid">

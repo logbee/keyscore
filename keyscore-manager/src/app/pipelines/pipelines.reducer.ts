@@ -57,6 +57,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             result.descriptors = action.descriptors;
             break;
         case CREATE_PIPELINE:
+        case EDIT_PIPELINE_FAILURE:
             result.editingPipeline = {
                 pipelineBlueprint: {
                     ref: generateRef(),
@@ -88,11 +89,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 blueprints: action.blueprints,
                 configurations: action.configurations
             };
-            result.wasLastUpdateSuccessful = [];
-            break;
-        case EDIT_PIPELINE_FAILURE:
-
-            result.wasLastUpdateSuccessful = [];
             break;
         case RESET_PIPELINE:
             break;

@@ -5,9 +5,10 @@ import {
     generateResolvedParameterDescriptors,
     generateWordList
 } from "../../../../../__tests__/fake-data/pipeline-fakes";
+import {Ref} from "../../../../models/common/Ref";
 
 export interface BlockDescriptor {
-    ref: string;
+    ref: Ref;
     displayName: string;
     description: string;
     previousConnection: Connection;

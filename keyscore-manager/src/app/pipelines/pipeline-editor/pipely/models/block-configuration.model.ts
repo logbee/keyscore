@@ -1,8 +1,9 @@
 import {Parameter} from "../../../../models/parameters/Parameter";
 import {BlockDescriptor} from "./block-descriptor.model";
+import {Ref} from "../../../../models/common/Ref";
 
 export interface BlockConfiguration {
-    id: string;
+    ref: Ref;
     descriptor:BlockDescriptor;
     parameters: Parameter[];
 }

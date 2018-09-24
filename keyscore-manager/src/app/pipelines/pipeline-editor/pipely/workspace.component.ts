@@ -21,9 +21,10 @@ import {computeRelativePositionToParent} from "./util/util";
 import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
 import {BlockDescriptor, generateBlockDescriptors} from "./models/block-descriptor.model";
 import {Observable, Subject} from "rxjs";
-import {share} from "rxjs/operators";
+import {share, takeUntil} from "rxjs/operators";
 import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
 import "./style/pipely-style.scss";
+import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
 
 
 @Component({
@@ -35,7 +36,8 @@ import "./style/pipely-style.scss";
                     <div class="row">
                         <ng-template #workspaceContainer>
                         </ng-template>
-                        <puzzle-box class="top-shadow" [workspace]="this" [descriptors$]="blockDescriptors$"></puzzle-box>
+                        <puzzle-box class="top-shadow" [workspace]="this"
+                                    [descriptors$]="blockDescriptors$"></puzzle-box>
                     </div>
                 </div>
 
@@ -48,17 +50,16 @@ import "./style/pipely-style.scss";
 })
 
 
-export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterViewInit {
+export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     @Input() pipeline: EditingPipelineModel;
     @Input() blockDescriptors$: Observable<BlockDescriptor[]>;
+    @Input() onSave$: Observable<void>;
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
 
     @Output() updatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
-
-    public dummyDescriptors: BlockDescriptor[] = [];
 
     public id: string;
 
@@ -81,8 +82,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
 
     private isConfiguratorOpened: boolean = false;
 
+    private isAlive$: Subject<void> = new Subject<void>();
+
     constructor(private dropzoneFactory: DropzoneFactory,
-                private draggableFactory: DraggableFactory) {
+                private draggableFactory: DraggableFactory,
+                private pipelineConfigurator: PipelineConfiguratorService) {
         this.id = uuid();
     }
 
@@ -263,22 +267,21 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace, AfterVi
     }
 
     ngOnInit() {
+        console.log(this.pipeline);
         this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this);
 
         this.dropzones.add(this.workspaceDropzone);
         this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
 
-        this.dummyDescriptors = generateBlockDescriptors();
-
-
-    }
-
-    ngAfterViewInit() {
+        this.onSave$.pipe(takeUntil(this.isAlive$)).subscribe(() =>
+            this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables, this.pipeline)
+        )
 
     }
 
     ngOnDestroy() {
-
+        this.isAlive$.next();
+        this.isAlive$.complete();
     }
 
 }

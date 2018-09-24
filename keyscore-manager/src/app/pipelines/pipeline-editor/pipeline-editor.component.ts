@@ -23,13 +23,13 @@ import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 @Component({
     selector: "pipeline-editor",
     template: `
-        <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true"></header-bar>
+        <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true" (onSave)="savePipelineSource$.next()"></header-bar>
 
         <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
 
         <ng-template #editor>
 
-            <pipely-workspace [pipeline]="(pipeline$ | async)" [blockDescriptors$]="pipelyBlockDescriptors$"  fxFill=""></pipely-workspace>
+            <pipely-workspace [onSave$]="savePipeline$" [pipeline]="(pipeline$ | async)" [blockDescriptors$]="pipelyBlockDescriptors$"  fxFill=""></pipely-workspace>
             
         </ng-template>
     `,
@@ -41,6 +41,9 @@ export class PipelineEditorComponent implements OnDestroy {
     public isMenuExpanded$: Observable<boolean>;
 
     private alive: Subject<void> = new Subject();
+
+    public savePipelineSource$:Subject<void> = new Subject<void>();
+    public savePipeline$:Observable<void> = this.savePipelineSource$.asObservable();
 
     public blockDescriptorSource$:Subject<BlockDescriptor[]> = new Subject();
     public pipelyBlockDescriptors$: Observable<BlockDescriptor[]> = this.blockDescriptorSource$.asObservable();

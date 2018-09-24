@@ -17,6 +17,7 @@ import {PuzzleBoxComponent} from "./puzzle-box/puzzle-box.component";
 import {PuzzleCategoryComponent} from "./puzzle-box/puzzle-category.component";
 import {ParameterModule} from "../../../common/parameter/parameter.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
 
 
 @NgModule({
@@ -53,7 +54,8 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
     exports: [WorkspaceComponent],
     providers: [
         DraggableFactory,
-        DropzoneFactory
+        DropzoneFactory,
+        PipelineConfiguratorService
 
     ]
 

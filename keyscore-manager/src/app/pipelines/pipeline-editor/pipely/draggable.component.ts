@@ -135,17 +135,12 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
                 this.createConnection(this.draggableModel.blockDescriptor.previousConnection, this.previousConnectionContainer);
             this.nextConnectionDropzone =
                 this.createConnection(this.draggableModel.blockDescriptor.nextConnection, this.nextConnectionContainer);
-            if (this.previousConnectionDropzone) {
-                this.previousConnectionDropzone.isDroppable$.subscribe(isDroppable =>
-                    this.isPreviousConncetionDroppable = isDroppable
-                )
-            }
-            if (this.nextConnectionDropzone) {
-                this.nextConnectionDropzone.isDroppable$.subscribe(isDroppable => {
-                        this.isNextConnectionDroppable = isDroppable
-                    }
-                )
-            }
+            this.previousConnectionDropzone.isDroppable$.subscribe(isDroppable =>
+                this.isPreviousConncetionDroppable = isDroppable
+            );
+            this.nextConnectionDropzone.isDroppable$.subscribe(isDroppable =>
+                    this.isNextConnectionDroppable = isDroppable
+            );
         }
     }
 

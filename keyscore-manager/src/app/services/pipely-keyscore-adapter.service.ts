@@ -15,7 +15,7 @@ export class PipelyKeyscoreAdapter {
         };
 
         return{
-            ref:descriptor.descriptorRef.uuid,
+            ref:descriptor.descriptorRef,
             displayName:descriptor.displayName,
             description:descriptor.description,
             previousConnection:previousConnection,

@@ -5,6 +5,7 @@ import {DraggableFactory} from "../draggable/draggable-factory";
 import {DropzoneFactory} from "../dropzone/dropzone-factory";
 import {parameterDescriptorToParameter} from "../../../../util";
 import {v4 as uuid} from "uuid";
+import {generateRef} from "../../../../models/common/Ref";
 
 
 @Component({
@@ -43,13 +44,14 @@ export class PuzzleCategoryComponent implements OnInit {
                 parameterDescriptorToParameter(parameterDescriptor));
 
             let blockConfiguration = {
-                id: uuid(),
+                ref: generateRef(),
                 descriptor:blockDescriptor,
                 parameters: parameters
             };
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
                 blockDescriptor: blockDescriptor,
                 blockConfiguration: blockConfiguration,
+                blueprintRef:generateRef(),
                 initialDropzone: this.toolbarDropzone,
                 next: null,
                 color: this.exampleColor[this.getRandomInt(0, 6)],
