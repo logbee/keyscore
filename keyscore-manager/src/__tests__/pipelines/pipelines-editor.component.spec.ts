@@ -88,7 +88,7 @@ describe('PipelineEditorComponent', () => {
             const action = new LoadFilterDescriptorsAction();
             const store = TestBed.get(Store);
             const spy = jest.spyOn(store,'dispatch');
-            store.pipe = jest.fn(() => hot('-a', {a: null}));
+            store.pipe = jest.fn(() => hot('-'));
 
             fixture.detectChanges();
 
@@ -101,6 +101,7 @@ describe('PipelineEditorComponent', () => {
             const updatedModel = generateEditingPipelineModel(10);
             const action = new UpdatePipelineAction(updatedModel);
             const store = TestBed.get(Store);
+
             const spy = jest.spyOn(store,'dispatch');
 
             component.storeEditingPipeline = generateEmptyEditingPipelineModel();
@@ -114,6 +115,7 @@ describe('PipelineEditorComponent', () => {
             component.storeEditingPipeline = require('../fake-data/pipeline-model-for-config-update-test.json');
             const updatedModel = require('../fake-data/updated-pipeline-model-for-config-update-test.json');
             const store = TestBed.get(Store);
+
             const spy = jest.spyOn(store,'dispatch');
             const action = new UpdatePipelineAction(differenceModel);
 
@@ -128,6 +130,7 @@ describe('PipelineEditorComponent', () => {
             component.storeEditingPipeline = require('../fake-data/pipeline-model-for-rearrange-update-test.json');
             const updatedModel = require('../fake-data/updated-pipeline-model-for-rearrange-update-test.json');
             const store = TestBed.get(Store);
+
             const spy = jest.spyOn(store,'dispatch');
             const action = new UpdatePipelineAction(differenceModel);
 
