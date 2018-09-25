@@ -13,7 +13,6 @@ import {
     SourceBlueprint
 } from "../../../../models/blueprints/Blueprint";
 import {Ref} from "../../../../models/common/Ref";
-import {pipe} from "rxjs";
 
 @Injectable()
 export class PipelineConfiguratorService {

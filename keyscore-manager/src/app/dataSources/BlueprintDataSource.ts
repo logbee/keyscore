@@ -8,7 +8,11 @@ export class BlueprintDataSource extends MatTableDataSource<Blueprint> {
     constructor(blueprints$: Observable<Blueprint[]>) {
         super();
         blueprints$.subscribe(blueprints => {
-            this.data = blueprints;
+
+            const rows = [];
+            blueprints.forEach(blueprint => rows.push(blueprint, blueprint));
+
+            this.data = rows;
         });
         this.sortingDataAccessor = (blueprint: Blueprint, property: string) => {
             switch (property) {
@@ -27,7 +31,6 @@ export class BlueprintDataSource extends MatTableDataSource<Blueprint> {
     connect(): BehaviorSubject<Blueprint[]> {
         return super.connect();
     }
-
     disconnect() {
     }
 }
