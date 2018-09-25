@@ -17,7 +17,7 @@ import {Health} from "../models/common/Health";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Descriptor} from "../models/descriptors/Descriptor";
-import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
+import {EditingPipelineModel, generateEmptyEditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
 import {ResolvedCategory} from "../models/descriptors/Category";
 import {generateRef} from "../models/common/Ref";
 import {StringTMap} from "../common/object-maps";
@@ -58,30 +58,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             break;
         case CREATE_PIPELINE:
         case EDIT_PIPELINE_FAILURE:
-            result.editingPipeline = {
-                pipelineBlueprint: {
-                    ref: generateRef(),
-                    blueprints: [],
-                    metadata: {
-                        labels: [{
-                            name: "displayName",
-                            value: {
-                                jsonClass: "",
-                                value: "New Pipeline"
-                            }
-                        }, {
-                            name: "description",
-                            value: {
-                                jsonClass: "",
-                                value: "Your new Pipeline"
-                            }
-                        }
-                        ]
-                    }
-                },
-                blueprints: [],
-                configurations: []
-            };
+            result.editingPipeline = generateEmptyEditingPipelineModel({uuid: action.id});
             break;
         case EDIT_PIPELINE_SUCCESS:
             result.editingPipeline = {
@@ -93,21 +70,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case RESET_PIPELINE:
             break;
         case UPDATE_PIPELINE_SUCCESS:
-            const index = result.pipelineList.findIndex((pipeline) => action.pipeline.id === pipeline.id);
-            if (index >= 0) {
-                result.pipelineList[index].name = action.pipeline.name;
-                result.pipelineList[index].description = action.pipeline.description;
-                result.pipelineList[index].health = Health.Red;
-            } else {
-                result.pipelineList.push({
-                    id: action.pipeline.id,
-                    name: action.pipeline.name,
-                    description: action.pipeline.description,
-                    configurationId: action.pipeline.id,
-                    health: Health.Red,
-                });
-            }
-            result.wasLastUpdateSuccessful = [true];
 
             break;
         case UPDATE_PIPELINE_FAILURE:

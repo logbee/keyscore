@@ -3,7 +3,7 @@ import {
     LoadFilterDescriptorsSuccessAction,
     ResolveFilterDescriptorSuccessAction
 } from "../../app/pipelines/pipelines.actions";
-import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/descriptor-resolver-fakes";
+import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/resolved-remove-fields-filter-descriptor";
 
 describe('Pipelines Reducer', () => {
     describe('undefined action', () => {

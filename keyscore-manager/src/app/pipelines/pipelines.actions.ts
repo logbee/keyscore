@@ -7,6 +7,7 @@ import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {StringTMap} from "../common/object-maps";
+import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 
@@ -129,7 +130,7 @@ export class ResetPipelineAction implements Action {
 export class UpdatePipelineAction implements Action {
     public readonly type = UPDATE_PIPELINE;
 
-    constructor(readonly pipeline: InternalPipelineConfiguration) {
+    constructor(readonly pipeline: EditingPipelineModel) {
 
     }
 }
@@ -137,7 +138,7 @@ export class UpdatePipelineAction implements Action {
 export class UpdatePipelineSuccessAction implements Action {
     public readonly type = UPDATE_PIPELINE_SUCCESS;
 
-    constructor(readonly pipeline: InternalPipelineConfiguration) {
+    constructor(readonly pipeline: EditingPipelineModel) {
 
     }
 }
@@ -145,7 +146,7 @@ export class UpdatePipelineSuccessAction implements Action {
 export class UpdatePipelineFailureAction implements Action {
     public readonly type = UPDATE_PIPELINE_FAILURE;
 
-    constructor(readonly cause: any, readonly pipeline: InternalPipelineConfiguration) {
+    constructor(readonly cause: any, readonly pipeline: EditingPipelineModel) {
 
     }
 }

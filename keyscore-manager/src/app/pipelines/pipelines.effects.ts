@@ -157,17 +157,8 @@ export class PipelinesEffects {
     @Effect() public updatePipeline$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE),
         map((action) => (action as UpdatePipelineAction).pipeline),
-        combineLatest(this.store.select(selectAppConfig)),
-        mergeMap(([pipeline, config]) => {
-            const pipelineUrl: string = config.getString("keyscore.frontier.base-url") + "/pipeline/configuration";
-            return this.http.put(pipelineUrl, pipeline, {
-                headers: new HttpHeaders().set("Content-Type", "application/json"),
-                responseType: "text"
-            }).pipe(
-                map((data) => new UpdatePipelineSuccessAction(pipeline)),
-                catchError((cause: any) => of(new UpdatePipelineFailureAction(cause, pipeline)))
-            );
-        })
+        mergeMap(pipeline => of(new UpdatePipelineSuccessAction(pipeline))
+        )
     );
 
     @Effect() public deletePipeline$: Observable<Action> = this.actions$.pipe(

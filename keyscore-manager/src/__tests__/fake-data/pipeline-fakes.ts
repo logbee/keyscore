@@ -9,7 +9,7 @@ import {
     SinkBlueprint,
     SourceBlueprint
 } from "../../app/models/blueprints/Blueprint";
-import {generateParameterRef, generateRef, generateRefs} from "../../app/models/common/Ref";
+import {generateParameterRef, generateRef, generateRefs, Ref} from "../../app/models/common/Ref";
 import {Value} from "../../app/models/dataset/Value";
 import {Label} from "../../app/models/common/MetaData";
 import {Configuration} from "../../app/models/common/Configuration";
@@ -29,6 +29,7 @@ import {
     ResolvedStringValidator,
     TextParameterDescriptor
 } from "../../app/models/parameters/ParameterDescriptor";
+import {EditingPipelineModel} from "../../app/models/pipeline-model/EditingPipelineModel";
 
 export const generatePipeline = (): PipelineInstance => {
     return {
@@ -264,6 +265,14 @@ export const generateParameter = (type: ParameterJsonClass = null): Parameter =>
                 ...initialization,
                 value: generateFields()
             }
+    }
+};
+
+export const generateEditingPipelineModel = (count:number = faker.random.number({min:1,max:10})): EditingPipelineModel => {
+    return{
+        pipelineBlueprint:generatePipelineBlueprint(count),
+        blueprints:generateBlueprints(count),
+        configurations:generateConfigurations(count)
     }
 };
 

@@ -53,13 +53,13 @@ import {PipelineConfiguratorService} from "./services/pipeline-configurator.serv
 export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     @Input() pipeline: EditingPipelineModel;
     @Input() blockDescriptors$: Observable<BlockDescriptor[]>;
-    @Input() onSave$: Observable<void>;
+    @Input() saveTrigger$: Observable<void>;
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
 
-    @Output() updatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
+    @Output() onUpdatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
 
     public id: string;
 
@@ -273,8 +273,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         this.dropzones.add(this.workspaceDropzone);
         this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
 
-        this.onSave$.pipe(takeUntil(this.isAlive$)).subscribe(() =>
-            this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables, this.pipeline)
+        this.saveTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
+                this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables, this.pipeline);
+                this.onUpdatePipeline.emit(this.pipeline);
+            }
         )
 
     }

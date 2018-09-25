@@ -18,7 +18,7 @@ import {
     LoadFilterDescriptorsSuccessAction, ResolveFilterDescriptorSuccessAction
 } from "../../app/pipelines/pipelines.actions";
 import {cold, hot} from "jasmine-marbles";
-import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/descriptor-resolver-fakes";
+import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/resolved-remove-fields-filter-descriptor";
 import {Descriptor} from "../../app/models/descriptors/Descriptor";
 import {DescriptorResolverService} from "../../app/services/descriptor-resolver.service";
 import {ResolvedFilterDescriptor} from "../../app/models/descriptors/FilterDescriptor";

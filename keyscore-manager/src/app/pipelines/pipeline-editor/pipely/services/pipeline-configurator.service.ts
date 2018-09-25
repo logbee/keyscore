@@ -32,6 +32,7 @@ export class PipelineConfiguratorService {
 
             }
         });
+        console.log(pipelineResult);
         return pipelineResult;
     }
 
