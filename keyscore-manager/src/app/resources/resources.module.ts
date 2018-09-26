@@ -12,9 +12,12 @@ import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {MaterialModule} from "../material.module";
 import {FilterService} from "../services/rest-api/filter.service";
-import {ResourceType} from "./resource-type";
+import {ResourceType} from "./components/resource-type";
 import {ReactiveFormsModule} from "@angular/forms";
 import {StatuslightComponent} from "../common/health/statuslight.component";
+import {NgxJsonViewerModule} from 'ngx-json-viewer'
+import {ClipboardModule} from 'ngx-clipboard';
+import {JsonVisualizer} from "./components/Json-visualizer";
 
 export const routes: Routes = [
     {path:"", component: ResourcesComponent}
@@ -31,12 +34,15 @@ export const routes: Routes = [
         LoadingModule,
         HealthModule,
         MaterialModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        NgxJsonViewerModule,
+        ClipboardModule
     ],
     declarations: [
         ResourcesComponent,
         ResourceType,
         StatuslightComponent,
+        JsonVisualizer
     ],
     providers: [
         FilterService,

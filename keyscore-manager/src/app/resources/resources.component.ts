@@ -6,6 +6,9 @@ import {MatPaginator, MatSort} from "@angular/material";
 import {selectBlueprints} from "./resources.reducer";
 import {BlueprintDataSource} from "../dataSources/BlueprintDataSource";
 import {animate, state, style, transition, trigger} from "@angular/animations";
+import {FieldNameHint, ParameterDescriptorJsonClass} from "../models/parameters/ParameterDescriptor";
+import {FilterDescriptorJsonClass, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {Configuration} from "../models/common/Configuration";
 
 @Component({
     selector: "resource-viewer",
@@ -27,7 +30,7 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
                 <input matInput (keyup)="applyFilter($event.target.value)"
                        placeholder="{{'GENERAL.FILTER' | translate}}">
             </mat-form-field>
-            
+
             <!--Resources Table-->
             <table fxFlex="95" #table mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position">
@@ -44,7 +47,7 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Resource Id</th>
                     <td mat-cell *matCellDef="let element">{{element?.ref.uuid}}</td>
                 </ng-container>
-    
+
                 <!--Type Column-->
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
@@ -54,9 +57,12 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
                 </ng-container>
 
                 <!--Expandend Content Column-->
-                <ng-container matColumnDef="expandedDetail">
+                <ng-container  matColumnDef="expandedDetail">
                     <mat-cell *matCellDef="let blueprint">
-                        Descriptor {{blueprint.descriptor.uuid}}
+                        <json-visualizer
+                                class="jsonViewer"
+                                [class.visible]="expandedElement === blueprint"
+                                [descriptor]="resolvedFDesc"></json-visualizer>
                     </mat-cell>
                 </ng-container>
 
@@ -89,10 +95,52 @@ export class ResourcesComponent implements AfterViewInit {
     isExpansionDetailRow = (i: number) => i % 2 === 1;
     expandedElement: any;
 
+    resolvedFDesc: ResolvedFilterDescriptor = {
+        descriptorRef: {
+            uuid: "b7ee17ad-582f-494c-9f89-2c9da7b4e467"
+        },
+        name: "io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilterLogic",
+        jsonClass: FilterDescriptorJsonClass.FilterDescriptor,
+        displayName: "Felder entfernen",
+        description: "Filter zum entfernen von Feldern einschließlich ihrer Werte.",
+        categories: [{
+            name: "contrib.remove-drop",
+            displayName: "Entfernen/Verwerfen"
+        }],
+        parameters:[
+            {
+                ref:{
+                    uuid:"removeFields.fieldsToRemove"
+                },
+                info:{
+                    displayName:"Feld das entfernt werden soll",
+                    description:"Feld wird vom Filter entfernt"
+                },
+                jsonClass:ParameterDescriptorJsonClass.FieldNameListParameterDescriptor,
+                descriptor:{
+                    jsonClass:ParameterDescriptorJsonClass.FieldNameParameterDescriptor,
+                    ref:{
+                        uuid:""
+                    },
+                    info:{
+                        displayName:"",
+                        description:""
+                    },
+                    defaultValue:"",
+                    validator:null,
+                    hint:FieldNameHint.PresentField,
+                    mandatory:false
+                },
+                min:1,
+                max:2147483647
+            }
+        ]
+    };
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
     constructor(private store: Store<any>) {
+
     }
 
     ngAfterViewInit() {
@@ -110,4 +158,6 @@ export class ResourcesComponent implements AfterViewInit {
     setExpanded(blueprint: any) {
         this.expandedElement = blueprint
     }
+
+
 }

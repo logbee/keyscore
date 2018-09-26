@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from "@angular/core";
-import {BlueprintJsonClass} from "../models/blueprints/Blueprint";
+import {BlueprintJsonClass} from "../../models/blueprints/Blueprint";
 import {TranslateService} from "@ngx-translate/core";
 import {MatIconRegistry} from "@angular/material";
 import {DomSanitizer} from "@angular/platform-browser";
