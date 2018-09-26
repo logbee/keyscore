@@ -37,4 +37,12 @@ export class PipelineService {
         return this.httpClient.get<StringTMap<Descriptor>>(`${PipelineService.BASE_URL}/descriptor/*`);
     }
 
+    updatePipelineBlueprint(pipelineBlueprint:PipelineBlueprint):Observable<any>{
+        return this.httpClient.post(`${PipelineService.BASE_URL}/blueprints/pipeline/${pipelineBlueprint.ref.uuid}`,pipelineBlueprint);
+    }
+
+    createPipelineBlueprint(pipelineBlueprint:PipelineBlueprint):Observable<any>{
+        return this.httpClient.put(`${PipelineService.BASE_URL}/blueprints/pipeline/${pipelineBlueprint.ref.uuid}`,pipelineBlueprint);
+    }
+
 }

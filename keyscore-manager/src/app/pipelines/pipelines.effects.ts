@@ -33,7 +33,7 @@ import {
     LoadFilterDescriptorsSuccessAction,
     ResolveFilterDescriptorSuccessAction,
     UPDATE_PIPELINE,
-    UpdatePipelineAction,
+    UpdatePipelineAction, UpdatePipelineConfigAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
 } from "./pipelines.actions";
@@ -154,10 +154,21 @@ export class PipelinesEffects {
     );
 
 
-    @Effect() public updatePipeline$: Observable<Action> = this.actions$.pipe(
+    @Effect() public updatePipelineBlueprint$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE),
         map((action) => (action as UpdatePipelineAction).pipeline),
-        mergeMap(pipeline => of(new UpdatePipelineSuccessAction(pipeline))
+        mergeMap(pipeline => {
+                return this.pipelineService.getBlueprint(pipeline.pipelineBlueprint.ref.uuid).pipe(
+                    mergeMap(pipelineBlueprint => this.pipelineService.updatePipelineBlueprint(pipeline.pipelineBlueprint).pipe(
+                        map(data => new UpdatePipelineConfigAction(pipeline, 0)),
+                        catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline)))
+                    )),
+                    catchError(_ => this.pipelineService.createPipelineBlueprint(pipeline.pipelineBlueprint).pipe(
+                        map(data => new UpdatePipelineConfigAction(pipeline, 0)),
+                        catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline)))
+                    ))
+                );
+            }
         )
     );
 

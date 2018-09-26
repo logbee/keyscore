@@ -8,17 +8,27 @@ import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
 import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {
-    generateBlueprint, generateBlueprints, generateConfiguration, generateConfigurations,
+    generateBlueprint, generateBlueprints, generateConfiguration, generateConfigurations, generateEditingPipelineModel,
     generatePipelineBlueprint
 } from "../fake-data/pipeline-fakes";
 import {
-    EditPipelineAction, EditPipelineFailureAction, EditPipelineSuccessAction,
-    LoadEditBlueprintsAction, LoadEditPipelineConfigAction, LoadFilterDescriptorsAction,
+    EditPipelineAction,
+    EditPipelineFailureAction,
+    EditPipelineSuccessAction,
+    LoadEditBlueprintsAction,
+    LoadEditPipelineConfigAction,
+    LoadFilterDescriptorsAction,
     LoadFilterDescriptorsFailureAction,
-    LoadFilterDescriptorsSuccessAction, ResolveFilterDescriptorSuccessAction
+    LoadFilterDescriptorsSuccessAction,
+    ResolveFilterDescriptorSuccessAction,
+    UpdatePipelineAction,
+    UpdatePipelineConfigAction
 } from "../../app/pipelines/pipelines.actions";
 import {cold, hot} from "jasmine-marbles";
-import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/resolved-remove-fields-filter-descriptor";
+import {
+    removeFieldFilterDescriptorJson,
+    resolvedRemoveFieldsFilterDE
+} from "../fake-data/resolved-remove-fields-filter-descriptor";
 import {Descriptor} from "../../app/models/descriptors/Descriptor";
 import {DescriptorResolverService} from "../../app/services/descriptor-resolver.service";
 import {ResolvedFilterDescriptor} from "../../app/models/descriptors/FilterDescriptor";
@@ -65,7 +75,9 @@ describe('PipelinesEffects', () => {
                     provide: PipelineService,
                     useValue: {
                         getPipelineBlueprint: jest.fn(),
-                        getBlueprint: jest.fn()
+                        getBlueprint: jest.fn(),
+                        updatePipelineBlueprint: jest.fn(),
+                        createPipelineBlueprint: jest.fn()
                     }
                 },
                 {
@@ -165,9 +177,9 @@ describe('PipelinesEffects', () => {
             const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
 
             actions.stream = hot('-a', {a: action});
-            const response = cold('-#|', {}, error);
+            const responseGetBlueprint = cold('-#|', {}, error);
             const expected = cold('--b', {b: outcome});
-            pipelineService.getBlueprint = jest.fn(() => response);
+            pipelineService.getBlueprint = jest.fn(() => responseGetBlueprint);
 
             expect(effects.getBlueprints$).toBeObservable(expected);
         });
@@ -265,6 +277,26 @@ describe('PipelinesEffects', () => {
             resolverService.resolveDescriptor = jest.fn(() => resolvedDescriptor);
 
             expect(effects.resolveFilterDescriptors$).toBeObservable(expected);
+
+        })
+    });
+    describe('updatePipelineBlueprint', () => {
+        it(`should return an UpdatePipelineConfigAction with index 0 and call the updatePipelineBlueprint
+        method of the pipeline service`, () => {
+            const pipeline = generateEditingPipelineModel();
+            const blueprint = pipeline.pipelineBlueprint;
+            const action = new UpdatePipelineAction(pipeline);
+            const outcome = new UpdatePipelineConfigAction(pipeline, 0);
+
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-a|', {a: blueprint});
+            const responseUpdateBlueprint = cold('-b|',{b:{}});
+            const expected = cold('---b', {b: outcome});
+            pipelineService.getBlueprint = jest.fn(() => response);
+            pipelineService.updatePipelineBlueprint = jest.fn(() => responseUpdateBlueprint);
+
+            expect(effects.updatePipelineBlueprint$).toBeObservable(expected);
+
 
         })
     })
