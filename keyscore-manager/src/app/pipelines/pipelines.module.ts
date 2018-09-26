@@ -18,7 +18,7 @@ import {AlertModule} from "../common/alert/alert.module";
 import {ErrorModule} from "../common/error/error.module";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {MaterialModule} from "../material.module";
-import {PipelineService} from "../services/rest-api/pipeline.service";
+import {RestCallService} from "../services/rest-api/rest-call.service";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
 
@@ -52,7 +52,7 @@ export const routes: Routes = [
     ],
     providers: [
         DescriptorResolverService,
-        PipelineService,
+        RestCallService,
         PipelyKeyscoreAdapter
     ]
 })

@@ -18,6 +18,8 @@ import {StatuslightComponent} from "../common/health/statuslight.component";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
 import {ClipboardModule} from 'ngx-clipboard';
 import {JsonVisualizer} from "./components/Json-visualizer";
+import {DescriptorResolverService} from "../services/descriptor-resolver.service";
+import {RestCallService} from "../services/rest-api/rest-call.service";
 
 export const routes: Routes = [
     {path:"", component: ResourcesComponent}
@@ -42,7 +44,9 @@ export const routes: Routes = [
         ResourcesComponent,
         ResourceType,
         StatuslightComponent,
-        JsonVisualizer
+        JsonVisualizer,
+        DescriptorResolverService,
+        RestCallService
     ],
     providers: [
         FilterService,

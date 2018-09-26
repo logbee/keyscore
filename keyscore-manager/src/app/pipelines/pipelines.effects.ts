@@ -40,7 +40,7 @@ import {
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {getPipelinePolling} from "./pipelines.reducer";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {PipelineService} from "../services/rest-api/pipeline.service";
+import {RestCallService} from "../services/rest-api/rest-call.service";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
@@ -65,7 +65,7 @@ export class PipelinesEffects {
         ofType(EDIT_PIPELINE),
         map((action) => (action as EditPipelineAction).id),
         switchMap((pipelineId) => {
-            return this.pipelineService.getPipelineBlueprint(pipelineId).pipe(
+            return this.restCallService.getPipelineBlueprint(pipelineId).pipe(
                 map((pipelineBlueprint: PipelineBlueprint) => {
                     if (pipelineBlueprint === null) {
                         return new EditPipelineFailureAction(pipelineId, "NotFound");
@@ -86,7 +86,7 @@ export class PipelinesEffects {
         ofType(LOAD_EDIT_PIPELINE_BLUEPRINTS),
         map(action => (action as LoadEditBlueprintsAction)),
         mergeMap((action) => {
-            return this.pipelineService.getBlueprint(action.pipelineBlueprint.blueprints[action.index].uuid).pipe(
+            return this.restCallService.getBlueprint(action.pipelineBlueprint.blueprints[action.index].uuid).pipe(
                 map((blueprint: Blueprint) => {
                     action.blueprints.push(blueprint);
                     if (action.index < action.pipelineBlueprint.blueprints.length - 1) {
@@ -111,7 +111,7 @@ export class PipelinesEffects {
         ofType(LOAD_EDIT_PIPELINE_CONFIG),
         map(action => (action as LoadEditPipelineConfigAction)),
         mergeMap(action => {
-            return this.pipelineService.getConfiguration(action.blueprints[action.index].configuration.uuid).pipe(
+            return this.restCallService.getConfiguration(action.blueprints[action.index].configuration.uuid).pipe(
                 map((data: Configuration) => {
                     action.configurations.push(data);
                     if (action.index < action.blueprints.length - 1) {
@@ -135,7 +135,7 @@ export class PipelinesEffects {
     @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_FILTER_DESCRIPTORS),
         switchMap((action) =>
-            this.pipelineService.getAllDescriptors().pipe(
+            this.restCallService.getAllDescriptors().pipe(
                 map((descriptorsMap: StringTMap<Descriptor>) => new LoadFilterDescriptorsSuccessAction(Object.values(descriptorsMap))),
                 catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
             )
@@ -158,12 +158,12 @@ export class PipelinesEffects {
         ofType(UPDATE_PIPELINE),
         map((action) => (action as UpdatePipelineAction).pipeline),
         mergeMap(pipeline => {
-                return this.pipelineService.getBlueprint(pipeline.pipelineBlueprint.ref.uuid).pipe(
-                    mergeMap(pipelineBlueprint => this.pipelineService.updatePipelineBlueprint(pipeline.pipelineBlueprint).pipe(
+                return this.restCallService.getBlueprint(pipeline.pipelineBlueprint.ref.uuid).pipe(
+                    mergeMap(pipelineBlueprint => this.restCallService.updatePipelineBlueprint(pipeline.pipelineBlueprint).pipe(
                         map(data => new UpdatePipelineConfigAction(pipeline, 0)),
                         catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline)))
                     )),
-                    catchError(_ => this.pipelineService.createPipelineBlueprint(pipeline.pipelineBlueprint).pipe(
+                    catchError(_ => this.restCallService.createPipelineBlueprint(pipeline.pipelineBlueprint).pipe(
                         map(data => new UpdatePipelineConfigAction(pipeline, 0)),
                         catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline)))
                     ))
@@ -208,7 +208,7 @@ export class PipelinesEffects {
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
                 private http: HttpClient,
-                private pipelineService: PipelineService,
+                private restCallService: RestCallService,
                 private descriptorResolver: DescriptorResolverService) {
     }
 

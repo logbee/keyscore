@@ -18,7 +18,7 @@ export function ResourcesReducer(state: ResourceViewerState = initialState, acti
     switch (action.type) {
         case LOAD_ALL_BLUEPRINTS_SUCCESS:
             result.blueprints = action.blueprints;
-            break
+            break;
     }
     return result;
 }
