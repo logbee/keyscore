@@ -93,8 +93,8 @@ class PipelineIntegrationTest extends Matchers {
     //Cleanup
     removeElasticIndex("test")
     getAllPipelineBlueprints(pipelineBlueprintsCount)
-//    deleteAllPipelineBlueprints()
-//    getAllPipelineBlueprints(pipelineBlueprintsCount)
+    deleteAllPipelineBlueprints()
+    getAllPipelineBlueprints(pipelineBlueprintsCount)
   }
 
   private def creatingKafkaToKafkaPipeline(implicit runner: TestRunner): TestAction = {
