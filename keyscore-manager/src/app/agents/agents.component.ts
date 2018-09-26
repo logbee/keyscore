@@ -1,12 +1,11 @@
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
-import {Observable} from "rxjs";
+import "../style/global-table-styles.css";
 import {LoadAgentsAction, RemoveCurrentAgentAction} from "./agents.actions";
 import {MatPaginator, MatSort} from "@angular/material";
 import {TranslateService} from "@ngx-translate/core";
 import {AgentsState, getAgents} from "./agents.reducer";
 import {AgentDataSource} from "../dataSources/AgentDataSource";
-import {Agent} from "../models/common/Agent";
 
 @Component({
     selector: "keyscore-agents",
@@ -59,17 +58,15 @@ import {Agent} from "../models/common/Agent";
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"class="example-element-row"     ></tr>
 
             </table>
-            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
         </div>
     `
 })
 
 export class AgentsComponent implements AfterViewInit {
     private title: string = "Agents";
-    private agents$: Observable<Agent[]>;
     displayedColumns: string[] = ['number', 'id', 'name', 'host', 'remove'];
     dataSource: AgentDataSource = new AgentDataSource(this.store.select(getAgents));
 

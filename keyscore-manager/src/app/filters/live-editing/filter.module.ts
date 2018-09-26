@@ -52,7 +52,6 @@ export const routes: Routes = [
         ExampleMessageComponent,
         FilterConfigurationComponent,
         FilterResultComponent,
-        StatuslightComponent,
         LiveEditingComponent,
         DatasetVisualizer
     ]
