@@ -6,9 +6,8 @@ import {MatPaginator, MatSort} from "@angular/material";
 import {selectBlueprints} from "./resources.reducer";
 import {BlueprintDataSource} from "../dataSources/BlueprintDataSource";
 import {animate, state, style, transition, trigger} from "@angular/animations";
-import {FieldNameHint, ParameterDescriptorJsonClass} from "../models/parameters/ParameterDescriptor";
-import {FilterDescriptorJsonClass, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {Configuration} from "../models/common/Configuration";
+import {Blueprint} from "../models/blueprints/Blueprint";
+import {StoreConfigurationRefAction, StoreDescriptorRefAction} from "./resources.actions";
 
 @Component({
     selector: "resource-viewer",
@@ -45,34 +44,45 @@ import {Configuration} from "../models/common/Configuration";
                 <!--Resource Id Column-->
                 <ng-container matColumnDef="uuid">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Resource Id</th>
-                    <td mat-cell *matCellDef="let element">{{element?.ref.uuid}}</td>
+                    <td mat-cell *matCellDef="let blueprint">{{blueprint?.ref.uuid}}</td>
                 </ng-container>
 
+
+
+
+                <ng-container matColumnDef="test">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>test</th>
+                    <td mat-cell *matCellDef="let blueprint">
+                                        {{blueprint.descriptor.uuid}}
+                </ng-container>
+                
                 <!--Type Column-->
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
-                    <td mat-cell *matCellDef="let element">
-                        <resource-type [type]="element?.jsonClass"></resource-type>
+                    <td mat-cell *matCellDef="let blueprint">
+                        <resource-type [type]="blueprint?.jsonClass"></resource-type>
                     </td>
                 </ng-container>
 
                 <!--Expandend Content Column-->
-                <ng-container  matColumnDef="expandedDetail">
-                    <mat-cell *matCellDef="let blueprint">
+                <ng-container matColumnDef="expandedDetail">
+                    <td mat-cell *matCellDef="let blueprint" [attr.colspan]="3">
                         <json-visualizer
                                 class="jsonViewer"
-                                [class.visible]="expandedElement === blueprint"
-                                [descriptor]="resolvedFDesc"></json-visualizer>
-                    </mat-cell>
+                                style="overflow: hidden; display: flex"
+                                [class.visible]="expandedElement === blueprint">
+                        </json-visualizer>
+                    </td>
                 </ng-container>
 
                 <!--Defining header row -->
-                <tr mat-header-row *matHeaderRowDef="['uuid', 'jsonClass', 'health'];"></tr>
+                <tr mat-header-row *matHeaderRowDef="['uuid', 'jsonClass', 'health']"></tr>
 
                 <!--Defining row with uuid jsonClass and health columns-->
-                <tr mat-row *matRowDef="let blueprint; columns: ['uuid', 'jsonClass', 'health'];"
+                <tr mat-row *matRowDef="let blueprint; columns: ['uuid', 'jsonClass', 'health']"
                     class="example-element-row"
                     [class.expanded]="expandedElement === blueprint"
+                    (click)="storeIds(blueprint)"
                     (click)="setExpanded(blueprint)">
                 </tr>
 
@@ -95,47 +105,6 @@ export class ResourcesComponent implements AfterViewInit {
     isExpansionDetailRow = (i: number) => i % 2 === 1;
     expandedElement: any;
 
-    resolvedFDesc: ResolvedFilterDescriptor = {
-        descriptorRef: {
-            uuid: "b7ee17ad-582f-494c-9f89-2c9da7b4e467"
-        },
-        name: "io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilterLogic",
-        jsonClass: FilterDescriptorJsonClass.FilterDescriptor,
-        displayName: "Felder entfernen",
-        description: "Filter zum entfernen von Feldern einschließlich ihrer Werte.",
-        categories: [{
-            name: "contrib.remove-drop",
-            displayName: "Entfernen/Verwerfen"
-        }],
-        parameters:[
-            {
-                ref:{
-                    uuid:"removeFields.fieldsToRemove"
-                },
-                info:{
-                    displayName:"Feld das entfernt werden soll",
-                    description:"Feld wird vom Filter entfernt"
-                },
-                jsonClass:ParameterDescriptorJsonClass.FieldNameListParameterDescriptor,
-                descriptor:{
-                    jsonClass:ParameterDescriptorJsonClass.FieldNameParameterDescriptor,
-                    ref:{
-                        uuid:""
-                    },
-                    info:{
-                        displayName:"",
-                        description:""
-                    },
-                    defaultValue:"",
-                    validator:null,
-                    hint:FieldNameHint.PresentField,
-                    mandatory:false
-                },
-                min:1,
-                max:2147483647
-            }
-        ]
-    };
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
@@ -143,6 +112,11 @@ export class ResourcesComponent implements AfterViewInit {
 
     }
 
+    storeIds(blueprint: Blueprint) {
+        console.log("storeIds Method body reached");
+        this.store.dispatch(new StoreDescriptorRefAction(blueprint.descriptor.uuid));
+        this.store.dispatch(new StoreConfigurationRefAction(blueprint.configuration.uuid));
+    }
     ngAfterViewInit() {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;

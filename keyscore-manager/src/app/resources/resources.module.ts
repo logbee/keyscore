@@ -16,7 +16,7 @@ import {ResourceType} from "./components/resource-type";
 import {ReactiveFormsModule} from "@angular/forms";
 import {StatuslightComponent} from "../common/health/statuslight.component";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
-import {JsonVisualizer} from "./components/Json-visualizer";
+import {JsonVisualizer} from "./components/json-visualizer";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {RestCallService} from "../services/rest-api/rest-call.service";
 

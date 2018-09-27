@@ -13,6 +13,8 @@ export const LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_FAILURE = "[Resources]LoadAllDes
 export const RESOLVED_ALL_DESCRIPTORS_SUCCESS = "[Resources]ResolvedAllDescriptorsSuccess";
 export const LOAD_CONFIGURATIONS_SUCCESS = "[Resources]LoadConfigurationsSuccess";
 export const LOAD_CONFIGURATIONS_FAILURE = "[Resources]LoadConfigurationsFailure";
+export const STORE_DESCRIPTOR_REF = "[Resources]StoreDescriptorRef";
+export const STORE_CONFIGURATION_REF = "[Resources]StoreConfigurationRef";
 
 export type ResourcesActions =
     | LoadAllBlueprintsActions
@@ -23,7 +25,9 @@ export type ResourcesActions =
     | LoadAllDescriptorsForBlueprintFailureAction
     | ResolvedAllDescriptorsSuccessAction
     | LoadConfigurationsSuccessAction
-    | LoadConfigurationsFailureAction;
+    | LoadConfigurationsFailureAction
+    | StoreConfigurationRefAction
+    | StoreDescriptorRefAction;
 
 export class LoadAllBlueprintsActions implements Action {
     public readonly type = LOAD_ALL_BLUEPRINTS;
@@ -83,6 +87,21 @@ export class LoadConfigurationsFailureAction implements Action {
     public readonly type = LOAD_CONFIGURATIONS_FAILURE;
 
     constructor(readonly cause: any) {
+
+    }
+}
+
+export class StoreDescriptorRefAction  implements Action {
+    public readonly type = STORE_DESCRIPTOR_REF;
+
+    constructor(readonly uuid: string) {
+    }
+}
+
+export class StoreConfigurationRefAction implements Action {
+    public readonly type = STORE_CONFIGURATION_REF;
+
+    constructor(readonly uuid: string) {
 
     }
 }
