@@ -9,13 +9,12 @@ import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module
 import {catchError, map, switchMap} from "rxjs/operators";
 import {
     LOAD_ALL_BLUEPRINTS_SUCCESS,
-    LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT,
     LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS,
     LoadAllBlueprintsActionFailure,
     LoadAllBlueprintsActionSuccess,
-    LoadAllDescriptorsForBlueprintAction,
     LoadAllDescriptorsForBlueprintFailureAction,
-    LoadAllDescriptorsForBlueprintSuccessAction, ResolvedAllDescriptorsSuccessAction,
+    LoadAllDescriptorsForBlueprintSuccessAction, LoadConfigurationsFailureAction, LoadConfigurationsSuccessAction,
+    ResolvedAllDescriptorsSuccessAction,
 } from "./resources.actions";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {AppState} from "../app.component";
@@ -25,6 +24,7 @@ import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {StringTMap} from "../common/object-maps";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {RestCallService} from "../services/rest-api/rest-call.service";
+import {Configuration} from "../models/common/Configuration";
 
 @Injectable()
 export class ResourcesEffects {
@@ -50,6 +50,16 @@ export class ResourcesEffects {
             this.restCallService.getAllDescriptors().pipe(
                 map((descriptorsMap: StringTMap<Descriptor>) => new LoadAllDescriptorsForBlueprintSuccessAction(Object.values(descriptorsMap))),
                 catchError((cause) => of(new LoadAllDescriptorsForBlueprintFailureAction(cause)))
+            )
+        )
+    );
+
+    @Effect() public loadConfigurations$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_ALL_BLUEPRINTS_SUCCESS),
+        switchMap((_) =>
+            this.restCallService.getAllConfigurations().pipe(
+                map((configurations: Configuration[]) => new LoadConfigurationsSuccessAction(configurations)),
+                catchError((cause) => of(new LoadConfigurationsFailureAction(cause)))
             )
         )
     );

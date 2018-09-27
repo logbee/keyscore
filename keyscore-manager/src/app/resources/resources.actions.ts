@@ -2,6 +2,7 @@ import {Action} from "@ngrx/store";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {Configuration} from "../models/common/Configuration";
 
 export const LOAD_ALL_BLUEPRINTS = "[Resources]GetAllBluePrintsAction";
 export const LOAD_ALL_BLUEPRINTS_SUCCESS = "[Resources]LoadAllBlueprintsSuccess";
@@ -10,6 +11,8 @@ export const LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT = "[Resources]LoadAllDescriptors
 export const LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS = "[Resources]LoadAllDescriptorsForBlueprintSuccess";
 export const LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_FAILURE = "[Resources]LoadAllDescriptorsForBlueprintFailure";
 export const RESOLVED_ALL_DESCRIPTORS_SUCCESS = "[Resources]ResolvedAllDescriptorsSuccess";
+export const LOAD_CONFIGURATIONS_SUCCESS = "[Resources]LoadConfigurationsSuccess";
+export const LOAD_CONFIGURATIONS_FAILURE = "[Resources]LoadConfigurationsFailure";
 
 export type ResourcesActions =
     | LoadAllBlueprintsActions
@@ -18,7 +21,9 @@ export type ResourcesActions =
     | LoadAllDescriptorsForBlueprintAction
     | LoadAllDescriptorsForBlueprintSuccessAction
     | LoadAllDescriptorsForBlueprintFailureAction
-    | ResolvedAllDescriptorsSuccessAction;
+    | ResolvedAllDescriptorsSuccessAction
+    | LoadConfigurationsSuccessAction
+    | LoadConfigurationsFailureAction;
 
 export class LoadAllBlueprintsActions implements Action {
     public readonly type = LOAD_ALL_BLUEPRINTS;
@@ -53,7 +58,7 @@ export class LoadAllDescriptorsForBlueprintSuccessAction implements Action {
 export class LoadAllDescriptorsForBlueprintFailureAction implements Action {
     public readonly type = LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_FAILURE;
 
-    constructor(private readonly cause: any) {
+    constructor(readonly cause: any) {
 
     }
 }
@@ -66,4 +71,19 @@ export class ResolvedAllDescriptorsSuccessAction implements Action {
     }
 }
 
+export class LoadConfigurationsSuccessAction implements Action {
+    public readonly type = LOAD_CONFIGURATIONS_SUCCESS;
+
+    constructor (readonly configurations: Configuration[]) {
+
+    }
+}
+
+export class LoadConfigurationsFailureAction implements Action {
+    public readonly type = LOAD_CONFIGURATIONS_FAILURE;
+
+    constructor(readonly cause: any) {
+
+    }
+}
 

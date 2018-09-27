@@ -21,7 +21,7 @@ object ConfigurationResourceRoute extends RouteImplicits {
         pathPrefix("*") {
           get {
             onSuccess(configurationManager ? GetAllConfigurationRequest) {
-              case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations)
+              case GetAllConfigurationResponse(configurations) => complete(StatusCodes.OK, configurations.toSeq)
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~

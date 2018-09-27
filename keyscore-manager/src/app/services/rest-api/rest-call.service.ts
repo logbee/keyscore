@@ -33,6 +33,10 @@ export class RestCallService {
         return this.httpClient.get<Configuration>(`${RestCallService.BASE_URL}/configuration/${id}`);
     }
 
+    getAllConfigurations(): Observable<Configuration[]> {
+        return this.httpClient.get<Configuration[]>(`${RestCallService.BASE_URL}/configuration/*`);
+    }
+
     getAllDescriptors():Observable<StringTMap<Descriptor>>{
         return this.httpClient.get<StringTMap<Descriptor>>(`${RestCallService.BASE_URL}/descriptor/*`);
     }
