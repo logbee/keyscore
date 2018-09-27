@@ -7,15 +7,19 @@ import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {mergeMap} from "rxjs/internal/operators";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {catchError, map, switchMap} from "rxjs/operators";
-import {LoadAllBlueprintsActionsFailure, LoadAllBlueprintsActionsSuccess} from "./resources.actions";
+import {
+    LOAD_ALL_BLUEPRINTS_SUCCESS,
+    LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT,
+    LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS,
+    LoadAllBlueprintsActionFailure,
+    LoadAllBlueprintsActionSuccess,
+    LoadAllDescriptorsForBlueprintAction,
+    LoadAllDescriptorsForBlueprintFailureAction,
+    LoadAllDescriptorsForBlueprintSuccessAction, ResolvedAllDescriptorsSuccessAction,
+} from "./resources.actions";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {AppState} from "../app.component";
 import {FilterService} from "../services/rest-api/filter.service";
-import {
-    LOAD_FILTER_DESCRIPTORS, LOAD_FILTER_DESCRIPTORS_SUCCESS,
-    LoadFilterDescriptorsFailureAction, LoadFilterDescriptorsSuccessAction,
-    ResolveFilterDescriptorSuccessAction
-} from "../pipelines/pipelines.actions";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {StringTMap} from "../common/object-maps";
@@ -32,8 +36,8 @@ export class ResourcesEffects {
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 return this.filterService.loadAllBlueprints().pipe(
                     map((data: Blueprint[]) =>
-                        new LoadAllBlueprintsActionsSuccess(data)),
-                    catchError((cause: any) => of(new LoadAllBlueprintsActionsFailure(cause)))
+                        new LoadAllBlueprintsActionSuccess(data)),
+                    catchError((cause: any) => of(new LoadAllBlueprintsActionFailure(cause)))
                 )
             }
             return of();
@@ -41,23 +45,23 @@ export class ResourcesEffects {
     );
 
     @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
-        ofType(LOAD_FILTER_DESCRIPTORS),
+        ofType(LOAD_ALL_BLUEPRINTS_SUCCESS),
         switchMap((_) =>
             this.restCallService.getAllDescriptors().pipe(
-                map((descriptorsMap: StringTMap<Descriptor>) => new LoadFilterDescriptorsSuccessAction(Object.values(descriptorsMap))),
-                catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
+                map((descriptorsMap: StringTMap<Descriptor>) => new LoadAllDescriptorsForBlueprintSuccessAction(Object.values(descriptorsMap))),
+                catchError((cause) => of(new LoadAllDescriptorsForBlueprintFailureAction(cause)))
             )
         )
     );
 
     @Effect() public resolveFilterDescriptors$: Observable<Action> = this.actions$.pipe(
-        ofType(LOAD_FILTER_DESCRIPTORS_SUCCESS),
-        map(action => (action as LoadFilterDescriptorsSuccessAction).descriptors),
+        ofType(LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS),
+        map(action => (action as LoadAllDescriptorsForBlueprintSuccessAction).descriptors),
         map(descriptors => {
             let resolvedDescriptors: ResolvedFilterDescriptor[] = descriptors.map(descriptor =>
                 this.descriptorResolver.resolveDescriptor(descriptor)
             );
-            return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);
+            return new ResolvedAllDescriptorsSuccessAction(resolvedDescriptors);
         })
     );
 

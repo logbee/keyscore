@@ -1,16 +1,19 @@
 import {
-    LOAD_ALL_BLUEPRINTS_SUCCESS,
+    LOAD_ALL_BLUEPRINTS_SUCCESS, RESOLVED_ALL_DESCRIPTORS_SUCCESS,
     ResourcesActions
 } from "./resources.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Blueprint} from "../models/blueprints/Blueprint";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 
 export class ResourceViewerState {
-    public blueprints: Blueprint[]
+    public blueprints: Blueprint[];
+    public descriptors: ResolvedFilterDescriptor[];
 }
 
 const initialState: ResourceViewerState = {
-    blueprints: []
+    blueprints: [],
+    descriptors: []
 };
 
 export function ResourcesReducer(state: ResourceViewerState = initialState, action: ResourcesActions): ResourceViewerState {
@@ -19,13 +22,14 @@ export function ResourcesReducer(state: ResourceViewerState = initialState, acti
         case LOAD_ALL_BLUEPRINTS_SUCCESS:
             result.blueprints = action.blueprints;
             break;
+        case RESOLVED_ALL_DESCRIPTORS_SUCCESS:
+            result.descriptors = action.resolvedDescriptors;
+            break;
     }
     return result;
 }
 
 // Selectors
-
-
 export const getResourceViewerState = createFeatureSelector<ResourceViewerState>(
     "resource-viewer"
 );
