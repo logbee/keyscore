@@ -8,6 +8,7 @@ import {BlueprintDataSource} from "../dataSources/BlueprintDataSource";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {StoreConfigurationRefAction, StoreDescriptorRefAction} from "./resources.actions";
+import {Go} from "../router/router.actions";
 
 @Component({
     selector: "resource-viewer",
@@ -41,21 +42,23 @@ import {StoreConfigurationRefAction, StoreDescriptorRefAction} from "./resources
                     </td>
                 </ng-container>
 
+
+                <!--Link to Live-Editing-->
+                <ng-container matColumnDef="link">
+                    <th mat-header-cell *matHeaderCellDef>Live-Editing</th>
+                    <td mat-cell *matCellDef="let blueprint">
+                        <button mat-icon-button>
+                            <mat-icon (click)="goToLiveEditing(blueprint)">link</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
                 <!--Resource Id Column-->
                 <ng-container matColumnDef="uuid">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Resource Id</th>
                     <td mat-cell *matCellDef="let blueprint">{{blueprint?.ref.uuid}}</td>
                 </ng-container>
 
-
-
-
-                <ng-container matColumnDef="test">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>test</th>
-                    <td mat-cell *matCellDef="let blueprint">
-                                        {{blueprint.descriptor.uuid}}
-                </ng-container>
-                
                 <!--Type Column-->
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
@@ -66,7 +69,7 @@ import {StoreConfigurationRefAction, StoreDescriptorRefAction} from "./resources
 
                 <!--Expandend Content Column-->
                 <ng-container matColumnDef="expandedDetail">
-                    <td mat-cell *matCellDef="let blueprint" [attr.colspan]="3">
+                    <td mat-cell *matCellDef="let blueprint" [attr.colspan]="4">
                         <json-visualizer
                                 class="jsonViewer"
                                 style="overflow: hidden; display: flex"
@@ -76,10 +79,10 @@ import {StoreConfigurationRefAction, StoreDescriptorRefAction} from "./resources
                 </ng-container>
 
                 <!--Defining header row -->
-                <tr mat-header-row *matHeaderRowDef="['uuid', 'jsonClass', 'health']"></tr>
+                <tr mat-header-row *matHeaderRowDef="['uuid', 'jsonClass', 'health', 'link']"></tr>
 
                 <!--Defining row with uuid jsonClass and health columns-->
-                <tr mat-row *matRowDef="let blueprint; columns: ['uuid', 'jsonClass', 'health']"
+                <tr mat-row *matRowDef="let blueprint; columns: ['uuid', 'jsonClass', 'health', 'link']"
                     class="example-element-row"
                     [class.expanded]="expandedElement === blueprint"
                     (click)="storeIds(blueprint)"
@@ -117,6 +120,7 @@ export class ResourcesComponent implements AfterViewInit {
         this.store.dispatch(new StoreDescriptorRefAction(blueprint.descriptor.uuid));
         this.store.dispatch(new StoreConfigurationRefAction(blueprint.configuration.uuid));
     }
+
     ngAfterViewInit() {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
@@ -138,5 +142,8 @@ export class ResourcesComponent implements AfterViewInit {
 
     }
 
+    goToLiveEditing(blueprint: any) {
+        this.store.dispatch(new Go({path:["/filter/"+blueprint.ref.uuid]}))
+    }
 
 }
