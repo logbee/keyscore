@@ -11,6 +11,9 @@ Under Debian-based distributions, these can be installed like so:
  # apt install docker.io gradle openjdk-8-jdk
 ----
 
+Mind though, that the Gradle version that's in the Ubuntu LTS repositories and likely other Debian-based distributions is too old to build this repository,
+so installing the newest version from the webpage or from a PPA is recommended.
+
 
 == Behind a corporate proxy ==
 
