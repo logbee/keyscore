@@ -12,7 +12,7 @@ import {Blueprint} from "../models/blueprints/Blueprint";
 import {AppState} from "../app.component";
 import {FilterService} from "../services/rest-api/filter.service";
 import {
-    LOAD_FILTER_DESCRIPTORS, LOAD_FILTER_DESCRIPTORS_SUCCESS, LoadFilterDescriptorsAction,
+    LOAD_FILTER_DESCRIPTORS, LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LoadFilterDescriptorsFailureAction, LoadFilterDescriptorsSuccessAction,
     ResolveFilterDescriptorSuccessAction
 } from "../pipelines/pipelines.actions";

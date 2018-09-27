@@ -7,19 +7,19 @@ import {Configuration} from "../../models/common/Configuration";
     template: `
         <mat-tab-group fxFlexFill="" mat-stretch-tabs dynamicHeight>
             <mat-tab label="Descriptor" fxFlexFill="" fxLayoutGap="15px">
-                <div fxFlexFill="" fxLayout="column" fxLayoutGap="15px">
-                    <button mat-icon-button fxFlex="10%" (click)="copyDesc()">
-                        <mat-icon>event</mat-icon>
-                    </button>
+                <div fxFlexFill="" fxLayoutGap="15px">
                     <ngx-json-viewer fxFlex="90%" [json]="descriptor"></ngx-json-viewer>
+                    <button matTooltipPosition="after" matTooltip="Copy Json" mat-icon-button fxFlex="10%" (click)="copyDesc()">
+                        <mat-icon>content_copy</mat-icon>
+                    </button>
                 </div>
             </mat-tab>
             <mat-tab label="Configuration">
-                <div fxFlexFill="" fxLayout="column" fxLayoutGap="15px">
-                    <button  mat-icon-button fxFlex="10%" (click)="copyConfig()">
-                        <mat-icon>event</mat-icon>
-                    </button>
+                <div fxFlexFill="" fxLayoutGap="15px">
                     <ngx-json-viewer fxFlex="90%" [json]="descriptor"></ngx-json-viewer>
+                    <button  mat-icon-button fxFlex="10%" (click)="copyConfig(des)">
+                        <mat-icon>content_copy</mat-icon>
+                    </button>
                 </div>
             </mat-tab>
         </mat-tab-group>
