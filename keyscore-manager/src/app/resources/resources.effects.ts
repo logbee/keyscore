@@ -32,8 +32,7 @@ export class ResourcesEffects {
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 return this.filterService.loadAllBlueprints().pipe(
                     map((data: Blueprint[]) =>
-                        [new LoadAllBlueprintsActionsSuccess(data),
-                         new LoadFilterDescriptorsAction()]),
+                        new LoadAllBlueprintsActionsSuccess(data)),
                     catchError((cause: any) => of(new LoadAllBlueprintsActionsFailure(cause)))
                 )
             }

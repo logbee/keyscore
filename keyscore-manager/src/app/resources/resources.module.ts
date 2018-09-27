@@ -16,7 +16,6 @@ import {ResourceType} from "./components/resource-type";
 import {ReactiveFormsModule} from "@angular/forms";
 import {StatuslightComponent} from "../common/health/statuslight.component";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
-import {ClipboardModule} from 'ngx-clipboard';
 import {JsonVisualizer} from "./components/Json-visualizer";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {RestCallService} from "../services/rest-api/rest-call.service";
@@ -37,19 +36,19 @@ export const routes: Routes = [
         HealthModule,
         MaterialModule,
         ReactiveFormsModule,
-        NgxJsonViewerModule,
-        ClipboardModule
+        NgxJsonViewerModule
     ],
     declarations: [
         ResourcesComponent,
         ResourceType,
         StatuslightComponent,
-        JsonVisualizer,
-        DescriptorResolverService,
-        RestCallService
+        JsonVisualizer
     ],
     providers: [
         FilterService,
+        DescriptorResolverService,
+        RestCallService
+
     ]
 })
 

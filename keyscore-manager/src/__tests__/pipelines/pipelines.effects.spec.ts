@@ -1,7 +1,6 @@
 import {empty, Observable} from "rxjs/index";
 import {Actions} from "@ngrx/effects";
 import {PipelinesEffects} from "../../app/pipelines/pipelines.effects";
-import {PipelineService} from "../../app/services/rest-api/pipeline.service";
 import {TestBed} from "@angular/core/testing";
 import {Store} from "@ngrx/store";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
@@ -32,6 +31,7 @@ import {
 import {Descriptor} from "../../app/models/descriptors/Descriptor";
 import {DescriptorResolverService} from "../../app/services/descriptor-resolver.service";
 import {ResolvedFilterDescriptor} from "../../app/models/descriptors/FilterDescriptor";
+import {RestCallService} from "../../app/services/rest-api/rest-call.service";
 
 export class TestActions extends Actions {
     constructor() {
@@ -50,7 +50,7 @@ export function getActions() {
 describe('PipelinesEffects', () => {
     let actions: TestActions;
     let effects: PipelinesEffects;
-    let pipelineService: PipelineService;
+    let pipelineService: RestCallService;
     let resolverService: DescriptorResolverService;
 
     beforeEach(() => {
@@ -72,7 +72,7 @@ describe('PipelinesEffects', () => {
                     useFactory: getActions
                 },
                 {
-                    provide: PipelineService,
+                    provide: RestCallService,
                     useValue: {
                         getPipelineBlueprint: jest.fn(),
                         getBlueprint: jest.fn(),
@@ -99,7 +99,7 @@ describe('PipelinesEffects', () => {
 
         actions = TestBed.get(Actions);
         effects = TestBed.get(PipelinesEffects);
-        pipelineService = TestBed.get(PipelineService);
+        pipelineService = TestBed.get(RestCallService);
         resolverService = TestBed.get(DescriptorResolverService);
     });
 
