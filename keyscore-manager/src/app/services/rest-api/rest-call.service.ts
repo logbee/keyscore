@@ -49,4 +49,8 @@ export class RestCallService {
         return this.httpClient.put(`${RestCallService.BASE_URL}/blueprints/pipeline/${pipelineBlueprint.ref.uuid}`,pipelineBlueprint);
     }
 
+    getResourceState(uuid: string): Observable<any> {
+        return this.httpClient.get(`${RestCallService.BASE_URL}/filter/${uuid}`);
+    }
+
 }

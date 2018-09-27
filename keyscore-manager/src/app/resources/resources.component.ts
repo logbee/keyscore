@@ -116,7 +116,6 @@ export class ResourcesComponent implements AfterViewInit {
     }
 
     storeIds(blueprint: Blueprint) {
-        console.log("storeIds Method body reached");
         this.store.dispatch(new StoreDescriptorRefAction(blueprint.descriptor.uuid));
         this.store.dispatch(new StoreConfigurationRefAction(blueprint.configuration.uuid));
     }

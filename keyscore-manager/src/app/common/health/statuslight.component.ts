@@ -1,10 +1,11 @@
 import {Component, Input} from "@angular/core";
 import {FilterStatus} from "../../models/filter-model/FilterStatus";
+import {RestCallService} from "../../services/rest-api/rest-call.service";
 
 @Component({
     selector: "status-light",
     template: `
-        <div matTooltipPosition="above" matTooltip="Filter is {{status}}">
+        <div matTooltipPosition="above" matTooltip="Health">
             <div class="status-light {{status}}"></div>
         </div>
     `,
@@ -12,5 +13,8 @@ import {FilterStatus} from "../../models/filter-model/FilterStatus";
 })
 
 export class StatuslightComponent {
-    @Input() public status: FilterStatus;
+    @Input() public uuid: string;
+
+    constructor(private restcallService: RestCallService) {
+    }
 }
