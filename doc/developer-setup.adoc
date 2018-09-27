@@ -196,13 +196,13 @@ gradle startDockerContainer
 
 Running individual subsystems without Docker can be helpful for development, as the startup of the subsystems is much quicker this way.
 
-To start an agent or the frontier without Docker, start the following applications in your IDE:
+To start an Agent or the Frontier without Docker, start the following applications in your IDE:
 
  - `io.logbee.keyscore.agent.app.AgentApplication`
  - `io.logbee.keyscore.frontier.app.FrontierApplication`
 
 
-To start the manager without Docker, run the following from CLI:
+To start the Manager-WebUI without Docker, run the following from CLI:
 
 
 ----
