@@ -130,7 +130,12 @@ export class ResourcesComponent implements AfterViewInit {
     }
 
     setExpanded(blueprint: any) {
-        this.expandedElement = blueprint
+        if (this.expandedElement == blueprint) {
+            this.expandedElement = "";
+        } else {
+            this.expandedElement = blueprint;
+        }
+
     }
 
 
