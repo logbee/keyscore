@@ -61,8 +61,8 @@ message BranchBlueprint {
     DescriptorRef descriptor = 2 [(scalapb.field).no_box = true];
     ConfigurationRef configuration = 3 [(scalapb.field).no_box = true];
     BlueprintRef in = 8;
-    BlueprintRef outA = 9;
-    BlueprintRef outB = 10;
+    BlueprintRef left = 9;
+    BlueprintRef right = 10;
     MetaData metadata = 15;
 }
 
@@ -70,8 +70,8 @@ message MergeBlueprint {
     BlueprintRef ref = 1 [(scalapb.field).no_box = true];
     DescriptorRef descriptor = 2 [(scalapb.field).no_box = true];
     ConfigurationRef configuration = 3 [(scalapb.field).no_box = true];
+    BlueprintRef left = 9;
+    BlueprintRef right = 10;
     BlueprintRef out = 8;
-    BlueprintRef inA = 9;
-    BlueprintRef inB = 10;
     MetaData metadata = 15;
 }
