@@ -24,6 +24,15 @@ export class ResourcesHealthComponent implements  OnInit {
     }
 
     ngOnInit(): void {
-        this.stateObjects$.subscribe(list => console.log(list.length));
+        this.stateObjects$.subscribe(objects => {
+            console.log("objects", objects);
+            console.log("uuid", this.uuid);
+            const object = objects.filter(elem => elem.resourceId == this.uuid)[0];
+            if (object) {
+                this.health = object.resourceInstance.health;
+            } else {
+                this.health = Health.Unknown;
+            }
+        });
     }
 }

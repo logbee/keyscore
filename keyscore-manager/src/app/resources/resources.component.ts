@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from "@angular/core";
-import {Store} from "@ngrx/store";
+import {select, Store} from "@ngrx/store";
 import "../style/style.css";
 import "../style/global-table-styles.css";
 import {MatPaginator, MatSort} from "@angular/material";
@@ -15,8 +15,8 @@ import {
 } from "./resources.actions";
 import {Go} from "../router/router.actions";
 import {Observable} from "rxjs/index";
-import {selectSpinnerEntity} from "../common/loading/loading.reducer";
 import {StateObject} from "../models/common/StateObject";
+import {share} from "rxjs/internal/operators";
 
 @Component({
     selector: "resource-viewer",
@@ -87,10 +87,10 @@ import {StateObject} from "../models/common/StateObject";
                 </ng-container>
 
                 <!--Defining header row -->
-                <tr mat-header-row *matHeaderRowDef="['uuid', 'jsonClass', 'health', 'link']"></tr>
+                <tr mat-header-row *matHeaderRowDef="['health', 'uuid', 'jsonClass' , 'link']"></tr>
 
                 <!--Defining row with uuid jsonClass and health columns-->
-                <tr mat-row *matRowDef="let blueprint; columns: ['uuid', 'jsonClass', 'health', 'link']"
+                <tr mat-row *matRowDef="let blueprint; columns: ['health', 'uuid', 'jsonClass', 'link']"
                     class="example-element-row"
                     [class.expanded]="expandedElement === blueprint"
                     (click)="storeIds(blueprint)"
@@ -128,7 +128,7 @@ export class ResourcesComponent implements AfterViewInit, OnInit {
             })
         });
 
-        this.stateObjects$ = this.store.select(selectStateObjects);
+        this.stateObjects$ = this.store.pipe(select(selectStateObjects),share());
         this.stateObjects$.subscribe(x => {console.log("test####"); x.forEach(elem => console.log("TEST ###" + elem.resourceId))});
     }
 

@@ -13,6 +13,7 @@ import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Configuration} from "../models/common/Configuration";
 import {StateObject} from "../models/common/StateObject";
+import {deepcopy} from "../util";
 
 export class ResourceViewerState {
     public blueprints: Blueprint[];
@@ -21,7 +22,7 @@ export class ResourceViewerState {
     public configurationRef: string;
     public descriptorRef: string;
     public blueprintRef: string;
-    public resourceStateObjects: StateObject[]
+    public stateObjects: StateObject[]
 }
 
 const initialState: ResourceViewerState = {
@@ -30,8 +31,8 @@ const initialState: ResourceViewerState = {
     configurations: [],
     configurationRef: "",
     descriptorRef: "",
-    blueprintRef:"",
-    resourceStateObjects: []
+    blueprintRef: "",
+    stateObjects: []
 
 };
 
@@ -57,7 +58,9 @@ export function ResourcesReducer(state: ResourceViewerState = initialState, acti
             result.descriptorRef = action.uuid;
             break;
         case GET_RESOURCE_STATE_SUCCESS:
-            result.resourceStateObjects.push(new StateObject(action.resourceId, action.instance));
+            let copy = deepcopy(result.stateObjects, []);
+            copy.push(new StateObject(action.resourceId, action.instance));
+            result.stateObjects = copy;
             break;
         case GET_RESOURCE_STATE_FAILURE:
             break;
@@ -73,4 +76,4 @@ export const getResourceViewerState = createFeatureSelector<ResourceViewerState>
 export const selectBlueprints = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.blueprints);
 export const selectDescriptor = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.descriptors.filter((desc) => desc.descriptorRef.uuid == state.descriptorRef)[0]);
 export const selectConfiguration = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.configurations.filter((config) => config.ref.uuid == state.configurationRef)[0]);
-export const selectStateObjects = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.resourceStateObjects);
+export const selectStateObjects = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.stateObjects);
