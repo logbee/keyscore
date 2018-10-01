@@ -5,9 +5,13 @@ import {TestBed} from "@angular/core/testing";
 import {Store} from "@ngrx/store";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
-import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {
-    generateBlueprint, generateBlueprints, generateConfiguration, generateConfigurations, generateEditingPipelineModel,
+    generateBlueprint,
+    generateBlueprints,
+    generateConfiguration,
+    generateConfigurations,
+    generateEditingPipelineModel,
     generatePipelineBlueprint
 } from "../fake-data/pipeline-fakes";
 import {
@@ -21,7 +25,8 @@ import {
     LoadFilterDescriptorsSuccessAction,
     ResolveFilterDescriptorSuccessAction,
     UpdatePipelineAction,
-    UpdatePipelineConfigAction
+    UpdatePipelineFailureAction,
+    UpdatePipelineSuccessAction
 } from "../../app/pipelines/pipelines.actions";
 import {cold, hot} from "jasmine-marbles";
 import {
@@ -76,8 +81,11 @@ describe('PipelinesEffects', () => {
                     useValue: {
                         getPipelineBlueprint: jest.fn(),
                         getBlueprint: jest.fn(),
-                        updatePipelineBlueprint: jest.fn(),
-                        createPipelineBlueprint: jest.fn()
+                        getConfiguration:jest.fn(),
+                        putPipelineBlueprint: jest.fn(),
+                        putConfiguration: jest.fn(),
+                        putBlueprint: jest.fn(),
+                        getAllDescriptors: jest.fn()
                     }
                 },
                 {
@@ -280,26 +288,51 @@ describe('PipelinesEffects', () => {
 
         })
     });
-    describe('updatePipelineBlueprint', () => {
-        it(`should return an UpdatePipelineConfigAction with index 0 and call the updatePipelineBlueprint
-        method of the pipeline service`, () => {
+    
+    describe('updatePipeline', () => {
+        it(`should return an UpdatePipelineSuccessAction and call putBlueprint and putConfig for each
+        blueprint and each config in the model`, () => {
             const pipeline = generateEditingPipelineModel();
-            const blueprint = pipeline.pipelineBlueprint;
             const action = new UpdatePipelineAction(pipeline);
-            const outcome = new UpdatePipelineConfigAction(pipeline, 0);
+            const outcome = new UpdatePipelineSuccessAction(pipeline);
+
 
             actions.stream = hot('-a', {a: action});
-            const response = cold('-a|', {a: blueprint});
-            const responseUpdateBlueprint = cold('-b|',{b:{}});
+            const servicesResponse = cold('-a|', {a: {}});
             const expected = cold('---b', {b: outcome});
-            pipelineService.getBlueprint = jest.fn(() => response);
-            pipelineService.updatePipelineBlueprint = jest.fn(() => responseUpdateBlueprint);
+            pipelineService.putPipelineBlueprint = jest.fn(() => servicesResponse);
+            pipelineService.putBlueprint = jest.fn(() => servicesResponse);
+            pipelineService.putConfiguration = jest.fn(() => servicesResponse);
 
-            expect(effects.updatePipelineBlueprint$).toBeObservable(expected);
+            const configUpdateSpy = jest.spyOn(pipelineService,'putConfiguration');
+            const blueprintUpdateSpy = jest.spyOn(pipelineService,"putBlueprint");
+            const pipelineBlueprintUpdateSpy = jest.spyOn(pipelineService,"putPipelineBlueprint");
 
 
-        })
-    })
+            expect(effects.updatePipeline$).toBeObservable(expected);
+            expect(configUpdateSpy).toHaveBeenCalledTimes(pipeline.configurations.length);
+            expect(blueprintUpdateSpy).toHaveBeenCalledTimes(pipeline.blueprints.length);
+            expect(pipelineBlueprintUpdateSpy).toHaveBeenCalledTimes(1);
+            
+        });
+        it('should return an UpdatePipelineFailureAction if one ore more elements fail',()=>{
+            const pipeline = generateEditingPipelineModel();
+            const action = new UpdatePipelineAction(pipeline);
+            const error = new Error();
+            const outcome = new UpdatePipelineFailureAction(error,pipeline);
+
+            actions.stream = hot('-a',{a:action});
+            const blueprintsServiceResponse = cold('-a|',{a:{}});
+            const configServiceResponse = cold('-#|',{},error);
+            const expected = cold('--b',{b: outcome});
+            pipelineService.putPipelineBlueprint = jest.fn(() => blueprintsServiceResponse);
+            pipelineService.putBlueprint = jest.fn(() => blueprintsServiceResponse);
+            pipelineService.putConfiguration = jest.fn(() => configServiceResponse);
+
+            expect(effects.updatePipeline$).toBeObservable(expected);
+        });
+    });
+
 
 
 });

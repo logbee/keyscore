@@ -1,12 +1,9 @@
 import {Action} from "@ngrx/store";
-import {PipelineConfiguration} from "../models/pipeline-model/PipelineConfiguration";
-import {InternalPipelineConfiguration} from "../models/pipeline-model/InternalPipelineConfiguration";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
-import {StringTMap} from "../common/object-maps";
 import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
@@ -22,7 +19,6 @@ export const LOAD_EDIT_PIPELINE_CONFIG = "[Pipeline] LoadEditPipelineConfig";
 export const RESET_PIPELINE = "[Pipeline] ResetPipeline";
 
 export const UPDATE_PIPELINE = "[Pipeline] UpdatePipeline";
-export const UPDATE_PIPELINE_CONFIG = "[Pipeline] UpdatePipelineConfig";
 export const UPDATE_PIPELINE_SUCCESS = "[Pipeline] UpdatePipelineSuccess";
 export const UPDATE_PIPELINE_FAILURE = "[Pipeline] UpdatePipelineFailure";
 
@@ -51,7 +47,6 @@ export type PipelineActions =
     | LoadEditPipelineConfigAction
     | ResetPipelineAction
     | UpdatePipelineAction
-    | UpdatePipelineConfigAction
     | UpdatePipelineSuccessAction
     | UpdatePipelineFailureAction
     | DeletePipelineAction
@@ -133,14 +128,6 @@ export class UpdatePipelineAction implements Action {
     public readonly type = UPDATE_PIPELINE;
 
     constructor(readonly pipeline: EditingPipelineModel) {
-
-    }
-}
-
-export class UpdatePipelineConfigAction implements Action {
-    public readonly type = UPDATE_PIPELINE_CONFIG;
-
-    constructor(readonly pipeline: EditingPipelineModel, readonly index: number) {
 
     }
 }

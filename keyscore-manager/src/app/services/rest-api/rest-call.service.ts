@@ -22,8 +22,7 @@ export class RestCallService {
     }
 
     getPipelineBlueprint(id: string): Observable<PipelineBlueprint> {
-        RestCallService.BASE_URL = RestCallService.BASE_URL + "/resources";
-        return this.httpClient.get<PipelineBlueprint>(`${RestCallService.BASE_URL}/blueprint/pipeline/${id}`);
+        return this.httpClient.get<PipelineBlueprint>(`${RestCallService.BASE_URL}/resources/blueprint/pipeline/${id}`);
     }
 
     getBlueprint(id:string): Observable<Blueprint> {
@@ -42,13 +41,17 @@ export class RestCallService {
     getAllDescriptors():Observable<StringTMap<Descriptor>>{
         return this.httpClient.get<StringTMap<Descriptor>>(`${RestCallService.BASE_URL}/resources/descriptor/*`);
     }
-
-    updatePipelineBlueprint(pipelineBlueprint:PipelineBlueprint):Observable<any>{
-        return this.httpClient.post(`${RestCallService.BASE_URL}/resources/blueprints/pipeline/${pipelineBlueprint.ref.uuid}`,pipelineBlueprint);
+    
+    putPipelineBlueprint(pipelineBlueprint:PipelineBlueprint):Observable<any>{
+        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/blueprint/pipeline/${pipelineBlueprint.ref.uuid}`,pipelineBlueprint,{responseType:'text'});
     }
-
-    createPipelineBlueprint(pipelineBlueprint:PipelineBlueprint):Observable<any>{
-        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/blueprints/pipeline/${pipelineBlueprint.ref.uuid}`,pipelineBlueprint);
+    
+    putBlueprint(blueprint:Blueprint):Observable<any>{
+        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/blueprint/${blueprint.ref.uuid}`,blueprint,{responseType:'text'});
+    }
+    
+    putConfiguration(configuration:Configuration):Observable<any>{
+        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/configuration/${configuration.ref.uuid}`,configuration,{responseType:'text'});
     }
 
     getResourceState(uuid: string): Observable<any> {

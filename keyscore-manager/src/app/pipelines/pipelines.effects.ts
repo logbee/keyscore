@@ -1,10 +1,10 @@
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {Action, Store} from "@ngrx/store";
-import {Observable, of} from "rxjs";
+import {forkJoin, Observable, of} from "rxjs";
 import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
 import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
 import {AppState} from "../app.component";
@@ -33,7 +33,7 @@ import {
     LoadFilterDescriptorsSuccessAction,
     ResolveFilterDescriptorSuccessAction,
     UPDATE_PIPELINE,
-    UpdatePipelineAction, UpdatePipelineConfigAction,
+    UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
 } from "./pipelines.actions";
@@ -152,24 +152,22 @@ export class PipelinesEffects {
             return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);
         })
     );
-
-
-    @Effect() public updatePipelineBlueprint$: Observable<Action> = this.actions$.pipe(
+    
+    @Effect() public updatePipeline$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE),
-        map((action) => (action as UpdatePipelineAction).pipeline),
+        map(action => (action as UpdatePipelineAction).pipeline),
         mergeMap(pipeline => {
-                return this.restCallService.getBlueprint(pipeline.pipelineBlueprint.ref.uuid).pipe(
-                    mergeMap(pipelineBlueprint => this.restCallService.updatePipelineBlueprint(pipeline.pipelineBlueprint).pipe(
-                        map(data => new UpdatePipelineConfigAction(pipeline, 0)),
-                        catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline)))
-                    )),
-                    catchError(_ => this.restCallService.createPipelineBlueprint(pipeline.pipelineBlueprint).pipe(
-                        map(data => new UpdatePipelineConfigAction(pipeline, 0)),
-                        catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline)))
-                    ))
-                );
-            }
-        )
+            return forkJoin(
+                ...pipeline.blueprints.map(blueprint =>
+                    this.restCallService.putBlueprint(blueprint)
+                ),
+                ...pipeline.configurations.map(configuration =>
+                    this.restCallService.putConfiguration(configuration)
+                ),
+                this.restCallService.putPipelineBlueprint(pipeline.pipelineBlueprint)
+            ).pipe(map(data => new UpdatePipelineSuccessAction(pipeline)),
+                catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline))))
+        })
     );
 
     @Effect() public deletePipeline$: Observable<Action> = this.actions$.pipe(
