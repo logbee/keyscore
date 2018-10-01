@@ -81,7 +81,7 @@ describe('PipelinesEffects', () => {
                     useValue: {
                         getPipelineBlueprint: jest.fn(),
                         getBlueprint: jest.fn(),
-                        getConfiguration:jest.fn(),
+                        getConfiguration: jest.fn(),
                         putPipelineBlueprint: jest.fn(),
                         putConfiguration: jest.fn(),
                         putBlueprint: jest.fn(),
@@ -116,17 +116,31 @@ describe('PipelinesEffects', () => {
     });
 
     describe('getEditPipelineBlueprint', () => {
-        it('should return an LoadEditBlueprints action, with the blueprint, index 0 and empty blueprints array, on success', () => {
+        it('should return an LoadEditBlueprints action, on success', () => {
             const pipelineBlueprint = generatePipelineBlueprint();
             const action = new EditPipelineAction(pipelineBlueprint.ref.uuid);
-            const outcome = new LoadEditBlueprintsAction(pipelineBlueprint, 0, []);
+            const outcome = new LoadEditBlueprintsAction(pipelineBlueprint);
 
             actions.stream = hot('-a', {a: action});
             const response = cold('-a|', {a: pipelineBlueprint});
             const expected = cold('--b', {b: outcome});
             pipelineService.getPipelineBlueprint = jest.fn(() => response);
 
-            expect(effects.getEditPipelineBlueprint$).toBeObservable(expected);
+            expect(effects.loadEditPipelineBlueprint$).toBeObservable(expected);
+
+        });
+
+        it('should return an EditPipelineSuccess action with empty blueprint and config list, when no blueprints are defined', () => {
+            const pipelineBlueprint = generatePipelineBlueprint(0);
+            const action = new EditPipelineAction(pipelineBlueprint.ref.uuid);
+            const outcome = new EditPipelineSuccessAction(pipelineBlueprint, [], []);
+
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-a|', {a: pipelineBlueprint});
+            const expected = cold('--b', {b: outcome});
+            pipelineService.getPipelineBlueprint = jest.fn(() => response);
+
+            expect(effects.loadEditPipelineBlueprint$).toBeObservable(expected);
 
         });
 
@@ -141,46 +155,29 @@ describe('PipelinesEffects', () => {
             const expected = cold('--b', {b: outcome});
             pipelineService.getPipelineBlueprint = jest.fn(() => response);
 
-            expect(effects.getEditPipelineBlueprint$).toBeObservable(expected);
+            expect(effects.loadEditPipelineBlueprint$).toBeObservable(expected);
         })
     });
 
-    describe('getBlueprints', () => {
-        describe('given index less than number of blueprints', () => {
-            it('should return an LoadEditBlueprints action containing the last blueprint and index +1', () => {
-                const pipelineBlueprint = generatePipelineBlueprint(10);
-                const blueprint = generateBlueprint();
-                const action = new LoadEditBlueprintsAction(pipelineBlueprint, 0, []);
-                const outcome = new LoadEditBlueprintsAction(pipelineBlueprint, 1, [blueprint]);
+    describe('loadEditBlueprints', () => {
+        it('should return an LoadEditPipelineConfig action containing the loaded blueprints', () => {
+            const pipelineBlueprint = generatePipelineBlueprint(3);
+            const blueprint = generateBlueprint();
+            const blueprints = [blueprint, blueprint, blueprint];
+            const action = new LoadEditBlueprintsAction(pipelineBlueprint);
+            const outcome = new LoadEditPipelineConfigAction(pipelineBlueprint, blueprints);
 
-                actions.stream = hot('-a', {a: action});
-                const response = cold('-a|', {a: blueprint});
-                const expected = cold('--b', {b: outcome});
-                pipelineService.getBlueprint = jest.fn(() => response);
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-a|', {a: blueprint});
+            const expected = cold('---b', {b: outcome});
+            pipelineService.getBlueprint = jest.fn(() => response);
 
-                expect(effects.getBlueprints$).toBeObservable(expected);
-            });
+            expect(effects.loadEditBlueprints$).toBeObservable(expected);
         });
-        describe('given index equal the number of blueprints', () => {
-            it('should return an LoadEditPipelineConfig action with the pipelineBlueprint and all loaded blueprints', () => {
-                const pipelineBlueprint = generatePipelineBlueprint(10);
-                const blueprints = generateBlueprints(9);
-                const blueprint = generateBlueprint();
-                const action = new LoadEditBlueprintsAction(pipelineBlueprint, 9, blueprints);
-                const outcome = new LoadEditPipelineConfigAction(pipelineBlueprint, 0, [...blueprints, blueprint], []);
 
-                actions.stream = hot('-a', {a: action});
-                const response = cold('-a|', {a: blueprint});
-                const expected = cold('--b', {b: outcome});
-                pipelineService.getBlueprint = jest.fn(() => response);
-
-                expect(effects.getBlueprints$).toBeObservable(expected);
-
-            });
-        });
         it('should return an EditPipelineFailure action, on failure', () => {
             const pipelineBlueprint = generatePipelineBlueprint();
-            const action = new LoadEditBlueprintsAction(pipelineBlueprint, 0, []);
+            const action = new LoadEditBlueprintsAction(pipelineBlueprint);
             const error = new Error();
             const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
 
@@ -189,49 +186,31 @@ describe('PipelinesEffects', () => {
             const expected = cold('--b', {b: outcome});
             pipelineService.getBlueprint = jest.fn(() => responseGetBlueprint);
 
-            expect(effects.getBlueprints$).toBeObservable(expected);
+            expect(effects.loadEditBlueprints$).toBeObservable(expected);
         });
     });
     describe('getConfigurations', () => {
-        describe('given index less than number of blueprints', () => {
-            it('should return an LoadEditPipelineConfig action containing the last configuration and index + 1', () => {
-                const pipelineBlueprint = generatePipelineBlueprint(10);
-                const blueprints = generateBlueprints(10);
-                const configuration = generateConfiguration();
-                const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 0, blueprints, []);
-                const outcome = new LoadEditPipelineConfigAction(pipelineBlueprint, 1, blueprints, [configuration]);
+        it('should return an EditPipelineSuccess action containing pipelineBlueprint,blueprints and configs', () => {
+            const pipelineBlueprint = generatePipelineBlueprint(3);
+            const blueprints = generateBlueprints(3);
+            const configuration = generateConfiguration();
+            const configurations = [configuration, configuration, configuration];
+            const action = new LoadEditPipelineConfigAction(pipelineBlueprint, blueprints);
+            const outcome = new EditPipelineSuccessAction(pipelineBlueprint, blueprints, configurations);
 
-                actions.stream = hot('-a', {a: action});
-                const response = cold('-a|', {a: configuration});
-                const expected = cold('--b', {b: outcome});
-                pipelineService.getConfiguration = jest.fn(() => response);
+            actions.stream = hot('-a', {a: action});
+            const response = cold('-a|', {a: configuration});
+            const expected = cold('---b', {b: outcome});
+            pipelineService.getConfiguration = jest.fn(() => response);
 
-                expect(effects.getConfigurations$).toBeObservable(expected);
-            });
+            expect(effects.loadEditConfigs$).toBeObservable(expected);
         });
-        describe('given index equal the number of blueprints', () => {
-            it('should return an EditPipelineSuccess action with the EditingPipelineModel', () => {
-                const pipelineBlueprint = generatePipelineBlueprint(10);
-                const blueprints = generateBlueprints(10);
-                const configurations = generateConfigurations(9);
-                const configuration = generateConfiguration();
-                const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 9, blueprints, configurations);
-                const outcome = new EditPipelineSuccessAction(pipelineBlueprint, blueprints, [...configurations, configuration]);
 
-                actions.stream = hot('-a', {a: action});
-                const response = cold('-a|', {a: configuration});
-                const expected = cold('--b', {b: outcome});
-                pipelineService.getConfiguration = jest.fn(() => response);
-
-                expect(effects.getConfigurations$).toBeObservable(expected);
-
-            });
-        });
 
         it('should return an EditPipelineFailure action with pipelineid and error, on failure', () => {
             const pipelineBlueprint = generatePipelineBlueprint();
             const blueprints = generateBlueprints(10);
-            const action = new LoadEditPipelineConfigAction(pipelineBlueprint, 0, blueprints, []);
+            const action = new LoadEditPipelineConfigAction(pipelineBlueprint, blueprints);
             const error = new Error();
             const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
 
@@ -240,7 +219,7 @@ describe('PipelinesEffects', () => {
             const expected = cold('--b', {b: outcome});
             pipelineService.getConfiguration = jest.fn(() => response);
 
-            expect(effects.getConfigurations$).toBeObservable(expected);
+            expect(effects.loadEditConfigs$).toBeObservable(expected);
         })
     });
     describe('loadFilterDescriptors', () => {
@@ -288,7 +267,7 @@ describe('PipelinesEffects', () => {
 
         })
     });
-    
+
     describe('updatePipeline', () => {
         it(`should return an UpdatePipelineSuccessAction and call putBlueprint and putConfig for each
         blueprint and each config in the model`, () => {
@@ -304,27 +283,27 @@ describe('PipelinesEffects', () => {
             pipelineService.putBlueprint = jest.fn(() => servicesResponse);
             pipelineService.putConfiguration = jest.fn(() => servicesResponse);
 
-            const configUpdateSpy = jest.spyOn(pipelineService,'putConfiguration');
-            const blueprintUpdateSpy = jest.spyOn(pipelineService,"putBlueprint");
-            const pipelineBlueprintUpdateSpy = jest.spyOn(pipelineService,"putPipelineBlueprint");
+            const configUpdateSpy = jest.spyOn(pipelineService, 'putConfiguration');
+            const blueprintUpdateSpy = jest.spyOn(pipelineService, "putBlueprint");
+            const pipelineBlueprintUpdateSpy = jest.spyOn(pipelineService, "putPipelineBlueprint");
 
 
             expect(effects.updatePipeline$).toBeObservable(expected);
             expect(configUpdateSpy).toHaveBeenCalledTimes(pipeline.configurations.length);
             expect(blueprintUpdateSpy).toHaveBeenCalledTimes(pipeline.blueprints.length);
             expect(pipelineBlueprintUpdateSpy).toHaveBeenCalledTimes(1);
-            
+
         });
-        it('should return an UpdatePipelineFailureAction if one ore more elements fail',()=>{
+        it('should return an UpdatePipelineFailureAction if one ore more elements fail', () => {
             const pipeline = generateEditingPipelineModel();
             const action = new UpdatePipelineAction(pipeline);
             const error = new Error();
-            const outcome = new UpdatePipelineFailureAction(error,pipeline);
+            const outcome = new UpdatePipelineFailureAction(error, pipeline);
 
-            actions.stream = hot('-a',{a:action});
-            const blueprintsServiceResponse = cold('-a|',{a:{}});
-            const configServiceResponse = cold('-#|',{},error);
-            const expected = cold('--b',{b: outcome});
+            actions.stream = hot('-a', {a: action});
+            const blueprintsServiceResponse = cold('-a|', {a: {}});
+            const configServiceResponse = cold('-#|', {}, error);
+            const expected = cold('--b', {b: outcome});
             pipelineService.putPipelineBlueprint = jest.fn(() => blueprintsServiceResponse);
             pipelineService.putBlueprint = jest.fn(() => blueprintsServiceResponse);
             pipelineService.putConfiguration = jest.fn(() => configServiceResponse);
@@ -332,7 +311,6 @@ describe('PipelinesEffects', () => {
             expect(effects.updatePipeline$).toBeObservable(expected);
         });
     });
-
 
 
 });

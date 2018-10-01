@@ -3,7 +3,7 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
-import {Action, Store} from "@ngrx/store";
+import {Action, select, Store} from "@ngrx/store";
 import {forkJoin, Observable, of} from "rxjs";
 import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
 import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
@@ -38,7 +38,7 @@ import {
     UpdatePipelineSuccessAction,
 } from "./pipelines.actions";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {getPipelinePolling} from "./pipelines.reducer";
+import {getEditingPipeline, getPipelinePolling} from "./pipelines.reducer";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {RestCallService} from "../services/rest-api/rest-call.service";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
@@ -51,17 +51,20 @@ import {StringTMap} from "../common/object-maps";
 export class PipelinesEffects {
     @Effect() public editPipeline$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
-        mergeMap((action) => {
+        withLatestFrom(this.store.pipe(select(getEditingPipeline))),
+        mergeMap(([action, editingPipeline]) => {
             const regex = /\/pipelines\/.+/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 const id = this.getPipelineIdfromRouterAction(action as RouterNavigationAction);
-                return of(new EditPipelineAction(id));
+                if (!editingPipeline || (editingPipeline && editingPipeline.pipelineBlueprint.ref.uuid !== id)) {
+                    return of(new EditPipelineAction(id));
+                }
             }
             return of();
         })
     );
-
-    @Effect() public getEditPipelineBlueprint$: Observable<Action> = this.actions$.pipe(
+    
+    @Effect() public loadEditPipelineBlueprint$: Observable<Action> = this.actions$.pipe(
         ofType(EDIT_PIPELINE),
         map((action) => (action as EditPipelineAction).id),
         switchMap((pipelineId) => {
@@ -71,7 +74,7 @@ export class PipelinesEffects {
                         return new EditPipelineFailureAction(pipelineId, "NotFound");
                     }
                     if (pipelineBlueprint.blueprints.length > 0) {
-                        return new LoadEditBlueprintsAction(pipelineBlueprint, 0, []);
+                        return new LoadEditBlueprintsAction(pipelineBlueprint);
                     }
                     else {
                         return new EditPipelineSuccessAction(pipelineBlueprint, [], []);
@@ -82,53 +85,28 @@ export class PipelinesEffects {
         })
     );
 
-    @Effect() public getBlueprints$: Observable<Action> = this.actions$.pipe(
+    @Effect() public loadEditBlueprints$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_EDIT_PIPELINE_BLUEPRINTS),
         map(action => (action as LoadEditBlueprintsAction)),
-        mergeMap((action) => {
-            return this.restCallService.getBlueprint(action.pipelineBlueprint.blueprints[action.index].uuid).pipe(
-                map((blueprint: Blueprint) => {
-                    action.blueprints.push(blueprint);
-                    if (action.index < action.pipelineBlueprint.blueprints.length - 1) {
-                        return new LoadEditBlueprintsAction(action.pipelineBlueprint, action.index + 1, action.blueprints);
-                    }
-                    else {
-                        return new LoadEditPipelineConfigAction(
-                            action.pipelineBlueprint,
-                            0,
-                            action.blueprints,
-                            []
-                        );
-                    }
-                }),
-                catchError((cause: any) =>
-                    of(new EditPipelineFailureAction(action.pipelineBlueprint.ref.uuid, cause)))
-            )
+        switchMap(action => {
+            return forkJoin(
+                ...action.pipelineBlueprint.blueprints.map(blueprintRef => this.restCallService.getBlueprint(blueprintRef.uuid))
+            ).pipe(map((blueprints:Blueprint[]) => new LoadEditPipelineConfigAction(action.pipelineBlueprint, blueprints)),
+                catchError(cause => of(new EditPipelineFailureAction(action.pipelineBlueprint.ref.uuid, cause))))
         })
     );
-
-    @Effect() public getConfigurations$: Observable<Action> = this.actions$.pipe(
+    
+    @Effect() public loadEditConfigs$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_EDIT_PIPELINE_CONFIG),
         map(action => (action as LoadEditPipelineConfigAction)),
-        mergeMap(action => {
-            return this.restCallService.getConfiguration(action.blueprints[action.index].configuration.uuid).pipe(
-                map((data: Configuration) => {
-                    action.configurations.push(data);
-                    if (action.index < action.blueprints.length - 1) {
-                        return new LoadEditPipelineConfigAction(
-                            action.pipelineBlueprint,
-                            action.index + 1,
-                            action.blueprints,
-                            action.configurations
-                        );
-                    }
-                    else {
-                        return new EditPipelineSuccessAction(action.pipelineBlueprint, action.blueprints, action.configurations);
-                    }
-                }),
-                catchError((cause: any) =>
-                    of(new EditPipelineFailureAction(action.pipelineBlueprint.ref.uuid, cause)))
+        switchMap(action => {
+            return forkJoin(
+                ...action.blueprints.map(blueprint => this.restCallService.getConfiguration(blueprint.configuration.uuid))
+            ).pipe(map((configurations:Configuration[]) => 
+                    new EditPipelineSuccessAction(action.pipelineBlueprint,action.blueprints,configurations)),
+                    catchError(cause => of(new EditPipelineFailureAction(action.pipelineBlueprint.ref.uuid,cause)))
             )
+                
         })
     );
 
@@ -152,7 +130,7 @@ export class PipelinesEffects {
             return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);
         })
     );
-    
+
     @Effect() public updatePipeline$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE),
         map(action => (action as UpdatePipelineAction).pipeline),
@@ -211,7 +189,6 @@ export class PipelinesEffects {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {
-        console.log("URL: ", action.payload.event.url);
         return regEx.test(action.payload.event.url);
 
     }

@@ -98,9 +98,7 @@ export class EditPipelineFailureAction implements Action {
 export class LoadEditBlueprintsAction implements Action {
     public readonly type = LOAD_EDIT_PIPELINE_BLUEPRINTS;
 
-    constructor(readonly pipelineBlueprint: PipelineBlueprint,
-                readonly index: number,
-                readonly blueprints: Blueprint[]) {
+    constructor(readonly pipelineBlueprint: PipelineBlueprint) {
 
     }
 }
@@ -109,9 +107,7 @@ export class LoadEditPipelineConfigAction implements Action {
     public readonly type = LOAD_EDIT_PIPELINE_CONFIG;
 
     constructor(readonly pipelineBlueprint: PipelineBlueprint,
-                readonly index: number,
-                readonly blueprints: Blueprint[],
-                readonly configurations: Configuration[]) {
+                readonly blueprints: Blueprint[]) {
 
     }
 }
