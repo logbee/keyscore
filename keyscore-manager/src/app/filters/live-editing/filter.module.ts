@@ -15,7 +15,7 @@ import {FilterDescriptionComponent} from "./components/filter-description.compon
 import {ExampleMessageComponent} from "./components/example-message.component";
 import {FilterConfigurationComponent} from "./components/filter-configuration.component";
 import {FilterResultComponent} from "./components/filter-result.component";
-import {StatuslightComponent} from "../../common/health/statuslight.component";
+import {HealthLightComponent} from "../../common/health/health-light.component";
 import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./live-editing.component";
 import {DatasetVisualizer} from "./components/datasetVisualizer";

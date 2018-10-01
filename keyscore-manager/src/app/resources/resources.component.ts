@@ -38,7 +38,7 @@ import {Go} from "../router/router.actions";
                 <ng-container matColumnDef="health">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
                     <td mat-cell *matCellDef="let element">
-                        <status-light align="left" [status]="Unknown"></status-light>
+                        <health-light align="left" [status]="Unknown"></health-light>
                     </td>
                 </ng-container>
 
@@ -72,7 +72,6 @@ import {Go} from "../router/router.actions";
                     <td mat-cell *matCellDef="let blueprint" [attr.colspan]="4">
                         <json-visualizer
                                 class="jsonViewer"
-                                style="overflow: hidden; display: flex"
                                 [class.visible]="expandedElement === blueprint">
                         </json-visualizer>
                     </td>
@@ -93,8 +92,7 @@ import {Go} from "../router/router.actions";
                 <tr mat-row *matRowDef="let blueprint; columns: ['expandedDetail'];
                  when: isExpansionDetailRow"
                     class="example-detail-row"
-                    [@detailExpand]="blueprint === expandedElement ? 'expanded' : 'collapsed'"
-                    style="overflow: hidden">
+                    [@detailExpand]="blueprint === expandedElement ? 'expanded' : 'collapsed'">
                 </tr>
             </table>
         </div>

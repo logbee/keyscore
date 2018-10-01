@@ -38,7 +38,6 @@ export function AgentsReducer(state: AgentsState = initialState, action: AgentsA
 
         case DELETE_AGENT_SUCCESS:
             result.currentAgentid = "";
-
     }
 
     return result;

@@ -2,7 +2,7 @@ import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
 import "../style/global-table-styles.css";
 import {LoadAgentsAction, RemoveCurrentAgentAction} from "./agents.actions";
-import {MatPaginator, MatSort} from "@angular/material";
+import {MatPaginator, MatSort, MatTable} from "@angular/material";
 import {TranslateService} from "@ngx-translate/core";
 import {AgentsState, getAgents} from "./agents.reducer";
 import {AgentDataSource} from "../dataSources/AgentDataSource";
@@ -51,8 +51,8 @@ import {AgentDataSource} from "../dataSources/AgentDataSource";
                 <ng-container matColumnDef="remove">
                     <th mat-header-cell *matHeaderCellDef>Remove</th>
                     <td mat-cell *matCellDef="let element">
-                        <button mat-icon-button color="warn">
-                            <mat-icon (click)="deleteAgent(element.id)">delete</mat-icon>
+                        <button  (click)="deleteAgent(element.id)" mat-icon-button color="warn" matTooltipPosition="after" matTooltip="Remove Agent">
+                            <mat-icon>delete</mat-icon>
                         </button>
                     </td>
                 </ng-container>
@@ -72,6 +72,7 @@ export class AgentsComponent implements AfterViewInit {
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
+    @ViewChild(MatTable) table: MatTable<any>;
 
     constructor(private store: Store<AgentsState>, private translate: TranslateService) {
         translate.setDefaultLang("en");
@@ -92,10 +93,11 @@ export class AgentsComponent implements AfterViewInit {
 
     public reload() {
         this.store.dispatch(new LoadAgentsAction());
+        this.table.renderRows();
     }
 
     public deleteAgent(agentId: string) {
         this.store.dispatch(new RemoveCurrentAgentAction(agentId));
-        this.reload()
+        this.reload();
     }
 }

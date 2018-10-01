@@ -14,12 +14,16 @@ tr.example-element-row:not(.example-expanded-row):active {
     background: #efefef;
     border-bottom-width: 0;
 }
+
 .example-element-row.expanded td {
     border-bottom-width: 0 !important;
 }
+
 .jsonViewer {
     height: 0;
     width: 0;
+    overflow: hidden;
+    display: flex;
 }
 
 .jsonViewer.visible {
@@ -30,6 +34,11 @@ tr.example-element-row:not(.example-expanded-row):active {
 .mat-tab-header-pagination {
     padding-left: 15px !important;
 }
+
 .mat-tab-header-pagination {
- visibility: hidden;
+    visibility: hidden;
+}
+
+.example-detail-row {
+    overflow: hidden
 }
