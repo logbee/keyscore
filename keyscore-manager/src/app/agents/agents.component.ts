@@ -51,7 +51,7 @@ import {AgentDataSource} from "../dataSources/AgentDataSource";
                 <ng-container matColumnDef="remove">
                     <th mat-header-cell *matHeaderCellDef>Remove</th>
                     <td mat-cell *matCellDef="let element">
-                        <button  (click)="deleteAgent(element.id)" mat-icon-button color="warn" matTooltipPosition="after" matTooltip="Remove Agent">
+                        <button matTooltip="Remove Agent"  (click)="deleteAgent(element.id)" mat-icon-button color="warn" matTooltipPosition="after">
                             <mat-icon>delete</mat-icon>
                         </button>
                     </td>
