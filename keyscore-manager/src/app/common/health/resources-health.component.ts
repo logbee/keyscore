@@ -1,8 +1,5 @@
-import {AfterViewInit, Component, Input, OnInit} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
-import {StateObject} from "../../models/common/StateObject";
-import {selectStateObjects} from "../../resources/resources.reducer";
-import {Observable} from "rxjs/index";
 import {Health} from "../../models/common/Health";
 
 @Component({
@@ -15,24 +12,12 @@ import {Health} from "../../models/common/Health";
 
 })
 
-export class ResourcesHealthComponent implements  OnInit {
-    @Input() public uuid: string;
-    @Input() public stateObjects$: Observable<StateObject[]>;
+export class ResourcesHealthComponent implements OnInit {
+    @Input() public health: Health;
 
-    private health: Health;
     constructor(private store: Store<any>) {
     }
 
     ngOnInit(): void {
-        this.stateObjects$.subscribe(objects => {
-            console.log("objects", objects);
-            console.log("uuid", this.uuid);
-            const object = objects.filter(elem => elem.resourceId == this.uuid)[0];
-            if (object) {
-                this.health = object.resourceInstance.health;
-            } else {
-                this.health = Health.Unknown;
-            }
-        });
     }
 }

@@ -17,6 +17,7 @@ import {Go} from "../router/router.actions";
 import {Observable} from "rxjs/index";
 import {StateObject} from "../models/common/StateObject";
 import {share} from "rxjs/internal/operators";
+import {Health} from "../models/common/Health";
 
 @Component({
     selector: "resource-viewer",
@@ -47,7 +48,7 @@ import {share} from "rxjs/internal/operators";
                 <ng-container matColumnDef="health">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
                     <td mat-cell *matCellDef="let blueprint">
-                        <resource-health [uuid]="blueprint?.ref.uuid" [stateObjects$]="stateObjects$"></resource-health>
+                        <resource-health [health]="determineHealthOfResource(blueprint)"></resource-health>
                     </td>
                 </ng-container>
 
@@ -87,10 +88,10 @@ import {share} from "rxjs/internal/operators";
                 </ng-container>
 
                 <!--Defining header row -->
-                <tr mat-header-row *matHeaderRowDef="['health', 'uuid', 'jsonClass' , 'link']"></tr>
+                <tr mat-header-row *matHeaderRowDef="['health', 'jsonClass', 'uuid', 'link']"></tr>
 
                 <!--Defining row with uuid jsonClass and health columns-->
-                <tr mat-row *matRowDef="let blueprint; columns: ['health', 'uuid', 'jsonClass', 'link']"
+                <tr mat-row *matRowDef="let blueprint; columns: ['health', 'jsonClass', 'uuid', 'link']"
                     class="example-element-row"
                     [class.expanded]="expandedElement === blueprint"
                     (click)="storeIds(blueprint)"
@@ -116,6 +117,7 @@ export class ResourcesComponent implements AfterViewInit, OnInit {
     stateObjects$: Observable<StateObject[]>;
     isExpansionDetailRow = (i: number) => i % 2 === 1;
     expandedElement: any;
+    stateObjects: StateObject[];
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
@@ -127,12 +129,22 @@ export class ResourcesComponent implements AfterViewInit, OnInit {
                 this.store.dispatch(new GetResourceStateAction(bp.ref.uuid));
             })
         });
-
-        this.stateObjects$ = this.store.pipe(select(selectStateObjects),share());
-        this.stateObjects$.subscribe(x => {console.log("test####"); x.forEach(elem => console.log("TEST ###" + elem.resourceId))});
+        this.stateObjects$ = this.store.pipe(select(selectStateObjects));
+        this.stateObjects$.subscribe(objects => {
+            this.stateObjects = objects;
+        });
     }
 
     ngOnInit() {
+    }
+
+    determineHealthOfResource(blueprint: Blueprint) {
+        const object = this.stateObjects.filter(elem => elem.resourceId == blueprint.ref.uuid)[0];
+        if (object) {
+            return object.resourceInstance.health;
+        } else {
+            return Health.Unknown;
+        }
     }
 
     storeIds(blueprint: Blueprint) {
