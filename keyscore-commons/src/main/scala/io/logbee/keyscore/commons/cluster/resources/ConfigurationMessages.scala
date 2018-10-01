@@ -4,6 +4,8 @@ import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 
 object ConfigurationMessages {
 
+    case class StoreOrUpdateConfigurationRequest(configuration:Configuration)
+
     case class StoreConfigurationRequest(configuration: Configuration)
 
     case object StoreConfigurationResponse

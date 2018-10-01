@@ -43,8 +43,9 @@ object ConfigurationResourceRoute extends RouteImplicits {
             } ~
               put {
                 entity(as[Configuration]) { configuration =>
-                  onSuccess(configurationManager ? StoreConfigurationRequest(configuration)) {
+                  onSuccess(configurationManager ? StoreOrUpdateConfigurationRequest(configuration)) {
                     case StoreConfigurationResponse => complete(StatusCodes.Created)
+                    case UpdateConfigurationSuccessResponse => complete(StatusCodes.OK)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }

@@ -36,6 +36,12 @@ class ConfigurationManager extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
+    case StoreOrUpdateConfigurationRequest(configuration) =>
+      if (configurations.contains(configuration.ref)) {
+        self forward UpdateConfigurationRequest(configuration)
+      } else {
+        self forward StoreConfigurationRequest(configuration)
+      }
     case StoreConfigurationRequest(configuration) =>
       log.debug(s"Received StoreConfigurationRequest for $configuration")
       configurations.put(configuration.ref, configuration)

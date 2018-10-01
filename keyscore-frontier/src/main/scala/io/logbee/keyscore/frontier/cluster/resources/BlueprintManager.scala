@@ -41,7 +41,12 @@ class BlueprintManager extends Actor with ActorLogging {
     case WhoIs(BlueprintService) =>
       log.debug("Received WhoIs(BlueprintService)")
       sender ! HereIam(BlueprintService, self)
-
+    case StoreOrUpdatePipelineBlueprintRequest(pipelineBlueprint) =>
+      if (pipelineBlueprints.contains(pipelineBlueprint.ref)) {
+        self forward UpdatePipelineBlueprintRequest(pipelineBlueprint)
+      } else {
+        self forward StorePipelineBlueprintRequest(pipelineBlueprint)
+      }
     //Pipeline Blueprint
     case StorePipelineBlueprintRequest(pipelineBlueprint) =>
       log.debug(s"Received StorePipelineBlueprintRequest for $pipelineBlueprint")
@@ -50,7 +55,7 @@ class BlueprintManager extends Actor with ActorLogging {
 
     case UpdatePipelineBlueprintRequest(pipelineBlueprint) =>
       log.debug(s"Received UpdatePipelineBlueprintRequest for $pipelineBlueprint")
-      if(pipelineBlueprints.contains(pipelineBlueprint.ref)){
+      if (pipelineBlueprints.contains(pipelineBlueprint.ref)) {
         pipelineBlueprints.put(pipelineBlueprint.ref, pipelineBlueprint)
         log.debug(s"Updated PipelineBlueprint for $pipelineBlueprint")
         sender ! UpdatePipelineBlueprintResponseSuccess
@@ -78,6 +83,12 @@ class BlueprintManager extends Actor with ActorLogging {
       sender ! DeleteAllPipelineBlueprintsResponse
 
     //Sealed Blueprint
+    case StoreOrUpdateBlueprintRequest(blueprint) =>
+      if (blueprints.contains(blueprint.blueprintRef)) {
+        self forward UpdateBlueprintRequest(blueprint)
+      } else {
+        self forward StoreBlueprintRequest(blueprint)
+      }
     case StoreBlueprintRequest(blueprint) =>
       log.debug(s"Received StoreBlueprintRequest for $blueprint")
       blueprints.put(blueprint.blueprintRef, blueprint)
@@ -85,7 +96,7 @@ class BlueprintManager extends Actor with ActorLogging {
 
     case UpdateBlueprintRequest(blueprint) =>
       log.debug(s"Received UpdateBlueprintRequest for $blueprint")
-      if(blueprints.contains(blueprint.blueprintRef)){
+      if (blueprints.contains(blueprint.blueprintRef)) {
         log.debug(s"Updated Blueprint for $blueprint")
         blueprints.put(blueprint.blueprintRef, blueprint)
         sender ! UpdateBlueprintResponseSuccess

@@ -5,6 +5,8 @@ import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, Seal
 object BlueprintMessages {
 
   // Pipeline Blueprints
+  case class StoreOrUpdatePipelineBlueprintRequest(pipelineBlueprint:PipelineBlueprint)
+
   case class StorePipelineBlueprintRequest(pipelineBlueprint: PipelineBlueprint)
   case object StorePipelineBlueprintResponse
 
@@ -24,6 +26,8 @@ object BlueprintMessages {
   case object DeleteAllPipelineBlueprintsRequest
   case object DeleteAllPipelineBlueprintsResponse
   // Sealed Blueprints
+  case class StoreOrUpdateBlueprintRequest(blueprint:SealedBlueprint)
+
   case class StoreBlueprintRequest(blueprint: SealedBlueprint)
   case object StoreBlueprintResponse
 

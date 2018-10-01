@@ -46,8 +46,9 @@ object BlueprintResourceRoute extends RouteImplicits {
               } ~
                 put {
                   entity(as[PipelineBlueprint]) { pipelineBlueprint =>
-                    onSuccess(blueprintManager ? StorePipelineBlueprintRequest(pipelineBlueprint)) {
+                    onSuccess(blueprintManager ? StoreOrUpdatePipelineBlueprintRequest(pipelineBlueprint)) {
                       case StorePipelineBlueprintResponse => complete(StatusCodes.Created)
+                      case UpdatePipelineBlueprintResponseSuccess => complete(StatusCodes.OK)
                       case _ => complete(StatusCodes.InternalServerError)
                     }
                   }
@@ -77,8 +78,9 @@ object BlueprintResourceRoute extends RouteImplicits {
             } ~
               put {
                 entity(as[SealedBlueprint]) { blueprint =>
-                  onSuccess(blueprintManager ? StoreBlueprintRequest(blueprint)) {
+                  onSuccess(blueprintManager ? StoreOrUpdateBlueprintRequest(blueprint)) {
                     case StoreBlueprintResponse => complete(StatusCodes.Created)
+                    case UpdateBlueprintResponseSuccess => complete(StatusCodes.OK)
                     case _ => complete(StatusCodes.InternalServerError)
                   }
                 }
