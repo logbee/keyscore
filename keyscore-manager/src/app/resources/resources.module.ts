@@ -14,7 +14,7 @@ import {MaterialModule} from "../material.module";
 import {FilterService} from "../services/rest-api/filter.service";
 import {ResourceType} from "./components/resource-type";
 import {ReactiveFormsModule} from "@angular/forms";
-import {HealthLightComponent} from "../common/health/health-light.component";
+import {ResourcesHealthComponent} from "../common/health/resources-health.component";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
 import {JsonVisualizer} from "./components/json-visualizer";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
@@ -41,7 +41,7 @@ export const routes: Routes = [
     declarations: [
         ResourcesComponent,
         ResourceType,
-        HealthLightComponent,
+        ResourcesHealthComponent,
         JsonVisualizer
     ],
     providers: [

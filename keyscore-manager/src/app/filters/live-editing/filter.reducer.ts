@@ -8,14 +8,14 @@ import {
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Configuration} from "../../models/common/Configuration";
-import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
-import {FilterStatus} from "../../models/filter-model/FilterStatus";
+import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
+import {ResourceStatus} from "../../models/filter-model/ResourceStatus";
 import {Dataset} from "../../models/dataset/Dataset";
 import {deepcopy} from "../../util";
 
 export class FilterState {
     public filter: Configuration;
-    public filterState: FilterInstanceState;
+    public filterState: ResourceInstanceState;
     public exampleDatasets: Dataset[];
     public resultDatasets: Dataset[];
     public extractFinish: boolean;
@@ -37,7 +37,7 @@ const initialState: FilterState = {
         health: null,
         throughPutTime: 0,
         totalThroughputTime: 0,
-        status: FilterStatus.Unknown
+        status: ResourceStatus.Unknown
     },
     extractFinish: false,
     updateConfiguration: false,

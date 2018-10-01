@@ -1,4 +1,4 @@
-export enum FilterStatus {
+export enum ResourceStatus {
     Unknown = "Unknown",
     Paused = "Paused",
     Running = "Running",

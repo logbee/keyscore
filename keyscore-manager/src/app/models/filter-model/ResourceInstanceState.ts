@@ -1,10 +1,10 @@
 import {Health} from "../common/Health";
-import {FilterStatus} from "./FilterStatus";
+import {ResourceStatus} from "./ResourceStatus";
 
-export interface FilterInstanceState {
+export interface ResourceInstanceState {
     id: string;
     health: Health;
     throughPutTime: number;
     totalThroughputTime: number;
-    status: FilterStatus;
+    status: ResourceStatus;
 }

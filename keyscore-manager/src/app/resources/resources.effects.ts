@@ -8,6 +8,8 @@ import {mergeMap} from "rxjs/internal/operators";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {catchError, map, switchMap} from "rxjs/operators";
 import {
+    GET_RESOURCE_STATE,
+    GetResourceStateAction, GetResourceStateFailure, GetResourceStateSuccess,
     LOAD_ALL_BLUEPRINTS_SUCCESS,
     LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS,
     LoadAllBlueprintsActionFailure,
@@ -25,6 +27,7 @@ import {StringTMap} from "../common/object-maps";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {RestCallService} from "../services/rest-api/rest-call.service";
 import {Configuration} from "../models/common/Configuration";
+import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 
 @Injectable()
 export class ResourcesEffects {
@@ -73,6 +76,17 @@ export class ResourcesEffects {
             );
             return new ResolvedAllDescriptorsSuccessAction(resolvedDescriptors);
         })
+    );
+
+    @Effect() public getStateOfResource$: Observable<Action> = this.actions$.pipe(
+        ofType(GET_RESOURCE_STATE),
+        map(action => (action as GetResourceStateAction).resourceId),
+        mergeMap((resourceId) =>
+            this.restCallService.getResourceState(resourceId).pipe(
+                map((instance: ResourceInstanceState) => new GetResourceStateSuccess(resourceId, instance)),
+                catchError((cause) => of(new GetResourceStateFailure(cause)))
+            )
+        )
     );
 
     constructor(private store: Store<AppState>,

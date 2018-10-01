@@ -41,7 +41,7 @@ import {
 } from "./filters.actions";
 import {selectAppConfig} from "../../app.config";
 import {Configuration} from "../../models/common/Configuration";
-import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
+import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
 import {Dataset} from "../../models/dataset/Dataset";
 import {
     selectExtractedDatasets,
@@ -100,7 +100,7 @@ export class FilterEffects {
         switchMap(([action, appconfig]) => {
             return this.http.get(appconfig.getString("keyscore.frontier.base-url") +
                 "/filter/" + action.filterId + "/state").pipe(
-                map((state: FilterInstanceState) => new LoadFilterStateSuccess(state)),
+                map((state: ResourceInstanceState) => new LoadFilterStateSuccess(state)),
                 catchError((cause: any) => of(new LoadFilterStateFailure(cause))));
         })
     );
@@ -115,7 +115,7 @@ export class FilterEffects {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "json"
             }).pipe(
-                map((state: FilterInstanceState) => new PauseFilterSuccess(state)),
+                map((state: ResourceInstanceState) => new PauseFilterSuccess(state)),
                 catchError((cause: any) => of(new PauseFilterFailure(cause)))
             );
         })
@@ -131,7 +131,7 @@ export class FilterEffects {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "json"
             }).pipe(
-                map((state: FilterInstanceState) => new DrainFilterSuccess(state)),
+                map((state: ResourceInstanceState) => new DrainFilterSuccess(state)),
                 catchError((cause: any) => of(new DrainFilterFailure(cause)))
             );
         })
@@ -149,7 +149,7 @@ export class FilterEffects {
                 headers: new HttpHeaders().set("Content-Type", "application/json"),
                 responseType: "json"
             }).pipe(
-                map((state: FilterInstanceState) => new InsertDatasetsSuccess(state)),
+                map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
                 catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
             );
         }),
@@ -200,7 +200,7 @@ export class FilterEffects {
                     headers: new HttpHeaders().set("Content-Type", "application/json"),
                     responseType: "json"
                 }).pipe(
-                    map((state: FilterInstanceState) => new ReconfigureFilterSuccess(state)),
+                    map((state: ResourceInstanceState) => new ReconfigureFilterSuccess(state)),
                     catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
                 );
             } else {

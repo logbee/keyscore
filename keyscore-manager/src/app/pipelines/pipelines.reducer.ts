@@ -19,8 +19,6 @@ import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {EditingPipelineModel, generateEmptyEditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
 import {ResolvedCategory} from "../models/descriptors/Category";
-import {generateRef} from "../models/common/Ref";
-import {StringTMap} from "../common/object-maps";
 
 export class PipelinesState {
     public pipelineList: PipelineInstance[];

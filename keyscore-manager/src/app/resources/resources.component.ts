@@ -1,14 +1,22 @@
-import {AfterViewInit, Component, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, OnInit, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
-
+import "../style/style.css";
 import "../style/global-table-styles.css";
 import {MatPaginator, MatSort} from "@angular/material";
-import {selectBlueprints} from "./resources.reducer";
+import {selectBlueprints, selectStateObjects} from "./resources.reducer";
 import {BlueprintDataSource} from "../dataSources/BlueprintDataSource";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {Blueprint} from "../models/blueprints/Blueprint";
-import {StoreConfigurationRefAction, StoreDescriptorRefAction} from "./resources.actions";
+import {
+    GetResourceStateAction,
+    StoreBlueprintRefAction,
+    StoreConfigurationRefAction,
+    StoreDescriptorRefAction
+} from "./resources.actions";
 import {Go} from "../router/router.actions";
+import {Observable} from "rxjs/index";
+import {selectSpinnerEntity} from "../common/loading/loading.reducer";
+import {StateObject} from "../models/common/StateObject";
 
 @Component({
     selector: "resource-viewer",
@@ -34,11 +42,12 @@ import {Go} from "../router/router.actions";
             <!--Resources Table-->
             <table fxFlex="95" #table mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position">
+
                 <!--Health Column-->
                 <ng-container matColumnDef="health">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-                    <td mat-cell *matCellDef="let element">
-                        <health-light align="left" [status]="Unknown"></health-light>
+                    <td mat-cell *matCellDef="let blueprint">
+                        <resource-health [uuid]="blueprint?.ref.uuid" [stateObjects$]="stateObjects$"></resource-health>
                     </td>
                 </ng-container>
 
@@ -99,10 +108,12 @@ import {Go} from "../router/router.actions";
     `
 })
 
-export class ResourcesComponent implements AfterViewInit {
+export class ResourcesComponent implements AfterViewInit, OnInit {
 
     private title: string = "Resources Overview";
     dataSource: BlueprintDataSource = new BlueprintDataSource(this.store.select(selectBlueprints));
+    blueprints: Observable<Blueprint[]>;
+    stateObjects$: Observable<StateObject[]>;
     isExpansionDetailRow = (i: number) => i % 2 === 1;
     expandedElement: any;
 
@@ -110,12 +121,24 @@ export class ResourcesComponent implements AfterViewInit {
     @ViewChild(MatSort) sort: MatSort;
 
     constructor(private store: Store<any>) {
+        this.blueprints = this.store.select(selectBlueprints);
+        this.blueprints.subscribe(blueprints => {
+            blueprints.forEach((bp) => {
+                this.store.dispatch(new GetResourceStateAction(bp.ref.uuid));
+            })
+        });
 
+        this.stateObjects$ = this.store.select(selectStateObjects);
+        this.stateObjects$.subscribe(x => {console.log("test####"); x.forEach(elem => console.log("TEST ###" + elem.resourceId))});
+    }
+
+    ngOnInit() {
     }
 
     storeIds(blueprint: Blueprint) {
         this.store.dispatch(new StoreDescriptorRefAction(blueprint.descriptor.uuid));
         this.store.dispatch(new StoreConfigurationRefAction(blueprint.configuration.uuid));
+        this.store.dispatch(new StoreBlueprintRefAction(blueprint.ref.uuid));
     }
 
     ngAfterViewInit() {
@@ -140,7 +163,7 @@ export class ResourcesComponent implements AfterViewInit {
     }
 
     goToLiveEditing(blueprint: any) {
-        this.store.dispatch(new Go({path:["/filter/"+blueprint.ref.uuid]}))
+        this.store.dispatch(new Go({path: ["/filter/" + blueprint.ref.uuid]}))
     }
 
 }

@@ -6,7 +6,7 @@ import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {ErrorState, errorState} from "../../common/error/error.reducer";
 import {selectAppConfig} from "../../app.config";
 import {Configuration} from "../../models/common/Configuration";
-import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
+import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
 import {
     selectExtractedDatasets,
     selectLiveEditingFilter,
@@ -60,7 +60,7 @@ export class LiveEditingComponent implements OnInit, OnDestroy {
     private message: string = "The requested resource could not be shown";
     // Observables
     private filter$: Observable<Configuration>;
-    private filterState$: Observable<FilterInstanceState>;
+    private filterState$: Observable<ResourceInstanceState>;
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
     private extractedDatasets$: Observable<Dataset[]>;

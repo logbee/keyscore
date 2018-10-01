@@ -46,6 +46,4 @@ export class ResourceType {
     private sink: string = BlueprintJsonClass.SinkBlueprint;
     private mergeing: string = BlueprintJsonClass.MergeBlueprint;
     private branching: string = BlueprintJsonClass.BranchBlueprint;
-
-
 }

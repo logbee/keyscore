@@ -1,6 +1,6 @@
 import {Action} from "@ngrx/store";
 import {Configuration} from "../../models/common/Configuration";
-import {FilterInstanceState} from "../../models/filter-model/FilterInstanceState";
+import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
 import {Dataset} from "../../models/dataset/Dataset";
 
 export const LOAD_LIVE_EDITING_FILTER = "[Filter] LoadLiveEditingFilter";
@@ -99,7 +99,7 @@ export class LoadFilterStateFailure implements Action {
 export class LoadFilterStateSuccess implements Action {
     public readonly type = LOAD_FILTERSTATE_SUCCESS;
 
-    constructor(readonly state: FilterInstanceState) {
+    constructor(readonly state: ResourceInstanceState) {
     }
 }
 
@@ -120,7 +120,7 @@ export class PauseFilterFailure implements Action {
 export class PauseFilterSuccess implements Action {
     public readonly type = PAUSE_FILTER_SUCCESS;
 
-    constructor(readonly state: FilterInstanceState) {
+    constructor(readonly state: ResourceInstanceState) {
     }
 }
 
@@ -134,7 +134,7 @@ export class DrainFilterAction implements Action {
 export class DrainFilterSuccess implements Action {
     public readonly type = DRAIN_FILTER_SUCCESS;
 
-    constructor(readonly state: FilterInstanceState) {
+    constructor(readonly state: ResourceInstanceState) {
     }
 }
 
@@ -155,7 +155,7 @@ export class InsertDatasetsAction implements Action {
 export class InsertDatasetsSuccess implements Action {
     public readonly type = INSERT_DATASETS_SUCCESS;
 
-    constructor(readonly state: FilterInstanceState) {
+    constructor(readonly state: ResourceInstanceState) {
     }
 }
 
@@ -220,7 +220,7 @@ export class ReconfigureFilterAction implements Action {
 export class ReconfigureFilterSuccess implements Action {
     public readonly type = RECONFIGURE_FILTER_SUCCESS;
 
-    constructor(readonly state: FilterInstanceState) {
+    constructor(readonly state: ResourceInstanceState) {
     }
 }
 
