@@ -1,17 +1,16 @@
 import {
-    DRAIN_FILTER_SUCCESS, EXTRACT_DATASETS_INITIAL_SUCCESS, EXTRACT_DATASETS_RESULT_SUCCESS,
+    DRAIN_FILTER_SUCCESS,
     FiltersActions,
-    LOAD_FILTERSTATE_SUCCESS,
-    LOAD_LIVE_EDITING_FILTER_SUCCESS,
-    LOCK_CURRENT_EXAMPLE_DATASET,
-    PAUSE_FILTER_SUCCESS, RECONFIGURE_FILTER_SUCCESS, UPDATE_DATASET_COUNTER, UPDATE_FILTER_CONFIGURATION
+    LOAD_FILTER_BLUEPRINT_SUCCESS,
+    LOAD_FILTER_CONFIGURATION_SUCCESS, LOAD_FILTERSTATE_SUCCESS,
+    PAUSE_FILTER_SUCCESS
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Configuration} from "../../models/common/Configuration";
-import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
-import {ResourceStatus} from "../../models/filter-model/ResourceStatus";
-import {Dataset} from "../../models/dataset/Dataset";
-import {deepcopy} from "../../util";
+import {Configuration} from "../models/common/Configuration";
+import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
+import {ResourceStatus} from "../models/filter-model/ResourceStatus";
+import {Dataset} from "../models/dataset/Dataset";
+import {Blueprint} from "../models/blueprints/Blueprint";
 
 export class FilterState {
     public filter: Configuration;
@@ -22,6 +21,7 @@ export class FilterState {
     public updateConfiguration: boolean;
     public resultAvailable: boolean;
     public currentDatasetCounter: number;
+    public blueprint: Blueprint;
 }
 
 const initialState: FilterState = {
@@ -44,7 +44,8 @@ const initialState: FilterState = {
     resultAvailable: false,
     exampleDatasets: [],
     resultDatasets: [],
-    currentDatasetCounter: 0
+    currentDatasetCounter: 0,
+    blueprint: null
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
@@ -52,7 +53,7 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
     const result: FilterState = Object.assign({}, state);
 
     switch (action.type) {
-        case LOAD_LIVE_EDITING_FILTER_SUCCESS:
+        case LOAD_FILTER_CONFIGURATION_SUCCESS:
             result.updateConfiguration = false;
             result.filter = action.filter;
             break;
@@ -66,30 +67,33 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
         case PAUSE_FILTER_SUCCESS:
             result.filterState = action.state;
             break;
-        case EXTRACT_DATASETS_INITIAL_SUCCESS:
-            result.exampleDatasets = [];
-            result.exampleDatasets = action.datasets;
-            result.extractFinish = true;
-            break;
-        case EXTRACT_DATASETS_RESULT_SUCCESS:
-            result.resultAvailable = true;
-            result.resultDatasets = [];
-            result.resultDatasets = action.datasets.reverse();
-            result.extractFinish = true;
-            break;
-        case UPDATE_FILTER_CONFIGURATION:
-            result.updateConfiguration = true;
-            result.filter = deepcopy(action.filter);
-            result.filter.parameters.forEach((p) => {
-                if (p.jsonClass === "IntParameter") {
-                    p.value = +action.values[p.ref.uuid];
-                } else {
-                    p.value = action.values[p.ref.uuid];
-                }
-            });
-            break;
-        case UPDATE_DATASET_COUNTER:
-            result.currentDatasetCounter = action.counter;
+        // case EXTRACT_DATASETS_INITIAL_SUCCESS:
+        //     result.exampleDatasets = [];
+        //     result.exampleDatasets = action.datasets;
+        //     result.extractFinish = true;
+        //     break;
+        // case EXTRACT_DATASETS_RESULT_SUCCESS:
+        //     result.resultAvailable = true;
+        //     result.resultDatasets = [];
+        //     result.resultDatasets = action.datasets.reverse();
+        //     result.extractFinish = true;
+        //     break;
+        // case UPDATE_FILTER_CONFIGURATION:
+        //     result.updateConfiguration = true;
+        //     result.filter = deepcopy(action.filter);
+        //     result.filter.parameters.forEach((p) => {
+        //         if (p.jsonClass === "IntParameter") {
+        //             p.value = +action.values[p.ref.uuid];
+        //         } else {
+        //             p.value = action.values[p.ref.uuid];
+        //         }
+        //     });
+        //     break;
+        // case UPDATE_DATASET_COUNTER:
+        //     result.currentDatasetCounter = action.counter;
+        //     break;
+        case LOAD_FILTER_BLUEPRINT_SUCCESS:
+            result.blueprint = action.blueprint;
             break;
     }
     return result;
@@ -110,6 +114,8 @@ export const selectFilterId = createSelector(getFilterState,
     (state: FilterState) => state.filter.ref.uuid);
 
 export const selectLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
+
+export const selectLiveEditingFilterId = createSelector(getFilterState, (state: FilterState) => state.filter.ref.uuid);
 
 export const selectLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
 

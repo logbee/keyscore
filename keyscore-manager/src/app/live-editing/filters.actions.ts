@@ -1,11 +1,9 @@
 import {Action} from "@ngrx/store";
-import {Configuration} from "../../models/common/Configuration";
-import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
-import {Dataset} from "../../models/dataset/Dataset";
+import {Configuration} from "../models/common/Configuration";
+import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
+import {Dataset} from "../models/dataset/Dataset";
+import {Blueprint} from "../models/blueprints/Blueprint";
 
-export const LOAD_LIVE_EDITING_FILTER = "[Filter] LoadLiveEditingFilter";
-export const LOAD_LIVE_EDITING_FILTER_FAILURE = "[Filter] LoadLiveEditingFilterFailure";
-export const LOAD_LIVE_EDITING_FILTER_SUCCESS = "[Filter] LoadLiveEditingFilterSuccess";
 export const LOAD_FILTERSTATE = "[Filter] LoadFilterState";
 export const LOAD_FILTERSTATE_FAILURE = "[Filter] LoadFilterStateFailure";
 export const LOAD_FILTERSTATE_SUCCESS = "[Filter] LoadFilterStateSuccess";
@@ -30,12 +28,17 @@ export const RECONFIGURE_FILTER_FAILURE = "[Filter] ReconfigureFilterFailure";
 export const UPDATE_FILTER_CONFIGURATION = "[Filter] UpdateFilterConfiguration";
 export const RESTORE_FILTER_CONFIGURATIOM = "[Filter] RestoreFilterConfiguration";
 export const UPDATE_DATASET_COUNTER = "[Filter] UpdateDatasetCounter";
+export const LOAD_FILTER_BLUEPRINT_SUCCESS = "[Filter] LoadFilterBlueprintSuccess";
+export const LOAD_FILTER_BLUEPRINT_FAILURE = "[Filter] LoadFilterBlueprintFailure";
+export const LOAD_FILTER_CONFIGURATION = "[Filter] LoadFilterConfiguration";
+export const LOAD_FILTER_CONFIGURATION_SUCCESS = "[Filter] LoadFilterConfigurationSuccess";
+export const LOAD_FILTER_CONFIGURATION_FAILURE = "[Filter] LoadFilterConfigurationFailure";
 
 export type FiltersActions =
 
-    | LoadLiveEditingFilterAction
-    | LoadLiveEditingFilterFailure
-    | LoadLiveEditingFilterSuccess
+    | LoadFilterConfigurationAction
+    | LoadFilterConfigurationFailure
+    | LoadFilterConfigurationSuccess
     | LoadFilterStateAction
     | LoadFilterStateFailure
     | LoadFilterStateSuccess
@@ -59,24 +62,26 @@ export type FiltersActions =
     | ReconfigureFilterFailure
     | UpdateFilterConfiguration
     | RestoreFilterConfiguration
-    | UpdateDatasetCounter;
+    | UpdateDatasetCounter
+    | LoadFilterBlueprintFailure
+    | LoadFilterBlueprintSuccess;
 
-export class LoadLiveEditingFilterAction implements Action {
-    public readonly type = LOAD_LIVE_EDITING_FILTER;
+export class LoadFilterConfigurationAction implements Action {
+    public readonly type = LOAD_FILTER_CONFIGURATION;
 
-    constructor(readonly filterId: string, readonly amount: number) {
+    constructor(readonly filterId: string) {
     }
 }
 
-export class LoadLiveEditingFilterSuccess implements Action {
-    public readonly type = LOAD_LIVE_EDITING_FILTER_SUCCESS;
+export class LoadFilterConfigurationSuccess implements Action {
+    public readonly type = LOAD_FILTER_CONFIGURATION_SUCCESS;
 
     constructor(readonly filter: Configuration, readonly filterId: string) {
     }
 }
 
-export class LoadLiveEditingFilterFailure implements Action {
-    public readonly type = LOAD_LIVE_EDITING_FILTER_FAILURE;
+export class LoadFilterConfigurationFailure implements Action {
+    public readonly type = LOAD_FILTER_CONFIGURATION_FAILURE;
 
     constructor(readonly cause: any) {
     }
@@ -238,7 +243,7 @@ export class UpdateFilterConfiguration implements Action {
     }
 }
 
-export class RestoreFilterConfiguration implements  Action {
+export class RestoreFilterConfiguration implements Action {
     public readonly type = RESTORE_FILTER_CONFIGURATIOM;
 
     constructor(readonly  filter: Configuration) {
@@ -249,5 +254,19 @@ export class UpdateDatasetCounter implements Action {
     public readonly type = UPDATE_DATASET_COUNTER;
 
     constructor(readonly counter: number) {
+    }
+}
+
+export class LoadFilterBlueprintSuccess implements Action {
+    public readonly type = LOAD_FILTER_BLUEPRINT_SUCCESS;
+
+    constructor(readonly blueprint: Blueprint) {
+    }
+}
+
+export class LoadFilterBlueprintFailure implements Action {
+    public readonly type = LOAD_FILTER_BLUEPRINT_FAILURE;
+
+    constructor(readonly cause: any) {
     }
 }

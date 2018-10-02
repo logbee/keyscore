@@ -10,7 +10,8 @@ import {
     EditPipelineAction,
     EditPipelineFailureAction,
     EditPipelineSuccessAction,
-    LOAD_ALL_PIPELINES, LOAD_ALL_PIPELINES_FAILURE,
+    LOAD_ALL_PIPELINES,
+    LOAD_ALL_PIPELINES_FAILURE,
     LOAD_ALL_PIPELINES_SUCCESS,
     LoadAllPipelinesAction,
     LoadAllPipelinesSuccessAction,
@@ -25,14 +26,17 @@ import {
     UpdateRefreshTimeAction
 } from "./loading.actions";
 import {
-    LoadLiveEditingFilterAction,
-    LOAD_LIVE_EDITING_FILTER, LOAD_LIVE_EDITING_FILTER_FAILURE,
-    LoadLiveEditingFilterSuccess,
-    LoadLiveEditingFilterFailure, LOAD_LIVE_EDITING_FILTER_SUCCESS
-} from "../../filters/live-editing/filters.actions";
+    LOAD_FILTER_CONFIGURATION,
+    LOAD_FILTER_CONFIGURATION_FAILURE,
+    LOAD_FILTER_CONFIGURATION_SUCCESS,
+    LoadFilterConfigurationAction,
+    LoadFilterConfigurationFailure,
+    LoadFilterConfigurationSuccess
+} from "../../live-editing/filters.actions";
 import {
     LOAD_AGENTS,
-    LOAD_AGENTS_FAILURE, LOAD_AGENTS_SUCCESS,
+    LOAD_AGENTS_FAILURE,
+    LOAD_AGENTS_SUCCESS,
     LoadAgentsAction,
     LoadAgentsFailureAction,
     LoadAgentsSuccessAction
@@ -41,13 +45,13 @@ import {
 type showSpinnerTypes =
     | EditPipelineAction
     | LoadAllPipelinesAction
-    | LoadLiveEditingFilterAction
+    | LoadFilterConfigurationAction
     | LoadAgentsAction;
 
 const showSpinnerActions = [
     EDIT_PIPELINE,
     LOAD_ALL_PIPELINES,
-    LOAD_LIVE_EDITING_FILTER,
+    LOAD_FILTER_CONFIGURATION,
     LOAD_AGENTS
 ];
 
@@ -55,8 +59,8 @@ type hideSpinnerTypes =
     | LoadAllPipelinesSuccessAction
     | EditPipelineSuccessAction
     | EditPipelineFailureAction
-    | LoadLiveEditingFilterSuccess
-    | LoadLiveEditingFilterFailure
+    | LoadFilterConfigurationSuccess
+    | LoadFilterConfigurationFailure
     | LoadAgentsFailureAction
     | LoadAgentsSuccessAction;
 
@@ -65,8 +69,8 @@ const hideSpinnerActions = [
     LOAD_ALL_PIPELINES_FAILURE,
     EDIT_PIPELINE_SUCCESS,
     EDIT_PIPELINE_FAILURE,
-    LOAD_LIVE_EDITING_FILTER_SUCCESS,
-    LOAD_LIVE_EDITING_FILTER_FAILURE,
+    LOAD_FILTER_CONFIGURATION_SUCCESS,
+    LOAD_FILTER_CONFIGURATION_FAILURE,
     LOAD_AGENTS_FAILURE,
     LOAD_AGENTS_SUCCESS
 ];

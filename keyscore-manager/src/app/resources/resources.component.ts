@@ -173,7 +173,7 @@ export class ResourcesComponent implements AfterViewInit, OnInit {
 
     }
 
-    goToLiveEditing(blueprint: any) {
+    goToLiveEditing(blueprint: Blueprint) {
         this.store.dispatch(new Go({path: ["/filter/" + blueprint.ref.uuid]}))
     }
 

@@ -1,13 +1,14 @@
 import {Injectable} from "@angular/core";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs/index";
 import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
 import {AppState} from "../../app.component";
 import {AppConfig, selectAppConfig} from "../../app.config";
-import {Store,select} from "@ngrx/store";
+import {Store, select} from "@ngrx/store";
 import {Configuration} from "../../models/common/Configuration";
 import {Descriptor} from "../../models/descriptors/Descriptor";
 import {StringTMap} from "../../common/object-maps";
+import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
 
 @Injectable({
     providedIn: 'root'
@@ -21,15 +22,25 @@ export class RestCallService {
             RestCallService.BASE_URL = (config as AppConfig).getString("keyscore.frontier.base-url"));
     }
 
+    //Blueprints
     getPipelineBlueprint(id: string): Observable<PipelineBlueprint> {
         return this.httpClient.get<PipelineBlueprint>(`${RestCallService.BASE_URL}/resources/blueprint/pipeline/${id}`);
     }
 
-    getBlueprint(id:string): Observable<Blueprint> {
+    getBlueprint(id: string): Observable<Blueprint> {
         return this.httpClient.get<Blueprint>(`${RestCallService.BASE_URL}/resources/blueprint/${id}`);
     }
 
-    getConfiguration(id:string): Observable<Configuration>{
+    putPipelineBlueprint(pipelineBlueprint: PipelineBlueprint): Observable<any> {
+        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/blueprint/pipeline/${pipelineBlueprint.ref.uuid}`, pipelineBlueprint, {responseType: 'text'});
+    }
+
+    putBlueprint(blueprint: Blueprint): Observable<any> {
+        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/blueprint/${blueprint.ref.uuid}`, blueprint, {responseType: 'text'});
+    }
+
+    //Configurations
+    getConfiguration(id: string): Observable<Configuration> {
         return this.httpClient.get<Configuration>(`${RestCallService.BASE_URL}/resources/configuration/${id}`);
     }
 
@@ -37,25 +48,34 @@ export class RestCallService {
         return this.httpClient.get<Configuration[]>(`${RestCallService.BASE_URL}/resources/configuration/*`);
     }
 
+    putConfiguration(configuration: Configuration): Observable<any> {
+        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/configuration/${configuration.ref.uuid}`, configuration, {responseType: 'text'});
+    }
 
-    getAllDescriptors():Observable<StringTMap<Descriptor>>{
+    //Descriptors
+    getAllDescriptors(): Observable<StringTMap<Descriptor>> {
         return this.httpClient.get<StringTMap<Descriptor>>(`${RestCallService.BASE_URL}/resources/descriptor/*`);
     }
-    
-    putPipelineBlueprint(pipelineBlueprint:PipelineBlueprint):Observable<any>{
-        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/blueprint/pipeline/${pipelineBlueprint.ref.uuid}`,pipelineBlueprint,{responseType:'text'});
-    }
-    
-    putBlueprint(blueprint:Blueprint):Observable<any>{
-        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/blueprint/${blueprint.ref.uuid}`,blueprint,{responseType:'text'});
-    }
-    
-    putConfiguration(configuration:Configuration):Observable<any>{
-        return this.httpClient.put(`${RestCallService.BASE_URL}/resources/configuration/${configuration.ref.uuid}`,configuration,{responseType:'text'});
+
+    //Resources/Filter
+    getResourceState(uuid: string): Observable<ResourceInstanceState> {
+        console.log("getResourceState for" + uuid);
+        return this.httpClient.get<ResourceInstanceState>(`${RestCallService.BASE_URL}/filter/${uuid}/state`);
     }
 
-    getResourceState(uuid: string): Observable<any> {
-        return this.httpClient.get(`${RestCallService.BASE_URL}/filter/${uuid}/state`);
+    pauseFilter(uuid: string, pause: boolean): Observable<any> {
+        console.log("PauseFilter for" + uuid);
+        return this.httpClient.post(`${RestCallService.BASE_URL}/filter/${uuid}/pause?value=${pause}`, {}, {
+            headers: new HttpHeaders().set("Content-Type", "application/json"),
+            responseType: "json"
+        });
     }
 
+    drainFilter(uuid: string, drain: boolean): Observable<any> {
+        console.log("drain Filter for" + uuid);
+        return this.httpClient.post(`${RestCallService.BASE_URL}/filter/${uuid}/drain?value=${drain}`, {}, {
+            headers: new HttpHeaders().set("Content-Type", "application/json"),
+            responseType: "json"
+        })
+    }
 }

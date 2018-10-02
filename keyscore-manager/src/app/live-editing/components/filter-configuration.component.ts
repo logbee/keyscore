@@ -1,13 +1,13 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FormGroup} from "@angular/forms";
-import {Configuration} from "../../../models/common/Configuration";
+import {Configuration} from "../../models/common/Configuration";
 import {Store} from "@ngrx/store";
 import {
     ParameterDescriptor,
     ResolvedParameterDescriptor
-} from "../../../models/parameters/ParameterDescriptor";
+} from "../../models/parameters/ParameterDescriptor";
 import {Observable} from "rxjs/index";
-import {Dataset} from "../../../models/dataset/Dataset";
+import {Dataset} from "../../models/dataset/Dataset";
 import "../filter-styles/filterstyle.css";
 
 @Component({
@@ -30,10 +30,10 @@ import "../filter-styles/filterstyle.css";
                     <div fxFill="" fxLayoutGap="15px" fxLayout="column" *ngIf="!noDataAvailable; else noparam">
                         <form *ngIf="!noParamsAvailable; else noparam"
                               [formGroup]="form">
-                            <div *ngFor="let parameter of parameters">
-                                <app-parameter [parameterDescriptor]="parameter"
-                                               [form]="form"></app-parameter>
-                            </div>
+                            <!--<div *ngFor="let parameter of parameters">-->
+                                <!--<app-parameter [parameterDescriptor]="parameter"-->
+                                               <!--[form]="form"></app-parameter>-->
+                            <!--</div>-->
                             <div *ngIf="payLoad">
                                 {{'PIPELINECOMPONENT.SAVED_VALUES' | translate}}<br>{{payLoad}}
                             </div>
