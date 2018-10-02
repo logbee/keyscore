@@ -87,4 +87,15 @@ export class RestCallService {
             responseType: "json"
         });
     }
+
+    extractDatasets(uuid: string): Observable<Dataset[]> {
+        return this.httpClient.get<Dataset[]>(`${RestCallService.BASE_URL}/filter/${uuid}/extract?value=10`)
+    }
+
+    updateConfig(configuration: Configuration): Observable<any> {
+        return this.httpClient.put(`${RestCallService.BASE_URL}/filter/${configuration.ref.uuid}/config`, configuration, {
+            headers: new HttpHeaders().set("Content-Type", "application/json"),
+            responseType: "json"
+        })
+    }
 }

@@ -3,19 +3,26 @@ import {AppState} from "../app.component";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Observable, of} from "rxjs/index";
 import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
-import {catchError, concatMap, map, mergeMap, withLatestFrom} from "rxjs/internal/operators";
+import {catchError, combineLatest, concatMap, map, mergeMap, withLatestFrom} from "rxjs/internal/operators";
 import {Action, select, Store} from "@ngrx/store";
 import {
     DRAIN_FILTER,
     DrainFilterAction,
     DrainFilterFailure,
     DrainFilterSuccess,
+    EXTRACT_DATASETS,
+    ExtractDatasetsAction,
+    ExtractDatasetsFailure,
+    ExtractDatasetsInitialSuccess,
+    ExtractDatasetsResultSuccess,
+    INSERT_DATASETS_SUCCESS,
     InsertDatasetsFailure,
     InsertDatasetsSuccess,
     LOAD_DESCRIPTOR_FOR_BLUEPRINT,
     LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION,
+    LOAD_FILTER_CONFIGURATION_SUCCESS,
     LOAD_FILTERSTATE,
     LoadDescriptorForBlueprint,
     LoadDescriptorForBlueprintSuccess,
@@ -24,13 +31,16 @@ import {
     LoadFilterConfigurationAction,
     LoadFilterConfigurationFailure,
     LoadFilterConfigurationSuccess,
-    LoadFilterStateAction, LoadFilterStateFailure,
+    LoadFilterStateAction,
+    LoadFilterStateFailure,
     LoadFilterStateSuccess,
     PAUSE_FILTER,
     PauseFilterAction,
     PauseFilterFailure,
     PauseFilterSuccess,
     RECONFIGURE_FILTER_SUCCESS,
+    ReconfigureFilterFailure,
+    ReconfigureFilterSuccess,
     ResolvedDescriptorForBlueprintSuccess
 } from "./filters.actions";
 import {RestCallService} from "../services/rest-api/rest-call.service";
@@ -41,7 +51,13 @@ import {Descriptor} from "../models/descriptors/Descriptor";
 import {switchMap} from "rxjs/operators";
 import {LoadAllDescriptorsForBlueprintFailureAction} from "../resources/resources.actions";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {selectCurrentBlueprintId, selectExtractedDatasets} from "./filter.reducer";
+import {
+    selectConfiguration,
+    selectCurrentBlueprintId,
+    selectExtractedDatasets,
+    selectUpdateConfigurationFlag
+} from "./filter.reducer";
+import {Dataset} from "../models/dataset/Dataset";
 
 
 @Injectable()
@@ -159,6 +175,51 @@ export class FiltersEffects {
         )
     );
 
+    @Effect()
+    public fireExtractDatasetsWhenInsertDatasetsSuccessAction: Observable<Action> = this.actions$.pipe(
+        ofType(INSERT_DATASETS_SUCCESS),
+        withLatestFrom(this.store.pipe(select(selectCurrentBlueprintId)), this.store.pipe(select(selectExtractedDatasets))),
+        switchMap(([_, filterId, datasets] ) => of(new ExtractDatasetsAction(filterId, datasets.length)))
+    );
+
+    @Effect()
+    public fireExtractDatasetsWhenLoadLiveEditEditingFilterSuccesAction: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_FILTER_CONFIGURATION_SUCCESS),
+        map((action) => (action as LoadFilterConfigurationSuccess)),
+        switchMap((action) => {
+            return this.restCallService.extractDatasets(action.filterId).pipe(
+                map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
+                catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
+            );
+        }),
+    );
+
+    @Effect()
+    public extractDatasets: Observable<Action> = this.actions$.pipe(
+        ofType(EXTRACT_DATASETS),
+        map((action) => (action as ExtractDatasetsAction)),
+        switchMap((action) => {
+            return this.restCallService.extractDatasets(action.filterId).pipe(
+                map((datasets: Dataset[]) => new ExtractDatasetsResultSuccess(datasets)),
+                catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
+            );
+        }),
+    );
+
+    @Effect()
+    public updateConfiguration: Observable<Action> = this.actions$.pipe(
+        combineLatest(this.store.pipe(select(selectConfiguration)), this.store.pipe(select(selectUpdateConfigurationFlag))),
+        switchMap(([_, filterConfiguration, triggerCall]) => {
+            if (triggerCall) {
+                return this.restCallService.updateConfig(filterConfiguration).pipe(
+                    map((state: ResourceInstanceState) => new ReconfigureFilterSuccess(state)),
+                    catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
+                );
+            } else {
+                return of();
+            }
+        })
+    );
 
 
 
