@@ -16,7 +16,6 @@ import {
 import {Go} from "../router/router.actions";
 import {Observable} from "rxjs/index";
 import {StateObject} from "../models/common/StateObject";
-import {share} from "rxjs/internal/operators";
 import {Health} from "../models/common/Health";
 
 @Component({

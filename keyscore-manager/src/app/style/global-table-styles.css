@@ -1,5 +1,6 @@
 .table-position {
     width: 100%;
+    table-layout: fixed
 }
 
 .table-wrapper {
@@ -41,4 +42,8 @@ tr.example-element-row:not(.example-expanded-row):active {
 
 .example-detail-row {
     overflow: hidden
+}
+
+td {
+    overflow-x: auto;
 }

@@ -1,10 +1,10 @@
 import {
-    GET_RESOURCE_STATE_FAILURE,
     GET_RESOURCE_STATE_SUCCESS,
     LOAD_ALL_BLUEPRINTS_SUCCESS,
     LOAD_CONFIGURATIONS_SUCCESS,
     RESOLVED_ALL_DESCRIPTORS_SUCCESS,
-    ResourcesActions, STORE_BLUEPRINT_REF,
+    ResourcesActions,
+    STORE_BLUEPRINT_REF,
     STORE_CONFIGURATION_REF,
     STORE_DESCRIPTOR_REF
 } from "./resources.actions";
@@ -61,8 +61,6 @@ export function ResourcesReducer(state: ResourceViewerState = initialState, acti
             let copy = deepcopy(result.stateObjects, []);
             copy.push(new StateObject(action.resourceId, action.instance));
             result.stateObjects = copy;
-            break;
-        case GET_RESOURCE_STATE_FAILURE:
             break;
     }
     return result;
