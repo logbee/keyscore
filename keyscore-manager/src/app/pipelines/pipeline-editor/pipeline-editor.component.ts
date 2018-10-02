@@ -32,24 +32,25 @@ import {
 @Component({
     selector: "pipeline-editor",
     template: `
-        <error-component *ngIf="(errorState$ | async);else fullComponent" [httpError]="(errorStatus$ | async)"
-                         [message]="(errorMessage$ | async)">
-        </error-component>
-        
+        <loading-full-view *ngIf="isLoading$|async; else error"></loading-full-view>
+
+        <ng-template #error>
+            <error-component *ngIf="(errorState$ | async);else fullComponent"
+                             [httpError]="(errorStatus$ | async)"
+                             [message]="(errorMessage$ | async)">
+            </error-component>
+        </ng-template>
+
         <ng-template #fullComponent>
             <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true"
                         (onSave)="savePipelineSource$.next()"></header-bar>
 
-            <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
+            <pipely-workspace [saveTrigger$]="savePipeline$" [pipeline]="(pipeline$ | async)"
+                              [blockDescriptors$]="pipelyBlockDescriptors$"
+                              (onUpdatePipeline)="updatePipeline($event)"
+                              fxFill></pipely-workspace>
 
-            <ng-template #editor>
 
-                <pipely-workspace [saveTrigger$]="savePipeline$" [pipeline]="(pipeline$ | async)"
-                                  [blockDescriptors$]="pipelyBlockDescriptors$"
-                                  (onUpdatePipeline)="updatePipeline($event)"
-                                  fxFill></pipely-workspace>
-
-            </ng-template>
         </ng-template>
 
 

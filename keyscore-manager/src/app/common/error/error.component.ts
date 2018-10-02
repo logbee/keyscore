@@ -8,9 +8,7 @@ import "./style/error.style.scss"
             <div class="top-column" fxLayoutAlign="center center" fxFlex="60">
                 <a routerLink="/dashboard"
                    routerLinkActive="active">
-                    
                     <img src="/assets/images/logos/svg/dark/keyscore.dark.svg">
-
                 </a>
             </div>
             <div class="bottom-column" fxLayoutAlign="start center" fxFlex="40" fxLayout="column">
