@@ -31,21 +31,21 @@ import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
         </header-bar>
         <div class="live-editing-wrapper">
             <div fxLayout="" fxLayoutGap="15px" *ngIf="!(loading$ | async); else loading">
-            <div fxFlexFill="" fxLayoutGap="15px" fxLayout="column" fxLayout.xs="column" *ngIf="!errorHandling">
-            <filter-description fxFlex="20%" [currentFilter]="filter$ | async"
-               [currentFilterState]="filterState$ | async"
-               [descriptor]="descriptor$ | async">
-            </filter-description>
-            <!--<filter-configuration fxFlex="20%" [filter$]="filter$"-->
-            <!--[extractedDatasets$]="extractedDatasets$"-->
-            <!--(apply)="reconfigureFilter($event)"></filter-configuration>-->
-            <!--<example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"-->
-            <!--(currentDatasetCounter)="updateCounterInStore($event)">-->
-            <!--</example-message>-->
-            <!---->
-            <!--<filter-result fxFlex="35%" [resultDatasets$]="resultDatasets$"-->
-            <!--(currentDatasetCounter)="updateCounterInStore($event)"></filter-result>-->
-            </div>
+                <div fxFlexFill="" fxLayoutGap="15px" fxLayout="column" fxLayout.xs="column" *ngIf="!errorHandling">
+                    <filter-description fxFlex="20%" [currentFilter]="filter$ | async"
+                                        [currentFilterState]="filterState$ | async"
+                                        [descriptor]="descriptor$ | async">
+                    </filter-description>
+                    <!--<filter-configuration fxFlex="20%" [filter$]="filter$"-->
+                    <!--[extractedDatasets$]="extractedDatasets$"-->
+                    <!--(apply)="reconfigureFilter($event)"></filter-configuration>-->
+                    <!--<example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"-->
+                    <!--(currentDatasetCounter)="updateCounterInStore($event)">-->
+                    <!--</example-message>-->
+                    <!---->
+                    <!--<filter-result fxFlex="35%" [resultDatasets$]="resultDatasets$"-->
+                    <!--(currentDatasetCounter)="updateCounterInStore($event)"></filter-result>-->
+                </div>
             </div>
         </div>
         <error-component *ngIf="errorHandling" [httpError]="httpError"
