@@ -57,6 +57,10 @@ export class RestCallService {
         return this.httpClient.get<StringTMap<Descriptor>>(`${RestCallService.BASE_URL}/resources/descriptor/*`);
     }
 
+    getDescriptorById(uuid: string): Observable<Descriptor> {
+        return this.httpClient.get<Descriptor>(`${RestCallService.BASE_URL}/resources/descriptor/${uuid}`)
+    }
+
     //Resources/Filter
     getResourceState(uuid: string): Observable<ResourceInstanceState> {
         console.log("getResourceState for" + uuid);

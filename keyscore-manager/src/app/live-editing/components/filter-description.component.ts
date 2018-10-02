@@ -2,6 +2,7 @@ import {Component, Input} from "@angular/core";
 import {Configuration} from "../../models/common/Configuration";
 import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
 import "../filter-styles/filterstyle.css";
+import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
 
 @Component({
     selector: "filter-description",
@@ -18,24 +19,31 @@ import "../filter-styles/filterstyle.css";
             </mat-card-header>
             <mat-card-content>
 
-                <mat-list role="list">
-                    <mat-list-item role="listitem"><span
-                            class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}</span>
-                        <span class="mat-subheading-1">{{currentFilter?.descriptor.description}}</span>
+                <mat-list fxFlexFill="" fxLayoutGap="15px" fxLayout="column" role="list">
+                    <mat-list-item fxFlex="20%" fxFlexFill="" fxLayout="column" fxLayoutGap="15px" role="listitem">
+                        <span fxFlex="20%"
+                              class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}:
+                        </span>
+                        <span fxFlex="" class="mat-subheading-1">
+                            {{descriptor?.description}}
+                        </span>
                     </mat-list-item>
-                    <mat-list-item role="listitem"><span
-                            class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.CATEGORY' | translate}}</span>
-                        <span class="mat-subheading-1">{{currentFilter?.descriptor.categories}}</span>
+                    <mat-list-item fxFlex="20%" fxFlexFill="" fxLayout="column" fxLayoutGap="15px" role="listitem">
+                        <span fxFlex="20%"
+                              class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}
+                            {{descriptor?.displayName}}: 
+                        </span>
+                        <span fxFlex="" class="mat-subheading-1">
+                            {{currentFilterState?.throughPutTime / 1000000}} ms
+                        </span>
                     </mat-list-item>
-                    <mat-list-item role="listitem"><span
-                            class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}
-                        {{currentFilter?.descriptor.displayName}} : </span><span
-                            class="mat-subheading-1">{{currentFilterState?.throughPutTime / 1000000}} ms</span>
-                    </mat-list-item>
-                    <mat-list-item role="listitem"><span
-                            class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.TOTALTHROUGHPUTTIME' | translate}} 
-                       {{currentFilter?.descriptor.displayName}}  : </span><span
-                            class="mat-subheading-1">{{currentFilterState?.totalThroughputTime / 1000000}}</span>
+                    <mat-list-item fxFlex="" fxFlexFill="" fxLayout="column" fxLayoutGap="15px" role="listitem">
+                        <span fxFlex="20%" class="mat-subheading-1 font-weight-bold">
+                            {{'FILTERLIVEEDITINGCOMPONENT.TOTALTHROUGHPUTTIME' | translate}} {{descriptor?.displayName}}:
+                        </span>
+                        <span  fxFlex="" class="mat-subheading-1">
+                            {{currentFilterState?.totalThroughputTime / 1000000}} ms
+                        </span>
                     </mat-list-item>
 
                 </mat-list>
@@ -48,6 +56,7 @@ export class FilterDescriptionComponent {
 
     @Input() public currentFilter: Configuration;
     @Input() public currentFilterState: ResourceInstanceState;
+    @Input() public descriptor: ResolvedFilterDescriptor;
 
     constructor() {
     }

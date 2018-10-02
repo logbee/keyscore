@@ -3,7 +3,7 @@ import {
     FiltersActions,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION_SUCCESS, LOAD_FILTERSTATE_SUCCESS,
-    PAUSE_FILTER_SUCCESS
+    PAUSE_FILTER_SUCCESS, RESOLVED_DESCRIPTOR_FOR_BLUEPRINT
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Configuration} from "../models/common/Configuration";
@@ -11,9 +11,12 @@ import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceStat
 import {ResourceStatus} from "../models/filter-model/ResourceStatus";
 import {Dataset} from "../models/dataset/Dataset";
 import {Blueprint} from "../models/blueprints/Blueprint";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 
 export class FilterState {
-    public filter: Configuration;
+    public configuration: Configuration;
+    public blueprint: Blueprint;
+    public descriptor: ResolvedFilterDescriptor;
     public filterState: ResourceInstanceState;
     public exampleDatasets: Dataset[];
     public resultDatasets: Dataset[];
@@ -21,17 +24,13 @@ export class FilterState {
     public updateConfiguration: boolean;
     public resultAvailable: boolean;
     public currentDatasetCounter: number;
-    public blueprint: Blueprint;
+
 }
 
 const initialState: FilterState = {
-    filter: {
-        ref:{
-          uuid:""
-        } ,
-        parent: null,
-        parameters: []
-    },
+    configuration: null,
+    blueprint: null,
+    descriptor: null,
     filterState: {
         id: "",
         health: null,
@@ -45,7 +44,6 @@ const initialState: FilterState = {
     exampleDatasets: [],
     resultDatasets: [],
     currentDatasetCounter: 0,
-    blueprint: null
 };
 
 export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
@@ -55,7 +53,7 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
     switch (action.type) {
         case LOAD_FILTER_CONFIGURATION_SUCCESS:
             result.updateConfiguration = false;
-            result.filter = action.filter;
+            result.configuration = action.configuration;
             break;
         case LOAD_FILTERSTATE_SUCCESS:
             result.filterState = action.state;
@@ -66,6 +64,9 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
             break;
         case PAUSE_FILTER_SUCCESS:
             result.filterState = action.state;
+            break;
+        case RESOLVED_DESCRIPTOR_FOR_BLUEPRINT:
+            result.descriptor = action.descriptor;
             break;
         // case EXTRACT_DATASETS_INITIAL_SUCCESS:
         //     result.exampleDatasets = [];
@@ -110,12 +111,9 @@ export const getUpdateConfigurationFlag = (state: FilterState) => state.updateCo
 export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
 );
-export const selectFilterId = createSelector(getFilterState,
-    (state: FilterState) => state.filter.ref.uuid);
+export const selectConfiguration = createSelector(getFilterState, (state: FilterState) => state.configuration);
 
-export const selectLiveEditingFilter = createSelector(getFilterState, (state: FilterState) => state.filter);
-
-export const selectLiveEditingFilterId = createSelector(getFilterState, (state: FilterState) => state.filter.ref.uuid);
+export const selectConfigurationId = createSelector(getFilterState, (state: FilterState) => state.configuration.ref.uuid);
 
 export const selectLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
 
@@ -129,5 +127,6 @@ export const selectResultAvailable = createSelector(getFilterState, resultAvaila
 
 export const selectUpdateConfigurationFlag = createSelector(getFilterState, getUpdateConfigurationFlag);
 
-export const selectcurrentDatasetCounter = createSelector(getFilterState, currentDatasetCounter);
+export const selectCurrentDatasetCounter = createSelector(getFilterState, currentDatasetCounter);
 
+export const selectCurrentDescriptor = createSelector(getFilterState, (state: FilterState) => state.descriptor);

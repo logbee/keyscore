@@ -20,6 +20,7 @@ import {DatasetVisualizer} from "./components/datasetVisualizer";
 import {MaterialModule} from "../material.module";
 import {FilterService} from "../services/rest-api/filter.service";
 import {FiltersEffects} from "./filter.effects";
+import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -53,7 +54,7 @@ export const routes: Routes = [
     ]
     ,
     providers: [
-        FilterService
+        DescriptorResolverService
     ],
 })
 export class LiveEditingModule {

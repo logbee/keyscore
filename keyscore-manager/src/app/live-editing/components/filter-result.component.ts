@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
-import {selectcurrentDatasetCounter, selectResultAvailable} from "../filter.reducer";
+import {selectCurrentDatasetCounter, selectResultAvailable} from "../filter.reducer";
 import {Dataset} from "../../models/dataset/Dataset";
 
 @Component({
@@ -55,7 +55,7 @@ export class FilterResultComponent implements OnInit {
 
     constructor(private store: Store<any>) {
         this.loading$ = this.store.select(selectResultAvailable);
-        this.count$ = this.store.select(selectcurrentDatasetCounter);
+        this.count$ = this.store.select(selectCurrentDatasetCounter);
     }
 
     public ngOnInit(): void {

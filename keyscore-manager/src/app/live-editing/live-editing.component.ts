@@ -8,14 +8,18 @@ import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {
+    selectCurrentDescriptor,
     selectExtractedDatasets,
-    selectLiveEditingFilter, selectLiveEditingFilterId,
+    selectConfiguration, selectConfigurationId,
     selectLiveEditingFilterState,
     selectResultDatasets
 } from "./filter.reducer";
 import {Dataset} from "../models/dataset/Dataset";
 import {UpdateDatasetCounter, UpdateFilterConfiguration} from "./filters.actions";
 import {Location} from "@angular/common";
+import {Blueprint} from "../models/blueprints/Blueprint";
+import {Descriptor} from "../models/descriptors/Descriptor";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 
 @Component({
     selector: "live-editing",
@@ -26,12 +30,12 @@ import {Location} from "@angular/common";
                 (onManualRelad)="reload()">
         </header-bar>
         <div class="live-editing-wrapper">
-            <mat-label>LIVE_EDITITNG: {{ currentFilterId}}</mat-label>
             <div fxLayout="" fxLayoutGap="15px" *ngIf="!(loading$ | async); else loading">
             <div fxFlexFill="" fxLayoutGap="15px" fxLayout="column" fxLayout.xs="column" *ngIf="!errorHandling">
-            <!--<filter-description fxFlex="20%" [currentFilter]="filter$ | async"-->
-            <!--[currentFilterState]="filterState$ | async">-->
-            <!--</filter-description>-->
+            <filter-description fxFlex="20%" [currentFilter]="filter$ | async"
+               [currentFilterState]="filterState$ | async"
+               [descriptor]="descriptor$ | async">
+            </filter-description>
             <!--<filter-configuration fxFlex="20%" [filter$]="filter$"-->
             <!--[extractedDatasets$]="extractedDatasets$"-->
             <!--(apply)="reconfigureFilter($event)"></filter-configuration>-->
@@ -55,22 +59,21 @@ import {Location} from "@angular/common";
 
 export class LiveEditingComponent implements OnInit {
     // Flags
-    private currentFilterId: string;
-
     private errorHandling: boolean = false;
     private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
     private liveEditingFlag: boolean;
-
+    private blueprint$: Observable<Blueprint>;
+    private descriptor$: Observable<ResolvedFilterDescriptor>;
 
     private message: string = "The requested resource could not be shown";
     // // Observables
     // private filter$: Observable<Configuration>;
-    // private filterState$: Observable<ResourceInstanceState>;
+    private filterState$: Observable<ResourceInstanceState>;
 
     // private extractedDatasets$: Observable<Dataset[]>;
     // private resultDatasets$: Observable<Dataset[]>;
-    // private filterName: string = "Live-Editing";
+    private filterName: string = "Live-Editing";
 
     constructor(private store: Store<any>, private translate: TranslateService) {
         const config = this.store.select(selectAppConfig);
@@ -79,9 +82,6 @@ export class LiveEditingComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.store.pipe(select(selectLiveEditingFilterId)).subscribe(id => {
-            this.currentFilterId = id;
-        });
         this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
     }
 
@@ -90,10 +90,11 @@ export class LiveEditingComponent implements OnInit {
             this.triggerErrorComponent("999");
         }
         else {
-            this.error$ = this.store.select(errorState);
-            this.loading$ = this.store.select(isSpinnerShowing);
-            // this.filterState$ = this.store.select(selectLiveEditingFilterState);
-            // this.filter$ = this.store.select(selectLiveEditingFilter);
+            this.error$ = this.store.pipe(select(errorState));
+            this.loading$ = this.store.pipe(select(isSpinnerShowing));
+            this.filterState$ = this.store.pipe(select(selectLiveEditingFilterState));
+            this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
+            // this.filter$ = this.store.select(selectConfiguration);
             // this.extractedDatasets$ = this.store.select(selectExtractedDatasets);
             // this.resultDatasets$ = this.store.select(selectResultDatasets);
         }

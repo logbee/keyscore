@@ -9,10 +9,10 @@ import {
     DRAIN_FILTER,
     DrainFilterAction,
     DrainFilterFailure,
-    DrainFilterSuccess,
+    DrainFilterSuccess, LOAD_DESCRIPTOR_FOR_BLUEPRINT, LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION,
-    LOAD_FILTERSTATE,
+    LOAD_FILTERSTATE, LoadDescriptorForBlueprint, LoadDescriptorForBlueprintSuccess,
     LoadFilterBlueprintFailure,
     LoadFilterBlueprintSuccess,
     LoadFilterConfigurationAction,
@@ -22,12 +22,22 @@ import {
     PAUSE_FILTER,
     PauseFilterAction,
     PauseFilterFailure,
-    PauseFilterSuccess
+    PauseFilterSuccess, ResolvedDescriptorForBlueprintSuccess
 } from "./filters.actions";
 import {RestCallService} from "../services/rest-api/rest-call.service";
 import {Configuration} from "../models/common/Configuration";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
+import {StringTMap} from "../common/object-maps";
+import {Descriptor} from "../models/descriptors/Descriptor";
+import {switchMap} from "rxjs/operators";
+import {
+    LOAD_ALL_BLUEPRINTS_SUCCESS, LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS,
+    LoadAllDescriptorsForBlueprintFailureAction,
+    LoadAllDescriptorsForBlueprintSuccessAction, ResolvedAllDescriptorsSuccessAction
+} from "../resources/resources.actions";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 
 
 @Injectable()
@@ -56,6 +66,7 @@ export class FiltersEffects {
         ofType(LOAD_FILTER_BLUEPRINT_SUCCESS),
         map((action) => (action as LoadFilterBlueprintSuccess)),
         concatMap((payload) => [
+            new LoadDescriptorForBlueprint(payload.blueprint.descriptor.uuid),
             new PauseFilterAction(payload.blueprint.ref.uuid, true),
             new DrainFilterAction(payload.blueprint.ref.uuid, true),
             new LoadFilterConfigurationAction(payload.blueprint.configuration.uuid),
@@ -111,11 +122,32 @@ export class FiltersEffects {
     );
 
 
+    @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_DESCRIPTOR_FOR_BLUEPRINT),
+        map((action) => (action as LoadDescriptorForBlueprint)),
+        switchMap((action) =>
+            this.restCallService.getDescriptorById(action.uuid).pipe(
+                map((descriptor: Descriptor) => new LoadDescriptorForBlueprintSuccess(descriptor)),
+                catchError((cause) => of(new LoadAllDescriptorsForBlueprintFailureAction(cause)))
+            )
+        )
+    );
+
+    @Effect() public resolveFilterDescriptors$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS),
+        map(action => (action as LoadDescriptorForBlueprintSuccess).descriptor),
+        map((descriptor) => {
+            let resolvedDescriptor = this.descriptorResolver.resolveDescriptor(descriptor);
+                return new ResolvedDescriptorForBlueprintSuccess(resolvedDescriptor);
+        }));
+
+
 
 
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
-                private restCallService: RestCallService) {
+                private restCallService: RestCallService,
+                private descriptorResolver: DescriptorResolverService) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {

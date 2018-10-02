@@ -3,6 +3,8 @@ import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {Dataset} from "../models/dataset/Dataset";
 import {Blueprint} from "../models/blueprints/Blueprint";
+import {Descriptor} from "../models/descriptors/Descriptor";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 
 export const LOAD_FILTERSTATE = "[Filter] LoadFilterState";
 export const LOAD_FILTERSTATE_FAILURE = "[Filter] LoadFilterStateFailure";
@@ -33,6 +35,9 @@ export const LOAD_FILTER_BLUEPRINT_FAILURE = "[Filter] LoadFilterBlueprintFailur
 export const LOAD_FILTER_CONFIGURATION = "[Filter] LoadFilterConfiguration";
 export const LOAD_FILTER_CONFIGURATION_SUCCESS = "[Filter] LoadFilterConfigurationSuccess";
 export const LOAD_FILTER_CONFIGURATION_FAILURE = "[Filter] LoadFilterConfigurationFailure";
+export const LOAD_DESCRIPTOR_FOR_BLUEPRINT = "[Filter] LoadDescriptorForBlueprint";
+export const LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS = "[Filter] LoadDescriptorForBlueprintSuccess";
+export const RESOLVED_DESCRIPTOR_FOR_BLUEPRINT = "[Filter] ResolvedDescriptorForBlueprint";
 
 export type FiltersActions =
 
@@ -63,8 +68,10 @@ export type FiltersActions =
     | UpdateFilterConfiguration
     | RestoreFilterConfiguration
     | UpdateDatasetCounter
-    | LoadFilterBlueprintFailure
-    | LoadFilterBlueprintSuccess;
+    | LoadFilterBlueprintSuccess
+    | LoadDescriptorForBlueprint
+    | LoadDescriptorForBlueprintSuccess
+    | ResolvedDescriptorForBlueprintSuccess;
 
 export class LoadFilterConfigurationAction implements Action {
     public readonly type = LOAD_FILTER_CONFIGURATION;
@@ -76,7 +83,7 @@ export class LoadFilterConfigurationAction implements Action {
 export class LoadFilterConfigurationSuccess implements Action {
     public readonly type = LOAD_FILTER_CONFIGURATION_SUCCESS;
 
-    constructor(readonly filter: Configuration, readonly filterId: string) {
+    constructor(readonly configuration: Configuration, readonly filterId: string) {
     }
 }
 
@@ -268,5 +275,29 @@ export class LoadFilterBlueprintFailure implements Action {
     public readonly type = LOAD_FILTER_BLUEPRINT_FAILURE;
 
     constructor(readonly cause: any) {
+    }
+}
+
+export class LoadDescriptorForBlueprint implements Action {
+    public readonly type = LOAD_DESCRIPTOR_FOR_BLUEPRINT;
+
+    constructor(readonly uuid: string) {
+
+    }
+}
+
+export class ResolvedDescriptorForBlueprintSuccess implements Action {
+    public readonly type = RESOLVED_DESCRIPTOR_FOR_BLUEPRINT;
+
+    constructor(readonly descriptor: ResolvedFilterDescriptor) {
+
+    }
+}
+
+export class LoadDescriptorForBlueprintSuccess implements Action {
+    public readonly type = LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS;
+
+    constructor(readonly descriptor: Descriptor) {
+
     }
 }

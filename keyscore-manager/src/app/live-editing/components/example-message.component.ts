@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
-import {selectcurrentDatasetCounter, selectExtractFinish, selectUpdateConfigurationFlag} from "../filter.reducer";
+import {selectCurrentDatasetCounter, selectExtractFinish, selectUpdateConfigurationFlag} from "../filter.reducer";
 import {Dataset} from "../../models/dataset/Dataset";
 import "../filter-styles/filterstyle.css";
 
@@ -65,7 +65,7 @@ export class ExampleMessageComponent implements OnInit {
     constructor(private store: Store<any>) {
         this.isReady$ = this.store.select(selectExtractFinish);
         this.extractFinish$ = this.store.select(selectExtractFinish);
-        this.count$ = this.store.select(selectcurrentDatasetCounter)
+        this.count$ = this.store.select(selectCurrentDatasetCounter)
     }
 
     public ngOnInit(): void {
