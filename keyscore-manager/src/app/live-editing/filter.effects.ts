@@ -3,41 +3,45 @@ import {AppState} from "../app.component";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Observable, of} from "rxjs/index";
 import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
-import {catchError, concatMap, map, mergeMap} from "rxjs/internal/operators";
-import {Action, Store} from "@ngrx/store";
+import {catchError, concatMap, map, mergeMap, withLatestFrom} from "rxjs/internal/operators";
+import {Action, select, Store} from "@ngrx/store";
 import {
     DRAIN_FILTER,
     DrainFilterAction,
     DrainFilterFailure,
-    DrainFilterSuccess, LOAD_DESCRIPTOR_FOR_BLUEPRINT, LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS,
+    DrainFilterSuccess,
+    InsertDatasetsFailure,
+    InsertDatasetsSuccess,
+    LOAD_DESCRIPTOR_FOR_BLUEPRINT,
+    LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION,
-    LOAD_FILTERSTATE, LoadDescriptorForBlueprint, LoadDescriptorForBlueprintSuccess,
+    LOAD_FILTERSTATE,
+    LoadDescriptorForBlueprint,
+    LoadDescriptorForBlueprintSuccess,
     LoadFilterBlueprintFailure,
     LoadFilterBlueprintSuccess,
     LoadFilterConfigurationAction,
     LoadFilterConfigurationFailure,
     LoadFilterConfigurationSuccess,
-    LoadFilterStateAction, LoadFilterStateSuccess,
+    LoadFilterStateAction,
+    LoadFilterStateSuccess,
     PAUSE_FILTER,
     PauseFilterAction,
     PauseFilterFailure,
-    PauseFilterSuccess, ResolvedDescriptorForBlueprintSuccess
+    PauseFilterSuccess,
+    RECONFIGURE_FILTER_SUCCESS,
+    ResolvedDescriptorForBlueprintSuccess
 } from "./filters.actions";
 import {RestCallService} from "../services/rest-api/rest-call.service";
 import {Configuration} from "../models/common/Configuration";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
-import {StringTMap} from "../common/object-maps";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {switchMap} from "rxjs/operators";
-import {
-    LOAD_ALL_BLUEPRINTS_SUCCESS, LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS,
-    LoadAllDescriptorsForBlueprintFailureAction,
-    LoadAllDescriptorsForBlueprintSuccessAction, ResolvedAllDescriptorsSuccessAction
-} from "../resources/resources.actions";
-import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {LoadAllDescriptorsForBlueprintFailureAction} from "../resources/resources.actions";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
+import {selectCurrentBlueprintId, selectExtractedDatasets} from "./filter.reducer";
 
 
 @Injectable()
@@ -141,8 +145,19 @@ export class FiltersEffects {
                 return new ResolvedDescriptorForBlueprintSuccess(resolvedDescriptor);
         }));
 
-    //extract insert
-
+    @Effect()
+    public insertDatasets$: Observable<Action> = this.actions$.pipe(
+        ofType(RECONFIGURE_FILTER_SUCCESS),
+        withLatestFrom(
+            this.store.pipe(select(selectCurrentBlueprintId)),
+            this.store.pipe(select(selectExtractedDatasets))),
+        mergeMap(([_, id, datasets]) => {
+            this.restCallService.insertDatasets(id, datasets).pipe(
+                map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
+                catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
+            );
+        })
+    );
 
 
 

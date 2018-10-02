@@ -9,6 +9,7 @@ import {Configuration} from "../../models/common/Configuration";
 import {Descriptor} from "../../models/descriptors/Descriptor";
 import {StringTMap} from "../../common/object-maps";
 import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
+import {Dataset} from "../../models/dataset/Dataset";
 
 @Injectable({
     providedIn: 'root'
@@ -63,12 +64,10 @@ export class RestCallService {
 
     //Resources/Filter
     getResourceState(uuid: string): Observable<ResourceInstanceState> {
-        console.log("getResourceState for" + uuid);
         return this.httpClient.get<ResourceInstanceState>(`${RestCallService.BASE_URL}/filter/${uuid}/state`);
     }
 
     pauseFilter(uuid: string, pause: boolean): Observable<any> {
-        console.log("PauseFilter for" + uuid);
         return this.httpClient.post(`${RestCallService.BASE_URL}/filter/${uuid}/pause?value=${pause}`, {}, {
             headers: new HttpHeaders().set("Content-Type", "application/json"),
             responseType: "json"
@@ -76,10 +75,16 @@ export class RestCallService {
     }
 
     drainFilter(uuid: string, drain: boolean): Observable<any> {
-        console.log("drain Filter for" + uuid);
         return this.httpClient.post(`${RestCallService.BASE_URL}/filter/${uuid}/drain?value=${drain}`, {}, {
             headers: new HttpHeaders().set("Content-Type", "application/json"),
             responseType: "json"
         })
+    }
+
+    insertDatasets(uuid: string, datasets: Dataset[]): Observable<any> {
+        return this.httpClient.put(`${RestCallService.BASE_URL}/filter/${uuid}/insert?where=before`, datasets, {
+            headers: new HttpHeaders().set("Content-Type", "application/json"),
+            responseType: "json"
+        });
     }
 }

@@ -5,7 +5,6 @@ import {Observable} from "rxjs/index";
 import {LOAD_FILTER_CONFIGURATION_FAILURE, LoadFilterConfigurationFailure} from "../../live-editing/filters.actions";
 import {ErrorAction} from "./error.actions";
 import {map} from "rxjs/operators";
-import {tap} from "rxjs/internal/operators";
 
 type errorTypes =
     |LoadFilterConfigurationFailure;

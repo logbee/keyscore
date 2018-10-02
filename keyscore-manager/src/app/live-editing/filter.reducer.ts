@@ -130,3 +130,7 @@ export const selectUpdateConfigurationFlag = createSelector(getFilterState, getU
 export const selectCurrentDatasetCounter = createSelector(getFilterState, currentDatasetCounter);
 
 export const selectCurrentDescriptor = createSelector(getFilterState, (state: FilterState) => state.descriptor);
+
+export const selectCurrentBlueprint = createSelector(getFilterState, (state: FilterState) => state.blueprint);
+
+export const selectCurrentBlueprintId = createSelector(getFilterState, (state: FilterState) => state.blueprint.ref.uuid);

@@ -8,11 +8,11 @@ import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {
-    selectCurrentDescriptor,
+    selectCurrentBlueprint,
     selectExtractedDatasets,
     selectConfiguration, selectConfigurationId,
     selectLiveEditingFilterState,
-    selectResultDatasets
+    selectResultDatasets, selectCurrentDescriptor
 } from "./filter.reducer";
 import {Dataset} from "../models/dataset/Dataset";
 import {UpdateDatasetCounter, UpdateFilterConfiguration} from "./filters.actions";
@@ -20,6 +20,7 @@ import {Location} from "@angular/common";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {selectBlueprints} from "../resources/resources.reducer";
 
 @Component({
     selector: "live-editing",
@@ -94,6 +95,7 @@ export class LiveEditingComponent implements OnInit {
             this.loading$ = this.store.pipe(select(isSpinnerShowing));
             this.filterState$ = this.store.pipe(select(selectLiveEditingFilterState));
             this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
+            this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
             // this.filter$ = this.store.select(selectConfiguration);
             // this.extractedDatasets$ = this.store.select(selectExtractedDatasets);
             // this.resultDatasets$ = this.store.select(selectResultDatasets);
