@@ -20,7 +20,7 @@ import {DraggableFactory} from "./draggable/draggable-factory";
 import {computeRelativePositionToParent} from "./util/util";
 import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
 import {BlockDescriptor, generateBlockDescriptors} from "./models/block-descriptor.model";
-import {Observable, Subject} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {share, takeUntil} from "rxjs/operators";
 import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
 import "./style/pipely-style.scss";
@@ -37,7 +37,7 @@ import {PipelineConfiguratorService} from "./services/pipeline-configurator.serv
                         <ng-template #workspaceContainer>
                         </ng-template>
                         <puzzle-box class="top-shadow" [workspace]="this"
-                                    [descriptors$]="blockDescriptors$"></puzzle-box>
+                                    [descriptors]="blockDescriptors$|async"></puzzle-box>
                     </div>
                 </div>
 
@@ -52,7 +52,12 @@ import {PipelineConfiguratorService} from "./services/pipeline-configurator.serv
 
 export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     @Input() pipeline: EditingPipelineModel;
-    @Input() blockDescriptors$: Observable<BlockDescriptor[]>;
+
+    @Input('blockDescriptors') set blockDescriptors(descriptors: BlockDescriptor[]) {
+        this.blockDescriptors$.next(descriptors)
+    };
+    private blockDescriptors$ = new BehaviorSubject<BlockDescriptor[]>([]);
+
     @Input() saveTrigger$: Observable<void>;
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
@@ -277,7 +282,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                 this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables, this.pipeline);
                 this.onUpdatePipeline.emit(this.pipeline);
             }
-        )
+        );
 
     }
 

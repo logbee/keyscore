@@ -1,7 +1,7 @@
 import {Location} from "@angular/common";
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {Observable, Subject} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {Go} from "../../router/router.actions";
 import {
@@ -46,7 +46,7 @@ import {
                         (onSave)="savePipelineSource$.next()"></header-bar>
 
             <pipely-workspace [saveTrigger$]="savePipeline$" [pipeline]="(pipeline$ | async)"
-                              [blockDescriptors$]="pipelyBlockDescriptors$"
+                              [blockDescriptors]="blockDescriptorSource$|async"
                               (onUpdatePipeline)="updatePipeline($event)"
                               fxFill></pipely-workspace>
 
@@ -60,15 +60,13 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public pipeline$: Observable<EditingPipelineModel>;
     public filterDescriptors$: Observable<ResolvedFilterDescriptor[]>;
     public isLoading$: Observable<boolean>;
-    public isMenuExpanded$: Observable<boolean>;
 
     private alive: Subject<void> = new Subject();
 
     public savePipelineSource$: Subject<void> = new Subject<void>();
     public savePipeline$: Observable<void> = this.savePipelineSource$.asObservable();
 
-    public blockDescriptorSource$: Subject<BlockDescriptor[]> = new Subject();
-    public pipelyBlockDescriptors$: Observable<BlockDescriptor[]> = this.blockDescriptorSource$.asObservable();
+    public blockDescriptorSource$: BehaviorSubject<BlockDescriptor[]> = new BehaviorSubject<BlockDescriptor[]>([]);
 
     public storeEditingPipeline: EditingPipelineModel;
 
@@ -83,13 +81,13 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
         this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors), takeUntil(this.alive));
-        this.isLoading$ = this.store.pipe(select(isSpinnerShowing), share());
-        this.isMenuExpanded$ = this.store.pipe(select(isMenuExpanded));
-        this.pipeline$ = this.store.pipe(select(getEditingPipeline, share()));
+        this.isLoading$ = this.store.pipe(select(isSpinnerShowing), takeUntil(this.alive), share());
+        this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive), share());
 
-        this.pipeline$.pipe(takeUntil(this.alive)).subscribe(pipe => this.storeEditingPipeline = pipe);
+        this.pipeline$.subscribe(pipe => this.storeEditingPipeline = pipe);
 
         this.filterDescriptors$.subscribe(descriptors => {
+            console.log("DESCRIPTORUPDATE");
             this.blockDescriptorSource$.next(descriptors.map(descriptor =>
                 this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
         });

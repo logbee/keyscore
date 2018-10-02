@@ -41,56 +41,49 @@ export const initialState: PipelinesState = {
 
 export function PipelinesReducer(state: PipelinesState = initialState, action: PipelineActions): PipelinesState {
 
-    const result: PipelinesState = Object.assign({}, state);
-
     switch (action.type) {
         case RESOLVE_FILTER_DESCRIPTORS_SUCCESS:
-            result.filterDescriptors = action.resolvedDescriptors;
-            result.filterCategories = result.filterDescriptors.map((descriptor) =>
+            let filterCategories = action.resolvedDescriptors.map((descriptor) =>
                 descriptor.categories).reduce((acc, val) => acc.concat(val), [])
                 .filter((category, i, array) => array.indexOf(category) === i);
-            break;
+            return {...state, filterDescriptors: action.resolvedDescriptors, filterCategories: filterCategories};
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
-            result.descriptors = action.descriptors;
-            break;
+            return {...state, descriptors: action.descriptors};
         case CREATE_PIPELINE:
-            result.editingPipeline = generateEmptyEditingPipelineModel({uuid: action.id});
-            break;
+            return {...state, editingPipeline: generateEmptyEditingPipelineModel({uuid: action.id})};
         case EDIT_PIPELINE_SUCCESS:
-            result.editingPipeline = {
+            let editingPipeline = {
                 pipelineBlueprint: action.pipelineBlueprint,
                 blueprints: action.blueprints,
                 configurations: action.configurations
             };
-            break;
+            return {...state, editingPipeline: editingPipeline};
         case RESET_PIPELINE:
-            break;
+            return state;
         case UPDATE_PIPELINE_SUCCESS:
-
-            break;
+            return state;
         case UPDATE_PIPELINE_FAILURE:
-            break;
+            return state;
         case DELETE_PIPELINE_SUCCESS:
-            result.pipelineList = result.pipelineList.filter((pipeline) => action.id !== pipeline.id);
-            break;
+            let pipelineList = deepcopy(state.pipelineList, []).filter((pipeline) => action.id !== pipeline.id);
+            return {...state, pipelineList: pipelineList};
         case DELETE_PIPELINE_FAILURE:
             if (action.cause.status === 404) {
-                result.pipelineList = result.pipelineList.filter((pipeline) => action.id !== pipeline.id);
+                let pipelineList = deepcopy(state.pipelineList, []).filter((pipeline) => action.id !== pipeline.id);
+                return {...state, pipelineList: pipelineList};
             }
-            break;
+            return state;
         case LOAD_ALL_PIPELINES_SUCCESS:
-            result.pipelineList = deepcopy(action.pipelineInstances, []);
-            result.pipelineList.sort((a, b) => {
+            action.pipelineInstances.sort((a, b) => {
                 return a.name.localeCompare(b.name);
             });
-            break;
+            return {...state, pipelineList: action.pipelineInstances};
         case UPDATE_PIPELINE_POLLING:
-            result.pipelineInstancePolling = action.isPolling;
-            break;
+            return {...state, pipelineInstancePolling: action.isPolling};
+        default:
+            return state;
 
     }
-
-    return result;
 }
 
 export const getPipelinesState = createFeatureSelector<PipelinesState>(

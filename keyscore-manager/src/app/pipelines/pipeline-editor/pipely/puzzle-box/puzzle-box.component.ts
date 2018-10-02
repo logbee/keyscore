@@ -1,7 +1,8 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input, OnChanges, OnInit} from "@angular/core";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {Workspace} from "../models/contract";
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
+import Block = jasmine.Block;
 
 @Component({
     selector: "puzzle-box",
@@ -18,19 +19,17 @@ import {Observable} from "rxjs";
     `
 })
 
-export class PuzzleBoxComponent implements OnInit {
-    @Input() descriptors$: Observable<BlockDescriptor[]>;
+export class PuzzleBoxComponent implements OnChanges {
+    @Input() descriptors:BlockDescriptor[];
     @Input() workspace: Workspace;
 
-    descriptors: BlockDescriptor[];
     categorySeparatedDescriptors: Map<string, BlockDescriptor[]> = new Map();
     categories: string[] = [];
 
-    ngOnInit() {
-        this.descriptors$.subscribe(descriptors => {
-            this.descriptors = descriptors;
-            this.separateCategories();
-        });
+    ngOnChanges(changes){
+        if(changes['descriptors']){
+            this.separateCategories()
+        }
     }
 
     private separateCategories() {
