@@ -24,7 +24,7 @@ import {
     LoadFilterConfigurationAction,
     LoadFilterConfigurationFailure,
     LoadFilterConfigurationSuccess,
-    LoadFilterStateAction,
+    LoadFilterStateAction, LoadFilterStateFailure,
     LoadFilterStateSuccess,
     PAUSE_FILTER,
     PauseFilterAction,
@@ -120,7 +120,7 @@ export class FiltersEffects {
         concatMap(action => {
             return this.restCallService.getResourceState(action.filterId).pipe(
                 map((state: ResourceInstanceState) => new LoadFilterStateSuccess(state),
-                    catchError((cause) => of(new LoadFilterConfigurationFailure(cause)))
+                    catchError((cause) => of(new LoadFilterStateFailure(cause)))
                 ));
         })
     );
@@ -151,13 +151,14 @@ export class FiltersEffects {
         withLatestFrom(
             this.store.pipe(select(selectCurrentBlueprintId)),
             this.store.pipe(select(selectExtractedDatasets))),
-        mergeMap(([_, id, datasets]) => {
-            this.restCallService.insertDatasets(id, datasets).pipe(
+        switchMap(([_, id, datasets]) =>
+           this.restCallService.insertDatasets(id, datasets).pipe(
                 map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
                 catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
-            );
-        })
+            )
+        )
     );
+
 
 
 

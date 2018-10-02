@@ -69,10 +69,10 @@ export class LiveEditingComponent implements OnInit {
 
     private message: string = "The requested resource could not be shown";
     // // Observables
-    // private filter$: Observable<Configuration>;
+    private configuration$: Observable<Configuration>;
     private filterState$: Observable<ResourceInstanceState>;
 
-    // private extractedDatasets$: Observable<Dataset[]>;
+    private extractedDatasets$: Observable<Dataset[]>;
     // private resultDatasets$: Observable<Dataset[]>;
     private filterName: string = "Live-Editing";
 
@@ -96,8 +96,8 @@ export class LiveEditingComponent implements OnInit {
             this.filterState$ = this.store.pipe(select(selectLiveEditingFilterState));
             this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
-            // this.filter$ = this.store.select(selectConfiguration);
-            // this.extractedDatasets$ = this.store.select(selectExtractedDatasets);
+            this.configuration$ = this.store.pipe(select(selectConfiguration));
+            this.extractedDatasets$ = this.store.pipe(select(selectExtractedDatasets));
             // this.resultDatasets$ = this.store.select(selectResultDatasets);
         }
     }
@@ -105,7 +105,7 @@ export class LiveEditingComponent implements OnInit {
     // public reconfigureFilter(update: { filterConfiguration: Configuration, values: any }) {
     //     this.store.dispatch(new UpdateFilterConfiguration(update.filterConfiguration, update.values));
     // }
-    //
+
     // private updateCounterInStore(count: number) {
     //     this.store.dispatch(new UpdateDatasetCounter(count));
     // }

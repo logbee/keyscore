@@ -9,6 +9,7 @@ import {map} from "rxjs/operators";
 type errorTypes =
     |LoadFilterConfigurationFailure;
 
+
 const errorActions = [
     LOAD_FILTER_CONFIGURATION_FAILURE
 ];
