@@ -21,25 +21,41 @@ import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.serv
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {_} from "lodash";
 import {Blueprint} from "../../models/blueprints/Blueprint";
+import {
+    errorState,
+    ErrorState,
+    isError,
+    selectErrorMessage,
+    selectHttpErrorCode
+} from "../../common/error/error.reducer";
 
 @Component({
     selector: "pipeline-editor",
     template: `
-        <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true"
-                    (onSave)="savePipelineSource$.next()"></header-bar>
+        <error-component *ngIf="(errorState$ | async);else fullComponent" [httpError]="(errorStatus$ | async)"
+                         [message]="(errorMessage$ | async)">
+        </error-component>
+        
+        <ng-template #fullComponent>
+            <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true"
+                        (onSave)="savePipelineSource$.next()"></header-bar>
 
-        <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
+            <loading-full-view *ngIf="isLoading$|async; else editor"></loading-full-view>
 
-        <ng-template #editor>
+            <ng-template #editor>
 
-            <pipely-workspace [saveTrigger$]="savePipeline$" [pipeline]="(pipeline$ | async)"
-                              [blockDescriptors$]="pipelyBlockDescriptors$" (onUpdatePipeline)="updatePipeline($event)"
-                              fxFill></pipely-workspace>
+                <pipely-workspace [saveTrigger$]="savePipeline$" [pipeline]="(pipeline$ | async)"
+                                  [blockDescriptors$]="pipelyBlockDescriptors$"
+                                  (onUpdatePipeline)="updatePipeline($event)"
+                                  fxFill></pipely-workspace>
 
+            </ng-template>
         </ng-template>
+
+
     `,
 })
-export class PipelineEditorComponent implements OnInit,OnDestroy {
+export class PipelineEditorComponent implements OnInit, OnDestroy {
     public pipeline$: Observable<EditingPipelineModel>;
     public filterDescriptors$: Observable<ResolvedFilterDescriptor[]>;
     public isLoading$: Observable<boolean>;
@@ -55,16 +71,20 @@ export class PipelineEditorComponent implements OnInit,OnDestroy {
 
     public storeEditingPipeline: EditingPipelineModel;
 
+    public errorState$: Observable<boolean>;
+    public errorStatus$: Observable<string>;
+    public errorMessage$: Observable<string>;
+
     constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
     }
 
-    ngOnInit(){
+    ngOnInit() {
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
-        this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors),takeUntil(this.alive));
-        this.isLoading$ = this.store.pipe(select(isSpinnerShowing),share());
+        this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors), takeUntil(this.alive));
+        this.isLoading$ = this.store.pipe(select(isSpinnerShowing), share());
         this.isMenuExpanded$ = this.store.pipe(select(isMenuExpanded));
-        this.pipeline$ = this.store.pipe(select(getEditingPipeline,share()));
+        this.pipeline$ = this.store.pipe(select(getEditingPipeline, share()));
 
         this.pipeline$.pipe(takeUntil(this.alive)).subscribe(pipe => this.storeEditingPipeline = pipe);
 
@@ -72,6 +92,10 @@ export class PipelineEditorComponent implements OnInit,OnDestroy {
             this.blockDescriptorSource$.next(descriptors.map(descriptor =>
                 this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
         });
+
+        this.errorState$ = this.store.pipe(select(isError), share());
+        this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode), share());
+        this.errorMessage$ = this.store.pipe(select(selectErrorMessage), share());
     }
 
     public ngOnDestroy() {

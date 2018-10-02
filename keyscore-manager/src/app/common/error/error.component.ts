@@ -1,25 +1,24 @@
 import {Component, Input} from "@angular/core";
+import "./style/error.style.scss"
 
 @Component({
     selector: "error-component",
     template: `
-        <div class="row pb-3"
-             style="background-color: #365078; max-height: 50vh; min-height: 50vh;">
-            <a routerLink="/dashboard"
-               routerLinkActive="active">
-                <div class="col text-center">
-                    <img class="mt-lg-4 pr-lg-5" src="/assets/images/logos/svg/dark/keyscore.dark.svg"
-                         style=" height:40vh; width: 100vw">
+        <div fxFill fxLayout="column">
+            <div class="top-column" fxLayoutAlign="center center" fxFlex="60">
+                <a routerLink="/dashboard"
+                   routerLinkActive="active">
+                    
+                    <img src="/assets/images/logos/svg/dark/keyscore.dark.svg">
+
+                </a>
+            </div>
+            <div class="bottom-column" fxLayoutAlign="start center" fxFlex="40" fxLayout="column">
+                <div>
+                    <h1>{{httpError}}</h1>
                 </div>
-            </a>
-        </div>
-        <div class="row" style="min-height: 50vh; background-color: #365880">
-            <div class="col align-self-center">
-                <div class="row justify-content-center">
-                    <h1 style="color: white; font-size: 6em">{{httpError}}</h1>
-                </div>
-                <div class="row justify-content-center">
-                    <h3 style="color: white; font-size: 4em">{{message}}</h3>
+                <div>
+                    <h3>{{message}}</h3>
                 </div>
             </div>
         </div>

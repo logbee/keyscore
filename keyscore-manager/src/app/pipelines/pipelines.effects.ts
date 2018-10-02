@@ -63,7 +63,7 @@ export class PipelinesEffects {
             return of();
         })
     );
-    
+
     @Effect() public loadEditPipelineBlueprint$: Observable<Action> = this.actions$.pipe(
         ofType(EDIT_PIPELINE),
         map((action) => (action as EditPipelineAction).id),
@@ -71,7 +71,10 @@ export class PipelinesEffects {
             return this.restCallService.getPipelineBlueprint(pipelineId).pipe(
                 map((pipelineBlueprint: PipelineBlueprint) => {
                     if (pipelineBlueprint === null) {
-                        return new EditPipelineFailureAction(pipelineId, "NotFound");
+                        return new EditPipelineFailureAction({
+                            status: "404",
+                            message: `Sorry we were not able to find pipeline ${pipelineId}`
+                        });
                     }
                     if (pipelineBlueprint.blueprints.length > 0) {
                         return new LoadEditBlueprintsAction(pipelineBlueprint);
@@ -80,10 +83,13 @@ export class PipelinesEffects {
                         return new EditPipelineSuccessAction(pipelineBlueprint, [], []);
                     }
                 }),
-                catchError((cause: any) => of(new EditPipelineFailureAction(pipelineId, cause)))
+                catchError((cause: any) =>
+                    of(new EditPipelineFailureAction(cause))
+                )
             );
         })
     );
+
 
     @Effect() public loadEditBlueprints$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_EDIT_PIPELINE_BLUEPRINTS),
@@ -91,22 +97,22 @@ export class PipelinesEffects {
         switchMap(action => {
             return forkJoin(
                 ...action.pipelineBlueprint.blueprints.map(blueprintRef => this.restCallService.getBlueprint(blueprintRef.uuid))
-            ).pipe(map((blueprints:Blueprint[]) => new LoadEditPipelineConfigAction(action.pipelineBlueprint, blueprints)),
-                catchError(cause => of(new EditPipelineFailureAction(action.pipelineBlueprint.ref.uuid, cause))))
+            ).pipe(map((blueprints: Blueprint[]) => new LoadEditPipelineConfigAction(action.pipelineBlueprint, blueprints)),
+                catchError(cause => of(new EditPipelineFailureAction(cause))))
         })
     );
-    
+
     @Effect() public loadEditConfigs$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_EDIT_PIPELINE_CONFIG),
         map(action => (action as LoadEditPipelineConfigAction)),
         switchMap(action => {
             return forkJoin(
                 ...action.blueprints.map(blueprint => this.restCallService.getConfiguration(blueprint.configuration.uuid))
-            ).pipe(map((configurations:Configuration[]) => 
-                    new EditPipelineSuccessAction(action.pipelineBlueprint,action.blueprints,configurations)),
-                    catchError(cause => of(new EditPipelineFailureAction(action.pipelineBlueprint.ref.uuid,cause)))
+            ).pipe(map((configurations: Configuration[]) =>
+                    new EditPipelineSuccessAction(action.pipelineBlueprint, action.blueprints, configurations)),
+                catchError(cause => of(new EditPipelineFailureAction(cause)))
             )
-                
+
         })
     );
 

@@ -90,7 +90,7 @@ export class EditPipelineSuccessAction implements Action {
 export class EditPipelineFailureAction implements Action {
     public readonly type = EDIT_PIPELINE_FAILURE;
 
-    constructor(readonly id: string, readonly cause: any) {
+    constructor(readonly cause: any) {
 
     }
 }

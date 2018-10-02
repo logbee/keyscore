@@ -5,15 +5,16 @@ import {
     DELETE_PIPELINE_SUCCESS,
     EDIT_PIPELINE_FAILURE,
     EDIT_PIPELINE_SUCCESS,
-    LOAD_ALL_PIPELINES_SUCCESS, LOAD_FILTER_DESCRIPTORS_SUCCESS,
+    LOAD_ALL_PIPELINES_SUCCESS,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS,
     PipelineActions,
-    RESET_PIPELINE, RESOLVE_FILTER_DESCRIPTORS_SUCCESS,
+    RESET_PIPELINE,
+    RESOLVE_FILTER_DESCRIPTORS_SUCCESS,
     UPDATE_PIPELINE_FAILURE,
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "./pipelines.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Health} from "../models/common/Health";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Descriptor} from "../models/descriptors/Descriptor";
@@ -27,7 +28,6 @@ export class PipelinesState {
     public filterDescriptors: ResolvedFilterDescriptor[];
     public filterCategories: ResolvedCategory[];
     public pipelineInstancePolling: boolean;
-    public wasLastUpdateSuccessful: boolean[];
 }
 
 export const initialState: PipelinesState = {
@@ -37,7 +37,6 @@ export const initialState: PipelinesState = {
     filterDescriptors: [],
     filterCategories: [],
     pipelineInstancePolling: false,
-    wasLastUpdateSuccessful: []
 };
 
 export function PipelinesReducer(state: PipelinesState = initialState, action: PipelineActions): PipelinesState {
@@ -55,7 +54,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             result.descriptors = action.descriptors;
             break;
         case CREATE_PIPELINE:
-        case EDIT_PIPELINE_FAILURE:
             result.editingPipeline = generateEmptyEditingPipelineModel({uuid: action.id});
             break;
         case EDIT_PIPELINE_SUCCESS:
@@ -71,8 +69,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
 
             break;
         case UPDATE_PIPELINE_FAILURE:
-
-            result.wasLastUpdateSuccessful = [false];
             break;
         case DELETE_PIPELINE_SUCCESS:
             result.pipelineList = result.pipelineList.filter((pipeline) => action.id !== pipeline.id);
@@ -114,6 +110,3 @@ export const getFilterCategories = createSelector(getPipelinesState,
 
 export const getPipelinePolling = createSelector(getPipelinesState,
     (state: PipelinesState) => state.pipelineInstancePolling);
-
-export const getLastUpdateSuccess = createSelector(getPipelinesState,
-    (state: PipelinesState) => state.wasLastUpdateSuccessful);

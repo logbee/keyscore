@@ -148,7 +148,7 @@ describe('PipelinesEffects', () => {
             const pipelineBlueprint = generatePipelineBlueprint();
             const action = new EditPipelineAction(pipelineBlueprint.ref.uuid);
             const error = new Error();
-            const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
+            const outcome = new EditPipelineFailureAction(error);
 
             actions.stream = hot('-a', {a: action});
             const response = cold('-#|', {}, error);
@@ -179,7 +179,7 @@ describe('PipelinesEffects', () => {
             const pipelineBlueprint = generatePipelineBlueprint();
             const action = new LoadEditBlueprintsAction(pipelineBlueprint);
             const error = new Error();
-            const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
+            const outcome = new EditPipelineFailureAction(error);
 
             actions.stream = hot('-a', {a: action});
             const responseGetBlueprint = cold('-#|', {}, error);
@@ -212,7 +212,7 @@ describe('PipelinesEffects', () => {
             const blueprints = generateBlueprints(10);
             const action = new LoadEditPipelineConfigAction(pipelineBlueprint, blueprints);
             const error = new Error();
-            const outcome = new EditPipelineFailureAction(pipelineBlueprint.ref.uuid, error);
+            const outcome = new EditPipelineFailureAction(error);
 
             actions.stream = hot('-a', {a: action});
             const response = cold('-#|', {}, error);
