@@ -24,38 +24,42 @@ import {takeUntil} from "rxjs/internal/operators";
 @Component({
     selector: "draggable",
     template: `
-        <div #draggableElement [class]="'draggable flex-row'"
+        <div #draggableElement fxLayout="column" fxLayoutGap="5px" [class]="'draggable'"
              [class.mirror]="draggableModel.isMirror"
              [class.d-flex]="visible"
              [class.d-none]="!visible"
              (mousedown)="triggerDragStart($event)">
-            <div class="connection previous-connection">
-                <ng-template #previousConnection></ng-template>
-            </div>
-            <div class="blockContainer">
-                <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        version="1.1"
-                        viewBox="0 0 971 567.929"
-                >
-                    <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isPreviousConncetionDroppable"
-                           [connectionType]="draggableModel.blockDescriptor.previousConnection.connectionType"/>
+            <div fxLayout="row">
+                <div class="connection previous-connection">
+                    <ng-template #previousConnection></ng-template>
+                </div>
+                <div class="blockContainer">
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            version="1.1"
+                            viewBox="0 0 971 567.929"
+                    >
+                        <svg:g svg-connector [color]="draggableModel.color"
+                               [isDroppable]="isPreviousConncetionDroppable"
+                               [connectionType]="draggableModel.blockDescriptor.previousConnection.connectionType"/>
 
-                    <svg:g>
-                        <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
-                                  id="rect5038"
-                                  attr.fill="{{draggableModel.color}}"
-                                  style="fill-opacity:1;stroke:#398033;stroke-width:0px"/>
-                    </svg:g>
-                    <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
-                           [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>
-                </svg>
-            </div>
+                        <svg:g>
+                            <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
+                                      id="rect5038"
+                                      attr.fill="{{draggableModel.color}}"
+                                      style="fill-opacity:1;stroke:#398033;stroke-width:0px"/>
+                        </svg:g>
+                        <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
+                               [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>
+                    </svg>
+                </div>
 
-            <div class="connection next-connection">
-                <ng-template #nextConnection></ng-template>
-            </div>
+                <div class="connection next-connection">
+                    <ng-template #nextConnection></ng-template>
+                </div>
 
+            </div>
+            <div fxLayout="row" fxFlexAlign="center" fxLayoutAlign="space-around center" class="draggable-name">{{draggableModel.blockDescriptor.displayName}}</div>
         </div>
     `
 })
@@ -139,7 +143,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
                 this.isPreviousConncetionDroppable = isDroppable
             );
             this.nextConnectionDropzone.isDroppable$.subscribe(isDroppable =>
-                    this.isNextConnectionDroppable = isDroppable
+                this.isNextConnectionDroppable = isDroppable
             );
         }
     }
