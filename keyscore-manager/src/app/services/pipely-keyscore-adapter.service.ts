@@ -21,7 +21,7 @@ export class PipelyKeyscoreAdapter {
             previousConnection:previousConnection,
             nextConnection:nextConnection,
             parameters:descriptor.parameters,
-            categories:descriptor.categories.map(cat => cat.displayName)
+            categories:descriptor.categories
 
         }
     }

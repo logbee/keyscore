@@ -6,6 +6,7 @@ import {
     generateWordList
 } from "../../../../../__tests__/fake-data/pipeline-fakes";
 import {Ref} from "../../../../models/common/Ref";
+import {Category, ResolvedCategory} from "../../../../models/descriptors/Category";
 
 export interface BlockDescriptor {
     ref: Ref;
@@ -14,21 +15,30 @@ export interface BlockDescriptor {
     previousConnection: Connection;
     nextConnection: Connection;
     parameters: ResolvedParameterDescriptor[];
-    categories: string[];
+    categories: ResolvedCategory[];
 }
 
 
-
-export const generateBlockDescriptor = (categories: string[] = null): BlockDescriptor => {
-    const defaultCategories = ['Sink', 'Source', 'Filter'];
-    const specialCategories = ['Elastic', 'Kafka', 'Amazon'];
+export const generateBlockDescriptor = (categories: ResolvedCategory[] = null): BlockDescriptor => {
+    const defaultCategories = [
+        {displayName: 'Sink', name: "sink"},
+        {displayName: 'Source', name: 'source'},
+        {displayName: 'Filter', name: "filter"}
+    ];
+    const specialCategories = [
+        {displayName: 'Elastic', name: 'elastic'},
+        {displayName: 'Kafka', name: 'kafka'},
+        {displayName: 'Amazon', name: 'amazon'}
+    ];
     if (categories === null) {
         categories = [defaultCategories[faker.random.number({min: 1, max: defaultCategories.length - 1})],
             specialCategories[faker.random.number({min: 1, max: specialCategories.length - 1})]];
     }
-    let previousPermitted = categories.includes('Sink') || categories.includes('Filter');
-    let nextPermitted = categories.includes('Source') || categories.includes('Filter');
-    if(!previousPermitted && !nextPermitted){
+    let previousPermitted = categories.map(cat => cat.name).includes('sink') ||
+        categories.map(cat => cat.name).includes('filter');
+    let nextPermitted = categories.map(cat => cat.name).includes('source') ||
+        categories.map(cat => cat.name).includes('filter');
+    if (!previousPermitted && !nextPermitted) {
         nextPermitted = true;
     }
     return {

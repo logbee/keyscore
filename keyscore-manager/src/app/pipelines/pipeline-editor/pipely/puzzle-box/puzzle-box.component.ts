@@ -33,10 +33,10 @@ export class PuzzleBoxComponent implements OnChanges {
     }
 
     private separateCategories() {
-        this.categories = this.descriptors.map(descriptor => descriptor.categories)
+        this.categories = this.descriptors.map(descriptor => descriptor.categories.map(cat => cat.displayName))
             .reduce((acc, val) => acc.concat(val), []).filter((category, i, array) => array.indexOf(category) === i);
         this.categories.forEach(category =>
-            this.categorySeparatedDescriptors.set(category, this.descriptors.filter(descriptor => descriptor.categories.includes(category))));
+            this.categorySeparatedDescriptors.set(category, this.descriptors.filter(descriptor => descriptor.categories.map(cat => cat.displayName).includes(category))));
 
     }
 
