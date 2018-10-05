@@ -12,6 +12,8 @@ option (scalapb.options) = {
 message ConfigurationRef {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.configuration.ConfigurationRefCompanion";
     string uuid = 1;
+    string revision = 2;
+    string ancestor = 3;
 }
 
 message Configuration {
