@@ -80,7 +80,7 @@ export class DropzoneFactory {
                                    acceptedDraggables: string[]): Dropzone {
         const dropzoneRef = container.createComponent(this.componentFactory);
         dropzoneRef.instance.dropzoneModel = {
-            dropzoneRadius: 40,
+            dropzoneRadius: 15,
             dropzoneType: DropzoneType.Connector,
             acceptedDraggableTypes: acceptedDraggables,
             owner: owner

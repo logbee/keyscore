@@ -31,7 +31,7 @@ import {IconEncoding, IconFormat} from "../../../models/descriptors/Icon";
              [class.d-none]="!visible"
              (mousedown)="triggerDragStart($event)">
             <div fxLayout="row">
-                <div class="connection previous-connection">
+                <div class="connection previous-connection" fxLayout="column" fxLayoutAlign="center center">
                     <ng-template #previousConnection></ng-template>
                 </div>
                 <div class="blockContainer">
@@ -60,7 +60,7 @@ import {IconEncoding, IconFormat} from "../../../models/descriptors/Icon";
                     </div>
                 </div>
 
-                <div class="connection next-connection">
+                <div class="connection next-connection" fxLayout="column" fxLayoutAlign="center center">
                     <ng-template #nextConnection></ng-template>
                 </div>
 

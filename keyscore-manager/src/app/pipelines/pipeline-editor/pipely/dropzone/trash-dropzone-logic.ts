@@ -18,9 +18,9 @@ export class TrashDropzoneLogic extends DropzoneLogic {
 
     drop(mirror: Draggable = null, currentDragged: Draggable = null): void {
         this.component.setIsDroppable(false);
-        let owner;
-        if (owner = currentDragged.getDraggableModel().initialDropzone.getOwner()) {
-            owner.setNextModel(null);
+        const initialDropzone = currentDragged.getDraggableModel().initialDropzone;
+        if (initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
+            initialDropzone.detachNext();
         }
         if (currentDragged.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType !== DropzoneType.Toolbar) {
             currentDragged.destroy();
