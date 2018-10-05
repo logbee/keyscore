@@ -27,6 +27,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MaterialModule} from "./material.module";
 import {ResourcesModule} from "./resources/resources.module";
 import {EffectsModule} from "@ngrx/effects";
+import {SnackbarEffects} from "./common/snackbar/snackbar.effects";
 
 
 const routes: Routes = [
@@ -51,7 +52,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         ReactiveFormsModule,
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
-        EffectsModule.forRoot([AppConfigEffects, RouterEffects, LoadingEffects, ErrorEffects]),
+        EffectsModule.forRoot([AppConfigEffects, RouterEffects, LoadingEffects, ErrorEffects,SnackbarEffects]),
         StoreRouterConnectingModule,
         TranslateModule.forRoot({
             loader: {

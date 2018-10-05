@@ -9,7 +9,6 @@ import {TranslateModule} from "@ngx-translate/core";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {ErrorModule} from "../common/error/error.module";
 import {HealthModule} from "../common/health/health.module";
-import {AlertModule} from "../common/alert/alert.module";
 import {FilterDescriptionComponent} from "./components/filter-description.component";
 import {ExampleMessageComponent} from "./components/example-message.component";
 import {FilterConfigurationComponent} from "./components/filter-configuration.component";
@@ -37,7 +36,6 @@ export const routes: Routes = [
         HeaderBarModule,
         LoadingModule,
         HealthModule,
-        AlertModule,
         ErrorModule,
         MaterialModule
 

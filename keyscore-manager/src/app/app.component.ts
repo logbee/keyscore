@@ -11,6 +11,7 @@ import {MenuState} from "./common/sidemenu/sidemenu.reducer";
 import {LoadingState} from "./common/loading/loading.reducer";
 import {ToggleMenuAction} from "./common/sidemenu/sidemenu.actions";
 import {ErrorState} from "./common/error/error.reducer";
+import {SnackbarState} from "./common/snackbar/snackbar.reducer";
 
 export interface AppState {
     config: AppConfig;
@@ -18,6 +19,7 @@ export interface AppState {
     spinner: LoadingState;
     menu: MenuState;
     error: ErrorState;
+    snackbar: SnackbarState;
 }
 
 @Component({

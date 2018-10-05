@@ -32,7 +32,7 @@ import {
     LoadFilterDescriptorsFailureAction,
     LoadFilterDescriptorsSuccessAction,
     ResolveFilterDescriptorSuccessAction,
-    UPDATE_PIPELINE,
+    UPDATE_PIPELINE, UPDATE_PIPELINE_FAILURE, UPDATE_PIPELINE_SUCCESS,
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
@@ -46,6 +46,7 @@ import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {StringTMap} from "../common/object-maps";
+import {SnackbarOpen} from "../common/snackbar/snackbar.actions";
 
 @Injectable()
 export class PipelinesEffects {
@@ -152,6 +153,30 @@ export class PipelinesEffects {
             ).pipe(map(data => new UpdatePipelineSuccessAction(pipeline)),
                 catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline))))
         })
+    );
+
+    @Effect() public updatePipelineSuccess$:Observable<Action> = this.actions$.pipe(
+        ofType(UPDATE_PIPELINE_SUCCESS),
+        map(() => new SnackbarOpen({
+            message:"Successfully saved all configurations!",
+            action:'Success',
+            config:{
+                horizontalPosition:"center",
+                verticalPosition:"top"
+            }
+        }))
+    );
+
+    @Effect() public updatePipelineFailure$:Observable<Action> = this.actions$.pipe(
+        ofType(UPDATE_PIPELINE_FAILURE),
+        map(() => new SnackbarOpen({
+            message:"An error occured while saving the configurations.",
+            action:'Failed',
+            config:{
+                horizontalPosition:"center",
+                verticalPosition:"top"
+            }
+        }))
     );
 
     @Effect() public deletePipeline$: Observable<Action> = this.actions$.pipe(

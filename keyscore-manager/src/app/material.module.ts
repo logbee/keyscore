@@ -21,7 +21,7 @@ import {
     MatAutocompleteModule,
     MatPaginatorModule,
     MatSortModule,
-    MatTableDataSource, MatRippleModule, MatTabsModule
+    MatTableDataSource, MatRippleModule, MatTabsModule, MatSnackBarModule
 
 } from '@angular/material';
 import {FlexLayoutModule} from '@angular/flex-layout';
@@ -53,7 +53,8 @@ import {HttpClientModule} from "@angular/common/http";
         MatSortModule,
         MatAutocompleteModule,
         MatRippleModule,
-        MatTabsModule
+        MatTabsModule,
+        MatSnackBarModule
     ],
     exports: [
         MatButtonModule,
@@ -79,7 +80,8 @@ import {HttpClientModule} from "@angular/common/http";
         MatSortModule,
         MatAutocompleteModule,
         MatRippleModule,
-        MatTabsModule
+        MatTabsModule,
+        MatSnackBarModule
     ]
 })
 export class MaterialModule {

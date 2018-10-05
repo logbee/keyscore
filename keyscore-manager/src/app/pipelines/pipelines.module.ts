@@ -14,7 +14,6 @@ import {PipelinesReducer} from "./pipelines.reducer";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
-import {AlertModule} from "../common/alert/alert.module";
 import {ErrorModule} from "../common/error/error.module";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {MaterialModule} from "../material.module";
@@ -40,7 +39,6 @@ export const routes: Routes = [
         HeaderBarModule,
         LoadingModule,
         HealthModule,
-        AlertModule,
         ErrorModule,
         PipelyModule,
         MaterialModule
