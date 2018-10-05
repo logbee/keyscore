@@ -33,9 +33,9 @@ describe('Service: ParameterControlService',()=> {
 
             let formControlCount = 0;
             parametersMap.forEach((descriptor,parameter) => {
-                formControlCount = result.controls[parameter.ref.uuid].value === parameter.value ? formControlCount + 1 : formControlCount;
+                formControlCount = result.controls[parameter.ref.id].value === parameter.value ? formControlCount + 1 : formControlCount;
             });
-
+            console.log(result.controls);
             expect(formControlCount).toBe(parameterDescriptors.length);
         });
 

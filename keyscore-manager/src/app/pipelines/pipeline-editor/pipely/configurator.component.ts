@@ -7,6 +7,7 @@ import {deepcopy, zip} from "../../../util";
 import {Parameter} from "../../../models/parameters/Parameter";
 import {ResolvedParameterDescriptor} from "../../../models/parameters/ParameterDescriptor";
 import {ParameterControlService} from "../../../common/parameter/service/parameter-control.service";
+import {BlockConfiguration} from "./models/block-configuration.model";
 
 @Component({
     selector: "configurator",
@@ -63,26 +64,30 @@ export class ConfiguratorComponent implements OnInit {
                 new Map(zip([selectedDraggable.getDraggableModel().blockConfiguration.parameters,
                     selectedDraggable.getDraggableModel().blockDescriptor.parameters
                 ]));
+            console.log("parameterMAppoin:  ",this.parameterMapping);
             if (this.form) {
                 this.form.reset();
             }
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
+            console.log("FORMCONTROLS: ",this.form.controls);
         });
 
     }
 
     cancel() {
         this.selectedDraggable.getDraggableModel().blockConfiguration.parameters.forEach(parameter =>
-            this.form.controls[parameter.ref.uuid].setValue(parameter.value)
+            this.form.controls[parameter.ref.id].setValue(parameter.value)
         );
         this.closeConfigurator.emit();
 
     }
 
     saveConfiguration() {
-        let blockConfiguration = deepcopy(this.selectedDraggable.getDraggableModel().blockConfiguration);
-        blockConfiguration.parameters.forEach(parameter => {
-            parameter.value = this.form.controls[parameter.ref.uuid].value;
+        let blockConfiguration: BlockConfiguration = deepcopy(this.selectedDraggable.getDraggableModel().blockConfiguration);
+        blockConfiguration.parameters.forEach((parameter) => {
+            console.log("CONTROLS: ", this.form.controls);
+            console.log("PARAMETERREF:", parameter.ref);
+            parameter.value = this.form.controls[parameter.ref.id].value;
         });
         this.selectedDraggable.getDraggableModel().blockConfiguration = blockConfiguration;
         console.log(this.selectedDraggable.getDraggableModel().blockConfiguration.parameters);

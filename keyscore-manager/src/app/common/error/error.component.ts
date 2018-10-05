@@ -12,10 +12,10 @@ import "./style/error.style.scss"
                 </a>
             </div>
             <div class="bottom-column" fxLayoutAlign="start center" fxFlex="40" fxLayout="column">
-                <div>
+                <div class="error-code">
                     <h1>{{httpError}}</h1>
                 </div>
-                <div>
+                <div class="error-message">
                     <h3>{{message}}</h3>
                 </div>
             </div>

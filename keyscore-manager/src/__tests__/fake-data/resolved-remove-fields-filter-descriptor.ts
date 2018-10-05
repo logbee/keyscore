@@ -31,7 +31,7 @@ export const removeFieldFilterDescriptorJson = `{
       {
         "jsonClass":"io.logbee.keyscore.model.descriptor.FieldNameListParameterDescriptor",
         "ref":{
-          "uuid":"removeFields.fieldsToRemove"
+          "id":"removeFields.fieldsToRemove"
         },
         "info":{
           "displayName":{
@@ -44,7 +44,7 @@ export const removeFieldFilterDescriptorJson = `{
         "descriptor":{
           "jsonClass":"io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor",
           "ref":{
-            "uuid":""
+            "id":""
           },
           "defaultValue":"",
           "hint":"PresentField",
@@ -188,7 +188,7 @@ export const resolvedRemoveFieldsFilterDE: ResolvedFilterDescriptor = {
     parameters:[
         {
             ref:{
-                uuid:"removeFields.fieldsToRemove"
+                id:"removeFields.fieldsToRemove"
             },
             info:{
                 displayName:"Feld das entfernt werden soll",
@@ -198,7 +198,7 @@ export const resolvedRemoveFieldsFilterDE: ResolvedFilterDescriptor = {
             descriptor:{
                 jsonClass:ParameterDescriptorJsonClass.FieldNameParameterDescriptor,
                 ref:{
-                    uuid:""
+                    id:""
                 },
                 info:{
                   displayName:"",

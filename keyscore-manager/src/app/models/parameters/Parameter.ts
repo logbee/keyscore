@@ -1,7 +1,7 @@
-import {Ref} from "../common/Ref";
+import {ParameterRef, Ref} from "../common/Ref";
 
 export interface Parameter {
-    ref: Ref;
+    ref: ParameterRef;
     value: any;
     jsonClass: string;
 }

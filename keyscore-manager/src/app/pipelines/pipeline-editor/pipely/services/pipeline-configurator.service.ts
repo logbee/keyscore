@@ -102,6 +102,7 @@ export class PipelineConfiguratorService {
             if (filteredConfiguration !== -1) {
                 pipeline.configurations[filteredConfiguration] = configuration;
             } else {
+                console.log("PIPELINE:: ",pipeline);
                 pipeline.configurations.push(configuration);
             }
         } while (next = next.getNext());

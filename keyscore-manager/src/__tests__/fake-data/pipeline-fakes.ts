@@ -227,7 +227,7 @@ export const generateParameter = (type: ParameterJsonClass = null): Parameter =>
     if (type === null) {
         type = types[faker.random.number({min: 0, max: types.length - 1})];
     }
-    const initialization = {ref: generateRef(), jsonClass: type};
+    const initialization = {ref: generateParameterRef(), jsonClass: type};
 
     switch (type) {
         case ParameterJsonClass.BooleanParameter:

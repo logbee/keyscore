@@ -13,8 +13,8 @@ import "./style/parameter-module-style.scss"
         <div [ngSwitch]="parameterDescriptor.jsonClass" [formGroup]="form" class="parameter-wrapper">
             <mat-form-field *ngSwitchCase="jsonClass.TextParameterDescriptor">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
-                       [formControlName]="parameter.ref.uuid"
-                       [id]="parameter.ref.uuid">
+                       [formControlName]="parameter.ref.id"
+                       [id]="parameter.ref.id">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
 
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
@@ -25,8 +25,8 @@ import "./style/parameter-module-style.scss"
             <mat-form-field *ngSwitchCase="jsonClass.NumberParameterDescriptor">
                 <input matInput type="number"
                        [placeholder]="parameterDescriptor.defaultValue"
-                       [formControlName]="parameter.ref.uuid"
-                       [id]="parameter.ref.uuid">
+                       [formControlName]="parameter.ref.id"
+                       [id]="parameter.ref.id">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -36,8 +36,8 @@ import "./style/parameter-module-style.scss"
             <mat-form-field *ngSwitchCase="jsonClass.DecimalParameterDescriptor">
                 <input matInput type="number"
                        [placeholder]="parameterDescriptor.defaultValue"
-                       [formControlName]="parameter.ref.uuid"
-                       [id]="parameter.ref.uuid">
+                       [formControlName]="parameter.ref.id"
+                       [id]="parameter.ref.id">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -46,15 +46,15 @@ import "./style/parameter-module-style.scss"
 
 
             <div *ngSwitchCase="jsonClass.BooleanParameterDescriptor"
-                 class="toggleCheckbox" [id]="parameter.ref.uuid">
-                <mat-slide-toggle [checked]="parameter.value" id="checkbox{{parameter.ref.uuid}}"
-                                  [formControlName]="parameter.ref.uuid">
+                 class="toggleCheckbox" [id]="parameter.ref.id">
+                <mat-slide-toggle [checked]="parameter.value" id="checkbox{{parameter.ref.id}}"
+                                  [formControlName]="parameter.ref.id">
                     {{parameterDescriptor.info.displayName}}
                 </mat-slide-toggle>
             </div>
 
-            <mat-form-field *ngSwitchCase="jsonClass.ChoiceParameterDescriptor" [id]="parameter.ref.uuid">
-                <mat-select [formControlName]="parameter.ref.uuid"
+            <mat-form-field *ngSwitchCase="jsonClass.ChoiceParameterDescriptor" [id]="parameter.ref.id">
+                <mat-select [formControlName]="parameter.ref.id"
                             [placeholder]="parameterDescriptor.defaultValue"
                             [attr.multiple]="parameterDescriptor.max > 1 ? '' :null">
                     <mat-option *ngFor="let choice of parameterDescriptor.choices" [value]="choice.name"
@@ -64,10 +64,10 @@ import "./style/parameter-module-style.scss"
             </mat-form-field>
 
             <mat-form-field *ngSwitchCase="jsonClass.ExpressionParameterDescriptor"
-                            [id]="parameter.ref.uuid">
+                            [id]="parameter.ref.id">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
-                       [formControlName]="parameter.ref.uuid"
-                       [id]="parameter.ref.uuid">
+                       [formControlName]="parameter.ref.id"
+                       [id]="parameter.ref.id">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -75,10 +75,10 @@ import "./style/parameter-module-style.scss"
             </mat-form-field>
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"
-                            [id]="parameter.ref.uuid">
+                            [id]="parameter.ref.id">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
-                       [formControlName]="parameter.ref.uuid"
-                       [id]="parameter.ref.uuid">
+                       [formControlName]="parameter.ref.id"
+                       [id]="parameter.ref.id">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -86,10 +86,10 @@ import "./style/parameter-module-style.scss"
             </mat-form-field>
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldParameterDescriptor"
-                            [id]="parameter.ref.uuid">
+                            [id]="parameter.ref.id">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
-                       [formControlName]="parameter.ref.uuid"
-                       [id]="parameter.ref.uuid">
+                       [formControlName]="parameter.ref.id"
+                       [id]="parameter.ref.id">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -97,16 +97,16 @@ import "./style/parameter-module-style.scss"
             </mat-form-field>
 
             <parameter-list *ngSwitchCase="jsonClass.FieldNameListParameterDescriptor"
-                            [formControlName]="parameter.ref.uuid"
-                            [id]="parameter.ref.uuid" [parameter]="parameter"></parameter-list>
+                            [formControlName]="parameter.ref.id"
+                            [id]="parameter.ref.id" [parameter]="parameter"></parameter-list>
 
             <parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
-                            [formControlName]="parameter.ref.uuid"
-                            [id]="parameter.ref.uuid" [parameter]="parameter"></parameter-list>
+                            [formControlName]="parameter.ref.id"
+                            [id]="parameter.ref.id" [parameter]="parameter"></parameter-list>
 
             <parameter-map *ngSwitchCase="jsonClass.FieldListParameterDescriptor"
-                           [formControlName]="parameter.ref.uuid"
-                           [id]="parameter.ref.uuid"></parameter-map>
+                           [formControlName]="parameter.ref.id"
+                           [id]="parameter.ref.id"></parameter-map>
 
 
             <div class="parameter-required" *ngIf="!isValid">{{parameterDescriptor.info.displayName}}
@@ -129,6 +129,6 @@ export class ParameterComponent implements OnInit {
     }
 
     get isValid() {
-        return this.form.controls[this.parameter.ref.uuid].valid;
+        return this.form.controls[this.parameter.ref.id].valid;
     }
 }

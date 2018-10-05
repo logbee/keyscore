@@ -6,7 +6,7 @@ export interface Ref{
 }
 
 export interface ParameterRef{
-    uuid:string;
+    id:string;
 }
 
 export const generateRef = (): Ref => {
@@ -19,7 +19,7 @@ export const generateRefs = (count = faker.random.number({min: 1, max: 10})): Re
 };
 export const generateParameterRef = (): ParameterRef => {
     return {
-        uuid: faker.random.uuid()
+        id: faker.random.uuid()
     }
 };
 export const generateParameterRefs = (count = faker.random.number({min: 1, max: 10})): ParameterRef[] => {

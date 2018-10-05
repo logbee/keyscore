@@ -81,20 +81,21 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
         this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors), takeUntil(this.alive));
-        this.isLoading$ = this.store.pipe(select(isSpinnerShowing), takeUntil(this.alive), share());
-        this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive), share());
+        this.isLoading$ = this.store.pipe(select(isSpinnerShowing),share());
+        this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive));
 
-        this.pipeline$.subscribe(pipe => this.storeEditingPipeline = pipe);
+        this.pipeline$.subscribe(pipe => {
+            this.storeEditingPipeline = pipe;
+        });
 
         this.filterDescriptors$.subscribe(descriptors => {
-            console.log("DESCRIPTORUPDATE");
             this.blockDescriptorSource$.next(descriptors.map(descriptor =>
                 this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
         });
 
-        this.errorState$ = this.store.pipe(select(isError), share());
-        this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode), share());
-        this.errorMessage$ = this.store.pipe(select(selectErrorMessage), share());
+        this.errorState$ = this.store.pipe(select(isError));
+        this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));
+        this.errorMessage$ = this.store.pipe(select(selectErrorMessage));
     }
 
     public ngOnDestroy() {

@@ -4,7 +4,7 @@ import {
     ElementRef,
     EventEmitter,
     HostListener,
-    Input,
+    Input, OnChanges,
     OnDestroy,
     OnInit,
     Output,
@@ -94,7 +94,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                 private pipelineConfigurator: PipelineConfiguratorService) {
         this.id = uuid();
     }
-
 
     private draggableMouseDown(draggable: Draggable, event: MouseEvent) {
         this.mouseDownStart = {x: event.clientX, y: event.clientY};

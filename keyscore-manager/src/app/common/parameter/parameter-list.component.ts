@@ -55,9 +55,7 @@ export class ParameterList implements ControlValueAccessor,OnInit {
     };
 
     public ngOnInit(): void{
-        console.log("LISTONINIT: ",this.parameter);
         this.parameterValues = this.parameter.value;
-        console.log("LISTONINIT Values: ",this.parameterValues);
     }
 
     public writeValue(elements: string[]): void {
