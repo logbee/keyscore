@@ -5,10 +5,10 @@ export interface Icon {
 }
 
 export enum IconFormat{
-    SVG = 0
+    SVG = "SVG"
 }
 
 export enum IconEncoding{
-    RAW=0,
-    Base64=1
+    RAW="RAW",
+    Base64="Base64"
 }

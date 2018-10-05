@@ -271,7 +271,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
     }
 
     ngOnInit() {
-        console.log(this.pipeline);
         this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this);
 
         this.dropzones.add(this.workspaceDropzone);

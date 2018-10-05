@@ -19,6 +19,7 @@ import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 object D3BoxPlotGeneratorLogic extends Described {
+  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/box-plot.svg"
 
   private[filter] val groupIdentifierParameter = FieldNameParameterDescriptor(
     ref = "d3BoxPlot.groupIdentifier",
@@ -46,7 +47,9 @@ object D3BoxPlotGeneratorLogic extends Described {
         parameters = Seq(
           groupIdentifierParameter,
           itemIdentifierParameter
-        )
+        ),
+        icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
+
       ),
       localization = Localization.fromResourceBundle(
         bundleName = "io.logbee.keyscore.pipeline.contrib.filter.D3BoxPlotGenerator",

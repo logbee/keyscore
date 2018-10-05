@@ -7,6 +7,7 @@ import {
 } from "../../../../../__tests__/fake-data/pipeline-fakes";
 import {Ref} from "../../../../models/common/Ref";
 import {Category, ResolvedCategory} from "../../../../models/descriptors/Category";
+import {Icon} from "../../../../models/descriptors/Icon";
 
 export interface BlockDescriptor {
     ref: Ref;
@@ -16,6 +17,7 @@ export interface BlockDescriptor {
     nextConnection: Connection;
     parameters: ResolvedParameterDescriptor[];
     categories: ResolvedCategory[];
+    icon?: Icon;
 }
 
 

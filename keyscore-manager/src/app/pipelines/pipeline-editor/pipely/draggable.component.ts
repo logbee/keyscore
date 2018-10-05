@@ -1,9 +1,9 @@
 import {
     AfterViewInit,
-    Component, ComponentFactoryResolver,
+    Component,
+    ComponentFactoryResolver,
     ComponentRef,
     ElementRef,
-    HostListener, Inject,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -19,6 +19,7 @@ import {Rectangle} from "./models/rectangle";
 import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {takeUntil} from "rxjs/internal/operators";
+import {IconEncoding, IconFormat} from "../../../models/descriptors/Icon";
 
 
 @Component({
@@ -52,6 +53,11 @@ import {takeUntil} from "rxjs/internal/operators";
                         <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
                                [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>
                     </svg>
+                    <div class="iconContainer">
+                        <div #iconInnerContainer class="iconInnerContainer">
+                            
+                        </div>
+                    </div>
                 </div>
 
                 <div class="connection next-connection">
@@ -59,7 +65,10 @@ import {takeUntil} from "rxjs/internal/operators";
                 </div>
 
             </div>
-            <div fxLayout="row" fxFlexAlign="center" fxLayoutAlign="space-around center" class="draggable-name">{{draggableModel.blockDescriptor.displayName}}</div>
+            <div fxLayout="row" fxFlexAlign="center" fxLayoutAlign="space-around center" [class]="'draggable-name'"
+                 [class.sink]="draggableModel.blockDescriptor.nextConnection.connectionType === 'no-connection-out'">
+                {{draggableModel.blockDescriptor.displayName}}
+            </div>
         </div>
     `
 })
@@ -70,6 +79,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     draggableModel: DraggableModel;
     componentRef: ComponentRef<DraggableComponent>;
 
+    @ViewChild("iconInnerContainer") iconContainer:ElementRef;
     @ViewChild("draggableElement") draggableElement: ElementRef;
     @ViewChild("previousConnection", {read: ViewContainerRef}) previousConnectionContainer: ViewContainerRef;
     @ViewChild("nextConnection", {read: ViewContainerRef}) nextConnectionContainer: ViewContainerRef;
@@ -114,6 +124,13 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
         if (this.draggableModel.next) {
             this.createNext();
+        }
+
+        if (this.draggableModel.blockDescriptor.icon &&
+            this.draggableModel.blockDescriptor.icon.format === IconFormat.SVG &&
+            this.draggableModel.blockDescriptor.icon.encoding === IconEncoding.RAW) {
+
+            this.iconContainer.nativeElement.innerHTML = this.draggableModel.blockDescriptor.icon.data;
         }
 
     }

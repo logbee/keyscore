@@ -11,6 +11,7 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
+import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsFilterLogic.iconName
 
 import scala.Int.MaxValue
 
@@ -18,6 +19,7 @@ import scala.Int.MaxValue
 object RemoveFieldsFilterLogic extends Described {
 
   private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilter"
+  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/remove.svg"
 
   val fieldsToRemoveParameter = FieldNameListParameterDescriptor(
     ref = "removeFields.fieldsToRemove",
@@ -39,7 +41,9 @@ object RemoveFieldsFilterLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
-      parameters = Seq(fieldsToRemoveParameter)
+      parameters = Seq(fieldsToRemoveParameter),
+      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
+
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilter",

@@ -5,7 +5,7 @@ import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.descriptor.{Descriptor, FilterDescriptor}
+import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
@@ -13,6 +13,7 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 
 object LoggerFilter extends Described {
+  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/logger.svg"
 
   override def describe = Descriptor(
     ref = "634bce93-64a3-4469-a105-1be441fdc2e0",
@@ -21,7 +22,9 @@ object LoggerFilter extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.DEBUG),
-      parameters = Seq()
+      parameters = Seq(),
+      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
+
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.LoggerFilter",

@@ -13,6 +13,7 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATIO
 import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsFilterLogic.fieldListParameter
 
 object AddFieldsFilterLogic extends Described {
+  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/add_fields.svg"
 
   val fieldListParameter = FieldListParameterDescriptor(
     ParameterRef("fieldList"),
@@ -32,7 +33,9 @@ object AddFieldsFilterLogic extends Described {
         displayName = TextRef("displayName"),
         description = TextRef("description"),
         categories = Seq(CommonCategories.AUGMENT, CommonCategories.FIELDS),
-        parameters = Seq(fieldListParameter)
+        parameters = Seq(fieldListParameter),
+        icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
+
       ),
       localization = Localization.fromResourceBundle(
         bundleName = "io.logbee.keyscore.pipeline.contrib.filter.AddFieldsFilter",

@@ -15,6 +15,8 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 
 object FingerprintFilterLogic extends Described {
+  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/fingerprint.svg"
+
 
   private val targetParameter = TextParameterDescriptor(
     ref = "fingerprint.target",
@@ -43,7 +45,9 @@ object FingerprintFilterLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(Category("fingerprint", TextRef("category.fingerprint.displayName"))),
-      parameters = Seq(targetParameter,encodingParameter)
+      parameters = Seq(targetParameter,encodingParameter),
+      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
+
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.FingerprintFilter",

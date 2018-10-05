@@ -57,19 +57,15 @@ export class ConfiguratorComponent implements OnInit {
     public ngOnInit(): void {
 
         this.selectedDraggable$.pipe(distinctUntilChanged()).subscribe(selectedDraggable => {
-            console.log("configuration on init subscribe");
-            console.log(selectedDraggable.getDraggableModel().blockConfiguration.parameters);
             this.selectedDraggable = selectedDraggable;
             this.parameterMapping =
                 new Map(zip([selectedDraggable.getDraggableModel().blockConfiguration.parameters,
                     selectedDraggable.getDraggableModel().blockDescriptor.parameters
                 ]));
-            console.log("parameterMAppoin:  ",this.parameterMapping);
             if (this.form) {
                 this.form.reset();
             }
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
-            console.log("FORMCONTROLS: ",this.form.controls);
         });
 
     }
@@ -85,8 +81,6 @@ export class ConfiguratorComponent implements OnInit {
     saveConfiguration() {
         let blockConfiguration: BlockConfiguration = deepcopy(this.selectedDraggable.getDraggableModel().blockConfiguration);
         blockConfiguration.parameters.forEach((parameter) => {
-            console.log("CONTROLS: ", this.form.controls);
-            console.log("PARAMETERREF:", parameter.ref);
             parameter.value = this.form.controls[parameter.ref.id].value;
         });
         this.selectedDraggable.getDraggableModel().blockConfiguration = blockConfiguration;

@@ -32,6 +32,8 @@ object ElasticSearchSinkLogic extends Described {
 
   private val filterName = "io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic"
   private val bundleName = "io.logbee.keyscore.pipeline.contrib.filter.ElasticSearchSinkLogic"
+  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/elastic-elasticsearch.svg"
+
 
   val hostParameter = TextParameterDescriptor(
     "elastic.host",
@@ -66,7 +68,8 @@ object ElasticSearchSinkLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.SINK, Category("Elasticsearch")),
-      parameters = Seq(hostParameter, portParameter, indexParameter)
+      parameters = Seq(hostParameter, portParameter, indexParameter),
+      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
     ),
     localization = Localization.fromResourceBundle(bundleName, Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
   )

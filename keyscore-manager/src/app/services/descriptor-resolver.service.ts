@@ -42,8 +42,7 @@ export class DescriptorResolverService {
         const resolvedParameters = filterDescriptor.parameters.map(parameter =>
             this.resolveParameterDescriptor(settings, parameter));
 
-
-        return {
+        let resolvedDescriptor = {
             descriptorRef: descriptor.ref,
             name: filterDescriptor.name,
             jsonClass: filterDescriptor.jsonClass,
@@ -52,6 +51,17 @@ export class DescriptorResolverService {
             categories: categories,
             parameters: resolvedParameters
         };
+
+        if (descriptor.describes.icon) {
+            return {
+                ...resolvedDescriptor,
+                icon: descriptor.describes.icon
+            };
+        }
+        else {
+            return resolvedDescriptor;
+
+        }
     }
 
     private resolveParameterDescriptor(settings: { descriptor: Descriptor, language: string }, parameterDescriptor: ParameterDescriptor): ResolvedParameterDescriptor {
@@ -145,10 +155,10 @@ export class DescriptorResolverService {
                     choices: parameterDescriptor.choices.map(choice => this.resolveChoice(settings, choice))
                 };
             case ParameterDescriptorJsonClass.BooleanParameterDescriptor:
-                return{
+                return {
                     ...initialize,
-                    mandatory:parameterDescriptor.mandatory,
-                    defaultValue:parameterDescriptor.defaultValue
+                    mandatory: parameterDescriptor.mandatory,
+                    defaultValue: parameterDescriptor.defaultValue
                 };
             default:
                 return null;

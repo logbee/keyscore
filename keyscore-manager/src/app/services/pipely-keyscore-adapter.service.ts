@@ -14,7 +14,7 @@ export class PipelyKeyscoreAdapter {
             connectionType: descriptor.jsonClass === FilterDescriptorJsonClass.SinkDescriptor ? 'no-connection-out' : 'default-out'
         };
 
-        return{
+        let blockDescriptor = {
             ref:descriptor.descriptorRef,
             displayName:descriptor.displayName,
             description:descriptor.description,
@@ -23,6 +23,14 @@ export class PipelyKeyscoreAdapter {
             parameters:descriptor.parameters,
             categories:descriptor.categories
 
+        };
+        if(descriptor.icon){
+            return{
+                ...blockDescriptor,
+                icon:descriptor.icon
+            }
+        }else{
+            return blockDescriptor;
         }
     }
 }
