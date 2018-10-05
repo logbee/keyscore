@@ -6,10 +6,10 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
     template:
             `
         <div fxLayout="row" fxLayoutGap="15px">
-                <mat-form-field>
+                <mat-form-field class="half">
                     <input matInput #addItemInputKey  type="text" placeholder="Key">
                 </mat-form-field>    
-                <mat-form-field>
+                <mat-form-field class="half">
                     <input matInput #addItemInputValue type="text" placeholder="Value">
                 </mat-form-field>
                 <button mat-icon-button color="accent" (click)="addItem(addItemInputKey.value,addItemInputValue.value)">

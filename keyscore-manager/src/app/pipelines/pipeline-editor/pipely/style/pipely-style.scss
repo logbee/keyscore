@@ -145,6 +145,7 @@ configurator {
 .configurator-body{
   overflow-y: scroll;
   max-height:calc(95vh - 100px);
+  padding:10px 0;
 }
 
 .configurator-body::-webkit-scrollbar {
