@@ -25,44 +25,83 @@ object ConfigurationResourceRoute extends RouteImplicits {
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~
-            delete {
-              onSuccess(configurationManager ? DeleteAllConfigurationsRequest) {
-                case DeleteAllConfigurationsResponse => complete(StatusCodes.OK)
+          delete {
+            onSuccess(configurationManager ? DeleteAllConfigurationsRequest) {
+              case DeleteAllConfigurationsResponse => complete(StatusCodes.OK)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          }
+        } ~
+        pathPrefix(JavaUUID) { configurationId =>
+          post {
+            entity(as[Configuration]) { configuration =>
+              onSuccess(configurationManager ? UpdateConfigurationRequest(configuration)) {
+                case UpdateConfigurationSuccessResponse => complete(StatusCodes.OK)
+                case _ => complete(StatusCodes.NoContent)
+              }
+            }
+          } ~
+          put {
+            entity(as[Configuration]) { configuration =>
+              onSuccess(configurationManager ? StoreOrUpdateConfigurationRequest(configuration)) {
+                case StoreConfigurationResponse => complete(StatusCodes.Created)
+                case UpdateConfigurationSuccessResponse => complete(StatusCodes.OK)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
-        } ~
-          pathPrefix(JavaUUID) { configurationId =>
-            post {
-              entity(as[Configuration]) { configuration =>
-                onSuccess(configurationManager ? UpdateConfigurationRequest(configuration)) {
-                  case UpdateConfigurationSuccessResponse => complete(StatusCodes.OK)
-                  case _ => complete(StatusCodes.NoContent)
-                }
-              }
-            } ~
-              put {
-                entity(as[Configuration]) { configuration =>
-                  onSuccess(configurationManager ? StoreOrUpdateConfigurationRequest(configuration)) {
-                    case StoreConfigurationResponse => complete(StatusCodes.Created)
-                    case UpdateConfigurationSuccessResponse => complete(StatusCodes.OK)
-                    case _ => complete(StatusCodes.InternalServerError)
-                  }
-                }
-              } ~
-              get {
-                onSuccess((configurationManager ? GetConfigurationRequest(ConfigurationRef(configurationId.toString))).mapTo[GetConfigurationSuccess]) {
-                  case GetConfigurationSuccess(configuration) => complete(StatusCodes.OK, configuration)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              } ~
-              delete {
-                onSuccess(configurationManager ? DeleteConfigurationRequest(ConfigurationRef(configurationId.toString))) {
-                  case DeleteConfigurationResponse => complete(StatusCodes.OK)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              }
+          } ~
+          get {
+            onSuccess((configurationManager ? GetConfigurationRequest(ConfigurationRef(configurationId.toString))).mapTo[GetConfigurationSuccess]) {
+              case GetConfigurationSuccess(configuration) => complete(StatusCodes.OK, configuration)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
+          } ~
+          delete {
+            onSuccess(configurationManager ? DeleteConfigurationRequest(ConfigurationRef(configurationId.toString))) {
+              case DeleteConfigurationResponse => complete(StatusCodes.OK)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
           }
+        }
+      } ~
+      post {
+        pathPrefix("_commit") {
+          entity(as[Configuration]) { configuration =>
+            complete(StatusCodes.NotImplemented)
+          }
+        }
+        pathPrefix("_reset") {
+          entity(as[ConfigurationRef]) { ref =>
+            complete(StatusCodes.NotImplemented)
+          }
+        }
+        pathPrefix("_revert") {
+          entity(as[ConfigurationRef]) { ref =>
+            complete(StatusCodes.NotImplemented)
+          }
+        }
+        pathPrefix("_remove") {
+          entity(as[ConfigurationRef]) { ref =>
+            complete(StatusCodes.NotImplemented)
+          }
+        }
+      } ~
+      get {
+        pathPrefix("_head") {
+          entity(as[ConfigurationRef]) { ref =>
+            complete(StatusCodes.NotImplemented)
+          }
+        } ~
+        pathPrefix("_get") {
+          entity(as[ConfigurationRef]) { ref =>
+            complete(StatusCodes.NotImplemented)
+          }
+        } ~
+        pathPrefix("_all") {
+          entity(as[ConfigurationRef]) { ref =>
+            complete(StatusCodes.NotImplemented)
+          }
+        }
       }
     }
   }
