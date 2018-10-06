@@ -1,5 +1,6 @@
 import io.logbee.gradle.scalapb.ScalaPBPlugin
 
+apply plugin: 'idea'
 apply plugin: 'scala'
 apply plugin: 'java'
 apply plugin: ScalaPBPlugin
@@ -34,10 +35,4 @@ jar {
         'Implementation-Title': project.name,
         'Implementation-Version': version,
     ])
-}
-
-idea {
-    module {
-        generatedSourceDirs += file("${project.buildDir}/generated/source/scalpb/main/scala")
-    }
 }

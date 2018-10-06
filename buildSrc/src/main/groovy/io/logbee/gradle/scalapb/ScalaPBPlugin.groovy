@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.SourceSet
+import org.gradle.plugins.ide.idea.IdeaPlugin
 
 import javax.inject.Inject
 
@@ -43,6 +44,17 @@ class ScalaPBPlugin implements Plugin<Project> {
             }
 
             sourceSet.scala.srcDirs += outputBaseDir
+
+            if (!sourceSet.proto.srcDirs.isEmpty()) {
+                project.plugins.withType(IdeaPlugin) { idea ->
+                    if (sourceSet.name.contains('main')) {
+                        project.extensions["idea"].module.sourceDirs += sourceSet.proto.srcDirs
+                    }
+                    else if (sourceSet.name.contains('test')) {
+                        project.extensions["idea"].module.testSourceDirs += sourceSet.proto.srcDirs
+                    }
+                }
+            }
         }
     }
 
