@@ -1,9 +1,9 @@
 syntax = "proto3";
 
 import "scalapb/scalapb.proto";
-import "descriptor.proto";
-import "data.proto";
-import "configuration.proto";
+import "io/logbee/keyscore/descriptor.proto";
+import "io/logbee/keyscore/data.proto";
+import "io/logbee/keyscore/configuration.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model.blueprint"

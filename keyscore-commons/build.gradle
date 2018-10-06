@@ -6,6 +6,8 @@ apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')
 
+evaluationDependsOn ':keyscore-model'
+
 repositories {
     mavenCentral()
 }
@@ -35,4 +37,8 @@ jar {
         'Implementation-Title': project.name,
         'Implementation-Version': version,
     ])
+}
+
+generateScalaPB {
+    dependsOn project(':keyscore-model').tasks['jar']
 }

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
 import "scalapb/scalapb.proto";
-import "metrics.proto";
-import "blueprint.proto";
+import "io/logbee/keyscore/metrics.proto";
+import "io/logbee/keyscore/blueprint.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model.instance"

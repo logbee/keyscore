@@ -2,13 +2,7 @@ package io.logbee.gradle.scalapb
 
 import com.github.os72.protocjar.Protoc
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.SkipWhenEmpty
-import org.gradle.api.tasks.StopActionException
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.TaskExecutionException
+import org.gradle.api.tasks.*
 import protocbridge.JvmGenerator
 import protocbridge.ProtocBridge
 import protocbridge.Target
@@ -24,7 +18,11 @@ class ScalaPBGenerateTask extends DefaultTask {
 
     @InputFiles
     @SkipWhenEmpty
-    FileCollection protoFiles
+    Set<File> protoDirs
+
+    @InputFiles
+    @SkipWhenEmpty
+    Set<File> protoFiles
 
     @OutputDirectory
     File outputBaseDir
@@ -37,8 +35,7 @@ class ScalaPBGenerateTask extends DefaultTask {
     void generate() {
 
         try {
-            List<String> schemas = protoFiles.files.collect { it.getCanonicalPath() }
-            List<String> includePaths = externalProtoFiles().plus(protoFiles.files.collect { it.parentFile }).collect {"-I${it.getCanonicalPath()}"} as String[]
+            List<String> includePaths = externalProtoFiles().plus(protoDirs).collect {"-I${it.getCanonicalPath()}"} as String[]
 
             if (outputBaseDir.exists()) {
                 outputBaseDir.deleteDir()
@@ -46,10 +43,10 @@ class ScalaPBGenerateTask extends DefaultTask {
             }
 
             Target target = new Target(scalapbGenerator, outputBaseDir, emptySeq)
-            Integer exit = Integer.valueOf(ProtocBridge.run(protocCommandFunction, toSeq([target]), toSeq([] + includePaths + schemas), PluginFrontend.newInstance()))
+            Integer exit = Integer.valueOf(ProtocBridge.run(protocCommandFunction, toSeq([target]), toSeq([] + includePaths + protoFiles), PluginFrontend.newInstance()))
 
             if (exit != 0) {
-                throw new ScalaPBGenerationException("ProtocBridge exited with a non zero return value (" + exit + ")! See previous logs for more information.")
+                throw new ScalaPBGenerationException("ProtocBridge exited with a non zero return value ($exit)! See previous logs for more information.")
             }
         }
         catch (Exception e) {
@@ -70,10 +67,7 @@ class ScalaPBGenerateTask extends DefaultTask {
         Set<File> extractedProtos = new HashSet<>()
         byte[] buffer = new byte[65536]
 
-        project.configurations.compile.filter {
-            it.path.contains("protobuf") ||
-            it.path.contains("scalapb")
-        }.each { file ->
+        project.configurations.compile.each { file ->
             String path = file.path
             if ([".zip", ".gzip", ".gz", ".jar"].contains(path.substring(path.lastIndexOf('.'), path.length()))) {
                 def fileName = file.getName()
