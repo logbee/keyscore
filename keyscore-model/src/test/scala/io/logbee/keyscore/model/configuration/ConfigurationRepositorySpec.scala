@@ -43,7 +43,13 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       }
 
       "should return all revisions of the specified configuration" in {
-        repository.all(ConfigurationRef(exampleConfigurationUUID)) should have size 3
+
+        val configurations = repository.all(ConfigurationRef(exampleConfigurationUUID))
+
+        configurations should have size 3
+        configurations.head.parameters shouldBe lastExampleConfiguration.parameters
+        configurations(1).parameters shouldBe modifiedExampleConfiguration.parameters
+        configurations(2).parameters shouldBe exampleConfiguration.parameters
       }
 
       "should return an empty list if the specified configuration is unknown" in {
@@ -61,7 +67,7 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
         repository.get(ConfigurationRef("877e7c83-7b6d-4a43-acd1-6802ef00930f", exampleConfigurationRef.revision)) should be('empty)
       }
 
-      "should return None if there is no Configurtaion with the specified revision" in {
+      "should return None if there is no Configuration with the specified revision" in {
         repository.get(ConfigurationRef(exampleConfigurationUUID, "331a76f144d96cca5a31018c3055c20282ce75ac")) should be('empty)
         repository.get(ConfigurationRef(exampleConfigurationUUID)) should be('empty)
       }

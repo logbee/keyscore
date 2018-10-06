@@ -60,6 +60,27 @@ class ConfigurationRepository {
     *   the current ''head'' of revisions of passed [[Configuration]] an [[DivergedException]] will be
     *   thrown.
     *
+    * @example For a given Configuration there are two revisions (A and B). When a configuration gets committed,
+    *          then a new revision C is appended as new head.
+    * {{{
+    * [ditaa]
+    * ....
+    *  Before:
+    *  +---+   +---+
+    *  | A |-->| B |
+    *  +---+   +---+
+    *            ^
+    *            |
+    *          (head)
+    *  After:
+    *  +---+   +---+   +---+
+    *  | A |-->| B |-->| C |
+    *  +---+   +---+   +---+
+    *                    ^
+    *                    |
+    *                  (head)
+    * ....
+    * }}}
     * @param configuration a [[Configuration]]
     *
     * @return a [[ConfigurationRef]] which points to the revision computed for the passed [[Configuration]].
@@ -88,7 +109,7 @@ class ConfigurationRepository {
     updatedConfiguration.ref
   }
 
-  /** Discard all revisions applied after the revision specified in the passed [[ConfigurationRef]] of the denoted [[Configuration]]
+  /** Discard all revisions applied after the revision specified by the passed [[ConfigurationRef]] of the denoted [[Configuration]]
     *
     * @example For a given Configuration there are four revisions (A to D). When the configuration gets rest to B,
     *          then the revisions C and D will be discarded.
@@ -133,7 +154,7 @@ class ConfigurationRepository {
     }
   }
 
-  /** Discard the revision specified in the passed [[ConfigurationRef]] of the denoted [[Configuration]] by re-applying
+  /** Discard the revision specified by the passed [[ConfigurationRef]] of the denoted [[Configuration]] by re-applying
     * the ancestor revision.
     *
     * @example For a given Configuration there are four revisions (A to C). When C gets reverted, then the revision B
@@ -246,7 +267,9 @@ class ConfigurationRepository {
     store.get(ref.revision)
   }
 
-  /** Returns all revisions of the [[Configuration]] denoted by the passed [[ConfigurationRef]].
+  /** Returns all revisions of the [[Configuration]] denoted by the passed [[ConfigurationRef]]. The last committed
+    * [[Configuration]] is the first element (head) of the returned [[Seq]]. Where the last element of the [[Seq]] is
+    * the first [[Configuration]] committed (root).
     *
     * @param ref a [[ConfigurationRef]]
     *
@@ -254,7 +277,7 @@ class ConfigurationRepository {
     */
   def all(ref: ConfigurationRef): Seq[Configuration] = {
     index.getOrElse(ref.uuid, List.empty).foldLeft(List.empty[Configuration]) { case (result, ref) =>
-      result :+ store(ref.revision)
+      store(ref.revision) +: result
     }
   }
 
