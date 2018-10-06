@@ -2,8 +2,11 @@ package io.logbee.keyscore.model.configuration
 
 import io.logbee.keyscore.model.configuration.ConfigurationRepository.{DivergedException, ROOT_ANCESTOR, UnknownConfigurationException, UnknownRevisionException}
 import io.logbee.keyscore.model.descriptor.ParameterRef
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
+@RunWith(classOf[JUnitRunner])
 class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValues {
 
   "A ConfigurationRepository" - {
