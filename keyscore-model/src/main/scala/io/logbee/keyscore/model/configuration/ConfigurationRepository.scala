@@ -178,10 +178,12 @@ class ConfigurationRepository {
     *                          (head)
     * ....
     * }}}
+    *
     * @param ref a [[ConfigurationRef]]
     *
     * @throws UnknownRevisionException if the revision specified in the passed [[ConfigurationRef]] does not exist.
     * @throws UnknownConfigurationException if there is no [[Configuration]] referenced by the passed [[ConfigurationRef]].
+    * @throws DivergedException if the ancestor could not be re-applied.
     */
   def revert(ref: ConfigurationRef): ConfigurationRef = {
     index.get(ref.uuid) match {
@@ -227,6 +229,17 @@ class ConfigurationRepository {
         index.remove(ref.uuid)
       case _ =>
     }
+  }
+
+  /** Returns the latest revision of all [[Configuration]]s of this [[ConfigurationRepository]].
+    *
+    * @return a [[Seq]]
+    */
+  def head(): Seq[Configuration] = {
+    index.values
+      .map(revisions => revisions.last)
+      .map(last => store(last.revision))
+      .toSeq
   }
 
   /** Returns the last committed revision (head) of the configuration denoted by the passed [[ConfigurationRef]].

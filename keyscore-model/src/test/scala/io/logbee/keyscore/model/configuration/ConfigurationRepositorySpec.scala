@@ -212,5 +212,34 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
         repository.all(ConfigurationRef(exampleConfigurationUUID)) shouldBe empty
       }
     }
+
+    "with several committed Configurations" - {
+
+      val repository = new ConfigurationRepository()
+
+      val fieldParameter = TextParameter(ParameterRef("fieldName"), "message")
+      val hostParameter = TextParameter(ParameterRef("hostname"), "example.com")
+      val portParameter = NumberParameter(ParameterRef("port"), 9092)
+
+      val exampleA = Configuration("1452dc63-68db-404e-a79d-6143b3526809", parameters = Seq(
+        fieldParameter
+      ))
+
+      val exampleB = Configuration("a9080e02-dd5f-48d8-8995-51af63a8eedc", parameters = Seq(
+        hostParameter
+      ))
+
+      val exampleARef = repository.commit(exampleA)
+      val exampleB1Ref = repository.commit(exampleB)
+      val exampleB2Ref = repository.commit(exampleB.update(
+        _.parameters :+= portParameter
+      ))
+
+      "should return the head revisions of all Configurations" in {
+
+        val configurations = repository.head()
+        configurations should have size 2
+      }
+    }
   }
 }
