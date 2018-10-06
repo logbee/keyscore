@@ -5,6 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages._
+import io.logbee.keyscore.commons.cluster.resources._
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 
@@ -62,44 +63,96 @@ object ConfigurationResourceRoute extends RouteImplicits {
               case _ => complete(StatusCodes.InternalServerError)
             }
           }
-        }
-      } ~
-      post {
-        pathPrefix("_commit") {
-          entity(as[Configuration]) { configuration =>
-            complete(StatusCodes.NotImplemented)
-          }
-        }
-        pathPrefix("_reset") {
-          entity(as[ConfigurationRef]) { ref =>
-            complete(StatusCodes.NotImplemented)
-          }
-        }
-        pathPrefix("_revert") {
-          entity(as[ConfigurationRef]) { ref =>
-            complete(StatusCodes.NotImplemented)
-          }
-        }
-        pathPrefix("_remove") {
-          entity(as[ConfigurationRef]) { ref =>
-            complete(StatusCodes.NotImplemented)
-          }
-        }
-      } ~
-      get {
-        pathPrefix("_head") {
-          entity(as[ConfigurationRef]) { ref =>
-            complete(StatusCodes.NotImplemented)
+        } ~
+        post {
+          pathPrefix("_commit") {
+            entity(as[Configuration]) { configuration =>
+              onSuccess(configurationManager ? CommitConfiguration(configuration)) {
+                case CommitConfigurationSuccess(ref) => complete(StatusCodes.OK, ref)
+                case ConfigurationDivergedFailure(base, theirs, yours) =>
+                  complete(StatusCodes.Conflict, Map(
+                    "base" -> base,
+                    "theirs" -> theirs,
+                    "yours" -> yours
+                  ))
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+          } ~
+          pathPrefix("_reset") {
+            entity(as[ConfigurationRef]) { ref =>
+              onSuccess(configurationManager ? ResetConfiguration(ref)) {
+                case ResetConfigurationSuccess() => complete(StatusCodes.OK)
+                case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                case ConfigurationRevisionNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+          } ~
+          pathPrefix("_revert") {
+            entity(as[ConfigurationRef]) { ref =>
+              entity(as[ConfigurationRef]) { ref =>
+                onSuccess(configurationManager ? RevertConfiguration(ref)) {
+                  case RevertConfigurationSuccess(result) => complete(StatusCodes.OK, result)
+                  case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                  case ConfigurationRevisionNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                  case ConfigurationDivergedFailure(base, theirs, yours) =>
+                    complete(StatusCodes.Conflict, Map(
+                      "base" -> base,
+                      "theirs" -> theirs,
+                      "yours" -> yours
+                    ))
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            }
+          } ~
+          pathPrefix("_remove") {
+            entity(as[ConfigurationRef]) { ref =>
+              onSuccess(configurationManager ? RemoveConfiguration(ref)) {
+                case RemoveConfigurationSuccess() => complete(StatusCodes.OK)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
           }
         } ~
-        pathPrefix("_get") {
-          entity(as[ConfigurationRef]) { ref =>
-            complete(StatusCodes.NotImplemented)
-          }
-        } ~
-        pathPrefix("_all") {
-          entity(as[ConfigurationRef]) { ref =>
-            complete(StatusCodes.NotImplemented)
+        get {
+          pathPrefix("_head") {
+            requestEntityEmpty {
+              onSuccess(configurationManager ? RequestAllConfigurationsHeadRevision()) {
+                case ConfigurationsResponse(configurations) => complete(StatusCodes.OK, configurations)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            } ~
+            requestEntityPresent {
+              entity(as[ConfigurationRef]) { ref =>
+                onSuccess(configurationManager ? RequestConfigurationHeadRevision(ref)) {
+                  case ConfigurationResponse(configuration) => complete(StatusCodes.OK, configuration)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            }
+          } ~
+          pathPrefix("_get") {
+            entity(as[ConfigurationRef]) { ref =>
+              onSuccess(configurationManager ? RequestConfigurationRevision(ref)) {
+                case ConfigurationResponse(configuration) => complete(StatusCodes.OK, configuration)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
+          } ~
+          pathPrefix("_all") {
+            requestEntityEmpty {
+              complete(StatusCodes.NotImplemented)
+            } ~
+            requestEntityPresent {
+              entity(as[ConfigurationRef]) { ref =>
+                onSuccess(configurationManager ? RequestAllConfigurationRevisions(ref)) {
+                  case ConfigurationsResponse(configurations) => complete(StatusCodes.OK, configurations)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
+            }
           }
         }
       }

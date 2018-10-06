@@ -5,8 +5,12 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.Topics
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetAllConfigurationRequest, _}
+import io.logbee.keyscore.commons.cluster.resources._
 import io.logbee.keyscore.commons.{ConfigurationService, HereIam, WhoIs}
-import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
+import io.logbee.keyscore.model.configuration.ConfigurationRepository.{DivergedException, UnknownConfigurationException, UnknownRevisionException}
+import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef, ConfigurationRepository}
+
+import scala.util.{Failure, Success, Try}
 
 /**
   * The '''ConfigurationManager''' holds a map for all `Configurations` and <br>
@@ -23,6 +27,7 @@ object ConfigurationManager {
 class ConfigurationManager extends Actor with ActorLogging {
 
   private val configurations = scala.collection.mutable.Map.empty[ConfigurationRef, Configuration]
+  private val repository = new ConfigurationRepository()
 
   private val mediator = DistributedPubSub(context.system).mediator
 
@@ -36,6 +41,53 @@ class ConfigurationManager extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
+
+    case CommitConfiguration(configuration) =>
+      Try(repository.commit(configuration)) match {
+        case Success(ref) => sender ! CommitConfigurationSuccess(ref)
+        case Failure(exception) =>
+      }
+
+    case ResetConfiguration(ref) =>
+      Try(repository.reset(ref)) match {
+        case Success(_) => sender ! ResetConfigurationSuccess()
+        case Failure(exception: UnknownConfigurationException) =>
+          sender ! ConfigurationNotFoundFailure(ref)
+        case Failure(exception: UnknownRevisionException) =>
+          sender ! ConfigurationRevisionNotFoundFailure(ref)
+      }
+
+    case RevertConfiguration(ref) =>
+      Try(repository.revert(ref)) match {
+        case Success(result) => sender ! RevertConfigurationSuccess(result)
+        case Failure(DivergedException(base, theirs, yours)) =>
+          sender ! ConfigurationDivergedFailure(base, theirs, yours)
+        case Failure(exception: UnknownConfigurationException) =>
+          sender ! ConfigurationNotFoundFailure(ref)
+        case Failure(exception: UnknownRevisionException) =>
+          sender ! ConfigurationRevisionNotFoundFailure(ref)
+      }
+
+    case RemoveConfiguration(ref) =>
+      Try(repository.remove(ref)) match {
+        case _ => sender ! RemoveConfigurationSuccess()
+      }
+
+    case RequestConfigurationHeadRevision(ref) =>
+      sender ! ConfigurationResponse(repository.head(ref))
+
+    case RequestAllConfigurationsHeadRevision() =>
+      sender ! ConfigurationsResponse(repository.head())
+
+    case RequestConfigurationRevision(ref) =>
+      sender ! ConfigurationResponse(repository.get(ref))
+
+    case RequestAllConfigurationRevisions(ref) =>
+      sender ! ConfigurationsResponse(repository.all(ref))
+
+    case RequestAllConfigurationsRevisions() =>
+      // TODO: Not yet implemented
+
     case StoreOrUpdateConfigurationRequest(configuration) =>
       if (configurations.contains(configuration.ref)) {
         self forward UpdateConfigurationRequest(configuration)

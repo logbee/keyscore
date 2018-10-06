@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "io/logbee/keyscore/descriptor.proto";
+import "io/logbee/keyscore/configuration.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.commons.cluster.resources"
+    flat_package: true
+};
+
+message CommitConfiguration {
+    Configuration configuration = 1 [(scalapb.field).no_box = true];
+}
+
+message CommitConfigurationSuccess {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message ResetConfiguration {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message ResetConfigurationSuccess {
+}
+
+message RevertConfiguration {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message RevertConfigurationSuccess {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message RemoveConfiguration {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message RemoveConfigurationSuccess {
+}
+
+
+message RequestConfigurationHeadRevision {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message RequestAllConfigurationsHeadRevision {
+}
+
+message RequestConfigurationRevision {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message RequestAllConfigurationRevisions {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message RequestAllConfigurationsRevisions {
+}
+
+message ConfigurationResponse {
+    Configuration configuration = 1;
+}
+
+message ConfigurationsResponse {
+    repeated Configuration configurations = 1;
+}
+
+message ConfigurationDivergedFailure {
+    Configuration base = 1 [(scalapb.field).no_box = true];
+    Configuration theirs = 2 [(scalapb.field).no_box = true];
+    Configuration yours = 3 [(scalapb.field).no_box = true];
+}
+
+message ConfigurationNotFoundFailure {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
+
+message ConfigurationRevisionNotFoundFailure {
+    ConfigurationRef ref = 1 [(scalapb.field).no_box = true];
+}
