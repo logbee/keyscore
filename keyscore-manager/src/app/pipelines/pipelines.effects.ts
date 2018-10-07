@@ -40,13 +40,15 @@ import {
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {getEditingPipeline, getPipelinePolling} from "./pipelines.reducer";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {RestCallService} from "../services/rest-api/rest-call.service";
+import {BlueprintService} from "../services/rest-api/BlueprintService";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {StringTMap} from "../common/object-maps";
 import {SnackbarOpen} from "../common/snackbar/snackbar.actions";
+import {ConfigurationService} from "../services/rest-api/ConfigurationService";
+import {DescriptorService} from "../services/rest-api/DescriptorService";
 
 @Injectable()
 export class PipelinesEffects {
@@ -69,7 +71,7 @@ export class PipelinesEffects {
         ofType(EDIT_PIPELINE),
         map((action) => (action as EditPipelineAction).id),
         switchMap((pipelineId) => {
-            return this.restCallService.getPipelineBlueprint(pipelineId).pipe(
+            return this.blueprintService.getPipelineBlueprint(pipelineId).pipe(
                 map((pipelineBlueprint: PipelineBlueprint) => {
                     if (pipelineBlueprint === null) {
                         return new EditPipelineFailureAction({
@@ -97,7 +99,7 @@ export class PipelinesEffects {
         map(action => (action as LoadEditBlueprintsAction)),
         switchMap(action => {
             return forkJoin(
-                ...action.pipelineBlueprint.blueprints.map(blueprintRef => this.restCallService.getBlueprint(blueprintRef.uuid))
+                ...action.pipelineBlueprint.blueprints.map(blueprintRef => this.blueprintService.getBlueprint(blueprintRef.uuid))
             ).pipe(map((blueprints: Blueprint[]) => new LoadEditPipelineConfigAction(action.pipelineBlueprint, blueprints)),
                 catchError(cause => of(new EditPipelineFailureAction(cause))))
         })
@@ -108,7 +110,7 @@ export class PipelinesEffects {
         map(action => (action as LoadEditPipelineConfigAction)),
         switchMap(action => {
             return forkJoin(
-                ...action.blueprints.map(blueprint => this.restCallService.getConfiguration(blueprint.configuration.uuid))
+                ...action.blueprints.map(blueprint => this.configurationService.getConfiguration(blueprint.configuration.uuid))
             ).pipe(map((configurations: Configuration[]) =>
                     new EditPipelineSuccessAction(action.pipelineBlueprint, action.blueprints, configurations)),
                 catchError(cause => of(new EditPipelineFailureAction(cause)))
@@ -120,7 +122,7 @@ export class PipelinesEffects {
     @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_FILTER_DESCRIPTORS),
         switchMap((action) =>
-            this.restCallService.getAllDescriptors().pipe(
+            this.descriptorService.getAllDescriptors().pipe(
                 map((descriptorsMap: StringTMap<Descriptor>) => new LoadFilterDescriptorsSuccessAction(Object.values(descriptorsMap))),
                 catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
             )
@@ -144,12 +146,12 @@ export class PipelinesEffects {
         mergeMap(pipeline => {
             return forkJoin(
                 ...pipeline.blueprints.map(blueprint =>
-                    this.restCallService.putBlueprint(blueprint)
+                    this.blueprintService.putBlueprint(blueprint)
                 ),
                 ...pipeline.configurations.map(configuration =>
-                    this.restCallService.putConfiguration(configuration)
+                    this.configurationService.putConfiguration(configuration)
                 ),
-                this.restCallService.putPipelineBlueprint(pipeline.pipelineBlueprint)
+                this.blueprintService.putPipelineBlueprint(pipeline.pipelineBlueprint)
             ).pipe(map(data => new UpdatePipelineSuccessAction(pipeline)),
                 catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline))))
         })
@@ -215,7 +217,9 @@ export class PipelinesEffects {
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
                 private http: HttpClient,
-                private restCallService: RestCallService,
+                private blueprintService: BlueprintService,
+                private configurationService: ConfigurationService,
+                private descriptorService: DescriptorService,
                 private descriptorResolver: DescriptorResolverService) {
     }
 

@@ -1,5 +1,5 @@
 import {Descriptor} from "../../app/models/descriptors/Descriptor";
-import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/resolved-remove-fields-filter-descriptor";
+import {resolvedRemoveFieldsFilterDE} from "../fake-data/resolved-remove-fields-filter-descriptor";
 import {ResolvedFilterDescriptor} from "../../app/models/descriptors/FilterDescriptor";
 import {DescriptorResolverService} from "../../app/services/descriptor-resolver.service";
 import {TranslateService} from "@ngx-translate/core";

@@ -25,9 +25,11 @@ import {Descriptor} from "../models/descriptors/Descriptor";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {StringTMap} from "../common/object-maps";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {RestCallService} from "../services/rest-api/rest-call.service";
+import {BlueprintService} from "../services/rest-api/BlueprintService";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
+import {ConfigurationService} from "../services/rest-api/ConfigurationService";
+import {DescriptorService} from "../services/rest-api/DescriptorService";
 
 @Injectable()
 export class ResourcesEffects {
@@ -37,7 +39,7 @@ export class ResourcesEffects {
         mergeMap((action) => {
             const regex = /\/resources/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
-                return this.restCallService.loadAllBlueprints().pipe(
+                return this.blueprintService.loadAllBlueprints().pipe(
                     map((data: Blueprint[]) =>
                         new LoadAllBlueprintsActionSuccess(data)),
                     catchError((cause: any) => of(new LoadAllBlueprintsActionFailure(cause)))
@@ -50,7 +52,7 @@ export class ResourcesEffects {
     @Effect() public loadFilterDescriptors$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_ALL_BLUEPRINTS_SUCCESS),
         switchMap((_) =>
-            this.restCallService.getAllDescriptors().pipe(
+            this.descriptorService.getAllDescriptors().pipe(
                 map((descriptorsMap: StringTMap<Descriptor>) => new LoadAllDescriptorsForBlueprintSuccessAction(Object.values(descriptorsMap))),
                 catchError((cause) => of(new LoadAllDescriptorsForBlueprintFailureAction(cause)))
             )
@@ -60,7 +62,7 @@ export class ResourcesEffects {
     @Effect() public loadConfigurations$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_ALL_BLUEPRINTS_SUCCESS),
         switchMap((_) =>
-            this.restCallService.getAllConfigurations().pipe(
+            this.configurationService.getAllConfigurations().pipe(
                 map((configurations: Configuration[]) => new LoadConfigurationsSuccessAction(configurations)),
                 catchError((cause) => of(new LoadConfigurationsFailureAction(cause)))
             )
@@ -94,7 +96,9 @@ export class ResourcesEffects {
                 private actions$: Actions,
                 private filterService: FilterControllerService,
                 private descriptorResolver: DescriptorResolverService,
-                private restCallService: RestCallService,
+                private configurationService: ConfigurationService,
+                private blueprintService: BlueprintService,
+                private descriptorService: DescriptorService,
                 private filterControllService: FilterControllerService) {
     }
 

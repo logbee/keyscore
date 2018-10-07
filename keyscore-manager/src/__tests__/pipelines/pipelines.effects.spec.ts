@@ -10,7 +10,6 @@ import {
     generateBlueprint,
     generateBlueprints,
     generateConfiguration,
-    generateConfigurations,
     generateEditingPipelineModel,
     generatePipelineBlueprint
 } from "../fake-data/pipeline-fakes";
@@ -36,7 +35,10 @@ import {
 import {Descriptor} from "../../app/models/descriptors/Descriptor";
 import {DescriptorResolverService} from "../../app/services/descriptor-resolver.service";
 import {ResolvedFilterDescriptor} from "../../app/models/descriptors/FilterDescriptor";
-import {RestCallService} from "../../app/services/rest-api/rest-call.service";
+import {BlueprintService} from "../../app/services/rest-api/BlueprintService";
+import {Error} from "tslint/lib/error";
+import {ConfigurationService} from "../../app/services/rest-api/ConfigurationService";
+import {DescriptorService} from "../../app/services/rest-api/DescriptorService";
 
 export class TestActions extends Actions {
     constructor() {
@@ -55,7 +57,9 @@ export function getActions() {
 describe('PipelinesEffects', () => {
     let actions: TestActions;
     let effects: PipelinesEffects;
-    let pipelineService: RestCallService;
+    let blueprintService: BlueprintService;
+    let configurationService: ConfigurationService;
+    let descriptorService: DescriptorService;
     let resolverService: DescriptorResolverService;
 
     beforeEach(() => {
@@ -77,7 +81,7 @@ describe('PipelinesEffects', () => {
                     useFactory: getActions
                 },
                 {
-                    provide: RestCallService,
+                    provide: BlueprintService,
                     useValue: {
                         getPipelineBlueprint: jest.fn(),
                         getBlueprint: jest.fn(),
@@ -107,7 +111,7 @@ describe('PipelinesEffects', () => {
 
         actions = TestBed.get(Actions);
         effects = TestBed.get(PipelinesEffects);
-        pipelineService = TestBed.get(RestCallService);
+        blueprintService = TestBed.get(BlueprintService);
         resolverService = TestBed.get(DescriptorResolverService);
     });
 
@@ -124,7 +128,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const response = cold('-a|', {a: pipelineBlueprint});
             const expected = cold('--b', {b: outcome});
-            pipelineService.getPipelineBlueprint = jest.fn(() => response);
+            blueprintService.getPipelineBlueprint = jest.fn(() => response);
 
             expect(effects.loadEditPipelineBlueprint$).toBeObservable(expected);
 
@@ -138,7 +142,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const response = cold('-a|', {a: pipelineBlueprint});
             const expected = cold('--b', {b: outcome});
-            pipelineService.getPipelineBlueprint = jest.fn(() => response);
+            blueprintService.getPipelineBlueprint = jest.fn(() => response);
 
             expect(effects.loadEditPipelineBlueprint$).toBeObservable(expected);
 
@@ -153,7 +157,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const response = cold('-#|', {}, error);
             const expected = cold('--b', {b: outcome});
-            pipelineService.getPipelineBlueprint = jest.fn(() => response);
+            blueprintService.getPipelineBlueprint = jest.fn(() => response);
 
             expect(effects.loadEditPipelineBlueprint$).toBeObservable(expected);
         })
@@ -170,7 +174,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const response = cold('-a|', {a: blueprint});
             const expected = cold('---b', {b: outcome});
-            pipelineService.getBlueprint = jest.fn(() => response);
+            blueprintService.getBlueprint = jest.fn(() => response);
 
             expect(effects.loadEditBlueprints$).toBeObservable(expected);
         });
@@ -184,7 +188,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const responseGetBlueprint = cold('-#|', {}, error);
             const expected = cold('--b', {b: outcome});
-            pipelineService.getBlueprint = jest.fn(() => responseGetBlueprint);
+            blueprintService.getBlueprint = jest.fn(() => responseGetBlueprint);
 
             expect(effects.loadEditBlueprints$).toBeObservable(expected);
         });
@@ -201,7 +205,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const response = cold('-a|', {a: configuration});
             const expected = cold('---b', {b: outcome});
-            pipelineService.getConfiguration = jest.fn(() => response);
+            configurationService.getConfiguration = jest.fn(() => response);
 
             expect(effects.loadEditConfigs$).toBeObservable(expected);
         });
@@ -217,7 +221,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const response = cold('-#|', {}, error);
             const expected = cold('--b', {b: outcome});
-            pipelineService.getConfiguration = jest.fn(() => response);
+            configurationService.getConfiguration = jest.fn(() => response);
 
             expect(effects.loadEditConfigs$).toBeObservable(expected);
         })
@@ -232,7 +236,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const response = cold('-a|', {a: descriptors});
             const expected = cold('--b', {b: outcome});
-            pipelineService.getAllDescriptors = jest.fn(() => response);
+            descriptorService.getAllDescriptors = jest.fn(() => response);
 
             expect(effects.loadFilterDescriptors$).toBeObservable(expected);
         });
@@ -244,7 +248,7 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const response = cold('-#|', {}, error);
             const expected = cold('--b', {b: outcome});
-            pipelineService.getAllDescriptors = jest.fn(() => response);
+            descriptorService.getAllDescriptors = jest.fn(() => response);
 
             expect(effects.loadFilterDescriptors$).toBeObservable(expected);
 
@@ -279,13 +283,13 @@ describe('PipelinesEffects', () => {
             actions.stream = hot('-a', {a: action});
             const servicesResponse = cold('-a|', {a: {}});
             const expected = cold('---b', {b: outcome});
-            pipelineService.putPipelineBlueprint = jest.fn(() => servicesResponse);
-            pipelineService.putBlueprint = jest.fn(() => servicesResponse);
-            pipelineService.putConfiguration = jest.fn(() => servicesResponse);
+            blueprintService.putPipelineBlueprint = jest.fn(() => servicesResponse);
+            blueprintService.putBlueprint = jest.fn(() => servicesResponse);
+            configurationService.putConfiguration = jest.fn(() => servicesResponse);
 
-            const configUpdateSpy = jest.spyOn(pipelineService, 'putConfiguration');
-            const blueprintUpdateSpy = jest.spyOn(pipelineService, "putBlueprint");
-            const pipelineBlueprintUpdateSpy = jest.spyOn(pipelineService, "putPipelineBlueprint");
+            const configUpdateSpy = jest.spyOn(configurationService, 'putConfiguration');
+            const blueprintUpdateSpy = jest.spyOn(blueprintService, "putBlueprint");
+            const pipelineBlueprintUpdateSpy = jest.spyOn(blueprintService, "putPipelineBlueprint");
 
 
             expect(effects.updatePipeline$).toBeObservable(expected);
@@ -304,9 +308,9 @@ describe('PipelinesEffects', () => {
             const blueprintsServiceResponse = cold('-a|', {a: {}});
             const configServiceResponse = cold('-#|', {}, error);
             const expected = cold('--b', {b: outcome});
-            pipelineService.putPipelineBlueprint = jest.fn(() => blueprintsServiceResponse);
-            pipelineService.putBlueprint = jest.fn(() => blueprintsServiceResponse);
-            pipelineService.putConfiguration = jest.fn(() => configServiceResponse);
+            blueprintService.putPipelineBlueprint = jest.fn(() => blueprintsServiceResponse);
+            blueprintService.putBlueprint = jest.fn(() => blueprintsServiceResponse);
+            configurationService.putConfiguration = jest.fn(() => configServiceResponse);
 
             expect(effects.updatePipeline$).toBeObservable(expected);
         });

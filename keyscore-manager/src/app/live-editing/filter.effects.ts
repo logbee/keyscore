@@ -43,7 +43,7 @@ import {
     ReconfigureFilterSuccess,
     ResolvedDescriptorForBlueprintSuccess
 } from "./filters.actions";
-import {RestCallService} from "../services/rest-api/rest-call.service";
+import {BlueprintService} from "../services/rest-api/BlueprintService";
 import {Configuration} from "../models/common/Configuration";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
@@ -59,6 +59,8 @@ import {
 } from "./filter.reducer";
 import {Dataset} from "../models/dataset/Dataset";
 import {FilterControllerService} from "../services/rest-api/filterController.service";
+import {ConfigurationService} from "../services/rest-api/ConfigurationService";
+import {DescriptorService} from "../services/rest-api/DescriptorService";
 
 
 @Injectable()
@@ -71,7 +73,7 @@ export class FiltersEffects {
             const regex = /\/filter\/.*/g;
             const filterBlueprintId = this.getFilterBlueprintId(action as RouterNavigationAction);
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
-                return this.restCallService.getBlueprint(filterBlueprintId).pipe(
+                return this.blueprintService.getBlueprint(filterBlueprintId).pipe(
                   map((blueprint: Blueprint) => new LoadFilterBlueprintSuccess(blueprint),
                       catchError((cause: any) =>  of(new LoadFilterBlueprintFailure(cause)))
                 ));
@@ -123,7 +125,7 @@ export class FiltersEffects {
         ofType(LOAD_FILTER_CONFIGURATION),
         map((action) => (action as LoadFilterConfigurationAction)),
         concatMap(action => {
-            return this.restCallService.getConfiguration(action.filterId).pipe(
+            return this.configurationService.getConfiguration(action.filterId).pipe(
                 map((conf: Configuration) => new LoadFilterConfigurationSuccess(conf, action.filterId),
                     catchError((cause) => of(new LoadFilterConfigurationFailure(cause)))
                 ));
@@ -147,7 +149,7 @@ export class FiltersEffects {
         ofType(LOAD_DESCRIPTOR_FOR_BLUEPRINT),
         map((action) => (action as LoadDescriptorForBlueprint)),
         switchMap((action) =>
-            this.restCallService.getDescriptorById(action.uuid).pipe(
+            this.descriptorService.getDescriptorById(action.uuid).pipe(
                 map((descriptor: Descriptor) => new LoadDescriptorForBlueprintSuccess(descriptor)),
                 catchError((cause) => of(new LoadAllDescriptorsForBlueprintFailureAction(cause)))
             )
@@ -226,8 +228,10 @@ export class FiltersEffects {
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
                 private filterControllerService: FilterControllerService,
+                private configurationService: ConfigurationService,
+                private descriptorService: DescriptorService,
                 private descriptorResolver: DescriptorResolverService,
-                private restCallService: RestCallService) {
+                private blueprintService: BlueprintService) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {
