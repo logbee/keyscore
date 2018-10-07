@@ -20,7 +20,7 @@ import {
 } from "./resources.actions";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {AppState} from "../app.component";
-import {FilterService} from "../services/rest-api/filter.service";
+import {FilterControllerService} from "../services/rest-api/filterController.service";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {StringTMap} from "../common/object-maps";
@@ -37,7 +37,7 @@ export class ResourcesEffects {
         mergeMap((action) => {
             const regex = /\/resources/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
-                return this.filterService.loadAllBlueprints().pipe(
+                return this.restCallService.loadAllBlueprints().pipe(
                     map((data: Blueprint[]) =>
                         new LoadAllBlueprintsActionSuccess(data)),
                     catchError((cause: any) => of(new LoadAllBlueprintsActionFailure(cause)))
@@ -82,7 +82,7 @@ export class ResourcesEffects {
         ofType(GET_RESOURCE_STATE),
         map(action => (action as GetResourceStateAction).resourceId),
         mergeMap((resourceId) =>
-            this.restCallService.getResourceState(resourceId).pipe(
+            this.filterControllService.getState(resourceId).pipe(
                 map((instance: ResourceInstanceState) => new GetResourceStateSuccess(resourceId, instance)),
                 catchError((cause) => of(new GetResourceStateFailure(cause)))
             )
@@ -92,9 +92,10 @@ export class ResourcesEffects {
     constructor(private store: Store<AppState>,
                 private httpClient: HttpClient,
                 private actions$: Actions,
-                private filterService: FilterService,
+                private filterService: FilterControllerService,
                 private descriptorResolver: DescriptorResolverService,
-                private restCallService: RestCallService) {
+                private restCallService: RestCallService,
+                private filterControllService: FilterControllerService) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {

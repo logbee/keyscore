@@ -58,6 +58,7 @@ import {
     selectUpdateConfigurationFlag
 } from "./filter.reducer";
 import {Dataset} from "../models/dataset/Dataset";
+import {FilterControllerService} from "../services/rest-api/filterController.service";
 
 
 @Injectable()
@@ -99,7 +100,7 @@ export class FiltersEffects {
         ofType(PAUSE_FILTER),
         map((action) => (action as PauseFilterAction)),
         concatMap(action => {
-            return this.restCallService.pauseFilter(action.filterId, action.pause).pipe(
+            return this.filterControllerService.pauseFilter(action.filterId, action.pause).pipe(
                 map((state: ResourceInstanceState) => new PauseFilterSuccess(state)),
                 catchError((cause) => of(new PauseFilterFailure(cause))))
         }));
@@ -110,7 +111,7 @@ export class FiltersEffects {
         ofType(DRAIN_FILTER),
         map((action) => (action as DrainFilterAction)),
         concatMap(action => {
-            return this.restCallService.drainFilter(action.filterId, action.drain).pipe(
+            return this.filterControllerService.drainFilter(action.filterId, action.drain).pipe(
                 map((state: ResourceInstanceState) => new DrainFilterSuccess(state),
                     catchError((cause) => of(new DrainFilterFailure(cause)))
                 ));
@@ -134,7 +135,7 @@ export class FiltersEffects {
         ofType(LOAD_FILTERSTATE),
         map((action) => (action as LoadFilterStateAction)),
         concatMap(action => {
-            return this.restCallService.getResourceState(action.filterId).pipe(
+            return this.filterControllerService.getState(action.filterId).pipe(
                 map((state: ResourceInstanceState) => new LoadFilterStateSuccess(state),
                     catchError((cause) => of(new LoadFilterStateFailure(cause)))
                 ));
@@ -168,7 +169,7 @@ export class FiltersEffects {
             this.store.pipe(select(selectCurrentBlueprintId)),
             this.store.pipe(select(selectExtractedDatasets))),
         switchMap(([_, id, datasets]) =>
-           this.restCallService.insertDatasets(id, datasets).pipe(
+           this.filterControllerService.insertDatasets(id, datasets).pipe(
                 map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
                 catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
             )
@@ -187,7 +188,7 @@ export class FiltersEffects {
         ofType(LOAD_FILTER_CONFIGURATION_SUCCESS),
         map((action) => (action as LoadFilterConfigurationSuccess)),
         switchMap((action) => {
-            return this.restCallService.extractDatasets(action.filterId).pipe(
+            return this.filterControllerService.extractDatasets(action.filterId).pipe(
                 map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
@@ -199,19 +200,18 @@ export class FiltersEffects {
         ofType(EXTRACT_DATASETS),
         map((action) => (action as ExtractDatasetsAction)),
         switchMap((action) => {
-            return this.restCallService.extractDatasets(action.filterId).pipe(
+            return this.filterControllerService.extractDatasets(action.filterId).pipe(
                 map((datasets: Dataset[]) => new ExtractDatasetsResultSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
         }),
     );
-
     @Effect()
     public updateConfiguration: Observable<Action> = this.actions$.pipe(
         combineLatest(this.store.pipe(select(selectConfiguration)), this.store.pipe(select(selectUpdateConfigurationFlag))),
         switchMap(([_, filterConfiguration, triggerCall]) => {
             if (triggerCall) {
-                return this.restCallService.updateConfig(filterConfiguration).pipe(
+                return this.filterControllerService.updateConfig(filterConfiguration).pipe(
                     map((state: ResourceInstanceState) => new ReconfigureFilterSuccess(state)),
                     catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
                 );
@@ -225,8 +225,9 @@ export class FiltersEffects {
 
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
-                private restCallService: RestCallService,
-                private descriptorResolver: DescriptorResolverService) {
+                private filterControllerService: FilterControllerService,
+                private descriptorResolver: DescriptorResolverService,
+                private restCallService: RestCallService) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {

@@ -20,16 +20,16 @@ import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescripto
             <mat-card-content>
 
                 <mat-list fxFlexFill="" fxLayoutGap="15px" fxLayout="column" role="list">
-                    <mat-list-item fxFlex="20%" fxFlexFill="" fxLayout="column" fxLayoutGap="15px" role="listitem">
-                        <span fxFlex="20%"
+                    <mat-list-item fxFlex="30%" fxFlexFill="" fxLayout="column" fxLayoutGap="15px" role="listitem">
+                        <span fxFlex="30%"
                               class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.DESCRIPTION' | translate}}:
                         </span>
                         <span fxFlex="" class="mat-subheading-1">
                             {{descriptor?.description}}
                         </span>
                     </mat-list-item>
-                    <mat-list-item fxFlex="20%" fxFlexFill="" fxLayout="column" fxLayoutGap="15px" role="listitem">
-                        <span fxFlex="20%"
+                    <mat-list-item fxFlex="30%" fxFlexFill="" fxLayout="column" fxLayoutGap="15px" role="listitem">
+                        <span fxFlex="30%"
                               class="mat-subheading-1 font-weight-bold">{{'FILTERLIVEEDITINGCOMPONENT.THROUGHPUTTIME' | translate}}
                             {{descriptor?.displayName}}: 
                         </span>
@@ -38,7 +38,7 @@ import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescripto
                         </span>
                     </mat-list-item>
                     <mat-list-item fxFlex="" fxFlexFill="" fxLayout="column" fxLayoutGap="15px" role="listitem">
-                        <span fxFlex="20%" class="mat-subheading-1 font-weight-bold">
+                        <span fxFlex="30%" class="mat-subheading-1 font-weight-bold">
                             {{'FILTERLIVEEDITINGCOMPONENT.TOTALTHROUGHPUTTIME' | translate}} {{descriptor?.displayName}}:
                         </span>
                         <span  fxFlex="" class="mat-subheading-1">

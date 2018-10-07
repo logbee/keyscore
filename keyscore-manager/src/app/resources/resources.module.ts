@@ -11,14 +11,12 @@ import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {MaterialModule} from "../material.module";
-import {FilterService} from "../services/rest-api/filter.service";
 import {ResourceType} from "./components/resource-type";
 import {ReactiveFormsModule} from "@angular/forms";
 import {ResourcesHealthComponent} from "../common/health/resources-health.component";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
 import {JsonVisualizer} from "./components/json-visualizer";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {RestCallService} from "../services/rest-api/rest-call.service";
 
 export const routes: Routes = [
     {path:"", component: ResourcesComponent}
@@ -45,10 +43,7 @@ export const routes: Routes = [
         JsonVisualizer
     ],
     providers: [
-        FilterService,
-        DescriptorResolverService,
-        RestCallService
-
+        DescriptorResolverService
     ]
 })
 

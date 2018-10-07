@@ -17,7 +17,6 @@ import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./live-editing.component";
 import {DatasetVisualizer} from "./components/datasetVisualizer";
 import {MaterialModule} from "../material.module";
-import {FilterService} from "../services/rest-api/filter.service";
 import {FiltersEffects} from "./filter.effects";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 

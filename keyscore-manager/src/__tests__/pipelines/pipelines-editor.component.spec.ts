@@ -11,7 +11,6 @@ import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {LoadingModule} from "../../app/common/loading/loading.module";
 import {HealthModule} from "../../app/common/health/health.module";
 import {PipelyModule} from "../../app/pipelines/pipeline-editor/pipely/pipely.module";
-import {AlertModule} from "../../app/common/alert/alert.module";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
 import {generateEditingPipelineModel} from "../fake-data/pipeline-fakes";
@@ -48,8 +47,7 @@ describe('PipelineEditorComponent', () => {
                 }),
                 LoadingModule,
                 HealthModule,
-                PipelyModule,
-                AlertModule
+                PipelyModule
             ],
             providers: [
                 {
