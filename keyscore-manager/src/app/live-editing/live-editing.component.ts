@@ -37,12 +37,14 @@ import {selectBlueprints} from "../resources/resources.reducer";
                                         [currentFilterState]="filterState$ | async"
                                         [descriptor]="descriptor$ | async">
                     </filter-description>
+                    <example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"
+                                     (currentDatasetCounter)="updateCounterInStore($event)">
+                    </example-message>
+                    
                     <!--<filter-configuration fxFlex="20%" [filter$]="filter$"-->
                     <!--[extractedDatasets$]="extractedDatasets$"-->
                     <!--(apply)="reconfigureFilter($event)"></filter-configuration>-->
-                    <!--<example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"-->
-                    <!--(currentDatasetCounter)="updateCounterInStore($event)">-->
-                    <!--</example-message>-->
+                    
                     <!---->
                     <!--<filter-result fxFlex="35%" [resultDatasets$]="resultDatasets$"-->
                     <!--(currentDatasetCounter)="updateCounterInStore($event)"></filter-result>-->

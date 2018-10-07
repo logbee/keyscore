@@ -31,18 +31,18 @@ import "../filter-styles/filterstyle.css";
             </mat-card-header>
             <mat-card-content>
                 <div *ngIf="(!noDataAvailable); else noData">
-                    <div *ngIf="(extractFinish$ | async); else loading">
+                    <!--<div *ngIf="(extractFinish$ | async); else loading">-->
                         <dataset-visualizer [dataset]="(extractedDatasets$ | async)[count]">
                         </dataset-visualizer>
-                    </div>
+                    <!--</div>-->
                 </div>
             </mat-card-content>
         </mat-card>
-        <ng-template #loading>
-            <div class="col-sm-10 mb-2" align="center">
-                <loading></loading>
-            </div>
-        </ng-template>
+        <!--<ng-template #loading>-->
+            <!--<div class="col-sm-10 mb-2" align="center">-->
+                <!--<loading></loading>-->
+            <!--</div>-->
+        <!--</ng-template>-->
 
         <ng-template #noData>
             <div class="col-sm-12" align="center">

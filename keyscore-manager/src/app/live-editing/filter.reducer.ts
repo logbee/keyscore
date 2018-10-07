@@ -3,7 +3,7 @@ import {
     FiltersActions,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION_SUCCESS, LOAD_FILTERSTATE_SUCCESS,
-    PAUSE_FILTER_SUCCESS, RESOLVED_DESCRIPTOR_FOR_BLUEPRINT
+    PAUSE_FILTER_SUCCESS, RESOLVED_DESCRIPTOR_FOR_BLUEPRINT, UPDATE_DATASET_COUNTER
 } from "./filters.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Configuration} from "../models/common/Configuration";
@@ -90,9 +90,9 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
         //         }
         //     });
         //     break;
-        // case UPDATE_DATASET_COUNTER:
-        //     result.currentDatasetCounter = action.counter;
-        //     break;
+        case UPDATE_DATASET_COUNTER:
+            result.currentDatasetCounter = action.counter;
+            break;
         case LOAD_FILTER_BLUEPRINT_SUCCESS:
             result.blueprint = action.blueprint;
             break;
