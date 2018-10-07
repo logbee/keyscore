@@ -22,8 +22,7 @@ import {
     LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION,
-    LOAD_FILTER_CONFIGURATION_SUCCESS,
-    LOAD_FILTERSTATE,
+    LOAD_FILTERSTATE, LOAD_FILTERSTATE_SUCCESS,
     LoadDescriptorForBlueprint,
     LoadDescriptorForBlueprintSuccess,
     LoadFilterBlueprintFailure,
@@ -187,8 +186,8 @@ export class FiltersEffects {
 
     @Effect()
     public fireExtractDatasetsWhenLoadLiveEditEditingFilterSuccesAction: Observable<Action> = this.actions$.pipe(
-        ofType(LOAD_FILTER_CONFIGURATION_SUCCESS),
-        map((action) => (action as LoadFilterConfigurationSuccess)),
+        ofType(LOAD_FILTERSTATE),
+        map((action) => (action as LoadFilterStateAction)),
         switchMap((action) => {
             return this.filterControllerService.extractDatasets(action.filterId).pipe(
                 map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
@@ -208,6 +207,7 @@ export class FiltersEffects {
             );
         }),
     );
+
     @Effect()
     public updateConfiguration: Observable<Action> = this.actions$.pipe(
         combineLatest(this.store.pipe(select(selectConfiguration)), this.store.pipe(select(selectUpdateConfigurationFlag))),

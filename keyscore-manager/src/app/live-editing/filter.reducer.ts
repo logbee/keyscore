@@ -1,5 +1,5 @@
 import {
-    DRAIN_FILTER_SUCCESS,
+    DRAIN_FILTER_SUCCESS, EXTRACT_DATASETS_INITIAL_SUCCESS,
     FiltersActions,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION_SUCCESS, LOAD_FILTERSTATE_SUCCESS,
@@ -68,11 +68,11 @@ export function FilterReducer(state: FilterState = initialState, action: Filters
         case RESOLVED_DESCRIPTOR_FOR_BLUEPRINT:
             result.descriptor = action.descriptor;
             break;
-        // case EXTRACT_DATASETS_INITIAL_SUCCESS:
-        //     result.exampleDatasets = [];
-        //     result.exampleDatasets = action.datasets;
-        //     result.extractFinish = true;
-        //     break;
+        case EXTRACT_DATASETS_INITIAL_SUCCESS:
+            result.exampleDatasets = [];
+            result.exampleDatasets = action.datasets;
+            result.extractFinish = true;
+            break;
         // case EXTRACT_DATASETS_RESULT_SUCCESS:
         //     result.resultAvailable = true;
         //     result.resultDatasets = [];
