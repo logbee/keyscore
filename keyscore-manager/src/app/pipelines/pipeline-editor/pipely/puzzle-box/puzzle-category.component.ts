@@ -54,7 +54,6 @@ export class PuzzleCategoryComponent implements OnInit {
                 blueprintRef: generateRef(),
                 initialDropzone: this.toolbarDropzone,
                 next: null,
-                color: this.computeColor(blockDescriptor.categories.map(cat => cat.name)),
                 previous: null,
                 rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
                 isMirror: false
@@ -62,24 +61,4 @@ export class PuzzleCategoryComponent implements OnInit {
         });
     }
 
-    private computeColor(categories: string[]): string {
-        const colors: string[] = ['#cc0000', '#e69138', '#f1c232', '#6aa84f', '#45818e', '#3d85c6', '#674ea7'];
-        let categoryHash = this.categoryHashCode(categories.reduce((acc, category) => acc + category, ""));
-        return colors[Math.abs(categoryHash % colors.length)];
-    }
-
-    private categoryHashCode(cats: string): number {
-        let hash = 0, i, chr;
-        if (cats.length === 0) return hash;
-        for (i = 0; i < cats.length; i++) {
-            chr = cats.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; // Convert to 32bit integer
-        }
-        return hash;
-    }
-
-    private getRandomInt(min: number, max: number): number {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
 }

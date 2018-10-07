@@ -22,8 +22,8 @@ export class PipelineConfiguratorService {
     updatePipelineModel(draggableHeads: Draggable[], pipeline: EditingPipelineModel): EditingPipelineModel {
         let pipelineResult: EditingPipelineModel = deepcopy(pipeline);
         draggableHeads.forEach(draggable => {
-            if (draggable.getDraggableModel().blockDescriptor.previousConnection.connectableTypes.length === 0 &&
-                draggable.getTail().getDraggableModel().blockDescriptor.nextConnection.connectableTypes.length === 0
+            if (draggable.getDraggableModel().blockDescriptor.previousConnection.connectionType === 'no-connection-in' &&
+                draggable.getTail().getDraggableModel().blockDescriptor.nextConnection.connectionType === 'no-connection-out'
             ) {
                 this.updateConfigurations(draggable, pipelineResult);
                 pipelineResult.blueprints = this.updateBlueprints(draggable, pipelineResult);

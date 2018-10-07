@@ -24,7 +24,7 @@ export enum BlueprintJsonClass {
 
 
 export interface FilterBlueprint {
-    jsonClass: string;
+    jsonClass: BlueprintJsonClass.FilterBlueprint;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;
@@ -33,7 +33,7 @@ export interface FilterBlueprint {
 }
 
 export interface SourceBlueprint {
-    jsonClass: string;
+    jsonClass: BlueprintJsonClass.SourceBlueprint;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;
@@ -41,7 +41,7 @@ export interface SourceBlueprint {
 }
 
 export interface SinkBlueprint {
-    jsonClass: string;
+    jsonClass: BlueprintJsonClass.SinkBlueprint;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;
@@ -49,7 +49,7 @@ export interface SinkBlueprint {
 }
 
 export interface BranchBlueprint {
-    jsonClass: string;
+    jsonClass: BlueprintJsonClass.BranchBlueprint;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;
@@ -59,7 +59,7 @@ export interface BranchBlueprint {
 }
 
 export interface MergeBlueprint {
-    jsonClass: string;
+    jsonClass: BlueprintJsonClass.MergeBlueprint;
     ref: Ref;
     descriptor: Ref;
     configuration: Ref;

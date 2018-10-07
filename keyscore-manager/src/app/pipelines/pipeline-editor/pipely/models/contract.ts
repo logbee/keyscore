@@ -63,6 +63,7 @@ export interface Dropzone {
 
 export interface Draggable {
     dragStart$: Observable<MouseEvent>;
+
     getId(): string;
 
     getDraggablePosition(): { x: number, y: number };

@@ -20,8 +20,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
             return this.prependModel(mirror, currentDragged);
         }
         else {
-            return this.appendModel(mirror, currentDragged);
-
+            return currentDragged.getDraggableModel();
         }
 
     }
@@ -32,6 +31,22 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         } else {
             this.appendNewDraggable(draggableModel);
         }
+    }
+
+    private prependNewDraggable(draggableModel: DraggableModel) {
+        this.component.draggableFactory
+            .createDraggable(this.component.workspace.getWorkspaceDropzone().getDraggableContainer(),
+                draggableModel,
+                this.component.workspace);
+
+        this.component.getOwner().destroy();
+    }
+
+    private appendNewDraggable(draggableModel: DraggableModel) {
+
+        this.component.getOwner().setNextModel(draggableModel);
+        this.component.getOwner().createNext();
+
     }
 
     private prependModel(mirror: Draggable, currentDragged: Draggable): DraggableModel {
@@ -57,40 +72,6 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
             position: droppedPosition
         }
 
-    }
-
-    private appendModel(mirror: Draggable, currentDragged: Draggable): DraggableModel {
-        return {
-            ...currentDragged.getDraggableModel(),
-            initialDropzone: this.component,
-            rootDropzone: DropzoneType.Workspace,
-            position: this.computeAppendPosition()
-        };
-    }
-
-    private prependNewDraggable(draggableModel: DraggableModel) {
-        this.component.draggableFactory
-            .createDraggable(this.component.workspace.getWorkspaceDropzone().getDraggableContainer(),
-                draggableModel,
-                this.component.workspace);
-
-        this.component.getOwner().destroy();
-    }
-
-    private appendNewDraggable(draggableModel: DraggableModel) {
-
-        this.component.getOwner().setNextModel(draggableModel);
-        this.component.getOwner().createNext();
-
-    }
-
-    private computeAppendPosition(): { x: number, y: number } {
-        const componentRectangle = this.component.getRectangle();
-        const ownerRectangle = this.component.getOwner().getRectangle();
-        return {
-            x: Math.abs(ownerRectangle.right - componentRectangle.left) - 20,
-            y: -Math.abs(componentRectangle.top - ownerRectangle.top)
-        };
     }
 
     private computePrependPosition(droppedPosition: { x: number, y: number }, draggedWidth: number): { x: number, y: number } {

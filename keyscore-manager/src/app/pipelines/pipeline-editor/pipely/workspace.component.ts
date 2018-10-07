@@ -1,10 +1,10 @@
 import {
-    AfterViewInit,
     Component,
     ElementRef,
     EventEmitter,
     HostListener,
-    Input, OnChanges,
+    Input,
+    OnChanges,
     OnDestroy,
     OnInit,
     Output,
@@ -12,19 +12,27 @@ import {
     ViewContainerRef
 } from "@angular/core";
 import {v4 as uuid} from "uuid";
-import {DraggableModel} from "./models/draggable.model";
+import {DRAGGABLE_HEIGHT, DRAGGABLE_WIDTH, DraggableModel} from "./models/draggable.model";
 import {Draggable, Dropzone, Workspace} from "./models/contract";
 import {DropzoneType} from "./models/dropzone-type";
 import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {computeRelativePositionToParent} from "./util/util";
 import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
-import {BlockDescriptor, generateBlockDescriptors} from "./models/block-descriptor.model";
+import {BlockDescriptor} from "./models/block-descriptor.model";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {share, takeUntil} from "rxjs/operators";
 import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
 import "./style/pipely-style.scss";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
+import {
+    Blueprint,
+    BlueprintJsonClass,
+    FilterBlueprint,
+    SinkBlueprint,
+    SourceBlueprint
+} from "../../../models/blueprints/Blueprint";
+import {DraggableComponent} from "./draggable.component";
 
 
 @Component({
@@ -50,12 +58,13 @@ import {PipelineConfiguratorService} from "./services/pipeline-configurator.serv
 })
 
 
-export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
+export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspace {
     @Input() pipeline: EditingPipelineModel;
 
     @Input('blockDescriptors') set blockDescriptors(descriptors: BlockDescriptor[]) {
         this.blockDescriptors$.next(descriptors)
     };
+
     private blockDescriptors$ = new BehaviorSubject<BlockDescriptor[]>([]);
 
     @Input() saveTrigger$: Observable<void>;
@@ -281,6 +290,53 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
                 this.onUpdatePipeline.emit(this.pipeline);
             }
         );
+        this.buildEditPipeline();
+
+    }
+
+    ngOnChanges(changes) {
+        if (changes['pipeline']) {
+        }
+    }
+
+
+    private buildEditPipeline() {
+        let nextBlueprint: Blueprint = this.pipeline.blueprints.find(blueprint =>
+            blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
+
+        if (!nextBlueprint) return;
+        //TODO find possibility to center (workspace element width is 0?!) without this magic number shit (0.75 => percentage of workspace width,250px => width of sidebar)
+        const dropzone = this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent;
+        let sourceXPosition = (this.workspaceElement.nativeElement.offsetWidth*0.75+250) / 2 - ((DRAGGABLE_WIDTH * this.pipeline.blueprints.length) / 2);
+        let sourceYPosition = dropzone.workspaceScrollContainer.nativeElement.offsetHeight / 2 - DRAGGABLE_HEIGHT / 2;
+        let models: DraggableModel[] = [];
+        for (let i = 0; i < this.pipeline.blueprints.length; i++) {
+            let conf = this.pipeline.configurations.find(conf => conf.ref.uuid === nextBlueprint.configuration.uuid);
+            let descriptor = this.blockDescriptors$.getValue().find(descriptor => descriptor.ref.uuid === nextBlueprint.descriptor.uuid);
+            models.push({
+                blockDescriptor: descriptor,
+                blockConfiguration: {
+                    ref: nextBlueprint.configuration,
+                    parameters: conf.parameters,
+                    descriptor: descriptor
+                },
+                blueprintRef: nextBlueprint.ref,
+                initialDropzone: this.workspaceDropzone,
+                next: null,
+                previous: null,
+                rootDropzone: DropzoneType.Workspace,
+                isMirror: false,
+                position: {x: sourceXPosition, y: sourceYPosition}
+            });
+            if (i > 0) {
+                models[i] = {...models[i], next: models[i-1]}
+            }
+
+            if (nextBlueprint.jsonClass !== BlueprintJsonClass.SourceBlueprint) {
+                nextBlueprint = this.pipeline.blueprints.find(blueprint => blueprint.ref.uuid === (nextBlueprint as FilterBlueprint | SinkBlueprint).in.uuid);
+            }
+        }
+        this.draggableFactory.createDraggable(this.workspaceDropzone.getDraggableContainer(), models[models.length-1], this);
 
     }
 
@@ -288,5 +344,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, Workspace {
         this.isAlive$.next();
         this.isAlive$.complete();
     }
-
 }
+
+
