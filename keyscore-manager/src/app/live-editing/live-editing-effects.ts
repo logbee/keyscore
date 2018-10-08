@@ -41,7 +41,7 @@ import {
     ReconfigureFilterFailure,
     ReconfigureFilterSuccess,
     ResolvedDescriptorForBlueprintSuccess
-} from "./filters.actions";
+} from "./live-editing.actions";
 import {BlueprintService} from "../services/rest-api/BlueprintService";
 import {Configuration} from "../models/common/Configuration";
 import {Blueprint} from "../models/blueprints/Blueprint";
@@ -55,9 +55,9 @@ import {
     selectCurrentBlueprintId,
     selectExtractedDatasets,
     selectUpdateConfigurationFlag
-} from "./filter.reducer";
+} from "./live-editing.reducer";
 import {Dataset} from "../models/dataset/Dataset";
-import {FilterControllerService} from "../services/rest-api/filterController.service";
+import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
 

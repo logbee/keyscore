@@ -1,7 +1,7 @@
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {FilterReducer} from "./filter.reducer";
+import {LiveEditingReducer} from "./live-editing.reducer";
 import {StoreModule} from "@ngrx/store";
 import {EffectsModule} from "@ngrx/effects";
 import {LoadingModule} from "../common/loading/loading.module";
@@ -17,8 +17,9 @@ import {RouterModule, Routes} from "@angular/router";
 import {LiveEditingComponent} from "./live-editing.component";
 import {DatasetVisualizer} from "./components/datasetVisualizer";
 import {MaterialModule} from "../material.module";
-import {FiltersEffects} from "./filter.effects";
+import {FiltersEffects} from "./live-editing-effects";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
+import {DatasetTable} from "./components/dataset-table";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -29,7 +30,7 @@ export const routes: Routes = [
         FormsModule,
         RouterModule.forChild(routes),
         ReactiveFormsModule,
-        StoreModule.forFeature("filter", FilterReducer),
+        StoreModule.forFeature("filter", LiveEditingReducer),
         EffectsModule.forFeature([FiltersEffects]),
         TranslateModule,
         HeaderBarModule,
@@ -47,7 +48,8 @@ export const routes: Routes = [
         FilterConfigurationComponent,
         FilterResultComponent,
         LiveEditingComponent,
-        DatasetVisualizer
+        DatasetVisualizer,
+        DatasetTable
     ]
     ,
     providers: [

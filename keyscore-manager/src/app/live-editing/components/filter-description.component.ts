@@ -1,7 +1,7 @@
 import {Component, Input} from "@angular/core";
 import {Configuration} from "../../models/common/Configuration";
 import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
-import "../filter-styles/filterstyle.css";
+import "../live-editing-styles/live-editing.css";
 import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
 
 @Component({

@@ -20,7 +20,7 @@ import {RouterEffects} from "./router/router.effects";
 import {SettingsComponent} from "./settings/settings.component";
 import {HeaderBarModule} from "./common/headerbar/headerbar.module";
 import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
-import {LiveEditingModule} from "./live-editing/filter.module";
+import {LiveEditingModule} from "./live-editing/live-editing.module";
 import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";

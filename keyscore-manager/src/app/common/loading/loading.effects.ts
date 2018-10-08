@@ -32,7 +32,7 @@ import {
     LoadFilterConfigurationAction,
     LoadFilterConfigurationFailure,
     LoadFilterConfigurationSuccess
-} from "../../live-editing/filters.actions";
+} from "../../live-editing/live-editing.actions";
 import {
     LOAD_AGENTS,
     LOAD_AGENTS_FAILURE,

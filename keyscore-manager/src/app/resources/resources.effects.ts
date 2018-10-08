@@ -20,7 +20,7 @@ import {
 } from "./resources.actions";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {AppState} from "../app.component";
-import {FilterControllerService} from "../services/rest-api/filterController.service";
+import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {StringTMap} from "../common/object-maps";
@@ -84,7 +84,7 @@ export class ResourcesEffects {
         ofType(GET_RESOURCE_STATE),
         map(action => (action as GetResourceStateAction).resourceId),
         mergeMap((resourceId) =>
-            this.filterControllService.getState(resourceId).pipe(
+            this.filterControllerService.getState(resourceId).pipe(
                 map((instance: ResourceInstanceState) => new GetResourceStateSuccess(resourceId, instance)),
                 catchError((cause) => of(new GetResourceStateFailure(cause)))
             )
@@ -99,7 +99,7 @@ export class ResourcesEffects {
                 private configurationService: ConfigurationService,
                 private blueprintService: BlueprintService,
                 private descriptorService: DescriptorService,
-                private filterControllService: FilterControllerService) {
+                private filterControllerService: FilterControllerService) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {

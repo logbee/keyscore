@@ -39,7 +39,7 @@ export const LOAD_DESCRIPTOR_FOR_BLUEPRINT = "[Filter] LoadDescriptorForBlueprin
 export const LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS = "[Filter] LoadDescriptorForBlueprintSuccess";
 export const RESOLVED_DESCRIPTOR_FOR_BLUEPRINT = "[Filter] ResolvedDescriptorForBlueprint";
 
-export type FiltersActions =
+export type LiveEditingActions =
 
     | LoadFilterConfigurationAction
     | LoadFilterConfigurationFailure

@@ -13,9 +13,9 @@ import {
     selectConfiguration, selectConfigurationId,
     selectLiveEditingFilterState,
     selectResultDatasets, selectCurrentDescriptor
-} from "./filter.reducer";
+} from "./live-editing.reducer";
 import {Dataset} from "../models/dataset/Dataset";
-import {UpdateDatasetCounter, UpdateFilterConfiguration} from "./filters.actions";
+import {UpdateDatasetCounter, UpdateFilterConfiguration} from "./live-editing.actions";
 import {Location} from "@angular/common";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {Descriptor} from "../models/descriptors/Descriptor";
@@ -37,9 +37,11 @@ import {selectBlueprints} from "../resources/resources.reducer";
                                         [currentFilterState]="filterState$ | async"
                                         [descriptor]="descriptor$ | async">
                     </filter-description>
-                    <example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"
-                                     (currentDatasetCounter)="updateCounterInStore($event)">
-                    </example-message>
+                    <!--<example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"-->
+                                     <!--(currentDatasetCounter)="updateCounterInStore($event)">-->
+                    <!--</example-message>-->
+                    
+                    <dataset-table fxFlex="35%"></dataset-table>
                     
                     <!--<filter-configuration fxFlex="20%" [filter$]="filter$"-->
                     <!--[extractedDatasets$]="extractedDatasets$"-->

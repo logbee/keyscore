@@ -1,10 +1,10 @@
 import {
     DRAIN_FILTER_SUCCESS, EXTRACT_DATASETS_INITIAL_SUCCESS,
-    FiltersActions,
+    LiveEditingActions,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION_SUCCESS, LOAD_FILTERSTATE_SUCCESS,
     PAUSE_FILTER_SUCCESS, RESOLVED_DESCRIPTOR_FOR_BLUEPRINT, UPDATE_DATASET_COUNTER
-} from "./filters.actions";
+} from "./live-editing.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
@@ -46,7 +46,7 @@ const initialState: FilterState = {
     currentDatasetCounter: 0,
 };
 
-export function FilterReducer(state: FilterState = initialState, action: FiltersActions): FilterState {
+export function LiveEditingReducer(state: FilterState = initialState, action: LiveEditingActions): FilterState {
 
     const result: FilterState = Object.assign({}, state);
 
