@@ -10,7 +10,7 @@ import {
     SourceBlueprint
 } from "../../app/models/blueprints/Blueprint";
 import {generateParameterRef, generateRef, generateRefs, Ref} from "../../app/models/common/Ref";
-import {Value} from "../../app/models/dataset/Value";
+import {Value, ValueJsonClass} from "../../app/models/dataset/Value";
 import {Label} from "../../app/models/common/MetaData";
 import {Configuration} from "../../app/models/common/Configuration";
 import {Parameter, ParameterJsonClass} from "../../app/models/parameters/Parameter";
@@ -349,7 +349,7 @@ export const generateSourceBlueprint = (): SourceBlueprint => {
 
 export const generateValue = (): Value => {
     return {
-        jsonClass: "TextValue",
+        jsonClass: ValueJsonClass.TextValue,
         value: faker.random.word()
     }
 };
@@ -363,7 +363,7 @@ export const generateField = (): Field => {
 
 export const generateFields = (count: number = faker.random.number({min: 1, max: 10})): Field[] => {
     return Array.apply(null, Array(count)).map(() => generateField());
-}
+};
 
 export const generateLabel = (): Label => {
     return {
@@ -379,7 +379,7 @@ export const generateLabels = (count: number = faker.random.number({min: 1, max:
 function getRandomHealth(): Health {
     const healthArray: Health[] = [Health.Green, Health.Red, Health.Yellow];
     return healthArray[faker.random.number({min: 0, max: 3})];
-};
+}
 
 export const generateWordList = (count = faker.random.number({min: 1, max: 10})): string[] => {
     return Array.apply(null, Array(count)).map(() => faker.random.word());

@@ -20,8 +20,8 @@ object ExampleData {
   )
 
   val multiFields2 = Record(
-    Field("foo", TextValue("bar")),
-    Field("42", TextValue("bar"))
+    Field("foo", TextValue("example-foo")),
+    Field("42", TextValue("example-bar"))
   )
 
   //CSV Filter

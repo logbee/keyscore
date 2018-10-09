@@ -9,17 +9,16 @@ import {MatPaginator, MatSort} from "@angular/material";
 @Component({
     selector: "dataset-table",
     template: `
-        <div fxFlexFill fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
+        <div fxFlexFill="" fxLayoutGap="15px" fxLayout="column">
             <!--Search Field-->
-            
-            <mat-form-field fxFlex class="search-position">
+            <mat-form-field fxFlex="15%" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
                        placeholder="{{'GENERAL.FILTER' | translate}}">
             </mat-form-field>
             
             <!--Dataset Datatable-->
             
-            <table fxFlex="95" #table mat-table [dataSource]="dataSource"
+            <table fxFlex="85%" mat-table [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position">
                 <ng-container matColumnDef="fields">
                     <th mat-header-cell *matHeaderCellDef>Fields</th>

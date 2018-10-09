@@ -1,6 +1,7 @@
 import {Blueprint, PipelineBlueprint} from "../blueprints/Blueprint";
 import {Configuration} from "../common/Configuration";
 import {generateRef, Ref} from "../common/Ref";
+import {ValueJsonClass} from "../dataset/Value";
 
 export interface EditingPipelineModel{
     pipelineBlueprint:PipelineBlueprint;
@@ -17,13 +18,13 @@ export const generateEmptyEditingPipelineModel = (ref:Ref = generateRef()):Editi
                 labels: [{
                     name: "displayName",
                     value: {
-                        jsonClass: "",
+                        jsonClass: ValueJsonClass.TextValue,
                         value: "New Pipeline"
                     }
                 }, {
                     name: "description",
                     value: {
-                        jsonClass: "",
+                        jsonClass: ValueJsonClass.TextValue,
                         value: "Your new Pipeline"
                     }
                 }

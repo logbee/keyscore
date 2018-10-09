@@ -22,7 +22,6 @@ export enum BlueprintJsonClass {
     MergeBlueprint = "io.logbee.keyscore.model.blueprint.MergeBlueprint"
 }
 
-
 export interface FilterBlueprint {
     jsonClass: BlueprintJsonClass.FilterBlueprint;
     ref: Ref;
