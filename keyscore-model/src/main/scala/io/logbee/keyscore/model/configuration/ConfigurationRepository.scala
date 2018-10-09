@@ -81,6 +81,7 @@ class ConfigurationRepository {
     *                  (head)
     * ....
     * }}}
+    *
     * @param configuration a [[Configuration]]
     *
     * @return a [[ConfigurationRef]] which points to the revision computed for the passed [[Configuration]].
@@ -89,13 +90,13 @@ class ConfigurationRepository {
 
     val revisions = index.getOrElse(configuration.ref.uuid, ListBuffer.empty[ConfigurationRef])
 
-    revisions.find(ref => ref.ancestor == configuration.ref.ancestor).map(ref => {
+    if (revisions.nonEmpty && revisions.last.revision != configuration.ref.ancestor) {
       throw DivergedException(
-        base = store(revisions.find(other => other.revision == ref.ancestor).get.revision),
+        base = store.getOrElse(revisions.last.ancestor, null),
         theirs = store(revisions.last.revision),
-        yours = configuration
+        yours = update(configuration, Option(revisions.last.ancestor))
       )
-    })
+    }
 
     val updatedConfiguration = update(configuration,
       ancestor = Option(revisions.lastOption.map(_.revision).getOrElse(ROOT_ANCESTOR))
@@ -192,7 +193,7 @@ class ConfigurationRepository {
         if (revisionIndex == revisions.size - 1) {
           commit(store(revisions(revisionIndex - 1).revision)
             .update(
-              _.ref.ancestor := ""
+              _.ref.ancestor := revisions.last.revision
             ))
         }
         else if (revisionIndex > 0) {

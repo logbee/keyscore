@@ -91,19 +91,17 @@ object ConfigurationResourceRoute extends RouteImplicits {
           } ~
           pathPrefix("_revert") {
             entity(as[ConfigurationRef]) { ref =>
-              entity(as[ConfigurationRef]) { ref =>
-                onSuccess(configurationManager ? RevertConfiguration(ref)) {
-                  case RevertConfigurationSuccess(result) => complete(StatusCodes.OK, result)
-                  case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
-                  case ConfigurationRevisionNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
-                  case ConfigurationDivergedFailure(base, theirs, yours) =>
-                    complete(StatusCodes.Conflict, Map(
-                      "base" -> base,
-                      "theirs" -> theirs,
-                      "yours" -> yours
-                    ))
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
+              onSuccess(configurationManager ? RevertConfiguration(ref)) {
+                case RevertConfigurationSuccess(result) => complete(StatusCodes.OK, result)
+                case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                case ConfigurationRevisionNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                case ConfigurationDivergedFailure(base, theirs, yours) =>
+                  complete(StatusCodes.Conflict, Map(
+                    "base" -> base,
+                    "theirs" -> theirs,
+                    "yours" -> yours
+                  ))
+                case _ => complete(StatusCodes.InternalServerError)
               }
             }
           } ~
@@ -111,6 +109,7 @@ object ConfigurationResourceRoute extends RouteImplicits {
             entity(as[ConfigurationRef]) { ref =>
               onSuccess(configurationManager ? RemoveConfiguration(ref)) {
                 case RemoveConfigurationSuccess() => complete(StatusCodes.OK)
+                case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
@@ -125,16 +124,22 @@ object ConfigurationResourceRoute extends RouteImplicits {
             requestEntityPresent {
               entity(as[ConfigurationRef]) { ref =>
                 onSuccess(configurationManager ? RequestConfigurationHeadRevision(ref)) {
-                  case ConfigurationResponse(configuration) => complete(StatusCodes.OK, configuration)
+                  case ConfigurationResponse(Some(configuration)) => complete(StatusCodes.OK, configuration)
+                  case ConfigurationResponse(None) => complete(StatusCodes.NotFound, ref)
+                  case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                  case ConfigurationRevisionNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
               }
             }
           } ~
-          pathPrefix("_get") {
+          pathPrefix("_find") {
             entity(as[ConfigurationRef]) { ref =>
               onSuccess(configurationManager ? RequestConfigurationRevision(ref)) {
-                case ConfigurationResponse(configuration) => complete(StatusCodes.OK, configuration)
+                case ConfigurationResponse(Some(configuration)) => complete(StatusCodes.OK, configuration)
+                case ConfigurationResponse(None) => complete(StatusCodes.NotFound, ref)
+                case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                case ConfigurationRevisionNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }

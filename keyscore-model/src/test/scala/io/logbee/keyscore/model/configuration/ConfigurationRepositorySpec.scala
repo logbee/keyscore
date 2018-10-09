@@ -25,8 +25,12 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       val repository = new ConfigurationRepository()
 
       val exampleConfigurationRef = repository.commit(exampleConfiguration)
-      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration)
-      val lastExampleConfigurationRef = repository.commit(lastExampleConfiguration)
+      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration.update(
+        _.ref.ancestor := exampleConfigurationRef.revision
+      ))
+      val lastExampleConfigurationRef = repository.commit(lastExampleConfiguration.update(
+        _.ref.ancestor := modifiedExampleConfigurationRef.revision
+      ))
 
       "should return the committed configurations" in {
 
@@ -72,10 +76,26 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
         repository.get(ConfigurationRef(exampleConfigurationUUID)) should be('empty)
       }
 
-      "should set the ancestor of committed configurations" in {
+      "should set the ancestor of first committed configurations" in {
         exampleConfigurationRef.ancestor shouldBe ROOT_ANCESTOR
-        modifiedExampleConfigurationRef.ancestor shouldBe exampleConfigurationRef.revision
-        lastExampleConfigurationRef.ancestor shouldBe modifiedExampleConfigurationRef.revision
+      }
+
+      "should throw a DivergedException if a configuration is committed with an unset ancestor" in {
+        val configuration = exampleConfiguration.update(
+          _.ref.ancestor := "",
+          _.parameters :+= NumberParameter(ParameterRef("count"), 42)
+        )
+
+        val exception = intercept[DivergedException] {
+          repository.commit(configuration)
+        }
+
+        exception.base.parameters shouldBe modifiedExampleConfiguration.parameters
+        exception.theirs.parameters shouldBe lastExampleConfiguration.parameters
+        exception.yours.parameters shouldBe configuration.parameters
+
+        exception.theirs.ref.ancestor shouldBe modifiedExampleConfigurationRef.revision
+        exception.yours.ref.ancestor shouldBe modifiedExampleConfigurationRef.revision
       }
 
       "should throw a DivergedException when a Configuration with the same ancestor was already committed" in {
@@ -89,9 +109,12 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
           repository.commit(configuration)
         }
 
-        exception.base.parameters shouldBe exampleConfiguration.parameters
+        exception.base.parameters shouldBe modifiedExampleConfiguration.parameters
         exception.theirs.parameters shouldBe lastExampleConfiguration.parameters
         exception.yours.parameters shouldBe configuration.parameters
+
+        exception.theirs.ref.ancestor shouldBe modifiedExampleConfigurationRef.revision
+        exception.yours.ref.ancestor shouldBe modifiedExampleConfigurationRef.revision
       }
 
       "should throw an UnknownConfigurationException if the specified configuration does not exists to reset" in {
@@ -116,8 +139,12 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       val repository = new ConfigurationRepository()
 
       val exampleConfigurationRef = repository.commit(exampleConfiguration)
-      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration)
-      val lastExampleConfigurationRef = repository.commit(lastExampleConfiguration)
+      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration.update(
+        _.ref.ancestor := exampleConfigurationRef.revision
+      ))
+      val lastExampleConfigurationRef = repository.commit(lastExampleConfiguration.update(
+        _.ref.ancestor := modifiedExampleConfigurationRef.revision
+      ))
 
       val revertedRef = repository.revert(lastExampleConfigurationRef)
 
@@ -146,8 +173,12 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       val repository = new ConfigurationRepository()
 
       val exampleConfigurationRef = repository.commit(exampleConfiguration)
-      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration)
-      val lastExampleConfigurationRef = repository.commit(lastExampleConfiguration)
+      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration.update(
+        _.ref.ancestor := exampleConfigurationRef.revision
+      ))
+      val lastExampleConfigurationRef = repository.commit(lastExampleConfiguration.update(
+        _.ref.ancestor := modifiedExampleConfigurationRef.revision
+      ))
 
       "should throw an DivergedException" in {
 
@@ -177,9 +208,12 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       val repository = new ConfigurationRepository()
 
       val exampleConfigurationRef = repository.commit(exampleConfiguration)
-
-      repository.commit(modifiedExampleConfiguration)
-      repository.commit(lastExampleConfiguration)
+      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration.update(
+        _.ref.ancestor := exampleConfigurationRef.revision
+      ))
+      repository.commit(lastExampleConfiguration.update(
+        _.ref.ancestor := modifiedExampleConfigurationRef.revision
+      ))
 
       repository.reset(exampleConfigurationRef)
 
@@ -195,7 +229,9 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       val repository = new ConfigurationRepository()
 
       val exampleConfigurationRef = repository.commit(exampleConfiguration)
-      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration)
+      val modifiedExampleConfigurationRef = repository.commit(modifiedExampleConfiguration.update(
+        _.ref.ancestor := exampleConfigurationRef.revision
+      ))
 
       repository.remove(ConfigurationRef(exampleConfigurationUUID))
 
@@ -230,8 +266,11 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       ))
 
       val exampleARef = repository.commit(exampleA)
-      val exampleB1Ref = repository.commit(exampleB)
+      val exampleB1Ref = repository.commit(exampleB.update(
+        _.ref.ancestor := exampleARef.revision
+      ))
       val exampleB2Ref = repository.commit(exampleB.update(
+        _.ref.ancestor := exampleB1Ref.revision,
         _.parameters :+= portParameter
       ))
 
