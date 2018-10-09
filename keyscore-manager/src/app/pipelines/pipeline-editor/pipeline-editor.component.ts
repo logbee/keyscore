@@ -108,21 +108,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     }
 
     public updatePipeline(pipeline: EditingPipelineModel) {
-        let pipelineChanges: EditingPipelineModel = {
-            pipelineBlueprint: null,
-            configurations: [],
-            blueprints: []
-        };
-
-        //TODO: only send pipelineBlueprint if it has changed, therefore proper pipeline creation has to be implemented first
-        /*pipelineChanges.pipelineBlueprint = !_.isEqual(this.storeEditingPipeline.pipelineBlueprint, pipeline.pipelineBlueprint) ?
-            pipeline.pipelineBlueprint : null;
-        */
-        pipelineChanges.pipelineBlueprint = pipeline.pipelineBlueprint;
-        pipelineChanges.blueprints = this.blueprintsDifference(this.storeEditingPipeline.blueprints, pipeline.blueprints);
-        pipelineChanges.configurations = this.configurationsDifference(this.storeEditingPipeline.configurations, pipeline.configurations);
-
-        this.store.dispatch(new UpdatePipelineAction(pipelineChanges));
+        this.store.dispatch(new UpdatePipelineAction(pipeline));
     }
 
     public resetPipeline(pipeline: InternalPipelineConfiguration) {
@@ -133,29 +119,4 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new Go({path: ["pipelines/filter/" + filter.ref.uuid + "/"]}));
     }
 
-    private configurationsDifference(old: Configuration[], updated: Configuration[]): Configuration[] {
-        let result: Configuration[] = [];
-        updated.forEach(configuration => {
-            const oldConfigurationIndex = old.findIndex(oldConfiguration =>
-                oldConfiguration.ref.uuid === configuration.ref.uuid);
-            if (oldConfigurationIndex === -1 || (oldConfigurationIndex !== -1 && !_.isEqual(configuration, old[oldConfigurationIndex]))) {
-                result.push(configuration);
-            }
-        });
-
-        return result;
-    }
-
-    private blueprintsDifference(old: Blueprint[], updated: Blueprint[]): Blueprint[] {
-        let result: Blueprint[] = [];
-        updated.forEach(blueprint => {
-            const oldBlueprintIndex = old.findIndex(oldBlueprint =>
-                oldBlueprint.ref.uuid === blueprint.ref.uuid);
-            if (oldBlueprintIndex === -1 || (oldBlueprintIndex !== -1 && !_.isEqual(blueprint, old[oldBlueprintIndex]))) {
-                result.push(blueprint);
-            }
-        });
-
-        return result;
-    }
 }

@@ -360,7 +360,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     }
 
     private setPosition(pos: { x: number, y: number }) {
-        console.log("SETPOSITION: ",pos,this.draggableModel);
         this.draggableElement.nativeElement.style.left = pos.x + "px";
         this.draggableElement.nativeElement.style.top = pos.y + "px";
     }

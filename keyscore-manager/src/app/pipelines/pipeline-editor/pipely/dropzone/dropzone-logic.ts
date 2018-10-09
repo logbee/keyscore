@@ -85,6 +85,7 @@ export abstract class DropzoneLogic {
 
         const initialDropzone = currentDragged.getDraggableModel().initialDropzone;
         if (initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Connector) {
+            console.log("DETACH");
             initialDropzone.detachNext();
         }
         if (currentDragged.getDraggableModel().rootDropzone === DropzoneType.Workspace) {

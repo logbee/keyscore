@@ -114,9 +114,7 @@ object ConfigurationResourceRoute extends RouteImplicits {
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
-          }
-        } ~
-        get {
+          } ~
           pathPrefix("_head") {
             requestEntityEmpty {
               onSuccess(configurationManager ? RequestAllConfigurationsHeadRevision()) {
