@@ -15,10 +15,8 @@ export class DraggableFactory {
     public createDraggable(container: ViewContainerRef, model: DraggableModel, workspace: Workspace): Draggable {
         const draggableRef = container.createComponent(this.componentFactory);
         if(!model.color){
-            model = {
-                ...model,
-                color:this.computeColor(model.blockDescriptor.categories.map(cat => cat.name))
-            };
+            model.color = this.computeColor(model.blockDescriptor.categories.map(cat => cat.name));
+
         }
         draggableRef.instance.draggableModel = model;
         draggableRef.instance.componentRef = draggableRef;

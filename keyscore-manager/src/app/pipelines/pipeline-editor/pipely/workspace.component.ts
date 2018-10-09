@@ -309,6 +309,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         const dropzone = this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent;
         let sourceXPosition = (this.workspaceElement.nativeElement.offsetWidth*0.75+250) / 2 - ((DRAGGABLE_WIDTH * this.pipeline.blueprints.length) / 2);
         let sourceYPosition = dropzone.workspaceScrollContainer.nativeElement.offsetHeight / 2 - DRAGGABLE_HEIGHT / 2;
+
         let models: DraggableModel[] = [];
         for (let i = 0; i < this.pipeline.blueprints.length; i++) {
             let conf = this.pipeline.configurations.find(conf => conf.ref.uuid === nextBlueprint.configuration.uuid);
@@ -329,11 +330,14 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
                 position: {x: sourceXPosition, y: sourceYPosition}
             });
             if (i > 0) {
-                models[i] = {...models[i], next: models[i-1]}
+                models[i].next = models[i-1]
             }
+
 
             if (nextBlueprint.jsonClass !== BlueprintJsonClass.SourceBlueprint) {
                 nextBlueprint = this.pipeline.blueprints.find(blueprint => blueprint.ref.uuid === (nextBlueprint as FilterBlueprint | SinkBlueprint).in.uuid);
+            }else{
+                break;
             }
         }
         this.draggableFactory.createDraggable(this.workspaceDropzone.getDraggableContainer(), models[models.length-1], this);
