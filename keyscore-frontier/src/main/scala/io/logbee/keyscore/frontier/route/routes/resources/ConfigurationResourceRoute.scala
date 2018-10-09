@@ -106,11 +106,19 @@ object ConfigurationResourceRoute extends RouteImplicits {
             }
           } ~
           pathPrefix("_remove") {
-            entity(as[ConfigurationRef]) { ref =>
-              onSuccess(configurationManager ? RemoveConfiguration(ref)) {
-                case RemoveConfigurationSuccess() => complete(StatusCodes.OK)
-                case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+            requestEntityEmpty {
+              onSuccess(configurationManager ? RemoveConfigurations()) {
+                case RemoveConfigurationsSuccess() => complete(StatusCodes.OK)
                 case _ => complete(StatusCodes.InternalServerError)
+              }
+            } ~
+            requestEntityPresent {
+              entity(as[ConfigurationRef]) { ref =>
+                onSuccess(configurationManager ? RemoveConfiguration(ref)) {
+                  case RemoveConfigurationSuccess(result) => complete(StatusCodes.OK, result)
+                  case ConfigurationNotFoundFailure(result) => complete(StatusCodes.NotFound, result)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
               }
             }
           } ~

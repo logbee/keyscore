@@ -70,7 +70,12 @@ class ConfigurationManager extends Actor with ActorLogging {
 
     case RemoveConfiguration(ref) =>
       Try(repository.remove(ref)) match {
-        case _ => sender ! RemoveConfigurationSuccess()
+        case _ => sender ! RemoveConfigurationSuccess(ref)
+      }
+
+    case RemoveConfigurations() =>
+      Try(repository.clear()) match {
+        case _ => sender ! RemoveConfigurationsSuccess()
       }
 
     case RequestConfigurationHeadRevision(ref) =>
