@@ -49,8 +49,6 @@ import {Health} from "../models/common/Health";
                         <resource-health [health]="determineHealthOfResource(blueprint)"></resource-health>
                     </td>
                 </ng-container>
-
-
                 <!--Link to Live-Editing-->
                 <ng-container matColumnDef="link">
                     <th mat-header-cell *matHeaderCellDef>Live-Editing</th>

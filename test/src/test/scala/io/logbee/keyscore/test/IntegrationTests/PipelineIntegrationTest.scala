@@ -14,7 +14,7 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.model.{Green, Health, PipelineInstance}
-import io.logbee.keyscore.test.fixtures.ExampleData.{dataset1, dataset2, dataset3}
+import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1,datasetMulti2, dataset1, dataset2, dataset3}
 import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
@@ -46,7 +46,7 @@ class PipelineIntegrationTest extends Matchers {
   val k2kObject = loadK2KPipelineBlueprint
   val k2eObject = loadK2EPipelineBlueprint
 
-  val datasets = List(dataset1, dataset2, dataset3)
+  val datasets = List(datasetMulti1, datasetMulti2)
   val datasetsSerialized = write(datasets)
 
   var pipelineCount = 0
@@ -75,8 +75,8 @@ class PipelineIntegrationTest extends Matchers {
     checkFilterState(k2kFilterId, Green, Dismantled)
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
     Thread.sleep(1000)
-    extractDatsetsFromFilter(k2kFilterId, 3, 3)
-    extractDatsetsFromFilter(k2kFilterId, 5, 3)
+    extractDatsetsFromFilter(k2kFilterId, 2, 2)
+    extractDatsetsFromFilter(k2kFilterId, 5, 2)
     pauseFilter(k2kFilterId, "false")
     drainFilter(k2kFilterId, "false")
     checkFilterState(k2kFilterId, Green, Running)
@@ -84,11 +84,11 @@ class PipelineIntegrationTest extends Matchers {
     //Test the Valves of the second Pipeline Filter
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
     Thread.sleep(1000)
-    extractDatsetsFromFilter(k2eFilterId, 3, 3)
+    extractDatsetsFromFilter(k2eFilterId, 2, 2)
 
     //Wait until all Dataset are pushed to the Elastic index
-    Thread.sleep(12000)
-    checkElasticElements(3)
+    Thread.sleep(16000)
+    checkElasticElements(2)
 
     //Cleanup
     removeElasticIndex("test")

@@ -10,10 +10,13 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableModel> {
         datasets$.pipe(withLatestFrom(index$)).subscribe(([datasets,index]) => {
             const rows = [];
             datasets[index].records[0].fields.forEach(field =>
-                rows.push({metadata: datasets[index].metaData, field: field}, {metadata: datasets[index].metaData, field: field} ));
+                rows.push({metadata: datasets[index].metaData, field: field}));
             this.data = rows;
         });
-
+    this.filterPredicate = (datasetModel: DatasetTableModel, filter: string) => {
+        let searchString = filter.trim().toLowerCase();
+        return datasetModel.field.name.includes(searchString) || datasetModel.field.value.jsonClass.toLowerCase().includes(searchString);
+        }
     }
     connect(): BehaviorSubject<DatasetTableModel[]> {
         return super.connect()
