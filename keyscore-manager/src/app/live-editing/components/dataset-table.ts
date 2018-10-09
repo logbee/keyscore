@@ -32,7 +32,9 @@ import {MatPaginator, MatSort} from "@angular/material";
 
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef>ValueType</th>
-                    <td mat-cell *matCellDef="let record">{{record.field.value.jsonClass}}</td>
+                    <td mat-cell *matCellDef="let record">
+                        <value-type [type]="record.field.value.jsonClass"></value-type>
+                    </td>
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="[ 'jsonClass', 'fields', 'values']"></tr>

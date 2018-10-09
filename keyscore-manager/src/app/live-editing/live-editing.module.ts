@@ -20,6 +20,7 @@ import {MaterialModule} from "../material.module";
 import {FiltersEffects} from "./live-editing-effects";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {DatasetTable} from "./components/dataset-table";
+import {ValueType} from "./components/value-type";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -49,7 +50,8 @@ export const routes: Routes = [
         FilterResultComponent,
         LiveEditingComponent,
         DatasetVisualizer,
-        DatasetTable
+        DatasetTable,
+        ValueType
     ]
     ,
     providers: [

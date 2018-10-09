@@ -1,6 +1,5 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {BlueprintJsonClass} from "../../models/blueprints/Blueprint";
-import {TranslateService} from "@ngx-translate/core";
 import {MatIconRegistry} from "@angular/material";
 import {DomSanitizer} from "@angular/platform-browser";
 
@@ -24,7 +23,6 @@ import {DomSanitizer} from "@angular/platform-browser";
             <div *ngSwitchCase="branching">
                 <mat-icon matTooltipPosition="after" matTooltip="{{'GENERAL.BRANCH' | translate}}">call_split</mat-icon>
             </div>
-
         </ng-container>
        
     `
@@ -33,14 +31,13 @@ import {DomSanitizer} from "@angular/platform-browser";
 export class ResourceType {
     @Input() public type: string;
 
-    constructor(private translate: TranslateService, private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer) {
+    constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer) {
       //TODO: Custom Icons for types
       //   this.matIconRegistry.addSvgIcon(
       //       'source',
       //               this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/chevron-left.svg")
       //   )
     }
-
     private transform: string = BlueprintJsonClass.FilterBlueprint;
     private source: string = BlueprintJsonClass.SourceBlueprint;
     private sink: string = BlueprintJsonClass.SinkBlueprint;
