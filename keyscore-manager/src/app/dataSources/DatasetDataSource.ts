@@ -26,6 +26,16 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableModel> {
         this.filterPredicate = (datasetModel: DatasetTableModel, filter: string) => {
             let searchString = filter.trim().toLowerCase();
             return this.filterAccessingRules(datasetModel, searchString);
+        };
+        this.sortingDataAccessor = (datasetModel: DatasetTableModel, property: string) => {
+            switch (property) {
+                case "fields":
+                    return datasetModel.field.name;
+                case "jsonClass":
+                    return datasetModel.field.value.jsonClass;
+                case "values":
+                    return this.accessFieldValues(datasetModel.field.value);
+            }
         }
     }
     connect(): BehaviorSubject<DatasetTableModel[]> {

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ViewChild} from "@angular/core";
+import {Component, ViewChild} from "@angular/core";
 import {DatasetDataSource} from "../../dataSources/DatasetDataSource";
 import {selectExtractedDatasets, selectExtractFinish} from "../live-editing.reducer";
 import {select, Store} from "@ngrx/store";
@@ -15,23 +15,23 @@ import {MatPaginator, MatSort} from "@angular/material";
                 <input matInput (keyup)="applyFilter($event.target.value)"
                        placeholder="{{'GENERAL.FILTER' | translate}}">
             </mat-form-field>
-            
+
             <!--Dataset Datatable-->
-            
-            <table fxFlex="85%" mat-table [dataSource]="dataSource"
+
+            <table fxFlex="85%" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position">
                 <ng-container matColumnDef="fields">
-                    <th mat-header-cell *matHeaderCellDef>Fields</th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Fields</th>
                     <td mat-cell *matCellDef="let record">{{record.field.name}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="values">
-                    <th mat-header-cell *matHeaderCellDef>Values</th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Values</th>
                     <td mat-cell *matCellDef="let record">{{record.field.value.value}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="jsonClass">
-                    <th mat-header-cell *matHeaderCellDef>ValueType</th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ValueType</th>
                     <td mat-cell *matCellDef="let record">
                         <value-type [type]="record.field.value.jsonClass"></value-type>
                     </td>
@@ -44,7 +44,7 @@ import {MatPaginator, MatSort} from "@angular/material";
     `
 })
 
-export class DatasetTable implements AfterViewInit {
+export class DatasetTable {
     private datasets$ = this.store.pipe(select(selectExtractedDatasets));
     private index: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private dataSource: DatasetDataSource;
@@ -54,13 +54,11 @@ export class DatasetTable implements AfterViewInit {
 
 
     constructor(private store: Store<any>) {
-        this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ =>
-            this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable()));
-    }
-
-    ngAfterViewInit() {
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
+            this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable());
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;
+        });
     }
 
     applyFilter(filterValue: string) {
