@@ -80,6 +80,21 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
         exampleConfigurationRef.ancestor shouldBe ROOT_ANCESTOR
       }
 
+      "should not commit an identical revision" in {
+
+        val identicalConfiguration = lastExampleConfiguration.update(
+          _.ref.ancestor := lastExampleConfigurationRef.ancestor
+        )
+
+        val revisionsBefore = repository.all(ConfigurationRef(exampleConfigurationUUID))
+
+        repository.commit(identicalConfiguration)
+
+        val revisionsAfter = repository.all(ConfigurationRef(exampleConfigurationUUID))
+
+        revisionsAfter shouldBe revisionsBefore
+      }
+
       "should throw a DivergedException if a configuration is committed with an unset ancestor" in {
         val configuration = exampleConfiguration.update(
           _.ref.ancestor := "",

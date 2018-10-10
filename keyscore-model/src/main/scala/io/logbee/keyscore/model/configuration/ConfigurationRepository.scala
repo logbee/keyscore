@@ -90,17 +90,23 @@ class ConfigurationRepository {
 
     val revisions = index.getOrElse(configuration.ref.uuid, ListBuffer.empty[ConfigurationRef])
 
+    val updatedConfiguration = update(configuration,
+      ancestor = Option(if (revisions.isEmpty) ROOT_ANCESTOR else configuration.ref.ancestor)
+    )
+
+    if (revisions.nonEmpty && updatedConfiguration.ref.revision == revisions.last.revision) {
+      return updatedConfiguration.ref
+    }
+
     if (revisions.nonEmpty && revisions.last.revision != configuration.ref.ancestor) {
       throw DivergedException(
         base = store.getOrElse(revisions.last.ancestor, null),
         theirs = store(revisions.last.revision),
-        yours = update(configuration, Option(revisions.last.ancestor))
+        yours = updatedConfiguration.update(
+          _.ref.ancestor := revisions.last.ancestor
+        )
       )
     }
-
-    val updatedConfiguration = update(configuration,
-      ancestor = Option(revisions.lastOption.map(_.revision).getOrElse(ROOT_ANCESTOR))
-    )
 
     revisions += updatedConfiguration.ref
 
