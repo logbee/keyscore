@@ -16,13 +16,13 @@ export const generateEmptyEditingPipelineModel = (ref:Ref = generateRef()):Editi
             blueprints: [],
             metadata: {
                 labels: [{
-                    name: "displayName",
+                    name: "pipeline.name",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
                         value: "New Pipeline"
                     }
                 }, {
-                    name: "description",
+                    name: "pipeline.description",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
                         value: "Your new Pipeline"

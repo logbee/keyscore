@@ -54,6 +54,7 @@ import {Configuration} from "../../../models/common/Configuration";
                               [isOpened]="isConfiguratorOpened"
                               [selectedBlock]="{configuration:(selectedDraggable$|async)?.getDraggableModel().configuration,
                               descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
+                              [showFooter]="true"
                                 (onSave)="saveConfiguration($event)">
                 </configurator>
             </div>

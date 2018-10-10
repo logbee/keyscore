@@ -2,7 +2,7 @@ import {PipelinesComponent} from "../../app/pipelines/pipelines.component";
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 import {Subject} from "rxjs";
 import {PipelineEditorComponent} from "../../app/pipelines/pipeline-editor/pipeline-editor.component";
-import {RefreshTimeComponent} from "../../app/common/loading/refresh.component";
+import {RefreshTimeComponent} from "../../app/common/headerbar/refresh.component";
 import {RouterTestingModule} from "@angular/router/testing";
 import {Store} from "@ngrx/store";
 import {HeaderBarModule} from "../../app/common/headerbar/headerbar.module";

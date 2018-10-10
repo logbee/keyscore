@@ -2,7 +2,7 @@ import {PipelinesComponent} from "../../app/pipelines/pipelines.component";
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 import {Subject} from "rxjs";
 import {PipelineEditorComponent} from "../../app/pipelines/pipeline-editor/pipeline-editor.component";
-import {RefreshTimeComponent} from "../../app/common/loading/refresh.component";
+import {RefreshTimeComponent} from "../../app/common/headerbar/refresh.component";
 import {RouterTestingModule} from "@angular/router/testing";
 import {Store} from "@ngrx/store";
 import {HeaderBarModule} from "../../app/common/headerbar/headerbar.module";
@@ -16,7 +16,7 @@ import {HttpLoaderFactory} from "../../app/app.module";
 import {generatePipelines} from "../fake-data/pipeline-fakes";
 import {cold, hot} from "jasmine-marbles";
 
-import {LoadAllPipelinesAction, UpdatePipelinePollingAction} from "../../app/pipelines/pipelines.actions";
+import {LoadAllPipelineInstancesAction, UpdatePipelinePollingAction} from "../../app/pipelines/pipelines.actions";
 
 describe('PipelinesComponent', () => {
     let component: PipelinesComponent;
@@ -73,17 +73,6 @@ describe('PipelinesComponent', () => {
     });
 
     describe('ngOnInit()', () => {
-        it('should select all pipelines', () => {
-            const store = TestBed.get(Store);
-            const pipelines = generatePipelines();
-            store.pipe = jest.fn(() => hot('-a', {a: pipelines}));
-
-            fixture.detectChanges();
-
-            const expected = cold('-a', {a: pipelines});
-            expect(component.pipelines$).toBeObservable(expected);
-        });
-
         it('should dispatch UpdatePipelinePolling action in OnInit lifecycle', () => {
             const action = new UpdatePipelinePollingAction(true);
             const store = TestBed.get(Store);
@@ -95,7 +84,7 @@ describe('PipelinesComponent', () => {
         });
 
         it('should dispatch LoadAllPipelines action in OnInit lifecycle', () => {
-            const action = new LoadAllPipelinesAction();
+            const action = new LoadAllPipelineInstancesAction();
             const store = TestBed.get(Store);
             const spy = jest.spyOn(store, 'dispatch');
 

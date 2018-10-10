@@ -9,12 +9,11 @@ import {
     EDIT_PIPELINE_SUCCESS,
     EditPipelineAction,
     EditPipelineFailureAction,
-    EditPipelineSuccessAction,
-    LOAD_ALL_PIPELINES,
-    LOAD_ALL_PIPELINES_FAILURE,
-    LOAD_ALL_PIPELINES_SUCCESS,
-    LoadAllPipelinesAction,
-    LoadAllPipelinesSuccessAction,
+    EditPipelineSuccessAction, LOAD_ALL_PIPELINE_INSTANCES,
+    LOAD_ALL_PIPELINE_INSTANCES_FAILURE,
+    LOAD_ALL_PIPELINE_INSTANCES_SUCCESS, LOAD_PIPELINEBLUEPRINTS, LOAD_PIPELINEBLUEPRINTS_FAILURE,
+    LoadAllPipelineInstancesAction,
+    LoadAllPipelineInstancesSuccessAction, LoadPipelineBlueprints,
     UpdatePipelinePollingAction
 } from "../../pipelines/pipelines.actions";
 import {
@@ -44,19 +43,20 @@ import {
 
 type showSpinnerTypes =
     | EditPipelineAction
-    | LoadAllPipelinesAction
     | LoadFilterConfigurationAction
-    | LoadAgentsAction;
+    | LoadAgentsAction
+    | LoadPipelineBlueprints;
 
 const showSpinnerActions = [
     EDIT_PIPELINE,
-    LOAD_ALL_PIPELINES,
     LOAD_FILTER_CONFIGURATION,
+    LOAD_PIPELINEBLUEPRINTS,
+    LOAD_ALL_PIPELINE_INSTANCES,
     LOAD_AGENTS
 ];
 
 type hideSpinnerTypes =
-    | LoadAllPipelinesSuccessAction
+    | LoadAllPipelineInstancesSuccessAction
     | EditPipelineSuccessAction
     | EditPipelineFailureAction
     | LoadFilterConfigurationSuccess
@@ -65,8 +65,9 @@ type hideSpinnerTypes =
     | LoadAgentsSuccessAction;
 
 const hideSpinnerActions = [
-    LOAD_ALL_PIPELINES_SUCCESS,
-    LOAD_ALL_PIPELINES_FAILURE,
+    LOAD_ALL_PIPELINE_INSTANCES_SUCCESS,
+    LOAD_ALL_PIPELINE_INSTANCES_FAILURE,
+    LOAD_PIPELINEBLUEPRINTS_FAILURE,
     EDIT_PIPELINE_SUCCESS,
     EDIT_PIPELINE_FAILURE,
     LOAD_FILTER_CONFIGURATION_SUCCESS,
@@ -102,7 +103,7 @@ export class LoadingEffects {
             }
             if (newRefreshTime > 0 && oldRefreshTime < 0) {
                 this.store.dispatch(new UpdatePipelinePollingAction(true));
-                this.store.dispatch(new LoadAllPipelinesAction());
+                this.store.dispatch(new LoadAllPipelineInstancesAction());
             }
         }),
         mergeMap((_) => {

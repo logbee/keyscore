@@ -5,6 +5,7 @@ import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
 import {AppState} from "../../app.component";
 import {AppConfig, selectAppConfig} from "../../app.config";
 import {select, Store} from "@ngrx/store";
+import {StringTMap} from "../../common/object-maps";
 
 @Injectable({
     providedIn: 'root'
@@ -19,6 +20,11 @@ export class BlueprintService {
     }
 
     //Blueprints
+    getAllPipelineBlueprints(): Observable<StringTMap<PipelineBlueprint>> {
+        return this.httpClient.get<StringTMap<PipelineBlueprint>>(`${BlueprintService.BASE_URL}/blueprint/pipeline/*`)
+    }
+
+
     loadAllBlueprints(): Observable<Map<string, Blueprint>> {
         return this.httpClient.get<Map<string, Blueprint>>(`${BlueprintService.BASE_URL}/blueprint/*`);
     }

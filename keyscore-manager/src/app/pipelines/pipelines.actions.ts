@@ -26,9 +26,13 @@ export const DELETE_PIPELINE = "[Pipeline] DeletePipeline";
 export const DELETE_PIPELINE_SUCCESS = "[Pipeline] DeletePipelineSuccess";
 export const DELETE_PIPELINE_FAILURE = "[Pipeline] DeletePipelineFailure";
 
-export const LOAD_ALL_PIPELINES = "[Pipeline] LoadAllPipelines";
-export const LOAD_ALL_PIPELINES_SUCCESS = "[Pipeline] LoadAllPipelinesSuccess";
-export const LOAD_ALL_PIPELINES_FAILURE = "[Pipeline] LoadAllPipelinesFailure";
+export const LOAD_ALL_PIPELINE_INSTANCES = "[Pipeline] LoadAllPipelines";
+export const LOAD_ALL_PIPELINE_INSTANCES_SUCCESS = "[Pipeline] LoadAllPipelinesSuccess";
+export const LOAD_ALL_PIPELINE_INSTANCES_FAILURE = "[Pipeline] LoadAllPipelinesFailure";
+
+export const LOAD_PIPELINEBLUEPRINTS_SUCCESS = "[Pipeline] LoadAllPipelineBlueprintsSuccess";
+export const LOAD_PIPELINEBLUEPRINTS_FAILURE = "[Pipeline] LoadAllPipelineBlueprintsFailure";
+export const LOAD_PIPELINEBLUEPRINTS = "[Pipeline] LoadAllPipelineBlueprints";
 
 export const UPDATE_PIPELINE_POLLING = "[Pipeline] UpdatePipelinePolling";
 
@@ -50,9 +54,12 @@ export type PipelineActions =
     | UpdatePipelineSuccessAction
     | UpdatePipelineFailureAction
     | DeletePipelineAction
-    | LoadAllPipelinesAction
-    | LoadAllPipelinesSuccessAction
-    | LoadAllPipelinesFailureAction
+    | LoadAllPipelineInstancesAction
+    | LoadAllPipelineInstancesSuccessAction
+    | LoadAllPipelineInstancesFailureAction
+    | LoadPipelineBlueprints
+    | LoadPipelineBlueprintsSuccess
+    | LoadPipelineBlueprintsFailure
     | UpdatePipelinePollingAction
     | LoadFilterDescriptorsSuccessAction
     | LoadFilterDescriptorsFailureAction
@@ -144,20 +151,21 @@ export class UpdatePipelineFailureAction implements Action {
     }
 }
 
-export class LoadAllPipelinesAction implements Action {
-    public readonly type = LOAD_ALL_PIPELINES;
+export class LoadAllPipelineInstancesAction implements Action {
+    public readonly type = LOAD_ALL_PIPELINE_INSTANCES;
+
 }
 
-export class LoadAllPipelinesSuccessAction implements Action {
-    public readonly type = LOAD_ALL_PIPELINES_SUCCESS;
+export class LoadAllPipelineInstancesSuccessAction implements Action {
+    public readonly type = LOAD_ALL_PIPELINE_INSTANCES_SUCCESS;
 
     constructor(readonly pipelineInstances: PipelineInstance[]) {
 
     }
 }
 
-export class LoadAllPipelinesFailureAction implements Action {
-    public readonly type = LOAD_ALL_PIPELINES_FAILURE;
+export class LoadAllPipelineInstancesFailureAction implements Action {
+    public readonly type = LOAD_ALL_PIPELINE_INSTANCES_FAILURE;
 
     constructor(readonly cause: any) {
 
@@ -221,4 +229,24 @@ export class ResolveFilterDescriptorSuccessAction implements Action {
     constructor(readonly resolvedDescriptors: ResolvedFilterDescriptor[]) {
 
     }
+}
+
+export class LoadPipelineBlueprintsSuccess implements Action {
+    public readonly type = LOAD_PIPELINEBLUEPRINTS_SUCCESS;
+
+    constructor(readonly pipelineBlueprints: PipelineBlueprint[]) {
+
+    }
+}
+
+export class LoadPipelineBlueprintsFailure implements Action {
+    public readonly type = LOAD_PIPELINEBLUEPRINTS_FAILURE;
+
+    constructor(readonly cause: any) {
+
+    }
+}
+
+export class LoadPipelineBlueprints implements Action {
+    public readonly type = LOAD_PIPELINEBLUEPRINTS;
 }

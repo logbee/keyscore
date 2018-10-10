@@ -5,8 +5,8 @@ import {
     DELETE_PIPELINE_SUCCESS,
     EDIT_PIPELINE_FAILURE,
     EDIT_PIPELINE_SUCCESS,
-    LOAD_ALL_PIPELINES_SUCCESS,
-    LOAD_FILTER_DESCRIPTORS_SUCCESS,
+    LOAD_ALL_PIPELINE_INSTANCES_SUCCESS,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS, LOAD_PIPELINEBLUEPRINTS_SUCCESS,
     PipelineActions,
     RESET_PIPELINE,
     RESOLVE_FILTER_DESCRIPTORS_SUCCESS,
@@ -20,23 +20,27 @@ import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {EditingPipelineModel, generateEmptyEditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
 import {ResolvedCategory} from "../models/descriptors/Category";
+import {PipelineTableModel} from "./PipelineTableModel";
+import {Health} from "../models/common/Health";
+import {TextValue} from "../models/dataset/Value";
+import {Label} from "../models/common/MetaData";
 
 export class PipelinesState {
-    public pipelineList: PipelineInstance[];
     public editingPipeline: EditingPipelineModel;
     public descriptors: Descriptor[];
     public filterDescriptors: ResolvedFilterDescriptor[];
     public filterCategories: ResolvedCategory[];
     public pipelineInstancePolling: boolean;
+    public pipelineList: PipelineTableModel[];
 }
 
 export const initialState: PipelinesState = {
-    pipelineList: [],
     editingPipeline: null,
     descriptors: [],
     filterDescriptors: [],
     filterCategories: [],
     pipelineInstancePolling: false,
+    pipelineList: []
 };
 
 export function PipelinesReducer(state: PipelinesState = initialState, action: PipelineActions): PipelinesState {
@@ -58,12 +62,44 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 configurations: action.configurations
             };
             return {...state, editingPipeline: editingPipeline};
-        case RESET_PIPELINE:
-            return state;
-        case UPDATE_PIPELINE_SUCCESS:
-            return state;
-        case UPDATE_PIPELINE_FAILURE:
-            return state;
+        case LOAD_PIPELINEBLUEPRINTS_SUCCESS:
+            return{
+                ...state,
+                pipelineList:action.pipelineBlueprints.map(blueprint => {
+                    let name="";
+                    let description = "";
+                    if(blueprint.metadata && blueprint.metadata.labels){
+                        let nameValue:Label;
+                        if(nameValue = blueprint.metadata.labels.find(label => label.name === 'pipeline.name')){
+                            name = (nameValue.value as TextValue).value;
+                        }
+                        let descriptionValue:Label;
+                        if(descriptionValue = (blueprint.metadata.labels.find(label => label.name === 'pipeline.description'))){
+                            description = (descriptionValue.value as TextValue).value;
+                        }
+                    }
+
+                    return {
+                        uuid:blueprint.ref.uuid,
+                        health:Health.Unknown,
+                        name:name,
+                        description:description
+                    }
+                })
+            };
+        case LOAD_ALL_PIPELINE_INSTANCES_SUCCESS:
+            let pipelineListCopy:PipelineTableModel[] = deepcopy(state.pipelineList,[]);
+            console.log("LISTCOPY: ",pipelineListCopy);
+            action.pipelineInstances.forEach(instance => {
+                const index = pipelineListCopy.findIndex(dataModel => dataModel.uuid === instance.id);
+                if(index >= 0) {
+                    pipelineListCopy[index].health = instance.health;
+                }
+            });
+            return{
+                ...state,
+                pipelineList:pipelineListCopy
+            };
         case DELETE_PIPELINE_SUCCESS:
             let pipelineList = deepcopy(state.pipelineList, []).filter((pipeline) => action.id !== pipeline.id);
             return {...state, pipelineList: pipelineList};
@@ -73,11 +109,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 return {...state, pipelineList: pipelineList};
             }
             return state;
-        case LOAD_ALL_PIPELINES_SUCCESS:
-            action.pipelineInstances.sort((a, b) => {
-                return a.name.localeCompare(b.name);
-            });
-            return {...state, pipelineList: action.pipelineInstances};
         case UPDATE_PIPELINE_POLLING:
             return {...state, pipelineInstancePolling: action.isPolling};
         default:
@@ -85,6 +116,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
 
     }
 }
+
 
 export const getPipelinesState = createFeatureSelector<PipelinesState>(
     "pipelines"
@@ -103,3 +135,5 @@ export const getFilterCategories = createSelector(getPipelinesState,
 
 export const getPipelinePolling = createSelector(getPipelinesState,
     (state: PipelinesState) => state.pipelineInstancePolling);
+
+export const selectPipelineList = createSelector(getPipelinesState, (state: PipelinesState) => state.pipelineList);

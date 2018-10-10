@@ -19,20 +19,26 @@ import {
     EditPipelineAction,
     EditPipelineFailureAction,
     EditPipelineSuccessAction,
-    LOAD_ALL_PIPELINES,
     LOAD_EDIT_PIPELINE_BLUEPRINTS,
     LOAD_EDIT_PIPELINE_CONFIG,
     LOAD_FILTER_DESCRIPTORS,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
-    LoadAllPipelinesAction,
-    LoadAllPipelinesFailureAction,
-    LoadAllPipelinesSuccessAction,
+    LOAD_PIPELINEBLUEPRINTS,
+    LOAD_PIPELINEBLUEPRINTS_SUCCESS,
+    LoadAllPipelineInstancesAction,
+    LoadAllPipelineInstancesFailureAction,
+    LoadAllPipelineInstancesSuccessAction,
     LoadEditBlueprintsAction,
     LoadEditPipelineConfigAction,
     LoadFilterDescriptorsFailureAction,
     LoadFilterDescriptorsSuccessAction,
+    LoadPipelineBlueprints,
+    LoadPipelineBlueprintsFailure,
+    LoadPipelineBlueprintsSuccess,
     ResolveFilterDescriptorSuccessAction,
-    UPDATE_PIPELINE, UPDATE_PIPELINE_FAILURE, UPDATE_PIPELINE_SUCCESS,
+    UPDATE_PIPELINE,
+    UPDATE_PIPELINE_FAILURE,
+    UPDATE_PIPELINE_SUCCESS,
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
@@ -195,7 +201,7 @@ export class PipelinesEffects {
     );
 
     @Effect() public loadPipelineInstances$: Observable<Action> = this.actions$.pipe(
-        ofType(LOAD_ALL_PIPELINES),
+        ofType(LOAD_PIPELINEBLUEPRINTS_SUCCESS),
         withLatestFrom(this.store.select(selectAppConfig)),
         withLatestFrom(this.store.select(selectRefreshTime)),
         concatMap(([[action, config], refreshTime]) =>
@@ -205,13 +211,24 @@ export class PipelinesEffects {
                     withLatestFrom(this.store.select(getPipelinePolling)),
                     tap(([_, polling]) => {
                         if (polling && refreshTime > 0) {
-                            this.store.dispatch(new LoadAllPipelinesAction());
+                            this.store.dispatch(new LoadPipelineBlueprints());
                         }
                     }), skip(1))),
-                map((data: PipelineInstance[]) => new LoadAllPipelinesSuccessAction(data)),
-                catchError((cause) => of(new LoadAllPipelinesFailureAction(cause)))
+                map((data: PipelineInstance[]) => new LoadAllPipelineInstancesSuccessAction(data)),
+                catchError((cause) => of(new LoadAllPipelineInstancesFailureAction(cause)))
             )
         )
+    );
+
+    @Effect() public loadPipelineBlueprints$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_PIPELINEBLUEPRINTS),
+        mergeMap(_ => {
+            return this.blueprintService.getAllPipelineBlueprints().pipe(
+                map((blueprints) => new LoadPipelineBlueprintsSuccess(Object.values(blueprints))),
+                catchError((cause) => of(new LoadPipelineBlueprintsFailure(cause)))
+            );
+        })
+
     );
 
     constructor(private store: Store<AppState>,

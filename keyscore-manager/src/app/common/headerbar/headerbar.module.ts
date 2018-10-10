@@ -4,6 +4,7 @@ import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {HeaderBarComponent} from "./headerbar.component";
 import {MaterialModule} from "../../material.module";
+import {RefreshTimeComponent} from "./refresh.component";
 
 @NgModule({
     imports: [
@@ -13,7 +14,7 @@ import {MaterialModule} from "../../material.module";
         TranslateModule,
         MaterialModule
     ],
-    declarations: [HeaderBarComponent],
+    declarations: [HeaderBarComponent,RefreshTimeComponent],
     entryComponents: [HeaderBarComponent],
     exports: [HeaderBarComponent],
     providers: [],
