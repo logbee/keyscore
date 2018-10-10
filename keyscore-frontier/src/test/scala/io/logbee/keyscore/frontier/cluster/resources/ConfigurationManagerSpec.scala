@@ -50,9 +50,12 @@ class ConfigurationManagerSpec extends ProductionSystemWithMaterializerAndExecut
       )
 
       configurationManager ! CommitConfiguration(exampleConfiguration)
-      configurationManager ! CommitConfiguration(modifiedConfiguration)
-
       val exampleRef = expectMsgType[CommitConfigurationSuccess].ref
+
+      configurationManager ! CommitConfiguration(modifiedConfiguration.update(
+        _.ref.ancestor := exampleRef.revision
+      ))
+
       val modifiedRef = expectMsgType[CommitConfigurationSuccess].ref
 
       "should respond with a ConfigurationRef" in {
