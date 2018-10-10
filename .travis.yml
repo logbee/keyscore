@@ -1,5 +1,7 @@
 sudo: required
 
+language: java
+
 env:
   global:
   - secure: KOKI6DUF+3bo7A/fk87p7DlYtLw5KESbJ6HfBQlaBey7jfgSty+hjvFQBsFrlYwjE4VfGpyPOsAqQcG0aql8ATweIlGWGv6p94TILQT4pqD6GW+lXHtAAmfqlf+AWiq3QicZ17UlXiG3wq8Ubf8WN0Ya298TEhsI3BtQLHoD7qEUswIeKXMqpVUPpA8DPWyb5BVCALvRgWIHedTkh9dqsFe/Z+IvqExBZPCKK6Luhdg7vu2drbPbWKQUrWkB0vL1qLHodu3SKJ7X/skglRoNhCJ6iseT2tyOxm1YojavVARxejqHvMuUdv5F69D51h3gl4WDBAX41n5Rai8LNMMEaHd8rS0Qq9M8fzwqukJFdZW5hBIm83UKzMBh+86fVmZ40rV03t0ry/v2zRi8DA8mVEUY2hEd5GuUpYe7fS7AjmFfRuyCC+ERvn4WHd8ayrviJz7mIFFOUGp/BKr93cJfCjTFZnfDjErEUW6ouj0b7X5QDjHi5Xqhp2K3YEcKVjl3QfclD1kqdokHFOqvHfChW3z9DorEVzNNrIbOGdlx2Y5f3F+hoD93qBtE0qbEMeBYfpf/OgBumuElK4k8SM8WwfhqdWYVGsbPwLirxMYfJBK0fE/g12YvW7BLmStA0lxsjY13Gigo37oppjE4SgncYCVT2Rghrxp+dqwqwrfDc6s=
@@ -17,17 +19,8 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 
-jobs:
-  include:
-    - stage: build
-      name: "Build Scala"
-      language: java
-      script: gradle check --continue -x :keyscore-manager:build
-    - script: gradle :keyscore-manager:build
-      name: "Build Rest"
-      language: node_js
-      node_js:
-        - "8"
-    - stage: publish
-      name: "Publish"
-      script: gradle pushDockerImage -Pversion=$TRAVIS_BRANCH
+script:
+- gradle check --continue
+
+after_success:
+- gradle pushDockerImage -Pversion=$TRAVIS_BRANCH
