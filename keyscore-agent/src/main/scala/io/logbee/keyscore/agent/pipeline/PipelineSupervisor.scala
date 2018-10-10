@@ -78,17 +78,17 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
   override def receive: Receive = {
 
-    case CreatePipeline(blueprint) =>
+    case CreatePipeline(pipelineBlueprint) =>
 
       val stageContext = StageContext(context.system, context.dispatcher)
 
-      log.info(s"Creating pipeline <${blueprint.ref.uuid}>.")
+      log.info(s"Creating pipeline <${pipelineBlueprint.ref.uuid}>.")
 
-      val pipeline = Pipeline(blueprint)
+      val pipeline = Pipeline(pipelineBlueprint)
 
       become(configuring(pipeline))
 
-      blueprint.blueprints.foreach { stageBlueprint =>
+      pipelineBlueprint.blueprints.foreach { stageBlueprint =>
         log.debug(s"Starting Materializer for blueprint: <${stageBlueprint.uuid}>")
         context.actorOf(BlueprintMaterializer(stageContext, stageBlueprint, filterManager))
       }

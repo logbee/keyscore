@@ -24,11 +24,11 @@ object PipelineRoute extends RouteImplicits {
 
   def pipelineRoute(clusterPipelineManager: ActorRef, blueprintManager: ActorRef): Route = {
     pathPrefix("pipeline") {
-      pathPrefix("configuration") {
+      pathPrefix("blueprint") {
         pathPrefix("*") {
           get {
             onSuccess(clusterPipelineManager ? RequestExistingBlueprints()) {
-              case PipelineBlueprintsResponse(listOfConfigurations) => complete(StatusCodes.OK, listOfConfigurations)
+              case PipelineBlueprintsResponse(pipelineBlueprints) => complete(StatusCodes.OK, pipelineBlueprints)
               case _ => complete(StatusCodes.InternalServerError)
             }
           } ~

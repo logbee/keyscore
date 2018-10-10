@@ -287,7 +287,7 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .send()
-      .put(s"/pipeline/configuration/${pipelineObject.ref.uuid}")
+      .put(s"/pipeline/blueprint/${pipelineObject.ref.uuid}")
       .contentType("application/json")
       .payload(pipelineRef)
     )
