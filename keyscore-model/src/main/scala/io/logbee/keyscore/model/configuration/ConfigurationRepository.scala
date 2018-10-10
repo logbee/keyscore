@@ -16,6 +16,7 @@ object ConfigurationRepository {
 
   case class DivergedException(base: Configuration, theirs: Configuration, yours: Configuration) extends RuntimeException
   case class UnknownRevisionException() extends RuntimeException
+  case class UnknownAncestorException(ref: ConfigurationRef) extends RuntimeException
   case class UnknownConfigurationException() extends RuntimeException
 
   private def update(configuration: Configuration, ancestor: Option[String])(implicit digest: MessageDigest): Configuration = {
@@ -32,6 +33,10 @@ object ConfigurationRepository {
       _.ref.ancestor := ancestor.getOrElse(configuration.ref.ancestor)
     )
   }
+
+  private def hasAncestor(ref: ConfigurationRef): Boolean = ref.ancestor != null && ref.ancestor.nonEmpty
+
+  private def isNotRootAncestor(ref: ConfigurationRef): Boolean = ref.ancestor != ROOT_ANCESTOR
 }
 
 /**
@@ -94,11 +99,17 @@ class ConfigurationRepository {
       ancestor = Option(if (revisions.isEmpty) ROOT_ANCESTOR else configuration.ref.ancestor)
     )
 
+    if (hasAncestor(updatedConfiguration.ref) && isNotRootAncestor(updatedConfiguration.ref)) {
+      if (!revisions.exists(ref => ref.revision == updatedConfiguration.ref.ancestor)) {
+        throw UnknownAncestorException(updatedConfiguration.ref)
+      }
+    }
+
     if (revisions.nonEmpty && updatedConfiguration.ref.revision == revisions.last.revision) {
       return updatedConfiguration.ref
     }
 
-    if (revisions.nonEmpty && revisions.last.revision != configuration.ref.ancestor) {
+    if (revisions.nonEmpty && revisions.last.revision != updatedConfiguration.ref.ancestor) {
       throw DivergedException(
         base = store.getOrElse(revisions.last.ancestor, null),
         theirs = store(revisions.last.revision),

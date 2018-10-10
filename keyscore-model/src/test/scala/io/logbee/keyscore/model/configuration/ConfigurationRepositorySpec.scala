@@ -1,6 +1,6 @@
 package io.logbee.keyscore.model.configuration
 
-import io.logbee.keyscore.model.configuration.ConfigurationRepository.{DivergedException, ROOT_ANCESTOR, UnknownConfigurationException, UnknownRevisionException}
+import io.logbee.keyscore.model.configuration.ConfigurationRepository._
 import io.logbee.keyscore.model.descriptor.ParameterRef
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -294,6 +294,22 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
         val configurations = repository.head()
         configurations should have size 2
       }
+    }
+
+    "should throw an UnknownAncestorException if the specified ancestor is not a knownen revision" in {
+
+      val repository = new ConfigurationRepository()
+
+      repository.commit(exampleConfiguration)
+
+      val exception = intercept[UnknownAncestorException] {
+        repository.commit(exampleConfiguration.update(
+          _.ref.ancestor := "1452dc63-68db-404e-a79d-6143b3526809"
+        ))
+      }
+
+      exception.ref.uuid shouldBe exampleConfigurationUUID
+      exception.ref.ancestor shouldBe "1452dc63-68db-404e-a79d-6143b3526809"
     }
   }
 }
