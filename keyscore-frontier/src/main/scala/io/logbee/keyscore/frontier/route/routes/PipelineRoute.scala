@@ -26,16 +26,10 @@ object PipelineRoute extends RouteImplicits {
     pathPrefix("pipeline") {
       pathPrefix("blueprint") {
         pathPrefix("*") {
-          get {
-            onSuccess(clusterPipelineManager ? RequestExistingBlueprints()) {
-              case PipelineBlueprintsResponse(pipelineBlueprints) => complete(StatusCodes.OK, pipelineBlueprints)
-              case _ => complete(StatusCodes.InternalServerError)
-            }
-          } ~
-            delete {
-              clusterPipelineManager ! ClusterPipelineManager.DeleteAllPipelines
-              complete(StatusCodes.OK)
-            }
+          delete {
+            clusterPipelineManager ! ClusterPipelineManager.DeleteAllPipelines
+            complete(StatusCodes.OK)
+          }
         } ~
           pathPrefix(JavaUUID) { configId =>
             get {
@@ -58,7 +52,7 @@ object PipelineRoute extends RouteImplicits {
               onSuccess(clusterPipelineManager ? ClusterPipelineManager.CreatePipeline(blueprintRef)) {
                 case NoAvailableAgents => complete(StatusCodes.NoContent)
                 case BlueprintResolveFailure => complete(StatusCodes.Conflict)
-                case PipelineDeployed  => complete(StatusCodes.Created)
+                case PipelineDeployed => complete(StatusCodes.Created)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
