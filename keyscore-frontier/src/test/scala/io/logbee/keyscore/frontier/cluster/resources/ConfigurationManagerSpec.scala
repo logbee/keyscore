@@ -2,7 +2,6 @@ package io.logbee.keyscore.frontier.cluster.resources
 
 import akka.testkit.{ImplicitSender, TestKit, TestKitBase}
 import akka.util.Timeout
-import io.logbee.keyscore.commons.cluster.resources
 import io.logbee.keyscore.commons.cluster.resources._
 import io.logbee.keyscore.commons.{ConfigurationService, HereIam, WhoIs}
 import io.logbee.keyscore.model.configuration.ConfigurationRepository.ROOT_ANCESTOR

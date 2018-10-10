@@ -7,11 +7,12 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import akka.pattern.ask
 import akka.util.Timeout
+import io.logbee.keyscore.commons._
 import io.logbee.keyscore.commons.cluster.Paths.{LocalPipelineManagerPath, PipelineSchedulerPath}
 import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.pipeline._
-import io.logbee.keyscore.commons._
+import io.logbee.keyscore.commons.util.ServiceDiscovery.discover
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.{PipelineBlueprintCollector, PipelineInstanceCollector}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.{GetAvailableAgentsRequest, GetAvailableAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager._
@@ -19,8 +20,8 @@ import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeploye
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.CreatePipelineRequest
 import io.logbee.keyscore.model.blueprint._
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 object ClusterPipelineManager {
@@ -35,7 +36,7 @@ object ClusterPipelineManager {
 
   case object DeleteAllPipelines
 
-  case object InitializeMessage
+  case object InitCPM
 
   def apply(clusterAgentManager: ActorRef): Props = {
     Props(new ClusterPipelineManager(
@@ -56,6 +57,8 @@ object ClusterPipelineManager {
   * - forwards all `Controller` messages <br>
   * - creates Blueprint- and Configuration `Collectors` and send them to all agents.
   *
+  * @todo Error Handeling
+  *
   * @param clusterAgentManager The [[io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager]]
   * @param localPipelineManagerResolution ~anonymous
   */
@@ -73,7 +76,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
     mediator ! Subscribe(ClusterTopic, self)
     mediator ! Publish(ClusterTopic, ActorJoin(Roles.ClusterPipelineManager, self))
     log.info(" started.")
-    self ! InitializeMessage
+    self ! InitCPM
   }
 
   override def postStop(): Unit = {
@@ -83,26 +86,17 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
     log.info(" stopped.")
   }
 
-  case class CreateClusterPipelineManagerState(agentStatsManager: ActorRef = null, agentCapabilitiesManager: ActorRef = null) {
-    def isComplete: Boolean = agentStatsManager != null && agentCapabilitiesManager != null
-  }
-
   override def receive: Receive = {
-    case InitializeMessage =>
-      mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentStatsService))
-      mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentCapabilitiesService))
-
-      context.become(initializing(CreateClusterPipelineManagerState()))
-  }
-
-  private def initializing(state: CreateClusterPipelineManagerState): Receive = {
-    case HereIam(AgentStatsService, ref) =>
-      agentStatsManager = ref
-      maybeRunning(state.copy(agentStatsManager = ref))
-    case HereIam(AgentCapabilitiesService, ref) =>
-      agentCapabilitiesManager = ref
-      maybeRunning(state.copy(agentCapabilitiesManager = ref))
-
+    case InitCPM =>
+      discover(Seq(AgentStatsService, AgentCapabilitiesService)).onComplete {
+        case Success(services) =>
+          agentStatsManager = services(AgentStatsService)
+          agentCapabilitiesManager = services(AgentCapabilitiesService)
+          context.become(running)
+        case Failure(exception) =>
+          log.error(exception, "Couldn't retrieve services.")
+        // TODO: Handle discover errors!
+      }
   }
 
   private def running: Receive = {
@@ -169,16 +163,6 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
           localPipelineManagerResolution(agent, context) tell(message, sender)
         })
       case Failure(e) => log.error(e, s"Failed to forward message [${message.getClass.getSimpleName}]")
-    }
-  }
-
-  private def maybeRunning(state: CreateClusterPipelineManagerState): Unit = {
-    if (state.isComplete) {
-      context.become(running)
-      log.debug("became running.")
-    }
-    else {
-      context.become(initializing(state))
     }
   }
 }

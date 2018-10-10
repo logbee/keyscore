@@ -1,7 +1,6 @@
 package io.logbee.keyscore.frontier.route
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.cluster.pubsub.DistributedPubSub
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.headers.HttpOriginRange
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
@@ -30,7 +29,6 @@ import scala.util.{Failure, Success}
 /**
   * The '''RouteBuilder''' combines multiple routes to one specific server route for the Frontier.
   *
-  * @todo Use the new ServiceDiscovery
   */
 object RouteBuilder {
 
@@ -85,7 +83,7 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
         self ! InitializeRouteBuilder(services(ConfigurationService), services(DescriptorService), services(BlueprintService))
       case Failure(e) =>
         log.error(e, "Couldn't retrieve necessary services.")
-        //TODO handle this case
+      // TODO: Handle discover errors!
     }
     log.debug(s" started.")
   }

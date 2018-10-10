@@ -6,16 +6,20 @@ import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubs
 import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, WhoIsTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
+import io.logbee.keyscore.commons.util.ServiceDiscovery.discover
 import io.logbee.keyscore.commons.{AgentCapabilitiesService, DescriptorService, HereIam, WhoIs}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentCapabilitiesManager._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.util.{Failure, Success}
 
 /**
   * The '''AgentCapabilitiesManager''' holds the `Capabilities` (Descriptors) of all agents in the cluster <br>
   * and returns all the possible agents for a specific set of descriptors if requested.
+  *
+  * @todo Error Handling
   */
 object AgentCapabilitiesManager {
   def apply(): Props = Props(new AgentCapabilitiesManager())
@@ -32,11 +36,14 @@ object AgentCapabilitiesManager {
 
   case class AgentsForPipelineResponse(possibleAgents: List[ActorRef])
 
+  private case object InitACM
+
 }
 
 class AgentCapabilitiesManager extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
+  private implicit val ec = context.dispatcher
 
   private var descriptorManager: ActorRef = _
   private val descriptorToActorPaths = mutable.Map.empty[Descriptor, mutable.Set[ActorPath]]
@@ -47,7 +54,7 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
     mediator ! Subscribe(ClusterTopic, self)
     mediator ! Subscribe(WhoIsTopic, self)
     mediator ! Publish(ClusterTopic, ActorJoin(Roles.ClusterCapabilitiesManager, self))
-    mediator ! Publish(Topics.WhoIsTopic, WhoIs(DescriptorService))
+    self ! InitACM
     log.info(" started.")
   }
 
@@ -59,9 +66,17 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
-    case HereIam(DescriptorService, ref) =>
-      descriptorManager = ref
-      context.become(running)
+    case InitACM =>
+      discover(Seq(DescriptorService)).onComplete {
+        case Success(services) =>
+          descriptorManager = services(DescriptorService)
+          context.become(running)
+
+        case Failure(exception) =>
+          log.error(exception, "Couldn't retrieve services.")
+        // TODO: Handle discover errors!
+      }
+
   }
 
   private def running: Receive = {

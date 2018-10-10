@@ -33,7 +33,7 @@ object BlueprintMaterializer {
 /**
   * The '''BlueprintMaterializer''' collects all necessary information to send the `FilterManager` an message to create a `Stage`.
   *
-  * @todo Handle errors
+  * @todo Error Handling
   *
   * @param blueprintRef The UUID of the Blueprint
   * @param filterManager The [[io.logbee.keyscore.agent.pipeline.FilterManager]]
@@ -62,7 +62,7 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
           self ! Initialize(services(BlueprintService), services(DescriptorService), services(ConfigurationService))
         case Failure(exception) =>
           log.error(exception, "Couldn't retrieve missing services.")
-        // TODO: Handle this case!
+        // TODO: Handle discover errors!
       }
     }
     else {

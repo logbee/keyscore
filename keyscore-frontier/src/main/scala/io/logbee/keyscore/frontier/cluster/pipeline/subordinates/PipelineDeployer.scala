@@ -14,9 +14,11 @@ import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeploye
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToDescriptor
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.commons.util.ServiceDiscovery.discover
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.util.{Failure, Success}
 
 
 object PipelineDeployer {
@@ -46,6 +48,8 @@ object PipelineDeployer {
   */
 class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) => ActorSelection) extends Actor with ActorLogging {
 
+  private implicit val ec = context.dispatcher
+
   private val mediator: ActorRef = DistributedPubSub(context.system).mediator
   private var blueprintManager: ActorRef = _
   private var agentStatsManager: ActorRef = _
@@ -55,10 +59,6 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
   var blueprintForPipeline: PipelineBlueprint = _
 
   var descriptorRefs: ListBuffer[DescriptorRef] = mutable.ListBuffer.empty[DescriptorRef]
-
-  case class CreatePipelineSupervisorState(blueprintManager: ActorRef = null, agentStatsManager: ActorRef = null, agentCapabilitiesManager: ActorRef = null) {
-    def isComplete: Boolean = blueprintManager != null && agentStatsManager != null && agentCapabilitiesManager != null
-  }
 
   override def preStart(): Unit = {
     log.info(s" started.")
@@ -71,27 +71,22 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
   override def receive: Receive = {
 
     case CreatePipelineRequest(ref) =>
-      mediator ! Publish(Topics.WhoIsTopic, WhoIs(BlueprintService))
-      mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentStatsService))
-      mediator ! Publish(Topics.WhoIsTopic, WhoIs(AgentCapabilitiesService))
-
       blueprintRef = ref
       routeBuilderRef = sender
-      context.become(initializing(CreatePipelineSupervisorState()))
-  }
 
-  private def initializing(state: CreatePipelineSupervisorState): Receive = {
-    case HereIam(BlueprintService, ref) =>
-      blueprintManager = ref
-      maybeRunning(state.copy(blueprintManager = ref))
-    case HereIam(AgentStatsService, ref) =>
-      agentStatsManager = ref
-      maybeRunning(state.copy(agentStatsManager = ref))
-    case HereIam(AgentCapabilitiesService, ref) =>
-      agentCapabilitiesManager = ref
-      maybeRunning(state.copy(agentCapabilitiesManager = ref))
-  }
+      discover(Seq(BlueprintService, AgentStatsService, AgentCapabilitiesService)).onComplete {
+        case Success(services) =>
+          blueprintManager = services(BlueprintService)
+          agentStatsManager = services(AgentStatsService)
+          agentCapabilitiesManager = services(AgentCapabilitiesService)
+          context.become(running)
+          self ! StartResolvingBlueprintRef
 
+        case Failure(exception) =>
+          log.error(exception, "Couldn't retrieve services.")
+        // TODO: Handle discover errors!
+      }
+  }
 
   private def running: Receive = {
     case StartResolvingBlueprintRef =>
@@ -138,16 +133,6 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
       log.info(s"Sent an order to create a Pipeline to the $selectedAgent")
       routeBuilderRef ! PipelineDeployed
       log.info(s"Pipeline for <${blueprintForPipeline.ref}> deployed.")
-  }
-
-  private def maybeRunning(state: CreatePipelineSupervisorState): Unit = {
-    if (state.isComplete) {
-      context.become(running)
-      self ! StartResolvingBlueprintRef
-    }
-    else {
-      context.become(initializing(state))
-    }
   }
 
 }

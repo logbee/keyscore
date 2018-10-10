@@ -3,12 +3,9 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.LocalPipelineManager._
-import io.logbee.keyscore.commons.{HereIam, LocalPipelineService, WhoIs}
-import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeleteAllPipelinesOrder, DeletePipelineOrder, Topics}
+import io.logbee.keyscore.commons.cluster.{CreatePipelineOrder, DeleteAllPipelinesOrder, DeletePipelineOrder}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 
