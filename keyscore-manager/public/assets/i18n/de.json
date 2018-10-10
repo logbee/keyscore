@@ -111,9 +111,15 @@
     "GERMAN": "Deutsch",
     "ENGLISH": "Englisch"
   },
-  "BLOCKLY": {
+  "PIPELY": {
     "SAVE_SUCCESS": "Die Pipeline wurde erfolgreich gespeichert!",
-    "SAVE_FAILURE": "Beim Speichern der Pipeline ist ein Fehler aufgetreten."
+    "SAVE_FAILURE": "Beim Speichern der Pipeline ist ein Fehler aufgetreten.",
+    "TEST_TOOLTIP": "Testet die aktuelle Konfiguration.",
+    "REVERT_TOOLTIP": "Stellt die Ausgangskonfiugration wieder her.",
+    "RESET_TOOLTIP": "Setzt das Formular zurück",
+    "RESET": "Zurücksetzen",
+    "REVERT": "Verwerfen",
+    "TEST": "Testen"
   },
   "ERRORS": {
     "404": "Der angeforderte Filter konnte nicht gefunden werden.",

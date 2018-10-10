@@ -137,12 +137,23 @@ puzzle-box {
   z-index: 9999;
   opacity: 0.6;
 }
-
+.configurator-wrapper{
+  position:relative;
+  max-width: 100%;
+}
 configurator {
   padding: 10px;
   z-index: 500;
+  position:relative;
   max-height:calc(95vh - 3px);
   background-color: rgba(0,0,0,0.001);
+}
+
+.configurator-footer{
+  position:absolute;
+  display:flex;
+  bottom:10px;
+  width:100%;
 }
 
 .configurator-body{

@@ -6,6 +6,10 @@
     cursor: pointer;
 }
 
+.fixed-position{
+    position: fixed;
+}
+
 /*-------------FilterChooser-----------*/
 .modal-lg {
     max-width: 80% !important;

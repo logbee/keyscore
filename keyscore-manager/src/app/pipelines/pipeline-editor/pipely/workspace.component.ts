@@ -33,6 +33,7 @@ import {
     SourceBlueprint
 } from "../../../models/blueprints/Blueprint";
 import {DraggableComponent} from "./draggable.component";
+import {Configuration} from "../../../models/common/Configuration";
 
 
 @Component({
@@ -51,7 +52,10 @@ import {DraggableComponent} from "./draggable.component";
 
                 <configurator class="mat-elevation-z6" fxFlex="" (closeConfigurator)="closeConfigurator()"
                               [isOpened]="isConfiguratorOpened"
-                              [selectedDraggable$]="selectedDraggable$"></configurator>
+                              [selectedBlock]="{configuration:(selectedDraggable$|async)?.getDraggableModel().configuration,
+                              descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
+                                (onSave)="saveConfiguration($event)">
+                </configurator>
             </div>
         </div>
     `
@@ -243,6 +247,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         this.isConfiguratorOpened = false;
     }
 
+    private saveConfiguration(configuration:Configuration){
+        this.selectedDraggable.getDraggableModel().configuration = configuration;
+    }
+
     addDropzone(dropzone: Dropzone) {
         this.dropzones.add(dropzone);
     }
@@ -307,7 +315,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         if (!nextBlueprint) return;
         //TODO find possibility to center (workspace element width is 0?!) without this magic number shit (0.75 => percentage of workspace width,250px => width of sidebar)
         const dropzone = this.workspaceDropzone.getSubComponent() as WorkspaceDropzoneSubcomponent;
-        let sourceXPosition = (this.workspaceElement.nativeElement.offsetWidth*0.75+250) / 2 - ((DRAGGABLE_WIDTH * this.pipeline.blueprints.length) / 2);
+        let sourceXPosition = (this.workspaceElement.nativeElement.offsetWidth * 0.75 + 250) / 2 - ((DRAGGABLE_WIDTH * this.pipeline.blueprints.length) / 2);
         let sourceYPosition = dropzone.workspaceScrollContainer.nativeElement.offsetHeight / 2 - DRAGGABLE_HEIGHT / 2;
 
         let models: DraggableModel[] = [];
@@ -316,10 +324,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
             let descriptor = this.blockDescriptors$.getValue().find(descriptor => descriptor.ref.uuid === nextBlueprint.descriptor.uuid);
             models.push({
                 blockDescriptor: descriptor,
-                blockConfiguration: {
+                configuration: {
                     ref: nextBlueprint.configuration,
-                    parameters: conf.parameters,
-                    descriptor: descriptor
+                    parent:null,
+                    parameters: conf.parameters
                 },
                 blueprintRef: nextBlueprint.ref,
                 initialDropzone: this.workspaceDropzone,
@@ -330,17 +338,17 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
                 position: {x: sourceXPosition, y: sourceYPosition}
             });
             if (i > 0) {
-                models[i].next = models[i-1]
+                models[i].next = models[i - 1]
             }
 
 
             if (nextBlueprint.jsonClass !== BlueprintJsonClass.SourceBlueprint) {
                 nextBlueprint = this.pipeline.blueprints.find(blueprint => blueprint.ref.uuid === (nextBlueprint as FilterBlueprint | SinkBlueprint).in.uuid);
-            }else{
+            } else {
                 break;
             }
         }
-        this.draggableFactory.createDraggable(this.workspaceDropzone.getDraggableContainer(), models[models.length-1], this);
+        this.draggableFactory.createDraggable(this.workspaceDropzone.getDraggableContainer(), models[models.length - 1], this);
 
     }
 

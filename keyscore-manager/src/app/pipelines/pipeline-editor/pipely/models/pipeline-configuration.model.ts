@@ -1,8 +1,8 @@
-import {BlockConfiguration} from "./block-configuration.model";
+import {Configuration} from "../../../../models/common/Configuration";
 
 export interface PipelyPipelineConfiguration {
     id: string;
     name: string;
     description: string;
-    blocks: BlockConfiguration[];
+    blocks: Configuration[];
 }

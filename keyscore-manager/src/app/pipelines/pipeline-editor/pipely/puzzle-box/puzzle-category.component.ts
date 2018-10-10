@@ -45,12 +45,12 @@ export class PuzzleCategoryComponent implements OnInit {
 
             let blockConfiguration = {
                 ref: generateRef(),
-                descriptor: blockDescriptor,
+                parent:null,
                 parameters: parameters
             };
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
                 blockDescriptor: blockDescriptor,
-                blockConfiguration: blockConfiguration,
+                configuration: blockConfiguration,
                 blueprintRef: generateRef(),
                 initialDropzone: this.toolbarDropzone,
                 next: null,

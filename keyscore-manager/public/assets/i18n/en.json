@@ -110,9 +110,15 @@
     "GERMAN": "German",
     "ENGLISH": "English"
   },
-  "BLOCKLY":{
+  "PIPELY":{
     "SAVE_SUCCESS":"The pipeline was saved successfully",
-    "SAVE_FAILURE":"An error occurred while saving your pipeline. "
+    "SAVE_FAILURE":"An error occurred while saving your pipeline. ",
+    "TEST_TOOLTIP": "Tests the configuration",
+    "REVERT_TOOLTIP": "Reverts your applied configuration.",
+    "RESET_TOOLTIP": "Restore current configuration",
+    "RESET": "Reset",
+    "REVERT": "Revert",
+    "TEST": "Test"
   },
   "ERRORS": {
     "404": "The requested filter does not exist.",

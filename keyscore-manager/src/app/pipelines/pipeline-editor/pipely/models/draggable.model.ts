@@ -1,12 +1,12 @@
 import {Draggable, Dropzone} from "./contract";
 import {DropzoneType} from "./dropzone-type";
 import {BlockDescriptor} from "./block-descriptor.model";
-import {BlockConfiguration} from "./block-configuration.model";
 import {Ref} from "../../../../models/common/Ref";
+import {Configuration} from "../../../../models/common/Configuration";
 
 export interface DraggableModel {
     blockDescriptor: BlockDescriptor;
-    blockConfiguration: BlockConfiguration;
+    configuration: Configuration;
     blueprintRef: Ref;
     isMirror: boolean;
     next: DraggableModel;

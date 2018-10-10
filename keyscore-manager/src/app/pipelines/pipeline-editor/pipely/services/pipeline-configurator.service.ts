@@ -2,7 +2,6 @@ import {Injectable} from "@angular/core";
 import {Draggable} from "../models/contract";
 import {EditingPipelineModel} from "../../../../models/pipeline-model/EditingPipelineModel";
 import {Configuration} from "../../../../models/common/Configuration";
-import {BlockConfiguration} from "../models/block-configuration.model";
 import {deepcopy} from "../../../../util";
 import {DraggableModel} from "../models/draggable.model";
 import {
@@ -47,7 +46,7 @@ export class PipelineConfiguratorService {
                 jsonClass: jsonClass,
                 ref: blueprintRef,
                 descriptor: next.getDraggableModel().blockDescriptor.ref,
-                configuration: next.getDraggableModel().blockConfiguration.ref
+                configuration: next.getDraggableModel().configuration.ref
             };
             switch (jsonClass) {
                 case BlueprintJsonClass.FilterBlueprint:
@@ -95,7 +94,7 @@ export class PipelineConfiguratorService {
     private updateConfigurations(draggable: Draggable, pipeline: EditingPipelineModel) {
         let next = draggable;
         do {
-            let configuration: Configuration = this.blockConfigToConfig(next.getDraggableModel().blockConfiguration);
+            let configuration: Configuration = next.getDraggableModel().configuration;
             let filteredConfiguration = pipeline.configurations ?
                 pipeline.configurations.findIndex(config =>
                     config.ref.uuid === configuration.ref.uuid) : -1;
@@ -108,11 +107,4 @@ export class PipelineConfiguratorService {
         } while (next = next.getNext());
     }
 
-    private blockConfigToConfig(blockConfig: BlockConfiguration) {
-        return {
-            ref: blockConfig.ref,
-            parent: null,
-            parameters: blockConfig.parameters
-        };
-    }
 }
