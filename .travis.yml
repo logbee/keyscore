@@ -1,10 +1,4 @@
 sudo: required
-matrix:
- include:
-    - language: java
-    - language: node_js
-      node_js:
-        - "8"
 
 env:
   global:
@@ -23,8 +17,17 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 
-script:
-- gradle check --continue
-
-after_success:
-- gradle pushDockerImage -Pversion=$TRAVIS_BRANCH
+jobs:
+  include:
+    - stage: build
+      name: "Build Scala"
+      language: java
+      script: gradle check --continue -x :keyscore-manager:build
+    - script: gradle :keyscore-manager:build
+      name: "Build Rest"
+      language: node_js
+         node_js:
+          - "8"
+    - stage: publish
+      name: "Publish"
+      script: gradle pushDockerImage -Pversion=$TRAVIS_BRANCH
