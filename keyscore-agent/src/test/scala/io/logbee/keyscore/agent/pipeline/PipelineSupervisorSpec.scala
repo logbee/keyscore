@@ -99,7 +99,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
       })
     }
 
-    def pollPipelineHealthState(maxRetries: Int, sleepTimeMs: Long): Boolean = {
+    def pollPipelineHealthState(maxRetries: Int = 10, interval: FiniteDuration = 5 seconds): Boolean = {
       var retries = maxRetries
       while (retries > 0) {
 
@@ -108,7 +108,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
         if (pipelineInstance.health.equals(Green)) {
           return true
         }
-        Thread.sleep(sleepTimeMs)
+        Thread.sleep(interval.toMillis)
         retries -= 1
       }
 
@@ -122,7 +122,7 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
       supervisor tell(RequestPipelineInstance, agent.ref)
       agent.expectMsg(PipelineInstance(pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, Red))
 
-      pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000) shouldBe true
+      pollPipelineHealthState() shouldBe true
 
     }
   }

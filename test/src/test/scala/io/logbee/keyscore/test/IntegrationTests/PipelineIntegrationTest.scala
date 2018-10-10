@@ -14,7 +14,7 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.model.{Green, Health, PipelineInstance}
-import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1, datasetMulti2, dataset1, dataset2, dataset3}
+import io.logbee.keyscore.test.fixtures.ExampleData.{dataset1, dataset2, dataset3, datasetMulti1, datasetMulti2}
 import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
@@ -22,6 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+
+import scala.concurrent.duration._
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
@@ -65,7 +67,7 @@ class PipelineIntegrationTest extends Matchers {
     getSinglePipelineBlueprint(k2eObject)
 
     //Wait until both Pipelines are materialized
-    pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000, pipelineCount) shouldBe true
+    pollPipelineHealthState(expect = pipelineCount) shouldBe true
 
     //Test the Valves of the first Pipeline Filter
     pauseFilter(k2kFilterId, "true")
@@ -86,7 +88,7 @@ class PipelineIntegrationTest extends Matchers {
     extractDatsetsFromFilter(k2eFilterId, 2, 2)
 
     //Wait until all Dataset are pushed to the Elastic index
-    pollElasticElements(maxRetries = 10, sleepTimeMs = 2000, 2) shouldBe true
+    pollElasticElements(expect = 2) shouldBe true
 
     //Cleanup
     removeElasticIndex("test")
@@ -386,7 +388,7 @@ class PipelineIntegrationTest extends Matchers {
   }
 
   //Polling
-  def pollPipelineHealthState(maxRetries: Int, sleepTimeMs: Long, expect: Int)(implicit runner: TestRunner): Boolean = {
+  def pollPipelineHealthState(maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int)(implicit runner: TestRunner): Boolean = {
     var retries = maxRetries
     while (retries > 0) {
       log.debug(s"Reached Check Health State for ${expect} Pipelines with $retries retries remaining.")
@@ -400,7 +402,7 @@ class PipelineIntegrationTest extends Matchers {
 
       if (greenInstances == expect) return true
 
-      Thread.sleep(sleepTimeMs)
+      Thread.sleep(interval.toMillis)
       retries -= 1
     }
 
@@ -426,7 +428,7 @@ class PipelineIntegrationTest extends Matchers {
     instances
   }
 
-  def pollElasticElements(maxRetries: Int, sleepTimeMs: Long, expect: Int)(implicit runner: TestRunner): Boolean = {
+  def pollElasticElements(maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int)(implicit runner: TestRunner): Boolean = {
     var retries = maxRetries
     while (retries > 0) {
       log.debug(s"Reached Check Elastic Elements for ${expect} Elements with $retries retries remaining.")
@@ -435,7 +437,7 @@ class PipelineIntegrationTest extends Matchers {
 
       if (elements == expect) return true
 
-      Thread.sleep(sleepTimeMs)
+      Thread.sleep(interval.toMillis)
       retries -= 1
     }
 
