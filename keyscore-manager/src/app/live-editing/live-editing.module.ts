@@ -21,6 +21,7 @@ import {FiltersEffects} from "./live-editing-effects";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {DatasetTable} from "./components/dataset-table";
 import {ValueType} from "./components/value-type";
+import {NavigationControlComponent} from "./components/navigation-control.component";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -51,7 +52,8 @@ export const routes: Routes = [
         LiveEditingComponent,
         DatasetVisualizer,
         DatasetTable,
-        ValueType
+        ValueType,
+        NavigationControlComponent
     ]
     ,
     providers: [

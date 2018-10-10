@@ -5,19 +5,26 @@ import {select, Store} from "@ngrx/store";
 import {BehaviorSubject} from "rxjs/index";
 import {filter, take} from "rxjs/internal/operators";
 import {MatPaginator, MatSort} from "@angular/material";
+import {UpdateDatasetCounter} from "../live-editing.actions";
 
 @Component({
     selector: "dataset-table",
     template: `
         <div fxFlexFill="" fxLayoutGap="15px" fxLayout="column">
-            <!--Search Field-->
-            <mat-form-field fxFlex="15%" class="search-position">
-                <input matInput (keyup)="applyFilter($event.target.value)"
-                       placeholder="{{'GENERAL.FILTER' | translate}}">
-            </mat-form-field>
-
+            <div fxFlexFill="" fxFlex="15%" fxLayout="row" fxLayoutGap="15px">
+                <!--Search Field-->
+                <mat-form-field fxFlex="70%" class="search-position">
+                    <input matInput (keyup)="applyFilter($event.target.value)"
+                           placeholder="{{'GENERAL.FILTER' | translate}}">
+                </mat-form-field>    
+                <navigation-control [index]="index.getValue()"
+                                    [length]="(datasets$ | async).length"
+                                    (counterEvent)="updateCounter($event)" fxFlex="">
+                </navigation-control>
+            </div>
+            
+            
             <!--Dataset Datatable-->
-
             <table fxFlex="85%" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position">
                 <ng-container matColumnDef="fields">
@@ -68,4 +75,8 @@ export class DatasetTable {
         }
     }
 
+    private updateCounter(count: number) {
+        console.log("Count emitted" + count);
+        this.index.next(count);
+    }
 }

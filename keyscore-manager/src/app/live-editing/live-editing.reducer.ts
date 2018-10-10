@@ -90,9 +90,6 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
         //         }
         //     });
         //     break;
-        case UPDATE_DATASET_COUNTER:
-            result.currentDatasetCounter = action.counter;
-            break;
         case LOAD_FILTER_BLUEPRINT_SUCCESS:
             result.blueprint = action.blueprint;
             break;
