@@ -11,31 +11,33 @@ import scala.concurrent.duration._
 
 /**
   * Returns a List of Descriptors from a list of DescriptorRefs after collecting them from the DescriptorManager.
+  *
+  * @todo Implement Logic
   */
-object DescriptorCollector {
-  def apply(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) = Props(new DescriptorCollector(receiver, sealedBlueprints, descriptorManager))
-
-}
-class DescriptorCollector(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) extends Actor with ActorLogging {
-  import context.{dispatcher, system}
-
-  private var descriptors = scala.collection.mutable.ListBuffer.empty[Descriptor]
-
-  override def preStart(): Unit = {
-    log.debug(" started.")
-    sealedBlueprints.foreach( current => {
-      descriptorManager ! GetDescriptorRequest(current.descriptorRef)
-    })
-    system.scheduler.scheduleOnce(5 seconds) {
-      receiver !
-      context.stop(self)
-    }
-  }
-
-  override def receive: Receive = {
-    case  GetDescriptorResponse(current) => current match {
-      case Some(descriptor) => descriptors += descriptor
-      case _ =>
-    }
-  }
-}
+//object DescriptorCollector {
+//  def apply(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) = Props(new DescriptorCollector(receiver, sealedBlueprints, descriptorManager))
+//
+//}
+//class DescriptorCollector(receiver: ActorRef, sealedBlueprints: List[SealedBlueprint], descriptorManager: ActorRef) extends Actor with ActorLogging {
+//  import context.{dispatcher, system}
+//
+//  private var descriptors = scala.collection.mutable.ListBuffer.empty[Descriptor]
+//
+//  override def preStart(): Unit = {
+//    log.debug(" started.")
+//    sealedBlueprints.foreach( current => {
+//      descriptorManager ! GetDescriptorRequest(current.descriptorRef)
+//    })
+//    system.scheduler.scheduleOnce(5 seconds) {
+//      receiver !
+//      context.stop(self)
+//    }
+//  }
+//
+//  override def receive: Receive = {
+//    case  GetDescriptorResponse(current) => current match {
+//      case Some(descriptor) => descriptors += descriptor
+//      case _ =>
+//    }
+//  }
+//}
