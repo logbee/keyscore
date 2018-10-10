@@ -14,7 +14,7 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.model.{Green, Health, PipelineInstance}
-import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1,datasetMulti2, dataset1, dataset2, dataset3}
+import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1, datasetMulti2, dataset1, dataset2, dataset3}
 import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
@@ -65,8 +65,7 @@ class PipelineIntegrationTest extends Matchers {
     getSinglePipelineBlueprint(k2eObject)
 
     //Wait until both Pipelines are materialized
-    Thread.sleep(16000)
-    checkHealthStateOfPipelines(pipelineCount)
+    pollPipelineHealthState(maxRetries = 10, sleepTimeMs = 2000, pipelineCount) shouldBe true
 
     //Test the Valves of the first Pipeline Filter
     pauseFilter(k2kFilterId, "true")
@@ -87,8 +86,7 @@ class PipelineIntegrationTest extends Matchers {
     extractDatsetsFromFilter(k2eFilterId, 2, 2)
 
     //Wait until all Dataset are pushed to the Elastic index
-    Thread.sleep(16000)
-    checkElasticElements(2)
+    pollElasticElements(maxRetries = 10, sleepTimeMs = 2000, 2) shouldBe true
 
     //Cleanup
     removeElasticIndex("test")
@@ -294,27 +292,6 @@ class PipelineIntegrationTest extends Matchers {
 
   }
 
-  def checkHealthStateOfPipelines(expect: Int)(implicit runner: TestRunner): TestAction = {
-    log.debug(s"Reached Check Health State for ${expect} Pipelines")
-
-    runner.http(action => action.client(frontierClient)
-      .send()
-      .get(s"pipeline/instance/*")
-    )
-
-    runner.http(action => action.client(frontierClient)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        val instances = read[List[PipelineInstance]](payload)
-        instances.size shouldBe expect
-        instances.foreach(instance => {
-          instance.health shouldBe Green
-        })
-      }))
-  }
-
   def pauseFilter(filterId: String, toggle: String)(implicit runner: TestRunner): TestAction = {
     log.debug(s"Reached Pause Filter for ${filterId}")
     runner.http(action => action.client(frontierClient)
@@ -395,8 +372,78 @@ class PipelineIntegrationTest extends Matchers {
 
   }
 
-  def checkElasticElements(expectedHits: Int)(implicit runner: TestRunner): TestAction = {
-    log.debug(s"Reached Check Elastic")
+  private def removeElasticIndex(index: String)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Reached Remove Elastic Index for ${index}")
+
+    runner.http(action => action.client(elasticClient)
+      .send()
+      .delete("/" + index))
+
+    runner.http(action => action.client(elasticClient)
+      .receive()
+      .response(HttpStatus.OK)
+    )
+  }
+
+  //Polling
+  def pollPipelineHealthState(maxRetries: Int, sleepTimeMs: Long, expect: Int)(implicit runner: TestRunner): Boolean = {
+    var retries = maxRetries
+    while (retries > 0) {
+      log.debug(s"Reached Check Health State for ${expect} Pipelines with $retries retries remaining.")
+      var greenInstances: Int = 0
+
+      val instances = checkHealthStateOfPipelines(runner)
+
+      instances.foreach(instance => {
+        if (instance.health == Green) greenInstances += 1
+      })
+
+      if (greenInstances == expect) return true
+
+      Thread.sleep(sleepTimeMs)
+      retries -= 1
+    }
+
+    false
+  }
+
+  private def checkHealthStateOfPipelines(implicit runner: TestRunner): List[PipelineInstance] = {
+    var instances: List[PipelineInstance] = List.empty
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .get(s"pipeline/instance/*")
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        instances = read[List[PipelineInstance]](payload)
+      }))
+
+    instances
+  }
+
+  def pollElasticElements(maxRetries: Int, sleepTimeMs: Long, expect: Int)(implicit runner: TestRunner): Boolean = {
+    var retries = maxRetries
+    while (retries > 0) {
+      log.debug(s"Reached Check Elastic Elements for ${expect} Elements with $retries retries remaining.")
+
+      val elements = checkElasticElements(runner)
+
+      if (elements == expect) return true
+
+      Thread.sleep(sleepTimeMs)
+      retries -= 1
+    }
+
+    false
+  }
+
+  private def checkElasticElements(implicit runner: TestRunner): Int = {
+    var hits: Int = -1
 
     runner.http(action => action.client(elasticClient)
       .send()
@@ -409,21 +456,9 @@ class PipelineIntegrationTest extends Matchers {
       .validationCallback((message, context) => {
         val response = message.getPayload.asInstanceOf[String]
         val json = parse(response)
-        val hits = (json \ "hits" \ "total").extract[Int]
-        hits shouldBe expectedHits
+        hits = (json \ "hits" \ "total").extract[Int]
       }))
+
+    hits
   }
-
-    private def removeElasticIndex(index: String)(implicit runner: TestRunner): TestAction = {
-      log.debug(s"Reached Remove Elastic Index for ${index}")
-
-      runner.http(action => action.client(elasticClient)
-        .send()
-        .delete("/" + index))
-
-      runner.http(action => action.client(elasticClient)
-        .receive()
-        .response(HttpStatus.OK)
-      )
-    }
 }
