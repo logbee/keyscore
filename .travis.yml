@@ -14,19 +14,19 @@ before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
-# https://docs.travis-ci.com/user/languages/java/#caching : Cache doesn't work with the parameter 'sudo' set to true/required
+# https://docs.travis-ci.com/user/languages/java/#caching : Cache doesn't work with 'sudo'
 cache:
   directories:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
   - "$HOME/.npm"
-
+  - "./keyscore-manager/node_modules"
+  - "./keyscore-manager/.grade"
 
 install:
-- ./gradlew assemble
+- ./gradlew dependencies
 
 script:
-- whoami
 - ./gradlew check --continue
 
 after_success:
