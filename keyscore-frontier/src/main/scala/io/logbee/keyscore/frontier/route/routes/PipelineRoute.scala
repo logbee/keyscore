@@ -8,7 +8,7 @@ import akka.pattern.ask
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
-import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.{RequestExistingBlueprints, RequestExistingPipelines}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.RequestExistingPipelines
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
