@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 
 language: java
 
@@ -22,6 +22,7 @@ cache:
   - "$HOME/.npm"
 
 script:
+- whoami
 - gradle check --continue
 
 after_success:
