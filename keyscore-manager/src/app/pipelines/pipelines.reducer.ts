@@ -63,42 +63,46 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             };
             return {...state, editingPipeline: editingPipeline};
         case LOAD_PIPELINEBLUEPRINTS_SUCCESS:
-            return{
+            return {
                 ...state,
-                pipelineList:action.pipelineBlueprints.map(blueprint => {
-                    let name="";
+                pipelineList: action.pipelineBlueprints.map(blueprint => {
+                    let name = "";
                     let description = "";
-                    if(blueprint.metadata && blueprint.metadata.labels){
-                        let nameValue:Label;
-                        if(nameValue = blueprint.metadata.labels.find(label => label.name === 'pipeline.name')){
+                    if (blueprint.metadata && blueprint.metadata.labels) {
+                        let nameValue: Label;
+                        if (nameValue = blueprint.metadata.labels.find(label => label.name === 'pipeline.name')) {
                             name = (nameValue.value as TextValue).value;
                         }
-                        let descriptionValue:Label;
-                        if(descriptionValue = (blueprint.metadata.labels.find(label => label.name === 'pipeline.description'))){
+                        let descriptionValue: Label;
+                        if (descriptionValue = (blueprint.metadata.labels.find(label => label.name === 'pipeline.description'))) {
                             description = (descriptionValue.value as TextValue).value;
                         }
                     }
-
+                    let health = Health.Unknown;
+                    let index;
+                    if ((index = state.pipelineList.findIndex(tableModel => tableModel.uuid === blueprint.ref.uuid)) >= 0) {
+                        health = state.pipelineList[index].health;
+                    }
                     return {
-                        uuid:blueprint.ref.uuid,
-                        health:Health.Unknown,
-                        name:name,
-                        description:description
+                        uuid: blueprint.ref.uuid,
+                        health: health,
+                        name: name,
+                        description: description
                     }
                 })
             };
         case LOAD_ALL_PIPELINE_INSTANCES_SUCCESS:
-            let pipelineListCopy:PipelineTableModel[] = deepcopy(state.pipelineList,[]);
-            console.log("LISTCOPY: ",pipelineListCopy);
+            let pipelineListCopy: PipelineTableModel[] = deepcopy(state.pipelineList, []);
+            console.log("LISTCOPY: ", pipelineListCopy);
             action.pipelineInstances.forEach(instance => {
                 const index = pipelineListCopy.findIndex(dataModel => dataModel.uuid === instance.id);
-                if(index >= 0) {
+                if (index >= 0) {
                     pipelineListCopy[index].health = instance.health;
                 }
             });
-            return{
+            return {
                 ...state,
-                pipelineList:pipelineListCopy
+                pipelineList: pipelineListCopy
             };
         case DELETE_PIPELINE_SUCCESS:
             let pipelineList = deepcopy(state.pipelineList, []).filter((pipeline) => action.id !== pipeline.id);

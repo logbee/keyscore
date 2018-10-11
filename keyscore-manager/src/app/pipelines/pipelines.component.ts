@@ -6,7 +6,7 @@ import {UpdateRefreshTimeAction} from "../common/loading/loading.actions";
 import {isSpinnerShowing, selectRefreshTime} from "../common/loading/loading.reducer";
 import * as RouterActions from "../router/router.actions";
 import {
-    CreatePipelineAction,
+    CreatePipelineAction, EditPipelineAction,
     LoadAllPipelineInstancesAction,
     LoadPipelineBlueprints,
     UpdatePipelinePollingAction
@@ -62,7 +62,8 @@ import "../style/style.css";
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="['health', 'uuid', 'name']"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['health', 'uuid', 'name'];" class="example-element-row"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['health', 'uuid', 'name'];" (click)="editPipeline(row.uuid)"
+                    class="example-element-row cursor-pointer"></tr>
             </table>
         </div>
     `
@@ -81,7 +82,7 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
 
     }
 
-    public ngOnInit(){
+    public ngOnInit() {
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing));
         this.refreshTime$ = this.store.pipe(select(selectRefreshTime));
         this.store.dispatch(new UpdatePipelinePollingAction(true));
@@ -107,6 +108,15 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
                 extras: {}
             }));
         }
+    }
+
+    public editPipeline(id: string) {
+        //this.store.dispatch(new EditPipelineAction(id));
+        this.store.dispatch(new RouterActions.Go({
+            path: ["pipelines/" + id, {}],
+            query: {},
+            extras: {}
+        }));
     }
 
     public updateRefreshTime(refreshTimes: { newRefreshTime: number, oldRefreshTime: number }) {
