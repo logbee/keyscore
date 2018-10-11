@@ -83,6 +83,10 @@ task pushDockerImage(type: DockerPushImage) {
 task build(dependsOn: webpack) {
 }
 
+task check(dependsOn: build) {
+
+}
+
 task clean(type: Delete) {
     delete 'build'
 }
