@@ -21,7 +21,7 @@ cache:
   - "$HOME/.gradle/wrapper/"
   - "$HOME/.npm"
   - "./keyscore-manager/node_modules"
-  - "./keyscore-manager/.grade"
+  - "./keyscore-manager/.gradle"
 
 install:
 - ./gradlew dependencies
