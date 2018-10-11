@@ -10,10 +10,10 @@ import {UpdateDatasetCounter} from "../live-editing.actions";
 @Component({
     selector: "dataset-table",
     template: `
-        <div fxFlexFill="" fxLayoutGap="15px" fxLayout="column">
-            <div fxFlexFill="" fxFlex="15%" fxLayout="row" fxLayoutGap="15px">
+        <div fxFlexFill="" fxLayoutGap="5px" fxLayout="column">
+            <div fxFlexFill="" fxFlex="10%" fxLayout="row" fxLayoutGap="15px">
                 <!--Search Field-->
-                <mat-form-field fxFlex="70%" class="search-position">
+                <mat-form-field fxFlex="90%" class="search-position">
                     <input matInput (keyup)="applyFilter($event.target.value)"
                            placeholder="{{'GENERAL.FILTER' | translate}}">
                 </mat-form-field>    
@@ -25,7 +25,7 @@ import {UpdateDatasetCounter} from "../live-editing.actions";
             
             
             <!--Dataset Datatable-->
-            <table fxFlex="85%" mat-table matSort [dataSource]="dataSource"
+            <table fxFlex="" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position">
                 <ng-container matColumnDef="fields">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Fields</th>

@@ -3,7 +3,6 @@ import {Observable} from "rxjs/index";
 import {Store} from "@ngrx/store";
 import {selectCurrentDatasetCounter, selectExtractFinish, selectUpdateConfigurationFlag} from "../live-editing.reducer";
 import {Dataset} from "../../models/dataset/Dataset";
-import "../live-editing-styles/live-editing.css";
 
 @Component({
     selector: "example-message",

@@ -3,18 +3,16 @@ import {AppState} from "../app.component";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Observable, of} from "rxjs/index";
 import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
-import {catchError, combineLatest, concatMap, map, mergeMap, withLatestFrom} from "rxjs/internal/operators";
+import {catchError, concatMap, map, mergeMap, withLatestFrom} from "rxjs/internal/operators";
 import {Action, select, Store} from "@ngrx/store";
 import {
     DRAIN_FILTER,
     DrainFilterAction,
     DrainFilterFailure,
-    DrainFilterSuccess,
-    EXTRACT_DATASETS,
+    DrainFilterSuccess, EXTRACT_DATASETS,
     ExtractDatasetsAction,
     ExtractDatasetsFailure,
-    ExtractDatasetsInitialSuccess,
-    ExtractDatasetsResultSuccess,
+    ExtractDatasetsInitialSuccess, ExtractDatasetsResultSuccess,
     INSERT_DATASETS_SUCCESS,
     InsertDatasetsFailure,
     InsertDatasetsSuccess,
@@ -22,7 +20,7 @@ import {
     LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION,
-    LOAD_FILTERSTATE, LOAD_FILTERSTATE_SUCCESS,
+    LOAD_FILTERSTATE,
     LoadDescriptorForBlueprint,
     LoadDescriptorForBlueprintSuccess,
     LoadFilterBlueprintFailure,
@@ -40,7 +38,9 @@ import {
     RECONFIGURE_FILTER_SUCCESS,
     ReconfigureFilterFailure,
     ReconfigureFilterSuccess,
-    ResolvedDescriptorForBlueprintSuccess
+    ResolvedDescriptorForBlueprintSuccess,
+    UPDATE_FILTER_CONFIGURATION,
+    UpdateFilterConfiguration
 } from "./live-editing.actions";
 import {BlueprintService} from "../services/rest-api/BlueprintService";
 import {Configuration} from "../models/common/Configuration";
@@ -50,12 +50,7 @@ import {Descriptor} from "../models/descriptors/Descriptor";
 import {switchMap} from "rxjs/operators";
 import {LoadAllDescriptorsForBlueprintFailureAction} from "../resources/resources.actions";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {
-    selectConfiguration,
-    selectCurrentBlueprintId,
-    selectExtractedDatasets,
-    selectUpdateConfigurationFlag
-} from "./live-editing.reducer";
+import {selectCurrentBlueprint, selectExtractedDatasets} from "./live-editing.reducer";
 import {Dataset} from "../models/dataset/Dataset";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
@@ -167,10 +162,10 @@ export class FiltersEffects {
     public insertDatasets$: Observable<Action> = this.actions$.pipe(
         ofType(RECONFIGURE_FILTER_SUCCESS),
         withLatestFrom(
-            this.store.pipe(select(selectCurrentBlueprintId)),
+            this.store.pipe(select(selectCurrentBlueprint)),
             this.store.pipe(select(selectExtractedDatasets))),
-        switchMap(([_, id, datasets]) =>
-           this.filterControllerService.insertDatasets(id, datasets).pipe(
+        switchMap(([_, blueprint, datasets]) =>
+           this.filterControllerService.insertDatasets(blueprint.ref.uuid, datasets).pipe(
                 map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
                 catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
             )
@@ -180,8 +175,8 @@ export class FiltersEffects {
     @Effect()
     public fireExtractDatasetsWhenInsertDatasetsSuccessAction: Observable<Action> = this.actions$.pipe(
         ofType(INSERT_DATASETS_SUCCESS),
-        withLatestFrom(this.store.pipe(select(selectCurrentBlueprintId)), this.store.pipe(select(selectExtractedDatasets))),
-        switchMap(([_, filterId, datasets] ) => of(new ExtractDatasetsAction(filterId, datasets.length)))
+        withLatestFrom(this.store.pipe(select(selectCurrentBlueprint)), this.store.pipe(select(selectExtractedDatasets))),
+        switchMap(([_, blueprint, datasets] ) => of(new ExtractDatasetsAction(blueprint.ref.uuid, datasets.length)))
     );
 
     @Effect()
@@ -209,21 +204,18 @@ export class FiltersEffects {
     );
 
     @Effect()
-    public updateConfiguration: Observable<Action> = this.actions$.pipe(
-        combineLatest(this.store.pipe(select(selectConfiguration)), this.store.pipe(select(selectUpdateConfigurationFlag))),
-        switchMap(([_, filterConfiguration, triggerCall]) => {
-            if (triggerCall) {
-                return this.filterControllerService.updateConfig(filterConfiguration).pipe(
-                    map((state: ResourceInstanceState) => new ReconfigureFilterSuccess(state)),
-                    catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
-                );
-            } else {
-                return of();
-            }
+    public updateFilterConfiguration$: Observable<Action> = this.actions$.pipe(
+        ofType(UPDATE_FILTER_CONFIGURATION),
+        map((action) => (action as UpdateFilterConfiguration)),
+        withLatestFrom(this.store.pipe(select(selectCurrentBlueprint))),
+        switchMap(([action, blueprint]) => {
+            console.log("reached effect with:" + JSON.stringify(action.configuration) + " and id:", blueprint.ref.uuid);
+            return this.filterControllerService.updateConfig(action.configuration, blueprint.ref.uuid).pipe(
+                map((state: ResourceInstanceState) => new ReconfigureFilterSuccess(state)),
+                catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
+            );
         })
     );
-
-
 
     constructor(private store: Store<AppState>,
                 private actions$: Actions,

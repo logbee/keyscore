@@ -50,8 +50,8 @@ export class FilterControllerService {
         return this.httpClient.get<Dataset[]>(`${FilterControllerService.BASE_URL}/${uuid}/extract?value=10`)
     }
 
-    updateConfig(configuration: Configuration): Observable<any> {
-        return this.httpClient.put(`${FilterControllerService.BASE_URL}/${configuration.ref.uuid}/config`, configuration, {
+    updateConfig(configuration: Configuration, blueprintId: string): Observable<any> {
+        return this.httpClient.put(`${FilterControllerService.BASE_URL}/${blueprintId}/configurations`, configuration, {
             headers: new HttpHeaders().set("Content-Type", "application/json"),
             responseType: "json"
         })

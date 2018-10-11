@@ -1,26 +1,29 @@
-import {Component, OnDestroy, OnInit} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {select, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
 import {isSpinnerShowing} from "../common/loading/loading.reducer";
-import {ErrorState, errorState} from "../common/error/error.reducer";
 import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {
+    selectConfiguration,
     selectCurrentBlueprint,
+    selectCurrentDescriptor,
     selectExtractedDatasets,
-    selectConfiguration, selectConfigurationId,
-    selectLiveEditingFilterState,
-    selectResultDatasets, selectCurrentDescriptor
+    selectLiveEditingFilterState, selectUpdatedConfiguration
 } from "./live-editing.reducer";
+import "./live-editing-styles/live-editing.css";
 import {Dataset} from "../models/dataset/Dataset";
-import {UpdateDatasetCounter, UpdateFilterConfiguration} from "./live-editing.actions";
-import {Location} from "@angular/common";
 import {Blueprint} from "../models/blueprints/Blueprint";
-import {Descriptor} from "../models/descriptors/Descriptor";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {selectBlueprints} from "../resources/resources.reducer";
+import {
+    LoadFilterStateAction,
+    LoadFilterStateSuccess,
+    SaveUpdatedConfiguration,
+    UpdateFilterConfiguration
+} from "./live-editing.actions";
+
 
 @Component({
     selector: "live-editing",
@@ -30,28 +33,17 @@ import {selectBlueprints} from "../resources/resources.reducer";
                 [title]="filterName"
                 (onManualRelad)="reload()">
         </header-bar>
-        <div class="live-editing-wrapper">
-            <div fxLayout="" fxLayoutGap="15px" *ngIf="!(loading$ | async); else loading">
-                <div fxFlexFill="" fxLayoutGap="15px" fxLayout="column" fxLayout.xs="column" *ngIf="!errorHandling">
-                    <filter-description fxFlex="20%" [currentFilter]="filter$ | async"
-                                        [currentFilterState]="filterState$ | async"
-                                        [descriptor]="descriptor$ | async">
-                    </filter-description>
-                    <!--<example-message fxFlex="35%%" [extractedDatasets$]="extractedDatasets$"-->
-                                     <!--(currentDatasetCounter)="updateCounterInStore($event)">-->
-                    <!--</example-message>-->
-                    
-                    <dataset-table fxFlex="35%"></dataset-table>
-                    
-                    <!--<filter-configuration fxFlex="20%" [filter$]="filter$"-->
-                    <!--[extractedDatasets$]="extractedDatasets$"-->
-                    <!--(apply)="reconfigureFilter($event)"></filter-configuration>-->
-                    
-                    <!---->
-                    <!--<filter-result fxFlex="35%" [resultDatasets$]="resultDatasets$"-->
-                    <!--(currentDatasetCounter)="updateCounterInStore($event)"></filter-result>-->
-                </div>
-            </div>
+        <div fxFlexFill="" fxLayout="row" fxLayoutGap="15px" *ngIf="!(loading$ | async); else loading">
+            <dataset-table class="live-editing-wrapper" fxFlex="75%"></dataset-table>
+            <configurator class="mat-elevation-z6" fxFlex=""
+                          [isOpened]=""
+                          [selectedBlock]="{configuration:(configuration$|async),
+                                    descriptor:(descriptor$|async)}"
+                          [showFooter]="true"
+                          (onSave)="saveConfiguration($event)"
+                          (closeConfigurator)="closeConfigurator()">
+            </configurator>
+
         </div>
         <error-component *ngIf="errorHandling" [httpError]="httpError"
                          [message]="message">
@@ -64,17 +56,18 @@ import {selectBlueprints} from "../resources/resources.reducer";
 
 export class LiveEditingComponent implements OnInit {
     // Flags
-    private errorHandling: boolean = false;
-    private error$: Observable<ErrorState>;
+
+    // private errorHandling: boolean = false;
+    // private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
     private liveEditingFlag: boolean;
     private blueprint$: Observable<Blueprint>;
-    private descriptor$: Observable<ResolvedFilterDescriptor>;
-
     private message: string = "The requested resource could not be shown";
     // // Observables
     private configuration$: Observable<Configuration>;
     private filterState$: Observable<ResourceInstanceState>;
+    private descriptor$: Observable<ResolvedFilterDescriptor>;
+
 
     private extractedDatasets$: Observable<Dataset[]>;
     // private resultDatasets$: Observable<Dataset[]>;
@@ -87,15 +80,22 @@ export class LiveEditingComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
+        // this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
+        this.store.pipe(select(selectUpdatedConfiguration)).subscribe(config => {
+                console.log("Triggered config subscription config is" + JSON.stringify(config));
+                if (config) {
+                    this.store.dispatch(new UpdateFilterConfiguration(config));
+                }
+            }
+        );
     }
 
     private initialize() {
         if (!this.liveEditingFlag) {
-            this.triggerErrorComponent("999");
+            // this.triggerErrorComponent("999");
         }
         else {
-            this.error$ = this.store.pipe(select(errorState));
+            // this.error$ = this.store.pipe(select(errorState));
             this.loading$ = this.store.pipe(select(isSpinnerShowing));
             this.filterState$ = this.store.pipe(select(selectLiveEditingFilterState));
             this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
@@ -106,42 +106,46 @@ export class LiveEditingComponent implements OnInit {
         }
     }
 
-    // public reconfigureFilter(update: { filterConfiguration: Configuration, values: any }) {
-    //     this.store.dispatch(new UpdateFilterConfiguration(update.filterConfiguration, update.values));
-    // }
+    saveConfiguration($event: Configuration) {
+        this.store.dispatch(new SaveUpdatedConfiguration($event));
+    }
+
+    closeConfigurator() {
+
+    }
 
     // private updateCounterInStore(count: number) {
     //     this.store.dispatch(new UpdateDatasetCounter(count));
     // }
 
-    private triggerErrorComponent(httpError: string) {
-        switch (httpError.toString()) {
-            case "404": {
-                this.translate.get("ERRORS.404").subscribe(
-                    (translation) => this.message = translation);
-                this.errorHandling = true;
-                break;
-            }
-            case "503": {
-                this.translate.get("ERRORS.503").subscribe(
-                    (translation) => this.message = translation);
-                this.errorHandling = true;
-                break;
-            }
-            case "0": {
-                this.translate.get("ERRORS.0").subscribe(
-                    (translation) => this.message = translation);
-                this.errorHandling = true;
-                break;
-            }
-            case "999": {
-                this.translate.get("ERRORS.999").subscribe(
-                    (translation) => this.message = translation);
-                this.errorHandling = true;
-                break;
-            }
-        }
-    }
+    // private triggerErrorComponent(httpError: string) {
+    //     switch (httpError.toString()) {
+    //         case "404": {
+    //             this.translate.get("ERRORS.404").subscribe(
+    //                 (translation) => this.message = translation);
+    //             this.errorHandling = true;
+    //             break;
+    //         }
+    //         case "503": {
+    //             this.translate.get("ERRORS.503").subscribe(
+    //                 (translation) => this.message = translation);
+    //             this.errorHandling = true;
+    //             break;
+    //         }
+    //         case "0": {
+    //             this.translate.get("ERRORS.0").subscribe(
+    //                 (translation) => this.message = translation);
+    //             this.errorHandling = true;
+    //             break;
+    //         }
+    //         case "999": {
+    //             this.translate.get("ERRORS.999").subscribe(
+    //                 (translation) => this.message = translation);
+    //             this.errorHandling = true;
+    //             break;
+    //         }
+    //     }
+    // }
 
 }
 

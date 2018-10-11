@@ -4,15 +4,9 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
     selector: "navigation-control",
     template: `
         <div fxFlexFill="" fxLayout="row" fxLayoutGap="15px">
-            <div fxFlex="33%">
                 <mat-icon (click)="navigateToLeft()">chevron_left</mat-icon>
-            </div>
-            <div fxFlex="33%">
-                {{index + 1}} / {{length}}
-            </div>
-            <div fxFlex="33%">
+                    <div>{{index + 1}} / {{length}}</div>
                 <mat-icon (click)="navigateToRight()">chevron_right</mat-icon>
-            </div>
         </div>
     `
 })

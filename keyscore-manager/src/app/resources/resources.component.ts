@@ -40,7 +40,7 @@ import {Health} from "../models/common/Health";
             </mat-form-field>
 
             <!--Resources Table-->
-            <table fxFlex="95" #table mat-table matSort [dataSource]="dataSource"
+            <table fxFlex="95" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position"> 
                 <!--Health Column-->
                 <ng-container matColumnDef="health">

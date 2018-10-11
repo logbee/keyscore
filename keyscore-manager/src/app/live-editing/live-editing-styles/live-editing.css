@@ -2,35 +2,35 @@
 @import "../../../../node_modules/material-design-icons/iconfont/material-icons.css";
 
 /*-------------Live-Editing------------------*/
-#custom-card-black {
-    color: black;
-}
-#custom-card-white {
-    color: white;
-}
-#custom-card-white .header-background {
-    background-color: #3a88b3;
-}
-
-.card-body-background {
-   background: #f3f2f2;
-}
-
-.custom-badge {
-    display: inline-block;
-    margin-left: 5px;
-    margin-right: 5px;
-    font-size: large;
-}
-
-.fix-div {
-    margin-left: -16px;
-}
-
 .live-editing-wrapper {
     margin: 15px ;
+    box-sizing: border-box;
+}
+.configurator-wrapper{
+    position:relative;
+    max-width: 100%;
+}
+configurator {
+    padding: 10px;
+    z-index: 500;
+    position:relative;
+    max-height:calc(95vh - 3px);
+    background-color: rgba(0,0,0,0.001);
 }
 
-.badge-icon {
-    margin-left: 15px;
+.configurator-footer{
+    position:absolute;
+    display:flex;
+    bottom:10px;
+    width:100%;
+}
+
+.configurator-body{
+    overflow-y: scroll;
+    max-height:calc(95vh - 100px);
+    padding:10px 0;
+}
+
+.configurator-body::-webkit-scrollbar {
+    display: none;
 }

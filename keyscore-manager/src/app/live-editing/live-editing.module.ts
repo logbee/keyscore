@@ -22,6 +22,8 @@ import {DescriptorResolverService} from "../services/descriptor-resolver.service
 import {DatasetTable} from "./components/dataset-table";
 import {ValueType} from "./components/value-type";
 import {NavigationControlComponent} from "./components/navigation-control.component";
+import {ConfiguratorComponent} from "../pipelines/pipeline-editor/pipely/configurator.component";
+import {ParameterModule} from "../common/parameter/parameter.module";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -39,10 +41,8 @@ export const routes: Routes = [
         LoadingModule,
         HealthModule,
         ErrorModule,
-        MaterialModule
-
-
-
+        MaterialModule,
+        ParameterModule,
     ],
     declarations: [
         FilterDescriptionComponent,
@@ -53,7 +53,8 @@ export const routes: Routes = [
         DatasetVisualizer,
         DatasetTable,
         ValueType,
-        NavigationControlComponent
+        NavigationControlComponent,
+        ConfiguratorComponent
     ]
     ,
     providers: [

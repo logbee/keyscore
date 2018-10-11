@@ -191,7 +191,7 @@ export class PipelinesEffects {
         ofType(DELETE_PIPELINE),
         combineLatest(this.store.select(selectAppConfig)),
         mergeMap(([action, config]) => {
-            const pipelineUrl: string = config.getString("keyscore.frontier.base-url") + "/pipeline/configuration/";
+            const pipelineUrl: string = config.getString("keyscore.frontier.base-url") + "/pipeline/initialConfiguration/";
             const pipelineId: string = (action as DeletePipelineAction).id;
             return this.http.delete(pipelineUrl + pipelineId).pipe(
                 map((data) => new DeletePipelineSuccessAction(pipelineId)),

@@ -8,7 +8,6 @@ import {
 } from "../../models/parameters/ParameterDescriptor";
 import {Observable} from "rxjs/index";
 import {Dataset} from "../../models/dataset/Dataset";
-import "../live-editing-styles/live-editing.css";
 
 @Component({
     selector: "filter-configuration",

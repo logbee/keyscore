@@ -55,6 +55,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() public showFooter: boolean;
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
         if (block.configuration && block.descriptor) {
+            console.log("set new block" + block.descriptor.displayName);
             this.selectedBlock$.next(block);
         }
     }
