@@ -1,6 +1,7 @@
 sudo: required
 
-language: java
+language: scala
+jdk: oraclejdk8
 
 env:
   global:
@@ -20,6 +21,7 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
   - "$HOME/.npm"
+  - ".gradle"
   - "./keyscore-manager/node_modules"
   - "./keyscore-manager/.gradle"
 
