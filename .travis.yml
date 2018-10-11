@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 
 language: java
 
@@ -21,9 +21,13 @@ cache:
   - "$HOME/.gradle/wrapper/"
   - "$HOME/.npm"
 
+
+install:
+- ./gradlew assemble
+
 script:
 - whoami
-- gradle check --continue
+- ./gradlew check --continue
 
 after_success:
-- gradle pushDockerImage -Pversion=$TRAVIS_BRANCH
+- ./gradlew pushDockerImage -Pversion=$TRAVIS_BRANCH
