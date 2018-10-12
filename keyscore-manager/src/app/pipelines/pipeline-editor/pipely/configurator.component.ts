@@ -91,6 +91,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map();
 
     private lastID:string="";
+    private lastValues=null;
     private formSubscription:Subscription;
 
     constructor(private parameterService: ParameterControlService) {
@@ -111,8 +112,9 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             }
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
             this.form.valueChanges.subscribe(values => {
-                if(!this.isAllNullOrEmpty(values) && !this.showFooter){
+                if(!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues,values)){
                     console.log("CHANGES", values);
+                    this.lastValues = values;
                     this.saveConfiguration();
                 }
             });
