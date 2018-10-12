@@ -107,7 +107,7 @@ import "./style/parameter-module-style.scss"
 
             <parameter-map *ngSwitchCase="jsonClass.FieldListParameterDescriptor"
                            [formControlName]="parameter.ref.id"
-                           [id]="parameter.ref.id"></parameter-map>
+                           [id]="parameter.ref.id" [parameter]="parameter"></parameter-map>
 
 
             <div class="parameter-required" *ngIf="!isValid">{{parameterDescriptor.info.displayName}}
