@@ -1,6 +1,7 @@
 import {Record} from "./Record";
+import {MetaData} from "../common/MetaData";
 
 export interface Dataset {
-   metaData: "";
+   metaData: MetaData;
    records: Record[];
 }

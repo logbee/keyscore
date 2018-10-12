@@ -10,19 +10,14 @@ import {
     selectConfiguration,
     selectCurrentBlueprint,
     selectCurrentDescriptor,
-    selectExtractedDatasets,
-    selectLiveEditingFilterState, selectUpdatedConfiguration
+    selectLiveEditingFilterState,
+    selectUpdatedConfiguration
 } from "./live-editing.reducer";
 import "./live-editing-styles/live-editing.css";
 import {Dataset} from "../models/dataset/Dataset";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {
-    LoadFilterStateAction,
-    LoadFilterStateSuccess,
-    SaveUpdatedConfiguration,
-    UpdateFilterConfiguration
-} from "./live-editing.actions";
+import {SaveUpdatedConfiguration, UpdateFilterConfiguration} from "./live-editing.actions";
 
 
 @Component({
@@ -69,8 +64,6 @@ export class LiveEditingComponent implements OnInit {
     private descriptor$: Observable<ResolvedFilterDescriptor>;
 
 
-    private extractedDatasets$: Observable<Dataset[]>;
-    // private resultDatasets$: Observable<Dataset[]>;
     private filterName: string = "Live-Editing";
 
     constructor(private store: Store<any>, private translate: TranslateService) {
@@ -101,7 +94,7 @@ export class LiveEditingComponent implements OnInit {
             this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
             this.configuration$ = this.store.pipe(select(selectConfiguration));
-            this.extractedDatasets$ = this.store.pipe(select(selectExtractedDatasets));
+            // this.extractedDatasets$ = this.store.pipe(select(selectDatasets));
             // this.resultDatasets$ = this.store.select(selectResultDatasets);
         }
     }
