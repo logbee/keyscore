@@ -51,6 +51,7 @@
     "@types/systemjs": "0.20.6",
     "@types/uuid": "3.4.3",
     "@types/jest": "23.3.2",
+    "@types/lodash": "4.14.117",
     "css-loader": "1.0.0",
     "file-loader": "2.0.0",
     "html-loader": "0.5.5",

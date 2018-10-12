@@ -13,6 +13,7 @@ import {
 } from "../../../../models/blueprints/Blueprint";
 import {Ref} from "../../../../models/common/Ref";
 
+
 @Injectable()
 export class PipelineConfiguratorService {
 

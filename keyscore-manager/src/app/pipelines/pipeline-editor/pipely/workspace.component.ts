@@ -50,11 +50,10 @@ import {Configuration} from "../../../models/common/Configuration";
                     </div>
                 </div>
 
-                <configurator class="mat-elevation-z6" fxFlex="" (closeConfigurator)="closeConfigurator()"
+                <configurator class="mat-elevation-z8" fxFlex="" (closeConfigurator)="closeConfigurator()"
                               [isOpened]="isConfiguratorOpened"
                               [selectedBlock]="{configuration:(selectedDraggable$|async)?.getDraggableModel().configuration,
                               descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
-                              [showFooter]="true"
                                 (onSave)="saveConfiguration($event)">
                 </configurator>
             </div>

@@ -14,7 +14,7 @@ import "./style/parameter-module-style.scss"
             <mat-form-field *ngSwitchCase="jsonClass.TextParameterDescriptor">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
                        [formControlName]="parameter.ref.id"
-                       [id]="parameter.ref.id">
+                       [id]="parameter.ref.id" (change)="onChange()">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
 
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
@@ -26,7 +26,7 @@ import "./style/parameter-module-style.scss"
                 <input matInput type="number"
                        [placeholder]="parameterDescriptor.defaultValue"
                        [formControlName]="parameter.ref.id"
-                       [id]="parameter.ref.id">
+                       [id]="parameter.ref.id" (change)="onChange()">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -37,7 +37,7 @@ import "./style/parameter-module-style.scss"
                 <input matInput type="number"
                        [placeholder]="parameterDescriptor.defaultValue"
                        [formControlName]="parameter.ref.id"
-                       [id]="parameter.ref.id">
+                       [id]="parameter.ref.id" (change)="onChange()">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -48,7 +48,7 @@ import "./style/parameter-module-style.scss"
             <div *ngSwitchCase="jsonClass.BooleanParameterDescriptor"
                  class="toggleCheckbox" [id]="parameter.ref.id">
                 <mat-slide-toggle [checked]="parameter.value" id="checkbox{{parameter.ref.id}}"
-                                  [formControlName]="parameter.ref.id">
+                                  [formControlName]="parameter.ref.id" (change)="onChange()">
                     {{parameterDescriptor.info.displayName}}
                 </mat-slide-toggle>
             </div>
@@ -56,9 +56,10 @@ import "./style/parameter-module-style.scss"
             <mat-form-field *ngSwitchCase="jsonClass.ChoiceParameterDescriptor" [id]="parameter.ref.id">
                 <mat-select [formControlName]="parameter.ref.id"
                             [placeholder]="parameterDescriptor.defaultValue"
-                            [attr.multiple]="parameterDescriptor.max > 1 ? '' :null">
+                            [attr.multiple]="parameterDescriptor.max > 1 ? '' :null" (change)="onChange()">
                     <mat-option *ngFor="let choice of parameterDescriptor.choices" [value]="choice.name"
-                                [matTooltip]="choice.description" matTooltipPosition="before">{{choice.displayName}}</mat-option>
+                                [matTooltip]="choice.description" matTooltipPosition="before">{{choice.displayName}}
+                    </mat-option>
                 </mat-select>
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
             </mat-form-field>
@@ -67,7 +68,7 @@ import "./style/parameter-module-style.scss"
                             [id]="parameter.ref.id">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
                        [formControlName]="parameter.ref.id"
-                       [id]="parameter.ref.id">
+                       [id]="parameter.ref.id" (change)="onChange()">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -78,7 +79,7 @@ import "./style/parameter-module-style.scss"
                             [id]="parameter.ref.id">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
                        [formControlName]="parameter.ref.id"
-                       [id]="parameter.ref.id">
+                       [id]="parameter.ref.id" (change)="onChange()">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -89,7 +90,7 @@ import "./style/parameter-module-style.scss"
                             [id]="parameter.ref.id">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
                        [formControlName]="parameter.ref.id"
-                       [id]="parameter.ref.id">
+                       [id]="parameter.ref.id" (change)="onChange()">
                 <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
@@ -121,11 +122,16 @@ export class ParameterComponent implements OnInit {
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
+    @Output() public change: EventEmitter<void> = new EventEmitter();
 
     public jsonClass: typeof ParameterDescriptorJsonClass = ParameterDescriptorJsonClass;
 
     ngOnInit() {
 
+    }
+
+    onChange() {
+        this.change.emit();
     }
 
     get isValid() {

@@ -19,7 +19,7 @@ import {Configuration} from "../../models/common/Configuration";
 import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
-import {_} from "lodash";
+import * as _ from "lodash";
 import {Blueprint} from "../../models/blueprints/Blueprint";
 import {
     errorState,
