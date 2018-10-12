@@ -84,17 +84,6 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             result.resultDatasets = action.datasets.reverse();
             result.extractFinish = true;
             break;
-        // case UPDATE_FILTER_CONFIGURATION:
-        //     result.isUpdated = true;
-        //     result.filter = deepcopy(action.filter);
-        //     result.filter.parameters.forEach((p) => {
-        //         if (p.jsonClass === "IntParameter") {
-        //             p.value = +action.values[p.ref.uuid];
-        //         } else {
-        //             p.value = action.values[p.ref.uuid];
-        //         }
-        //     });
-        //     break;
         case LOAD_FILTER_BLUEPRINT_SUCCESS:
             result.blueprint = action.blueprint;
             break;
@@ -108,26 +97,19 @@ export const currentDatasetCounter = (state: FilterState) => state.currentDatase
 
 export const resultAvailable = (state: FilterState) => state.resultAvailable;
 
-export const getUpdateConfigurationFlag = (state: FilterState) => state.isUpdated;
 
 export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
 );
 export const selectConfiguration = createSelector(getFilterState, (state: FilterState) => state.initialConfiguration);
 
-export const selectConfigurationId = createSelector(getFilterState, (state: FilterState) => state.initialConfiguration.ref.uuid);
-
 export const selectLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
 
 export const selectExtractedDatasets = createSelector(getFilterState, (state: FilterState) => state.exampleDatasets);
 
-export const selectResultDatasets = createSelector(getFilterState, (state: FilterState) => state.resultDatasets);
-
 export const selectExtractFinish = createSelector(getFilterState, extractFinish);
 
 export const selectResultAvailable = createSelector(getFilterState, resultAvailable);
-
-export const selectUpdateConfigurationFlag = createSelector(getFilterState, getUpdateConfigurationFlag);
 
 export const selectCurrentDatasetCounter = createSelector(getFilterState, currentDatasetCounter);
 
