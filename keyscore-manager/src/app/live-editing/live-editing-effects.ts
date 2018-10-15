@@ -50,7 +50,7 @@ import {Descriptor} from "../models/descriptors/Descriptor";
 import {switchMap} from "rxjs/operators";
 import {LoadAllDescriptorsForBlueprintFailureAction} from "../resources/resources.actions";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {selectCurrentBlueprint, selectDatasets} from "./live-editing.reducer";
+import {selectCurrentBlueprint, selectDatasetsModels, selectDatasetsRaw} from "./live-editing.reducer";
 import {Dataset} from "../models/dataset/Dataset";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
@@ -158,25 +158,25 @@ export class FiltersEffects {
                 return new ResolvedDescriptorForBlueprintSuccess(resolvedDescriptor);
         }));
 
-    // @Effect()
-    // public insertDatasets$: Observable<Action> = this.actions$.pipe(
-        // ofType(RECONFIGURE_FILTER_SUCCESS),
-        // withLatestFrom(
-        //     this.store.pipe(select(selectCurrentBlueprint)),
-        //     this.store.pipe(select(selectDatasets))),
-        // switchMap(([_, blueprint, datasets]) =>
-           // this.filterControllerService.insertDatasets(blueprint.ref.uuid, datasets).pipe(
-           //      map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
-           //      catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
-        //    //  )
-        // )
-    // );
+    @Effect()
+    public insertDatasets$: Observable<Action> = this.actions$.pipe(
+        ofType(RECONFIGURE_FILTER_SUCCESS),
+        withLatestFrom(
+            this.store.pipe(select(selectCurrentBlueprint)),
+            this.store.pipe(select(selectDatasetsRaw))),
+        switchMap(([_, blueprint, datasets]) =>
+           this.filterControllerService.insertDatasets(blueprint.ref.uuid, datasets).pipe(
+                map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
+                catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
+            )
+        )
+    );
 
     @Effect()
     public fireExtractDatasetsWhenInsertDatasetsSuccessAction: Observable<Action> = this.actions$.pipe(
         ofType(INSERT_DATASETS_SUCCESS),
-        withLatestFrom(this.store.pipe(select(selectCurrentBlueprint)), this.store.pipe(select(selectDatasets))),
-        switchMap(([_, blueprint, datasets] ) => of(new ExtractDatasetsAction(blueprint.ref.uuid, datasets.length)))
+        withLatestFrom(this.store.pipe(select(selectCurrentBlueprint)), this.store.pipe(select(selectDatasetsModels))),
+        switchMap(([_, blueprint, models] ) => of(new ExtractDatasetsAction(blueprint.ref.uuid, models.length)))
     );
 
     @Effect()

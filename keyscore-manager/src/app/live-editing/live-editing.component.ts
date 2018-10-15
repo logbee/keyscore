@@ -93,7 +93,7 @@ export class LiveEditingComponent implements OnInit {
             this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
             this.configuration$ = this.store.pipe(select(selectConfiguration));
-            // this.extractedDatasets$ = this.store.pipe(select(selectDatasets));
+            // this.extractedDatasets$ = this.store.pipe(select(selectDatasetsModels));
             // this.resultDatasets$ = this.store.select(selectResultDatasets);
         }
     }

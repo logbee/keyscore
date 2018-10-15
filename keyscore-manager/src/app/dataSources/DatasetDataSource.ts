@@ -17,36 +17,44 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     constructor(datasets$: Observable<DatasetTableModel[]>, index$: Observable<number>) {
         super();
         combineLatest(datasets$, index$).subscribe(([datasets, index]) => {
-            let rows = datasets[index].rows;
-            this.data = rows;
+            this.data = datasets[index].records[0].rows;
         });
-        // this.filterPredicate = (datasetModel: DatasetTableModel, filter: string) => {
-        //     let searchString = filter.trim().toLowerCase();
-        //     return this.filterAccessingRules(datasetModel, searchString);
-        // };
-        // this.sortingDataAccessor = (datasetModel: DatasetTableModel, property: string) => {
-        //     switch (property) {
-        //         case "fields":
-        //             return datasetModel.rows.field.name;
-        //         case "jsonClass":
-        //             return datasetModel.field.value.jsonClass;
-        //         case "values":
-        //             return this.accessFieldValues(datasetModel.field.value);
-        //     }
-        // }
+
+        this.filterPredicate = (datasetModel: DatasetTableRowModel, filter: string) => {
+            let searchString = filter.trim().toLowerCase();
+            return this.filterAccessingRules(datasetModel, searchString);
+        };
+
+        this.sortingDataAccessor = (datasetModel: DatasetTableRowModel, property: string) => {
+            switch (property) {
+                case "fields":
+                    return datasetModel.input.name;
+                case "jsonClass":
+                    return datasetModel.input.value.jsonClass;
+                case "inValues":
+                    return this.accessFieldValues(datasetModel.input.value);
+                case "outValues":
+                    return this.accessFieldValues(datasetModel.input.value);
+            }
+        }
     }
+
     connect(): BehaviorSubject<DatasetTableRowModel[]> {
         return super.connect()
     }
+
     disconnect() {
 
     }
 
-    // private filterAccessingRules(datasetModel: DatasetTableModel, searchString) {
-    //     return datasetModel.field.name.includes(searchString) ||
-    //         datasetModel.field.value.jsonClass.toLowerCase().includes(searchString) ||
-    //         this.accessFieldValues(datasetModel.field.value).includes(searchString);
-    // }
+    private filterAccessingRules(datasetModel: DatasetTableRowModel, searchString) {
+        return datasetModel.input.name.includes(searchString) ||
+            datasetModel.input.value.jsonClass.toLowerCase().includes(searchString) ||
+            this.accessFieldValues(datasetModel.input.value).includes(searchString) ||
+            datasetModel.output.name.includes(searchString) ||
+            datasetModel.output.value.jsonClass.toLowerCase().includes(searchString) ||
+            this.accessFieldValues(datasetModel.output.value).includes(searchString);
+    }
 
     accessFieldValues(valueObject: Value): string {
         switch (valueObject.jsonClass) {

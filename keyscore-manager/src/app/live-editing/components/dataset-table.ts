@@ -1,6 +1,6 @@
 import {Component, ViewChild} from "@angular/core";
 import {DatasetDataSource} from "../../dataSources/DatasetDataSource";
-import {selectDatasets, selectExtractFinish} from "../live-editing.reducer";
+import {selectDatasetsModels, selectExtractFinish} from "../live-editing.reducer";
 import {select, Store} from "@ngrx/store";
 import {BehaviorSubject, Observable} from "rxjs/index";
 import {filter, take} from "rxjs/internal/operators";
@@ -39,17 +39,17 @@ import {
                    class="mat-elevation-z8 table-position">
                 <ng-container matColumnDef="fields">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Fields</th>
-                    <td mat-cell *matCellDef="let row">{{row.input.name}}</td>
+                    <td mat-cell *matCellDef="let row">{{row?.input.name}}</td>
                 </ng-container>
 
-                <ng-container matColumnDef="inputvalues">
+                <ng-container matColumnDef="inValues">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Input Values</th>
-                    <td mat-cell *matCellDef="let row">{{accessFieldValues(row.input.value)}}</td>
+                    <td mat-cell *matCellDef="let row">{{accessFieldValues(row?.input.value)}}</td>
                 </ng-container>
 
-                <ng-container matColumnDef="outputvalues">
+                <ng-container matColumnDef="outValues">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Output Values</th>
-                    <td mat-cell *matCellDef="let row">{{accessFieldValues(row.output?.value)}}</td>
+                    <td mat-cell *matCellDef="let row">{{accessFieldValues(row?.output?.value)}}</td>
                 </ng-container>
                 
                 <ng-container matColumnDef="jsonClass">
@@ -59,15 +59,15 @@ import {
                     </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="[ 'jsonClass', 'fields', 'inputvalues', 'outputvalues']"></tr>
-                <tr mat-row *matRowDef="let row; columns: [ 'jsonClass', 'fields', 'inputvalues', 'outputvalues']"></tr>
+                <tr mat-header-row *matHeaderRowDef="[ 'jsonClass', 'fields', 'inValues', 'outValues']"></tr>
+                <tr mat-row *matRowDef="let row; columns: [ 'jsonClass', 'fields', 'inValues', 'outValues']"></tr>
             </table>
         </div>
     `
 })
 
 export class DatasetTable {
-    private datasets$: Observable<DatasetTableModel[]> = this.store.pipe(select(selectDatasets));
+    private datasets$: Observable<DatasetTableModel[]> = this.store.pipe(select(selectDatasetsModels));
     private index: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private dataSource: DatasetDataSource;
 
