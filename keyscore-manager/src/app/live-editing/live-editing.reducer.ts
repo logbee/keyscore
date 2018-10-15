@@ -18,7 +18,6 @@ import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {DatasetTableModel, DatasetTableRowModel, DatasetTableRowModelData} from "../models/dataset/DatasetTableModel";
 import {Dataset} from "../models/dataset/Dataset";
-import {isNullOrUndefined} from "util";
 import {Field} from "../models/dataset/Field";
 
 export class FilterState {
@@ -99,8 +98,7 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
         case EXTRACT_DATASETS_INITIAL_SUCCESS:
             result.datasets = [];
                 const models = [];
-            action.datasets.forEach(dataset => {
-                console.log("Metadata is:" + JSON.stringify(dataset.metaData));
+                action.datasets.forEach(dataset => {
                 let model = createDatasetTableModel(dataset, state.dummyDataset);
                 models.push(model)
             });

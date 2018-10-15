@@ -36,7 +36,7 @@ import {Health} from "../models/common/Health";
             <!--Search Field-->
             <mat-form-field fxFlex class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
-                       placeholder="{{'GENERAL.FILTER' | translate}}">
+                       placeholder="{{'GENERAL.SEARCH' | translate}}">
             </mat-form-field>
 
             <!--Resources Table-->

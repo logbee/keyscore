@@ -209,7 +209,6 @@ export class FiltersEffects {
         map((action) => (action as UpdateFilterConfiguration)),
         withLatestFrom(this.store.pipe(select(selectCurrentBlueprint))),
         switchMap(([action, blueprint]) => {
-            console.log("reached effect with:" + JSON.stringify(action.configuration) + " and id:", blueprint.ref.uuid);
             return this.filterControllerService.updateConfig(action.configuration, blueprint.ref.uuid).pipe(
                 map((state: ResourceInstanceState) => new ReconfigureFilterSuccess(state)),
                 catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))

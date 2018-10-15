@@ -5,10 +5,10 @@ import {select, Store} from "@ngrx/store";
 import {BehaviorSubject, Observable} from "rxjs/index";
 import {filter, take} from "rxjs/internal/operators";
 import {MatPaginator, MatSort} from "@angular/material";
-import {UpdateDatasetCounter} from "../live-editing.actions";
 import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 import {
-    BooleanValue, DecimalValue,
+    BooleanValue,
+    DecimalValue,
     DurationValue,
     NumberValue,
     TextValue,
@@ -25,7 +25,7 @@ import {
                 <!--Search Field-->
                 <mat-form-field fxFlex="90%" class="search-position">
                     <input matInput (keyup)="applyFilter($event.target.value)"
-                           placeholder="{{'GENERAL.FILTER' | translate}}">
+                           placeholder="{{'GENERAL.SEARCH' | translate}}">
                 </mat-form-field>    
                 <navigation-control [index]="index.getValue()"
                                     [length]="(datasets$ | async).length"
@@ -77,7 +77,6 @@ export class DatasetTable {
 
     constructor(private store: Store<any>) {
         this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
-            console.log("Initializing datasource");
             this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable());
             this.dataSource.paginator = this.paginator;
             this.dataSource.sort = this.sort;
@@ -92,7 +91,6 @@ export class DatasetTable {
     }
 
     private updateCounter(count: number) {
-        console.log("Count emitted" + count);
         this.index.next(count);
     }
 

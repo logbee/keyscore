@@ -75,7 +75,6 @@ export class LiveEditingComponent implements OnInit {
     public ngOnInit(): void {
         // this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
         this.store.pipe(select(selectUpdatedConfiguration)).subscribe(config => {
-                console.log("Triggered config subscription config is" + JSON.stringify(config));
                 if (config) {
                     this.store.dispatch(new UpdateFilterConfiguration(config));
                 }

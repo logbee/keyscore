@@ -18,7 +18,7 @@ import {AgentDataSource} from "../dataSources/AgentDataSource";
         <div fxFlexFill fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
             <mat-form-field fxFlex="5%" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
-                       placeholder="{{'GENERAL.FILTER' | translate}}">
+                       placeholder="{{'GENERAL.SEARCH' | translate}}">
             </mat-form-field>
 
             <table fxFlex="90%" mat-table matSort [dataSource]="dataSource"
