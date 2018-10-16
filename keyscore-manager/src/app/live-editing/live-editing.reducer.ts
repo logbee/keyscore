@@ -25,8 +25,10 @@ import {
 } from "../models/dataset/DatasetTableModel";
 import {Dataset} from "../models/dataset/Dataset";
 import {Field} from "../models/dataset/Field";
-import {Value, ValueJsonClass} from "../models/dataset/Value";
+import {TextValue, Value, ValueJsonClass} from "../models/dataset/Value";
 import {Record} from "../models/dataset/Record";
+import {v4 as uuid} from "uuid"
+import {Label} from "../models/common/MetaData";
 
 
 export class FilterState {
@@ -65,22 +67,26 @@ const initialState: FilterState = {
     currentDatasetCounter: 0,
     dummyDataset: {
         metaData: {labels: []},
-        records: [{fields: [{name: "test", value: {jsonClass: ValueJsonClass.TextValue, value: "test"}}]}]
+        records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
     }
 };
 
 function createDatasetTableModel(inputDataset: Dataset, outputDataset: Dataset): DatasetTableModel {
 
     let zippedRecords = inputDataset.records.map(function (x, y) {
-        return [x, outputDataset.records.reverse()[y]]
+        return [x, outputDataset.records[y]]
     });
-    console.log("zippedgRecords: " + JSON.stringify(zippedRecords));
+
+    zippedRecords.map(([inRecord, outRecord]) => {
+        console.log("InRecord Fields " + inRecord.fields.map(field => field.name));
+        console.log("OutRecord Fields " + outRecord.fields.map(field => field.name));
+    });
 
     const datasetTableRecordModels = zippedRecords.map(([inRecord, outRecord]) => {
         const fieldNames: string[] = [].concat(...inRecord.fields, outRecord.fields).map(field => field.name);
-        let fieldNameSet: string[] =  Array.from(new Set(fieldNames));
-        fieldNameSet = fieldNameSet.filter(fieldName => fieldName !== "test");
-
+        let fieldNameSet: string[] = Array.from(new Set(fieldNames));
+        fieldNameSet = fieldNameSet.filter(fieldName => fieldName !== "dummy");
+        console.log(fieldNameSet);
         const datasetTableRowModels = Array.from(fieldNameSet).map(name => {
             return createDatasetTableRowModelData(findFieldByName(name, inRecord), findFieldByName(name, outRecord));
         });
@@ -100,13 +106,19 @@ function createDatasetTableRowModelData(input: Field, output: Field): DatasetTab
     let outputDataModel: DatasetTableRowModelData;
 
     if (input === undefined) {
-        inputDataModel = new DatasetTableRowModelData(output.name, ValueJsonClass.TextValue, {jsonClass: ValueJsonClass.TextValue, value: "No output yet"}, ChangeType.Added);
+        inputDataModel = new DatasetTableRowModelData(output.name, ValueJsonClass.TextValue, {
+            jsonClass: ValueJsonClass.TextValue,
+            value: "No output yet"
+        }, ChangeType.Added);
     } else {
         inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
     }
 
     if (output === undefined) {
-        outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {jsonClass: ValueJsonClass.TextValue, value: "No output yet"}, ChangeType.Deleted);
+        outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
+            jsonClass: ValueJsonClass.TextValue,
+            value: "No output yet"
+        }, ChangeType.Deleted);
     } else {
         outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
     }
@@ -138,6 +150,18 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             result.descriptor = action.descriptor;
             break;
         case EXTRACT_DATASETS_INITIAL_SUCCESS:
+            if (action.datasets.map(elem => elem.metaData === undefined)) {
+                console.log("No Metadata available fallback on order of datasets");
+            } else {
+                action.datasets.map(datset => {
+                    datset.metaData.labels.push(
+                        {
+                            name: "io.logbee.keyscore.manager.live-editing.id",
+                            value: {jsonClass: ValueJsonClass.TextValue, value: uuid()}
+                        }
+                    )
+                });
+            }
             result.datasetsRaw = action.datasets;
             result.datasetsModels = [];
             const models = [];
@@ -152,11 +176,22 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             result.updatedConfiguration = action.configuration;
             break;
         case EXTRACT_DATASETS_RESULT_SUCCESS:
+            let extractedDatasets: Dataset[] = action.datasets.reverse();
             let resultModels: DatasetTableModel[] = [];
-            let zipped = result.datasetsRaw.map(function (x, y) {
-                return [x, action.datasets.reverse()[y]]
-            });
-            zipped.map(([input, output]) => {
+            let rawDatasets = result.datasetsRaw;
+            let zippedDatasets = [];
+            if (rawDatasets.filter(datast => datast.metaData === undefined)) {
+                // FallBack on order
+                zippedDatasets = result.datasetsRaw.map(function (x, y) {
+                    return [x, extractedDatasets[y]]
+                });
+            } else {
+                // MapRecords by Id
+                zippedDatasets = result.datasetsRaw.map(dataset => {
+                    return ([dataset, findMatch(dataset, extractedDatasets)]);
+                })
+            }
+            zippedDatasets.map(([input, output]) => {
                 resultModels.push(createDatasetTableModel(input, output));
             });
             result.datasetsModels = resultModels;
@@ -168,6 +203,18 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             break;
     }
     return result;
+}
+
+function findMatch(dataset: Dataset, datasets: Dataset[]) {
+    let found: Label = dataset.metaData.labels.find(label => label.name === 'io.logbee.keyscore.manager.live-editing.id');
+    let inputDatasetId = (found.value as TextValue).value;
+
+    datasets.map(dataset => {
+        let datasetId = (dataset.metaData.labels.find(label => label.name === 'io.logbee.keyscore.manager.live-editing.id').value as TextValue).value;
+        if (datasetId === inputDatasetId) {
+            return dataset;
+        }
+    });
 }
 
 export const extractFinish = (state: FilterState) => state.extractFinish;

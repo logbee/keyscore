@@ -68,9 +68,9 @@ export class FiltersEffects {
             const filterBlueprintId = this.getFilterBlueprintId(action as RouterNavigationAction);
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 return this.blueprintService.getBlueprint(filterBlueprintId).pipe(
-                  map((blueprint: Blueprint) => new LoadFilterBlueprintSuccess(blueprint),
-                      catchError((cause: any) =>  of(new LoadFilterBlueprintFailure(cause)))
-                ));
+                    map((blueprint: Blueprint) => new LoadFilterBlueprintSuccess(blueprint),
+                        catchError((cause: any) => of(new LoadFilterBlueprintFailure(cause)))
+                    ));
             }
             else {
                 return of();
@@ -87,7 +87,7 @@ export class FiltersEffects {
             new PauseFilterAction(payload.blueprint.ref.uuid, true),
             new DrainFilterAction(payload.blueprint.ref.uuid, true),
             new LoadFilterConfigurationAction(payload.blueprint.configuration.uuid),
-            new LoadFilterStateAction(payload.blueprint.ref.uuid)
+            new LoadFilterStateAction(payload.blueprint.ref.uuid, 10)
         ])
     );
 
@@ -155,7 +155,7 @@ export class FiltersEffects {
         map(action => (action as LoadDescriptorForBlueprintSuccess).descriptor),
         map((descriptor) => {
             let resolvedDescriptor = this.descriptorResolver.resolveDescriptor(descriptor);
-                return new ResolvedDescriptorForBlueprintSuccess(resolvedDescriptor);
+            return new ResolvedDescriptorForBlueprintSuccess(resolvedDescriptor);
         }));
 
     @Effect()
@@ -164,19 +164,20 @@ export class FiltersEffects {
         withLatestFrom(
             this.store.pipe(select(selectCurrentBlueprint)),
             this.store.pipe(select(selectDatasetsRaw))),
-        switchMap(([_, blueprint, datasets]) =>
-           this.filterControllerService.insertDatasets(blueprint.ref.uuid, datasets).pipe(
-                map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
-                catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
-            )
+        switchMap(([_, blueprint, datasets]) => {
+                return this.filterControllerService.insertDatasets(blueprint.ref.uuid, datasets).pipe(
+                    map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
+                    catchError((cause: any) => of(new InsertDatasetsFailure(cause)))
+                )
+            }
         )
     );
 
     @Effect()
     public fireExtractDatasetsWhenInsertDatasetsSuccessAction: Observable<Action> = this.actions$.pipe(
         ofType(INSERT_DATASETS_SUCCESS),
-        withLatestFrom(this.store.pipe(select(selectCurrentBlueprint)), this.store.pipe(select(selectDatasetsModels))),
-        switchMap(([_, blueprint, models] ) => of(new ExtractDatasetsAction(blueprint.ref.uuid, models.length)))
+        withLatestFrom(this.store.pipe(select(selectCurrentBlueprint)), this.store.pipe(select(selectDatasetsRaw))),
+        switchMap(([_, blueprint, models]) => of(new ExtractDatasetsAction(blueprint.ref.uuid, models.length)))
     );
 
     @Effect()
@@ -184,7 +185,7 @@ export class FiltersEffects {
         ofType(LOAD_FILTERSTATE),
         map((action) => (action as LoadFilterStateAction)),
         switchMap((action) => {
-            return this.filterControllerService.extractDatasets(action.filterId).pipe(
+            return this.filterControllerService.extractDatasets(action.filterId, action.amount).pipe(
                 map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );
@@ -196,7 +197,7 @@ export class FiltersEffects {
         ofType(EXTRACT_DATASETS),
         map((action) => (action as ExtractDatasetsAction)),
         switchMap((action) => {
-            return this.filterControllerService.extractDatasets(action.filterId).pipe(
+            return this.filterControllerService.extractDatasets(action.filterId, action.amount).pipe(
                 map((datasets: Dataset[]) => new ExtractDatasetsResultSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );

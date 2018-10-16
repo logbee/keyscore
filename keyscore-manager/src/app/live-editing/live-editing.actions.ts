@@ -99,7 +99,7 @@ export class LoadFilterConfigurationFailure implements Action {
 export class LoadFilterStateAction implements Action {
     public readonly type = LOAD_FILTERSTATE;
 
-    constructor(readonly filterId: string) {
+    constructor(readonly filterId: string, readonly amount:number) {
     }
 }
 

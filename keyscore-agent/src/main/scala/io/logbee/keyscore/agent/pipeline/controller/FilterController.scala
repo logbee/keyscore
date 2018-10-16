@@ -75,8 +75,8 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
 
   override def clear(): Future[FilterState] = {
     for {
-      inValveState <- inValve.state()
-      outValveState <- outValve.state()
+      inValveState <- inValve.clear()
+      outValveState <- outValve.clear()
       filterState <- filter.state()
     } yield  computeFilterState(inValveState, outValveState, filterState)
   }
