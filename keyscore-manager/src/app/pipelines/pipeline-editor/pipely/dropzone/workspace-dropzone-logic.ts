@@ -6,6 +6,7 @@ import {DropzoneComponent} from "../dropzone.component";
 import {DropzoneType} from "../models/dropzone-type";
 import {DraggableModel} from "../models/draggable.model";
 import {WorkspaceDropzoneSubcomponent} from "./workspace-dropzone-subcomponent";
+import {deepcopy} from "../../../../util";
 
 export class WorkspaceDropzoneLogic extends DropzoneLogic {
 
@@ -21,13 +22,12 @@ export class WorkspaceDropzoneLogic extends DropzoneLogic {
     }
 
     computeDraggableModel(mirror: Draggable, currentDragged: Draggable) {
-        const draggableModel = {
-            ...currentDragged.getDraggableModel(),
-            initialDropzone: this.component,
-            rootDropzone: DropzoneType.Workspace,
-            position: computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
-                this.component.getAbsolutePosition())
-        };
+        let draggableModel = deepcopy(currentDragged.getDraggableModel());
+        draggableModel.initialDropzone = this.component;
+        draggableModel.rootDropzone = DropzoneType.Workspace;
+        draggableModel.position = computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
+            this.component.getAbsolutePosition());
+
         return draggableModel;
     }
 

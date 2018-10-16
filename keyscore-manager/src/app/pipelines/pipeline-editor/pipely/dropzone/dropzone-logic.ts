@@ -4,6 +4,7 @@ import {DropzoneComponent} from "../dropzone.component";
 import {DraggableModel} from "../models/draggable.model";
 import {computeDistance, intersects} from "../util/util";
 import {Rectangle} from "../models/rectangle";
+import {generateRef} from "../../../../models/common/Ref";
 
 export abstract class DropzoneLogic {
 
@@ -93,6 +94,10 @@ export abstract class DropzoneLogic {
         }
 
         const draggableModel = this.computeDraggableModel(mirror, currentDragged);
+        if(currentDragged.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Toolbar){
+            draggableModel.configuration.ref = generateRef();
+            console.log("DROP REF:",draggableModel.configuration.ref);
+        }
         this.insertNewDraggable(draggableModel);
 
     }
