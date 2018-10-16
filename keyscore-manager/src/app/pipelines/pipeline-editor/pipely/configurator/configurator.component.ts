@@ -2,12 +2,12 @@ import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output} fr
 import {FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {distinctUntilChanged, filter, isEmpty} from "rxjs/operators";
-import {deepcopy, zip} from "../../../util";
-import {Parameter, ParameterJsonClass} from "../../../models/parameters/Parameter";
-import {ResolvedParameterDescriptor} from "../../../models/parameters/ParameterDescriptor";
-import {ParameterControlService} from "../../../common/parameter/service/parameter-control.service";
-import {Configuration} from "../../../models/common/Configuration";
-import {BlockDescriptor} from "./models/block-descriptor.model";
+import {deepcopy, zip} from "../../../../util";
+import {Parameter, ParameterJsonClass} from "../../../../models/parameters/Parameter";
+import {ResolvedParameterDescriptor} from "../../../../models/parameters/ParameterDescriptor";
+import {ParameterControlService} from "../../../../common/parameter/service/parameter-control.service";
+import {Configuration} from "../../../../models/common/Configuration";
+import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
 
