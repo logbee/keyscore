@@ -29,6 +29,7 @@ import {TextValue, Value, ValueJsonClass} from "../models/dataset/Value";
 import {Record} from "../models/dataset/Record";
 import {v4 as uuid} from "uuid"
 import {Label} from "../models/common/MetaData";
+import {state} from "@angular/animations";
 
 
 export class FilterState {
@@ -219,10 +220,6 @@ function findMatch(dataset: Dataset, datasets: Dataset[]) {
 
 export const extractFinish = (state: FilterState) => state.extractFinish;
 
-
-export const resultAvailable = (state: FilterState) => state.resultAvailable;
-
-
 export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
 );
@@ -242,4 +239,4 @@ export const selectCurrentBlueprint = createSelector(getFilterState, (state: Fil
 
 export const selectUpdatedConfiguration = createSelector(getFilterState, (state: FilterState) => state.updatedConfiguration);
 
-
+export const selectResultAvailable = createSelector(getFilterState, (state: FilterState) => state.resultAvailable);

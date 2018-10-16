@@ -1,11 +1,11 @@
 import {Component, ViewChild} from "@angular/core";
 import {DatasetDataSource} from "../../dataSources/DatasetDataSource";
-import {selectDatasetsModels, selectExtractFinish} from "../live-editing.reducer";
+import {selectDatasetsModels, selectExtractFinish, selectResultAvailable} from "../live-editing.reducer";
 import {select, Store} from "@ngrx/store";
 import {BehaviorSubject, Observable} from "rxjs/index";
-import {filter, take} from "rxjs/internal/operators";
+import {filter, skip, skipUntil, take, takeWhile} from "rxjs/internal/operators";
 import {MatPaginator, MatSort} from "@angular/material";
-import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
+import {ChangeType, DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 import {
     BooleanValue,
     DecimalValue,
@@ -49,7 +49,10 @@ import {
 
                 <ng-container matColumnDef="outValues">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Output Values</th>
-                    <td mat-cell *matCellDef="let row">{{accessFieldValues(row?.output?.value)}}</td>
+                    <td mat-cell *matCellDef="let row" [class.added]="row.output.change === ChangeType.Added"
+                                                       [class.modified]="row.output.change === ChangeType.Modified"                     
+                                                       [class.unchanged]="row.output.change === ChangeType.Unchanged"                     
+                                                       [class.deleted]="row.output.change === ChangeType.Deleted">{{accessFieldValues(row?.output?.value)}}</td>
                 </ng-container>
                 
                 <ng-container matColumnDef="jsonClass">
@@ -58,9 +61,8 @@ import {
                         <value-type [type]="row.input.value.jsonClass"></value-type>
                     </td>
                 </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="[ 'jsonClass', 'fields', 'inValues', 'outValues']"></tr>
-                <tr mat-row *matRowDef="let row; columns: [ 'jsonClass', 'fields', 'inValues', 'outValues']"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
         </div>
     `
@@ -70,6 +72,8 @@ export class DatasetTable {
     private datasets$: Observable<DatasetTableModel[]> = this.store.pipe(select(selectDatasetsModels));
     private index: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private dataSource: DatasetDataSource;
+    private resultAvailable: boolean = false;
+    private displayedColumns: string[] = ['jsonClass', 'fields', 'inValues'];
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
@@ -81,6 +85,11 @@ export class DatasetTable {
             this.dataSource.paginator = this.paginator;
             this.dataSource.sort = this.sort;
         });
+
+        this.store.pipe(select(selectResultAvailable), skip(1)).subscribe( _ =>  {
+            this.displayedColumns.push('outValues');
+            this.resultAvailable = true;
+        })
     }
 
     applyFilter(filterValue: string) {

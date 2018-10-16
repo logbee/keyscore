@@ -55,7 +55,7 @@ export enum ChangeType {
     Unchanged = "unchanged",
     Modified = "modified",
     Deleted = "deleted",
-    Added = "Added",
+    Added = "added",
 }
 
 
