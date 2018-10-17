@@ -54,7 +54,7 @@ import {Configuration} from "../../../models/common/Configuration";
                               [isOpened]="isConfiguratorOpened"
                               [selectedBlock]="{configuration:(selectedDraggable$|async)?.getDraggableModel().configuration,
                               descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
-                                (onSave)="saveConfiguration($event)">
+                              (onSave)="saveConfiguration($event)">
                 </configurator>
             </div>
         </div>
@@ -71,13 +71,16 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
 
     private blockDescriptors$ = new BehaviorSubject<BlockDescriptor[]>([]);
 
+    @Input() runTrigger$: Observable<void>;
     @Input() saveTrigger$: Observable<void>;
+
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ElementRef}) workspaceElement: ElementRef;
 
     @Output() onUpdatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
+    @Output() onRunPipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
 
     public id: string;
 
@@ -145,7 +148,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
     private click(event: MouseEvent) {
         if (this.selectedDraggable.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             this.isConfiguratorOpened = true;
-            console.log("NEW SELECTED DRAGGABLE: ",this.selectedDraggable);
             this.selectedDraggableSource.next(this.selectedDraggable);
 
         }
@@ -248,7 +250,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         this.isConfiguratorOpened = false;
     }
 
-    private saveConfiguration(configuration:Configuration){
+    private saveConfiguration(configuration: Configuration) {
         this.selectedDraggable.getDraggableModel().configuration = configuration;
     }
 
@@ -299,6 +301,13 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
                 this.onUpdatePipeline.emit(this.pipeline);
             }
         );
+
+        this.runTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
+            console.log("Trigger!");
+            this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables,this.pipeline);
+            this.onRunPipeline.emit(this.pipeline);
+        });
+
         this.buildEditPipeline();
 
     }
@@ -327,7 +336,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
                 blockDescriptor: descriptor,
                 configuration: {
                     ref: nextBlueprint.configuration,
-                    parent:null,
+                    parent: null,
                     parameters: conf.parameters
                 },
                 blueprintRef: nextBlueprint.ref,

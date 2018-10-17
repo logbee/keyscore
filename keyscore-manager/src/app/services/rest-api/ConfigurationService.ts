@@ -15,18 +15,18 @@ export class ConfigurationService {
 
     constructor(private httpClient: HttpClient, private store: Store<AppState>) {
         this.store.pipe(select(selectAppConfig)).subscribe(config =>
-            ConfigurationService.BASE_URL = (config as AppConfig).getString("keyscore.frontier.base-url") + "/resources");
+            ConfigurationService.BASE_URL = (config as AppConfig).getString("keyscore.frontier.base-url") + "/resources/configuration");
     }
 
     getConfiguration(id: string): Observable<Configuration> {
-        return this.httpClient.get<Configuration>(`${ConfigurationService.BASE_URL}/configuration/${id}`);
+        return this.httpClient.get<Configuration>(`${ConfigurationService.BASE_URL}/${id}`);
     }
 
     getAllConfigurations(): Observable<Configuration[]> {
-        return this.httpClient.get<Configuration[]>(`${ConfigurationService.BASE_URL}/configuration/*`);
+        return this.httpClient.get<Configuration[]>(`${ConfigurationService.BASE_URL}/*`);
     }
 
     putConfiguration(configuration: Configuration): Observable<any> {
-        return this.httpClient.put(`${ConfigurationService.BASE_URL}/configuration/${configuration.ref.uuid}`, configuration, {responseType: 'text'});
+        return this.httpClient.put(`${ConfigurationService.BASE_URL}/${configuration.ref.uuid}`, configuration, {responseType: 'text'});
     }
 }

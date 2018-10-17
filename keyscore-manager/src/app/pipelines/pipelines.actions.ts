@@ -5,6 +5,7 @@ import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {Configuration} from "../models/common/Configuration";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
+import {Ref} from "../models/common/Ref";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 
@@ -21,6 +22,10 @@ export const RESET_PIPELINE = "[Pipeline] ResetPipeline";
 export const UPDATE_PIPELINE = "[Pipeline] UpdatePipeline";
 export const UPDATE_PIPELINE_SUCCESS = "[Pipeline] UpdatePipelineSuccess";
 export const UPDATE_PIPELINE_FAILURE = "[Pipeline] UpdatePipelineFailure";
+
+export const RUN_PIPELINE = "[Pipeline] RunPipeline";
+export const RUN_PIPELINE_SUCCESS = "[Pipeline] RunPipelineSuccess";
+export const RUN_PIPELINE_FAILURE = "[Pipeline] RunPipelineFailure";
 
 export const DELETE_PIPELINE = "[Pipeline] DeletePipeline";
 export const DELETE_PIPELINE_SUCCESS = "[Pipeline] DeletePipelineSuccess";
@@ -53,6 +58,9 @@ export type PipelineActions =
     | UpdatePipelineAction
     | UpdatePipelineSuccessAction
     | UpdatePipelineFailureAction
+    | RunPipelineAction
+    | RunPipelineSuccessAction
+    | RunPipelineFailureAction
     | DeletePipelineAction
     | LoadAllPipelineInstancesAction
     | LoadAllPipelineInstancesSuccessAction
@@ -130,7 +138,7 @@ export class ResetPipelineAction implements Action {
 export class UpdatePipelineAction implements Action {
     public readonly type = UPDATE_PIPELINE;
 
-    constructor(readonly pipeline: EditingPipelineModel) {
+    constructor(readonly pipeline: EditingPipelineModel, readonly runAfterUpdate: boolean = false) {
 
     }
 }
@@ -138,7 +146,7 @@ export class UpdatePipelineAction implements Action {
 export class UpdatePipelineSuccessAction implements Action {
     public readonly type = UPDATE_PIPELINE_SUCCESS;
 
-    constructor(readonly pipeline: EditingPipelineModel) {
+    constructor(readonly pipeline: EditingPipelineModel, readonly runPipeline: boolean) {
 
     }
 }
@@ -147,6 +155,30 @@ export class UpdatePipelineFailureAction implements Action {
     public readonly type = UPDATE_PIPELINE_FAILURE;
 
     constructor(readonly cause: any, readonly pipeline: EditingPipelineModel) {
+
+    }
+}
+
+export class RunPipelineAction implements Action {
+    public readonly type = RUN_PIPELINE;
+
+    constructor(readonly blueprintRef: Ref) {
+
+    }
+}
+
+export class RunPipelineSuccessAction implements Action {
+    public readonly type = RUN_PIPELINE_SUCCESS;
+
+    constructor(readonly blueprintRef: Ref) {
+
+    }
+}
+
+export class RunPipelineFailureAction implements Action {
+    public readonly type = RUN_PIPELINE_FAILURE;
+
+    constructor(readonly cause: any, readonly blueprintRef: Ref) {
 
     }
 }

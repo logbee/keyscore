@@ -277,7 +277,7 @@ describe('PipelinesEffects', () => {
         blueprint and each config in the model`, () => {
             const pipeline = generateEditingPipelineModel();
             const action = new UpdatePipelineAction(pipeline);
-            const outcome = new UpdatePipelineSuccessAction(pipeline);
+            const outcome = new UpdatePipelineSuccessAction(pipeline,action.runAfterUpdate);
 
 
             actions.stream = hot('-a', {a: action});

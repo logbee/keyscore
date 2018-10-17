@@ -3,19 +3,16 @@ import {
     CREATE_PIPELINE,
     DELETE_PIPELINE_FAILURE,
     DELETE_PIPELINE_SUCCESS,
-    EDIT_PIPELINE_FAILURE,
     EDIT_PIPELINE_SUCCESS,
     LOAD_ALL_PIPELINE_INSTANCES_SUCCESS,
-    LOAD_FILTER_DESCRIPTORS_SUCCESS, LOAD_PIPELINEBLUEPRINTS_SUCCESS,
+    LOAD_FILTER_DESCRIPTORS_SUCCESS,
+    LOAD_PIPELINEBLUEPRINTS_SUCCESS,
     PipelineActions,
-    RESET_PIPELINE,
     RESOLVE_FILTER_DESCRIPTORS_SUCCESS,
-    UPDATE_PIPELINE_FAILURE,
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "./pipelines.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {EditingPipelineModel, generateEmptyEditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
@@ -98,7 +95,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             };
         case LOAD_ALL_PIPELINE_INSTANCES_SUCCESS:
             let pipelineListCopy: PipelineTableModel[] = deepcopy(state.pipelineList, []);
-            console.log("LISTCOPY: ", pipelineListCopy);
             action.pipelineInstances.forEach(instance => {
                 const index = pipelineListCopy.findIndex(dataModel => dataModel.uuid === instance.id);
                 if (index >= 0) {

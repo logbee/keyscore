@@ -16,33 +16,33 @@ export class BlueprintService {
 
     constructor(private httpClient: HttpClient, private store: Store<AppState>) {
         this.store.pipe(select(selectAppConfig)).subscribe(config =>
-            BlueprintService.BASE_URL = (config as AppConfig).getString("keyscore.frontier.base-url") + "/resources");
+            BlueprintService.BASE_URL = (config as AppConfig).getString("keyscore.frontier.base-url") + "/resources/blueprint");
     }
 
     //Blueprints
     getAllPipelineBlueprints(): Observable<StringTMap<PipelineBlueprint>> {
-        return this.httpClient.get<StringTMap<PipelineBlueprint>>(`${BlueprintService.BASE_URL}/blueprint/pipeline/*`)
+        return this.httpClient.get<StringTMap<PipelineBlueprint>>(`${BlueprintService.BASE_URL}/pipeline/*`)
     }
 
 
     loadAllBlueprints(): Observable<Map<string, Blueprint>> {
-        return this.httpClient.get<Map<string, Blueprint>>(`${BlueprintService.BASE_URL}/blueprint/*`);
+        return this.httpClient.get<Map<string, Blueprint>>(`${BlueprintService.BASE_URL}/*`);
     }
 
     getBlueprint(id: string): Observable<Blueprint> {
-        return this.httpClient.get<Blueprint>(`${BlueprintService.BASE_URL}/blueprint/${id}`);
+        return this.httpClient.get<Blueprint>(`${BlueprintService.BASE_URL}/${id}`);
     }
 
     putBlueprint(blueprint: Blueprint): Observable<any> {
-        return this.httpClient.put(`${BlueprintService.BASE_URL}/blueprint/${blueprint.ref.uuid}`, blueprint, {responseType: 'text'});
+        return this.httpClient.put(`${BlueprintService.BASE_URL}/${blueprint.ref.uuid}`, blueprint, {responseType: 'text'});
     }
 
     //PipelineBlueprints
     getPipelineBlueprint(id: string): Observable<PipelineBlueprint> {
-        return this.httpClient.get<PipelineBlueprint>(`${BlueprintService.BASE_URL}/blueprint/pipeline/${id}`);
+        return this.httpClient.get<PipelineBlueprint>(`${BlueprintService.BASE_URL}/pipeline/${id}`);
     }
 
     putPipelineBlueprint(pipelineBlueprint: PipelineBlueprint): Observable<any> {
-        return this.httpClient.put(`${BlueprintService.BASE_URL}/blueprint/pipeline/${pipelineBlueprint.ref.uuid}`, pipelineBlueprint, {responseType: 'text'});
+        return this.httpClient.put(`${BlueprintService.BASE_URL}/pipeline/${pipelineBlueprint.ref.uuid}`, pipelineBlueprint, {responseType: 'text'});
     }
 }

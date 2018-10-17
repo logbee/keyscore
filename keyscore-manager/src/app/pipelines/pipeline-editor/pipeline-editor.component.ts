@@ -43,11 +43,15 @@ import {
 
         <ng-template #fullComponent>
             <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true"
-                        (onSave)="savePipelineSource$.next()"></header-bar>
+                        (onSave)="savePipelineSource$.next()"
+                        (onRun)="runPipelineSource$.next()"
+            ></header-bar>
 
-            <pipely-workspace [saveTrigger$]="savePipeline$" [pipeline]="(pipeline$ | async)"
+            <pipely-workspace [runTrigger$]="runPipeline$" [saveTrigger$]="savePipeline$"
+                              [pipeline]="(pipeline$ | async)"
                               [blockDescriptors]="blockDescriptorSource$|async"
                               (onUpdatePipeline)="updatePipeline($event)"
+                              (onRunPipeline)="runPipeline($event)"
                               fxFill></pipely-workspace>
         </ng-template>
 
@@ -64,6 +68,9 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public savePipelineSource$: Subject<void> = new Subject<void>();
     public savePipeline$: Observable<void> = this.savePipelineSource$.asObservable();
 
+    public runPipelineSource$: Subject<void> = new Subject<void>();
+    public runPipeline$: Observable<void> = this.runPipelineSource$.asObservable();
+
     public blockDescriptorSource$: BehaviorSubject<BlockDescriptor[]> = new BehaviorSubject<BlockDescriptor[]>([]);
 
     public storeEditingPipeline: EditingPipelineModel;
@@ -79,7 +86,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
         this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors), takeUntil(this.alive));
-        this.isLoading$ = this.store.pipe(select(isSpinnerShowing),share());
+        this.isLoading$ = this.store.pipe(select(isSpinnerShowing), share());
         this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive));
 
         this.pipeline$.subscribe(pipe => {
@@ -107,6 +114,10 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
 
     public updatePipeline(pipeline: EditingPipelineModel) {
         this.store.dispatch(new UpdatePipelineAction(pipeline));
+    }
+
+    public runPipeline(pipeline: EditingPipelineModel) {
+        this.store.dispatch(new UpdatePipelineAction(pipeline, true));
     }
 
     public resetPipeline(pipeline: InternalPipelineConfiguration) {

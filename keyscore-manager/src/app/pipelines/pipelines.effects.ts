@@ -5,7 +5,7 @@ import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {Action, select, Store} from "@ngrx/store";
 import {forkJoin, Observable, of} from "rxjs";
-import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
+import {concat, concatMap, delay, exhaustMap, skip, tap, withLatestFrom} from "rxjs/internal/operators";
 import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
@@ -36,6 +36,10 @@ import {
     LoadPipelineBlueprintsFailure,
     LoadPipelineBlueprintsSuccess,
     ResolveFilterDescriptorSuccessAction,
+    RUN_PIPELINE, RUN_PIPELINE_FAILURE, RUN_PIPELINE_SUCCESS,
+    RunPipelineAction,
+    RunPipelineFailureAction,
+    RunPipelineSuccessAction,
     UPDATE_PIPELINE,
     UPDATE_PIPELINE_FAILURE,
     UPDATE_PIPELINE_SUCCESS,
@@ -55,6 +59,7 @@ import {StringTMap} from "../common/object-maps";
 import {SnackbarOpen} from "../common/snackbar/snackbar.actions";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
+import {PipelineService} from "../services/rest-api/PipelineService";
 
 @Injectable()
 export class PipelinesEffects {
@@ -148,44 +153,87 @@ export class PipelinesEffects {
 
     @Effect() public updatePipeline$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE),
-        map(action => (action as UpdatePipelineAction).pipeline),
-        mergeMap(pipeline => {
+        map(action => (action as UpdatePipelineAction)),
+        mergeMap(action => {
             return forkJoin(
-                ...pipeline.blueprints.map(blueprint =>
+                ...action.pipeline.blueprints.map(blueprint =>
                     this.blueprintService.putBlueprint(blueprint)
                 ),
-                ...pipeline.configurations.map(configuration =>
+                ...action.pipeline.configurations.map(configuration =>
                     this.configurationService.putConfiguration(configuration)
                 ),
-                this.blueprintService.putPipelineBlueprint(pipeline.pipelineBlueprint)
-            ).pipe(map(data => new UpdatePipelineSuccessAction(pipeline)),
-                catchError(cause => of(new UpdatePipelineFailureAction(cause, pipeline))))
+                this.blueprintService.putPipelineBlueprint(action.pipeline.pipelineBlueprint)
+            ).pipe(map(data => new UpdatePipelineSuccessAction(action.pipeline, action.runAfterUpdate)),
+                catchError(cause => of(new UpdatePipelineFailureAction(cause, action.pipeline))))
         })
     );
 
-    @Effect() public updatePipelineSuccess$:Observable<Action> = this.actions$.pipe(
+    @Effect() public updatePipelineSuccess$: Observable<Action> = this.actions$.pipe(
         ofType(UPDATE_PIPELINE_SUCCESS),
+        map(action => (action as UpdatePipelineSuccessAction)),
+        map((action) => {
+            if (action.runPipeline) {
+                return new RunPipelineAction(action.pipeline.pipelineBlueprint.ref);
+            } else {
+                return new SnackbarOpen({
+                    message: "Successfully saved all configurations!",
+                    action: 'Success',
+                    config: {
+                        horizontalPosition: "center",
+                        verticalPosition: "top"
+                    }
+                })
+            }
+        })
+    );
+
+    @Effect() public updatePipelineFailure$: Observable<Action> = this.actions$.pipe(
+        ofType(UPDATE_PIPELINE_FAILURE),
         map(() => new SnackbarOpen({
-            message:"Successfully saved all configurations!",
-            action:'Success',
-            config:{
-                horizontalPosition:"center",
-                verticalPosition:"top"
+            message: "An error occured while saving the configurations.",
+            action: 'Failed',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
             }
         }))
     );
 
-    @Effect() public updatePipelineFailure$:Observable<Action> = this.actions$.pipe(
-        ofType(UPDATE_PIPELINE_FAILURE),
+    @Effect() public runPipeline$: Observable<Action> = this.actions$.pipe(
+        ofType(RUN_PIPELINE),
+        map(action => (action as RunPipelineAction).blueprintRef),
+        switchMap((blueprintRef) => {
+            return this.pipelineService.runPipeline(blueprintRef).pipe(
+                map(data => new RunPipelineSuccessAction(blueprintRef)),
+                catchError(cause => of(new RunPipelineFailureAction(cause,blueprintRef)))
+            )
+        })
+    );
+
+    @Effect() public runPipelineFailure$: Observable<Action> = this.actions$.pipe(
+        ofType(RUN_PIPELINE_FAILURE),
         map(() => new SnackbarOpen({
-            message:"An error occured while saving the configurations.",
-            action:'Failed',
-            config:{
-                horizontalPosition:"center",
-                verticalPosition:"top"
+            message: "An error occured while trying to run the pipeline.",
+            action: 'Failed',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
             }
         }))
     );
+
+    @Effect() public runPipelineSuccess$: Observable<Action> = this.actions$.pipe(
+        ofType(RUN_PIPELINE_SUCCESS),
+        map(() => new SnackbarOpen({
+            message: "Your Pipeline is running now!.",
+            action: 'Success',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
+            }
+        }))
+    );
+
 
     @Effect() public deletePipeline$: Observable<Action> = this.actions$.pipe(
         ofType(DELETE_PIPELINE),
@@ -202,10 +250,9 @@ export class PipelinesEffects {
 
     @Effect() public loadPipelineInstances$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_PIPELINEBLUEPRINTS_SUCCESS),
-        withLatestFrom(this.store.select(selectAppConfig)),
         withLatestFrom(this.store.select(selectRefreshTime)),
-        concatMap(([[action, config], refreshTime]) =>
-            this.http.get(config.getString("keyscore.frontier.base-url") + "/pipeline/instance/*").pipe(
+        concatMap(([action, refreshTime]) =>
+            this.pipelineService.loadAllInstances().pipe(
                 concat(of("").pipe(
                     delay(refreshTime > 0 ? refreshTime : 0),
                     withLatestFrom(this.store.select(getPipelinePolling)),
@@ -228,7 +275,6 @@ export class PipelinesEffects {
                 catchError((cause) => of(new LoadPipelineBlueprintsFailure(cause)))
             );
         })
-
     );
 
     constructor(private store: Store<AppState>,
@@ -237,7 +283,8 @@ export class PipelinesEffects {
                 private blueprintService: BlueprintService,
                 private configurationService: ConfigurationService,
                 private descriptorService: DescriptorService,
-                private descriptorResolver: DescriptorResolverService) {
+                private descriptorResolver: DescriptorResolverService,
+                private pipelineService: PipelineService) {
     }
 
     private handleNavigation(regEx: RegExp, action: RouterNavigationAction) {

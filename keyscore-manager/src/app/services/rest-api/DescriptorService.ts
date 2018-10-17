@@ -17,14 +17,14 @@ export class DescriptorService {
 
     constructor(private httpClient: HttpClient, private store: Store<AppState>) {
         this.store.pipe(select(selectAppConfig)).subscribe(config =>
-            DescriptorService.BASE_URL = (config as AppConfig).getString("keyscore.frontier.base-url") + "/resources");
+            DescriptorService.BASE_URL = (config as AppConfig).getString("keyscore.frontier.base-url") + "/resources/descriptor");
     }
 
     getAllDescriptors(): Observable<StringTMap<Descriptor>> {
-        return this.httpClient.get<StringTMap<Descriptor>>(`${BlueprintService.BASE_URL}/descriptor/*`);
+        return this.httpClient.get<StringTMap<Descriptor>>(`${DescriptorService.BASE_URL}/*`);
     }
 
     getDescriptorById(uuid: string): Observable<Descriptor> {
-        return this.httpClient.get<Descriptor>(`${BlueprintService.BASE_URL}/descriptor/${uuid}`)
+        return this.httpClient.get<Descriptor>(`${DescriptorService.BASE_URL}/${uuid}`);
     }
 }
