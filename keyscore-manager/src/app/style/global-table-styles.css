@@ -47,3 +47,27 @@ tr.example-element-row:not(.example-expanded-row):active {
 td {
     overflow-x: auto;
 }
+
+tr:hover {
+    background: #f5f5f5;
+}
+/*----------------highlighting---------------------*/
+
+.highlight-added {
+    border-width: 3px !important;
+    opacity: 0.5!important;
+    border-color: rgb(96, 163, 72) !important;
+}
+
+.highlight-modified {
+    border-width: 3px !important;
+    opacity: 0.5!important;
+    border-color: rgb(255, 248, 123) !important;
+
+}
+
+.highlight-deleted {
+    border-width: 3px !important;
+    opacity: 0.5!important;
+    border-color: rgb(163, 0, 0) !important;
+}

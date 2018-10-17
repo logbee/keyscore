@@ -118,7 +118,7 @@ function createDatasetTableRowModelData(input: Field, output: Field): DatasetTab
     if (output === undefined) {
         outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
             jsonClass: ValueJsonClass.TextValue,
-            value: "No output yet"
+            value: "Field was deleted"
         }, ChangeType.Deleted);
     } else {
         outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);

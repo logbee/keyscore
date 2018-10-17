@@ -49,10 +49,14 @@ import {
 
                 <ng-container matColumnDef="outValues">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Output Values</th>
-                    <td mat-cell *matCellDef="let row" [class.added]="row.output.change === ChangeType.Added"
-                                                       [class.modified]="row.output.change === ChangeType.Modified"                     
-                                                       [class.unchanged]="row.output.change === ChangeType.Unchanged"                     
-                                                       [class.deleted]="row.output.change === ChangeType.Deleted">{{accessFieldValues(row?.output?.value)}}</td>
+                    <td mat-cell *matCellDef="let row"
+                        [class.highlight-added]="row.output.change === 'added'"
+                        [class.highlight-modified]="row.output.change === 'modified'"
+                        [class.highlight-unchanged]="row.output.change === 'unchanged'"
+                        [class.highlight-deleted]="row.output.change === 'deleted'">
+                        <mat-label>{{accessFieldValues(row?.output?.value)}}</mat-label>
+                    </td>
+                
                 </ng-container>
                 
                 <ng-container matColumnDef="jsonClass">
