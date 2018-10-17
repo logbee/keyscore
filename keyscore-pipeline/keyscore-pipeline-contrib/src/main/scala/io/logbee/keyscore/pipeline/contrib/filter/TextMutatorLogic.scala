@@ -4,7 +4,7 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.{Configuration, DirectiveConfiguration}
-import io.logbee.keyscore.model.data.{Dataset, Field}
+import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.model.data.FieldValueType.Text
 import io.logbee.keyscore.model.descriptor.ToDescriptorRef.stringToDescriptorRef
 import io.logbee.keyscore.model.descriptor._
@@ -113,17 +113,15 @@ object TextMutatorLogic extends Described {
 
 class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  val seqs = mutable.ListBuffer.empty[FieldSequence]
+  var sequences = Seq.empty[FieldSequence]
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
 
   override def configure(configuration: Configuration): Unit = {
-    val sequences = configuration.findValue(directiveSequence).get
 
-    sequences.foreach(sequence => {
-
+    sequences = configuration.getValueOrDefault(directiveSequence, Seq.empty).map(sequence => {
 
       val directives: Seq[TextMutatorDirective] = sequence.directives.map {
         case DirectiveConfiguration(toTimestampDirective.ref, parameters, order) =>
@@ -137,14 +135,32 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
           TrimDirective()
       }
 
-      seqs.append(FieldSequence(sequence.fieldName, directives))
+      FieldSequence(sequence.fieldName, directives)
     })
   }
 
   override def onPush(): Unit = {
-    val dataset = grab(in)
-    log.info(s"$dataset")
-    push(out, dataset)
+
+    if (sequences.nonEmpty) {
+
+      val dataset = grab(in)
+
+      push(out, dataset.update(_.records := dataset.records.map((_, sequences)).foldLeft(mutable.ListBuffer.empty[Record]) {
+        case (result, (record, sequences)) =>
+          result += sequences.foldLeft(record) { case (record, sequence) =>
+            record.update(_.fields := record.fields.map {
+              case field@Field(sequence.fieldName, TextValue(_)) =>
+                sequence.directives.foldLeft(field) { case (field, directive) =>
+                  directive.process(field)
+                }
+              case field => field
+            })
+          }
+      }.toList))
+    }
+    else {
+      push(out, grab(in))
+    }
   }
 
   override def onPull(): Unit = {
@@ -159,7 +175,11 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   case class TrimDirective() extends TextMutatorDirective {
     def process(field: Field): Field = {
-      field
+      field match {
+        case Field(name, TextValue(value)) =>
+          Field(name, TextValue(value.trim))
+        case _ => field
+      }
     }
   }
 
@@ -174,4 +194,5 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
       field
     }
   }
+
 }
