@@ -99,10 +99,9 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit(): void {
-        this.selectedBlock$.pipe(takeUntil(this.isAlive), distinctUntilChanged(),filter(block => block.configuration.ref.uuid !== this.lastID)).subscribe(selectedBlock => {
+        this.selectedBlock$.pipe(takeUntil(this.isAlive),filter(block => block.configuration.ref.uuid !== this.lastID)).subscribe(selectedBlock => {
             this.lastID = selectedBlock.configuration.ref.uuid;
 
-            console.log("triggered selectedBlockInput:", selectedBlock);
             this.parameterMapping =
                 new Map(zip([selectedBlock.configuration.parameters,
                     selectedBlock.descriptor.parameters
@@ -113,7 +112,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
             this.form.valueChanges.subscribe(values => {
                 if(!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues,values)){
-                    console.log("CHANGES", values);
                     this.lastValues = values;
                     this.saveConfiguration();
                 }

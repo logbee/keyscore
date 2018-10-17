@@ -145,6 +145,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
     private click(event: MouseEvent) {
         if (this.selectedDraggable.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             this.isConfiguratorOpened = true;
+            console.log("NEW SELECTED DRAGGABLE: ",this.selectedDraggable);
             this.selectedDraggableSource.next(this.selectedDraggable);
 
         }

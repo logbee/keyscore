@@ -49,8 +49,6 @@ import {
                               [blockDescriptors]="blockDescriptorSource$|async"
                               (onUpdatePipeline)="updatePipeline($event)"
                               fxFill></pipely-workspace>
-
-
         </ng-template>
 
 

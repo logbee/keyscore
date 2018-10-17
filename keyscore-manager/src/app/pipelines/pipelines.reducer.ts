@@ -62,6 +62,11 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 configurations: action.configurations
             };
             return {...state, editingPipeline: editingPipeline};
+        case UPDATE_PIPELINE_SUCCESS:
+            return{
+                ...state,
+                editingPipeline:action.pipeline
+            };
         case LOAD_PIPELINEBLUEPRINTS_SUCCESS:
             return {
                 ...state,
