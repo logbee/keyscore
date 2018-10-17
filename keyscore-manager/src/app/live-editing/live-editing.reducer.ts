@@ -25,11 +25,20 @@ import {
 } from "../models/dataset/DatasetTableModel";
 import {Dataset} from "../models/dataset/Dataset";
 import {Field} from "../models/dataset/Field";
-import {TextValue, Value, ValueJsonClass} from "../models/dataset/Value";
+import {
+    BooleanValue,
+    DecimalValue, DurationValue,
+    NumberValue,
+    TextValue,
+    TimestampValue,
+    Value,
+    ValueJsonClass
+} from "../models/dataset/Value";
 import {Record} from "../models/dataset/Record";
 import {v4 as uuid} from "uuid"
 import {Label} from "../models/common/MetaData";
 import {state} from "@angular/animations";
+import {isNullOrUndefined} from "util";
 
 
 export class FilterState {
@@ -102,29 +111,95 @@ function findFieldByName(name: string, record: Record): Field {
     return record.fields.find(field => field.name === name);
 }
 
+function checkForValueChange(input: Value, output: Value) {
+    return accessFieldValues(input) === accessFieldValues(output);
+}
+
+function  accessFieldValues(valueObject: Value): any {
+    if (!valueObject) {
+        return "No output yet!"
+    } else {
+        switch (valueObject.jsonClass) {
+            case ValueJsonClass.BooleanValue: {
+                return (valueObject as BooleanValue).value.toString();
+            }
+            case ValueJsonClass.TextValue: {
+                return (valueObject as TextValue).value;
+            }
+            case ValueJsonClass.NumberValue: {
+                return (valueObject as NumberValue).value.toString();
+            }
+            case ValueJsonClass.DurationValue: {
+                return (valueObject as DurationValue).seconds.toString();
+
+            }
+            case ValueJsonClass.TimestampValue: {
+                return (valueObject as TimestampValue).seconds.toString();
+            }
+            case ValueJsonClass.DecimalValue: {
+                return (valueObject as DecimalValue).value.toString();
+            }
+            default: {
+                return "Unknown Type";
+            }
+        }
+    }
+}
+
 function createDatasetTableRowModelData(input: Field, output: Field): DatasetTableRowModel {
     let inputDataModel: DatasetTableRowModelData;
     let outputDataModel: DatasetTableRowModelData;
+    let guard = ([input, output]);
 
-    if (input === undefined) {
+    // switch (guard) {
+    //     case [undefined, output]:
+    //         console.log("matched (undefined, output)");
+    //         inputDataModel = new DatasetTableRowModelData(output.name, ValueJsonClass.TextValue, {
+    //                     jsonClass: ValueJsonClass.TextValue,
+    //                     value: "No output yet"
+    //                 }, ChangeType.Added);
+    //         outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
+    //         break;
+    //     case [input, undefined]:
+    //         console.log("matched (input, undefined)");
+    //         outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
+    //                     jsonClass: ValueJsonClass.TextValue,
+    //                     value: "Field was deleted"
+    //                 }, ChangeType.Deleted);
+    //         inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
+    //         break;
+    //     case [input, output]:
+    //         console.log("matched (input, output)");
+    //         checkForValueChange(input.value, output.value);
+            // inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
+            // outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
+            // break;
+    // }
+
+    if (input === undefined && output != undefined) {
         inputDataModel = new DatasetTableRowModelData(output.name, ValueJsonClass.TextValue, {
             jsonClass: ValueJsonClass.TextValue,
             value: "No output yet"
         }, ChangeType.Added);
-    } else {
-        inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
-    }
+        outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
 
-    if (output === undefined) {
+    } else if(input != undefined && output === undefined) {
         outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
             jsonClass: ValueJsonClass.TextValue,
             value: "Field was deleted"
         }, ChangeType.Deleted);
-    } else {
-        outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
+        inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
+    } else if (input != undefined && output != undefined) {
+        if (checkForValueChange(input.value, output.value)) {
+            inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Modified);
+            outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Modified);
+        } else {
+            inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
+            outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
+        }
     }
 
-    return new DatasetTableRowModel(inputDataModel, outputDataModel)
+    return new DatasetTableRowModel(inputDataModel, outputDataModel);
 }
 
 
