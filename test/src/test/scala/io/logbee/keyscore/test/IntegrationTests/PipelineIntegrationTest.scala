@@ -134,6 +134,7 @@ class PipelineIntegrationTest extends Matchers {
     putSinglePipelineBlueprint(pipelineObject, pipelineBlueprint)
     //    8. startPipeline
     val pipelineRefString = write(pipelineObject.ref)
+    println("REf String ##################" + pipelineRefString)
     startPipeline(pipelineObject, pipelineRefString)
   }
 
@@ -293,7 +294,7 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .send()
-      .put(s"/pipeline/blueprint/${pipelineObject.ref.uuid}")
+      .put(s"/pipeline/blueprint")
       .contentType("application/json")
       .payload(pipelineRef)
     )
