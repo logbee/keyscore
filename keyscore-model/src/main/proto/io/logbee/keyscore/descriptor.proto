@@ -111,6 +111,7 @@ message ParameterDescriptor {
         TextListParameterDescriptor textListParameter = 10;
         FieldNameListParameterDescriptor fieldNameListParameter = 11;
         FieldListParameterDescriptor fieldListParameter = 12;
+        FieldDirectiveSequenceParameterDescriptor fieldDirectiveSequenceParameter = 13;
     }
 }
 
@@ -173,12 +174,6 @@ message FieldParameterDescriptor {
     bool mandatory = 7;
 }
 
-enum FieldNameHint {
-    AnyField = 0;
-    PresentField = 1;
-    AbsentField = 2;
-}
-
 message TextListParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -231,14 +226,38 @@ message ParameterGroupCondition {
 }
 
 message BooleanParameterCondition {
-    ParameterRef parameter = 2 [(scalapb.field).no_box = true];
-    bool negate = 3;
+    ParameterRef parameter = 1 [(scalapb.field).no_box = true];
+    bool negate = 2;
+}
+
+message FieldDirectiveSequenceParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    repeated FieldValueType fieldTypes = 3;
+    repeated FieldDirectiveDescriptor directives = 4;
+}
+
+message DirectiveRef {
+    string uuid = 1 [(scalapb.field).no_box = true];
+}
+
+message FieldDirectiveDescriptor {
+    DirectiveRef ref = 1;
+    ParameterInfo info = 2;
+    repeated ParameterDescriptor parameters = 4;
+    Icon icon = 13;
 }
 
 message StringValidator {
     string expression = 1;
     ExpressionType expressionType = 2;
     TextRef description = 3;
+}
+
+enum FieldNameHint {
+    AnyField = 0;
+    PresentField = 1;
+    AbsentField = 2;
 }
 
 enum ExpressionType {
