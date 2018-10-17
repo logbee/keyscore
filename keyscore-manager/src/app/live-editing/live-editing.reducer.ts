@@ -88,15 +88,15 @@ function createDatasetTableModel(inputDataset: Dataset, outputDataset: Dataset):
     });
 
     zippedRecords.map(([inRecord, outRecord]) => {
-        console.log("InRecord Fields " + inRecord.fields.map(field => field.name));
-        console.log("OutRecord Fields " + outRecord.fields.map(field => field.name));
+        // console.log("InRecord Fields " + inRecord.fields.map(field => field.name));
+        // console.log("OutRecord Fields " + outRecord.fields.map(field => field.name));
     });
 
     const datasetTableRecordModels = zippedRecords.map(([inRecord, outRecord]) => {
         const fieldNames: string[] = [].concat(...inRecord.fields, outRecord.fields).map(field => field.name);
         let fieldNameSet: string[] = Array.from(new Set(fieldNames));
         fieldNameSet = fieldNameSet.filter(fieldName => fieldName !== "dummy");
-        console.log(fieldNameSet);
+        // console.log(fieldNameSet);
         const datasetTableRowModels = Array.from(fieldNameSet).map(name => {
             return createDatasetTableRowModelData(findFieldByName(name, inRecord), findFieldByName(name, outRecord));
         });
@@ -112,7 +112,8 @@ function findFieldByName(name: string, record: Record): Field {
 }
 
 function checkForValueChange(input: Value, output: Value) {
-    return accessFieldValues(input) === accessFieldValues(output);
+    // console.log(accessFieldValues(input) + "in/out" + accessFieldValues(output));
+    return accessFieldValues(input) !== accessFieldValues(output);
 }
 
 function  accessFieldValues(valueObject: Value): any {
@@ -227,7 +228,7 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             break;
         case EXTRACT_DATASETS_INITIAL_SUCCESS:
             if (action.datasets.map(elem => elem.metaData === undefined)) {
-                console.log("No Metadata available fallback on order of datasets");
+                // console.log("No Metadata available fallback on order of datasets");
             } else {
                 action.datasets.map(datset => {
                     datset.metaData.labels.push(
