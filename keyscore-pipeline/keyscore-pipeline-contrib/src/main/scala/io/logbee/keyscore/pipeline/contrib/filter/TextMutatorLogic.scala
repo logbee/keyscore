@@ -7,7 +7,7 @@ import io.logbee.keyscore.model.configuration.{Configuration, DirectiveConfigura
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.model.data.FieldValueType.Text
 import io.logbee.keyscore.model.descriptor.ToDescriptorRef.stringToDescriptorRef
-import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.descriptor.{ParameterGroupDescriptor, _}
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
@@ -79,6 +79,29 @@ object TextMutatorLogic extends Described {
     )
   )
 
+  val sequenceInplace = BooleanParameterDescriptor(
+    ref = "textmutator.directiveSequence.inplace",
+    info = ParameterInfo(
+      displayName = "textmutator.sequenceInplace.displayName",
+      description = "textmutator.sequenceInplace.description"
+    ),
+    defaultValue = true,
+  )
+
+  val newFieldName = FieldNameParameterDescriptor(
+    ref = "textmutator.directiveSequence.newFieldName",
+    info = ParameterInfo(
+      displayName = "textmutator.newFieldName.displayName",
+      description = "textmutator.newFieldName.description"
+    ),
+  )
+
+  val conditionalInplaceParameters = ParameterGroupDescriptor(
+    ref = "textmutator.group.newFieldName",
+    condition = BooleanParameterCondition(sequenceInplace.ref, negate = true),
+    parameters = Seq(newFieldName)
+  )
+
   val directiveSequence = FieldDirectiveSequenceParameterDescriptor(
     ref = "textmutator.directiveSequence",
     info = ParameterInfo(
@@ -86,6 +109,10 @@ object TextMutatorLogic extends Described {
       description = "textmutator.directiveSequence.description"
     ),
     fieldTypes = Seq(Text),
+    parameters = Seq(
+      sequenceInplace,
+      conditionalInplaceParameters
+    ),
     directives = Seq(
       trimDirective,
       findAndReplaceDirective,

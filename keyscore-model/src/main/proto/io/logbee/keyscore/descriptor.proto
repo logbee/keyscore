@@ -234,9 +234,10 @@ message FieldDirectiveSequenceParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
     repeated FieldValueType fieldTypes = 3;
-    repeated FieldDirectiveDescriptor directives = 4;
-    uint32 minSequences = 5;
-    uint32 maxSequences = 6;
+    repeated ParameterDescriptor parameters = 4;
+    repeated FieldDirectiveDescriptor directives = 5;
+    uint32 minSequences = 6;
+    uint32 maxSequences = 7;
 }
 
 message DirectiveRef {
