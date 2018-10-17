@@ -235,6 +235,8 @@ message FieldDirectiveSequenceParameterDescriptor {
     ParameterInfo info = 2;
     repeated FieldValueType fieldTypes = 3;
     repeated FieldDirectiveDescriptor directives = 4;
+    uint32 minSequences = 5;
+    uint32 maxSequences = 6;
 }
 
 message DirectiveRef {

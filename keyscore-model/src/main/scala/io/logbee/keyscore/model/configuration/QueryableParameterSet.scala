@@ -1,13 +1,15 @@
 package io.logbee.keyscore.model.configuration
 
-import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.data.Field
 import io.logbee.keyscore.model.descriptor._
 
-trait QueryableConfiguration {
+import scala.collection.mutable
 
-  this: Configuration =>
 
-  private def parameterMapping: Map[String, Any] = parameters.foldLeft(scala.collection.mutable.Map.empty[String, Any]) {
+trait QueryableParameterSet {
+  this: ParameterSet =>
+
+  private def parameterMapping: Map[String, Any] = parameters.foldLeft(mutable.Map.empty[String, Any]) {
     case (result, parameter: BooleanParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: TextParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: ExpressionParameter) => result + (parameter.ref.id -> parameter.value)
@@ -89,7 +91,6 @@ trait QueryableConfiguration {
     case _ => None
   }
 
-  //TODO: FieldDirectiveSequenceParameterDescriptor | FieldDirectiveDescriptor
 
   def findValue(descriptor: FieldDirectiveSequenceParameterDescriptor): Option[Seq[FieldDirectiveSequenceConfiguration]] = {
     case Some(value) if value.isInstanceOf[Seq[FieldDirectiveSequenceConfiguration]] => Option(value.asInstanceOf[Seq[FieldDirectiveSequenceConfiguration]])
