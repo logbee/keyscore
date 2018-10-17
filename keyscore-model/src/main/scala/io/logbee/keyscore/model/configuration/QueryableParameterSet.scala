@@ -92,7 +92,7 @@ trait QueryableParameterSet {
   }
 
 
-  def findValue(descriptor: FieldDirectiveSequenceParameterDescriptor): Option[Seq[FieldDirectiveSequenceConfiguration]] = {
+  def findValue(descriptor: FieldDirectiveSequenceParameterDescriptor): Option[Seq[FieldDirectiveSequenceConfiguration]] = parameterMapping.get(descriptor.ref.id) match {
     case Some(value) if value.isInstanceOf[Seq[FieldDirectiveSequenceConfiguration]] => Option(value.asInstanceOf[Seq[FieldDirectiveSequenceConfiguration]])
     case _ => None
   }
