@@ -50,7 +50,7 @@ import {
                 <ng-container matColumnDef="outValues">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Output Values</th>
                     <td mat-cell *matCellDef="let row"
-                        [class.highlight-added]="row.output.change === 'added'"
+                        [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
                         [class.highlight-unchanged]="row.output.change === 'unchanged'"
                         [class.highlight-deleted]="row.output.change === 'deleted'">

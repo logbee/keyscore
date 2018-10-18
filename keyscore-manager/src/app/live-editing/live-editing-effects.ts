@@ -37,7 +37,7 @@ import {
     PauseFilterSuccess,
     RECONFIGURE_FILTER_SUCCESS,
     ReconfigureFilterFailure,
-    ReconfigureFilterSuccess,
+    ReconfigureFilterSuccess, ResetAction,
     ResolvedDescriptorForBlueprintSuccess,
     UPDATE_FILTER_CONFIGURATION,
     UpdateFilterConfiguration
@@ -67,6 +67,7 @@ export class FiltersEffects {
             const regex = /\/filter\/.*/g;
             const filterBlueprintId = this.getFilterBlueprintId(action as RouterNavigationAction);
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
+                this.store.dispatch(new ResetAction());
                 return this.blueprintService.getBlueprint(filterBlueprintId).pipe(
                     map((blueprint: Blueprint) => new LoadFilterBlueprintSuccess(blueprint),
                         catchError((cause: any) => of(new LoadFilterBlueprintFailure(cause)))

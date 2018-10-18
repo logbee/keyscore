@@ -6,7 +6,7 @@ import {
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION_SUCCESS,
     LOAD_FILTERSTATE_SUCCESS,
-    PAUSE_FILTER_SUCCESS,
+    PAUSE_FILTER_SUCCESS, RESET_ACTION,
     RESOLVED_DESCRIPTOR_FOR_BLUEPRINT,
     SAVE_UPDATED_CONFIGURATION
 } from "./live-editing.actions";
@@ -27,7 +27,8 @@ import {Dataset} from "../models/dataset/Dataset";
 import {Field} from "../models/dataset/Field";
 import {
     BooleanValue,
-    DecimalValue, DurationValue,
+    DecimalValue,
+    DurationValue,
     NumberValue,
     TextValue,
     TimestampValue,
@@ -37,8 +38,6 @@ import {
 import {Record} from "../models/dataset/Record";
 import {v4 as uuid} from "uuid"
 import {Label} from "../models/common/MetaData";
-import {state} from "@angular/animations";
-import {isNullOrUndefined} from "util";
 
 
 export class FilterState {
@@ -266,7 +265,7 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
                 // MapRecords by Id
                 zippedDatasets = result.datasetsRaw.map(dataset => {
                     return ([dataset, findMatch(dataset, extractedDatasets)]);
-                })
+                });
             }
             zippedDatasets.map(([input, output]) => {
                 resultModels.push(createDatasetTableModel(input, output));
@@ -275,7 +274,11 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             result.resultAvailable = true;
             result.extractFinish = true;
             break;
+        case RESET_ACTION:
+            console.log("Reset Success #####################################");
+            return Object.assign({}, initialState);
         case LOAD_FILTER_BLUEPRINT_SUCCESS:
+            result.resultAvailable = false;
             result.blueprint = action.blueprint;
             break;
     }

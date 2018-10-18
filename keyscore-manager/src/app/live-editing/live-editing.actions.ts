@@ -39,6 +39,8 @@ export const LOAD_DESCRIPTOR_FOR_BLUEPRINT = "[Filter] LoadDescriptorForBlueprin
 export const LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS = "[Filter] LoadDescriptorForBlueprintSuccess";
 export const RESOLVED_DESCRIPTOR_FOR_BLUEPRINT = "[Filter] ResolvedDescriptorForBlueprint";
 export const SAVE_UPDATED_CONFIGURATION = "[Filter] SaveUpdatedConfiguration";
+export const RESET_ACTION = "[Filter] ResetAction";
+
 
 export type LiveEditingActions =
 
@@ -73,7 +75,8 @@ export type LiveEditingActions =
     | LoadDescriptorForBlueprint
     | LoadDescriptorForBlueprintSuccess
     | ResolvedDescriptorForBlueprintSuccess
-    | SaveUpdatedConfiguration;
+    | SaveUpdatedConfiguration
+    | ResetAction;
 
 export class LoadFilterConfigurationAction implements Action {
     public readonly type = LOAD_FILTER_CONFIGURATION;
@@ -309,4 +312,8 @@ export class SaveUpdatedConfiguration implements Action {
 
     constructor(readonly configuration: Configuration) {
     }
+}
+
+export class ResetAction implements Action {
+    public readonly type = RESET_ACTION;
 }
