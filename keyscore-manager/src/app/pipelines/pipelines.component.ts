@@ -5,12 +5,7 @@ import {v4 as uuid} from "uuid";
 import {UpdateRefreshTimeAction} from "../common/loading/loading.actions";
 import {isSpinnerShowing, selectRefreshTime} from "../common/loading/loading.reducer";
 import * as RouterActions from "../router/router.actions";
-import {
-    CreatePipelineAction, EditPipelineAction,
-    LoadAllPipelineInstancesAction,
-    LoadPipelineBlueprints,
-    UpdatePipelinePollingAction
-} from "./pipelines.actions";
+import {CreatePipelineAction, LoadPipelineBlueprints, UpdatePipelinePollingAction} from "./pipelines.actions";
 import {PipelinesState, selectPipelineList} from "./pipelines.reducer";
 import {PipelineDataSource} from "./PipelineDataSource";
 import {MatPaginator, MatSort} from "@angular/material";
@@ -33,13 +28,13 @@ import "../style/style.css";
 
         <div fxFlexFill fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
             <!--Search Field-->
-            <mat-form-field fxFlex class="search-position">
+            <mat-form-field fxFlex="5" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
                        placeholder="{{'GENERAL.FILTER' | translate}}">
             </mat-form-field>
 
             <!--Resources Table-->
-            <table matSort mat-table fxFlex="95%" [dataSource]="dataSource" class="mat-elevation-z8">
+            <table matSort mat-table  fxFlex="95" [dataSource]="dataSource" class="table-position mat-elevation-z8">
                 <ng-container matColumnDef="health">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
                     <td mat-cell *matCellDef="let pipelineTableModel">

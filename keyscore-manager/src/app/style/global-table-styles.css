@@ -1,10 +1,11 @@
-.table-position {
-    width: 100%;
-    table-layout: auto
-}
 
 .table-wrapper {
-    padding: 50px;
+    padding: 50px 50px 0  50px;
+}
+.table-position {
+    width: 100%;
+    table-layout: auto;
+
 }
 
 tr.example-element-row:not(.example-expanded-row):hover {

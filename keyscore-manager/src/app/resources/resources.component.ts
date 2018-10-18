@@ -32,9 +32,9 @@ import {Health} from "../models/common/Health";
                 [showManualReload]="false"
                 [title]="title">
         </header-bar>
-        <div fxFlexFill fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
+        <div fxFlexFill="" fxLayout="column" fxLayoutGap="15px" class="table-wrapper" >
             <!--Search Field-->
-            <mat-form-field fxFlex class="search-position">
+            <mat-form-field fxFlex="5%" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
                        placeholder="{{'GENERAL.SEARCH' | translate}}">
             </mat-form-field>
@@ -53,8 +53,8 @@ import {Health} from "../models/common/Health";
                 <ng-container matColumnDef="link">
                     <th mat-header-cell *matHeaderCellDef>Live-Editing</th>
                     <td mat-cell *matCellDef="let blueprint">
-                        <button mat-icon-button>
-                            <mat-icon (click)="goToLiveEditing(blueprint)">link</mat-icon>
+                        <button mat-icon-button (click)="goToLiveEditing(blueprint)">
+                            <mat-icon>link</mat-icon>
                         </button>
                     </td>
                 </ng-container>
@@ -171,6 +171,7 @@ export class ResourcesComponent implements AfterViewInit, OnInit {
     }
 
     goToLiveEditing(blueprint: Blueprint) {
+        console.log("Go to Live Editinging Method");
         this.store.dispatch(new Go({path: ["/filter/" + blueprint.ref.uuid]}))
     }
 
