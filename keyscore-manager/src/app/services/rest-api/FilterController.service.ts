@@ -7,6 +7,7 @@ import {Observable} from "rxjs/index";
 import {Dataset} from "../../models/dataset/Dataset";
 import {Configuration} from "../../models/common/Configuration";
 import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
+import {Ref} from "../../models/common/Ref";
 
 
 @Injectable({

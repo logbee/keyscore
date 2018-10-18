@@ -275,7 +275,6 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             result.extractFinish = true;
             break;
         case RESET_ACTION:
-            console.log("Reset Success #####################################");
             return Object.assign({}, initialState);
         case LOAD_FILTER_BLUEPRINT_SUCCESS:
             result.resultAvailable = false;

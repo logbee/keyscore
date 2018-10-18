@@ -217,7 +217,6 @@ export class FiltersEffects {
             );
         })
     );
-
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
                 private filterControllerService: FilterControllerService,

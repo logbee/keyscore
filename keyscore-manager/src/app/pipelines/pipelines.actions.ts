@@ -45,7 +45,8 @@ export const LOAD_FILTER_DESCRIPTORS_SUCCESS = "[Pipeline] LoadFilterDescriptors
 export const LOAD_FILTER_DESCRIPTORS_FAILURE = "[Pipeline] LoadFilterDescriptorsFailed";
 export const LOAD_FILTER_DESCRIPTORS = "[Pipeline] LoadFilterDescriptors";
 export const RESOLVE_FILTER_DESCRIPTORS_SUCCESS = "[Pipeline] ResolveFilterDescriptorsSuccess";
-
+export const TRIGGER_FILTER_RESET = "[Pipeline] TriggerFilterReset";
+export const CONFIGS_FOR_BLUEPRINT = "[Pipeline] ConfigurationsForBlueprint";
 
 export type PipelineActions =
     | CreatePipelineAction
@@ -74,7 +75,9 @@ export type PipelineActions =
     | ResolveFilterDescriptorSuccessAction
     | LoadFilterDescriptorsAction
     | DeletePipelineSuccessAction
-    | DeletePipelineFailureAction;
+    | DeletePipelineFailureAction
+    | TriggerFilterResetAction
+    | ConfigurationsForBlueprintId;
 
 export class CreatePipelineAction implements Action {
     public readonly type = CREATE_PIPELINE;
@@ -282,3 +285,29 @@ export class LoadPipelineBlueprintsFailure implements Action {
 export class LoadPipelineBlueprints implements Action {
     public readonly type = LOAD_PIPELINEBLUEPRINTS;
 }
+
+
+export class TriggerFilterResetAction implements Action {
+    public readonly type  = TRIGGER_FILTER_RESET;
+
+    constructor(readonly uuid: string) {
+    }
+}
+
+export class TriggerFilterResetFailure implements Action {
+    public readonly type = TRIGGER_FILTER_RESET;
+
+    constructor(readonly cause: any) {
+
+    }
+}
+
+export class ConfigurationsForBlueprintId implements Action {
+    public readonly type = CONFIGS_FOR_BLUEPRINT;
+
+    constructor(readonly blueprints: Ref[]) {
+
+    }
+}
+
+

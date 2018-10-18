@@ -5,12 +5,19 @@ import {v4 as uuid} from "uuid";
 import {UpdateRefreshTimeAction} from "../common/loading/loading.actions";
 import {isSpinnerShowing, selectRefreshTime} from "../common/loading/loading.reducer";
 import * as RouterActions from "../router/router.actions";
-import {CreatePipelineAction, LoadPipelineBlueprints, UpdatePipelinePollingAction} from "./pipelines.actions";
-import {PipelinesState, selectPipelineList} from "./pipelines.reducer";
+import {
+    CreatePipelineAction,
+    LoadPipelineBlueprints,
+    TriggerFilterResetAction,
+    UpdatePipelinePollingAction
+} from "./pipelines.actions";
+import {PipelinesState, selectConfigs, selectPipelineList} from "./pipelines.reducer";
 import {PipelineDataSource} from "./PipelineDataSource";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
 import "../style/style.css";
+import {Ref} from "../models/common/Ref";
+import {FilterControllerService} from "../services/rest-api/FilterController.service";
 
 @Component({
     selector: "keyscore-pipelines",
@@ -56,8 +63,16 @@ import "../style/style.css";
                     </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="['health', 'uuid', 'name']"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['health', 'uuid', 'name'];" (click)="editPipeline(row.uuid)"
+                <ng-container matColumnDef="rerun">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Reset Filter States</th>
+                    <td mat-cell *matCellDef="let pipelineTableModel" (click)="$event.stopPropagation()">
+                        <button mat-icon-button (click)="rerun(pipelineTableModel.uuid)">
+                            <mat-icon>play_arrow</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="['health', 'uuid', 'name', 'rerun']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['health', 'uuid', 'name', 'rerun'];" (click)="editPipeline(row.uuid)"
                     class="example-element-row cursor-pointer"></tr>
             </table>
         </div>
@@ -68,12 +83,13 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     public isLoading$: Observable<boolean>;
     public refreshTime$: Observable<number>;
     public title: string = "Pipelines";
+    public configs: Observable<Ref[]>;
     dataSource: PipelineDataSource = new PipelineDataSource(this.store.pipe(select(selectPipelineList)));
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
-    constructor(private store: Store<PipelinesState>) {
+    constructor(private store: Store<PipelinesState>, private filterControllerService: FilterControllerService) {
 
     }
 
@@ -93,6 +109,9 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
         this.dataSource.sort = this.sort;
     }
 
+    public rerun(uuid: string) {
+        this.store.dispatch(new TriggerFilterResetAction(uuid));
+    }
     public createPipeline(activeRouting: boolean = false) {
         const pipelineId = uuid();
         this.store.dispatch(new CreatePipelineAction(pipelineId, "New Pipeline", ""));

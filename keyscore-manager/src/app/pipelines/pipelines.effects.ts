@@ -11,6 +11,8 @@ import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
 import {selectRefreshTime} from "../common/loading/loading.reducer";
 import {
+    CONFIGS_FOR_BLUEPRINT,
+    ConfigurationsForBlueprintId,
     DELETE_PIPELINE,
     DeletePipelineAction,
     DeletePipelineFailureAction,
@@ -39,7 +41,7 @@ import {
     RUN_PIPELINE, RUN_PIPELINE_FAILURE, RUN_PIPELINE_SUCCESS,
     RunPipelineAction,
     RunPipelineFailureAction,
-    RunPipelineSuccessAction,
+    RunPipelineSuccessAction, TRIGGER_FILTER_RESET, TriggerFilterResetAction, TriggerFilterResetFailure,
     UPDATE_PIPELINE,
     UPDATE_PIPELINE_FAILURE,
     UPDATE_PIPELINE_SUCCESS,
@@ -60,6 +62,10 @@ import {SnackbarOpen} from "../common/snackbar/snackbar.actions";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
 import {PipelineService} from "../services/rest-api/PipelineService";
+import {FilterControllerService} from "../services/rest-api/FilterController.service";
+import {DrainFilterAction, PauseFilterAction} from "../live-editing/live-editing.actions";
+import {printLine} from "tslint/lib/verify/lines";
+import {s} from "@angular/core/src/render3";
 
 @Injectable()
 export class PipelinesEffects {
@@ -277,6 +283,30 @@ export class PipelinesEffects {
         })
     );
 
+    @Effect() TriggerFilterResetAction$: Observable<Action> = this.actions$.pipe(
+        ofType(TRIGGER_FILTER_RESET),
+        map((action) => (action as TriggerFilterResetAction)),
+        switchMap(action => {
+            return this.blueprintService.getPipelineBlueprint(action.uuid).pipe(
+                map((blueprint) => new ConfigurationsForBlueprintId(blueprint.blueprints)),
+                catchError((cause)  => of(new TriggerFilterResetFailure(cause)))
+            );
+        })
+
+    );
+
+    // @Effect() ResetFilterStatusAction$: Observable<Action> = this.actions$.pipe(
+    //     ofType(CONFIGS_FOR_BLUEPRINT),
+    //     map((action) => (action as ConfigurationsForBlueprintId)),
+    //     mergeMap(action =>  {
+    //
+    //        return this.filterControllerService.pauseFilter(action.blueprints[0].uuid, false).pipe(
+    //            map((result) => new DeletePipelineSuccessAction("!"),
+    //                catchError(_ => of({type: "NOOP"})))
+    //        )
+    //     })
+    // );
+
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
                 private http: HttpClient,
@@ -284,6 +314,7 @@ export class PipelinesEffects {
                 private configurationService: ConfigurationService,
                 private descriptorService: DescriptorService,
                 private descriptorResolver: DescriptorResolverService,
+                private filterControllerService: FilterControllerService,
                 private pipelineService: PipelineService) {
     }
 

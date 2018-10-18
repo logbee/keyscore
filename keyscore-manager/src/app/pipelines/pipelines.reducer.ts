@@ -1,5 +1,7 @@
 import {deepcopy} from "../util";
 import {
+    CONFIGS_FOR_BLUEPRINT,
+    ConfigurationsForBlueprintId,
     CREATE_PIPELINE,
     DELETE_PIPELINE_FAILURE,
     DELETE_PIPELINE_SUCCESS,
@@ -21,6 +23,7 @@ import {PipelineTableModel} from "./PipelineTableModel";
 import {Health} from "../models/common/Health";
 import {TextValue} from "../models/dataset/Value";
 import {Label} from "../models/common/MetaData";
+import {Ref} from "../models/common/Ref";
 
 export class PipelinesState {
     public editingPipeline: EditingPipelineModel;
@@ -37,7 +40,7 @@ export const initialState: PipelinesState = {
     filterDescriptors: [],
     filterCategories: [],
     pipelineInstancePolling: false,
-    pipelineList: []
+    pipelineList: [],
 };
 
 export function PipelinesReducer(state: PipelinesState = initialState, action: PipelineActions): PipelinesState {
