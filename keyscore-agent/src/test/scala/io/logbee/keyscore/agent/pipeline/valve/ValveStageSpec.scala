@@ -90,6 +90,12 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
 
       whenReady(valveFuture) { valve =>
 
+        source.sendNext(dataset1)
+        source.sendNext(dataset2)
+
+        sink.requestNext().records should contain theSameElementsAs dataset1.records
+        sink.requestNext().records should contain theSameElementsAs dataset2.records
+
         whenReady(valve.drain()) { state =>
 
           state.position shouldBe Drain
@@ -97,7 +103,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
           source.sendNext(dataset1)
           source.sendNext(dataset2)
 
-          sink.request(1)
+          sink.request(2)
           sink.expectNoMessage(5 seconds)
 
           whenReady(valve.open()) { state =>
