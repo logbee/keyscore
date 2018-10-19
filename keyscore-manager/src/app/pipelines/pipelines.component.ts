@@ -11,7 +11,7 @@ import {
     TriggerFilterResetAction,
     UpdatePipelinePollingAction
 } from "./pipelines.actions";
-import {PipelinesState, selectConfigs, selectPipelineList} from "./pipelines.reducer";
+import {PipelinesState, selectPipelineList} from "./pipelines.reducer";
 import {PipelineDataSource} from "./PipelineDataSource";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
