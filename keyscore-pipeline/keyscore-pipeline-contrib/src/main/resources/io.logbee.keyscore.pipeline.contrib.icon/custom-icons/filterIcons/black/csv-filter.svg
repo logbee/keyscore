@@ -1,0 +1,14 @@
+<svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+<g id="XMLID_1_">
+	<g>
+	</g>
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="2" d="M63.875,62.57c0,7-5.04,12.68-11.262,12.68H12.261
+			C6.039,75.25,1,69.57,1,62.57V13.68C1,6.68,6.039,1,12.261,1h31.672l19.942,27.74V62.57z"/>
+	</g>
+</g>
+<polyline fill="none" stroke="#000000" stroke-width="2" points="42.625,1 43.125,28 63.875,28.745 "/>
+<rect x="4.958" y="33.417" stroke="#000000" width="55.333" height="18.333"/>
+<rect x="19.292" y="36.583" fill="none" width="26.333" height="15.667"/>
+<text transform="matrix(1 0 0 1 19.2925 47.2334)" fill="#FFFFFF" font-family="'Myriad-Roman'" font-size="15">CSV</text>
+</svg>

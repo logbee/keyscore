@@ -1,0 +1,10 @@
+<svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+<rect y="26.754" width="20.218" height="34.417"/>
+<rect x="1.225" y="47.582" fill="none" width="24.772" height="15.628"/>
+<text transform="matrix(1 0 0 1 1.2251 58.2314)" fill="#FFFFFF" font-family="'Myriad-Roman'" font-size="15">D3</text>
+<line fill="none" stroke="#000000" stroke-width="2" x1="10.327" y1="72.592" x2="10.327" y2="60.45"/>
+<rect x="0.198" y="11.229" width="20.219" height="13.716"/>
+<line fill="none" stroke="#000000" stroke-width="2" x1="10.29" y1="14.894" x2="10.29" y2="0.644"/>
+<line fill="none" stroke="#000000" stroke-width="2" x1="6.179" y1="72.755" x2="14.724" y2="72.755"/>
+<line fill="none" stroke="#000000" stroke-width="2" x1="6.042" y1="1" x2="14.587" y2="1"/>
+</svg>

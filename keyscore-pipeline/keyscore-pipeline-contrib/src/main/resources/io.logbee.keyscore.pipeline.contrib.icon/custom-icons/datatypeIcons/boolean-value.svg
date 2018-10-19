@@ -1,0 +1,7 @@
+<svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+<rect x="12.154" y="29.161" fill="none" width="64.876" height="24.652"/>
+<text transform="matrix(1 0 0 1 12.1543 48.4517)" font-family="'Myriad-Roman'" font-size="27.171">false</text>
+<rect x="12.931" y="3.451" fill="none" width="64.875" height="24.654"/>
+<text transform="matrix(1 0 0 1 12.9307 22.7417)" font-family="'Myriad-Roman'" font-size="27.171">true</text>
+<line fill="none" stroke="#000000" x1="0" y1="26.364" x2="77.075" y2="26.364"/>
+</svg>

@@ -1,0 +1,32 @@
+<svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+<g>
+	<g>
+		<path fill="none" stroke="#FFFFFF" d="M62.937,1H17.595c-6.627,0-12,5.373-12,12v0.713h10.338c0.803,0,1.453,2.416,1.453,5.396
+			c0,2.98-0.65,5.396-1.453,5.396H5.595v8.207h10.619c0.803,0,1.453,2.418,1.453,5.397s-0.65,5.396-1.453,5.396H5.595v7.209h10.619
+			c0.803,0,1.453,2.416,1.453,5.396s-0.65,5.396-1.453,5.396H5.836c1.112,5.477,5.954,9.6,11.759,9.6h45.342c6.627,0,12-5.373,12-12
+			V13C74.937,6.373,69.563,1,62.937,1z"/>
+	</g>
+	<g>
+		<path fill="none" stroke="#FFFFFF" stroke-width="2" d="M62.937,1H17.595c-6.627,0-12,5.373-12,12v0.713h10.338
+			c0.803,0,1.453,2.416,1.453,5.396c0,2.98-0.65,5.396-1.453,5.396H5.595v8.207h10.619c0.803,0,1.453,2.418,1.453,5.397
+			s-0.65,5.396-1.453,5.396H5.595v7.209h10.619c0.803,0,1.453,2.416,1.453,5.396s-0.65,5.396-1.453,5.396H5.836
+			c1.112,5.477,5.954,9.6,11.759,9.6h45.342c6.627,0,12-5.373,12-12V13C74.937,6.373,69.563,1,62.937,1z"/>
+	</g>
+</g>
+<line fill="none" stroke="#FFFFFF" x1="10.999" y1="16.502" x2="11.001" y2="21.86"/>
+<line fill="none" stroke="#FFFFFF" x1="8.399" y1="19.077" x2="13.749" y2="19.077"/>
+<line fill="none" stroke="#FFFFFF" x1="10.916" y1="54.086" x2="10.918" y2="59.445"/>
+<line fill="none" stroke="#FFFFFF" x1="8.317" y1="56.662" x2="13.666" y2="56.662"/>
+<line fill="none" stroke="#FFFFFF" x1="10.999" y1="35.42" x2="11.001" y2="40.777"/>
+<line fill="none" stroke="#FFFFFF" x1="8.399" y1="37.994" x2="13.749" y2="37.994"/>
+<line fill="none" stroke="#FFFFFF" x1="21.292" y1="19.952" x2="64.167" y2="19.952"/>
+<line fill="none" stroke="#FFFFFF" x1="22.042" y1="39.453" x2="64.917" y2="39.453"/>
+<line fill="none" stroke="#FFFFFF" x1="22.042" y1="57.328" x2="64.917" y2="57.328"/>
+<rect x="54.542" y="51.453" fill="none" width="18.125" height="5.125"/>
+<text transform="matrix(1 0 0 1 54.5413 55.7122)" fill="#8C8C8C" font-family="'Myriad-Roman'" font-size="6">field</text>
+<rect x="54.542" y="33.453" fill="none" width="18.125" height="5.125"/>
+<text transform="matrix(1 0 0 1 54.5413 37.7122)" fill="#8C8C8C" font-family="'Myriad-Roman'" font-size="6">new</text>
+<rect x="55.167" y="14.202" fill="none" width="18.125" height="5.125"/>
+<text transform="matrix(1 0 0 1 55.1663 18.4622)" fill="#8C8C8C" font-family="'Myriad-Roman'" font-size="6">add</text>
+<rect x="-89.865" y="-32.448" fill="none" stroke="#FFFFFF" width="263.667" height="130.667"/>
+</svg>
