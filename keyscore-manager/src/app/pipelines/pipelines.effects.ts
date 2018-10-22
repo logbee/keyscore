@@ -5,13 +5,12 @@ import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {Action, select, Store} from "@ngrx/store";
 import {forkJoin, Observable, of} from "rxjs";
-import {concat, concatMap, delay, exhaustMap, skip, tap, withLatestFrom} from "rxjs/internal/operators";
+import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
 import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
 import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
 import {selectRefreshTime} from "../common/loading/loading.reducer";
 import {
-    CONFIGS_FOR_BLUEPRINT,
     ConfigurationsForBlueprintId,
     DELETE_PIPELINE,
     DeletePipelineAction,
@@ -27,7 +26,6 @@ import {
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOAD_PIPELINEBLUEPRINTS,
     LOAD_PIPELINEBLUEPRINTS_SUCCESS,
-    LoadAllPipelineInstancesAction,
     LoadAllPipelineInstancesFailureAction,
     LoadAllPipelineInstancesSuccessAction,
     LoadEditBlueprintsAction,
@@ -38,10 +36,15 @@ import {
     LoadPipelineBlueprintsFailure,
     LoadPipelineBlueprintsSuccess,
     ResolveFilterDescriptorSuccessAction,
-    RUN_PIPELINE, RUN_PIPELINE_FAILURE, RUN_PIPELINE_SUCCESS,
+    RUN_PIPELINE,
+    RUN_PIPELINE_FAILURE,
+    RUN_PIPELINE_SUCCESS,
     RunPipelineAction,
     RunPipelineFailureAction,
-    RunPipelineSuccessAction, TRIGGER_FILTER_RESET, TriggerFilterResetAction, TriggerFilterResetFailure,
+    RunPipelineSuccessAction,
+    TRIGGER_FILTER_RESET,
+    TriggerFilterResetAction,
+    TriggerFilterResetFailure,
     UPDATE_PIPELINE,
     UPDATE_PIPELINE_FAILURE,
     UPDATE_PIPELINE_SUCCESS,
@@ -63,9 +66,6 @@ import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
 import {PipelineService} from "../services/rest-api/PipelineService";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
-import {DrainFilterAction, PauseFilterAction} from "../live-editing/live-editing.actions";
-import {printLine} from "tslint/lib/verify/lines";
-import {s} from "@angular/core/src/render3";
 
 @Injectable()
 export class PipelinesEffects {

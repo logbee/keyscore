@@ -6,21 +6,23 @@ import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {catchError, concatMap, map, mergeMap, withLatestFrom} from "rxjs/internal/operators";
 import {Action, select, Store} from "@ngrx/store";
 import {
-    DRAIN_FILTER,
+    DRAIN_FILTER, DRAIN_FILTER_FAILURE,
     DrainFilterAction,
     DrainFilterFailure,
-    DrainFilterSuccess, EXTRACT_DATASETS,
+    DrainFilterSuccess,
+    EXTRACT_DATASETS, EXTRACT_DATASETS_FAILURE,
     ExtractDatasetsAction,
     ExtractDatasetsFailure,
-    ExtractDatasetsInitialSuccess, ExtractDatasetsResultSuccess,
+    ExtractDatasetsInitialSuccess,
+    ExtractDatasetsResultSuccess, INSERT_DATASETS_FAILURE,
     INSERT_DATASETS_SUCCESS,
     InsertDatasetsFailure,
     InsertDatasetsSuccess,
     LOAD_DESCRIPTOR_FOR_BLUEPRINT,
-    LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS,
+    LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS, LOAD_FILTER_BLUEPRINT_FAILURE,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
-    LOAD_FILTER_CONFIGURATION,
-    LOAD_FILTERSTATE,
+    LOAD_FILTER_CONFIGURATION, LOAD_FILTER_CONFIGURATION_FAILURE,
+    LOAD_FILTERSTATE, LOAD_FILTERSTATE_FAILURE,
     LoadDescriptorForBlueprint,
     LoadDescriptorForBlueprintSuccess,
     LoadFilterBlueprintFailure,
@@ -31,14 +33,18 @@ import {
     LoadFilterStateAction,
     LoadFilterStateFailure,
     LoadFilterStateSuccess,
-    PAUSE_FILTER,
+    PAUSE_FILTER, PAUSE_FILTER_FAILURE,
     PauseFilterAction,
     PauseFilterFailure,
     PauseFilterSuccess,
+    RECONFIGURE_FILTER_FAILURE,
     RECONFIGURE_FILTER_SUCCESS,
     ReconfigureFilterFailure,
-    ReconfigureFilterSuccess, ResetAction,
-    ResolvedDescriptorForBlueprintSuccess, RESTORE_FILTER_CONFIGURATION, RestoreFilterConfiguration,
+    ReconfigureFilterSuccess,
+    ResetAction,
+    ResolvedDescriptorForBlueprintSuccess,
+    RESTORE_FILTER_CONFIGURATION,
+    RestoreFilterConfiguration,
     UPDATE_FILTER_CONFIGURATION,
     UpdateFilterConfiguration
 } from "./live-editing.actions";
@@ -48,19 +54,34 @@ import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {switchMap} from "rxjs/operators";
-import {LoadAllDescriptorsForBlueprintFailureAction} from "../resources/resources.actions";
-import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {
-    selectInitialConfiguration,
-    selectCurrentBlueprint,
-    selectDatasetsModels,
-    selectDatasetsRaw
-} from "./live-editing.reducer";
+    LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_FAILURE,
+    LoadAllDescriptorsForBlueprintFailureAction
+} from "../resources/resources.actions";
+import {DescriptorResolverService} from "../services/descriptor-resolver.service";
+import {selectCurrentBlueprint, selectDatasetsRaw, selectInitialConfiguration} from "./live-editing.reducer";
 import {Dataset} from "../models/dataset/Dataset";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
+import {SnackbarOpen} from "../common/snackbar/snackbar.actions";
 
+type  filterPreparationTypes =
+    |DrainFilterFailure
+    |PauseFilterFailure
+    |LoadFilterBlueprintFailure
+    |LoadFilterConfigurationFailure
+    |LoadFilterStateFailure
+    |LoadAllDescriptorsForBlueprintFailureAction;
+
+const filterPreparationFailure = [
+    DRAIN_FILTER_FAILURE,
+    PAUSE_FILTER_FAILURE,
+    LOAD_FILTER_BLUEPRINT_FAILURE,
+    LOAD_FILTER_CONFIGURATION_FAILURE,
+    LOAD_FILTERSTATE_FAILURE,
+    LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_FAILURE
+];
 
 @Injectable()
 export class FiltersEffects {
@@ -236,6 +257,71 @@ export class FiltersEffects {
 
         })
     );
+
+
+    // SnackBar
+
+    @Effect() public reconfigureFilterFailure$: Observable<Action> = this.actions$.pipe(
+        ofType(RECONFIGURE_FILTER_FAILURE),
+        map(() => new SnackbarOpen({
+            message: "An error occured while appliying the configuration.",
+            action: 'Failed',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
+            }
+        }))
+    );
+
+    @Effect() public reconfigureFilterSuccess$: Observable<Action> = this.actions$.pipe(
+        ofType(RECONFIGURE_FILTER_SUCCESS),
+        map(() => new SnackbarOpen({
+            message: "Filter successfully applied new configuration",
+            action: 'Success',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
+            }
+        }))
+    );
+
+    @Effect() public handleErrors$: Observable<Action> = this.actions$.pipe(
+        ofType<filterPreparationTypes>(...filterPreparationFailure),
+        map(() => new SnackbarOpen({
+            message: "Filter could not be prepared for Live-Editing. Please check if the resource is running.",
+            action: 'Failure',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
+            }
+        }))
+    );
+
+    @Effect() public insertFailure$: Observable<Action> = this.actions$.pipe(
+        ofType(INSERT_DATASETS_FAILURE),
+        map(() => new SnackbarOpen({
+            message: "Datasets could not be inserted in the filter.",
+            action: 'Failure',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
+            }
+        }))
+    );
+
+    @Effect() public extractFailure$: Observable<Action> = this.actions$.pipe(
+        ofType(EXTRACT_DATASETS_FAILURE),
+        map(() => new SnackbarOpen({
+            message: "Datasets could not be extracted from filter.",
+            action: 'Failure',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
+            }
+        }))
+    );
+
+
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
                 private filterControllerService: FilterControllerService,
