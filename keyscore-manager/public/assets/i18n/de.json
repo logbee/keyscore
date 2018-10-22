@@ -16,7 +16,7 @@
     "COLLAPSE": "Zusammenklappen",
     "EXPAND": "Ausklappen",
     "FILTER": "Filter",
-    "SEARCH": "Search",
+    "SEARCH": "Suche",
     "SOURCE": "Quelle",
     "SINK": "Senke",
     "MERGE": "Fusionierungsblock",
@@ -67,7 +67,6 @@
     "HOST": "Host"
   },
   "FILTERLIVEEDITINGCOMPONENT": {
-    "NUMBER": "#",
     "TITLE": "Live Editing",
     "FILTERDESCRIPTION_TITLE": "Filterdaten",
     "NAME": "Filter Name",
@@ -93,7 +92,12 @@
     "NODATA": "Keine Nachrichten verfügbar.",
     "NODATACONFIG": "Konfiguration deaktiviert.",
     "PAUSED": "ist pausiert",
-    "FIELDNAMES": "Feldernamen"
+    "FIELDS": "Felder",
+    "INPUT": "Eingangswerte",
+    "OUTPUT": "Ausgangswerte",
+    "PRESET_IN": "Zeige nur Einangswerte.",
+    "PRESET_OUT": "Zeige alle Ein und Ausgangswerte.",
+    "PRESET_ALL": "Zeige nur Ausgangswerte."
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filter"

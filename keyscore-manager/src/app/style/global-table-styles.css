@@ -84,3 +84,7 @@ tr.mat-cell {
     width: fit-content;
 
 }
+
+.preset-margin {
+    margin-right: 15px;
+}

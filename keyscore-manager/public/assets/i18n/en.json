@@ -67,7 +67,6 @@
     "HOST": "Host"
   },
   "FILTERLIVEEDITINGCOMPONENT": {
-    "NUMBER": "#",
     "TITLE": "Live Editing: ",
     "FILTERDESCRIPTION_TITLE": "Filterdata: ",
     "NAME": "FilterName",
@@ -92,7 +91,12 @@
     "NODATA": "No messages to show.",
     "NODATACONFIG": "Configuration disabled.",
     "PAUSED": "isPaused",
-    "FIELDNAMES": "fieldnames"
+    "FIELDS": "Fields",
+    "INPUT": "InputValues",
+    "OUTPUT": "OutputValues",
+    "PRESET_IN": "View Input values only.",
+    "PRESET_OUT": "View Output values only",
+    "PRESET_ALL": "View In/Out values only"
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filters"
