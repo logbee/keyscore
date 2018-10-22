@@ -1,4 +1,5 @@
-<svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 viewBox="0 0 25.998 73.255" overflow="visible" enable-background="new 0 0 25.998 73.255" xml:space="preserve">
 <rect y="26.254" fill="#FFFFFF" width="20.218" height="34.417"/>
 <rect x="1.225" y="47.082" fill="none" width="24.772" height="15.628"/>
 <text transform="matrix(1 0 0 1 1.2251 57.7314)" fill="#030303" font-family="'Myriad-Roman'" font-size="15">D3</text>

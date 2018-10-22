@@ -1,4 +1,5 @@
-<svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 viewBox="0 0 72.902 76.745" overflow="visible" enable-background="new 0 0 72.902 76.745" xml:space="preserve">
 <line fill="none" stroke="#000000" stroke-width="3" x1="10.533" y1="75.225" x2="30.236" y2="0.382"/>
 <line fill="#FFFFFF" stroke="#000000" stroke-width="3" x1="38.061" y1="76.363" x2="57.763" y2="1.521"/>
 <line fill="none" stroke="#000000" stroke-width="3" x1="71.834" y1="47.546" x2="0.007" y2="47.206"/>

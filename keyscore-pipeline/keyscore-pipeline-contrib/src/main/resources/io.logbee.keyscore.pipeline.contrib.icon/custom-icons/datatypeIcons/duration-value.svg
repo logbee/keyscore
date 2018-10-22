@@ -1,4 +1,11 @@
-<svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 12.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 51448)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  version="1.1" id="Ebene_1" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" width="68.5" height="68.5" viewBox="0 0 68.5 68.5"
+	 overflow="visible" enable-background="new 0 0 68.5 68.5" xml:space="preserve">
 <path fill="#E1DFE0" d="M33.558,38.486V10.85c0,0,22.241,2.08,25.093,27.291H32.39"/>
 <line fill="none" stroke="#000000" stroke-width="2" x1="31.764" y1="37.941" x2="59.07" y2="37.941"/>
 <circle fill="none" stroke="#000000" stroke-width="2" cx="34.25" cy="34.25" r="33.25"/>
