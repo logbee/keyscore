@@ -6,9 +6,9 @@ import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {
-    selectInitialConfiguration,
     selectCurrentBlueprint,
     selectCurrentDescriptor,
+    selectInitialConfiguration,
     selectLiveEditingFilterState,
     selectUpdatedConfiguration
 } from "./live-editing.reducer";
@@ -119,34 +119,4 @@ export class LiveEditingComponent implements OnInit {
         this.store.dispatch(new RestoreFilterConfiguration())
     }
 
-    // private triggerErrorComponent(httpError: string) {
-    //     switch (httpError.toString()) {
-    //         case "404": {
-    //             this.translate.get("ERRORS.404").subscribe(
-    //                 (translation) => this.message = translation);
-    //             this.errorHandling = true;
-    //             break;
-    //         }
-    //         case "503": {
-    //             this.translate.get("ERRORS.503").subscribe(
-    //                 (translation) => this.message = translation);
-    //             this.errorHandling = true;
-    //             break;
-    //         }
-    //         case "0": {
-    //             this.translate.get("ERRORS.0").subscribe(
-    //                 (translation) => this.message = translation);
-    //             this.errorHandling = true;
-    //             break;
-    //         }
-    //         case "999": {
-    //             this.translate.get("ERRORS.999").subscribe(
-    //                 (translation) => this.message = translation);
-    //             this.errorHandling = true;
-    //             break;
-    //         }
-    //     }
-    // }
-
 }
-

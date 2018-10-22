@@ -14,10 +14,10 @@ import {
 import {combineLatest} from "rxjs";
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
-    constructor(datasets$: Observable<DatasetTableModel[]>, index$: Observable<number>) {
+    constructor(datasets$: Observable<DatasetTableModel[]>, index$: Observable<number>, recordsIndex$: Observable<number>) {
         super();
-        combineLatest(datasets$, index$).subscribe(([datasets, index]) => {
-            this.data = datasets[index].records[0].rows;
+        combineLatest(datasets$, index$, recordsIndex$).subscribe(([datasets, index, recordsIndex]) => {
+            this.data = datasets[index].records[recordsIndex].rows;
         });
 
         this.filterPredicate = (datasetModel: DatasetTableRowModel, filter: string) => {

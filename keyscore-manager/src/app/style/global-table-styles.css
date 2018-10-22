@@ -67,7 +67,7 @@ tr:hover {
     background-color: rgba(163, 0, 0, 0.6) !important;
 }
 
-
+/*-----------------table-styles-------------------*/
 table.mat-table {
     border-spacing: 50px;
 }
@@ -79,12 +79,6 @@ tr.mat-header-row {
 tr.mat-header-cell {
     width: fit-content;
 }
-
-tr.mat-cell {
-    width: fit-content;
-
-}
-
 .preset-margin {
     margin-right: 15px;
 }

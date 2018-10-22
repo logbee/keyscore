@@ -27,33 +27,37 @@ import {
                     <input matInput (keyup)="applyFilter($event.target.value)"
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
                 </mat-form-field>
+
                 <navigation-control [index]="index.getValue()"
                                     [length]="(datasets$ | async).length"
                                     (counterEvent)="updateCounter($event)" fxFlex="">
                 </navigation-control>
             </div>
-            
-            <div *ngIf="resultAvailable" fxFlex="4"  class="preset-margin">
+            <div *ngIf="resultAvailable" fxFlex="4" class="preset-margin">
                 <div fxLayout="row" fxFlexFill="" fxLayoutGap="15px" fxLayoutAlign="end">
-                    <button matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_IN' | translate}}" fxFlex="1" mat-icon-button (click)="changeViewPreset('showOnlyInput')">
+                    <button matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_IN' | translate}}" fxFlex="1"
+                            mat-icon-button (click)="changeViewPreset('showOnlyInput')">
                         <mat-icon>border_left</mat-icon>
                     </button>
 
-                    <button  matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_ALL' | translate}}" fxFlex="1" mat-icon-button (click)="changeViewPreset('showEverything')">
+                    <button matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_ALL' | translate}}" fxFlex="1"
+                            mat-icon-button (click)="changeViewPreset('showEverything')">
                         <mat-icon>border_vertical</mat-icon>
                     </button>
-                    
-                    <button  matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_OUT' | translate}}" fxFlex="1" mat-icon-button (click)="changeViewPreset('showOnlyOutput')">
+
+                    <button matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_OUT' | translate}}" fxFlex="1"
+                            mat-icon-button (click)="changeViewPreset('showOnlyOutput')">
                         <mat-icon>border_right</mat-icon>
                     </button>
                 </div>
             </div>
-
             <!--Dataset Datatable-->
             <table fxFlex="" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position">
                 <ng-container matColumnDef="fields">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'FILTERLIVEEDITINGCOMPONENT.FIELDS' | translate}}</th>
+                    <th class="field" mat-header-cell *matHeaderCellDef mat-sort-header>
+                        {{'FILTERLIVEEDITINGCOMPONENT.FIELDS' | translate}}
+                    </th>
                     <td mat-cell *matCellDef="let row"
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
@@ -63,7 +67,9 @@ import {
                 </ng-container>
 
                 <ng-container matColumnDef="inValues">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'FILTERLIVEEDITINGCOMPONENT.INPUT' | translate}}</th>
+                    <th class="input" mat-header-cell *matHeaderCellDef mat-sort-header>
+                        {{'FILTERLIVEEDITINGCOMPONENT.INPUT' | translate}}
+                    </th>
                     <td mat-cell *matCellDef="let row"
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
@@ -74,7 +80,9 @@ import {
                 </ng-container>
 
                 <ng-container matColumnDef="outValues">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'FILTERLIVEEDITINGCOMPONENT.OUTPUT' | translate}}</th>
+                    <th class="output" mat-header-cell *matHeaderCellDef mat-sort-header>
+                        {{'FILTERLIVEEDITINGCOMPONENT.OUTPUT' | translate}}
+                    </th>
                     <td mat-cell *matCellDef="let row"
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
@@ -86,7 +94,9 @@ import {
                 </ng-container>
 
                 <ng-container matColumnDef="jsonClass">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ValueType</th>
+                    <th class="type" mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 15%">
+                        ValueType
+                    </th>
                     <td mat-cell *matCellDef="let row"
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
@@ -95,13 +105,6 @@ import {
                         <value-type [type]="row.input.value.jsonClass"></value-type>
                     </td>
                 </ng-container>
-
-                <!--<ng-container matColumnDef="divider">-->
-                <!--<th mat-header-cell *matHeaderCellDef>Divider</th>-->
-                <!--<td mat-cell *matCellDef="let row">-->
-                <!--<mat-label></mat-label>-->
-                <!--</td>-->
-                <!--</ng-container>-->
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
@@ -113,6 +116,7 @@ import {
 export class DatasetTable {
     private datasets$: Observable<DatasetTableModel[]> = this.store.pipe(select(selectDatasetsModels));
     private index: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+    private recordsIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private dataSource: DatasetDataSource;
     private resultAvailable: boolean = false;
     private displayedColumns: string[] = ['jsonClass', 'fields', 'inValues'];
@@ -123,7 +127,9 @@ export class DatasetTable {
 
     constructor(private store: Store<any>) {
         this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
-            this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable());
+
+            this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable(), this.recordsIndex.asObservable());
+
             this.dataSource.paginator = this.paginator;
             this.dataSource.sort = this.sort;
         });
@@ -144,6 +150,10 @@ export class DatasetTable {
 
     private updateCounter(count: number) {
         this.index.next(count);
+    }
+
+    private updateRecordCounter(count: number) {
+        this.recordsIndex.next(count)
     }
 
     accessFieldValues(valueObject: Value): any {
@@ -177,7 +187,7 @@ export class DatasetTable {
         }
     }
 
-    changeViewPreset(value:string) {
+    changeViewPreset(value: string) {
         switch (value) {
             case "showOnlyInput":
                 this.displayedColumns = ['jsonClass', 'fields', 'inValues'];
@@ -189,14 +199,5 @@ export class DatasetTable {
                 this.displayedColumns = ['jsonClass', 'fields', 'outValues'];
                 break;
         }
-
-
-
-
-        // if (this.displayedColumns.find(elem => elem == "outValues")) {
-        //     this.displayedColumns = ['jsonClass', 'fields', 'inValues'];
-        // } else {
-        //     this.displayedColumns.push('outValues');
-        // }
     }
 }
