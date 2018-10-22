@@ -55,20 +55,14 @@ tr:hover {
 /*----------------highlighting---------------------*/
 
 .highlight-added {
-    border-width: 3px !important;
-    opacity: 0.5!important;
-    border-color: rgb(96, 163, 72) !important;
+    background-color: rgba(153,255,153,0.4)!important;
 }
 
 .highlight-modified {
-    border-width: 3px !important;
-    opacity: 0.5!important;
-    border-color: rgb(255, 248, 123) !important;
+    background-color: rgba(255, 194, 51, 0.6) !important;
 
 }
 
 .highlight-deleted {
-    border-width: 3px !important;
-    opacity: 0.5!important;
-    border-color: rgb(163, 0, 0) !important;
+    background-color: rgba(163, 0, 0, 0.6) !important;
 }

@@ -39,12 +39,20 @@ import {
                    class="mat-elevation-z8 table-position">
                 <ng-container matColumnDef="fields">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Fields</th>
-                    <td mat-cell *matCellDef="let row">{{row?.input.name}}</td>
+                    <td mat-cell *matCellDef="let row" 
+                        [class.highlight-added]="row.input.change === 'added'"
+                        [class.highlight-modified]="row.output.change === 'modified'"
+                        [class.highlight-unchanged]="row.output.change === 'unchanged'"
+                        [class.highlight-deleted]="row.output.change === 'deleted'">{{row?.input.name}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="inValues">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Input Values</th>
-                    <td mat-cell *matCellDef="let row">{{accessFieldValues(row?.input.value)}}</td>
+                    <td mat-cell *matCellDef="let row" 
+                        [class.highlight-added]="row.input.change === 'added'"
+                        [class.highlight-modified]="row.output.change === 'modified'"
+                        [class.highlight-unchanged]="row.output.change === 'unchanged'"
+                        [class.highlight-deleted]="row.output.change === 'deleted'">{{accessFieldValues(row?.input.value)}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="outValues">
@@ -61,7 +69,11 @@ import {
                 
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>ValueType</th>
-                    <td mat-cell *matCellDef="let row">
+                    <td mat-cell *matCellDef="let row" 
+                        [class.highlight-added]="row.input.change === 'added'"
+                        [class.highlight-modified]="row.output.change === 'modified'"
+                        [class.highlight-unchanged]="row.output.change === 'unchanged'"
+                        [class.highlight-deleted]="row.output.change === 'deleted'">
                         <value-type [type]="row.input.value.jsonClass"></value-type>
                     </td>
                 </ng-container>

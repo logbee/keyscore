@@ -80,24 +80,18 @@ const initialState: FilterState = {
     }
 };
 
-function createDatasetTableModel(inputDataset: Dataset, outputDataset: Dataset): DatasetTableModel {
+function createDatasetTableModel(inputDataset: Dataset, outputDataset: Dataset, resultAvailable: boolean): DatasetTableModel {
 
     let zippedRecords = inputDataset.records.map(function (x, y) {
         return [x, outputDataset.records[y]]
-    });
-
-    zippedRecords.map(([inRecord, outRecord]) => {
-        // console.log("InRecord Fields " + inRecord.fields.map(field => field.name));
-        // console.log("OutRecord Fields " + outRecord.fields.map(field => field.name));
     });
 
     const datasetTableRecordModels = zippedRecords.map(([inRecord, outRecord]) => {
         const fieldNames: string[] = [].concat(...inRecord.fields, outRecord.fields).map(field => field.name);
         let fieldNameSet: string[] = Array.from(new Set(fieldNames));
         fieldNameSet = fieldNameSet.filter(fieldName => fieldName !== "dummy");
-        // console.log(fieldNameSet);
         const datasetTableRowModels = Array.from(fieldNameSet).map(name => {
-            return createDatasetTableRowModelData(findFieldByName(name, inRecord), findFieldByName(name, outRecord));
+            return createDatasetTableRowModelData(findFieldByName(name, inRecord), findFieldByName(name, outRecord), resultAvailable);
         });
 
         return new DatasetTableRecordModel(datasetTableRowModels)
@@ -111,11 +105,10 @@ function findFieldByName(name: string, record: Record): Field {
 }
 
 function checkForValueChange(input: Value, output: Value) {
-    // console.log(accessFieldValues(input) + "in/out" + accessFieldValues(output));
     return accessFieldValues(input) !== accessFieldValues(output);
 }
 
-function  accessFieldValues(valueObject: Value): any {
+function accessFieldValues(valueObject: Value): any {
     if (!valueObject) {
         return "No output yet!"
     } else {
@@ -146,48 +139,28 @@ function  accessFieldValues(valueObject: Value): any {
     }
 }
 
-function createDatasetTableRowModelData(input: Field, output: Field): DatasetTableRowModel {
+function createDatasetTableRowModelData(input: Field, output: Field, resultAvailable: boolean): DatasetTableRowModel {
     let inputDataModel: DatasetTableRowModelData;
     let outputDataModel: DatasetTableRowModelData;
-    // let guard = ([input, output]);
-
-    // switch (guard) {
-    //     case [undefined, output]:
-    //         console.log("matched (undefined, output)");
-    //         inputDataModel = new DatasetTableRowModelData(output.name, ValueJsonClass.TextValue, {
-    //                     jsonClass: ValueJsonClass.TextValue,
-    //                     value: "No output yet"
-    //                 }, ChangeType.Added);
-    //         outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
-    //         break;
-    //     case [input, undefined]:
-    //         console.log("matched (input, undefined)");
-    //         outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
-    //                     jsonClass: ValueJsonClass.TextValue,
-    //                     value: "Field was deleted"
-    //                 }, ChangeType.Deleted);
-    //         inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
-    //         break;
-    //     case [input, output]:
-    //         console.log("matched (input, output)");
-    //         checkForValueChange(input.value, output.value);
-            // inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
-            // outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
-            // break;
-    // }
-
-    if (input === undefined && output != undefined) {
+    if (input === undefined && output != undefined ) {
         inputDataModel = new DatasetTableRowModelData(output.name, ValueJsonClass.TextValue, {
             jsonClass: ValueJsonClass.TextValue,
             value: "No output yet"
         }, ChangeType.Added);
         outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
 
-    } else if(input != undefined && output === undefined) {
-        outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
-            jsonClass: ValueJsonClass.TextValue,
-            value: "Field was deleted"
-        }, ChangeType.Deleted);
+    } else if (input != undefined && output === undefined) {
+        if (resultAvailable) {
+            outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
+                jsonClass: ValueJsonClass.TextValue,
+                value: "Field was deleted"
+            }, ChangeType.Deleted);
+        } else {
+            outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
+                jsonClass: ValueJsonClass.TextValue,
+                value: "Field was deleted"
+            }, ChangeType.Unchanged);
+        }
         inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
     } else if (input != undefined && output != undefined) {
         if (checkForValueChange(input.value, output.value)) {
@@ -242,7 +215,7 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             result.datasetsModels = [];
             const models = [];
             action.datasets.forEach(dataset => {
-                let model = createDatasetTableModel(dataset, state.dummyDataset);
+                let model = createDatasetTableModel(dataset, state.dummyDataset, state.resultAvailable);
                 models.push(model)
             });
             result.extractFinish = true;
@@ -268,7 +241,7 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
                 });
             }
             zippedDatasets.map(([input, output]) => {
-                resultModels.push(createDatasetTableModel(input, output));
+                resultModels.push(createDatasetTableModel(input, output, state.resultAvailable));
             });
             result.datasetsModels = resultModels;
             result.resultAvailable = true;

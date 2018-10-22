@@ -1,9 +1,9 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output} from "@angular/core";
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
-import {distinctUntilChanged, filter, isEmpty} from "rxjs/operators";
+import {filter} from "rxjs/operators";
 import {deepcopy, zip} from "../../../../util";
-import {Parameter, ParameterJsonClass} from "../../../../models/parameters/Parameter";
+import {Parameter} from "../../../../models/parameters/Parameter";
 import {ResolvedParameterDescriptor} from "../../../../models/parameters/ParameterDescriptor";
 import {ParameterControlService} from "../../../../common/parameter/service/parameter-control.service";
 import {Configuration} from "../../../../models/common/Configuration";
@@ -147,8 +147,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     collapse() {
         this.isVisible = !this.isVisible;
         this.onShowConfigurator.emit(this.isVisible);
-        console.log("Emmitted showConfiguratorEvent");
-
     }
 
     revert() {
