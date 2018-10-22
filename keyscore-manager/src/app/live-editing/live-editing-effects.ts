@@ -38,7 +38,7 @@ import {
     RECONFIGURE_FILTER_SUCCESS,
     ReconfigureFilterFailure,
     ReconfigureFilterSuccess, ResetAction,
-    ResolvedDescriptorForBlueprintSuccess,
+    ResolvedDescriptorForBlueprintSuccess, RESTORE_FILTER_CONFIGURATION, RestoreFilterConfiguration,
     UPDATE_FILTER_CONFIGURATION,
     UpdateFilterConfiguration
 } from "./live-editing.actions";
@@ -50,7 +50,12 @@ import {Descriptor} from "../models/descriptors/Descriptor";
 import {switchMap} from "rxjs/operators";
 import {LoadAllDescriptorsForBlueprintFailureAction} from "../resources/resources.actions";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {selectCurrentBlueprint, selectDatasetsModels, selectDatasetsRaw} from "./live-editing.reducer";
+import {
+    selectInitialConfiguration,
+    selectCurrentBlueprint,
+    selectDatasetsModels,
+    selectDatasetsRaw
+} from "./live-editing.reducer";
 import {Dataset} from "../models/dataset/Dataset";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
@@ -215,6 +220,20 @@ export class FiltersEffects {
                 map((state: ResourceInstanceState) => new ReconfigureFilterSuccess(state)),
                 catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
             );
+        })
+    );
+
+    @Effect()
+    public restoreFilterConfiguration$: Observable<Action> = this.actions$.pipe(
+        ofType(RESTORE_FILTER_CONFIGURATION),
+        map((action) => (action as RestoreFilterConfiguration)),
+        withLatestFrom(this.store.pipe(select(selectInitialConfiguration)), this.store.pipe(select(selectCurrentBlueprint))),
+        mergeMap(([action, initialConfiguration, blueprint]) => {
+            return this.filterControllerService.updateConfig(initialConfiguration, blueprint.ref.uuid).pipe(
+                map((state: ResourceInstanceState) => new ReconfigureFilterSuccess(state)),
+                catchError((cause: any) => of(new ReconfigureFilterFailure(cause)))
+            );
+
         })
     );
     constructor(private store: Store<AppState>,

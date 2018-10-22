@@ -28,7 +28,7 @@ export const RECONFIGURE_FILTER_ACTION = "[Filter] ReconfigureFilterAction";
 export const RECONFIGURE_FILTER_SUCCESS = "[Filter] ReconfigureFilterSuccess";
 export const RECONFIGURE_FILTER_FAILURE = "[Filter] ReconfigureFilterFailure";
 export const UPDATE_FILTER_CONFIGURATION = "[Filter] UpdateFilterConfiguration";
-export const RESTORE_FILTER_CONFIGURATIOM = "[Filter] RestoreFilterConfiguration";
+export const RESTORE_FILTER_CONFIGURATION = "[Filter] RestoreFilterConfiguration";
 export const UPDATE_DATASET_COUNTER = "[Filter] UpdateDatasetCounter";
 export const LOAD_FILTER_BLUEPRINT_SUCCESS = "[Filter] LoadFilterBlueprintSuccess";
 export const LOAD_FILTER_BLUEPRINT_FAILURE = "[Filter] LoadFilterBlueprintFailure";
@@ -76,7 +76,7 @@ export type LiveEditingActions =
     | LoadDescriptorForBlueprintSuccess
     | ResolvedDescriptorForBlueprintSuccess
     | SaveUpdatedConfiguration
-    | ResetAction;
+    | ResetAction
 
 export class LoadFilterConfigurationAction implements Action {
     public readonly type = LOAD_FILTER_CONFIGURATION;
@@ -256,9 +256,9 @@ export class UpdateFilterConfiguration implements Action {
 }
 
 export class RestoreFilterConfiguration implements Action {
-    public readonly type = RESTORE_FILTER_CONFIGURATIOM;
+    public readonly type = RESTORE_FILTER_CONFIGURATION;
 
-    constructor(readonly  filter: Configuration) {
+    constructor() {
     }
 }
 

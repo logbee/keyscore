@@ -149,7 +149,7 @@ function  accessFieldValues(valueObject: Value): any {
 function createDatasetTableRowModelData(input: Field, output: Field): DatasetTableRowModel {
     let inputDataModel: DatasetTableRowModelData;
     let outputDataModel: DatasetTableRowModelData;
-    let guard = ([input, output]);
+    // let guard = ([input, output]);
 
     // switch (guard) {
     //     case [undefined, output]:
@@ -301,7 +301,9 @@ export const extractFinish = (state: FilterState) => state.extractFinish;
 export const getFilterState = createFeatureSelector<FilterState>(
     "filter"
 );
-export const selectConfiguration = createSelector(getFilterState, (state: FilterState) => state.initialConfiguration);
+export const selectInitialConfiguration = createSelector(getFilterState, (state: FilterState) => state.initialConfiguration);
+
+export const selectUpdatedConfiguration = createSelector(getFilterState, (state: FilterState) => state.updatedConfiguration);
 
 export const selectLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
 
@@ -314,7 +316,5 @@ export const selectExtractFinish = createSelector(getFilterState, extractFinish)
 export const selectCurrentDescriptor = createSelector(getFilterState, (state: FilterState) => state.descriptor);
 
 export const selectCurrentBlueprint = createSelector(getFilterState, (state: FilterState) => state.blueprint);
-
-export const selectUpdatedConfiguration = createSelector(getFilterState, (state: FilterState) => state.updatedConfiguration);
 
 export const selectResultAvailable = createSelector(getFilterState, (state: FilterState) => state.resultAvailable);

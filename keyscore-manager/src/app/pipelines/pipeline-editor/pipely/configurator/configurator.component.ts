@@ -39,7 +39,7 @@ import * as _ from "lodash";
                             <mat-icon>undo</mat-icon>
                             {{'PIPELY.REVERT' | translate}}
                         </button>
-                        <button mat-raised-button matTooltip="{{'PIPELY.RESET_TOOLTIP'| translate}}" (click)="cancel()"
+                        <button mat-raised-button matTooltip="{{'PIPELY.RESET_TOOLTIP'| translate}}" (click)="reset()"
                                 color="default">
                             <mat-icon>cancel</mat-icon>
                             {{'PIPELY.RESET' | translate}}
@@ -68,7 +68,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     private selectedBlock$ = new BehaviorSubject<{ configuration: Configuration, descriptor: BlockDescriptor }>(
         {
-            configuration: {ref: {uuid:"init"}, parent: null, parameters: []},
+            configuration: {ref: {uuid: "init"}, parent: null, parameters: []},
             descriptor: {
                 ref: null,
                 displayName: "",
@@ -90,16 +90,16 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map();
 
-    private lastID:string="";
-    private lastValues=null;
-    private formSubscription:Subscription;
+    private lastID: string = "";
+    private lastValues = null;
+    private formSubscription: Subscription;
 
     constructor(private parameterService: ParameterControlService) {
 
     }
 
     public ngOnInit(): void {
-        this.selectedBlock$.pipe(takeUntil(this.isAlive),filter(block => block.configuration.ref.uuid !== this.lastID)).subscribe(selectedBlock => {
+        this.selectedBlock$.pipe(takeUntil(this.isAlive), filter(block => block.configuration.ref.uuid !== this.lastID)).subscribe(selectedBlock => {
             this.lastID = selectedBlock.configuration.ref.uuid;
 
             this.parameterMapping =
@@ -111,7 +111,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             }
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
             this.form.valueChanges.subscribe(values => {
-                if(!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues,values)){
+                if (!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues, values)) {
                     this.lastValues = values;
                     this.saveConfiguration();
                 }
@@ -120,22 +120,24 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     }
 
-    private isAllNullOrEmpty(obj:Object):boolean{
+    private isAllNullOrEmpty(obj: Object): boolean {
         const values = Object.values(obj);
-        for (let prop of values){
-            if(prop) return false;
+        for (let prop of values) {
+            if (prop) return false;
         }
         return true;
     }
 
-    cancel() {
-        this.selectedBlock$.getValue().configuration.parameters.forEach(parameter =>
-            this.form.controls[parameter.ref.id].setValue(parameter.value)
+    reset() {
+        this.selectedBlock$.getValue().configuration.parameters.forEach(parameter => {
+                this.form.controls[parameter.ref.id].setValue(parameter.value);
+            }
         );
         this.closeConfigurator.emit();
     }
 
     revert() {
+        this.reset();
         this.onRevert.emit()
     }
 

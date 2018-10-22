@@ -1,23 +1,21 @@
 import {Component, OnInit} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {TranslateService} from "@ngx-translate/core";
 import {Observable} from "rxjs/index";
 import {isSpinnerShowing} from "../common/loading/loading.reducer";
 import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {
-    selectConfiguration,
+    selectInitialConfiguration,
     selectCurrentBlueprint,
     selectCurrentDescriptor,
     selectLiveEditingFilterState,
     selectUpdatedConfiguration
 } from "./live-editing.reducer";
 import "./live-editing-styles/live-editing.css";
-import {Dataset} from "../models/dataset/Dataset";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {SaveUpdatedConfiguration, UpdateDatasetCounter, UpdateFilterConfiguration} from "./live-editing.actions";
+import {RestoreFilterConfiguration, SaveUpdatedConfiguration, UpdateFilterConfiguration} from "./live-editing.actions";
 
 
 @Component({
@@ -36,7 +34,7 @@ import {SaveUpdatedConfiguration, UpdateDatasetCounter, UpdateFilterConfiguratio
                                     descriptor:(descriptor$|async)}"
                           [showFooter]="true"
                           (onSave)="saveConfiguration($event)"
-                          (closeConfigurator)="closeConfigurator()">
+                          (onRevert)="revertFilterConfiguration()">
             </configurator>
 
         </div>
@@ -92,7 +90,7 @@ export class LiveEditingComponent implements OnInit {
             this.filterState$ = this.store.pipe(select(selectLiveEditingFilterState));
             this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
-            this.configuration$ = this.store.pipe(select(selectConfiguration));
+            this.configuration$ = this.store.pipe(select(selectInitialConfiguration));
         }
     }
 
@@ -100,8 +98,8 @@ export class LiveEditingComponent implements OnInit {
         this.store.dispatch(new SaveUpdatedConfiguration($event));
     }
 
-    closeConfigurator() {
-
+    revertFilterConfiguration() {
+        this.store.dispatch(new RestoreFilterConfiguration())
     }
 
     // private triggerErrorComponent(httpError: string) {
