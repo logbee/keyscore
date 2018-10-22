@@ -34,3 +34,7 @@ configurator {
 .configurator-body::-webkit-scrollbar {
     display: none;
 }
+.collapseButton {
+    margin-right: 15px!important;
+    margin-top: 15px!important;
+}

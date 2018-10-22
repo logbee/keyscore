@@ -26,15 +26,21 @@ import {RestoreFilterConfiguration, SaveUpdatedConfiguration, UpdateFilterConfig
                 [title]="filterName"
                 (onManualRelad)="reload()">
         </header-bar>
-        <div fxFlexFill="" fxLayout="row" fxLayoutGap="15px" *ngIf="!(loading$ | async); else loading">
-            <dataset-table class="live-editing-wrapper" fxFlex="75%"></dataset-table>
-            <configurator class="mat-elevation-z6" fxFlex=""
+        <div fxFlexFill="" fxLayout="row" fxLayoutGap="15" *ngIf="!(loading$ | async); else loading">
+            <dataset-table class="live-editing-wrapper" fxFlex=""></dataset-table>
+            <button *ngIf="!showConfigurator" matTooltip="Show Configuration." mat-mini-fab color="primary"
+                    (click)="collapse()" class="collapseButton">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+            <configurator *ngIf="showConfigurator" class="mat-elevation-z6" fxFlex="25"
                           [isOpened]=""
+                          [collapsibleButton]="true"
                           [selectedBlock]="{configuration:(configuration$|async),
                                     descriptor:(descriptor$|async)}"
                           [showFooter]="true"
                           (onSave)="saveConfiguration($event)"
-                          (onRevert)="revertFilterConfiguration()">
+                          (onRevert)="revertFilterConfiguration()"
+                          (onShowConfigurator)="showConfiguratorEvent($event)">
             </configurator>
 
         </div>
@@ -60,6 +66,7 @@ export class LiveEditingComponent implements OnInit {
     private configuration$: Observable<Configuration>;
     private filterState$: Observable<ResourceInstanceState>;
     private descriptor$: Observable<ResolvedFilterDescriptor>;
+    public showConfigurator: boolean = true;
 
 
     private filterName: string = "Live-Editing";
@@ -80,6 +87,11 @@ export class LiveEditingComponent implements OnInit {
         );
     }
 
+
+    collapse() {
+        this.showConfigurator = true;
+    }
+
     private initialize() {
         if (!this.liveEditingFlag) {
             // this.triggerErrorComponent("999");
@@ -92,6 +104,11 @@ export class LiveEditingComponent implements OnInit {
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
             this.configuration$ = this.store.pipe(select(selectInitialConfiguration));
         }
+    }
+
+    showConfiguratorEvent(show: boolean) {
+        console.log("set showConfigurator to", show);
+        this.showConfigurator = show;
     }
 
     saveConfiguration($event: Configuration) {

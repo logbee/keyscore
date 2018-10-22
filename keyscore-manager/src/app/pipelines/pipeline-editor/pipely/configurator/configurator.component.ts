@@ -16,10 +16,15 @@ import * as _ from "lodash";
     selector: "configurator",
     template: `
         <div fxFill fxLayout="column" class="configurator-wrapper">
-            <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                <h3>{{selectedBlock$.getValue().descriptor.displayName}}</h3>
-                <p>{{selectedBlock$.getValue().descriptor.description}}</p>
-                <mat-divider></mat-divider>
+            <div fxLayout="row">
+                <div fxFlex="95%" fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
+                    <h3>{{selectedBlock$.getValue().descriptor.displayName}}</h3>
+                    <p>{{selectedBlock$.getValue().descriptor.description}}</p>
+                    <mat-divider></mat-divider>
+                </div>
+                <button matTooltip="Hide Configuration." *ngIf="collapsibleButton" mat-mini-fab color="primary" (click)="collapse()">
+                    <mat-icon>chevron_right</mat-icon>
+                </button>
             </div>
             <div fxLayout="column" fxLayoutWrap fxLayoutGap="10px" fxLayoutAlign="center">
                 <div class="configurator-body">
@@ -58,6 +63,8 @@ import * as _ from "lodash";
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() public showFooter: boolean;
+    @Input() public collapsibleButton: boolean;
+    public isVisible: boolean = true;
 
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
 
@@ -85,6 +92,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
     @Output() onRevert: EventEmitter<void> = new EventEmitter();
+    @Output() onShowConfigurator: EventEmitter<boolean> = new EventEmitter();
     isAlive: Subject<void> = new Subject();
     form: FormGroup;
 
@@ -134,6 +142,13 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             }
         );
         this.closeConfigurator.emit();
+    }
+
+    collapse() {
+        this.isVisible = !this.isVisible;
+        this.onShowConfigurator.emit(this.isVisible);
+        console.log("Emmitted showConfiguratorEvent");
+
     }
 
     revert() {
