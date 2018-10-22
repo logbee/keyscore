@@ -66,3 +66,21 @@ tr:hover {
 .highlight-deleted {
     background-color: rgba(163, 0, 0, 0.6) !important;
 }
+
+
+table.mat-table {
+    border-spacing: 50px;
+}
+
+tr.mat-header-row {
+    background-color: rgba(98, 99, 97, 0.3) !important;
+}
+
+tr.mat-header-cell {
+    width: fit-content;
+}
+
+tr.mat-cell {
+    width: fit-content;
+
+}

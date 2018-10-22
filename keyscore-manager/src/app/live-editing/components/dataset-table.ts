@@ -77,6 +77,14 @@ import {
                         <value-type [type]="row.input.value.jsonClass"></value-type>
                     </td>
                 </ng-container>
+
+                <!--<ng-container matColumnDef="divider">-->
+                    <!--<th mat-header-cell *matHeaderCellDef>Divider</th>-->
+                    <!--<td mat-cell *matCellDef="let row">-->
+                        <!--<mat-label></mat-label>-->
+                    <!--</td>-->
+                <!--</ng-container>-->
+                
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
@@ -103,6 +111,7 @@ export class DatasetTable {
         });
 
         this.store.pipe(select(selectResultAvailable), skip(1)).subscribe( _ =>  {
+            // this.displayedColumns.push('divider');
             this.displayedColumns.push('outValues');
             this.resultAvailable = true;
         })
