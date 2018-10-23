@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {
     ResolvedParameterDescriptor,
-    ParameterDescriptorJsonClass, ChoiceParameterDescriptor
+    ParameterDescriptorJsonClass,
 } from "../../models/parameters/ParameterDescriptor";
 import {Parameter} from "../../models/parameters/Parameter";
 import "./style/parameter-module-style.scss"

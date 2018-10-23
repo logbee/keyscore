@@ -104,8 +104,18 @@
   "FILTERCHOSERCOMPONENT": {
     "FILTERCHOOSER_TITLE": "Filter Chooser"
   },
+
   "PARAMETERCOMPONENT": {
-    "ISREQUIRED": "is required"
+    "ISREQUIRED": "is required."
+  },
+  "PARAMETERMAPCOMPONENT": {
+    "KEYREQUIRED": "Key is required.",
+    "DUPLICATE": "Mapping already added."
+  },
+  "PARAMETERLISTCOMPONENT": {
+    "NAMEOFFIELD":  "Name of field.",
+    "NAMEREQUIRED": "Fieldname is required.",
+    "NAMEDUPLICATE": "Fieldname already added."
   },
   "REFRESHCOMPONENT": {
     "OF": "Of"
@@ -130,9 +140,5 @@
     "503": "Keyscore was not able too process your request.",
     "0": "The url you requested was not valid.",
     "999": "This feature is not yet available"
-  },
-  "ALERT": {
-    "DUPLICATE": "Duplicate!",
-    "DUPLICATETEXT":"The value you tried to add already exists."
   }
 }

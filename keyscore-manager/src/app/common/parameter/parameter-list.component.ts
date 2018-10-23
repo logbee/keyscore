@@ -14,6 +14,10 @@ import {Parameter} from "../../models/parameters/Parameter";
                 <mat-icon>add_circle_outline</mat-icon>
             </button>
         </div>
+        <div fxLayout="row" fxLayoutGap="15px">
+            <mat-hint *ngIf="fieldNameEmpty" style="color: rgba(204,16,8,0.65);">{{'PARAMETERLISTCOMPONENT.NAMEREQUIRED' | translate}}</mat-hint>
+            <mat-hint *ngIf="duplicate" style="color: rgba(204,16,8,0.65);">{{'PARAMETERLISTCOMPONENT.NAMEDUPLICATE' | translate}}</mat-hint>
+        </div>
         <div (click)="onTouched()" *ngIf="parameterValues.length > 0">
             <div style="display: inline-block; margin: 10px"
                  *ngFor="let value of parameterValues;index as i">
@@ -24,9 +28,6 @@ import {Parameter} from "../../models/parameters/Parameter";
                     </mat-chip>
                 </mat-chip-list>
             </div>
-        </div>
-        <div *ngIf="this.duplicate" role="alert">
-            {{'ALERT.DUPLICATE' | translate}} {{'ALERT.DUPLICATETEXT' | translate}}
         </div>
     `,
     providers: [
@@ -44,7 +45,8 @@ export class ParameterList implements ControlValueAccessor,OnInit {
     @Input() public distinctValues = true;
     @Input() public parameter: Parameter;
     public parameterValues: string[] = [];
-    private duplicate: boolean = false;
+    private duplicate: boolean;
+    private fieldNameEmpty: boolean;
 
     public onChange = (elements: string[]) => {
         return;
@@ -88,21 +90,19 @@ export class ParameterList implements ControlValueAccessor,OnInit {
     }
 
     public addItem(value: string) {
-
-        if (!this.distinctValues || (this.distinctValues && !this.parameterValues.some((x) => x === value))) {
-            const newValues = Object.assign([], this.parameterValues);
-            newValues.push(value);
-            this.writeValue(newValues);
-        } else {
-            this.duplicate = true;
-            this.delay(2000).then( _ => {
+        if (value) {
+            if (!this.distinctValues || (this.distinctValues && !this.parameterValues.some((x) => x === value))) {
                 this.duplicate = false;
-            })
+                this.fieldNameEmpty = false;
+                const newValues = Object.assign([], this.parameterValues);
+                newValues.push(value);
+                this.writeValue(newValues);
+            } else {
+                this.duplicate = true;
+            }
+        } else {
+            this.fieldNameEmpty = true;
         }
 
-    }
-
-    private delay (ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms))
     }
 }

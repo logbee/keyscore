@@ -11,14 +11,20 @@ import {Parameter} from "../../models/parameters/Parameter";
             `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field class="half">
-                <input matInput #addItemInputKey type="text" placeholder="Key">
+                <input matInput #addItemInputKey type="text" placeholder="Key" value="">
             </mat-form-field>
+
             <mat-form-field class="half">
-                <input matInput #addItemInputValue type="text" placeholder="Value">
+                <input matInput #addItemInputValue type="text" placeholder="Value" value="">
             </mat-form-field>
             <button mat-icon-button color="accent" (click)="addItem(addItemInputKey.value,addItemInputValue.value)">
                 <mat-icon>add_circle_outline</mat-icon>
             </button>
+        </div>
+
+        <div fxLayout="row" fxLayoutGap="15px">
+            <mat-hint *ngIf="keyEmpty" style="color: rgba(204,16,8,0.65);">{{'PARAMETERMAPCOMPONENT.KEYREQUIRED' | translate}}</mat-hint>
+            <mat-hint *ngIf="duplicateMapping" style="color: rgba(204,16,8,0.65);">{{'PARAMETERMAPCOMPONENT.DUPLICATE' | translate}}</mat-hint>
         </div>
 
         <div (click)="onTouched()" *ngIf="parameterValues.length > 0">
@@ -47,6 +53,8 @@ export class ParameterMap implements ControlValueAccessor,OnInit {
     @Input() public parameter: Parameter;
 
     public parameterValues: Field[];
+    public keyEmpty: boolean;
+    public duplicateMapping: boolean;
 
     public onChange = (elements: Field[]) => {
         return;
@@ -93,14 +101,28 @@ export class ParameterMap implements ControlValueAccessor,OnInit {
     }
 
     public addItem(key: string, value: string) {
-        const newValues: Field[] = deepcopy(this.parameterValues,[]);
-        let existingIndex = newValues.findIndex(field => field.name === key);
-        if (existingIndex >= 0) {
-            (newValues[existingIndex].value as TextValue).value = value;
+        if (key) {
+            this.keyEmpty = false;
+            this.duplicateMapping = false;
+            const newValues: Field[] = deepcopy(this.parameterValues,[]);
+            let existingIndex = newValues.findIndex(field => field.name === key);
+            if (existingIndex >= 0) {
+                let currentVal = (newValues[existingIndex].value as TextValue).value;
+                if( currentVal !== value) {
+                    this.duplicateMapping = false;
+                    (newValues[existingIndex].value as TextValue).value = value;
+                } else {
+                    this.duplicateMapping = true;
+                }
+            } else {
+                console.log("Pushed new value: " + key +"/"+ value);
+                newValues.push({name: key, value: {jsonClass: ValueJsonClass.TextValue, value: value}});
+            }
+            this.writeValue(newValues);
         } else {
-            newValues.push({name: key, value: {jsonClass: ValueJsonClass.TextValue, value: value}});
+            this.keyEmpty = true;
         }
-        this.writeValue(newValues);
+
 
     }
 }
