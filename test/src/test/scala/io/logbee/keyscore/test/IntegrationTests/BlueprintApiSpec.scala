@@ -34,8 +34,8 @@ class BlueprintApiSpec extends Matchers {
   @CitrusTest
   def checkPipelineBlueprint(implicit @CitrusResource runner: TestRunner): Unit = {
 
-    val pipelineBlueprint = loadJson(K2KBlueprintsPath, JsonData.PipelineBlueprintPath)
-    val pipelineObject = loadK2KPipelineBlueprint
+    val pipelineBlueprint = loadJson(BLUEPRINTS, K2K, "pipelineBlueprint")
+    val pipelineObject = loadPipelineBlueprint(K2K, "pipelineBlueprint")
 
     putSinglePipelineBlueprint(pipelineObject, pipelineBlueprint)
     getSinglePipelineBlueprint(pipelineObject)
@@ -51,9 +51,8 @@ class BlueprintApiSpec extends Matchers {
   @CitrusTest
   def checkBlueprint(implicit @CitrusResource runner: TestRunner): Unit = {
 
-    val sourceBlueprint = loadJson(K2KBlueprintsPath, JsonData.SourceBlueprintPath)
-    val sourceObject = loadK2KSourceBlueprint
-
+    val sourceBlueprint = loadJson(BLUEPRINTS, K2K, "sourceBlueprint")
+    val sourceObject = loadSourceBlueprint(K2K, "sourceBlueprint")
 
     putSingleBlueprint(sourceObject, sourceBlueprint)
     getSingleBlueprint(sourceObject)

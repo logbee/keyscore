@@ -6,7 +6,7 @@ import io.logbee.keyscore.model.data.{Label, MetaData, TextValue}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
-import io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilterLogic
+import io.logbee.keyscore.pipeline.contrib.filter.{RemoveFieldsFilterLogic, RetainFieldsFilterLogic}
 import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.json4s.native.Serialization.writePretty
@@ -104,42 +104,123 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     )
   }
 
+  trait Workflow {
+
+    val kafkaSourceConfigurationRef = ConfigurationRef("2726cd82-3c85-4a25-91ef-97b13cfad8e6")
+    val kafkaSourceConfiguration = Configuration(kafkaSourceConfigurationRef,
+      parameters = Seq(
+        TextParameter(KafkaSourceLogic.serverParameter.ref, "keyscore-kafka"),
+        NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
+        TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
+        ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
+        TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicW1")
+      )
+    )
+
+    val retainFieldsConfigurationRef = ConfigurationRef("0584fc3f-b629-4b95-a5d4-ae87fdf01b77")
+    val retainFieldsConfiguration = Configuration(retainFieldsConfigurationRef,
+      parameters = Seq(
+        TextListParameter(RetainFieldsFilterLogic.fieldNamesParameter.ref, Seq("text1", "text2", "text3", "number1", "number2"))
+      )
+    )
+
+    val firstRemoveFieldsConfigurationRef = ConfigurationRef("dd87ea44-3cfa-4cda-8fc2-9f4869f54338")
+    val firstRemoveFieldsConfiguration = Configuration(firstRemoveFieldsConfigurationRef,
+      parameters = Seq(
+        FieldNameListParameter(RemoveFieldsFilterLogic.fieldsToRemoveParameter.ref, Seq("text1"))
+      ))
+
+    val secondRemoveFieldsConfigurationRef = ConfigurationRef("f60f7876-d4b2-4657-bd94-1164424804dc")
+    val secondRemoveFieldsConfiguration = Configuration(secondRemoveFieldsConfigurationRef,
+      parameters = Seq(
+        FieldNameListParameter(RemoveFieldsFilterLogic.fieldsToRemoveParameter.ref, Seq("text2", "number2"))
+      ))
+
+    val elasticSinkConfigurationRef = ConfigurationRef("7cce7c4c-c50e-49a8-b0fb-db2c45fb737b")
+    val elasticSinkConfiguration = Configuration(elasticSinkConfigurationRef,
+      parameters = Seq(
+        TextParameter(ElasticSearchSinkLogic.hostParameter.ref, "keyscore-elasticsearch"),
+        NumberParameter(ElasticSearchSinkLogic.portParameter.ref, 9200),
+        TextParameter(ElasticSearchSinkLogic.indexParameter.ref, "workflow")
+      )
+    )
+
+    val kafkaSourceBlueprint = SourceBlueprint(BlueprintRef("7bd47b18-547f-4752-9f5c-54028a6f5be0"), KafkaSourceLogic.describe.ref, kafkaSourceConfigurationRef)
+    val retainFieldsBlueprint = FilterBlueprint(BlueprintRef("f368c58c-db9a-43dc-8ccb-f495d29c441f"), RetainFieldsFilterLogic.describe.ref, retainFieldsConfigurationRef)
+    val firstRemoveFieldsBlueprint = FilterBlueprint(BlueprintRef("29c2942f-d098-46fc-a014-50ddc5277c0e"), RemoveFieldsFilterLogic.describe.ref, firstRemoveFieldsConfigurationRef)
+    val secondRemoveFieldsBlueprint = FilterBlueprint(BlueprintRef("921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"), RemoveFieldsFilterLogic.describe.ref, secondRemoveFieldsConfigurationRef)
+    val elasticSinkBlueprint = SinkBlueprint(BlueprintRef("3dfa3823-e202-4715-ad5d-0f81fc6efbc6"), ElasticSearchSinkLogic.describe.ref, elasticSinkConfigurationRef)
+
+    val workflowPipelineBlueprint = PipelineBlueprint(BlueprintRef("e49abe8a-6bf4-410f-8781-87b36db8168d"), Seq(
+      kafkaSourceBlueprint.ref,
+      retainFieldsBlueprint.ref,
+      firstRemoveFieldsBlueprint.ref,
+      secondRemoveFieldsBlueprint.ref,
+      elasticSinkBlueprint.ref),
+      metadata = MetaData(
+        Label("pipeline.name", TextValue("WorkflowPipeline")),
+        Label("pipeline.description", TextValue("Some meaningful description:"))
+      )
+    )
+  }
+
   "A running PipelineSupervisor" should {
 
     "Generate json files for KafkaToKafka" in new KafkaToKafka {
-//      println("KafkaToKafka Jsons")
-//      println(writePretty(sourceBluePrint))
-//      println(writePretty(sinkBluePrint))
-//      println(writePretty(filterBluePrint))
-//
-//      println(writePretty(pipelineBlueprint))
-//
-//      println(writePretty(sourceConfig))
-//      println(writePretty(sinkConfig))
-//      println(writePretty(removeFieldsFilterConfig))
-//
-//      println(writePretty(KafkaSinkLogic.describe))
-//      println(writePretty(KafkaSourceLogic.describe))
+      println("KafkaToKafka Jsons")
+      println(writePretty(sourceBluePrint))
+      println(writePretty(sinkBluePrint))
+      println(writePretty(filterBluePrint))
+
+      println(writePretty(pipelineBlueprint))
+
+      println(writePretty(sourceConfig))
+      println(writePretty(sinkConfig))
+      println(writePretty(removeFieldsFilterConfig))
+
+      println(writePretty(KafkaSinkLogic.describe))
+      println(writePretty(KafkaSourceLogic.describe))
       println(writePretty(RemoveFieldsFilterLogic.describe))
     }
 
-        "Generate json files KafkaToElastic" in new KafkaToElastic {
-        println("KafkaToElastic Jsons")
+    "Generate json files for KafkaToElastic" in new KafkaToElastic {
+      println("KafkaToElastic Jsons")
 
-          println(writePretty(sourceBluePrint))
-          println(writePretty(sinkBluePrint))
-          println(writePretty(filterBluePrint))
+      println(writePretty(sourceBluePrint))
+      println(writePretty(sinkBluePrint))
+      println(writePretty(filterBluePrint))
 
-          println(writePretty(pipelineBlueprint))
+      println(writePretty(pipelineBlueprint))
 
-          println(writePretty(sourceConfig))
-          println(writePretty(sinkConfig))
-          println(writePretty(removeFieldsFilterConfig))
+      println(writePretty(sourceConfig))
+      println(writePretty(sinkConfig))
+      println(writePretty(removeFieldsFilterConfig))
 
-          println(writePretty(KafkaSinkLogic.describe))
-          println(writePretty(KafkaSourceLogic.describe))
-          println(writePretty(RemoveFieldsFilterLogic.describe))
-        }
+      println(writePretty(KafkaSinkLogic.describe))
+      println(writePretty(KafkaSourceLogic.describe))
+      println(writePretty(RemoveFieldsFilterLogic.describe))
+    }
+
+    "Generate json files for Workflow" in new Workflow {
+      println("Workflow Jsons")
+      println("Blueprints")
+
+      println(writePretty(kafkaSourceBlueprint))
+      println(writePretty(retainFieldsBlueprint))
+      println(writePretty(firstRemoveFieldsBlueprint))
+      println(writePretty(secondRemoveFieldsBlueprint))
+      println(writePretty(elasticSinkBlueprint))
+
+      println(writePretty(workflowPipelineBlueprint))
+
+      println("Configurations")
+
+      println(writePretty(kafkaSourceConfiguration))
+      println(writePretty(retainFieldsConfiguration))
+      println(writePretty(firstRemoveFieldsConfiguration))
+      println(writePretty(secondRemoveFieldsConfiguration))
+      println(writePretty(elasticSinkConfiguration))
+    }
 
 
   }

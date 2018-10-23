@@ -45,8 +45,8 @@ class PipelineIntegrationTest extends Matchers {
   private val k2kFilterId = "24a88215-cfe0-47a1-a889-7f3e9f8260ef"
   private val k2eFilterId = "dc882c27-3de2-4603-b272-b35cf81080e2"
 
-  val k2kObject = loadK2KPipelineBlueprint
-  val k2eObject = loadK2EPipelineBlueprint
+  val k2kObject = loadPipelineBlueprint(K2K, "pipelineBlueprint")
+  val k2eObject = loadPipelineBlueprint(K2E, "pipelineBlueprint")
 
   val datasets = List(datasetMulti1, datasetMulti2)
   val datasetsSerialized = write(datasets)
@@ -62,7 +62,7 @@ class PipelineIntegrationTest extends Matchers {
     creatingKafkaToKafkaPipeline(runner)
     getSinglePipelineBlueprint(k2kObject)
 
-    //Kreate the second Pipeline: Kafka -> Elastic
+    //Create the second Pipeline: Kafka -> Elastic
     creatingKafkaToElasticPipeline(runner)
     getSinglePipelineBlueprint(k2eObject)
 
@@ -76,8 +76,8 @@ class PipelineIntegrationTest extends Matchers {
     checkFilterState(k2kFilterId, Green, Dismantled)
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
     Thread.sleep(2000)
-// TODO: #50
-//    extractDatsetsFromFilter(k2eFilterId,10, 0)
+    // TODO: #50
+    //    extractDatsetsFromFilter(k2eFilterId,10, 0)
 
     extractDatsetsFromFilter(k2kFilterId, 2, 2)
     extractDatsetsFromFilter(k2kFilterId, 5, 2)
@@ -85,15 +85,15 @@ class PipelineIntegrationTest extends Matchers {
     drainFilter(k2kFilterId, "false")
     checkFilterState(k2kFilterId, Green, Running)
     Thread.sleep(2000)
-// TODO: #50
-//    extractDatsetsFromFilter(k2eFilterId, 10, 0)
-//
+    // TODO: #50
+    //    extractDatsetsFromFilter(k2eFilterId, 10, 0)
+    
     //Test the Valves of the second Pipeline Filter
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
     Thread.sleep(1600)
     extractDatsetsFromFilter(k2eFilterId, 2, 2)
-//
-//    Wait until all Dataset are pushed to the Elastic index
+    
+    //    Wait until all Dataset are pushed to the Elastic index
     pollElasticElements(expect = 2) shouldBe true
 
     //Cleanup
@@ -105,67 +105,66 @@ class PipelineIntegrationTest extends Matchers {
 
   private def creatingKafkaToKafkaPipeline(implicit runner: TestRunner): TestAction = {
     //    1. sourceBlueprint
-    val sourceBlueprint = loadJson(K2KBlueprintsPath, SourceBlueprintPath)
-    val sourceObject = loadK2KSourceBlueprint
+    val sourceBlueprint = loadJson(BLUEPRINTS, K2K, "sourceBlueprint")
+    val sourceObject = loadSourceBlueprint(K2K, "sourceBlueprint")
     putSingleBlueprint(sourceObject, sourceBlueprint)
     //    2. sinkBlueprint
-    val sinkBlueprint = loadJson(K2KBlueprintsPath, SinkBlueprintPath)
-    val sinkObject = loadK2KSinkBlueprint
+    val sinkBlueprint = loadJson(BLUEPRINTS, K2K, "sinkBlueprint")
+    val sinkObject = loadSinkBlueprint(K2K, "sinkBlueprint")
     putSingleBlueprint(sinkObject, sinkBlueprint)
     //    3. filterBlueprint
-    val filterBlueprint = loadJson(K2KBlueprintsPath, FilterBlueprintPath)
-    val filterObject = loadK2KFilterBlueprint
+    val filterBlueprint = loadJson(BLUEPRINTS, K2K, "filterBlueprint")
+    val filterObject = loadFilterBlueprint(K2K, "filterBlueprint")
     putSingleBlueprint(filterObject, filterBlueprint)
     //    4. sourceConfiguration
-    val sourceConfiguration = loadJson(K2KConfigurationsPath, KafkaSourceConfigurationPath)
-    val sourceConfiugrationObject = loadK2KSourceConfiguration
+    val sourceConfiguration = loadJson(CONFIGURATIONS, K2K, "sourceConfig")
+    val sourceConfiugrationObject = loadConfiguration(K2K, "sourceConfig")
     putSingleConfiguration(sourceConfiugrationObject, sourceConfiguration)
     //    5. sinkConfiguration
-    val sinkConfiguration = loadJson(K2KConfigurationsPath, KafkaSinkConfigurationPath)
-    val sinkConfigurationObject = loadK2KSinkConfiguration
+    val sinkConfiguration = loadJson(CONFIGURATIONS, K2K, "sinkConfig")
+    val sinkConfigurationObject = loadConfiguration(K2K, "sinkConfig")
     putSingleConfiguration(sinkConfigurationObject, sinkConfiguration)
     //    6. filterConfiguration
-    val filterConfiguration = loadJson(K2KConfigurationsPath, FilterConfigurationPath)
-    val filterConfigurationObject = loadK2KFilterConfiguration
+    val filterConfiguration = loadJson(CONFIGURATIONS, K2K, "filterConfig")
+    val filterConfigurationObject = loadConfiguration(K2K, "filterConfig")
     putSingleConfiguration(filterConfigurationObject, filterConfiguration)
     //    7. pipelineBlueprint
-    val pipelineBlueprint = loadJson(K2KBlueprintsPath, PipelineBlueprintPath)
-    val pipelineObject = loadK2KPipelineBlueprint
+    val pipelineBlueprint = loadJson(BLUEPRINTS, K2K, "pipelineBlueprint")
+    val pipelineObject = loadPipelineBlueprint(K2K, "pipelineBlueprint")
     putSinglePipelineBlueprint(pipelineObject, pipelineBlueprint)
     //    8. startPipeline
     val pipelineRefString = write(pipelineObject.ref)
-    println("REf String ##################" + pipelineRefString)
     startPipeline(pipelineObject, pipelineRefString)
   }
 
   private def creatingKafkaToElasticPipeline(implicit runner: TestRunner): TestAction = {
     //    1. sourceBlueprint
-    val sourceBlueprint = loadJson(K2EBlueprintsPath, SourceBlueprintPath)
-    val sourceObject = loadK2ESourceBlueprint
+    val sourceBlueprint = loadJson(BLUEPRINTS, K2E, "sourceBlueprint")
+    val sourceObject = loadSourceBlueprint(K2E, "sourceBlueprint")
     putSingleBlueprint(sourceObject, sourceBlueprint)
     //    2. sinkBlueprint
-    val sinkBlueprint = loadJson(K2EBlueprintsPath, SinkBlueprintPath)
-    val sinkObject = loadK2ESinkBlueprint
+    val sinkBlueprint = loadJson(BLUEPRINTS, K2E, "sinkBlueprint")
+    val sinkObject = loadSinkBlueprint(K2E, "sinkBlueprint")
     putSingleBlueprint(sinkObject, sinkBlueprint)
     //    3. filterBlueprint
-    val filterBlueprint = loadJson(K2EBlueprintsPath, FilterBlueprintPath)
-    val filterObject = loadK2EFilterBlueprint
+    val filterBlueprint = loadJson(BLUEPRINTS, K2E, "filterBlueprint")
+    val filterObject = loadFilterBlueprint(K2E, "filterBlueprint")
     putSingleBlueprint(filterObject, filterBlueprint)
     //    4. sourceConfiguration
-    val sourceConfiguration = loadJson(K2EConfigurationsPath, KafkaSourceConfigurationPath)
-    val sourceConfiugrationObject = loadK2ESourceConfiguration
+    val sourceConfiguration = loadJson(CONFIGURATIONS, K2E, "sourceConfig")
+    val sourceConfiugrationObject = loadConfiguration(K2E, "sourceConfig")
     putSingleConfiguration(sourceConfiugrationObject, sourceConfiguration)
     //    5. sinkConfiguration
-    val sinkConfiguration = loadJson(K2EConfigurationsPath, KafkaSinkConfigurationPath)
-    val sinkConfigurationObject = loadK2ESinkConfiguration
+    val sinkConfiguration = loadJson(CONFIGURATIONS, K2E, "sinkConfig")
+    val sinkConfigurationObject = loadConfiguration(K2E, "sinkConfig")
     putSingleConfiguration(sinkConfigurationObject, sinkConfiguration)
     //    6. filterConfiguration
-    val filterConfiguration = loadJson(K2EConfigurationsPath, FilterConfigurationPath)
-    val filterConfigurationObject = loadK2EFilterConfiguration
+    val filterConfiguration = loadJson(CONFIGURATIONS, K2E, "filterConfig")
+    val filterConfigurationObject = loadConfiguration(K2E, "filterConfig")
     putSingleConfiguration(filterConfigurationObject, filterConfiguration)
     //    7. pipelineBlueprint
-    val pipelineBlueprint = loadJson(K2EBlueprintsPath, PipelineBlueprintPath)
-    val pipelineObject = loadK2EPipelineBlueprint
+    val pipelineBlueprint = loadJson(BLUEPRINTS, K2E, "pipelineBlueprint")
+    val pipelineObject = loadPipelineBlueprint(K2E, "pipelineBlueprint")
     putSinglePipelineBlueprint(pipelineObject, pipelineBlueprint)
     //    8. startPipeline
     val pipelineRefString = write(pipelineObject.ref)

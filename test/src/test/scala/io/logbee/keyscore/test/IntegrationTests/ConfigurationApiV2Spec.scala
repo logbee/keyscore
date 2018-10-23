@@ -51,7 +51,7 @@ class ConfigurationApiV2Spec extends Matchers {
   @CitrusTest
   def test_that_a_ConfigurationRef_is_respond_when_a_Configuration_is_committed(@CitrusResource runner: TestRunner): Unit = {
 
-    val sinkConfig = loadK2KSinkConfiguration
+    val sinkConfig = loadConfiguration(K2K, "sinkConfig")
 
     runner.http(action => action.client(frontierClient)
       .send()
