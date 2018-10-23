@@ -71,8 +71,8 @@ import {FilterControllerService} from "../services/rest-api/FilterController.ser
                         </button>
                     </td>
                 </ng-container>
-                <tr mat-header-row *matHeaderRowDef="['health', 'uuid', 'name', 'rerun']"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['health', 'uuid', 'name', 'rerun'];" (click)="editPipeline(row.uuid)"
+                <tr mat-header-row *matHeaderRowDef="['health', 'uuid', 'name']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['health', 'uuid', 'name'];" (click)="editPipeline(row.uuid)"
                     class="example-element-row cursor-pointer"></tr>
             </table>
         </div>

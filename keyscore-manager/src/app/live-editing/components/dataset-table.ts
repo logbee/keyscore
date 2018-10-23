@@ -53,12 +53,12 @@ import {
             </div>
             <!--Dataset Datatable-->
             <table fxFlex="" mat-table matSort [dataSource]="dataSource"
-                   class="mat-elevation-z8 table-position">
-                <ng-container matColumnDef="fields">
-                    <th class="field" mat-header-cell *matHeaderCellDef mat-sort-header>
+                   class="mat-elevation-z8 table-position live-editing">
+                <ng-container matColumnDef="fields">      
+                    <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header>
                         {{'FILTERLIVEEDITINGCOMPONENT.FIELDS' | translate}}
                     </th>
-                    <td mat-cell *matCellDef="let row"
+                    <td mat-cell class="text-padding" *matCellDef="let row"
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
                         [class.highlight-unchanged]="row.output.change === 'unchanged'"
@@ -67,10 +67,10 @@ import {
                 </ng-container>
 
                 <ng-container matColumnDef="inValues">
-                    <th class="input" mat-header-cell *matHeaderCellDef mat-sort-header>
+                    <th  mat-header-cell class="text-padding" *matHeaderCellDef mat-sort-header>
                         {{'FILTERLIVEEDITINGCOMPONENT.INPUT' | translate}}
                     </th>
-                    <td mat-cell *matCellDef="let row"
+                    <td mat-cell class="cell-border" *matCellDef="let row"
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
                         [class.highlight-unchanged]="row.output.change === 'unchanged'"
@@ -80,10 +80,10 @@ import {
                 </ng-container>
 
                 <ng-container matColumnDef="outValues">
-                    <th class="output" mat-header-cell *matHeaderCellDef mat-sort-header>
+                    <th mat-header-cell class="text-padding" *matHeaderCellDef mat-sort-header>
                         {{'FILTERLIVEEDITINGCOMPONENT.OUTPUT' | translate}}
                     </th>
-                    <td mat-cell *matCellDef="let row"
+                    <td mat-cell class="cell-border" *matCellDef="let row" 
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
                         [class.highlight-unchanged]="row.output.change === 'unchanged'"
@@ -94,10 +94,10 @@ import {
                 </ng-container>
 
                 <ng-container matColumnDef="jsonClass">
-                    <th class="type" mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 15%">
+                    <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 15%">
                         ValueType
                     </th>
-                    <td mat-cell *matCellDef="let row"
+                    <td mat-cell class="text-padding" *matCellDef="let row"
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
                         [class.highlight-unchanged]="row.output.change === 'unchanged'"

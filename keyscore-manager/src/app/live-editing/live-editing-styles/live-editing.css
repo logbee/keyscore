@@ -38,3 +38,27 @@ configurator {
     margin-right: 15px!important;
     margin-top: 15px!important;
 }
+
+/*-----custom-table-overrides-live-editing---------*/
+table.mat-table.live-editing {
+    overflow: auto;
+}
+th.mat-header-cell.text-padding {
+    padding-left: 15px!important;
+
+}
+td.mat-cell.cell-border {
+    border-left: 2px solid rgba(128, 128, 128, 0.76) !important;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+th.mat-header-cell.cell-border {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+td.mat-cell.text-padding {
+    padding-left: 15px;
+    padding-right: 15px;
+}

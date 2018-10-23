@@ -68,17 +68,7 @@ tr:hover {
 }
 
 /*-----------------table-styles-------------------*/
-table.mat-table {
-    border-spacing: 50px;
-}
 
-tr.mat-header-row {
-    background-color: rgba(98, 99, 97, 0.3) !important;
-}
-
-tr.mat-header-cell {
-    width: fit-content;
-}
 .preset-margin {
     margin-right: 15px;
 }
