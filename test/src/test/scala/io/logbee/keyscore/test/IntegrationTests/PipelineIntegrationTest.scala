@@ -14,7 +14,7 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.model.{Green, Health, PipelineInstance}
-import io.logbee.keyscore.test.fixtures.ExampleData.{dataset1, dataset2, dataset3, datasetMulti1, datasetMulti2}
+import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1, datasetMulti2}
 import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
@@ -171,15 +171,14 @@ class PipelineIntegrationTest extends Matchers {
     startPipeline(pipelineObject, pipelineRefString)
   }
 
-  def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
+  def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
     log.debug(s"Reached PUT PipelineBlueprint for ${pipelineObject.ref.uuid}")
-    pipelineBlueprintsCount = pipelineBlueprintsCount + 1
 
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
       .contentType("application/json")
-      .payload(pipelineConfig)
+      .payload(pipelineJSON)
     )
 
     runner.http(action => action.client(frontierClient)
@@ -189,14 +188,14 @@ class PipelineIntegrationTest extends Matchers {
 
   }
 
-  def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineConfig: String)(implicit runner: TestRunner): TestAction = {
+  def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
     log.debug(s"Reached PUT Blueprint")
 
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/blueprint/${blueprintObject.blueprintRef.uuid}")
       .contentType("application/json")
-      .payload(pipelineConfig)
+      .payload(pipelineJSON)
     )
 
     runner.http(action => action.client(frontierClient)
@@ -205,20 +204,32 @@ class PipelineIntegrationTest extends Matchers {
     )
   }
 
-  def putSingleConfiguration(configurationObject: Configuration, sinkConfig: String)(implicit runner: TestRunner): TestAction = {
+  def putSingleConfiguration(configurationObject: Configuration, configurationJSON: String)(implicit runner: TestRunner): TestAction = {
     log.debug(s"Reached PUT Configuraiton for ${configurationObject.ref.uuid}")
 
     runner.http(action => action.client(frontierClient)
       .send()
       .put(s"/resources/configuration/${configurationObject.ref.uuid}")
       .contentType("application/json")
-      .payload(sinkConfig)
+      .payload(configurationJSON)
     )
 
     runner.http(action => action.client(frontierClient)
       .receive()
       .response(HttpStatus.CREATED)
     )
+  }
+
+  def startPipeline(pipelineObject: PipelineBlueprint, pipelineID: String)(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Start Pipeline for ${pipelineObject.ref.uuid}")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .put(s"/pipeline/blueprint")
+      .contentType("application/json")
+      .payload(pipelineID)
+    )
+
   }
 
   def getAllPipelineBlueprints(expected: Int)(implicit runner: TestRunner): TestAction = {
@@ -284,19 +295,6 @@ class PipelineIntegrationTest extends Matchers {
     runner.http(action => action.client(frontierClient)
       .receive()
       .response(HttpStatus.OK))
-
-  }
-
-  def startPipeline(pipelineObject: PipelineBlueprint, pipelineRef: String)(implicit runner: TestRunner): TestAction = {
-    log.debug(s"Reached Start Pipeline for ${pipelineObject.ref.uuid}")
-    pipelineCount = pipelineCount + 1
-
-    runner.http(action => action.client(frontierClient)
-      .send()
-      .put(s"/pipeline/blueprint")
-      .contentType("application/json")
-      .payload(pipelineRef)
-    )
 
   }
 

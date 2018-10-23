@@ -1,0 +1,19 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"dd87ea44-3cfa-4cda-8fc2-9f4869f54338",
+    "revision":"",
+    "ancestor":""
+  },
+  "parameters":[
+    {
+      "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameListParameter",
+      "ref":{
+        "id":"removeFields.fieldsToRemove"
+      },
+      "value":[
+        "text1"
+      ]
+    }
+  ]
+}

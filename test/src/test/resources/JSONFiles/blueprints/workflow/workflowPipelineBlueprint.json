@@ -1,0 +1,44 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.blueprint.PipelineBlueprint",
+  "ref":{
+    "uuid":"e49abe8a-6bf4-410f-8781-87b36db8168d"
+  },
+  "blueprints":[
+    {
+      "uuid":"7bd47b18-547f-4752-9f5c-54028a6f5be0"
+    },
+    {
+      "uuid":"f368c58c-db9a-43dc-8ccb-f495d29c441f"
+    },
+    {
+      "uuid":"29c2942f-d098-46fc-a014-50ddc5277c0e"
+    },
+    {
+      "uuid":"921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"
+    },
+    {
+      "uuid":"3dfa3823-e202-4715-ad5d-0f81fc6efbc6"
+    }
+  ],
+  "metadata":{
+    "jsonClass":"io.logbee.keyscore.model.data.MetaData",
+    "labels":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
+        "name":"pipeline.name",
+        "value":{
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"WorkflowPipeline"
+        }
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
+        "name":"pipeline.description",
+        "value":{
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"Some meaningful description:"
+        }
+      }
+    ]
+  }
+}
