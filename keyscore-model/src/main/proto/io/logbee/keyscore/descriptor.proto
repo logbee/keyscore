@@ -41,6 +41,7 @@ message FilterDescriptor {
     InputDescriptor in = 9;
     OutputDescriptor out = 10;
     Icon icon = 13;
+    Maturity maturity = 14;
 }
 
 message SourceDescriptor {
@@ -51,6 +52,7 @@ message SourceDescriptor {
     repeated ParameterDescriptor parameters = 8;
     OutputDescriptor out = 9;
     Icon icon = 13;
+    Maturity maturity = 14;
 }
 
 message SinkDescriptor {
@@ -61,6 +63,7 @@ message SinkDescriptor {
     repeated ParameterDescriptor parameters = 8;
     InputDescriptor in = 9;
     Icon icon = 13;
+    Maturity maturity = 14;
 }
 
 message BranchDescriptor {
@@ -73,6 +76,7 @@ message BranchDescriptor {
     OutputDescriptor left = 10;
     OutputDescriptor right = 11;
     Icon icon = 13;
+    Maturity maturity = 14;
 }
 
 message MergeDescriptor {
@@ -85,6 +89,7 @@ message MergeDescriptor {
     InputDescriptor right = 10;
     OutputDescriptor out = 11;
     Icon icon = 13;
+    Maturity maturity = 14;
 }
 
 message ParameterRef {
@@ -301,6 +306,14 @@ enum IconFormat {
 enum IconEncoding {
     RAW = 0;
     Base64 = 1;
+}
+
+enum Maturity {
+    None = 0;
+    Official = 1;
+    Stable = 2;
+    Development = 3;
+    Experimental = 4;
 }
 
 message InputDescriptor {

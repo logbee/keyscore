@@ -1,19 +1,20 @@
-package io.logbee.keyscore.pipeline.contrib.filter
+package io.logbee.keyscore.pipeline.contrib.filter.textmutator
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.{Configuration, DirectiveConfiguration}
-import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.model.data.FieldValueType.Text
+import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
+import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor.ToDescriptorRef.stringToDescriptorRef
 import io.logbee.keyscore.model.descriptor.{ParameterGroupDescriptor, _}
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import io.logbee.keyscore.pipeline.api.directive.{FieldDirective, FieldDirectiveSequence}
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
-import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.TextMutatorLogic.{directiveSequence, findAndReplaceDirective, toTimestampDirective, trimDirective}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, FIELDS}
+import io.logbee.keyscore.pipeline.contrib.filter.textmutator.TextMutatorLogic.{findAndReplaceDirective, toTimestampDirective, trimDirective}
 
 import scala.Int.MaxValue
 import scala.collection.mutable
@@ -125,14 +126,15 @@ object TextMutatorLogic extends Described {
   override def describe = Descriptor(
     ref = "bf9c0ff2-64d5-44ed-9957-8128a50ab567",
     describes = FilterDescriptor(
-      name = classOf[LoggerFilter].getName,
+      name = classOf[TextMutatorLogic].getName,
       displayName = TextRef("textmutator.displayName"),
       description = TextRef("textmutator.description"),
-      categories = Seq(CommonCategories.FIELDS),
-      parameters = Seq(directiveSequence)
+      categories = Seq(FIELDS),
+      parameters = Seq(directiveSequence),
+      maturity = Experimental
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.TextMutatorLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.textmutator.TextMutatorLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
@@ -140,7 +142,7 @@ object TextMutatorLogic extends Described {
 
 class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  var sequences = Seq.empty[FieldSequence]
+  var sequences = Seq.empty[FieldDirectiveSequence[FieldDirective]]
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -148,9 +150,9 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   override def configure(configuration: Configuration): Unit = {
 
-    sequences = configuration.getValueOrDefault(directiveSequence, Seq.empty).map(sequence => {
+    sequences = configuration.getValueOrDefault(TextMutatorLogic.directiveSequence, Seq.empty).map(sequence => {
 
-      val directives: Seq[TextMutatorDirective] = sequence.directives.map {
+      val directives: Seq[FieldDirective] = sequence.directives.map {
         case DirectiveConfiguration(toTimestampDirective.ref, parameters, order) =>
           val timestampPattern = parameters.getValueOrDefault(TextMutatorLogic.toTimestampPattern, "")
           ToTimestampDirective(timestampPattern)
@@ -162,7 +164,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
           TrimDirective()
       }
 
-      FieldSequence(sequence.fieldName, directives)
+      FieldDirectiveSequence(sequence.fieldName, directives)
     })
   }
 
@@ -178,7 +180,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
             record.update(_.fields := record.fields.map {
               case field@Field(sequence.fieldName, TextValue(_)) =>
                 sequence.directives.foldLeft(field) { case (field, directive) =>
-                  directive.process(field)
+                  directive.invoke(field)
                 }
               case field => field
             })
@@ -193,33 +195,4 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
   override def onPull(): Unit = {
     pull(in)
   }
-
-  case class FieldSequence(fieldName: String, directives: Seq[TextMutatorDirective])
-
-  trait TextMutatorDirective {
-    def process(field: Field): Field
-  }
-
-  case class TrimDirective() extends TextMutatorDirective {
-    def process(field: Field): Field = {
-      field match {
-        case Field(name, TextValue(value)) =>
-          Field(name, TextValue(value.trim))
-        case _ => field
-      }
-    }
-  }
-
-  case class FindReplaceDirective(find: String, replace: String) extends TextMutatorDirective {
-    def process(field: Field): Field = {
-      field
-    }
-  }
-
-  case class ToTimestampDirective(pattern: String) extends TextMutatorDirective {
-    def process(field: Field): Field = {
-      field
-    }
-  }
-
 }
