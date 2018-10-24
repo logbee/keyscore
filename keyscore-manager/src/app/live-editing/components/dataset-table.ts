@@ -34,27 +34,13 @@ import {
                 </navigation-control>
             </div>
             <div *ngIf="resultAvailable" fxFlex="4" class="preset-margin">
-                <div fxLayout="row" fxFlexFill="" fxLayoutGap="15px" fxLayoutAlign="end">
-                    <button matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_IN' | translate}}" fxFlex="1"
-                            mat-icon-button (click)="changeViewPreset('showOnlyInput')">
-                        <mat-icon>border_left</mat-icon>
-                    </button>
+                <filter-presets (preset)="adjustDisplayedColumns($event)"></filter-presets>
 
-                    <button matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_ALL' | translate}}" fxFlex="1"
-                            mat-icon-button (click)="changeViewPreset('showEverything')">
-                        <mat-icon>border_vertical</mat-icon>
-                    </button>
-
-                    <button matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_OUT' | translate}}" fxFlex="1"
-                            mat-icon-button (click)="changeViewPreset('showOnlyOutput')">
-                        <mat-icon>border_right</mat-icon>
-                    </button>
-                </div>
             </div>
             <!--Dataset Datatable-->
             <table fxFlex="" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position live-editing">
-                <ng-container matColumnDef="fields">      
+                <ng-container matColumnDef="fields">
                     <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header>
                         {{'FILTERLIVEEDITINGCOMPONENT.FIELDS' | translate}}
                     </th>
@@ -67,7 +53,7 @@ import {
                 </ng-container>
 
                 <ng-container matColumnDef="inValues">
-                    <th  mat-header-cell class="text-padding" *matHeaderCellDef mat-sort-header>
+                    <th mat-header-cell class="text-padding" *matHeaderCellDef mat-sort-header>
                         {{'FILTERLIVEEDITINGCOMPONENT.INPUT' | translate}}
                     </th>
                     <td mat-cell class="cell-border" *matCellDef="let row"
@@ -83,7 +69,7 @@ import {
                     <th mat-header-cell class="text-padding" *matHeaderCellDef mat-sort-header>
                         {{'FILTERLIVEEDITINGCOMPONENT.OUTPUT' | translate}}
                     </th>
-                    <td mat-cell class="cell-border" *matCellDef="let row" 
+                    <td mat-cell class="cell-border" *matCellDef="let row"
                         [class.highlight-added]="row.input.change === 'added'"
                         [class.highlight-modified]="row.output.change === 'modified'"
                         [class.highlight-unchanged]="row.output.change === 'unchanged'"
@@ -135,7 +121,6 @@ export class DatasetTable {
         });
 
         this.store.pipe(select(selectResultAvailable), skip(1)).subscribe(_ => {
-            // this.displayedColumns.push('divider');
             this.displayedColumns.push('outValues');
             this.resultAvailable = true;
         })
@@ -156,7 +141,21 @@ export class DatasetTable {
         this.recordsIndex.next(count)
     }
 
-    accessFieldValues(valueObject: Value): any {
+    private adjustDisplayedColumns(value: string) {
+        switch (value) {
+            case "showOnlyInput":
+                this.displayedColumns = ['jsonClass', 'fields', 'inValues'];
+                break;
+            case "showEverything":
+                this.displayedColumns = ['jsonClass', 'fields', 'inValues', 'outValues'];
+                break;
+            case "showOnlyOutput":
+                this.displayedColumns = ['jsonClass', 'fields', 'outValues'];
+                break;
+        }
+    }
+    // noinspection JSMethodCanBeStatic
+    private accessFieldValues(valueObject: Value): any {
         if (!valueObject) {
             return "No output yet!"
         } else {
@@ -184,20 +183,6 @@ export class DatasetTable {
                     return "Unknown Type";
                 }
             }
-        }
-    }
-
-    changeViewPreset(value: string) {
-        switch (value) {
-            case "showOnlyInput":
-                this.displayedColumns = ['jsonClass', 'fields', 'inValues'];
-                break;
-            case "showEverything":
-                this.displayedColumns = ['jsonClass', 'fields', 'inValues', 'outValues'];
-                break;
-            case "showOnlyOutput":
-                this.displayedColumns = ['jsonClass', 'fields', 'outValues'];
-                break;
         }
     }
 }
