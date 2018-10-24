@@ -173,6 +173,7 @@ class PipelineIntegrationTest extends Matchers {
 
   def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
     log.debug(s"Reached PUT PipelineBlueprint for ${pipelineObject.ref.uuid}")
+    pipelineBlueprintsCount = pipelineBlueprintsCount + 1
 
     runner.http(action => action.client(frontierClient)
       .send()
@@ -222,6 +223,7 @@ class PipelineIntegrationTest extends Matchers {
 
   def startPipeline(pipelineObject: PipelineBlueprint, pipelineID: String)(implicit runner: TestRunner): TestAction = {
     log.debug(s"Start Pipeline for ${pipelineObject.ref.uuid}")
+    pipelineCount = pipelineCount + 1
 
     runner.http(action => action.client(frontierClient)
       .send()
