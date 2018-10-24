@@ -1,8 +1,10 @@
 package io.logbee.keyscore.model
 
+import io.logbee.keyscore.model.data.FieldValueType.Text
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ExpressionType.Grok
 import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, PresentField}
+import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
@@ -10,6 +12,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
+import scala.Int.MaxValue
 import scala.io.Source
 
 
@@ -24,8 +27,8 @@ class DescriptorSpec extends FreeSpec with Matchers {
   "A Dataset" - {
     "should" in {
 
-      val EN = java.util.Locale.ENGLISH// Locale("en")
-      val DE = java.util.Locale.GERMAN //Locale("de")
+      val EN = java.util.Locale.ENGLISH
+      val DE = java.util.Locale.GERMAN
 
       val filterDisplayName = TextRef("displayName")
       val filterDescription = TextRef("description")
@@ -49,6 +52,37 @@ class DescriptorSpec extends FreeSpec with Matchers {
 
       val fieldParameter = FieldParameterDescriptor("example.filter.aConstField", defaultName = "message", hint = AbsentField, fieldValueType = FieldValueType.Text, mandatory = true)
 
+      val directiveDescriptor = FieldDirectiveDescriptor(
+        ref = DirectiveRef("dea6e8a9-7bf9-4af5-a049-fc9a567ab3b4"),
+        info = ParameterInfo(
+          displayName = "directive.displayName",
+          description = "directive.description"
+        ),
+        parameters = Seq(
+          TextParameterDescriptor(
+            ref = "directive.pattern",
+            info = ParameterInfo(
+              displayName = "directive.pattern.displayName",
+              description = "directive.pattern.description"
+            ),
+            mandatory = true
+          )
+        )
+      )
+
+      val directiveSequenceParameter = FieldDirectiveSequenceParameterDescriptor(
+        ref = "directiveSequence",
+        info = ParameterInfo(
+          displayName = "directiveSequence.displayName",
+          description = "directiveSequence.description"
+        ),
+        fieldTypes = Seq(Text),
+        parameters = Seq(textParameter),
+        directives = Seq(directiveDescriptor),
+        minSequences = 1,
+        maxSequences = MaxValue
+      )
+
       val descriptor = Descriptor(
         ref = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
         describes = FilterDescriptor(
@@ -58,13 +92,14 @@ class DescriptorSpec extends FreeSpec with Matchers {
           categories = Seq(category),
           parameters = Seq(textParameter, booleanParameter, choiceParameter, fieldParameter,
             ParameterGroupDescriptor(condition = BooleanParameterCondition(booleanParameterRef, negate = true), parameters = Seq(
-              patternParameter,
+              patternParameter, directiveSequenceParameter,
               FieldNameListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
                 ParameterInfo("listParameterDisplayName", "listParameterDescription"),
                 FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*", ExpressionType.RegEx)),
                 min = 1, max = Int.MaxValue)
             ))
           ),
+          maturity = Experimental,
           icon = Icon.fromResource("/example-icon.svg")
         ),
         localization = Localization.fromJavaMapping(

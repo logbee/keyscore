@@ -21,6 +21,7 @@ object KeyscoreTypeHints {
     classOf[SourceBlueprint],
     classOf[Parameter],
     classOf[ParameterDescriptor],
+    classOf[FieldDirectiveDescriptor],
     classOf[ParameterGroupCondition],
     classOf[FilterStatus],
     classOf[Health],
