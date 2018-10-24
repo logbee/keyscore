@@ -21,7 +21,7 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
         });
 
         this.filterPredicate = (datasetModel: DatasetTableRowModel, filter: string) => {
-            let searchString = filter.trim().toLowerCase();
+            let searchString = filter.trim();
             return this.filterAccessingRules(datasetModel, searchString);
         };
 
@@ -48,20 +48,24 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     }
 
     private filterAccessingRules(datasetModel: DatasetTableRowModel, searchString) {
-        return datasetModel.input.name.includes(searchString) ||
-            datasetModel.input.value.jsonClass.toLowerCase().includes(searchString) ||
+        console.log("searchstring is: ", searchString + "name is: " + datasetModel.input.name);
+        return datasetModel.input.name.includes(searchString) || datasetModel.input.name.includes(searchString.toLowerCase()) ||
+            datasetModel.input.value.jsonClass.toLowerCase().includes(searchString.toLowerCase()) ||
             this.accessFieldValues(datasetModel.input.value).includes(searchString) ||
-            datasetModel.output.name.includes(searchString) ||
-            datasetModel.output.value.jsonClass.toLowerCase().includes(searchString) ||
-            this.accessFieldValues(datasetModel.output.value).includes(searchString);
+            this.accessFieldValues((datasetModel.input.value)).includes(searchString.toLowerCase()) ||
+            datasetModel.output.name.includes(searchString) || datasetModel.output.name.includes(searchString.toLowerCase()) ||
+            datasetModel.output.value.jsonClass.toLowerCase().includes(searchString.toLowerCase()) ||
+            this.accessFieldValues(datasetModel.output.value).includes(searchString) || this.accessFieldValues(datasetModel.output.value).includes(searchString.toLowerCase()) ||
+            this.accessFieldValues(datasetModel.output.value).toUpperCase().includes(searchString);
     }
 
     accessFieldValues(valueObject: Value): string {
         switch (valueObject.jsonClass) {
             case ValueJsonClass.BooleanValue: {
-                return (valueObject as BooleanValue).value.toString();
+                               return (valueObject as BooleanValue).value.toString();
             }
             case ValueJsonClass.TextValue: {
+                console.log("returning :", (valueObject as TextValue).value);
                 return (valueObject as TextValue).value;
             }
             case ValueJsonClass.NumberValue: {
@@ -75,9 +79,6 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
             }
             case ValueJsonClass.DecimalValue: {
                 return (valueObject as DecimalValue).value.toString();
-            }
-            default: {
-                return "Unknown Type";
             }
         }
     }
