@@ -104,7 +104,6 @@
   "FILTERCHOSERCOMPONENT": {
     "FILTERCHOOSER_TITLE": "Filter Chooser"
   },
-
   "PARAMETERCOMPONENT": {
     "ISREQUIRED": "is required."
   },
@@ -113,7 +112,7 @@
     "DUPLICATE": "Mapping already added."
   },
   "PARAMETERLISTCOMPONENT": {
-    "NAMEOFFIELD":  "Name of field.",
+    "NAMEOFFIELD": "Name of field.",
     "NAMEREQUIRED": "Fieldname is required.",
     "NAMEDUPLICATE": "Fieldname already added."
   },
@@ -125,9 +124,9 @@
     "GERMAN": "German",
     "ENGLISH": "English"
   },
-  "PIPELY":{
-    "SAVE_SUCCESS":"The pipeline was saved successfully",
-    "SAVE_FAILURE":"An error occurred while saving your pipeline. ",
+  "PIPELY": {
+    "SAVE_SUCCESS": "The pipeline was saved successfully",
+    "SAVE_FAILURE": "An error occurred while saving your pipeline. ",
     "TEST_TOOLTIP": "Tests the configuration",
     "REVERT_TOOLTIP": "Reverts your applied configuration.",
     "RESET_TOOLTIP": "Restore current configuration",
@@ -140,5 +139,10 @@
     "503": "Keyscore was not able too process your request.",
     "0": "The url you requested was not valid.",
     "999": "This feature is not yet available"
+  },
+  "NAVIGATION_CONTROL": {
+    "MOVE_LEFT": "Previous Dataset.",
+    "MOVE_RIGHT": "Next Dataset.",
+    "SWIPE": "Swipe through extracted Datasets."
   }
 }

@@ -105,7 +105,6 @@
   "FILTERCHOSERCOMPONENT": {
     "FILTERCHOOSER_TITLE": "Filter Auswahl"
   },
-
   "PARAMETERCOMPONENT": {
     "ISREQUIRED": "wird benötigt."
   },
@@ -114,7 +113,7 @@
     "DUPLICATE": "Paar bereits hinzugefügt."
   },
   "PARAMETERLISTCOMPONENT": {
-    "NAMEOFFIELD":  "Name des Feldes.",
+    "NAMEOFFIELD": "Name des Feldes.",
     "NAMEREQUIRED": "Feldname wird benötigt.",
     "NAMEDUPLICATE": "Feldname bereits hinzugefügt."
   },
@@ -141,5 +140,10 @@
     "0": "Die angegebene Url ist nicht valide.",
     "503": "Keyscore konnte die Anfrage leider  nicht erfüllen.",
     "999": "Dieses Feature ist nocht nicht verfügbar"
+  },
+  "NAVIGATION_CONTROL": {
+    "MOVE_LEFT": "Vorherige Nachricht.",
+    "MOVE_RIGHT": "Nächste Nachricht.",
+    "SWIPE": "Auswahl der extrahierten Nachrichten."
   }
 }

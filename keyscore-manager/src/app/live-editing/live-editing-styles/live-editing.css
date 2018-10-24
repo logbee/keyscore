@@ -6,6 +6,10 @@
     margin: 15px ;
     box-sizing: border-box;
 }
+
+.marginForNavigationControl {
+    margin-top: 15px;
+}
 .configurator-wrapper{
     position:relative;
     max-width: 100%;

@@ -28,13 +28,13 @@ import {
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
                 </mat-form-field>
 
-                <navigation-control [index]="index.getValue()"
+                <navigation-control class="marginForNavigationControl" [index]="index.getValue()"
                                     [length]="(datasets$ | async).length"
-                                    (counterEvent)="updateCounter($event)" fxFlex="">
+                                    (counterEvent)="updateCounter($event)" fxLayoutAlign="end" fxFlex="">
                 </navigation-control>
             </div>
-            <div *ngIf="resultAvailable" fxFlex="4" class="preset-margin">
-                <filter-presets (preset)="adjustDisplayedColumns($event)"></filter-presets>
+            <div fxFlex="5" class="preset-margin">
+                <filter-presets  *ngIf="resultAvailable" (preset)="adjustDisplayedColumns($event)"></filter-presets>
 
             </div>
             <!--Dataset Datatable-->

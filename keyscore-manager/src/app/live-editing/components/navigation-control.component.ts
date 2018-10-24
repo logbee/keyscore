@@ -3,10 +3,10 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 @Component({
     selector: "navigation-control",
     template: `
-        <div fxFlexFill="" fxLayout="row" fxLayoutGap="15px">
-            <mat-icon (click)="navigateDatasetsToLeft()">chevron_left</mat-icon>
-            <div>{{index + 1}} / {{length}}</div>
-            <mat-icon (click)="navigateDatasetsToRight()">chevron_right</mat-icon>
+        <div fxFlexFill="" style="cursor: pointer;" fxLayoutAlign="end" fxLayout="row" fxLayoutGap="15px">
+            <mat-icon matTooltip="{{'NAVIGATION_CONTROL.MOVE_LEFT' | translate}}" (click)="navigateDatasetsToLeft()">chevron_left</mat-icon>
+            <div matTooltip="{{'NAVIGATION_CONTROL.SWIPE' | translate}}">{{index + 1}} / {{length}}</div>
+            <mat-icon matTooltip="{{'NAVIGATION_CONTROL.MOVE_RIGHT' | translate}}" (click)="navigateDatasetsToRight()">chevron_right</mat-icon>
         </div>
     `
 })
