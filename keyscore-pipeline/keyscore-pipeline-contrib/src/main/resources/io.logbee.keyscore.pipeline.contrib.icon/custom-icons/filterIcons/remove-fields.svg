@@ -1,0 +1,19 @@
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 viewBox="0 0 64.875 76.25" overflow="visible" enable-background="new 0 0 64.875 76.25" xml:space="preserve">
+<g>
+	<g id="XMLID_1_">
+		<g>
+			<path fill="none" stroke="#FFFFFF" stroke-width="2" d="M60.539,51.5v11.07c0,7-5.041,12.68-11.262,12.68H8.924
+				c-6.222,0-11.261-5.68-11.261-12.68V13.68C-2.337,6.68,2.702,1,8.924,1h31.673l19.941,27.74v7.448"/>
+		</g>
+	</g>
+	<polyline fill="none" stroke="#FFFFFF" stroke-width="2" points="39.289,1 39.789,28.375 60.539,28.745 	"/>
+	<path fill="none" stroke="#FFFFFF" stroke-width="2" d="M60.539,36.75"/>
+	<line fill="none" stroke="#FFFFFF" x1="57.842" y1="44.104" x2="64.275" y2="44.104"/>
+	<rect x="3.486" y="33.792" fill="none" stroke="#FFFFFF" width="37.198" height="4.25"/>
+	<rect x="3.42" y="41.792" fill="none" stroke="#FFFFFF" width="37.199" height="4.25"/>
+	<rect x="3.437" y="49.292" fill="none" stroke="#FFFFFF" width="37.198" height="4.25"/>
+	<rect x="3.371" y="57.292" fill="none" stroke="#FFFFFF" width="37.199" height="4.25"/>
+	<circle fill="none" stroke="#FFFFFF" cx="60.88" cy="43.858" r="5.333"/>
+</g>
+</svg>

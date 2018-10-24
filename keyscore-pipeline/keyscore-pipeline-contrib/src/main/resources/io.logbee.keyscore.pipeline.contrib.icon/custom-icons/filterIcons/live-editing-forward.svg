@@ -1,0 +1,12 @@
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 viewBox="0 0 74.846 54.979" overflow="visible" enable-background="new 0 0 74.846 54.979" xml:space="preserve">
+<g>
+	<line fill="none" stroke="#3F3F3F" stroke-width="2" x1="0.246" y1="26.758" x2="72.335" y2="26.758"/>
+	<polyline fill="none" stroke="#3F3F3F" stroke-width="2" points="63.59,17.643 68.594,22.16 73.598,26.677 68.594,31.19 
+		63.59,35.708 	"/>
+	<rect x="21.807" y="2.997" fill="none" width="25.464" height="17.803"/>
+	<text transform="matrix(1 0 0 1 21.8064 19.7483)" fill="#3F3F3F" font-family="'Myriad-Italic'" font-size="23.5933">IN</text>
+	<rect x="9.097" y="32.33" fill="none" width="43.491" height="17.803"/>
+	<text transform="matrix(1 0 0 1 9.0974 49.0813)" fill="#3F3F3F" font-family="'Myriad-Italic'" font-size="23.5933">OUT</text>
+</g>
+</svg>

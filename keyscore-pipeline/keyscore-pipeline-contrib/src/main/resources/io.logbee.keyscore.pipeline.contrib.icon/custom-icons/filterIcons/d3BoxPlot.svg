@@ -1,0 +1,13 @@
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 viewBox="0 0 25.998 73.254" overflow="visible" enable-background="new 0 0 25.998 73.254" xml:space="preserve">
+<g>
+	<rect x="-0.5" y="26.254" fill="#FFFFFF" width="20.218" height="34.417"/>
+	<rect x="0.726" y="47.083" fill="none" width="24.771" height="15.627"/>
+	<text transform="matrix(1 0 0 1 0.7246 57.731)" fill="#030303" font-family="'Myriad-Roman'" font-size="15">D3</text>
+	<line fill="none" stroke="#FFFFFF" stroke-width="2" x1="9.827" y1="72.092" x2="9.827" y2="59.95"/>
+	<rect x="-0.302" y="10.729" fill="#FFFFFF" width="20.219" height="13.716"/>
+	<line fill="none" stroke="#FFFFFF" x1="9.79" y1="14.394" x2="9.79" y2="0.144"/>
+	<line fill="none" stroke="#FFFFFF" stroke-width="2" x1="5.68" y1="72.254" x2="14.224" y2="72.254"/>
+	<line fill="none" stroke="#FFFFFF" x1="5.542" y1="0.5" x2="14.087" y2="0.5"/>
+</g>
+</svg>

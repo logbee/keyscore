@@ -1,0 +1,12 @@
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 viewBox="0 0 76.708 78.875" overflow="visible" enable-background="new 0 0 76.708 78.875" xml:space="preserve">
+<g>
+	<path fill="none" stroke="#FFFFFF" stroke-width="2" d="M70.229,62.566c0,7.004-5.192,12.684-11.599,12.684H17.076
+		c-6.405,0-11.597-5.68-11.597-12.684V13.683C5.479,6.679,10.67,1,17.076,1h32.616l20.537,27.745V62.566z"/>
+	<line fill="none" stroke="#FCFCFC" stroke-width="2" x1="36.271" y1="36.25" x2="36.271" y2="49.75"/>
+	<line fill="none" stroke="#FCFCFC" stroke-width="2" x1="29.604" y1="42.916" x2="43.104" y2="42.916"/>
+	<text transform="matrix(1 0 0 1 22.9365 66.5254)" fill="#FFFFFF" font-family="'Myriad-Roman'" font-size="15">LOG</text>
+	<polyline fill="none" stroke="#FFFFFF" stroke-width="2" points="48.979,1 49.479,28 70.229,28.745 	"/>
+	<line fill="none" stroke="#FFFFFF" x1="12.312" y1="69.917" x2="60.979" y2="69.917"/>
+</g>
+</svg>

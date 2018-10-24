@@ -1,0 +1,12 @@
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 viewBox="0 0 76.708 78.875" overflow="visible" enable-background="new 0 0 76.708 78.875" xml:space="preserve">
+<g>
+	<g>
+		<path fill="none" stroke="#FFFFFF" stroke-width="2" d="M42.973,67.255H14.536c-5.716,0-10.349-5.068-10.349-11.317v-43.62
+			C4.188,6.068,8.82,1,14.536,1H43.64l18.326,24.758v20.736"/>
+		<polyline fill="none" stroke="#FFFFFF" stroke-width="2" points="43.004,1 43.451,25.093 61.966,25.758 		"/>
+	</g>
+	<circle fill="none" stroke="#FCFCFC" stroke-width="2" cx="56.649" cy="60.878" r="14.872"/>
+	<line fill="none" stroke="#FCFCFC" stroke-width="2" x1="49.382" y1="61.761" x2="64.05" y2="61.761"/>
+</g>
+</svg>

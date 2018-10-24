@@ -1,0 +1,11 @@
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+viewBox="0 0 80 45.061"
+	 overflow="visible" enable-background="new 0 0 80 45.061" xml:space="preserve">
+<g>
+	<rect x="-0.5" y="3.81" fill="none" width="80" height="41.25"/>
+	<text transform="matrix(1 0 0 1 3 28.6106)" fill="#FFFFFF" font-family="'Myriad-Roman'" font-size="30">{</text>
+	<text transform="matrix(1 0 0 1 11.5195 28.6106)" fill="#FFFFFF" font-family="'Myriad-Roman'" font-size="24">JS    N</text>
+	<text transform="matrix(1 0 0 1 68.375 28.6106)" fill="#FFFFFF" font-family="'Myriad-Roman'" font-size="30">}</text>
+	<circle fill="none" stroke="#666666" stroke-width="2" cx="42.725" cy="21.16" r="8.15"/>
+</g>
+</svg>
