@@ -1,22 +1,26 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
 	 viewBox="0 0 75.576 71.867" overflow="visible" enable-background="new 0 0 75.576 71.867" xml:space="preserve">
-<line fill="none" stroke="#000000" stroke-width="2" x1="9.716" y1="0.127" x2="9.716" y2="9.611"/>
-<line fill="none" stroke="#000000" stroke-width="2" x1="49.287" y1="0" x2="49.287" y2="9.484"/>
-<line fill="none" stroke="#000000" stroke-width="2" x1="1" y1="13.495" x2="57.835" y2="13.495"/>
 <g>
+	<line fill="none" stroke="#474747" stroke-width="2" x1="2.559" y1="15.683" x2="59.394" y2="15.683"/>
 	<g>
-		<path fill="none" stroke="#000000" stroke-width="2" d="M32.455,49.806c0-11.631,9.43-21.06,21.061-21.06
-			c1.481,0,2.926,0.156,4.32,0.447V4.644H1v57.718h35.635C34.021,58.853,32.455,54.518,32.455,49.806z"/>
+		<g>
+			<path fill="none" stroke="#3F3F3F" stroke-width="2" d="M34.014,51.994c0-11.632,9.43-21.061,21.062-21.061
+				c1.48,0,2.926,0.156,4.319,0.447V6.832H2.559v57.717h35.635C35.579,61.041,34.014,56.705,34.014,51.994z"/>
+		</g>
 	</g>
+	<circle fill="none" stroke="#404040" stroke-width="2" cx="55.481" cy="51.942" r="16.537"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="55.014" y1="38.81" x2="55.014" y2="52.885"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="54.427" y1="52.709" x2="66.067" y2="52.709"/>
+	<circle fill="#474747" stroke="#404040" cx="54.953" cy="52.509" r="1.387"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="11.489" y1="21.034" x2="11.489" y2="54.69"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="47.532" y1="20.932" x2="47.532" y2="27.821"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="27.493" y1="20.932" x2="27.493" y2="54.854"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="7.779" y1="26.451" x2="51.597" y2="26.451"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="7.603" y1="35.934" x2="35.165" y2="35.934"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="7.642" y1="46.771" x2="30.688" y2="46.771"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="11.274" y1="2.314" x2="11.274" y2="11.798"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="50.846" y1="2.188" x2="50.846" y2="11.671"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="41.18" y1="52.829" x2="44.264" y2="52.829"/>
+	<line fill="none" stroke="#404040" stroke-width="2" x1="55.264" y1="66.121" x2="55.264" y2="63.037"/>
 </g>
-<circle fill="none" stroke="#000000" cx="53.923" cy="49.755" r="16.537"/>
-<line fill="none" stroke="#000000" x1="53.455" y1="36.622" x2="53.455" y2="50.697"/>
-<line fill="none" stroke="#000000" x1="52.868" y1="50.521" x2="64.509" y2="50.521"/>
-<circle fill="#070707" cx="53.515" cy="50.441" r="1.267"/>
-<line fill="none" stroke="#000000" x1="9.931" y1="18.846" x2="9.931" y2="52.503"/>
-<line fill="none" stroke="#000000" x1="45.974" y1="18.744" x2="45.974" y2="25.634"/>
-<line fill="none" stroke="#000000" x1="25.934" y1="18.744" x2="25.934" y2="52.667"/>
-<line fill="#B3B3B3" stroke="#000000" x1="6.221" y1="24.263" x2="50.038" y2="24.263"/>
-<line fill="#B3B3B3" stroke="#000000" x1="6.044" y1="33.746" x2="33.606" y2="33.746"/>
-<line fill="#B3B3B3" stroke="#000000" x1="6.083" y1="44.583" x2="29.13" y2="44.583"/>
 </svg>

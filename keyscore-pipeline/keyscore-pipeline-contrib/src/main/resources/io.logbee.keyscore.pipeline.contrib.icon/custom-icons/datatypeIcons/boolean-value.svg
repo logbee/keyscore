@@ -1,8 +1,8 @@
-<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
-	 viewBox="0 0 77.806 55.245" overflow="visible" enable-background="new 0 0 77.806 55.245" xml:space="preserve">
-<rect x="12.154" y="29.161" fill="none" width="64.876" height="24.652"/>
-<text transform="matrix(1 0 0 1 12.1543 48.4517)" font-family="'Myriad-Roman'" font-size="27.171">false</text>
-<rect x="12.931" y="3.451" fill="none" width="64.875" height="24.654"/>
-<text transform="matrix(1 0 0 1 12.9307 22.7417)" font-family="'Myriad-Roman'" font-size="27.171">true</text>
-<line fill="none" stroke="#000000" x1="0" y1="26.364" x2="77.075" y2="26.364"/>
+ <svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 viewBox="0 0 73.792 73.88" overflow="visible" enable-background="new 0 0 73.792 73.88" xml:space="preserve">
+<g>
+	<path fill="#3F3F3F" stroke="#3F3F3F" d="M36.938,73.375C16.813,73.375,0.5,57.062,0.5,36.937C0.5,16.813,16.813,0.5,36.938,0.5"/>
+	<path fill="#FFFFFF" stroke="#3F3F3F" d="M36.854,0.506c20.124,0,36.438,16.313,36.438,36.437
+		c0,20.125-16.313,36.438-36.438,36.438"/>
+</g>
 </svg>

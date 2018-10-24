@@ -1,7 +1,7 @@
 <svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
-	 viewBox="0 0 72.902 76.745" overflow="visible" enable-background="new 0 0 72.902 76.745" xml:space="preserve">
-<line fill="none" stroke="#000000" stroke-width="3" x1="10.533" y1="75.225" x2="30.236" y2="0.382"/>
-<line fill="#FFFFFF" stroke="#000000" stroke-width="3" x1="38.061" y1="76.363" x2="57.763" y2="1.521"/>
-<line fill="none" stroke="#000000" stroke-width="3" x1="71.834" y1="47.546" x2="0.007" y2="47.206"/>
-<line fill="none" stroke="#000000" stroke-width="3" x1="72.895" y1="23.937" x2="1.072" y2="23.596"/>
+	 viewBox="0 0 48.96 44.938" overflow="visible" enable-background="new 0 0 48.96 44.938" xml:space="preserve">
+<rect x="3.698" y="12.207" fill="#3F3F3F" stroke="#3F3F3F" width="44.762" height="4.365"/>
+<rect x="0.5" y="26.525" fill="#3F3F3F" stroke="#3F3F3F" width="47.224" height="4.365"/>
+<rect x="-5.211" y="19.602" transform="matrix(-0.4091 0.9125 -0.9125 -0.4091 43.7777 15.2196)" fill="#3F3F3F" stroke="#3F3F3F" width="44.344" height="4.365"/>
+<rect x="9.177" y="20.967" transform="matrix(-0.4091 0.9125 -0.9125 -0.4091 65.2987 4.0156)" fill="#3F3F3F" stroke="#3F3F3F" width="44.343" height="4.366"/>
 </svg>
