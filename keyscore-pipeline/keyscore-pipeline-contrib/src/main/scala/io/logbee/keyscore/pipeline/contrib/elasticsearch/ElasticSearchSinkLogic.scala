@@ -30,11 +30,6 @@ import scala.util.{Failure, Success}
 
 object ElasticSearchSinkLogic extends Described {
 
-  private val filterName = "io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic"
-  private val bundleName = "io.logbee.keyscore.pipeline.contrib.filter.ElasticSearchSinkLogic"
-  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/elastic-elasticsearch.svg"
-
-
   val hostParameter = TextParameterDescriptor(
     "elastic.host",
     ParameterInfo(TextRef("host"), TextRef("hostDescription")),
@@ -64,14 +59,16 @@ object ElasticSearchSinkLogic extends Described {
   override def describe = Descriptor(
     ref = "6693c39e-6261-11e8-adc0-fa7ae01bbebc",
     describes = SinkDescriptor(
-      name = filterName,
+      name = classOf[ElasticSearchSinkLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.SINK, Category("Elasticsearch")),
       parameters = Seq(hostParameter, portParameter, indexParameter),
       icon = Icon.fromClass(classOf[ElasticSearchSinkLogic])
     ),
-    localization = Localization.fromResourceBundle(bundleName, Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
+    localization = Localization.fromResourceBundle(
+      bundleName = "io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic",
+      Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
   )
 
   private case class Document(_id: String, fields: Map[String, _])

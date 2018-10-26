@@ -26,7 +26,6 @@ import org.json4s.{Formats, NoTypeHints}
 import scala.util.Success
 
 object KafkaSourceLogic extends Described {
-  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/kafka.svg"
 
   val serverParameter = TextParameterDescriptor(
     ref = "kafka.source.server",
@@ -101,7 +100,7 @@ object KafkaSourceLogic extends Described {
       icon = Icon.fromClass(classOf[KafkaSourceLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.KafkaSourceLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

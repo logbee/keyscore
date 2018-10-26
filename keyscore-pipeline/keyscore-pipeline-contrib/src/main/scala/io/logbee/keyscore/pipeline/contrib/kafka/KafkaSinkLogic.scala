@@ -26,8 +26,6 @@ import scala.concurrent.Promise
 import scala.util.Success
 
 object KafkaSinkLogic extends Described {
-  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/kafka.svg"
-
 
   val bootstrapServerParameter = TextParameterDescriptor(
     ref = "kafka.sink.bootstrapServer",
@@ -66,7 +64,7 @@ object KafkaSinkLogic extends Described {
       icon = Icon.fromClass(classOf[KafkaSinkLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.KafkaSinkLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
