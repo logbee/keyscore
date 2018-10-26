@@ -11,6 +11,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
+import io.logbee.keyscore.model.data.Health.{Green, Red, Yellow}
 import io.logbee.keyscore.pipeline.api.stage.StageContext
 
 import scala.concurrent.ExecutionContextExecutor

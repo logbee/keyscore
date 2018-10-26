@@ -79,6 +79,8 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         pullIn()
         promise.success(state)
         log.debug(s"Valve <$id> does now drain.")
+
+      case _ =>
     })
 
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({

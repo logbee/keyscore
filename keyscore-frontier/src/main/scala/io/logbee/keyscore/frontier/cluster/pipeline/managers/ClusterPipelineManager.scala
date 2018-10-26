@@ -113,7 +113,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
             context.actorSelection(agent.path / PipelineSchedulerPath) ! DeletePipelineOrder(id)
           })
         case Failure(e) =>
-          log.warning(s"Failed to delete Pipeline with id <$id>: $e")
+          log.error(e, message = s"Failed to delete Pipeline with id <$id>: $e")
+        case _ =>
+          log.error(s"Failed to query the available agents to delete pipeline with id <$id>!")
       }
 
     case DeleteAllPipelines => forwardToLocalPipelineManagerOfAvailableAgents(sender, DeleteAllPipelines)
@@ -138,7 +140,9 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
         case Success(GetAvailableAgentsResponse(agents)) =>
           context.system.actorOf(PipelineInstanceCollector(_sender, agents, localPipelineManagerResolution)(5 seconds))
         case Failure(e) =>
-          log.warning(s"Failed to get existing pipelines: $e")
+          log.error(e, message = s"Failed to get existing pipelines: $e")
+        case _ =>
+          log.error("Failed to query the available agents!")
       }
 
     case RequestExistingBlueprints() =>
@@ -151,7 +155,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
             localPipelineManagerResolution(agent, context) ! RequestPipelineBlueprints(collector)
           })
         case Failure(e) =>
-          log.warning(s"Failed to request existing blueprints: $e")
+          log.error(e, message = s"Failed to request existing blueprints: $e")
       }
   }
 
@@ -162,7 +166,10 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
           log.debug(s"Forwarded message $message to $agent")
           localPipelineManagerResolution(agent, context) tell(message, sender)
         })
-      case Failure(e) => log.error(e, s"Failed to forward message [${message.getClass.getSimpleName}]")
+      case Failure(e) =>
+        log.error(e, s"Failed to forward message [${message.getClass.getSimpleName}]")
+      case _ =>
+        log.error(s"Failed to query the available agents to forward message [${message.getClass.getSimpleName}]!")
     }
   }
 }

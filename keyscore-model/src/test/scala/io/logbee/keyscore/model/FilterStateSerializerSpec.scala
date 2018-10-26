@@ -2,6 +2,7 @@ package io.logbee.keyscore.model
 
 import java.util.UUID
 
+import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline.{FilterState, Running}
 import org.json4s.native.Serialization.{read, write}

@@ -3,6 +3,8 @@ package io.logbee.keyscore.model
 import java.util.UUID
 import java.util.UUID.fromString
 
+import io.logbee.keyscore.model.data.Health
+
 object PipelineInstance {
   def apply(configurationId: UUID, name: String, description: String, health: Health): PipelineInstance = new PipelineInstance(configurationId, name, description, configurationId, health)
 

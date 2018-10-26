@@ -109,7 +109,7 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
     queue = Source.queue(1, OverflowStrategy.backpressure)
       .via(producer)
       .map(_.message)
-      .toMat(Sink.foreach(_.passThrough.success()))(Keep.left)
+      .toMat(Sink.foreach(_.passThrough.success(())))(Keep.left)
       .run()
   }
 
@@ -129,7 +129,8 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
       val promise = Promise[Unit]
       val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, parseRecord(record)), promise)
       queue.offer(producerMessage).flatMap(_ => promise.future).onComplete({
-        case Success(()) => pullAsync.invoke()
+        case Success(()) => pullAsync.invoke(())
+        case _ =>
       })
     })
   }

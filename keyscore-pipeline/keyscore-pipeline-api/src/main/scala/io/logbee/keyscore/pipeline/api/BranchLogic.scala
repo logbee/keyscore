@@ -2,8 +2,8 @@ package io.logbee.keyscore.pipeline.api
 
 import akka.stream.stage.{InHandler, OutHandler}
 import akka.stream.{Inlet, Outlet}
-import io.logbee.keyscore.model.Green
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.pipeline.{BranchProxy, FilterState}
 
 abstract class BranchLogic(parameters: LogicParameters, shape: BranchShape[Dataset, Dataset, Dataset])

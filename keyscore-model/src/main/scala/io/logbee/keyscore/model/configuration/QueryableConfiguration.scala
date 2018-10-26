@@ -35,32 +35,32 @@ trait QueryableConfiguration {
   }
 
   def findValue(descriptor: BooleanParameterDescriptor): Option[Boolean] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[Boolean] => Option(value.asInstanceOf[Boolean])
+    case Some(value: Boolean) => Option(value)
     case _ => None
   }
 
   def findValue(descriptor: NumberParameterDescriptor): Option[Long] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[Long] => Option(value.asInstanceOf[Long])
+    case Some(value: Long) => Option(value)
     case _ => None
   }
 
   def findValue(descriptor: DecimalParameterDescriptor): Option[Double] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[Double] => Option(value.asInstanceOf[Double])
+    case Some(value: Double) => Option(value)
     case _ => None
   }
 
   def findValue(descriptor: TextParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[String] => Option(value.asInstanceOf[String])
+    case Some(value: String) => Option(value)
     case _ => None
   }
 
   def findValue(descriptor: ExpressionParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[String] => Option(value.asInstanceOf[String])
+    case Some(value: String) => Option(value)
     case _ => None
   }
 
   def findValue(descriptor: FieldNameParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[String] => Option(value.asInstanceOf[String])
+    case Some(value: String) => Option(value)
     case _ => None
   }
 
@@ -70,27 +70,27 @@ trait QueryableConfiguration {
   }
 
   def findValue(descriptor: TextListParameterDescriptor): Option[Seq[String]] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[Seq[String]] => Option(value.asInstanceOf[Seq[String]])
-    case _ => None
+      case Some(value: Seq[String]) => Option(value)
+      case _ => None
   }
 
   def findValue(descriptor: FieldNameListParameterDescriptor): Option[Seq[String]] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[Seq[String]] => Option(value.asInstanceOf[Seq[String]])
+    case Some(value: Seq[String]) => Option(value)
     case _ => None
   }
 
   def findValue(descriptor: FieldListParameterDescriptor): Option[Seq[Field]] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[Seq[Field]] => Option(value.asInstanceOf[Seq[Field]])
+    case Some(value: Seq[Field]) => Option(value)
     case _ => None
   }
 
   def findValue(descriptor: ChoiceParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[String] => Option(value.asInstanceOf[String])
+    case Some(value: String) => Option(value)
     case _ => None
   }
 
   def findValue(descriptor: FieldDirectiveSequenceParameterDescriptor): Option[Seq[FieldDirectiveSequenceConfiguration]] = parameterMapping.get(descriptor.ref.id) match {
-    case Some(value) if value.isInstanceOf[Seq[FieldDirectiveSequenceConfiguration]] => Option(value.asInstanceOf[Seq[FieldDirectiveSequenceConfiguration]])
+    case Some(value: Seq[FieldDirectiveSequenceConfiguration]) => Option(value)
     case _ => None
   }
 

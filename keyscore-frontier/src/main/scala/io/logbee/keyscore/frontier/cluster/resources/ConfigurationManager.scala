@@ -45,7 +45,8 @@ class ConfigurationManager extends Actor with ActorLogging {
     case CommitConfiguration(configuration) =>
       Try(repository.commit(configuration)) match {
         case Success(ref) => sender ! CommitConfigurationSuccess(ref)
-        case Failure(exception) =>
+        case Failure(exception) => log.error(exception, s"Failed to commit configuration: $configuration")
+        case _ => log.error(s"Failed to commit configuration: $configuration")
       }
 
     case ResetConfiguration(ref) =>
@@ -53,8 +54,11 @@ class ConfigurationManager extends Actor with ActorLogging {
         case Success(_) => sender ! ResetConfigurationSuccess()
         case Failure(exception: UnknownConfigurationException) =>
           sender ! ConfigurationNotFoundFailure(ref)
+          log.error(exception, s"Failed to reset configuration: $ref")
         case Failure(exception: UnknownRevisionException) =>
           sender ! ConfigurationRevisionNotFoundFailure(ref)
+          log.error(exception, s"Failed to reset configuration: $ref")
+        case _ => log.error(s"Failed to reset configuration: $ref")
       }
 
     case RevertConfiguration(ref) =>
@@ -64,8 +68,11 @@ class ConfigurationManager extends Actor with ActorLogging {
           sender ! ConfigurationDivergedFailure(base, theirs, yours)
         case Failure(exception: UnknownConfigurationException) =>
           sender ! ConfigurationNotFoundFailure(ref)
+          log.error(exception, s"Failed to revert configuration: $ref")
         case Failure(exception: UnknownRevisionException) =>
           sender ! ConfigurationRevisionNotFoundFailure(ref)
+          log.error(exception, s"Failed to revert configuration: $ref")
+        case _ => log.error(s"Failed to revert configuration: $ref")
       }
 
     case RemoveConfiguration(ref) =>

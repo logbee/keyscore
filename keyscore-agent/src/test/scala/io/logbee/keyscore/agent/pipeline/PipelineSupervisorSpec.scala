@@ -16,6 +16,7 @@ import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
+import io.logbee.keyscore.model.data.Health.{Green, Red}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import io.logbee.keyscore.pipeline.api._

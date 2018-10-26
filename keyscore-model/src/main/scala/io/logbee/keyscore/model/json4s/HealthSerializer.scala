@@ -1,6 +1,7 @@
 package io.logbee.keyscore.model.json4s
 
-import io.logbee.keyscore.model.{Green, Health, Red, Yellow}
+import io.logbee.keyscore.model.data.Health
+import io.logbee.keyscore.model.data.Health.{Green, Red, Yellow}
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.{JNull, JString}
 

@@ -43,7 +43,7 @@ class ConfigurationApiV2Spec extends Matchers {
         .post(s"$baseUrl/_remove")
       )
     } catch {
-      case _ =>
+      case _: Throwable =>
     }
   }
 

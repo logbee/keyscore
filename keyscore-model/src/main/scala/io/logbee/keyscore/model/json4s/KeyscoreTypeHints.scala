@@ -1,6 +1,5 @@
 package io.logbee.keyscore.model.json4s
 
-import io.logbee.keyscore.model.Health
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.{Configuration, Parameter}
 import io.logbee.keyscore.model.data._
@@ -32,8 +31,5 @@ object KeyscoreTypeHints {
     classOf[Value]
   ))
 
-
   val all: TypeHints = hints
-
-
 }

@@ -133,7 +133,7 @@ class ElasticSearchSinkLogic(parameters: LogicParameters, shape: SinkShape[Datas
           queue.offer(tuple).flatMap(_ => promise.future).onComplete({
             case Success(response) =>
               log.info(s"$response")
-              pullAsync.invoke()
+              pullAsync.invoke(())
             case Failure(cause) => log.error(s"Send datasets to elastic failed: $cause")
           })
       })

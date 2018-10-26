@@ -2,8 +2,8 @@ package io.logbee.keyscore.pipeline.api
 
 import akka.stream.stage.{InHandler, OutHandler}
 import akka.stream.{Inlet, Outlet}
-import io.logbee.keyscore.model.Green
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.pipeline.{FilterState, MergeProxy}
 
 abstract class MergeLogic(parameters: LogicParameters, shape: MergeShape[Dataset, Dataset, Dataset])

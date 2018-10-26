@@ -2,8 +2,8 @@ package io.logbee.keyscore.pipeline.api
 
 import akka.stream.stage.{OutHandler, StageLogging}
 import akka.stream.{Outlet, SourceShape}
-import io.logbee.keyscore.model.Green
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.pipeline.{FilterState, SourceProxy}
 
 abstract class SourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])

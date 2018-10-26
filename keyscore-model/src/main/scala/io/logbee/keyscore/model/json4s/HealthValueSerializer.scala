@@ -4,7 +4,7 @@ import io.logbee.keyscore.model.data.Health
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.{JNull, JString}
 
-class HealthValueSerializer extends CustomSerializer[Health](format => ({
+case object HealthValueSerializer extends CustomSerializer[Health](format => ({
   case JString(fieldValueType) => fieldValueType match {
     case "Gray" => Health.Gray
     case "Green" => Health.Green
