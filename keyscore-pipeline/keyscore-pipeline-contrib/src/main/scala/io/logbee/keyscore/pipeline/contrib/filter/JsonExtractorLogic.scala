@@ -46,7 +46,8 @@ object JsonExtractorLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.DATA_EXTRACTION, CommonCategories.JSON),
-      parameters = Seq(sourceFieldNameParameter, removeSourceFieldParameter)
+      parameters = Seq(sourceFieldNameParameter, removeSourceFieldParameter),
+      icon = Icon.fromClass(classOf[JsonExtractorLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.JsonExtractor",

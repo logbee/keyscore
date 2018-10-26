@@ -69,7 +69,7 @@ object ElasticSearchSinkLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.SINK, Category("Elasticsearch")),
       parameters = Seq(hostParameter, portParameter, indexParameter),
-      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
+      icon = Icon.fromClass(classOf[ElasticSearchSinkLogic])
     ),
     localization = Localization.fromResourceBundle(bundleName, Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
   )

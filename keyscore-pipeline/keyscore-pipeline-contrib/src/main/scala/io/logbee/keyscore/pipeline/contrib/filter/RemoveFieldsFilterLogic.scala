@@ -41,8 +41,7 @@ object RemoveFieldsFilterLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
       parameters = Seq(fieldsToRemoveParameter),
-      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
-
+      icon = Icon.fromClass(classOf[RemoveFieldsFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilter",

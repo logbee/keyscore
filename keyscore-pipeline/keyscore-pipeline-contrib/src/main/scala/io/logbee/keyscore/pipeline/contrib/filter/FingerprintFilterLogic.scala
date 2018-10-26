@@ -46,8 +46,7 @@ object FingerprintFilterLogic extends Described {
       description = TextRef("description"),
       categories = Seq(Category("fingerprint", TextRef("category.fingerprint.displayName"))),
       parameters = Seq(targetParameter,encodingParameter),
-      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
-
+      icon = Icon.fromClass(classOf[FingerprintFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.FingerprintFilter",

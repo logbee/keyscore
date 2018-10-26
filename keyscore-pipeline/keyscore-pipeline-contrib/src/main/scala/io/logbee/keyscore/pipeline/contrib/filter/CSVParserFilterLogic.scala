@@ -36,7 +36,8 @@ object CSVParserFilterLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(Category("CSV")),
-      parameters = Seq(headerParameter, separatorParameter)
+      parameters = Seq(headerParameter, separatorParameter),
+      icon = Icon.fromClass(classOf[CSVParserFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CSVParserFilter",

@@ -23,8 +23,7 @@ object LoggerFilter extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.DEBUG),
       parameters = Seq(),
-      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
-
+      icon = Icon.fromClass(classOf[LoggerFilter])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.LoggerFilter",

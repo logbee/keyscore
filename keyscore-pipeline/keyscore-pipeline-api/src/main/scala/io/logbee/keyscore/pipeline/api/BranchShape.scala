@@ -11,3 +11,9 @@ case class BranchShape[-I, +L, +R](in: Inlet[I @uncheckedVariance], left: Outlet
 
   override def deepCopy(): BranchShape[I, L, R] = BranchShape(in.carbonCopy(), left.carbonCopy(), right.carbonCopy())
 }
+
+case class BranchSourceShape[+L, +R](left: Outlet[L @uncheckedVariance], right: Outlet[R @uncheckedVariance]) extends Shape {
+  override val inlets: immutable.Seq[Inlet[_]] = Nil
+  override val outlets: immutable.Seq[Outlet[_]] = left :: right :: Nil
+  override def deepCopy(): BranchSourceShape[L, R] = BranchSourceShape(left.carbonCopy(), right.carbonCopy())
+}

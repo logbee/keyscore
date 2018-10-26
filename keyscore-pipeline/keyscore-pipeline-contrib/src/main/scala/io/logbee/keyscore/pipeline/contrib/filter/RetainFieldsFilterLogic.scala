@@ -34,7 +34,8 @@ object RetainFieldsFilterLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
-      parameters = Seq(fieldNamesParameter)
+      parameters = Seq(fieldNamesParameter),
+      icon = Icon.fromClass(classOf[RetainFieldsFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RetainFieldsFilter",

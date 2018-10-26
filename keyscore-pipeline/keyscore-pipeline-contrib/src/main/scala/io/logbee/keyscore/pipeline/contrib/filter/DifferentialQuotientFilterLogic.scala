@@ -52,11 +52,12 @@ object DifferentialQuotientFilterLogic extends Described {
   override def describe = Descriptor(
     ref = "a83715fd-bc0f-4012-9527-59c6d4a1f6cd",
     describes = FilterDescriptor(
-        name = classOf[DifferentialQuotientFilterLogic].getName,
-        displayName = TextRef("displayName"),
-        description = TextRef("description"),
-        categories = Seq(CommonCategories.MATH),
-        parameters = List(xFieldNameParameter, yFieldNameParameter, targetFieldNameParameter)
+      name = classOf[DifferentialQuotientFilterLogic].getName,
+      displayName = TextRef("displayName"),
+      description = TextRef("description"),
+      categories = Seq(CommonCategories.MATH),
+      parameters = List(xFieldNameParameter, yFieldNameParameter, targetFieldNameParameter),
+      icon = Icon.fromClass(classOf[DifferentialQuotientFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientFilter",

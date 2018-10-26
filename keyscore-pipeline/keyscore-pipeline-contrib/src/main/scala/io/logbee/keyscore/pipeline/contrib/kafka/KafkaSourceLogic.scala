@@ -98,8 +98,7 @@ object KafkaSourceLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.SOURCE, Category("Kafka")),
       parameters = Seq(serverParameter,portParameter,groupIdParameter,offsetParameter,topicParameter),
-      icon = Icon(scala.io.Source.fromResource(iconName).getLines().mkString,IconFormat.SVG,IconEncoding.RAW)
-
+      icon = Icon.fromClass(classOf[KafkaSourceLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.KafkaSourceLogic",

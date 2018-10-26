@@ -37,7 +37,8 @@ object DropMessageFilterLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
-      parameters = Seq(retainMessagesParameter)
+      parameters = Seq(retainMessagesParameter),
+      icon = Icon.fromClass(classOf[DropMessageFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DropMessageFilter",

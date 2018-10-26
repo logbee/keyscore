@@ -100,7 +100,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
             ))
           ),
           maturity = Experimental,
-          icon = Icon.fromResource("/example-icon.svg")
+          icon = Icon.fromResource("/io/logbee/keyscore/model/descriptor/ExampleIcon.svg")
         ),
         localization = Localization.fromJavaMapping(
           filterDisplayName -> Map(

@@ -49,7 +49,8 @@ object GrokFilterLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.DATA_EXTRACTION),
-      parameters = Seq(fieldNamesParameter, patternParameter)
+      parameters = Seq(fieldNamesParameter, patternParameter),
+      icon = Icon.fromClass(classOf[GrokFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.GrokFilter",
