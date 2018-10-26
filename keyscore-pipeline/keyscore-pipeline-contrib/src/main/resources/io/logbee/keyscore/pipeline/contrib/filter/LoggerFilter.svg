@@ -1,12 +1,73 @@
-<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
-	 viewBox="0 0 76.708 78.875" overflow="visible" enable-background="new 0 0 76.708 78.875" xml:space="preserve">
-<g>
-	<path fill="none" stroke="#FFFFFF" stroke-width="2" d="M70.229,62.566c0,7.004-5.192,12.684-11.599,12.684H17.076
-		c-6.405,0-11.597-5.68-11.597-12.684V13.683C5.479,6.679,10.67,1,17.076,1h32.616l20.537,27.745V62.566z"/>
-	<line fill="none" stroke="#FCFCFC" stroke-width="2" x1="36.271" y1="36.25" x2="36.271" y2="49.75"/>
-	<line fill="none" stroke="#FCFCFC" stroke-width="2" x1="29.604" y1="42.916" x2="43.104" y2="42.916"/>
-	<text transform="matrix(1 0 0 1 22.9365 66.5254)" fill="#FFFFFF" font-family="'Myriad-Roman'" font-size="15">LOG</text>
-	<polyline fill="none" stroke="#FFFFFF" stroke-width="2" points="48.979,1 49.479,28 70.229,28.745 	"/>
-	<line fill="none" stroke="#FFFFFF" x1="12.312" y1="69.917" x2="60.979" y2="69.917"/>
-</g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg403"
+   version="1.1"
+   viewBox="0 0 80 80">
+  <defs
+     id="defs397" />
+  <metadata
+     id="metadata400">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1">
+    <flowRoot
+       style="font-style:normal;font-weight:normal;font-size:40px;font-family:sans-serif;opacity:1;fill:#000000;fill-opacity:1;stroke:none"
+       id="flowRoot1257"
+       xml:space="preserve"
+       transform="translate(-5.961085)"><flowRegion
+         id="flowRegion1259"><rect
+           y="95.323868"
+           x="66.774574"
+           height="66.411392"
+           width="79.045174"
+           id="rect1261" /></flowRegion><flowPara
+         id="flowPara1263" /></flowRoot>    <text
+       id="text1267"
+       y="40.079395"
+       x="9.474328"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:21.3333px;font-family:monospace;-inkscape-font-specification:'monospace Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;opacity:1;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:0.5248"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:21.3333px;font-family:monospace;-inkscape-font-specification:'monospace Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ffffff;stroke:#ffffff;stroke-width:0.5248"
+         y="40.079395"
+         x="9.474328"
+         id="tspan1265">&gt;_</tspan></text>
+    <text
+       id="text1271"
+       y="30.832314"
+       x="44.310654"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;font-family:sans-serif;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="40.196053"
+         x="44.310654"
+         id="tspan1269" /></text>
+    <path
+       id="path898"
+       d="M 2.8784878,2.5 H 77 v 75 H 2.8784878 Z"
+       style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="1.5014302"
+       cy="10"
+       cx="11.722826"
+       id="path908"
+       style="fill:#ffffff;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none" />
+    <path
+       id="path912"
+       d="M 2.8784878,17.5 H 77"
+       style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
 </svg>
