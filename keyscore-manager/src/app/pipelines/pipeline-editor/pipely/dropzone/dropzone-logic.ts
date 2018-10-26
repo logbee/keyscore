@@ -96,6 +96,7 @@ export abstract class DropzoneLogic {
         const draggableModel = this.computeDraggableModel(mirror, currentDragged);
         if(currentDragged.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Toolbar){
             draggableModel.configuration.ref = generateRef();
+            draggableModel.blueprintRef = generateRef();
         }
         this.insertNewDraggable(draggableModel);
 

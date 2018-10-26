@@ -96,11 +96,11 @@ export class PipelineConfiguratorService {
         let next = draggable;
         do {
             let configuration: Configuration = next.getDraggableModel().configuration;
-            let filteredConfiguration = pipeline.configurations ?
+            let configurationIndex = pipeline.configurations ?
                 pipeline.configurations.findIndex(config =>
                     config.ref.uuid === configuration.ref.uuid) : -1;
-            if (filteredConfiguration !== -1) {
-                pipeline.configurations[filteredConfiguration] = configuration;
+            if (configurationIndex !== -1) {
+                pipeline.configurations[configurationIndex] = configuration;
             } else {
                 console.log("PIPELINE:: ",pipeline);
                 pipeline.configurations.push(configuration);

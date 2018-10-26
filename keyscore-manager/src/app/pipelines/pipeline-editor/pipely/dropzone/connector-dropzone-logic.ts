@@ -20,7 +20,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
             return this.prependModel(mirror, currentDragged);
         }
         else {
-            return currentDragged.getDraggableModel();
+            return deepcopy(currentDragged.getDraggableModel());
         }
 
     }
@@ -53,8 +53,9 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const droppedPosition = computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
             this.component.workspace.getWorkspaceDropzone().getAbsolutePosition());
 
+        const nextModelCopy = deepcopy(this.component.getOwner().getDraggableModel());
         const nexDraggableModel = {
-            ...this.component.getOwner().getDraggableModel(),
+            ...nextModelCopy/*this.component.getOwner().getDraggableModel()*/,
             position: this.computePrependPosition(droppedPosition, currentDragged.getDraggableSize().width)
         };
 
