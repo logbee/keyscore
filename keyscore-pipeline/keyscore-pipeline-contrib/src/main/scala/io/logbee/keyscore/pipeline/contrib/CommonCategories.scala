@@ -32,8 +32,8 @@ object CommonCategories {
         GERMAN -> "Stapelbildung"
       )),
       DATA_EXTRACTION.displayName.get -> TranslationMapping(Map(
-        ENGLISH -> "Data-Extraction",
-        GERMAN -> "Datengewinnung"
+        ENGLISH -> "Extraction",
+        GERMAN -> "Extraktion"
       )),
       DEBUG.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Debug",
@@ -43,7 +43,6 @@ object CommonCategories {
         ENGLISH -> "Fields",
         GERMAN -> "Felder"
       )),
-
       JSON.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "JSON",
         GERMAN -> "JSON"
@@ -53,8 +52,8 @@ object CommonCategories {
         GERMAN -> "Mathematik"
       )),
       REMOVE_DROP.displayName.get -> TranslationMapping(Map(
-        ENGLISH -> "Remove/Drop",
-        GERMAN -> "Entfernen/Verwerfen"
+        ENGLISH -> "Remove / Drop",
+        GERMAN -> "Entfernen / Verwerfen"
       )),
       SINK.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Sink",

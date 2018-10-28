@@ -8,6 +8,8 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, DATA_EXTRACTION}
 import io.logbee.keyscore.pipeline.contrib.filter.CSVParserFilterLogic.{headerParameter, separatorParameter}
 
 import scala.Int.MaxValue
@@ -35,14 +37,14 @@ object CSVParserFilterLogic extends Described {
       name = classOf[CSVParserFilterLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(Category("CSV")),
+      categories = Seq(Category("CSV"), DATA_EXTRACTION),
       parameters = Seq(headerParameter, separatorParameter),
       icon = Icon.fromClass(classOf[CSVParserFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CSVParserFilter",
       Locale.ENGLISH, Locale.GERMAN
-    )
+    ) ++ CATEGORY_LOCALIZATION
   )
 }
 
