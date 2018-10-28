@@ -302,7 +302,7 @@ export class PipelinesEffects {
     //
     //        return this.filterControllerService.pauseFilter(action.blueprints[0].uuid, false).pipe(
     //            map((result) => new DeletePipelineSuccessAction("!"),
-    //                catchError(_ => of({type: "NOOP"})))
+    //                catchError(_ => of({stageType: "NOOP"})))
     //        )
     //     })
     // );

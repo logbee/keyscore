@@ -32,7 +32,7 @@ import {Health} from "../models/common/Health";
                 [showManualReload]="false"
                 [title]="title">
         </header-bar>
-        <div fxFlexFill="" fxLayout="column" fxLayoutGap="15px" class="table-wrapper" >
+        <div fxFlexFill="" fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
             <!--Search Field-->
             <mat-form-field fxFlex="5%" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
@@ -41,7 +41,7 @@ import {Health} from "../models/common/Health";
 
             <!--Resources Table-->
             <table fxFlex="95" mat-table matSort [dataSource]="dataSource"
-                   class="mat-elevation-z8 table-position"> 
+                   class="mat-elevation-z8 table-position">
                 <!--Health Column-->
                 <ng-container matColumnDef="health">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
@@ -69,7 +69,7 @@ import {Health} from "../models/common/Health";
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
                     <td mat-cell *matCellDef="let blueprint">
-                        <resource-type [type]="blueprint?.jsonClass"></resource-type>
+                        <stage-type [stageType]="blueprint?.jsonClass"></stage-type>
                     </td>
                 </ng-container>
 

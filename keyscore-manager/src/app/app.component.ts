@@ -93,11 +93,11 @@ export class AppComponent implements OnInit {
 
     private addCustomIcons(){
         // Custom stage icons
-        this.matIconRegistry.addSvgIcon('source-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/source-block.svg"));
-        this.matIconRegistry.addSvgIcon('sink-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/sink-block.svg"));
-        this.matIconRegistry.addSvgIcon('filter-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/filter-block.svg"));
-        this.matIconRegistry.addSvgIcon('merge-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/merge-block.svg"));
-        this.matIconRegistry.addSvgIcon('branch-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/branch-block.svg"));
+        this.matIconRegistry.addSvgIcon('source-stage', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/source-stage.svg"));
+        this.matIconRegistry.addSvgIcon('sink-stage', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/sink-stage.svg"));
+        this.matIconRegistry.addSvgIcon('filter-stage', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/filter-stage.svg"));
+        this.matIconRegistry.addSvgIcon('merge-stage', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/merge-block.svg"));
+        this.matIconRegistry.addSvgIcon('branch-stage', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/branch-block.svg"));
 
         // custom data icons
         this.matIconRegistry.addSvgIcon('text-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/text-value.svg"));

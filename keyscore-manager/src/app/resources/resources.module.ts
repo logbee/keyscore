@@ -11,7 +11,7 @@ import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {MaterialModule} from "../material.module";
-import {ResourceType} from "./components/resource-type";
+import {StageType} from "./components/stage-type.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
 import {JsonVisualizer} from "./components/json-visualizer";
@@ -37,7 +37,7 @@ export const routes: Routes = [
     ],
     declarations: [
         ResourcesComponent,
-        ResourceType,
+        StageType,
         JsonVisualizer
     ],
     providers: [
