@@ -36,7 +36,8 @@ object CounterWindowingLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
-      parameters = Seq(amountParameter)
+      parameters = Seq(amountParameter),
+      icon = Icon.fromClass(classOf[CounterWindowingLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CounterWindowing",

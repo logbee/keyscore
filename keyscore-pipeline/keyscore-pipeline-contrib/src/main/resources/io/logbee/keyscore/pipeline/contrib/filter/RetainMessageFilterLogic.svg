@@ -71,18 +71,18 @@
          cx="35.526581"
          id="path4350"
          style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:10.3;stroke-dasharray:none;stroke-dashoffset:4.8" />
+      <g
+         id="g3486"
+         transform="translate(-36.562307,9.7440794)">
+        <path
+           id="path1685"
+           d="m 69.75,52 8.31237,-8.31237"
+           style="opacity:1;fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        <path
+           id="path1685-1"
+           d="M 66.115405,48.365405 69.75,52"
+           style="opacity:1;fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      </g>
     </g>
-  </g>
-  <g
-     id="g4489"
-     transform="translate(-37.792043)">
-    <path
-       style="opacity:1;fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 67.635857,54.156186 8.31237,-8.31237"
-       id="path1685-0" />
-    <path
-       style="opacity:1;fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 67.584283,45.792241 8.415519,8.415519"
-       id="path1685-1-8" />
   </g>
 </svg>
