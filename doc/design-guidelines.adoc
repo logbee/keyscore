@@ -1,0 +1,13 @@
+= Design Guidelines =
+
+== Sink, Source and Filter Icons ==
+
+- Format: SVG.
+- Color: white.
+- Background: transparent
+- Viewbox: 80x80.
+
+[IMPORTANT]
+====
+No width/hight attribut in the svg root element!
+====
