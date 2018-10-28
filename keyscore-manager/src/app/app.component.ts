@@ -12,6 +12,8 @@ import {LoadingState} from "./common/loading/loading.reducer";
 import {ToggleMenuAction} from "./common/sidemenu/sidemenu.actions";
 import {ErrorState} from "./common/error/error.reducer";
 import {SnackbarState} from "./common/snackbar/snackbar.reducer";
+import {DomSanitizer} from "@angular/platform-browser";
+import {MatIconRegistry} from "@angular/material";
 
 export interface AppState {
     config: AppConfig;
@@ -57,12 +59,18 @@ export class AppComponent implements OnInit {
     private modalService: ModalService;
     private settingsFeatureEnabled: boolean;
 
-    constructor(private store: Store<any>, modalService: ModalService, private translate: TranslateService) {
+    constructor(private store: Store<any>,
+                 modalService: ModalService,
+                private translate: TranslateService,
+                private matIconRegistry: MatIconRegistry,
+                private domSanitizer: DomSanitizer) {
         this.store = store;
         this.modalService = modalService;
         this.store.select(selectAppConfig).subscribe((conf) => {
             this.settingsFeatureEnabled = conf.getBoolean("keyscore.manager.features.settings");
         });
+
+        this.addCustomIcons();
     }
 
     public ngOnInit() {
@@ -81,5 +89,22 @@ export class AppComponent implements OnInit {
 
     protected showSettings() {
         this.modalService.show(SettingsComponent);
+    }
+
+    private addCustomIcons(){
+        // Custom stage icons
+        this.matIconRegistry.addSvgIcon('source-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/source-block.svg"));
+        this.matIconRegistry.addSvgIcon('sink-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/sink-block.svg"));
+        this.matIconRegistry.addSvgIcon('filter-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/filter-block.svg"));
+        this.matIconRegistry.addSvgIcon('merge-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/merge-block.svg"));
+        this.matIconRegistry.addSvgIcon('branch-block', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/stages/branch-block.svg"));
+
+        // custom data icons
+        this.matIconRegistry.addSvgIcon('text-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/text-value.svg"));
+        this.matIconRegistry.addSvgIcon('boolean-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/boolean-value.svg"));
+        this.matIconRegistry.addSvgIcon('decimal-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/decimal-value.svg"));
+        this.matIconRegistry.addSvgIcon('duration-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/duration-value.svg"));
+        this.matIconRegistry.addSvgIcon('number-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/number-value.svg"));
+        this.matIconRegistry.addSvgIcon('timestamp-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/timestamp-value.svg"));
     }
 }
