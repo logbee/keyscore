@@ -1,8 +1,14 @@
-<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
-	 viewBox="0 0 54.455 44.938" overflow="visible" enable-background="new 0 0 54.455 44.938" xml:space="preserve">
-<rect x="9.193" y="12.207" fill="#3F3F3F" stroke="#3F3F3F" width="44.762" height="4.365"/>
-<rect x="5.995" y="26.525" fill="#3F3F3F" stroke="#3F3F3F" width="47.224" height="4.365"/>
-<rect x="0.283" y="19.604" transform="matrix(0.4091 -0.9125 0.9125 0.4091 -6.6111 33.3622)" fill="#3F3F3F" stroke="#3F3F3F" width="44.344" height="4.364"/>
-<rect x="14.673" y="20.969" transform="matrix(0.4092 -0.9125 0.9125 0.4092 0.6437 47.2988)" fill="#3F3F3F" stroke="#3F3F3F" width="44.344" height="4.366"/>
-<rect x="0.5" y="36.539" fill="#3F3F3F" stroke="#3F3F3F" width="6.25" height="6.25"/>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 12.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 51448)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  version="1.1" id="Ebene_1" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;"
+	 viewBox="0 0 74.901 65.827" overflow="visible" enable-background="new 0 0 74.901 65.827" xml:space="preserve">
+<line fill="none" stroke="#3F3F3F" stroke-width="14" x1="29.335" y1="0.003" x2="29.335" y2="65.827"/>
+<line fill="none" stroke="#3F3F3F" stroke-width="14" x1="58.238" y1="0" x2="58.238" y2="65.824"/>
+<line fill="none" stroke="#3F3F3F" stroke-width="14" x1="74.898" y1="17.416" x2="13.482" y2="17.416"/>
+<line fill="none" stroke="#3F3F3F" stroke-width="14" x1="74.901" y1="48.444" x2="13.485" y2="48.444"/>
+<rect y="54.84" fill="#3F3F3F" width="10.875" height="10.875"/>
 </svg>

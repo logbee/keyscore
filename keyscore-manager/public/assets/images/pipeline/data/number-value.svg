@@ -1,7 +1,12 @@
-<svg  version="1.1" xmlns="http://www.w3.org/2000/svg"
-	 viewBox="0 0 48.96 44.938" overflow="visible" enable-background="new 0 0 48.96 44.938" xml:space="preserve">
-<rect x="3.698" y="12.207" fill="#3F3F3F" stroke="#3F3F3F" width="44.762" height="4.365"/>
-<rect x="0.5" y="26.525" fill="#3F3F3F" stroke="#3F3F3F" width="47.224" height="4.365"/>
-<rect x="-5.211" y="19.602" transform="matrix(-0.4091 0.9125 -0.9125 -0.4091 43.7777 15.2196)" fill="#3F3F3F" stroke="#3F3F3F" width="44.344" height="4.365"/>
-<rect x="9.177" y="20.967" transform="matrix(-0.4091 0.9125 -0.9125 -0.4091 65.2987 4.0156)" fill="#3F3F3F" stroke="#3F3F3F" width="44.343" height="4.366"/>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  version="1.1" id="Ebene_1" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;"
+	 viewBox="0 0 69.669 74.669" overflow="visible" enable-background="new 0 0 69.669 74.669" xml:space="preserve">
+<line fill="none" stroke="#3F3F3F" stroke-width="14" x1="17.983" y1="0.003" x2="17.983" y2="74.669"/>
+<line fill="none" stroke="#3F3F3F" stroke-width="14" x1="50.768" y1="0" x2="50.768" y2="74.667"/>
+<line fill="none" stroke="#3F3F3F" stroke-width="14" x1="69.667" y1="19.755" x2="0" y2="19.755"/>
+<line fill="none" stroke="#3F3F3F" stroke-width="14" x1="69.669" y1="54.952" x2="0.003" y2="54.952"/>
 </svg>

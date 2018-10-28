@@ -1,8 +1,13 @@
-<svg  viewBox="0 0 71.5 72.868" overflow="visible" enable-background="new 0 0 71.5 72.868" xml:space="preserve">
-<rect x="3.333" y="0.535" fill="#404040" stroke="#3F3F3F" width="64.333" height="4.333"/>
-<rect x="34" y="2.035" fill="#404040" stroke="#3F3F3F" width="4.333" height="64.333"/>
-<line fill="#404040" stroke="#3F3F3F" stroke-width="2" x1="0" y1="71.868" x2="71.5" y2="71.868"/>
-<rect x="-1.632" y="4.822" transform="matrix(-0.1246 0.9922 -0.9922 -0.1246 12.0337 3.361)" fill="#404040" stroke="#3F3F3F" width="12.333" height="4.334"/>
-<rect x="17.083" y="64.564" fill="#404040" stroke="#3F3F3F" width="38.708" height="2.606"/>
-<rect x="60.495" y="4.781" transform="matrix(0.1245 0.9922 -0.9922 0.1245 65.2521 -60.0608)" fill="#404040" stroke="#3F3F3F" width="12.334" height="4.333"/>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  version="1.1" id="Ebene_1" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;"
+	 viewBox="0 0 67.229 77.75" overflow="visible" enable-background="new 0 0 67.229 77.75" xml:space="preserve">
+<g>
+	<polygon fill="#3F3F3F" points="26.952,76.882 26.957,2.376 39.281,2.376 39.281,76.882 	"/>
+	<rect x="16.448" y="70.25" fill="#3F3F3F" width="33.386" height="7.5"/>
+	<polyline fill="none" stroke="#3F3F3F" stroke-width="9" points="4.5,13.271 4.5,4.5 62.729,4.5 62.729,13.147 	"/>
+</g>
 </svg>
