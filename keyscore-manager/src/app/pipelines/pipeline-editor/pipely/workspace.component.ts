@@ -34,6 +34,7 @@ import {
 } from "../../../models/blueprints/Blueprint";
 import {DraggableComponent} from "./draggable.component";
 import {Configuration} from "../../../models/common/Configuration";
+import {TextValue} from "../../../models/dataset/Value";
 
 
 @Component({
@@ -41,7 +42,7 @@ import {Configuration} from "../../../models/common/Configuration";
     template: `
         <div class="pipely-wrapper">
             <div class="workspace-container" fxLayout="row" fxFill>
-                <div #workspace class="workspace" fxFlex="75">
+                <div #workspace class="workspace" fxFlex="75" (mousedown)="triggerWorkspaceMouseDown($event)">
                     <div class="row">
                         <ng-template #workspaceContainer>
                         </ng-template>
@@ -50,11 +51,12 @@ import {Configuration} from "../../../models/common/Configuration";
                     </div>
                 </div>
 
-                <configurator class="mat-elevation-z8" fxFlex="" (closeConfigurator)="closeConfigurator()"
-                              [isOpened]="isConfiguratorOpened"
+                <configurator class="mat-elevation-z8" fxFlex=""
+                              [pipelineMetaData]="pipelineMetaData"
                               [selectedBlock]="{configuration:(selectedDraggable$|async)?.getDraggableModel().configuration,
                               descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
-                              (onSave)="saveConfiguration($event)">
+                              (onSave)="saveConfiguration($event)"
+                                (onSavePipelineMetaData)="savePipelineMetaData($event)">
                 </configurator>
             </div>
         </div>
@@ -98,6 +100,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
     private selectedDraggableSource: Subject<Draggable> = new Subject();
     private selectedDraggable$: Observable<Draggable> = this.selectedDraggableSource.asObservable().pipe(share());
     private selectedDraggable: Draggable;
+    private pipelineMetaData: { name: string, description: string };
 
     private mouseDownStart: { x: number, y: number } = {x: -1, y: -1};
 
@@ -143,6 +146,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         }
 
         this.mouseDownStart = {x: -1, y: -1};
+    }
+
+    private triggerWorkspaceMouseDown(event: MouseEvent) {
+        this.selectedDraggableSource.next(null);
     }
 
     private click(event: MouseEvent) {
@@ -253,6 +260,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
     private saveConfiguration(configuration: Configuration) {
         this.selectedDraggable.getDraggableModel().configuration = configuration;
     }
+    private savePipelineMetaData(metaData:{name:string,description:string}){
+        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name ==='pipeline.name').value as TextValue).value = metaData.name;
+        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name ==='pipeline.description').value as TextValue).value = metaData.description;
+    }
 
     addDropzone(dropzone: Dropzone) {
         this.dropzones.add(dropzone);
@@ -272,6 +283,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
                 array.splice(index, 1);
             }
         });
+        this.selectedDraggableSource.next(null);
     }
 
     registerDraggable(draggable: Draggable) {
@@ -304,11 +316,14 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
 
         this.runTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
             console.log("Trigger!");
-            this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables,this.pipeline);
+            this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables, this.pipeline);
             this.onRunPipeline.emit(this.pipeline);
         });
 
         this.buildEditPipeline();
+        let pipelineName = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value;
+        let pipelineDescription = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value;
+        this.pipelineMetaData = {name:pipelineName,description:pipelineDescription};
 
     }
 

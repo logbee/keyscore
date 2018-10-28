@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
-import {FormGroup} from "@angular/forms";
+import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
 import {deepcopy, zip} from "../../../../util";
@@ -18,11 +18,42 @@ import * as _ from "lodash";
         <div fxFill fxLayout="column" class="configurator-wrapper">
             <div fxLayout="row">
                 <div fxFlex="95%" fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                    <h3>{{selectedBlock$.getValue().descriptor.displayName}}</h3>
-                    <p>{{selectedBlock$.getValue().descriptor.description}}</p>
-                    <mat-divider></mat-divider>
+                    <div
+                            *ngIf="selectedBlock$.getValue().configuration.ref.uuid === 'init';else filterNameDescription">
+                        <form [formGroup]="pipelineForm">
+                            <mat-form-field>
+                                <input matInput type="text" placeholder="Pipeline Name"
+                                       formControlName="pipeline.name"
+                                       id="pipeline.name">
+                                <mat-label>Pipeline Name</mat-label>
+
+                                <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear"
+                                        (click)="value=''">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </mat-form-field>
+
+                            <mat-form-field>
+                                <textarea matInput type="text" placeholder="Pipeline Description"
+                                          formControlName="pipeline.description"
+                                          id="pipeline.description"></textarea>
+                                <mat-label>Pipeline Description</mat-label>
+
+                                <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear"
+                                        (click)="value=''">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </mat-form-field>
+                        </form>
+                    </div>
+                    <ng-template #filterNameDescription>
+                        <h3>{{selectedBlock$.getValue().descriptor.displayName}}</h3>
+                        <p>{{selectedBlock$.getValue().descriptor.description}}</p>
+                        <mat-divider></mat-divider>
+                    </ng-template>
                 </div>
-                <button matTooltip="Hide Configuration." *ngIf="collapsibleButton" mat-mini-fab color="primary" (click)="collapse()">
+                <button matTooltip="Hide Configuration." *ngIf="collapsibleButton" mat-mini-fab color="primary"
+                        (click)="collapse()">
                     <mat-icon>chevron_right</mat-icon>
                 </button>
             </div>
@@ -62,39 +93,47 @@ import * as _ from "lodash";
 })
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
-    @Input() public showFooter: boolean;
-    @Input() public collapsibleButton: boolean;
-    public isVisible: boolean = true;
+    @Input() isOpened: boolean;
+    @Input() showFooter: boolean;
+    @Input() pipelineMetaData: { name: string, description: string };
+    @Input() collapsibleButton: boolean;
+    isVisible: boolean = true;
 
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
 
         if (block.configuration && block.descriptor) {
             this.selectedBlock$.next(block);
+        } else {
+            this.selectedBlock$.next(this.initBlock);
         }
     }
 
-    private selectedBlock$ = new BehaviorSubject<{ configuration: Configuration, descriptor: BlockDescriptor }>(
-        {
-            configuration: {ref: {uuid: "init"}, parent: null, parameters: []},
-            descriptor: {
-                ref: null,
-                displayName: "",
-                description: "",
-                previousConnection: null,
-                nextConnection: null,
-                parameters: [],
-                categories: []
-            }
+    private initBlock = {
+        configuration: {ref: {uuid: "init"}, parent: null, parameters: []},
+        descriptor: {
+            ref: null,
+            displayName: "",
+            description: "",
+            previousConnection: null,
+            nextConnection: null,
+            parameters: [],
+            categories: []
         }
-    );
+    };
 
-    @Input() isOpened: boolean;
+    private selectedBlock$ = new BehaviorSubject<{
+        configuration: Configuration,
+        descriptor: BlockDescriptor
+    }>(this.initBlock);
+
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
     @Output() onRevert: EventEmitter<void> = new EventEmitter();
     @Output() onShowConfigurator: EventEmitter<boolean> = new EventEmitter();
+    @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string }> = new EventEmitter();
     isAlive: Subject<void> = new Subject();
     form: FormGroup;
+    pipelineForm: FormGroup;
 
     parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map();
 
@@ -124,6 +163,15 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
                     this.saveConfiguration();
                 }
             });
+        });
+
+        this.pipelineForm = new FormGroup({
+            'pipeline.name': new FormControl(this.pipelineMetaData.name),
+            'pipeline.description': new FormControl(this.pipelineMetaData.description)
+        });
+
+        this.pipelineForm.valueChanges.subscribe(val => {
+            this.onSavePipelineMetaData.emit({name:val['pipeline.name'],description:val['pipeline.description']});
         });
 
     }
