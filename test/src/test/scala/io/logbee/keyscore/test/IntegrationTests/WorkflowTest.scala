@@ -74,13 +74,22 @@ class WorkflowTest extends Matchers {
   val workflowSecondDataset = Dataset(workflowSecondRecord)
   val workflowThirdDataset = Dataset(workflowThirdRecord)
 
+  val datasets = List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset)
+  val serializedDatasets = write(datasets)
+
+  val retainFieldsID = "f368c58c-db9a-43dc-8ccb-f495d29c441f"
+  val secondRemoveFieldsID = "921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"
+
 //  @Test
 //  @CitrusTest
   def testWorkflow(implicit @CitrusResource runner: TestRunner): Unit = {
     createWorkflowPipeline(runner)
     pollPipelineHealthState() shouldBe true
     //Insert Datasets
+    insertDatasetsIntoFilter(retainFieldsID, serializedDatasets)
     //Check Datasets
+    Thread.sleep(5000)
+    extractDatsetsFromFilter(secondRemoveFieldsID, 3, 3)
   }
 
   private def createWorkflowPipeline(implicit runner: TestRunner): TestAction = {
@@ -169,7 +178,7 @@ class WorkflowTest extends Matchers {
   }
 
   def putSingleConfiguration(configurationObject: Configuration, configurationJSON: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"PUT Configuraiton for ${configurationObject.ref.uuid}")
+    logger.debug(s"PUT Configuration for ${configurationObject.ref.uuid}")
 
     runner.http(action => action.client(frontierClient)
       .send()
@@ -236,6 +245,39 @@ class WorkflowTest extends Matchers {
     instances
   }
 
+  def insertDatasetsIntoFilter(filterId: String, datasets: String)(implicit runner: TestRunner): TestAction = {
+    logger.debug(s"Reached Insert Dataset for ${filterId} with ${datasets}")
 
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .put(s"/filter/${filterId}/insert")
+      .contentType("application/json")
+      .payload(datasets)
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+  }
+
+  def extractDatsetsFromFilter(filterId: String, amount: Int, expect: Int)(implicit runner: TestRunner): TestAction = {
+    logger.debug(s"Reached Extract Datasets for ${filterId}")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .get(s"/filter/${filterId}/extract?value=" + amount)
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
+        payload should have size expect
+      })
+    )
+
+  }
 
 }
