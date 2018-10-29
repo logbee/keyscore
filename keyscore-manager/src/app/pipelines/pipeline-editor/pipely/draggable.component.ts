@@ -20,6 +20,8 @@ import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {takeUntil} from "rxjs/internal/operators";
 import {IconEncoding, IconFormat} from "../../../models/descriptors/Icon";
+import {Store} from "@ngrx/store";
+import {Go} from "../../../router/router.actions";
 
 
 @Component({
@@ -53,16 +55,17 @@ import {IconEncoding, IconFormat} from "../../../models/descriptors/Icon";
                                       fill="#365880"
                                       attr.stroke-width="{{isSelected ? '30px' : '0px'}}"
                                       attr.stroke="#365880"
-                                      />
+                            />
                         </svg:g>
                         <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
                                [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>
                     </svg>
                     <div class="iconContainer">
                         <div #iconInnerContainer class="iconInnerContainer">
-                            
+
                         </div>
                     </div>
+                        <mat-icon *ngIf="draggableModel.initialDropzone.getDropzoneModel().dropzoneType !== dropzoneType.Toolbar" matTooltip="Navigate to Live-Editing" matTooltipPosition="above" (click)="navigateToLiveEditing()" [inline]="true" class="pipely-live-editing-button">settings</mat-icon>
                 </div>
 
                 <div class="connection next-connection" fxLayout="column" fxLayoutAlign="center center">
@@ -84,13 +87,15 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     draggableModel: DraggableModel;
     componentRef: ComponentRef<DraggableComponent>;
 
-    @ViewChild("iconInnerContainer") iconContainer:ElementRef;
+    @ViewChild("iconInnerContainer") iconContainer: ElementRef;
     @ViewChild("draggableElement") draggableElement: ElementRef;
     @ViewChild("previousConnection", {read: ViewContainerRef}) previousConnectionContainer: ViewContainerRef;
     @ViewChild("nextConnection", {read: ViewContainerRef}) nextConnectionContainer: ViewContainerRef;
 
 
     public id: string;
+
+    private dropzoneType:typeof DropzoneType = DropzoneType;
 
     private dragStartSource = new Subject<MouseEvent>();
     private isAlive = new Subject<void>();
@@ -114,7 +119,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
     private dropzoneFactory: DropzoneFactory;
 
-    constructor(private resolver: ComponentFactoryResolver) {
+    constructor(private resolver: ComponentFactoryResolver,private store: Store<any>) {
         this.id = uuid();
         this.dropzoneFactory = new DropzoneFactory(resolver);
     }
@@ -147,6 +152,12 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         if (!this.getHead().getDraggableModel().isMirror) {
             this.workspace.registerDraggable(this);
         }
+    }
+
+    navigateToLiveEditing() {
+        console.log("navigation to live-editing triggered.",this.draggableModel.blueprintRef);
+        this.store.dispatch(new Go({path: ["/filter/" + this.draggableModel.blueprintRef.uuid]}))
+
     }
 
     setLastDrag(x: number, y: number) {
@@ -198,24 +209,26 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         return connectionDropzone;
 
     }
+
     public createNext() {
         const draggableFactory = new DraggableFactory(this.resolver);
         this.draggableModel.next =
-            {...this.draggableModel.next,
+            {
+                ...this.draggableModel.next,
                 initialDropzone: this.nextConnectionDropzone,
                 previous: this,
-                position:this.appendPosition(),
-                rootDropzone:DropzoneType.Workspace
+                position: this.appendPosition(),
+                rootDropzone: DropzoneType.Workspace
             };
         this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(), this.draggableModel.next, this.workspace);
         this.nextConnectionDropzone.occupyDropzone();
     }
 
-    private appendPosition():{x:number,y:number}{
+    private appendPosition(): { x: number, y: number } {
         const dropZoneRect = this.nextConnectionDropzone.getRectangle();
         const rect = this.getRectangle();
         return {
-            x: Math.abs(rect.right - dropZoneRect.left)-20,
+            x: Math.abs(rect.right - dropZoneRect.left) - 20,
             y: 0
         };
     }
