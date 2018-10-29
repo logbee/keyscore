@@ -149,7 +149,10 @@ function createDatasetTableRowModelData(input: Field, output: Field, resultAvail
         }, ChangeType.Added);
         outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
 
-    } else if (input != undefined && output === undefined) {
+    }
+    if (input != undefined && output === undefined) {
+        console.log("reched input not null and output undefined case");
+        console.log("resultAvailable is :" + resultAvailable);
         if (resultAvailable) {
             outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
                 jsonClass: ValueJsonClass.TextValue,
@@ -240,11 +243,11 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
                     return ([dataset, findMatch(dataset, extractedDatasets)]);
                 });
             }
+            result.resultAvailable = true;
             zippedDatasets.map(([input, output]) => {
-                resultModels.push(createDatasetTableModel(input, output, state.resultAvailable));
+                resultModels.push(createDatasetTableModel(input, output, result.resultAvailable));
             });
             result.datasetsModels = resultModels;
-            result.resultAvailable = true;
             result.extractFinish = true;
             break;
         case RESET_ACTION:
