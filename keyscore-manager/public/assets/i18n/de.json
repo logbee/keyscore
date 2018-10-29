@@ -105,6 +105,10 @@
   "FILTERCHOSERCOMPONENT": {
     "FILTERCHOOSER_TITLE": "Filter Auswahl"
   },
+  "CONFIGURATOR": {
+    "PIPELINE_NAME": "Pipeline Name",
+    "PIPELINE_DESCRIPTION": "Pipeline Beschreibung"
+  },
   "PARAMETERCOMPONENT": {
     "ISREQUIRED": "wird benötigt."
   },

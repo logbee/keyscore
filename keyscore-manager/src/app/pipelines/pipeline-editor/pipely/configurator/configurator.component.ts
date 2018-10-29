@@ -25,7 +25,7 @@ import * as _ from "lodash";
                                 <input matInput type="text" placeholder="Pipeline Name"
                                        formControlName="pipeline.name"
                                        id="pipeline.name">
-                                <mat-label>Pipeline Name</mat-label>
+                                <mat-label>{{'CONFIGURATOR.PIPELINE_NAME' | translate}}</mat-label>
 
                                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear"
                                         (click)="value=''">
@@ -37,7 +37,7 @@ import * as _ from "lodash";
                                 <textarea matInput type="text" placeholder="Pipeline Description"
                                           formControlName="pipeline.description"
                                           id="pipeline.description"></textarea>
-                                <mat-label>Pipeline Description</mat-label>
+                                <mat-label>{{'CONFIGURATOR.PIPELINE_DESCRIPTION' | translate}}</mat-label>
 
                                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear"
                                         (click)="value=''">
