@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {Observable} from "rxjs/index";
+import {BehaviorSubject, Observable} from "rxjs/index";
 import {isSpinnerShowing} from "../common/loading/loading.reducer";
 import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
@@ -16,6 +16,7 @@ import "./live-editing-styles/live-editing.css";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {RestoreFilterConfiguration, SaveUpdatedConfiguration, UpdateFilterConfiguration} from "./live-editing.actions";
+import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-descriptor.model";
 
 
 @Component({
@@ -28,19 +29,18 @@ import {RestoreFilterConfiguration, SaveUpdatedConfiguration, UpdateFilterConfig
         </header-bar>
         <div fxFlexFill="" fxLayout="row" fxLayoutGap="15" *ngIf="!(loading$ | async); else loading">
             <dataset-table class="live-editing-wrapper" fxFlex=""></dataset-table>
-            <button *ngIf="!showConfigurator" matTooltip="Show Configuration." mat-mini-fab color="primary"
-                    (click)="collapse()" class="collapseButton">
+            <button *ngIf="!showConfigurator" matTooltip="{{'CONFIGURATOR.SHOW' | translate}}" mat-mini-fab color="primary"
+                    (click)="show()" class="collapseButton">
                 <mat-icon>chevron_left</mat-icon>
             </button>
             <configurator *ngIf="showConfigurator" class="mat-elevation-z6" fxFlex="25"
-                          [isOpened]=""
                           [collapsibleButton]="true"
                           [selectedBlock]="{configuration:(configuration$|async),
                                     descriptor:(descriptor$|async)}"
                           [showFooter]="true"
                           (onSave)="saveConfiguration($event)"
                           (onRevert)="revertFilterConfiguration()"
-                          (onShowConfigurator)="showConfiguratorEvent($event)">
+                          (onShowConfigurator)="hide($event)">
             </configurator>
 
         </div>
@@ -66,7 +66,8 @@ export class LiveEditingComponent implements OnInit {
     private configuration$: Observable<Configuration>;
     private filterState$: Observable<ResourceInstanceState>;
     private descriptor$: Observable<ResolvedFilterDescriptor>;
-    public showConfigurator: boolean = true;
+    private showConfigurator: boolean = true;
+
 
 
     private filterName: string = "Live-Editing";
@@ -88,7 +89,7 @@ export class LiveEditingComponent implements OnInit {
     }
 
 
-    collapse() {
+    show() {
         this.showConfigurator = true;
     }
 
@@ -106,9 +107,8 @@ export class LiveEditingComponent implements OnInit {
         }
     }
 
-    showConfiguratorEvent(show: boolean) {
-        console.log("set showConfigurator to", show);
-        this.showConfigurator = show;
+    hide() {
+        this.showConfigurator = false;
     }
 
     saveConfiguration($event: Configuration) {

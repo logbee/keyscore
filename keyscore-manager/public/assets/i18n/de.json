@@ -107,7 +107,9 @@
   },
   "CONFIGURATOR": {
     "PIPELINE_NAME": "Pipeline Name",
-    "PIPELINE_DESCRIPTION": "Pipeline Beschreibung"
+    "PIPELINE_DESCRIPTION": "Pipeline Beschreibung",
+    "HIDE": "Konfiguration verbergen.",
+    "SHOW": "Konfiguration einblenden."
   },
   "PARAMETERCOMPONENT": {
     "ISREQUIRED": "wird benötigt."

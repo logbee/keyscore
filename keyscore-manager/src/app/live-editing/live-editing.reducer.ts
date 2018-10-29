@@ -151,8 +151,6 @@ function createDatasetTableRowModelData(input: Field, output: Field, resultAvail
 
     }
     if (input != undefined && output === undefined) {
-        console.log("reched input not null and output undefined case");
-        console.log("resultAvailable is :" + resultAvailable);
         if (resultAvailable) {
             outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
                 jsonClass: ValueJsonClass.TextValue,

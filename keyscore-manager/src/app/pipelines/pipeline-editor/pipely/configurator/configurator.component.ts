@@ -52,7 +52,7 @@ import * as _ from "lodash";
                         <mat-divider></mat-divider>
                     </ng-template>
                 </div>
-                <button matTooltip="Hide Configuration." *ngIf="collapsibleButton" mat-mini-fab color="primary"
+                <button matTooltip="{{'CONFIGURATOR.HIDE' | translate}}" *ngIf="collapsibleButton" mat-mini-fab color="primary"
                         (click)="collapse()">
                     <mat-icon>chevron_right</mat-icon>
                 </button>
@@ -93,10 +93,9 @@ import * as _ from "lodash";
 })
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
-    @Input() isOpened: boolean;
     @Input() showFooter: boolean;
-    @Input() pipelineMetaData: { name: string, description: string };
     @Input() collapsibleButton: boolean;
+    @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
     isVisible: boolean = true;
 
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
@@ -174,6 +173,9 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.onSavePipelineMetaData.emit({name:val['pipeline.name'],description:val['pipeline.description']});
         });
 
+        console.log("Current Block:", this.selectedBlock);
+
+
     }
 
     private isAllNullOrEmpty(obj: Object): boolean {
@@ -194,6 +196,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     collapse() {
         this.isVisible = !this.isVisible;
+        console.log("Current Block:", this.selectedBlock);
         this.onShowConfigurator.emit(this.isVisible);
     }
 
