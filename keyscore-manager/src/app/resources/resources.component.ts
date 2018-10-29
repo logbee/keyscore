@@ -32,7 +32,7 @@ import {Health} from "../models/common/Health";
                 [showManualReload]="false"
                 [title]="title">
         </header-bar>
-        <div fxFlexFill="" fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
+        <div fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
             <!--Search Field-->
             <mat-form-field fxFlex="5%" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"

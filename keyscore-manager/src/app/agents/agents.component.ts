@@ -15,7 +15,7 @@ import {AgentDataSource} from "../dataSources/AgentDataSource";
                 [showManualReload]="true"
                 (onManualReload)="reload()">
         </header-bar>
-        <div fxFlexFill fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
+        <div fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
             <mat-form-field fxFlex="5%" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
                        placeholder="{{'GENERAL.SEARCH' | translate}}">

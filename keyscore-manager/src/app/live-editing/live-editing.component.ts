@@ -27,7 +27,7 @@ import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-
                 [title]="filterName"
                 (onManualRelad)="reload()">
         </header-bar>
-        <div fxFlexFill="" fxLayout="row" fxLayoutGap="15" *ngIf="!(loading$ | async); else loading">
+        <div fxLayout="row" style="height: calc(95vh);" fxLayoutGap="15" *ngIf="!(loading$ | async); else loading">
             <dataset-table class="live-editing-wrapper" fxFlex=""></dataset-table>
             <button *ngIf="!showConfigurator" matTooltip="{{'CONFIGURATOR.SHOW' | translate}}" mat-mini-fab color="primary"
                     (click)="show()" class="collapseButton">
