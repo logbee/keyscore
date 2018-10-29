@@ -7,12 +7,12 @@ import org.json4s.JsonAST.{JNull, JString}
 case object FieldValueTypeSerializer extends CustomSerializer[FieldValueType](format => ({
   case JString(fieldValueType) => fieldValueType match {
     case "Unknown" => FieldValueType.Unknown
-    case "Boolean" => FieldValueType.Boolean
-    case "Number" => FieldValueType.Number
-    case "Decimal" => FieldValueType.Decimal
-    case "Text" => FieldValueType.Text
-    case "Timestamp" => FieldValueType.Timestamp
-    case "Duration" => FieldValueType.Duration
+    case "BooleanValue" => FieldValueType.Boolean
+    case "NumberValue" => FieldValueType.Number
+    case "DecimalValue" => FieldValueType.Decimal
+    case "TextValue" => FieldValueType.Text
+    case "TimestampValue" => FieldValueType.Timestamp
+    case "DurationValue" => FieldValueType.Duration
   }
   case JNull => FieldValueType.Unknown
 }, {
