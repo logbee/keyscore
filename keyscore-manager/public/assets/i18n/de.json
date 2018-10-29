@@ -95,9 +95,9 @@
     "FIELDS": "Felder",
     "INPUT": "Eingangswerte",
     "OUTPUT": "Ausgangswerte",
-    "PRESET_IN": "Zeige nur Einangswerte.",
-    "PRESET_OUT": "Zeige alle Ein und Ausgangswerte.",
-    "PRESET_ALL": "Zeige nur Ausgangswerte."
+    "PRESET_IN": "Zeige nur Ausgangswerte.",
+    "PRESET_OUT": "Zeige alle  Ausgangswerte und Ergebniswerte.",
+    "PRESET_ALL": "Zeige nur Ergebniswerte."
   },
   "FILTERSCOMPONENT": {
     "FILTERS": "Filter"

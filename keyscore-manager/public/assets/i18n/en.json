@@ -90,10 +90,10 @@
     "MESSAGE": "message",
     "NODATA": "No messages to show.",
     "NODATACONFIG": "Configuration disabled.",
-    "PAUSED": "isPaused",
+    "PAUSED": "is paused",
     "FIELDS": "Fields",
-    "INPUT": "InputValues",
-    "OUTPUT": "OutputValues",
+    "INPUT": "Input values",
+    "OUTPUT": "Output values",
     "PRESET_IN": "View Input values only.",
     "PRESET_OUT": "View Output values only",
     "PRESET_ALL": "View In/Out values only"
