@@ -1,7 +1,16 @@
 @import "../../../style/variables";
 
-#header-bar .header-button-wrapper{
-  padding-right: 10px;
+#header-bar {
+  padding:10px;
+  height:5vh;
+  min-height:calc(20px + 24px); // padding + x-large font size
+  background-color: #365880;
+  color: white;
+}
+
+#header-bar .title {
+  font-size: x-large;
+  color: white;
 }
 
 #header-bar .mat-success{

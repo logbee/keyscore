@@ -47,8 +47,13 @@ import {IconEncoding, IconFormat} from "../../../models/descriptors/Icon";
                         <svg:g>
                             <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
                                       id="rect5038"
-                                      attr.fill="{{draggableModel.color}}"
-                                      style="fill-opacity:1;stroke:#398033;stroke-width:0px"/>
+                                      attr.fill="{{draggableModel.color}}"/>
+                            <svg:path d="M282.75 0.5 H 687.75 M 687.75 567.429 H 282.75"
+                                      id="rect5038-selected"
+                                      fill="#365880"
+                                      attr.stroke-width="{{isSelected ? '30px' : '0px'}}"
+                                      attr.stroke="#365880"
+                                      />
                         </svg:g>
                         <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
                                [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>
@@ -89,6 +94,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
     private dragStartSource = new Subject<MouseEvent>();
     private isAlive = new Subject<void>();
+
+    private isSelected = false;
 
     dragStart$ = this.dragStartSource.asObservable().pipe(takeUntil(this.isAlive));
 
@@ -208,7 +215,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
         const dropZoneRect = this.nextConnectionDropzone.getRectangle();
         const rect = this.getRectangle();
         return {
-            x: Math.abs(rect.right - dropZoneRect.left) - 20,
+            x: Math.abs(rect.right - dropZoneRect.left)-20,
             y: 0
         };
     }

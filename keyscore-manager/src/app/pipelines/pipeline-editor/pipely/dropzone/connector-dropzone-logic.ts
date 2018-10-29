@@ -56,7 +56,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const nextModelCopy = deepcopy(this.component.getOwner().getDraggableModel());
         const nexDraggableModel = {
             ...nextModelCopy/*this.component.getOwner().getDraggableModel()*/,
-            position: this.computePrependPosition(droppedPosition, currentDragged.getDraggableSize().width)
+            position: this.computePrependPosition()
         };
 
         let draggedCopy: DraggableModel = deepcopy(currentDragged.getDraggableModel());
@@ -75,12 +75,12 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
 
     }
 
-    private computePrependPosition(droppedPosition: { x: number, y: number }, draggedWidth: number): { x: number, y: number } {
+    private computePrependPosition(): { x: number, y: number } {
         const componentRectangle = this.component.getRectangle();
         const ownerRectangle = this.component.getOwner().getRectangle();
         return {
-            x: Math.abs(ownerRectangle.left - componentRectangle.right) - 20,
-            y: -Math.abs(componentRectangle.top - ownerRectangle.top)
+            x: ownerRectangle.left - 20,
+            y: componentRectangle.top
         };
     }
 

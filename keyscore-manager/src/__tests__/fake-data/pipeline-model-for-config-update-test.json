@@ -20,14 +20,14 @@
     "metadata":{
       "labels":[
         {
-          "name":"displayName",
+          "name":"pipeline.name",
           "value":{
             "jsonClass":"",
             "value":"New Pipeline"
           }
         },
         {
-          "name":"description",
+          "name":"pipeline.description",
           "value":{
             "jsonClass":"",
             "value":"Your new Pipeline"

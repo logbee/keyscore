@@ -4,28 +4,32 @@ import "./style/headerbar.style.scss"
 @Component({
     selector: "header-bar",
     template: `
-        <div  fxLayout="column">
+        <div fxLayout="column">
             <div id="header-bar" fxLayout="row" fxLayoutAlign="space-between center">
                 <span class="title">{{title}}</span>
-                <div class="header-button-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
-                     fxLayoutGap="10px">
-                    <button mat-stroked-button color="warn" *ngIf="this.showDelete" (click)="remove()">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                    <button mat-stroked-button *ngIf="this.showManualReload" (click)="reload()">
-                        <mat-icon>autorenew</mat-icon>
-                    </button>
-                    <button mat-stroked-button *ngIf="this.showSave" (click)="save()">
-                        <mat-icon>save</mat-icon>
-                    </button>
-                    <button mat-stroked-button *ngIf="this.showRun" (click)="run()">
-                        <mat-icon>play_circle_outline</mat-icon>
-                    </button>
-                    <refresh-time *ngIf="this.showRefresh" [refreshTime]="this.showRefresh"
-                                  (update)="updateRefreshTime($event)"></refresh-time>
-                    <button mat-stroked-button *ngIf="this.showAdd" (click)="add()">
-                        <mat-icon>add_circle</mat-icon>
-                    </button>
+                <div class="header-button-wrapper" fxLayout="row" fxLayoutAlign="space-between center"
+                     fxLayoutGap="50px">
+                    <div class="danger-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="10px">
+                        <button mat-stroked-button color="warn" *ngIf="this.showDelete" (click)="remove()">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                    <div class="default-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="10px"> 
+                        <button mat-stroked-button *ngIf="this.showManualReload" (click)="reload()">
+                            <mat-icon>autorenew</mat-icon>
+                        </button>
+                        <button mat-stroked-button *ngIf="this.showSave" (click)="save()">
+                            <mat-icon>save</mat-icon>
+                        </button>
+                        <button mat-stroked-button *ngIf="this.showRun" (click)="run()">
+                            <mat-icon>play_circle_outline</mat-icon>
+                        </button>
+                        <refresh-time *ngIf="this.showRefresh" [refreshTime]="this.showRefresh"
+                                      (update)="updateRefreshTime($event)"></refresh-time>
+                        <button mat-stroked-button *ngIf="this.showAdd" (click)="add()">
+                            <mat-icon>add_circle</mat-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
             <mat-progress-bar *ngIf="isLoading" mode="indeterminate" color="accent"></mat-progress-bar>
