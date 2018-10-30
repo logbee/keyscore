@@ -18,6 +18,7 @@ import io.logbee.keyscore.model.configuration.Configuration
 import org.json4s.native.Serialization.{read, write}
 import org.springframework.http.HttpStatus
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
+import io.logbee.keyscore.model.configuration.ParameterMessage.SealedValue
 import io.logbee.keyscore.model.data.Health.Green
 import org.scalatest.Matchers
 
@@ -47,7 +48,7 @@ class WorkflowTest extends Matchers {
     Field("number1", NumberValue(1001L)),
     Field("number2", NumberValue(1002L)),
     Field("wanted", BooleanValue(false)),
-    Field("health", HealthValue(Health.Gray))
+    Field("health", HealthValue(Health.Green))
   )
 
   val workflowSecondRecord = Record(
@@ -74,9 +75,6 @@ class WorkflowTest extends Matchers {
   val workflowSecondDataset = Dataset(workflowSecondRecord)
   val workflowThirdDataset = Dataset(workflowThirdRecord)
 
-  val datasets = List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset)
-  val serializedDatasets = write(datasets)
-
   val retainFieldsID = "f368c58c-db9a-43dc-8ccb-f495d29c441f"
   val secondRemoveFieldsID = "921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"
 
@@ -86,10 +84,12 @@ class WorkflowTest extends Matchers {
     createWorkflowPipeline(runner)
     pollPipelineHealthState() shouldBe true
     //Insert Datasets
-    insertDatasetsIntoFilter(retainFieldsID, serializedDatasets)
-    //Check Datasets
     Thread.sleep(5000)
-    extractDatsetsFromFilter(secondRemoveFieldsID, 3, 3)
+    insertDatasetsIntoFilter(retainFieldsID, write(List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset)))
+    Thread.sleep(2000)
+    //Check Datasets
+    pollDatasets(filterID = secondRemoveFieldsID, expect = 3) shouldBe true
+    //TODO Clean up the backend so the test can run again with same containers | atm, the containers must be newly built for every test
   }
 
   private def createWorkflowPipeline(implicit runner: TestRunner): TestAction = {
@@ -237,7 +237,7 @@ class WorkflowTest extends Matchers {
     runner.http(action => action.client(frontierClient)
       .receive()
       .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
+      .validationCallback((message, _) => {
         val payload = message.getPayload.asInstanceOf[String]
         instances = read[List[PipelineInstance]](payload)
       }))
@@ -261,8 +261,39 @@ class WorkflowTest extends Matchers {
     )
   }
 
-  def extractDatsetsFromFilter(filterId: String, amount: Int, expect: Int)(implicit runner: TestRunner): TestAction = {
+  def pollDatasets(filterID: String, expect: Int = 1, maxRetries: Int = 10, interval: FiniteDuration = 2 seconds)(implicit runner: TestRunner): Boolean = {
+    var retries = maxRetries
+    while (retries > 0) {
+      logger.debug(s"Check Datasets for ${expect} Filter with $retries retries remaining.")
+
+      val listOfDatasets = extractDatsetsFromFilter(filterID, amount = expect)
+
+      if (listOfDatasets.size == expect) {
+        listOfDatasets.foreach(dataset => {
+          dataset.records should have size 1
+          dataset.records.head.fields should have size 2
+          val fieldNames = dataset.records.head.fields.map(field => field.name)
+          fieldNames should contain ("text3")
+          fieldNames should contain ("number1")
+          fieldNames should not contain ("text1")
+          fieldNames should not contain ("text2")
+          fieldNames should not contain ("number2")
+          fieldNames should not contain ("health")
+          fieldNames should not contain ("wanted")
+        })
+        return true
+      }
+
+      Thread.sleep(interval.toMillis)
+      retries -= 1
+    }
+
+    false
+  }
+
+  def extractDatsetsFromFilter(filterId: String, amount: Int)(implicit runner: TestRunner): List[Dataset] = {
     logger.debug(s"Reached Extract Datasets for ${filterId}")
+    var listOfDatasets = List.empty[Dataset]
 
     runner.http(action => action.client(frontierClient)
       .send()
@@ -272,12 +303,13 @@ class WorkflowTest extends Matchers {
     runner.http(action => action.client(frontierClient)
       .receive()
       .response(HttpStatus.OK)
-      .validationCallback((message, context) => {
-        val payload = read[List[Dataset]](message.getPayload.asInstanceOf[String])
-        payload should have size expect
+      .validationCallback((message, _) => {
+        listOfDatasets = read[List[Dataset]](message.getPayload.asInstanceOf[String])
+        Thread.sleep(500)
       })
     )
 
+    listOfDatasets
   }
 
 }
