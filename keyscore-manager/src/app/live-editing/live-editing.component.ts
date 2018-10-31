@@ -15,8 +15,14 @@ import {
 import "./live-editing-styles/live-editing.css";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {RestoreFilterConfiguration, SaveUpdatedConfiguration, UpdateFilterConfiguration} from "./live-editing.actions";
+import {
+    LoadAllPipelinesForRedirect,
+    RestoreFilterConfiguration,
+    SaveUpdatedConfiguration,
+    UpdateFilterConfiguration
+} from "./live-editing.actions";
 import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-descriptor.model";
+import {Go} from "../router/router.actions";
 
 
 @Component({
@@ -27,12 +33,26 @@ import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-
                 [title]="filterName"
                 (onManualRelad)="reload()">
         </header-bar>
-        <div fxLayout="row" style="height: calc(95vh);" fxLayoutGap="15" *ngIf="!(loading$ | async); else loading">
-            <dataset-table class="live-editing-wrapper" fxFlex=""></dataset-table>
-            <button *ngIf="!showConfigurator" matTooltip="{{'CONFIGURATOR.SHOW' | translate}}" mat-mini-fab color="primary"
-                    (click)="show()" class="collapseButton">
-                <mat-icon>chevron_left</mat-icon>
-            </button>
+        <div fxLayout="row" style="height:95vh;" fxLayoutGap="15" *ngIf="!(loading$ | async); else loading">
+            <div fxLayout="column" fxLayoutGap="15px" fxFlex="">
+                <div fxFlex="" fxLayout="row" fxLayoutGap="15px">
+                    <button fxFlex="5" matTooltip="Navigate to Pipely" matTooltipPosition="after" mat-raised-button (click)="navigatetoPipely()" color="basic">
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    
+                    
+                    
+                    <div fxFlex="90"></div>
+                    <button *ngIf="!showConfigurator" matTooltip="{{'CONFIGURATOR.SHOW' | translate}}" mat-mini-fab
+                            color="primary"
+                            (click)="show()" class="collapseButton">
+                        <mat-icon>chevron_left</mat-icon>
+                    </button>
+                </div>
+                <div fxFlex="95" fxFlexFill="" fxLayout="row" fxLayoutGap="15px">
+                    <dataset-table fxFlex="" class="live-editing-wrapper"></dataset-table>
+                </div>
+            </div>
             <configurator *ngIf="showConfigurator" class="mat-elevation-z6" fxFlex="25"
                           [collapsibleButton]="true"
                           [selectedBlock]="{configuration:(configuration$|async),
@@ -55,11 +75,8 @@ import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-
 
 export class LiveEditingComponent implements OnInit {
     // Flags
-
-    // private errorHandling: boolean = false;
-    // private error$: Observable<ErrorState>;
     private loading$: Observable<boolean>;
-    private liveEditingFlag: boolean;
+    liveEditingFlag: boolean;
     private blueprint$: Observable<Blueprint>;
     private message: string = "The requested resource could not be shown";
     // // Observables
@@ -67,7 +84,6 @@ export class LiveEditingComponent implements OnInit {
     private filterState$: Observable<ResourceInstanceState>;
     private descriptor$: Observable<ResolvedFilterDescriptor>;
     private showConfigurator: boolean = true;
-
 
 
     private filterName: string = "Live-Editing";
@@ -79,7 +95,6 @@ export class LiveEditingComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        // this.error$.subscribe((cause) => this.triggerErrorComponent(cause.httpError));
         this.store.pipe(select(selectUpdatedConfiguration)).subscribe(config => {
                 if (config) {
                     this.store.dispatch(new UpdateFilterConfiguration(config));
@@ -88,17 +103,15 @@ export class LiveEditingComponent implements OnInit {
         );
     }
 
+    navigatetoPipely() {
+        console.log("Triggered navigate to pipely");
 
-    show() {
-        this.showConfigurator = true;
+        this.store.dispatch(new LoadAllPipelinesForRedirect());
+
     }
 
     private initialize() {
-        if (!this.liveEditingFlag) {
-            // this.triggerErrorComponent("999");
-        }
-        else {
-            // this.error$ = this.store.pipe(select(errorState));
+        if (this.liveEditingFlag) {
             this.loading$ = this.store.pipe(select(isSpinnerShowing));
             this.filterState$ = this.store.pipe(select(selectLiveEditingFilterState));
             this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
@@ -106,17 +119,20 @@ export class LiveEditingComponent implements OnInit {
             this.configuration$ = this.store.pipe(select(selectInitialConfiguration));
         }
     }
-
-    hide() {
-        this.showConfigurator = false;
-    }
-
     saveConfiguration($event: Configuration) {
         this.store.dispatch(new SaveUpdatedConfiguration($event));
     }
 
     revertFilterConfiguration() {
         this.store.dispatch(new RestoreFilterConfiguration())
+    }
+    // Configurator collapse methods
+    hide() {
+        this.showConfigurator = false;
+    }
+
+    show() {
+        this.showConfigurator = true;
     }
 
 }

@@ -40,7 +40,8 @@ export const LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS = "[Filter] LoadDescriptorFor
 export const RESOLVED_DESCRIPTOR_FOR_BLUEPRINT = "[Filter] ResolvedDescriptorForBlueprint";
 export const SAVE_UPDATED_CONFIGURATION = "[Filter] SaveUpdatedConfiguration";
 export const RESET_ACTION = "[Filter] ResetAction";
-
+export const LOAD_ALL_PIPELINES_FOR_REDIRECT = "[Filter] LoadAllPipelinesForRedirect";
+export const NAVIAGATE_TO_PIPELY_FAILURE = "[Filter] NaviagatetoPipelyFailure";
 
 export type LiveEditingActions =
 
@@ -77,6 +78,20 @@ export type LiveEditingActions =
     | ResolvedDescriptorForBlueprintSuccess
     | SaveUpdatedConfiguration
     | ResetAction
+    | LoadAllPipelinesForRedirect
+    | NaviagatetoPipelyFailure;
+
+export class LoadAllPipelinesForRedirect {
+    public readonly type = LOAD_ALL_PIPELINES_FOR_REDIRECT;
+}
+
+export class NaviagatetoPipelyFailure {
+    public readonly type = NAVIAGATE_TO_PIPELY_FAILURE;
+
+    constructor(readonly cause: any) {
+
+    }
+}
 
 export class LoadFilterConfigurationAction implements Action {
     public readonly type = LOAD_FILTER_CONFIGURATION;

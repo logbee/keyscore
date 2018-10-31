@@ -53,7 +53,7 @@ import * as _ from "lodash";
                     </ng-template>
                 </div>
                 <button matTooltip="{{'CONFIGURATOR.HIDE' | translate}}" *ngIf="collapsibleButton" mat-mini-fab color="primary"
-                        (click)="collapse()">
+                        (click)="collapse()" style="margin-right: 30px;">
                     <mat-icon>chevron_right</mat-icon>
                 </button>
             </div>
@@ -73,7 +73,7 @@ import * as _ from "lodash";
                         <button matTooltip="{{'PIPELY.REVERT_TOOLTIP'| translate}}" mat-raised-button (click)="revert()"
                                 color="warn">
                             <mat-icon>undo</mat-icon>
-                            {{'PIPELY.REVERT' | translate}}
+                            {{'PIPELY.REVERT' | translate}}}
                         </button>
                         <button mat-raised-button matTooltip="{{'PIPELY.RESET_TOOLTIP'| translate}}" (click)="reset()"
                                 color="default">

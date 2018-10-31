@@ -276,7 +276,7 @@ export class PipelinesEffects {
     @Effect() public loadPipelineBlueprints$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_PIPELINEBLUEPRINTS),
         mergeMap(_ => {
-            return this.blueprintService.getAllPipelineBlueprints().pipe(
+            return this.blueprintService.loadAllPipelineBlueprints().pipe(
                 map((blueprints) => new LoadPipelineBlueprintsSuccess(Object.values(blueprints))),
                 catchError((cause) => of(new LoadPipelineBlueprintsFailure(cause)))
             );

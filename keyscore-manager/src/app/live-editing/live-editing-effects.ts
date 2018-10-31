@@ -17,12 +17,12 @@ import {
     ExtractDatasetsResultSuccess, INSERT_DATASETS_FAILURE,
     INSERT_DATASETS_SUCCESS,
     InsertDatasetsFailure,
-    InsertDatasetsSuccess,
+    InsertDatasetsSuccess, LOAD_ALL_PIPELINES_FOR_REDIRECT,
     LOAD_DESCRIPTOR_FOR_BLUEPRINT,
     LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS, LOAD_FILTER_BLUEPRINT_FAILURE,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION, LOAD_FILTER_CONFIGURATION_FAILURE,
-    LOAD_FILTERSTATE, LOAD_FILTERSTATE_FAILURE,
+    LOAD_FILTERSTATE, LOAD_FILTERSTATE_FAILURE, LoadAllPipelinesForRedirect,
     LoadDescriptorForBlueprint,
     LoadDescriptorForBlueprintSuccess,
     LoadFilterBlueprintFailure,
@@ -32,7 +32,7 @@ import {
     LoadFilterConfigurationSuccess,
     LoadFilterStateAction,
     LoadFilterStateFailure,
-    LoadFilterStateSuccess,
+    LoadFilterStateSuccess, NAVIAGATE_TO_PIPELY_FAILURE, NaviagatetoPipelyFailure,
     PAUSE_FILTER, PAUSE_FILTER_FAILURE,
     PauseFilterAction,
     PauseFilterFailure,
@@ -50,7 +50,7 @@ import {
 } from "./live-editing.actions";
 import {BlueprintService} from "../services/rest-api/BlueprintService";
 import {Configuration} from "../models/common/Configuration";
-import {Blueprint} from "../models/blueprints/Blueprint";
+import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {switchMap} from "rxjs/operators";
@@ -65,6 +65,11 @@ import {FilterControllerService} from "../services/rest-api/FilterController.ser
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
 import {SnackbarOpen} from "../common/snackbar/snackbar.actions";
+import {PipelineService} from "../services/rest-api/PipelineService";
+import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
+import {Go} from "../router/router.actions";
+import * as RouterActions from "../router/router.actions";
+import {StringTMap} from "../common/object-maps";
 
 type  filterPreparationTypes =
     |DrainFilterFailure
@@ -258,6 +263,20 @@ export class FiltersEffects {
         })
     );
 
+    @Effect()
+    public loadAllPipelines$: Observable<Action> = this.actions$.pipe(
+        ofType(LOAD_ALL_PIPELINES_FOR_REDIRECT),
+        mergeMap(_ => {
+            return this.blueprintService.loadAllPipelineBlueprints().pipe(
+                withLatestFrom(this.store.pipe(select(selectCurrentBlueprint))),
+                map(([pipelines, blueprint]) => new RouterActions.Go({
+                    path: ["pipelines/" + this.getMatchingPipeline(pipelines, blueprint), {}],
+                    query: {},
+                    extras: {}
+                })),
+                catchError((cause: any) => of(new NaviagatetoPipelyFailure(cause))));
+        })
+    );
 
     // SnackBar
 
@@ -265,6 +284,18 @@ export class FiltersEffects {
         ofType(RECONFIGURE_FILTER_FAILURE),
         map(() => new SnackbarOpen({
             message: "An error occured while appliying the configuration.",
+            action: 'Failed',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
+            }
+        }))
+    );
+
+    @Effect() public navigateToPipelySnackBar$: Observable<Action> = this.actions$.pipe(
+        ofType(NAVIAGATE_TO_PIPELY_FAILURE),
+        map(() => new SnackbarOpen({
+            message: "No running pipeline for this filter was found.",
             action: 'Failed',
             config: {
                 horizontalPosition: "center",
@@ -321,6 +352,15 @@ export class FiltersEffects {
         }))
     );
 
+    getMatchingPipeline(pipelines: StringTMap<PipelineBlueprint>, blueprint: Blueprint) {
+        let pipelineList = Object.values(pipelines);
+        let result =  pipelineList.map(pipeline => {
+            pipeline.blueprints.filter(bp => bp.uuid == blueprint.ref.uuid);
+            return pipeline;
+        });
+        return result[0].ref.uuid
+    }
+
 
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
@@ -328,6 +368,7 @@ export class FiltersEffects {
                 private configurationService: ConfigurationService,
                 private descriptorService: DescriptorService,
                 private descriptorResolver: DescriptorResolverService,
+                private pipelineService: PipelineService,
                 private blueprintService: BlueprintService) {
     }
 

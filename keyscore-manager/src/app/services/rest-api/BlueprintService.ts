@@ -20,7 +20,7 @@ export class BlueprintService {
     }
 
     //Blueprints
-    getAllPipelineBlueprints(): Observable<StringTMap<PipelineBlueprint>> {
+    loadAllPipelineBlueprints(): Observable<StringTMap<PipelineBlueprint>> {
         return this.httpClient.get<StringTMap<PipelineBlueprint>>(`${BlueprintService.BASE_URL}/pipeline/*`)
     }
 
