@@ -24,7 +24,7 @@ import org.scalatest.Matchers
 
 import scala.concurrent.duration._
 
-//@ExtendWith(value = Array(classOf[CitrusExtension]))
+@ExtendWith(value = Array(classOf[CitrusExtension]))
 class WorkflowTest extends Matchers {
 
   private implicit val formats = KeyscoreFormats.formats
@@ -78,18 +78,17 @@ class WorkflowTest extends Matchers {
   val retainFieldsID = "f368c58c-db9a-43dc-8ccb-f495d29c441f"
   val secondRemoveFieldsID = "921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"
 
-//  @Test
-//  @CitrusTest
+  @Test
+  @CitrusTest
   def testWorkflow(implicit @CitrusResource runner: TestRunner): Unit = {
     createWorkflowPipeline(runner)
     pollPipelineHealthState() shouldBe true
     //Insert Datasets
-    Thread.sleep(5000)
     insertDatasetsIntoFilter(retainFieldsID, write(List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset)))
-    Thread.sleep(2000)
     //Check Datasets
     pollDatasets(filterID = secondRemoveFieldsID, expect = 3) shouldBe true
-    //TODO Clean up the backend so the test can run again with same containers | atm, the containers must be newly built for every test
+    //Cleanup
+    cleanUp
   }
 
   private def createWorkflowPipeline(implicit runner: TestRunner): TestAction = {
@@ -144,7 +143,12 @@ class WorkflowTest extends Matchers {
     startPipeline(workflowPipelineBlueprint, pipelineID)
   }
 
-  def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
+  private def cleanUp(implicit runner: TestRunner): TestAction = {
+    deleteBlueprints
+    deleteConfigurations
+  }
+
+  private def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
     logger.debug(s"Reached PUT PipelineBlueprint for ${pipelineObject.ref.uuid}")
 
     runner.http(action => action.client(frontierClient)
@@ -161,7 +165,7 @@ class WorkflowTest extends Matchers {
 
   }
 
-  def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
+  private def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
     logger.debug(s"PUT Blueprint")
 
     runner.http(action => action.client(frontierClient)
@@ -177,7 +181,7 @@ class WorkflowTest extends Matchers {
     )
   }
 
-  def putSingleConfiguration(configurationObject: Configuration, configurationJSON: String)(implicit runner: TestRunner): TestAction = {
+  private def putSingleConfiguration(configurationObject: Configuration, configurationJSON: String)(implicit runner: TestRunner): TestAction = {
     logger.debug(s"PUT Configuration for ${configurationObject.ref.uuid}")
 
     runner.http(action => action.client(frontierClient)
@@ -193,7 +197,7 @@ class WorkflowTest extends Matchers {
     )
   }
 
-  def startPipeline(pipelineObject: PipelineBlueprint, pipelineID: String)(implicit runner: TestRunner): TestAction = {
+  private def startPipeline(pipelineObject: PipelineBlueprint, pipelineID: String)(implicit runner: TestRunner): TestAction = {
     logger.debug(s"Start Pipeline for ${pipelineObject.ref.uuid}")
 
     runner.http(action => action.client(frontierClient)
@@ -205,7 +209,7 @@ class WorkflowTest extends Matchers {
 
   }
 
-  def pollPipelineHealthState(maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int = 1)(implicit runner: TestRunner): Boolean = {
+  private def pollPipelineHealthState(maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int = 1)(implicit runner: TestRunner): Boolean = {
     var retries = maxRetries
     while (retries > 0) {
       logger.debug(s"Check Health State for ${expect} Pipelines with $retries retries remaining.")
@@ -245,7 +249,7 @@ class WorkflowTest extends Matchers {
     instances
   }
 
-  def insertDatasetsIntoFilter(filterId: String, datasets: String)(implicit runner: TestRunner): TestAction = {
+  private def insertDatasetsIntoFilter(filterId: String, datasets: String)(implicit runner: TestRunner): TestAction = {
     logger.debug(s"Reached Insert Dataset for ${filterId} with ${datasets}")
 
     runner.http(action => action.client(frontierClient)
@@ -261,7 +265,7 @@ class WorkflowTest extends Matchers {
     )
   }
 
-  def pollDatasets(filterID: String, expect: Int = 1, maxRetries: Int = 10, interval: FiniteDuration = 2 seconds)(implicit runner: TestRunner): Boolean = {
+  private def pollDatasets(filterID: String, expect: Int = 1, maxRetries: Int = 10, interval: FiniteDuration = 2 seconds)(implicit runner: TestRunner): Boolean = {
     var retries = maxRetries
     while (retries > 0) {
       logger.debug(s"Check Datasets for ${expect} Filter with $retries retries remaining.")
@@ -291,7 +295,7 @@ class WorkflowTest extends Matchers {
     false
   }
 
-  def extractDatsetsFromFilter(filterId: String, amount: Int)(implicit runner: TestRunner): List[Dataset] = {
+  private def extractDatsetsFromFilter(filterId: String, amount: Int)(implicit runner: TestRunner): List[Dataset] = {
     logger.debug(s"Reached Extract Datasets for ${filterId}")
     var listOfDatasets = List.empty[Dataset]
 
@@ -305,11 +309,33 @@ class WorkflowTest extends Matchers {
       .response(HttpStatus.OK)
       .validationCallback((message, _) => {
         listOfDatasets = read[List[Dataset]](message.getPayload.asInstanceOf[String])
-        Thread.sleep(500)
       })
     )
 
     listOfDatasets
+  }
+
+  private def deleteConfigurations(implicit runner: TestRunner): TestAction = {
+    logger.debug(s"Deleting all configurations")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .delete(s"/resources/configuration/*")
+    )
+  }
+
+  private def deleteBlueprints(implicit runner: TestRunner): TestAction = {
+    logger.debug(s"Deleting all blueprints")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .delete(s"/resources/blueprint/pipeline/*")
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .delete(s"/resources/blueprint/*")
+    )
   }
 
 }

@@ -59,9 +59,12 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
     descriptorManager ! StoreDescriptorRequest(Descriptor(filterDescriptorRef))
     descriptorManager ! StoreDescriptorRequest(Descriptor(sinkDescriptorRef))
 
-    val sourceBlueprint = SourceBlueprint(BlueprintRef("d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"), sourceDescriptorRef, sourceConfigurationRef)
-    val filterBlueprint = FilterBlueprint(BlueprintRef("24a88215-cfe0-47a1-a889-7f3e9f8260ef"), filterDescriptorRef, filterConfigurationRef)
-    val sinkBlueprint = SinkBlueprint(BlueprintRef("80851e06-7191-4d96-8e4d-de66a5a12e81"), sinkDescriptorRef, sinkConfigurationRef)
+    val sourceBlueprintRef = BlueprintRef("d69c8aca-2ceb-49c5-b4f8-f8298e5187cd")
+    val sourceBlueprint = SourceBlueprint(sourceBlueprintRef, sourceDescriptorRef, sourceConfigurationRef)
+    val filterBlueprintRef = BlueprintRef("24a88215-cfe0-47a1-a889-7f3e9f8260ef")
+    val filterBlueprint = FilterBlueprint(filterBlueprintRef, filterDescriptorRef, filterConfigurationRef)
+    val sinkBlueprintRef = BlueprintRef("80851e06-7191-4d96-8e4d-de66a5a12e81")
+    val sinkBlueprint = SinkBlueprint(sinkBlueprintRef, sinkDescriptorRef, sinkConfigurationRef)
 
     blueprintManager ! BlueprintMessages.StoreBlueprintRequest(sourceBlueprint)
     blueprintManager ! BlueprintMessages.StoreBlueprintRequest(filterBlueprint)
@@ -84,18 +87,16 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
       val sinkStage = new SinkStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), sinkLogicProvider)
       val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), sourceLogicProvider)
       val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), filterLogicProvider)
-      val filterStage2 = new FilterStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), filterLogicProvider)
 
       filterManager.setAutoPilot((sender: ActorRef, message: Any) => message match {
         case _: CreateSinkStage =>
-          sender ! FilterManager.SinkStageCreated(BlueprintRef(), sinkStage)
+          sender ! FilterManager.SinkStageCreated(sinkBlueprintRef, sinkStage)
           TestActor.KeepRunning
         case _: CreateSourceStage =>
-          sender ! FilterManager.SourceStageCreated(BlueprintRef(), sourceStage)
+          sender ! FilterManager.SourceStageCreated(sourceBlueprintRef, sourceStage)
           TestActor.KeepRunning
         case _: CreateFilterStage =>
-          sender ! FilterManager.FilterStageCreated(BlueprintRef(), filterStage)
-          sender ! FilterManager.FilterStageCreated(BlueprintRef(), filterStage2)
+          sender ! FilterManager.FilterStageCreated(filterBlueprintRef, filterStage)
           TestActor.KeepRunning
       })
     }

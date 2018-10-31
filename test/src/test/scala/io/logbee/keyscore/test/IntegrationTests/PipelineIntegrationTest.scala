@@ -26,7 +26,7 @@ import org.springframework.http.HttpStatus
 
 import scala.concurrent.duration._
 
-@ExtendWith(value = Array(classOf[CitrusExtension]))
+//@ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
 
   private implicit val formats = KeyscoreFormats.formats
@@ -55,8 +55,8 @@ class PipelineIntegrationTest extends Matchers {
   var pipelineCount = 0
   var pipelineBlueprintsCount = 0
 
-  @Test
-  @CitrusTest
+//  @Test
+//  @CitrusTest
   def integrationTest(implicit @CitrusResource runner: TestRunner): Unit = {
 
     //Create the first Pipeline: Kafka -> Kafka
@@ -98,10 +98,7 @@ class PipelineIntegrationTest extends Matchers {
     pollElasticElements(expect = 2) shouldBe true
 
     //Cleanup
-    removeElasticIndex("test")
-    getAllPipelineBlueprints(pipelineBlueprintsCount)
-    deleteAllPipelineBlueprints()
-    getAllPipelineBlueprints(pipelineBlueprintsCount)
+    cleanUp
   }
 
   private def creatingKafkaToKafkaPipeline(implicit runner: TestRunner): TestAction = {
@@ -286,21 +283,6 @@ class PipelineIntegrationTest extends Matchers {
       .response(HttpStatus.OK))
   }
 
-  def deleteAllPipelineBlueprints()(implicit runner: TestRunner): TestAction = {
-    log.debug(s"Reached DELETE All PipelineBlueprints")
-    pipelineBlueprintsCount = 0
-
-    runner.http(action => action.client(frontierClient)
-      .send()
-      .delete(s"resources/blueprint/pipeline/*")
-    )
-
-    runner.http(action => action.client(frontierClient)
-      .receive()
-      .response(HttpStatus.OK))
-
-  }
-
   def pauseFilter(filterId: String, toggle: String)(implicit runner: TestRunner): TestAction = {
     log.debug(s"Reached Pause Filter for ${filterId}")
     runner.http(action => action.client(frontierClient)
@@ -469,5 +451,37 @@ class PipelineIntegrationTest extends Matchers {
       }))
 
     hits
+  }
+
+  private def cleanUp(implicit runner: TestRunner): TestAction = {
+    removeElasticIndex("test")
+    getAllPipelineBlueprints(pipelineBlueprintsCount)
+    deleteBlueprints
+    getAllPipelineBlueprints(pipelineBlueprintsCount)
+    deleteConfigurations
+  }
+
+  private def deleteConfigurations(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Deleting all configurations")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .delete(s"/resources/configuration/*")
+    )
+  }
+
+  private def deleteBlueprints(implicit runner: TestRunner): TestAction = {
+    pipelineBlueprintsCount = 0
+    log.debug(s"Deleting all blueprints")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .delete(s"/resources/blueprint/pipeline/*")
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .delete(s"/resources/blueprint/*")
+    )
   }
 }
