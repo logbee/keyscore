@@ -43,4 +43,7 @@ object BlueprintMessages {
 
   case class DeleteBlueprintRequest(ref: BlueprintRef)
   case object DeleteBlueprintResponse
+
+  case object DeleteAllBlueprintsRequest
+  case object DeleteAllBlueprintsResponse
 }

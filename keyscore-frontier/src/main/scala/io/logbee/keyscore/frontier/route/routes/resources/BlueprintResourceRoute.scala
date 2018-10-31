@@ -104,7 +104,13 @@ object BlueprintResourceRoute extends RouteImplicits {
                 case GetAllBlueprintsResponse(blueprints) => complete(StatusCodes.OK, blueprints.values.toSeq)
                 case _ => complete(StatusCodes.InternalServerError)
               }
-            }
+            } ~
+              delete {
+                onSuccess(blueprintManager ? DeleteAllBlueprintsRequest) {
+                  case DeleteAllBlueprintsResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.InternalServerError)
+                }
+              }
           }
       }
     }

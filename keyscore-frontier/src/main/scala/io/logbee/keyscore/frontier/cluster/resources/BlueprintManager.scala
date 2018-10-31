@@ -41,6 +41,7 @@ class BlueprintManager extends Actor with ActorLogging {
     case WhoIs(BlueprintService) =>
       log.debug("Received WhoIs(BlueprintService)")
       sender ! HereIam(BlueprintService, self)
+
     case StoreOrUpdatePipelineBlueprintRequest(pipelineBlueprint) =>
       if (pipelineBlueprints.contains(pipelineBlueprint.ref)) {
         self forward UpdatePipelineBlueprintRequest(pipelineBlueprint)
@@ -89,6 +90,7 @@ class BlueprintManager extends Actor with ActorLogging {
       } else {
         self forward StoreBlueprintRequest(blueprint)
       }
+
     case StoreBlueprintRequest(blueprint) =>
       log.debug(s"Received StoreBlueprintRequest for $blueprint")
       blueprints.put(blueprint.blueprintRef, blueprint)
@@ -117,5 +119,10 @@ class BlueprintManager extends Actor with ActorLogging {
       log.debug(s"Received DeleteBlueprintRequest for <${ref.uuid}>")
       blueprints.remove(ref)
       sender ! DeleteBlueprintResponse
+
+    case DeleteAllBlueprintsRequest =>
+      log.debug("Received DeleteAllBlueprintsRequest")
+      blueprints.clear()
+      sender ! DeleteAllBlueprintsResponse
   }
 }
