@@ -30,23 +30,23 @@ object FilterManager {
 
   case class CreateSourceStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class SourceStageCreated(stage: SourceStage) extends StageCreated
+  case class SourceStageCreated(blueprintRef: BlueprintRef, stage: SourceStage) extends StageCreated
 
   case class CreateSinkStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class SinkStageCreated(stage: SinkStage) extends StageCreated
+  case class SinkStageCreated(blueprintRef: BlueprintRef, stage: SinkStage) extends StageCreated
 
   case class CreateFilterStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class FilterStageCreated(stage: FilterStage) extends StageCreated
+  case class FilterStageCreated(blueprintRef: BlueprintRef, stage: FilterStage) extends StageCreated
 
   case class CreateBranchStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class BranchStageCreated(stage: BranchStage) extends StageCreated
+  case class BranchStageCreated(blueprintRef: BlueprintRef, stage: BranchStage) extends StageCreated
 
   case class CreateMergeStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
-  case class MergeStageCreated(stage: MergeStage) extends StageCreated
+  case class MergeStageCreated(blueprintRef: BlueprintRef, stage: MergeStage) extends StageCreated
 
 }
 
@@ -94,7 +94,7 @@ class FilterManager extends Actor with ActorLogging {
         case Some(registration) =>
           val provider = createSinkLogicProvider(registration.logicClass)
           val stage = new SinkStage(LogicParameters(ref, stageContext, configuration), provider)
-          sender ! SinkStageCreated(stage)
+          sender ! SinkStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create SinkStage: ${descriptor.uuid}")
       }
@@ -107,7 +107,7 @@ class FilterManager extends Actor with ActorLogging {
         case Some(registration) =>
           val provider = createSourceLogicProvider(registration.logicClass)
           val stage = new SourceStage(LogicParameters(ref, stageContext, configuration), provider)
-          sender ! SourceStageCreated(stage)
+          sender ! SourceStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create SourceStage: ${descriptor.uuid}")
       }
@@ -120,7 +120,7 @@ class FilterManager extends Actor with ActorLogging {
         case Some(registration) =>
           val provider = createFilterLogicProvider(registration.logicClass)
           val stage = new FilterStage(LogicParameters(ref, stageContext, configuration), provider)
-          sender ! FilterStageCreated(stage)
+          sender ! FilterStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create FilterStage: ${descriptor.uuid}")
       }
@@ -133,7 +133,7 @@ class FilterManager extends Actor with ActorLogging {
         case Some(registration) =>
           val provider = createBranchLogicProvider(registration.logicClass)
           val stage = new BranchStage(LogicParameters(ref, stageContext, configuration), provider)
-          sender ! BranchStageCreated(stage)
+          sender ! BranchStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create BranchStage: ${descriptor.uuid}")
       }
@@ -146,7 +146,7 @@ class FilterManager extends Actor with ActorLogging {
         case Some(registration) =>
           val provider = createMergeLogicProvider(registration.logicClass)
           val stage = new MergeStage(LogicParameters(ref, stageContext, configuration), provider)
-          sender ! MergeStageCreated(stage)
+          sender ! MergeStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create MergeStage: ${descriptor.uuid}")
       }

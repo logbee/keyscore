@@ -88,14 +88,14 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
 
       filterManager.setAutoPilot((sender: ActorRef, message: Any) => message match {
         case _: CreateSinkStage =>
-          sender ! FilterManager.SinkStageCreated(sinkStage)
+          sender ! FilterManager.SinkStageCreated(BlueprintRef(), sinkStage)
           TestActor.KeepRunning
         case _: CreateSourceStage =>
-          sender ! FilterManager.SourceStageCreated(sourceStage)
+          sender ! FilterManager.SourceStageCreated(BlueprintRef(), sourceStage)
           TestActor.KeepRunning
         case _: CreateFilterStage =>
-          sender ! FilterManager.FilterStageCreated(filterStage)
-          sender ! FilterManager.FilterStageCreated(filterStage2)
+          sender ! FilterManager.FilterStageCreated(BlueprintRef(), filterStage)
+          sender ! FilterManager.FilterStageCreated(BlueprintRef(), filterStage2)
           TestActor.KeepRunning
       })
     }

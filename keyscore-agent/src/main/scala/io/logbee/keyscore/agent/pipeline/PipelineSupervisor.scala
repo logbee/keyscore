@@ -103,17 +103,17 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
   private def configuring(pipeline: Pipeline): Receive = {
 
-    case SinkStageCreated(stage) =>
-      log.debug(s"Received SinkStage: $stage")
-      become(configuring(pipeline.withSinkStage(stage)), discardOld = true)
+    case SinkStageCreated(ref, stage) =>
+      log.debug(s"Received SinkStage: $stage for <$ref>")
+      become(configuring(pipeline.withSinkStage(ref, stage)), discardOld = true)
 
-    case SourceStageCreated(stage) =>
-      log.debug(s"Received SourceStage: $stage")
-      become(configuring(pipeline.withSourceStage(stage)), discardOld = true)
+    case SourceStageCreated(ref, stage) =>
+      log.debug(s"Received SourceStage: $stage for <$ref>")
+      become(configuring(pipeline.withSourceStage(ref, stage)), discardOld = true)
 
-    case FilterStageCreated(stage) =>
-      log.debug(s"Received FilterStage: $stage")
-      become(configuring(pipeline.withFilterStage(stage)), discardOld = true)
+    case FilterStageCreated(ref, stage) =>
+      log.debug(s"Received FilterStage: $stage for <$ref>")
+      become(configuring(pipeline.withFilterStage(ref, stage)), discardOld = true)
 
     case StartPipeline(trials) =>
       log.info(s"Received StartPipeline with $trials trials.")
@@ -137,7 +137,13 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
             valveProxyFuture
           }
           val last = if (pipeline.filters.nonEmpty) {
-            pipeline.filters.foldLeft(head) { (previousValve, filterStage) =>
+
+            //TODO Dirty Quickfix for #58 | Implicits that the order of the BlueprintRefs must be correct
+            val filterBlueprints = pipeline.pipelineBlueprint.blueprints.drop(1).dropRight(1)
+
+            val pipelineFilters = filterBlueprints.map(key => pipeline.filters(key))
+
+            pipelineFilters.foldLeft(head) { (previousValve, filterStage) =>
               previousValve.viaMat(filterStage)(Keep.both).viaMat(new ValveStage) { (previous, outValveProxyFuture) =>
                 previous match {
                   case (inValveProxyFuture, filterProxyFuture) =>
