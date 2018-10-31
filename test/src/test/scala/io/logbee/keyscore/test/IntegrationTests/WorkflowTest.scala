@@ -146,6 +146,7 @@ class WorkflowTest extends Matchers {
   private def cleanUp(implicit runner: TestRunner): TestAction = {
     deleteBlueprints
     deleteConfigurations
+    deletePipelines
   }
 
   private def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
@@ -335,6 +336,15 @@ class WorkflowTest extends Matchers {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"/resources/blueprint/*")
+    )
+  }
+
+  private def deletePipelines(implicit runner: TestRunner): TestAction = {
+    logger.debug(s"Deleting all pipelines")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .delete(s"/pipeline/blueprint/*")
     )
   }
 

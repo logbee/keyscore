@@ -26,7 +26,7 @@ import org.springframework.http.HttpStatus
 
 import scala.concurrent.duration._
 
-//@ExtendWith(value = Array(classOf[CitrusExtension]))
+@ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
 
   private implicit val formats = KeyscoreFormats.formats
@@ -55,8 +55,8 @@ class PipelineIntegrationTest extends Matchers {
   var pipelineCount = 0
   var pipelineBlueprintsCount = 0
 
-//  @Test
-//  @CitrusTest
+  @Test
+  @CitrusTest
   def integrationTest(implicit @CitrusResource runner: TestRunner): Unit = {
 
     //Create the first Pipeline: Kafka -> Kafka
@@ -78,7 +78,7 @@ class PipelineIntegrationTest extends Matchers {
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
     Thread.sleep(2000)
     // TODO: #50
-    //    extractDatsetsFromFilter(k2eFilterId,10, 0)
+//    extractDatsetsFromFilter(k2eFilterId,10, 0)
 
     extractDatsetsFromFilter(k2kFilterId, 2, 2)
     extractDatsetsFromFilter(k2kFilterId, 5, 2)
@@ -87,14 +87,15 @@ class PipelineIntegrationTest extends Matchers {
     checkFilterState(k2kFilterId, Green, Running)
     Thread.sleep(2000)
     // TODO: #50
-    //    extractDatsetsFromFilter(k2eFilterId, 10, 0)
+//    extractDatsetsFromFilter(k2eFilterId, 10, 0)
     
     //Test the Valves of the second Pipeline Filter
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
     Thread.sleep(1600)
-    extractDatsetsFromFilter(k2eFilterId, 2, 2)
+    // TODO: #50
+//    extractDatsetsFromFilter(k2eFilterId, 2, 2)
     
-    //    Wait until all Dataset are pushed to the Elastic index
+    //Wait until all Dataset are pushed to the Elastic index
     pollElasticElements(expect = 2) shouldBe true
 
     //Cleanup
@@ -459,6 +460,7 @@ class PipelineIntegrationTest extends Matchers {
     deleteBlueprints
     getAllPipelineBlueprints(pipelineBlueprintsCount)
     deleteConfigurations
+    deletePipelines
   }
 
   private def deleteConfigurations(implicit runner: TestRunner): TestAction = {
@@ -482,6 +484,15 @@ class PipelineIntegrationTest extends Matchers {
     runner.http(action => action.client(frontierClient)
       .send()
       .delete(s"/resources/blueprint/*")
+    )
+  }
+
+  private def deletePipelines(implicit runner: TestRunner): TestAction = {
+    log.debug(s"Deleting all pipelines")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .delete(s"/pipeline/blueprint/*")
     )
   }
 }
