@@ -18,7 +18,7 @@ import "./style/headerbar.style.scss"
                         <button mat-stroked-button *ngIf="this.showManualReload" (click)="reload()">
                             <mat-icon>autorenew</mat-icon>
                         </button>
-                        <button mat-stroked-button *ngIf="this.showSave" (click)="save()">
+                        <button class="mat-success" mat-stroked-button *ngIf="this.showSave" (click)="save()">
                             <mat-icon>save</mat-icon>
                         </button>
                         <button mat-stroked-button *ngIf="this.showRun" (click)="run()">

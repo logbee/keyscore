@@ -9,6 +9,7 @@ export interface DraggableModel {
     configuration: Configuration;
     blueprintRef: Ref;
     isMirror: boolean;
+    isSelected: boolean;
     next: DraggableModel;
     previous: Draggable;
     initialDropzone: Dropzone;

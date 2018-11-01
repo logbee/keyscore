@@ -36,7 +36,7 @@ import {Go} from "../../../router/router.actions";
                 <div class="connection previous-connection" fxLayout="column" fxLayoutAlign="center center">
                     <ng-template #previousConnection></ng-template>
                 </div>
-                <div class="blockContainer">
+                <div class="blockContainer" [class.selectedDraggable]="draggableModel.isSelected">
                     <svg
                             xmlns="http://www.w3.org/2000/svg"
                             version="1.1"
@@ -44,28 +44,40 @@ import {Go} from "../../../router/router.actions";
                     >
                         <svg:g svg-connector [color]="draggableModel.color"
                                [isDroppable]="isPreviousConncetionDroppable"
-                               [connectionType]="draggableModel.blockDescriptor.previousConnection.connectionType"/>
+                               [connectionType]="draggableModel.blockDescriptor.previousConnection.connectionType"
+                               [isSelected]="draggableModel.isSelected"/>
 
                         <svg:g>
                             <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
                                       id="rect5038"
                                       attr.fill="{{draggableModel.color}}"/>
-                            <svg:path d="M282.75 0.5 H 687.75 M 687.75 567.429 H 282.75"
+                            <svg:line x1="280" x2="690.75" y1="15" y2="15"
                                       id="rect5038-selected"
-                                      fill="#365880"
-                                      attr.stroke-width="{{isSelected ? '30px' : '0px'}}"
-                                      attr.stroke="#365880"
+                                      stroke="#365880"
+                                      attr.stroke-width="{{draggableModel.isSelected ? '30px' : '0'}}"
+                            />
+                            <svg:line x1="280" x2="690.75" y1="552.429" y2="552.429"
+                                      id="rect5038-selected"
+                                      stroke="#365880"
+                                      attr.stroke-width="{{draggableModel.isSelected ? '30px' : '0'}}"
                             />
                         </svg:g>
                         <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
-                               [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"/>
+                               [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"
+                               [isSelected]="draggableModel.isSelected"/>
                     </svg>
                     <div class="iconContainer">
                         <div #iconInnerContainer class="iconInnerContainer">
 
                         </div>
                     </div>
-                        <mat-icon *ngIf="draggableModel.initialDropzone.getDropzoneModel().dropzoneType !== dropzoneType.Toolbar" matTooltip="Navigate to Live-Editing" matTooltipPosition="above" (click)="navigateToLiveEditing()" [inline]="true" class="pipely-live-editing-button">settings</mat-icon>
+                    <mat-icon
+                            *ngIf="draggableModel.initialDropzone.getDropzoneModel().dropzoneType !== dropzoneType.Toolbar"
+                            matTooltip="Navigate to Live-Editing" matTooltipPosition="above"
+                            (click)="navigateToLiveEditing()" [inline]="true" class="pipely-live-editing-button"
+                            [class.disabled]="false">
+                        settings
+                    </mat-icon>
                 </div>
 
                 <div class="connection next-connection" fxLayout="column" fxLayoutAlign="center center">
@@ -95,12 +107,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
     public id: string;
 
-    private dropzoneType:typeof DropzoneType = DropzoneType;
+    private dropzoneType: typeof DropzoneType = DropzoneType;
 
     private dragStartSource = new Subject<MouseEvent>();
     private isAlive = new Subject<void>();
-
-    private isSelected = false;
 
     dragStart$ = this.dragStartSource.asObservable().pipe(takeUntil(this.isAlive));
 
@@ -119,7 +129,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
 
     private dropzoneFactory: DropzoneFactory;
 
-    constructor(private resolver: ComponentFactoryResolver,private store: Store<any>) {
+    constructor(private resolver: ComponentFactoryResolver, private store: Store<any>) {
         this.id = uuid();
         this.dropzoneFactory = new DropzoneFactory(resolver);
     }
@@ -145,6 +155,10 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
             this.iconContainer.nativeElement.innerHTML = this.draggableModel.blockDescriptor.icon.data;
         }
 
+        if(this.draggableModel.isMirror && this.getHead() === this){
+            this.draggableModel.isSelected = true;
+        }
+
     }
 
     //TODO move to factory?
@@ -155,7 +169,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     }
 
     navigateToLiveEditing() {
-        console.log("navigation to live-editing triggered.",this.draggableModel.blueprintRef);
+        console.log("navigation to live-editing triggered.", this.draggableModel.blueprintRef);
         this.store.dispatch(new Go({path: ["/filter/" + this.draggableModel.blueprintRef.uuid]}))
 
     }
@@ -220,7 +234,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
                 position: this.appendPosition(),
                 rootDropzone: DropzoneType.Workspace
             };
-        this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(), this.draggableModel.next, this.workspace);
+        this.next = draggableFactory.createDraggable(this.nextConnectionDropzone.getDraggableContainer(),
+            this.draggableModel.next, this.workspace);
         this.nextConnectionDropzone.occupyDropzone();
     }
 
@@ -242,6 +257,14 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     private triggerDragStart(event: MouseEvent) {
         event.stopPropagation();
         this.dragStartSource.next(event);
+    }
+
+    select(select: boolean) {
+        this.draggableModel.isSelected = select;
+    }
+
+    isSelected(): boolean {
+        return this.draggableModel.isSelected;
     }
 
     getTail(): Draggable {

@@ -4,7 +4,7 @@ import {Component, Input} from "@angular/core";
     selector: 'g[svg-connector]',
     template: `
         <svg:path attr.d="{{connectionTypes.get(connectionType).connectorPath}}"
-                  attr.fill="{{color}}" style="stroke:white;stroke-width:0px"/>
+                  attr.fill="{{color}}" />
         <svg:path
                 attr.d="{{connectionTypes.get(connectionType).indicatorPath}}" fill="none" stroke-width="25px"
                 attr.stroke="{{isDroppable ? droppableIndicatorColor : defaultIndicatorColor}}"/>
@@ -31,8 +31,8 @@ export class ConnectorComponent {
            114.861l-0.064,87.628l-86.032,115.517L886.215,455.784z`,
                 indicatorPath: `M865.215,0.5 v134.041l-0.097,0.781l86.097,
 114.861l-0.064,87.628l-86.032,115.517L865.215,455.784v113.5`,
-                selectedPath:`M865.215,0.5 v134.041l-0.097,0.781l86.097,
-114.861l-0.064,87.628l-86.032,115.517L865.215,455.784v113.5`
+                selectedPath:`M675.75,15 H865.215 v119.541l-0.097,0.781l86.097,
+114.861l-0.064,87.628l-86.032,115.517L865.215,455.784v97 H675.75`
             }],
             ["default-in", {
                 connectorPath: `M292.75 567.429H0.536V453.792l0.096,0.457v-0.587l85.557-115.387l0.064-87.628
@@ -40,18 +40,18 @@ export class ConnectorComponent {
 	l0.096,0.129V135.005z`,
                 indicatorPath: `M10.536 567.429 V453.792l0.096,0.457v-0.587l85.557-115.387l0.064-87.628
 L10.536,135.915v-0.91 l-0.096,0.781V0.5`,
-                selectedPath:`M10.536 567.429 V453.792l0.096,0.457v-0.587l85.557-115.387l0.064-87.628
-L10.536,135.915v-0.91 l-0.096,0.781V0.5`
+                selectedPath:`M294.75 552.429 H10.536 V453.792l0.096,0.457v-0.587l85.557-115.387l0.064-87.628
+L10.536,135.915v-0.91 l-0.096,0.781V15 H294.75`
             }],
             ["no-connection-in", {
                 connectorPath: `M0 0.5 H 292.75 V 567.429 H 0 V 0.5`,
                 indicatorPath: ``,
-                selectedPath:`M15 15 H 292.75 M 292.75 553.429 H 15 V 14.5`
+                selectedPath:`M0 15 H 294.75 M 294.75 553.429 H 15 V 15`
             }],
             ["no-connection-out", {
                 connectorPath: `M677.75 0.5 h 292.75 V 567.429 H 677.75 V 0.5`,
                 indicatorPath: ``,
-                selectedPath:`M677.75 14.5 h 277.75 V 553.429 H 677.75`
+                selectedPath:`M675.75 15 h 279.75 V 552.429 H 675.75`
             }]
         ]
     );

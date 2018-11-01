@@ -98,6 +98,7 @@ export abstract class DropzoneLogic {
             draggableModel.configuration.ref = generateRef();
             draggableModel.blueprintRef = generateRef();
         }
+        draggableModel.isSelected=true;
         this.insertNewDraggable(draggableModel);
 
     }

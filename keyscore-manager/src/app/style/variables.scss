@@ -5,3 +5,4 @@ $app-success: mat-palette($mat-green);
 
 $error: mat-color($app-error);
 $success: mat-color($app-success);
+$success-transparent: mat-color($app-success,default,0.1);

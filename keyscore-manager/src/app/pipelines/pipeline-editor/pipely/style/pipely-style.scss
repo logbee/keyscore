@@ -36,6 +36,10 @@
   position:relative;
 }
 
+.blockContainer.selectedDraggable{
+  z-index:9999;
+}
+
 .iconContainer{
   width:30%;
   max-width: 30%;
@@ -57,20 +61,30 @@
 }
 
 .pipely-live-editing-button{
-  width:12px !important;
-  height:12px !important;
+  width:20px !important;
+  height:20px !important;
   position:absolute;
-  left:8px;
-  top:2px;
-  font-size: 12px;
+  left:12px;
+  top:4px;
+  font-size: 15px;
   color:white;
   cursor:pointer;
-  transition: transform 0.2s ease-in;
+  transform-origin: 8px 12px;
+  transition: transform 0.3s ease-out;
 }
 
 .pipely-live-editing-button:hover{
-  transform: scale(1.2);
-  transition: transform 0.2s ease-in;
+  transform-origin: 8px 12px;
+  transform: rotate(270deg);
+  //transform: scale(1.2);
+  transition: transform 0.3s ease-in;
+}
+
+.pipely-live-editing-button.disabled{
+  color: #909090;
+  transition: none;
+  transform: none;
+  cursor:not-allowed;
 }
 
 .draggableDockingIndicator {

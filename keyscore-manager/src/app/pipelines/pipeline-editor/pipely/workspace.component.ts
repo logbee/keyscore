@@ -1,4 +1,5 @@
 import {
+    AfterViewInit, ChangeDetectorRef,
     Component,
     ElementRef,
     EventEmitter,
@@ -25,14 +26,7 @@ import {share, takeUntil} from "rxjs/operators";
 import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
 import "./style/pipely-style.scss";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
-import {
-    Blueprint,
-    BlueprintJsonClass,
-    FilterBlueprint,
-    SinkBlueprint,
-    SourceBlueprint
-} from "../../../models/blueprints/Blueprint";
-import {DraggableComponent} from "./draggable.component";
+import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../models/blueprints/Blueprint";
 import {Configuration} from "../../../models/common/Configuration";
 import {TextValue} from "../../../models/dataset/Value";
 
@@ -56,7 +50,7 @@ import {TextValue} from "../../../models/dataset/Value";
                               [selectedBlock]="{configuration:(selectedDraggable$|async)?.getDraggableModel().configuration,
                               descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
                               (onSave)="saveConfiguration($event)"
-                                (onSavePipelineMetaData)="savePipelineMetaData($event)">
+                              (onSavePipelineMetaData)="savePipelineMetaData($event)">
                 </configurator>
             </div>
         </div>
@@ -64,7 +58,7 @@ import {TextValue} from "../../../models/dataset/Value";
 })
 
 
-export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspace {
+export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges, Workspace {
     @Input() pipeline: EditingPipelineModel;
 
     @Input('blockDescriptors') set blockDescriptors(descriptors: BlockDescriptor[]) {
@@ -97,7 +91,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
     private draggedDraggable: Draggable;
     private mirrorDraggable: Draggable;
 
-    private selectedDraggableSource: Subject<Draggable> = new Subject();
+    private selectedDraggableSource: BehaviorSubject<Draggable> = new BehaviorSubject(null);
     private selectedDraggable$: Observable<Draggable> = this.selectedDraggableSource.asObservable().pipe(share());
     private selectedDraggable: Draggable;
     private pipelineMetaData: { name: string, description: string };
@@ -110,13 +104,22 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
 
     constructor(private dropzoneFactory: DropzoneFactory,
                 private draggableFactory: DraggableFactory,
-                private pipelineConfigurator: PipelineConfiguratorService) {
+                private pipelineConfigurator: PipelineConfiguratorService,
+                private cd: ChangeDetectorRef) {
         this.id = uuid();
     }
 
     private draggableMouseDown(draggable: Draggable, event: MouseEvent) {
         this.mouseDownStart = {x: event.clientX, y: event.clientY};
+        if (this.selectedDraggable) {
+            this.selectedDraggable.select(false);
+        }
         this.selectedDraggable = draggable;
+        if (this.selectedDraggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType !== DropzoneType.Toolbar) {
+            this.selectedDraggableSource.next(this.selectedDraggable);
+            this.selectedDraggable.select(true);
+
+        }
     }
 
     @HostListener('mousemove', ['$event'])
@@ -134,21 +137,18 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         }
     }
 
-
     @HostListener('mouseup', ['$event'])
     private mouseUp(event: MouseEvent) {
-
-        if (this.isMouseDown() && !this.movedOverTolerance({x: event.clientX, y: event.clientY})) {
-            this.click(event);
-        }
-        else if (this.isDragging) {
+        if (this.isDragging) {
             this.stopDragging();
         }
-
         this.mouseDownStart = {x: -1, y: -1};
     }
 
     private triggerWorkspaceMouseDown(event: MouseEvent) {
+        if (this.selectedDraggable) {
+            this.selectedDraggable.select(false);
+        }
         this.selectedDraggableSource.next(null);
     }
 
@@ -156,7 +156,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         if (this.selectedDraggable.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             this.isConfiguratorOpened = true;
             this.selectedDraggableSource.next(this.selectedDraggable);
-
         }
     }
 
@@ -199,6 +198,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
 
     private stopDragging() {
         if (this.bestDropzone) {
+            if (this.bestDropzone.getDropzoneModel().dropzoneType === DropzoneType.Trash) {
+                this.selectedDraggable.select(false);
+                this.selectedDraggable = null;
+                this.selectedDraggableSource.next(null);
+            }
             this.bestDropzone.drop(this.mirrorDraggable, this.draggedDraggable);
         }
         if (this.draggedDraggable && !this.draggedDraggable.isVisible()) {
@@ -260,9 +264,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
     private saveConfiguration(configuration: Configuration) {
         this.selectedDraggable.getDraggableModel().configuration = configuration;
     }
-    private savePipelineMetaData(metaData:{name:string,description:string}){
-        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name ==='pipeline.name').value as TextValue).value = metaData.name;
-        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name ==='pipeline.description').value as TextValue).value = metaData.description;
+
+    private savePipelineMetaData(metaData: { name: string, description: string }) {
+        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value = metaData.name;
+        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value = metaData.description;
     }
 
     addDropzone(dropzone: Dropzone) {
@@ -283,7 +288,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
                 array.splice(index, 1);
             }
         });
-        this.selectedDraggableSource.next(null);
+
     }
 
     registerDraggable(draggable: Draggable) {
@@ -291,6 +296,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         if (draggable.getDraggableModel().initialDropzone
             .getDropzoneModel().dropzoneType === DropzoneType.Workspace) {
             this.draggables.push(draggable);
+        }
+        if (draggable.getDraggableModel().isSelected) {
+            this.selectedDraggable = draggable;
+            this.selectedDraggableSource.next(this.selectedDraggable);
         }
         if (draggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType !==
             DropzoneType.Toolbar) {
@@ -323,7 +332,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
         this.buildEditPipeline();
         let pipelineName = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value;
         let pipelineDescription = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value;
-        this.pipelineMetaData = {name:pipelineName,description:pipelineDescription};
+        this.pipelineMetaData = {name: pipelineName, description: pipelineDescription};
 
     }
 
@@ -360,6 +369,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
                 previous: null,
                 rootDropzone: DropzoneType.Workspace,
                 isMirror: false,
+                isSelected: false,
                 position: {x: sourceXPosition, y: sourceYPosition}
             });
             if (i > 0) {
@@ -380,6 +390,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, OnChanges, Workspa
     ngOnDestroy() {
         this.isAlive$.next();
         this.isAlive$.complete();
+    }
+
+    ngAfterViewInit() {
+        this.cd.detectChanges();
     }
 }
 

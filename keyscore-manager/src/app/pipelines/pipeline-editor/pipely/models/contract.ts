@@ -114,5 +114,9 @@ export interface Draggable {
 
     getLastDrag(): { x: number, y: number };
 
+    select(select: boolean): void;
+
+    isSelected(): boolean;
+
 
 }

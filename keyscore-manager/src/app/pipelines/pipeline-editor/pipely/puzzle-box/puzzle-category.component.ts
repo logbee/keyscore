@@ -56,7 +56,8 @@ export class PuzzleCategoryComponent implements OnInit {
                 next: null,
                 previous: null,
                 rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
-                isMirror: false
+                isMirror: false,
+                isSelected:false,
             }, this.workspace);
         });
     }
