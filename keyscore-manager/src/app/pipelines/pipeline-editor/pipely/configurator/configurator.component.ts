@@ -73,7 +73,7 @@ import * as _ from "lodash";
                         <button matTooltip="{{'PIPELY.REVERT_TOOLTIP'| translate}}" mat-raised-button (click)="revert()"
                                 color="warn">
                             <mat-icon>undo</mat-icon>
-                            {{'PIPELY.REVERT' | translate}}}
+                            {{'PIPELY.REVERT' | translate}}
                         </button>
                         <button mat-raised-button matTooltip="{{'PIPELY.RESET_TOOLTIP'| translate}}" (click)="reset()"
                                 color="default">

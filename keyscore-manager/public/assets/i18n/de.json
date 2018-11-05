@@ -89,7 +89,7 @@
     "RECORDS": "records",
     "PAYLOAD": "inhalt",
     "MESSAGE": "nachricht",
-    "NODATA": "Keine Nachrichten verfügbar.",
+    "NODATA": "Keine Daten für die Vorschau verfügbar.",
     "NODATACONFIG": "Konfiguration deaktiviert.",
     "PAUSED": "ist pausiert",
     "FIELDS": "Felder",

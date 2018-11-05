@@ -88,7 +88,7 @@
     "RECORDS": "records",
     "PAYLOAD": "payload",
     "MESSAGE": "message",
-    "NODATA": "No messages to show.",
+    "NODATA": "No data available for preview.",
     "NODATACONFIG": "Configuration disabled.",
     "PAUSED": "is paused",
     "FIELDS": "Fields",
