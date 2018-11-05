@@ -1,14 +1,15 @@
 import {
     DRAIN_FILTER_SUCCESS,
-    EXTRACT_DATASETS_INITIAL_SUCCESS,
+    EXTRACT_OUTPUT_DATASETS_SUCESS,
     EXTRACT_DATASETS_RESULT_SUCCESS,
     LiveEditingActions,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION_SUCCESS,
     LOAD_FILTERSTATE_SUCCESS,
-    PAUSE_FILTER_SUCCESS, RESET_ACTION,
+    PAUSE_FILTER_SUCCESS,
+    RESET_ACTION,
     RESOLVED_DESCRIPTOR_FOR_BLUEPRINT,
-    SAVE_UPDATED_CONFIGURATION
+    SAVE_UPDATED_CONFIGURATION, EXTRACT_INPUT_DATASETS_SUCESS, INITIAL_EXTRACT_SUCCESS
 } from "./live-editing.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Configuration} from "../models/common/Configuration";
@@ -47,7 +48,8 @@ export class FilterState {
     public descriptor: ResolvedFilterDescriptor;
     public filterState: ResourceInstanceState;
     public datasetsModels: DatasetTableModel[];
-    public datasetsRaw: Dataset[];
+    public inputDatasets: Dataset[];
+    public outputDatasetsRaw: Dataset[];
     public extractFinish: boolean;
     public isUpdated: boolean;
     public resultAvailable: boolean;
@@ -72,13 +74,129 @@ const initialState: FilterState = {
     isUpdated: false,
     resultAvailable: false,
     datasetsModels: [],
-    datasetsRaw: [],
+    inputDatasets: [],
+    outputDatasetsRaw: [],
     currentDatasetCounter: 0,
     dummyDataset: {
         metaData: {labels: []},
         records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
     }
 };
+
+export function LiveEditingReducer(state: FilterState = initialState, action: LiveEditingActions): FilterState {
+
+    const result: FilterState = Object.assign({}, state);
+
+
+    switch (action.type) {
+        case LOAD_FILTER_CONFIGURATION_SUCCESS:
+            result.isUpdated = false;
+            result.initialConfiguration = action.configuration;
+            break;
+        case LOAD_FILTERSTATE_SUCCESS:
+            result.filterState = action.state;
+            break;
+        case DRAIN_FILTER_SUCCESS:
+            result.extractFinish = false;
+            result.filterState = action.state;
+            break;
+        case PAUSE_FILTER_SUCCESS:
+            result.filterState = action.state;
+            break;
+        case RESOLVED_DESCRIPTOR_FOR_BLUEPRINT:
+            result.descriptor = action.descriptor;
+            break;
+        case INITIAL_EXTRACT_SUCCESS:
+            let initialResultModel: DatasetTableModel[] = [];
+            if (!action.input.map(elem => elem.metaData === undefined).length) {
+                action.input.map(datset => {
+                    datset.metaData.labels.push(
+                        {
+                            name: "io.logbee.keyscore.manager.live-editing.id",
+                            value: {jsonClass: ValueJsonClass.TextValue, value: uuid()}
+                        }
+                    )
+                });
+            }
+            result.inputDatasets = action.input;
+            result.datasetsModels = [];
+            const models = [];
+            action.input.forEach(dataset => {
+                let model = createDatasetTableModel(dataset, state.dummyDataset, state.resultAvailable);
+                models.push(model)
+            });
+            let initialZippedDatasets = computeZippedDatasets(result.inputDatasets, action.output);
+            result.extractFinish = true;
+            result.datasetsModels = models;
+            result.resultAvailable = true;
+            initialZippedDatasets.map(([input, output]) => {
+                initialResultModel.push(createDatasetTableModel(input, output, result.resultAvailable));
+            });
+            result.datasetsModels = initialResultModel;
+            result.extractFinish = true;
+            break;
+        case SAVE_UPDATED_CONFIGURATION:
+            result.updatedConfiguration = action.configuration;
+            break;
+        case EXTRACT_DATASETS_RESULT_SUCCESS:
+            let resultModels: DatasetTableModel[] = [];
+            let zippedDatasets = computeZippedDatasets(result.inputDatasets, action.datasets.reverse());
+            result.resultAvailable = true;
+            zippedDatasets.map(([input, output]) => {
+                resultModels.push(createDatasetTableModel(input, output, result.resultAvailable));
+            });
+            result.datasetsModels = resultModels;
+            result.extractFinish = true;
+            break;
+        case RESET_ACTION:
+            return Object.assign({}, initialState);
+        case LOAD_FILTER_BLUEPRINT_SUCCESS:
+            result.resultAvailable = false;
+            result.blueprint = action.blueprint;
+            break;
+    }
+    return result;
+}
+
+function findMatch(dataset: Dataset, datasets: Dataset[]) {
+    let found: Label = dataset.metaData.labels.find(label => label.name === 'io.logbee.keyscore.manager.live-editing.id');
+    let inputDatasetId = (found.value as TextValue).value;
+    let resultDataset: Dataset;
+    datasets.map(dataset => {
+        let datasetId = (dataset.metaData.labels.find(label => label.name === 'io.logbee.keyscore.manager.live-editing.id').value as TextValue).value;
+        if (datasetId === inputDatasetId) {
+            resultDataset = dataset;
+        }
+    });
+    return resultDataset;
+}
+
+export const extractFinish = (state: FilterState) => state.extractFinish;
+
+export const getFilterState = createFeatureSelector<FilterState>(
+    "filter"
+);
+export const selectInitialConfiguration = createSelector(getFilterState, (state: FilterState) => state.initialConfiguration);
+
+export const selectUpdatedConfiguration = createSelector(getFilterState, (state: FilterState) => state.updatedConfiguration);
+
+export const selectLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
+
+export const selectDatasetsModels = createSelector(getFilterState, (state: FilterState) => state.datasetsModels);
+
+export const selectDatasetsRaw = createSelector(getFilterState, (state: FilterState) => state.inputDatasets);
+
+export const selectExtractFinish = createSelector(getFilterState, extractFinish);
+
+export const selectCurrentDescriptor = createSelector(getFilterState, (state: FilterState) => state.descriptor);
+
+export const selectCurrentBlueprint = createSelector(getFilterState, (state: FilterState) => state.blueprint);
+
+export const selectResultAvailable = createSelector(getFilterState, (state: FilterState) => state.resultAvailable);
+
+
+
+//Additional functions for DatatableModels
 
 function createDatasetTableModel(inputDataset: Dataset, outputDataset: Dataset, resultAvailable: boolean): DatasetTableModel {
 
@@ -110,7 +228,7 @@ function checkForValueChange(input: Value, output: Value) {
 
 function accessFieldValues(valueObject: Value): any {
     if (!valueObject) {
-        return "No output yet!"
+        return ""
     } else {
         switch (valueObject.jsonClass) {
             case ValueJsonClass.BooleanValue: {
@@ -145,7 +263,7 @@ function createDatasetTableRowModelData(input: Field, output: Field, resultAvail
     if (input === undefined && output != undefined ) {
         inputDataModel = new DatasetTableRowModelData(output.name, ValueJsonClass.TextValue, {
             jsonClass: ValueJsonClass.TextValue,
-            value: "No output yet"
+            value: ""
         }, ChangeType.Added);
         outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
 
@@ -176,119 +294,18 @@ function createDatasetTableRowModelData(input: Field, output: Field, resultAvail
     return new DatasetTableRowModel(inputDataModel, outputDataModel);
 }
 
-
-export function LiveEditingReducer(state: FilterState = initialState, action: LiveEditingActions): FilterState {
-
-    const result: FilterState = Object.assign({}, state);
-
-    switch (action.type) {
-        case LOAD_FILTER_CONFIGURATION_SUCCESS:
-            result.isUpdated = false;
-            result.initialConfiguration = action.configuration;
-            break;
-        case LOAD_FILTERSTATE_SUCCESS:
-            result.filterState = action.state;
-            break;
-        case DRAIN_FILTER_SUCCESS:
-            result.extractFinish = false;
-            result.filterState = action.state;
-            break;
-        case PAUSE_FILTER_SUCCESS:
-            result.filterState = action.state;
-            break;
-        case RESOLVED_DESCRIPTOR_FOR_BLUEPRINT:
-            result.descriptor = action.descriptor;
-            break;
-        case EXTRACT_DATASETS_INITIAL_SUCCESS:
-            if (action.datasets.map(elem => elem.metaData === undefined)) {
-                // console.log("No Metadata available fallback on order of datasets");
-            } else {
-                action.datasets.map(datset => {
-                    datset.metaData.labels.push(
-                        {
-                            name: "io.logbee.keyscore.manager.live-editing.id",
-                            value: {jsonClass: ValueJsonClass.TextValue, value: uuid()}
-                        }
-                    )
-                });
-            }
-            result.datasetsRaw = action.datasets;
-            result.datasetsModels = [];
-            const models = [];
-            action.datasets.forEach(dataset => {
-                let model = createDatasetTableModel(dataset, state.dummyDataset, state.resultAvailable);
-                models.push(model)
-            });
-            result.extractFinish = true;
-            result.datasetsModels = models;
-            break;
-        case SAVE_UPDATED_CONFIGURATION:
-            result.updatedConfiguration = action.configuration;
-            break;
-        case EXTRACT_DATASETS_RESULT_SUCCESS:
-            let extractedDatasets: Dataset[] = action.datasets.reverse();
-            let resultModels: DatasetTableModel[] = [];
-            let rawDatasets = result.datasetsRaw;
-            let zippedDatasets = [];
-            if (rawDatasets.filter(datast => datast.metaData === undefined)) {
-                // FallBack on order
-                zippedDatasets = result.datasetsRaw.map(function (x, y) {
-                    return [x, extractedDatasets[y]]
-                });
-            } else {
-                // MapRecords by Id
-                zippedDatasets = result.datasetsRaw.map(dataset => {
-                    return ([dataset, findMatch(dataset, extractedDatasets)]);
-                });
-            }
-            result.resultAvailable = true;
-            zippedDatasets.map(([input, output]) => {
-                resultModels.push(createDatasetTableModel(input, output, result.resultAvailable));
-            });
-            result.datasetsModels = resultModels;
-            result.extractFinish = true;
-            break;
-        case RESET_ACTION:
-            return Object.assign({}, initialState);
-        case LOAD_FILTER_BLUEPRINT_SUCCESS:
-            result.resultAvailable = false;
-            result.blueprint = action.blueprint;
-            break;
+function computeZippedDatasets(inputDatasets:Dataset[], extractedDatasets: Dataset[]): Dataset[][] {
+    let zippedDatasets: Dataset[][] = [];
+    if (inputDatasets.filter(dataset => dataset.metaData === undefined)) {
+        // FallBack on order
+        zippedDatasets = inputDatasets.map((x, y) => {
+            return [x, extractedDatasets[y]]
+        });
+    } else {
+        // MapRecords by Id
+        zippedDatasets = inputDatasets.map(dataset => {
+            return ([dataset, findMatch(dataset, extractedDatasets)]);
+        });
     }
-    return result;
+    return zippedDatasets;
 }
-
-function findMatch(dataset: Dataset, datasets: Dataset[]) {
-    let found: Label = dataset.metaData.labels.find(label => label.name === 'io.logbee.keyscore.manager.live-editing.id');
-    let inputDatasetId = (found.value as TextValue).value;
-
-    datasets.map(dataset => {
-        let datasetId = (dataset.metaData.labels.find(label => label.name === 'io.logbee.keyscore.manager.live-editing.id').value as TextValue).value;
-        if (datasetId === inputDatasetId) {
-            return dataset;
-        }
-    });
-}
-
-export const extractFinish = (state: FilterState) => state.extractFinish;
-
-export const getFilterState = createFeatureSelector<FilterState>(
-    "filter"
-);
-export const selectInitialConfiguration = createSelector(getFilterState, (state: FilterState) => state.initialConfiguration);
-
-export const selectUpdatedConfiguration = createSelector(getFilterState, (state: FilterState) => state.updatedConfiguration);
-
-export const selectLiveEditingFilterState = createSelector(getFilterState, (state: FilterState) => state.filterState);
-
-export const selectDatasetsModels = createSelector(getFilterState, (state: FilterState) => state.datasetsModels);
-
-export const selectDatasetsRaw = createSelector(getFilterState, (state: FilterState) => state.datasetsRaw);
-
-export const selectExtractFinish = createSelector(getFilterState, extractFinish);
-
-export const selectCurrentDescriptor = createSelector(getFilterState, (state: FilterState) => state.descriptor);
-
-export const selectCurrentBlueprint = createSelector(getFilterState, (state: FilterState) => state.blueprint);
-
-export const selectResultAvailable = createSelector(getFilterState, (state: FilterState) => state.resultAvailable);

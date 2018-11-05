@@ -1,28 +1,35 @@
 import {Injectable} from "@angular/core";
 import {AppState} from "../app.component";
 import {Actions, Effect, ofType} from "@ngrx/effects";
-import {Observable, of} from "rxjs/index";
+import {forkJoin, Observable, of} from "rxjs/index";
 import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {catchError, concatMap, map, mergeMap, withLatestFrom} from "rxjs/internal/operators";
 import {Action, select, Store} from "@ngrx/store";
 import {
-    DRAIN_FILTER, DRAIN_FILTER_FAILURE,
+    DRAIN_FILTER,
+    DRAIN_FILTER_FAILURE,
     DrainFilterAction,
     DrainFilterFailure,
     DrainFilterSuccess,
-    EXTRACT_DATASETS, EXTRACT_DATASETS_FAILURE,
+    EXTRACT_DATASETS,
+    EXTRACT_DATASETS_FAILURE,
     ExtractDatasetsAction,
     ExtractDatasetsFailure,
-    ExtractDatasetsInitialSuccess,
-    ExtractDatasetsResultSuccess, INSERT_DATASETS_FAILURE,
+    ExtractDatasetsResultSuccess,
+    InitialExtractSuccess,
+    INSERT_DATASETS_FAILURE,
     INSERT_DATASETS_SUCCESS,
     InsertDatasetsFailure,
-    InsertDatasetsSuccess, LOAD_ALL_PIPELINES_FOR_REDIRECT,
+    InsertDatasetsSuccess,
+    LOAD_ALL_PIPELINES_FOR_REDIRECT,
     LOAD_DESCRIPTOR_FOR_BLUEPRINT,
-    LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS, LOAD_FILTER_BLUEPRINT_FAILURE,
+    LOAD_DESCRIPTOR_FOR_BLUEPRINT_SUCCESS,
+    LOAD_FILTER_BLUEPRINT_FAILURE,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
-    LOAD_FILTER_CONFIGURATION, LOAD_FILTER_CONFIGURATION_FAILURE,
-    LOAD_FILTERSTATE, LOAD_FILTERSTATE_FAILURE, LoadAllPipelinesForRedirect,
+    LOAD_FILTER_CONFIGURATION,
+    LOAD_FILTER_CONFIGURATION_FAILURE,
+    LOAD_FILTERSTATE,
+    LOAD_FILTERSTATE_FAILURE,
     LoadDescriptorForBlueprint,
     LoadDescriptorForBlueprintSuccess,
     LoadFilterBlueprintFailure,
@@ -32,8 +39,11 @@ import {
     LoadFilterConfigurationSuccess,
     LoadFilterStateAction,
     LoadFilterStateFailure,
-    LoadFilterStateSuccess, NAVIAGATE_TO_PIPELY_FAILURE, NaviagatetoPipelyFailure,
-    PAUSE_FILTER, PAUSE_FILTER_FAILURE,
+    LoadFilterStateSuccess,
+    NAVIAGATE_TO_PIPELY_FAILURE,
+    NaviagatetoPipelyFailure,
+    PAUSE_FILTER,
+    PAUSE_FILTER_FAILURE,
     PauseFilterAction,
     PauseFilterFailure,
     PauseFilterSuccess,
@@ -66,8 +76,6 @@ import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
 import {SnackbarOpen} from "../common/snackbar/snackbar.actions";
 import {PipelineService} from "../services/rest-api/PipelineService";
-import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {Go} from "../router/router.actions";
 import * as RouterActions from "../router/router.actions";
 import {StringTMap} from "../common/object-maps";
 
@@ -213,14 +221,16 @@ export class FiltersEffects {
     );
 
     @Effect()
-    public fireExtractDatasetsWhenLoadLiveEditEditingFilterSuccesAction: Observable<Action> = this.actions$.pipe(
+    public initialExtract: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_FILTERSTATE),
         map((action) => (action as LoadFilterStateAction)),
         switchMap((action) => {
-            return this.filterControllerService.extractDatasets(action.filterId, action.amount).pipe(
-                map((datasets: Dataset[]) => new ExtractDatasetsInitialSuccess(datasets)),
-                catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
-            );
+            return forkJoin(
+                this.filterControllerService.extractDatasets(action.filterId, action.amount, "before"),
+                this.filterControllerService.extractDatasets(action.filterId, action.amount, "after")
+            ).pipe(
+                map((data: Dataset[][]) => new InitialExtractSuccess(data[0], data[1])),
+                catchError((cause: any) => of(new ExtractDatasetsFailure(cause))))
         }),
     );
 
@@ -229,7 +239,7 @@ export class FiltersEffects {
         ofType(EXTRACT_DATASETS),
         map((action) => (action as ExtractDatasetsAction)),
         switchMap((action) => {
-            return this.filterControllerService.extractDatasets(action.filterId, action.amount).pipe(
+            return this.filterControllerService.extractDatasets(action.filterId, action.amount, "after").pipe(
                 map((datasets: Dataset[]) => new ExtractDatasetsResultSuccess(datasets)),
                 catchError((cause: any) => of(new ExtractDatasetsFailure(cause)))
             );

@@ -23,7 +23,7 @@ import {
         <div fxFlexFill="" fxLayoutGap="5px" fxLayout="column">
             <div fxFlexFill="" fxFlex="4" fxLayout="row" fxLayoutGap="15px">
                 <!--Search Field-->
-                <mat-form-field *ngIf="resultAvailable; else disclaimer" fxFlex="90" class="search-position">
+                <mat-form-field  fxFlex="90" class="search-position">
                     <input matInput (keyup)="applyFilter($event.target.value)"
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
                 </mat-form-field>
@@ -32,7 +32,7 @@ import {
                     <mat-label  fxFlex="100" fxLayoutAlign="center">{{'FILTERLIVEEDITINGCOMPONENT.NODATA' | translate}}</mat-label>
                 </ng-template>
 
-                <navigation-control *ngIf="resultAvailable" class="marginForNavigationControl" [index]="index.getValue()"
+                <navigation-control class="marginForNavigationControl" [index]="index.getValue()"
                                     [length]="(datasets$ | async).length"
                                     (counterEvent)="updateCounter($event)" fxLayoutAlign="end" fxFlex="">
                 </navigation-control>
@@ -42,7 +42,7 @@ import {
 
             </div>
             <!--Dataset Datatable-->
-            <table *ngIf="resultAvailable" fxFlex="" mat-table matSort [dataSource]="dataSource"
+            <table fxFlex="" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position live-editing">
                 <ng-container matColumnDef="fields">
                     <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header>

@@ -20,7 +20,8 @@ export const INSERT_DATASETS_FAILURE = "[Filter] InsertDatasetsFailure";
 export const INSERT_DATASETS_SUCCESS = "[Filter] InsertDatasetsSuccess";
 export const EXTRACT_DATASETS = "[Filter] ExtractDatasetsAction";
 export const EXTRACT_DATASETS_FAILURE = "[Filter] ExtractDatasetsFailure";
-export const EXTRACT_DATASETS_INITIAL_SUCCESS = "[Filter] ExtractDatasetsInitialSuccess";
+export const EXTRACT_OUTPUT_DATASETS_SUCESS = "[Filter] ExtractOutputDatasetsSucces";
+export const EXTRACT_INPUT_DATASETS_SUCESS = "[Filter] ExtractInputDatasetsSucces";
 export const EXTRACT_DATASETS_RESULT_SUCCESS = "[Filter] ExtractDatasetsResultSuccess";
 export const INITIALIZE_LIVE_EDITING_DATA = "[Filter] InitializeLiveEditingDataAction";
 export const LOCK_CURRENT_EXAMPLE_DATASET = "[Filter] LockCurrentExampleDatasetAction";
@@ -42,6 +43,7 @@ export const SAVE_UPDATED_CONFIGURATION = "[Filter] SaveUpdatedConfiguration";
 export const RESET_ACTION = "[Filter] ResetAction";
 export const LOAD_ALL_PIPELINES_FOR_REDIRECT = "[Filter] LoadAllPipelinesForRedirect";
 export const NAVIAGATE_TO_PIPELY_FAILURE = "[Filter] NaviagatetoPipelyFailure";
+export const INITIAL_EXTRACT_SUCCESS = "[Filter] InitialExtractSuccess";
 
 export type LiveEditingActions =
 
@@ -62,7 +64,6 @@ export type LiveEditingActions =
     | InsertDatasetsSuccess
     | ExtractDatasetsAction
     | ExtractDatasetsFailure
-    | ExtractDatasetsInitialSuccess
     | ExtractDatasetsResultSuccess
     | InitializeLiveEditingDataAction
     | LockCurrentExampleDatasetAction
@@ -79,7 +80,8 @@ export type LiveEditingActions =
     | SaveUpdatedConfiguration
     | ResetAction
     | LoadAllPipelinesForRedirect
-    | NaviagatetoPipelyFailure;
+    | NaviagatetoPipelyFailure
+    | InitialExtractSuccess;
 
 export class LoadAllPipelinesForRedirect {
     public readonly type = LOAD_ALL_PIPELINES_FOR_REDIRECT;
@@ -198,17 +200,19 @@ export class InsertDatasetsFailure implements Action {
     }
 }
 
+export class InitialExtractSuccess implements Action {
+    public readonly type = INITIAL_EXTRACT_SUCCESS;
+
+    constructor(readonly input: Dataset[], readonly output: Dataset[]) {
+
+    }
+}
+
+
 export class ExtractDatasetsAction implements Action {
     public readonly type = EXTRACT_DATASETS;
 
     constructor(readonly filterId: string, readonly amount: number) {
-    }
-}
-
-export class ExtractDatasetsInitialSuccess implements Action {
-    public readonly type = EXTRACT_DATASETS_INITIAL_SUCCESS;
-
-    constructor(readonly datasets: Dataset[]) {
     }
 }
 

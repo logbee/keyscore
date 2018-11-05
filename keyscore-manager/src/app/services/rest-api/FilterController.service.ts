@@ -47,8 +47,8 @@ export class FilterControllerService {
         });
     }
 
-    extractDatasets(uuid: string, amount: number): Observable<Dataset[]> {
-        return this.httpClient.get<Dataset[]>(`${FilterControllerService.BASE_URL}/${uuid}/extract?value=` + amount)
+    extractDatasets(uuid: string, amount: number, where: string): Observable<Dataset[]> {
+        return this.httpClient.get<Dataset[]>(`${FilterControllerService.BASE_URL}/${uuid}/extract?value=` + amount + "&where=" + where)
     }
 
     updateConfig(configuration: Configuration, blueprintId: string): Observable<any> {

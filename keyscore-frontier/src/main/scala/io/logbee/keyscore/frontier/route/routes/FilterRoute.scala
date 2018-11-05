@@ -63,7 +63,7 @@ object FilterRoute extends RouteImplicits {
           } ~
           path("extract") {
             get {
-              parameters('value.as[Int], "where" ? "after") { (amount, where) =>
+              parameters('value.as[Int], "where" ? "before") { (amount, where) =>
                 onSuccess(clusterPipelineManager ? ExtractDatasets(filterId, amount, where)) {
                   case ExtractDatasetsResponse(datasets) => complete(StatusCodes.OK, datasets)
                   case _ => complete(StatusCodes.InternalServerError)
