@@ -76,24 +76,22 @@ class PipelineIntegrationTest extends Matchers {
     drainFilter(k2kFilterId, "true")
     checkFilterState(k2kFilterId, Green, Dismantled)
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
-    Thread.sleep(2000)
-    // TODO: #50
-//    extractDatsetsFromFilter(k2eFilterId,10, 0)
 
-    extractDatsetsFromFilter(k2kFilterId, 2, 2)
+    Thread.sleep(2000)
     extractDatsetsFromFilter(k2kFilterId, 5, 2)
+
     pauseFilter(k2kFilterId, "false")
     drainFilter(k2kFilterId, "false")
     checkFilterState(k2kFilterId, Green, Running)
+
     Thread.sleep(2000)
-    // TODO: #50
-//    extractDatsetsFromFilter(k2eFilterId, 10, 0)
+    extractDatsetsFromFilter(k2eFilterId, 10, 0)
     
     //Test the Valves of the second Pipeline Filter
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
-    Thread.sleep(1600)
-    // TODO: #50
-//    extractDatsetsFromFilter(k2eFilterId, 2, 2)
+
+    Thread.sleep(2000)
+    extractDatsetsFromFilter(k2eFilterId, 2, 2)
     
     //Wait until all Dataset are pushed to the Elastic index
     pollElasticElements(expect = 2) shouldBe true
@@ -451,6 +449,7 @@ class PipelineIntegrationTest extends Matchers {
         hits = (json \ "hits" \ "total").extract[Int]
       }))
 
+    log.debug(s"Hits in elastic: $hits")
     hits
   }
 

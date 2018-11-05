@@ -79,7 +79,6 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         pullIn()
         promise.success(state)
         log.debug(s"Valve <$id> does now drain.")
-
       case _ =>
     })
 
@@ -96,7 +95,6 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       case (promise, amount) =>
         val datasets = ringBuffer.last(amount)
         promise.success(datasets)
-
         log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
 
@@ -189,8 +187,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def pushOut(): Unit = {
 
-      if (isAvailable(out)) {
-
+      if (isAvailable(out) && !isDraining) {
         val dataset = if (insertBuffer.isNonEmpty) Option(insertBuffer.pull()) else if(ringBuffer.isNonEmpty) Option(ringBuffer.pull()) else None
 
         dataset.foreach( dataset => {
@@ -247,9 +244,10 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       dataset.metadata.labels.filter(label => !labels.contains(label.name) || label.name == FirstValveTimestamp)
     }
 
-    private def isOpen = state.position == Open || state.position == Drain
-    private def isDraining = state.position == Drain
-    private def isNotDraining = state.position == Open || state.position == Closed
+    private def isOpen: Boolean = state.position == Open || state.position == Drain
+    private def isDraining: Boolean = state.position == Drain
+
+    private def isNotDraining: Boolean = state.position == Open || state.position == Closed
 
     private def durationToNanos(duration: Duration): Long = duration.getSeconds * 1000000L + duration.getNanos
   }
