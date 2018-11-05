@@ -64,24 +64,15 @@ class RemoveFieldsFilterLogic(parameters: LogicParameters, shape: FlowShape[Data
   }
 
   override def onPush(): Unit = {
-
-    //TODO Remove #Workflow after #58
-//    log.debug("#Workflow: onPush")
-
     val dataset = grab(in)
     val records = dataset.records.map(record => {
       Record(record.fields.filter(field => !fieldsToRemove.contains(field.name)))
     })
 
-//    log.debug(s"#Workflow: Removing $fieldsToRemove | $records")
-
     push(out, Dataset(dataset.metadata, records))
   }
 
   override def onPull(): Unit = {
-//    log.debug("#Workflow: onPull")
-//    Thread.sleep(5)
-
     pull(in)
   }
 }
