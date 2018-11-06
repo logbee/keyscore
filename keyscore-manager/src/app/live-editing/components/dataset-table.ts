@@ -27,11 +27,6 @@ import {
                     <input matInput (keyup)="applyFilter($event.target.value)"
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
                 </mat-form-field>
-
-                <ng-template #disclaimer>
-                    <mat-label  fxFlex="100" fxLayoutAlign="center">{{'FILTERLIVEEDITINGCOMPONENT.NODATA' | translate}}</mat-label>
-                </ng-template>
-
                 <navigation-control class="marginForNavigationControl" [index]="index.getValue()"
                                     [length]="(datasets$ | async).length"
                                     (counterEvent)="updateCounter($event)" fxLayoutAlign="end" fxFlex="">
