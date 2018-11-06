@@ -84,7 +84,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
       case (promise, datasets) =>
-        datasets.foreach(insertBuffer.push)
+        datasets.foreach(ringBuffer.push)
         update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         promise.success(state)
         pushOut()

@@ -5,6 +5,7 @@ import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {Go} from "../../router/router.actions";
 import {
+    CheckIsPipelineRunning,
     DeletePipelineAction,
     LoadFilterDescriptorsAction,
     ResetPipelineAction,
@@ -32,7 +33,7 @@ import {
 @Component({
     selector: "pipeline-editor",
     template: `
-        <loading-full-view *ngIf="isLoading$|async; else error"></loading-full-view>
+        <loading-full-view *ngIf="((isLoading$|async) && showBigLoadingViewOnLoading); else error"></loading-full-view>
 
         <ng-template #error>
             <error-component *ngIf="(errorState$ | async);else fullComponent"
@@ -43,6 +44,7 @@ import {
 
         <ng-template #fullComponent>
             <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true"
+                        [isLoading]="isLoading$|async"
                         (onSave)="savePipelineSource$.next()"
                         (onRun)="runPipelineSource$.next()"
             ></header-bar>
@@ -50,6 +52,7 @@ import {
             <pipely-workspace [runTrigger$]="runPipeline$" [saveTrigger$]="savePipeline$"
                               [pipeline]="(pipeline$ | async)"
                               [blockDescriptors]="blockDescriptorSource$|async"
+                              [showLiveEditingButton]="isLoading$|async"
                               (onUpdatePipeline)="updatePipeline($event)"
                               (onRunPipeline)="runPipeline($event)"
                               fxFill></pipely-workspace>
@@ -79,10 +82,14 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public errorStatus$: Observable<string>;
     public errorMessage$: Observable<string>;
 
+    private showBigLoadingViewOnLoading = true;
+
     constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
     }
 
     ngOnInit() {
+        this.showBigLoadingViewOnLoading = true;
+
         this.store.dispatch(new LoadFilterDescriptorsAction());
 
         this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors), takeUntil(this.alive));
@@ -118,6 +125,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
 
     public runPipeline(pipeline: EditingPipelineModel) {
         this.store.dispatch(new UpdatePipelineAction(pipeline, true));
+        this.showBigLoadingViewOnLoading = false;
     }
 
     public resetPipeline(pipeline: InternalPipelineConfiguration) {

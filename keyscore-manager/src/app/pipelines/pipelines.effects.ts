@@ -11,6 +11,8 @@ import {AppState} from "../app.component";
 import {selectAppConfig} from "../app.config";
 import {selectRefreshTime} from "../common/loading/loading.reducer";
 import {
+    CHECK_IS_PIPELINE_RUNNING,
+    CheckIsPipelineRunning,
     ConfigurationsForBlueprintId,
     DELETE_PIPELINE,
     DeletePipelineAction,
@@ -66,6 +68,7 @@ import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
 import {PipelineService} from "../services/rest-api/PipelineService";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
+import {Health} from "../models/common/Health";
 
 @Injectable()
 export class PipelinesEffects {
@@ -210,8 +213,8 @@ export class PipelinesEffects {
         map(action => (action as RunPipelineAction).blueprintRef),
         switchMap((blueprintRef) => {
             return this.pipelineService.runPipeline(blueprintRef).pipe(
-                map(data => new RunPipelineSuccessAction(blueprintRef)),
-                catchError(cause => of(new RunPipelineFailureAction(cause,blueprintRef)))
+                map(data => new CheckIsPipelineRunning(blueprintRef, 0)),
+                catchError(cause => of(new RunPipelineFailureAction(cause, blueprintRef)))
             )
         })
     );
@@ -273,6 +276,25 @@ export class PipelinesEffects {
         )
     );
 
+    @Effect() public checkIsPipelineRunning$: Observable<Action> = this.actions$.pipe(
+        ofType(CHECK_IS_PIPELINE_RUNNING),
+        map(action => action as CheckIsPipelineRunning),
+        switchMap(action => {
+            return this.pipelineService.loadInstance(action.pipelineRef.uuid).pipe(
+                map((data: PipelineInstance) => {
+                    if (data.health === Health.Green) {
+                        return new RunPipelineSuccessAction(action.pipelineRef);
+                    } else if (action.liveTime <= 5) {
+                        return new CheckIsPipelineRunning(action.pipelineRef, action.liveTime + 1);
+                    }
+                    return new RunPipelineFailureAction(null, action.pipelineRef);
+
+                }),
+                catchError((cause) => of(new RunPipelineFailureAction(cause, action.pipelineRef)))
+            )
+        })
+    );
+
     @Effect() public loadPipelineBlueprints$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_PIPELINEBLUEPRINTS),
         mergeMap(_ => {
@@ -289,10 +311,9 @@ export class PipelinesEffects {
         switchMap(action => {
             return this.blueprintService.getPipelineBlueprint(action.uuid).pipe(
                 map((blueprint) => new ConfigurationsForBlueprintId(blueprint.blueprints)),
-                catchError((cause)  => of(new TriggerFilterResetFailure(cause)))
+                catchError((cause) => of(new TriggerFilterResetFailure(cause)))
             );
         })
-
     );
 
     // @Effect() ResetFilterStatusAction$: Observable<Action> = this.actions$.pipe(

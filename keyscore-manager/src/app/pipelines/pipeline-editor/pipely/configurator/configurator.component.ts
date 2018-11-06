@@ -99,7 +99,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     isVisible: boolean = true;
 
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
-
         if (block.configuration && block.descriptor) {
             this.selectedBlock$.next(block);
         } else {
@@ -156,6 +155,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
                 this.form.reset();
             }
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
+
             this.form.valueChanges.subscribe(values => {
                 if (!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues, values)) {
                     this.lastValues = values;
@@ -207,12 +207,14 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     saveConfiguration() {
         let configuration: Configuration = deepcopy(this.selectedBlock$.getValue().configuration);
-        configuration.parameters.forEach((parameter) => {
-            if (this.form.controls[parameter.ref.id]) {
-                parameter.value = this.form.controls[parameter.ref.id].value;
-            }
-        });
-        this.onSave.emit(configuration);
+        if(configuration.ref.uuid !== 'init') {
+            configuration.parameters.forEach((parameter) => {
+                if (this.form.controls[parameter.ref.id]) {
+                    parameter.value = this.form.controls[parameter.ref.id].value;
+                }
+            });
+            this.onSave.emit(configuration);
+        }
     }
 
 

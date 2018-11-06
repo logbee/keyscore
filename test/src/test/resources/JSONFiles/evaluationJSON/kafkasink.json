@@ -1,0 +1,31 @@
+{
+  "jsonClass": "io.logbee.keyscore.model.configuration.Configuration",
+  "ref": {
+    "uuid": "105cbaa9-29f6-4b2e-a008-243c44fc624b",
+    "revision": "",
+    "ancestor": ""
+  },
+  "parameters": [
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+      "ref": {
+        "id": "kafka.sink.bootstrapServer"
+      },
+      "value": "keyscore-kafka"
+    },
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
+      "ref": {
+        "id": "kafka.sink.bootstrapServerPort"
+      },
+      "value": 9092
+    },
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+      "ref": {
+        "id": "kafka.sink.topic"
+      },
+      "value": "TopicB"
+    }
+  ]
+}

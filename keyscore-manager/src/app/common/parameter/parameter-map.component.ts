@@ -1,4 +1,4 @@
-import {Component, forwardRef, Input, OnInit} from "@angular/core";
+import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {deepcopy} from "../../util";
 import {Field} from "../../models/dataset/Field";
@@ -23,8 +23,12 @@ import {Parameter} from "../../models/parameters/Parameter";
         </div>
 
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-hint *ngIf="keyEmpty" style="color: rgba(204,16,8,0.65);">{{'PARAMETERMAPCOMPONENT.KEYREQUIRED' | translate}}</mat-hint>
-            <mat-hint *ngIf="duplicateMapping" style="color: rgba(204,16,8,0.65);">{{'PARAMETERMAPCOMPONENT.DUPLICATE' | translate}}</mat-hint>
+            <mat-hint *ngIf="keyEmpty" style="color: rgba(204,16,8,0.65);">
+                {{'PARAMETERMAPCOMPONENT.KEYREQUIRED' | translate}}
+            </mat-hint>
+            <mat-hint *ngIf="duplicateMapping" style="color: rgba(204,16,8,0.65);">
+                {{'PARAMETERMAPCOMPONENT.DUPLICATE' | translate}}
+            </mat-hint>
         </div>
 
         <div (click)="onTouched()" *ngIf="parameterValues.length > 0">
@@ -47,10 +51,13 @@ import {Parameter} from "../../models/parameters/Parameter";
     ]
 })
 
-export class ParameterMap implements ControlValueAccessor,OnInit {
+export class ParameterMap implements ControlValueAccessor, OnInit {
 
     @Input() public disabled = false;
     @Input() public parameter: Parameter;
+
+    @ViewChild('addItemInputKey') inputKeyField: ElementRef;
+    @ViewChild('addItemInputValue') inputValueField: ElementRef;
 
     public parameterValues: Field[];
     public keyEmpty: boolean;
@@ -66,11 +73,11 @@ export class ParameterMap implements ControlValueAccessor,OnInit {
     };
 
     public writeValue(elements: Field[]): void {
-        this.parameterValues = deepcopy(elements,[]);
+        this.parameterValues = deepcopy(elements, []);
         this.onChange(elements);
     }
 
-    public ngOnInit(){
+    public ngOnInit() {
         this.parameterValues = this.parameter.value;
     }
 
@@ -94,7 +101,7 @@ export class ParameterMap implements ControlValueAccessor,OnInit {
     public removeItem(toRemove: Field) {
         let removeIndex = this.parameterValues.findIndex(field => field.name === toRemove.name);
         if (removeIndex >= 0) {
-            let newValues: Field[] = deepcopy(this.parameterValues,[]);
+            let newValues: Field[] = deepcopy(this.parameterValues, []);
             newValues.splice(removeIndex, 1);
             this.writeValue(newValues);
         }
@@ -104,19 +111,21 @@ export class ParameterMap implements ControlValueAccessor,OnInit {
         if (key) {
             this.keyEmpty = false;
             this.duplicateMapping = false;
-            const newValues: Field[] = deepcopy(this.parameterValues,[]);
+            const newValues: Field[] = deepcopy(this.parameterValues, []);
             let existingIndex = newValues.findIndex(field => field.name === key);
             if (existingIndex >= 0) {
                 let currentVal = (newValues[existingIndex].value as TextValue).value;
-                if( currentVal !== value) {
+                if (currentVal !== value) {
                     this.duplicateMapping = false;
                     (newValues[existingIndex].value as TextValue).value = value;
                 } else {
                     this.duplicateMapping = true;
                 }
             } else {
-                console.log("Pushed new value: " + key +"/"+ value);
                 newValues.push({name: key, value: {jsonClass: ValueJsonClass.TextValue, value: value}});
+                this.inputKeyField.nativeElement.value='';
+                this.inputValueField.nativeElement.value='';
+                this.inputKeyField.nativeElement.focus();
             }
             this.writeValue(newValues);
         } else {

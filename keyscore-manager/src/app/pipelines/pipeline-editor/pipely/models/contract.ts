@@ -6,6 +6,8 @@ import {Rectangle} from "./rectangle";
 import {DropzoneSubcomponent} from "../dropzone/dropzone-subcomponent";
 
 export interface Workspace {
+    showLiveEditingButton$: Observable<boolean>;
+
     addDropzone(dropzone: Dropzone): void;
 
     removeAllDropzones(predicate: (dropzone: Dropzone) => boolean): void;
@@ -17,6 +19,7 @@ export interface Workspace {
     getWorkspaceDropzone(): Dropzone;
 
     registerDraggable(draggable: Draggable);
+
 
 }
 

@@ -1,4 +1,4 @@
-import {Component, forwardRef, Input, OnInit} from "@angular/core";
+import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
 
@@ -15,8 +15,12 @@ import {Parameter} from "../../models/parameters/Parameter";
             </button>
         </div>
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-hint *ngIf="fieldNameEmpty" style="color: rgba(204,16,8,0.65);">{{'PARAMETERLISTCOMPONENT.NAMEREQUIRED' | translate}}</mat-hint>
-            <mat-hint *ngIf="duplicate" style="color: rgba(204,16,8,0.65);">{{'PARAMETERLISTCOMPONENT.NAMEDUPLICATE' | translate}}</mat-hint>
+            <mat-hint *ngIf="fieldNameEmpty" style="color: rgba(204,16,8,0.65);">
+                {{'PARAMETERLISTCOMPONENT.NAMEREQUIRED' | translate}}
+            </mat-hint>
+            <mat-hint *ngIf="duplicate" style="color: rgba(204,16,8,0.65);">
+                {{'PARAMETERLISTCOMPONENT.NAMEDUPLICATE' | translate}}
+            </mat-hint>
         </div>
         <div (click)="onTouched()" *ngIf="parameterValues.length > 0">
             <div style="display: inline-block; margin: 10px"
@@ -39,11 +43,14 @@ import {Parameter} from "../../models/parameters/Parameter";
     ]
 })
 
-export class ParameterList implements ControlValueAccessor,OnInit {
+export class ParameterList implements ControlValueAccessor, OnInit {
 
     @Input() public disabled = false;
     @Input() public distinctValues = true;
     @Input() public parameter: Parameter;
+
+    @ViewChild('addItemInput') inputField: ElementRef;
+
     public parameterValues: string[] = [];
     private duplicate: boolean;
     private fieldNameEmpty: boolean;
@@ -56,8 +63,8 @@ export class ParameterList implements ControlValueAccessor,OnInit {
         return;
     };
 
-    public ngOnInit(): void{
-        this.parameterValues = this.parameter.value;
+    public ngOnInit(): void {
+        this.parameterValues = [...this.parameter.value];
     }
 
     public writeValue(elements: string[]): void {
@@ -80,11 +87,11 @@ export class ParameterList implements ControlValueAccessor,OnInit {
     }
 
     get value(): string[] {
-        return this.parameterValues;
+        return [...this.parameterValues];
     }
 
     public removeItem(index: number) {
-        const newValues = Object.assign([], this.parameterValues);
+        const newValues = [...this.parameterValues];
         newValues.splice(index, 1);
         this.writeValue(newValues);
     }
@@ -94,9 +101,10 @@ export class ParameterList implements ControlValueAccessor,OnInit {
             if (!this.distinctValues || (this.distinctValues && !this.parameterValues.some((x) => x === value))) {
                 this.duplicate = false;
                 this.fieldNameEmpty = false;
-                const newValues = Object.assign([], this.parameterValues);
+                const newValues = [...this.parameterValues];
                 newValues.push(value);
                 this.writeValue(newValues);
+                this.inputField.nativeElement.value = '';
             } else {
                 this.duplicate = true;
             }

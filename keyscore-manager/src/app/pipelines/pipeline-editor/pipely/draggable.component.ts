@@ -75,7 +75,7 @@ import {Go} from "../../../router/router.actions";
                             *ngIf="draggableModel.initialDropzone.getDropzoneModel().dropzoneType !== dropzoneType.Toolbar"
                             matTooltip="Navigate to Live-Editing" matTooltipPosition="above"
                             (click)="navigateToLiveEditing()" [inline]="true" class="pipely-live-editing-button"
-                            [class.disabled]="false">
+                            [class.disabled]="workspace.showLiveEditingButton$|async">
                         settings
                     </mat-icon>
                 </div>
@@ -155,7 +155,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
             this.iconContainer.nativeElement.innerHTML = this.draggableModel.blockDescriptor.icon.data;
         }
 
-        if(this.draggableModel.isMirror && this.getHead() === this){
+        if (this.draggableModel.isMirror && this.getHead() === this) {
             this.draggableModel.isSelected = true;
         }
 

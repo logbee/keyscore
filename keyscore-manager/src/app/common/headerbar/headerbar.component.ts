@@ -31,8 +31,8 @@ import "./style/headerbar.style.scss"
                         </button>
                     </div>
                 </div>
+            <mat-progress-bar class="progress-bar-header" *ngIf="isLoading" mode="indeterminate" color="accent"></mat-progress-bar>
             </div>
-            <mat-progress-bar *ngIf="isLoading" mode="indeterminate" color="accent"></mat-progress-bar>
         </div>
     `
 })

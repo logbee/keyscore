@@ -67,6 +67,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     private blockDescriptors$ = new BehaviorSubject<BlockDescriptor[]>([]);
 
+    @Input('showLiveEditingButton') set showLiveEditingButton(show: boolean) {
+        this.showLiveEditingButtonSource$.next(show);
+    }
+    private showLiveEditingButtonSource$ = new BehaviorSubject<boolean>(true);
+    public showLiveEditingButton$ = this.showLiveEditingButtonSource$.asObservable();
+
     @Input() runTrigger$: Observable<void>;
     @Input() saveTrigger$: Observable<void>;
 
@@ -118,7 +124,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         if (this.selectedDraggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType !== DropzoneType.Toolbar) {
             this.selectedDraggableSource.next(this.selectedDraggable);
             this.selectedDraggable.select(true);
-
         }
     }
 

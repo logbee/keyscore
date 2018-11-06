@@ -81,10 +81,7 @@
 }
 
 .pipely-live-editing-button.disabled{
-  color: #909090;
-  transition: none;
-  transform: none;
-  cursor:not-allowed;
+  display:none;
 }
 
 .draggableDockingIndicator {

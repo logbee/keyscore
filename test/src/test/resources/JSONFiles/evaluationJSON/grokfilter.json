@@ -1,0 +1,26 @@
+{
+  "jsonClass": "io.logbee.keyscore.model.configuration.Configuration",
+  "ref": {
+    "uuid": "a80d1811-02fe-460b-a415-a09c09d20436",
+    "revision": "",
+    "ancestor": ""
+  },
+  "parameters": [
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameListParameter",
+      "ref": {
+        "id": "grok.fieldNames"
+      },
+      "value": [
+        "path"
+      ]
+    },
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.ExpressionParameter",
+      "ref": {
+        "id": "grok.pattern"
+      },
+      "value": ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*"
+    }
+  ]
+}

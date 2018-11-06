@@ -1,0 +1,24 @@
+{
+  "jsonClass": "io.logbee.keyscore.model.configuration.Configuration",
+  "ref": {
+    "uuid": "929e284a-9301-4d09-bb43-07a7b31f41a3",
+    "revision": "",
+    "ancestor": ""
+  },
+  "parameters": [
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+      "ref": {
+        "id": "fingerprint.target"
+      },
+      "value": "footprint"
+    },
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.BooleanParameter",
+      "ref": {
+        "id": "fingerprint.encoding"
+      },
+      "value": true
+    }
+  ]
+}

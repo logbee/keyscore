@@ -16,7 +16,6 @@ export const EDIT_PIPELINE_FAILURE = "[Pipeline] EditPipelineFailure";
 export const LOAD_EDIT_PIPELINE_BLUEPRINTS = "[Pipeline] LoadEditPipelineBlueprints";
 export const LOAD_EDIT_PIPELINE_CONFIG = "[Pipeline] LoadEditPipelineConfig";
 
-
 export const RESET_PIPELINE = "[Pipeline] ResetPipeline";
 
 export const UPDATE_PIPELINE = "[Pipeline] UpdatePipeline";
@@ -47,6 +46,8 @@ export const LOAD_FILTER_DESCRIPTORS = "[Pipeline] LoadFilterDescriptors";
 export const RESOLVE_FILTER_DESCRIPTORS_SUCCESS = "[Pipeline] ResolveFilterDescriptorsSuccess";
 export const TRIGGER_FILTER_RESET = "[Pipeline] TriggerFilterReset";
 export const CONFIGS_FOR_BLUEPRINT = "[Pipeline] ConfigurationsForBlueprint";
+
+export const CHECK_IS_PIPELINE_RUNNING = "[Pipeline] CheckIsPipelineRunning";
 
 export type PipelineActions =
     | CreatePipelineAction
@@ -306,6 +307,13 @@ export class ConfigurationsForBlueprintId implements Action {
     public readonly type = CONFIGS_FOR_BLUEPRINT;
 
     constructor(readonly blueprints: Ref[]) {
+
+    }
+}
+
+export class CheckIsPipelineRunning implements Action {
+    public readonly type = CHECK_IS_PIPELINE_RUNNING;
+    constructor(readonly pipelineRef: Ref,readonly liveTime:number){
 
     }
 }
