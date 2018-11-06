@@ -10,6 +10,7 @@ import {Configuration} from "../../../../models/common/Configuration";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
+import {UpdateFilterConfiguration} from "../../../../live-editing/live-editing.actions";
 
 
 @Component({
@@ -81,11 +82,18 @@ import * as _ from "lodash";
                             {{'PIPELY.RESET' | translate}}
                         </button>
                     </div>
-                    <button #save mat-raised-button color="primary" matTooltip="{{'PIPELY.TEST_TOOLTIP'| translate}}"
+                    <button *ngIf="applyTestFlag;else apply" #save mat-raised-button color="primary" matTooltip="{{'PIPELY.TEST_TOOLTIP'| translate}}"
                             (click)="saveConfiguration()">
                         <mat-icon>play_arrow</mat-icon>
                         {{'PIPELY.TEST' | translate}}
                     </button>
+                    <ng-template #apply>
+                        <button save mat-raised-button color="primary" matTooltip=" {{'PIPELY.APPLY_TOOLTIP' | translate}}"
+                                (click)="overwriteConfiguration()">
+                            <mat-icon>done</mat-icon>
+                            {{'PIPELY.APPLY' | translate}}
+                        </button>
+                    </ng-template>
                 </div>
             </div>
         </div>
@@ -97,7 +105,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
     isVisible: boolean = true;
-
+    applyTestFlag: boolean = true;
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
         if (block.configuration && block.descriptor) {
             this.selectedBlock$.next(block);
@@ -129,6 +137,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() onRevert: EventEmitter<void> = new EventEmitter();
     @Output() onShowConfigurator: EventEmitter<boolean> = new EventEmitter();
     @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string }> = new EventEmitter();
+    @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
     isAlive: Subject<void> = new Subject();
     form: FormGroup;
     pipelineForm: FormGroup;
@@ -215,8 +224,13 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             });
             this.onSave.emit(configuration);
         }
+        this.applyTestFlag = false;
     }
 
+    overwriteConfiguration() {
+        this.applyTestFlag = true;
+        this.onOverwriteConfiguration.emit();
+    }
 
     getKeys(map: Map<any, any>): any[] {
         return Array.from(map.keys());

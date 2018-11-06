@@ -18,7 +18,7 @@ import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {
     LoadAllPipelinesForRedirect,
     RestoreFilterConfiguration,
-    SaveUpdatedConfiguration,
+    SaveUpdatedConfiguration, UpdateConfigurationInBackend,
     UpdateFilterConfiguration
 } from "./live-editing.actions";
 import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-descriptor.model";
@@ -61,7 +61,8 @@ import {Dataset} from "../models/dataset/Dataset";
                           [showFooter]="true"
                           (onSave)="saveConfiguration($event)"
                           (onRevert)="revertFilterConfiguration()"
-                          (onShowConfigurator)="hide($event)">
+                          (onShowConfigurator)="hide($event)"
+                          (onOverwriteConfiguration)="overwriteConfiguration()">
             </configurator>
         </div>
         <error-component *ngIf="errorHandling" [httpError]="httpError"
@@ -85,6 +86,7 @@ export class LiveEditingComponent implements OnInit {
     private configuration$: Observable<Configuration>;
     private filterState$: Observable<ResourceInstanceState>;
     private descriptor$: Observable<ResolvedFilterDescriptor>;
+    private currentConfig: Configuration;
     private inputDatasets$: Observable<Dataset[]>;
     private showConfigurator: boolean = true;
     private liveEditingEnabled: boolean;
@@ -101,6 +103,7 @@ export class LiveEditingComponent implements OnInit {
     public ngOnInit(): void {
         this.store.pipe(select(selectUpdatedConfiguration)).subscribe(config => {
                 if (config) {
+                    this.currentConfig = config;
                     this.store.dispatch(new UpdateFilterConfiguration(config));
                 }
             }
@@ -109,7 +112,6 @@ export class LiveEditingComponent implements OnInit {
 
     navigateToPipely() {
         console.log("Triggered navigate to pipely");
-
         this.store.dispatch(new LoadAllPipelinesForRedirect());
 
     }
@@ -128,6 +130,10 @@ export class LiveEditingComponent implements OnInit {
         this.store.dispatch(new SaveUpdatedConfiguration($event));
     }
 
+    overwriteConfiguration() {
+        console.log("overwriteConfig:" + this.currentConfig);
+        this.store.dispatch(new UpdateConfigurationInBackend(this.currentConfig))
+    }
     revertFilterConfiguration() {
         this.store.dispatch(new RestoreFilterConfiguration())
     }

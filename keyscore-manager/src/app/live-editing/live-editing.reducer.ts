@@ -9,7 +9,11 @@ import {
     PAUSE_FILTER_SUCCESS,
     RESET_ACTION,
     RESOLVED_DESCRIPTOR_FOR_BLUEPRINT,
-    SAVE_UPDATED_CONFIGURATION, EXTRACT_INPUT_DATASETS_SUCESS, INITIAL_EXTRACT_SUCCESS
+    SAVE_UPDATED_CONFIGURATION,
+    EXTRACT_INPUT_DATASETS_SUCESS,
+    INITIAL_EXTRACT_SUCCESS,
+    UpdateConfigurationInBackend,
+    UPDATE_CONFIGURATION_IN_BACKEND
 } from "./live-editing.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Configuration} from "../models/common/Configuration";

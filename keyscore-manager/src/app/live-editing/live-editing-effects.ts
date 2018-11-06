@@ -41,7 +41,7 @@ import {
     LoadFilterStateFailure,
     LoadFilterStateSuccess,
     NAVIAGATE_TO_PIPELY_FAILURE,
-    NaviagatetoPipelyFailure,
+    NaviagatetoPipelyFailure, OverwriteSuccess,
     PAUSE_FILTER,
     PAUSE_FILTER_FAILURE,
     PauseFilterAction,
@@ -54,8 +54,8 @@ import {
     ResetAction,
     ResolvedDescriptorForBlueprintSuccess,
     RESTORE_FILTER_CONFIGURATION,
-    RestoreFilterConfiguration,
-    UPDATE_FILTER_CONFIGURATION,
+    RestoreFilterConfiguration, UPDATE_CONFIGURATION_IN_BACKEND,
+    UPDATE_FILTER_CONFIGURATION, UpdateConfigurationInBackend,
     UpdateFilterConfiguration
 } from "./live-editing.actions";
 import {BlueprintService} from "../services/rest-api/BlueprintService";
@@ -287,6 +287,15 @@ export class FiltersEffects {
                 catchError((cause: any) => of(new NaviagatetoPipelyFailure(cause))));
         })
     );
+
+    @Effect()
+    public overwriteConfiguration$: Observable<Action> = this.actions$.pipe(
+        ofType(UPDATE_CONFIGURATION_IN_BACKEND),
+        map((action) => (action as UpdateConfigurationInBackend).configuration),
+        mergeMap((config) => this.configurationService.putConfiguration(config)),
+        map(_ => new OverwriteSuccess()),
+        catchError((cause) => of(new ReconfigureFilterFailure(cause))
+        ));
 
     // SnackBar
 

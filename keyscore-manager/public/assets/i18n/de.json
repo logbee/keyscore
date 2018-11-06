@@ -139,7 +139,9 @@
     "RESET_TOOLTIP": "Setzt das Formular zurück",
     "RESET": "Zurücksetzen",
     "REVERT": "Verwerfen",
-    "TEST": "Testen"
+    "TEST": "Testen",
+    "APPLY": "Übernehmen",
+    "APPLY_TOOLTIP": "Übernimmt die eingestellte Konfiguration."
   },
   "ERRORS": {
     "404": "Der angeforderte Filter konnte nicht gefunden werden.",

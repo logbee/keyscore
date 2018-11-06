@@ -138,7 +138,9 @@
     "RESET_TOOLTIP": "Restore current configuration",
     "RESET": "Reset",
     "REVERT": "Revert",
-    "TEST": "Test"
+    "TEST": "Test",
+    "APPLY": "Apply",
+    "APPLY_TOOLTIP": "Applying the chosen configuration."
   },
   "ERRORS": {
     "404": "The requested filter does not exist.",

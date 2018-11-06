@@ -44,6 +44,8 @@ export const RESET_ACTION = "[Filter] ResetAction";
 export const LOAD_ALL_PIPELINES_FOR_REDIRECT = "[Filter] LoadAllPipelinesForRedirect";
 export const NAVIAGATE_TO_PIPELY_FAILURE = "[Filter] NaviagatetoPipelyFailure";
 export const INITIAL_EXTRACT_SUCCESS = "[Filter] InitialExtractSuccess";
+export const UPDATE_CONFIGURATION_IN_BACKEND = "[Filter] UpdateConfigurationInBackend";
+export const OVERWRITE_SUCCESS = "[Filter] OverwriteSuccess";
 
 export type LiveEditingActions =
 
@@ -81,8 +83,21 @@ export type LiveEditingActions =
     | ResetAction
     | LoadAllPipelinesForRedirect
     | NaviagatetoPipelyFailure
-    | InitialExtractSuccess;
+    | InitialExtractSuccess
+    | UpdateConfigurationInBackend
+    | OverwriteSuccess;
 
+
+export class OverwriteSuccess {
+    public readonly type = OVERWRITE_SUCCESS;
+}
+export class UpdateConfigurationInBackend {
+    public readonly type     = UPDATE_CONFIGURATION_IN_BACKEND;
+
+    constructor(readonly configuration: Configuration) {
+
+    }
+}
 export class LoadAllPipelinesForRedirect {
     public readonly type = LOAD_ALL_PIPELINES_FOR_REDIRECT;
 }
