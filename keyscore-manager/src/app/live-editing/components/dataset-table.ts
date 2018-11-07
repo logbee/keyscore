@@ -125,7 +125,6 @@ export class DatasetTable implements AfterViewInit {
     ngAfterViewInit() {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
-        console.log(this.dataSource.sort)
     }
     applyFilter(filterValue: string) {
         this.dataSource.filter = filterValue;

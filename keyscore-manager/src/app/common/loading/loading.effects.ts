@@ -37,7 +37,11 @@ import {
     LOAD_FILTER_CONFIGURATION_SUCCESS,
     LoadFilterConfigurationAction,
     LoadFilterConfigurationFailure,
-    LoadFilterConfigurationSuccess
+    LoadFilterConfigurationSuccess,
+    OVERWRITE_SUCCESS,
+    OverwriteSuccess, RECONFIGURE_FILTER_FAILURE, ReconfigureFilterFailure,
+    UPDATE_CONFIGURATION_IN_BACKEND,
+    UpdateConfigurationInBackend
 } from "../../live-editing/live-editing.actions";
 import {
     LOAD_AGENTS,
@@ -53,7 +57,8 @@ type showSpinnerTypes =
     | LoadFilterConfigurationAction
     | LoadAgentsAction
     | RunPipelineAction
-    | LoadPipelineBlueprints;
+    | LoadPipelineBlueprints
+    | UpdateConfigurationInBackend;
 
 const showSpinnerActions = [
     EDIT_PIPELINE,
@@ -86,7 +91,7 @@ const hideSpinnerActions = [
     LOAD_AGENTS_FAILURE,
     LOAD_AGENTS_SUCCESS,
     RUN_PIPELINE_SUCCESS,
-    RUN_PIPELINE_FAILURE
+    RUN_PIPELINE_FAILURE,
 ];
 
 @Injectable()

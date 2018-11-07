@@ -46,6 +46,7 @@ export const NAVIAGATE_TO_PIPELY_FAILURE = "[Filter] NaviagatetoPipelyFailure";
 export const INITIAL_EXTRACT_SUCCESS = "[Filter] InitialExtractSuccess";
 export const UPDATE_CONFIGURATION_IN_BACKEND = "[Filter] UpdateConfigurationInBackend";
 export const OVERWRITE_SUCCESS = "[Filter] OverwriteSuccess";
+export const START_CONFIGURATION_POLLING = "[Filter] StartConfigurationPolling";
 
 export type LiveEditingActions =
 
@@ -88,9 +89,11 @@ export type LiveEditingActions =
     | OverwriteSuccess;
 
 
+
 export class OverwriteSuccess {
     public readonly type = OVERWRITE_SUCCESS;
 }
+
 export class UpdateConfigurationInBackend {
     public readonly type     = UPDATE_CONFIGURATION_IN_BACKEND;
 

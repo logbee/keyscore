@@ -10,7 +10,6 @@ import {Configuration} from "../../../../models/common/Configuration";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
-import {UpdateFilterConfiguration} from "../../../../live-editing/live-editing.actions";
 
 
 @Component({

@@ -91,7 +91,6 @@ export class LiveEditingComponent implements OnInit {
     private showConfigurator: boolean = true;
     private liveEditingEnabled: boolean;
 
-
     private filterName: string = "Live-Editing";
 
     constructor(private store: Store<any>) {
@@ -101,7 +100,6 @@ export class LiveEditingComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-
         this.store.pipe(select(selectUpdatedConfiguration)).subscribe(config => {
                 if (config) {
                     this.currentConfig = config;
@@ -127,17 +125,19 @@ export class LiveEditingComponent implements OnInit {
             this.configuration$ = this.store.pipe(select(selectInitialConfiguration));
         }
     }
+
     saveConfiguration($event: Configuration) {
         this.store.dispatch(new SaveUpdatedConfiguration($event));
     }
 
     overwriteConfiguration() {
-        console.log("overwriteConfig:" + this.currentConfig);
         this.store.dispatch(new UpdateConfigurationInBackend(this.currentConfig))
     }
+
     revertFilterConfiguration() {
         this.store.dispatch(new RestoreFilterConfiguration())
     }
+
     // Configurator collapse methods
     hide() {
         this.showConfigurator = false;

@@ -64,7 +64,6 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
                                return (valueObject as BooleanValue).value.toString();
             }
             case ValueJsonClass.TextValue: {
-                console.log("returning :", (valueObject as TextValue).value);
                 return (valueObject as TextValue).value;
             }
             case ValueJsonClass.NumberValue: {
