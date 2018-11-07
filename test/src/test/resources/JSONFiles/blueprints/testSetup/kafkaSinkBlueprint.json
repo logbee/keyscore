@@ -1,0 +1,17 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.blueprint.SinkBlueprint",
+  "ref":{
+    "uuid":"9b4dafbd-303a-45aa-9869-829b4fb4c79f"
+  },
+  "descriptor":{
+    "uuid":"4fedbe8e-115e-4408-ba53-5b627b6e2eaf"
+  },
+  "configuration":{
+    "uuid":"105cbaa9-29f6-4b2e-a008-243c44fc624b",
+    "revision":"",
+    "ancestor":""
+  },
+  "in":{
+    "uuid":"a6a1314a-a9c8-4405-918b-e7c6d7b6e321"
+  }
+}

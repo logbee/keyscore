@@ -6,21 +6,20 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.slf4j.LoggerFactory
 import io.logbee.keyscore.JsonData._
 import io.logbee.keyscore.model.PipelineInstance
+import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration
-import org.json4s.native.Serialization.{read, write}
-import org.springframework.http.HttpStatus
-import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
-import io.logbee.keyscore.model.configuration.ParameterMessage.SealedValue
 import io.logbee.keyscore.model.data.Health.Green
+import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import org.json4s.native.Serialization.{read, write}
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 
 import scala.concurrent.duration._
 
@@ -33,11 +32,6 @@ class WorkflowTest extends Matchers {
   private val frontierClient: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
-    .build()
-
-  private val elasticClient: HttpClient = CitrusEndpoints.http()
-    .client()
-    .requestUrl("http://localhost:9200")
     .build()
 
   //Records and Datasets

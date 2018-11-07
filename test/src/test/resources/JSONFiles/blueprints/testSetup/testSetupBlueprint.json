@@ -1,0 +1,44 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.blueprint.PipelineBlueprint",
+  "ref":{
+    "uuid":"1f511206-c223-44fb-96cc-589541970a76"
+  },
+  "blueprints":[
+    {
+      "uuid":"00d98e36-fdce-417c-8c45-208082d35339"
+    },
+    {
+      "uuid":"a7ceda0a-3687-43a9-a024-aa5516600891"
+    },
+    {
+      "uuid":"a96123d9-b330-476b-8034-9594056339c9"
+    },
+    {
+      "uuid":"a6a1314a-a9c8-4405-918b-e7c6d7b6e321"
+    },
+    {
+      "uuid":"9b4dafbd-303a-45aa-9869-829b4fb4c79f"
+    }
+  ],
+  "metadata":{
+    "jsonClass":"io.logbee.keyscore.model.data.MetaData",
+    "labels":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
+        "name":"pipeline.name",
+        "value":{
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"TestSetup"
+        }
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
+        "name":"pipeline.description",
+        "value":{
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"Some meaningful description: 42"
+        }
+      }
+    ]
+  }
+}

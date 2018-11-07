@@ -1,0 +1,20 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.blueprint.FilterBlueprint",
+  "ref":{
+    "uuid":"a6a1314a-a9c8-4405-918b-e7c6d7b6e321"
+  },
+  "descriptor":{
+    "uuid":"ed3ab993-1eca-4651-857d-fd4f72355251"
+  },
+  "configuration":{
+    "uuid":"929e284a-9301-4d09-bb43-07a7b31f41a3",
+    "revision":"",
+    "ancestor":""
+  },
+  "in":{
+    "uuid":"a96123d9-b330-476b-8034-9594056339c9"
+  },
+  "out":{
+    "uuid":"9b4dafbd-303a-45aa-9869-829b4fb4c79f"
+  }
+}
