@@ -101,6 +101,7 @@ export class LiveEditingComponent implements OnInit {
     }
 
     public ngOnInit(): void {
+
         this.store.pipe(select(selectUpdatedConfiguration)).subscribe(config => {
                 if (config) {
                     this.currentConfig = config;

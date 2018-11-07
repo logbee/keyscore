@@ -326,7 +326,19 @@ export class FiltersEffects {
     @Effect() public reconfigureFilterSuccess$: Observable<Action> = this.actions$.pipe(
         ofType(RECONFIGURE_FILTER_SUCCESS),
         map(() => new SnackbarOpen({
-            message: "Filter successfully applied new configuration",
+            message: "Your settings were tested.",
+            action: 'Success',
+            config: {
+                horizontalPosition: "center",
+                verticalPosition: "top"
+            }
+        }))
+    );
+
+    @Effect() public applyConfiguration$: Observable<Action> = this.actions$.pipe(
+        ofType(UPDATE_CONFIGURATION_IN_BACKEND),
+        map(() => new SnackbarOpen({
+            message: "Configuration has been applied and saved in the pipeline.",
             action: 'Success',
             config: {
                 horizontalPosition: "center",

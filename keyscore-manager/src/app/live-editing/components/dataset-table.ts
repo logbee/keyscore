@@ -1,4 +1,4 @@
-import {Component, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {DatasetDataSource} from "../../dataSources/DatasetDataSource";
 import {selectDatasetsModels, selectExtractFinish, selectResultAvailable} from "../live-editing.reducer";
 import {select, Store} from "@ngrx/store";
@@ -98,7 +98,7 @@ import {
     `
 })
 
-export class DatasetTable {
+export class DatasetTable implements AfterViewInit {
     private datasets$: Observable<DatasetTableModel[]> = this.store.pipe(select(selectDatasetsModels));
     private index: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private recordsIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
@@ -114,9 +114,6 @@ export class DatasetTable {
         this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
 
             this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable(), this.recordsIndex.asObservable());
-
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
         });
 
         this.store.pipe(select(selectResultAvailable), skip(1)).subscribe(_ => {
@@ -125,6 +122,11 @@ export class DatasetTable {
         })
     }
 
+    ngAfterViewInit() {
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        console.log(this.dataSource.sort)
+    }
     applyFilter(filterValue: string) {
         this.dataSource.filter = filterValue;
         if (this.dataSource.paginator) {

@@ -48,7 +48,6 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     }
 
     private filterAccessingRules(datasetModel: DatasetTableRowModel, searchString) {
-        console.log("searchstring is: ", searchString + "name is: " + datasetModel.input.name);
         return datasetModel.input.name.includes(searchString) || datasetModel.input.name.includes(searchString.toLowerCase()) ||
             datasetModel.input.value.jsonClass.toLowerCase().includes(searchString.toLowerCase()) ||
             this.accessFieldValues(datasetModel.input.value).includes(searchString) ||
