@@ -214,7 +214,7 @@ export class PipelinesEffects {
         map(action => (action as RunPipelineAction).blueprintRef),
         switchMap((blueprintRef) => {
             return this.pipelineService.runPipeline(blueprintRef).pipe(
-                map(data => new CheckIsPipelineRunning(blueprintRef, 0)),
+                map(data => new CheckIsPipelineRunning(blueprintRef, 100)),
                 catchError(cause => of(new RunPipelineFailureAction(cause, blueprintRef)))
             )
         })
@@ -285,8 +285,8 @@ export class PipelinesEffects {
                 map((data: PipelineInstance) => {
                     if (data.health === Health.Green) {
                         return new RunPipelineSuccessAction(action.pipelineRef);
-                    } else if (action.liveTime <= 5) {
-                        return new CheckIsPipelineRunning(action.pipelineRef, action.liveTime + 1);
+                    } else if (action.timeToLive > 0) {
+                        return new CheckIsPipelineRunning(action.pipelineRef, action.timeToLive - 1);
                     }
                     return new RunPipelineFailureAction(null, action.pipelineRef);
 

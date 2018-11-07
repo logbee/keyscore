@@ -11,7 +11,7 @@
       "ref": {
         "id": "kafka.source.server"
       },
-      "value": "keyscore-kafka"
+      "value": "10.244.1.242"
     },
     {
       "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
@@ -39,7 +39,7 @@
       "ref": {
         "id": "kafka.source.topic"
       },
-      "value": "TopicA"
+      "value": "371_KECS_SME_MFA2_INBOUND"
     }
   ]
 }

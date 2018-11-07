@@ -53,12 +53,12 @@ import {Go} from "../../../router/router.actions";
                                       attr.fill="{{draggableModel.color}}"/>
                             <svg:line x1="280" x2="690.75" y1="15" y2="15"
                                       id="rect5038-selected"
-                                      stroke="#365880"
+                                      stroke="#6495ED"
                                       attr.stroke-width="{{draggableModel.isSelected ? '30px' : '0'}}"
                             />
                             <svg:line x1="280" x2="690.75" y1="552.429" y2="552.429"
                                       id="rect5038-selected"
-                                      stroke="#365880"
+                                      stroke="#6495ED"
                                       attr.stroke-width="{{draggableModel.isSelected ? '30px' : '0'}}"
                             />
                         </svg:g>

@@ -23,7 +23,7 @@ export class ConnectorComponent {
 
     private readonly droppableIndicatorColor = "lime";
     private readonly defaultIndicatorColor = "white";
-    private readonly selectedColor="#365880";
+    private readonly selectedColor="#6495ED";
     private readonly connectionTypes: Map<string, { connectorPath: string, indicatorPath: string ,selectedPath: string}> = new Map(
         [
             ["default-out", {

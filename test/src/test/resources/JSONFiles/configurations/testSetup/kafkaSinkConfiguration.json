@@ -11,7 +11,7 @@
       "ref": {
         "id": "kafka.sink.bootstrapServer"
       },
-      "value": "keyscore-kafka"
+      "value": "10.244.1.242"
     },
     {
       "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
@@ -25,7 +25,7 @@
       "ref": {
         "id": "kafka.sink.topic"
       },
-      "value": "TopicB"
+      "value": "KeyscoreEvaluationA"
     }
   ]
 }

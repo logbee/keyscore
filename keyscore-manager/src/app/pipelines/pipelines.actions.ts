@@ -313,7 +313,7 @@ export class ConfigurationsForBlueprintId implements Action {
 
 export class CheckIsPipelineRunning implements Action {
     public readonly type = CHECK_IS_PIPELINE_RUNNING;
-    constructor(readonly pipelineRef: Ref,readonly liveTime:number){
+    constructor(readonly pipelineRef: Ref,readonly timeToLive:number){
 
     }
 }
