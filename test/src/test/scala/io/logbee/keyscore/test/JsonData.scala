@@ -24,6 +24,7 @@ object JsonData {
   val K2E = "kafkaToElastic"
   val WORKFLOW = "workflow"
   val TS = "testSetup"
+  val FK = "fillKafka"
 
   def loadJson(resource: String, pipeline: String, name: String): String = {
     Using.using(getClass.getResourceAsStream(ResourcePath + resource + "/" + pipeline + "/" + name + JSONType)) { stream =>

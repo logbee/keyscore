@@ -1,0 +1,45 @@
+{
+  "jsonClass": "io.logbee.keyscore.model.configuration.Configuration",
+  "ref": {
+    "uuid": "e64ce7dc-2f37-40a6-b071-733012228834",
+    "revision": "",
+    "ancestor": ""
+  },
+  "parameters": [
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+      "ref": {
+        "id": "kafka.source.server"
+      },
+      "value": "keyscore-kafka"
+    },
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
+      "ref": {
+        "id": "kafka.source.port"
+      },
+      "value": 9092
+    },
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+      "ref": {
+        "id": "kafka.source.group"
+      },
+      "value": "groupID"
+    },
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.ChoiceParameter",
+      "ref": {
+        "id": "kafka.source.offset"
+      },
+      "value": "earliest"
+    },
+    {
+      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+      "ref": {
+        "id": "kafka.source.topic"
+      },
+      "value": "TopicC"
+    }
+  ]
+}

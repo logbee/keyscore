@@ -6,24 +6,29 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.JsonData._
+import io.logbee.keyscore.JsonData.{getClass, _}
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.PipelineInstance
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import io.logbee.keyscore.model.util.Using
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.json4s.native.JsonMethods.parse
 
 import scala.concurrent.duration._
+import scala.io.Source
+import scala.io.Source.fromInputStream
 
 /*********************************************
-* Line 29 | 40f | 52f Comment before pushing *
+* Comment out all annotations before pushing *
 **********************************************/
 
 //@ExtendWith(value = Array(classOf[CitrusExtension]))
@@ -37,22 +42,35 @@ class SetupTest extends Matchers {
     .requestUrl("http://localhost:4711")
     .build()
 
+  /*********************************
+  * Create the Evaluation Pipeline *
+  **********************************/
+
 //  @Test
 //  @CitrusTest
   def testSetup(implicit @CitrusResource runner: TestRunner): Unit = {
-    cleanUp(runner)
     createTestSetup(runner)
-    pollPipelineHealthState() shouldBe true
   }
 
   /*************************************************
-  * Line 54: Run this after the tests are finished *
+  * Run this after the tests are finished *
   **************************************************/
 
 //  @Test
 //  @CitrusTest
   def cleanUpTestSetup(implicit @CitrusResource runner: TestRunner): Unit = {
     cleanUp(runner)
+  }
+
+
+  /*****************************
+  * Create the Helper Pipeline *
+  ******************************/
+
+//  @Test
+//  @CitrusTest
+  def fillKafkaSetup(implicit @CitrusResource runner: TestRunner): Unit = {
+    fillKafka(runner)
   }
 
   private def createTestSetup(implicit runner: TestRunner): TestAction = {
@@ -105,6 +123,34 @@ class SetupTest extends Matchers {
     //Start TestSetup Pipeline
     val pipelineID: String = write(testSetupBlueprint.ref)
     startPipeline(testSetupBlueprint, pipelineID)
+  }
+
+  private def fillKafka(implicit runner: TestRunner): TestAction = {
+    //1. KafkaSource Blueprint
+    val kafkaSourceBlueprintJSON = loadJson(BLUEPRINTS, FK, "kafkaSourceBlueprint")
+    val kafkaSourceBlueprint = loadSourceBlueprint(FK, "kafkaSourceBlueprint")
+    putSingleBlueprint(kafkaSourceBlueprint, kafkaSourceBlueprintJSON)
+    //2. KafkaSink Blueprint
+    val kafkaSinkBlueprintJSON = loadJson(BLUEPRINTS, FK, "kafkaSinkBlueprint")
+    val kafkaSinkBlueprint = loadSinkBlueprint(FK, "kafkaSinkBlueprint")
+    putSingleBlueprint(kafkaSinkBlueprint, kafkaSinkBlueprintJSON)
+    //3. Pipeline Blueprint
+    val fillKafkaBlueprintJSON = loadJson(BLUEPRINTS, FK, "fillKafkaBlueprint")
+    val fillKafkaBlueprint  =loadPipelineBlueprint(FK, "fillKafkaBlueprint")
+    putSinglePipelineBlueprint(fillKafkaBlueprint, fillKafkaBlueprintJSON)
+
+    //1. KafkaSource Configuration
+    val kafkaSourceConfigurationJSON = loadJson(CONFIGURATIONS, FK, "kafkaSourceConfiguration")
+    val kafkaSourceConfiguration = loadConfiguration(FK, "kafkaSourceConfiguration")
+    putSingleConfiguration(kafkaSourceConfiguration, kafkaSourceConfigurationJSON)
+    //2. KafkaSink Configuration
+    val kafkaSinkConfigurationJSON = loadJson(CONFIGURATIONS, FK, "kafkaSinkConfiguration")
+    val kafkaSinkConfiguration = loadConfiguration(FK, "kafkaSinkConfiguration")
+    putSingleConfiguration(kafkaSinkConfiguration, kafkaSinkConfigurationJSON)
+
+    //Start Pipeline
+    val pipelineID: String = write(fillKafkaBlueprint.ref)
+    startPipeline(fillKafkaBlueprint, pipelineID)
   }
 
   private def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
@@ -208,6 +254,22 @@ class SetupTest extends Matchers {
     instances
   }
 
+  private def insertDatasetsIntoFilter(filterId: String, datasets: String)(implicit runner: TestRunner): TestAction = {
+    logger.debug(s"Reached Insert Dataset for ${filterId} with ${datasets}")
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .put(s"/filter/${filterId}/insert")
+      .contentType("application/json")
+      .payload(datasets)
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+    )
+  }
+
   private def cleanUp(implicit runner: TestRunner): TestAction = {
     deleteBlueprints
     deleteConfigurations
@@ -245,4 +307,5 @@ class SetupTest extends Matchers {
       .delete(s"/pipeline/blueprint/*")
     )
   }
+
 }
