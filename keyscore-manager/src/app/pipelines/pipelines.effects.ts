@@ -74,12 +74,15 @@ import {Health} from "../models/common/Health";
 export class PipelinesEffects {
     @Effect() public editPipeline$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
+        map(action => action as RouterNavigationAction),
         withLatestFrom(this.store.pipe(select(getEditingPipeline))),
         mergeMap(([action, editingPipeline]) => {
             const regex = /\/pipelines\/.+/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 const id = this.getPipelineIdfromRouterAction(action as RouterNavigationAction);
+                if (!action.payload.routerState.root.queryParams['create']) {
                     return of(new EditPipelineAction(id));
+                }
             }
             return of();
         })

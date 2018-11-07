@@ -118,7 +118,7 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
         if (activeRouting) {
             this.store.dispatch(new RouterActions.Go({
                 path: ["pipelines/" + pipelineId, {}],
-                query: {},
+                query: {create:true},
                 extras: {}
             }));
         }
