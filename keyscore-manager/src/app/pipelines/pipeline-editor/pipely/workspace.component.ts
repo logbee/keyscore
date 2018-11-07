@@ -329,7 +329,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         );
 
         this.runTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
-            console.log("Trigger!");
             this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables, this.pipeline);
             this.onRunPipeline.emit(this.pipeline);
         });

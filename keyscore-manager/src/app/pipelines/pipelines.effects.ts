@@ -79,9 +79,7 @@ export class PipelinesEffects {
             const regex = /\/pipelines\/.+/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 const id = this.getPipelineIdfromRouterAction(action as RouterNavigationAction);
-                if (!editingPipeline || (editingPipeline && editingPipeline.pipelineBlueprint.ref.uuid !== id)) {
                     return of(new EditPipelineAction(id));
-                }
             }
             return of();
         })
