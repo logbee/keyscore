@@ -22,9 +22,9 @@ import org.springframework.http.HttpStatus
 
 import scala.concurrent.duration._
 
-/**********************************
-* Line 29: Comment before pushing *
-***********************************/
+/*********************************************
+* Line 29 | 40f | 52f Comment before pushing *
+**********************************************/
 
 //@ExtendWith(value = Array(classOf[CitrusExtension]))
 class SetupTest extends Matchers {
@@ -37,8 +37,8 @@ class SetupTest extends Matchers {
     .requestUrl("http://localhost:4711")
     .build()
 
-  @Test
-  @CitrusTest
+//  @Test
+//  @CitrusTest
   def testSetup(implicit @CitrusResource runner: TestRunner): Unit = {
     cleanUp(runner)
     createTestSetup(runner)
@@ -49,8 +49,8 @@ class SetupTest extends Matchers {
   * Line 54: Run this after the tests are finished *
   **************************************************/
 
-  @Test
-  @CitrusTest
+//  @Test
+//  @CitrusTest
   def cleanUpTestSetup(implicit @CitrusResource runner: TestRunner): Unit = {
     cleanUp(runner)
   }
