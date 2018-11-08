@@ -385,11 +385,17 @@ export class FiltersEffects {
 
     getMatchingPipeline(pipelines: StringTMap<PipelineBlueprint>, blueprint: Blueprint) {
         let pipelineList = Object.values(pipelines);
-        let result =  pipelineList.map(pipeline => {
-            pipeline.blueprints.filter(bp => bp.uuid == blueprint.ref.uuid);
-            return pipeline;
+        let result: PipelineBlueprint = undefined;
+        console.log("sdfsdaffsdf" , blueprint);
+        pipelineList.map(pipeline => {
+            pipeline.blueprints.forEach(bp => {
+                if (bp.uuid === blueprint.ref.uuid) {
+                    result = pipeline;
+                }
+            })
         });
-        return result[0].ref.uuid
+        console.log("Result is", result.ref.uuid);
+        return result.ref.uuid;
     }
 
 

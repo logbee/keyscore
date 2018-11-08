@@ -115,11 +115,6 @@ export class DatasetTable implements AfterViewInit {
 
             this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable(), this.recordsIndex.asObservable());
         });
-
-    //     this.store.pipe(select(selectResultAvailable), skip(1)).subscribe(_ => {
-    //         this.displayedColumns.push('outValues');
-    //         this.resultAvailable = true;
-    //     })
     }
 
     ngAfterViewInit() {
