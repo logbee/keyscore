@@ -33,7 +33,7 @@ import {
                 </navigation-control>
             </div>
             <div fxFlex="5" class="preset-margin">
-                <filter-presets  *ngIf="resultAvailable" (preset)="adjustDisplayedColumns($event)"></filter-presets>
+                <filter-presets (preset)="adjustDisplayedColumns($event)"></filter-presets>
 
             </div>
             <!--Dataset Datatable-->
@@ -104,7 +104,7 @@ export class DatasetTable implements AfterViewInit {
     private recordsIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private dataSource: DatasetDataSource;
     private resultAvailable: boolean = false;
-    private displayedColumns: string[] = ['jsonClass', 'fields', 'inValues'];
+    private displayedColumns: string[] = ['jsonClass', 'fields', 'inValues', 'outValues'];
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
@@ -116,10 +116,10 @@ export class DatasetTable implements AfterViewInit {
             this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable(), this.recordsIndex.asObservable());
         });
 
-        this.store.pipe(select(selectResultAvailable), skip(1)).subscribe(_ => {
-            this.displayedColumns.push('outValues');
-            this.resultAvailable = true;
-        })
+    //     this.store.pipe(select(selectResultAvailable), skip(1)).subscribe(_ => {
+    //         this.displayedColumns.push('outValues');
+    //         this.resultAvailable = true;
+    //     })
     }
 
     ngAfterViewInit() {
