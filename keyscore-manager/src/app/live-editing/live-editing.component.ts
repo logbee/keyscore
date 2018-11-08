@@ -38,8 +38,8 @@ import {Dataset} from "../models/dataset/Dataset";
             <div fxLayout="column" fxLayoutGap="15px" fxFlex="">
                 <div fxFlex="" fxLayout="row" fxLayoutGap="15px">
                     <button mat-icon-button>
-                        <mat-icon matTooltip="Navigate to Pipely." matTooltipPosition="after" (click)="navigateToPipely()">
-                            arrow_back
+                        <mat-icon svgIcon="navigate-to-pipely" matTooltip="Navigate to Pipely." matTooltipPosition="after" (click)="navigateToPipely()">
+                          
                         </mat-icon>
                     </button>
 
@@ -69,7 +69,6 @@ import {Dataset} from "../models/dataset/Dataset";
                          [message]="message">
         </error-component>
         
-        //templates
         <ng-template #loading>
             <loading-full-view></loading-full-view>
         </ng-template>

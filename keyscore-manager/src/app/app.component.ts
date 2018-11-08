@@ -106,5 +106,8 @@ export class AppComponent implements OnInit {
         this.matIconRegistry.addSvgIcon('duration-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/duration-value.svg"));
         this.matIconRegistry.addSvgIcon('number-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/number-value.svg"));
         this.matIconRegistry.addSvgIcon('timestamp-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/timestamp-value.svg"));
+
+        // Custom Naviagation Icons
+        this.matIconRegistry.addSvgIcon('navigate-to-pipely', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/navigation/pipely-navigation.svg"))
     }
 }
