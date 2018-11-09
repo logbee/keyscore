@@ -1,11 +1,11 @@
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {DatasetDataSource} from "../../dataSources/DatasetDataSource";
-import {selectDatasetsModels, selectExtractFinish, selectResultAvailable} from "../live-editing.reducer";
+import {selectDatasetsModels, selectExtractFinish} from "../live-editing.reducer";
 import {select, Store} from "@ngrx/store";
 import {BehaviorSubject, Observable} from "rxjs/index";
-import {filter, skip, skipUntil, take, takeWhile} from "rxjs/internal/operators";
+import {filter, take} from "rxjs/internal/operators";
 import {MatPaginator, MatSort} from "@angular/material";
-import {ChangeType, DatasetTableModel} from "../../models/dataset/DatasetTableModel";
+import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 import {
     BooleanValue,
     DecimalValue,
@@ -23,7 +23,7 @@ import {
         <div fxFlexFill="" fxLayoutGap="5px" fxLayout="column">
             <div fxFlexFill="" fxFlex="4" fxLayout="row" fxLayoutGap="15px">
                 <!--Search Field-->
-                <mat-form-field  fxFlex="90" class="search-position">
+                <mat-form-field  fxFlex="70" class="search-position">
                     <input matInput (keyup)="applyFilter($event.target.value)"
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
                 </mat-form-field>
@@ -103,7 +103,6 @@ export class DatasetTable implements AfterViewInit {
     private index: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private recordsIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private dataSource: DatasetDataSource;
-    private resultAvailable: boolean = false;
     private displayedColumns: string[] = ['jsonClass', 'fields', 'inValues', 'outValues'];
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
