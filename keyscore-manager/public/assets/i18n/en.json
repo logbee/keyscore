@@ -16,7 +16,7 @@
     "COLLAPSE": "Collapse",
     "EXPAND": "Expand",
     "FILTER": "Filter",
-    "SEARCH": "Search",
+    "SEARCH": "SEARCH",
     "SOURCE": "Source",
     "SINK": "Sink",
     "MERGE": "Merge Block",

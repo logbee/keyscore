@@ -26,6 +26,10 @@ import {
                 <mat-form-field  fxFlex="70" class="search-position">
                     <input matInput (keyup)="applyFilter($event.target.value)"
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
+
+                    <button mat-button matSuffix mat-icon-button aria-label="Search">
+                        <mat-icon>search</mat-icon>
+                    </button>
                 </mat-form-field>
                 <navigation-control class="marginForNavigationControl" [index]="index.getValue()"
                                     [length]="(datasets$ | async).length"
