@@ -18,22 +18,26 @@ import {TranslateService} from "@ngx-translate/core";
                     
                     <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
                         <p matLine *ngIf="isExpanded">{{'GENERAL.DASHBOARD' | translate}}</p>
-                        <mat-icon svgIcon="dashboard-nav"></mat-icon>
+                        <mat-icon *ngIf="isExpanded" svgIcon="dashboard-nav"></mat-icon>
+                        <mat-icon *ngIf="isCollapsed" svgIcon="dashboard-nav" matTooltip="Dashboard" matTooltipPosition="right"></mat-icon>
                     </a>
 
                     <a mat-list-item routerLink="/agent" routerLinkActive="active">
                         <p matLine *ngIf="isExpanded">{{'APPCOMPONENT.AGENTS' | translate}}</p>
-                        <mat-icon svgIcon="agents-nav"></mat-icon>
+                        <mat-icon *ngIf="isExpanded" svgIcon="agents-nav"></mat-icon>
+                        <mat-icon *ngIf="isCollapsed" svgIcon="agents-nav" matTooltip="Agents" matTooltipPosition="right"></mat-icon>
                     </a>
 
                     <a mat-list-item routerLink="/pipelines" routerLinkActive="active">
                         <p matLine *ngIf="isExpanded">{{'APPCOMPONENT.PIPELINES' | translate}}</p>
-                        <mat-icon svgIcon="pipelines-nav"></mat-icon>
+                        <mat-icon *ngIf="isExpanded" svgIcon="pipelines-nav"></mat-icon>
+                        <mat-icon *ngIf="isCollapsed" svgIcon="pipelines-nav" matTooltip="Pipelines" matTooltipPosition="right"></mat-icon>
                     </a>
                     
                     <a mat-list-item routerLink="/resources" routerLinkActive="active">
                         <p matLine *ngIf="isExpanded">{{'APPCOMPONENT.RESOURCES' | translate}}</p>
-                        <mat-icon svgIcon="resources-nav"></mat-icon>
+                        <mat-icon *ngIf="isExpanded" svgIcon="resources-nav"></mat-icon>
+                        <mat-icon *ngIf="isCollapsed" svgIcon="resources-nav" matTooltip="Resources" matTooltipPosition="right"></mat-icon>
                     </a>
 
                 </mat-nav-list>
@@ -87,6 +91,7 @@ export class SidemenuComponent {
 
     public sideBarClassName: string = "";
     public isExpanded: boolean = true;
+    public isCollapsed: boolean = false;
 
     constructor(private translate: TranslateService) {
 
@@ -94,15 +99,11 @@ export class SidemenuComponent {
 
     public toggleMenu() {
         this.isExpanded = !this.isExpanded;
+        this.isCollapsed = !this.isCollapsed;
         this.toggleSidebar.emit();
     }
 
     public setLanguage(lang: string) {
         this.updateLanguage.emit(lang);
     }
-
-    public isSideBarExpanded() {
-        return this.sideBarClassName === "";
-    }
-
 }
