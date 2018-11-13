@@ -33,15 +33,17 @@ import {FilterControllerService} from "../services/rest-api/FilterController.ser
                 (onManualRelad)="reload()">
         </header-bar>
 
-        <div fxFlexFill fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
+        <div fxLayout="column" fxLayoutGap="15px" class="table-wrapper">
             <!--Search Field-->
             <mat-form-field fxFlex="5" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
-                       placeholder="{{'GENERAL.FILTER' | translate}}">
+                       placeholder="{{'GENERAL.SEARCH' | translate}}">
             </mat-form-field>
 
             <!--Resources Table-->
-            <table matSort mat-table  fxFlex="95" [dataSource]="dataSource" class="table-position mat-elevation-z8">
+            <table fxFlex="90%" mat-table matSort [dataSource]="dataSource"
+                   class="table-position mat-elevation-z8">
+
                 <ng-container matColumnDef="health">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
                     <td mat-cell *matCellDef="let pipelineTableModel">
@@ -57,7 +59,7 @@ import {FilterControllerService} from "../services/rest-api/FilterController.ser
                 </ng-container>
 
                 <ng-container matColumnDef="uuid">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
                     <td mat-cell *matCellDef="let pipelineTableModel">
                         {{pipelineTableModel.uuid}}
                     </td>
