@@ -267,7 +267,7 @@ function createDatasetTableRowModelData(input: Field, output: Field, resultAvail
     if (input === undefined && output != undefined ) {
         inputDataModel = new DatasetTableRowModelData(output.name, ValueJsonClass.TextValue, {
             jsonClass: ValueJsonClass.TextValue,
-            value: ""
+            value: "Field was added!"
         }, ChangeType.Added);
         outputDataModel = new DatasetTableRowModelData(output.name, output.value.jsonClass, output.value, ChangeType.Unchanged);
 
@@ -276,12 +276,12 @@ function createDatasetTableRowModelData(input: Field, output: Field, resultAvail
         if (resultAvailable) {
             outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
                 jsonClass: ValueJsonClass.TextValue,
-                value: "Field was deleted"
+                value: "Field was deleted!"
             }, ChangeType.Deleted);
         } else {
             outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
                 jsonClass: ValueJsonClass.TextValue,
-                value: "Field was deleted"
+                value: "Field was deleted!"
             }, ChangeType.Unchanged);
         }
         inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Unchanged);
