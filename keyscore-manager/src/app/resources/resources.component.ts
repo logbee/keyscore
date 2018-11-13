@@ -107,7 +107,7 @@ import {Health} from "../models/common/Health";
 
 export class ResourcesComponent implements AfterViewInit, OnInit {
 
-    private title: string = "Resources Overview";
+    private title: string = "Resources";
     dataSource: BlueprintDataSource = new BlueprintDataSource(this.store.select(selectBlueprints));
     blueprints: Observable<Blueprint[]>;
     stateObjects$: Observable<StateObject[]>;

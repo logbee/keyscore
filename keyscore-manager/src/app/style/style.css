@@ -266,6 +266,17 @@
     display: inline-block;
 }
 
+sidemenu .mat-list-item{
+    margin: 5px 0px 5px 0px;
+}
 
+sidemenu .mat-list-item p {
+    font-weight: bold;
+}
+
+sidemenu .mat-list-item mat-icon {
+    width: 32px;
+    height: 32px
+}
 
 

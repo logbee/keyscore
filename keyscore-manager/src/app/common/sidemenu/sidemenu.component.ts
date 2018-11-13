@@ -18,22 +18,22 @@ import {TranslateService} from "@ngx-translate/core";
                     
                     <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
                         <p matLine *ngIf="isExpanded">{{'GENERAL.DASHBOARD' | translate}}</p>
-                        <mat-icon>dashboard</mat-icon>
+                        <mat-icon svgIcon="dashboard-nav"></mat-icon>
                     </a>
 
                     <a mat-list-item routerLink="/agent" routerLinkActive="active">
                         <p matLine *ngIf="isExpanded">{{'APPCOMPONENT.AGENTS' | translate}}</p>
-                        <mat-icon>supervisor_account</mat-icon>
+                        <mat-icon svgIcon="agents-nav"></mat-icon>
                     </a>
 
                     <a mat-list-item routerLink="/pipelines" routerLinkActive="active">
                         <p matLine *ngIf="isExpanded">{{'APPCOMPONENT.PIPELINES' | translate}}</p>
-                        <mat-icon>device_hub</mat-icon>
+                        <mat-icon svgIcon="pipelines-nav"></mat-icon>
                     </a>
                     
                     <a mat-list-item routerLink="/resources" routerLinkActive="active">
                         <p matLine *ngIf="isExpanded">{{'APPCOMPONENT.RESOURCES' | translate}}</p>
-                        <mat-icon>low_priority</mat-icon>
+                        <mat-icon svgIcon="resources-nav"></mat-icon>
                     </a>
 
                 </mat-nav-list>
@@ -89,6 +89,7 @@ export class SidemenuComponent {
     public isExpanded: boolean = true;
 
     constructor(private translate: TranslateService) {
+
     }
 
     public toggleMenu() {
