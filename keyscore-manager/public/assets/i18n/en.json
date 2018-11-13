@@ -24,8 +24,8 @@
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",
+    "DASHBOARD": "Dashboard",
     "PIPELINES": "Pipelines",
-    "FILTERS": "Filters",
     "RESOURCES": "Resources"
   },
   "SETTINGS": {

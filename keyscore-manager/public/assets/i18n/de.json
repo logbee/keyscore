@@ -13,7 +13,7 @@
     "NEW": "Neu",
     "ADD": "Hinzufügen",
     "CLOSE": "Schließen",
-    "COLLAPSE": "Zusammenklappen",
+    "COLLAPSE": "Einklappen",
     "EXPAND": "Ausklappen",
     "FILTER": "Filter",
     "SEARCH": "Suche",
@@ -23,10 +23,10 @@
     "BRANCH": "Verzweigungsblock"
   },
   "APPCOMPONENT": {
-    "AGENTS": "Agents",
+    "AGENTS": "Agenten",
+    "DASHBOARD": "Übersicht",
     "PIPELINES": "Pipelines",
-    "FILTERS": "Filters",
-    "RESOURCES": "Resources"
+    "RESOURCES": "Ressourcen"
   },
   "SETTINGS": {
     "TITLE": "Einstellungen",

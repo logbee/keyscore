@@ -114,5 +114,7 @@ export class AppComponent implements OnInit {
         this.matIconRegistry.addSvgIcon('agents-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/agents.svg'));
         this.matIconRegistry.addSvgIcon('dashboard-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/dashboard.svg'));
         this.matIconRegistry.addSvgIcon('resources-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/resources.svg'));
+        this.matIconRegistry.addSvgIcon('expand-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/chevron-right-round.svg'));
+        this.matIconRegistry.addSvgIcon('collapse-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/chevron-left-round.svg'));
     }
 }
