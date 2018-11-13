@@ -110,9 +110,9 @@ export class AppComponent implements OnInit {
         // Custom Naviagation Icons
         this.matIconRegistry.addSvgIcon('navigate-to-pipely', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/navigation/pipely-navigation.svg"));
 
-        this.matIconRegistry.addSvgIcon('pipelines-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/pipelines.svg'));
+        this.matIconRegistry.addSvgIcon('pipelines-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/pipeline-nav.svg'));
         this.matIconRegistry.addSvgIcon('agents-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/agents.svg'));
-        this.matIconRegistry.addSvgIcon('dashboard-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/dashboard.svg'));
+        this.matIconRegistry.addSvgIcon('dashboard-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/speedometer.svg'));
         this.matIconRegistry.addSvgIcon('resources-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/resources.svg'));
         this.matIconRegistry.addSvgIcon('expand-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/chevron-right-round.svg'));
         this.matIconRegistry.addSvgIcon('collapse-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/chevron-left-round.svg'));
