@@ -13,6 +13,7 @@ import {
 } from "../models/dataset/Value";
 import {combineLatest} from "rxjs";
 
+
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
     constructor(datasets$: Observable<DatasetTableModel[]>, index$: Observable<number>, recordsIndex$: Observable<number>) {
         super();
@@ -48,20 +49,17 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     }
 
     private filterAccessingRules(datasetModel: DatasetTableRowModel, searchString) {
-        return datasetModel.input.name.includes(searchString) || datasetModel.input.name.includes(searchString.toLowerCase()) ||
-            datasetModel.input.value.jsonClass.toLowerCase().includes(searchString.toLowerCase()) ||
-            this.accessFieldValues(datasetModel.input.value).includes(searchString) ||
-            this.accessFieldValues((datasetModel.input.value)).includes(searchString.toLowerCase()) ||
-            datasetModel.output.name.includes(searchString) || datasetModel.output.name.includes(searchString.toLowerCase()) ||
-            datasetModel.output.value.jsonClass.toLowerCase().includes(searchString.toLowerCase()) ||
-            this.accessFieldValues(datasetModel.output.value).includes(searchString) || this.accessFieldValues(datasetModel.output.value).includes(searchString.toLowerCase()) ||
-            this.accessFieldValues(datasetModel.output.value).toUpperCase().includes(searchString);
+        let input = datasetModel.input;
+        let output = datasetModel.output;
+        return this.checkFilterMatch(input, searchString.toUpperCase()) ||
+            this.checkFilterMatch(input, searchString.toLowerCase()) ||
+            this.checkFilterMatch(output, searchString.toUpperCase() ||
+            this.checkFilterMatch(output, searchString.toLowerCase()))
     }
-
-    accessFieldValues(valueObject: Value): string {
+    private accessFieldValues(valueObject: Value): string {
         switch (valueObject.jsonClass) {
             case ValueJsonClass.BooleanValue: {
-                               return (valueObject as BooleanValue).value.toString();
+                return (valueObject as BooleanValue).value.toString();
             }
             case ValueJsonClass.TextValue: {
                 return (valueObject as TextValue).value;
@@ -79,5 +77,9 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
                 return (valueObject as DecimalValue).value.toString();
             }
         }
+    }
+
+    private checkFilterMatch(model, searchString) {
+        return model.name.includes(searchString) || model.value.jsonClass.includes(searchString) || this.accessFieldValues(model.value).includes(searchString);
     }
 }
