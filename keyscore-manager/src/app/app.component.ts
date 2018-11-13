@@ -108,7 +108,7 @@ export class AppComponent implements OnInit {
         this.matIconRegistry.addSvgIcon('timestamp-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/data/timestamp-value.svg"));
 
         // Custom Naviagation Icons
-        this.matIconRegistry.addSvgIcon('navigate-to-pipely', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/navigation/pipely-navigation.svg"))
+        this.matIconRegistry.addSvgIcon('navigate-to-pipely', this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/images/pipeline/navigation/pipely-navigation.svg"));
 
         this.matIconRegistry.addSvgIcon('pipelines-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/pipelines.svg'));
         this.matIconRegistry.addSvgIcon('agents-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/agents.svg'));

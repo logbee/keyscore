@@ -38,6 +38,9 @@ import {FilterControllerService} from "../services/rest-api/FilterController.ser
             <mat-form-field fxFlex="5" class="search-position">
                 <input matInput (keyup)="applyFilter($event.target.value)"
                        placeholder="{{'GENERAL.SEARCH' | translate}}">
+                <button mat-button matSuffix mat-icon-button aria-label="Search">
+                    <mat-icon>search</mat-icon>
+                </button>
             </mat-form-field>
 
             <!--Resources Table-->
