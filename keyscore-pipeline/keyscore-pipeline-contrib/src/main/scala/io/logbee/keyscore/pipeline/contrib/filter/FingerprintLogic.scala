@@ -18,11 +18,11 @@ object FingerprintLogic extends Described {
   private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/fingerprint.svg"
 
 
-  private val targetParameter = FieldNameParameterDescriptor(
+  private val fieldNameParameter = FieldNameParameterDescriptor(
     ref = "fingerprint.target",
     info = ParameterInfo(
-      displayName = TextRef("target"),
-      description = TextRef("targetDescription")
+      displayName = TextRef("fieldName"),
+      description = TextRef("fieldNameDescription")
     ),
     validator = StringValidator(
       expression = ".*",
@@ -48,6 +48,8 @@ object FingerprintLogic extends Described {
       categories = Seq(Category("fingerprint", TextRef("category.fingerprint.displayName"))),
       parameters = Seq(targetParameter,encodingParameter),
       icon = Icon.fromClass(classOf[FingerprintLogic])
+      parameters = Seq(fieldNameParameter,encodingParameter),
+      icon = Icon.fromClass(classOf[FingerprintFilterLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Fingerprint",
@@ -58,7 +60,7 @@ object FingerprintLogic extends Described {
 
 class FingerprintLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private var targetFieldName = "fingerprint"
+  private var fieldName = "fingerprint"
   private var base64Encoding = false
 
   private val digest = MessageDigest.getInstance("MD5")
@@ -71,6 +73,8 @@ class FingerprintLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
     targetFieldName = configuration.getValueOrDefault(FingerprintLogic.targetParameter, targetFieldName)
     base64Encoding = configuration.getValueOrDefault(FingerprintLogic.encodingParameter, base64Encoding)
+    fieldName = configuration.getValueOrDefault(FingerprintFilterLogic.fieldNameParameter, fieldName)
+    base64Encoding = configuration.getValueOrDefault(FingerprintFilterLogic.encodingParameter, base64Encoding)
   }
 
   override def onPush(): Unit = {
@@ -92,7 +96,7 @@ class FingerprintLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
         fingerprint = hashBytes.map("%02x".format(_)).mkString
       }
 
-      Record(Field(targetFieldName, TextValue(fingerprint)) +: record.fields)
+      Record(Field(fieldName, TextValue(fingerprint)) +: record.fields)
     })
 
     push(out, Dataset(dataset.metadata, records))

@@ -84,5 +84,5 @@ afterEvaluate {
 }
 
 clean {
-    delete 'target'
+    delete 'fieldName'
 }
