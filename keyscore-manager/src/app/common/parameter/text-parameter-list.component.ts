@@ -1,12 +1,11 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
-import {FieldNameParameterDescriptor, ResolvedParameterDescriptor} from "../../models/parameters/ParameterDescriptor";
 
 @Component({
-    selector: "field-parameter-list",
+    selector: "text-parameter-list",
     template:
-            `
+        `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field>
                 <input #addItemInput matInput type="text" placeholder="Name of Field">
@@ -34,34 +33,27 @@ import {FieldNameParameterDescriptor, ResolvedParameterDescriptor} from "../../m
                 </mat-chip-list>
             </div>
         </div>
-        <!--Autocompletion-->
-        <!--<mat-autocomplete #auto="matAutocomplete">-->
-            <!--<mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>-->
-        <!--</mat-autocomplete>-->
-        
     `,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ParameterList),
+            useExisting: forwardRef(() => TextParameterList),
             multi: true
         }
     ]
 })
 
-export class ParameterList implements ControlValueAccessor, OnInit {
+export class TextParameterList implements ControlValueAccessor, OnInit {
 
     @Input() public disabled = false;
     @Input() public distinctValues = true;
     @Input() public parameter: Parameter;
-    @Input() public descriptor: ResolvedParameterDescriptor;
     @ViewChild('addItemInput') inputField: ElementRef;
 
     public parameterValues: string[] = [];
     private duplicate: boolean;
     private fieldNameEmpty: boolean;
-    // private hints: string[] = [];
-    // private hint = "";
+
     public onChange = (elements: string[]) => {
         return;
     };
@@ -71,16 +63,6 @@ export class ParameterList implements ControlValueAccessor, OnInit {
     };
 
     public ngOnInit(): void {
-      // this.hint = (this.descriptor as FieldNameParameterDescriptor).hint;
-      //   switch (this.hint) {
-      //       case 'PresentField':
-      //           this.hints = ['fieldsfromDataset'];
-      //           break;
-      //       case 'AbsentField':
-      //           break;
-      //       case 'AnyField':
-      //           break;
-      //   }
         this.parameterValues = [...this.parameter.value];
     }
 

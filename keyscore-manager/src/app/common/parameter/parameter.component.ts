@@ -98,14 +98,14 @@ import "./style/parameter-module-style.scss"
 
             <field-parameter-list *ngSwitchCase="jsonClass.FieldNameListParameterDescriptor"
                                   [formControlName]="parameter.ref.id"
-                                  [id]="parameter.ref.id" [parameter]="parameter" ,
+                                  [id]="parameter.ref.id" [parameter]="parameter"
                                   [descriptor]="parameterDescriptor"
                                   (change)="onChange()"></field-parameter-list>
 
-            <field-parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
+            <text-parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
                                   [formControlName]="parameter.ref.id"
                                   [id]="parameter.ref.id" [parameter]="parameter"
-                                  (change)="onChange()"></field-parameter-list>
+                                  (change)="onChange()"></text-parameter-list>
 
             <parameter-map *ngSwitchCase="jsonClass.FieldListParameterDescriptor"
                            [formControlName]="parameter.ref.id"
