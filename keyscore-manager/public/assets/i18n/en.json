@@ -151,6 +151,9 @@
   "NAVIGATION_CONTROL": {
     "MOVE_LEFT": "Previous Dataset.",
     "MOVE_RIGHT": "Next Dataset.",
-    "SWIPE": "Swipe through extracted Datasets."
+    "MOVE_TOP": "Next Record.",
+    "MOVE_BOTTOM": "Previous Record",
+    "SWIPE_DATASETS": "Swipe through extracted Datasets.",
+    "SWIPE_RECORDS": "Swipe through records of a Dataset."
   }
 }

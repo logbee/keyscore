@@ -16,29 +16,35 @@ import {
     Value,
     ValueJsonClass
 } from "../../models/dataset/Value";
+import {Dataset} from "../../models/dataset/Dataset";
 
 @Component({
     selector: "dataset-table",
     template: `
         <div fxFlexFill="" fxLayoutGap="5px" fxLayout="column">
-            <div fxFlexFill="" fxFlex="4" fxLayout="row" fxLayoutGap="15px">
+            <div fxFlexFill="" fxFlex="5" fxLayout="row" fxLayoutGap="50px">
                 <!--Search Field-->
-                <mat-form-field  fxFlex="70" class="search-position">
+                <mat-form-field fxFlex="55" class="search-position">
                     <input matInput (keyup)="applyFilter($event.target.value)"
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
                     <button mat-button matSuffix mat-icon-button aria-label="Search">
                         <mat-icon>search</mat-icon>
                     </button>
                 </mat-form-field>
-                <navigation-control class="marginForNavigationControl" [index]="index.getValue()"
-                                    [length]="(datasets$ | async).length"
-                                    (counterEvent)="updateCounter($event)" fxLayoutAlign="end" fxFlex="">
-                </navigation-control>
+                <leftTotRight-navigation-control [index]="index.getValue()"
+                                                 [length]="(datasets$ | async).length"
+                                                 (counterEvent)="updateDatasetCounter($event)" fxFlex="15">
+                </leftTotRight-navigation-control>
+                <topToBottom-navigation-control
+                                                 [index]="recordsIndex.getValue()"
+                                                 [length]="currentDataset.records.length"
+                                                 (counterEvent)="updateRecordCounter($event)" fxFlex="15">
+                </topToBottom-navigation-control>
+                <div style="margin-right: 15px!important">
+                 <filter-presets (preset)="adjustDisplayedColumns($event)" fxFlex=""></filter-presets>
+                </div>
             </div>
-            <div fxFlex="5" class="preset-margin">
-                <filter-presets (preset)="adjustDisplayedColumns($event)"></filter-presets>
-
-            </div>
+              
             <!--Dataset Datatable-->
             <table fxFlex="" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position live-editing">
@@ -107,12 +113,13 @@ export class DatasetTable implements AfterViewInit {
     private recordsIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private dataSource: DatasetDataSource;
     private displayedColumns: string[] = ['jsonClass', 'fields', 'inValues', 'outValues'];
-
+    private currentDataset: DatasetTableModel;
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
 
     constructor(private store: Store<any>) {
+        this.datasets$.subscribe(datasets => this.currentDataset = datasets[this.index.getValue()]);
         this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
 
             this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable(), this.recordsIndex.asObservable());
@@ -123,6 +130,7 @@ export class DatasetTable implements AfterViewInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
     }
+
     applyFilter(filterValue: string) {
         this.dataSource.filter = filterValue;
         if (this.dataSource.paginator) {
@@ -130,11 +138,12 @@ export class DatasetTable implements AfterViewInit {
         }
     }
 
-    private updateCounter(count: number) {
+    private updateDatasetCounter(count: number) {
         this.index.next(count);
     }
 
     private updateRecordCounter(count: number) {
+        console.log("triggerd record counter", count);
         this.recordsIndex.next(count)
     }
 
@@ -151,6 +160,7 @@ export class DatasetTable implements AfterViewInit {
                 break;
         }
     }
+
     // noinspection JSMethodCanBeStatic
     private accessFieldValues(valueObject: Value): any {
         if (!valueObject) {

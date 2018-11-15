@@ -39,7 +39,6 @@ import {Dataset} from "../models/dataset/Dataset";
                 <div fxFlex="" fxLayout="row" fxLayoutGap="15px">
                     <button mat-icon-button>
                         <mat-icon svgIcon="navigate-to-pipely" matTooltip="Navigate to Pipely." matTooltipPosition="after" (click)="navigateToPipely()">
-                          
                         </mat-icon>
                     </button>
 

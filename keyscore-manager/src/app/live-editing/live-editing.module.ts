@@ -16,10 +16,11 @@ import {FiltersEffects} from "./live-editing-effects";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {DatasetTable} from "./components/dataset-table";
 import {ValueType} from "./components/value-type";
-import {NavigationControlComponent} from "./components/navigation-control.component";
+import {LeftToRightNavigationControl} from "./components/left-to-right-navigation-control.component";
 import {ParameterModule} from "../common/parameter/parameter.module";
 import {ConfiguratorModule} from "../pipelines/pipeline-editor/pipely/configurator/configurator.module";
 import {FilterPresets} from "./components/filter-presets";
+import {TopToBottomNavigationControl} from "./components/topToBottom-navigation-control";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -45,7 +46,8 @@ export const routes: Routes = [
         LiveEditingComponent,
         DatasetTable,
         ValueType,
-        NavigationControlComponent,
+        LeftToRightNavigationControl,
+        TopToBottomNavigationControl,
         FilterPresets
     ]
     ,
