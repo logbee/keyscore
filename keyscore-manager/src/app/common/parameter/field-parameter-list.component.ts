@@ -1,7 +1,11 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
-import {FieldNameParameterDescriptor, ResolvedParameterDescriptor} from "../../models/parameters/ParameterDescriptor";
+import {
+    FieldNameListParameterDescriptor,
+    FieldNameParameterDescriptor,
+    ResolvedParameterDescriptor
+} from "../../models/parameters/ParameterDescriptor";
 
 @Component({
     selector: "field-parameter-list",
@@ -9,8 +13,8 @@ import {FieldNameParameterDescriptor, ResolvedParameterDescriptor} from "../../m
             `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field>
-                <input #addItemInput matInput type="text" placeholder="Name of Field">
-            </mat-form-field>
+                <input #addItemInput matInput type="text" placeholder="{{'PARAMETERLISTCOMPONENT.NAMEOFFIELD' | translate}}" [matAutocomplete]="auto">
+            </mat-form-field>tada
             <button mat-icon-button color="accent" (click)="addItem(addItemInput.value)">
                 <mat-icon>add_circle_outline</mat-icon>
             </button>
@@ -36,9 +40,9 @@ import {FieldNameParameterDescriptor, ResolvedParameterDescriptor} from "../../m
         </div>
         
         <!--Autocompletion-->
-        <!--<mat-autocomplete #auto="matAutocomplete">-->
-            <!--<mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>-->
-        <!--</mat-autocomplete>-->
+        <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>
+        </mat-autocomplete>
         
     `,
     providers: [
@@ -61,8 +65,8 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
     public parameterValues: string[] = [];
     private duplicate: boolean;
     private fieldNameEmpty: boolean;
-    // private hints: string[] = [];
-    // private hint = "";
+    private hints: string[] = ['default'];
+    private hint = undefined;
     public onChange = (elements: string[]) => {
         return;
     };
@@ -72,16 +76,17 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
     };
 
     public ngOnInit(): void {
-      // this.hint = (this.descriptor as FieldNameParameterDescriptor).hint;
-      //   switch (this.hint) {
-      //       case 'PresentField':
-      //           this.hints = ['fieldsfromDataset'];
-      //           break;
-      //       case 'AbsentField':
-      //           break;
-      //       case 'AnyField':
-      //           break;
-      //   }
+        this.hint = (this.descriptor as FieldNameListParameterDescriptor).descriptor.hint;
+        console.log(this.hint);
+        switch (this.hint) {
+            case 'PresentField':
+                this.hints = ['fieldsfromDataset'];
+                break;
+            case 'AbsentField':
+                break;
+            case 'AnyField':
+                break;
+        }
         this.parameterValues = [...this.parameter.value];
     }
 

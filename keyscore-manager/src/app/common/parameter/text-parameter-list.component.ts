@@ -8,7 +8,7 @@ import {Parameter} from "../../models/parameters/Parameter";
         `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field>
-                <input #addItemInput matInput type="text" placeholder="Name of Field">
+                <input #addItemInput matInput type="text" placeholder="{{'PARAMETERLISTCOMPONENT.NAMEOFFIELD' | translate}}">
             </mat-form-field>
             <button mat-icon-button color="accent" (click)="addItem(addItemInput.value)">
                 <mat-icon>add_circle_outline</mat-icon>
