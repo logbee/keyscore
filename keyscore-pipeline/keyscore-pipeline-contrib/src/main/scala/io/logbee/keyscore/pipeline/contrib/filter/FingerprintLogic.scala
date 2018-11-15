@@ -46,10 +46,8 @@ object FingerprintLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(Category("fingerprint", TextRef("category.fingerprint.displayName"))),
-      parameters = Seq(targetParameter,encodingParameter),
-      icon = Icon.fromClass(classOf[FingerprintLogic])
       parameters = Seq(fieldNameParameter,encodingParameter),
-      icon = Icon.fromClass(classOf[FingerprintFilterLogic])
+      icon = Icon.fromClass(classOf[FingerprintLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Fingerprint",
@@ -71,10 +69,8 @@ class FingerprintLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   override def configure(configuration: Configuration): Unit = {
 
-    targetFieldName = configuration.getValueOrDefault(FingerprintLogic.targetParameter, targetFieldName)
     base64Encoding = configuration.getValueOrDefault(FingerprintLogic.encodingParameter, base64Encoding)
-    fieldName = configuration.getValueOrDefault(FingerprintFilterLogic.fieldNameParameter, fieldName)
-    base64Encoding = configuration.getValueOrDefault(FingerprintFilterLogic.encodingParameter, base64Encoding)
+    fieldName = configuration.getValueOrDefault(FingerprintLogic.fieldNameParameter, fieldName)
   }
 
   override def onPush(): Unit = {

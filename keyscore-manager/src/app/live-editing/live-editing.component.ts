@@ -60,7 +60,6 @@ import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
                           [selectedBlock]="{configuration:(configuration$|async),
                                     descriptor:(descriptor$|async)}"
                           [showFooter]="true"
-                          <!--[currentDataset]="currentDatasetModel$|async"-->
                           (onSave)="saveConfiguration($event)"
                           (onRevert)="revertFilterConfiguration()"
                           (onShowConfigurator)="hide($event)"
