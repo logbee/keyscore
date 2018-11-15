@@ -7,7 +7,7 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.Topics._
 import io.logbee.keyscore.commons.cluster.{MemberRemoved => _, _}
-import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.AddAgent
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.{AddAgent, RemoveAgent}
 
 import scala.concurrent.ExecutionContext
 
@@ -80,6 +80,7 @@ class ClusterManager(aM: ActorRef) extends Actor with ActorLogging {
 
     case MemberExited(member) =>
       log.debug(s"[Cluster] Member exited: ${member.uniqueAddress} with roles ${member.roles}")
+      clusterAgentManager ! RemoveAgent(member)
 
     case MemberRemoved(member, previousStatus) =>
       log.debug(s"[Cluster] Member is up: ${member.uniqueAddress} with previous status ${previousStatus} with roles ${member.roles}")

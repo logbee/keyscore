@@ -58,6 +58,7 @@ object ExampleData {
   val dataset4 = Dataset(MetaData(Label("name", TextValue("dataset4"))), record1, multiFields1)
   val dataset5 = Dataset(MetaData(Label("name", TextValue("dataset5"))), record2, multiFields2)
 
+
   val datasetMulti1 = Dataset(multiFields1)
   val datasetMulti2 = Dataset(multiFields2)
 
@@ -73,7 +74,7 @@ object ExampleData {
   val dataset1Modified = Dataset(record1Modified)
   val dataset2Modified = Dataset(record2Modified)
   val dataset3Modified = Dataset(record3Modified)
-  val datasetMultiModified = Dataset(multiRecordModified)
+  val datasetMultiModified = Dataset(multiRecordModified, multiRecordModified)
   val datasetMultiModified2 = Dataset(multiRecordModified2)
 
   //D3 BoxPlot

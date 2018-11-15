@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.kafka
 import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
-import akka.stream.{OverflowStrategy, SinkShape}
+import akka.stream.{OverflowStrategy, QueueOfferResult, SinkShape}
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -22,8 +22,8 @@ import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSeriali
 import org.json4s.Formats
 import org.json4s.native.Serialization.write
 
-import scala.concurrent.Promise
-import scala.util.Success
+import scala.concurrent.{Future, Promise}
+import scala.util.{Failure, Success}
 
 object KafkaSinkLogic extends Described {
 
@@ -76,6 +76,7 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
   private var queue: SourceQueueWithComplete[ProducerMessage.Message[Array[Byte], String, Promise[Unit]]] = _
 
   private val pullAsync = getAsyncCallback[Unit](_ => {
+    log.info(s"Pulling in $in")
     pull(in)
   })
 
@@ -121,14 +122,34 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
 
     val dataset = grab(shape.in)
 
-    dataset.records.foreach(record => {
-
+    val messages = dataset.records.map(record => {
       val promise = Promise[Unit]
-      val producerMessage = ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, parseRecord(record)), promise)
-      queue.offer(producerMessage).flatMap(_ => promise.future).onComplete({
-        case Success(()) => pullAsync.invoke(())
-        case _ =>
+      (ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, parseRecord(record)), promise), promise.future)
+    })
+
+    enqueue(messages.head, messages.tail)
+
+  }
+
+  private def enqueue(message: (ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit]), tail: List[(ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit])]): Unit = {
+    val future = for {
+      queueReady <- queue.offer(message._1).map({
+        case QueueOfferResult.Enqueued =>
+          Success
+        case QueueOfferResult.Dropped | QueueOfferResult.QueueClosed | QueueOfferResult.Failure(_) =>
+          Failure
       })
+      _ <- message._2
+    } yield (queueReady, tail)
+
+    future.onComplete({
+      case Success((_, messages)) if messages.nonEmpty =>
+        enqueue(messages.head, messages.tail)
+      case Success((_, _)) =>
+        pullAsync.invoke(())
+      case Failure(exception) =>
+        log.error("Enqueing of record failed. Skipping to next Dataset.")
+        pullAsync.invoke()
     })
   }
 

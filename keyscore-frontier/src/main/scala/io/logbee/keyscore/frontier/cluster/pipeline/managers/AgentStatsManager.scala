@@ -5,7 +5,7 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import io.logbee.keyscore.commons.cluster.Topics.AgentsTopic
 import io.logbee.keyscore.commons.{AgentStatsService, HereIam, WhoIs}
-import io.logbee.keyscore.commons.cluster.{AgentJoined, Topics}
+import io.logbee.keyscore.commons.cluster.{AgentJoined, AgentLeaved, Topics}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager._
 
 import scala.collection.mutable
@@ -41,7 +41,11 @@ class AgentStatsManager extends Actor with ActorLogging {
   override def receive: Receive = {
     case AgentJoined(joinedActor) =>
       log.debug(s"Agent Joined: $joinedActor")
-      availableAgents = (availableAgents += joinedActor).distinct
+      availableAgents += joinedActor
+
+    case AgentLeaved(ref) =>
+      log.debug(s"Agent Left: $ref")
+      availableAgents -= ref
 
     case GetAvailableAgentsRequest =>
       log.debug("Responding list of available Agents")
