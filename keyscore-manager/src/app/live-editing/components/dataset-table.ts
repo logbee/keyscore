@@ -121,7 +121,6 @@ export class DatasetTable implements AfterViewInit {
     constructor(private store: Store<any>) {
         this.datasets$.subscribe(datasets => this.currentDataset = datasets[this.index.getValue()]);
         this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
-
             this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable(), this.recordsIndex.asObservable());
         });
     }
