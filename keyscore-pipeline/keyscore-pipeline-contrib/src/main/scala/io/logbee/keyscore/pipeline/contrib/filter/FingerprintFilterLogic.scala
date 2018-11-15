@@ -18,7 +18,7 @@ object FingerprintFilterLogic extends Described {
   private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/fingerprint.svg"
 
 
-  private val targetParameter = TextParameterDescriptor(
+  private val targetParameter = FieldNameParameterDescriptor(
     ref = "fingerprint.target",
     info = ParameterInfo(
       displayName = TextRef("target"),
@@ -27,7 +27,8 @@ object FingerprintFilterLogic extends Described {
     validator = StringValidator(
       expression = ".*",
       expressionType = ExpressionType.Glob
-    )
+    ),
+    hint = FieldNameHint.AbsentField
   )
 
   private val encodingParameter = BooleanParameterDescriptor(
