@@ -1,9 +1,10 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
+import {FieldNameParameterDescriptor, ResolvedParameterDescriptor} from "../../models/parameters/ParameterDescriptor";
 
 @Component({
-    selector: "parameter-list",
+    selector: "field-parameter-list",
     template:
             `
         <div fxLayout="row" fxLayoutGap="15px">
@@ -33,6 +34,11 @@ import {Parameter} from "../../models/parameters/Parameter";
                 </mat-chip-list>
             </div>
         </div>
+        <!--Autocompletion-->
+        <!--<mat-autocomplete #auto="matAutocomplete">-->
+            <!--<mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>-->
+        <!--</mat-autocomplete>-->
+        
     `,
     providers: [
         {
@@ -48,13 +54,14 @@ export class ParameterList implements ControlValueAccessor, OnInit {
     @Input() public disabled = false;
     @Input() public distinctValues = true;
     @Input() public parameter: Parameter;
-
+    @Input() public descriptor: ResolvedParameterDescriptor;
     @ViewChild('addItemInput') inputField: ElementRef;
 
     public parameterValues: string[] = [];
     private duplicate: boolean;
     private fieldNameEmpty: boolean;
-
+    // private hints: string[] = [];
+    // private hint = "";
     public onChange = (elements: string[]) => {
         return;
     };
@@ -64,6 +71,16 @@ export class ParameterList implements ControlValueAccessor, OnInit {
     };
 
     public ngOnInit(): void {
+      // this.hint = (this.descriptor as FieldNameParameterDescriptor).hint;
+      //   switch (this.hint) {
+      //       case 'PresentField':
+      //           this.hints = ['fieldsfromDataset'];
+      //           break;
+      //       case 'AbsentField':
+      //           break;
+      //       case 'AnyField':
+      //           break;
+      //   }
         this.parameterValues = [...this.parameter.value];
     }
 

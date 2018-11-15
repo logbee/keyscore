@@ -21,7 +21,6 @@ import "./style/parameter-module-style.scss"
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-
             <mat-form-field *ngSwitchCase="jsonClass.NumberParameterDescriptor">
                 <input matInput type="number"
                        [placeholder]="parameterDescriptor.defaultValue"
@@ -97,44 +96,37 @@ import "./style/parameter-module-style.scss"
                 </button>
             </mat-form-field>
 
-            <parameter-list *ngSwitchCase="jsonClass.FieldNameListParameterDescriptor"
-                            [formControlName]="parameter.ref.id"
-                            [id]="parameter.ref.id" [parameter]="parameter"
-                            (change)="onChange()"
-            ></parameter-list>
+            <field-parameter-list *ngSwitchCase="jsonClass.FieldNameListParameterDescriptor"
+                                  [formControlName]="parameter.ref.id"
+                                  [id]="parameter.ref.id" [parameter]="parameter" ,
+                                  [descriptor]="parameterDescriptor"
+                                  (change)="onChange()"></field-parameter-list>
 
-            <parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
-                            [formControlName]="parameter.ref.id"
-                            [id]="parameter.ref.id" [parameter]="parameter"
-                            (change)="onChange()"
-            ></parameter-list>
+            <field-parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
+                                  [formControlName]="parameter.ref.id"
+                                  [id]="parameter.ref.id" [parameter]="parameter"
+                                  (change)="onChange()"></field-parameter-list>
 
             <parameter-map *ngSwitchCase="jsonClass.FieldListParameterDescriptor"
                            [formControlName]="parameter.ref.id"
                            [id]="parameter.ref.id" [parameter]="parameter"
-                           (change)="onChange()"
-            ></parameter-map>
+                           (change)="onChange()"></parameter-map>
 
 
             <div class="parameter-required" *ngIf="!isValid">{{parameterDescriptor.info.displayName}}
                 {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}
             </div>
         </div>
-
     `,
     providers: []
 })
-export class ParameterComponent implements OnInit {
+export class ParameterComponent {
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
     @Output() public change: EventEmitter<void> = new EventEmitter();
 
     public jsonClass: typeof ParameterDescriptorJsonClass = ParameterDescriptorJsonClass;
-
-    ngOnInit() {
-
-    }
 
     onChange() {
         this.change.emit();
