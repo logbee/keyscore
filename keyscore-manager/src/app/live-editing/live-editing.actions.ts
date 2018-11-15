@@ -1,10 +1,11 @@
-import {Action} from "@ngrx/store";
+import {Action, Store} from "@ngrx/store";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {Dataset} from "../models/dataset/Dataset";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
 
 export const LOAD_FILTERSTATE = "[Filter] LoadFilterState";
 export const LOAD_FILTERSTATE_FAILURE = "[Filter] LoadFilterStateFailure";
@@ -47,6 +48,7 @@ export const INITIAL_EXTRACT_SUCCESS = "[Filter] InitialExtractSuccess";
 export const UPDATE_CONFIGURATION_IN_BACKEND = "[Filter] UpdateConfigurationInBackend";
 export const OVERWRITE_SUCCESS = "[Filter] OverwriteSuccess";
 export const START_CONFIGURATION_POLLING = "[Filter] StartConfigurationPolling";
+export const STORE_CURRENT_DATASET = "[Filter] StoreCurrentDataset";
 
 export type LiveEditingActions =
 
@@ -86,9 +88,16 @@ export type LiveEditingActions =
     | NaviagatetoPipelyFailure
     | InitialExtractSuccess
     | UpdateConfigurationInBackend
-    | OverwriteSuccess;
+    | OverwriteSuccess
+    | StoreCurrentDatasetAction;
 
+export class StoreCurrentDatasetAction {
+    public readonly type = STORE_CURRENT_DATASET;
 
+    constructor(readonly dataset: DatasetTableModel) {
+
+    }
+}
 
 export class OverwriteSuccess {
     public readonly type = OVERWRITE_SUCCESS;

@@ -6,6 +6,8 @@ import {
     FieldNameParameterDescriptor,
     ResolvedParameterDescriptor
 } from "../../models/parameters/ParameterDescriptor";
+import {Dataset} from "../../models/dataset/Dataset";
+import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 
 @Component({
     selector: "field-parameter-list",
@@ -14,7 +16,7 @@ import {
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field>
                 <input #addItemInput matInput type="text" placeholder="{{'PARAMETERLISTCOMPONENT.NAMEOFFIELD' | translate}}" [matAutocomplete]="auto">
-            </mat-form-field>tada
+            </mat-form-field>
             <button mat-icon-button color="accent" (click)="addItem(addItemInput.value)">
                 <mat-icon>add_circle_outline</mat-icon>
             </button>
@@ -77,10 +79,9 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
 
     public ngOnInit(): void {
         this.hint = (this.descriptor as FieldNameListParameterDescriptor).descriptor.hint;
-        console.log(this.hint);
         switch (this.hint) {
             case 'PresentField':
-                this.hints = ['fieldsfromDataset'];
+                // this.hints = this.currentDataset.records[0].rows.map(row => row.input.name);
                 break;
             case 'AbsentField':
                 break;

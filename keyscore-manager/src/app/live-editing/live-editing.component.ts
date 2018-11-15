@@ -6,7 +6,8 @@ import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {
-    selectCurrentBlueprint,
+    selectCurentDatasetCount,
+    selectCurrentBlueprint, selectCurrentDataset,
     selectCurrentDescriptor, selectDatasetsRaw,
     selectInitialConfiguration,
     selectLiveEditingFilterState,
@@ -24,6 +25,7 @@ import {
 import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-descriptor.model";
 import {Go} from "../router/router.actions";
 import {Dataset} from "../models/dataset/Dataset";
+import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
 
 
 @Component({
@@ -58,6 +60,7 @@ import {Dataset} from "../models/dataset/Dataset";
                           [selectedBlock]="{configuration:(configuration$|async),
                                     descriptor:(descriptor$|async)}"
                           [showFooter]="true"
+                          <!--[currentDataset]="currentDatasetModel$|async"-->
                           (onSave)="saveConfiguration($event)"
                           (onRevert)="revertFilterConfiguration()"
                           (onShowConfigurator)="hide($event)"
@@ -88,8 +91,9 @@ export class LiveEditingComponent implements OnInit {
     private inputDatasets$: Observable<Dataset[]>;
     private showConfigurator: boolean = true;
     private liveEditingEnabled: boolean;
-
     private filterName: string = "Live-Editing";
+    private currentDatasetModel$: Observable<DatasetTableModel>;
+
 
     constructor(private store: Store<any>) {
         const config = this.store.select(selectAppConfig);
@@ -110,7 +114,6 @@ export class LiveEditingComponent implements OnInit {
     navigateToPipely() {
         console.log("Triggered navigate to pipely");
         this.store.dispatch(new LoadAllPipelinesForRedirect());
-
     }
 
     private initialize() {
@@ -121,6 +124,7 @@ export class LiveEditingComponent implements OnInit {
             this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
             this.configuration$ = this.store.pipe(select(selectInitialConfiguration));
+            this.currentDatasetModel$ = this.store.pipe(select(selectCurrentDataset));
         }
     }
 

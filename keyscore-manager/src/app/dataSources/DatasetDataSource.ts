@@ -12,6 +12,8 @@ import {
     ValueJsonClass
 } from "../models/dataset/Value";
 import {combineLatest} from "rxjs";
+import {Store} from "@ngrx/store";
+import {StoreCurrentDatasetAction} from "../live-editing/live-editing.actions";
 
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
@@ -82,4 +84,7 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     private checkFilterMatch(model, searchString) {
         return model.name.includes(searchString) || model.value.jsonClass.includes(searchString) || this.accessFieldValues(model.value).includes(searchString);
     }
+
+
 }
+

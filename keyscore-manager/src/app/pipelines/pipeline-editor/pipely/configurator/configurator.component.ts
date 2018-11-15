@@ -10,6 +10,8 @@ import {Configuration} from "../../../../models/common/Configuration";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
+import {DatasetTableModel, DatasetTableRecordModel} from "../../../../models/dataset/DatasetTableModel";
+import {Dataset} from "../../../../models/dataset/Dataset";
 
 
 @Component({
@@ -62,7 +64,8 @@ import * as _ from "lodash";
                     <form *ngIf="form" [formGroup]="form">
                         <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
                                        [parameterDescriptor]="parameterMapping.get(parameter)"
-                                       [form]="form"></app-parameter>
+                                       [form]="form">
+                                       </app-parameter>
                     </form>
                 </div>
             </div>
@@ -103,6 +106,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() showFooter: boolean;
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
+    // @Input() currentDataset: BehaviorSubject<DatasetTableModel>;
     isVisible: boolean = true;
     applyTestFlag: boolean = true;
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
@@ -128,8 +132,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     private selectedBlock$ = new BehaviorSubject<{
         configuration: Configuration,
-        descriptor: BlockDescriptor
-    }>(this.initBlock);
+        descriptor: BlockDescriptor}>(this.initBlock);
 
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     @Output() onSave: EventEmitter<Configuration> = new EventEmitter();

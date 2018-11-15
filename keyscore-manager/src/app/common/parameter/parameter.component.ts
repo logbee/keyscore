@@ -6,6 +6,8 @@ import {
 } from "../../models/parameters/ParameterDescriptor";
 import {Parameter} from "../../models/parameters/Parameter";
 import "./style/parameter-module-style.scss"
+import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
+import {Dataset} from "../../models/dataset/Dataset";
 
 @Component({
     selector: "app-parameter",

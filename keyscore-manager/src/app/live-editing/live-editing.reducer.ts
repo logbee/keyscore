@@ -13,7 +13,7 @@ import {
     EXTRACT_INPUT_DATASETS_SUCESS,
     INITIAL_EXTRACT_SUCCESS,
     UpdateConfigurationInBackend,
-    UPDATE_CONFIGURATION_IN_BACKEND
+    UPDATE_CONFIGURATION_IN_BACKEND, STORE_CURRENT_DATASET
 } from "./live-editing.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Configuration} from "../models/common/Configuration";
@@ -57,6 +57,7 @@ export class FilterState {
     public extractFinish: boolean;
     public isUpdated: boolean;
     public currentDatasetCounter: number;
+    public currentDataset: DatasetTableModel;
     public dummyDataset: Dataset;
 
 }
@@ -79,6 +80,14 @@ const initialState: FilterState = {
     inputDatasets: [],
     outPutDatasets: [],
     currentDatasetCounter: 0,
+    currentDataset: {
+        records: [{
+            rows: [{
+                input: {name: "test", value: null, change: null, type: ""},
+                output: {name: "test", value: null, change: null, type: ""}
+            }]
+        }], outputMetadata: null, inputMetadata: null
+    },
     dummyDataset: {
         metaData: {labels: []},
         records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
@@ -91,6 +100,10 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
 
 
     switch (action.type) {
+        case STORE_CURRENT_DATASET:
+            console.log("Overriding current dataset");
+            result.currentDataset = action.dataset;
+            break;
         case LOAD_FILTER_CONFIGURATION_SUCCESS:
             result.isUpdated = false;
             result.initialConfiguration = action.configuration;
@@ -111,7 +124,6 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
         case INITIAL_EXTRACT_SUCCESS:
             if (!action.input.map(elem => elem.metaData === undefined).length) {
                 action.input.map(datset => {
-                    console.log("Added unique id to each datasets metadata");
                     datset.metaData.labels.push(
                         {
                             name: "io.logbee.keyscore.manager.live-editing.id",
@@ -123,14 +135,12 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
             result.inputDatasets = action.input;
             result.outPutDatasets = action.output;
             result.datasetModels = [];
-            const models:DatasetTableModel[] = [];
+            const models: DatasetTableModel[] = [];
             result.inputDatasets.forEach((dataset, index) => {
-                console.log("Creating Model from: " , dataset.records[0] , "and" , result.outPutDatasets[index].records[0]);
                 let model = createDatasetTableModel(dataset, result.outPutDatasets[index]);
                 models.push(model)
             });
             result.datasetModels = models;
-            console.log("Models: " + models.length);
             result.extractFinish = true;
             break;
         case SAVE_UPDATED_CONFIGURATION:
@@ -188,7 +198,9 @@ export const selectCurrentDescriptor = createSelector(getFilterState, (state: Fi
 
 export const selectCurrentBlueprint = createSelector(getFilterState, (state: FilterState) => state.blueprint);
 
+export const selectCurentDatasetCount = createSelector(getFilterState, (state: FilterState) => state.currentDatasetCounter);
 
+export const selectCurrentDataset = createSelector(getFilterState, (state: FilterState) => state.currentDataset);
 
 
 //Additional functions for DatatableModels
@@ -264,10 +276,10 @@ function createDatasetTableRowModelData(input: Field, output: Field): DatasetTab
 
     }
     if (input != undefined && output === undefined) {
-            outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
-                jsonClass: ValueJsonClass.TextValue,
-                value: "Field was deleted!"
-            }, ChangeType.Deleted);
+        outputDataModel = new DatasetTableRowModelData(input.name, ValueJsonClass.TextValue, {
+            jsonClass: ValueJsonClass.TextValue,
+            value: "Field was deleted!"
+        }, ChangeType.Deleted);
 
         inputDataModel = new DatasetTableRowModelData(input.name, input.value.jsonClass, input.value, ChangeType.Deleted);
     } else if (input != undefined && output != undefined) {
@@ -283,7 +295,7 @@ function createDatasetTableRowModelData(input: Field, output: Field): DatasetTab
     return new DatasetTableRowModel(inputDataModel, outputDataModel);
 }
 
-function computeZippedDatasets(inputDatasets:Dataset[], extractedDatasets: Dataset[]): Dataset[][] {
+function computeZippedDatasets(inputDatasets: Dataset[], extractedDatasets: Dataset[]): Dataset[][] {
     let zippedDatasets: Dataset[][] = [];
     if (inputDatasets.filter(dataset => dataset.metaData === undefined)) {
         // FallBack on order

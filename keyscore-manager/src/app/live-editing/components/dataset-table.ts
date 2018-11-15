@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, EventEmitter, Output, ViewChild} from "@angular/core";
 import {DatasetDataSource} from "../../dataSources/DatasetDataSource";
 import {selectDatasetsModels, selectExtractFinish} from "../live-editing.reducer";
 import {select, Store} from "@ngrx/store";
@@ -17,6 +17,7 @@ import {
     ValueJsonClass
 } from "../../models/dataset/Value";
 import {Dataset} from "../../models/dataset/Dataset";
+import {StoreCurrentDatasetAction} from "../live-editing.actions";
 
 @Component({
     selector: "dataset-table",
@@ -31,7 +32,7 @@ import {Dataset} from "../../models/dataset/Dataset";
                         <mat-icon>search</mat-icon>
                     </button>
                 </mat-form-field>
-                <leftTotRight-navigation-control [index]="index.getValue()"
+                <leftTotRight-navigation-control [index]="datasetIndex.getValue()"
                                                  [length]="(datasets$ | async).length"
                                                  (counterEvent)="updateDatasetCounter($event)" fxFlex="15">
                 </leftTotRight-navigation-control>
@@ -109,7 +110,8 @@ import {Dataset} from "../../models/dataset/Dataset";
 
 export class DatasetTable implements AfterViewInit {
     private datasets$: Observable<DatasetTableModel[]> = this.store.pipe(select(selectDatasetsModels));
-    private index: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+    private datasets: DatasetTableModel[];
+    private datasetIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private recordsIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
     private dataSource: DatasetDataSource;
     private displayedColumns: string[] = ['jsonClass', 'fields', 'inValues', 'outValues'];
@@ -119,9 +121,12 @@ export class DatasetTable implements AfterViewInit {
 
 
     constructor(private store: Store<any>) {
-        this.datasets$.subscribe(datasets => this.currentDataset = datasets[this.index.getValue()]);
+        this.datasets$.subscribe(datasets => {
+            this.datasets = datasets;
+            this.currentDataset = datasets[this.datasetIndex.getValue()];
+        });
         this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
-            this.dataSource = new DatasetDataSource(this.datasets$, this.index.asObservable(), this.recordsIndex.asObservable());
+            this.dataSource = new DatasetDataSource(this.datasets$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable());
         });
     }
 
@@ -138,11 +143,11 @@ export class DatasetTable implements AfterViewInit {
     }
 
     private updateDatasetCounter(count: number) {
-        this.index.next(count);
+        this.datasetIndex.next(count);
+        this.store.dispatch(new StoreCurrentDatasetAction(this.datasets[count]));
     }
 
     private updateRecordCounter(count: number) {
-        console.log("triggerd record counter", count);
         this.recordsIndex.next(count)
     }
 
