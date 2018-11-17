@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.kafka
 
 import akka.kafka
 import akka.kafka.scaladsl.Consumer
-import akka.kafka.{ConsumerSettings, Subscriptions}
+import akka.kafka.{ConsumerSettings, Subscription, Subscriptions}
 import akka.stream.Attributes.InputBuffer
 import akka.stream.scaladsl.{Sink, SinkQueueWithCancel}
 import akka.stream.{Attributes, SourceShape}
@@ -18,12 +18,8 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
-import org.json4s.ext.JavaTypesSerializers
-import org.json4s.native.JsonMethods.parse
-import org.json4s.native.Serialization
-import org.json4s.{Formats, NoTypeHints}
 
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 object KafkaSourceLogic extends Described {
 
@@ -40,6 +36,7 @@ object KafkaSourceLogic extends Described {
     defaultValue = "example.com",
     mandatory = true
   )
+
   val portParameter = NumberParameterDescriptor(
     "kafka.source.port",
     ParameterInfo(
@@ -49,6 +46,7 @@ object KafkaSourceLogic extends Described {
     range = NumberRange(1, 0, 65535),
     mandatory = true
   )
+
   val groupIdParameter = TextParameterDescriptor(
     ref = "kafka.source.group",
     info = ParameterInfo(
@@ -58,6 +56,7 @@ object KafkaSourceLogic extends Described {
     defaultValue = "groupID",
     mandatory = true
   )
+
   val offsetParameter = ChoiceParameterDescriptor(
     ref = "kafka.source.offset",
     info = ParameterInfo(
@@ -79,6 +78,7 @@ object KafkaSourceLogic extends Described {
       )
     )
   )
+
   val topicParameter = TextParameterDescriptor(
     ref = "kafka.source.topic",
     info = ParameterInfo(
@@ -89,6 +89,15 @@ object KafkaSourceLogic extends Described {
     mandatory = true
   )
 
+  val targetFieldNameParameter = FieldNameParameterDescriptor(
+    ref = "kafka.source.targetFieldName",
+    info = ParameterInfo(
+      displayName = TextRef("targetFieldName.displayName"),
+      description = TextRef("targetFieldName.description")
+    ),
+    defaultValue = "message",
+  )
+
   override def describe = Descriptor(
     ref = "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c",
     describes = SourceDescriptor(
@@ -96,7 +105,14 @@ object KafkaSourceLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.SOURCE, Category("Kafka")),
-      parameters = Seq(serverParameter,portParameter,groupIdParameter,offsetParameter,topicParameter),
+      parameters = Seq(
+        serverParameter,
+        portParameter,
+        groupIdParameter,
+        offsetParameter,
+        topicParameter,
+        targetFieldNameParameter
+      ),
       icon = Icon.fromClass(classOf[KafkaSourceLogic])
     ),
     localization = Localization.fromResourceBundle(
@@ -108,8 +124,6 @@ object KafkaSourceLogic extends Described {
 
 class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
 
-  implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
-
   private var sinkQueue: SinkQueueWithCancel[Dataset] = _
 
   private var server = ""
@@ -117,9 +131,10 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
   private var groupID = ""
   private var offsetConfig = ""
   private var topic = ""
+  private var targetFieldName = "message"
 
   private val pushAsync = getAsyncCallback[Dataset] { dataset =>
-    push(shape.out, dataset)
+    push(out, dataset)
   }
 
   override def initialize(configuration: Configuration): Unit = {
@@ -127,8 +142,8 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
   }
 
   override def postStop(): Unit = {
+    tearDown()
     log.info("Kafka source is stopping.")
-    sinkQueue.cancel()
   }
 
   override def configure(configuration: Configuration): Unit = {
@@ -138,33 +153,57 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
     groupID = configuration.getValueOrDefault(KafkaSourceLogic.groupIdParameter, groupID)
     offsetConfig = configuration.getValueOrDefault(KafkaSourceLogic.offsetParameter, offsetConfig)
     topic = configuration.getValueOrDefault(KafkaSourceLogic.topicParameter, topic)
-    val bootstrapServer = s"$server:$port"
+    targetFieldName = configuration.getValueOrDefault(KafkaSourceLogic.targetFieldNameParameter, targetFieldName)
 
-    val settings = consumerSettings(bootstrapServer, groupID, offsetConfig)
+    tearDown()
 
-    val committableSource = Consumer.committableSource(settings, Subscriptions.topics(topic))
-    sinkQueue = committableSource.map { message =>
-      val fields = parse(message.record.value())
-        .extract[Map[String, String]]
-        .map(pair => Field(pair._1, TextValue(pair._2)))
-      Dataset(MetaData(), Record(fields.toList))
-    }.runWith(Sink.queue[Dataset].withAttributes(Attributes(InputBuffer(1, 1))))
-  }
-
-  def consumerSettings(bootstrapServer: String, groupID: String, offsetConfig: String): ConsumerSettings[Array[Byte], String] = {
-    val settings = kafka.ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
-      .withBootstrapServers(bootstrapServer)
-      .withGroupId(groupID)
-      .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetConfig)
-      .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
-
-    settings
+    sinkQueue = createSinkQueue(
+      createSettings(
+        bootstrapServer = s"$server:$port",
+        groupID = groupID,
+        offsetConfig = offsetConfig
+      ),
+      Subscriptions.topics(topic)
+    )
   }
 
   override def onPull(): Unit = {
     sinkQueue.pull().onComplete {
       case Success(Some(dataset)) => pushAsync.invoke(dataset)
+      case Failure(exception) => log.error(exception, "Failed to pull from kafka consumer queue!")
       case _ => log.info("Failed to pull from kafka consumer queue!")
+    }
+  }
+
+  private def createSettings(bootstrapServer: String, groupID: String, offsetConfig: String): ConsumerSettings[Array[Byte], String] = {
+    kafka.ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
+      .withBootstrapServers(bootstrapServer)
+      .withGroupId(groupID)
+      .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetConfig)
+      .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
+  }
+
+  private def createSinkQueue(settings: ConsumerSettings[Array[Byte], String], subscription: Subscription): SinkQueueWithCancel[Dataset] = {
+
+    Consumer.committableSource(settings, subscription).map { message =>
+
+      Dataset(
+        MetaData(
+          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_TOPIC", TextValue(message.record.topic())),
+          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_PARTITION", NumberValue(message.record.partition())),
+          Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_OFFSET", NumberValue(message.record.offset())),
+        ),
+        Record(
+          Field(targetFieldName, TextValue(message.record.value()))
+        )
+      )
+
+    }.runWith(Sink.queue[Dataset].withAttributes(Attributes(InputBuffer(1, 1))))
+  }
+
+  private def tearDown(): Unit = {
+    if (sinkQueue != null) {
+      sinkQueue.cancel()
     }
   }
 }
