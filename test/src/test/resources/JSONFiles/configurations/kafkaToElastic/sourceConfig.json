@@ -38,6 +38,13 @@
         "id":"kafka.source.topic"
       },
       "value":"TopicB"
+    },
+    {
+      "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameParameter",
+      "ref":{
+        "id":"kafka.source.fieldName"
+      },
+      "value":"foo"
     }
   ]
 }

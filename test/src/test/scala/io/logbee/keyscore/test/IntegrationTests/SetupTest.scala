@@ -31,7 +31,7 @@ import scala.io.Source.fromInputStream
 * Comment out all annotations before pushing *
 **********************************************/
 
-//@ExtendWith(value = Array(classOf[CitrusExtension]))
+@ExtendWith(value = Array(classOf[CitrusExtension]))
 class SetupTest extends Matchers {
 
   private implicit val formats = KeyscoreFormats.formats
@@ -47,8 +47,8 @@ class SetupTest extends Matchers {
   * Create the Evaluation Pipeline *
   **********************************/
 
-//  @Test
-//  @CitrusTest
+  @Test
+  @CitrusTest
   def testSetup(implicit @CitrusResource runner: TestRunner): Unit = {
     createTestSetup(runner)
   }
@@ -57,8 +57,8 @@ class SetupTest extends Matchers {
   * Run this after the tests are finished *
   **************************************************/
 
-//  @Test
-//  @CitrusTest
+  @Test
+  @CitrusTest
   def cleanUpTestSetup(implicit @CitrusResource runner: TestRunner): Unit = {
     cleanUp(runner)
   }
@@ -68,8 +68,8 @@ class SetupTest extends Matchers {
   * Create the Helper Pipeline *
   ******************************/
 
-//  @Test
-//  @CitrusTest
+  @Test
+  @CitrusTest
   def fillKafkaSetup(implicit @CitrusResource runner: TestRunner): Unit = {
     fillKafka(runner)
   }

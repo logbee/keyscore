@@ -30,7 +30,7 @@
       "ref":{
         "id":"kafka.source.offset"
       },
-      "value":"latest"
+      "value":"earliest"
     },
     {
       "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
