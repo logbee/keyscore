@@ -16,21 +16,24 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.{bootstrapServerParameter, bootstrapServerPortParameter, topicParameter}
+import io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.{bootstrapServerParameter, bootstrapServerPortParameter, fieldNameParameter, topicParameter}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.json4s.Formats
 import org.json4s.native.Serialization.write
 
+import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 import scala.util.{Failure, Success}
 
 object KafkaSinkLogic extends Described {
 
   val bootstrapServerParameter = TextParameterDescriptor(
-    ref = "kafka.sink.bootstrapServer",
-    info = ParameterInfo(TextRef("bootstrapServer"), TextRef("bootstrapServerDescription")),
-    defaultValue = "example.com",
+    ref = "kafka.sink.bootstrap-server.host",
+    info = ParameterInfo(
+      displayName = TextRef("bootstrap-server.host.displayName"),
+      description = TextRef("bootstrap-server.host.description")
+    ),
     validator = StringValidator(
       expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
       expressionType = RegEx
@@ -39,8 +42,11 @@ object KafkaSinkLogic extends Described {
   )
 
   val bootstrapServerPortParameter = NumberParameterDescriptor(
-    ref = "kafka.sink.bootstrapServerPort",
-    info = ParameterInfo(TextRef("bootstrapServerPort"), TextRef("bootstrapServerPortDescription")),
+    ref = "kafka.sink.bootstrap-server.port",
+    info = ParameterInfo(
+      displayName = TextRef("bootstrap-server.port.displayName"),
+      description = TextRef("bootstrap-server.port.description")
+    ),
     defaultValue = 9092,
     range = NumberRange(step = 1, end = 65535),
     mandatory = true
@@ -48,8 +54,22 @@ object KafkaSinkLogic extends Described {
 
   val topicParameter = TextParameterDescriptor(
     ref = "kafka.sink.topic",
-    info = ParameterInfo(TextRef("topic"), TextRef("topicDescription")),
+    info = ParameterInfo(
+      displayName = TextRef("topic.displayName"),
+      description = TextRef("topic.description")
+    ),
     defaultValue = "topic",
+    mandatory = true
+  )
+
+  val fieldNameParameter = FieldNameParameterDescriptor(
+    ref = "kafka.sink.fieldName",
+    info = ParameterInfo(
+      displayName = TextRef("fieldName.displayName"),
+      description = TextRef("fieldName.description")
+    ),
+    defaultValue = "message",
+    hint = FieldNameHint.PresentField,
     mandatory = true
   )
 
@@ -60,7 +80,12 @@ object KafkaSinkLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.SINK, Category("Kafka")),
-      parameters = Seq(bootstrapServerParameter, bootstrapServerPortParameter, topicParameter),
+      parameters = Seq(
+        bootstrapServerParameter,
+        bootstrapServerPortParameter,
+        topicParameter,
+        fieldNameParameter
+      ),
       icon = Icon.fromClass(classOf[KafkaSinkLogic])
     ),
     localization = Localization.fromResourceBundle(
@@ -76,13 +101,13 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
   private var queue: SourceQueueWithComplete[ProducerMessage.Message[Array[Byte], String, Promise[Unit]]] = _
 
   private val pullAsync = getAsyncCallback[Unit](_ => {
-    log.info(s"Pulling in $in")
     pull(in)
   })
 
   private var bootstrapServer = bootstrapServerParameter.defaultValue
   private var bootstrapServerPort = bootstrapServerPortParameter.defaultValue
   private var topic = topicParameter.defaultValue
+  private var fieldName = fieldNameParameter.defaultValue
 
   override def postStop(): Unit = {
     log.info("Kafka sink is stopping.")
@@ -99,10 +124,13 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
     bootstrapServer = configuration.getValueOrDefault(bootstrapServerParameter, bootstrapServer)
     bootstrapServerPort = configuration.getValueOrDefault(bootstrapServerPortParameter, bootstrapServerPort)
     topic = configuration.getValueOrDefault(topicParameter, topic)
+    fieldName = configuration.getValueOrDefault(fieldNameParameter, fieldName)
 
     val settings = producerSettings(s"$bootstrapServer:$bootstrapServerPort")
 
     val producer = Producer.flow[Array[Byte], String, Promise[Unit]](settings)
+
+    tearDown()
 
     queue = Source.queue(1, OverflowStrategy.backpressure)
       .via(producer)
@@ -122,13 +150,22 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
 
     val dataset = grab(shape.in)
 
-    val messages = dataset.records.map(record => {
-      val promise = Promise[Unit]
-      (ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, parseRecord(record)), promise), promise.future)
-    })
+    val messages = dataset.records.foldLeft(mutable.ListBuffer.empty[(ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit])]) { case (result, record) =>
+      record.fields.find(field => fieldName == field.name) match {
+        case Some(Field(_, TextValue(value))) =>
+          val promise = Promise[Unit]
+          result += ((ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, value), promise), promise.future))
+        case _ =>
+          result
+      }
+    }.toList
 
-    enqueue(messages.head, messages.tail)
-
+    if (messages.nonEmpty) {
+      enqueue(messages.head, messages.tail)
+    }
+    else {
+      pull(in)
+    }
   }
 
   private def enqueue(message: (ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit]), tail: List[(ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit])]): Unit = {
@@ -148,25 +185,14 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
       case Success((_, _)) =>
         pullAsync.invoke(())
       case Failure(exception) =>
-        log.error("Enqueing of record failed. Skipping to next Dataset.")
-        pullAsync.invoke()
+        log.error(exception, message = "Enqueuing of message failed. Skipping to next Dataset.")
+        pullAsync.invoke(())
     })
   }
 
-  def parseRecord(record: Record): String = {
-
-    val message = record.fields.map(field => (field.name, field.value)).foldLeft(Map.empty[String, Any]) {
-      case (map, (name, TextValue(value))) => map + (name -> value)
-      case (map, (name, NumberValue(value))) => map + (name -> value)
-      case (map, (name, DecimalValue(value))) => map + (name -> value)
-      case (map, (name, value: TimestampValue)) => map + (name -> Timestamps.toString(value))
-      case (map, (name, _)) => map + (name -> null)
-      case (map, _) => map
+  private def tearDown(): Unit = {
+    if (queue != null) {
+      queue.complete()
     }
-
-    write(message)
   }
-
-  case class SinkEntry(dataset: Dataset, promise: Promise[Unit])
-
 }

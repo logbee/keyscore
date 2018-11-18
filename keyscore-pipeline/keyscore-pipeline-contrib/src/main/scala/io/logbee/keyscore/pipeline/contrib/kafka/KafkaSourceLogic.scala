@@ -89,13 +89,15 @@ object KafkaSourceLogic extends Described {
     mandatory = true
   )
 
-  val targetFieldNameParameter = FieldNameParameterDescriptor(
-    ref = "kafka.source.targetFieldName",
+  val fieldNameParameter = FieldNameParameterDescriptor(
+    ref = "kafka.source.fieldName",
     info = ParameterInfo(
-      displayName = TextRef("targetFieldName.displayName"),
-      description = TextRef("targetFieldName.description")
+      displayName = TextRef("fieldName.displayName"),
+      description = TextRef("fieldName.description")
     ),
     defaultValue = "message",
+    hint = FieldNameHint.PresentField,
+    mandatory = true
   )
 
   override def describe = Descriptor(
@@ -111,7 +113,7 @@ object KafkaSourceLogic extends Described {
         groupIdParameter,
         offsetParameter,
         topicParameter,
-        targetFieldNameParameter
+        fieldNameParameter
       ),
       icon = Icon.fromClass(classOf[KafkaSourceLogic])
     ),
@@ -124,14 +126,14 @@ object KafkaSourceLogic extends Described {
 
 class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
 
-  private var sinkQueue: SinkQueueWithCancel[Dataset] = _
+  private var queue: SinkQueueWithCancel[Dataset] = _
 
   private var server = ""
-  private var port = 9092L
+  private var port = KafkaSourceLogic.portParameter.defaultValue
   private var groupID = ""
   private var offsetConfig = ""
   private var topic = ""
-  private var targetFieldName = "message"
+  private var fieldName = KafkaSourceLogic.fieldNameParameter.defaultValue
 
   private val pushAsync = getAsyncCallback[Dataset] { dataset =>
     push(out, dataset)
@@ -153,11 +155,11 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
     groupID = configuration.getValueOrDefault(KafkaSourceLogic.groupIdParameter, groupID)
     offsetConfig = configuration.getValueOrDefault(KafkaSourceLogic.offsetParameter, offsetConfig)
     topic = configuration.getValueOrDefault(KafkaSourceLogic.topicParameter, topic)
-    targetFieldName = configuration.getValueOrDefault(KafkaSourceLogic.targetFieldNameParameter, targetFieldName)
+    fieldName = configuration.getValueOrDefault(KafkaSourceLogic.fieldNameParameter, fieldName)
 
     tearDown()
 
-    sinkQueue = createSinkQueue(
+    queue = createSinkQueue(
       createSettings(
         bootstrapServer = s"$server:$port",
         groupID = groupID,
@@ -168,7 +170,7 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
   }
 
   override def onPull(): Unit = {
-    sinkQueue.pull().onComplete {
+    queue.pull().onComplete {
       case Success(Some(dataset)) => pushAsync.invoke(dataset)
       case Failure(exception) => log.error(exception, "Failed to pull from kafka consumer queue!")
       case _ => log.info("Failed to pull from kafka consumer queue!")
@@ -194,7 +196,7 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
           Label("io.logbee.keyscore.pipeline.contrib.kafka.source.MESSAGE_OFFSET", NumberValue(message.record.offset())),
         ),
         Record(
-          Field(targetFieldName, TextValue(message.record.value()))
+          Field(fieldName, TextValue(message.record.value()))
         )
       )
 
@@ -202,8 +204,8 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
   }
 
   private def tearDown(): Unit = {
-    if (sinkQueue != null) {
-      sinkQueue.cancel()
+    if (queue != null) {
+      queue.cancel()
     }
   }
 }

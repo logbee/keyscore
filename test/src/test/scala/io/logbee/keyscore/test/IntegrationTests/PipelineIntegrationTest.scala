@@ -86,13 +86,13 @@ class PipelineIntegrationTest extends Matchers {
 
     Thread.sleep(2000)
     extractDatsetsFromFilter(k2eFilterId, 10, 0)
-    
+
     //Test the Valves of the second Pipeline Filter
     insertDatasetsIntoFilter(k2kFilterId, datasetsSerialized)
 
     Thread.sleep(2000)
     extractDatsetsFromFilter(k2eFilterId, 2, 2)
-    
+
     //Wait until all Dataset are pushed to the Elastic index
     pollElasticElements(expect = 2) shouldBe true
 
@@ -183,7 +183,6 @@ class PipelineIntegrationTest extends Matchers {
       .receive()
       .response(HttpStatus.CREATED)
     )
-
   }
 
   def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
@@ -359,7 +358,6 @@ class PipelineIntegrationTest extends Matchers {
         payload should have size expect
       })
     )
-
   }
 
   private def removeElasticIndex(index: String)(implicit runner: TestRunner): TestAction = {
@@ -419,11 +417,17 @@ class PipelineIntegrationTest extends Matchers {
   def pollElasticElements(maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int)(implicit runner: TestRunner): Boolean = {
     var retries = maxRetries
     while (retries > 0) {
-      log.debug(s"Reached Check Elastic Elements for ${expect} Elements with $retries retries remaining.")
+      log.info(s"Reached Check Elastic Elements for ${expect} Elements with $retries retries remaining.")
 
-      val elements = checkElasticElements(runner)
-
-      if (elements == expect) return true
+      try {
+        val elements = checkElasticElements(runner)
+        if (elements == expect) {
+          return true
+        }
+      }
+      catch {
+        case e: Throwable => log.error("Something went wrong while polling elasticsearch.", e)
+      }
 
       Thread.sleep(interval.toMillis)
       retries -= 1
