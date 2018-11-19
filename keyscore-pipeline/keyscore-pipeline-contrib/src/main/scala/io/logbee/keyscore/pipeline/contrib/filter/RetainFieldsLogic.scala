@@ -11,11 +11,11 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.RetainFieldsFilterLogic.fieldNamesParameter
+import io.logbee.keyscore.pipeline.contrib.filter.RetainFieldsLogic.fieldNamesParameter
 
 import scala.Int.MaxValue
 
-object RetainFieldsFilterLogic extends Described {
+object RetainFieldsLogic extends Described {
 
   val fieldNamesParameter = FieldNameListParameterDescriptor(
     ref = "retain.fieldNames",
@@ -30,21 +30,21 @@ object RetainFieldsFilterLogic extends Described {
   override def describe = Descriptor(
     ref = "99f4aa2a-ee96-4cf9-bda5-261efb3a8ef6",
     describes = FilterDescriptor(
-      name = classOf[RetainFieldsFilterLogic].getName,
+      name = classOf[RetainFieldsLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
       parameters = Seq(fieldNamesParameter),
-      icon = Icon.fromClass(classOf[RetainFieldsFilterLogic])
+      icon = Icon.fromClass(classOf[RetainFieldsLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RetainFieldsFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RetainFields",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
 
-class RetainFieldsFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
+class RetainFieldsLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var fieldsToRetain = Seq.empty[String]
 

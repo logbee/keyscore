@@ -9,7 +9,7 @@ import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParam
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.filter.DropRecordsFilterLogic.fieldNamesParameter
+import io.logbee.keyscore.pipeline.contrib.filter.DropRecordsLogic.fieldNamesParameter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -18,12 +18,12 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Inside, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class DropRecordsFilterLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with Inside with TestSystemWithMaterializerAndExecutionContext  {
+class DropRecordsLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with Inside with TestSystemWithMaterializerAndExecutionContext  {
 
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new DropRecordsFilterLogic(parameters, s)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new DropRecordsLogic(parameters, s)
 
     val fieldNames = FieldNameListParameter(fieldNamesParameter.ref, List("fubar"))
     val initialConfig = Configuration(parameters = Seq(fieldNames))

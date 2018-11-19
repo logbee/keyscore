@@ -41,7 +41,7 @@ object CSVDecoderLogic extends Described {
       icon = Icon.fromClass(classOf[CSVDecoderLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CSVParserFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CSVDecoder",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

@@ -11,13 +11,13 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.GrokFilterLogic.fieldNamesParameter
+import io.logbee.keyscore.pipeline.contrib.filter.GrokLogic.fieldNamesParameter
 
 import scala.Int.MaxValue
 import scala.collection.mutable
 import scala.util.matching.Regex
 
-object GrokFilterLogic extends Described {
+object GrokLogic extends Described {
 
   private[filter] val fieldNamesParameter = FieldNameListParameterDescriptor(
     ref = "grok.fieldNames",
@@ -45,21 +45,21 @@ object GrokFilterLogic extends Described {
   override def describe = Descriptor(
     ref = "8912a691-e982-4680-8fc7-fea6803fcef0",
     describes = FilterDescriptor(
-      name = classOf[GrokFilterLogic].getName,
+      name = classOf[GrokLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.DATA_EXTRACTION),
       parameters = Seq(fieldNamesParameter, patternParameter),
-      icon = Icon.fromClass(classOf[GrokFilterLogic])
+      icon = Icon.fromClass(classOf[GrokLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.GrokFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Grok",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
 
-class GrokFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
+class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private val GROK_PATTERN: Regex = "\\(\\?<(\\w*)>".r
   private val NUMBER_PATTERN: Regex = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$".r
@@ -75,7 +75,7 @@ class GrokFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
   override def configure(configuration: Configuration): Unit = {
 
     fieldNames = configuration.getValueOrDefault(fieldNamesParameter, fieldNames)
-    pattern = configuration.getValueOrDefault(GrokFilterLogic.patternParameter, pattern)
+    pattern = configuration.getValueOrDefault(GrokLogic.patternParameter, pattern)
     regex = pattern.r(GROK_PATTERN.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
   }
 

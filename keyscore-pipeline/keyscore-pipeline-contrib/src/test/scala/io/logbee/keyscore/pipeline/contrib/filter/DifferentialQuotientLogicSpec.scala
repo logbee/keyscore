@@ -9,7 +9,7 @@ import io.logbee.keyscore.model.configuration.{Configuration, TextParameter}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientFilterLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
+import io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -17,7 +17,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class DifferentialQuotientFilterLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
 
@@ -29,7 +29,7 @@ class DifferentialQuotientFilterLogicSpec extends FreeSpec with Matchers with Sc
       TextParameter(targetFieldNameParameter.ref, "slope")
     ))
 
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new DifferentialQuotientFilterLogic(parameters, s)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new DifferentialQuotientLogic(parameters, s)
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)

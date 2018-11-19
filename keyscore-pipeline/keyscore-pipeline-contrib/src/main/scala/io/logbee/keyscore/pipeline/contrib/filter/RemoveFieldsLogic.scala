@@ -4,7 +4,7 @@ import akka.stream.FlowShape
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, _}
-import io.logbee.keyscore.model.descriptor.FieldNameHint.AnyField
+import io.logbee.keyscore.model.descriptor.FieldNameHint.PresentField
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
@@ -13,64 +13,63 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 
 import scala.Int.MaxValue
-import scala.collection.mutable
 
-object DropRecordsFilterLogic extends Described {
 
-  val fieldNamesParameter = FieldNameListParameterDescriptor(
-    ref = "dropRecords.fieldNames",
+object RemoveFieldsLogic extends Described {
+
+  private val bundleName = "io.logbee.keyscore.agent.pipeline.contrib.filter.RemoveFieldsFilter"
+  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/remove.svg"
+
+  val fieldsToRemoveParameter = FieldNameListParameterDescriptor(
+    ref = "removeFields.fieldsToRemove",
     info = ParameterInfo(
-      displayName = TextRef("fieldNamesDisplayName"),
-      description = TextRef("fieldNamesDescription")
+      displayName = "fieldsToRemoveName",
+      description = "fieldsToRemoveDescription"
     ),
     descriptor = FieldNameParameterDescriptor(
-      hint = AnyField
+      hint = PresentField
     ),
     min = 1,
     max = MaxValue
   )
 
   override def describe = Descriptor(
-    ref = "2f117a41-8bf1-4830-9228-7342f3f3fd64",
+    ref = "b7ee17ad-582f-494c-9f89-2c9da7b4e467",
     describes = FilterDescriptor(
-      name = classOf[DropRecordsFilterLogic].getName,
+      name = classOf[RemoveFieldsLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
-      parameters = Seq(fieldNamesParameter),
-      icon = Icon.fromClass(classOf[DropRecordsFilterLogic])
+      parameters = Seq(fieldsToRemoveParameter),
+      icon = Icon.fromClass(classOf[RemoveFieldsLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DropRecordsFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RemoveFields",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
 
-class DropRecordsFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
+class RemoveFieldsLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
-  private var fieldNames = Seq.empty[String]
+  private var fieldsToRemove = Seq.empty[String]
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
 
   override def configure(configuration: Configuration): Unit = {
-    fieldNames = configuration.getValueOrDefault(DropRecordsFilterLogic.fieldNamesParameter, fieldNames)
+
+    fieldsToRemove = configuration.getValueOrDefault(RemoveFieldsLogic.fieldsToRemoveParameter, fieldsToRemove)
   }
 
   override def onPush(): Unit = {
-
     val dataset = grab(in)
+    val records = dataset.records.map(record => {
+      Record(record.fields.filter(field => !fieldsToRemove.contains(field.name)))
+    })
 
-    push(out, dataset.update(
-      _.records := dataset.records.foldLeft(mutable.ListBuffer.empty[Record]) {
-        case (result, record) =>
-          if (!record.fields.exists(field => fieldNames.contains(field.name))) {
-            result += record
-          }
-          result
-      }.toList))
+    push(out, Dataset(dataset.metadata, records))
   }
 
   override def onPull(): Unit = {

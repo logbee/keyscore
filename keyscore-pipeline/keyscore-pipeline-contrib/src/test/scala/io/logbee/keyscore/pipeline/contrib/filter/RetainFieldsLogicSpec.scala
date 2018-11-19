@@ -17,7 +17,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class RetainFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class RetainFieldsLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
 
@@ -25,12 +25,12 @@ class RetainFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
 
     val config = Configuration(
       parameters = Seq(
-        FieldNameListParameter(RetainFieldsFilterLogic.fieldNamesParameter.ref, Seq("message", "temperature"))
+        FieldNameListParameter(RetainFieldsLogic.fieldNamesParameter.ref, Seq("message", "temperature"))
       )
     )
 
     val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) =>
-      new RetainFieldsFilterLogic(LogicParameters(UUID.randomUUID(), context, config), s)
+      new RetainFieldsLogic(LogicParameters(UUID.randomUUID(), context, config), s)
 
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, config), provider)
 
@@ -54,7 +54,7 @@ class RetainFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
   "A RetainFieldsFilter" should {
 
     "return a MetaFilterDescriptor" in {
-      RetainFieldsFilterLogic.describe should not be null
+      RetainFieldsLogic.describe should not be null
     }
 
     "retain only the specified fields and remove all others" in new TestStream {

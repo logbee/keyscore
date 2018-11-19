@@ -49,7 +49,7 @@ object JsonDecoderLogic extends Described {
       icon = Icon.fromClass(classOf[JsonDecoderLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.JsonExtractor",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.JsonDecoder",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )

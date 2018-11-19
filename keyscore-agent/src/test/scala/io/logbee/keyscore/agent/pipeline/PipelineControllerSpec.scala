@@ -12,7 +12,7 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.{After, Before}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsFilterLogic
+import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic
 import io.logbee.keyscore.test.fixtures.ExampleData._
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
@@ -34,7 +34,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
   trait TestSetup {
     val configuration = Configuration(parameters = Seq(
-      FieldListParameter(AddFieldsFilterLogic.fieldListParameter.ref, Seq())
+      FieldListParameter(AddFieldsLogic.fieldListParameter.ref, Seq())
     ))
     val testSource = TestSource.probe[Dataset]
     val testsink = TestSink.probe[Dataset]

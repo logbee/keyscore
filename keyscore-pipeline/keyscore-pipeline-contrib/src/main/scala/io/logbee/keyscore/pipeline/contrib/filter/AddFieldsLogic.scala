@@ -10,9 +10,9 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsFilterLogic.fieldListParameter
+import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic.fieldListParameter
 
-object AddFieldsFilterLogic extends Described {
+object AddFieldsLogic extends Described {
 
   val fieldListParameter = FieldListParameterDescriptor(
     ParameterRef("fieldList"),
@@ -28,20 +28,20 @@ object AddFieldsFilterLogic extends Described {
   override def describe = Descriptor(
       ref = "1a6e5fd0-a21b-4056-8a4a-399e3b4e7610",
       describes = FilterDescriptor(
-        name = classOf[AddFieldsFilterLogic].getName,
+        name = classOf[AddFieldsLogic].getName,
         displayName = TextRef("displayName"),
         description = TextRef("description"),
         categories = Seq(CommonCategories.AUGMENT, CommonCategories.FIELDS),
         parameters = Seq(fieldListParameter),
-        icon = Icon.fromClass(classOf[AddFieldsFilterLogic])
+        icon = Icon.fromClass(classOf[AddFieldsLogic])
       ),
       localization = Localization.fromResourceBundle(
-        bundleName = "io.logbee.keyscore.pipeline.contrib.filter.AddFieldsFilter",
+        bundleName = "io.logbee.keyscore.pipeline.contrib.filter.AddFields",
         Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
     )
 }
 
-class AddFieldsFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
+class AddFieldsLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var fieldsToAdd = Seq.empty[Field]
 

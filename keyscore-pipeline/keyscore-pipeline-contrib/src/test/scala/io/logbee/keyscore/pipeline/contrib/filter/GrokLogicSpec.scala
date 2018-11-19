@@ -10,7 +10,7 @@ import io.logbee.keyscore.model.data.{Dataset, DecimalField, Record}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.filter.GrokFilterLogic.{fieldNamesParameter, patternParameter}
+import io.logbee.keyscore.pipeline.contrib.filter.GrokLogic.{fieldNamesParameter, patternParameter}
 import io.logbee.keyscore.test.fixtures.ExampleData._
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
@@ -24,12 +24,12 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class GrokFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class GrokLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new GrokFilterLogic(parameters, s)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new GrokLogic(parameters, s)
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
@@ -50,7 +50,7 @@ class GrokFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with 
   "A GrokFilter" should {
 
     "return a MetaFilterDescriptor" in {
-      GrokFilterLogic.describe should not be null
+      GrokLogic.describe should not be null
     }
 
     "extract data into a new field when the grok rule matches the specified field" in new TestStream {

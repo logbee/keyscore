@@ -14,7 +14,7 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 
-object FingerprintFilterLogic extends Described {
+object FingerprintLogic extends Described {
   private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/fingerprint.svg"
 
 
@@ -42,21 +42,21 @@ object FingerprintFilterLogic extends Described {
   override def describe = Descriptor(
     ref = "ed3ab993-1eca-4651-857d-fd4f72355251",
     describes = FilterDescriptor(
-      name = classOf[FingerprintFilterLogic].getName,
+      name = classOf[FingerprintLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(Category("fingerprint", TextRef("category.fingerprint.displayName"))),
       parameters = Seq(targetParameter,encodingParameter),
-      icon = Icon.fromClass(classOf[FingerprintFilterLogic])
+      icon = Icon.fromClass(classOf[FingerprintLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.FingerprintFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Fingerprint",
       Locale.ENGLISH, Locale.GERMAN
     )
   )
 }
 
-class FingerprintFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
+class FingerprintLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private var targetFieldName = "fingerprint"
   private var base64Encoding = false
@@ -69,8 +69,8 @@ class FingerprintFilterLogic(parameters: LogicParameters, shape: FlowShape[Datas
 
   override def configure(configuration: Configuration): Unit = {
 
-    targetFieldName = configuration.getValueOrDefault(FingerprintFilterLogic.targetParameter, targetFieldName)
-    base64Encoding = configuration.getValueOrDefault(FingerprintFilterLogic.encodingParameter, base64Encoding)
+    targetFieldName = configuration.getValueOrDefault(FingerprintLogic.targetParameter, targetFieldName)
+    base64Encoding = configuration.getValueOrDefault(FingerprintLogic.encodingParameter, base64Encoding)
   }
 
   override def onPush(): Unit = {

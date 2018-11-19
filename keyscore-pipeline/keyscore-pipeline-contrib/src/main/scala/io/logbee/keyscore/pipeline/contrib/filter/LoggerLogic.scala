@@ -15,7 +15,7 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATIO
 import org.json4s.Formats
 import org.json4s.native.Serialization.write
 
-object LoggerFilter extends Described {
+object LoggerLogic extends Described {
 
   private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/logger.svg"
 
@@ -76,21 +76,21 @@ object LoggerFilter extends Described {
   override def describe = Descriptor(
     ref = "634bce93-64a3-4469-a105-1be441fdc2e0",
     describes = FilterDescriptor(
-      name = classOf[LoggerFilter].getName,
+      name = classOf[LoggerLogic].getName,
       displayName = TextRef("logger.displayName"),
       description = TextRef("logger.description"),
       categories = Seq(CommonCategories.DEBUG),
       parameters = Seq(levelParameter, formatParameter),
-      icon = Icon.fromClass(classOf[LoggerFilter])
+      icon = Icon.fromClass(classOf[LoggerLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.LoggerFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Logger",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
 
-class LoggerFilter(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
+class LoggerLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private implicit val jsonFormats: Formats = KeyscoreFormats.formats
 
@@ -102,8 +102,8 @@ class LoggerFilter(parameters: LogicParameters, shape: FlowShape[Dataset, Datase
   }
 
   override def configure(configuration: Configuration): Unit = {
-    level = configuration.getValueOrDefault(LoggerFilter.levelParameter, level)
-    format = configuration.getValueOrDefault(LoggerFilter.formatParameter, format)
+    level = configuration.getValueOrDefault(LoggerLogic.levelParameter, level)
+    format = configuration.getValueOrDefault(LoggerLogic.formatParameter, format)
   }
 
   override def onPush(): Unit = {

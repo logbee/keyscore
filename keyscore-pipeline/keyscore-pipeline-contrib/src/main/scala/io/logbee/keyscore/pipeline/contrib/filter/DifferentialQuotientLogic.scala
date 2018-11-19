@@ -12,9 +12,9 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientFilterLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
+import io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
 
-object DifferentialQuotientFilterLogic extends Described {
+object DifferentialQuotientLogic extends Described {
 
   private[filter] val xFieldNameParameter = FieldNameParameterDescriptor(
     ref = "dqf.xFieldName",
@@ -52,20 +52,20 @@ object DifferentialQuotientFilterLogic extends Described {
   override def describe = Descriptor(
     ref = "a83715fd-bc0f-4012-9527-59c6d4a1f6cd",
     describes = FilterDescriptor(
-      name = classOf[DifferentialQuotientFilterLogic].getName,
+      name = classOf[DifferentialQuotientLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
       parameters = List(xFieldNameParameter, yFieldNameParameter, targetFieldNameParameter),
-      icon = Icon.fromClass(classOf[DifferentialQuotientFilterLogic])
+      icon = Icon.fromClass(classOf[DifferentialQuotientLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotient",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
-class DifferentialQuotientFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
+class DifferentialQuotientLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private var xFieldName = xFieldNameParameter.defaultValue
   private var yFieldName = yFieldNameParameter.defaultValue

@@ -11,7 +11,7 @@ import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsFilterLogic.fieldsToRemoveParameter
+import io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsLogic.fieldsToRemoveParameter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -23,7 +23,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class RemoveFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class RemoveFieldsLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
 
@@ -37,7 +37,7 @@ class RemoveFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
       TextListParameter(fieldsToRemoveParameter, List("temperature", "voltage"))
     )
 
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new RemoveFieldsFilterLogic(LogicParameters(randomUUID(), context, config1), s)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new RemoveFieldsLogic(LogicParameters(randomUUID(), context, config1), s)
 
     val sample = Dataset(
       Record(
@@ -72,7 +72,7 @@ class RemoveFieldsFilterLogicSpec extends WordSpec with Matchers with ScalaFutur
   "A RemoveFieldsFilter" should {
 
     "return a MetaFilterDescriptor" in {
-      RemoveFieldsFilterLogic.describe should not be null
+      RemoveFieldsLogic.describe should not be null
     }
 
     "remove specified fields" in new TestStream {

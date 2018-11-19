@@ -20,7 +20,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class LoggerFilterSpec extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class LoggerLogicSpec extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   override implicit val system: ActorSystem = ActorSystem("testsystem", ConfigFactory.parseString(
     """akka.loggers = ["akka.testkit.TestEventListener"]"""
@@ -28,7 +28,7 @@ class LoggerFilterSpec extends WordSpec with Matchers with ScalaFutures with Tes
 
   val configurationA = Configuration(parameters = Seq())
   val context = StageContext(system, executionContext)
-  val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new LoggerFilter(parameters, s)
+  val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new LoggerLogic(parameters, s)
   val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)
 
   val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
@@ -39,7 +39,7 @@ class LoggerFilterSpec extends WordSpec with Matchers with ScalaFutures with Tes
   "A LoggerFilter" should {
 
     "return a MetaFilterDescriptor" in {
-      LoggerFilter.describe should not be null
+      LoggerLogic.describe should not be null
     }
 
     "log datasets" in {

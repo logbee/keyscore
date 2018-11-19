@@ -15,7 +15,7 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATIO
 import scala.Int.MaxValue
 import scala.collection.mutable
 
-object RetainRecordsFilterLogic extends Described {
+object RetainRecordsLogic extends Described {
 
   val fieldNamesParameter = FieldNameListParameterDescriptor(
     ref = "retainRecords.fieldNames",
@@ -33,20 +33,20 @@ object RetainRecordsFilterLogic extends Described {
   override def describe = Descriptor(
     ref = "4c319934-483c-4c2f-ac38-f9d54cc63734",
     describes = FilterDescriptor(
-      name = classOf[DropRecordsFilterLogic].getName,
+      name = classOf[DropRecordsLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
       parameters = Seq(fieldNamesParameter),
-      icon = Icon.fromClass(classOf[RetainRecordsFilterLogic])
+      icon = Icon.fromClass(classOf[RetainRecordsLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RetainRecordsFilter",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RetainRecords",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
-class RetainRecordsFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
+class RetainRecordsLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var fieldNames = Seq.empty[String]
 
@@ -55,7 +55,7 @@ class RetainRecordsFilterLogic(parameters: LogicParameters, shape: FlowShape[Dat
   }
 
   override def configure(configuration: Configuration): Unit = {
-    fieldNames = configuration.getValueOrDefault(DropRecordsFilterLogic.fieldNamesParameter, fieldNames)
+    fieldNames = configuration.getValueOrDefault(DropRecordsLogic.fieldNamesParameter, fieldNames)
   }
 
   override def onPush(): Unit = {

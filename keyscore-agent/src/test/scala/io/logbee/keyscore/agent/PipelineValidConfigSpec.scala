@@ -6,7 +6,7 @@ import io.logbee.keyscore.model.data.{Label, MetaData, TextValue}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
-import io.logbee.keyscore.pipeline.contrib.filter.{RemoveFieldsFilterLogic, RetainFieldsFilterLogic}
+import io.logbee.keyscore.pipeline.contrib.filter.{RemoveFieldsLogic, RetainFieldsLogic}
 import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.json4s.native.Serialization.writePretty
@@ -33,7 +33,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val removeFieldsFilterConfigurationRef = ConfigurationRef("d2588462-b5f4-4b10-8cbb-7bcceb178cb5")
     val removeFieldsFilterConfig = Configuration(removeFieldsFilterConfigurationRef,
       parameters = Seq(
-        FieldNameListParameter(RemoveFieldsFilterLogic.fieldsToRemoveParameter.ref, Seq("message"))
+        FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("message"))
       ))
 
     val sinkConfigurationRef = ConfigurationRef("05dc6d8a-50ff-41bd-b637-5132be1f2415")
@@ -47,7 +47,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 
 
     val sourceBluePrint = SourceBlueprint(BlueprintRef("d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"), KafkaSourceLogic.describe.ref, sourceConfigurationRef)
-    val filterBluePrint = FilterBlueprint(BlueprintRef("24a88215-cfe0-47a1-a889-7f3e9f8260ef"), RemoveFieldsFilterLogic.describe.ref, removeFieldsFilterConfigurationRef)
+    val filterBluePrint = FilterBlueprint(BlueprintRef("24a88215-cfe0-47a1-a889-7f3e9f8260ef"), RemoveFieldsLogic.describe.ref, removeFieldsFilterConfigurationRef)
     val sinkBluePrint = SinkBlueprint(BlueprintRef("80851e06-7191-4d96-8e4d-de66a5a12e81"), KafkaSinkLogic.describe.ref, sinkConfigurationRef)
 
     val pipelineBlueprint = PipelineBlueprint(BlueprintRef("10d3e280-cb7c-4a77-be1f-8ccf5f1b0df2"), Seq(
@@ -76,7 +76,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val removeFieldsFilterConfigurationRef = ConfigurationRef("07fbf227-3cde-4acd-853a-4aa733f5f482")
     val removeFieldsFilterConfig = Configuration(removeFieldsFilterConfigurationRef,
       parameters = Seq(
-        FieldNameListParameter(RemoveFieldsFilterLogic.fieldsToRemoveParameter.ref, Seq("message"))
+        FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("message"))
       ))
 
     val sinkConfigurationRef = ConfigurationRef("d35d1f46-cd41-4a25-8d83-02cf9348d87e")
@@ -90,7 +90,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 
 
     val sourceBluePrint = SourceBlueprint(BlueprintRef("4a696573-ce73-4bb2-8d9a-b2a90e834153"), KafkaSourceLogic.describe.ref, sourceConfigurationRef)
-    val filterBluePrint = FilterBlueprint(BlueprintRef("dc882c27-3de2-4603-b272-b35cf81080e2"), RemoveFieldsFilterLogic.describe.ref, removeFieldsFilterConfigurationRef)
+    val filterBluePrint = FilterBlueprint(BlueprintRef("dc882c27-3de2-4603-b272-b35cf81080e2"), RemoveFieldsLogic.describe.ref, removeFieldsFilterConfigurationRef)
     val sinkBluePrint = SinkBlueprint(BlueprintRef("0f7b4607-b60a-46b8-a396-424466b7618b"), ElasticSearchSinkLogic.describe.ref, sinkConfigurationRef)
 
     val pipelineBlueprint = PipelineBlueprint(BlueprintRef("34db6f58-0090-4b7d-b32c-aba2706a58bf"), Seq(
@@ -120,20 +120,20 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     val retainFieldsConfigurationRef = ConfigurationRef("0584fc3f-b629-4b95-a5d4-ae87fdf01b77")
     val retainFieldsConfiguration = Configuration(retainFieldsConfigurationRef,
       parameters = Seq(
-        TextListParameter(RetainFieldsFilterLogic.fieldNamesParameter.ref, Seq("text1", "text2", "text3", "number1", "number2"))
+        TextListParameter(RetainFieldsLogic.fieldNamesParameter.ref, Seq("text1", "text2", "text3", "number1", "number2"))
       )
     )
 
     val firstRemoveFieldsConfigurationRef = ConfigurationRef("dd87ea44-3cfa-4cda-8fc2-9f4869f54338")
     val firstRemoveFieldsConfiguration = Configuration(firstRemoveFieldsConfigurationRef,
       parameters = Seq(
-        FieldNameListParameter(RemoveFieldsFilterLogic.fieldsToRemoveParameter.ref, Seq("text1"))
+        FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("text1"))
       ))
 
     val secondRemoveFieldsConfigurationRef = ConfigurationRef("f60f7876-d4b2-4657-bd94-1164424804dc")
     val secondRemoveFieldsConfiguration = Configuration(secondRemoveFieldsConfigurationRef,
       parameters = Seq(
-        FieldNameListParameter(RemoveFieldsFilterLogic.fieldsToRemoveParameter.ref, Seq("text2", "number2"))
+        FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("text2", "number2"))
       ))
 
     val elasticSinkConfigurationRef = ConfigurationRef("7cce7c4c-c50e-49a8-b0fb-db2c45fb737b")
@@ -146,9 +146,9 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     )
 
     val kafkaSourceBlueprint = SourceBlueprint(BlueprintRef("7bd47b18-547f-4752-9f5c-54028a6f5be0"), KafkaSourceLogic.describe.ref, kafkaSourceConfigurationRef)
-    val retainFieldsBlueprint = FilterBlueprint(BlueprintRef("f368c58c-db9a-43dc-8ccb-f495d29c441f"), RetainFieldsFilterLogic.describe.ref, retainFieldsConfigurationRef)
-    val firstRemoveFieldsBlueprint = FilterBlueprint(BlueprintRef("29c2942f-d098-46fc-a014-50ddc5277c0e"), RemoveFieldsFilterLogic.describe.ref, firstRemoveFieldsConfigurationRef)
-    val secondRemoveFieldsBlueprint = FilterBlueprint(BlueprintRef("921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"), RemoveFieldsFilterLogic.describe.ref, secondRemoveFieldsConfigurationRef)
+    val retainFieldsBlueprint = FilterBlueprint(BlueprintRef("f368c58c-db9a-43dc-8ccb-f495d29c441f"), RetainFieldsLogic.describe.ref, retainFieldsConfigurationRef)
+    val firstRemoveFieldsBlueprint = FilterBlueprint(BlueprintRef("29c2942f-d098-46fc-a014-50ddc5277c0e"), RemoveFieldsLogic.describe.ref, firstRemoveFieldsConfigurationRef)
+    val secondRemoveFieldsBlueprint = FilterBlueprint(BlueprintRef("921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"), RemoveFieldsLogic.describe.ref, secondRemoveFieldsConfigurationRef)
     val elasticSinkBlueprint = SinkBlueprint(BlueprintRef("3dfa3823-e202-4715-ad5d-0f81fc6efbc6"), ElasticSearchSinkLogic.describe.ref, elasticSinkConfigurationRef)
 
     val workflowPipelineBlueprint = PipelineBlueprint(BlueprintRef("e49abe8a-6bf4-410f-8781-87b36db8168d"), Seq(
@@ -180,7 +180,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 
       println(writePretty(KafkaSinkLogic.describe))
       println(writePretty(KafkaSourceLogic.describe))
-      println(writePretty(RemoveFieldsFilterLogic.describe))
+      println(writePretty(RemoveFieldsLogic.describe))
     }
 
     "Generate json files for KafkaToElastic" in new KafkaToElastic {
@@ -198,7 +198,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 
       println(writePretty(KafkaSinkLogic.describe))
       println(writePretty(KafkaSourceLogic.describe))
-      println(writePretty(RemoveFieldsFilterLogic.describe))
+      println(writePretty(RemoveFieldsLogic.describe))
     }
 
     "Generate json files for Workflow" in new Workflow {
