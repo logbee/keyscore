@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter
+package io.logbee.keyscore.pipeline.contrib.decoder
 
 import java.util.UUID.randomUUID
 
@@ -10,7 +10,6 @@ import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.util.Using
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.filter.decoder.JsonDecoderLogic
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures

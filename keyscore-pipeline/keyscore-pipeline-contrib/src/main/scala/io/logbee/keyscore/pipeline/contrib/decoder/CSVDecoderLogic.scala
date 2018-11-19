@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter.decoder
+package io.logbee.keyscore.pipeline.contrib.decoder
 
 import akka.stream.FlowShape
 import io.logbee.keyscore.model._
@@ -9,21 +9,20 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, CSV, DECODING}
-import io.logbee.keyscore.pipeline.contrib.filter.decoder.CSVDecoderLogic.{headerParameter, separatorParameter}
 
 import scala.Int.MaxValue
 import scala.collection.mutable.ListBuffer
 
 object CSVDecoderLogic extends Described {
 
-  private[filter] val headerParameter = TextListParameterDescriptor(
+  private[decoder] val headerParameter = TextListParameterDescriptor(
     ref = "csv.header",
     info = ParameterInfo(TextRef("headerToParse"), TextRef("headerToParseDescription")),
     min = 1,
     max = MaxValue
   )
 
-  private[filter] val separatorParameter = TextParameterDescriptor(
+  private[decoder] val separatorParameter = TextParameterDescriptor(
     ref = "csv.separator",
     info = ParameterInfo(TextRef("fieldKeyNameSeparator"), TextRef("fieldKeyDescriptionSeparator")),
     defaultValue = ",",
@@ -41,7 +40,7 @@ object CSVDecoderLogic extends Described {
       icon = Icon.fromClass(classOf[CSVDecoderLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CSVDecoder",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.CSVDecoder",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
@@ -50,7 +49,7 @@ object CSVDecoderLogic extends Described {
 class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var headerList: Seq[String] = Seq.empty
-  private var separator: String = separatorParameter.defaultValue
+  private var separator: String = CSVDecoderLogic.separatorParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -58,8 +57,8 @@ class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
 
   override def configure(configuration: Configuration): Unit = {
 
-    headerList = configuration.getValueOrDefault(headerParameter, headerList)
-    separator = configuration.getValueOrDefault(separatorParameter, separator)
+    headerList = configuration.getValueOrDefault(CSVDecoderLogic.headerParameter, headerList)
+    separator = configuration.getValueOrDefault(CSVDecoderLogic.separatorParameter, separator)
   }
 
   override def onPush(): Unit = {

@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter.decoder
+package io.logbee.keyscore.pipeline.contrib.decoder
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
@@ -11,7 +11,6 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, DECODING, JSON}
-import io.logbee.keyscore.pipeline.contrib.filter.decoder.JsonDecoderLogic.{sourceFieldNameParameter, removeSourceFieldParameter}
 import org.json4s.JsonAST._
 import org.json4s.native.JsonParser._
 
@@ -49,7 +48,7 @@ object JsonDecoderLogic extends Described {
       icon = Icon.fromClass(classOf[JsonDecoderLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.JsonDecoder",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.JsonDecoder",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
@@ -57,16 +56,16 @@ object JsonDecoderLogic extends Described {
 
 class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private var sourceFieldName = sourceFieldNameParameter.defaultValue
-  private var removeSourceField = removeSourceFieldParameter.defaultValue
+  private var sourceFieldName = JsonDecoderLogic.sourceFieldNameParameter.defaultValue
+  private var removeSourceField = JsonDecoderLogic.removeSourceFieldParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
 
   override def configure(configuration: Configuration): Unit = {
-    sourceFieldName = configuration.getValueOrDefault(sourceFieldNameParameter, sourceFieldName)
-    removeSourceField = configuration.getValueOrDefault(removeSourceFieldParameter, removeSourceField)
+    sourceFieldName = configuration.getValueOrDefault(JsonDecoderLogic.sourceFieldNameParameter, sourceFieldName)
+    removeSourceField = configuration.getValueOrDefault(JsonDecoderLogic.removeSourceFieldParameter, removeSourceField)
   }
 
   override def onPush(): Unit = {
