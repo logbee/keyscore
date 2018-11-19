@@ -9,6 +9,7 @@ import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter,
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
+import io.logbee.keyscore.pipeline.contrib.filter.decoder.CSVDecoderLogic
 import io.logbee.keyscore.test.fixtures.ExampleData.csvDatasetA
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith

@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter
+package io.logbee.keyscore.pipeline.contrib.filter.decoder
 
 import akka.stream.FlowShape
 import io.logbee.keyscore.model._
@@ -9,7 +9,7 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, CSV, DECODING}
-import io.logbee.keyscore.pipeline.contrib.filter.CSVDecoderLogic.{headerParameter, separatorParameter}
+import io.logbee.keyscore.pipeline.contrib.filter.decoder.CSVDecoderLogic.{headerParameter, separatorParameter}
 
 import scala.Int.MaxValue
 import scala.collection.mutable.ListBuffer

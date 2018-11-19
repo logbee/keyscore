@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter
+package io.logbee.keyscore.pipeline.contrib.filter.decoder
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
@@ -11,7 +11,7 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, DECODING, JSON}
-import io.logbee.keyscore.pipeline.contrib.filter.JsonDecoderLogic.{removeSourceFieldParameter, sourceFieldNameParameter}
+import io.logbee.keyscore.pipeline.contrib.filter.decoder.JsonDecoderLogic.{sourceFieldNameParameter, removeSourceFieldParameter}
 import org.json4s.JsonAST._
 import org.json4s.native.JsonParser._
 
