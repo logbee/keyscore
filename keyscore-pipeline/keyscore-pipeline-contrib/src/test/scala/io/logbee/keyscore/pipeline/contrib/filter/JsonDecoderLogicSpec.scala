@@ -17,7 +17,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class JsonExtractorLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class JsonDecoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   val configuration = Configuration(
     TextParameter("sourceFieldName", "rawJson"),
@@ -25,7 +25,7 @@ class JsonExtractorLogicSpec extends FreeSpec with Matchers with ScalaFutures wi
   )
 
   val context = StageContext(system, executionContext)
-  val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new JsonExtractorLogic(p, s))
+  val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new JsonDecoderLogic(p, s))
 
   val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
     .viaMat(filterStage)(Keep.both)
@@ -43,7 +43,7 @@ class JsonExtractorLogicSpec extends FreeSpec with Matchers with ScalaFutures wi
   "A JsonExtractor" - {
 
     "should return a MetaFilterDescriptor" in {
-      JsonExtractorLogic.describe should not be null
+      JsonDecoderLogic.describe should not be null
     }
 
     "should extract all json values into separate fields" in {

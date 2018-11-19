@@ -8,14 +8,13 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
-import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, DATA_EXTRACTION}
-import io.logbee.keyscore.pipeline.contrib.filter.CSVParserFilterLogic.{headerParameter, separatorParameter}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, CSV, DECODING}
+import io.logbee.keyscore.pipeline.contrib.filter.CSVDecoderLogic.{headerParameter, separatorParameter}
 
 import scala.Int.MaxValue
 import scala.collection.mutable.ListBuffer
 
-object CSVParserFilterLogic extends Described {
+object CSVDecoderLogic extends Described {
 
   private[filter] val headerParameter = TextListParameterDescriptor(
     ref = "csv.header",
@@ -34,12 +33,12 @@ object CSVParserFilterLogic extends Described {
   override def describe = Descriptor(
     ref = "292d368e-6e50-4c52-aed5-1a6826d78c22",
     describes = FilterDescriptor(
-      name = classOf[CSVParserFilterLogic].getName,
+      name = classOf[CSVDecoderLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(Category("CSV"), DATA_EXTRACTION),
+      categories = Seq(DECODING, CSV),
       parameters = Seq(headerParameter, separatorParameter),
-      icon = Icon.fromClass(classOf[CSVParserFilterLogic])
+      icon = Icon.fromClass(classOf[CSVDecoderLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CSVParserFilter",
@@ -48,7 +47,7 @@ object CSVParserFilterLogic extends Described {
   )
 }
 
-class CSVParserFilterLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
+class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var headerList: Seq[String] = Seq.empty
   private var separator: String = separatorParameter.defaultValue

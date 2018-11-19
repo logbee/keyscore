@@ -21,12 +21,12 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class CSVDecoderLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   val csv1 = Configuration(
     parameters = Seq(
-      TextParameter(CSVParserFilterLogic.separatorParameter.ref, ";"),
-      TextListParameter(CSVParserFilterLogic.headerParameter.ref, Seq(
+      TextParameter(CSVDecoderLogic.separatorParameter.ref, ";"),
+      TextListParameter(CSVDecoderLogic.headerParameter.ref, Seq(
         "Philosophy", "Maths", "Latin", "Astrophysics"
       ))
     )
@@ -34,8 +34,8 @@ class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
 
   val csv2 = Configuration(
     parameters = Seq(
-      TextParameter(CSVParserFilterLogic.separatorParameter.ref, ";"),
-      TextListParameter(CSVParserFilterLogic.headerParameter.ref, Seq(
+      TextParameter(CSVDecoderLogic.separatorParameter.ref, ";"),
+      TextListParameter(CSVDecoderLogic.headerParameter.ref, Seq(
         "Philosophy2", "Maths2", "Latin2", "Astrophysics2"
       ))
     )
@@ -58,7 +58,7 @@ class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new CSVParserFilterLogic(parameters, s)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new CSVDecoderLogic(parameters, s)
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, csv1), provider)
 
     val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
@@ -70,7 +70,7 @@ class CSVParserFilterLogicSpec extends WordSpec with Matchers with ScalaFutures 
   "A CSVFilterFunction" should {
 
     "return a MetaFilterDescriptor" in {
-      CSVParserFilterLogic.describe should not be null
+      CSVDecoderLogic.describe should not be null
     }
 
     "convert a csv string into a normal record" in new TestStream {

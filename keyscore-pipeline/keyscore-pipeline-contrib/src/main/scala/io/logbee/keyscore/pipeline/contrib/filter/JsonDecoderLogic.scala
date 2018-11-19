@@ -10,13 +10,12 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
-import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.JsonExtractorLogic.{removeSourceFieldParameter, sourceFieldNameParameter}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, DECODING, JSON}
+import io.logbee.keyscore.pipeline.contrib.filter.JsonDecoderLogic.{removeSourceFieldParameter, sourceFieldNameParameter}
 import org.json4s.JsonAST._
 import org.json4s.native.JsonParser._
 
-object JsonExtractorLogic extends Described {
+object JsonDecoderLogic extends Described {
 
   val sourceFieldNameParameter = FieldNameParameterDescriptor(
     ref = "sourceFieldName",
@@ -42,12 +41,12 @@ object JsonExtractorLogic extends Described {
   override def describe = Descriptor (
     ref = "56c8a366-8625-46d2-9c0f-92dd24519989",
     describes = FilterDescriptor(
-      name = classOf[JsonExtractorLogic].getName,
+      name = classOf[JsonDecoderLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(CommonCategories.DATA_EXTRACTION, CommonCategories.JSON),
+      categories = Seq(DECODING, JSON),
       parameters = Seq(sourceFieldNameParameter, removeSourceFieldParameter),
-      icon = Icon.fromClass(classOf[JsonExtractorLogic])
+      icon = Icon.fromClass(classOf[JsonDecoderLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.JsonExtractor",
@@ -56,7 +55,7 @@ object JsonExtractorLogic extends Described {
   )
 }
 
-class JsonExtractorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
+class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private var sourceFieldName = sourceFieldNameParameter.defaultValue
   private var removeSourceField = removeSourceFieldParameter.defaultValue

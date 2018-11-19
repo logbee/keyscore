@@ -12,11 +12,14 @@ object CommonCategories {
   val DEBUG = Category("contrib.debug", TextRef("contrib.category.debug.displayName"))
   val FIELDS = Category("contrib.fields", TextRef("contrib.category.fields.displayName"))
   val JSON = Category("contrib.json", TextRef("contrib.category.json.displayName"))
+  val CSV = Category("contrib.csv", TextRef("contrib.category.csv.displayName"))
   val MATH = Category("contrib.math", TextRef("contrib.category.math.displayName"))
   val REMOVE_DROP = Category("contrib.remove-drop", TextRef("contrib.category.remove-drop.displayName"))
   val SINK = Category("contrib.sink", TextRef("contrib.category.sink.displayName"))
   val SOURCE = Category("contrib.source", TextRef("contrib.category.source.displayName"))
   val VISUALIZATION = Category("contrib.visualization", TextRef("contrib.category.visualization.displayName"))
+  val ENCODING = Category("contrib.encoding", TextRef("contrib.category.encoding.displayName"))
+  val DECODING = Category("contrib.decoding", TextRef("contrib.category.decoding.displayName"))
 
   import Locale.{ENGLISH, GERMAN}
 
@@ -47,6 +50,10 @@ object CommonCategories {
         ENGLISH -> "JSON",
         GERMAN -> "JSON"
       )),
+      CSV.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "CSV",
+        GERMAN -> "CSV"
+      )),
       MATH.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Math",
         GERMAN -> "Mathematik"
@@ -66,6 +73,14 @@ object CommonCategories {
       VISUALIZATION.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Visualization",
         GERMAN -> "Visualisierung"
+      )),
+      ENCODING.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "Encoding",
+        GERMAN -> "Codierung"
+      )),
+      DECODING.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "Decoding",
+        GERMAN -> "Decodierung"
       ))
     )
   )
