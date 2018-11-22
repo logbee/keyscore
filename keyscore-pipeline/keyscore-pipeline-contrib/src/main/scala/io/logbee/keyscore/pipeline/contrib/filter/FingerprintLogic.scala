@@ -19,7 +19,7 @@ object FingerprintLogic extends Described {
 
 
   private val fieldNameParameter = FieldNameParameterDescriptor(
-    ref = "fingerprint.target",
+    ref = "fingerprint.fieldName",
     info = ParameterInfo(
       displayName = TextRef("fieldName"),
       description = TextRef("fieldNameDescription")

@@ -87,6 +87,17 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
+       
+            <!--<field-name-parameter *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"-->
+                                  <!--[formControlName]="parameter.ref.id"-->
+                                  <!--[id]="parameter.ref.id" [parameter]="parameter"-->
+                                  <!--[currentDatasetModel$]="currentDatasetModel$"-->
+                                  <!--[recordIndex$]="recordIndex$"-->
+                                  <!--[parameterDescriptor]="parameterDescriptor"-->
+                                  <!--[parameter]="parameter"-->
+                                  <!--(change) ="onChange()">-->
+            <!--</field-name-parameter>-->
+
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldParameterDescriptor"
                             [id]="parameter.ref.id">
@@ -108,9 +119,9 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                                   (change)="onChange()"></field-parameter-list>
 
             <text-parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
-                                  [formControlName]="parameter.ref.id"
-                                  [id]="parameter.ref.id" [parameter]="parameter"
-                                  (change)="onChange()"></text-parameter-list>
+                                 [formControlName]="parameter.ref.id"
+                                 [id]="parameter.ref.id" [parameter]="parameter"
+                                 (change)="onChange()"></text-parameter-list>
 
             <parameter-map *ngSwitchCase="jsonClass.FieldListParameterDescriptor"
                            [formControlName]="parameter.ref.id"
@@ -125,7 +136,7 @@ import {BehaviorSubject, Observable} from "rxjs/index";
     `,
     providers: []
 })
-export class ParameterComponent  {
+export class ParameterComponent {
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
@@ -137,6 +148,7 @@ export class ParameterComponent  {
     public jsonClass: typeof ParameterDescriptorJsonClass = ParameterDescriptorJsonClass;
 
     onChange() {
+        console.log("TEST emitted!");
         this.change.emit();
     }
 

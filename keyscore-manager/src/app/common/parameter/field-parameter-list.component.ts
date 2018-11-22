@@ -3,12 +3,10 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
 import {
     FieldNameListParameterDescriptor,
-    FieldNameParameterDescriptor,
     ResolvedParameterDescriptor
 } from "../../models/parameters/ParameterDescriptor";
-import {Dataset} from "../../models/dataset/Dataset";
 import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
-import {BehaviorSubject, Observable} from "rxjs/index";
+import {Observable} from "rxjs/index";
 
 @Component({
     selector: "field-parameter-list",
