@@ -17,7 +17,7 @@ import {
     ValueJsonClass
 } from "../../models/dataset/Value";
 import {Dataset} from "../../models/dataset/Dataset";
-import {StoreCurrentDatasetAction} from "../live-editing.actions";
+import {StoreCurrentDataset, StoreCurrentRecordIndex} from "../live-editing.actions";
 
 @Component({
     selector: "dataset-table",
@@ -128,7 +128,8 @@ export class DatasetTable implements AfterViewInit {
         this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
             this.dataSource = new DatasetDataSource(this.datasets$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable());
         });
-        this.store.dispatch(new StoreCurrentDatasetAction(this.datasets[this.datasetIndex.getValue()]));
+        this.store.dispatch(new StoreCurrentDataset(this.datasets[this.datasetIndex.getValue()]));
+        this.store.dispatch(new StoreCurrentRecordIndex(this.recordsIndex.getValue()));
     }
 
     ngAfterViewInit() {
@@ -145,11 +146,12 @@ export class DatasetTable implements AfterViewInit {
 
     private updateDatasetCounter(count: number) {
         this.datasetIndex.next(count);
-        this.store.dispatch(new StoreCurrentDatasetAction(this.datasets[count]));
+        this.store.dispatch(new StoreCurrentDataset(this.datasets[count]));
     }
 
     private updateRecordCounter(count: number) {
-        this.recordsIndex.next(count)
+        this.recordsIndex.next(count);
+        this.store.dispatch(new StoreCurrentRecordIndex(this.recordsIndex.getValue()));
     }
 
     private adjustDisplayedColumns(value: string) {

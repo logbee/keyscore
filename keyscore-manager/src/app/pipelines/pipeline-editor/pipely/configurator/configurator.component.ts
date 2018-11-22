@@ -66,7 +66,8 @@ import {Observable} from "rxjs/internal/Observable";
                         <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
                                        [parameterDescriptor]="parameterMapping.get(parameter)"
                                        [form]="form"
-                                       [currentDatasetModel$]="currentDatasetModel$">
+                                       [currentDatasetModel$]="currentDatasetModel$"
+                                       [recordIndex$]="recordIndex$">
                                        </app-parameter>
                     </form>
                 </div>
@@ -109,6 +110,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
     @Input() currentDatasetModel$: Observable<DatasetTableModel>;
+    @Input() recordIndex$: Observable<number>;
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
         if (block.configuration && block.descriptor) {
             this.selectedBlock$.next(block);

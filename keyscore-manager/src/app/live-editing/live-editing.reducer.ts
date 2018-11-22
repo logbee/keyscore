@@ -1,7 +1,7 @@
 import {
     DRAIN_FILTER_SUCCESS,
-    EXTRACT_OUTPUT_DATASETS_SUCESS,
     EXTRACT_DATASETS_RESULT_SUCCESS,
+    INITIAL_EXTRACT_SUCCESS,
     LiveEditingActions,
     LOAD_FILTER_BLUEPRINT_SUCCESS,
     LOAD_FILTER_CONFIGURATION_SUCCESS,
@@ -10,10 +10,8 @@ import {
     RESET_ACTION,
     RESOLVED_DESCRIPTOR_FOR_BLUEPRINT,
     SAVE_UPDATED_CONFIGURATION,
-    EXTRACT_INPUT_DATASETS_SUCESS,
-    INITIAL_EXTRACT_SUCCESS,
-    UpdateConfigurationInBackend,
-    UPDATE_CONFIGURATION_IN_BACKEND, STORE_CURRENT_DATASET
+    STORE_CURRENT_DATASET,
+    STORE_CURRENT_RECORD_INDEX
 } from "./live-editing.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Configuration} from "../models/common/Configuration";
@@ -56,7 +54,7 @@ export class FilterState {
     public outPutDatasets: Dataset[];
     public extractFinish: boolean;
     public isUpdated: boolean;
-    public currentDatasetCounter: number;
+    public currentRecordIndex: number;
     public currentDataset: DatasetTableModel;
     public dummyDataset: Dataset;
 
@@ -79,7 +77,7 @@ const initialState: FilterState = {
     datasetModels: [],
     inputDatasets: [],
     outPutDatasets: [],
-    currentDatasetCounter: 0,
+    currentRecordIndex: 0,
     currentDataset: {
         records: [{
             rows: [{
@@ -100,6 +98,9 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
 
 
     switch (action.type) {
+        case STORE_CURRENT_RECORD_INDEX:
+            result.currentRecordIndex = action.index;
+            break;
         case STORE_CURRENT_DATASET:
             result.currentDataset = action.dataset;
             break;
@@ -197,9 +198,9 @@ export const selectCurrentDescriptor = createSelector(getFilterState, (state: Fi
 
 export const selectCurrentBlueprint = createSelector(getFilterState, (state: FilterState) => state.blueprint);
 
-export const selectCurentDatasetCount = createSelector(getFilterState, (state: FilterState) => state.currentDatasetCounter);
-
 export const selectCurrentDataset = createSelector(getFilterState, (state: FilterState) => state.currentDataset);
+
+export const selectCurrentRecordIndex = createSelector(getFilterState, (state: FilterState) => state.currentRecordIndex);
 
 
 //Additional functions for DatatableModels

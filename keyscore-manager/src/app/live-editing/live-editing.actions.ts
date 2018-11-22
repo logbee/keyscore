@@ -49,6 +49,7 @@ export const UPDATE_CONFIGURATION_IN_BACKEND = "[Filter] UpdateConfigurationInBa
 export const OVERWRITE_SUCCESS = "[Filter] OverwriteSuccess";
 export const START_CONFIGURATION_POLLING = "[Filter] StartConfigurationPolling";
 export const STORE_CURRENT_DATASET = "[Filter] StoreCurrentDataset";
+export const STORE_CURRENT_RECORD_INDEX = "[Filter] StoreCurrentRecordIndex";
 
 export type LiveEditingActions =
 
@@ -89,9 +90,19 @@ export type LiveEditingActions =
     | InitialExtractSuccess
     | UpdateConfigurationInBackend
     | OverwriteSuccess
-    | StoreCurrentDatasetAction;
+    | StoreCurrentDataset
+    | StoreCurrentRecordIndex;
 
-export class StoreCurrentDatasetAction {
+
+export class StoreCurrentRecordIndex implements Action {
+    public readonly type = STORE_CURRENT_RECORD_INDEX;
+
+    constructor(readonly index: number) {
+
+    }
+
+}
+export class StoreCurrentDataset implements Action {
     public readonly type = STORE_CURRENT_DATASET;
 
     constructor(readonly dataset: DatasetTableModel) {
@@ -99,22 +110,22 @@ export class StoreCurrentDatasetAction {
     }
 }
 
-export class OverwriteSuccess {
+export class OverwriteSuccess implements Action{
     public readonly type = OVERWRITE_SUCCESS;
 }
 
-export class UpdateConfigurationInBackend {
+export class UpdateConfigurationInBackend implements Action{
     public readonly type     = UPDATE_CONFIGURATION_IN_BACKEND;
 
     constructor(readonly configuration: Configuration) {
 
     }
 }
-export class LoadAllPipelinesForRedirect {
+export class LoadAllPipelinesForRedirect implements Action{
     public readonly type = LOAD_ALL_PIPELINES_FOR_REDIRECT;
 }
 
-export class NaviagatetoPipelyFailure {
+export class NaviagatetoPipelyFailure implements Action{
     public readonly type = NAVIAGATE_TO_PIPELY_FAILURE;
 
     constructor(readonly cause: any) {

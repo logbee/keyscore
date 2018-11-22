@@ -65,7 +65,7 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
     @Input() public parameter: Parameter;
     @Input() public descriptor: ResolvedParameterDescriptor;
     @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
-
+    @Input() public recordIndex$: Observable<number>;
     @ViewChild('addItemInput') inputField: ElementRef;
 
     public parameterValues: string[] = [];
@@ -73,6 +73,7 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
     private fieldNameEmpty: boolean;
     private hints: string[] = [];
     private hint = undefined;
+    private recordIndex: number;
     public onChange = (elements: string[]) => {
         return;
     };
@@ -82,14 +83,16 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
     };
 
     public ngOnInit(): void {
+        this.recordIndex$.subscribe(recordindex => {
+            this.recordIndex = recordindex;
+        });
+
         this.hint = (this.descriptor as FieldNameListParameterDescriptor).descriptor.hint;
+
         this.currentDatasetModel$.subscribe(currentDatasetModel => {
-            console.log("TEST Triggered currentDatsetModel subscription in field-parameter-list.component.");
             if (currentDatasetModel != undefined) {
-                console.log("TEST currentDatasetModel is defined:", currentDatasetModel);
-                console.log("TEST hint is:", this.hint);
                 if (this.hint === "PresentField") {
-                    this.hints = currentDatasetModel.records[0].rows.map(row => row.input.name);
+                    this.hints = currentDatasetModel.records[this.recordIndex].rows.map(row => row.input.name);
                 }
             }
         });
@@ -133,6 +136,7 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
                 const newValues = [...this.parameterValues];
                 newValues.push(value);
                 this.writeValue(newValues);
+                this.hints = this.hints.filter(hint => hint !== value);
                 this.inputField.nativeElement.value = '';
             } else {
                 this.duplicate = true;

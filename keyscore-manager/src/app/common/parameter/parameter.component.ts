@@ -104,6 +104,7 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                                   [id]="parameter.ref.id" [parameter]="parameter"
                                   [descriptor]="parameterDescriptor"
                                   [currentDatasetModel$]="currentDatasetModel$"
+                                  [recordIndex$]="recordIndex$"
                                   (change)="onChange()"></field-parameter-list>
 
             <text-parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
@@ -124,11 +125,12 @@ import {BehaviorSubject, Observable} from "rxjs/index";
     `,
     providers: []
 })
-export class ParameterComponent implements OnInit {
+export class ParameterComponent  {
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
     @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
+    @Input() public recordIndex$: Observable<number>;
     @Output() public change: EventEmitter<void> = new EventEmitter();
 
 
@@ -140,8 +142,5 @@ export class ParameterComponent implements OnInit {
 
     get isValid() {
         return this.form.controls[this.parameter.ref.id].valid;
-    }
-
-    ngOnInit(): void {
     }
 }

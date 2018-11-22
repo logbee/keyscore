@@ -1,14 +1,16 @@
 import {Component, OnInit} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {BehaviorSubject, Observable} from "rxjs/index";
+import {Observable} from "rxjs/index";
 import {isSpinnerShowing} from "../common/loading/loading.reducer";
 import {selectAppConfig} from "../app.config";
 import {Configuration} from "../models/common/Configuration";
 import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {
-    selectCurentDatasetCount,
-    selectCurrentBlueprint, selectCurrentDataset,
-    selectCurrentDescriptor, selectDatasetsRaw,
+    selectCurrentBlueprint,
+    selectCurrentDataset,
+    selectCurrentDescriptor,
+    selectCurrentRecordIndex,
+    selectDatasetsRaw,
     selectInitialConfiguration,
     selectLiveEditingFilterState,
     selectUpdatedConfiguration
@@ -19,11 +21,10 @@ import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {
     LoadAllPipelinesForRedirect,
     RestoreFilterConfiguration,
-    SaveUpdatedConfiguration, UpdateConfigurationInBackend,
+    SaveUpdatedConfiguration,
+    UpdateConfigurationInBackend,
     UpdateFilterConfiguration
 } from "./live-editing.actions";
-import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-descriptor.model";
-import {Go} from "../router/router.actions";
 import {Dataset} from "../models/dataset/Dataset";
 import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
 
@@ -61,6 +62,7 @@ import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
                                     descriptor:(filterDescriptor$|async)}"
                           [showFooter]="true" 
                           [currentDatasetModel$]="currentDatasetModel$"
+                          [recordIndex$]="recordIndex$"
                           (onSave)="saveConfiguration($event)"
                           (onRevert)="revertFilterConfiguration()"
                           (onShowConfigurator)="hide($event)"
@@ -90,6 +92,7 @@ export class LiveEditingComponent implements OnInit {
     private filterDescriptor$: Observable<ResolvedFilterDescriptor>;
     private datasets$: Observable<Dataset[]>;
     private currentDatasetModel$: Observable<DatasetTableModel>;
+    private recordIndex$: Observable<number>;
 
     //Flags
     private currentConfiguration: Configuration;
@@ -133,6 +136,7 @@ export class LiveEditingComponent implements OnInit {
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
             this.configuration$ = this.store.pipe(select(selectInitialConfiguration));
             this.currentDatasetModel$ = this.store.pipe(select(selectCurrentDataset));
+            this.recordIndex$ = this.store.pipe(select(selectCurrentRecordIndex))
     }
 
     saveConfiguration($event: Configuration) {
