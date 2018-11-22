@@ -87,7 +87,7 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-       
+            
             <!--<field-name-parameter *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"-->
                                   <!--[formControlName]="parameter.ref.id"-->
                                   <!--[id]="parameter.ref.id" [parameter]="parameter"-->
@@ -97,7 +97,6 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                                   <!--[parameter]="parameter"-->
                                   <!--(change) ="onChange()">-->
             <!--</field-name-parameter>-->
-
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldParameterDescriptor"
                             [id]="parameter.ref.id">

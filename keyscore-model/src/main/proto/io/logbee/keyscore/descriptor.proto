@@ -268,6 +268,15 @@ enum FieldNameHint {
     AbsentField = 2;
 }
 
+enum FieldNameValueTypeHint {
+    TextValue = 0;
+    NumberValue = 1;
+    DecimalValue = 2;
+    BooleanValue = 3;
+    TimestampValue = 4;
+    DurationValue = 5;
+}
+
 enum ExpressionType {
     RegEx = 0;
     Grok = 2;

@@ -1,4 +1,4 @@
-import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, forwardRef, HostBinding, Input, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {Observable} from "rxjs/internal/Observable";
 import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 import {
@@ -7,18 +7,18 @@ import {
 } from "../../models/parameters/ParameterDescriptor";
 import {Parameter} from "../../models/parameters/Parameter";
 import {Field} from "../../models/dataset/Field";
-import {ValueJsonClass} from "../../models/dataset/Value";
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
+import {Value, ValueJsonClass} from "../../models/dataset/Value";
+import {ControlValueAccessor, FormBuilder, NG_VALUE_ACCESSOR, NgControl} from "@angular/forms";
+import {MatFormFieldControl} from "@angular/material";
+import {Subject} from "rxjs/index";
+import {FocusMonitor} from "@angular/cdk/a11y";
+import {coerceBooleanProperty} from "@angular/cdk/typings/esm5/coercion";
 
 @Component({
     selector: 'field-name-parameter',
     template: `
-        <mat-form-field>
-            <input matInput #addItemRef type="text" placeholder="{{'PARAMETERLISTCOMPONENT.NAMEOFFIELD' | translate}}" [matAutocomplete]="auto"/>
-        </mat-form-field>
-
-        <button mat-icon-button (click)="addValue(addItemRef.value)">favorite</button>
-        
+ 
+        <input #addItemRef type="text" placeholder="{{'PARAMETERLISTCOMPONENT.NAMEOFFIELD' | translate}}" [matAutocomplete]="auto"/>
         <!--Autocompletion-->
         <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>
@@ -26,38 +26,75 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
     `,
     providers: [
         {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FieldNameParameterComponent),
-            multi: true
+            provide: MatFormFieldControl,
+            useExisting: FieldNameParameterComponent
         }
     ]
 })
-export class FieldNameParameterComponent implements ControlValueAccessor, OnInit {
-    @Input() public disabled = false;
+export class FieldNameParameterComponent implements MatFormFieldControl<string>, OnDestroy{
     @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
     @Input() public recordIndex$: Observable<number>;
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
-    @Input() public parameter: Parameter;
+
+    @Input()
+    get required() {
+        return this._required;
+    }
+
+    set required(req) {
+        this._required = coerceBooleanProperty(req);
+        this.stateCanges.next();
+    }
+    @Input()
+    get placeholder() {
+        return this._placeholder;
+    }
+
+    set placeholder(placeholder) {
+        this._placeholder = placeholder;
+        this.stateCanges.next();
+    }
+
+    private _placeholder: string;
+    static nextId = 0;
+    focused = false;
+    ngControl: NgControl = null;
+    private _required = false;
+    errorState = false;
+    controlType = 'field-name-input';
+    stateCanges = new Subject<void>();
     private hints: string[] = [];
     private hint = undefined;
     public recordIndex: number;
+
+    @HostBinding('class.floating')
+    get shouldLabelFloat() {
+        return this.focused || !this.empty;
+    }
+
+    @HostBinding() id = `field-input-${FieldNameParameterComponent.nextId++}`;
     @ViewChild('addItemRef') inputField: ElementRef;
 
-    public parameterValue: string;
 
-    public onChange = (element: Field) => {
-        console.log("TEST element: ", element);
-        return;
-    };
+    set value(field: string | null) {
+        this.stateCanges.next();
+    }
 
-    public onTouched = () => {
-        return;
-    };
+    get empty() {
+        return !(this.value && this.value.length > 0);
+    }
 
-    public writeValue(element: Field):void {
-        this.parameterValue = this.parameter.value;
-        console.log("TEST element: ", element);
-        this.onChange(element)
+    onContainerClick(event: MouseEvent) {
+        if ((event.target as Element).tagName.toLowerCase() != 'input') {
+            this.elementRef.nativeElement.querySelector('input').focus();
+        }
+    }
+
+    constructor(fb: FormBuilder, private fm: FocusMonitor, private elementRef: ElementRef<HTMLElement>) {
+        fm.monitor(elementRef.nativeElement, true).subscribe(origin => {
+            this.focused = !!origin;
+            this.stateCanges.next();
+        });
     }
 
     ngOnInit() {
@@ -76,30 +113,10 @@ export class FieldNameParameterComponent implements ControlValueAccessor, OnInit
                 }
             }
         });
-        console.log("TEST Initial value" ,this.parameter.value);
-        this.parameterValue = this.parameter.value;
-        this.inputField.nativeElement.value = this.parameterValue;
     }
 
-    public registerOnChange(f:(elements: Field) => void):void {
-        this.onChange = f;
-    }
-
-    public registerOnTouched(f: () => void):void  {
-        this.onTouched = f;
-    }
-
-    public setDisabledState(isDisabled: boolean): void {
-        this.disabled = isDisabled;
-    }
-
-    get value(): string {
-        return this.parameterValue;
-    }
-
-    public addValue(value: string) {
-        console.log("TEST " ,value);
-        this.writeValue({name: this.parameterDescriptor.info.displayName, value: {jsonClass: ValueJsonClass.TextValue, value: value}})
-
+    ngOnDestroy() {
+        this.stateCanges.complete();
+        this.fm.stopMonitoring(this.elementRef.nativeElement);
     }
 }
