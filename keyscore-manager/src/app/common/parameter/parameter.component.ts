@@ -8,6 +8,7 @@ import {Parameter} from "../../models/parameters/Parameter";
 import "./style/parameter-module-style.scss"
 import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 import {Dataset} from "../../models/dataset/Dataset";
+import {BehaviorSubject, Observable} from "rxjs/index";
 
 @Component({
     selector: "app-parameter",
@@ -102,6 +103,7 @@ import {Dataset} from "../../models/dataset/Dataset";
                                   [formControlName]="parameter.ref.id"
                                   [id]="parameter.ref.id" [parameter]="parameter"
                                   [descriptor]="parameterDescriptor"
+                                  [currentDatasetModel$]="currentDatasetModel$"
                                   (change)="onChange()"></field-parameter-list>
 
             <text-parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
@@ -122,11 +124,13 @@ import {Dataset} from "../../models/dataset/Dataset";
     `,
     providers: []
 })
-export class ParameterComponent {
+export class ParameterComponent implements OnInit {
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
+    @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
     @Output() public change: EventEmitter<void> = new EventEmitter();
+
 
     public jsonClass: typeof ParameterDescriptorJsonClass = ParameterDescriptorJsonClass;
 
@@ -136,5 +140,8 @@ export class ParameterComponent {
 
     get isValid() {
         return this.form.controls[this.parameter.ref.id].valid;
+    }
+
+    ngOnInit(): void {
     }
 }

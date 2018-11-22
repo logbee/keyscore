@@ -101,7 +101,6 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
 
     switch (action.type) {
         case STORE_CURRENT_DATASET:
-            console.log("Overriding current dataset");
             result.currentDataset = action.dataset;
             break;
         case LOAD_FILTER_CONFIGURATION_SUCCESS:
@@ -206,7 +205,6 @@ export const selectCurrentDataset = createSelector(getFilterState, (state: Filte
 //Additional functions for DatatableModels
 
 function createDatasetTableModel(inputDataset: Dataset, outputDataset: Dataset): DatasetTableModel {
-    console.log("in:" + inputDataset.records.length + "out:" + outputDataset.records.length);
     let zippedRecords = inputDataset.records.map(function (x, y) {
         return [x, outputDataset.records[y]]
     });

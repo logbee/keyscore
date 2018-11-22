@@ -51,15 +51,16 @@ import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
                         <mat-icon>chevron_left</mat-icon>
                     </button>
                 </div>
-                <div *ngIf="(inputDatasets$ | async).length !== 0; else disclaimer" fxFlex="95" fxFlexFill="" fxLayout="row" fxLayoutGap="15px">
+                <div *ngIf="(datasets$ | async).length !== 0; else disclaimer" fxFlex="95" fxFlexFill="" fxLayout="row" fxLayoutGap="15px">
                     <dataset-table  fxFlex="" class="live-editing-wrapper"></dataset-table>
                 </div>
             </div>
             <configurator *ngIf="showConfigurator" class="mat-elevation-z6" fxFlex="25"
                           [collapsibleButton]="true"
                           [selectedBlock]="{configuration:(configuration$|async),
-                                    descriptor:(descriptor$|async)}"
-                          [showFooter]="true"
+                                    descriptor:(filterDescriptor$|async)}"
+                          [showFooter]="true" 
+                          [currentDatasetModel$]="currentDatasetModel$"
                           (onSave)="saveConfiguration($event)"
                           (onRevert)="revertFilterConfiguration()"
                           (onShowConfigurator)="hide($event)"
@@ -81,29 +82,39 @@ import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
 })
 
 export class LiveEditingComponent implements OnInit {
+    //Observe a balls
     private loading$: Observable<boolean>;
     private blueprint$: Observable<Blueprint>;
     private configuration$: Observable<Configuration>;
     private filterState$: Observable<ResourceInstanceState>;
-    private descriptor$: Observable<ResolvedFilterDescriptor>;
-    private currentConfig: Configuration;
-    private inputDatasets$: Observable<Dataset[]>;
+    private filterDescriptor$: Observable<ResolvedFilterDescriptor>;
+    private datasets$: Observable<Dataset[]>;
+    private currentDatasetModel$: Observable<DatasetTableModel>;
+
+    //Flags
+    private currentConfiguration: Configuration;
     private showConfigurator: boolean = true;
     private liveEditingEnabled: boolean;
     private filterName: string = "Live-Editing";
-    private currentDatasetModel$: Observable<DatasetTableModel>;
 
 
     constructor(private store: Store<any>) {
+       //check if live-editing feature toggle is on.
         const config = this.store.select(selectAppConfig);
         config.subscribe((conf) => this.liveEditingEnabled = conf.getBoolean("keyscore.manager.features.live-editing"));
-        this.initialize();
+        //initalize alle observables from store that are needed.
+        if(this.liveEditingEnabled) {
+            this.initialize();
+        } else {
+            //TODO: show error component
+        }
     }
 
     public ngOnInit(): void {
+        //subscribe on updatedConfiguration in state to trigger the reconfiguring of the Filter
         this.store.pipe(select(selectUpdatedConfiguration)).subscribe(config => {
                 if (config) {
-                    this.currentConfig = config;
+                    this.currentConfiguration = config;
                     this.store.dispatch(new UpdateFilterConfiguration(config));
                 }
             }
@@ -111,20 +122,17 @@ export class LiveEditingComponent implements OnInit {
     }
 
     navigateToPipely() {
-        console.log("Triggered navigate to pipely");
         this.store.dispatch(new LoadAllPipelinesForRedirect());
     }
 
     private initialize() {
-        if (this.liveEditingEnabled) {
-            this.inputDatasets$ = this.store.pipe(select(selectDatasetsRaw));
+            this.datasets$ = this.store.pipe(select(selectDatasetsRaw));
             this.loading$ = this.store.pipe(select(isSpinnerShowing));
             this.filterState$ = this.store.pipe(select(selectLiveEditingFilterState));
-            this.descriptor$ = this.store.pipe(select(selectCurrentDescriptor));
+            this.filterDescriptor$ = this.store.pipe(select(selectCurrentDescriptor));
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
             this.configuration$ = this.store.pipe(select(selectInitialConfiguration));
             this.currentDatasetModel$ = this.store.pipe(select(selectCurrentDataset));
-        }
     }
 
     saveConfiguration($event: Configuration) {
@@ -132,7 +140,7 @@ export class LiveEditingComponent implements OnInit {
     }
 
     overwriteConfiguration() {
-        this.store.dispatch(new UpdateConfigurationInBackend(this.currentConfig))
+        this.store.dispatch(new UpdateConfigurationInBackend(this.currentConfiguration))
     }
 
     revertFilterConfiguration() {
@@ -140,6 +148,7 @@ export class LiveEditingComponent implements OnInit {
     }
 
     // Configurator collapse methods
+
     hide() {
         this.showConfigurator = false;
     }

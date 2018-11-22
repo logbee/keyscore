@@ -12,6 +12,7 @@ import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
 import {DatasetTableModel, DatasetTableRecordModel} from "../../../../models/dataset/DatasetTableModel";
 import {Dataset} from "../../../../models/dataset/Dataset";
+import {Observable} from "rxjs/internal/Observable";
 
 
 @Component({
@@ -64,7 +65,8 @@ import {Dataset} from "../../../../models/dataset/Dataset";
                     <form *ngIf="form" [formGroup]="form">
                         <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
                                        [parameterDescriptor]="parameterMapping.get(parameter)"
-                                       [form]="form">
+                                       [form]="form"
+                                       [currentDatasetModel$]="currentDatasetModel$">
                                        </app-parameter>
                     </form>
                 </div>
@@ -106,9 +108,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() showFooter: boolean;
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
-    // @Input() currentDataset: BehaviorSubject<DatasetTableModel>;
-    isVisible: boolean = true;
-    applyTestFlag: boolean = true;
+    @Input() currentDatasetModel$: Observable<DatasetTableModel>;
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
         if (block.configuration && block.descriptor) {
             this.selectedBlock$.next(block);
@@ -116,6 +116,12 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.selectedBlock$.next(this.initBlock);
         }
     }
+    @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
+    @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
+    @Output() onRevert: EventEmitter<void> = new EventEmitter();
+    @Output() onShowConfigurator: EventEmitter<boolean> = new EventEmitter();
+    @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string }> = new EventEmitter();
+    @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
     private initBlock = {
         configuration: {ref: {uuid: "init"}, parent: null, parameters: []},
@@ -134,24 +140,17 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         configuration: Configuration,
         descriptor: BlockDescriptor}>(this.initBlock);
 
-    @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
-    @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
-    @Output() onRevert: EventEmitter<void> = new EventEmitter();
-    @Output() onShowConfigurator: EventEmitter<boolean> = new EventEmitter();
-    @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string }> = new EventEmitter();
-    @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
+    isVisible: boolean = true;
+    applyTestFlag: boolean = true;
     isAlive: Subject<void> = new Subject();
     form: FormGroup;
     pipelineForm: FormGroup;
-
     parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map();
 
     private lastID: string = "";
     private lastValues = null;
-    private formSubscription: Subscription;
 
     constructor(private parameterService: ParameterControlService) {
-
     }
 
     public ngOnInit(): void {
@@ -183,10 +182,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         this.pipelineForm.valueChanges.subscribe(val => {
             this.onSavePipelineMetaData.emit({name:val['pipeline.name'],description:val['pipeline.description']});
         });
-
-        console.log("Current Block:", this.selectedBlock);
-
-
     }
 
     private isAllNullOrEmpty(obj: Object): boolean {

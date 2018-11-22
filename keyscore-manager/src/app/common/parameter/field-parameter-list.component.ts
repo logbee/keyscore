@@ -8,6 +8,7 @@ import {
 } from "../../models/parameters/ParameterDescriptor";
 import {Dataset} from "../../models/dataset/Dataset";
 import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
+import {BehaviorSubject, Observable} from "rxjs/index";
 
 @Component({
     selector: "field-parameter-list",
@@ -15,7 +16,8 @@ import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
             `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field>
-                <input #addItemInput matInput type="text" placeholder="{{'PARAMETERLISTCOMPONENT.NAMEOFFIELD' | translate}}" [matAutocomplete]="auto">
+                <input #addItemInput matInput type="text"
+                       placeholder="{{'PARAMETERLISTCOMPONENT.NAMEOFFIELD' | translate}}" [matAutocomplete]="auto">
             </mat-form-field>
             <button mat-icon-button color="accent" (click)="addItem(addItemInput.value)">
                 <mat-icon>add_circle_outline</mat-icon>
@@ -40,12 +42,12 @@ import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
                 </mat-chip-list>
             </div>
         </div>
-        
+
         <!--Autocompletion-->
         <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>
         </mat-autocomplete>
-        
+
     `,
     providers: [
         {
@@ -62,12 +64,14 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
     @Input() public distinctValues = true;
     @Input() public parameter: Parameter;
     @Input() public descriptor: ResolvedParameterDescriptor;
+    @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
+
     @ViewChild('addItemInput') inputField: ElementRef;
 
     public parameterValues: string[] = [];
     private duplicate: boolean;
     private fieldNameEmpty: boolean;
-    private hints: string[] = ['default'];
+    private hints: string[] = [];
     private hint = undefined;
     public onChange = (elements: string[]) => {
         return;
@@ -79,15 +83,16 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
 
     public ngOnInit(): void {
         this.hint = (this.descriptor as FieldNameListParameterDescriptor).descriptor.hint;
-        switch (this.hint) {
-            case 'PresentField':
-                // this.hints = this.currentDataset.records[0].rows.map(row => row.input.name);
-                break;
-            case 'AbsentField':
-                break;
-            case 'AnyField':
-                break;
-        }
+        this.currentDatasetModel$.subscribe(currentDatasetModel => {
+            console.log("TEST Triggered currentDatsetModel subscription in field-parameter-list.component.");
+            if (currentDatasetModel != undefined) {
+                console.log("TEST currentDatasetModel is defined:", currentDatasetModel);
+                console.log("TEST hint is:", this.hint);
+                if (this.hint === "PresentField") {
+                    this.hints = currentDatasetModel.records[0].rows.map(row => row.input.name);
+                }
+            }
+        });
         this.parameterValues = [...this.parameter.value];
     }
 
