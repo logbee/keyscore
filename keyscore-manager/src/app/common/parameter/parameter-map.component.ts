@@ -4,6 +4,12 @@ import {deepcopy} from "../../util";
 import {Field} from "../../models/dataset/Field";
 import {TextValue, ValueJsonClass} from "../../models/dataset/Value";
 import {Parameter} from "../../models/parameters/Parameter";
+import {Observable} from "rxjs/index";
+import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
+import {
+    FieldNameListParameterDescriptor,
+    ResolvedParameterDescriptor
+} from "../../models/parameters/ParameterDescriptor";
 
 @Component({
     selector: "parameter-map",
@@ -11,7 +17,7 @@ import {Parameter} from "../../models/parameters/Parameter";
             `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field class="half">
-                <input matInput #addItemInputKey type="text" placeholder="Key" value="">
+                <input matInput #addItemInputKey type="text" placeholder="Key" value="" [matAutocomplete]="auto">
             </mat-form-field>
 
             <mat-form-field class="half">
@@ -41,6 +47,11 @@ import {Parameter} from "../../models/parameters/Parameter";
                 </mat-chip-list>
             </div>
         </div>
+        
+        <!--Autocompletion-->
+        <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>
+        </mat-autocomplete>
     `,
     providers: [
         {
@@ -54,6 +65,7 @@ import {Parameter} from "../../models/parameters/Parameter";
 export class ParameterMap implements ControlValueAccessor, OnInit {
 
     @Input() public disabled = false;
+    @Input() public descriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
 
     @ViewChild('addItemInputKey') inputKeyField: ElementRef;
@@ -62,7 +74,11 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
     public parameterValues: Field[];
     public keyEmpty: boolean;
     public duplicateMapping: boolean;
-
+    private hints: string[] = [];
+    private hint = undefined;
+    private recordIndex: number;
+    @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
+    @Input() public recordIndex$: Observable<number>;
     public onChange = (elements: Field[]) => {
         return;
     };
@@ -78,6 +94,21 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
     }
 
     public ngOnInit() {
+        this.recordIndex$.subscribe(recordindex => {
+            this.recordIndex = recordindex;
+        });
+
+        this.hint = (this.descriptor as FieldNameListParameterDescriptor).descriptor.hint;
+
+        this.currentDatasetModel$.subscribe(currentDatasetModel => {
+            if (currentDatasetModel != undefined) {
+                if (this.hint === "PresentField") {
+                    this.hints = currentDatasetModel.records[this.recordIndex].rows.map(row => row.input.name);
+                } else {
+                    console.log("Nothing to do !")
+                }
+            }
+        });
         this.parameterValues = this.parameter.value;
     }
 

@@ -125,6 +125,9 @@ import {BehaviorSubject, Observable} from "rxjs/index";
 
             <parameter-map *ngSwitchCase="jsonClass.FieldListParameterDescriptor"
                            [formControlName]="parameter.ref.id"
+                           [descriptor]="parameterDescriptor"
+                           [recordIndex$]="recordIndex$"
+                           [currentDatasetModel$]="currentDatasetModel$"
                            [id]="parameter.ref.id" [parameter]="parameter"
                            (change)="onChange()"></parameter-map>
 
@@ -148,7 +151,6 @@ export class ParameterComponent {
     public jsonClass: typeof ParameterDescriptorJsonClass = ParameterDescriptorJsonClass;
 
     onChange() {
-        console.log("TEST emitted!");
         this.change.emit();
     }
 
