@@ -3,6 +3,7 @@ package io.logbee.keyscore.agent
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data.{Label, MetaData, TextValue}
+import io.logbee.keyscore.model.descriptor.ParameterDescriptorMessage.SealedValue
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
@@ -26,7 +27,8 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
         NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
         TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
         ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
-        TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicA")
+        TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicA"),
+        FieldNameParameter(KafkaSourceLogic.fieldNameParameter.ref, "foo")
       )
     )
 
@@ -41,7 +43,8 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
       parameters = Seq(
         TextParameter(KafkaSinkLogic.bootstrapServerParameter.ref, "keyscore-kafka"),
         NumberParameter(KafkaSinkLogic.bootstrapServerPortParameter.ref, 9092),
-        TextParameter(KafkaSinkLogic.topicParameter.ref, "TopicB")
+        TextParameter(KafkaSinkLogic.topicParameter.ref, "TopicB"),
+        FieldNameParameter(KafkaSinkLogic.fieldNameParameter.ref, "foo")
       )
     )
 
@@ -69,7 +72,8 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
         NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
         TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
         ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
-        TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicB")
+        TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicB"),
+        FieldNameParameter(KafkaSourceLogic.fieldNameParameter.ref, "foo")
       )
     )
 
@@ -113,7 +117,8 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
         NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
         TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
         ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
-        TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicW1")
+        TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicW1"),
+        FieldNameParameter(KafkaSourceLogic.fieldNameParameter.ref, "foo")
       )
     )
 

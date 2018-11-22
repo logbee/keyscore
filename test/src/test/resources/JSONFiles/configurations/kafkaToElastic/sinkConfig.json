@@ -24,6 +24,13 @@
         "id":"elastic.index"
       },
       "value":"test"
+    },
+    {
+      "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameParameter",
+      "ref":{
+        "id":"kafka.sink.fieldName"
+      },
+      "value":"foo"
     }
   ]
 }

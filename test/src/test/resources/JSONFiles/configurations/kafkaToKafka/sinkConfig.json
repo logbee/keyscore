@@ -7,14 +7,14 @@
     {
       "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
       "ref":{
-        "id":"kafka.sink.bootstrapServer"
+        "id":"kafka.sink.bootstrap-server.host"
       },
       "value":"keyscore-kafka"
     },
     {
       "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
       "ref":{
-        "id":"kafka.sink.bootstrapServerPort"
+        "id":"kafka.sink.bootstrap-server.port"
       },
       "value":9092
     },
