@@ -122,6 +122,8 @@ export class FieldParameterList implements ControlValueAccessor, OnInit {
 
     public removeItem(index: number) {
         const newValues = [...this.parameterValues];
+        let removedValue = newValues[index];
+        this.hints.push(removedValue);
         newValues.splice(index, 1);
         this.writeValue(newValues);
     }

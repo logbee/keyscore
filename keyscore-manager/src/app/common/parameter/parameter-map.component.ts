@@ -130,6 +130,7 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
     }
 
     public removeItem(toRemove: Field) {
+        this.hints.push(toRemove.name);
         let removeIndex = this.parameterValues.findIndex(field => field.name === toRemove.name);
         if (removeIndex >= 0) {
             let newValues: Field[] = deepcopy(this.parameterValues, []);
@@ -148,6 +149,7 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
                 let currentVal = (newValues[existingIndex].value as TextValue).value;
                 if (currentVal !== value) {
                     this.duplicateMapping = false;
+                    this.hints = this.hints.filter(hint => hint !== value);
                     (newValues[existingIndex].value as TextValue).value = value;
                 } else {
                     this.duplicateMapping = true;
