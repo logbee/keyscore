@@ -4,10 +4,10 @@ const helpers = require('./helpers');
 
 module.exports = {
     entry: {
-        app: ['./src/main.ts']
+        app: ['babel-polyfill','./src/main.ts']
     },
     mode: 'development',
-    // devtool: 'inline-source-map', // Slows down the build
+    devtool: 'source-map', // Slows down the build
     module: {
         rules: [
             {
