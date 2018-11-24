@@ -1,16 +1,17 @@
-import {Component, forwardRef, Input, OnInit} from "@angular/core";
+import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
 import {ResolvedParameterDescriptor} from "../../models/parameters/ParameterDescriptor";
 import {Dataset} from "../../models/dataset/Dataset";
 import * as _ from "lodash"
 import {BehaviorSubject} from "rxjs/index";
+import {filter} from "rxjs/internal/operators";
 
 @Component({
-    selector: 'field-name-input',
+    selector: 'auto-complete-input',
     template: `
         <mat-form-field [formGroup]="group">
-            <input matInput type="text" formControlName="fieldName" [id]="parameter.ref.id"
+            <input #inputField matInput type="text" formControlName="fieldName" [id]="parameter.ref.id"
                    [placeholder]="parameterDescriptor.defaultValue" [matAutocomplete]="auto">
             <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
             <mat-autocomplete #auto="matAutocomplete">
@@ -22,14 +23,16 @@ import {BehaviorSubject} from "rxjs/index";
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FieldNameInputComponent),
+            useExisting: forwardRef(() => AutocompleteInputComponent),
             multi: true
         }
     ]
 })
 
-export class FieldNameInputComponent implements OnInit, ControlValueAccessor {
+export class AutocompleteInputComponent implements OnInit, ControlValueAccessor {
     group: FormGroup;
+    @ViewChild('inputField') private inputFieldElem: ElementRef;
+
 
     private _disabled = false;
 
@@ -39,9 +42,12 @@ export class FieldNameInputComponent implements OnInit, ControlValueAccessor {
 
     @Input() hint: string;
     @Input() parameter: Parameter;
+
+
     @Input() parameterDescriptor: ResolvedParameterDescriptor;
 
     @Input('datasets') set datasets(data: Dataset[]) {
+        console.log("TEST hint is : ", this.hint);
         this.datasets$.next(data);
     };
 
@@ -69,6 +75,11 @@ export class FieldNameInputComponent implements OnInit, ControlValueAccessor {
         this.onTouched = fn;
     }
 
+    public clearInput = () => {
+        this.inputFieldElem.nativeElement.value = '';
+    };
+
+
     setDisabledState(isDisabled: boolean): void {
         this._disabled = isDisabled;
     }
@@ -84,19 +95,20 @@ export class FieldNameInputComponent implements OnInit, ControlValueAccessor {
     writeValue(fieldName: string): void {
         console.log("Write Value: ", fieldName);
         this._fieldName = fieldName;
+        if (this._fieldName !== this.group.value['fieldName']) {
+            this.group.setValue({'fieldName': this._fieldName});
+        }
         this.onChange(fieldName);
     }
 
     ngOnInit(): void {
-        this.group.setValue({'fieldName': this.parameter.value});
-        this.writeValue(this.parameter.value);
-        console.log("TEST : ", this.parameterDescriptor);
         this.datasets$.subscribe(datasets => {
-            console.log("TEST datasets: ", this.datasets);
+            console.log("TEST datasets: ", datasets);
             if (this.hint === "PresentField") {
                 let fieldNames = _.flatten(_.flatten(datasets.map(dataset => dataset.records.map(record => record.fields.map(field => field.name)))));
                 this.hints = Array.from(new Set(fieldNames));
             }
         });
+
     }
 }

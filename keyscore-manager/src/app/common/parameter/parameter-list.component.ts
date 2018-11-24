@@ -1,15 +1,27 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
+import {
+    FieldNameListParameterDescriptor,
+    ResolvedParameterDescriptor
+} from "../../models/parameters/ParameterDescriptor";
+import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
+import {BehaviorSubject, Observable} from "rxjs/index";
+import {Dataset} from "../../models/dataset/Dataset";
+import {AutocompleteInputComponent} from "./autocomplete-input.component";
 
 @Component({
-    selector: "text-parameter-list",
+    selector: "parameter-list",
     template:
-        `
+            `
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-form-field>
-                <input #addItemInput matInput type="text" placeholder="{{'PARAMETERLISTCOMPONENT.NAMEOFFIELD' | translate}}">
-            </mat-form-field>
+            <auto-complete-input #addItemInput 
+                                 [datasets]="datasets$ | async"
+                                 [hint]="parameterDescriptor?.descriptor?.hint"
+                                 [parameterDescriptor]="parameterDescriptor"
+                                 [parameter]="parameter">
+
+            </auto-complete-input>
             <button mat-icon-button color="accent" (click)="addItem(addItemInput.value)">
                 <mat-icon>add_circle_outline</mat-icon>
             </button>
@@ -33,22 +45,32 @@ import {Parameter} from "../../models/parameters/Parameter";
                 </mat-chip-list>
             </div>
         </div>
+
     `,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => TextParameterList),
+            useExisting: forwardRef(() => ParameterListComponent),
             multi: true
         }
     ]
 })
 
-export class TextParameterList implements ControlValueAccessor, OnInit {
+export class ParameterListComponent implements ControlValueAccessor, OnInit {
 
     @Input() public disabled = false;
     @Input() public distinctValues = true;
     @Input() public parameter: Parameter;
-    @ViewChild('addItemInput') inputField: ElementRef;
+    @Input() public parameterDescriptor: ResolvedParameterDescriptor;
+    @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
+    @Input() public recordIndex$: Observable<number>;
+    @Input('datasets') set datasets(data: Dataset[]) {
+        console.log("TEST data is :" , data );
+        this.datasets$.next(data);
+    };
+
+    datasets$: BehaviorSubject<Dataset[]> = new BehaviorSubject<Dataset[]>([]);
+    @ViewChild(AutocompleteInputComponent) inputField;
 
     public parameterValues: string[] = [];
     private duplicate: boolean;
@@ -63,7 +85,8 @@ export class TextParameterList implements ControlValueAccessor, OnInit {
     };
 
     public ngOnInit(): void {
-        this.parameterValues = [...this.parameter.value];
+       this.parameterValues = [...this.parameter.value];
+       console.log(this.inputField);
     }
 
     public writeValue(elements: string[]): void {
@@ -103,7 +126,8 @@ export class TextParameterList implements ControlValueAccessor, OnInit {
                 const newValues = [...this.parameterValues];
                 newValues.push(value);
                 this.writeValue(newValues);
-                this.inputField.nativeElement.value = '';
+                this.inputField.clearInput();
+
             } else {
                 this.duplicate = true;
             }

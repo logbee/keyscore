@@ -91,14 +91,14 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                 </button>
             </mat-form-field>-->
 
-            <field-name-input *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"
-                              [id]="parameter.ref.id"
-                              [parameter]="parameter"
-                              [datasets]="datasets$ |async"
-                              [parameterDescriptor]="parameterDescriptor"
-                              [formControlName]="parameter.ref.id" (change)="onChange()">
-                
-            </field-name-input>
+            <auto-complete-input *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"
+                                 [id]="parameter.ref.id"
+                                 [parameter]="parameter"
+                                 [datasets]="datasets$ |async"
+                                 [parameterDescriptor]="parameterDescriptor"
+                                 [formControlName]="parameter.ref.id" (change)="onChange()">
+
+            </auto-complete-input>
 
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldParameterDescriptor"
@@ -112,16 +112,22 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                 </button>
             </mat-form-field>
 
+            <parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
+                            [formControlName]="parameter.ref.id"
+                            [id]="parameter.ref.id" [parameter]="parameter"
+                            [datasets]="datasets$ | async"
+                            [parameterDescriptor]="parameterDescriptor"
+                            (change)="onChange()">
+            </parameter-list>
 
-            <text-parameter-list *ngSwitchCase="jsonClass.FieldNameListParameterDescriptor"
-                                 [formControlName]="parameter.ref.id"
-                                 [id]="parameter.ref.id" [parameter]="parameter"
-                                 (change)="onChange()"></text-parameter-list>
-            
-            <text-parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
-                                 [formControlName]="parameter.ref.id"
-                                 [id]="parameter.ref.id" [parameter]="parameter"
-                                 (change)="onChange()"></text-parameter-list>
+
+            <parameter-list *ngSwitchCase="jsonClass.FieldNameListParameterDescriptor"
+                            [formControlName]="parameter.ref.id"
+                            [id]="parameter.ref.id" [parameter]="parameter"
+                            [datasets]="datasets$ | async"
+                            [parameterDescriptor]="parameterDescriptor"
+                            (change)="onChange()">
+            </parameter-list>
 
             <parameter-map *ngSwitchCase="jsonClass.FieldListParameterDescriptor"
                            [formControlName]="parameter.ref.id"
@@ -144,6 +150,7 @@ export class ParameterComponent {
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
+
     @Input('datasets') set datasets(data: Dataset[]) {
         this.datasets$.next(data);
     };
