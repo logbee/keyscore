@@ -22,6 +22,7 @@ import {takeUntil} from "rxjs/internal/operators";
 import {IconEncoding, IconFormat} from "../../../models/descriptors/Icon";
 import {Store} from "@ngrx/store";
 import {Go} from "../../../router/router.actions";
+import {ConnectorComponent} from "./connectors/connector.component";
 
 
 @Component({
@@ -62,7 +63,8 @@ import {Go} from "../../../router/router.actions";
                                       attr.stroke-width="{{draggableModel.isSelected ? '30px' : '0'}}"
                             />
                         </svg:g>
-                        <svg:g svg-connector [color]="draggableModel.color" [isDroppable]="isNextConnectionDroppable"
+                        <svg:g svg-connector #nextConncetor [color]="draggableModel.color"
+                               [isDroppable]="isNextConnectionDroppable"
                                [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"
                                [isSelected]="draggableModel.isSelected"/>
                     </svg>
@@ -103,7 +105,6 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     @ViewChild("draggableElement") draggableElement: ElementRef;
     @ViewChild("previousConnection", {read: ViewContainerRef}) previousConnectionContainer: ViewContainerRef;
     @ViewChild("nextConnection", {read: ViewContainerRef}) nextConnectionContainer: ViewContainerRef;
-
 
     public id: string;
 
@@ -169,9 +170,7 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     }
 
     navigateToLiveEditing() {
-        console.log("navigation to live-editing triggered.", this.draggableModel.blueprintRef);
         this.store.dispatch(new Go({path: ["/filter/" + this.draggableModel.blueprintRef.uuid]}))
-
     }
 
     setLastDrag(x: number, y: number) {
@@ -240,10 +239,8 @@ export class DraggableComponent implements OnInit, OnDestroy, Draggable, AfterVi
     }
 
     private appendPosition(): { x: number, y: number } {
-        const dropZoneRect = this.nextConnectionDropzone.getRectangle();
-        const rect = this.getRectangle();
         return {
-            x: Math.abs(rect.right - dropZoneRect.left) - 20,
+            x: -ConnectorComponent.connectionTypes.get(this.draggableModel.blockDescriptor.nextConnection.connectionType).connectionOffset,
             y: 0
         };
     }

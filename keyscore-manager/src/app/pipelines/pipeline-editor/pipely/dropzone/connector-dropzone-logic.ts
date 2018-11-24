@@ -6,6 +6,7 @@ import {computeDistance, computeRelativePositionToParent, intersects} from "../u
 import {DropzoneType} from "../models/dropzone-type";
 import {DraggableModel} from "../models/draggable.model";
 import {deepcopy} from "../../../../util";
+import {ConnectorComponent} from "../connectors/connector.component";
 
 export class ConnectorDropzoneLogic extends DropzoneLogic {
 
@@ -43,10 +44,8 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
     }
 
     private appendNewDraggable(draggableModel: DraggableModel) {
-
         this.component.getOwner().setNextModel(draggableModel);
         this.component.getOwner().createNext();
-
     }
 
     private prependModel(mirror: Draggable, currentDragged: Draggable): DraggableModel {
@@ -56,7 +55,7 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
         const nextModelCopy = deepcopy(this.component.getOwner().getDraggableModel());
         const nexDraggableModel = {
             ...nextModelCopy/*this.component.getOwner().getDraggableModel()*/,
-            position: this.computePrependPosition()
+            position: this.computePrependPosition(currentDragged)
         };
 
         let draggedCopy: DraggableModel = deepcopy(currentDragged.getDraggableModel());
@@ -75,12 +74,11 @@ export class ConnectorDropzoneLogic extends DropzoneLogic {
 
     }
 
-    private computePrependPosition(): { x: number, y: number } {
-        const componentRectangle = this.component.getRectangle();
+    private computePrependPosition(currentDragged:Draggable): { x: number, y: number } {
         const ownerRectangle = this.component.getOwner().getRectangle();
         return {
-            x: ownerRectangle.left - 20,
-            y: componentRectangle.top
+            x: ownerRectangle.left - ConnectorComponent.connectionTypes.get(currentDragged.getDraggableModel().blockDescriptor.nextConnection.connectionType).connectionOffset,
+            y: 0
         };
     }
 
