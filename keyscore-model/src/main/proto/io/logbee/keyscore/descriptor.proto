@@ -269,12 +269,12 @@ enum FieldNameHint {
 }
 
 enum FieldNameValueTypeHint {
-    TextValue = 0;
-    NumberValue = 1;
-    DecimalValue = 2;
-    BooleanValue = 3;
-    TimestampValue = 4;
-    DurationValue = 5;
+    TextValueField = 0;
+    NumberValueField = 1;
+    DecimalValueField= 2;
+    BooleanValueField = 3;
+    TimestampValueField = 4;
+    DurationValueField = 5;
 }
 
 

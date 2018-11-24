@@ -58,7 +58,7 @@ class CSVDecoderLogicSpec extends WordSpec with Matchers with ScalaFutures with 
   trait TestStream {
 
     val context = StageContext(system, executionContext)
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new CSVDecoderLogic(parameters, s)
+    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new CSVDecoderLogic(parameters, s)
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, csv1), provider)
 
     val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])

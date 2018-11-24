@@ -14,7 +14,6 @@ Under Debian-based distributions, these can be installed like so:
 Mind though, that the Gradle version that's in the Ubuntu LTS repositories and likely other Debian-based distributions is too old to build this repository,
 so installing the newest version from the webpage or from a PPA is recommended.
 
-
 == Behind a corporate proxy ==
 
 In order to run this setup behind a corporate proxy, you need to add proxy settings in several places.
@@ -85,17 +84,13 @@ never_direct allow all
     Commenting this line out allows you to toggle the use of the corporate proxy.
 <4> Same as 2.
 
-
 To start squid and have it start automatically on subsequent system boots, run the following from CLI:
 ----
  # systemctl start squid
  # systemctl enable squid
 ----
 
-
-
 === Configuring the components to use the proxy ===
-
 
 [NOTE]
 ====
@@ -110,15 +105,11 @@ export http_proxy="http://localhost:3128"
 export https_proxy="http://localhost:3128"
 ----
 
-
 ./etc/environment
 ----
 http_proxy="http://localhost:3128"
 https_proxy="http://localhost:3128"
 ----
-
-
-
 
 .~/.gradle/gradle.properties
 ----
@@ -128,9 +119,6 @@ systemProp.https.proxyHost=localhost
 systemProp.https.proxyPort=3128
 ----
 
-
-
-
 ./etc/systemd/system/docker.service.d/http-proxy.conf
 ----
 [Service]
@@ -139,9 +127,7 @@ Environment="HTTPS_PROXY=http://localhost:3128/"
 Environment="NO_PROXY=localhost,127.0.0.1"
 ----
 
-
 Finally, you need to configure your IDE to use the proxy.
-
 
 == Project Checkout ==
 
@@ -157,19 +143,29 @@ git clone https://github.com/logbee/keyscore.git
 
 == Project Setup within intellij ==
 
-.Install the scala plugin
+1. Download and install https://www.jetbrains.com/idea/download/[IntelliJ].
 
+2. Install the scala plugin for IntelliJ.
 
-.Import Project as gradle project
-* Enable auto-import and
-* use the recommended gradle wrapper.
+3. Import KEYSCORE as gradle project.
+    * you can use a _local gradle installation_ or the _gradle wrapper_.
+    * if you like you can _Enable auto-import_.
 
-.Run gradle task
+4. When the import finishes run the the following gradle task to generate all source files:
 ----
 gradle generateScalaPB
 ----
 
-== How to run ==
+5. Finally refresh the gradle project within IntelliJ.
+
+== How to run with Docker ==
+
+[NOTE]
+====
+.Gradle fails with reading the docker ~/.docker/config.json
+
+Due to a bug in the gradle docker plugin you have to delete the file.
+====
 
 To start all KEYSCORE subsystems, run in the root of the project:
 
@@ -186,23 +182,19 @@ gradle stopContainers
 To start an Agent, run the following from CLI:
 
 ----
-cd keyscore-agent
-gradle startDockerContainer
+gradle :keyscore-agent:startDockerContainer
 ----
 
 To start the Frontier, run the following from CLI:
 
 ----
-cd keyscore-frontier
-gradle startDockerContainer
+gradle :keyscore-frontier:startDockerContainer
 ----
-
 
 To start the Manager-WebUI, run the following from CLI:
 
 ----
-cd keyscore-manager
-gradle startDockerContainer
+gradle :keyscore-manager:startDockerContainer
 ----
 
 == How to run without Docker ==
@@ -214,18 +206,8 @@ To start an Agent or the Frontier without Docker, start the following applicatio
  - `io.logbee.keyscore.agent.app.AgentApplication`
  - `io.logbee.keyscore.frontier.app.FrontierApplication`
 
-
 To start the Manager-WebUI without Docker, run the following from CLI:
 
-
 ----
-cd keyscore-manager
-gradle serve
+gradle :keyscore-manager:serve
 ----
-
-
-== Trouble Shooting ==
-
-.Gradle fails with with reading the docker config.json
-
-Just remove the config, since the gradle docker plugin can not deal with this config file.
