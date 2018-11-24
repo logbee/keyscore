@@ -94,9 +94,11 @@ import {BehaviorSubject, Observable} from "rxjs/index";
             <field-name-input *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"
                               [id]="parameter.ref.id"
                               [parameter]="parameter"
-                              [placeholder]="parameterDescriptor.defaultValue"
+                              [datasets]="datasets$ |async"
                               [parameterDescriptor]="parameterDescriptor"
-                              [formControlName]="parameter.ref.id" (change)="onChange()"></field-name-input>
+                              [formControlName]="parameter.ref.id" (change)="onChange()">
+                
+            </field-name-input>
 
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldParameterDescriptor"
@@ -142,7 +144,12 @@ export class ParameterComponent {
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
-    @Input() public datasets: Dataset[];
+    @Input('datasets') set datasets(data: Dataset[]) {
+        this.datasets$.next(data);
+    };
+
+    datasets$: BehaviorSubject<Dataset[]> = new BehaviorSubject<Dataset[]>([]);
+
     @Output() public change: EventEmitter<void> = new EventEmitter();
 
 
@@ -155,4 +162,5 @@ export class ParameterComponent {
     get isValid() {
         return this.form.controls[this.parameter.ref.id].valid;
     }
+
 }

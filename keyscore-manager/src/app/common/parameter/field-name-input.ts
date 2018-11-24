@@ -1,132 +1,65 @@
-import {Component, forwardRef, HostBinding, Input, OnDestroy, Optional, Self, ElementRef, OnInit} from "@angular/core";
-import {MatFormFieldControl} from "@angular/material";
-import {ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, FormControl, FormGroup, NgControl} from "@angular/forms";
+import {Component, forwardRef, Input, OnInit} from "@angular/core";
+import {ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
-import {Observable} from "rxjs/internal/Observable";
-import {Subject} from "rxjs/index";
-import {FocusMonitor} from "@angular/cdk/a11y";
-import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {ResolvedParameterDescriptor} from "../../models/parameters/ParameterDescriptor";
-import {FieldParameterList} from "./field-parameter-list.component";
+import {Dataset} from "../../models/dataset/Dataset";
+import * as _ from "lodash"
+import {BehaviorSubject} from "rxjs/index";
 
 @Component({
     selector: 'field-name-input',
     template: `
         <mat-form-field [formGroup]="group">
-            <input matInput formControlName="fieldName" type="text" [placeholder]="placeholder"
-                   [autocomplete]="auto">
+            <input matInput type="text" formControlName="fieldName" [id]="parameter.ref.id"
+                   [placeholder]="parameterDescriptor.defaultValue" [matAutocomplete]="auto">
+            <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
             <mat-autocomplete #auto="matAutocomplete">
                 <mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>
             </mat-autocomplete>
-            <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
-            <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
-                <mat-icon>close</mat-icon>
-            </button>
         </mat-form-field>
 
     `,
     providers: [
         {
-            provide: MatFormFieldControl,
-            useExisting: FieldNameInputComponent
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FieldNameInputComponent),
+            multi: true
         }
     ]
 })
 
-export class FieldNameInputComponent implements OnInit,OnDestroy, ControlValueAccessor,MatFormFieldControl<string> {
-    static nextId = 0;
-    @HostBinding()
-    readonly id: string = `field-name-input-${FieldNameInputComponent.nextId++}`;
-    @HostBinding('class.floating')
-    get shouldLabelFloat(){
-        return this.focused || !this.empty;
-    }
-    @HostBinding('attr.aria-describedby') describedBy = '';
-
-    setDescribedByIds(ids: string[]) {
-        this.describedBy = ids.join(' ');
-    }
-
-
+export class FieldNameInputComponent implements OnInit, ControlValueAccessor {
     group: FormGroup;
-    focused: boolean = false;
-    readonly autofilled: boolean;
-    readonly controlType: string = 'field-name-input';
-    readonly errorState: boolean = false;
-    readonly stateChanges: Subject<void> = new Subject();
 
-    @Input() get placeholder() {
-        return this._placeholder;
-    }
-
-    set placeholder(plh: string) {
-        this._placeholder = plh;
-        this.stateChanges.next();
-    }
-
-    private _placeholder: string;
-    @Input()
-    get required() {
-        return this._required;
-    }
-    set required(req) {
-        this._required = coerceBooleanProperty(req);
-        this.stateChanges.next();
-    }
-    private _required = false;
-
-    @Input()
-    get disabled() {
-        return this._disabled;
-    }
-    set disabled(dis) {
-        this.setDisabledState(coerceBooleanProperty(dis));
-        this.stateChanges.next();
-    }
     private _disabled = false;
 
-    @Input() parameter: Parameter;
-    @Input() parameterDescriptor:ResolvedParameterDescriptor;
+    private _fieldName: string = "";
 
-    @Input()
-    get value(): string | null {
-        return this.group.controls['fieldName'].value;
+    private hints: string[] = [];
+
+    @Input() hint: string;
+    @Input() parameter: Parameter;
+    @Input() parameterDescriptor: ResolvedParameterDescriptor;
+
+    @Input('datasets') set datasets(data: Dataset[]) {
+        this.datasets$.next(data);
     };
 
-    set value(fieldName: string | null) {
-        this.writeValue(fieldName);
-        this.stateChanges.next();
-    }
+    datasets$: BehaviorSubject<Dataset[]> = new BehaviorSubject<Dataset[]>([]);
 
-    get empty(){
-        return !this.group.value;
-    }
 
-    constructor(fb: FormBuilder, private fm: FocusMonitor, private elemRef: ElementRef<HTMLElement>, @Optional() @Self() public ngControl: NgControl) {
-        this.ngControl.valueAccessor = this;
+    get value(): string | null {
+        return this._fieldName;
+    };
+
+    constructor(fb: FormBuilder) {
         this.group = fb.group({
             'fieldName': ''
         });
-        if (this.ngControl != null) {
-            this.ngControl.valueAccessor = this;
-        }
 
-        fm.monitor(elemRef.nativeElement, true).subscribe(origin =>{
-            this.focused = !!origin;
-            this.stateChanges.next();
-        })
+        this.group.valueChanges.subscribe(values => this.writeValue(values['fieldName']));
     }
 
-    onContainerClick(event: MouseEvent) {
-        if ((event.target as Element).tagName.toLowerCase() != 'input') {
-            this.elemRef.nativeElement.querySelector('input').focus();
-        }
-    }
-
-    ngOnDestroy(): void {
-        this.stateChanges.complete();
-        this.fm.stopMonitoring(this.elemRef.nativeElement);
-    }
 
     public registerOnChange(fn: (fieldName: string) => void): void {
         this.onChange = fn;
@@ -149,13 +82,21 @@ export class FieldNameInputComponent implements OnInit,OnDestroy, ControlValueAc
     };
 
     writeValue(fieldName: string): void {
-        this.group.setValue({'fieldName': fieldName});
+        console.log("Write Value: ", fieldName);
+        this._fieldName = fieldName;
         this.onChange(fieldName);
     }
 
     ngOnInit(): void {
+        this.group.setValue({'fieldName': this.parameter.value});
         this.writeValue(this.parameter.value);
+        console.log("TEST : ", this.parameterDescriptor);
+        this.datasets$.subscribe(datasets => {
+            console.log("TEST datasets: ", this.datasets);
+            if (this.hint === "PresentField") {
+                let fieldNames = _.flatten(_.flatten(datasets.map(dataset => dataset.records.map(record => record.fields.map(field => field.name)))));
+                this.hints = Array.from(new Set(fieldNames));
+            }
+        });
     }
-
-
 }
