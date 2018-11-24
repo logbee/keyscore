@@ -13,7 +13,7 @@ import {filter} from "rxjs/internal/operators";
         <mat-form-field [formGroup]="group">
             <input #inputField matInput type="text" formControlName="fieldName" [id]="parameter.ref.id"
                    [placeholder]="parameterDescriptor.defaultValue" [matAutocomplete]="auto">
-            <mat-label>{{parameterDescriptor.info.displayName}}</mat-label>
+            <mat-label>{{labelText ? labelText : parameterDescriptor.info.displayName}}</mat-label>
             <mat-autocomplete #auto="matAutocomplete">
                 <mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>
             </mat-autocomplete>
@@ -42,7 +42,7 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
 
     @Input() hint: string;
     @Input() parameter: Parameter;
-
+    @Input() labelText:string;
 
     @Input() parameterDescriptor: ResolvedParameterDescriptor;
 
@@ -77,6 +77,10 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
 
     public clearInput = () => {
         this.inputFieldElem.nativeElement.value = '';
+    };
+
+    public focus = () =>{
+      this.inputFieldElem.nativeElement.focus();
     };
 
 

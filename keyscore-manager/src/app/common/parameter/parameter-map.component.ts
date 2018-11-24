@@ -4,23 +4,34 @@ import {deepcopy} from "../../util";
 import {Field} from "../../models/dataset/Field";
 import {TextValue, ValueJsonClass} from "../../models/dataset/Value";
 import {Parameter} from "../../models/parameters/Parameter";
-import {Observable} from "rxjs/index";
+import {BehaviorSubject, Observable} from "rxjs/index";
 import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 import {
     FieldNameListParameterDescriptor,
     ResolvedParameterDescriptor
 } from "../../models/parameters/ParameterDescriptor";
+import {Dataset} from "../../models/dataset/Dataset";
+import {AutocompleteInputComponent} from "./autocomplete-input.component";
 
 @Component({
     selector: "parameter-map",
     template:
             `
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-form-field class="half">
-                <input matInput #addItemInputKey type="text" placeholder="Key" value="" [matAutocomplete]="auto">
-            </mat-form-field>
+            <!--<mat-form-field class="half">-->
+            <!--<input matInput #addItemInputKey type="text" placeholder="Key" value="" [matAutocomplete]="auto">-->
+            <!--</mat-form-field>-->
 
-            <mat-form-field class="half">
+            <auto-complete-input #addItemInputKey
+                                 [datasets]="datasets$ | async"
+                                 [hint]="parameterDescriptor?.descriptor?.hint"
+                                 [parameterDescriptor]="parameterDescriptor"
+                                 [labelText]="'Key'"
+                                 [parameter]="parameter">
+
+            </auto-complete-input>
+
+            <mat-form-field>
                 <input matInput #addItemInputValue type="text" placeholder="Value" value="">
             </mat-form-field>
             <button mat-icon-button color="accent" (click)="addItem(addItemInputKey.value,addItemInputValue.value)">
@@ -47,11 +58,6 @@ import {
                 </mat-chip-list>
             </div>
         </div>
-        
-        <!--Autocompletion-->
-        <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>
-        </mat-autocomplete>
     `,
     providers: [
         {
@@ -65,20 +71,23 @@ import {
 export class ParameterMap implements ControlValueAccessor, OnInit {
 
     @Input() public disabled = false;
-    @Input() public descriptor: ResolvedParameterDescriptor;
+    @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
 
+    @Input('datasets') set datasets(data: Dataset[]) {
+        this.datasets$.next(data);
+    }
+
+    private datasets$: BehaviorSubject<Dataset[]> = new BehaviorSubject<Dataset[]>([]);
+
     @ViewChild('addItemInputKey') inputKeyField: ElementRef;
+    @ViewChild(AutocompleteInputComponent) inputKeyComponent;
     @ViewChild('addItemInputValue') inputValueField: ElementRef;
 
     public parameterValues: Field[];
     public keyEmpty: boolean;
     public duplicateMapping: boolean;
-    private hints: string[] = [];
-    private hint = undefined;
-    private recordIndex: number;
-    @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
-    @Input() public recordIndex$: Observable<number>;
+
     public onChange = (elements: Field[]) => {
         return;
     };
@@ -94,21 +103,6 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
     }
 
     public ngOnInit() {
-        this.recordIndex$.subscribe(recordindex => {
-            this.recordIndex = recordindex;
-        });
-
-        this.hint = (this.descriptor as FieldNameListParameterDescriptor).descriptor.hint;
-
-        this.currentDatasetModel$.subscribe(currentDatasetModel => {
-            if (currentDatasetModel != undefined) {
-                if (this.hint === "PresentField") {
-                    this.hints = currentDatasetModel.records[this.recordIndex].rows.map(row => row.input.name);
-                } else {
-                    console.log("Nothing to do !")
-                }
-            }
-        });
         this.parameterValues = this.parameter.value;
     }
 
@@ -130,7 +124,6 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
     }
 
     public removeItem(toRemove: Field) {
-        this.hints.push(toRemove.name);
         let removeIndex = this.parameterValues.findIndex(field => field.name === toRemove.name);
         if (removeIndex >= 0) {
             let newValues: Field[] = deepcopy(this.parameterValues, []);
@@ -149,16 +142,15 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
                 let currentVal = (newValues[existingIndex].value as TextValue).value;
                 if (currentVal !== value) {
                     this.duplicateMapping = false;
-                    this.hints = this.hints.filter(hint => hint !== value);
                     (newValues[existingIndex].value as TextValue).value = value;
                 } else {
                     this.duplicateMapping = true;
                 }
             } else {
                 newValues.push({name: key, value: {jsonClass: ValueJsonClass.TextValue, value: value}});
-                this.inputKeyField.nativeElement.value='';
-                this.inputValueField.nativeElement.value='';
-                this.inputKeyField.nativeElement.focus();
+                this.inputKeyComponent.clearInput();
+                this.inputValueField.nativeElement.value = '';
+                this.inputKeyComponent.focus();
             }
             this.writeValue(newValues);
         } else {
