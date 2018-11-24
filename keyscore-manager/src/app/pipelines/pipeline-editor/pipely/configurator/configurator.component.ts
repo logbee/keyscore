@@ -55,7 +55,8 @@ import {Observable} from "rxjs/internal/Observable";
                         <mat-divider></mat-divider>
                     </ng-template>
                 </div>
-                <button matTooltip="{{'CONFIGURATOR.HIDE' | translate}}" *ngIf="collapsibleButton" mat-mini-fab color="primary"
+                <button matTooltip="{{'CONFIGURATOR.HIDE' | translate}}" *ngIf="collapsibleButton" mat-mini-fab
+                        color="primary"
                         (click)="collapse()" style="margin-right: 30px;">
                     <mat-icon>chevron_right</mat-icon>
                 </button>
@@ -66,9 +67,8 @@ import {Observable} from "rxjs/internal/Observable";
                         <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
                                        [parameterDescriptor]="parameterMapping.get(parameter)"
                                        [form]="form"
-                                       [currentDatasetModel$]="currentDatasetModel$"
-                                       [recordIndex$]="recordIndex$">
-                                       </app-parameter>
+                                       [datasets]="datasets$ | async">
+                        </app-parameter>
                     </form>
                 </div>
             </div>
@@ -87,13 +87,15 @@ import {Observable} from "rxjs/internal/Observable";
                             {{'PIPELY.RESET' | translate}}
                         </button>
                     </div>
-                    <button *ngIf="applyTestFlag;else apply" #save mat-raised-button color="primary" matTooltip="{{'PIPELY.TEST_TOOLTIP'| translate}}"
+                    <button *ngIf="applyTestFlag;else apply" #save mat-raised-button color="primary"
+                            matTooltip="{{'PIPELY.TEST_TOOLTIP'| translate}}"
                             (click)="saveConfiguration()">
                         <mat-icon>play_arrow</mat-icon>
                         {{'PIPELY.TEST' | translate}}
                     </button>
                     <ng-template #apply>
-                        <button save mat-raised-button color="primary" matTooltip=" {{'PIPELY.APPLY_TOOLTIP' | translate}}"
+                        <button save mat-raised-button color="primary"
+                                matTooltip=" {{'PIPELY.APPLY_TOOLTIP' | translate}}"
                                 (click)="overwriteConfiguration()">
                             <mat-icon>done</mat-icon>
                             {{'PIPELY.APPLY' | translate}}
@@ -109,8 +111,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() showFooter: boolean;
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
-    @Input() currentDatasetModel$: Observable<DatasetTableModel>;
-    @Input() recordIndex$: Observable<number>;
+
     @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
         if (block.configuration && block.descriptor) {
             this.selectedBlock$.next(block);
@@ -118,6 +119,11 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.selectedBlock$.next(this.initBlock);
         }
     }
+
+    @Input('datasets') set datasets(data: Dataset[]) {
+        this.datasets$.next(data);
+    }
+
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
     @Output() onRevert: EventEmitter<void> = new EventEmitter();
@@ -140,7 +146,10 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     private selectedBlock$ = new BehaviorSubject<{
         configuration: Configuration,
-        descriptor: BlockDescriptor}>(this.initBlock);
+        descriptor: BlockDescriptor
+    }>(this.initBlock);
+
+    private datasets$ = new BehaviorSubject<Dataset[]>([]);
 
     isVisible: boolean = true;
     applyTestFlag: boolean = true;
@@ -169,6 +178,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
 
             this.form.valueChanges.subscribe(values => {
+                console.log(values);
                 if (!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues, values)) {
                     this.lastValues = values;
                     this.saveConfiguration();
@@ -182,7 +192,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         });
 
         this.pipelineForm.valueChanges.subscribe(val => {
-            this.onSavePipelineMetaData.emit({name:val['pipeline.name'],description:val['pipeline.description']});
+            this.onSavePipelineMetaData.emit({name: val['pipeline.name'], description: val['pipeline.description']});
         });
     }
 
@@ -215,7 +225,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     saveConfiguration() {
         let configuration: Configuration = deepcopy(this.selectedBlock$.getValue().configuration);
-        if(configuration.ref.uuid !== 'init') {
+        if (configuration.ref.uuid !== 'init') {
             configuration.parameters.forEach((parameter) => {
                 if (this.form.controls[parameter.ref.id]) {
                     parameter.value = this.form.controls[parameter.ref.id].value;

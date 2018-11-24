@@ -69,7 +69,7 @@ import {
     LoadAllDescriptorsForBlueprintFailureAction
 } from "../resources/resources.actions";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {selectCurrentBlueprint, selectDatasetsRaw, selectInitialConfiguration} from "./live-editing.reducer";
+import {selectCurrentBlueprint, selectInputDatasets, selectInitialConfiguration} from "./live-editing.reducer";
 import {Dataset} from "../models/dataset/Dataset";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
@@ -203,7 +203,7 @@ export class FiltersEffects {
         ofType(RECONFIGURE_FILTER_SUCCESS),
         withLatestFrom(
             this.store.pipe(select(selectCurrentBlueprint)),
-            this.store.pipe(select(selectDatasetsRaw))),
+            this.store.pipe(select(selectInputDatasets))),
         switchMap(([_, blueprint, datasets]) => {
                 return this.filterControllerService.insertDatasets(blueprint.ref.uuid, datasets).pipe(
                     map((state: ResourceInstanceState) => new InsertDatasetsSuccess(state)),
@@ -216,7 +216,7 @@ export class FiltersEffects {
     @Effect()
     public fireExtractDatasetsWhenInsertDatasetsSuccessAction: Observable<Action> = this.actions$.pipe(
         ofType(INSERT_DATASETS_SUCCESS),
-        withLatestFrom(this.store.pipe(select(selectCurrentBlueprint)), this.store.pipe(select(selectDatasetsRaw))),
+        withLatestFrom(this.store.pipe(select(selectCurrentBlueprint)), this.store.pipe(select(selectInputDatasets))),
         switchMap(([_, blueprint, models]) => of(new ExtractDatasetsAction(blueprint.ref.uuid, models.length)))
     );
 

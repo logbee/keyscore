@@ -10,7 +10,7 @@ import {
     selectCurrentDataset,
     selectCurrentDescriptor,
     selectCurrentRecordIndex,
-    selectDatasetsRaw,
+    selectInputDatasets,
     selectInitialConfiguration,
     selectLiveEditingFilterState,
     selectUpdatedConfiguration
@@ -61,8 +61,7 @@ import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
                           [selectedBlock]="{configuration:(configuration$|async),
                                     descriptor:(filterDescriptor$|async)}"
                           [showFooter]="true" 
-                          [currentDatasetModel$]="currentDatasetModel$"
-                          [recordIndex$]="recordIndex$"
+                          [datasets]="datasets$ | async"
                           (onSave)="saveConfiguration($event)"
                           (onRevert)="revertFilterConfiguration()"
                           (onShowConfigurator)="hide($event)"
@@ -91,8 +90,6 @@ export class LiveEditingComponent implements OnInit {
     private filterState$: Observable<ResourceInstanceState>;
     private filterDescriptor$: Observable<ResolvedFilterDescriptor>;
     private datasets$: Observable<Dataset[]>;
-    private currentDatasetModel$: Observable<DatasetTableModel>;
-    private recordIndex$: Observable<number>;
 
     //Flags
     private currentConfiguration: Configuration;
@@ -129,14 +126,12 @@ export class LiveEditingComponent implements OnInit {
     }
 
     private initialize() {
-            this.datasets$ = this.store.pipe(select(selectDatasetsRaw));
+            this.datasets$ = this.store.pipe(select(selectInputDatasets));
             this.loading$ = this.store.pipe(select(isSpinnerShowing));
             this.filterState$ = this.store.pipe(select(selectLiveEditingFilterState));
             this.filterDescriptor$ = this.store.pipe(select(selectCurrentDescriptor));
             this.blueprint$ = this.store.pipe(select(selectCurrentBlueprint));
             this.configuration$ = this.store.pipe(select(selectInitialConfiguration));
-            this.currentDatasetModel$ = this.store.pipe(select(selectCurrentDataset));
-            this.recordIndex$ = this.store.pipe(select(selectCurrentRecordIndex))
     }
 
     saveConfiguration($event: Configuration) {

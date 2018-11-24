@@ -8,7 +8,8 @@ import {TranslateModule} from "@ngx-translate/core";
 import {MaterialModule} from "../../material.module";
 import {ParameterControlService} from "./service/parameter-control.service";
 import {TextParameterList} from "./text-parameter-list.component";
-import {FieldNameParameterComponent} from "./field-name-parameter.component";
+import {FieldNameInputComponent} from "./field-name-input";
+
 
 @NgModule({
     imports: [
@@ -23,7 +24,7 @@ import {FieldNameParameterComponent} from "./field-name-parameter.component";
         FieldParameterList,
         TextParameterList,
         ParameterComponent,
-        FieldNameParameterComponent
+        FieldNameInputComponent
     ],
     exports: [
         ParameterComponent

@@ -3,6 +3,9 @@ import {FormGroup} from "@angular/forms";
 import {
     ResolvedParameterDescriptor,
     ParameterDescriptorJsonClass,
+    FieldListParameterDescriptor,
+    FieldNameParameterDescriptor,
+    FieldNameListParameterDescriptor,
 } from "../../models/parameters/ParameterDescriptor";
 import {Parameter} from "../../models/parameters/Parameter";
 import "./style/parameter-module-style.scss"
@@ -77,7 +80,7 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                 </button>
             </mat-form-field>
 
-            <mat-form-field *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"
+            <!--<mat-form-field *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"
                             [id]="parameter.ref.id">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
                        [formControlName]="parameter.ref.id"
@@ -86,17 +89,15 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                 <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                     <mat-icon>close</mat-icon>
                 </button>
-            </mat-form-field>
-            
-            <!--<field-name-parameter *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"-->
-                                  <!--[formControlName]="parameter.ref.id"-->
-                                  <!--[id]="parameter.ref.id" [parameter]="parameter"-->
-                                  <!--[currentDatasetModel$]="currentDatasetModel$"-->
-                                  <!--[recordIndex$]="recordIndex$"-->
-                                  <!--[parameterDescriptor]="parameterDescriptor"-->
-                                  <!--[parameter]="parameter"-->
-                                  <!--(change) ="onChange()">-->
-            <!--</field-name-parameter>-->
+            </mat-form-field>-->
+
+            <field-name-input *ngSwitchCase="jsonClass.FieldNameParameterDescriptor"
+                              [id]="parameter.ref.id"
+                              [parameter]="parameter"
+                              [placeholder]="parameterDescriptor.defaultValue"
+                              [parameterDescriptor]="parameterDescriptor"
+                              [formControlName]="parameter.ref.id" (change)="onChange()"></field-name-input>
+
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldParameterDescriptor"
                             [id]="parameter.ref.id">
@@ -109,14 +110,12 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                 </button>
             </mat-form-field>
 
-            <field-parameter-list *ngSwitchCase="jsonClass.FieldNameListParameterDescriptor"
-                                  [formControlName]="parameter.ref.id"
-                                  [id]="parameter.ref.id" [parameter]="parameter"
-                                  [descriptor]="parameterDescriptor"
-                                  [currentDatasetModel$]="currentDatasetModel$"
-                                  [recordIndex$]="recordIndex$"
-                                  (change)="onChange()"></field-parameter-list>
 
+            <text-parameter-list *ngSwitchCase="jsonClass.FieldNameListParameterDescriptor"
+                                 [formControlName]="parameter.ref.id"
+                                 [id]="parameter.ref.id" [parameter]="parameter"
+                                 (change)="onChange()"></text-parameter-list>
+            
             <text-parameter-list *ngSwitchCase="jsonClass.TextListParameterDescriptor"
                                  [formControlName]="parameter.ref.id"
                                  [id]="parameter.ref.id" [parameter]="parameter"
@@ -135,6 +134,7 @@ import {BehaviorSubject, Observable} from "rxjs/index";
                 {{'PARAMETERCOMPONENT.ISREQUIRED' | translate}}
             </div>
         </div>
+
     `,
     providers: []
 })
@@ -142,8 +142,7 @@ export class ParameterComponent {
     @Input() public parameterDescriptor: ResolvedParameterDescriptor;
     @Input() public parameter: Parameter;
     @Input() public form: FormGroup;
-    @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
-    @Input() public recordIndex$: Observable<number>;
+    @Input() public datasets: Dataset[];
     @Output() public change: EventEmitter<void> = new EventEmitter();
 
 

@@ -121,7 +121,7 @@ export function LiveEditingReducer(state: FilterState = initialState, action: Li
         case RESOLVED_DESCRIPTOR_FOR_BLUEPRINT:
             result.descriptor = action.descriptor;
             break;
-        case INITIAL_EXTRACT_SUCCESS:
+            case INITIAL_EXTRACT_SUCCESS:
             if (!action.input.map(elem => elem.metaData === undefined).length) {
                 action.input.map(datset => {
                     datset.metaData.labels.push(
@@ -190,7 +190,7 @@ export const selectLiveEditingFilterState = createSelector(getFilterState, (stat
 
 export const selectDatasetsModels = createSelector(getFilterState, (state: FilterState) => state.datasetModels);
 
-export const selectDatasetsRaw = createSelector(getFilterState, (state: FilterState) => state.inputDatasets);
+export const selectInputDatasets = createSelector(getFilterState, (state: FilterState) => state.inputDatasets);
 
 export const selectExtractFinish = createSelector(getFilterState, extractFinish);
 
