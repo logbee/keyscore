@@ -155,6 +155,19 @@ git clone ssh://github.com/logbee/keyscore.git
 git clone https://github.com/logbee/keyscore.git
 ----
 
+== Project Setup within intellij ==
+
+.Install the scala plugin
+
+
+.Import Project as gradle project
+* Enable auto-import and
+* use the recommended gradle wrapper.
+
+.Run gradle task
+----
+gradle generateScalaPB
+----
 
 == How to run ==
 
@@ -209,3 +222,10 @@ To start the Manager-WebUI without Docker, run the following from CLI:
 cd keyscore-manager
 gradle serve
 ----
+
+
+== Trouble Shooting ==
+
+.Gradle fails with with reading the docker config.json
+
+Just remove the config, since the gradle docker plugin can not deal with this config file.
