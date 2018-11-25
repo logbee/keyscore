@@ -3,6 +3,7 @@ import io.logbee.gradle.scalapb.ScalaPBPlugin
 apply plugin: 'idea'
 apply plugin: 'scala'
 apply plugin: 'java'
+
 apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')
@@ -17,10 +18,42 @@ dependencies {
     compile dependency.json4s
     compile "com.google.protobuf:protobuf-java-util:3.5.1"
     compile "com.thesamet.scalapb:scalapb-runtime_2.12:0.8.0-RC1"
-//    compile "com.thesamet.scalapb:scalapb-json4s_2.12:0.7.1"
 
     testCompile dependency.scala_test
     testCompile dependency.junit
+}
+
+bintray {
+    pkg {
+        repo = 'maven'
+        name = project.name
+        userOrg = project.bintrayUserOrg
+        licenses = ['Apache-2.0']
+        vcsUrl = project.scmUrl
+        version {
+            name = project.name
+            desc = project.description
+            released  = new Date()
+            vcsTag = project.version
+        }
+    }
+    publications = ['keyscoreModelMavenPublication']
+}
+
+publishing {
+    publications {
+        keyscoreModel(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            artifact jar
+            artifact sourcesJar
+            artifact scaladocJar
+            pom.withXml {
+                generatePomXml(project, asNode())
+            }
+        }
+    }
 }
 
 test {

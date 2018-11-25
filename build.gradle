@@ -14,6 +14,7 @@ buildscript {
     dependencies {
         classpath 'com.bmuschko:gradle-docker-plugin:3.3.2'
         classpath 'gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.5'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     }
 }
 
@@ -23,13 +24,23 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 ext.dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
 ext.dockerRegistryPassword = getBuildPropertyValue("logbee.quay.password")
 ext.dockerRegistryUrl = 'https://quay.io/'
+ext.bintrayUser = getBuildPropertyValue("bintray.user")
+ext.bintrayKey = getBuildPropertyValue("bintray.key")
+ext.bintrayUserOrg = 'logbee'
 
 if (!isDockerRegistryUserConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.user is not set.")
 if (!isDockerRegistryPasswordConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.password is not set.")
+if (!isBintryUserConfigured()) logger.warn("No bintray user - bintray.user is not set.")
+if (!isBintrayKeyConfigured()) logger.warn("No bintray key - bintray.key is not set.")
 
 subprojects {
 
     version = rootProject.version
+    group = "io.logbee.${rootProject.name}"
+    ext.url = 'https://github.com/logbee/keyscore/'
+    ext.scmUrl = 'https://github.com/logbee/keyscore/'
+    ext.scmConnection = 'git@github.com:logbee/keyscore.git'
+    ext.scmDevConnection = 'git@github.com:logbee/keyscore.git'
 
     repositories {
         mavenCentral()
@@ -48,6 +59,39 @@ subprojects {
                 password = "$dockerRegistryPassword"
             }
         }
+    }
+
+}
+
+configure ([
+    project(':keyscore-model'),
+    project(':keyscore-pipeline:keyscore-pipeline-api'),
+    project(':keyscore-pipeline:keyscore-pipeline-contrib')
+]) {
+
+    project.apply plugin: 'scala'
+    project.apply plugin: 'maven'
+    project.apply plugin: 'maven-publish'
+    project.apply plugin: 'com.jfrog.bintray'
+
+    bintray {
+        user = "$bintrayUser"
+        key = "$bintrayKey"
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task scaladocJar(type: Jar, dependsOn: scaladoc) {
+        classifier = 'scaladoc'
+        from scaladoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives scaladocJar
     }
 }
 
@@ -80,6 +124,48 @@ private def isDockerRegistryUserConfigured() {
 
 private def isDockerRegistryPasswordConfigured() {
     return ext.dockerRegistryPassword != null && !ext.dockerRegistryPassword.empty
+}
+
+private def isBintryUserConfigured() {
+    return ext.bintrayUser != null && !ext.bintrayUser.empty
+}
+
+private def isBintrayKeyConfigured() {
+    return ext.bintrayKey != null && !ext.bintrayKey.empty
+}
+
+def generatePomXml(project, root) {
+
+    def listOfDevelopers = [
+        ["kkdh", "Elmar Schug", "elmar.schug@jayware.org", "Europe/Berlin"],
+        ["EndallBatan93", "Manuel Hinke", "manuel.hinke@daimler.com", "Europe/Berlin"],
+        ["mlandth", "Max Landthaler", "max.landthaler@posteo.de", "Europe/Berlin"],
+        ["Avoliq", "Maximilian Karthan", "ich@max-karthan.de", "Europe/Berlin"]
+    ]
+
+    root.appendNode('name', "${project.group}:${project.name}")
+    root.appendNode('description', "${project.description}")
+    root.appendNode('url', "${project.url}")
+    root.appendNode('inceptionYear', '2017')
+
+    def scm = root.appendNode('scm')
+    scm.appendNode('url', "${project.scmUrl}")
+    scm.appendNode('connection', "${project.scmConnection}")
+    scm.appendNode('developerConnection', "${project.scmDevConnection}")
+
+    def developers = root.appendNode('developers')
+    listOfDevelopers.each { element ->
+        def dev = developers.appendNode('developer')
+        dev.appendNode('id', element[0])
+        dev.appendNode('name', element[1])
+        dev.appendNode('email', element[2])
+        dev.appendNode('timezone', element[3])
+    }
+
+    def license = root.appendNode('licenses').appendNode('license')
+    license.appendNode('name', 'Apache License 2.0')
+    license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0')
+    license.appendNode('distribution', 'repo')
 }
 
 static def getBuildPropertyValue(String name) {
