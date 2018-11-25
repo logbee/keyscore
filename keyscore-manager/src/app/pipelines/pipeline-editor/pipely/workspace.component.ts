@@ -42,6 +42,7 @@ import {TextValue} from "../../../models/dataset/Value";
                         </ng-template>
                         <puzzle-box class="top-shadow" [workspace]="this"
                                     [descriptors]="blockDescriptors$|async"></puzzle-box>
+                        
                     </div>
                 </div>
 
@@ -73,8 +74,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
     private showLiveEditingButtonSource$ = new BehaviorSubject<boolean>(true);
     public showLiveEditingButton$ = this.showLiveEditingButtonSource$.asObservable();
 
+    private isInspecting:boolean = true;
+
     @Input() runTrigger$: Observable<void>;
     @Input() saveTrigger$: Observable<void>;
+    @Input() inspectTrigger$: Observable<void>;
 
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
@@ -331,6 +335,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         this.runTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
             this.pipeline = this.pipelineConfigurator.updatePipelineModel(this.draggables, this.pipeline);
             this.onRunPipeline.emit(this.pipeline);
+        });
+
+        this.inspectTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
+            this.isInspecting = true;
         });
 
         this.buildEditPipeline();

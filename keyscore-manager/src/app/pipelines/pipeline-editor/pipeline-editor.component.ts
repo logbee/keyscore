@@ -5,14 +5,12 @@ import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {Go} from "../../router/router.actions";
 import {
-    CheckIsPipelineRunning,
     DeletePipelineAction,
     LoadFilterDescriptorsAction,
     ResetPipelineAction,
     UpdatePipelineAction
 } from "../pipelines.actions";
-import {share, take, takeUntil} from "rxjs/internal/operators";
-import {isMenuExpanded} from "../../common/sidemenu/sidemenu.reducer";
+import {share, takeUntil} from "rxjs/internal/operators";
 import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
 import {getEditingPipeline, getFilterDescriptors} from "../pipelines.reducer";
@@ -20,15 +18,7 @@ import {Configuration} from "../../models/common/Configuration";
 import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
-import * as _ from "lodash";
-import {Blueprint} from "../../models/blueprints/Blueprint";
-import {
-    errorState,
-    ErrorState,
-    isError,
-    selectErrorMessage,
-    selectHttpErrorCode
-} from "../../common/error/error.reducer";
+import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
 
 @Component({
     selector: "pipeline-editor",
@@ -44,9 +34,11 @@ import {
 
         <ng-template #fullComponent>
             <header-bar [title]="'Pipeline Editor'" [showSave]="true" [showRun]="true" [showDelete]="true"
+                        [showInspect]="true"
                         [isLoading]="isLoading$|async"
                         (onSave)="savePipelineSource$.next()"
                         (onRun)="runPipelineSource$.next()"
+                        (onInspect)="runInspectSource$.next()"
             ></header-bar>
 
             <pipely-workspace [runTrigger$]="runPipeline$" [saveTrigger$]="savePipeline$"
@@ -73,6 +65,9 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
 
     public runPipelineSource$: Subject<void> = new Subject<void>();
     public runPipeline$: Observable<void> = this.runPipelineSource$.asObservable();
+
+    public runInspectSource$: Subject<void> = new Subject<void>();
+    public runInspect$: Observable<void> = this.runInspectSource$.asObservable();
 
     public blockDescriptorSource$: BehaviorSubject<BlockDescriptor[]> = new BehaviorSubject<BlockDescriptor[]>([]);
 

@@ -9,12 +9,14 @@ import "./style/headerbar.style.scss"
                 <span class="title">{{title}}</span>
                 <div class="header-button-wrapper" fxLayout="row" fxLayoutAlign="space-between center"
                      fxLayoutGap="50px">
-                    <div class="danger-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="10px">
+                    <div class="danger-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
+                         fxLayoutGap="10px">
                         <button mat-stroked-button color="warn" *ngIf="this.showDelete" (click)="remove()">
                             <mat-icon>delete</mat-icon>
                         </button>
                     </div>
-                    <div class="default-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="10px"> 
+                    <div class="default-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
+                         fxLayoutGap="10px">
                         <button mat-stroked-button *ngIf="this.showManualReload" (click)="reload()">
                             <mat-icon>autorenew</mat-icon>
                         </button>
@@ -29,9 +31,13 @@ import "./style/headerbar.style.scss"
                         <button mat-stroked-button *ngIf="this.showAdd" (click)="add()">
                             <mat-icon>add_circle</mat-icon>
                         </button>
+                        <button mat-stroked-button *ngIf="this.showInspect" (click)="add()">
+                            <mat-icon>favorite</mat-icon>
+                        </button>
                     </div>
                 </div>
-            <mat-progress-bar class="progress-bar-header" *ngIf="isLoading" mode="indeterminate" color="accent"></mat-progress-bar>
+                <mat-progress-bar class="progress-bar-header" *ngIf="isLoading" mode="indeterminate"
+                                  color="accent"></mat-progress-bar>
             </div>
         </div>
     `
@@ -45,6 +51,7 @@ export class HeaderBarComponent {
     @Input() public showAdd: boolean;
     @Input() public showRefresh: number;
     @Input() public isLoading: boolean;
+    @Input() public showInspect: boolean;
 
     @Output() public onManualReload: EventEmitter<void> = new EventEmitter();
     @Output() public onSave: EventEmitter<void> = new EventEmitter();
@@ -52,6 +59,7 @@ export class HeaderBarComponent {
     @Output() public onDelete: EventEmitter<void> = new EventEmitter();
     @Output() public onAdd: EventEmitter<void> = new EventEmitter();
     @Output() public onUpdateRefreshTime: EventEmitter<{ newRefreshTime: number, oldRefreshTime: number }> = new EventEmitter();
+    @Output() public onInspect: EventEmitter<void> = new EventEmitter();
 
     private reload() {
         this.onManualReload.emit();
