@@ -36,7 +36,7 @@ bintray {
             vcsTag = project.version
         }
     }
-    publications = ['keyscoreModelMavenPublication']
+    publications = ['keyscorePipelineApi']
 }
 
 publishing {
