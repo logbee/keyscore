@@ -1,0 +1,29 @@
+= Trouble-Shooting =
+
+== Max number of file watchers reached ==
+
+On Linux (or Mac) there is a max number of file watchers. So for large projects, you will face a similar error like the following:
+
+----
+events.js:163
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: watch /home/fooBar/dev/blah/lib/tools/testing/node_modules/core-js/modules ENOSPC
+    at exports._errnoException (util.js:1022:11)
+    at FSWatcher.start (fs.js:1429:19)
+    at Object.fs.watch (fs.js:1456:11)
+    at NodeWatcher.watchdir (/home/fooBar/.config/yarn/global/node_modules/sane/src/node_watcher.js:148:20)
+    at Walker.<anonymous> (/home/fooBar/.config/yarn/global/node_modules/sane/src/node_watcher.js:361:12)
+    at emitTwo (events.js:106:13)
+    at Walker.emit (events.js:191:7)
+    at /home/fooBar/.config/yarn/global/node_modules/walker/lib/walker.js:69:16
+    at go$readdir$cb (/home/fooBar/.config/yarn/global/node_modules/graceful-fs/graceful-fs.js:149:14)
+    at FSReqWrap.oncomplete (fs.js:123:15)
+----
+
+The Problem can be solved by increasing the limit:
+
+----
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+----
