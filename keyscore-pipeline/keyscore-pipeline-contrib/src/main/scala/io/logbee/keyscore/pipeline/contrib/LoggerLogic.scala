@@ -83,7 +83,7 @@ object LoggerLogic extends Described {
       icon = Icon.fromClass(classOf[LoggerLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Logger",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.LoggerLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
