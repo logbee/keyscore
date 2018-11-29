@@ -42,6 +42,7 @@ import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/err
             ></header-bar>
 
             <pipely-workspace [runTrigger$]="runPipeline$" [saveTrigger$]="savePipeline$"
+                              [inspectTrigger$]="runInspect$"
                               [pipeline]="(pipeline$ | async)"
                               [blockDescriptors]="blockDescriptorSource$|async"
                               [showLiveEditingButton]="isLoading$|async"

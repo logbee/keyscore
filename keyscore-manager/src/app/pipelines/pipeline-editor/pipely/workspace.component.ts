@@ -40,9 +40,12 @@ import {TextValue} from "../../../models/dataset/Value";
                     <div class="row">
                         <ng-template #workspaceContainer>
                         </ng-template>
-                        <puzzle-box class="top-shadow" [workspace]="this"
+                        <puzzle-box *ngIf="!isInspecting; else datasetTable" class="top-shadow" [workspace]="this"
                                     [descriptors]="blockDescriptors$|async"></puzzle-box>
-                        
+                        <ng-template #datasetTable>
+                            <!--<dataset-table class="top-shadow"></dataset-table>-->
+                        </ng-template>
+
                     </div>
                 </div>
 
@@ -71,10 +74,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
     @Input('showLiveEditingButton') set showLiveEditingButton(show: boolean) {
         this.showLiveEditingButtonSource$.next(show);
     }
+
     private showLiveEditingButtonSource$ = new BehaviorSubject<boolean>(true);
     public showLiveEditingButton$ = this.showLiveEditingButtonSource$.asObservable();
 
-    private isInspecting:boolean = true;
+    private isInspecting: boolean = false;
 
     @Input() runTrigger$: Observable<void>;
     @Input() saveTrigger$: Observable<void>;
@@ -129,6 +133,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
             this.selectedDraggableSource.next(this.selectedDraggable);
             this.selectedDraggable.select(true);
         }
+        
     }
 
     @HostListener('mousemove', ['$event'])

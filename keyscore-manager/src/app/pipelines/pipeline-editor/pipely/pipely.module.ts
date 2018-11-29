@@ -19,6 +19,7 @@ import {ParameterModule} from "../../../common/parameter/parameter.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
 import {ConfiguratorModule} from "./configurator/configurator.module";
+import {DatasetTableModule} from "../../../live-editing/dataset-table/dataset-table.module";
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import {ConfiguratorModule} from "./configurator/configurator.module";
         ParameterModule,
         ReactiveFormsModule,
         ConfiguratorModule,
-        FormsModule
+        FormsModule,
+        DatasetTableModule
     ],
     declarations: [
         WorkspaceComponent,

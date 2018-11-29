@@ -14,13 +14,14 @@ import {LiveEditingComponent} from "./live-editing.component";
 import {MaterialModule} from "../material.module";
 import {FiltersEffects} from "./live-editing-effects";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {DatasetTable} from "./components/dataset-table";
-import {ValueType} from "./components/value-type";
-import {LeftToRightNavigationControl} from "./components/left-to-right-navigation-control.component";
+import {DatasetTable} from "./dataset-table/dataset-table";
+import {ValueType} from "./dataset-table/value-type";
+import {LeftToRightNavigationControl} from "./dataset-table/left-to-right-navigation-control.component";
 import {ParameterModule} from "../common/parameter/parameter.module";
 import {ConfiguratorModule} from "../pipelines/pipeline-editor/pipely/configurator/configurator.module";
-import {FilterPresets} from "./components/filter-presets";
-import {TopToBottomNavigationControl} from "./components/topToBottom-navigation-control";
+import {FilterPresets} from "./dataset-table/filter-presets";
+import {TopToBottomNavigationControl} from "./dataset-table/topToBottom-navigation-control";
+import {DatasetTableModule} from "./dataset-table/dataset-table.module";
 
 export const routes: Routes = [
     {path: "", component: LiveEditingComponent}
@@ -41,14 +42,10 @@ export const routes: Routes = [
         MaterialModule,
         ConfiguratorModule,
         ParameterModule,
+        DatasetTableModule
     ],
     declarations: [
-        LiveEditingComponent,
-        DatasetTable,
-        ValueType,
-        LeftToRightNavigationControl,
-        TopToBottomNavigationControl,
-        FilterPresets
+        LiveEditingComponent
     ]
     ,
     providers: [
