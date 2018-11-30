@@ -109,7 +109,7 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
         
         while (nextBufferStartPosition < file.length) {
           
-          //we're reading and persisting byte positions, because the variable length of encoded chars would mean that we can't resume reading at the same position without decoding every single char in the whole char sequence (file) before it //TODO try to formulate this more clearly
+          //we're reading and persisting byte positions, because the variable length of encoded chars would mean that we can't resume reading at the same position without decoding every single char in the whole char sequence (file) before it
           
           byteBuffer.clear()
           var bytesRead = fileReadChannel.read(byteBuffer, nextBufferStartPosition)

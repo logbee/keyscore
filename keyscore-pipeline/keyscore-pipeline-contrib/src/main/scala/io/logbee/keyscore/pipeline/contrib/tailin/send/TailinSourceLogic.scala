@@ -103,7 +103,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     FileUtility.waitForFileToExist(persistenceFile)
 
 
-    val dirWatcherConfiguration = DirWatcherConfiguration(watchDir, watchDir, filePattern)  //TODO check if basedir is still needed
+    val dirWatcherConfiguration = DirWatcherConfiguration(watchDir, filePattern)
     val persistenceContext = new FilePersistenceContext(persistenceFile)
     val bufferSize = 1024
 
@@ -124,7 +124,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
     while(sendBuffer.isEmpty) {
       dirWatcher.processEvents()
-      log.info("triggered proccess events")
+      log.info("Triggered process events")
       Thread.sleep(1000)
     }
 
@@ -137,8 +137,16 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       )
     )
 
-    log.info(s"created Datasets $outData")
+    log.info(s"Created Datasets $outData")
 
     push(out, outData)
   }
+  
+  
+
+  override def postStop(): Unit = {
+    dirWatcher.teardown()
+    log.info("Tailin source is stopping.")
+  }
 }
+

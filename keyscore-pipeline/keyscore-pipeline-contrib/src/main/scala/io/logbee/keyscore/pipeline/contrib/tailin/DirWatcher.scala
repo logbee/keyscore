@@ -20,7 +20,7 @@ trait DirWatcher {
   def processEvents()
 }
 
-case class DirWatcherConfiguration(baseDir: Path, val dirPath: Path, filePattern: String)
+case class DirWatcherConfiguration(val dirPath: Path, filePattern: String)
 
 
 class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherProvider: WatcherProvider, callback: (String) => Unit) extends PathWatcher(configuration.dirPath) with DirWatcher {
@@ -36,8 +36,8 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     StandardWatchEventKinds.ENTRY_MODIFY,
     StandardWatchEventKinds.ENTRY_DELETE)
     
-  
-  private val matcher = FileSystems.getDefault.getPathMatcher(s"glob:${configuration.baseDir.toString}${configuration.filePattern}")
+
+  private val matcher = FileSystems.getDefault.getPathMatcher(s"glob:${dirPath.toString}${configuration.filePattern}")
   
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
   private val subFileWatchers = mutable.Map.empty[File, ListBuffer[FileWatcher]]
