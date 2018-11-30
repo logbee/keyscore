@@ -1,31 +1,26 @@
-package io.logbee.keyscore.contrib.tailin.logic
+package io.logbee.keyscore.pipeline.contrib.tailin.logic
 
-import java.io.{ File, FileOutputStream }
-import java.nio.file.Files
+import java.io.File
+import java.nio.file.{Files, _}
 
 import io.logbee.keyscore.contrib.tailin._
-import org.scalamock.scalatest.MockFactory
-import org.scalatest.{ FreeSpec, Matchers }
+import io.logbee.keyscore.pipeline.contrib.tailin._
 import org.junit.runner.RunWith
+import org.scalamock.scalatest.MockFactory
+import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.BeforeAndAfter
-import org.scalatest.ParallelTestExecution
-import java.nio.file._
-import java.io.IOException
-import org.scalatest.Inside
-import org.scalatest.OptionValues
 
 @RunWith(classOf[JUnitRunner])
 class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
-  
-  
-  
+
   var watchDir: Path = null
+
   before {
     watchDir = Files.createTempDirectory("watchTest")
 
     TestUtility.waitForFileToExist(watchDir.toFile)
   }
+
   after {
     TestUtility.recursivelyDelete(watchDir)
   }
@@ -37,7 +32,6 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
   }
 
-  
   "A DirWatcher," - {
     "when a sub-directory" - {
       "is created, should create a DirWatcher for that sub-directory" - {
@@ -52,9 +46,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           TestUtility.waitForFileToExist(subDir.toFile)
   
           dirWatcher.processEvents
-          
-          
-          
+
           //call another time to verify that it's called on the sub-DirWatcher
           dirWatcher.processEvents
           (subDirWatcher.processEvents _).verify
@@ -72,8 +64,6 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         
         dirWatcher.processEvents()
 
-        
-        
         subDir.toFile.delete
         TestUtility.waitForFileToBeDeleted(subDir.toFile)
 

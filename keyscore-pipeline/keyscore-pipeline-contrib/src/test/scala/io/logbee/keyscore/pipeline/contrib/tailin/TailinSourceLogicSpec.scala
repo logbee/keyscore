@@ -10,7 +10,6 @@ import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import akka.testkit.TestKit
-import io.logbee.keyscore.contrib.tailin.{ReadMode, TestUtility}
 import io.logbee.keyscore.model.configuration.{Configuration, TextParameter}
 import io.logbee.keyscore.model.data.{Dataset, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
@@ -28,29 +27,27 @@ import scala.concurrent.duration._
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
-
   var watchDir: Path = _
   var persistenceFile: File = _
+
   before {
     watchDir = Files.createTempDirectory("watchTest")
 
     TestUtility.waitForFileToExist(watchDir.toFile)
-    
-    
+
     persistenceFile = new File(".keyscoreFileTailinPersistence_test")
     persistenceFile.createNewFile()
     TestUtility.waitForFileToExist(persistenceFile)
   }
+
   after {
     TestUtility.recursivelyDelete(watchDir)
-    
     persistenceFile.delete()
   }
 
   override def afterAll {
     TestKit.shutdownActorSystem(system)
   }
-
 
   trait DefaultTailinSourceValues {
     val bufferSize = 1024
@@ -73,7 +70,6 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
 
     val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
   }
-
 
   "A TailinSource" - {
     "should push one available string for one available pull" in new DefaultTailinSourceValues {

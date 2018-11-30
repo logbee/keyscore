@@ -1,18 +1,14 @@
-package io.logbee.keyscore.contrib.tailin.persistence
+package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import java.io.File
+import java.io.{File, FileWriter}
 
 import org.json4s._
-import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods._
-import org.json4s.native.Serialization.{read, write}
-import java.io.FileWriter
+import org.json4s.native.Serialization.write
 
-import scala.reflect.ClassTag
 import scala.io.Source
-
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
-
 
 
 class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {

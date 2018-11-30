@@ -5,9 +5,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 
 import akka.stream.SourceShape
-import io.logbee.keyscore.contrib.tailin.persistence.FilePersistenceContext
-import io.logbee.keyscore.contrib.tailin.send.SendBuffer
-import io.logbee.keyscore.contrib.tailin.{DirWatcher, DirWatcherConfiguration, ReadMode, RotationReaderProvider}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
@@ -18,7 +15,8 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic
+import io.logbee.keyscore.pipeline.contrib.tailin.{DirWatcher, DirWatcherConfiguration, ReadMode, RotationReaderProvider}
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.util.FileUtility
 
 object TailinSourceLogic extends Described {
@@ -50,6 +48,7 @@ object TailinSourceLogic extends Described {
     defaultValue = "test",
     mandatory = true
   )
+
   override def describe = Descriptor(
     ref = "5a754cd3-e11d-4dfb-a484-a9f83cf3d795",
     describes = SourceDescriptor(
@@ -75,13 +74,9 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var directoryPath = ""
   private var filePattern = ""
 
-
-
   var dirWatcher: DirWatcher = _
 
   val sendBuffer = new SendBuffer()
-
-
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -90,8 +85,6 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   override def configure(configuration: Configuration): Unit = {
     directoryPath = configuration.getValueOrDefault(TailinSourceLogic.directoryPath, directoryPath)
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
-
-
 
     val watchDir = Paths.get(directoryPath)
 
@@ -102,11 +95,9 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     persistenceFile.createNewFile()
     FileUtility.waitForFileToExist(persistenceFile)
 
-
     val dirWatcherConfiguration = DirWatcherConfiguration(watchDir, filePattern)
     val persistenceContext = new FilePersistenceContext(persistenceFile)
     val bufferSize = 1024
-
 
     val callback: String => Unit = {
       data: String =>
@@ -118,7 +109,6 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, StandardCharsets.UTF_8, readMode)
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
   }
-
 
   override def onPull(): Unit = {
 
@@ -142,8 +132,6 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     push(out, outData)
   }
   
-  
-
   override def postStop(): Unit = {
     dirWatcher.teardown()
     log.info("Tailin source is stopping.")

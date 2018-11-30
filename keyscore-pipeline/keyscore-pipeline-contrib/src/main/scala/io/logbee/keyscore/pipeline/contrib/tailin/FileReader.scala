@@ -1,34 +1,21 @@
-package io.logbee.keyscore.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin
 
 import java.io.File
-import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
+import java.nio.charset.{CharacterCodingException, Charset, CodingErrorAction}
+import java.nio.file.{FileSystems, Files, StandardOpenOption}
+import java.nio.{ByteBuffer, CharBuffer}
 
-import io.logbee.keyscore.contrib.tailin.persistence.PersistenceContext
-
-
-
+import io.logbee.keyscore.contrib.tailin.util.CharBufferUtil
+import io.logbee.keyscore.pipeline.contrib.tailin.ReadMode.ReadMode
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 
 object ReadMode extends Enumeration {
   type ReadMode = Value
   val LINE, FILE = Value
 }
-import java.nio.CharBuffer
-import java.nio.charset.Charset
-import java.nio.charset.CodingErrorAction
-
-import io.logbee.keyscore.contrib.tailin.ReadMode.ReadMode
-import io.logbee.keyscore.contrib.tailin.util.CharBufferUtil
-import java.nio.charset.MalformedInputException
-import java.nio.charset.CoderResult
-import java.nio.charset.CharacterCodingException
-
 
 case class RotationRecord(previousReadPosition: Long, previousReadTimestamp: Long)
-
 
 /**
  * @param rotationSuffix Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.

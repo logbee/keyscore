@@ -1,4 +1,4 @@
-package io.logbee.keyscore.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin
 
 import java.io.File
 

@@ -1,11 +1,10 @@
-package io.logbee.keyscore.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin
 
-import java.nio.file.FileSystems
 import java.io.File
-import io.logbee.keyscore.contrib.tailin.persistence.FilePersistenceContext
-import io.logbee.keyscore.contrib.tailin.persistence.PersistenceContext
-import io.logbee.keyscore.contrib.tailin.ReadMode._
 import java.nio.charset.Charset
+
+import io.logbee.keyscore.pipeline.contrib.tailin.ReadMode.ReadMode
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 
 class RotationReaderProvider(rotationSuffix: String, persistenceContext: PersistenceContext, bufferSize: Int, callback: (String) => Unit, charset: Charset, readMode: ReadMode) extends WatcherProvider() {
 

@@ -1,15 +1,11 @@
-package io.logbee.keyscore.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin
 
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.InvalidPathException
-import java.nio.file.Path
-import java.nio.file.StandardWatchEventKinds
+import java.io.File
+import java.nio.file._
+
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import java.util.logging.Logging
-import java.io.File
 
 
 trait DirWatcher {
@@ -20,8 +16,7 @@ trait DirWatcher {
   def processEvents()
 }
 
-case class DirWatcherConfiguration(val dirPath: Path, filePattern: String)
-
+case class DirWatcherConfiguration(dirPath: Path, filePattern: String)
 
 class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherProvider: WatcherProvider, callback: (String) => Unit) extends PathWatcher(configuration.dirPath) with DirWatcher {
   

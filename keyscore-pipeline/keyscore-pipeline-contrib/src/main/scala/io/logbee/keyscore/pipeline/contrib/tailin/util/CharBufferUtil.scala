@@ -18,8 +18,6 @@ object CharBufferUtil {
     returnString
   }
 
-  
-  
   /**
    * Given a buffer and a position in this buffer that contains a newline-char, this method will return the next position that does not contain a newline-char.
    * 
