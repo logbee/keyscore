@@ -30,7 +30,7 @@ object CombineByValueLogic extends Described {
   override def describe = Descriptor(
     ref = "efbb3b8e-35f4-45ac-87be-f454cf3a951c",
     describes = FilterDescriptor(
-      name = classOf[LoggerLogic].getName,
+      name = classOf[CombineByValueLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
