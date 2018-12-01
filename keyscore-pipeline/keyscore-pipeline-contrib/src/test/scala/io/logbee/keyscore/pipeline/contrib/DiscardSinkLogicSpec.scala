@@ -23,9 +23,9 @@ import scala.collection.mutable
 import scala.concurrent.Promise
 
 @RunWith(classOf[JUnitRunner])
-class DrainSinkLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class DiscardSinkLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
-  "A DrainSinkLogic" - {
+  "A DiscardSinkLogic" - {
 
     "should pull elements in the specified interval" in {
 
@@ -33,12 +33,12 @@ class DrainSinkLogicSpec extends FreeSpec with Matchers with ScalaFutures with T
 
       val configuration = Configuration(
         parameters = Seq(
-          NumberParameter(DrainSinkLogic.intervalParameter, interval),
+          NumberParameter(DiscardSinkLogic.intervalParameter, interval),
         )
       )
 
       val context = StageContext(system, executionContext)
-      val provider = (parameters: LogicParameters, s: SinkShape[Dataset]) => new DrainSinkLogic(parameters, s)
+      val provider = (parameters: LogicParameters, s: SinkShape[Dataset]) => new DiscardSinkLogic(parameters, s)
 
       val durationPromise = Promise[List[Long]]
 

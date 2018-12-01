@@ -14,7 +14,7 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATIO
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.language.postfixOps
 
-object DrainSinkLogic extends Described {
+object DiscardSinkLogic extends Described {
 
   val intervalParameter = NumberParameterDescriptor(
     ref = "drain.interval",
@@ -34,20 +34,20 @@ object DrainSinkLogic extends Described {
   override def describe = Descriptor(
     ref = "3e5957f5-9b8f-4d36-871e-3ca73863ca7b",
     describes = SinkDescriptor(
-      name = classOf[DrainSinkLogic].getName,
+      name = classOf[DiscardSinkLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.SINK, CommonCategories.DEBUG),
       parameters = Seq(intervalParameter),
-      icon = Icon.fromClass(classOf[DrainSinkLogic])
+      icon = Icon.fromClass(classOf[DiscardSinkLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.DrainSinkLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.DiscardSinkLogic",
       Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
   )
 }
 
-class DrainSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) extends SinkLogic(parameters, shape) {
+class DiscardSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) extends SinkLogic(parameters, shape) {
 
   private var interval: FiniteDuration = 0 seconds
 
@@ -59,7 +59,7 @@ class DrainSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
 
   override def configure(configuration: Configuration): Unit = {
 
-    interval = configuration.findValue(DrainSinkLogic.intervalParameter)
+    interval = configuration.findValue(DiscardSinkLogic.intervalParameter)
       .map(value => value milliseconds)
       .getOrElse(interval)
 
