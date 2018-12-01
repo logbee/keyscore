@@ -33,7 +33,7 @@ object RetainFieldsLogic extends Described {
       name = classOf[RetainFieldsLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(CommonCategories.REMOVE_DROP),
+      categories = Seq(CommonCategories.REMOVE_DROP, CommonCategories.FIELDS),
       parameters = Seq(fieldNamesParameter),
       icon = Icon.fromClass(classOf[RetainFieldsLogic])
     ),
