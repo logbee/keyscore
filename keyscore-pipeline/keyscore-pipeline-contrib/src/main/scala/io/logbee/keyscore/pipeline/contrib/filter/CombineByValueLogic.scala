@@ -34,8 +34,8 @@ object CombineByValueLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
-      parameters = Seq(fieldNameParameter)
-//      icon = Icon.fromClass(classOf[CombineByValueLogic]) //TODO: Add icon
+      parameters = Seq(fieldNameParameter),
+      icon = Icon.fromClass(classOf[CombineByValueLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CombineByValueLogic",

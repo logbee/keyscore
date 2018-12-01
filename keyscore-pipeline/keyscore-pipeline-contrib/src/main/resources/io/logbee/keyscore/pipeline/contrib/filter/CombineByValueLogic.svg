@@ -5,9 +5,9 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   viewBox="0 0 80 80"
+   id="svg403"
    version="1.1"
-   id="svg403">
+   viewBox="0 0 80 80">
   <defs
      id="defs397" />
   <metadata
@@ -23,62 +23,62 @@
     </rdf:RDF>
   </metadata>
   <flowRoot
-     style="font-style:normal;font-weight:normal;font-size:40px;font-family:sans-serif;opacity:1;fill:#000000;fill-opacity:1;stroke:none"
-     id="flowRoot1257"
+     transform="matrix(0.3135543,0,0,0.3135543,52.360087,54.572434)"
      xml:space="preserve"
-     transform="matrix(0.3135543,0,0,0.3135543,52.360087,54.572434)"><flowRegion
+     id="flowRoot1257"
+     style="font-style:normal;font-weight:normal;font-size:40px;font-family:sans-serif;opacity:1;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
        id="flowRegion1259"><rect
-         y="95.323868"
-         x="66.774574"
-         height="66.411392"
+         id="rect1261"
          width="79.045174"
-         id="rect1261" /></flowRegion><flowPara
+         height="66.411392"
+         x="66.774574"
+         y="95.323868" /></flowRegion><flowPara
        id="flowPara1263" /></flowRoot>  <text
-     id="text1271"
-     y="64.240036"
-     x="68.123009"
+     xml:space="preserve"
      style="font-style:normal;font-weight:normal;font-size:3.31844px;font-family:sans-serif;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0829611"
-     xml:space="preserve"><tspan
-       style="stroke-width:0.0829611"
-       y="67.176079"
+     x="68.123009"
+     y="64.240036"
+     id="text1271"><tspan
+       id="tspan1269"
        x="68.123009"
-       id="tspan1269" /></text>
+       y="67.176079"
+       style="stroke-width:0.0829611" /></text>
   <g
-     transform="matrix(1.2733824,0,0,1.2733824,13.227081,25.43919)"
-     id="g958">
+     id="g958"
+     transform="matrix(1.2733824,0,0,1.2733824,13.227081,25.43919)">
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path919"
        d="M -8.4825459,18.948239 3.3468624,14.048696 M 38.710813,13.930018 50.532869,18.948239 21.025161,31.079802 -8.4825459,18.948239"
-       id="path919" />
+       style="fill:none;stroke:#ffffff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path919-1"
        d="M -8.4825454,8.948239 16.313182,-1.3222677 m 9.423721,-9.89e-5 L 50.532869,8.948239 21.025161,21.079802 -8.4825454,8.948239"
-       id="path919-1" />
+       style="fill:none;stroke:#ffffff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path919-4"
        d="M -8.4825459,28.948239 3.4009773,24.025922 M 38.710813,23.930019 50.532869,28.94824 21.025161,41.079802 -8.4825459,28.948239"
-       id="path919-4" />
+       style="fill:none;stroke:#ffffff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
   <text
-     id="text964"
-     y="15.452"
-     x="42.5"
+     xml:space="preserve"
      style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24px;font-family:FreeMono;-inkscape-font-specification:'FreeMono Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ffffff;stroke-width:1.09419"
-     xml:space="preserve"><tspan
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24px;font-family:FreeMono;-inkscape-font-specification:'FreeMono Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:1.09419"
-       y="15.452"
+     x="42.5"
+     y="15.452"
+     id="text964"><tspan
+       id="tspan962"
        x="42.5"
-       id="tspan962">[n]</tspan></text>
+       y="15.452"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24px;font-family:FreeMono;-inkscape-font-specification:'FreeMono Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:1.09419">[v]</tspan></text>
   <g
-     transform="translate(0,4.8400058)"
-     id="g1089">
+     id="g1089"
+     transform="translate(0,4.8400058)">
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1077"
        d="m 27.929437,10.388016 12.123178,0.01899 v 18.84807"
-       id="path1077" />
+       style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1079"
        d="m 45.052615,26.671825 -5,5.240182 -5,-5.240182"
-       id="path1079" />
+       style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>
