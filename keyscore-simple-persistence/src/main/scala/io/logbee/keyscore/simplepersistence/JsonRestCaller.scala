@@ -13,8 +13,6 @@ object JsonRestCaller{
 
 class JsonRestCaller(val endpoint:String)(implicit val actorSystem : ActorSystem) {
 
-  private case class Example(var1: Int, var2: String)
-
   def post(request: String, content: String): Future[HttpResponse] =
     Http().singleRequest(createRequest(request, content, HttpMethods.POST))
 

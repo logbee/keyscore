@@ -23,7 +23,9 @@ configurations {
 }
 
 dependencies {
-    
+
+    compile project(':keyscore-model')
+
     compile dependency.scala_lang
     compile dependency.akka_actor
     compile dependency.akka_persistence
