@@ -1,0 +1,66 @@
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import org.codehaus.groovy.runtime.GStringImpl
+
+apply plugin: 'scala'
+apply from: rootProject.file('dependencies.gradle')
+
+repositories {
+    mavenCentral()
+}
+
+project.ext {
+    distributionDir = "$buildDir/distribution" as GStringImpl
+}
+
+configurations {
+    testOutput
+}
+
+dependencies {
+    
+    compile dependency.scala_lang
+    compile dependency.akka_actor
+    compile dependency.akka_persistence
+    compile dependency.akka_stream
+    compile dependency.akka_slf4j
+    compile dependency.akka_http
+    compile dependency.akka_http_json
+    compile dependency.akka_cluster
+
+
+    runtime dependency.logback
+
+    testCompile dependency.scala_test
+    testCompile dependency.akka_testkit
+
+    testCompile dependency.junit
+
+    testOutput sourceSets.main.output
+    testOutput sourceSets.test.output
+}
+
+test {
+    testLogging {
+        events 'started', 'passed', 'skipped', 'failed'
+        exceptionFormat "full"
+    }
+}
+
+jar {
+    manifest.attributes([
+            'Main-Class'            : mainClass,
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': version,
+            'Class-Path'            : (configurations.runtime + configurations.compile).collect {
+                "libs/" + it.getName()
+            }.join(' ')
+    ])
+}
+
+
