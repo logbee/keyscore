@@ -34,8 +34,8 @@ object CombineByValueLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
-      parameters = Seq(fieldNameParameter),
-      icon = Icon.fromClass(classOf[CombineByValueLogic])
+      parameters = Seq(fieldNameParameter)
+//      icon = Icon.fromClass(classOf[CombineByValueLogic]) //TODO: Add icon
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CombineByValueLogic",
@@ -110,16 +110,16 @@ class CombineByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset,
     }
   }
 
-  private def isNewMatch(field: Option[Field]) = {
-    field.isDefined && current.isDefined && field.get != current.get._1 && field.get.name == fieldName
+  private def isFirstMatch(field: Option[Field]): Boolean = {
+    field.isDefined && current.isEmpty && field.get.name == fieldName
   }
 
-  private def isAnotherMatch(field: Option[Field]) = {
+  private def isAnotherMatch(field: Option[Field]): Boolean = {
     field.isDefined && current.isDefined && field.get == current.get._1
   }
 
-  private def isFirstMatch(field: Option[Field]) = {
-    field.isDefined && current.isEmpty && field.get.name == fieldName
+  private def isNewMatch(field: Option[Field]): Boolean = {
+    field.isDefined && current.isDefined && field.get != current.get._1 && field.get.name == fieldName
   }
 
   private def swapCurrentAndNext(): Unit = {
