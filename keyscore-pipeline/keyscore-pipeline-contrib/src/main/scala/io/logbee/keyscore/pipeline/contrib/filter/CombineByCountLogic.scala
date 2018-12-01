@@ -11,12 +11,12 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.CounterWindowingLogic.amountParameter
+import io.logbee.keyscore.pipeline.contrib.filter.CombineByCountLogic.amountParameter
 
 import scala.Long.MaxValue
 import scala.collection.mutable
 
-object CounterWindowingLogic extends Described {
+object CombineByCountLogic extends Described {
 
   val amountParameter = NumberParameterDescriptor(
     ref = "amount",
@@ -32,20 +32,20 @@ object CounterWindowingLogic extends Described {
   override def describe = Descriptor(
     ref = "3bf6b11f-2fda-40a8-ab93-e3a71d6b132f",
     describes = FilterDescriptor(
-      name = classOf[CounterWindowingLogic].getName,
+      name = classOf[CombineByCountLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
       parameters = Seq(amountParameter),
-      icon = Icon.fromClass(classOf[CounterWindowingLogic])
+      icon = Icon.fromClass(classOf[CombineByCountLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CounterWindowing",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CombineByCountLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
-class CounterWindowingLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
+class CombineByCountLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private var amount = amountParameter.defaultValue
 

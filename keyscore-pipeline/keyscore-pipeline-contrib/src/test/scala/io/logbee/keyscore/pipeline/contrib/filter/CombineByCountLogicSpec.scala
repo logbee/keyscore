@@ -18,14 +18,14 @@ import org.scalatest.{FreeSpec, Matchers}
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class CounterWindowLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class CombineByCountLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   val configuration = Configuration(
     NumberParameter("amount", 3)
   )
 
   val context = StageContext(system, executionContext)
-  val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new CounterWindowingLogic(p, s))
+  val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new CombineByCountLogic(p, s))
 
   val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
     .viaMat(filterStage)(Keep.both)
@@ -45,11 +45,7 @@ class CounterWindowLogicSpec extends FreeSpec with Matchers with ScalaFutures wi
     Field("location", TextValue("ulm/germany"))
   ))
 
-  "A CounterWindowingLogic" - {
-
-    "should return a MetaFilterDescriptor" in {
-      CounterWindowingLogic.describe should not be null
-    }
+  "A CombineByCountLogic" - {
 
     "should buffer datasets until the specified amount has been reached" in {
 
