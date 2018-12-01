@@ -4,7 +4,7 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.{Dataset, Field, Record}
+import io.logbee.keyscore.model.data.{Dataset, Field}
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
@@ -18,7 +18,7 @@ import scala.collection.mutable
 object CombineByValueLogic extends Described {
 
   val fieldNameParameter = FieldNameParameterDescriptor(
-    ref = "simple-aggregate.fieldName",
+    ref = "combineByValue.fieldName",
     info = ParameterInfo(
       displayName = "fieldName.displayName",
       description = "fieldName.description"
@@ -35,7 +35,7 @@ object CombineByValueLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
       parameters = Seq(fieldNameParameter),
-      icon = Icon.fromClass(classOf[LoggerLogic])
+      icon = Icon.fromClass(classOf[CombineByValueLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CombineByValueLogic",
