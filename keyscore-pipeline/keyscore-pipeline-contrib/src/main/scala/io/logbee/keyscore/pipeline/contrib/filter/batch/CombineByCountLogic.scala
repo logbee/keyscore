@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter
+package io.logbee.keyscore.pipeline.contrib.filter.batch
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
@@ -11,7 +11,6 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.CombineByCountLogic.amountParameter
 
 import scala.Long.MaxValue
 import scala.collection.mutable
@@ -40,14 +39,14 @@ object CombineByCountLogic extends Described {
       icon = Icon.fromClass(classOf[CombineByCountLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CombineByCountLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.CombineByCountLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
 class CombineByCountLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private var amount = amountParameter.defaultValue
+  private var amount = CombineByCountLogic.amountParameter.defaultValue
 
   private val buffer = mutable.ListBuffer.empty[Dataset]
 
@@ -56,7 +55,7 @@ class CombineByCountLogic(parameters: LogicParameters, shape: FlowShape[Dataset,
   }
 
   override def configure(configuration: Configuration): Unit = {
-    amount = configuration.getValueOrDefault(amountParameter, amount)
+    amount = configuration.getValueOrDefault(CombineByCountLogic.amountParameter, amount)
   }
 
   override def onPush(): Unit = {

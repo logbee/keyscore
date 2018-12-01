@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter
+package io.logbee.keyscore.pipeline.contrib.filter.batch
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
@@ -10,7 +10,7 @@ import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
-import io.logbee.keyscore.pipeline.contrib.{CommonCategories, LoggerLogic}
+import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import org.json4s.Formats
 
 import scala.collection.mutable
@@ -38,7 +38,7 @@ object CombineByValueLogic extends Described {
       icon = Icon.fromClass(classOf[CombineByValueLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.CombineByValueLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.CombineByValueLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CommonCategories.CATEGORY_LOCALIZATION
   )
