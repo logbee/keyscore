@@ -45,11 +45,11 @@ publishing {
             groupId project.group
             artifactId project.name
             version project.version
-            artifact jar
+            from components.java
             artifact sourcesJar
             artifact scaladocJar
             pom.withXml {
-                generatePomXml(project, asNode())
+                buildPomXml(project, asNode())
             }
         }
     }
@@ -67,4 +67,10 @@ jar {
             'Implementation-Title'  : project.name,
             'Implementation-Version': version,
     ])
+    from (rootProject.projectDir) {
+        include 'LICENSE'
+    }
+    into("META-INF/maven/$project.group/$project.name") {
+        from generatePomXml
+    }
 }

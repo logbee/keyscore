@@ -79,6 +79,18 @@ configure ([
         key = "$bintrayKey"
     }
 
+    task generatePomXml {
+        def filePath = "$buildDir/tmp/maven/pom.xml"
+        group = 'Publishing'
+        description = 'Generates a maven pom file.'
+        outputs.file(filePath)
+        doLast {
+            pom{}.withXml {
+                buildPomXml(project, asNode())
+            }.writeTo(filePath)
+        }
+    }
+
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
@@ -114,10 +126,6 @@ task createContainerNetwork(type: DockerCreateNetwork) {
     networkId = project.properties['containerNetwork']
 }
 
-task foo {
-
-}
-
 private def isDockerRegistryUserConfigured() {
     return ext.dockerRegistryUser != null && !ext.dockerRegistryUser.empty
 }
@@ -134,7 +142,7 @@ private def isBintrayKeyConfigured() {
     return ext.bintrayKey != null && !ext.bintrayKey.empty
 }
 
-def generatePomXml(project, root) {
+def static buildPomXml(project, root) {
 
     def listOfDevelopers = [
         ["kkdh", "Elmar Schug", "elmar.schug@jayware.org", "Europe/Berlin"],
