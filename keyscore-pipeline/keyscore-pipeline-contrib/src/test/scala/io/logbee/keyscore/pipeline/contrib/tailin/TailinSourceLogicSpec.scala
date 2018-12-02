@@ -28,7 +28,7 @@ import scala.concurrent.duration._
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   var watchDir: Path = _
-  var persistenceFile: File = _
+  var persistenceFile: File = _ //TODO actually pass this persistence file along in a parameter
 
   before {
     watchDir = Files.createTempDirectory("watchTest")

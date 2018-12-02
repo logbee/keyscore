@@ -6,9 +6,10 @@ import java.nio.charset.{CharacterCodingException, Charset, CodingErrorAction}
 import java.nio.file.{FileSystems, Files, StandardOpenOption}
 import java.nio.{ByteBuffer, CharBuffer}
 
-import io.logbee.keyscore.contrib.tailin.util.CharBufferUtil
+import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
 import io.logbee.keyscore.pipeline.contrib.tailin.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
+
 
 object ReadMode extends Enumeration {
   type ReadMode = Value
@@ -115,7 +116,7 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
           if (coderResult.isMalformed) {
             //TODO handle the case where our persisted byte position starts in the middle of a codepoint for some reason
             
-            if (charBuffer.position + coderResult.length == charBuffer.capacity) { //characters are malformed because of the end of the buffer
+            if (charBuffer.position() + coderResult.length == charBuffer.capacity) { //characters are malformed because of the end of the buffer
               bytesRead -= coderResult.length
             }
             else { //actual error case
@@ -157,14 +158,14 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
       
       var writtenPositionWithinBuffer = 0
       
-      while (buffer.position < buffer.limit) {
+      while (buffer.position() < buffer.limit()) {
         
         //check for the occurrence of \n or \r, as we do linewise reading
         val byte = buffer.get().toChar //sets pos to pos+1
         
         if (byte == '\n' || byte == '\r') {
   
-          val lengthToWrite = buffer.position - 1 - writtenPositionWithinBuffer // "-1", because we don't want to count the '\n' 
+          val lengthToWrite = buffer.position() - 1 - writtenPositionWithinBuffer // "-1", because we don't want to count the '\n' 
           
           val string = CharBufferUtil.getBufferSectionAsString(buffer, writtenPositionWithinBuffer, lengthToWrite)
           
@@ -188,13 +189,13 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
     //end of data in buffer reached
     
     
-    val length = buffer.limit - buffer.position
+    val length = buffer.limit() - buffer.position()
     
     if (length > 0) {
       val string = CharBufferUtil.getBufferSectionAsString(buffer, buffer.position, length)
       
       
-      if (buffer.limit < buffer.capacity) { //end of file
+      if (buffer.limit() < buffer.capacity) { //end of file
         
         doCallback(callback, string) //write the remaining bytes
       }

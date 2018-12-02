@@ -1,9 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.logic
 
 import java.io.File
-import java.nio.file.{Files, _}
+import java.nio.file._
 
-import io.logbee.keyscore.contrib.tailin._
 import io.logbee.keyscore.pipeline.contrib.tailin._
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory

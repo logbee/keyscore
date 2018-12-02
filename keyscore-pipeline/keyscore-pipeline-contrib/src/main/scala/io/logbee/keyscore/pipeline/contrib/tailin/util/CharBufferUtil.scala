@@ -1,4 +1,4 @@
-package io.logbee.keyscore.contrib.tailin.util
+package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import java.nio.CharBuffer
 
@@ -6,7 +6,7 @@ object CharBufferUtil {
   
   def getBufferSectionAsString(buffer: CharBuffer, position: Int, length: Int): String = {
     
-    val tmpPos = buffer.position
+    val tmpPos = buffer.position()
     buffer.position(position)
     
     var array = new Array[Char](length)
@@ -31,7 +31,7 @@ object CharBufferUtil {
     
     var _position = position
     
-    while (_position < buffer.limit &&
+    while (_position < buffer.limit() &&
         (buffer.get(_position) == '\n' || buffer.get(_position) == '\r')) { //skip any following newline-chars, which explicitly includes "\n", "\r", "\r\n", as well as "\n\n\n\n\n\n\n..."
       _position += 1
     }
