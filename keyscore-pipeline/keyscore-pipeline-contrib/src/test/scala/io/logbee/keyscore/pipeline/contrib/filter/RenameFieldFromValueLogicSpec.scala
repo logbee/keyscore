@@ -15,8 +15,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
-import scala.concurrent.duration._
-
 
 @RunWith(classOf[JUnitRunner])
 class RenameFieldFromValueLogicSpec extends FreeSpec with ScalaFutures with Matchers with TestSystemWithMaterializerAndExecutionContext {
@@ -39,21 +37,29 @@ class RenameFieldFromValueLogicSpec extends FreeSpec with ScalaFutures with Matc
 
   "A CombineByValueLogic" - {
 
-    val sample = Dataset(
-      Record(
-        Field("value", DecimalValue(24.8)),
-        Field("kind", TextValue("ambient-temperature"))
-      )
-    )
-
-    val expecte = Dataset(
-      Record(
-        Field("ambient-temperature", DecimalValue(24.8)),
-        Field("kind", TextValue("ambient-temperature"))
-      )
-    )
-
     "should rename the configured field by the value carried in the specified field" in new TestStream {
+
+      val sample = Dataset(
+        Record(
+          Field("value", DecimalValue(24.8)),
+          Field("kind", TextValue("ambient-temperature"))
+        ),
+        Record(
+          Field("value", TextValue("New temperature read.")),
+          Field("kind", TextValue("message"))
+        )
+      )
+
+      val expected = Dataset(
+        Record(
+          Field("ambient-temperature", DecimalValue(24.8)),
+          Field("kind", TextValue("ambient-temperature"))
+        ),
+        Record(
+          Field("message", TextValue("New temperature read.")),
+          Field("kind", TextValue("message"))
+        )
+      )
 
       whenReady(filterFuture) { _ =>
 
@@ -63,9 +69,57 @@ class RenameFieldFromValueLogicSpec extends FreeSpec with ScalaFutures with Matc
 
         val actual = sink.requestNext()
 
-        actual.records.head.fields should contain only (
-          expecte.records.head.fields:_*
+        actual.records should have size 2
+        actual.records.head.fields should contain only (expected.records.head.fields:_*)
+        actual.records.last.fields should contain only (expected.records.last.fields:_*)
+      }
+    }
+
+    "should let pass datasets which does not contain any of the expected fields." in new TestStream {
+
+      val sample = Dataset(
+        Record(
+          Field("message", TextValue("Hello World!")),
         )
+      )
+
+      whenReady(filterFuture) { _ =>
+
+        sink.request(1)
+
+        source.sendNext(sample)
+
+        val actual = sink.requestNext()
+
+        actual shouldBe sample
+      }
+    }
+
+    "should let pass datasets which does not contain one of the expected fields." in new TestStream {
+
+      val sampleA = Dataset(
+        Record(
+          Field("message", TextValue("Hello World!")),
+          Field("kind", TextValue("temperature")),
+        )
+      )
+
+      val sampleB = Dataset(
+        Record(
+          Field("value", TextValue("Hello World!")),
+          Field("type", TextValue("temperature")),
+        )
+      )
+
+      whenReady(filterFuture) { _ =>
+
+        sink.request(2)
+
+        source.sendNext(sampleA)
+        source.sendNext(sampleB)
+
+        sink.requestNext() shouldBe sampleA
+        sink.requestNext() shouldBe sampleB
       }
     }
   }
