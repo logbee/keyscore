@@ -1,10 +1,8 @@
 package io.logbee.keyscore.agent.pipeline
 
-import java.lang.reflect.Constructor
-
 import akka.actor
 import akka.actor.{Actor, ActorLogging, Props}
-import akka.stream.{ActorMaterializer, FlowShape, SinkShape, SourceShape}
+import akka.stream.ActorMaterializer
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
 import io.logbee.keyscore.commons.extension.{FilterExtension, SinkExtension, SourceExtension}
@@ -12,8 +10,8 @@ import io.logbee.keyscore.commons.util.StartUpWatch.Ready
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion._
-import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.pipeline.api.LogicProviderFactory._
 import io.logbee.keyscore.pipeline.api._
 import io.logbee.keyscore.pipeline.api.stage._
 
@@ -154,44 +152,4 @@ class FilterManager extends Actor with ActorLogging {
     case Ready =>
       sender ! Ready
   }
-
-  private def createSinkLogicProvider(logicClass: Class[_]): (LogicParameters, SinkShape[Dataset]) => SinkLogic = {
-    val constructor = getLogicConstructor(logicClass)
-    (parameters: LogicParameters, shape: SinkShape[Dataset]) => {
-      constructor.newInstance(parameters, shape).asInstanceOf[SinkLogic]
-    }
-  }
-
-  private def createSourceLogicProvider(logicClass: Class[_]): (LogicParameters, SourceShape[Dataset]) => SourceLogic = {
-    val constructor = getLogicConstructor(logicClass)
-    (parameters: LogicParameters, shape: SourceShape[Dataset]) => {
-      constructor.newInstance(parameters, shape).asInstanceOf[SourceLogic]
-    }
-  }
-
-  private def createFilterLogicProvider(logicClass: Class[_]): (LogicParameters, FlowShape[Dataset, Dataset]) => FilterLogic = {
-    val constructor = getLogicConstructor(logicClass)
-    (parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) => {
-      constructor.newInstance(parameters, shape).asInstanceOf[FilterLogic]
-    }
-  }
-
-  private def createBranchLogicProvider(logicClass: Class[_]): (LogicParameters, BranchShape[Dataset, Dataset, Dataset]) => BranchLogic = {
-    val constructor = getLogicConstructor(logicClass)
-    (parameters: LogicParameters, shape: BranchShape[Dataset, Dataset, Dataset]) => {
-      constructor.newInstance(parameters, shape).asInstanceOf[BranchLogic]
-    }
-  }
-
-  private def createMergeLogicProvider(logicClass: Class[_]): (LogicParameters, MergeShape[Dataset, Dataset, Dataset]) => MergeLogic = {
-    val constructor = getLogicConstructor(logicClass)
-    (parameters: LogicParameters, shape: MergeShape[Dataset, Dataset, Dataset]) => {
-      constructor.newInstance(parameters, shape).asInstanceOf[MergeLogic]
-    }
-  }
-
-  private def getLogicConstructor(logicClass: Class[_]): Constructor[_] = {
-    logicClass.getConstructors()(0)
-  }
-
 }
