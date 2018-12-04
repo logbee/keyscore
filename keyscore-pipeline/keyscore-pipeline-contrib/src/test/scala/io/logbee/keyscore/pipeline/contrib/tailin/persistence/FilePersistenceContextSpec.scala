@@ -1,12 +1,11 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import java.nio.file.{Files, Path}
-
-import io.logbee.keyscore.pipeline.contrib.tailin.{RotationRecord, TestUtility}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.RotationRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FreeSpec, Matchers, ParallelTestExecution}
-
 import scala.reflect.runtime.universe._
 
 

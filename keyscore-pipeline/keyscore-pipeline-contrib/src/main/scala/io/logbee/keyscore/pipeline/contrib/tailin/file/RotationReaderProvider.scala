@@ -1,10 +1,10 @@
-package io.logbee.keyscore.pipeline.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.io.File
 import java.nio.charset.Charset
-
-import io.logbee.keyscore.pipeline.contrib.tailin.ReadMode.ReadMode
+import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
+
 
 class RotationReaderProvider(rotationSuffix: String, persistenceContext: PersistenceContext, bufferSize: Int, callback: (String) => Unit, charset: Charset, readMode: ReadMode) extends WatcherProvider() {
 

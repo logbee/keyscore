@@ -1,4 +1,6 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.send
+package io.logbee.keyscore.pipeline.contrib.tailin
+
+import scala.collection.Seq
 
 class SendBuffer {
   private var buffer: Seq[String] = Seq.empty

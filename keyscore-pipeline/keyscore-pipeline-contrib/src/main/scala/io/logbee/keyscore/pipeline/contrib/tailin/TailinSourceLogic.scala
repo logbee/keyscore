@@ -1,9 +1,8 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.send
+package io.logbee.keyscore.pipeline.contrib.tailin
 
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
-
 import akka.stream.SourceShape
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -15,9 +14,11 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.tailin.{DirWatcher, DirWatcherConfiguration, ReadMode, RotationReaderProvider}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirWatcher, DirWatcherConfiguration, ReadMode}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.RotationReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.util.FileUtility
+
 
 object TailinSourceLogic extends Described {
 

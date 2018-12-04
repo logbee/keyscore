@@ -1,8 +1,7 @@
-package io.logbee.keyscore.pipeline.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.io.File
 import java.nio.file._
-
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

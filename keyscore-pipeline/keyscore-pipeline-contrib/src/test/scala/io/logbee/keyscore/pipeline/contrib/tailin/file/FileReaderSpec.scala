@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
@@ -10,6 +10,7 @@ import org.scalatest.{BeforeAndAfter, FreeSpec, Matchers, ParallelTestExecution}
 import org.scalatest.junit.JUnitRunner
 
 import scala.reflect.runtime.universe._
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
 
 
 @RunWith(classOf[JUnitRunner])

@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.io.File
 import java.nio.channels.FileChannel
@@ -7,7 +7,7 @@ import java.nio.file.{FileSystems, Files, StandardOpenOption}
 import java.nio.{ByteBuffer, CharBuffer}
 
 import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
-import io.logbee.keyscore.pipeline.contrib.tailin.ReadMode.ReadMode
+import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 
 

@@ -14,8 +14,7 @@ import io.logbee.keyscore.model.configuration.{Configuration, TextParameter}
 import io.logbee.keyscore.model.data.{Dataset, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{SourceStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.tailin.send.TailinSourceLogic
-import io.logbee.keyscore.pipeline.contrib.tailin.send.TailinSourceLogic.{directoryPath, filePattern}
+import io.logbee.keyscore.pipeline.contrib.tailin.TailinSourceLogic.{directoryPath, filePattern}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -23,6 +22,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FreeSpec, Matchers}
 
 import scala.concurrent.duration._
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
+import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode
 
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {

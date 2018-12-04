@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin
+package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import java.io.File
 import java.nio.file.SimpleFileVisitor
@@ -9,7 +9,6 @@ import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.io.IOException
 import java.nio.charset.StandardCharsets
-import java.nio.file.StandardOpenOption
 import java.nio.file.OpenOption
 
 object TestUtility {

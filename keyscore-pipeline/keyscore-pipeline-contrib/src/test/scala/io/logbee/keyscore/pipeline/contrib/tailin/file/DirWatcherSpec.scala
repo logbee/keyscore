@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.logic
+package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.io.File
 import java.nio.file._
@@ -8,6 +8,7 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
 
 @RunWith(classOf[JUnitRunner])
 class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
