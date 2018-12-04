@@ -140,5 +140,18 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         (subFileWatcher.pathDeleted _).verify()
       }
     }
+    
+    "when its configured directory doesn't exist, should throw an exception" in {
+      
+      val watchDir = Paths.get("/abc/def/ghi/jkl/mno/pqr/stu/vwx")
+      
+      val configuration = DirWatcherConfiguration(watchDir, "**.txt")
+      val callback = (_: String) => ()
+      
+      
+      assertThrows[InvalidPathException] {
+        val dirWatcher = new DefaultDirWatcher(configuration, null, callback)
+      }
+    }
   }
 }

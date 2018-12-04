@@ -22,6 +22,11 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   private val dirPath = configuration.dirPath
   
   
+  if (Files.isDirectory(dirPath) == false) {
+    throw new InvalidPathException(dirPath.toString, "The given path is not a directory or doesn't exist.")
+  }
+  
+  
   
   private val watchService = FileSystems.getDefault().newWatchService()
   private val watchKey = dirPath.register(
@@ -36,9 +41,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
   private val subFileWatchers = mutable.Map.empty[File, ListBuffer[FileWatcher]]
 
-  if (Files.isDirectory(dirPath) == false) {
-    throw new InvalidPathException(dirPath.toString, "The given path is not a directory or doesn't exist.")
-  }
+  
 
   
   //recursive setup

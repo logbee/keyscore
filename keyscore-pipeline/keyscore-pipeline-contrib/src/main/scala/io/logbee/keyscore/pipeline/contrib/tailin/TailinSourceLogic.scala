@@ -88,6 +88,10 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
 
     val watchDir = Paths.get(directoryPath)
+    if (watchDir.toFile.isDirectory == false) {
+      log.warning("Directory that was configured to watch doesn't exist or is a file.")
+      return
+    }
 
     val rotationSuffix = ".[1-5]"
 
@@ -111,6 +115,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
   }
 
+  
   override def onPull(): Unit = {
 
     while(sendBuffer.isEmpty) {
@@ -132,6 +137,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
     push(out, outData)
   }
+  
   
   override def postStop(): Unit = {
     dirWatcher.teardown()
