@@ -1,20 +1,95 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Generator: Adobe Illustrator 12.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 51448)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
-	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
-	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
-]>
-<svg  version="1.1" viewBox="0 0 80 80"
-	 overflow="visible" enable-background="new 0 0 80 80" xml:space="preserve">
-<g id="layer1">
-	
-		<path id="path411_3_" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10.3" d="
-		M68.519,59.772v16.748H10.875V3.125h41.838l15.806,16.753v20.191V59.772z"/>
-	<path id="path1232" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="square" stroke-linejoin="round" d="
-		M52.713,5.588l15.806,14.291H52.713V5.588z"/>
-</g>
-<path id="path1650" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" d="M17.5,32.5h43.709"/>
-<path id="path1650-5" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" d="M17.5,45h43.709"/>
-<path id="path1650-9" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" d="M18,57.5h43.709"/>
-<path id="path1650-3" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" d="M17.5,70h43.709"/>
-</svg>
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0 0 80 80"
+   overflow="visible"
+   enable-background="new 0 0 80 80"
+   xml:space="preserve"
+   id="svg9"
+   sodipodi:docname="TailinSourceLogic.svg"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"><metadata
+     id="metadata15"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+     id="defs13" /><sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1874"
+     inkscape:window-height="1047"
+     id="namedview11"
+     showgrid="false"
+     inkscape:zoom="5.6568543"
+     inkscape:cx="27.757131"
+     inkscape:cy="50.892964"
+     inkscape:window-x="38"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg9"
+     inkscape:pagecheckerboard="true" /><g
+     id="layer1"><path
+       id="path411_3_"
+       fill="none"
+       stroke="#FFFFFF"
+       stroke-width="4"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       stroke-miterlimit="10.3"
+       d="   M68.519,59.772v16.748H10.875V3.125h41.838l15.806,16.753v20.191V59.772z" /><path
+       id="path1232"
+       fill="none"
+       stroke="#FFFFFF"
+       stroke-width="4"
+       stroke-linecap="square"
+       stroke-linejoin="round"
+       d="   M52.713,5.588l15.806,14.291H52.713V5.588z" /></g><path
+     id="path1650"
+     d="M 17.5,30.5 H 61.209"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#ffffff;stroke-width:5;stroke-linejoin:round" /><path
+     id="path1650-5"
+     d="M 17.5,41 H 61.209"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#ffffff;stroke-width:5;stroke-linejoin:round" /><path
+     id="path1650-9"
+     d="M 17.5,53.5 H 61.209"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#ffffff;stroke-width:5;stroke-linejoin:round" /><rect
+     id="rect32"
+     width="5"
+     height="5"
+     x="48.450848"
+     y="62.982445"
+     style="fill:#ffffff;stroke-width:1.07596052" /><rect
+     id="rect32-6"
+     width="5"
+     height="5"
+     x="56.209"
+     y="62.934525"
+     style="fill:#ffffff;stroke-width:1.07596052" /><rect
+     style="fill:#ffffff;stroke-width:0.81595141"
+     id="rect53"
+     width="20.596415"
+     height="5"
+     x="17.5"
+     y="63" /><rect
+     id="rect32-7"
+     width="5"
+     height="5"
+     x="40.755001"
+     y="62.982441"
+     style="fill:#ffffff;stroke-width:1.07596052" /></svg>
