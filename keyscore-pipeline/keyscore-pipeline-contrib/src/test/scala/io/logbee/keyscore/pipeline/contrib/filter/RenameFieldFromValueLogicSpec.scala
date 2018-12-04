@@ -35,7 +35,7 @@ class RenameFieldFromValueLogicSpec extends FreeSpec with ScalaFutures with Matc
       .run()
   }
 
-  "A CombineByValueLogic" - {
+  "A RenameFieldFromValueLogic" - {
 
     "should rename the configured field by the value carried in the specified field" in new TestStream {
 
