@@ -18,14 +18,14 @@ import org.scalatest.{FreeSpec, Matchers}
 import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class CombineByCountLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class GroupByCountLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   val configuration = Configuration(
     NumberParameter("amount", 3)
   )
 
   val context = StageContext(system, executionContext)
-  val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new CombineByCountLogic(p, s))
+  val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new GroupByCountLogic(p, s))
 
   val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
     .viaMat(filterStage)(Keep.both)
@@ -45,7 +45,7 @@ class CombineByCountLogicSpec extends FreeSpec with Matchers with ScalaFutures w
     Field("location", TextValue("ulm/germany"))
   ))
 
-  "A CombineByCountLogic" - {
+  "A GroupByCountLogic" - {
 
     "should buffer datasets until the specified amount has been reached" in {
 

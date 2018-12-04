@@ -19,16 +19,16 @@ import scala.concurrent.duration._
 
 
 @RunWith(classOf[JUnitRunner])
-class CombineByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers with TestSystemWithMaterializerAndExecutionContext {
+class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers with TestSystemWithMaterializerAndExecutionContext {
 
   trait TestStream {
 
     val configuration = Configuration(parameters = Seq(
-      FieldNameParameter(CombineByValueLogic.fieldNameParameter.ref, "key")
+      FieldNameParameter(GroupByValueLogic.fieldNameParameter.ref, "key")
     ))
 
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new CombineByValueLogic(p, s))
+    val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new GroupByValueLogic(p, s))
 
     val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
@@ -36,7 +36,7 @@ class CombineByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers w
       .run()
   }
 
-  "A CombineByValueLogic" - {
+  "A GroupByValueLogic" - {
 
     val samplesA = Seq(
       Dataset(Record(

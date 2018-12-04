@@ -15,7 +15,7 @@ import org.json4s.Formats
 
 import scala.collection.mutable
 
-object CombineByValueLogic extends Described {
+object GroupByValueLogic extends Described {
 
   val fieldNameParameter = FieldNameParameterDescriptor(
     ref = "combineByValue.fieldName",
@@ -30,21 +30,21 @@ object CombineByValueLogic extends Described {
   override def describe = Descriptor(
     ref = "efbb3b8e-35f4-45ac-87be-f454cf3a951c",
     describes = FilterDescriptor(
-      name = classOf[CombineByValueLogic].getName,
+      name = classOf[GroupByValueLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
       parameters = Seq(fieldNameParameter),
-      icon = Icon.fromClass(classOf[CombineByValueLogic])
+      icon = Icon.fromClass(classOf[GroupByValueLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.CombineByValueLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.GroupByValueLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CommonCategories.CATEGORY_LOCALIZATION
   )
 }
 
-class CombineByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
+class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
   private implicit val jsonFormats: Formats = KeyscoreFormats.formats
 
@@ -59,7 +59,7 @@ class CombineByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset,
   }
 
   override def configure(configuration: Configuration): Unit = {
-    fieldName = configuration.getValueOrDefault(CombineByValueLogic.fieldNameParameter, fieldName)
+    fieldName = configuration.getValueOrDefault(GroupByValueLogic.fieldNameParameter, fieldName)
   }
 
   override def onPush(): Unit = {
