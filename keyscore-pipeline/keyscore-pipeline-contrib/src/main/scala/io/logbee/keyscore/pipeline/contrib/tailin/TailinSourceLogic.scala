@@ -46,7 +46,21 @@ object TailinSourceLogic extends Described {
       expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
       expressionType = RegEx
     ),
-    defaultValue = "test",
+    defaultValue = "",
+    mandatory = false
+  )
+  
+  val rotationSuffix = TextParameterDescriptor(
+    ref = "tailin.rotation.suffix",
+    info = ParameterInfo(
+      displayName = TextRef("rotationSuffix"),
+      description = TextRef("rotationSuffixDescription")
+    ),
+    validator = StringValidator(
+      expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
+      expressionType = RegEx
+    ),
+    defaultValue = "",
     mandatory = false
   )
 
@@ -59,7 +73,8 @@ object TailinSourceLogic extends Described {
       categories = Seq(CommonCategories.SOURCE, Category("File")),
       parameters = Seq(
         directoryPath,
-        filePattern
+        filePattern,
+        rotationSuffix
       ),
       icon = Icon.fromClass(classOf[TailinSourceLogic])
     ),
@@ -70,10 +85,12 @@ object TailinSourceLogic extends Described {
   )
 }
 
+
 class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
 
   private var directoryPath = ""
   private var filePattern = ""
+  private var rotationSuffix = ""
 
   var dirWatcher: DirWatcher = _
 
@@ -86,14 +103,13 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   override def configure(configuration: Configuration): Unit = {
     directoryPath = configuration.getValueOrDefault(TailinSourceLogic.directoryPath, directoryPath)
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
+    rotationSuffix = configuration.getValueOrDefault(TailinSourceLogic.rotationSuffix, rotationSuffix)
 
     val watchDir = Paths.get(directoryPath)
     if (watchDir.toFile.isDirectory == false) {
       log.warning("The path that was configured to watch doesn't exist or is not a directory.")
       return
     }
-
-    val rotationSuffix = ".[1-5]"
 
     val persistenceFile: File = new File(".keyscoreFileTailinPersistence")
 
