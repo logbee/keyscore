@@ -235,7 +235,7 @@ export class PipelinesEffects {
     @Effect() public runPipelineSuccess$: Observable<Action> = this.actions$.pipe(
         ofType(RUN_PIPELINE_SUCCESS),
         map(() => new SnackbarOpen({
-            message: "Your Pipeline is running now!.",
+            message: "Your Pipeline is running now!",
             action: 'Success',
             config: {
                 horizontalPosition: "center",

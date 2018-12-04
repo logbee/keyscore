@@ -47,7 +47,7 @@ object TailinSourceLogic extends Described {
       expressionType = RegEx
     ),
     defaultValue = "test",
-    mandatory = true
+    mandatory = false
   )
 
   override def describe = Descriptor(
@@ -89,7 +89,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
     val watchDir = Paths.get(directoryPath)
     if (watchDir.toFile.isDirectory == false) {
-      log.warning("Directory that was configured to watch doesn't exist or is a file.")
+      log.warning("The path that was configured to watch doesn't exist or is not a directory.")
       return
     }
 
