@@ -3,6 +3,8 @@
 $app-error: mat-palette($mat-red);
 $app-success: mat-palette($mat-green);
 
+//TODO add themes accent,primary and warn color when custom theme is ready
 $error: mat-color($app-error);
+$error-transparent: mat-color($app-error,default,0.1);
 $success: mat-color($app-success);
 $success-transparent: mat-color($app-success,default,0.1);

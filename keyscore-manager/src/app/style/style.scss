@@ -1,3 +1,6 @@
+@import "./variables";
+
+
 /*------------------ General -------------------------*/
 .top-shadow {
     box-shadow: 0px -8px 5px -5px rgba(0,0,0,0.22);
@@ -17,6 +20,34 @@
 
 .list-group-item-action {
     cursor: pointer;
+}
+
+/*-----------Material Buttons------------------*/
+.mat-success-stroked-button{
+    border-color:$success !important;
+    color:$success !important;
+}
+
+.mat-success-stroked-button:hover{
+    background-color: $success-transparent !important;
+    color:$success !important;
+
+}
+
+.mat-white-stroked-button{
+    border-color: white !important;
+    color: white !important;
+}
+
+.mat-error-stroked-button{
+    border-color: $error !important;
+    color:$error !important;
+}
+
+.mat-error-stroked-button:hover{
+    background-color: $error-transparent !important;
+    color:$error !important;
+
 }
 
 /*------------- IOS Switch -----------------*/

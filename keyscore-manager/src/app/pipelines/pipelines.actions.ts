@@ -8,6 +8,7 @@ import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineMode
 import {Ref} from "../models/common/Ref";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
+export const CREATED_PIPELINE = "[Pipeline] CreatedPipeline";
 
 export const EDIT_PIPELINE = "[Pipeline] EditPipeline";
 export const EDIT_PIPELINE_SUCCESS = "[Pipeline] EditPipelineSuccess";
@@ -51,6 +52,7 @@ export const CHECK_IS_PIPELINE_RUNNING = "[Pipeline] CheckIsPipelineRunning";
 
 export type PipelineActions =
     | CreatePipelineAction
+    | CreatedPipelineAction
     | EditPipelineAction
     | EditPipelineSuccessAction
     | EditPipelineFailureAction
@@ -84,6 +86,14 @@ export class CreatePipelineAction implements Action {
     public readonly type = CREATE_PIPELINE;
 
     constructor(readonly id: string, readonly name: string, readonly description: string) {
+
+    }
+}
+
+export class CreatedPipelineAction implements Action {
+    public readonly type = CREATED_PIPELINE;
+
+    constructor() {
 
     }
 }
@@ -289,7 +299,7 @@ export class LoadPipelineBlueprints implements Action {
 
 
 export class TriggerFilterResetAction implements Action {
-    public readonly type  = TRIGGER_FILTER_RESET;
+    public readonly type = TRIGGER_FILTER_RESET;
 
     constructor(readonly uuid: string) {
     }
@@ -313,7 +323,8 @@ export class ConfigurationsForBlueprintId implements Action {
 
 export class CheckIsPipelineRunning implements Action {
     public readonly type = CHECK_IS_PIPELINE_RUNNING;
-    constructor(readonly pipelineRef: Ref,readonly timeToLive:number){
+
+    constructor(readonly pipelineRef: Ref, readonly timeToLive: number) {
 
     }
 }

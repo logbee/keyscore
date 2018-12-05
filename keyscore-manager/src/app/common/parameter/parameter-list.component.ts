@@ -1,10 +1,7 @@
-import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
-import {
-    FieldNameListParameterDescriptor,
-    ResolvedParameterDescriptor
-} from "../../models/parameters/ParameterDescriptor";
+import {ResolvedParameterDescriptor} from "../../models/parameters/ParameterDescriptor";
 import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 import {BehaviorSubject, Observable} from "rxjs/index";
 import {Dataset} from "../../models/dataset/Dataset";
@@ -65,7 +62,6 @@ export class ParameterListComponent implements ControlValueAccessor, OnInit {
     @Input() public currentDatasetModel$: Observable<DatasetTableModel>;
     @Input() public recordIndex$: Observable<number>;
     @Input('datasets') set datasets(data: Dataset[]) {
-        console.log("TEST data is :" , data );
         this.datasets$.next(data);
     };
 
@@ -77,16 +73,15 @@ export class ParameterListComponent implements ControlValueAccessor, OnInit {
     private fieldNameEmpty: boolean;
 
     public onChange = (elements: string[]) => {
-        return;
+        undefined;
     };
 
     public onTouched = () => {
-        return;
+        undefined;
     };
 
     public ngOnInit(): void {
-       this.parameterValues = [...this.parameter.value];
-       console.log(this.inputField);
+       this.parameterValues = [...(this.parameter.value as string[])];
     }
 
     public writeValue(elements: string[]): void {

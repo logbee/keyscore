@@ -1,8 +1,6 @@
-import {Component, Input, OnChanges, OnInit} from "@angular/core";
+import {Component, Input, OnChanges} from "@angular/core";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {Workspace} from "../models/contract";
-import {BehaviorSubject, Observable} from "rxjs";
-import Block = jasmine.Block;
 
 @Component({
     selector: "puzzle-box",

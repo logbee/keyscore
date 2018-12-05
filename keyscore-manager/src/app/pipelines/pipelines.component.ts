@@ -15,7 +15,7 @@ import {PipelinesState, selectPipelineList} from "./pipelines.reducer";
 import {PipelineDataSource} from "./PipelineDataSource";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
-import "../style/style.css";
+import "../style/style.scss";
 import {Ref} from "../models/common/Ref";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 
@@ -123,7 +123,7 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
         if (activeRouting) {
             this.store.dispatch(new RouterActions.Go({
                 path: ["pipelines/" + pipelineId, {}],
-                query: {create:true},
+                query: {},
                 extras: {}
             }));
         }

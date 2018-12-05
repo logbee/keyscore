@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
-import {BehaviorSubject, Subject, Subscription} from "rxjs";
+import {BehaviorSubject, Subject} from "rxjs";
 import {filter} from "rxjs/operators";
 import {deepcopy, zip} from "../../../../util";
 import {Parameter} from "../../../../models/parameters/Parameter";
@@ -10,9 +10,7 @@ import {Configuration} from "../../../../models/common/Configuration";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
-import {DatasetTableModel, DatasetTableRecordModel} from "../../../../models/dataset/DatasetTableModel";
 import {Dataset} from "../../../../models/dataset/Dataset";
-import {Observable} from "rxjs/internal/Observable";
 
 
 @Component({
@@ -178,7 +176,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
 
             this.form.valueChanges.subscribe(values => {
-                console.log(values);
                 if (!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues, values)) {
                     this.lastValues = values;
                     this.saveConfiguration();
@@ -214,7 +211,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     collapse() {
         this.isVisible = !this.isVisible;
-        console.log("Current Block:", this.selectedBlock);
         this.onShowConfigurator.emit(this.isVisible);
     }
 

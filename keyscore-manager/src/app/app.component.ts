@@ -1,11 +1,9 @@
-import {Component, OnInit, ViewChild, ViewContainerRef} from "@angular/core";
+import {Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
-import {AppConfig, selectAppConfig} from "./app.config";
+import {AppConfig} from "./app.config";
 import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
-import {ModalService} from "./services/modal.service";
-import "./style/style.css";
-import {SettingsComponent} from "./settings/settings.component";
+import "./style/style.scss";
 import {SettingsState} from "./settings/settings.model";
 import {MenuState} from "./common/sidemenu/sidemenu.reducer";
 import {LoadingState} from "./common/loading/loading.reducer";
@@ -30,7 +28,7 @@ export interface AppState {
         <div class="app-container">
             <mat-sidenav-container class="sidenav-container" autosize>
                 <mat-sidenav mode="side" class="main-drawer" opened="true">
-                    <sidemenu [showSettings]="settingsFeatureEnabled" (toggleSidebar)="toggleMenu()"
+                    <sidemenu (toggleSidebar)="toggleMenu()"
                               (updateLanguage)="setLanguage($event)"></sidemenu>
                 </mat-sidenav>
 
@@ -45,36 +43,25 @@ export interface AppState {
         </div>
     `,
     providers: [
-        Store,
-        ModalService
+        Store
     ]
 })
 
-export class AppComponent implements OnInit {
+export class AppComponent {
 
     @ViewChild("modal", {
         read: ViewContainerRef
     }) public viewContainerRef: ViewContainerRef;
 
-    private modalService: ModalService;
-    private settingsFeatureEnabled: boolean;
 
     constructor(private store: Store<any>,
-                 modalService: ModalService,
                 private translate: TranslateService,
                 private matIconRegistry: MatIconRegistry,
                 private domSanitizer: DomSanitizer) {
         this.store = store;
-        this.modalService = modalService;
-        this.store.select(selectAppConfig).subscribe((conf) => {
-            this.settingsFeatureEnabled = conf.getBoolean("keyscore.manager.features.settings");
-        });
+
 
         this.addCustomIcons();
-    }
-
-    public ngOnInit() {
-        this.modalService.setRootViewContainerRef(this.viewContainerRef);
     }
 
     public setLanguage(language: string) {
@@ -85,10 +72,6 @@ export class AppComponent implements OnInit {
 
     public toggleMenu() {
         this.store.dispatch(new ToggleMenuAction());
-    }
-
-    protected showSettings() {
-        this.modalService.show(SettingsComponent);
     }
 
     private addCustomIcons(){

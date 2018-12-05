@@ -1,6 +1,6 @@
 import {deepcopy} from "../util";
 import {
-    CREATE_PIPELINE,
+    CREATE_PIPELINE, CREATED_PIPELINE,
     DELETE_PIPELINE_FAILURE,
     DELETE_PIPELINE_SUCCESS,
     EDIT_PIPELINE_SUCCESS,
@@ -24,6 +24,7 @@ import {Label} from "../models/common/MetaData";
 
 export class PipelinesState {
     public editingPipeline: EditingPipelineModel;
+    public isPipelineCreation: boolean;
     public descriptors: Descriptor[];
     public filterDescriptors: ResolvedFilterDescriptor[];
     public filterCategories: ResolvedCategory[];
@@ -33,6 +34,7 @@ export class PipelinesState {
 
 export const initialState: PipelinesState = {
     editingPipeline: null,
+    isPipelineCreation: false,
     descriptors: [],
     filterDescriptors: [],
     filterCategories: [],
@@ -51,7 +53,13 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
         case LOAD_FILTER_DESCRIPTORS_SUCCESS:
             return {...state, descriptors: action.descriptors};
         case CREATE_PIPELINE:
-            return {...state, editingPipeline: generateEmptyEditingPipelineModel({uuid: action.id})};
+            return {
+                ...state,
+                isPipelineCreation: true,
+                editingPipeline: generateEmptyEditingPipelineModel({uuid: action.id})
+            };
+        case CREATED_PIPELINE:
+            return {...state, isPipelineCreation: false};
         case EDIT_PIPELINE_SUCCESS:
             let editingPipeline = {
                 pipelineBlueprint: action.pipelineBlueprint,
@@ -60,9 +68,9 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             };
             return {...state, editingPipeline: editingPipeline};
         case UPDATE_PIPELINE_SUCCESS:
-            return{
+            return {
                 ...state,
-                editingPipeline:action.pipeline
+                editingPipeline: action.pipeline
             };
         case LOAD_PIPELINEBLUEPRINTS_SUCCESS:
             return {
@@ -142,3 +150,5 @@ export const getPipelinePolling = createSelector(getPipelinesState,
     (state: PipelinesState) => state.pipelineInstancePolling);
 
 export const selectPipelineList = createSelector(getPipelinesState, (state: PipelinesState) => state.pipelineList);
+
+export const selectIsCreating = createSelector(getPipelinesState, (state: PipelinesState) => state.isPipelineCreation);

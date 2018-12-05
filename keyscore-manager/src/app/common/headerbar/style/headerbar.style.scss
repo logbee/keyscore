@@ -14,17 +14,6 @@
   color: white;
 }
 
-#header-bar .mat-success{
-  border-color:$success !important;
-  color:$success !important;
-}
-
-#header-bar .mat-success:hover{
-  background-color: $success-transparent !important;
-  color:$success !important;
-
-}
-
 .progress-bar-header{
   position:absolute !important;
   bottom:0 !important;
