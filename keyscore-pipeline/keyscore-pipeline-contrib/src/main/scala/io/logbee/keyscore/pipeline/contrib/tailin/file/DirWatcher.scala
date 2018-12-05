@@ -69,8 +69,16 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
       }
     }
     
-    
-    val key = Option(watchService.poll())
+    var key: Option[WatchKey] = None
+    try {
+      key = Option(watchService.poll())
+    }
+    catch {
+      case e: ClosedWatchServiceException =>
+        if (dirPath.toFile.isDirectory == false) {
+          pathDeleted()
+        }
+    }
     
     key.foreach(key => key.pollEvents().asScala.foreach { event =>
     
