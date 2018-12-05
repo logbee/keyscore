@@ -72,7 +72,7 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
 
         val escapedContent = content.replaceAllLiterally("\n", "\\n").replaceAllLiterally("\r", "\\r")
 
-        s"""when starting to search from position $startingPosition in a buffer that contains "$escapedContent" at expected position $expectedPosition""" in {
+        s"""at expected position $expectedPosition when starting to search from position $startingPosition in a buffer that contains "$escapedContent"""" in {
 
           val returnedPosition = CharBufferUtil.getStartOfNextLine(buffer, startingPosition)
 
