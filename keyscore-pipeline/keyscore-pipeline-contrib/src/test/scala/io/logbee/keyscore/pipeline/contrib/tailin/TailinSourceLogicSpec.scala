@@ -10,11 +10,10 @@ import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import akka.testkit.TestKit
-import io.logbee.keyscore.model.configuration.{Configuration, TextParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, TextParameter, ChoiceParameter}
 import io.logbee.keyscore.model.data.{Dataset, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{SourceStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.tailin.TailinSourceLogic.{directoryPath, filePattern}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -50,19 +49,19 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     TestKit.shutdownActorSystem(system)
   }
 
+  
   trait DefaultTailinSourceValues {
     val bufferSize = 1024
     val charset = StandardCharsets.UTF_8
-    val readMode = ReadMode.LINE
-
 
     val context = StageContext(system, executionContext)
 
-    val rotationSuffix = ".[1-5]"
 
     val configuration = Configuration(
-      TextParameter(directoryPath.ref, watchDir.toString),
-      TextParameter(filePattern.ref, "**.csv")
+      TextParameter(  TailinSourceLogic.directoryPath.ref,   watchDir.toString),
+      TextParameter(  TailinSourceLogic.filePattern.ref,     "**.csv"),
+      TextParameter(  TailinSourceLogic.rotationSuffix.ref,  ".[1-5]"),
+      ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.LINE.toString),
     )
 
     val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(randomUUID(), context, configuration), shape)
@@ -71,6 +70,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
 
     val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
   }
+  
 
   "A TailinSource" - {
     "should push one available string for one available pull" in new DefaultTailinSourceValues {
@@ -155,13 +155,6 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       Thread.sleep(1500)
 
       val datasetText3 = sink.expectNext()
-
-
-
-
-      sink.request(1)
-
-      sink.expectNoMessage(3.seconds)
 
 
 

@@ -18,6 +18,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirWatcher, DirWatcherCo
 import io.logbee.keyscore.pipeline.contrib.tailin.file.RotationReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.util.FileUtility
+import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode._
 
 
 object TailinSourceLogic extends Described {
@@ -63,6 +64,29 @@ object TailinSourceLogic extends Described {
     defaultValue = "",
     mandatory = false
   )
+  
+  val readMode = ChoiceParameterDescriptor(
+    ref = "tailin.readmode",
+    info = ParameterInfo(
+      displayName = TextRef("readMode"),
+      description = TextRef("readModeDescription")
+    ),
+    min = 1,
+    max = 1,
+    choices = Seq(
+      Choice(
+        name = ReadMode.LINE.toString(),
+        displayName = TextRef("readMode.line.displayName"),
+        description = TextRef("readMode.line.description")
+      ),
+      Choice(
+        name = ReadMode.FILE.toString(),
+        displayName = TextRef("readMode.file.displayName"),
+        description = TextRef("readMode.file.description")
+      )
+    )
+  )
+  
 
   override def describe = Descriptor(
     ref = "5a754cd3-e11d-4dfb-a484-a9f83cf3d795",
@@ -74,7 +98,8 @@ object TailinSourceLogic extends Described {
       parameters = Seq(
         directoryPath,
         filePattern,
-        rotationSuffix
+        rotationSuffix,
+        readMode,
       ),
       icon = Icon.fromClass(classOf[TailinSourceLogic])
     ),
@@ -91,6 +116,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var directoryPath = ""
   private var filePattern = ""
   private var rotationSuffix = ""
+  private var readMode: ReadMode = ReadMode.FILE
 
   var dirWatcher: DirWatcher = _
 
@@ -104,7 +130,10 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     directoryPath = configuration.getValueOrDefault(TailinSourceLogic.directoryPath, directoryPath)
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
     rotationSuffix = configuration.getValueOrDefault(TailinSourceLogic.rotationSuffix, rotationSuffix)
-
+    readMode = ReadMode.withName(configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode.toString))
+    
+    
+    
     val watchDir = Paths.get(directoryPath)
     if (watchDir.toFile.isDirectory == false) {
       log.warning("The path that was configured to watch doesn't exist or is not a directory.")
@@ -124,8 +153,6 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       data: String =>
         sendBuffer.addToBuffer(data)
     }
-
-    val readMode = ReadMode.LINE
 
     val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, StandardCharsets.UTF_8, readMode)
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
