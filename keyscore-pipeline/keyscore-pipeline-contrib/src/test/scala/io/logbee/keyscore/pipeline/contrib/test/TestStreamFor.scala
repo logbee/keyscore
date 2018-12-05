@@ -13,12 +13,20 @@ import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 
 import scala.concurrent.ExecutionContextExecutor
+import scala.reflect.runtime.universe._
 
-class TestStreamWithSourceAndSink[T <: FilterLogic](configuration: Configuration, logicClass: Class[T])(implicit system: ActorSystem, executionContext: ExecutionContextExecutor, materializer: Materializer) {
-  val context = StageContext(system, executionContext)
-  val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), createFilterLogicProvider(logicClass))
+class TestStreamFor[T <: FilterLogic](configuration: Configuration)(implicit system: ActorSystem, executionContext: ExecutionContextExecutor, materializer: Materializer, tag: TypeTag[T]) {
+
+  private val context = StageContext(system, executionContext)
+  private val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), createFilterLogicProvider(resolveClass(tag)))
+
   val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
     .viaMat(filterStage)(Keep.both)
     .toMat(TestSink.probe[Dataset])(Keep.both)
     .run()
+
+  private def resolveClass(implicit tag: TypeTag[T]) = {
+    val mirror = runtimeMirror(getClass.getClassLoader)
+    mirror.runtimeClass(typeOf[T].typeSymbol.asClass)
+  }
 }

@@ -27,6 +27,24 @@ object GroupByValueLogic extends Described {
     mandatory = true
   )
 
+  val timeWindowActiveParameter = BooleanParameterDescriptor(
+    ref = "combineByValue.timeWindowActive",
+    info = ParameterInfo(
+      displayName = "timeWindowActive.displayName",
+      description = "timeWindowActive.description"
+    ),
+    mandatory = true
+  )
+
+  val timeWindowMillisParameter = NumberParameterDescriptor(
+    ref = "combineByValue.timeWindowMillis",
+    info = ParameterInfo(
+      displayName = "timeWindowMillis.displayName",
+      description = "timeWindowMillis.description"
+    ),
+    mandatory = true
+  )
+
   override def describe = Descriptor(
     ref = "efbb3b8e-35f4-45ac-87be-f454cf3a951c",
     describes = FilterDescriptor(
@@ -34,7 +52,7 @@ object GroupByValueLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
-      parameters = Seq(fieldNameParameter),
+      parameters = Seq(fieldNameParameter, timeWindowActiveParameter, timeWindowMillisParameter),
       icon = Icon.fromClass(classOf[GroupByValueLogic])
     ),
     localization = Localization.fromResourceBundle(
@@ -49,6 +67,8 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
   private implicit val jsonFormats: Formats = KeyscoreFormats.formats
 
   private var fieldName = ""
+  private var timeWindowActive = false
+  private var timeWindowMillis = 0L
 
   private var current: Option[(Field, mutable.ListBuffer[Dataset])] = None
   private var next: Option[(Field, Dataset)] = None
@@ -60,6 +80,8 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
   override def configure(configuration: Configuration): Unit = {
     fieldName = configuration.getValueOrDefault(GroupByValueLogic.fieldNameParameter, fieldName)
+    timeWindowActive = configuration.getValueOrDefault(GroupByValueLogic.timeWindowActiveParameter, timeWindowActive)
+    timeWindowMillis = configuration.getValueOrDefault(GroupByValueLogic.timeWindowMillisParameter, timeWindowMillis)
   }
 
   override def onPush(): Unit = {

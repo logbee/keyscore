@@ -2,7 +2,8 @@ package io.logbee.keyscore.pipeline.contrib.filter.batch
 
 import io.logbee.keyscore.model.configuration.{Configuration, FieldNameParameter}
 import io.logbee.keyscore.model.data.{Record, _}
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamWithSourceAndSink
+import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -20,7 +21,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
     "with inactive time window" - {
 
       val configuration = Configuration(parameters = Seq(
-        FieldNameParameter(GroupByValueLogic.fieldNameParameter.ref, "key")
+        FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key")
       ))
 
       val samplesA = Seq(
@@ -44,7 +45,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         Field("message", TextValue("No news today."))
       ))
 
-      "should let records pass which does not contain the configured field" in new TestStreamWithSourceAndSink(configuration, classOf[GroupByValueLogic]) {
+      "should let records pass which does not contain the configured field" in new TestStreamFor[GroupByValueLogic](configuration) {
 
         val samples = Seq(
           Dataset(Record(
@@ -64,7 +65,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         }
       }
 
-      "should not let records pass when the value of the configured field does not change" in new TestStreamWithSourceAndSink(configuration, classOf[GroupByValueLogic]) {
+      "should not let records pass when the value of the configured field does not change" in new TestStreamFor[GroupByValueLogic](configuration) {
 
         whenReady(filterFuture) { filter =>
           samplesA.foreach(source.sendNext)
@@ -73,7 +74,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         }
       }
 
-      "should combine consecutive datasets by the value of the configured field" in new TestStreamWithSourceAndSink(configuration, classOf[GroupByValueLogic]) {
+      "should group consecutive datasets by the value of the configured field" in new TestStreamFor[GroupByValueLogic](configuration) {
 
         whenReady(filterFuture) { filter =>
 
@@ -113,5 +114,37 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         }
       }
     }
+
+//    "with active time window" - {
+//
+//      val configuration = Configuration(parameters = Seq(
+//        FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key"),
+//        BooleanParameter(GroupByValueLogic.fieldNameParameter, value = true),
+//        NumberParameter(GroupByValueLogic.timeWindowMillisParameter, 1000),
+//      ))
+//
+//      val samples = Seq(
+//        Dataset(
+//          Record(
+//            Field("key", TextValue("weather-forecast")),
+//            Field("message", TextValue("Its a cloudy day."))
+//          )
+//        )
+//      )
+//
+//      "should push out a single dataset when time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
+//
+//        whenReady(filterFuture) { _ =>
+//
+//          sink.request(1)
+//          source.sendNext(samples.head)
+//
+//          sink.expectNoMessage(remaining = 500 millis)
+//
+//          val actual = sink.requestNext(500 millis)
+//
+//        }
+//      }
+//    }
   }
 }
