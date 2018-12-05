@@ -19,6 +19,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.RotationReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.util.FileUtility
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode._
+import scala.concurrent.duration._
 
 
 object TailinSourceLogic extends Described {
@@ -157,16 +158,21 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, StandardCharsets.UTF_8, readMode)
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
   }
-
   
-  override def onPull(): Unit = {
-
-    while(sendBuffer.isEmpty) {
-      dirWatcher.processEvents()
-      log.info("Triggered process events")
-      Thread.sleep(1000)
+  
+  override def onTimer(timerKey: Any) {
+    dirWatcher.processEvents()
+    
+    if (!sendBuffer.isEmpty) {
+      doPush()
     }
-
+    else {
+      scheduleOnce("poll", 1.second)
+    }
+  }
+  
+  
+  private def doPush() {
     val outData = Dataset(
       records = Record(
         fields = List(Field(
@@ -179,6 +185,24 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     log.info(s"Created Datasets $outData")
 
     push(out, outData)
+  }
+  
+  
+  override def onPull(): Unit = {
+    
+    if (!sendBuffer.isEmpty) {
+      doPush()
+    }
+    else {
+      dirWatcher.processEvents()
+      
+      if (!sendBuffer.isEmpty) {
+        doPush()
+      }
+      else {
+        scheduleOnce("poll", 1.second)
+      }
+    }
   }
   
   
