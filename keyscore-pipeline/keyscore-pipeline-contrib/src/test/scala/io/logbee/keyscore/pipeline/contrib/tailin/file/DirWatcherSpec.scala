@@ -25,17 +25,20 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     TestUtility.recursivelyDelete(watchDir)
   }
 
-  trait TestDirWatcher {
-    val provider = mock[WatcherProvider]
-    val configuration = DirWatcherConfiguration(watchDir, "**.txt")
-    val callback = (_: String) => ()
-    val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
+  
+  trait DirWatcherParams {
+    var provider = mock[WatcherProvider]
+    var configuration = DirWatcherConfiguration(watchDir, "**.txt")
+    var callback = (_: String) => ()
   }
 
+  
   "A DirWatcher," - {
     "when a sub-directory" - {
       "is created, should create a DirWatcher for that sub-directory" - {
-        "and this sub-DirWatcher should have its processEvents() called when the parent's processEvents() is called" in new TestDirWatcher {
+        "and this sub-DirWatcher should have its processEvents() called when the parent's processEvents() is called" in new DirWatcherParams {
+          
+          val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
       
           val subDir = Paths.get(watchDir + "/testDir/")
   
@@ -45,26 +48,30 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           subDir.toFile.mkdir
           TestUtility.waitForFileToExist(subDir.toFile)
   
-          dirWatcher.processEvents
+          dirWatcher.processEvents()
 
           //call another time to verify that it's called on the sub-DirWatcher
-          dirWatcher.processEvents
-          (subDirWatcher.processEvents _).verify
+          dirWatcher.processEvents()
+          (subDirWatcher.processEvents _).verify()
         }
       }
 
-      "is deleted, should notify the responsible DirWatcher" in new TestDirWatcher {
+      "is deleted, should notify the responsible DirWatcher" in new DirWatcherParams {
+        
+        val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
+        
         //create and register a directory
         val subDir = Paths.get(watchDir + "/testDir/")
+        
         val subDirWatcher = stub[DirWatcher]
         (provider.createDirWatcher _).expects(configuration.copy(dirPath=subDir)).returning(subDirWatcher)
         
-        subDir.toFile.mkdir
+        subDir.toFile.mkdir()
         TestUtility.waitForFileToExist(subDir.toFile)
         
         dirWatcher.processEvents()
 
-        subDir.toFile.delete
+        subDir.toFile.delete()
         TestUtility.waitForFileToBeDeleted(subDir.toFile)
 
         dirWatcher.processEvents()
@@ -73,33 +80,42 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     }
 
     "when a file" - {
-      "is created, and matches the file pattern, should create a FileWatcher" in new TestDirWatcher {
-        
-        val file = new File(watchDir + "/test.txt")
-        
-        (provider.createFileWatcher _).expects(file).returning(stub[FileWatcher])
-
-        file.createNewFile
-
-        TestUtility.waitForFileToExist(file)
-
-        dirWatcher.processEvents
-      }
+      "is created, should create a FileWatcher, for the file pattern" - {
+        "**.txt" in new DirWatcherParams {
+          
+          configuration = configuration.copy(filePattern = "**.txt")          
+          val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
+          
+          val file = new File(watchDir + "/test.txt")
+          
+          (provider.createFileWatcher _).expects(file).returning(stub[FileWatcher])
+  
+          file.createNewFile()
+  
+          TestUtility.waitForFileToExist(file)
+  
+          dirWatcher.processEvents()
+        }
+      }  
       
-      "is created, but doesn't match the file pattern, should NOT create a FileWatcher" in new TestDirWatcher {
+      "is created, but doesn't match the file pattern, should NOT create a FileWatcher" in new DirWatcherParams {
+        
+        val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
         
         val file = new File(watchDir + "/test.foobar")
         
         (provider.createFileWatcher _).expects(file).never()
 
-        file.createNewFile
+        file.createNewFile()
 
         TestUtility.waitForFileToExist(file)
 
-        dirWatcher.processEvents
+        dirWatcher.processEvents()
       }
 
-      "is modified, should notify the responsible FileWatchers that the file was modified" in new TestDirWatcher {
+      "is modified, should notify the responsible FileWatchers that the file was modified" in new DirWatcherParams {
+        
+        val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
 
         val file = new File(watchDir + "/test.txt")
 
@@ -121,7 +137,10 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         (subFileWatcher.fileModified _).verify(callback).twice //twice, because DirWatcher calls this, too, when setting up the FileWatcher
       }
 
-      "is deleted, should notify the responsible FileWatcher" in new TestDirWatcher {
+      "is deleted, should notify the responsible FileWatcher" in new DirWatcherParams {
+        
+        val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
+        
         val file = new File(watchDir + "/test.txt")
 
         val subFileWatcher = stub[FileWatcher]
@@ -132,25 +151,23 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
 
         dirWatcher.processEvents()
 
-        file.delete
+        file.delete()
         TestUtility.waitForFileToBeDeleted(file)
 
-        dirWatcher.processEvents
+        dirWatcher.processEvents()
 
         (subFileWatcher.pathDeleted _).verify()
       }
     }
     
-    "when its configured directory doesn't exist, should throw an exception" in {
+    "when its configured directory doesn't exist, should throw an exception" in new DirWatcherParams {
       
       val watchDir = Paths.get("/abc/def/ghi/jkl/mno/pqr/stu/vwx")
-      
-      val configuration = DirWatcherConfiguration(watchDir, "**.txt")
-      val callback = (_: String) => ()
+      configuration = configuration.copy(dirPath = watchDir)
       
       
       assertThrows[InvalidPathException] {
-        val dirWatcher = new DefaultDirWatcher(configuration, null, callback)
+        val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
       }
     }
   }
