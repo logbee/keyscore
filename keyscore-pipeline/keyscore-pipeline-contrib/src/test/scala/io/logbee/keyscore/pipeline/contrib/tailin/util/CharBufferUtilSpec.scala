@@ -55,28 +55,33 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
     }
 
     "should find the start of the next line" - {
+      
+      val charsets = Seq(StandardCharsets.UTF_8, StandardCharsets.UTF_16, StandardCharsets.ISO_8859_1)
 
-      val contents =          Seq("\n_", "_\n", "_\n_", "_\n\n\n\n\n_", "\r\n_", "\n_\n_")
-      val startingPositions = Seq(  0,     1,      1,          1,          0   ,    0    )
-      val expectedPositions = Seq(  1,     2,      2,          6,          2   ,    1    )
-
-      val charset = StandardCharsets.UTF_8
-
-      val samples = contents
-        .map(string => charset.decode(charset.encode(string)))
-        .zip(startingPositions)
-        .zip(expectedPositions)
-        .zip(contents)
-
-      samples.foreach { case (((buffer, startingPosition), expectedPosition), content) =>
-
-        val escapedContent = content.replaceAllLiterally("\n", "\\n").replaceAllLiterally("\r", "\\r")
-
-        s"""at expected position $expectedPosition when starting to search from position $startingPosition in a buffer that contains "$escapedContent"""" in {
-
-          val returnedPosition = CharBufferUtil.getStartOfNextLine(buffer, startingPosition)
-
-          returnedPosition shouldBe expectedPosition
+      charsets.foreach { case charset =>
+        s"in charset $charset" - {
+          
+          val contents =          Seq("\n_", "_\n", "_\n_", "_\n\n\n\n\n_", "\r\n_", "\n_\n_")
+          val startingPositions = Seq(  0,     1,      1,          1,          0,       0    )
+          val expectedPositions = Seq(  1,     2,      2,          6,          2,       1    )
+    
+          val samples = contents
+            .map(string => charset.decode(charset.encode(string)))
+            .zip(startingPositions)
+            .zip(expectedPositions)
+            .zip(contents)
+    
+          samples.foreach { case (((buffer, startingPosition), expectedPosition), content) =>
+    
+            val escapedContent = content.replaceAllLiterally("\n", "\\n").replaceAllLiterally("\r", "\\r")
+    
+            s"""at expected position $expectedPosition when starting to search from position $startingPosition in a buffer that contains "$escapedContent"""" in {
+    
+              val returnedPosition = CharBufferUtil.getStartOfNextLine(buffer, startingPosition)
+    
+              returnedPosition shouldBe expectedPosition
+            }
+          }
         }
       }
     }
