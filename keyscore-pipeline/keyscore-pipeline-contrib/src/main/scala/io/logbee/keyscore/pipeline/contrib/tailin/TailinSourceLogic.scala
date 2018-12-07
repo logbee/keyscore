@@ -20,6 +20,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceCon
 import io.logbee.keyscore.pipeline.contrib.tailin.util.FileUtility
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode._
 import scala.concurrent.duration._
+import java.nio.charset.Charset
 
 
 object TailinSourceLogic extends Described {
@@ -73,14 +74,46 @@ object TailinSourceLogic extends Described {
     max = 1,
     choices = Seq(
       Choice(
-        name = ReadMode.LINE.toString(),
+        name = ReadMode.LINE.toString,
         displayName = TextRef("readMode.line.displayName"),
         description = TextRef("readMode.line.description")
       ),
       Choice(
-        name = ReadMode.FILE.toString(),
+        name = ReadMode.FILE.toString,
         displayName = TextRef("readMode.file.displayName"),
         description = TextRef("readMode.file.description")
+      ),
+    ),
+  )
+  
+  val encoding = ChoiceParameterDescriptor(
+    ref = "tailin.encoding",
+    info = ParameterInfo(
+      displayName = TextRef("encoding"),
+      description = TextRef("encodingDescription"),
+    ),
+    min = 1,
+    max = 1,
+    choices = Seq(
+      Choice(
+        name = StandardCharsets.UTF_8.toString,
+        displayName = TextRef("encoding.utf_8.displayName"),
+        description = TextRef("encoding.utf_8.description"),
+      ),
+      Choice(
+        name = StandardCharsets.UTF_16.toString,
+        displayName = TextRef("encoding.utf_16.displayName"),
+        description = TextRef("encoding.utf_16.description"),
+      ),
+      Choice(
+        name = Charset.forName("windows-1252").toString,
+        displayName = TextRef("encoding.windows-1252.displayName"),
+        description = TextRef("encoding.windows-1252.description"),
+      ),
+      Choice(
+        name = StandardCharsets.ISO_8859_1.toString,
+        displayName = TextRef("encoding.iso_8859_1.displayName"),
+        description = TextRef("encoding.iso_8859_1.description"),
       ),
     ),
   )
@@ -112,6 +145,7 @@ object TailinSourceLogic extends Described {
         filePattern,
         recursionDepth,
         readMode,
+        encoding,
         rotationSuffix,
       ),
       icon = Icon.fromClass(classOf[TailinSourceLogic])
@@ -130,6 +164,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var filePattern = TailinSourceLogic.filePattern.defaultValue
   private var recursionDepth = TailinSourceLogic.recursionDepth.defaultValue
   private var readMode = ReadMode.LINE.toString
+  private var encoding = StandardCharsets.UTF_8.toString
   private var rotationSuffix = TailinSourceLogic.rotationSuffix.defaultValue
   
   var dirWatcher: DirWatcher = _
@@ -145,8 +180,8 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
     recursionDepth = configuration.getValueOrDefault(TailinSourceLogic.recursionDepth, recursionDepth)
     readMode = configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode)
+    encoding = configuration.getValueOrDefault(TailinSourceLogic.encoding, encoding)
     rotationSuffix = configuration.getValueOrDefault(TailinSourceLogic.rotationSuffix, rotationSuffix)
-    
     
     
     val watchDir = Paths.get(directoryPath)
@@ -169,7 +204,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
         sendBuffer.addToBuffer(data)
     }
 
-    val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, StandardCharsets.UTF_8, ReadMode.withName(readMode))
+    val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, Charset.forName(encoding), ReadMode.withName(readMode))
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
   }
   

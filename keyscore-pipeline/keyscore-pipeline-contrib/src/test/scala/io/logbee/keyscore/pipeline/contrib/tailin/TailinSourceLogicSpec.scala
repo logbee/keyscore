@@ -23,6 +23,7 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FreeSpec, Matchers}
 import scala.concurrent.duration._
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode
+import io.logbee.keyscore.model.configuration.NumberParameter
 
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
@@ -52,7 +53,6 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
   
   trait DefaultTailinSourceValues {
     val bufferSize = 1024
-    val charset = StandardCharsets.UTF_8
 
     val context = StageContext(system, executionContext)
 
@@ -60,8 +60,10 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     val configuration = Configuration(
       TextParameter(  TailinSourceLogic.directoryPath.ref,   watchDir.toString),
       TextParameter(  TailinSourceLogic.filePattern.ref,     "**.csv"),
-      TextParameter(  TailinSourceLogic.rotationSuffix.ref,  ".[1-5]"),
+      NumberParameter(TailinSourceLogic.recursionDepth.ref,  0),
       ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.LINE.toString),
+      ChoiceParameter(TailinSourceLogic.encoding.ref,        StandardCharsets.UTF_8.toString),
+      TextParameter(  TailinSourceLogic.rotationSuffix.ref,  ".[1-5]"),
     )
 
     val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(randomUUID(), context, configuration), shape)
