@@ -15,28 +15,36 @@ trait DirWatcher {
   def processEvents()
 }
 
-case class DirWatcherConfiguration(dirPath: Path, filePattern: String)
+case class DirWatcherConfiguration(dirPath: Path, filePattern: String, recursionDepth: Long)
+
 
 class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherProvider: WatcherProvider, callback: (String) => Unit) extends PathWatcher(configuration.dirPath) with DirWatcher {
   
-  private val dirPath = configuration.dirPath
   
-  
-  if (Files.isDirectory(dirPath) == false) {
-    throw new InvalidPathException(dirPath.toString, "The given path is not a directory or doesn't exist.")
+  if (Files.isDirectory(configuration.dirPath) == false) {
+    throw new InvalidPathException(configuration.dirPath.toString, "The given path is not a directory or doesn't exist.")
   }
   
   
   
   private val watchService = FileSystems.getDefault().newWatchService()
-  private val watchKey = dirPath.register(
+  private val watchKey = configuration.dirPath.register(
     watchService,
     StandardWatchEventKinds.ENTRY_CREATE,
     StandardWatchEventKinds.ENTRY_MODIFY,
     StandardWatchEventKinds.ENTRY_DELETE)
     
-
-  private val matcher = FileSystems.getDefault.getPathMatcher(s"glob:${dirPath.toString}${configuration.filePattern}")
+  
+  
+  private val matcherString = { //insert a "/" in between, if it's missing
+    if (configuration.dirPath.toString.endsWith("/") || configuration.filePattern.startsWith("/")) {
+      configuration.dirPath + configuration.filePattern
+    }
+    else {
+      configuration.dirPath + "/" + configuration.filePattern
+    }
+  }
+  private val matcher = FileSystems.getDefault.getPathMatcher("glob:" + matcherString)
   
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
   private val subFileWatchers = mutable.Map.empty[File, ListBuffer[FileWatcher]]
@@ -45,7 +53,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
 
   
   //recursive setup
-  val subPaths = dirPath.toFile().listFiles()
+  val subPaths = configuration.dirPath.toFile.listFiles()
   subPaths.foreach { path =>
     {
       if (path.isDirectory()) {
@@ -75,14 +83,14 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     }
     catch {
       case e: ClosedWatchServiceException =>
-        if (dirPath.toFile.isDirectory == false) {
+        if (configuration.dirPath.toFile.isDirectory == false) {
           pathDeleted()
         }
     }
     
     key.foreach(key => key.pollEvents().asScala.foreach { event =>
     
-      val path: Path = dirPath.resolve(event.context().asInstanceOf[Path])
+      val path: Path = configuration.dirPath.resolve(event.context().asInstanceOf[Path])
       
       event.kind match {
       
@@ -115,15 +123,15 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   private def addSubDirWatcher(dir: Path) = {
-    
-    val dirWatcher = watcherProvider.createDirWatcher(configuration.copy(dirPath = dir))
-    
-    val list = subDirWatchers.getOrElse(dir, mutable.ListBuffer.empty)
-    
-    subDirWatchers.put(dir, list)
-    list += dirWatcher
+    if (configuration.recursionDepth > 0) {
+      val dirWatcher = watcherProvider.createDirWatcher(configuration.copy(dirPath = dir, recursionDepth = configuration.recursionDepth - 1))
+      
+      val list = subDirWatchers.getOrElse(dir, mutable.ListBuffer.empty)
+      
+      subDirWatchers.put(dir, list)
+      list += dirWatcher
+    }
   }
-  
   
   
   private def addSubFileWatcher(file: File) = {
@@ -180,7 +188,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   def pathDeleted() {
-    firePathDeleted(dirPath)
+    firePathDeleted(configuration.dirPath)
     
     teardown()
   }

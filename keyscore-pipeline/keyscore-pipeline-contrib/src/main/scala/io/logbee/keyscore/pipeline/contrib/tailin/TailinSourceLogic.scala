@@ -52,17 +52,14 @@ object TailinSourceLogic extends Described {
     mandatory = false
   )
   
-  val rotationSuffix = TextParameterDescriptor(
-    ref = "tailin.rotation.suffix",
+  val recursionDepth = NumberParameterDescriptor(
+    ref = "tailin.recursion.depth",
     info = ParameterInfo(
-      displayName = TextRef("rotationSuffix"),
-      description = TextRef("rotationSuffixDescription")
+      displayName = TextRef("recursionDepth"),
+      description = TextRef("recursionDepthDescription")
     ),
-    validator = StringValidator(
-      expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
-      expressionType = RegEx
-    ),
-    defaultValue = "",
+    defaultValue = 0L,
+    range = NumberRange(step = 1, start = 0, end = 65535),
     mandatory = false
   )
   
@@ -84,8 +81,22 @@ object TailinSourceLogic extends Described {
         name = ReadMode.FILE.toString(),
         displayName = TextRef("readMode.file.displayName"),
         description = TextRef("readMode.file.description")
-      )
-    )
+      ),
+    ),
+  )
+  
+  val rotationSuffix = TextParameterDescriptor(
+    ref = "tailin.rotation.suffix",
+    info = ParameterInfo(
+      displayName = TextRef("rotationSuffix"),
+      description = TextRef("rotationSuffixDescription")
+    ),
+    validator = StringValidator(
+      expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
+      expressionType = RegEx
+    ),
+    defaultValue = "",
+    mandatory = false
   )
   
 
@@ -99,8 +110,9 @@ object TailinSourceLogic extends Described {
       parameters = Seq(
         directoryPath,
         filePattern,
-        rotationSuffix,
+        recursionDepth,
         readMode,
+        rotationSuffix,
       ),
       icon = Icon.fromClass(classOf[TailinSourceLogic])
     ),
@@ -114,11 +126,12 @@ object TailinSourceLogic extends Described {
 
 class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
 
-  private var directoryPath = ""
-  private var filePattern = ""
-  private var rotationSuffix = ""
-  private var readMode: ReadMode = ReadMode.FILE
-
+  private var directoryPath = TailinSourceLogic.directoryPath.defaultValue
+  private var filePattern = TailinSourceLogic.filePattern.defaultValue
+  private var recursionDepth = TailinSourceLogic.recursionDepth.defaultValue
+  private var readMode = ReadMode.LINE.toString
+  private var rotationSuffix = TailinSourceLogic.rotationSuffix.defaultValue
+  
   var dirWatcher: DirWatcher = _
 
   val sendBuffer = new SendBuffer()
@@ -130,8 +143,9 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   override def configure(configuration: Configuration): Unit = {
     directoryPath = configuration.getValueOrDefault(TailinSourceLogic.directoryPath, directoryPath)
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
+    recursionDepth = configuration.getValueOrDefault(TailinSourceLogic.recursionDepth, recursionDepth)
+    readMode = configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode)
     rotationSuffix = configuration.getValueOrDefault(TailinSourceLogic.rotationSuffix, rotationSuffix)
-    readMode = ReadMode.withName(configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode.toString))
     
     
     
@@ -146,7 +160,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     persistenceFile.createNewFile()
     FileUtility.waitForFileToExist(persistenceFile)
 
-    val dirWatcherConfiguration = DirWatcherConfiguration(watchDir, filePattern)
+    val dirWatcherConfiguration = DirWatcherConfiguration(watchDir, filePattern, recursionDepth)
     val persistenceContext = new FilePersistenceContext(persistenceFile)
     val bufferSize = 1024
 
@@ -155,7 +169,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
         sendBuffer.addToBuffer(data)
     }
 
-    val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, StandardCharsets.UTF_8, readMode)
+    val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, StandardCharsets.UTF_8, ReadMode.withName(readMode))
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
   }
   
@@ -167,7 +181,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       doPush()
     }
     else {
-      scheduleOnce("poll", 1.second)
+      scheduleOnce(timerKey = "poll", 1.second)
     }
   }
   
@@ -200,7 +214,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
         doPush()
       }
       else {
-        scheduleOnce("poll", 1.second)
+        scheduleOnce(timerKey = "poll", 1.second)
       }
     }
   }

@@ -28,43 +28,43 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
   trait DirWatcherParams {
     var provider = mock[WatcherProvider]
-    var configuration = DirWatcherConfiguration(watchDir, "**.txt")
+    var configuration = DirWatcherConfiguration(dirPath = watchDir, filePattern = "*.txt", recursionDepth = 0)
     var callback = (_: String) => ()
   }
 
   
   "A DirWatcher," - {
     "when a sub-directory" - {
-      "is created, should create a DirWatcher for that sub-directory" - {
-        "and this sub-DirWatcher should have its processEvents() called when the parent's processEvents() is called" in new DirWatcherParams {
-          
-          val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
-      
-          val subDir = Paths.get(watchDir + "/testDir/")
-  
-          val subDirWatcher = stub[DirWatcher]
-          (provider.createDirWatcher _).expects(configuration.copy(dirPath=subDir)).returning(subDirWatcher)
-  
-          subDir.toFile.mkdir
-          TestUtility.waitForFileToExist(subDir.toFile)
-  
-          dirWatcher.processEvents()
+      "is created, should create a DirWatcher for that sub-directory, which's processEvents() is called when the parent's processEvents() is called" in new DirWatcherParams {
+        
+        configuration = configuration.copy(recursionDepth = 1)
+        val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
+    
+        val subDir = Paths.get(watchDir + "/testDir/")
 
-          //call another time to verify that it's called on the sub-DirWatcher
-          dirWatcher.processEvents()
-          (subDirWatcher.processEvents _).verify()
-        }
+        val subDirWatcher = stub[DirWatcher]
+        (provider.createDirWatcher _).expects(configuration.copy(dirPath=subDir, recursionDepth = configuration.recursionDepth - 1)).returning(subDirWatcher)
+
+        subDir.toFile.mkdir
+        TestUtility.waitForFileToExist(subDir.toFile)
+
+        dirWatcher.processEvents()
+
+        //call another time to verify that it's called on the sub-DirWatcher
+        dirWatcher.processEvents()
+        (subDirWatcher.processEvents _).verify()
       }
 
       "is deleted, should notify the responsible DirWatcher" in new DirWatcherParams {
         
+        configuration = configuration.copy(recursionDepth = 1)
         val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
         
         //create and register a directory
         val subDir = Paths.get(watchDir + "/testDir/")
         
         val subDirWatcher = stub[DirWatcher]
-        (provider.createDirWatcher _).expects(configuration.copy(dirPath=subDir)).returning(subDirWatcher)
+        (provider.createDirWatcher _).expects(configuration.copy(dirPath=subDir, recursionDepth = configuration.recursionDepth - 1)).returning(subDirWatcher)
         
         subDir.toFile.mkdir()
         TestUtility.waitForFileToExist(subDir.toFile)
@@ -81,7 +81,8 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
 
     "when a file" - {
       "is created, should create a FileWatcher, for the file pattern" - {
-        "**.txt" in new DirWatcherParams {
+        
+        "**.txt" in new DirWatcherParams { //should behave like "*.txt", as we only check the files in the current directory
           
           configuration = configuration.copy(filePattern = "**.txt")          
           val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
@@ -96,7 +97,41 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
           dirWatcher.processEvents()
         }
-      }  
+        
+        "*.txt" in new DirWatcherParams {
+          
+          configuration = configuration.copy(filePattern = "*.txt")          
+          val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
+          
+          val file = new File(watchDir + "/test.txt")
+          
+          (provider.createFileWatcher _).expects(file).returning(stub[FileWatcher])
+  
+          file.createNewFile()
+  
+          TestUtility.waitForFileToExist(file)
+  
+          dirWatcher.processEvents()
+        }
+        
+        "test.txt" in new DirWatcherParams {
+          
+          configuration = configuration.copy(filePattern = "test.txt")          
+          val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
+          
+          val file = new File(watchDir + "/test.txt")
+          
+          (provider.createFileWatcher _).expects(file).returning(stub[FileWatcher])
+  
+          file.createNewFile()
+  
+          TestUtility.waitForFileToExist(file)
+  
+          dirWatcher.processEvents()
+        }
+      }
+      
+      //TEST that a file created in a subdirectory is matched when recursionDepth is set
       
       "is created, but doesn't match the file pattern, should NOT create a FileWatcher" in new DirWatcherParams {
         

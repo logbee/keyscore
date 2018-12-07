@@ -28,7 +28,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   var watchDir: Path = _
-  var persistenceFile: File = _ //TODO actually pass this persistence file along in a parameter
+  var persistenceFile: File = _ //TODO actually pass this persistence file along in a parameter to be able to delete it during tests and maybe be easier to configure (though we probably don't actually want to expose this to the user
 
   before {
     watchDir = Files.createTempDirectory("watchTest")
