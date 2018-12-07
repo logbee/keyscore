@@ -24,7 +24,7 @@ class SourceStageSpec extends FreeSpec with Matchers with ScalaFutures with Mock
 
   "A SourceStage" - {
 
-    "should pass the appropriate configuration to it's logic" in {
+    "should pass the appropriate configuration to its logic" in {
 
       val updateConfiguration = Promise[Configuration]
       val initializeConfiguration = Promise[Configuration]

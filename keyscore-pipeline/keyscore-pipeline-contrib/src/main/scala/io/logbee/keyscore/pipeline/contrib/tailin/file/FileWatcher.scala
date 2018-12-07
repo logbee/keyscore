@@ -8,7 +8,7 @@ trait FileWatcher {
   
   def pathDeleted()
   
-  def teardown()
+  def tearDown()
 }
 
 abstract class DefaultFileWatcher(file: File) extends PathWatcher(file.toPath) with FileWatcher {

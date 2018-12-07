@@ -13,5 +13,5 @@ abstract class PathWatcher(path: Path) {
    * This method is called before a PathWatcher is destroyed.
    * Do cleanup tasks in here.
    */
-  def teardown()
+  def tearDown()
 }

@@ -8,7 +8,7 @@ import scala.collection.mutable.ListBuffer
 
 
 trait DirWatcher {
-  def teardown()
+  def tearDown()
   
   def pathDeleted()
 
@@ -114,7 +114,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
       //do in all cases
       val valid: Boolean = key.reset()
       if (!valid) { //directory no longer accessible
-        teardown()
+        tearDown()
       }
     })
   }
@@ -167,20 +167,20 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
    * however a directory and a file can't share the same name within the same directory.
    *
    * Therefore we can safely iterate over all files and directories within this directory
-   * and just PathWatcher.teardown() the one that matches the name.
+   * and just PathWatcher.tearDown() the one that matches the name.
    */
   private def removeSubPathWatcher(path: Path) = {
     
     subDirWatchers.remove(path) match {
       case None =>
       case Some(watchers: ListBuffer[DirWatcher]) => 
-        watchers.foreach(watcher => watcher.teardown())
+        watchers.foreach(watcher => watcher.tearDown())
     }
 
     subFileWatchers.remove(path.toFile()) match {
       case None =>
       case Some(watchers: ListBuffer[FileWatcher]) =>
-        watchers.foreach(watcher => watcher.teardown())
+        watchers.foreach(watcher => watcher.tearDown())
     }
   }
   
@@ -190,7 +190,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   def pathDeleted() {
     firePathDeleted(configuration.dirPath)
     
-    teardown()
+    tearDown()
   }
   
   
@@ -218,17 +218,17 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   
-  def teardown() {
+  def tearDown() {
     
-    //call teardown on all watchers attached to this
+    //call tearDown on all watchers attached to this
     subFileWatchers.foreach { case (_: File, subFileWatchers: ListBuffer[FileWatcher]) =>
       subFileWatchers.foreach { case watcher =>
-        watcher.teardown
+        watcher.tearDown()
       }
     }
     subDirWatchers.foreach { case (_: Path, subDirWatchers: ListBuffer[DirWatcher]) => 
       subDirWatchers.foreach { case watcher => 
-        watcher.teardown 
+        watcher.tearDown() 
       }
     }
     

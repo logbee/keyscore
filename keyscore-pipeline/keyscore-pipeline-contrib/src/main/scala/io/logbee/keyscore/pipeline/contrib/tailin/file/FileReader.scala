@@ -215,8 +215,8 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
   
   def pathDeleted() {
     persistenceContext.remove(watchedFile.toString)
-    teardown()
+    tearDown()
   }
   
-  def teardown() = {}
+  def tearDown() = {}
 }

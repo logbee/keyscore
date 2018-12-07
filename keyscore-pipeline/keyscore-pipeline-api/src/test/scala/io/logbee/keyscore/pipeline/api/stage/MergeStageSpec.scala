@@ -48,7 +48,7 @@ class MergeStageSpec extends FreeSpec with Matchers with ScalaFutures with TestS
         }).run(materializer)
     }
 
-    "should pass the appropriate configuration to it's logic" in new TestGraph {
+    "should pass the appropriate configuration to its logic" in new TestGraph {
 
       val updateConfiguration = Promise[Configuration]
       val initializeConfiguration = Promise[Configuration]

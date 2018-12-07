@@ -221,7 +221,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   
   
   override def postStop(): Unit = {
-    dirWatcher.teardown()
+    dirWatcher.tearDown()
     log.info("Tailin source is stopping.")
   }
 }
