@@ -1,6 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.filter.batch
 
-import io.logbee.keyscore.model.configuration.{Configuration, FieldNameParameter}
+import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data.{Record, _}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
@@ -24,7 +24,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key")
       ))
 
-      val samplesA = Seq(
+      val samples = Seq(
         Dataset(Record(
           Field("key", TextValue("weather-forecast")),
           Field("message", TextValue("Its a cloudy day!"))
@@ -67,8 +67,8 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
       "should not let records pass when the value of the configured field does not change" in new TestStreamFor[GroupByValueLogic](configuration) {
 
-        whenReady(filterFuture) { filter =>
-          samplesA.foreach(source.sendNext)
+        whenReady(filterFuture) { _ =>
+          samples.foreach(source.sendNext)
           sink.request(1)
           sink.expectNoMessage(2 seconds)
         }
@@ -76,11 +76,11 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
       "should group consecutive datasets by the value of the configured field" in new TestStreamFor[GroupByValueLogic](configuration) {
 
-        whenReady(filterFuture) { filter =>
+        whenReady(filterFuture) { _ =>
 
           sink.request(3)
 
-          samplesA.foreach(source.sendNext)
+          samples.foreach(source.sendNext)
 
           sink.expectNoMessage(1 seconds)
 
@@ -104,7 +104,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
           sink.expectNoMessage(1 seconds)
 
-          samplesA.foreach(source.sendNext)
+          samples.foreach(source.sendNext)
 
           actual = sink.requestNext()
 
@@ -115,36 +115,37 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
       }
     }
 
-//    "with active time window" - {
-//
-//      val configuration = Configuration(parameters = Seq(
-//        FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key"),
-//        BooleanParameter(GroupByValueLogic.fieldNameParameter, value = true),
-//        NumberParameter(GroupByValueLogic.timeWindowMillisParameter, 1000),
-//      ))
-//
-//      val samples = Seq(
-//        Dataset(
-//          Record(
-//            Field("key", TextValue("weather-forecast")),
-//            Field("message", TextValue("Its a cloudy day."))
-//          )
-//        )
-//      )
-//
-//      "should push out a single dataset when time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
-//
-//        whenReady(filterFuture) { _ =>
-//
-//          sink.request(1)
-//          source.sendNext(samples.head)
-//
-//          sink.expectNoMessage(remaining = 500 millis)
-//
-//          val actual = sink.requestNext(500 millis)
-//
-//        }
-//      }
-//    }
+    "with active time window" - {
+
+      val configuration = Configuration(parameters = Seq(
+        FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key"),
+        ChoiceParameter(GroupByValueLogic.windowParameter, GroupByValueLogic.timeWindowChoice.name),
+        NumberParameter(GroupByValueLogic.timeWindowMillisParameter, 1000),
+      ))
+
+      val samples = Seq(
+        Dataset(
+          Record(
+            Field("key", TextValue("weather-forecast")),
+            Field("message", TextValue("Its a cloudy day."))
+          )
+        )
+      )
+
+      "should push out a single dataset when time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
+
+        whenReady(filterFuture) { _ =>
+
+          sink.request(1)
+          source.sendNext(samples.head)
+
+          sink.expectNoMessage(remaining = 1000 millis)
+
+          val actual = sink.requestNext(500 millis)
+
+          actual shouldBe samples.head
+        }
+      }
+    }
   }
 }
