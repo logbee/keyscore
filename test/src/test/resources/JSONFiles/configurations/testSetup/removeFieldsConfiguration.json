@@ -5,19 +5,22 @@
     "revision": "",
     "ancestor": ""
   },
-  "parameters": [
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameListParameter",
-      "ref": {
-        "id": "removeFields.fieldsToRemove"
-      },
-      "value": [
-        "@timestamp",
-        "robotime",
-        "@version",
-        "logbee_time",
-        "path"
-      ]
-    }
-  ]
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameListParameter",
+        "ref": {
+          "id": "removeFields.fieldsToRemove"
+        },
+        "value": [
+          "@timestamp",
+          "robotime",
+          "@version",
+          "logbee_time",
+          "path"
+        ]
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

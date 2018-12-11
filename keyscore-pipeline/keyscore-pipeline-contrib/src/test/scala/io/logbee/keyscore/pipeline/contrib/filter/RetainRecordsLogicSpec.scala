@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParameter, ParameterSet}
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
@@ -26,7 +26,7 @@ class RetainRecordsLogicSpec extends FreeSpec with Matchers with ScalaFutures wi
     val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new RetainRecordsLogic(parameters, s)
 
     val fieldNames = FieldNameListParameter(fieldNamesParameter.ref, List("message", "fubar"))
-    val initialConfig = Configuration(parameters = Seq(fieldNames))
+    val initialConfig = Configuration(parameterSet = ParameterSet(Seq(fieldNames)))
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, initialConfig), provider)
 
     val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])

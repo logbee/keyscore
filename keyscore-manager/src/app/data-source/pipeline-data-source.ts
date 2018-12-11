@@ -1,6 +1,6 @@
 import {MatTableDataSource} from "@angular/material";
 import {BehaviorSubject, Observable} from "rxjs/index";
-import {PipelineTableModel} from "./PipelineTableModel";
+import {PipelineTableModel} from "../pipelines/PipelineTableModel";
 
 export class PipelineDataSource extends MatTableDataSource<PipelineTableModel>{
     constructor(pipelineObjects$: Observable<PipelineTableModel[]>) {

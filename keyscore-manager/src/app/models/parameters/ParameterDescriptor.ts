@@ -1,5 +1,5 @@
 import {TextRef} from "../common/Localization";
-import {ParameterRef} from "../common/Ref";
+import {ParameterRef, Ref} from "../common/Ref";
 
 export interface StringValidator {
     expression: string;
@@ -88,7 +88,12 @@ export enum ParameterDescriptorJsonClass {
     FieldNameListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNameListParameterDescriptor",
     FieldListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldListParameterDescriptor",
     ChoiceParameterDescriptor = "io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor",
-    ParameterGroupDescriptor = "io.logbee.keyscore.model.descriptor.ParameterGroupDescriptor"
+    ParameterGroupDescriptor = "io.logbee.keyscore.model.descriptor.ParameterGroupDescriptor",
+    FieldDirectiveSequenceParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldDirectiveSequenceParameterDescriptor"
+}
+
+export enum DirectiveDescriptorJsonClass {
+    FieldDirectiveDescriptor = "io.logbee.keyscore.model.descriptor.FieldDirectiveDescriptor"
 }
 
 export type ResolvedParameterDescriptor =
@@ -102,7 +107,8 @@ export type ResolvedParameterDescriptor =
     | TextListParameterDescriptor
     | FieldNameListParameterDescriptor
     | FieldListParameterDescriptor
-    | ChoiceParameterDescriptor;
+    | ChoiceParameterDescriptor
+    | FieldDirectiveSequenceParameterDescriptor;
 
 export type SingleResolvedParameterDescriptor =
     | BooleanParameterDescriptor
@@ -117,6 +123,7 @@ export type ListResolvedParameterDescriptor =
     | TextListParameterDescriptor
     | FieldNameListParameterDescriptor
     | FieldListParameterDescriptor
+    | FieldDirectiveSequenceParameterDescriptor
     | ChoiceParameterDescriptor;
 
 export interface BooleanParameterDescriptor {
@@ -246,6 +253,28 @@ export interface ParameterGroupDescriptor {
     jsonClass: ParameterDescriptorJsonClass;
     condition: ParameterGroupCondition;
     parameters: ParameterDescriptor[];
+
+}
+
+export interface FieldDirectiveSequenceParameterDescriptor {
+    ref: ParameterRef;
+    info: ResolvedParameterInfo;
+    jsonClass: ParameterDescriptorJsonClass;
+    fieldTypes: FieldValueType;
+    parameters: ParameterDescriptor[];
+    directives: FieldDirectiveDescriptor[];
+    minSequences: number;
+    maxSequences: number;
+}
+
+export interface FieldDirectiveDescriptor {
+    ref: Ref;
+    info: ResolvedParameterInfo;
+    jsonClass: DirectiveDescriptorJsonClass;
+    parameters: ParameterDescriptor;
+    minSequences: number;
+    maxSequences: number;
+
 
 }
 

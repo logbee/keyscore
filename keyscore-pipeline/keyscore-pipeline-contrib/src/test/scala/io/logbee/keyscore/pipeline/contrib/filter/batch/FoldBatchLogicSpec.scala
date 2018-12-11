@@ -1,6 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.filter.batch
 
-import io.logbee.keyscore.model.configuration.{Configuration, FieldNameParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, FieldNameParameter, ParameterSet}
 import io.logbee.keyscore.model.data.{Record, _}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
@@ -31,9 +31,9 @@ class FoldBatchLogicSpec extends FreeSpec with ScalaFutures with Matchers with T
 
     "when processing left-to-right" - {
 
-      val configuration = Configuration(parameters = Seq(
+      val configuration = Configuration(parameterSet = ParameterSet(Seq(
         FieldNameParameter(FoldBatchLogic.orderParameter, "LEFT")
-      ))
+      )))
 
       "should overwrite the first with the last" in new TestStreamFor[FoldBatchLogic](configuration) {
 
@@ -54,9 +54,9 @@ class FoldBatchLogicSpec extends FreeSpec with ScalaFutures with Matchers with T
 
     "when processing right-to-left" - {
 
-      val configuration = Configuration(parameters = Seq(
+      val configuration = Configuration(parameterSet = ParameterSet(Seq(
         FieldNameParameter(FoldBatchLogic.orderParameter, "RIGHT")
-      ))
+      )))
 
       "should overwrite the last with the first" in new TestStreamFor[FoldBatchLogic](configuration) {
 

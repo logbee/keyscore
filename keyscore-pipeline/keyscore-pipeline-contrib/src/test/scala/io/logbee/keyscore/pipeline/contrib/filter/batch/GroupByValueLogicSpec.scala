@@ -20,9 +20,9 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
     "with inactive time window" - {
 
-      val configuration = Configuration(parameters = Seq(
+      val configuration = Configuration(parameterSet = ParameterSet(Seq(
         FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key")
-      ))
+      )))
 
       val samples = Seq(
         Dataset(Record(
@@ -117,11 +117,11 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
     "with active time window" - {
 
-      val configuration = Configuration(parameters = Seq(
+      val configuration = Configuration(parameterSet = ParameterSet(Seq(
         FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key"),
         ChoiceParameter(GroupByValueLogic.windowParameter, GroupByValueLogic.timeWindowChoice.name),
         NumberParameter(GroupByValueLogic.timeWindowMillisParameter, 1000),
-      ))
+      )))
 
       val samples = Seq(
         Dataset(

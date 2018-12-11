@@ -5,20 +5,23 @@
     "revision": "",
     "ancestor": ""
   },
-  "parameters": [
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
-      "ref": {
-        "id": "fingerprint.target"
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "fingerprint.target"
+        },
+        "value": "footprint"
       },
-      "value": "footprint"
-    },
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.BooleanParameter",
-      "ref": {
-        "id": "fingerprint.encoding"
-      },
-      "value": true
-    }
-  ]
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.BooleanParameter",
+        "ref": {
+          "id": "fingerprint.encoding"
+        },
+        "value": true
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

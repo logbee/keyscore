@@ -5,22 +5,25 @@
     "revision": "",
     "ancestor": ""
   },
-  "parameters": [
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameListParameter",
-      "ref": {
-        "id": "grok.fieldNames"
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameListParameter",
+        "ref": {
+          "id": "grok.fieldNames"
+        },
+        "value": [
+          "path"
+        ]
       },
-      "value": [
-        "path"
-      ]
-    },
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.ExpressionParameter",
-      "ref": {
-        "id": "grok.pattern"
-      },
-      "value": ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*"
-    }
-  ]
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.ExpressionParameter",
+        "ref": {
+          "id": "grok.pattern"
+        },
+        "value": ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*"
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

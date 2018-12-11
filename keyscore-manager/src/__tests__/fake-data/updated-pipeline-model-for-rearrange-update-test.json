@@ -1,262 +1,276 @@
 {
-  "pipelineBlueprint":{
-    "ref":{
-      "uuid":"9b1ea55c-39c7-4aee-9dbd-64e34938f6af"
+  "pipelineBlueprint": {
+    "ref": {
+      "uuid": "9b1ea55c-39c7-4aee-9dbd-64e34938f6af"
     },
-    "blueprints":[
+    "blueprints": [
       {
-        "uuid":"da5e140f-b4b6-488a-9332-7c86fecb8816"
+        "uuid": "da5e140f-b4b6-488a-9332-7c86fecb8816"
       },
       {
-        "uuid":"2b7f908d-a479-469a-b4cb-579e1d7408d0"
+        "uuid": "2b7f908d-a479-469a-b4cb-579e1d7408d0"
       },
       {
-        "uuid":"dd1c24a1-a7f5-46b4-b251-d6b16b7e99bd"
+        "uuid": "dd1c24a1-a7f5-46b4-b251-d6b16b7e99bd"
       },
       {
-        "uuid":"ce740033-ccff-40f8-b6e9-dfefbfae9956"
+        "uuid": "ce740033-ccff-40f8-b6e9-dfefbfae9956"
       },
       {
-        "uuid":"c395c881-4a1e-4423-abaf-0fb43b0cb6cb"
+        "uuid": "c395c881-4a1e-4423-abaf-0fb43b0cb6cb"
       }
     ],
-    "metadata":{
-      "labels":[
+    "metadata": {
+      "labels": [
         {
-          "name":"pipeline.name",
-          "value":{
-            "jsonClass":"",
-            "value":"New Pipeline"
+          "name": "pipeline.name",
+          "value": {
+            "jsonClass": "",
+            "value": "New Pipeline"
           }
         },
         {
-          "name":"pipeline.description",
-          "value":{
-            "jsonClass":"",
-            "value":"Your new Pipeline"
+          "name": "pipeline.description",
+          "value": {
+            "jsonClass": "",
+            "value": "Your new Pipeline"
           }
         }
       ]
     }
   },
-  "blueprints":[
+  "blueprints": [
     {
-      "jsonClass":"io.logbee.keyscore.model.blueprint.SourceBlueprint",
-      "ref":{
-        "uuid":"da5e140f-b4b6-488a-9332-7c86fecb8816"
+      "jsonClass": "io.logbee.keyscore.model.blueprint.SourceBlueprint",
+      "ref": {
+        "uuid": "da5e140f-b4b6-488a-9332-7c86fecb8816"
       },
-      "descriptor":{
-        "uuid":"6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
+      "descriptor": {
+        "uuid": "6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
       },
-      "configuration":{
-        "uuid":"435ebb40-ade4-4732-8fc3-fd2048bbc1e4"
+      "configuration": {
+        "uuid": "435ebb40-ade4-4732-8fc3-fd2048bbc1e4"
       },
-      "out":{
-        "uuid":"2b7f908d-a479-469a-b4cb-579e1d7408d0"
+      "out": {
+        "uuid": "2b7f908d-a479-469a-b4cb-579e1d7408d0"
       }
     },
     {
-      "jsonClass":"io.logbee.keyscore.model.blueprint.FilterBlueprint",
-      "ref":{
-        "uuid":"2b7f908d-a479-469a-b4cb-579e1d7408d0"
+      "jsonClass": "io.logbee.keyscore.model.blueprint.FilterBlueprint",
+      "ref": {
+        "uuid": "2b7f908d-a479-469a-b4cb-579e1d7408d0"
       },
-      "descriptor":{
-        "uuid":"634bce93-64a3-4469-a105-1be441fdc2e0"
+      "descriptor": {
+        "uuid": "634bce93-64a3-4469-a105-1be441fdc2e0"
       },
-      "configuration":{
-        "uuid":"1d2babb8-dbc6-41fe-88fe-575f5adec419"
+      "configuration": {
+        "uuid": "1d2babb8-dbc6-41fe-88fe-575f5adec419"
       },
-      "in":{
-        "uuid":"da5e140f-b4b6-488a-9332-7c86fecb8816"
+      "in": {
+        "uuid": "da5e140f-b4b6-488a-9332-7c86fecb8816"
       },
-      "out":{
-        "uuid":"dd1c24a1-a7f5-46b4-b251-d6b16b7e99bd"
+      "out": {
+        "uuid": "dd1c24a1-a7f5-46b4-b251-d6b16b7e99bd"
       }
     },
     {
-      "jsonClass":"io.logbee.keyscore.model.blueprint.FilterBlueprint",
-      "ref":{
-        "uuid":"dd1c24a1-a7f5-46b4-b251-d6b16b7e99bd"
+      "jsonClass": "io.logbee.keyscore.model.blueprint.FilterBlueprint",
+      "ref": {
+        "uuid": "dd1c24a1-a7f5-46b4-b251-d6b16b7e99bd"
       },
-      "descriptor":{
-        "uuid":"292d368e-6e50-4c52-aed5-1a6826d78c22"
+      "descriptor": {
+        "uuid": "292d368e-6e50-4c52-aed5-1a6826d78c22"
       },
-      "configuration":{
-        "uuid":"da2f7a6d-7ec6-4ac0-ab84-de748522ff14"
+      "configuration": {
+        "uuid": "da2f7a6d-7ec6-4ac0-ab84-de748522ff14"
       },
-      "in":{
-        "uuid":"2b7f908d-a479-469a-b4cb-579e1d7408d0"
+      "in": {
+        "uuid": "2b7f908d-a479-469a-b4cb-579e1d7408d0"
       },
-      "out":{
-        "uuid":"ce740033-ccff-40f8-b6e9-dfefbfae9956"
+      "out": {
+        "uuid": "ce740033-ccff-40f8-b6e9-dfefbfae9956"
       }
     },
     {
-      "jsonClass":"io.logbee.keyscore.model.blueprint.FilterBlueprint",
-      "ref":{
-        "uuid":"ce740033-ccff-40f8-b6e9-dfefbfae9956"
+      "jsonClass": "io.logbee.keyscore.model.blueprint.FilterBlueprint",
+      "ref": {
+        "uuid": "ce740033-ccff-40f8-b6e9-dfefbfae9956"
       },
-      "descriptor":{
-        "uuid":"a83715fd-bc0f-4012-9527-59c6d4a1f6cd"
+      "descriptor": {
+        "uuid": "a83715fd-bc0f-4012-9527-59c6d4a1f6cd"
       },
-      "configuration":{
-        "uuid":"daa5a4e9-e870-4b86-a1bf-2905ceab9c95"
+      "configuration": {
+        "uuid": "daa5a4e9-e870-4b86-a1bf-2905ceab9c95"
       },
-      "in":{
-        "uuid":"dd1c24a1-a7f5-46b4-b251-d6b16b7e99bd"
+      "in": {
+        "uuid": "dd1c24a1-a7f5-46b4-b251-d6b16b7e99bd"
       },
-      "out":{
-        "uuid":"c395c881-4a1e-4423-abaf-0fb43b0cb6cb"
+      "out": {
+        "uuid": "c395c881-4a1e-4423-abaf-0fb43b0cb6cb"
       }
     },
     {
-      "jsonClass":"io.logbee.keyscore.model.blueprint.SinkBlueprint",
-      "ref":{
-        "uuid":"c395c881-4a1e-4423-abaf-0fb43b0cb6cb"
+      "jsonClass": "io.logbee.keyscore.model.blueprint.SinkBlueprint",
+      "ref": {
+        "uuid": "c395c881-4a1e-4423-abaf-0fb43b0cb6cb"
       },
-      "descriptor":{
-        "uuid":"4fedbe8e-115e-4408-ba53-5b627b6e2eaf"
+      "descriptor": {
+        "uuid": "4fedbe8e-115e-4408-ba53-5b627b6e2eaf"
       },
-      "configuration":{
-        "uuid":"4c87166f-a77a-416c-b318-c56f8ee96b26"
+      "configuration": {
+        "uuid": "4c87166f-a77a-416c-b318-c56f8ee96b26"
       },
-      "in":{
-        "uuid":"ce740033-ccff-40f8-b6e9-dfefbfae9956"
+      "in": {
+        "uuid": "ce740033-ccff-40f8-b6e9-dfefbfae9956"
       }
     }
   ],
-  "configurations":[
+  "configurations": [
     {
-      "ref":{
-        "uuid":"435ebb40-ade4-4732-8fc3-fd2048bbc1e4"
+      "ref": {
+        "uuid": "435ebb40-ade4-4732-8fc3-fd2048bbc1e4"
       },
-      "parent":null,
-      "parameters":[
-        {
-          "ref":{
-            "id":"kafka.source.server"
+      "parent": null,
+      "parameterSet": {
+        "parameters": [
+          {
+            "ref": {
+              "id": "kafka.source.server"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
           },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.source.port"
+          {
+            "ref": {
+              "id": "kafka.source.port"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter"
           },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.source.group"
+          {
+            "ref": {
+              "id": "kafka.source.group"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
           },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.source.offset"
+          {
+            "ref": {
+              "id": "kafka.source.offset"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.ChoiceParameter"
           },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.ChoiceParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.source.topic"
-          },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        }
-      ]
+          {
+            "ref": {
+              "id": "kafka.source.topic"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
+          }
+        ],
+        "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+      }
     },
     {
-      "ref":{
-        "uuid":"da2f7a6d-7ec6-4ac0-ab84-de748522ff14"
+      "ref": {
+        "uuid": "da2f7a6d-7ec6-4ac0-ab84-de748522ff14"
       },
-      "parent":null,
-      "parameters":[
-        {
-          "ref":{
-            "id":"csv.header"
+      "parent": null,
+      "parameterSet": {
+        "parameters": [
+          {
+            "ref": {
+              "id": "csv.header"
+            },
+            "value": [],
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextListParameter"
           },
-          "value":[],
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextListParameter"
-        },
-        {
-          "ref":{
-            "id":"csv.separator"
-          },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        }
-      ]
+          {
+            "ref": {
+              "id": "csv.separator"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
+          }
+        ],
+        "jsonClass":"io.logbee.keyscore.model.configuration.ParameterSet"
+      }
     },
     {
-      "ref":{
-        "uuid":"1d2babb8-dbc6-41fe-88fe-575f5adec419"
+      "ref": {
+        "uuid": "1d2babb8-dbc6-41fe-88fe-575f5adec419"
       },
-      "parent":null,
-      "parameters":[
-
-      ]
+      "parent": null,
+      "parameterSet": {
+        "parameters": [
+        ],
+        "jsonClass":"io.logbee.keyscore.model.configuration.ParameterSet"
+      }
     },
     {
-      "ref":{
-        "uuid":"4c87166f-a77a-416c-b318-c56f8ee96b26"
+      "ref": {
+        "uuid": "4c87166f-a77a-416c-b318-c56f8ee96b26"
       },
-      "parent":null,
-      "parameters":[
-        {
-          "ref":{
-            "id":"kafka.sink.bootstrapServer"
+      "parent": null,
+      "parameterSet": {
+        "parameters": [
+          {
+            "ref": {
+              "id": "kafka.sink.bootstrapServer"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
           },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.sink.bootstrapServerPort"
+          {
+            "ref": {
+              "id": "kafka.sink.bootstrapServerPort"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter"
           },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.sink.topic"
-          },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        }
-      ]
+          {
+            "ref": {
+              "id": "kafka.sink.topic"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
+          }
+        ],
+        "jsonClass":"io.logbee.keyscore.model.configuration.ParameterSet"
+      }
     },
     {
-      "ref":{
-        "uuid":"daa5a4e9-e870-4b86-a1bf-2905ceab9c95"
+      "ref": {
+        "uuid": "daa5a4e9-e870-4b86-a1bf-2905ceab9c95"
       },
-      "parent":null,
-      "parameters":[
-        {
-          "ref":{
-            "id":"dqf.xFieldName"
+      "parent": null,
+      "parameterSet": {
+        "parameters": [
+          {
+            "ref": {
+              "id": "dqf.xFieldName"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameParameter"
           },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameParameter"
-        },
-        {
-          "ref":{
-            "id":"dqf.yFieldName"
+          {
+            "ref": {
+              "id": "dqf.yFieldName"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameParameter"
           },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameParameter"
-        },
-        {
-          "ref":{
-            "id":"dqf.targetFieldName"
-          },
-          "value":"",
-          "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameParameter"
-        }
-      ]
+          {
+            "ref": {
+              "id": "dqf.targetFieldName"
+            },
+            "value": "",
+            "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameParameter"
+          }
+        ],
+        "jsonClass":"io.logbee.keyscore.model.configuration.ParameterSet"
+      }
     }
   ]
 }

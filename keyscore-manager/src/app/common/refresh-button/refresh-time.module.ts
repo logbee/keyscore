@@ -2,9 +2,8 @@ import {TranslateModule} from "@ngx-translate/core";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {HeaderBarComponent} from "./headerbar.component";
 import {MaterialModule} from "../../material.module";
-import {RefreshTimeModule} from "../refresh-button/refresh-time.module";
+import {RefreshTimeComponent} from "../refresh-button/refresh.component";
 
 @NgModule({
     imports: [
@@ -12,14 +11,13 @@ import {RefreshTimeModule} from "../refresh-button/refresh-time.module";
         FormsModule,
         ReactiveFormsModule,
         TranslateModule,
-        MaterialModule,
-        RefreshTimeModule
+        MaterialModule
     ],
-    declarations: [HeaderBarComponent],
-    entryComponents: [HeaderBarComponent],
-    exports: [HeaderBarComponent],
+    declarations: [RefreshTimeComponent],
+    entryComponents: [RefreshTimeComponent],
+    exports: [RefreshTimeComponent],
     providers: [],
 })
-export class HeaderBarModule {
+export class RefreshTimeModule {
 
 }

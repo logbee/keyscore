@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter, TextParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet, TextListParameter, TextParameter}
 import io.logbee.keyscore.model.data.{Dataset, DecimalField, Record}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.api.LogicParameters
@@ -39,10 +39,10 @@ class GrokLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFa
   }
 
   val configurationA = Configuration()
-  val configurationB = Configuration(parameters = Seq(
+  val configurationB = Configuration(parameterSet = ParameterSet(Seq(
     TextListParameter(fieldNamesParameter, Seq("message")),
     TextParameter(patternParameter, ".*:\\s(?<temperature>[-+]?\\d+((\\.\\d*)?|\\.\\d+)).*")
-  ))
+  )))
 
   val modified1 = Dataset(Record(messageTextField1, DecimalField("temperature", -11.5)))
   val modified2 = Dataset(Record(messageTextField2, DecimalField("temperature", 5.8)))

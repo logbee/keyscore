@@ -8,7 +8,7 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import akka.testkit.EventFilter
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
@@ -26,7 +26,7 @@ class LoggerLogicSpec extends WordSpec with Matchers with ScalaFutures with Test
     """akka.loggers = ["akka.testkit.TestEventListener"]"""
   ))
 
-  val configurationA = Configuration(parameters = Seq())
+  val configurationA = Configuration(parameterSet = ParameterSet(Seq()))
   val context = StageContext(system, executionContext)
   val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new LoggerLogic(parameters, s)
   val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)

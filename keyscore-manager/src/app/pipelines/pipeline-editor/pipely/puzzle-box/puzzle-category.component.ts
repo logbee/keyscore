@@ -7,6 +7,7 @@ import {parameterDescriptorToParameter} from "../../../../util";
 import {v4 as uuid} from "uuid";
 import {generateRef} from "../../../../models/common/Ref";
 import {Category} from "../../../../models/descriptors/Category";
+import {ParameterJsonClass} from "../../../../models/parameters/Parameter";
 
 
 @Component({
@@ -45,8 +46,8 @@ export class PuzzleCategoryComponent implements OnInit {
 
             let blockConfiguration = {
                 ref: generateRef(),
-                parent:null,
-                parameters: parameters
+                parent: null,
+                parameterSet: {jsonClass: ParameterJsonClass.ParameterSet, parameters: parameters}
             };
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
                 blockDescriptor: blockDescriptor,
@@ -57,7 +58,7 @@ export class PuzzleCategoryComponent implements OnInit {
                 previous: null,
                 rootDropzone: this.toolbarDropzone.getDropzoneModel().dropzoneType,
                 isMirror: false,
-                isSelected:false,
+                isSelected: false,
             }, this.workspace);
         });
     }

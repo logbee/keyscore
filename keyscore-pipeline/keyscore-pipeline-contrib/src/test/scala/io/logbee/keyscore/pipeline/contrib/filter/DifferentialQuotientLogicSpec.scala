@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.model.configuration.{Configuration, TextParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet, TextParameter}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
@@ -23,11 +23,11 @@ class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFut
 
     val context = StageContext(system, executionContext)
 
-    val configuration = Configuration(parameters = Seq(
+    val configuration = Configuration(parameterSet = ParameterSet(Seq(
       TextParameter(xFieldNameParameter.ref, "time"),
       TextParameter(yFieldNameParameter.ref, "voltage"),
       TextParameter(targetFieldNameParameter.ref, "slope")
-    ))
+    )))
 
     val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new DifferentialQuotientLogic(parameters, s)
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)

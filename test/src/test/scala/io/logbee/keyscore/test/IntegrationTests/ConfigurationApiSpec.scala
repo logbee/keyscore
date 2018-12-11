@@ -77,7 +77,7 @@ class ConfigurationApiSpec extends Matchers {
         val payload = message.getPayload().asInstanceOf[String]
         val configuration = read[Configuration](payload)
         configuration should equal(sinkObject)
-        configuration.parameters should have size expectedNumberOfParams
+        configuration.parameterSet.parameters should have size expectedNumberOfParams
         configuration.ref.uuid shouldBe sinkObject.ref.uuid
         log.info("GetSingleConfiguration successfully: " + configuration)
       })

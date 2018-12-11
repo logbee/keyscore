@@ -29,7 +29,7 @@ class ConfigurationSpec extends FreeSpec with Matchers {
     val fieldListParameter = FieldListParameterDescriptor("fieldListParameter")
     val choiceParameter = ChoiceParameterDescriptor("choiceParameter")
 
-    val configuration = Configuration(parameters = List(
+    val configuration = Configuration(parameterSet = ParameterSet(parameters = List(
       BooleanParameter("booleanParameter", true),
       TextParameter("textParameter", "Hello World"),
       ExpressionParameter("expressionParameter", ".*"),
@@ -42,7 +42,7 @@ class ConfigurationSpec extends FreeSpec with Matchers {
       FieldListParameter("fieldListParameter", Seq(Field("aText", TextValue("Yeah")), Field("aNumber", NumberValue(42)))),
       ChoiceParameter("choiceParameter", "BLUE")
 
-    ))
+    )))
 
     println(write(configuration))
 

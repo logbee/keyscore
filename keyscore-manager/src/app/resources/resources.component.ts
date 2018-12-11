@@ -4,7 +4,7 @@ import "../style/style.scss";
 import "../style/global-table-styles.css";
 import {MatPaginator, MatSort} from "@angular/material";
 import {selectBlueprints, selectStateObjects} from "./resources.reducer";
-import {BlueprintDataSource} from "../dataSources/BlueprintDataSource";
+import {BlueprintDataSource} from "../data-source/blueprint-data-source";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {Blueprint} from "../models/blueprints/Blueprint";
 import {

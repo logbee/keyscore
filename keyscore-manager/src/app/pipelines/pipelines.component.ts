@@ -12,12 +12,13 @@ import {
     UpdatePipelinePollingAction
 } from "./pipelines.actions";
 import {PipelinesState, selectPipelineList} from "./pipelines.reducer";
-import {PipelineDataSource} from "./PipelineDataSource";
+import {PipelineDataSource} from "../data-source/pipeline-data-source";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
 import "../style/style.scss";
 import {Ref} from "../models/common/Ref";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
+import {DataSourceFactory} from "../data-source/data-source-factory";
 
 @Component({
     selector: "keyscore-pipelines",
@@ -89,16 +90,17 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     public refreshTime$: Observable<number>;
     public title: string = "Pipelines";
     public configs: Observable<Ref[]>;
-    dataSource: PipelineDataSource = new PipelineDataSource(this.store.pipe(select(selectPipelineList)));
+    dataSource: PipelineDataSource;
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
-    constructor(private store: Store<PipelinesState>, private filterControllerService: FilterControllerService) {
+    constructor(private store: Store<PipelinesState>, private dataSourceFactory: DataSourceFactory) {
 
     }
 
     public ngOnInit() {
+        this.dataSource = this.dataSourceFactory.createPipelineDataSource(this.store.pipe(select(selectPipelineList)));
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing));
         this.refreshTime$ = this.store.pipe(select(selectRefreshTime));
         this.store.dispatch(new UpdatePipelinePollingAction(true));
@@ -117,6 +119,7 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     public rerun(uuid: string) {
         this.store.dispatch(new TriggerFilterResetAction(uuid));
     }
+
     public createPipeline(activeRouting: boolean = false) {
         const pipelineId = uuid();
         this.store.dispatch(new CreatePipelineAction(pipelineId, "New Pipeline", ""));

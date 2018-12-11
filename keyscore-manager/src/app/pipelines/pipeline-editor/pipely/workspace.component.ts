@@ -365,7 +365,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
                 configuration: {
                     ref: nextBlueprint.configuration,
                     parent: null,
-                    parameters: conf.parameters
+                    parameterSet: conf.parameterSet
                 },
                 blueprintRef: nextBlueprint.ref,
                 initialDropzone: this.workspaceDropzone,

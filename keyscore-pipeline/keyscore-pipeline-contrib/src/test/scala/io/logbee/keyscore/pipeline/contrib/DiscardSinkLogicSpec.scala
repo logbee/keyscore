@@ -6,7 +6,7 @@ import java.util.UUID
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSource
 import akka.stream.{FlowShape, SinkShape}
-import io.logbee.keyscore.model.configuration.{Configuration, NumberParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, NumberParameter, ParameterSet}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, SinkStage, StageContext}
@@ -32,9 +32,9 @@ class DiscardSinkLogicSpec extends FreeSpec with Matchers with ScalaFutures with
       val interval = 1000L
 
       val configuration = Configuration(
-        parameters = Seq(
+        parameterSet = ParameterSet(Seq(
           NumberParameter(DiscardSinkLogic.intervalParameter, interval),
-        )
+        ))
       )
 
       val context = StageContext(system, executionContext)

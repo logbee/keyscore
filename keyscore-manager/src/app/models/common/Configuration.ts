@@ -1,8 +1,14 @@
-import {Parameter} from "../parameters/Parameter";
+import {Parameter, ParameterSet} from "../parameters/Parameter";
 import {Ref} from "./Ref";
 
 export interface Configuration {
     ref: Ref;
     parent:Ref;
-    parameters: Parameter[];
+    parameterSet: ParameterSet;
+}
+
+export interface DirectiveConfiguration{
+    ref:Ref;
+    parameters: ParameterSet;
+    order: number;
 }

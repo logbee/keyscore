@@ -1,17 +1,20 @@
 {
-  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
-  "ref":{
-    "uuid":"d2588462-b5f4-4b10-8cbb-7bcceb178cb5"
+  "jsonClass": "io.logbee.keyscore.model.configuration.Configuration",
+  "ref": {
+    "uuid": "d2588462-b5f4-4b10-8cbb-7bcceb178cb5"
   },
-  "parameters":[
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameListParameter",
-      "ref":{
-        "id":"removeFields.fieldsToRemove"
-      },
-      "value":[
-        "notMessage"
-      ]
-    }
-  ]
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameListParameter",
+        "ref": {
+          "id": "removeFields.fieldsToRemove"
+        },
+        "value": [
+          "notMessage"
+        ]
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

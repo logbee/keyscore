@@ -4,6 +4,7 @@ import akka.testkit.{ImplicitSender, TestKit, TestKitBase}
 import akka.util.Timeout
 import io.logbee.keyscore.commons.cluster.resources._
 import io.logbee.keyscore.commons.{ConfigurationService, HereIam, WhoIs}
+import io.logbee.keyscore.model.configuration
 import io.logbee.keyscore.model.configuration.ConfigurationRepository.ROOT_ANCESTOR
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.descriptor.ParameterRef
@@ -40,12 +41,13 @@ class ConfigurationManagerSpec extends ProductionSystemWithMaterializerAndExecut
 
       val id = "c40c5fa4-f179-45f7-8bc5-7ff2fc9b4b6f"
 
-      val exampleConfiguration = Configuration(id, parameters = Seq(
+      val exampleConfiguration = Configuration(id, parameterSet = ParameterSet(Seq(
         TextParameter(ParameterRef("hostname"), "example.com")
+        )
       ))
 
       val modifiedConfiguration = exampleConfiguration.update(
-        _.parameters :+= NumberParameter(ParameterRef("port"), 2488)
+        _.parameterSet.parameters :+= NumberParameter(ParameterRef("port"), 2488)
       )
 
       configurationManager ! CommitConfiguration(exampleConfiguration)
@@ -71,7 +73,7 @@ class ConfigurationManagerSpec extends ProductionSystemWithMaterializerAndExecut
 
         val configuration = expectMsgType[ConfigurationResponse].configuration.value
 
-        configuration.parameters shouldBe modifiedConfiguration.parameters
+        configuration.parameterSet.parameters shouldBe modifiedConfiguration.parameterSet.parameters
       }
 
       "should respond the Configuration in the specified revision" in {
@@ -80,43 +82,43 @@ class ConfigurationManagerSpec extends ProductionSystemWithMaterializerAndExecut
 
         val configuration = expectMsgType[ConfigurationResponse].configuration.value
 
-        configuration.parameters shouldBe exampleConfiguration.parameters
+        configuration.parameterSet.parameters shouldBe exampleConfiguration.parameterSet.parameters
       }
 
       "should respond with a list containing the revisions of the committed Configuration" in {
 
         configurationManager ! RequestAllConfigurationRevisions(ConfigurationRef(id))
 
-        val response =  expectMsgType[ConfigurationsResponse]
+        val response = expectMsgType[ConfigurationsResponse]
 
         response.configurations should have size 2
-        response.configurations.head.parameters shouldBe modifiedConfiguration.parameters
-        response.configurations.last.parameters shouldBe exampleConfiguration.parameters
+        response.configurations.head.parameterSet.parameters shouldBe modifiedConfiguration.parameterSet.parameters
+        response.configurations.last.parameterSet.parameters shouldBe exampleConfiguration.parameterSet.parameters
       }
     }
 
-//    "should manage configurations" in {
-//
-//      val uuidA = "a95158dd-b351-4173-a29d-9d61af4be7fa"
-//      val uuidB = "efebb94d-965a-4bce-8e0d-642e95314c56"
-//      val configurationA = Configuration(uuidA, TextParameter("message", "Hello World"))
-//      val configurationB = Configuration(uuidB, TextParameter("message", "Hello World"))
-//
-//      configurationManager ! StoreConfigurationRequest(configurationA)
-//      configurationManager ! StoreConfigurationRequest(configurationB)
-//
-//      whenReady((configurationManager ? GetConfigurationRequest(uuidA)).mapTo[GetConfigurationSuccess]) { response =>
-//
-//        response.configuration shouldBe 'defined
-//        response.configuration.findTextValue("message") shouldBe Option("Hello World")
-//      }
-//
-//      configurationManager ! DeleteConfigurationRequest(uuidA)
-//
-//      whenReady((configurationManager ? GetConfigurationRequest(uuidA)).mapTo[GetConfigurationSuccess]) { response =>
-//
-//        response.configuration shouldNot be ('defined)
-//      }
-//    }
+    //    "should manage configurations" in {
+    //
+    //      val uuidA = "a95158dd-b351-4173-a29d-9d61af4be7fa"
+    //      val uuidB = "efebb94d-965a-4bce-8e0d-642e95314c56"
+    //      val configurationA = Configuration(uuidA, TextParameter("message", "Hello World"))
+    //      val configurationB = Configuration(uuidB, TextParameter("message", "Hello World"))
+    //
+    //      configurationManager ! StoreConfigurationRequest(configurationA)
+    //      configurationManager ! StoreConfigurationRequest(configurationB)
+    //
+    //      whenReady((configurationManager ? GetConfigurationRequest(uuidA)).mapTo[GetConfigurationSuccess]) { response =>
+    //
+    //        response.configuration shouldBe 'defined
+    //        response.configuration.findTextValue("message") shouldBe Option("Hello World")
+    //      }
+    //
+    //      configurationManager ! DeleteConfigurationRequest(uuidA)
+    //
+    //      whenReady((configurationManager ? GetConfigurationRequest(uuidA)).mapTo[GetConfigurationSuccess]) { response =>
+    //
+    //        response.configuration shouldNot be ('defined)
+    //      }
+    //    }
   }
 }
