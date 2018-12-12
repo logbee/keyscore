@@ -117,6 +117,14 @@ import {BehaviorSubject} from "rxjs/index";
                            [datasets]="datasets$ | async"
                            [id]="parameter.ref.id" [parameter]="parameter"
             ></parameter-map>
+            
+            <parameter-directive *ngSwitchCase="jsonClass.FieldDirectiveSequenceParameterDescriptor"
+                                    [formControlName]="parameter.ref.id"
+                                 [parameterDescriptor]="parameterDescriptor"
+                                 [parameter]="parameter"
+                                 [id]="parameter.ref.id"
+                                 [datasets]="datasets$ | async"
+            ></parameter-directive>
 
 
             <div class="parameter-required" *ngIf="!isValid">{{parameterDescriptor.info.displayName}}

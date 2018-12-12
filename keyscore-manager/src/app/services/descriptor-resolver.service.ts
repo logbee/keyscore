@@ -3,12 +3,12 @@ import {TranslateService} from "@ngx-translate/core";
 import {Descriptor} from "../models/descriptors/Descriptor";
 import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {
-    Choice,
+    Choice, FieldDirectiveDescriptor, FieldDirectiveSequenceParameterDescriptor,
     FieldNameParameterDescriptor,
     FieldParameterDescriptor,
     ParameterDescriptor,
-    ParameterDescriptorJsonClass,
-    ResolvedChoice,
+    ParameterDescriptorJsonClass, ParameterInfo,
+    ResolvedChoice, ResolvedFieldDirectiveDescriptor,
     ResolvedParameterDescriptor,
     ResolvedParameterInfo,
     ResolvedStringValidator,
@@ -64,15 +64,11 @@ export class DescriptorResolverService {
         }
     }
 
-    private resolveParameterDescriptor(settings: { descriptor: Descriptor, language: string }, parameterDescriptor: ParameterDescriptor): ResolvedParameterDescriptor {
-        const resolvedInfo: ResolvedParameterInfo = parameterDescriptor.info ? {
-            displayName: parameterDescriptor.info.displayName ? this.getTranslation(settings, parameterDescriptor.info.displayName.id) : "",
-            description: parameterDescriptor.info.description ? this.getTranslation(settings, parameterDescriptor.info.description.id) : ""
-        } : {displayName: "", description: ""};
 
+    private resolveParameterDescriptor(settings: { descriptor: Descriptor, language: string }, parameterDescriptor: ParameterDescriptor): ResolvedParameterDescriptor {
         let initialize = {
             ref: parameterDescriptor.ref,
-            info: resolvedInfo,
+            info: this.resolveInfo(settings, parameterDescriptor.info),
             jsonClass: parameterDescriptor.jsonClass,
         };
         switch (parameterDescriptor.jsonClass) {
@@ -160,12 +156,36 @@ export class DescriptorResolverService {
                     mandatory: parameterDescriptor.mandatory,
                     defaultValue: parameterDescriptor.defaultValue
                 };
+            case ParameterDescriptorJsonClass.FieldDirectiveSequenceParameterDescriptor:
+                return {
+                    ...initialize,
+                    fieldTypes: parameterDescriptor.fieldTypes,
+                    parameters: parameterDescriptor.parameters.map(parameter => this.resolveParameterDescriptor(settings, parameter)),
+                    directives: parameterDescriptor.directives.map(directive => this.resolveDirectiveDescriptor(settings, directive)),
+                    minSequences: parameterDescriptor.minSequences,
+                    maxSequences: parameterDescriptor.maxSequences
+                };
             default:
                 return null;
 
 
         }
 
+    }
+
+    private resolveInfo(settings: { descriptor: Descriptor, language: string }, info: ParameterInfo): ResolvedParameterInfo {
+        return info ? {
+            displayName: info.displayName ? this.getTranslation(settings, info.displayName.id) : "",
+            description: info.description ? this.getTranslation(settings, info.description.id) : ""
+        } : {displayName: "", description: ""};
+    }
+
+    private resolveDirectiveDescriptor(settings: { descriptor: Descriptor, language: string }, directive: FieldDirectiveDescriptor): ResolvedFieldDirectiveDescriptor {
+        return directive ? {
+            ...directive,
+            info: this.resolveInfo(settings, directive.info),
+            parameters: directive.parameters.map(parameter => this.resolveParameterDescriptor(settings, parameter))
+        } : null;
     }
 
     private resolveChoice(settings: { descriptor: Descriptor, language: string }, choice: Choice): ResolvedChoice {

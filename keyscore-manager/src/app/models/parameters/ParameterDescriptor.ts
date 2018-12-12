@@ -69,7 +69,12 @@ export interface ParameterDescriptor {
     max?: number;
     choices?: Choice[];
     descriptor?: ParameterDescriptor;
-    fieldValueType: FieldValueType;
+    fieldTypes?:FieldValueType;
+    parameters?: ParameterDescriptor[];
+    directives?: FieldDirectiveDescriptor[];
+    minSequences?: number;
+    maxSequences?: number;
+    fieldValueType?: FieldValueType;
 
 
 }
@@ -261,21 +266,29 @@ export interface FieldDirectiveSequenceParameterDescriptor {
     info: ResolvedParameterInfo;
     jsonClass: ParameterDescriptorJsonClass;
     fieldTypes: FieldValueType;
-    parameters: ParameterDescriptor[];
-    directives: FieldDirectiveDescriptor[];
+    parameters: ResolvedParameterDescriptor[];
+    directives: ResolvedFieldDirectiveDescriptor[];
     minSequences: number;
     maxSequences: number;
 }
 
 export interface FieldDirectiveDescriptor {
     ref: Ref;
-    info: ResolvedParameterInfo;
+    info: ParameterInfo;
     jsonClass: DirectiveDescriptorJsonClass;
-    parameters: ParameterDescriptor;
+    parameters: ParameterDescriptor[];
     minSequences: number;
     maxSequences: number;
+}
 
 
+export interface ResolvedFieldDirectiveDescriptor {
+    ref: Ref;
+    info: ResolvedParameterInfo;
+    jsonClass: DirectiveDescriptorJsonClass;
+    parameters: ResolvedParameterDescriptor[];
+    minSequences: number;
+    maxSequences: number;
 }
 
 export interface ParameterGroupCondition {
@@ -286,6 +299,8 @@ export interface BooleanParameterCondition {
     parameter: ParameterRef;
     negate: boolean;
 }
+
+
 
 
 

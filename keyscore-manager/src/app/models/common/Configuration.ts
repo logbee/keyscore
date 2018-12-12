@@ -3,12 +3,16 @@ import {Ref} from "./Ref";
 
 export interface Configuration {
     ref: Ref;
-    parent:Ref;
+    parent: Ref;
     parameterSet: ParameterSet;
 }
 
-export interface DirectiveConfiguration{
-    ref:Ref;
+export interface DirectiveConfiguration {
+    ref: Ref;
     parameters: ParameterSet;
-    order: number;
+}
+
+export interface FieldDirectiveSequenceConfiguration {
+    fieldName: string;
+    directives: DirectiveConfiguration[];
 }
