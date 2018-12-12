@@ -1,5 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file
 
+import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
@@ -11,6 +12,7 @@ import org.scalatest.junit.JUnitRunner
 
 import scala.reflect.runtime.universe._
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
+import java.nio.file.Paths
 
 
 @RunWith(classOf[JUnitRunner])
@@ -91,11 +93,12 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     val logFile3_ModifiedAfterPreviousReadTimestamp = TestUtility.createFile(watchDir, "log.txt.3", logFile3Data)
     
     
-    val previousReadPosition = 0
+    val previousReadPosition = logFile3Data.length / 2
+    val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
     val persistenceContextWithTimestamp: FilePersistenceContext = mock[FilePersistenceContext]
     (persistenceContextWithTimestamp.load[RotationRecord] (_: String)(_: TypeTag[RotationRecord]))
       .expects(logFile.getAbsolutePath, typeTag[RotationRecord])
-      .returning(Some(RotationRecord(previousReadPosition, logFile4_ModifiedBeforePreviousReadTimestamp.lastModified)))
+      .returning(Some(RotationRecord(previousReadPosition, previousReadTimestamp)))
       
     
     //Rewrite contents of other rotated files to set their lastModified-timestamp after the others
@@ -112,6 +115,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     
     val fileReader = new FileReader(logFile, ".[1-5]", persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
   }
+
 
   "A FileReader" - {
     "should retrieve the list of files it has to read from," - {
@@ -388,6 +392,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         
         "file by file, if file-wise reading is active" in {
           val readMode = ReadMode.FILE
+
+          //TEST file-wise reading
         }
       }
     }

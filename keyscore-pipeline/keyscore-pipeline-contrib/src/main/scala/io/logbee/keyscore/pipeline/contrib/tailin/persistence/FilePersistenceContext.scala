@@ -76,7 +76,7 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
     
     var output: FileWriter = null
     try {
-      output = new FileWriter(file, true)
+      output = new FileWriter(file, false)
       write(json, output)
       
       output.flush()

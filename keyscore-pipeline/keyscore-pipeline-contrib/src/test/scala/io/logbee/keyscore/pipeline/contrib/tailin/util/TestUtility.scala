@@ -24,7 +24,7 @@ object TestUtility {
 
   private def waitForFileToBe(file: File, deleted: Boolean): Unit = {
     for (i <- 1 to 20) {
-      if (file.exists() != deleted) {
+      if (file.exists != deleted) {
         waitForWatchService()
         return
       }

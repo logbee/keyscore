@@ -48,6 +48,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         subDir.toFile.mkdir
         TestUtility.waitForFileToExist(subDir.toFile)
 
+
         dirWatcher.processEvents()
 
         //call another time to verify that it's called on the sub-DirWatcher

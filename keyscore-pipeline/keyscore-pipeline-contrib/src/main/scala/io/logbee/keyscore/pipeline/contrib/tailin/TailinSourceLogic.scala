@@ -17,7 +17,6 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATIO
 import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirWatcher, DirWatcherConfiguration, ReadMode}
 import io.logbee.keyscore.pipeline.contrib.tailin.file.RotationReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.util.FileUtility
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode._
 import scala.concurrent.duration._
 import java.nio.charset.Charset
@@ -193,9 +192,14 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val persistenceFile: File = new File(".keyscoreFileTailinPersistence")
 
     persistenceFile.createNewFile()
-    FileUtility.waitForFileToExist(persistenceFile)
+    
+    for (i <- 1 to 50) {
+      if (persistenceFile.exists == false) {
+        Thread.sleep(100)
+      }
+    }
+    
 
-    val dirWatcherConfiguration = DirWatcherConfiguration(watchDir, filePattern, recursionDepth)
     val persistenceContext = new FilePersistenceContext(persistenceFile)
     val bufferSize = 1024
 
@@ -203,8 +207,9 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       data: String =>
         sendBuffer.addToBuffer(data)
     }
-
+    
     val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, Charset.forName(encoding), ReadMode.withName(readMode))
+    val dirWatcherConfiguration = DirWatcherConfiguration(watchDir, filePattern, recursionDepth)
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
   }
   
@@ -256,7 +261,9 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   
   
   override def postStop(): Unit = {
-    dirWatcher.tearDown()
+    if (dirWatcher != null) {
+      dirWatcher.tearDown()
+    }
     log.info("Tailin source is stopping.")
   }
 }

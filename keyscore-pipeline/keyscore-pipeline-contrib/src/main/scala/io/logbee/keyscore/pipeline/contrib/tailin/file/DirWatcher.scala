@@ -5,6 +5,7 @@ import java.nio.file._
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import org.slf4j.LoggerFactory
 
 
 trait DirWatcher {
@@ -20,14 +21,17 @@ case class DirWatcherConfiguration(dirPath: Path, filePattern: String, recursion
 
 class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherProvider: WatcherProvider, callback: (String) => Unit) extends PathWatcher(configuration.dirPath) with DirWatcher {
   
+  private val log = LoggerFactory.getLogger(classOf[DefaultDirWatcher])
+  
+  
   
   if (Files.isDirectory(configuration.dirPath) == false) {
     throw new InvalidPathException(configuration.dirPath.toString, "The given path is not a directory or doesn't exist.")
   }
   
+  log.info("Instantiating for " + configuration.dirPath)
   
-  
-  private val watchService = FileSystems.getDefault().newWatchService()
+  private val watchService = FileSystems.getDefault.newWatchService()
   private val watchKey = configuration.dirPath.register(
     watchService,
     StandardWatchEventKinds.ENTRY_CREATE,
@@ -53,10 +57,10 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
 
   
   //recursive setup
-  val subPaths = configuration.dirPath.toFile.listFiles()
+  val subPaths = configuration.dirPath.toFile.listFiles
   subPaths.foreach { path =>
     {
-      if (path.isDirectory()) {
+      if (path.isDirectory) {
         addSubDirWatcher(path.toPath)
       } else {
         addSubFileWatcher(path)
@@ -69,7 +73,6 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   def processEvents() = {
-    
     //call processEvents() on subDirWatchers
     subDirWatchers.foreach {
       case (path: Path, subDirWatchers: ListBuffer[DirWatcher]) => subDirWatchers.foreach {
@@ -98,7 +101,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
           if (Files.isDirectory(path)) {
             addSubDirWatcher(path)
           } else if (Files.isRegularFile(path)) {
-            addSubFileWatcher(path.toFile())
+            addSubFileWatcher(path.toFile)
           }
         }
 
@@ -107,7 +110,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
         }
 
         case StandardWatchEventKinds.ENTRY_MODIFY => { //renaming a directory does not trigger this (on Linux+tmpfs at least)
-          fireFileModified(path.toFile())
+          fireFileModified(path.toFile)
         }
       }
 
@@ -123,6 +126,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   private def addSubDirWatcher(dir: Path) = {
+
     if (configuration.recursionDepth > 0) {
       val dirWatcher = watcherProvider.createDirWatcher(configuration.copy(dirPath = dir, recursionDepth = configuration.recursionDepth - 1))
       
@@ -219,6 +223,8 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   def tearDown() {
+    
+    log.info("Teardown for " + configuration.dirPath)
     
     //call tearDown on all watchers attached to this
     subFileWatchers.foreach { case (_: File, subFileWatchers: ListBuffer[FileWatcher]) =>
