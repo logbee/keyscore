@@ -141,7 +141,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
           sink.expectNoMessage(remaining = 1000 millis)
 
-          val actual = sink.requestNext(500 millis)
+          val actual = sink.requestNext(1000 millis)
 
           actual shouldBe sample
         }

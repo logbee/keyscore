@@ -73,12 +73,15 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
   private var fieldName = ""
   private var timeWindowActive = false
   private var timeWindowMillis = 0L
+  private var maxQueueSize = 2500
 
-  private val grid = new DataGrid[Entry]()
-  private var pass: Option[Dataset] = None
+  private val passthroughQueue = mutable.Queue.empty[Group]
+  private val windowQueue = mutable.Queue.empty[Group]
+  private val groups = mutable.HashMap.empty[Field, Group]
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
+    pull(in)
   }
 
   override def configure(configuration: Configuration): Unit = {
@@ -88,7 +91,6 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
     if (timeWindowActive) {
       timeWindowMillis = configuration.getValueOrDefault(GroupByValueLogic.timeWindowMillisParameter, timeWindowMillis)
-      schedulePush()
     }
     else {
       timeWindowMillis = 0
@@ -99,137 +101,110 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
     val dataset = grab(in)
 
-    val field = dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
+    val fieldOption = dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
 
-    if (field.isDefined) {
+    fieldOption match {
+      case Some(field) =>
+        groups.get(field) match {
+          case Some(group) =>
+            group.datasets += dataset
+          case _ =>
+            val group = Group(fieldOption, mutable.ListBuffer(dataset))
+            windowQueue enqueue group
+            groups.put(field, group)
+        }
 
-      grid.insert(field.get, Entry(field.get, dataset, System.currentTimeMillis() + timeWindowMillis))
+      case _ => passthroughQueue enqueue Group(None, mutable.ListBuffer(dataset))
+    }
 
-      if (noWindow) {
-        grid.markAll("EXPIRED", entry => !entry.field.equals(field.get))
+    if (isAvailable(out)) {
+      val pushFailed = !pushNextGroup()
+      if (pushFailed && timeWindowActive && !isTimerActive("timeWindow")) {
+        schedulePush()
       }
     }
-    else {
-      pass = Option(dataset)
-    }
 
-    pushOutIfAvailable()
+    if (windowQueue.size < maxQueueSize && passthroughQueue.size < maxQueueSize) {
+      pull(in)
+    }
   }
 
   override def onPull(): Unit = {
-    pushOutIfAvailable()
+    if (pushNextGroup()) {
+      if (!hasBeenPulled(in)) pull(in)
+    }
   }
 
   override protected def onTimer(timerKey: Any): Unit = {
     timerKey match {
       case "timeWindow" =>
-        pushOutIfAvailable()
-        schedulePush()
+        if (!pushNextGroup()) {
+          val timespan = windowQueue.head.expires - System.currentTimeMillis + 100
+          scheduleOnce("timeWindow", Duration(timespan, MILLISECONDS))
+        }
       case _ =>
     }
   }
 
   private def schedulePush(): Unit = {
-    scheduleOnce("timeWindow", Duration((timeWindowMillis * 0.5).toLong, MILLISECONDS))
+    val timespan = windowQueue.head.expires - System.currentTimeMillis + 100
+    scheduleOnce("timeWindow", Duration(timespan, MILLISECONDS))
   }
 
-  private def pushOutIfAvailable(): Unit = {
+  private def pushNextGroup(): Boolean = {
+    val passthroughGroupOption = passthroughQueue.headOption
+    val windowGroupOption = windowQueue.headOption
 
-    if (!isAvailable(out)) {
-      return
+    if (passthroughGroupOption.isDefined && windowGroupOption.isDefined) {
+      if (passthroughGroupOption.get.created < windowGroupOption.get.created) {
+        pushNextPassthroughGroup()
+        return true
+      }
+      else {
+        pushNextWindowGroup()
+        return true
+      }
     }
-
-    if (pass.isDefined) {
-      push(out, pass.get)
-      pass = None
+    else if (passthroughGroupOption.isDefined) {
+      pushNextPassthroughGroup()
+      return true
     }
-    else {
-
+    else if (windowGroupOption.isDefined) {
       if (timeWindowActive) {
-        val current = System.currentTimeMillis()
-        grid.markAll("EXPIRED", entry => current > entry.expires)
-      }
-
-      if (grid.hasMarked("EXPIRED")) {
-        val entry = grid.findMarked("EXPIRED").head
-        push(out, Dataset(entry.datasets.head.metadata, entry.datasets.flatMap(_.records)))
-        grid.remove(entry.field)
-      }
-    }
-
-    if (!hasBeenPulled(in)) {
-      pull(in)
-    }
-  }
-
-  private def noWindow: Boolean = !timeWindowActive
-
-  private class DataGrid[V <: Updateable[V]] {
-
-    private val data = mutable.HashMap.empty[AnyRef, V]
-    private val keys = mutable.ListBuffer.empty[AnyRef]
-    private val marks = mutable.HashMap.empty[AnyRef, Set[AnyRef]]
-
-    def insert(key: AnyRef, value: V): Unit = {
-      val element = data.get(key)
-      if (element.isEmpty) {
-        data.put(key, value)
-        keys += key
+        if (windowGroupOption.get.isExpired) {
+          pushNextWindowGroup()
+          return true
+        }
       }
       else {
-        data.put(key, element.get.update(value))
+        if (windowQueue.size > 1) {
+          pushNextWindowGroup()
+          return true
+        }
       }
     }
 
-    def remove(key: AnyRef): Unit = {
-      data.remove(key)
-      keys -= key
-      marks
-        .transform { case (_, keySet) => keySet - key }
-        .retain { case (_, value) => value.nonEmpty }
-    }
-
-    def findMarked(mark: AnyRef): List[V] = {
-      marks
-        .getOrElse(mark, List.empty)
-        .toList
-        .sortWith((a, b) => keys.indexOf(a) < keys.indexOf(b))
-        .map(key => data(key))
-    }
-
-    def hasMarked(mark: AnyRef): Boolean = {
-      marks.contains(mark)
-    }
-
-    def markAll(mark: AnyRef, p: V => Boolean): Unit = {
-
-      val values = data
-        .filter { case (_, value) => p(value) }
-        .keys
-        .toSet
-
-      if (values.nonEmpty) {
-        marks.put(mark, values)
-      }
-      else {
-        marks.remove(mark)
-      }
-    }
+    false
   }
 
-  object Entry {
-    def apply(field: Field, dataset: Dataset, expires: Long): Entry = new Entry(field, List(dataset), expires)
-    def apply(field: Field, datasets: List[Dataset], expires: Long): Entry = new Entry(field, datasets, expires)
-  }
-  case class Entry(field: Field, datasets: List[Dataset], expires: Long) extends Updateable[Entry] {
-    val created: Long = System.currentTimeMillis()
-
-    override def update(other: Entry): Entry = {
-      copy(datasets = datasets ++ other.datasets)
-    }
+  private def pushNextWindowGroup(): Unit = {
+    val group = windowQueue.dequeue()
+    groups.remove(group.field.get)
+    pushGroup(group)
   }
 
-  trait Updateable[U] {
-    def update(other: U): U
+  private def pushNextPassthroughGroup(): Unit = {
+    val group = passthroughQueue.dequeue()
+    pushGroup(group)
+  }
+
+  private def pushGroup(group: Group): Unit = {
+    push(out, Dataset(group.datasets.head.metadata, group.datasets.flatMap(_.records).toList))
+  }
+
+  case class Group(field: Option[Field], datasets: mutable.ListBuffer[Dataset]) {
+    val created: Long = System.currentTimeMillis
+    def expires: Long = created + timeWindowMillis
+    def isExpired: Boolean = System.currentTimeMillis > expires
   }
 }
