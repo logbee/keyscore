@@ -150,23 +150,23 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   override def configure(configuration: Configuration): Unit = {
 
-    sequences = configuration.getValueOrDefault(TextMutatorLogic.directiveSequence, Seq.empty).map(sequence => {
+    sequences = configuration.getValueOrDefault(TextMutatorLogic.directiveSequence, Seq.empty).map(sequenceConfiguration => {
 
-      val directives = sequence.directives.foldLeft(Seq.empty[FieldDirective]) {
-        case (result, DirectiveConfiguration(toTimestampDirective.ref, parameters, order)) =>
+      val directives = sequenceConfiguration.directives.foldLeft(Seq.empty[FieldDirective]) {
+        case (result, DirectiveConfiguration(toTimestampDirective.ref, parameters)) =>
           val timestampPattern = parameters.getValueOrDefault(TextMutatorLogic.toTimestampPattern, "")
           result :+ ToTimestampDirective(timestampPattern)
-        case (result, DirectiveConfiguration(findAndReplaceDirective.ref, parameters, order)) =>
+        case (result, DirectiveConfiguration(findAndReplaceDirective.ref, parameters)) =>
           val findPattern = parameters.getValueOrDefault(TextMutatorLogic.findPattern, "")
           val replacePattern = parameters.getValueOrDefault(TextMutatorLogic.replacePattern, "")
           result :+ FindReplaceDirective(findPattern, replacePattern)
-        case (result, DirectiveConfiguration(trimDirective.ref, parameters, order)) =>
+        case (result, DirectiveConfiguration(trimDirective.ref, parameters)) =>
           result :+ TrimDirective()
         case (result, _) =>
           result
       }
 
-      FieldDirectiveSequence(sequence.fieldName, directives)
+      FieldDirectiveSequence(sequenceConfiguration.fieldName, sequenceConfiguration.parameters, directives)
     })
   }
 

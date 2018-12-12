@@ -110,12 +110,11 @@ message FieldDirectiveSequenceParameter {
 
 message FieldDirectiveSequenceConfiguration {
     string fieldName = 1;
-    repeated DirectiveConfiguration directives = 2;
-    uint32 order = 3;
+    ParameterSet parameters = 2 [(scalapb.field).no_box = true];
+    repeated DirectiveConfiguration directives = 3;
 }
 
 message DirectiveConfiguration {
     DirectiveRef ref = 1 [(scalapb.field).no_box = true];
     ParameterSet parameters = 2 [(scalapb.field).no_box = true];
-    uint32 order = 3;
 }
