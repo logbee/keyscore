@@ -33,56 +33,35 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   val defaultReadMode = ReadMode.LINE
   
   trait LogFile {
-    
-    val logFile = watchDir.resolve("log.txt").toFile
-    
-    logFile.createNewFile()
-    TestUtility.waitForFileToExist(logFile)
-    
-    
     val logFileData = "Log_File_0_ "
-    TestUtility.writeStringToFile(logFile, logFileData, StandardOpenOption.APPEND)
+    val logFile = TestUtility.createFile(watchDir, "log.txt", logFileData)
   }
   
   trait RotateFiles extends LogFile {
     
-    val logFile1337 = watchDir.resolve("log.txt.1337").toFile
-    val logFileCsv = watchDir.resolve("log.csv").toFile
-    
-    val otherLogFile1 = watchDir.resolve("other_log.txt.1").toFile
-    val otherLogFile = watchDir.resolve("other_log.txt").toFile
-    
-    val logFile2 = watchDir.resolve("log.txt.2").toFile
-    val logFile1 = watchDir.resolve("log.txt.1").toFile
-
-    val files = Array(logFile1337, logFileCsv, otherLogFile1, otherLogFile, logFile2, logFile1)
-
-    files.foreach { file => 
-      file.createNewFile()
-      TestUtility.waitForFileToExist(file)
-    }
-    
     val logFile1337Data = "Log_File_1337 "
-    TestUtility.writeStringToFile(logFile1337, logFile1337Data, StandardOpenOption.APPEND)
+    val logFile1337 = TestUtility.createFile(watchDir, "log.txt.1337", logFile1337Data)
     
     val logFileCsvData = "Log_File_Csv "
-    TestUtility.writeStringToFile(logFileCsv, logFileCsvData, StandardOpenOption.APPEND)
+    val logFileCsv = TestUtility.createFile(watchDir, "log.csv", logFileCsvData)
+    
     
     val otherLogFile1Data = "other_Log_File_1 "
-    TestUtility.writeStringToFile(otherLogFile1, otherLogFile1Data, StandardOpenOption.APPEND)
+    val otherLogFile1 = TestUtility.createFile(watchDir, "other_log.txt.1", otherLogFile1Data)
     
     Thread.sleep(1000)
     
     val otherLogFileData = "other_Log_File "
-    TestUtility.writeStringToFile(otherLogFile, otherLogFileData, StandardOpenOption.APPEND)
-
+    val otherLogFile = TestUtility.createFile(watchDir, "other_log.txt", otherLogFileData)
+    
+    
     val logFile2Data = "Log_File_2_22 "
-    TestUtility.writeStringToFile(logFile2, logFile2Data, StandardOpenOption.APPEND)
+    val logFile2 = TestUtility.createFile(watchDir, "log.txt.2", logFile2Data)
     
     Thread.sleep(1000)
     
     val logFile1Data = "Log_File_1_1 "
-    TestUtility.writeStringToFile(logFile1, logFile1Data, StandardOpenOption.APPEND)
+    val logFile1 = TestUtility.createFile(watchDir, "log.txt.1", logFile1Data)
     
     Thread.sleep(1000)
     
@@ -103,21 +82,13 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
 
   trait PersistenceContextWithTimestamp extends RotateFiles {
     
-    val logFile4_ModifiedBeforePreviousReadTimestamp = watchDir.resolve("log.txt.4").toFile
-    logFile4_ModifiedBeforePreviousReadTimestamp.createNewFile()
-    TestUtility.waitForFileToExist(logFile4_ModifiedBeforePreviousReadTimestamp)
-    
     val logFile4Data = "Log_File_4_4444 "
-    TestUtility.writeStringToFile(logFile4_ModifiedBeforePreviousReadTimestamp, logFile4Data, StandardOpenOption.APPEND)
+    val logFile4_ModifiedBeforePreviousReadTimestamp = TestUtility.createFile(watchDir, "log.txt.4", logFile4Data)
     
     Thread.sleep(1000)
     
-    val logFile3_ModifiedAfterPreviousReadTimestamp = watchDir.resolve("log.txt.3").toFile
-    logFile3_ModifiedAfterPreviousReadTimestamp.createNewFile()
-    TestUtility.waitForFileToExist(logFile3_ModifiedAfterPreviousReadTimestamp)
-    
     val logFile3Data = "Log_File_3_333 "
-    TestUtility.writeStringToFile(logFile3_ModifiedAfterPreviousReadTimestamp, logFile3Data, StandardOpenOption.APPEND)
+    val logFile3_ModifiedAfterPreviousReadTimestamp = TestUtility.createFile(watchDir, "log.txt.3", logFile3Data)
     
     
     val previousReadPosition = 0

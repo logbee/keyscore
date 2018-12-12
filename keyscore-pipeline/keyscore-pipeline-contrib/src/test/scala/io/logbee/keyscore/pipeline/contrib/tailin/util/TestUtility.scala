@@ -10,6 +10,7 @@ import java.nio.file.Files
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.OpenOption
+import java.nio.file.StandardOpenOption
 
 object TestUtility {
 
@@ -31,6 +32,18 @@ object TestUtility {
         Thread.sleep(100)
       }
     }
+  }
+  
+  
+  def createFile(dir: Path, name: String, content: String): File = {
+    val file = dir.resolve(name).toFile
+    
+    file.createNewFile()
+    TestUtility.waitForFileToExist(file)
+    
+    TestUtility.writeStringToFile(file, content, StandardOpenOption.CREATE)
+    
+    file
   }
 
 

@@ -78,10 +78,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     "should push one available string for one available pull" in new DefaultTailinSourceValues {
 
       val text = "Hallo Welt"
-      val file = watchDir.resolve("tailin.csv").toFile
-      file.createNewFile()
-      TestUtility.waitForFileToExist(file)
-      TestUtility.writeStringToFile(file, text, StandardOpenOption.TRUNCATE_EXISTING)
+      val file = TestUtility.createFile(watchDir, "tailin.csv", text)
 
       sink.request(1)
       var result = sink.expectNext(10.seconds)
@@ -95,10 +92,8 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       val text2 = "fghij"
       val text3 = "klmno"
 
-      val file = watchDir.resolve("tailin.csv").toFile
-      file.createNewFile()
-      TestUtility.waitForFileToExist(file)
-
+      val file = TestUtility.createFile(watchDir, "tailin.csv", "")
+      
 
       TestUtility.writeStringToFile(file, text1 + "\n", StandardOpenOption.APPEND)
 
@@ -123,12 +118,8 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       val text2 = "fghij"
       val text3 = "klmno"
 
-      val file = watchDir.resolve("tailin.csv").toFile
-      file.createNewFile()
-      TestUtility.waitForFileToExist(file)
-
-
-
+      val file = TestUtility.createFile(watchDir, "tailin.csv", "")
+      
 
       TestUtility.writeStringToFile(file, text1 + "\n", StandardOpenOption.APPEND)
 
