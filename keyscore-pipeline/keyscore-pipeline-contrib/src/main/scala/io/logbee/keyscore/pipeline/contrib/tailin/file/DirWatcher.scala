@@ -40,15 +40,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     
   
   
-  private val matcherString = { //insert a "/" in between, if it's missing
-    if (configuration.dirPath.toString.endsWith("/") || configuration.filePattern.startsWith("/")) {
-      configuration.dirPath + configuration.filePattern
-    }
-    else {
-      configuration.dirPath + "/" + configuration.filePattern
-    }
-  }
-  private val matcher = FileSystems.getDefault.getPathMatcher("glob:" + matcherString)
+  private val matcher = FileSystems.getDefault.getPathMatcher("glob:" + configuration.filePattern)
   
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
   private val subFileWatchers = mutable.Map.empty[File, ListBuffer[FileWatcher]]

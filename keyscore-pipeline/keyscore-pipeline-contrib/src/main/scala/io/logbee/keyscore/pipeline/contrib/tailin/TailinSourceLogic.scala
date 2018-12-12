@@ -20,23 +20,12 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceCon
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode._
 import scala.concurrent.duration._
 import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.InvalidPathException
 
 
 object TailinSourceLogic extends Described {
-
-  val directoryPath = TextParameterDescriptor(
-    ref = "tailin.directory.path",
-    info = ParameterInfo(
-      displayName = TextRef("directory"),
-      description = TextRef("directoryDescription")
-    ),
-    validator = StringValidator(
-      expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
-      expressionType = RegEx
-    ),
-    defaultValue = "test",
-    mandatory = true
-  )
 
   val filePattern = TextParameterDescriptor(
     ref = "tailin.file.pattern",
@@ -140,7 +129,6 @@ object TailinSourceLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.SOURCE, Category("File")),
       parameters = Seq(
-        directoryPath,
         filePattern,
         recursionDepth,
         readMode,
@@ -159,7 +147,6 @@ object TailinSourceLogic extends Described {
 
 class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
 
-  private var directoryPath = TailinSourceLogic.directoryPath.defaultValue
   private var filePattern = TailinSourceLogic.filePattern.defaultValue
   private var recursionDepth = TailinSourceLogic.recursionDepth.defaultValue
   private var readMode = ReadMode.LINE.toString
@@ -175,7 +162,6 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   override def configure(configuration: Configuration): Unit = {
-    directoryPath = configuration.getValueOrDefault(TailinSourceLogic.directoryPath, directoryPath)
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
     recursionDepth = configuration.getValueOrDefault(TailinSourceLogic.recursionDepth, recursionDepth)
     readMode = configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode)
@@ -183,10 +169,14 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     rotationSuffix = configuration.getValueOrDefault(TailinSourceLogic.rotationSuffix, rotationSuffix)
     
     
-    val watchDir = Paths.get(directoryPath)
-    if (watchDir.toFile.isDirectory == false) {
+    val watchDir = extractWatchDirFromFilePattern(filePattern)
+    if (watchDir == null) {
       log.warning("The path that was configured to watch doesn't exist or is not a directory.")
       return
+    }
+    
+    if (Paths.get(filePattern).toFile.isDirectory) {
+      filePattern += "*" //if the user specifies a directory, assume that the want all files in the directory
     }
 
     val persistenceFile: File = new File(".keyscoreFileTailinPersistence")
@@ -199,7 +189,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       }
     }
     
-
+    
     val persistenceContext = new FilePersistenceContext(persistenceFile)
     val bufferSize = 1024
 
@@ -212,6 +202,41 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val dirWatcherConfiguration = DirWatcherConfiguration(watchDir, filePattern, recursionDepth)
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
   }
+  
+  
+  private def extractWatchDirFromFilePattern(filePattern: String): Path = {
+    
+    val asteriskIndex = filePattern.indexOf("*")
+    
+    var invariableString = filePattern
+    if (asteriskIndex != -1) {
+      invariableString = filePattern.substring(0, asteriskIndex)
+    }
+    
+    
+    val invariablePath = Paths.get(invariableString)
+    
+    if (invariablePath.toFile.isDirectory) {
+      invariablePath
+    }
+    else { //remove the last part behind the last slash, if a slash exists
+      val lastSlashIndex = invariableString.lastIndexOf(File.separator)
+      
+      if (lastSlashIndex == -1) {
+        null
+      }
+      else {
+        val invariablePathDir = Paths.get(invariableString.substring(0, lastSlashIndex))
+        if (invariablePathDir.toFile.isDirectory) {
+          invariablePathDir
+        }
+        else {
+          null
+        }
+      }
+    }
+  }
+  
   
   
   override def onTimer(timerKey: Any) {
