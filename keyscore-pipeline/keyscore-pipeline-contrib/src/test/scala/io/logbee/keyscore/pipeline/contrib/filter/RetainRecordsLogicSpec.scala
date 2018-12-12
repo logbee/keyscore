@@ -1,15 +1,9 @@
 package io.logbee.keyscore.pipeline.contrib.filter
 
-import java.util.UUID
-
-import akka.stream.FlowShape
-import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParameter, ParameterSet}
+import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParameter}
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.filter.DropRecordsLogic.fieldNamesParameter
+import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -20,36 +14,27 @@ import org.scalatest.{FreeSpec, Inside, Matchers}
 @RunWith(classOf[JUnitRunner])
 class RetainRecordsLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with Inside with TestSystemWithMaterializerAndExecutionContext  {
 
-  trait TestStream {
 
-    val context = StageContext(system, executionContext)
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new RetainRecordsLogic(parameters, s)
-
-    val fieldNames = FieldNameListParameter(fieldNamesParameter.ref, List("message", "fubar"))
-    val initialConfig = Configuration(parameterSet = ParameterSet(Seq(fieldNames)))
-    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, initialConfig), provider)
-
-    val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
-      .viaMat(filterStage)(Keep.both)
-      .toMat(TestSink.probe[Dataset])(Keep.both)
-      .run()
-  }
-
-  val sample = Dataset(
-    Record(
-      Field("message", TextValue("Keep me!")),
-      Field("fubar", TextValue("Keep me too!"))
-    ),
-    Record(
-      Field("fubar", TextValue("Drop me!"))
-    )
-  )
 
   "A RetainRecordsFilterLogic" - {
 
-    "should only let records pass which contain all of the specified fields" in new TestStream {
+    val configuration = Configuration(
+      FieldNameListParameter(RetainRecordsLogic.fieldNamesParameter, List("message", "fubar"))
+    )
 
-      whenReady(filterFuture){ filter =>
+    val sample = Dataset(
+      Record(
+        Field("message", TextValue("Keep me!")),
+        Field("fubar", TextValue("Keep me too!"))
+      ),
+      Record(
+        Field("fubar", TextValue("Drop me!"))
+      )
+    )
+
+    "should only let records pass which contain all of the specified fields" in new TestStreamFor[RetainRecordsLogic](configuration) {
+
+      whenReady(filterFuture){ _ =>
 
         source.sendNext(sample)
         sink.request(1)

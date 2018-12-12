@@ -20,8 +20,8 @@ object RetainRecordsLogic extends Described {
   val fieldNamesParameter = FieldNameListParameterDescriptor(
     ref = "retainRecords.fieldNames",
     info = ParameterInfo(
-      displayName = TextRef("fieldNamesDisplayName"),
-      description = TextRef("fieldNamesDescription")
+      displayName = TextRef("fieldNames.displayName"),
+      description = TextRef("fieldNames.description")
     ),
     descriptor = FieldNameParameterDescriptor(
       hint = AnyField
@@ -30,14 +30,23 @@ object RetainRecordsLogic extends Described {
     max = MaxValue
   )
 
+  val discardEmptyDatasetsParameter = BooleanParameterDescriptor(
+    ref = "retainRecords.discardEmptyDatasets",
+    info = ParameterInfo(
+      displayName = TextRef("discardEmptyDatasets.displayName"),
+      description = TextRef("discardEmptyDatasets.description")
+    ),
+    mandatory = false
+  )
+
   override def describe = Descriptor(
     ref = "4c319934-483c-4c2f-ac38-f9d54cc63734",
     describes = FilterDescriptor(
-      name = classOf[DropRecordsLogic].getName,
+      name = classOf[RetainRecordsLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
-      parameters = Seq(fieldNamesParameter),
+      parameters = Seq(fieldNamesParameter, discardEmptyDatasetsParameter),
       icon = Icon.fromClass(classOf[RetainRecordsLogic])
     ),
     localization = Localization.fromResourceBundle(
@@ -49,27 +58,35 @@ object RetainRecordsLogic extends Described {
 class RetainRecordsLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var fieldNames = Seq.empty[String]
+  private var discardEmptyDatasets = false
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
 
   override def configure(configuration: Configuration): Unit = {
-    fieldNames = configuration.getValueOrDefault(DropRecordsLogic.fieldNamesParameter, fieldNames)
+    fieldNames = configuration.getValueOrDefault(RetainRecordsLogic.fieldNamesParameter, fieldNames)
+    discardEmptyDatasets = configuration.getValueOrDefault(RetainRecordsLogic.discardEmptyDatasetsParameter, discardEmptyDatasets)
   }
 
   override def onPush(): Unit = {
 
     val dataset = grab(in)
 
-    push(out, dataset.update(
-      _.records := dataset.records.foldLeft(mutable.ListBuffer.empty[Record]) {
-        case (result, record) =>
-          if (fieldNames.forall(name => record.fields.exists(field => name == field.name))) {
-            result += record
-          }
-          result
-      }.toList))
+    val records = dataset.records.foldLeft(mutable.ListBuffer.empty[Record]) {
+      case (result, record) =>
+        if (fieldNames.forall(name => record.fields.exists(field => name == field.name))) {
+          result += record
+        }
+        result
+    }.toList
+
+    if (records.isEmpty && discardEmptyDatasets) {
+      pull(in)
+    }
+    else {
+      push(out, dataset.update(_.records := records))
+    }
   }
 
   override def onPull(): Unit = {
