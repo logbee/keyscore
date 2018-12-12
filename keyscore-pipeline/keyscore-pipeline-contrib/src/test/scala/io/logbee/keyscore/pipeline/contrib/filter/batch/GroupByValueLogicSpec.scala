@@ -121,7 +121,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
       val configuration = Configuration(
         FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key"),
-        ChoiceParameter(GroupByValueLogic.windowParameter, GroupByValueLogic.timeWindowChoice.name),
+        BooleanParameter(GroupByValueLogic.timeWindowActiveParameter, true),
         NumberParameter(GroupByValueLogic.timeWindowMillisParameter, 1000),
       )
 

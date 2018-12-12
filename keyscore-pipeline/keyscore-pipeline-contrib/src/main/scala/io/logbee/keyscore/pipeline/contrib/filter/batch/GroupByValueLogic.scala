@@ -5,6 +5,7 @@ import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, Field}
+import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
@@ -29,27 +30,13 @@ object GroupByValueLogic extends Described {
     mandatory = true
   )
 
-  val windowParameter = ChoiceParameterDescriptor(
-    ref = "combineByValue.window",
+  val timeWindowActiveParameter = BooleanParameterDescriptor(
+    ref = "combineByValue.timeWindowActive",
     info = ParameterInfo(
-      displayName = "window.displayName",
-      description = "window.description"
+      displayName = "timeWindowActive.displayName",
+      description = "timeWindowActive.description"
     ),
-    min = 1,
-    max = 1,
-    choices = Seq(noWindowChoice, timeWindowChoice)
-  )
-
-  val noWindowChoice = Choice(
-    name = "NO_WINDOW",
-    displayName = TextRef("window.NO_WINDOW.displayName"),
-    description = TextRef("window.NO_WINDOW.description")
-  )
-
-  val timeWindowChoice = Choice(
-    name = "TIME_WINDOW",
-    displayName = TextRef("window.TIME_WINDOW.displayName"),
-    description = TextRef("window.TIME_WINDOW.description")
+    mandatory = true
   )
 
   val timeWindowMillisParameter = NumberParameterDescriptor(
@@ -68,8 +55,9 @@ object GroupByValueLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
-      parameters = Seq(fieldNameParameter, windowParameter, timeWindowMillisParameter),
-      icon = Icon.fromClass(classOf[GroupByValueLogic])
+      parameters = Seq(fieldNameParameter, timeWindowActiveParameter, timeWindowMillisParameter),
+      icon = Icon.fromClass(classOf[GroupByValueLogic]),
+      maturity = Experimental
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.GroupByValueLogic",
@@ -83,7 +71,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
   private implicit val jsonFormats: Formats = KeyscoreFormats.formats
 
   private var fieldName = ""
-  private var windowChoice = GroupByValueLogic.noWindowChoice.name
+  private var timeWindowActive = false
   private var timeWindowMillis = 0L
 
   private val grid = new DataGrid[Entry]()
@@ -96,17 +84,14 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
   override def configure(configuration: Configuration): Unit = {
 
     fieldName = configuration.getValueOrDefault(GroupByValueLogic.fieldNameParameter, fieldName)
-    windowChoice = configuration.getValueOrDefault(GroupByValueLogic.windowParameter, windowChoice)
+    timeWindowActive = configuration.getValueOrDefault(GroupByValueLogic.timeWindowActiveParameter, timeWindowActive)
 
-    windowChoice match {
-      case GroupByValueLogic.timeWindowChoice.name =>
-        timeWindowMillis = configuration.getValueOrDefault(GroupByValueLogic.timeWindowMillisParameter, timeWindowMillis)
-        schedulePush()
-      case GroupByValueLogic.noWindowChoice.name =>
-        timeWindowMillis = 0
-      case _ =>
-        windowChoice = GroupByValueLogic.noWindowChoice.name
-        timeWindowMillis = 0
+    if (timeWindowActive) {
+      timeWindowMillis = configuration.getValueOrDefault(GroupByValueLogic.timeWindowMillisParameter, timeWindowMillis)
+      schedulePush()
+    }
+    else {
+      timeWindowMillis = 0
     }
   }
 
@@ -160,7 +145,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
     }
     else {
 
-      if (timeWindow) {
+      if (timeWindowActive) {
         val current = System.currentTimeMillis()
         grid.markAll("EXPIRED", entry => current > entry.expires)
       }
@@ -177,10 +162,9 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
     }
   }
 
-  private def timeWindow: Boolean = windowChoice == GroupByValueLogic.timeWindowChoice.name
-  private def noWindow: Boolean = windowChoice == GroupByValueLogic.noWindowChoice.name
+  private def noWindow: Boolean = !timeWindowActive
 
-  private class DataGrid[V <: Updatedable[V]] {
+  private class DataGrid[V <: Updateable[V]] {
 
     private val data = mutable.HashMap.empty[AnyRef, V]
     private val keys = mutable.ListBuffer.empty[AnyRef]
@@ -237,7 +221,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
     def apply(field: Field, dataset: Dataset, expires: Long): Entry = new Entry(field, List(dataset), expires)
     def apply(field: Field, datasets: List[Dataset], expires: Long): Entry = new Entry(field, datasets, expires)
   }
-  case class Entry(field: Field, datasets: List[Dataset], expires: Long) extends Updatedable[Entry] {
+  case class Entry(field: Field, datasets: List[Dataset], expires: Long) extends Updateable[Entry] {
     val created: Long = System.currentTimeMillis()
 
     override def update(other: Entry): Entry = {
@@ -245,7 +229,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
     }
   }
 
-  trait Updatedable[U] {
+  trait Updateable[U] {
     def update(other: U): U
   }
 }
