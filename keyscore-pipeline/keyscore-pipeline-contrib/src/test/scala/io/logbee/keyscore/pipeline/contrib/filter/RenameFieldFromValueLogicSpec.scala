@@ -6,7 +6,7 @@ import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration.{Configuration, FieldNameParameter, ParameterSet}
-import io.logbee.keyscore.model.data.{Record, _}
+import io.logbee.keyscore.model.data.{Dataset, Field, Record, _}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
@@ -39,59 +39,92 @@ class RenameFieldFromValueLogicSpec extends FreeSpec with ScalaFutures with Matc
 
     "should rename the configured field by the value carried in the specified field" in new TestStream {
 
-      val sample = Dataset(
-        Record(
-          Field("value", DecimalValue(24.8)),
-          Field("kind", TextValue("ambient-temperature"))
+      val samples = Seq(
+        Dataset(
+          Record(
+            Field("value", DecimalValue(24.8)),
+            Field("kind", TextValue("ambient-temperature"))
+          ),
+          Record(
+            Field("value", TextValue("New temperature read.")),
+            Field("kind", TextValue("message")),
+            Field("location", TextValue("home"))
+          )
         ),
-        Record(
-          Field("value", TextValue("New temperature read.")),
-          Field("kind", TextValue("message"))
+        Dataset(
+          Record(
+            Field("value", DecimalValue(73.42)),
+            Field("kind", TextValue("unkown-temperature"))
+          )
         )
       )
 
-      val expected = Dataset(
-        Record(
-          Field("ambient-temperature", DecimalValue(24.8)),
-          Field("kind", TextValue("ambient-temperature"))
+      val expected = Seq(
+        Dataset(
+          Record(
+            Field("ambient-temperature", DecimalValue(24.8)),
+            Field("kind", TextValue("ambient-temperature"))
+          ),
+          Record(
+            Field("message", TextValue("New temperature read.")),
+            Field("kind", TextValue("message")),
+            Field("location", TextValue("home"))
+          )
         ),
-        Record(
-          Field("message", TextValue("New temperature read.")),
-          Field("kind", TextValue("message"))
+        Dataset(
+          Record(
+            Field("unkown-temperature", DecimalValue(73.42)),
+            Field("kind", TextValue("unkown-temperature"))
+          )
         )
       )
 
       whenReady(filterFuture) { _ =>
 
-        sink.request(1)
+        sink.request(2)
 
-        source.sendNext(sample)
+        samples.foreach(source.sendNext)
 
-        val actual = sink.requestNext()
+        var actual = sink.requestNext()
 
         actual.records should have size 2
-        actual.records.head.fields should contain only (expected.records.head.fields:_*)
-        actual.records.last.fields should contain only (expected.records.last.fields:_*)
+        actual.records.head.fields should contain only (expected.head.records.head.fields:_*)
+        actual.records.last.fields should contain only (expected.head.records.last.fields:_*)
+
+        actual = sink.requestNext()
+
+        actual.records should have size 1
+        actual.records.head.fields should contain only (expected.last.records.head.fields:_*)
       }
     }
 
     "should let pass datasets which does not contain any of the expected fields." in new TestStream {
 
-      val sample = Dataset(
-        Record(
-          Field("message", TextValue("Hello World!")),
+      val samples = Seq(
+        Dataset(
+          Record(
+            Field("message", TextValue("Hello World!")),
+          )
+        ),
+        Dataset(
+          Record(
+            Field("message", TextValue("Hello World!")),
+            Field("temperature", DecimalValue(42))
+          ),
+          Record(
+            Field("device", TextValue("C100")),
+          )
         )
       )
 
       whenReady(filterFuture) { _ =>
 
-        sink.request(1)
+        sink.request(2)
 
-        source.sendNext(sample)
+        samples.foreach(source.sendNext)
 
-        val actual = sink.requestNext()
-
-        actual shouldBe sample
+        sink.requestNext() shouldBe samples.head
+        sink.requestNext() shouldBe samples.last
       }
     }
 
