@@ -3,8 +3,6 @@ package io.logbee.keyscore.model.configuration
 import java.util.UUID
 import java.util.UUID.randomUUID
 
-import io.logbee.keyscore.model.configuration
-
 trait ConfigurationCompanion {
 
   val empty = Configuration()

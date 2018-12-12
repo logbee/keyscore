@@ -183,12 +183,14 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
   private class DataGrid[V <: Updatedable[V]] {
 
     private val data = mutable.HashMap.empty[AnyRef, V]
+    private val keys = mutable.ListBuffer.empty[AnyRef]
     private val marks = mutable.HashMap.empty[AnyRef, Set[AnyRef]]
 
     def insert(key: AnyRef, value: V): Unit = {
       val element = data.get(key)
       if (element.isEmpty) {
         data.put(key, value)
+        keys += key
       }
       else {
         data.put(key, element.get.update(value))
@@ -197,6 +199,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
     def remove(key: AnyRef): Unit = {
       data.remove(key)
+      keys -= key
       marks
         .transform { case (_, keySet) => keySet - key }
         .retain { case (_, value) => value.nonEmpty }
@@ -205,8 +208,9 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
     def findMarked(mark: AnyRef): List[V] = {
       marks
         .getOrElse(mark, List.empty)
-        .map(key => data(key))
         .toList
+        .sortWith((a, b) => keys.indexOf(a) < keys.indexOf(b))
+        .map(key => data(key))
     }
 
     def hasMarked(mark: AnyRef): Boolean = {
@@ -222,6 +226,9 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
       if (values.nonEmpty) {
         marks.put(mark, values)
+      }
+      else {
+        marks.remove(mark)
       }
     }
   }
@@ -242,16 +249,3 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
     def update(other: U): U
   }
 }
-
-//    private def computeExpiredEntries(): Unit = {
-//      if (expireds.isEmpty) {
-//        val current = System.currentTimeMillis()
-//        val expiredEntries = data.values
-//          .filter(_.expires > current)
-//          .toList
-//          .sortWith((a, b) => a.created < b.created)
-//          .map(_.field)
-//
-//        expireds.enqueue(expiredEntries:_*)
-//      }
-//    }

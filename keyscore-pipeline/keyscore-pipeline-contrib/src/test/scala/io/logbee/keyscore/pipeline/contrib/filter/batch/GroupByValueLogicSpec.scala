@@ -18,32 +18,46 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
   "A GroupByValueLogic" - {
 
-    "with inactive time window" - {
-
-      val configuration = Configuration(parameterSet = ParameterSet(Seq(
-        FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key")
-      )))
-
-      val samples = Seq(
-        Dataset(Record(
+    val samples = Seq(
+      Dataset(Record(
+        Field("key", TextValue("weather-forecast")),
+        Field("message", TextValue("Its a cloudy day!"))
+      )),
+      Dataset(
+        Record(
           Field("key", TextValue("weather-forecast")),
-          Field("message", TextValue("Its a cloudy day!"))
-        )),
-        Dataset(
-          Record(
-            Field("key", TextValue("weather-forecast")),
-            Field("temperature", DecimalValue(23.5))
-          ),
-          Record(
-            Field("sensor", TextValue("XC90")),
-          )
+          Field("temperature", DecimalValue(23.5))
+        ),
+        Record(
+          Field("sensor", TextValue("XC90")),
         )
       )
+    )
 
-      val otherSample = Dataset(Record(
-        Field("key", TextValue("daily-news")),
-        Field("message", TextValue("No news today."))
-      ))
+    val otherSample = Dataset(Record(
+      Field("key", TextValue("daily-news")),
+      Field("message", TextValue("No news today."))
+    ))
+
+    val expectedGroup = Seq(
+      Record(
+        Field("key", TextValue("weather-forecast")),
+        Field("message", TextValue("Its a cloudy day!")),
+      ),
+      Record(
+        Field("key", TextValue("weather-forecast")),
+        Field("temperature", DecimalValue(23.5))
+      ),
+      Record(
+        Field("sensor", TextValue("XC90")),
+      )
+    )
+
+    "with inactive time window" - {
+
+      val configuration = Configuration(
+        FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key")
+      )
 
       "should let records pass which does not contain the configured field" in new TestStreamFor[GroupByValueLogic](configuration) {
 
@@ -88,19 +102,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
           var actual = sink.requestNext()
 
-          actual.records should contain only(
-            Record(
-              Field("key", TextValue("weather-forecast")),
-              Field("message", TextValue("Its a cloudy day!")),
-            ),
-            Record(
-              Field("key", TextValue("weather-forecast")),
-              Field("temperature", DecimalValue(23.5))
-            ),
-            Record(
-              Field("sensor", TextValue("XC90")),
-            )
-          )
+          actual.records should contain only(expectedGroup:_*)
 
           sink.expectNoMessage(1 seconds)
 
@@ -117,33 +119,52 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
     "with active time window" - {
 
-      val configuration = Configuration(parameterSet = ParameterSet(Seq(
+      val configuration = Configuration(
         FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key"),
         ChoiceParameter(GroupByValueLogic.windowParameter, GroupByValueLogic.timeWindowChoice.name),
         NumberParameter(GroupByValueLogic.timeWindowMillisParameter, 1000),
-      )))
+      )
 
-      val samples = Seq(
-        Dataset(
+      "should push out a single dataset when time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
+
+        val sample = Dataset(
           Record(
             Field("key", TextValue("weather-forecast")),
             Field("message", TextValue("Its a cloudy day."))
           )
         )
-      )
-
-      "should push out a single dataset when time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 
           sink.request(1)
-          source.sendNext(samples.head)
+          source.sendNext(sample)
 
           sink.expectNoMessage(remaining = 1000 millis)
 
           val actual = sink.requestNext(500 millis)
 
-          actual shouldBe samples.head
+          actual shouldBe sample
+        }
+      }
+
+      "should group consecutive datasets but not push until the time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
+
+        whenReady(filterFuture) { _ =>
+
+          sink.request(3)
+
+          samples.foreach(source.sendNext)
+          source.sendNext(otherSample)
+
+          sink.expectNoMessage(remaining = 1000 millis)
+
+          var actual = sink.requestNext(1000 millis)
+
+          actual.records should contain only (expectedGroup:_*)
+
+          actual = sink.requestNext(1000 millis)
+
+          actual shouldBe otherSample
         }
       }
     }
