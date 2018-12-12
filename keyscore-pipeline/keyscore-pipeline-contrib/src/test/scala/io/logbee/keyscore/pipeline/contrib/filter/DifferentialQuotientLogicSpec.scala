@@ -1,15 +1,9 @@
 package io.logbee.keyscore.pipeline.contrib.filter
 
-import java.util.UUID
-
-import akka.stream.FlowShape
-import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet, TextParameter}
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -19,9 +13,7 @@ import org.scalatest.{FreeSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
-  trait TestStream {
-
-    val context = StageContext(system, executionContext)
+  "A DifferentialQuotient" - {
 
     val configuration = Configuration(parameterSet = ParameterSet(Seq(
       TextParameter(xFieldNameParameter.ref, "time"),
@@ -29,31 +21,21 @@ class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFut
       TextParameter(targetFieldNameParameter.ref, "slope")
     )))
 
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new DifferentialQuotientLogic(parameters, s)
-    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
-    val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
-      .viaMat(filterStage)(Keep.both)
-      .toMat(TestSink.probe[Dataset])(Keep.both)
-      .run()
-  }
+    val sample1 = Dataset(Record(
+      Field("time", NumberValue(1)),
+      Field("voltage", DecimalValue(1.0))
+    ))
 
-  val sample1 = Dataset(Record(
-    Field("time", NumberValue(1)),
-    Field("voltage", DecimalValue(1.0))
-  ))
+    val sample2 = Dataset(Record(
+      Field("time", NumberValue(2)),
+      Field("voltage", DecimalValue(4.0))
+    ))
 
-  val sample2 = Dataset(Record(
-    Field("time", NumberValue(2)),
-    Field("voltage", DecimalValue(4.0))
-  ))
+    val unwantedSample = Dataset(Record(
+      Field("message", TextValue("Hello World!"))
+    ))
 
-  val unwantedSample = Dataset(Record(
-    Field("message", TextValue("Hello World!"))
-  ))
-
-  "A DifferentialQuotient" - {
-
-    "should let pass datasets unchanged if they do not contain all required fields" in new TestStream {
+    "should let pass datasets unchanged if they do not contain all required fields" in new TestStreamFor[DifferentialQuotientLogic](configuration) {
 
       sink.request(1)
       source.sendNext(unwantedSample)
@@ -61,7 +43,7 @@ class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFut
       sink.requestNext() shouldBe unwantedSample
     }
 
-    "should set the computed differential quotient to 0 on the first dataset" in new TestStream {
+    "should set the computed differential quotient to 0 on the first dataset" in new TestStreamFor[DifferentialQuotientLogic](configuration) {
 
       sink.request(1)
       source.sendNext(sample1)
@@ -73,7 +55,7 @@ class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFut
       slope.get.toDecimalField.value shouldBe 0
     }
 
-    "should compute the differential quotient of the specified field between two consecutive datasets" in new TestStream {
+    "should compute the differential quotient of the specified field between two consecutive datasets" in new TestStreamFor[DifferentialQuotientLogic](configuration) {
 
       sink.request(2)
       source.sendNext(sample1)

@@ -4,7 +4,7 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.{Dataset, DecimalValue, Field, Record}
+import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, PresentField}
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
@@ -87,28 +87,28 @@ class DifferentialQuotientLogic(parameters: LogicParameters, shape: FlowShape[Da
 
     push(out, Dataset(dataset.metadata, dataset.records.map(record => {
 
-      val xField = record.fields.find(field => xFieldName == field.name)
-      val yField = record.fields.find(field => yFieldName == field.name)
+      val x1Option = record.fields.find(field => xFieldName == field.name).flatMap(numericValue)
+      val y1Option = record.fields.find(field => yFieldName == field.name).flatMap(numericValue)
 
-      if (xField.isDefined && xField.get.isNumberField && yField.isDefined && yField.get.isDecimalField) {
+      if (x1Option.isDefined && y1Option.isDefined) {
 
-        val x1 = xField.get.toNumberField.value
-        val y1 = yField.get.toDecimalField.value
+          val x1 = x1Option.get
+          val y1 = y1Option.get
 
-        if (lastValues.isDefined) {
+          if (lastValues.isDefined) {
 
-          val x0 = lastValues.get._1
-          val y0 = lastValues.get._2
+            val x0 = lastValues.get._1
+            val y0 = lastValues.get._2
 
-          val m = (y1 - y0) / (x1 - x0)
+            val m = (y1 - y0) / (x1 - x0)
 
-          lastValues = Option((x1, y1))
-          Record(record.fields :+ Field(targetFieldName, DecimalValue(m)))
-        }
-        else {
-          lastValues = Option((x1, y1))
-          Record(record.fields :+ Field(targetFieldName, DecimalValue(0)))
-        }
+            lastValues = Option((x1, y1))
+            Record(record.fields :+ Field(targetFieldName, DecimalValue(m)))
+          }
+          else {
+            lastValues = Option((x1, y1))
+            Record(record.fields :+ Field(targetFieldName, DecimalValue(0)))
+          }
       }
       else {
         record
@@ -118,5 +118,13 @@ class DifferentialQuotientLogic(parameters: LogicParameters, shape: FlowShape[Da
 
   override def onPull(): Unit = {
     pull(in)
+  }
+
+  private def numericValue(field: Field): Option[Double] = {
+    field.value match {
+      case DecimalValue(value) => value
+      case NumberValue(value) => value.toDouble
+      case _ => None
+    }
   }
 }
