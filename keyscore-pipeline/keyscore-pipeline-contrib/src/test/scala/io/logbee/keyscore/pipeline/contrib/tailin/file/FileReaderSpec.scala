@@ -11,7 +11,7 @@ import org.scalatest.{BeforeAndAfter, FreeSpec, Matchers, ParallelTestExecution}
 import org.scalatest.junit.JUnitRunner
 
 import scala.reflect.runtime.universe._
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import java.nio.file.Paths
 
 
@@ -23,11 +23,11 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   before {
     watchDir = Files.createTempDirectory("watchTest")
 
-    TestUtility.waitForFileToExist(watchDir.toFile)
+    TestUtil.waitForFileToExist(watchDir.toFile)
   }
 
   after {
-    TestUtility.recursivelyDelete(watchDir)
+    TestUtil.recursivelyDelete(watchDir)
   }
 
   val defaultBufferSize = 1024
@@ -36,39 +36,39 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
   trait LogFile {
     val logFileData = "Log_File_0_ "
-    val logFile = TestUtility.createFile(watchDir, "log.txt", logFileData)
+    val logFile = TestUtil.createFile(watchDir, "log.txt", logFileData)
   }
   
   trait RotateFiles extends LogFile {
     
     val logFile1337Data = "Log_File_1337 "
-    val logFile1337 = TestUtility.createFile(watchDir, "log.txt.1337", logFile1337Data)
+    val logFile1337 = TestUtil.createFile(watchDir, "log.txt.1337", logFile1337Data)
     
     val logFileCsvData = "Log_File_Csv "
-    val logFileCsv = TestUtility.createFile(watchDir, "log.csv", logFileCsvData)
+    val logFileCsv = TestUtil.createFile(watchDir, "log.csv", logFileCsvData)
     
     
     val otherLogFile1Data = "other_Log_File_1 "
-    val otherLogFile1 = TestUtility.createFile(watchDir, "other_log.txt.1", otherLogFile1Data)
+    val otherLogFile1 = TestUtil.createFile(watchDir, "other_log.txt.1", otherLogFile1Data)
     
     Thread.sleep(1000)
     
     val otherLogFileData = "other_Log_File "
-    val otherLogFile = TestUtility.createFile(watchDir, "other_log.txt", otherLogFileData)
+    val otherLogFile = TestUtil.createFile(watchDir, "other_log.txt", otherLogFileData)
     
     
     val logFile2Data = "Log_File_2_22 "
-    val logFile2 = TestUtility.createFile(watchDir, "log.txt.2", logFile2Data)
+    val logFile2 = TestUtil.createFile(watchDir, "log.txt.2", logFile2Data)
     
     Thread.sleep(1000)
     
     val logFile1Data = "Log_File_1_1 "
-    val logFile1 = TestUtility.createFile(watchDir, "log.txt.1", logFile1Data)
+    val logFile1 = TestUtil.createFile(watchDir, "log.txt.1", logFile1Data)
     
     Thread.sleep(1000)
     
     //rewrite logFile to set its lastModified-timestamp after logFile2 and logFile1
-    TestUtility.writeStringToFile(logFile, logFileData, StandardOpenOption.TRUNCATE_EXISTING)
+    TestUtil.writeStringToFile(logFile, logFileData, StandardOpenOption.TRUNCATE_EXISTING)
   }
 
   trait PersistenceContextWithoutTimestamp extends LogFile {
@@ -85,12 +85,12 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   trait PersistenceContextWithTimestamp extends RotateFiles {
     
     val logFile4Data = "Log_File_4_4444 "
-    val logFile4_ModifiedBeforePreviousReadTimestamp = TestUtility.createFile(watchDir, "log.txt.4", logFile4Data)
+    val logFile4_ModifiedBeforePreviousReadTimestamp = TestUtil.createFile(watchDir, "log.txt.4", logFile4Data)
     
     Thread.sleep(1000)
     
     val logFile3Data = "Log_File_3_333 "
-    val logFile3_ModifiedAfterPreviousReadTimestamp = TestUtility.createFile(watchDir, "log.txt.3", logFile3Data)
+    val logFile3_ModifiedAfterPreviousReadTimestamp = TestUtil.createFile(watchDir, "log.txt.3", logFile3Data)
     
     
     val previousReadPosition = logFile3Data.length / 2
@@ -103,13 +103,13 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     
     //Rewrite contents of other rotated files to set their lastModified-timestamp after the others
     Thread.sleep(1000)
-    TestUtility.writeStringToFile(logFile2, logFile2Data, StandardOpenOption.TRUNCATE_EXISTING)
+    TestUtil.writeStringToFile(logFile2, logFile2Data, StandardOpenOption.TRUNCATE_EXISTING)
     
     Thread.sleep(1000)
-    TestUtility.writeStringToFile(logFile1, logFile1Data, StandardOpenOption.TRUNCATE_EXISTING)
+    TestUtil.writeStringToFile(logFile1, logFile1Data, StandardOpenOption.TRUNCATE_EXISTING)
     
     Thread.sleep(1000)
-    TestUtility.writeStringToFile(logFile, logFileData, StandardOpenOption.TRUNCATE_EXISTING)
+    TestUtil.writeStringToFile(logFile, logFileData, StandardOpenOption.TRUNCATE_EXISTING)
     
     
     
@@ -196,7 +196,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           "if the file contains only one line of text" in new PersistenceContextWithoutTimestamp {
             
             val line1 = "Line1"
-            TestUtility.writeStringToFile(logFile, line1, StandardOpenOption.TRUNCATE_EXISTING)
+            TestUtil.writeStringToFile(logFile, line1, StandardOpenOption.TRUNCATE_EXISTING)
   
             (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
               .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
@@ -212,7 +212,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             
             val line1 = "Line1"
             val text = line1 + "\n"
-            TestUtility.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
+            TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
   
             (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
               .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
@@ -230,7 +230,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val line2 = "Line2"
             val line3 = "Line3"
             val text = line1 + "\n" + line2 + "\n" + line3
-            TestUtility.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
+            TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
             (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
@@ -253,7 +253,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val line1 = "Line1"
             val line3 = "Line3"
             val text = line1 + "\n\n" + line3
-            TestUtility.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
+            TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
             (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
@@ -273,7 +273,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val line1 = "Line1"
             val line2 = "Line2"
             val text = line1 + "\r\n" + line2
-            TestUtility.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
+            TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
             (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
@@ -295,7 +295,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val line3 = new String(new Array[Byte](1023))
             val text = line1 + "\n" + line2 + "\n" + line3
             
-            TestUtility.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
+            TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
             val mockCallback = mockFunction[String, Unit]
@@ -320,7 +320,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         		val line3 = new String(new Array[Byte](89))
             val text = line1 + "\n" + line2 + "\n" + line3
             
-            TestUtility.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
+            TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
             val mockCallback = mockFunction[String, Unit]
@@ -348,7 +348,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           val text = line1 + "\n" + line2 + "\n" + line3
           
-          TestUtility.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
+          TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
           
           
            val persistenceContextWithoutTimestamp = mock[FilePersistenceContext]

@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import java.nio.file.{Files, Path}
 import io.logbee.keyscore.pipeline.contrib.tailin.file.RotationRecord
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FreeSpec, Matchers, ParallelTestExecution}
@@ -19,11 +19,11 @@ class FilePersistenceContextSpec extends FreeSpec with BeforeAndAfter with Match
 
   before {
     watchDir = Files.createTempDirectory("watchTest")
-    TestUtility.waitForFileToExist(watchDir.toFile)
+    TestUtil.waitForFileToExist(watchDir.toFile)
   }
 
   after {
-    TestUtility.recursivelyDelete(watchDir)
+    TestUtil.recursivelyDelete(watchDir)
   }
 
   trait PersistenceFile {
@@ -31,7 +31,7 @@ class FilePersistenceContextSpec extends FreeSpec with BeforeAndAfter with Match
     val persistenceFile = watchDir.resolve("persistence.json").toFile
 
     persistenceFile.createNewFile()
-    TestUtility.waitForFileToExist(persistenceFile)
+    TestUtil.waitForFileToExist(persistenceFile)
 
     val filePersistenceContext = new FilePersistenceContext(persistenceFile)
   }

@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.OpenOption
 import java.nio.file.StandardOpenOption
 
-object TestUtility {
+object TestUtil {
 
   def waitForFileToExist(file: File): Unit = {
     waitForFileToBe(file, deleted=false)
@@ -39,9 +39,9 @@ object TestUtility {
     val file = dir.resolve(name).toFile
     
     file.createNewFile()
-    TestUtility.waitForFileToExist(file)
+    TestUtil.waitForFileToExist(file)
     
-    TestUtility.writeStringToFile(file, content, StandardOpenOption.CREATE)
+    TestUtil.writeStringToFile(file, content, StandardOpenOption.CREATE)
     
     file
   }

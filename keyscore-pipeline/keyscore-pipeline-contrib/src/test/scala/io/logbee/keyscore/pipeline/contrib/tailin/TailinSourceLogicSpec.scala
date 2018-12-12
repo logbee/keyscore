@@ -21,7 +21,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FreeSpec, Matchers}
 
 import scala.concurrent.duration._
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode
 import io.logbee.keyscore.model.configuration.NumberParameter
 
@@ -34,15 +34,15 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
   before {
     watchDir = Files.createTempDirectory("watchTest")
 
-    TestUtility.waitForFileToExist(watchDir.toFile)
+    TestUtil.waitForFileToExist(watchDir.toFile)
 
     persistenceFile = new File(".keyscoreFileTailinPersistence_test")
     persistenceFile.createNewFile()
-    TestUtility.waitForFileToExist(persistenceFile)
+    TestUtil.waitForFileToExist(persistenceFile)
   }
 
   after {
-    TestUtility.recursivelyDelete(watchDir)
+    TestUtil.recursivelyDelete(watchDir)
     persistenceFile.delete()
   }
 
@@ -78,7 +78,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     "should push one available string for one available pull" in new DefaultTailinSourceValues {
 
       val text = "Hallo Welt"
-      val file = TestUtility.createFile(watchDir, "tailin.csv", text)
+      val file = TestUtil.createFile(watchDir, "tailin.csv", text)
 
       sink.request(1)
       var result = sink.expectNext(10.seconds)
@@ -92,14 +92,14 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       val text2 = "fghij"
       val text3 = "klmno"
 
-      val file = TestUtility.createFile(watchDir, "tailin.csv", "")
+      val file = TestUtil.createFile(watchDir, "tailin.csv", "")
       
 
-      TestUtility.writeStringToFile(file, text1 + "\n", StandardOpenOption.APPEND)
+      TestUtil.writeStringToFile(file, text1 + "\n", StandardOpenOption.APPEND)
 
-      TestUtility.writeStringToFile(file, text2 + "\n", StandardOpenOption.APPEND)
+      TestUtil.writeStringToFile(file, text2 + "\n", StandardOpenOption.APPEND)
 
-      TestUtility.writeStringToFile(file, text3 + "\n", StandardOpenOption.APPEND)
+      TestUtil.writeStringToFile(file, text3 + "\n", StandardOpenOption.APPEND)
 
 
       sink.request(3)
@@ -118,10 +118,10 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       val text2 = "fghij"
       val text3 = "klmno"
 
-      val file = TestUtility.createFile(watchDir, "tailin.csv", "")
+      val file = TestUtil.createFile(watchDir, "tailin.csv", "")
       
 
-      TestUtility.writeStringToFile(file, text1 + "\n", StandardOpenOption.APPEND)
+      TestUtil.writeStringToFile(file, text1 + "\n", StandardOpenOption.APPEND)
 
       sink.request(1)
 
@@ -131,7 +131,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
 
 
 
-      TestUtility.writeStringToFile(file, text2 + "\n", StandardOpenOption.APPEND)
+      TestUtil.writeStringToFile(file, text2 + "\n", StandardOpenOption.APPEND)
 
       sink.request(1)
 
@@ -141,7 +141,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
 
 
 
-      TestUtility.writeStringToFile(file, text3 + "\n", StandardOpenOption.APPEND)
+      TestUtil.writeStringToFile(file, text3 + "\n", StandardOpenOption.APPEND)
 
       sink.request(1)
 

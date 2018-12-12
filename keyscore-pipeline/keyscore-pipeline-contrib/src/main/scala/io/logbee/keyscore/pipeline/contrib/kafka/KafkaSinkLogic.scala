@@ -48,7 +48,7 @@ object KafkaSinkLogic extends Described {
       description = TextRef("bootstrap-server.port.description")
     ),
     defaultValue = 9092,
-    range = NumberRange(step = 1, end = 65535),
+    range = NumberRange(step = 1, start = 0, end = 65535),
     mandatory = true
   )
 

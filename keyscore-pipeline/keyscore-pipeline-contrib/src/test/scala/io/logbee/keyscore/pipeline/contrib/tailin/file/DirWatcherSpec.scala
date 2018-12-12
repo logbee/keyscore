@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtility
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
 @RunWith(classOf[JUnitRunner])
 class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
@@ -18,11 +18,11 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   before {
     watchDir = Files.createTempDirectory("watchTest")
 
-    TestUtility.waitForFileToExist(watchDir.toFile)
+    TestUtil.waitForFileToExist(watchDir.toFile)
   }
 
   after {
-    TestUtility.recursivelyDelete(watchDir)
+    TestUtil.recursivelyDelete(watchDir)
   }
 
   
@@ -46,7 +46,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         (provider.createDirWatcher _).expects(configuration.copy(dirPath=subDir, recursionDepth = configuration.recursionDepth - 1)).returning(subDirWatcher)
 
         subDir.toFile.mkdir
-        TestUtility.waitForFileToExist(subDir.toFile)
+        TestUtil.waitForFileToExist(subDir.toFile)
 
 
         dirWatcher.processEvents()
@@ -68,12 +68,12 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         (provider.createDirWatcher _).expects(configuration.copy(dirPath=subDir, recursionDepth = configuration.recursionDepth - 1)).returning(subDirWatcher)
         
         subDir.toFile.mkdir()
-        TestUtility.waitForFileToExist(subDir.toFile)
+        TestUtil.waitForFileToExist(subDir.toFile)
         
         dirWatcher.processEvents()
 
         subDir.toFile.delete()
-        TestUtility.waitForFileToBeDeleted(subDir.toFile)
+        TestUtil.waitForFileToBeDeleted(subDir.toFile)
 
         dirWatcher.processEvents()
         (subDirWatcher.pathDeleted _).verify()
@@ -94,7 +94,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
           file.createNewFile()
   
-          TestUtility.waitForFileToExist(file)
+          TestUtil.waitForFileToExist(file)
   
           dirWatcher.processEvents()
         }
@@ -110,7 +110,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
           file.createNewFile()
   
-          TestUtility.waitForFileToExist(file)
+          TestUtil.waitForFileToExist(file)
   
           dirWatcher.processEvents()
         }
@@ -126,7 +126,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
           file.createNewFile()
   
-          TestUtility.waitForFileToExist(file)
+          TestUtil.waitForFileToExist(file)
   
           dirWatcher.processEvents()
         }
@@ -144,7 +144,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
 
         file.createNewFile()
 
-        TestUtility.waitForFileToExist(file)
+        TestUtil.waitForFileToExist(file)
 
         dirWatcher.processEvents()
       }
@@ -159,14 +159,14 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         (provider.createFileWatcher _).expects(file).returning(subFileWatcher)
 
         file.createNewFile()
-        TestUtility.waitForFileToExist(file)
+        TestUtil.waitForFileToExist(file)
 
         dirWatcher.processEvents()
 
         //write something to file
-        TestUtility.writeStringToFile(file, "Hello World", StandardOpenOption.APPEND)
+        TestUtil.writeStringToFile(file, "Hello World", StandardOpenOption.APPEND)
 
-        TestUtility.waitForWatchService()
+        TestUtil.waitForWatchService()
 
         dirWatcher.processEvents()
 
@@ -183,12 +183,12 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         (provider.createFileWatcher _).expects(file).returning(subFileWatcher)
 
         file.createNewFile
-        TestUtility.waitForFileToExist(file)
+        TestUtil.waitForFileToExist(file)
 
         dirWatcher.processEvents()
 
         file.delete()
-        TestUtility.waitForFileToBeDeleted(file)
+        TestUtil.waitForFileToBeDeleted(file)
 
         dirWatcher.processEvents()
 
