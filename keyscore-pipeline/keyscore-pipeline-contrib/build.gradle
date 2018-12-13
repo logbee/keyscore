@@ -25,6 +25,39 @@ dependencies {
     testCompile dependency.junit
 }
 
+bintray {
+    pkg {
+        repo = 'maven'
+        name = project.name
+        userOrg = project.bintrayUserOrg
+        licenses = ['Apache-2.0']
+        vcsUrl = project.scmUrl
+        version {
+            name = project.name
+            desc = project.description
+            released  = new Date()
+            vcsTag = project.version
+        }
+    }
+    publications = ['keyscorePipelineContrib']
+}
+
+publishing {
+    publications {
+        keyscorePipelineContrib(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+            artifact sourcesJar
+            artifact scaladocJar
+            pom.withXml {
+                buildPomXml(project, asNode())
+            }
+        }
+    }
+}
+
 test {
     testLogging {
         events 'started', 'passed', 'skipped', 'failed'
