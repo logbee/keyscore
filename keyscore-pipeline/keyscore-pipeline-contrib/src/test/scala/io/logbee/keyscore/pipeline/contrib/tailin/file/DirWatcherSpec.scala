@@ -10,7 +10,7 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
 
   var watchDir: Path = null
