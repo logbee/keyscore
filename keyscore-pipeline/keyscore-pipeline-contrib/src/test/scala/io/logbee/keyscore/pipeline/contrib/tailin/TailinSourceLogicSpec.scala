@@ -63,6 +63,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.LINE.toString),
       ChoiceParameter(TailinSourceLogic.encoding.ref,        StandardCharsets.UTF_8.toString),
       TextParameter(  TailinSourceLogic.rotationSuffix.ref,  ".[1-5]"),
+      TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
     )
 
     val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(randomUUID(), context, configuration), shape)

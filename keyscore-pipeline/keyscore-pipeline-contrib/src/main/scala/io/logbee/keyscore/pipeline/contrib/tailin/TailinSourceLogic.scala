@@ -120,6 +120,18 @@ object TailinSourceLogic extends Described {
     mandatory = false
   )
   
+  
+  val fieldName = FieldNameParameterDescriptor(
+    ref = "tailin.fieldName",
+    info = ParameterInfo(
+      displayName = TextRef("fieldName.displayName"),
+      description = TextRef("fieldName.description")
+    ),
+    defaultValue = "message",
+    hint = FieldNameHint.PresentField,
+    mandatory = true
+  )
+  
 
   override def describe = Descriptor(
     ref = "5a754cd3-e11d-4dfb-a484-a9f83cf3d795",
@@ -134,6 +146,7 @@ object TailinSourceLogic extends Described {
         readMode,
         encoding,
         rotationSuffix,
+        fieldName,
       ),
       icon = Icon.fromClass(classOf[TailinSourceLogic])
     ),
@@ -152,6 +165,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var readMode = ReadMode.LINE.toString
   private var encoding = StandardCharsets.UTF_8.toString
   private var rotationSuffix = TailinSourceLogic.rotationSuffix.defaultValue
+  private var fieldName = TailinSourceLogic.fieldName.defaultValue
   
   var dirWatcher: DirWatcher = _
 
@@ -167,6 +181,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     readMode = configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode)
     encoding = configuration.getValueOrDefault(TailinSourceLogic.encoding, encoding)
     rotationSuffix = configuration.getValueOrDefault(TailinSourceLogic.rotationSuffix, rotationSuffix)
+    fieldName = configuration.getValueOrDefault(TailinSourceLogic.fieldName, fieldName)
     
     
     val watchDir = extractWatchDirFromFilePattern(filePattern)
@@ -255,7 +270,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val outData = Dataset(
       records = Record(
         fields = List(Field(
-          "output",
+          fieldName,
           TextValue(sendBuffer.getNextElement)
         ))
       )
