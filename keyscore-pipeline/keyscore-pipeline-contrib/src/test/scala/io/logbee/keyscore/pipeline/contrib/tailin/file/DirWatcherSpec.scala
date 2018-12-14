@@ -10,7 +10,7 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
-//@RunWith(classOf[JUnitRunner])
+@RunWith(classOf[JUnitRunner])
 class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
 
   var watchDir: Path = null
@@ -28,7 +28,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
   trait DirWatcherParams {
     var provider = mock[WatcherProvider]
-    var configuration = DirWatcherConfiguration(dirPath = watchDir, filePattern = "*.txt", recursionDepth = 0)
+    var configuration = DirWatcherConfiguration(dirPath = watchDir, filePattern = watchDir.toString + "/*.txt", recursionDepth = 0)
     var callback = (_: String) => ()
   }
 
@@ -85,7 +85,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         
         "**.txt" in new DirWatcherParams { //should behave like "*.txt", as we only check the files in the current directory
           
-          configuration = configuration.copy(filePattern = "**.txt")          
+          configuration = configuration.copy(filePattern = watchDir.toString + "/**.txt")
           val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
           
           val file = new File(watchDir + "/test.txt")
@@ -101,7 +101,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         
         "*.txt" in new DirWatcherParams {
           
-          configuration = configuration.copy(filePattern = "*.txt")          
+          configuration = configuration.copy(filePattern = watchDir.toString + "/*.txt")
           val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
           
           val file = new File(watchDir + "/test.txt")
@@ -117,7 +117,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         
         "test.txt" in new DirWatcherParams {
           
-          configuration = configuration.copy(filePattern = "test.txt")          
+          configuration = configuration.copy(filePattern = watchDir.toString + "/test.txt")
           val dirWatcher = new DefaultDirWatcher(configuration, provider, callback)
           
           val file = new File(watchDir + "/test.txt")
