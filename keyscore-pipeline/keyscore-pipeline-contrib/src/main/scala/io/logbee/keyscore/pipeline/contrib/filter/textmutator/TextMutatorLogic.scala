@@ -70,7 +70,7 @@ object TextMutatorLogic extends Described {
   )
 
   val toTimestampDirective = FieldDirectiveDescriptor(
-    ref = DirectiveRef("dea6e8a9-7bf9-4af5-a049-fc9a567ab3b4"),
+    ref = DirectiveRef("e5666f54-abda-4cb6-87ba-5ad4fe96b6a3"),
     info = ParameterInfo(
       displayName = "textmutator.toTimestampDirective.displayName",
       description = "textmutator.toTimestampDirective.description"
