@@ -19,6 +19,7 @@ import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineM
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
+import {TriggerDataPreview} from "../data-preview/data-preview.actions";
 
 @Component({
     selector: "pipeline-editor",
@@ -103,7 +104,8 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
 
         this.runInspectSource$.subscribe(_ => {
             //TODO: Trigger live-editing effects
-            // this.store.dispatch(new TriggerLiveEditingAction())
+            console.log("PREVIEW: Preview button pressed");
+            this.store.dispatch(new TriggerDataPreview())
         });
         this.errorState$ = this.store.pipe(select(isError));
         this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));

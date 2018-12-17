@@ -18,6 +18,7 @@ import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {MaterialModule} from "../material.module";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
+import {DataPreviewReducer} from "./data-preview/data-preview.reducer";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -32,6 +33,7 @@ export const routes: Routes = [
         ReactiveFormsModule,
         RouterModule.forChild(routes),
         StoreModule.forFeature("pipelines", PipelinesReducer),
+        StoreModule.forFeature('preview', DataPreviewReducer),
         EffectsModule.forFeature([PipelinesEffects]),
         TranslateModule,
         HeaderBarModule,
