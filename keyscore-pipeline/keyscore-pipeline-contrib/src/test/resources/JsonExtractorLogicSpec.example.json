@@ -2,6 +2,7 @@
   "message": "This is an example message.",
   "device": {
     "name": "robot",
+    "decimal": 73.42,
     "logs": [
       "Hello World",
       "The weather is cloudy!",

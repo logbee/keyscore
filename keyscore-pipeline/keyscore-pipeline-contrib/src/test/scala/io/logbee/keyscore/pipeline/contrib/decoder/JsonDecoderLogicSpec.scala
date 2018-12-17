@@ -59,6 +59,7 @@ class JsonDecoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with
           Field("message", TextValue("This is an example message.")),
           Field("device.name", TextValue("robot")),
           Field("device.vendor", TextValue("kuka")),
+          Field("device.decimal", DecimalValue(73.42)),
           Field("device.logs.0", TextValue("Hello World")),
           Field("device.logs.1", TextValue("The weather is cloudy!")),
           Field("device.logs.2", TextValue("Robot fucked up beyond all recognition!")),
