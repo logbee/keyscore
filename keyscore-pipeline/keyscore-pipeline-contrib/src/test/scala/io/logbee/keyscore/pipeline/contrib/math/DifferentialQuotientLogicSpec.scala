@@ -1,8 +1,7 @@
-package io.logbee.keyscore.pipeline.contrib.filter
+package io.logbee.keyscore.pipeline.contrib.math
 
 import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet, TextParameter}
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
 import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
@@ -16,9 +15,9 @@ class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFut
   "A DifferentialQuotient" - {
 
     val configuration = Configuration(parameterSet = ParameterSet(Seq(
-      TextParameter(xFieldNameParameter.ref, "time"),
-      TextParameter(yFieldNameParameter.ref, "voltage"),
-      TextParameter(targetFieldNameParameter.ref, "slope")
+      TextParameter(DifferentialQuotientLogic.xFieldNameParameter.ref, "time"),
+      TextParameter(DifferentialQuotientLogic.yFieldNameParameter.ref, "voltage"),
+      TextParameter(DifferentialQuotientLogic.targetFieldNameParameter.ref, "slope")
     )))
 
     val sample1 = Dataset(Record(

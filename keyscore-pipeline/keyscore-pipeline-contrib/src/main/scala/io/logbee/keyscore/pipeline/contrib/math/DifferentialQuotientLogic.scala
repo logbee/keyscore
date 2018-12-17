@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter
+package io.logbee.keyscore.pipeline.contrib.math
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
@@ -12,11 +12,10 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotientLogic.{targetFieldNameParameter, xFieldNameParameter, yFieldNameParameter}
 
 object DifferentialQuotientLogic extends Described {
 
-  private[filter] val xFieldNameParameter = FieldNameParameterDescriptor(
+  private[math] val xFieldNameParameter = FieldNameParameterDescriptor(
     ref = "dqf.xFieldName",
     info = ParameterInfo(
       displayName = TextRef("xFieldDisplayName"),
@@ -27,7 +26,7 @@ object DifferentialQuotientLogic extends Described {
     mandatory = true
   )
 
-  private[filter] val yFieldNameParameter = FieldNameParameterDescriptor(
+  private[math] val yFieldNameParameter = FieldNameParameterDescriptor(
     ref = "dqf.yFieldName",
     info = ParameterInfo(
       displayName = TextRef("yFieldDisplayName"),
@@ -38,7 +37,7 @@ object DifferentialQuotientLogic extends Described {
     mandatory = true
   )
 
-  private[filter] val targetFieldNameParameter = FieldNameParameterDescriptor(
+  private[math] val targetFieldNameParameter = FieldNameParameterDescriptor(
     ref = "dqf.targetFieldName",
     info = ParameterInfo(
       displayName = TextRef("targetFieldDisplayName"),
@@ -60,25 +59,25 @@ object DifferentialQuotientLogic extends Described {
       icon = Icon.fromClass(classOf[DifferentialQuotientLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DifferentialQuotient",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.math.DifferentialQuotientLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
 class DifferentialQuotientLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private var xFieldName = xFieldNameParameter.defaultValue
-  private var yFieldName = yFieldNameParameter.defaultValue
-  private var targetFieldName = targetFieldNameParameter.defaultValue
+  private var xFieldName = DifferentialQuotientLogic.xFieldNameParameter.defaultValue
+  private var yFieldName = DifferentialQuotientLogic.yFieldNameParameter.defaultValue
+  private var targetFieldName = DifferentialQuotientLogic.targetFieldNameParameter.defaultValue
 
   private var lastValues: Option[(Double, Double)] = None
 
   override def initialize(configuration: Configuration): Unit = configure(configuration)
 
   override def configure(configuration: Configuration): Unit = {
-    xFieldName = configuration.getValueOrDefault(xFieldNameParameter, xFieldName)
-    yFieldName = configuration.getValueOrDefault(yFieldNameParameter, xFieldName)
-    targetFieldName = configuration.getValueOrDefault(targetFieldNameParameter, xFieldName)
+    xFieldName = configuration.getValueOrDefault(DifferentialQuotientLogic.xFieldNameParameter, xFieldName)
+    yFieldName = configuration.getValueOrDefault(DifferentialQuotientLogic.yFieldNameParameter, xFieldName)
+    targetFieldName = configuration.getValueOrDefault(DifferentialQuotientLogic.targetFieldNameParameter, xFieldName)
   }
 
   override def onPush(): Unit = {
