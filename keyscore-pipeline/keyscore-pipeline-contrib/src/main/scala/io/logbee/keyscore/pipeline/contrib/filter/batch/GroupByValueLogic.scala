@@ -48,6 +48,15 @@ object GroupByValueLogic extends Described {
     mandatory = true
   )
 
+  val maxNumberOfGroupsParameter = NumberParameterDescriptor(
+    ref = "combineByValue.maxNumberOfGroups",
+    info = ParameterInfo(
+      displayName = "maxNumberOfGroups.displayName",
+      description = "maxNumberOfGroups.description"
+    ),
+    mandatory = true
+  )
+
   override def describe = Descriptor(
     ref = "efbb3b8e-35f4-45ac-87be-f454cf3a951c",
     describes = FilterDescriptor(
@@ -55,7 +64,7 @@ object GroupByValueLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
-      parameters = Seq(fieldNameParameter, timeWindowActiveParameter, timeWindowMillisParameter),
+      parameters = Seq(fieldNameParameter, timeWindowActiveParameter, timeWindowMillisParameter, maxNumberOfGroupsParameter),
       icon = Icon.fromClass(classOf[GroupByValueLogic]),
       maturity = Experimental
     ),
@@ -73,7 +82,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
   private var fieldName = ""
   private var timeWindowActive = false
   private var timeWindowMillis = 0L
-  private var maxQueueSize = 2500
+  private var maxNumberOfGroups = Long.MaxValue
 
   private val passthroughQueue = mutable.Queue.empty[Group]
   private val windowQueue = mutable.Queue.empty[Group]
@@ -88,6 +97,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
     fieldName = configuration.getValueOrDefault(GroupByValueLogic.fieldNameParameter, fieldName)
     timeWindowActive = configuration.getValueOrDefault(GroupByValueLogic.timeWindowActiveParameter, timeWindowActive)
+    maxNumberOfGroups = configuration.getValueOrDefault(GroupByValueLogic.maxNumberOfGroupsParameter, maxNumberOfGroups)
 
     if (timeWindowActive) {
       timeWindowMillis = configuration.getValueOrDefault(GroupByValueLogic.timeWindowMillisParameter, timeWindowMillis)
@@ -124,7 +134,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
       }
     }
 
-    if (windowQueue.size < maxQueueSize && passthroughQueue.size < maxQueueSize) {
+    if (windowQueue.size < maxNumberOfGroups && passthroughQueue.size < maxNumberOfGroups) {
       pull(in)
     }
   }
