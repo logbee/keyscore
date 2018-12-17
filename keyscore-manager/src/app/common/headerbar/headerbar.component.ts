@@ -31,8 +31,8 @@ import "./style/headerbar.style.scss"
                         <button mat-stroked-button *ngIf="this.showAdd" (click)="add()">
                             <mat-icon>add_circle</mat-icon>
                         </button>
-                        <button mat-stroked-button *ngIf="this.showInspect" (click)="add()">
-                            <mat-icon>favorite</mat-icon>
+                        <button mat-stroked-button *ngIf="this.showInspect" (click)="triggeredOnInspect()">
+                            <mat-icon>receipt</mat-icon>
                         </button>
                     </div>
                 </div>
@@ -83,6 +83,10 @@ export class HeaderBarComponent {
 
     private add() {
         this.onAdd.emit();
+    }
+
+    private triggeredOnInspect() {
+        this.onInspect.emit();
     }
 
 
