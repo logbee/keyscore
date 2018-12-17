@@ -100,10 +100,16 @@ class DifferentialQuotientLogic(parameters: LogicParameters, shape: FlowShape[Da
             val x0 = lastValues.get._1
             val y0 = lastValues.get._2
 
-            val m = (y1 - y0) / (x1 - x0)
+            val x = x1 - x0
 
-            lastValues = Option((x1, y1))
-            Record(record.fields :+ Field(targetFieldName, DecimalValue(m)))
+            if (!approximatelyEqual(x, 0)) {
+              val m = (y1 - y0) / x
+              lastValues = Option((x1, y1))
+              Record(record.fields :+ Field(targetFieldName, DecimalValue(m)))
+            }
+            else {
+              record
+            }
           }
           else {
             lastValues = Option((x1, y1))
@@ -126,5 +132,9 @@ class DifferentialQuotientLogic(parameters: LogicParameters, shape: FlowShape[Da
       case NumberValue(value) => value.toDouble
       case _ => None
     }
+  }
+
+  def approximatelyEqual(x: Double, y: Double, precision: Double = 0.0001) = {
+    if ((x - y).abs < precision) true else false
   }
 }
