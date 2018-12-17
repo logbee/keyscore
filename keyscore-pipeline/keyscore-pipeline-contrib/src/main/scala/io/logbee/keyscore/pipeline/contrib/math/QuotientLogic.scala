@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.math
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
-import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.FieldNameHint.{AbsentField, PresentField}
@@ -11,13 +11,13 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.math.MathUtil.approximatelyEqual
 
-object DifferentialQuotientLogic extends Described {
+
+object QuotientLogic extends Described {
 
   private[math] val xFieldNameParameter = FieldNameParameterDescriptor(
-    ref = "dqf.xFieldName",
+    ref = "quotient.xFieldName",
     info = ParameterInfo(
       displayName = TextRef("xFieldDisplayName"),
       description = TextRef("xFieldDescription"),
@@ -28,7 +28,7 @@ object DifferentialQuotientLogic extends Described {
   )
 
   private[math] val yFieldNameParameter = FieldNameParameterDescriptor(
-    ref = "dqf.yFieldName",
+    ref = "quotient.yFieldName",
     info = ParameterInfo(
       displayName = TextRef("yFieldDisplayName"),
       description = TextRef("yFieldDescription"),
@@ -39,46 +39,44 @@ object DifferentialQuotientLogic extends Described {
   )
 
   private[math] val targetFieldNameParameter = FieldNameParameterDescriptor(
-    ref = "dqf.targetFieldName",
+    ref = "quotient.targetFieldName",
     info = ParameterInfo(
       displayName = TextRef("targetFieldDisplayName"),
       description = TextRef("targetFieldDescription"),
     ),
     hint = AbsentField,
-    defaultValue = "m",
+    defaultValue = "quotient",
     mandatory = true
   )
 
   override def describe = Descriptor(
-    ref = "a83715fd-bc0f-4012-9527-59c6d4a1f6cd",
+    ref = "7f43984a-08c7-46ae-ac8b-40b5449eecc1",
     describes = FilterDescriptor(
-      name = classOf[DifferentialQuotientLogic].getName,
+      name = classOf[QuotientLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
       parameters = List(xFieldNameParameter, yFieldNameParameter, targetFieldNameParameter),
-      icon = Icon.fromClass(classOf[DifferentialQuotientLogic])
+      icon = Icon.fromClass(classOf[QuotientLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.math.DifferentialQuotientLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.math.QuotientLogic",
       Locale.ENGLISH, Locale.GERMAN
-    ) ++ CATEGORY_LOCALIZATION
+    ) ++ CommonCategories.CATEGORY_LOCALIZATION
   )
 }
-class DifferentialQuotientLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
+class QuotientLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private var xFieldName = DifferentialQuotientLogic.xFieldNameParameter.defaultValue
-  private var yFieldName = DifferentialQuotientLogic.yFieldNameParameter.defaultValue
-  private var targetFieldName = DifferentialQuotientLogic.targetFieldNameParameter.defaultValue
-
-  private var lastValues: Option[(Double, Double)] = None
+  private var xFieldName = QuotientLogic.xFieldNameParameter.defaultValue
+  private var yFieldName = QuotientLogic.yFieldNameParameter.defaultValue
+  private var targetFieldName = QuotientLogic.targetFieldNameParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = configure(configuration)
 
   override def configure(configuration: Configuration): Unit = {
-    xFieldName = configuration.getValueOrDefault(DifferentialQuotientLogic.xFieldNameParameter, xFieldName)
-    yFieldName = configuration.getValueOrDefault(DifferentialQuotientLogic.yFieldNameParameter, xFieldName)
-    targetFieldName = configuration.getValueOrDefault(DifferentialQuotientLogic.targetFieldNameParameter, xFieldName)
+    xFieldName = configuration.getValueOrDefault(QuotientLogic.xFieldNameParameter, xFieldName)
+    yFieldName = configuration.getValueOrDefault(QuotientLogic.yFieldNameParameter, xFieldName)
+    targetFieldName = configuration.getValueOrDefault(QuotientLogic.targetFieldNameParameter, xFieldName)
   }
 
   override def onPush(): Unit = {
@@ -92,28 +90,14 @@ class DifferentialQuotientLogic(parameters: LogicParameters, shape: FlowShape[Da
 
       if (x1Option.isDefined && y1Option.isDefined) {
 
-          val x1 = x1Option.get
-          val y1 = y1Option.get
+          val x = x1Option.get
+          val y = y1Option.get
 
-          if (lastValues.isDefined) {
-
-            val x0 = lastValues.get._1
-            val y0 = lastValues.get._2
-
-            val x = x1 - x0
-
-            if (!approximatelyEqual(x, 0)) {
-              val m = (y1 - y0) / x
-              lastValues = Option((x1, y1))
-              Record(record.fields :+ Field(targetFieldName, DecimalValue(m)))
-            }
-            else {
-              record
-            }
+          if (!approximatelyEqual(y, 0)) {
+            Record(record.fields :+ Field(targetFieldName, DecimalValue(x / y)))
           }
           else {
-            lastValues = Option((x1, y1))
-            Record(record.fields :+ Field(targetFieldName, DecimalValue(0)))
+            record
           }
       }
       else {
