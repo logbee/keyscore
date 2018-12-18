@@ -13,6 +13,8 @@ import {DirectiveConfiguration, FieldDirectiveSequenceConfiguration} from "../..
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterControlService} from "./service/parameter-control.service";
 import {parameterDescriptorToParameter, zip} from "../../util";
+import uuid = require("uuid");
+import {generateRef} from "../../models/common/Ref";
 
 @Component({
     selector: "parameter-directive",
@@ -97,7 +99,7 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
     public parameterValues: FieldDirectiveSequenceConfiguration[] = [];
 
     public directiveFormGroups: Map<string, FormGroup> = new Map();
-    public directiveParameterMappings: Map<string,Map<Parameter,ResolvedParameterDescriptor>> = new Map();
+    public directiveParameterMappings: Map<string, Map<Parameter, ResolvedParameterDescriptor>> = new Map();
 
     public constructor(private parameterService: ParameterControlService) {
 
@@ -114,6 +116,9 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
     public ngOnInit(): void {
         if (this.parameter.jsonClass === ParameterJsonClass.FieldDirectiveSequenceParameter) {
             this.parameterValues = [...this.parameter.value as FieldDirectiveSequenceConfiguration[]];
+            this.parameterValues.map((sequence, seqIndex) => sequence.directives.forEach((directive, directiveIndex) =>
+                this.createDirectiveSubForm(this.parameterValues, seqIndex, directiveIndex, this.parameterDescriptor.directives.find(dir => dir.ref.uuid === directive.ref.uuid), sequence)))
+
         }
         else {
             console.error("Passed the wrong parameter type into the parameter-directive.component. Parametertype is: "
@@ -162,12 +167,12 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
         }
     }
 
-    //Just for testing
     public addDirective(sequence: FieldDirectiveSequenceConfiguration, directive: ResolvedFieldDirectiveDescriptor) {
         let newValues = [...this.parameterValues];
         let currentSeqIndex = newValues.findIndex(seq => seq.fieldName === sequence.fieldName);
         newValues[currentSeqIndex].directives.push({
             ref: directive.ref,
+            instance: generateRef(),
             parameters: {
                 jsonClass: ParameterJsonClass.ParameterSet,
                 parameters: directive.parameters.map(parameter =>
@@ -175,17 +180,26 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
             }
         });
         const index = newValues[currentSeqIndex].directives.length - 1;
-        let parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map(zip([newValues[currentSeqIndex].directives[index].parameters.parameters, directive.parameters]));
-        this.directiveParameterMappings.set(directive.ref.uuid,parameterMapping);
+        this.createDirectiveSubForm(newValues, currentSeqIndex, index, directive, sequence);
+        this.writeValue(newValues);
+    }
+
+
+    private createDirectiveSubForm(values, currentSeqIndex, index, directive: ResolvedFieldDirectiveDescriptor, sequence: FieldDirectiveSequenceConfiguration) {
+        let parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map(zip([values[currentSeqIndex].directives[index].parameters.parameters, directive.parameters]));
+        this.directiveParameterMappings.set(directive.ref.uuid, parameterMapping);
         let form = this.parameterService.toFormGroup(parameterMapping);
-        /*form.valueChanges.subscribe(values => {
+        let directiveConfiguration = this.parameterValues[currentSeqIndex].directives[index];
+        form.valueChanges.subscribe(values => {
             let newValues = [...this.parameterValues];
             let currentSeqIndex = newValues.findIndex(seq => seq.fieldName === sequence.fieldName);
-            let index = newValues[currentSeqIndex].directives.findIndex(dir => dir.ref.uuid === directive.ref.uuid);
-            newValues[currentSeqIndex].directives[index].parameters.parameters
-        })*/
+            let index = newValues[currentSeqIndex].directives.findIndex(dir => dir.instance.uuid === directiveConfiguration.instance.uuid);
+            newValues[currentSeqIndex].directives[index].parameters.parameters.forEach(parameter => parameter.value = values[parameter.ref.id]);
+            this.writeValue(newValues);
+            console.log("directive values:", values);
+            console.log("total values: ", this.parameterValues);
+        });
         this.directiveFormGroups.set(directive.ref.uuid, form);
-        this.writeValue(newValues);
     }
 
     public removeDirectiveSequence(sequence: FieldDirectiveSequenceConfiguration) {

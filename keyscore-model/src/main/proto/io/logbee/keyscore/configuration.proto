@@ -116,5 +116,6 @@ message FieldDirectiveSequenceConfiguration {
 
 message DirectiveConfiguration {
     DirectiveRef ref = 1 [(scalapb.field).no_box = true];
-    ParameterSet parameters = 2 [(scalapb.field).no_box = true];
+    DirectiveInstanceRef instance = 2 [(scalapb.field).no_box = true];
+    ParameterSet parameters = 3 [(scalapb.field).no_box = true];
 }

@@ -9,6 +9,7 @@ export interface Configuration {
 
 export interface DirectiveConfiguration {
     ref: Ref;
+    instance: Ref;
     parameters: ParameterSet;
 }
 
