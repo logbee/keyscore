@@ -13,7 +13,7 @@ import {selectRefreshTime} from "../../common/loading/loading.reducer";
 import {
     CHECK_IS_PIPELINE_RUNNING,
     CheckIsPipelineRunning,
-    ConfigurationsForBlueprintId,
+    ConfigurationsForBlueprintId, CreatedPipelineAction,
     DELETE_PIPELINE,
     DeletePipelineAction,
     DeletePipelineFailureAction,
@@ -75,16 +75,16 @@ export class PipelinesEffects {
     @Effect() public editPipeline$: Observable<Action> = this.actions$.pipe(
         ofType(ROUTER_NAVIGATION),
         map(action => action as RouterNavigationAction),
-        withLatestFrom(this.store.pipe(select(getEditingPipeline))),
-        mergeMap(([action, editingPipeline]) => {
+        withLatestFrom(this.store.pipe(select(selectIsCreating))),
+        map(([action, isCreating]) => {
             const regex = /\/pipelines\/.+/g;
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 const id = this.getPipelineIdfromRouterAction(action as RouterNavigationAction);
-                if (!action.payload.routerState.root.queryParams['create']) {
-                    return of(new EditPipelineAction(id));
+                if (!isCreating) {
+                    return new EditPipelineAction(id);
                 }
             }
-            return of();
+            return new CreatedPipelineAction();
         })
     );
 
@@ -235,7 +235,7 @@ export class PipelinesEffects {
     @Effect() public runPipelineSuccess$: Observable<Action> = this.actions$.pipe(
         ofType(RUN_PIPELINE_SUCCESS),
         map(() => new SnackbarOpen({
-            message: "Your Pipeline is running now!.",
+            message: "Your Pipeline is running now!",
             action: 'Success',
             config: {
                 horizontalPosition: "center",

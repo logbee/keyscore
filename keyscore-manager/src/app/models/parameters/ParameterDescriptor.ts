@@ -1,5 +1,5 @@
 import {TextRef} from "../common/Localization";
-import {ParameterRef} from "../common/Ref";
+import {ParameterRef, Ref} from "../common/Ref";
 
 export interface StringValidator {
     expression: string;
@@ -69,7 +69,12 @@ export interface ParameterDescriptor {
     max?: number;
     choices?: Choice[];
     descriptor?: ParameterDescriptor;
-    fieldValueType: FieldValueType;
+    fieldTypes?:FieldValueType;
+    parameters?: ParameterDescriptor[];
+    directives?: FieldDirectiveDescriptor[];
+    minSequences?: number;
+    maxSequences?: number;
+    fieldValueType?: FieldValueType;
 
 
 }
@@ -88,7 +93,12 @@ export enum ParameterDescriptorJsonClass {
     FieldNameListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNameListParameterDescriptor",
     FieldListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldListParameterDescriptor",
     ChoiceParameterDescriptor = "io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor",
-    ParameterGroupDescriptor = "io.logbee.keyscore.model.descriptor.ParameterGroupDescriptor"
+    ParameterGroupDescriptor = "io.logbee.keyscore.model.descriptor.ParameterGroupDescriptor",
+    FieldDirectiveSequenceParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldDirectiveSequenceParameterDescriptor"
+}
+
+export enum DirectiveDescriptorJsonClass {
+    FieldDirectiveDescriptor = "io.logbee.keyscore.model.descriptor.FieldDirectiveDescriptor"
 }
 
 export type ResolvedParameterDescriptor =
@@ -102,7 +112,8 @@ export type ResolvedParameterDescriptor =
     | TextListParameterDescriptor
     | FieldNameListParameterDescriptor
     | FieldListParameterDescriptor
-    | ChoiceParameterDescriptor;
+    | ChoiceParameterDescriptor
+    | FieldDirectiveSequenceParameterDescriptor;
 
 export type SingleResolvedParameterDescriptor =
     | BooleanParameterDescriptor
@@ -117,6 +128,7 @@ export type ListResolvedParameterDescriptor =
     | TextListParameterDescriptor
     | FieldNameListParameterDescriptor
     | FieldListParameterDescriptor
+    | FieldDirectiveSequenceParameterDescriptor
     | ChoiceParameterDescriptor;
 
 export interface BooleanParameterDescriptor {
@@ -249,6 +261,36 @@ export interface ParameterGroupDescriptor {
 
 }
 
+export interface FieldDirectiveSequenceParameterDescriptor {
+    ref: ParameterRef;
+    info: ResolvedParameterInfo;
+    jsonClass: ParameterDescriptorJsonClass;
+    fieldTypes: FieldValueType;
+    parameters: ResolvedParameterDescriptor[];
+    directives: ResolvedFieldDirectiveDescriptor[];
+    minSequences: number;
+    maxSequences: number;
+}
+
+export interface FieldDirectiveDescriptor {
+    ref: Ref;
+    info: ParameterInfo;
+    jsonClass: DirectiveDescriptorJsonClass;
+    parameters: ParameterDescriptor[];
+    minSequences: number;
+    maxSequences: number;
+}
+
+
+export interface ResolvedFieldDirectiveDescriptor {
+    ref: Ref;
+    info: ResolvedParameterInfo;
+    jsonClass: DirectiveDescriptorJsonClass;
+    parameters: ResolvedParameterDescriptor[];
+    minSequences: number;
+    maxSequences: number;
+}
+
 export interface ParameterGroupCondition {
     jsonClass: string;
 }
@@ -257,6 +299,8 @@ export interface BooleanParameterCondition {
     parameter: ParameterRef;
     negate: boolean;
 }
+
+
 
 
 

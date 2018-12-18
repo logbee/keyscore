@@ -12,12 +12,12 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
   "A ConfigurationRepository" - {
 
     val exampleConfigurationUUID = "e05841b1-60f6-41ae-87ab-aa8b9dc6013f"
-    val exampleConfiguration = Configuration(ConfigurationRef(exampleConfigurationUUID), parameters = Seq(TextParameter(ParameterRef("message"), "Hello World")))
+    val exampleConfiguration = new Configuration(ConfigurationRef(exampleConfigurationUUID), None, ParameterSet(Seq(TextParameter(ParameterRef("message"), "Hello World"))))
     val modifiedExampleConfiguration = exampleConfiguration.update(
-      _.parameters :+= TextParameter(ParameterRef("modified"), "02-11-2018")
+      _.parameterSet.parameters :+= TextParameter(ParameterRef("modified"), "02-11-2018")
     )
     val lastExampleConfiguration = modifiedExampleConfiguration.update(
-      _.parameters :+= TextParameter(ParameterRef("sample"), "The weather is cloudy.")
+      _.parameterSet.parameters :+= TextParameter(ParameterRef("sample"), "The weather is cloudy.")
     )
 
     "with a committed configuration" - {
@@ -51,9 +51,9 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
         val configurations = repository.all(ConfigurationRef(exampleConfigurationUUID))
 
         configurations should have size 3
-        configurations.head.parameters shouldBe lastExampleConfiguration.parameters
-        configurations(1).parameters shouldBe modifiedExampleConfiguration.parameters
-        configurations(2).parameters shouldBe exampleConfiguration.parameters
+        configurations.head.parameterSet.parameters shouldBe lastExampleConfiguration.parameterSet.parameters
+        configurations(1).parameterSet.parameters shouldBe modifiedExampleConfiguration.parameterSet.parameters
+        configurations(2).parameterSet.parameters shouldBe exampleConfiguration.parameterSet.parameters
       }
 
       "should return an empty list if the specified configuration is unknown" in {
@@ -63,7 +63,7 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       "should return the last committed configuration if a the revision is not specified" in {
 
         val config = repository.head(ConfigurationRef(exampleConfigurationUUID)).value
-        config.parameters shouldBe lastExampleConfiguration.parameters
+        config.parameterSet.parameters shouldBe lastExampleConfiguration.parameterSet.parameters
       }
 
       "should return None if there is no Configuration with the specified UUID" in {
@@ -98,16 +98,16 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       "should throw a DivergedException if a configuration is committed with an unset ancestor" in {
         val configuration = exampleConfiguration.update(
           _.ref.ancestor := "",
-          _.parameters :+= NumberParameter(ParameterRef("count"), 42)
+          _.parameterSet.parameters :+= NumberParameter(ParameterRef("count"), 42)
         )
 
         val exception = intercept[DivergedException] {
           repository.commit(configuration)
         }
 
-        exception.base.parameters shouldBe modifiedExampleConfiguration.parameters
-        exception.theirs.parameters shouldBe lastExampleConfiguration.parameters
-        exception.yours.parameters shouldBe configuration.parameters
+        exception.base.parameterSet.parameters shouldBe modifiedExampleConfiguration.parameterSet.parameters
+        exception.theirs.parameterSet.parameters shouldBe lastExampleConfiguration.parameterSet.parameters
+        exception.yours.parameterSet.parameters shouldBe configuration.parameterSet.parameters
 
         exception.theirs.ref.ancestor shouldBe modifiedExampleConfigurationRef.revision
         exception.yours.ref.ancestor shouldBe modifiedExampleConfigurationRef.revision
@@ -117,16 +117,16 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
 
         val configuration = exampleConfiguration.update(
           _.ref.ancestor := modifiedExampleConfigurationRef.ancestor,
-          _.parameters :+= NumberParameter(ParameterRef("count"), 42)
+          _.parameterSet.parameters :+= NumberParameter(ParameterRef("count"), 42)
         )
 
         val exception = intercept[DivergedException] {
           repository.commit(configuration)
         }
 
-        exception.base.parameters shouldBe modifiedExampleConfiguration.parameters
-        exception.theirs.parameters shouldBe lastExampleConfiguration.parameters
-        exception.yours.parameters shouldBe configuration.parameters
+        exception.base.parameterSet.parameters shouldBe modifiedExampleConfiguration.parameterSet.parameters
+        exception.theirs.parameterSet.parameters shouldBe lastExampleConfiguration.parameterSet.parameters
+        exception.yours.parameterSet.parameters shouldBe configuration.parameterSet.parameters
 
         exception.theirs.ref.ancestor shouldBe modifiedExampleConfigurationRef.revision
         exception.yours.ref.ancestor shouldBe modifiedExampleConfigurationRef.revision
@@ -179,7 +179,7 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       "should return the previous configuration" in {
 
         val config = repository.head(ConfigurationRef(exampleConfigurationUUID)).value
-        config.parameters shouldBe modifiedExampleConfiguration.parameters
+        config.parameterSet.parameters shouldBe modifiedExampleConfiguration.parameterSet.parameters
       }
     }
 
@@ -201,9 +201,9 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
           repository.revert(modifiedExampleConfigurationRef)
         }
 
-        exception.base.parameters shouldBe exampleConfiguration.parameters
-        exception.theirs.parameters shouldBe lastExampleConfiguration.parameters
-        exception.yours.parameters shouldBe modifiedExampleConfiguration.parameters
+        exception.base.parameterSet.parameters shouldBe exampleConfiguration.parameterSet.parameters
+        exception.theirs.parameterSet.parameters shouldBe lastExampleConfiguration.parameterSet.parameters
+        exception.yours.parameterSet.parameters shouldBe modifiedExampleConfiguration.parameterSet.parameters
       }
 
       "should throw an DivergedException where base is null if the reverted configuration is the root" in {
@@ -213,8 +213,8 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
         }
 
         exception.base shouldBe null
-        exception.theirs.parameters shouldBe lastExampleConfiguration.parameters
-        exception.yours.parameters shouldBe exampleConfiguration.parameters
+        exception.theirs.parameterSet.parameters shouldBe lastExampleConfiguration.parameterSet.parameters
+        exception.yours.parameterSet.parameters shouldBe exampleConfiguration.parameterSet.parameters
       }
     }
 
@@ -235,7 +235,7 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       "should return the configuration with the specified revision as last" in {
 
         val config = repository.head(ConfigurationRef(exampleConfigurationUUID)).value
-        config.parameters shouldBe exampleConfiguration.parameters
+        config.parameterSet.parameters shouldBe exampleConfiguration.parameterSet.parameters
       }
     }
 
@@ -272,13 +272,13 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       val hostParameter = TextParameter(ParameterRef("hostname"), "example.com")
       val portParameter = NumberParameter(ParameterRef("port"), 9092)
 
-      val exampleA = Configuration("1452dc63-68db-404e-a79d-6143b3526809", parameters = Seq(
+      val exampleA = Configuration("1452dc63-68db-404e-a79d-6143b3526809", parameterSet = ParameterSet(Seq(
         fieldParameter
-      ))
+      )))
 
-      val exampleB = Configuration("a9080e02-dd5f-48d8-8995-51af63a8eedc", parameters = Seq(
+      val exampleB = Configuration("a9080e02-dd5f-48d8-8995-51af63a8eedc", parameterSet = ParameterSet(Seq(
         hostParameter
-      ))
+      )))
 
       val exampleARef = repository.commit(exampleA)
       val exampleB1Ref = repository.commit(exampleB.update(
@@ -286,7 +286,7 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
       ))
       val exampleB2Ref = repository.commit(exampleB.update(
         _.ref.ancestor := exampleB1Ref.revision,
-        _.parameters :+= portParameter
+        _.parameterSet.parameters :+= portParameter
       ))
 
       "should return the head revisions of all Configurations" in {

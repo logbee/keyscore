@@ -17,6 +17,16 @@ package-lock.json
 .idea/
 out/
 
+
+#####################################
+#              Eclipse              #
+#####################################
+.project
+.settings/
+.classpath
+.cache-main
+.cache-tests
+
 #####################################
 #     Build, Binaries and Libs      #
 #####################################

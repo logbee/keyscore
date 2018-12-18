@@ -39,7 +39,7 @@ object RemoveFieldsLogic extends Described {
       name = classOf[RemoveFieldsLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
-      categories = Seq(CommonCategories.REMOVE_DROP),
+      categories = Seq(CommonCategories.REMOVE_DROP, CommonCategories.FIELDS),
       parameters = Seq(fieldsToRemoveParameter),
       icon = Icon.fromClass(classOf[RemoveFieldsLogic])
     ),

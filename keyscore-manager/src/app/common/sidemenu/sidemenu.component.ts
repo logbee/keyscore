@@ -81,14 +81,7 @@ import {TranslateService} from "@ngx-translate/core";
                             {{'LANGUAGES.ENGLISH' | translate}}
                         </button>
                     </mat-menu>
-
-                    <a *ngIf="showSettings" mat-list-item routerLink="/settings" routerLinkActive="active">
-                        <mat-icon>settings</mat-icon>
-                        <p matLine *ngIf="isExpanded">
-                            {{'SETTINGS.TITLE' | translate}}
-                        </p>
-                    </a>
-
+                    
                     <a mat-list-item (click)="toggleMenu()">
                         <p matLine *ngIf="isExpanded">{{'GENERAL.COLLAPSE' | translate}}</p>
                         <mat-icon *ngIf="!isExpanded" svgIcon="expand-nav"></mat-icon>
@@ -102,7 +95,6 @@ import {TranslateService} from "@ngx-translate/core";
 
 
 export class SidemenuComponent {
-    @Input() public showSettings: boolean = true;
     @Output() public toggleSidebar: EventEmitter<void> = new EventEmitter();
     @Output() public updateLanguage: EventEmitter<string> = new EventEmitter();
 

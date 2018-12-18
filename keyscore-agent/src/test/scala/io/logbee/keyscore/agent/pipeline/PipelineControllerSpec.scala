@@ -7,7 +7,7 @@ import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter, ParameterSet}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.{After, Before}
 import io.logbee.keyscore.pipeline.api.LogicParameters
@@ -33,9 +33,9 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
   override implicit val patienceConfig = PatienceConfig(Span(10, Seconds), Span(1, Second))
 
   trait TestSetup {
-    val configuration = Configuration(parameters = Seq(
+    val configuration = Configuration(parameterSet = ParameterSet(Seq(
       FieldListParameter(AddFieldsLogic.fieldListParameter.ref, Seq())
-    ))
+    )))
     val testSource = TestSource.probe[Dataset]
     val testsink = TestSink.probe[Dataset]
     val context = StageContext(system, executionContext)

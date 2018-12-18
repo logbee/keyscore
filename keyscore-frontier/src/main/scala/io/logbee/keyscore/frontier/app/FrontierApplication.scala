@@ -3,6 +3,7 @@ package io.logbee.keyscore.frontier.app
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
+import io.logbee.keyscore.commons.util.BannerPrinter.printBanner
 import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.Frontier.InitFrontier
 
@@ -15,6 +16,8 @@ import scala.concurrent.duration._
 object FrontierApplication extends App {
 
   implicit val timeout: Timeout = 5 seconds
+
+  printBanner()
 
   val config = ConfigFactory.load()
   implicit val system = ActorSystem("keyscore", config.getConfig("production").withFallback(config))

@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.stream.SinkShape
 import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.TestSource
-import io.logbee.keyscore.model.configuration.{Configuration, NumberParameter, TextParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, NumberParameter, ParameterSet, TextParameter}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{SinkStage, StageContext}
@@ -29,12 +29,12 @@ class ElasticSearchSinkLogicSpec  extends WordSpec with Matchers with ScalaFutur
     "do some thing" in {
 
       val configuration = Configuration(
-        parameters = Seq(
+        parameterSet = ParameterSet(Seq(
           TextParameter("host","localhost"),
           NumberParameter("port", 9200),
           TextParameter("index","test")
         )
-      )
+      ))
 
       val context = StageContext(system, executionContext)
       val provider = (parameters: LogicParameters, s: SinkShape[Dataset]) =>

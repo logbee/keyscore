@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParameter, ParameterSet}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
@@ -24,9 +24,9 @@ class RetainFieldsLogicSpec extends WordSpec with Matchers with ScalaFutures wit
     val context = StageContext(system, executionContext)
 
     val config = Configuration(
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         FieldNameListParameter(RetainFieldsLogic.fieldNamesParameter.ref, Seq("message", "temperature"))
-      )
+      ))
     )
 
     val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) =>

@@ -1,10 +1,10 @@
 package io.logbee.keyscore.pipeline.api.directive
 
-object FieldDirectiveSequence {
-  def apply[D <: FieldDirective](fieldName: String, directives: Seq[D]): FieldDirectiveSequence[D] =
-    new FieldDirectiveSequence(fieldName, directives)
-}
+import io.logbee.keyscore.model.configuration.ParameterSet
 
-class FieldDirectiveSequence[D <: FieldDirective](val fieldName: String, val directives: Seq[D]) {
+//object FieldDirectiveSequence {
+//  def apply[D <: FieldDirective](fieldName: String, parameters: ParameterSet, directives: Seq[D]): FieldDirectiveSequence[D] =
+//    new FieldDirectiveSequence(fieldName, parameters, directives)
+//}
 
-}
+case class FieldDirectiveSequence[D <: FieldDirective](fieldName: String, parameters: ParameterSet, directives: Seq[D])

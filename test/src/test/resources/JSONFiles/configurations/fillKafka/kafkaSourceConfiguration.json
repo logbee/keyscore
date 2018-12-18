@@ -5,41 +5,44 @@
     "revision": "",
     "ancestor": ""
   },
-  "parameters": [
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
-      "ref": {
-        "id": "kafka.source.server"
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "kafka.source.server"
+        },
+        "value": "keyscore-kafka"
       },
-      "value": "keyscore-kafka"
-    },
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
-      "ref": {
-        "id": "kafka.source.port"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
+        "ref": {
+          "id": "kafka.source.port"
+        },
+        "value": 9092
       },
-      "value": 9092
-    },
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
-      "ref": {
-        "id": "kafka.source.group"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "kafka.source.group"
+        },
+        "value": "groupID"
       },
-      "value": "groupID"
-    },
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.ChoiceParameter",
-      "ref": {
-        "id": "kafka.source.offset"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.ChoiceParameter",
+        "ref": {
+          "id": "kafka.source.offset"
+        },
+        "value": "earliest"
       },
-      "value": "earliest"
-    },
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
-      "ref": {
-        "id": "kafka.source.topic"
-      },
-      "value": "TopicC"
-    }
-  ]
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "kafka.source.topic"
+        },
+        "value": "TopicC"
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, EventEmitter, Output, ViewChild} from "@angular/core";
-import {DatasetDataSource} from "../../dataSources/DatasetDataSource";
+import {DatasetDataSource} from "../../data-source/dataset-data-source";
 import {selectDatasetsModels, selectExtractFinish} from "../live-editing.reducer";
 import {select, Store} from "@ngrx/store";
 import {BehaviorSubject, Observable} from "rxjs/index";

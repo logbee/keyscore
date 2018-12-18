@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter, TextParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet, TextListParameter, TextParameter}
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
@@ -24,20 +24,20 @@ import scala.concurrent.duration._
 class CSVDecoderLogicSpec extends WordSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
   val csv1 = Configuration(
-    parameters = Seq(
+    parameterSet = ParameterSet(Seq(
       TextParameter(CSVDecoderLogic.separatorParameter.ref, ";"),
       TextListParameter(CSVDecoderLogic.headerParameter.ref, Seq(
         "Philosophy", "Maths", "Latin", "Astrophysics"
-      ))
+      )))
     )
   )
 
   val csv2 = Configuration(
-    parameters = Seq(
+    parameterSet = ParameterSet(Seq(
       TextParameter(CSVDecoderLogic.separatorParameter.ref, ";"),
       TextListParameter(CSVDecoderLogic.headerParameter.ref, Seq(
         "Philosophy2", "Maths2", "Latin2", "Astrophysics2"
-      ))
+      )))
     )
   )
 
@@ -61,7 +61,7 @@ class CSVDecoderLogicSpec extends WordSpec with Matchers with ScalaFutures with 
     val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new CSVDecoderLogic(parameters, s)
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, csv1), provider)
 
-    val ((source,filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
+    val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
       .viaMat(filterStage)(Keep.both)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()

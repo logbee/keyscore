@@ -1,18 +1,16 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
-import {BehaviorSubject, Subject, Subscription} from "rxjs";
+import {BehaviorSubject, Subject} from "rxjs";
 import {filter} from "rxjs/operators";
 import {deepcopy, zip} from "../../../../util";
-import {Parameter} from "../../../../models/parameters/Parameter";
+import {Parameter, ParameterJsonClass} from "../../../../models/parameters/Parameter";
 import {ResolvedParameterDescriptor} from "../../../../models/parameters/ParameterDescriptor";
 import {ParameterControlService} from "../../../../common/parameter/service/parameter-control.service";
 import {Configuration} from "../../../../models/common/Configuration";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
-import {DatasetTableModel, DatasetTableRecordModel} from "../../../../models/dataset/DatasetTableModel";
 import {Dataset} from "../../../../models/dataset/Dataset";
-import {Observable} from "rxjs/internal/Observable";
 
 
 @Component({
@@ -132,7 +130,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
     private initBlock = {
-        configuration: {ref: {uuid: "init"}, parent: null, parameters: []},
+        configuration: {ref: {uuid: "init"}, parent: null, parameterSet: {jsonClass:ParameterJsonClass.ParameterSet,parameters:[]}},
         descriptor: {
             ref: null,
             displayName: "",
@@ -169,7 +167,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.lastID = selectedBlock.configuration.ref.uuid;
 
             this.parameterMapping =
-                new Map(zip([selectedBlock.configuration.parameters,
+                new Map(zip([selectedBlock.configuration.parameterSet.parameters,
                     selectedBlock.descriptor.parameters
                 ]));
             if (this.form) {
@@ -178,7 +176,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
 
             this.form.valueChanges.subscribe(values => {
-                console.log(values);
                 if (!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues, values)) {
                     this.lastValues = values;
                     this.saveConfiguration();
@@ -205,7 +202,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     }
 
     reset() {
-        this.selectedBlock$.getValue().configuration.parameters.forEach(parameter => {
+        this.selectedBlock$.getValue().configuration.parameterSet.parameters.forEach(parameter => {
                 this.form.controls[parameter.ref.id].setValue(parameter.value);
             }
         );
@@ -214,7 +211,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     collapse() {
         this.isVisible = !this.isVisible;
-        console.log("Current Block:", this.selectedBlock);
         this.onShowConfigurator.emit(this.isVisible);
     }
 
@@ -226,7 +222,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     saveConfiguration() {
         let configuration: Configuration = deepcopy(this.selectedBlock$.getValue().configuration);
         if (configuration.ref.uuid !== 'init') {
-            configuration.parameters.forEach((parameter) => {
+            configuration.parameterSet.parameters.forEach((parameter) => {
                 if (this.form.controls[parameter.ref.id]) {
                     parameter.value = this.form.controls[parameter.ref.id].value;
                 }

@@ -4,12 +4,8 @@ import {deepcopy} from "../../util";
 import {Field} from "../../models/dataset/Field";
 import {TextValue, ValueJsonClass} from "../../models/dataset/Value";
 import {Parameter} from "../../models/parameters/Parameter";
-import {BehaviorSubject, Observable} from "rxjs/index";
-import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
-import {
-    FieldNameListParameterDescriptor,
-    ResolvedParameterDescriptor
-} from "../../models/parameters/ParameterDescriptor";
+import {BehaviorSubject} from "rxjs/index";
+import {ResolvedParameterDescriptor} from "../../models/parameters/ParameterDescriptor";
 import {Dataset} from "../../models/dataset/Dataset";
 import {AutocompleteInputComponent} from "./autocomplete-input.component";
 
@@ -89,12 +85,12 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
     public duplicateMapping: boolean;
 
     public onChange = (elements: Field[]) => {
-        return;
+        undefined;
     };
 
 
     public onTouched = () => {
-        return;
+        undefined;
     };
 
     public writeValue(elements: Field[]): void {

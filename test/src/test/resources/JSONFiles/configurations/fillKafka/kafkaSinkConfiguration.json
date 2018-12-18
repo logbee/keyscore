@@ -5,27 +5,30 @@
     "revision": "",
     "ancestor": ""
   },
-  "parameters": [
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
-      "ref": {
-        "id": "kafka.sink.bootstrapServer"
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "kafka.sink.bootstrapServer"
+        },
+        "value": "keyscore-kafka"
       },
-      "value": "keyscore-kafka"
-    },
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
-      "ref": {
-        "id": "kafka.sink.bootstrapServerPort"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
+        "ref": {
+          "id": "kafka.sink.bootstrapServerPort"
+        },
+        "value": 9092
       },
-      "value": 9092
-    },
-    {
-      "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
-      "ref": {
-        "id": "kafka.sink.topic"
-      },
-      "value": "TopicA"
-    }
-  ]
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "kafka.sink.topic"
+        },
+        "value": "TopicA"
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

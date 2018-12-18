@@ -13,7 +13,7 @@ import {generateParameterRef, generateRef, generateRefs, Ref} from "../../app/mo
 import {Value, ValueJsonClass} from "../../app/models/dataset/Value";
 import {Label} from "../../app/models/common/MetaData";
 import {Configuration} from "../../app/models/common/Configuration";
-import {Parameter, ParameterJsonClass} from "../../app/models/parameters/Parameter";
+import {Parameter, ParameterJsonClass, ParameterSet} from "../../app/models/parameters/Parameter";
 import {Field} from "../../app/models/dataset/Field";
 import {
     ExpressionType,
@@ -53,7 +53,7 @@ export const generateConfiguration = (parameterCount = faker.random.number({min:
     return {
         ref: generateRef(),
         parent: generateRef(),
-        parameters: generateParameters(parameterCount)
+        parameterSet: generateParameterSet(parameterCount)
     }
 };
 
@@ -62,7 +62,7 @@ export const generateResolvedParameterDescriptors = (count: number = faker.rando
     max: 10
 })): ResolvedParameterDescriptor[] => {
     return Array.apply(null, Array(count)).map(() => generateResolvedParameterDescriptor());
-}
+};
 
 export const generateResolvedParameterDescriptor = (type: ParameterDescriptorJsonClass = null): ResolvedParameterDescriptor => {
     const types: ParameterDescriptorJsonClass[] = [ParameterDescriptorJsonClass.ExpressionParameterDescriptor,
@@ -214,6 +214,11 @@ export const generateInfo = (): ResolvedParameterInfo => {
         description: faker.lorem.sentence()
     };
 };
+
+export const generateParameterSet = (count: number = faker.random.number({min: 1, max: 10})): ParameterSet => {
+    return {jsonClass: ParameterJsonClass.ParameterSet, parameters: generateParameters(count)};
+};
+
 export const generateParameters = (count: number = faker.random.number({min: 1, max: 10})): Parameter[] => {
     return Array.apply(null, Array(count)).map(() => generateParameter());
 };
@@ -268,11 +273,14 @@ export const generateParameter = (type: ParameterJsonClass = null): Parameter =>
     }
 };
 
-export const generateEditingPipelineModel = (count:number = faker.random.number({min:1,max:10})): EditingPipelineModel => {
-    return{
-        pipelineBlueprint:generatePipelineBlueprint(count),
-        blueprints:generateBlueprints(count),
-        configurations:generateConfigurations(count)
+export const generateEditingPipelineModel = (count: number = faker.random.number({
+    min: 1,
+    max: 10
+})): EditingPipelineModel => {
+    return {
+        pipelineBlueprint: generatePipelineBlueprint(count),
+        blueprints: generateBlueprints(count),
+        configurations: generateConfigurations(count)
     }
 };
 

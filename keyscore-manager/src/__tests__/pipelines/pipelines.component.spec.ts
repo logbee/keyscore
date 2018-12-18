@@ -2,7 +2,7 @@ import {PipelinesComponent} from "../../app/pipelines/pipelines.component";
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 import {Subject} from "rxjs";
 import {PipelineEditorComponent} from "../../app/pipelines/pipeline-editor/pipeline-editor.component";
-import {RefreshTimeComponent} from "../../app/common/headerbar/refresh.component";
+import {RefreshTimeComponent} from "../../app/common/refresh-button/refresh.component";
 import {RouterTestingModule} from "@angular/router/testing";
 import {Store} from "@ngrx/store";
 import {HeaderBarModule} from "../../app/common/headerbar/headerbar.module";
@@ -13,10 +13,13 @@ import {HealthModule} from "../../app/common/health/health.module";
 import {PipelyModule} from "../../app/pipelines/pipeline-editor/pipely/pipely.module";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
-import {generatePipelines} from "../fake-data/pipeline-fakes";
-import {cold, hot} from "jasmine-marbles";
 
 import {LoadAllPipelineInstancesAction, UpdatePipelinePollingAction} from "../../app/pipelines/actions/pipelines.actions";
+import {LoadAllPipelineInstancesAction, UpdatePipelinePollingAction} from "../../app/pipelines/pipelines.actions";
+import {RefreshTimeModule} from "../../app/common/refresh-button/refresh-time.module";
+import {ErrorModule} from "../../app/common/error/error.module";
+import {DataSourceFactory} from "../../app/data-source/data-source-factory";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 describe('PipelinesComponent', () => {
     let component: PipelinesComponent;
@@ -27,12 +30,15 @@ describe('PipelinesComponent', () => {
         TestBed.configureTestingModule({
             declarations: [
                 PipelinesComponent,
-                PipelineEditorComponent,
-                RefreshTimeComponent
+                PipelineEditorComponent
+
             ],
             imports: [
+                BrowserAnimationsModule,
                 RouterTestingModule,
                 HeaderBarModule,
+                RefreshTimeModule,
+                ErrorModule,
                 MaterialModule,
                 HttpClientModule,
                 TranslateModule.forRoot({
@@ -52,6 +58,12 @@ describe('PipelinesComponent', () => {
                     useValue: {
                         dispatch: jest.fn(),
                         pipe: jest.fn()
+                    }
+                },
+                {
+                    provide: DataSourceFactory,
+                    useValue:{
+                        createPipelineDataSource: jest.fn()
                     }
                 }
             ]
@@ -76,10 +88,12 @@ describe('PipelinesComponent', () => {
         it('should dispatch UpdatePipelinePolling action in OnInit lifecycle', () => {
             const action = new UpdatePipelinePollingAction(true);
             const store = TestBed.get(Store);
+            const dataSourceFactory = TestBed.get(DataSourceFactory);
             const spy = jest.spyOn(store, 'dispatch');
+            const spyDataSource = jest.spyOn(dataSourceFactory,'createPipelineDataSource');
 
             fixture.detectChanges();
-
+            expect(spyDataSource).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledWith(action);
         });
 

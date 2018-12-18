@@ -22,7 +22,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
   trait KafkaToKafka {
     val sourceConfigurationRef = ConfigurationRef("bae4e0bc-2784-416a-a93d-0e36ed80d6e0")
     val sourceConfig = Configuration(sourceConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         TextParameter(KafkaSourceLogic.serverParameter.ref, "keyscore-kafka"),
         NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
         TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
@@ -30,23 +30,23 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
         TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicA"),
         FieldNameParameter(KafkaSourceLogic.fieldNameParameter.ref, "foo")
       )
-    )
+      ))
 
     val removeFieldsFilterConfigurationRef = ConfigurationRef("d2588462-b5f4-4b10-8cbb-7bcceb178cb5")
     val removeFieldsFilterConfig = Configuration(removeFieldsFilterConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("message"))
-      ))
+      )))
 
     val sinkConfigurationRef = ConfigurationRef("05dc6d8a-50ff-41bd-b637-5132be1f2415")
     val sinkConfig = Configuration(sinkConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         TextParameter(KafkaSinkLogic.bootstrapServerParameter.ref, "keyscore-kafka"),
         NumberParameter(KafkaSinkLogic.bootstrapServerPortParameter.ref, 9092),
         TextParameter(KafkaSinkLogic.topicParameter.ref, "TopicB"),
         FieldNameParameter(KafkaSinkLogic.fieldNameParameter.ref, "foo")
       )
-    )
+      ))
 
 
     val sourceBluePrint = SourceBlueprint(BlueprintRef("d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"), KafkaSourceLogic.describe.ref, sourceConfigurationRef)
@@ -67,7 +67,7 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
   trait KafkaToElastic {
     val sourceConfigurationRef = ConfigurationRef("83094e3e-ec35-4c99-8411-c06271e38591")
     val sourceConfig = Configuration(sourceConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         TextParameter(KafkaSourceLogic.serverParameter.ref, "keyscore-kafka"),
         NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
         TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
@@ -75,22 +75,22 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
         TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicB"),
         FieldNameParameter(KafkaSourceLogic.fieldNameParameter.ref, "foo")
       )
-    )
+    ))
 
     val removeFieldsFilterConfigurationRef = ConfigurationRef("07fbf227-3cde-4acd-853a-4aa733f5f482")
     val removeFieldsFilterConfig = Configuration(removeFieldsFilterConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("message"))
-      ))
+      )))
 
     val sinkConfigurationRef = ConfigurationRef("d35d1f46-cd41-4a25-8d83-02cf9348d87e")
     val sinkConfig = Configuration(sinkConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         TextParameter(ElasticSearchSinkLogic.hostParameter.ref, "keyscore-elasticsearch"),
         NumberParameter(ElasticSearchSinkLogic.portParameter.ref, 9200),
         TextParameter(ElasticSearchSinkLogic.indexParameter.ref, "test")
       )
-    )
+    ))
 
 
     val sourceBluePrint = SourceBlueprint(BlueprintRef("4a696573-ce73-4bb2-8d9a-b2a90e834153"), KafkaSourceLogic.describe.ref, sourceConfigurationRef)
@@ -112,43 +112,40 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
 
     val kafkaSourceConfigurationRef = ConfigurationRef("2726cd82-3c85-4a25-91ef-97b13cfad8e6")
     val kafkaSourceConfiguration = Configuration(kafkaSourceConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         TextParameter(KafkaSourceLogic.serverParameter.ref, "keyscore-kafka"),
         NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
         TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
         ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
         TextParameter(KafkaSourceLogic.topicParameter.ref, "TopicW1"),
         FieldNameParameter(KafkaSourceLogic.fieldNameParameter.ref, "foo")
-      )
-    )
+      )))
 
     val retainFieldsConfigurationRef = ConfigurationRef("0584fc3f-b629-4b95-a5d4-ae87fdf01b77")
     val retainFieldsConfiguration = Configuration(retainFieldsConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         TextListParameter(RetainFieldsLogic.fieldNamesParameter.ref, Seq("text1", "text2", "text3", "number1", "number2"))
-      )
-    )
+      )))
 
     val firstRemoveFieldsConfigurationRef = ConfigurationRef("dd87ea44-3cfa-4cda-8fc2-9f4869f54338")
     val firstRemoveFieldsConfiguration = Configuration(firstRemoveFieldsConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("text1"))
-      ))
+      )))
 
     val secondRemoveFieldsConfigurationRef = ConfigurationRef("f60f7876-d4b2-4657-bd94-1164424804dc")
     val secondRemoveFieldsConfiguration = Configuration(secondRemoveFieldsConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("text2", "number2"))
-      ))
+      )))
 
     val elasticSinkConfigurationRef = ConfigurationRef("7cce7c4c-c50e-49a8-b0fb-db2c45fb737b")
     val elasticSinkConfiguration = Configuration(elasticSinkConfigurationRef,
-      parameters = Seq(
+      parameterSet = ParameterSet(Seq(
         TextParameter(ElasticSearchSinkLogic.hostParameter.ref, "keyscore-elasticsearch"),
         NumberParameter(ElasticSearchSinkLogic.portParameter.ref, 9200),
         TextParameter(ElasticSearchSinkLogic.indexParameter.ref, "workflow")
-      )
-    )
+      )))
 
     val kafkaSourceBlueprint = SourceBlueprint(BlueprintRef("7bd47b18-547f-4752-9f5c-54028a6f5be0"), KafkaSourceLogic.describe.ref, kafkaSourceConfigurationRef)
     val retainFieldsBlueprint = FilterBlueprint(BlueprintRef("f368c58c-db9a-43dc-8ccb-f495d29c441f"), RetainFieldsLogic.describe.ref, retainFieldsConfigurationRef)

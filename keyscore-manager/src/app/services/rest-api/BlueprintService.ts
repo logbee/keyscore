@@ -25,8 +25,8 @@ export class BlueprintService {
     }
 
 
-    loadAllBlueprints(): Observable<Map<string, Blueprint>> {
-        return this.httpClient.get<Map<string, Blueprint>>(`${BlueprintService.BASE_URL}/*`);
+    loadAllBlueprints(): Observable<Blueprint[]> {
+        return this.httpClient.get<Blueprint[]>(`${BlueprintService.BASE_URL}/*`);
     }
 
     getBlueprint(id: string): Observable<Blueprint> {

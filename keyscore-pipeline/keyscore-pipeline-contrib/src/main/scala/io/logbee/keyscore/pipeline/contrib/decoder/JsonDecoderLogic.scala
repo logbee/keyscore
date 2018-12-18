@@ -122,6 +122,9 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
       case JLong(value) =>
         fields :+ Field(path.mkString("."), NumberValue(value.toLong))
 
+      case JDouble(value) =>
+        fields :+ Field(path.mkString("."), DecimalValue(value))
+
       case JDecimal(value) =>
         fields :+ Field(path.mkString("."), DecimalValue(value.toDouble))
 

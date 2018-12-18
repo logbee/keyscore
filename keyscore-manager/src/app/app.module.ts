@@ -28,6 +28,7 @@ import {MaterialModule} from "./material.module";
 import {ResourcesModule} from "./resources/resources.module";
 import {EffectsModule} from "@ngrx/effects";
 import {SnackbarEffects} from "./common/snackbar/snackbar.effects";
+import {DataSourceFactory} from "./data-source/data-source-factory";
 
 
 const routes: Routes = [
@@ -43,6 +44,7 @@ const routes: Routes = [
 export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http);
 }
+
 @NgModule({
     imports: [
         BrowserModule,
@@ -52,7 +54,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         ReactiveFormsModule,
         RouterModule.forRoot(routes),
         StoreModule.forRoot(reducers, {metaReducers}),
-        EffectsModule.forRoot([AppConfigEffects, RouterEffects, LoadingEffects, ErrorEffects,SnackbarEffects]),
+        EffectsModule.forRoot([AppConfigEffects, RouterEffects, LoadingEffects, ErrorEffects, SnackbarEffects]),
         StoreRouterConnectingModule,
         TranslateModule.forRoot({
             loader: {
@@ -62,9 +64,9 @@ export function HttpLoaderFactory(http: HttpClient) {
             }
         }),
         // ToDO: Throws DataCloneError
-         StoreDevtoolsModule.instrument({
-             maxAge: 20
-         }),
+        StoreDevtoolsModule.instrument({
+            maxAge: 20
+        }),
         HeaderBarModule,
         MaterialModule
     ],
@@ -76,10 +78,13 @@ export function HttpLoaderFactory(http: HttpClient) {
     ],
     providers: [
         AppConfigLoader,
-        {provide: APP_INITIALIZER,
+        {
+            provide: APP_INITIALIZER,
             useFactory: (configLoader: AppConfigLoader) => () => configLoader.load(),
             deps: [AppConfigLoader],
-            multi: true}
+            multi: true
+        },
+        DataSourceFactory
     ],
     entryComponents: [
         SettingsComponent

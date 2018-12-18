@@ -19,5 +19,12 @@ export enum ParameterJsonClass {
     TextListParameter = "io.logbee.keyscore.model.configuration.TextListParameter",
     FieldNameListParameter = "io.logbee.keyscore.model.configuration.FieldNameListParameter",
     FieldListParameter = "io.logbee.keyscore.model.configuration.FieldListParameter",
-    ChoiceParameter = "io.logbee.keyscore.model.configuration.ChoiceParameter"
+    ChoiceParameter = "io.logbee.keyscore.model.configuration.ChoiceParameter",
+    FieldDirectiveSequenceParameter = "io.logbee.keyscore.model.configuration.FieldDirectiveSequenceParameter",
+    ParameterSet = "io.logbee.keyscore.model.configuration.ParameterSet"
+}
+
+export interface ParameterSet {
+    jsonClass:string;
+    parameters: Parameter[];
 }

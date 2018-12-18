@@ -7,22 +7,24 @@ trait QueryableConfiguration {
 
   this: Configuration =>
 
-  private def parameterMapping: Map[String, Any] = parameters.foldLeft(scala.collection.mutable.Map.empty[String, Any]) {
-    case (result, parameter: BooleanParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: TextParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: ExpressionParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: NumberParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: DecimalParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: FieldNameParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: FieldParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: TextListParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: FieldNameListParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: FieldListParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: ChoiceParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: FieldDirectiveSequenceParameter) => result + (parameter.ref.id -> parameter.sequences)
-    case (result, parameter: DirectiveConfiguration) => result + (parameter.ref.uuid -> parameter.parameters)
-    case (result, _) => result
-  }.toMap
+  private def parameterMapping: Map[String, Any] = parameterSet.parameters.foldLeft(scala.collection.mutable.Map.empty[String, Any]) {
+      case (result, parameter: BooleanParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: TextParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: ExpressionParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: NumberParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: DecimalParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldNameParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: TextListParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldNameListParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldListParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: ChoiceParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldDirectiveSequenceParameter) => result + (parameter.ref.id -> parameter.value)
+      case (result, parameter: DirectiveConfiguration) => result + (parameter.ref.uuid -> parameter.parameters)
+      case (result, _) => result
+    }.toMap
+
+
 
   def findBooleanValue(ref: ParameterRef): Option[Boolean] = parameterMapping.get(ref.id) match {
     case Some(value: Boolean) => Some(value)
@@ -70,8 +72,8 @@ trait QueryableConfiguration {
   }
 
   def findValue(descriptor: TextListParameterDescriptor): Option[Seq[String]] = parameterMapping.get(descriptor.ref.id) match {
-      case Some(value: Seq[String]) => Option(value)
-      case _ => None
+    case Some(value: Seq[String]) => Option(value)
+    case _ => None
   }
 
   def findValue(descriptor: FieldNameListParameterDescriptor): Option[Seq[String]] = parameterMapping.get(descriptor.ref.id) match {

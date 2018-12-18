@@ -18,6 +18,7 @@ export class ParameterControlService {
                 case ParameterDescriptorJsonClass.TextListParameterDescriptor:
                 case ParameterDescriptorJsonClass.FieldNameListParameterDescriptor:
                 case ParameterDescriptorJsonClass.FieldListParameterDescriptor:
+                case ParameterDescriptorJsonClass.FieldDirectiveSequenceParameterDescriptor:
                     parameter.value = parameter.value ? parameter.value : [];
                     group[parameter.ref.id] = new FormControl(parameter.value);
                     break;

@@ -5,7 +5,6 @@ import {ResolvedParameterDescriptor} from "../../models/parameters/ParameterDesc
 import {Dataset} from "../../models/dataset/Dataset";
 import * as _ from "lodash"
 import {BehaviorSubject} from "rxjs/index";
-import {filter} from "rxjs/internal/operators";
 
 @Component({
     selector: 'auto-complete-input',
@@ -88,15 +87,14 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
     }
 
     public onChange = (fieldName: string) => {
-        return;
+        undefined;
     };
 
     public onTouched = () => {
-        return;
+        undefined;
     };
 
     writeValue(fieldName: string): void {
-        console.log("Write Value: ", fieldName);
         this._fieldName = fieldName;
         if (this._fieldName !== this.group.value['fieldName']) {
             this.group.setValue({'fieldName': this._fieldName});
@@ -106,7 +104,6 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
 
     ngOnInit(): void {
         this.datasets$.subscribe(datasets => {
-            console.log("TEST datasets: ", datasets);
             if (this.hint === "PresentField") {
                 let fieldNames = _.flatten(_.flatten(datasets.map(dataset => dataset.records.map(record => record.fields.map(field => field.name)))));
                 this.hints = Array.from(new Set(fieldNames));

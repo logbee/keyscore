@@ -8,6 +8,9 @@ import {TranslateModule} from "@ngx-translate/core";
 import {MaterialModule} from "../../material.module";
 import {ParameterControlService} from "./service/parameter-control.service";
 import {AutocompleteInputComponent} from "./autocomplete-input.component";
+import {ParameterDirectiveComponent} from "./parameter-directive.component";
+import {DragDropModule} from '@angular/cdk/drag-drop';
+
 
 
 @NgModule({
@@ -16,13 +19,16 @@ import {AutocompleteInputComponent} from "./autocomplete-input.component";
         FormsModule,
         ReactiveFormsModule,
         TranslateModule,
-        MaterialModule
+        MaterialModule,
+        DragDropModule
+
     ],
     declarations: [
         ParameterMap,
         ParameterListComponent,
         ParameterComponent,
-        AutocompleteInputComponent
+        AutocompleteInputComponent,
+        ParameterDirectiveComponent
     ],
     exports: [
         ParameterComponent

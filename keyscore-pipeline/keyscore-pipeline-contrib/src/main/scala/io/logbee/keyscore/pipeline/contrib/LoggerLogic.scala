@@ -16,8 +16,6 @@ import org.json4s.native.Serialization.write
 
 object LoggerLogic extends Described {
 
-  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/logger.svg"
-
   private val levelParameter = ChoiceParameterDescriptor(
     ref = "logger.level",
     info = ParameterInfo(

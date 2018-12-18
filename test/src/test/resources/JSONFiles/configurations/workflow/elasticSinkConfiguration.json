@@ -1,31 +1,34 @@
 {
-  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
-  "ref":{
-    "uuid":"7cce7c4c-c50e-49a8-b0fb-db2c45fb737b",
-    "revision":"",
-    "ancestor":""
+  "jsonClass": "io.logbee.keyscore.model.configuration.Configuration",
+  "ref": {
+    "uuid": "7cce7c4c-c50e-49a8-b0fb-db2c45fb737b",
+    "revision": "",
+    "ancestor": ""
   },
-  "parameters":[
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
-      "ref":{
-        "id":"elastic.host"
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "elastic.host"
+        },
+        "value": "keyscore-elasticsearch"
       },
-      "value":"keyscore-elasticsearch"
-    },
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
-      "ref":{
-        "id":"elastic.port"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
+        "ref": {
+          "id": "elastic.port"
+        },
+        "value": 9200
       },
-      "value":9200
-    },
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
-      "ref":{
-        "id":"elastic.index"
-      },
-      "value":"workflow"
-    }
-  ]
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "elastic.index"
+        },
+        "value": "workflow"
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

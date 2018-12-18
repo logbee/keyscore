@@ -7,8 +7,9 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.pipeline.{FilterState, LogicProxy}
 
 import scala.concurrent.{ExecutionContextExecutor, Promise}
+import akka.stream.stage.TimerGraphStageLogic
 
-abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, shape: Shape) extends GraphStageLogic(shape) with StageLogging {
+abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, shape: Shape) extends TimerGraphStageLogic(shape) with StageLogging {
 
   private[api] val initPromise = Promise[P]
 

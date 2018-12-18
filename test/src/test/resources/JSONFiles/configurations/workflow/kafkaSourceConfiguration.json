@@ -1,52 +1,55 @@
 {
-  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
-  "ref":{
-    "uuid":"2726cd82-3c85-4a25-91ef-97b13cfad8e6",
-    "revision":"",
-    "ancestor":""
+  "jsonClass": "io.logbee.keyscore.model.configuration.Configuration",
+  "ref": {
+    "uuid": "2726cd82-3c85-4a25-91ef-97b13cfad8e6",
+    "revision": "",
+    "ancestor": ""
   },
-  "parameters":[
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
-      "ref":{
-        "id":"kafka.source.server"
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "kafka.source.server"
+        },
+        "value": "keyscore-kafka"
       },
-      "value":"keyscore-kafka"
-    },
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
-      "ref":{
-        "id":"kafka.source.port"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
+        "ref": {
+          "id": "kafka.source.port"
+        },
+        "value": 9092
       },
-      "value":9092
-    },
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
-      "ref":{
-        "id":"kafka.source.group"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "kafka.source.group"
+        },
+        "value": "groupId"
       },
-      "value":"groupId"
-    },
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.ChoiceParameter",
-      "ref":{
-        "id":"kafka.source.offset"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.ChoiceParameter",
+        "ref": {
+          "id": "kafka.source.offset"
+        },
+        "value": "earliest"
       },
-      "value":"earliest"
-    },
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
-      "ref":{
-        "id":"kafka.source.topic"
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
+        "ref": {
+          "id": "kafka.source.topic"
+        },
+        "value": "TopicW1"
       },
-      "value":"TopicW1"
-    },
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameParameter",
-      "ref":{
-        "id":"kafka.source.fieldName"
-      },
-      "value":"foo"
-    }
-  ]
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameParameter",
+        "ref": {
+          "id": "kafka.source.fieldName"
+        },
+        "value": "foo"
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

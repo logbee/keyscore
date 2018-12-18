@@ -5,15 +5,18 @@
     "revision":"",
     "ancestor":""
   },
-  "parameters":[
-    {
-      "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameListParameter",
-      "ref":{
-        "id":"removeFields.fieldsToRemove"
-      },
-      "value":[
-        "text1"
-      ]
-    }
-  ]
+  "parameterSet": {
+    "parameters": [
+      {
+        "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameListParameter",
+        "ref": {
+          "id": "removeFields.fieldsToRemove"
+        },
+        "value": [
+          "text1"
+        ]
+      }
+    ],
+    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+  }
 }

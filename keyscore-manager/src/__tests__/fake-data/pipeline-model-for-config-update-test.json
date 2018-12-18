@@ -110,107 +110,122 @@
         "uuid":"97a99476-cdd0-48ab-849c-95cda06ab435"
       },
       "parent":null,
-      "parameters":[
-        {
-          "ref":{
-            "id":"kafka.source.server"
+      "parameterSet": {
+        "parameters": [
+          {
+            "ref": {
+              "id": "kafka.source.server"
+            },
+            "value": "earliest",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
           },
-          "value":"earliest",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.source.port"
+          {
+            "ref": {
+              "id": "kafka.source.port"
+            },
+            "value": "earliest",
+            "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter"
           },
-          "value":"earliest",
-          "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.source.group"
+          {
+            "ref": {
+              "id": "kafka.source.group"
+            },
+            "value": "earliest",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
           },
-          "value":"earliest",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.source.offset"
+          {
+            "ref": {
+              "id": "kafka.source.offset"
+            },
+            "value": "earliest",
+            "jsonClass": "io.logbee.keyscore.model.configuration.ChoiceParameter"
           },
-          "value":"earliest",
-          "jsonClass":"io.logbee.keyscore.model.configuration.ChoiceParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.source.topic"
-          },
-          "value":"earliest",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        }
-      ]
+          {
+            "ref": {
+              "id": "kafka.source.topic"
+            },
+            "value": "earliest",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
+          }
+        ],
+        "jsonClass":"io.logbee.keyscore.model.configuration.ParameterSet"
+      }
     },
     {
       "ref":{
         "uuid":"6673d544-ec3b-4094-ba06-8a4c250b7249"
       },
       "parent":null,
-      "parameters":[
-        {
-          "ref":{
-            "id":"fieldList"
-          },
-          "value":{
-            "test":"value",
-            "test2":"value2"
-          },
-          "jsonClass":"io.logbee.keyscore.model.configuration.FieldListParameter"
-        }
-      ]
+      "parameterSet": {
+        "parameters": [
+          {
+            "ref": {
+              "id": "fieldList"
+            },
+            "value": {
+              "test": "value",
+              "test2": "value2"
+            },
+            "jsonClass": "io.logbee.keyscore.model.configuration.FieldListParameter"
+          }
+        ],
+        "jsonClass":"io.logbee.keyscore.model.configuration.ParameterSet"
+
+      }
     },
     {
       "ref":{
         "uuid":"c75bde80-8310-46b2-bcbe-2525d2c2ab49"
       },
       "parent":null,
-      "parameters":[
-        {
-          "ref":{
-            "id":"fieldList"
-          },
-          "value":{
-            "test6":"value6"
-          },
-          "jsonClass":"io.logbee.keyscore.model.configuration.FieldListParameter"
-        }
-      ]
+      "parameterSet": {
+        "parameters": [
+          {
+            "ref": {
+              "id": "fieldList"
+            },
+            "value": {
+              "test6": "value6"
+            },
+            "jsonClass": "io.logbee.keyscore.model.configuration.FieldListParameter"
+          }
+        ],
+        "jsonClass":"io.logbee.keyscore.model.configuration.ParameterSet"
+
+      }
     },
     {
       "ref":{
         "uuid":"ba07192f-49d1-4bee-8efc-3f134a58fe15"
       },
       "parent":null,
-      "parameters":[
-        {
-          "ref":{
-            "id":"kafka.sink.bootstrapServer"
+      "parameterSet": {
+        "parameters": [
+          {
+            "ref": {
+              "id": "kafka.sink.bootstrapServer"
+            },
+            "value": "TopicX",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
           },
-          "value":"TopicX",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.sink.bootstrapServerPort"
+          {
+            "ref": {
+              "id": "kafka.sink.bootstrapServerPort"
+            },
+            "value": "TopicX",
+            "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter"
           },
-          "value":"TopicX",
-          "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter"
-        },
-        {
-          "ref":{
-            "id":"kafka.sink.topic"
-          },
-          "value":"TopicX",
-          "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter"
-        }
-      ]
+          {
+            "ref": {
+              "id": "kafka.sink.topic"
+            },
+            "value": "TopicX",
+            "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter"
+          }
+        ],
+        "jsonClass":"io.logbee.keyscore.model.configuration.ParameterSet"
+
+      }
     }
   ]
 }

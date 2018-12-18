@@ -5,7 +5,7 @@ import {LoadAgentsAction, RemoveCurrentAgentAction} from "./agents.actions";
 import {MatPaginator, MatSort, MatTable} from "@angular/material";
 import {TranslateService} from "@ngx-translate/core";
 import {AgentsState, getAgents} from "./agents.reducer";
-import {AgentDataSource} from "../dataSources/AgentDataSource";
+import {AgentDataSource} from "../data-source/agent-data-source";
 
 @Component({
     selector: "keyscore-agents",

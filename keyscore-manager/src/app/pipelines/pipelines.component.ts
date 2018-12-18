@@ -15,7 +15,7 @@ import {getPipelineList} from "./index";
 import {PipelineDataSource} from "./PipelineDataSource";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
-import "../style/style.css";
+import "../style/style.scss";
 import {Ref} from "../models/common/Ref";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {PipelinesState} from "./reducers/pipelines.reducer";
@@ -90,16 +90,17 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     public refreshTime$: Observable<number>;
     public title: string = "Pipelines";
     public configs: Observable<Ref[]>;
-    dataSource: PipelineDataSource = new PipelineDataSource(this.store.pipe(select(getPipelineList)));
+    dataSource: PipelineDataSource;
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
-    constructor(private store: Store<PipelinesState>, private filterControllerService: FilterControllerService) {
+    constructor(private store: Store<PipelinesState>, private dataSourceFactory: DataSourceFactory) {
 
     }
 
     public ngOnInit() {
+        this.dataSource = this.dataSourceFactory.createPipelineDataSource(this.store.pipe(select(selectPipelineList)));
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing));
         this.refreshTime$ = this.store.pipe(select(selectRefreshTime));
         this.store.dispatch(new UpdatePipelinePollingAction(true));
@@ -118,13 +119,14 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     public rerun(uuid: string) {
         this.store.dispatch(new TriggerFilterResetAction(uuid));
     }
+
     public createPipeline(activeRouting: boolean = false) {
         const pipelineId = uuid();
         this.store.dispatch(new CreatePipelineAction(pipelineId, "New Pipeline", ""));
         if (activeRouting) {
             this.store.dispatch(new RouterActions.Go({
                 path: ["pipelines/" + pipelineId, {}],
-                query: {create:true},
+                query: {},
                 extras: {}
             }));
         }

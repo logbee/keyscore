@@ -21,7 +21,7 @@ trait QueryableParameterSet {
     case (result, parameter: FieldNameListParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: FieldListParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: ChoiceParameter) => result + (parameter.ref.id -> parameter.value)
-    case (result, parameter: FieldDirectiveSequenceParameter) => result + (parameter.ref.id -> parameter.sequences)
+    case (result, parameter: FieldDirectiveSequenceParameter) => result + (parameter.ref.id -> parameter.value)
     case (result, parameter: DirectiveConfiguration) => result + (parameter.ref.uuid -> parameter.parameters)
     case (result, _) => result
   }.toMap

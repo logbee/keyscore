@@ -5,7 +5,7 @@ import java.util.UUID.randomUUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter}
+import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter, ParameterSet}
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
@@ -27,15 +27,15 @@ class AddFieldsLogicSpec extends WordSpec with Matchers with ScalaFutures with M
 
   trait TestStream {
 
-    val configuration = Configuration(parameters = Seq(
+    val configuration = Configuration(parameterSet = ParameterSet(Seq(
       FieldListParameter(fieldListParameter.ref, Seq())
-    ))
+    )))
 
-    val configuration2 = Configuration(parameters = Seq(
+    val configuration2 = Configuration(parameterSet = ParameterSet(Seq(
       FieldListParameter(fieldListParameter.ref, Seq(
         Field("message3", TextValue("testValue")),
         Field("message4", TextValue("testValue2"))
-    ))))
+    )))))
 
     val context = StageContext(system, executionContext)
     val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new AddFieldsLogic(p, s))
