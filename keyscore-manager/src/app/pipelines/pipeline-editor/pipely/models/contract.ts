@@ -6,7 +6,6 @@ import {Rectangle} from "./rectangle";
 import {DropzoneSubcomponent} from "../dropzone/dropzone-subcomponent";
 
 export interface Workspace {
-    showLiveEditingButton$: Observable<boolean>;
 
     addDropzone(dropzone: Dropzone): void;
 

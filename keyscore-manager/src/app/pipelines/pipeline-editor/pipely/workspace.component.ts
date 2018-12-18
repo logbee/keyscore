@@ -71,13 +71,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     private blockDescriptors$ = new BehaviorSubject<BlockDescriptor[]>([]);
 
-    @Input('showLiveEditingButton') set showLiveEditingButton(show: boolean) {
-        this.showLiveEditingButtonSource$.next(show);
-    }
-
-    private showLiveEditingButtonSource$ = new BehaviorSubject<boolean>(true);
-    public showLiveEditingButton$ = this.showLiveEditingButtonSource$.asObservable();
-
     private isInspecting: boolean = false;
 
     @Input() runTrigger$: Observable<void>;

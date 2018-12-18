@@ -7,9 +7,9 @@ import {Action, select, Store} from "@ngrx/store";
 import {forkJoin, Observable, of} from "rxjs";
 import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
 import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
-import {AppState} from "../app.component";
-import {selectAppConfig} from "../app.config";
-import {selectRefreshTime} from "../common/loading/loading.reducer";
+import {AppState} from "../../app.component";
+import {selectAppConfig} from "../../app.config";
+import {selectRefreshTime} from "../../common/loading/loading.reducer";
 import {
     CHECK_IS_PIPELINE_RUNNING,
     CheckIsPipelineRunning,
@@ -53,22 +53,22 @@ import {
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
-} from "./actions/pipelines.actions";
-import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {BlueprintService} from "../services/rest-api/BlueprintService";
-import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
-import {Configuration} from "../models/common/Configuration";
-import {Descriptor} from "../models/descriptors/Descriptor";
-import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {StringTMap} from "../common/object-maps";
-import {SnackbarOpen} from "../common/snackbar/snackbar.actions";
-import {ConfigurationService} from "../services/rest-api/ConfigurationService";
-import {DescriptorService} from "../services/rest-api/DescriptorService";
-import {PipelineService} from "../services/rest-api/PipelineService";
-import {FilterControllerService} from "../services/rest-api/FilterController.service";
-import {Health} from "../models/common/Health";
-import {getEditingPipeline, getPipelinePolling} from "./index";
+} from "../actions/pipelines.actions";
+import {PipelineInstance} from "../../models/pipeline-model/PipelineInstance";
+import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {BlueprintService} from "../../services/rest-api/BlueprintService";
+import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
+import {Configuration} from "../../models/common/Configuration";
+import {Descriptor} from "../../models/descriptors/Descriptor";
+import {DescriptorResolverService} from "../../services/descriptor-resolver.service";
+import {StringTMap} from "../../common/object-maps";
+import {SnackbarOpen} from "../../common/snackbar/snackbar.actions";
+import {ConfigurationService} from "../../services/rest-api/ConfigurationService";
+import {DescriptorService} from "../../services/rest-api/DescriptorService";
+import {PipelineService} from "../../services/rest-api/PipelineService";
+import {FilterControllerService} from "../../services/rest-api/FilterController.service";
+import {Health} from "../../models/common/Health";
+import {getEditingPipeline, getPipelinePolling} from "../index";
 
 @Injectable()
 export class PipelinesEffects {

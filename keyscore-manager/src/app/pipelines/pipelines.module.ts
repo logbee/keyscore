@@ -8,7 +8,6 @@ import {TranslateModule} from "@ngx-translate/core";
 import {ErrorComponent} from "../common/error/error.component";
 import {PipelineEditorComponent} from "./pipeline-editor/pipeline-editor.component";
 import {PipelinesComponent} from "./pipelines.component";
-import {PipelinesEffects} from "./pipelines.effects";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
@@ -17,7 +16,7 @@ import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {MaterialModule} from "../material.module";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
-import {reducers} from "./index";
+import {effects, reducers} from "./index";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -32,7 +31,7 @@ export const routes: Routes = [
         ReactiveFormsModule,
         RouterModule.forChild(routes),
         StoreModule.forFeature("state", reducers),
-        EffectsModule.forFeature([PipelinesEffects]),
+        EffectsModule.forFeature(effects),
         TranslateModule,
         HeaderBarModule,
         LoadingModule,

@@ -1,6 +1,6 @@
 import {empty, Observable} from "rxjs/index";
 import {Actions} from "@ngrx/effects";
-import {PipelinesEffects} from "../../app/pipelines/pipelines.effects";
+import {PipelinesEffects} from "../../app/pipelines/effects/pipelines.effects";
 import {TestBed} from "@angular/core/testing";
 import {Store} from "@ngrx/store";
 import {HttpClient, HttpClientModule} from "@angular/common/http";

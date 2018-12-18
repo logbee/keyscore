@@ -3,6 +3,13 @@ import * as fromPreview from "./reducers/preview.reducer";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {PreviewState} from "./reducers/preview.reducer";
 import {PipelinesState} from "./reducers/pipelines.reducer";
+import {PipelinesEffects} from "./effects/pipelines.effects";
+import {PreviewEffects} from "./effects/preview.effects";
+
+export const effects = [
+     PipelinesEffects,
+     PreviewEffects
+];
 
 export interface State {
     pipeline: fromPipeline.PipelinesState;

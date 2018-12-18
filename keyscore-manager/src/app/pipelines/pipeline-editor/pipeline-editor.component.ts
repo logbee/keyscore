@@ -18,9 +18,7 @@ import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineM
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
-import {TestAction} from "../actions/preview.actions";
 import {getEditingPipeline, getFilterDescriptors} from "../index";
-import {getTriggeredFlag} from "../index";
 
 @Component({
     selector: "pipeline-editor",
@@ -47,7 +45,6 @@ import {getTriggeredFlag} from "../index";
                               [inspectTrigger$]="runInspect$"
                               [pipeline]="(pipeline$ | async)"
                               [blockDescriptors]="blockDescriptorSource$|async"
-                              [showLiveEditingButton]="isLoading$|async"
                               (onUpdatePipeline)="updatePipeline($event)"
                               (onRunPipeline)="runPipeline($event)"
                               fxFill></pipely-workspace>
@@ -104,12 +101,22 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         });
 
         this.runInspectSource$.subscribe(_ => {
-            //     TODO: Trigger live-editing effects
-            let test$ = this.store.pipe(select(getTriggeredFlag));
-            test$.subscribe(t => {
-                console.log("TEST: " + JSON.stringify(t));
-            });
-            this.store.dispatch(new TestAction());
+            //     TODO: Trigger data preview
+
+            // 1. get id of current draggable
+            // 2. get all id's of current pipeline
+            // 3. pause all filters
+            // 4. extract from inValve of currentfilter
+            // 5. extract from outValve of currentfilter
+
+
+
+
+            // let test$ = this.store.pipe(select(getTriggeredFlag));
+            // test$.subscribe(t => {
+            //     console.log("TEST: " + JSON.stringify(t));
+            // });
+            // this.store.dispatch(new TestAction());
         });
         this.errorState$ = this.store.pipe(select(isError));
         this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));

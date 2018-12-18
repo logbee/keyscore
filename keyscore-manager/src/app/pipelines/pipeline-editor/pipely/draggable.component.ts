@@ -73,13 +73,6 @@ import {ConnectorComponent} from "./connectors/connector.component";
 
                         </div>
                     </div>
-                    <mat-icon
-                            *ngIf="draggableModel.initialDropzone.getDropzoneModel().dropzoneType !== dropzoneType.Toolbar"
-                            matTooltip="Navigate to Live-Editing" matTooltipPosition="above"
-                            (click)="navigateToLiveEditing()" [inline]="true" class="pipely-live-editing-button"
-                            [class.disabled]="workspace.showLiveEditingButton$|async">
-                        settings
-                    </mat-icon>
                 </div>
 
                 <div class="connection next-connection" fxLayout="column" fxLayoutAlign="center center">
