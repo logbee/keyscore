@@ -1,6 +1,7 @@
 import {deepcopy} from "../../util";
 import {
-    CREATE_PIPELINE, CREATED_PIPELINE,
+    CREATE_PIPELINE,
+    CREATED_PIPELINE,
     DELETE_PIPELINE_FAILURE,
     DELETE_PIPELINE_SUCCESS,
     EDIT_PIPELINE_SUCCESS,
@@ -23,8 +24,6 @@ import {PipelineTableModel} from "../PipelineTableModel";
 import {Health} from "../../models/common/Health";
 import {TextValue} from "../../models/dataset/Value";
 import {Label} from "../../models/common/MetaData";
-import {createSelector} from "@ngrx/store";
-import {selectPipelineState} from "../index";
 
 
 export class PipelinesState {
