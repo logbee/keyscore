@@ -40,3 +40,4 @@ export const getEditingPipeline = createSelector(selectPipelineState, (state: Pi
 export const getFilterDescriptors = createSelector(selectPipelineState, (state: PipelinesState) => state.filterDescriptors);
 export const getFilterCategories = createSelector(selectPipelineState, (state: PipelinesState) => state.filterCategories);
 export const getPipelinePolling = createSelector(selectPipelineState, (state: PipelinesState) => state.pipelineInstancePolling);
+export const selectIsCreating = createSelector(selectPipelineState, (state: PipelinesState) => state.isPipelineCreation);

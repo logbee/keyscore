@@ -2,7 +2,7 @@ import {Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {AppConfig} from "./app.config";
-import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
+import {LoadFilterDescriptorsAction} from "./pipelines/actions/pipelines.actions";
 import "./style/style.scss";
 import {SettingsState} from "./settings/settings.model";
 import {MenuState} from "./common/sidemenu/sidemenu.reducer";

@@ -15,7 +15,6 @@ import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
 
 import {LoadAllPipelineInstancesAction, UpdatePipelinePollingAction} from "../../app/pipelines/actions/pipelines.actions";
-import {LoadAllPipelineInstancesAction, UpdatePipelinePollingAction} from "../../app/pipelines/pipelines.actions";
 import {RefreshTimeModule} from "../../app/common/refresh-button/refresh-time.module";
 import {ErrorModule} from "../../app/common/error/error.module";
 import {DataSourceFactory} from "../../app/data-source/data-source-factory";

@@ -13,7 +13,8 @@ import {selectRefreshTime} from "../../common/loading/loading.reducer";
 import {
     CHECK_IS_PIPELINE_RUNNING,
     CheckIsPipelineRunning,
-    ConfigurationsForBlueprintId, CreatedPipelineAction,
+    ConfigurationsForBlueprintId,
+    CreatedPipelineAction,
     DELETE_PIPELINE,
     DeletePipelineAction,
     DeletePipelineFailureAction,
@@ -68,7 +69,7 @@ import {DescriptorService} from "../../services/rest-api/DescriptorService";
 import {PipelineService} from "../../services/rest-api/PipelineService";
 import {FilterControllerService} from "../../services/rest-api/FilterController.service";
 import {Health} from "../../models/common/Health";
-import {getEditingPipeline, getPipelinePolling} from "../index";
+import {getPipelinePolling, selectIsCreating} from "../index";
 
 @Injectable()
 export class PipelinesEffects {

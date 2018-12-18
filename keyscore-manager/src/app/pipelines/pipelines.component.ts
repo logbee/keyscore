@@ -12,13 +12,14 @@ import {
     UpdatePipelinePollingAction
 } from "./actions/pipelines.actions";
 import {getPipelineList} from "./index";
-import {PipelineDataSource} from "./PipelineDataSource";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
 import "../style/style.scss";
 import {Ref} from "../models/common/Ref";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {PipelinesState} from "./reducers/pipelines.reducer";
+import {DataSourceFactory} from "../data-source/data-source-factory";
+import {PipelineDataSource} from "../data-source/pipeline-data-source";
 
 @Component({
     selector: "keyscore-pipelines",
@@ -100,7 +101,7 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     }
 
     public ngOnInit() {
-        this.dataSource = this.dataSourceFactory.createPipelineDataSource(this.store.pipe(select(selectPipelineList)));
+        this.dataSource = this.dataSourceFactory.createPipelineDataSource(this.store.pipe(select(getPipelineList)));
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing));
         this.refreshTime$ = this.store.pipe(select(selectRefreshTime));
         this.store.dispatch(new UpdatePipelinePollingAction(true));
