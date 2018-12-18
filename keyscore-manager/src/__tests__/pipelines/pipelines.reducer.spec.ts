@@ -1,8 +1,8 @@
-import {initialState, PipelinesReducer} from "../../app/pipelines/pipelines.reducer"
+import {initialState, PipelinesReducer} from "../../app/pipelines/reducers/pipelines.reducer"
 import {
     LoadFilterDescriptorsSuccessAction,
     ResolveFilterDescriptorSuccessAction
-} from "../../app/pipelines/pipelines.actions";
+} from "../../app/pipelines/actions/pipelines.actions";
 import {removeFieldFilterDescriptorJson, resolvedRemoveFieldsFilterDE} from "../fake-data/resolved-remove-fields-filter-descriptor";
 
 describe('Pipelines Reducer', () => {

@@ -9,7 +9,6 @@ import {ErrorComponent} from "../common/error/error.component";
 import {PipelineEditorComponent} from "./pipeline-editor/pipeline-editor.component";
 import {PipelinesComponent} from "./pipelines.component";
 import {PipelinesEffects} from "./pipelines.effects";
-import {PipelinesReducer} from "./pipelines.reducer";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
@@ -18,7 +17,7 @@ import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {MaterialModule} from "../material.module";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
-import {DataPreviewReducer} from "./data-preview/data-preview.reducer";
+import {reducers} from "./index";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -32,8 +31,7 @@ export const routes: Routes = [
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(routes),
-        StoreModule.forFeature("pipelines", PipelinesReducer),
-        StoreModule.forFeature('preview', DataPreviewReducer),
+        StoreModule.forFeature("state", reducers),
         EffectsModule.forFeature([PipelinesEffects]),
         TranslateModule,
         HeaderBarModule,
@@ -52,5 +50,6 @@ export const routes: Routes = [
         PipelyKeyscoreAdapter
     ]
 })
+
 export class PipelinesModule {
 }

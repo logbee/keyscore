@@ -1,11 +1,11 @@
 import {Action} from "@ngrx/store";
-import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
-import {Configuration} from "../models/common/Configuration";
-import {Descriptor} from "../models/descriptors/Descriptor";
-import {EditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
-import {Ref} from "../models/common/Ref";
+import {PipelineInstance} from "../../models/pipeline-model/PipelineInstance";
+import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
+import {Configuration} from "../../models/common/Configuration";
+import {Descriptor} from "../../models/descriptors/Descriptor";
+import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
+import {Ref} from "../../models/common/Ref";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 

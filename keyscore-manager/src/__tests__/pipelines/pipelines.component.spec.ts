@@ -16,7 +16,7 @@ import {HttpLoaderFactory} from "../../app/app.module";
 import {generatePipelines} from "../fake-data/pipeline-fakes";
 import {cold, hot} from "jasmine-marbles";
 
-import {LoadAllPipelineInstancesAction, UpdatePipelinePollingAction} from "../../app/pipelines/pipelines.actions";
+import {LoadAllPipelineInstancesAction, UpdatePipelinePollingAction} from "../../app/pipelines/actions/pipelines.actions";
 
 describe('PipelinesComponent', () => {
     let component: PipelinesComponent;

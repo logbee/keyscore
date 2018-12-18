@@ -1,4 +1,4 @@
-import {deepcopy} from "../util";
+import {deepcopy} from "../../util";
 import {
     CREATE_PIPELINE,
     DELETE_PIPELINE_FAILURE,
@@ -11,16 +11,21 @@ import {
     RESOLVE_FILTER_DESCRIPTORS_SUCCESS,
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
-} from "./pipelines.actions";
-import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {Descriptor} from "../models/descriptors/Descriptor";
-import {EditingPipelineModel, generateEmptyEditingPipelineModel} from "../models/pipeline-model/EditingPipelineModel";
-import {ResolvedCategory} from "../models/descriptors/Category";
-import {PipelineTableModel} from "./PipelineTableModel";
-import {Health} from "../models/common/Health";
-import {TextValue} from "../models/dataset/Value";
-import {Label} from "../models/common/MetaData";
+} from "../actions/pipelines.actions";
+import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {Descriptor} from "../../models/descriptors/Descriptor";
+import {
+    EditingPipelineModel,
+    generateEmptyEditingPipelineModel
+} from "../../models/pipeline-model/EditingPipelineModel";
+import {ResolvedCategory} from "../../models/descriptors/Category";
+import {PipelineTableModel} from "../PipelineTableModel";
+import {Health} from "../../models/common/Health";
+import {TextValue} from "../../models/dataset/Value";
+import {Label} from "../../models/common/MetaData";
+import {createSelector} from "@ngrx/store";
+import {selectPipelineState} from "../index";
+
 
 export class PipelinesState {
     public editingPipeline: EditingPipelineModel;
@@ -122,23 +127,3 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
     }
 }
 
-
-export const getPipelinesState = createFeatureSelector<PipelinesState>(
-    "pipelines"
-);
-export const getPipelineList = createSelector(getPipelinesState,
-    (state: PipelinesState) => state.pipelineList);
-
-export const getEditingPipeline = createSelector(getPipelinesState,
-    (state: PipelinesState) => state.editingPipeline);
-
-export const getFilterDescriptors = createSelector(getPipelinesState,
-    (state: PipelinesState) => state.filterDescriptors);
-
-export const getFilterCategories = createSelector(getPipelinesState,
-    (state: PipelinesState) => state.filterCategories);
-
-export const getPipelinePolling = createSelector(getPipelinesState,
-    (state: PipelinesState) => state.pipelineInstancePolling);
-
-export const selectPipelineList = createSelector(getPipelinesState, (state: PipelinesState) => state.pipelineList);

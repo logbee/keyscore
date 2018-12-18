@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild, ViewContainerRef} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {AppConfig, selectAppConfig} from "./app.config";
-import {LoadFilterDescriptorsAction} from "./pipelines/pipelines.actions";
+import {LoadFilterDescriptorsAction} from "./pipelines/actions/pipelines.actions";
 import {ModalService} from "./services/modal.service";
 import "./style/style.css";
 import {SettingsComponent} from "./settings/settings.component";

@@ -53,9 +53,8 @@ import {
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
-} from "./pipelines.actions";
+} from "./actions/pipelines.actions";
 import {PipelineInstance} from "../models/pipeline-model/PipelineInstance";
-import {getEditingPipeline, getPipelinePolling} from "./pipelines.reducer";
 import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {BlueprintService} from "../services/rest-api/BlueprintService";
 import {Blueprint, PipelineBlueprint} from "../models/blueprints/Blueprint";
@@ -69,6 +68,7 @@ import {DescriptorService} from "../services/rest-api/DescriptorService";
 import {PipelineService} from "../services/rest-api/PipelineService";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {Health} from "../models/common/Health";
+import {getEditingPipeline, getPipelinePolling} from "./index";
 
 @Injectable()
 export class PipelinesEffects {

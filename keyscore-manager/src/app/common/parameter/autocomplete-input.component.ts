@@ -47,7 +47,6 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
     @Input() parameterDescriptor: ResolvedParameterDescriptor;
 
     @Input('datasets') set datasets(data: Dataset[]) {
-        console.log("TEST hint is : ", this.hint);
         this.datasets$.next(data);
     };
 

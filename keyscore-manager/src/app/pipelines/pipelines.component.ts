@@ -10,14 +10,15 @@ import {
     LoadPipelineBlueprints,
     TriggerFilterResetAction,
     UpdatePipelinePollingAction
-} from "./pipelines.actions";
-import {PipelinesState, selectPipelineList} from "./pipelines.reducer";
+} from "./actions/pipelines.actions";
+import {getPipelineList} from "./index";
 import {PipelineDataSource} from "./PipelineDataSource";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
 import "../style/style.css";
 import {Ref} from "../models/common/Ref";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
+import {PipelinesState} from "./reducers/pipelines.reducer";
 
 @Component({
     selector: "keyscore-pipelines",
@@ -89,7 +90,7 @@ export class PipelinesComponent implements OnDestroy, OnInit, AfterViewInit {
     public refreshTime$: Observable<number>;
     public title: string = "Pipelines";
     public configs: Observable<Ref[]>;
-    dataSource: PipelineDataSource = new PipelineDataSource(this.store.pipe(select(selectPipelineList)));
+    dataSource: PipelineDataSource = new PipelineDataSource(this.store.pipe(select(getPipelineList)));
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;

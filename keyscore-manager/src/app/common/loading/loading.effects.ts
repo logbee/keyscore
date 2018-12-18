@@ -22,7 +22,7 @@ import {
     RunPipelineAction, RunPipelineFailureAction,
     RunPipelineSuccessAction,
     UpdatePipelinePollingAction
-} from "../../pipelines/pipelines.actions";
+} from "../../pipelines/actions/pipelines.actions";
 import {
     DecrementLoadingCounterAction,
     HideSpinner,

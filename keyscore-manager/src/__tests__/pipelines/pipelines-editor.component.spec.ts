@@ -16,7 +16,7 @@ import {HttpLoaderFactory} from "../../app/app.module";
 import {generateEditingPipelineModel} from "../fake-data/pipeline-fakes";
 import {hot} from "jasmine-marbles";
 
-import {LoadFilterDescriptorsAction, UpdatePipelineAction} from "../../app/pipelines/pipelines.actions";
+import {LoadFilterDescriptorsAction, UpdatePipelineAction} from "../../app/pipelines/actions/pipelines.actions";
 import {PipelyKeyscoreAdapter} from "../../app/services/pipely-keyscore-adapter.service";
 import {generateEmptyEditingPipelineModel} from "../../app/models/pipeline-model/EditingPipelineModel";
 

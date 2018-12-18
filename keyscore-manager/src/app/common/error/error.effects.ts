@@ -7,7 +7,7 @@ import {ErrorAction, ResetErrorAction} from "./error.actions";
 import {map} from "rxjs/operators";
 import {tap} from "rxjs/internal/operators";
 import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
-import {EDIT_PIPELINE_FAILURE, EditPipelineFailureAction} from "../../pipelines/pipelines.actions";
+import {EDIT_PIPELINE_FAILURE, EditPipelineFailureAction} from "../../pipelines/actions/pipelines.actions";
 
 type errorTypes =
     |LoadFilterConfigurationFailure

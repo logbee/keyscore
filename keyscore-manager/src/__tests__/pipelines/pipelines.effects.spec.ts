@@ -26,7 +26,7 @@ import {
     UpdatePipelineAction,
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction
-} from "../../app/pipelines/pipelines.actions";
+} from "../../app/pipelines/actions/pipelines.actions";
 import {cold, hot} from "jasmine-marbles";
 import {
     removeFieldFilterDescriptorJson,
