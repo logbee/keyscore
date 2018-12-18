@@ -29,6 +29,7 @@ import {PipelineConfiguratorService} from "./services/pipeline-configurator.serv
 import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../models/blueprints/Blueprint";
 import {Configuration} from "../../../models/common/Configuration";
 import {TextValue} from "../../../models/dataset/Value";
+import {Ref} from "../../../models/common/Ref";
 
 
 @Component({
@@ -84,6 +85,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     @Output() onUpdatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
     @Output() onRunPipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
+    @Output() onSelectBlock: EventEmitter<Ref> = new EventEmitter();
 
     public id: string;
 
@@ -123,10 +125,19 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         }
         this.selectedDraggable = draggable;
         if (this.selectedDraggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType !== DropzoneType.Toolbar) {
-            this.selectedDraggableSource.next(this.selectedDraggable);
+            this.selectBlock(this.selectedDraggable);
             this.selectedDraggable.select(true);
         }
-        
+
+    }
+
+    private selectBlock(selected: Draggable) {
+        this.selectedDraggableSource.next(selected);
+        if (selected) {
+            this.onSelectBlock.emit(selected.getDraggableModel().blueprintRef);
+        } else {
+            this.onSelectBlock.emit(null);
+        }
     }
 
     @HostListener('mousemove', ['$event'])
@@ -156,13 +167,13 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         if (this.selectedDraggable) {
             this.selectedDraggable.select(false);
         }
-        this.selectedDraggableSource.next(null);
+        this.selectBlock(null);
     }
 
     private click(event: MouseEvent) {
         if (this.selectedDraggable.getDraggableModel().rootDropzone === DropzoneType.Workspace) {
             this.isConfiguratorOpened = true;
-            this.selectedDraggableSource.next(this.selectedDraggable);
+            this.selectBlock(this.selectedDraggable);
         }
     }
 
@@ -208,7 +219,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
             if (this.bestDropzone.getDropzoneModel().dropzoneType === DropzoneType.Trash) {
                 this.selectedDraggable.select(false);
                 this.selectedDraggable = null;
-                this.selectedDraggableSource.next(null);
+                this.selectBlock(null);
             }
             this.bestDropzone.drop(this.mirrorDraggable, this.draggedDraggable);
         }
@@ -306,7 +317,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         }
         if (draggable.getDraggableModel().isSelected) {
             this.selectedDraggable = draggable;
-            this.selectedDraggableSource.next(this.selectedDraggable);
+            this.selectBlock(this.selectedDraggable);
         }
         if (draggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType !==
             DropzoneType.Toolbar) {

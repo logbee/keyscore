@@ -19,6 +19,7 @@ import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.serv
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
 import {getEditingPipeline, getFilterDescriptors} from "../index";
+import {Ref} from "../../models/common/Ref";
 
 @Component({
     selector: "pipeline-editor",
@@ -47,6 +48,7 @@ import {getEditingPipeline, getFilterDescriptors} from "../index";
                               [blockDescriptors]="blockDescriptorSource$|async"
                               (onUpdatePipeline)="updatePipeline($event)"
                               (onRunPipeline)="runPipeline($event)"
+                              (onSelectBlock)="selectBlock($event)"
                               fxFill></pipely-workspace>
         </ng-template>
 
@@ -147,6 +149,10 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
 
     public callLiveEditing(filter: Configuration) {
         this.store.dispatch(new Go({path: ["pipelines/filter/" + filter.ref.uuid + "/"]}));
+    }
+
+    public selectBlock(ref:Ref){
+        console.log("SELECTED",ref);
     }
 
 }
