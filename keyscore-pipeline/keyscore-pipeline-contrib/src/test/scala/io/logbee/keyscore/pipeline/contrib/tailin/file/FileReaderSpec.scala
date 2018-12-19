@@ -30,15 +30,18 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     TestUtil.recursivelyDelete(watchDir)
   }
 
+  
   var rotationSuffix = ".[1-5]"
   var bufferSize = 1024
   var charset = StandardCharsets.UTF_8
   var readMode = ReadMode.LINE
   
+  
   trait LogFile {
     val logFileData = "Log_File_0_ "
     val logFile = TestUtil.createFile(watchDir, "log.txt", logFileData)
   }
+  
   
   trait RotateFiles extends LogFile {
     
@@ -62,6 +65,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     val logFile1Data = "Log_File_1_1 "
     val logFile1 = TestUtil.createFile(watchDir, "log.txt.1", logFile1Data)
     
+    
+    //set lastModified-times in the necessary order and to differences of bigger than 1 second to deal with common filesystem's lastModified-resolution of 1 second
     val logFileModified = System.currentTimeMillis
     logFile1337.setLastModified(logFileModified - 1000 * 3)
     logFileCsv.setLastModified(logFileModified - 1000 * 3)
@@ -156,7 +161,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         }
       }
     }
-
+    
+    
     "should read the contents of" - {
       "its file" - {
         "line by line, if line-wise reading is active," - {
@@ -221,8 +227,6 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             }
             fileReader.fileModified(mockCallback)
           }
-          
-          //TEST? multiline with newline at the end
           
           "if the file contains multiple newline-characters directly following each other"  in new PersistenceContextWithoutTimestamp {
             
@@ -354,6 +358,34 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithTimestamp, bufferSize, charset, readMode)
           
           
+          //write something additional to the file to test line-wise reading
+          val tmp_logFile2_lastModified = logFile2.lastModified
+          val logFile2_AdditionalData = "test"
+          TestUtil.writeStringToFile(logFile2, "\n" + logFile2_AdditionalData, StandardOpenOption.APPEND)
+          logFile2.setLastModified(tmp_logFile2_lastModified) //reset the lastModified-time to what it was before writing, to keep the correct order
+          
+          
+          val mockCallback = mockFunction[String, Unit]
+  
+          inSequence {
+            mockCallback expects logFile3Data.substring(previousReadPosition)
+            mockCallback expects logFile2Data
+            mockCallback expects logFile2_AdditionalData
+            mockCallback expects logFile1Data
+            mockCallback expects logFileData
+          }
+          
+          (persistenceContextWithTimestamp.store (_: String, _: RotationRecord))
+            .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+          fileReader.fileModified(mockCallback)
+        }
+        
+        "file by file, if file-wise reading is active" in new PersistenceContextWithTimestamp {
+          
+          readMode = ReadMode.FILE
+          val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithTimestamp, bufferSize, charset, readMode)
+          
+          
           val mockCallback = mockFunction[String, Unit]
   
           inSequence {
@@ -367,16 +399,10 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
           fileReader.fileModified(mockCallback)
         }
-        
-        "file by file, if file-wise reading is active" in {
-          
-          readMode = ReadMode.FILE
-
-          //TEST file-wise reading
-        }
       }
     }
-
+    
+    
     "should persist a RotationRecord" - {
       "for one log file" - {
         "without rotated files" in new PersistenceContextWithoutTimestamp {
@@ -402,7 +428,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         }
       }
     }
-
+    
     "should react to a file modification event" - {
       //TODO integration test
     }
