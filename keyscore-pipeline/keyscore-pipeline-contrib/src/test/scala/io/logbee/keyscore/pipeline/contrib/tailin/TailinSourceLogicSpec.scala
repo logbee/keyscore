@@ -59,7 +59,6 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
 
     val configuration = Configuration(
       TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir.toString + "/tailin.csv"),
-      NumberParameter(TailinSourceLogic.recursionDepth.ref,  0),
       ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.LINE.toString),
       ChoiceParameter(TailinSourceLogic.encoding.ref,        StandardCharsets.UTF_8.toString),
       TextParameter(  TailinSourceLogic.rotationSuffix.ref,  ".[1-5]"),

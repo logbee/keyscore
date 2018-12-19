@@ -16,7 +16,8 @@ trait DirWatcher {
   def processEvents()
 }
 
-case class DirWatcherConfiguration(dirPath: Path, filePattern: String, recursionDepth: Long)
+
+case class DirWatcherConfiguration(dirPath: Path, matchPattern: DirWatcherPattern)
 
 
 class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherProvider: WatcherProvider, callback: (String) => Unit) extends PathWatcher(configuration.dirPath) with DirWatcher {
@@ -29,7 +30,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     throw new InvalidPathException(configuration.dirPath.toString, "The given path is not a directory or doesn't exist.")
   }
   
-  log.info("Instantiating for " + configuration.dirPath)
+  log.info("Instantiating for " + configuration.dirPath + " with fileMatchPattern: \"" + configuration.matchPattern.fullFilePattern + "\"")
   
   private val watchService = FileSystems.getDefault.newWatchService()
   private val watchKey = configuration.dirPath.register(
@@ -37,10 +38,9 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     StandardWatchEventKinds.ENTRY_CREATE,
     StandardWatchEventKinds.ENTRY_MODIFY,
     StandardWatchEventKinds.ENTRY_DELETE)
-    
   
   
-  private val matcher = FileSystems.getDefault.getPathMatcher("glob:" + configuration.filePattern)
+  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + configuration.matchPattern.fullFilePattern)
   
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
   private val subFileWatchers = mutable.Map.empty[File, ListBuffer[FileWatcher]]
@@ -63,7 +63,6 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   
-  
   def processEvents() = {
     //call processEvents() on subDirWatchers
     subDirWatchers.foreach {
@@ -74,7 +73,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     
     var key: Option[WatchKey] = None
     try {
-      key = Option(watchService.poll())
+      key = Option(watchService.poll)
     }
     catch {
       case e: ClosedWatchServiceException =>
@@ -83,9 +82,9 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
         }
     }
     
-    key.foreach(key => key.pollEvents().asScala.foreach { event =>
+    key.foreach(key => key.pollEvents.asScala.foreach { event =>
     
-      val path: Path = configuration.dirPath.resolve(event.context().asInstanceOf[Path])
+      val path: Path = configuration.dirPath.resolve(event.context.asInstanceOf[Path])
       
       event.kind match {
       
@@ -117,23 +116,35 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   
-  private def addSubDirWatcher(dir: Path) = {
-
-    if (configuration.recursionDepth > 0) {
-      val dirWatcher = watcherProvider.createDirWatcher(configuration.copy(dirPath = dir, recursionDepth = configuration.recursionDepth - 1))
-      
-      val list = subDirWatchers.getOrElse(dir, mutable.ListBuffer.empty)
-      
-      subDirWatchers.put(dir, list)
-      list += dirWatcher
-    }
+  private def addSubDirWatcher(subDir: Path) = {
+    
+    //TODO if no further subDirWatcher necessary, don't create one  -> don't use a matcher -> somehow just check that we don't need to create another dirWatcher
+    // in what cases do we need another dirWatcher:
+    // if there is a / anywhere
+    // if there is an *,?,[ followed at some point by a /
+    
+    val dirWatcher = watcherProvider.createDirWatcher(
+      configuration.copy(
+          dirPath = subDir,
+          matchPattern = configuration.matchPattern.copy(depth = configuration.matchPattern.depth + 1)
+      )
+    )
+    
+    val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
+    
+    subDirWatchers.put(subDir, list)
+    list += dirWatcher
   }
+  
+  
   
   
   private def addSubFileWatcher(file: File) = {
 
-    if (matcher.matches(file.toPath)) {
+    if (fileMatcher.matches(file.toPath)) {
+      
       val fileWatcher = watcherProvider.createFileWatcher(file)
+      
       fileWatcher.fileModified(callback)
       
       val list = subFileWatchers.getOrElse(file, mutable.ListBuffer.empty)
