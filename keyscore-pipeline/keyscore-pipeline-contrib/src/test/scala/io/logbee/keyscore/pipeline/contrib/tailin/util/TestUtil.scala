@@ -62,7 +62,7 @@ object TestUtil {
   }
 
   def waitForWatchService() = {
-    Thread.sleep(500)
+    Thread.sleep(10)
   }
 
   def writeStringToFile(file: File, string: String, writeMode: OpenOption) {

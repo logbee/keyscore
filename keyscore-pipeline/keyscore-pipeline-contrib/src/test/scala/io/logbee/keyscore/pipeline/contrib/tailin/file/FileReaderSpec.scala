@@ -51,8 +51,6 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     val otherLogFile1Data = "other_Log_File_1 "
     val otherLogFile1 = TestUtil.createFile(watchDir, "other_log.txt.1", otherLogFile1Data)
     
-    Thread.sleep(1000)
-    
     val otherLogFileData = "other_Log_File "
     val otherLogFile = TestUtil.createFile(watchDir, "other_log.txt", otherLogFileData)
     
@@ -60,17 +58,20 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     val logFile2Data = "Log_File_2_22 "
     val logFile2 = TestUtil.createFile(watchDir, "log.txt.2", logFile2Data)
     
-    Thread.sleep(1000)
-    
     val logFile1Data = "Log_File_1_1 "
     val logFile1 = TestUtil.createFile(watchDir, "log.txt.1", logFile1Data)
     
-    Thread.sleep(1000)
-    
-    //rewrite logFile to set its lastModified-timestamp after logFile2 and logFile1
-    TestUtil.writeStringToFile(logFile, logFileData, StandardOpenOption.TRUNCATE_EXISTING)
+    val logFileModified = System.currentTimeMillis
+    logFile1337.setLastModified(logFileModified - 1000 * 3)
+    logFileCsv.setLastModified(logFileModified - 1000 * 3)
+    otherLogFile1.setLastModified(logFileModified - 1000 * 3)
+    otherLogFile.setLastModified(logFileModified - 1000 * 2)
+    logFile2.setLastModified(logFileModified - 1000 * 2)
+    logFile1.setLastModified(logFileModified - 1000 * 1)
+    logFile.setLastModified(logFileModified)
   }
 
+  
   trait PersistenceContextWithoutTimestamp extends LogFile {
     
     val persistenceContextWithoutTimestamp = mock[FilePersistenceContext]
@@ -81,17 +82,17 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
       
     val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
   }
+  
 
   trait PersistenceContextWithTimestamp extends RotateFiles {
     
     val logFile4Data = "Log_File_4_4444 "
     val logFile4_ModifiedBeforePreviousReadTimestamp = TestUtil.createFile(watchDir, "log.txt.4", logFile4Data)
-    
-    Thread.sleep(1000)
+    logFile4_ModifiedBeforePreviousReadTimestamp.setLastModified(logFileModified - 1000 * 4)
     
     val logFile3Data = "Log_File_3_333 "
     val logFile3_ModifiedAfterPreviousReadTimestamp = TestUtil.createFile(watchDir, "log.txt.3", logFile3Data)
-    
+    logFile3_ModifiedAfterPreviousReadTimestamp.setLastModified(logFileModified - 1000 * 3)
     
     val previousReadPosition = logFile3Data.length / 2
     val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
@@ -100,18 +101,6 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
       .expects(logFile.getAbsolutePath, typeTag[RotationRecord])
       .returning(Some(RotationRecord(previousReadPosition, previousReadTimestamp)))
       
-    
-    //Rewrite contents of other rotated files to set their lastModified-timestamp after the others
-    Thread.sleep(1000)
-    TestUtil.writeStringToFile(logFile2, logFile2Data, StandardOpenOption.TRUNCATE_EXISTING)
-    
-    Thread.sleep(1000)
-    TestUtil.writeStringToFile(logFile1, logFile1Data, StandardOpenOption.TRUNCATE_EXISTING)
-    
-    Thread.sleep(1000)
-    TestUtil.writeStringToFile(logFile, logFileData, StandardOpenOption.TRUNCATE_EXISTING)
-    
-    
     
     val fileReader = new FileReader(logFile, ".[1-5]", persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
   }
