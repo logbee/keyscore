@@ -18,27 +18,21 @@ object DirWatcherPattern {
     }
     
     
-    val invariablePath = Paths.get(invariableString)
+    val lastSlashIndex = invariableString.lastIndexOf(File.separator) + 1
     
-    if (invariablePath.toFile.isDirectory) {
-      invariablePath
+    if (lastSlashIndex == -1) {
+      null
     }
-    else { //remove the last part behind the last slash, if there is a slash in the filePattern
-      val lastSlashIndex = invariableString.lastIndexOf(File.separator) + 1
+    else {
+      invariableString = invariableString.substring(0, lastSlashIndex)
       
-      if (lastSlashIndex == -1) {
-        null
+      val invariablePathDir = Paths.get(invariableString)
+      if (invariablePathDir.toFile.isDirectory) {
+        invariablePathDir
       }
-      else {
-        invariableString = invariableString.substring(0, lastSlashIndex)
-        
-        val invariablePathDir = Paths.get(invariableString)
-        if (invariablePathDir.toFile.isDirectory) {
-          invariablePathDir
-        }
-        else { //path specified by user doesn't exist or is completely malformed input
-          null
-        }
+      else { //path specified by user doesn't exist or is completely malformed input
+        //TODO it might not exist yet, but the user will probably want it monitored when it starts to exist later
+        null
       }
     }
   }
