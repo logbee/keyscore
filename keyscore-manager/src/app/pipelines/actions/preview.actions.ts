@@ -4,11 +4,13 @@ import {Dataset} from "../../models/dataset/Dataset";
 export const EXTRACT_FROM_SELECTED_BLOCK = "[Preview] ExtractFromSelectedBlock";
 export const EXTRACT_FROM_SELECTED_BLOCK_SUCCESS = "[Preview] ExtractFromSelectedBlockSuccess";
 export const EXTRACT_FROM_SELECTED_BLOCK_FAILURE = "[Preview] ExtractFromSelectedBlockFailure";
+export const RESET_PREVIEW_STATE = "[Preview] ResetPreviewState";
 
 export type PreviewActions =
     | ExtractFromSelectedBlock
     | ExtractFromSelectedBlockFailure
-    | ExtractFromSelectedBlockSuccess;
+    | ExtractFromSelectedBlockSuccess
+    | ResetPreviewState;
 
 
 export class ExtractFromSelectedBlock implements Action {
@@ -34,6 +36,11 @@ export class ExtractFromSelectedBlockFailure implements Action {
 
     }
 }
+
+export class ResetPreviewState implements Action {
+    public readonly type = RESET_PREVIEW_STATE;
+}
+
 
 
 
