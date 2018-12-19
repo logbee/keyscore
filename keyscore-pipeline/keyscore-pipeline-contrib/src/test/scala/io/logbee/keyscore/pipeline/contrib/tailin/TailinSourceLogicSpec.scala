@@ -27,10 +27,10 @@ import io.logbee.keyscore.model.configuration.NumberParameter
 
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
-
+  
   var watchDir: Path = _
   var persistenceFile: File = _ //TODO actually pass this persistence file along in a parameter to be able to delete it during tests and maybe be easier to configure (though we probably don't actually want to expose this to the user
-
+  
   before {
     watchDir = Files.createTempDirectory("watchTest")
 
@@ -40,23 +40,23 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     persistenceFile.createNewFile()
     TestUtil.waitForFileToExist(persistenceFile)
   }
-
+  
   after {
     TestUtil.recursivelyDelete(watchDir)
     persistenceFile.delete()
   }
-
+  
   override def afterAll {
     TestKit.shutdownActorSystem(system)
   }
-
+  
   
   trait DefaultTailinSourceValues {
     val bufferSize = 1024
-
+    
     val context = StageContext(system, executionContext)
-
-
+    
+    
     val configuration = Configuration(
       TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir.toString + "/tailin.csv"),
       ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.LINE.toString),
@@ -64,104 +64,98 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       TextParameter(  TailinSourceLogic.rotationSuffix.ref,  ".[1-5]"),
       TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
     )
-
+    
     val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(randomUUID(), context, configuration), shape)
-
+    
     val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
-
+    
     val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
   }
   
-
+  
+  
   "A TailinSource" - {
+    
     "should push one available string for one available pull" in new DefaultTailinSourceValues {
-
+      
       val text = "Hallo Welt"
       val file = TestUtil.createFile(watchDir, "tailin.csv", text)
-
+      
       sink.request(1)
-      var result = sink.expectNext(10.seconds)
+      var result = sink.expectNext()
       result.records.head.fields should have size 1
-      result.records.head.fields.head.value shouldEqual TextValue("Hallo Welt")
+      result.records.head.fields.head.value shouldEqual TextValue(text)
     }
-
-    "should push multiple available strings for multiple available pulls" in new DefaultTailinSourceValues {
-
-      val text1 = "abcde"
-      val text2 = "fghij"
-      val text3 = "klmno"
-
+    
+    
+    
+    "should push multiple available strings" - {
+      
+      Seq(true, false).foreach { waitFor_DirWatcher_processEvents =>
+        (if (waitFor_DirWatcher_processEvents == true)
+           "when it has to wait for pulls (buffering)"
+         else
+           "when pulls are made as it reads the data"
+        ) in new DefaultTailinSourceValues {
+          
+          val file = TestUtil.createFile(watchDir, "tailin.csv", "")
+          
+          val texts = Seq("abcde", "fghij", "klmno")
+          
+          texts.foreach { text =>
+            TestUtil.writeStringToFile(file, text + "\n", StandardOpenOption.APPEND)
+            
+            if (waitFor_DirWatcher_processEvents) {
+              Thread.sleep(1500)
+            }
+          }
+          
+          
+          sink.request(3)
+          
+          texts.foreach { text =>
+            val datasetText = sink.expectNext()
+            datasetText.records.head.fields.head.value shouldEqual TextValue(text)
+          }
+        }
+      }
+    }
+    
+    
+    "should push multiple strings that become available in a delayed manner for multiple delayed pulls" in new DefaultTailinSourceValues {
+      
       val file = TestUtil.createFile(watchDir, "tailin.csv", "")
       
-
-      TestUtil.writeStringToFile(file, text1 + "\n", StandardOpenOption.APPEND)
-
-      TestUtil.writeStringToFile(file, text2 + "\n", StandardOpenOption.APPEND)
-
-      TestUtil.writeStringToFile(file, text3 + "\n", StandardOpenOption.APPEND)
-
-
-      sink.request(3)
-      val datasetText1 = sink.expectNext()
-      val datasetText2 = sink.expectNext()
-      val datasetText3 = sink.expectNext()
-
-      datasetText1.records.head.fields.head.value shouldEqual TextValue(text1)
-      datasetText2.records.head.fields.head.value shouldEqual TextValue(text2)
-      datasetText3.records.head.fields.head.value shouldEqual TextValue(text3)
+      val texts = Seq("abcde", "fghij", "klmno")
+      
+      texts.foreach { text => 
+        TestUtil.writeStringToFile(file, text + "\n", StandardOpenOption.APPEND)
+        
+        sink.request(1)
+        
+        Thread.sleep(1500) //wait for processEvents to trigger once
+        
+        val datasetText = sink.expectNext()
+        
+        datasetText.records.head.fields.head.value shouldEqual TextValue(text)
+      }
     }
-
-    "should push multiple available strings for multiple delayed pulls" in new DefaultTailinSourceValues {
-
-      val text1 = "abcde"
-      val text2 = "fghij"
-      val text3 = "klmno"
-
+    
+    
+    "should wait for strings to become available if no strings are available when it gets pulled" in new DefaultTailinSourceValues {
+      
       val file = TestUtil.createFile(watchDir, "tailin.csv", "")
       
-
-      TestUtil.writeStringToFile(file, text1 + "\n", StandardOpenOption.APPEND)
-
       sink.request(1)
-
-      Thread.sleep(1500) //wait for processEvents to trigger once
-
-      val datasetText1 = sink.expectNext()
-
-
-
-      TestUtil.writeStringToFile(file, text2 + "\n", StandardOpenOption.APPEND)
-
-      sink.request(1)
-
-      Thread.sleep(1500) //wait for processEvents to trigger once
-
-      val datasetText2 = sink.expectNext()
-
-
-
-      TestUtil.writeStringToFile(file, text3 + "\n", StandardOpenOption.APPEND)
-
-      sink.request(1)
-
-      Thread.sleep(1500) //wait for processEvents to trigger once
-
-      val datasetText3 = sink.expectNext()
-
-
-
-      datasetText1.records.head.fields.head.value shouldEqual TextValue(text1)
-      datasetText2.records.head.fields.head.value shouldEqual TextValue(text2)
-      datasetText3.records.head.fields.head.value shouldEqual TextValue(text3)
-
+      
+      Thread.sleep(5000)
+      
+      val text = "test"
+      TestUtil.writeStringToFile(file, text + "\n", StandardOpenOption.APPEND)
+      
+      val datasetText = sink.expectNext()
+      
+      datasetText.records.head.fields.head.value shouldEqual TextValue(text)
     }
-
-    //    "should wait to push many available strings when it has to wait for pulls (buffering)" in new DefaultTailinSourceValues {
-    //
-    //    }
-    //
-    //    "should wait for strings to become available if no strings are available when it gets pulled" in new DefaultTailinSourceValues {
-    //
-    //    }
   }
 }
