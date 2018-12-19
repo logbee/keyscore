@@ -19,7 +19,7 @@ import {ValueType} from "./dataset-table/value-type";
 import {LeftToRightNavigationControl} from "./dataset-table/left-to-right-navigation-control.component";
 import {ParameterModule} from "../common/parameter/parameter.module";
 import {ConfiguratorModule} from "../pipelines/pipeline-editor/pipely/configurator/configurator.module";
-import {FilterPresets} from "./dataset-table/filter-presets";
+import {ViewPresets} from "./dataset-table/view-presets.component";
 import {TopToBottomNavigationControl} from "./dataset-table/topToBottom-navigation-control";
 import {DatasetTableModule} from "./dataset-table/dataset-table.module";
 

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {DatasetDataSource} from "../../data-source/dataset-data-source";
 import {selectDatasetsModels, selectExtractFinish} from "../live-editing.reducer";
 import {select, Store} from "@ngrx/store";
@@ -16,7 +16,6 @@ import {
     Value,
     ValueJsonClass
 } from "../../models/dataset/Value";
-import {Dataset} from "../../models/dataset/Dataset";
 import {StoreCurrentDataset, StoreCurrentRecordIndex} from "../live-editing.actions";
 
 @Component({
@@ -37,15 +36,15 @@ import {StoreCurrentDataset, StoreCurrentRecordIndex} from "../live-editing.acti
                                                  (counterEvent)="updateDatasetCounter($event)" fxFlex="15">
                 </leftTotRight-navigation-control>
                 <topToBottom-navigation-control
-                                                 [index]="recordsIndex.getValue()"
-                                                 [length]="currentDataset.records.length"
-                                                 (counterEvent)="updateRecordCounter($event)" fxFlex="15">
+                        [index]="recordsIndex.getValue()"
+                        [length]="currentDataset.records.length"
+                        (counterEvent)="updateRecordCounter($event)" fxFlex="15">
                 </topToBottom-navigation-control>
                 <div style="margin-right: 15px!important">
-                 <filter-presets (preset)="adjustDisplayedColumns($event)" fxFlex=""></filter-presets>
+                    <view-presets (preset)="adjustDisplayedColumns($event)" fxFlex=""></view-presets>
                 </div>
             </div>
-              
+
             <!--Dataset Datatable-->
             <table fxFlex="" mat-table matSort [dataSource]="dataSource"
                    class="mat-elevation-z8 table-position live-editing">

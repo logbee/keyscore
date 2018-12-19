@@ -1,7 +1,7 @@
 import {NgModule} from "@angular/core";
 import {MaterialModule} from "../../material.module";
 import {DatasetTable} from "./dataset-table";
-import {FilterPresets} from "./filter-presets";
+import {ViewPresets} from "./view-presets.component";
 import {LeftToRightNavigationControl} from "./left-to-right-navigation-control.component";
 import {TopToBottomNavigationControl} from "./topToBottom-navigation-control";
 import {ValueType} from "./value-type";
@@ -14,7 +14,7 @@ import {CommonModule} from "@angular/common";
         TranslateModule,
         CommonModule
     ],
-    declarations: [DatasetTable, FilterPresets, LeftToRightNavigationControl, TopToBottomNavigationControl, ValueType],
+    declarations: [DatasetTable, ViewPresets, LeftToRightNavigationControl, TopToBottomNavigationControl, ValueType],
     entryComponents: [DatasetTable],
     exports: [DatasetTable],
     providers: []

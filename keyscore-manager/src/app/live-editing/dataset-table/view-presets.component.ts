@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Output} from "@angular/core";
 
 @Component({
-    selector: "filter-presets",
+    selector: "view-presets",
     template: `
         <div fxLayout="row" fxFlexFill="" fxLayoutGap="30px">
             <button matTooltip="{{'FILTERLIVEEDITINGCOMPONENT.PRESET_IN' | translate}}" fxFlex="3"
@@ -22,9 +22,8 @@ import {Component, EventEmitter, Output} from "@angular/core";
     `
 })
 
-export class FilterPresets {
+export class ViewPresets {
     @Output() public preset: EventEmitter<string> = new EventEmitter();
-
 
     changeViewPreset(value: string) {
         switch (value) {

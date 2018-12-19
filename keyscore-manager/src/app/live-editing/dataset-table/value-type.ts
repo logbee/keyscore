@@ -26,9 +26,9 @@ import {ValueJsonClass} from "../../models/dataset/Value";
         </ng-container>
     `
 })
+
 export class ValueType {
     @Input() public type: ValueJsonClass;
     public jsonClass: typeof ValueJsonClass = ValueJsonClass;
-
 }
 
