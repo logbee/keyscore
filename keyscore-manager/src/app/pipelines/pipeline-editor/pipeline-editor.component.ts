@@ -103,22 +103,12 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         });
 
         this.runInspectSource$.subscribe(_ => {
-            //     TODO: Trigger data preview
-
+            //TODO: Trigger data preview
             // 1. get id of current draggable
             // 2. get all id's of current pipeline
             // 3. pause all filters
             // 4. extract from inValve of currentfilter
             // 5. extract from outValve of currentfilter
-
-
-
-
-            // let test$ = this.store.pipe(select(getTriggeredFlag));
-            // test$.subscribe(t => {
-            //     console.log("TEST: " + JSON.stringify(t));
-            // });
-            // this.store.dispatch(new TestAction());
         });
         this.errorState$ = this.store.pipe(select(isError));
         this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));

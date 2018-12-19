@@ -347,7 +347,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         });
 
         this.inspectTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
-            this.isInspecting = true;
+            console.log("inspect trigger set");
+            this.isInspecting = !this.isInspecting;
         });
 
         this.buildEditPipeline();

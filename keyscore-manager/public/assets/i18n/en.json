@@ -155,5 +155,15 @@
     "MOVE_BOTTOM": "Previous Record",
     "SWIPE_DATASETS": "Swipe through extracted Datasets.",
     "SWIPE_RECORDS": "Swipe through records of a Dataset."
+  },
+  "HEADER_BAR": {
+    "DELETE": "Delete the current Pipeline.",
+    "SAVE": "Save the current Pipeline.",
+    "RUN": "Run the current Pipeline. This will also save the pipeline.",
+    "MANUEL_RELOAD": "Reload the current Data.",
+    "REFRESH": "Automatic reload of current Data is activ.",
+    "ADD": "Create a new Pipeline.",
+    "PREVIEW": "Datapreview/Pipelinecreation",
+    "TIMER": "Interval for automatic data reload."
   }
 }

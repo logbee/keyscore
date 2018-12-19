@@ -153,5 +153,15 @@
     "MOVE_LEFT": "Vorherige Nachricht.",
     "MOVE_RIGHT": "Nächste Nachricht.",
     "SWIPE": "Auswahl der extrahierten Nachrichten."
+  },
+  "HEADER_BAR": {
+    "DELETE": "Löscht die aktuell ausgewählte Pipeline.",
+    "SAVE": "Speichert die aktuell ausgewählte Pipeline.",
+    "RUN": "Startet die aktuell ausgewählte Pipeline. Dies speichert auch die Pipeline.",
+    "MANUEL_RELOAD": "Aktualisiere die angezeigten Daten.",
+    "REFRESH": "Automatisches neu laden der angezeigten Daten ist aktiv.",
+    "ADD": "Erstelle eine neue Pipeline.",
+    "PREVIEW": "Datenvorschau/Pipelineerstellung",
+    "TIMER": "Intervall für das automatisch neu laden der Daten."
   }
 }

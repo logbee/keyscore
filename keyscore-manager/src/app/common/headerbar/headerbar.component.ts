@@ -12,32 +12,33 @@ import "./style/headerbar.style.scss"
                     <div class="danger-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
                          fxLayoutGap="10px">
                         <button mat-stroked-button class="mat-error-stroked-button" *ngIf="this.showDelete"
-                                (click)="remove()">
+                                (click)="remove()" matTooltip="{{'HEADER_BAR.DELETE' | translate}}" matTooltipPosition="below">
                             <mat-icon>delete</mat-icon>
                         </button>
                     </div>
                     <div class="default-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
                          fxLayoutGap="10px">
                         <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showManualReload"
-                                (click)="reload()">
+                                (click)="reload()" matTooltip="{{'HEADER_BAR.MANUEL_RELOAD' | translate}}" matTooltipPosition="below">
                             <mat-icon>autorenew</mat-icon>
                         </button>
                         <button class="mat-success-stroked-button" mat-stroked-button *ngIf="this.showSave"
-                                (click)="save()">
+                                (click)="save()" matTooltip="{{'HEADER_BAR.SAVE' | translate}}" matTooltipPosition="below">
                             <mat-icon>save</mat-icon>
                         </button>
                         <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showRun"
-                                (click)="run()">
+                                (click)="run()" matTooltip="{{'HEADER_BAR.RUN' | translate}}" matTooltipPosition="below">
                             <mat-icon>play_circle_outline</mat-icon>
                         </button>
                         <refresh-time *ngIf="this.showRefresh" [refreshTime]="this.showRefresh"
                                       (update)="updateRefreshTime($event)"></refresh-time>
                         <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showAdd"
-                                (click)="add()">
+                                (click)="add()" matTooltip="{{'HEADER_BAR.ADD' | translate}}" matTooltipPosition="below">
                             <mat-icon>add_circle</mat-icon>
                         </button>
-                        <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showInspect" (click)="triggeredOnInspect()">
-                            <mat-icon>receipt</mat-icon>
+                        <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showInspect" (click)="triggeredOnInspect()"
+                                matTooltip="{{'HEADER_BAR.PREVIEW' | translate}}" matTooltipPosition="below">
+                            <mat-icon>data_usage</mat-icon>
                         </button>
                     </div>
                 </div>

@@ -5,8 +5,8 @@ import {TranslateService} from "@ngx-translate/core";
     selector: "refresh-time",
     template: `
         <div class="dropdown">
-            <button mat-stroked-button class="mat-white-stroked-button" [matMenuTriggerFor]="refreshMenu">
-                <mat-icon>timer</mat-icon>
+            <button matTooltip="{{'HEADER_BAR.TIMER' | translate}}" matTooltipPosition="below" mat-stroked-button class="mat-white-stroked-button" [matMenuTriggerFor]="refreshMenu">
+                <mat-icon >timer</mat-icon>
                 {{(refreshTime > 0 ? (refreshTime / 1000) + 's' : ('REFRESHCOMPONENT.OFF') | translate)}}
             </button>
             <mat-menu #refreshMenu>
