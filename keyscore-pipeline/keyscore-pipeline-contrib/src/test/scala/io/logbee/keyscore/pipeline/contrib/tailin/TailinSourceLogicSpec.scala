@@ -144,7 +144,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
 
       sink.request(1)
 
-      Thread.sleep(1500)
+      Thread.sleep(1500) //wait for processEvents to trigger once
 
       val datasetText3 = sink.expectNext()
 

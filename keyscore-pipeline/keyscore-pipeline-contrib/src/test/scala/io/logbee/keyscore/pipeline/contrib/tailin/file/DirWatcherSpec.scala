@@ -45,7 +45,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         val subDirWatcher = stub[DirWatcher]
         (provider.createDirWatcher _)
           .expects(configuration.copy(dirPath=subDir,
-                                      matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt", subDirPattern = "*", depth=3)))
+                                      matchPattern = configuration.matchPattern.copy(subDirPattern = "*", depth=3)))
           .returning(subDirWatcher)
 
         subDir.toFile.mkdir
@@ -70,7 +70,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         val subDirWatcher = stub[DirWatcher]
         (provider.createDirWatcher _)
           .expects(configuration.copy(dirPath=subDir,
-                                      matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt", subDirPattern = "*", depth=3)))
+                                      matchPattern = configuration.matchPattern.copy(subDirPattern = "*", depth=3)))
           .returning(subDirWatcher)
         
         subDir.toFile.mkdir()
@@ -92,9 +92,12 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         case class FilePatternSetup(pattern: String)
 
         val filePatterns = Seq(
-                               FilePatternSetup(pattern="**.txt"),
-                               FilePatternSetup(pattern="*.txt"),
-                               FilePatternSetup(pattern="test.txt"),
+                                FilePatternSetup(pattern="**.txt"),
+                                FilePatternSetup(pattern="*.txt"),
+                                FilePatternSetup(pattern="test.txt"),
+                                FilePatternSetup(pattern="t?st.txt"),
+                                FilePatternSetup(pattern="t[e,a]st.txt"),
+                                FilePatternSetup(pattern="te[a-z]t.txt"),
                               )
 
 
@@ -123,11 +126,14 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         case class SubDirFilePatternSetup(startingPattern: String, subDirPattern: String)
 
         val filePatterns = Seq(
-                               SubDirFilePatternSetup(startingPattern="**.txt",      subDirPattern="**"),
-                               SubDirFilePatternSetup(startingPattern="**/*.txt",    subDirPattern="**"),
-                               SubDirFilePatternSetup(startingPattern="**/test.txt", subDirPattern="**"),
-                               SubDirFilePatternSetup(startingPattern="*/*.txt",     subDirPattern="*"),
-                               SubDirFilePatternSetup(startingPattern="*/test.txt",  subDirPattern="*"),
+                                SubDirFilePatternSetup(startingPattern="**.txt",               subDirPattern="**"),
+                                SubDirFilePatternSetup(startingPattern="**/*.txt",             subDirPattern="**"),
+                                SubDirFilePatternSetup(startingPattern="**/test.txt",          subDirPattern="**"),
+                                SubDirFilePatternSetup(startingPattern="*/*.txt",              subDirPattern="*"),
+                                SubDirFilePatternSetup(startingPattern="*/test.txt",           subDirPattern="*"),
+                                SubDirFilePatternSetup(startingPattern="subD?r/test.txt",      subDirPattern="subD?r"),
+                                SubDirFilePatternSetup(startingPattern="s[a,u]bDir/test.txt",  subDirPattern="s[a,u]bDir"),
+                                SubDirFilePatternSetup(startingPattern="sub[A-Z]ir/test.txt",  subDirPattern="sub[A-Z]ir"),
                               )
 
 
