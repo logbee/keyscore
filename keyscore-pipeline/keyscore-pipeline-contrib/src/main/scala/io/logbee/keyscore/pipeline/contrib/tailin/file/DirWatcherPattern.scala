@@ -38,7 +38,7 @@ object DirWatcherPattern {
   }
   
   
-  def findFirstVariableIndex(filePattern: String): Integer = {
+  def findFirstVariableIndex(filePattern: String): Int = {
     
     def ifMinusOneThenMax(index: Integer): Integer = {
       if (index > -1) index else Integer.MAX_VALUE
@@ -75,6 +75,8 @@ object DirWatcherPattern {
   
   
   def apply(fullFilePattern: String, depth: Int = 0): DirWatcherPattern = {
+    
+    //TODO if it's a Windows file-path with '\' in it, change those to '/' -> mind that a '\' might also appear in a Unix path, so we can't just swap them out unconditionally
     
     val fullPattern: String = {
       if (fullFilePattern.endsWith(File.separator)) {
