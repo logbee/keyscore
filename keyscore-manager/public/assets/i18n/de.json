@@ -157,7 +157,7 @@
   "HEADER_BAR": {
     "DELETE": "Löscht die aktuell ausgewählte Pipeline.",
     "SAVE": "Speichert die aktuell ausgewählte Pipeline.",
-    "RUN": "Startet die aktuell ausgewählte Pipeline. Dies speichert auch die Pipeline.",
+    "RUN": "Start/Neustartet der aktuell ausgewählten Pipeline. Dies speichert auch die Pipeline.",
     "MANUEL_RELOAD": "Aktualisiere die angezeigten Daten.",
     "REFRESH": "Automatisches neu laden der angezeigten Daten ist aktiv.",
     "ADD": "Erstelle eine neue Pipeline.",

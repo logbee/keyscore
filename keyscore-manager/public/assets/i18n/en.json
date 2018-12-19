@@ -159,7 +159,7 @@
   "HEADER_BAR": {
     "DELETE": "Delete the current Pipeline.",
     "SAVE": "Save the current Pipeline.",
-    "RUN": "Run the current Pipeline. This will also save the pipeline.",
+    "RUN": "Runs or reruns the current Pipeline. This will also save the pipeline.",
     "MANUEL_RELOAD": "Reload the current Data.",
     "REFRESH": "Automatic reload of current Data is activ.",
     "ADD": "Create a new Pipeline.",

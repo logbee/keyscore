@@ -32,7 +32,6 @@ export const selectPipelineState = createSelector(
 );
 
 // PreviewSelectors
-export const getTriggeredFlag = createSelector(selectPreviewState, (state: PreviewState) => state.triggered);
 
 // Pipeline Selectors
 export const getPipelineList = createSelector(selectPipelineState, (state: PipelinesState) => state.pipelineList);
