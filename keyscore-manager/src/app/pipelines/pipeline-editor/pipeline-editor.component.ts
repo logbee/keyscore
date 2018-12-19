@@ -20,6 +20,8 @@ import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
 import {getEditingPipeline, getFilterDescriptors} from "../index";
 import {Ref} from "../../models/common/Ref";
+import {ExtractFromSelectedBlock} from "../actions/preview.actions";
+import {DraggableModel} from "./pipely/models/draggable.model";
 
 @Component({
     selector: "pipeline-editor",
@@ -39,7 +41,7 @@ import {Ref} from "../../models/common/Ref";
                         [isLoading]="isLoading$|async"
                         (onSave)="savePipelineSource$.next()"
                         (onRun)="runPipelineSource$.next()"
-                        (onInspect)="runInspectSource$.next()"
+                        (onInspect)="inspectToggle($event)"
             ></header-bar>
 
             <pipely-workspace [runTrigger$]="runPipeline$" [saveTrigger$]="savePipeline$"
@@ -68,8 +70,8 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public runPipelineSource$: Subject<void> = new Subject<void>();
     public runPipeline$: Observable<void> = this.runPipelineSource$.asObservable();
 
-    public runInspectSource$: Subject<void> = new Subject<void>();
-    public runInspect$: Observable<void> = this.runInspectSource$.asObservable();
+    public runInspectSource$: Subject<boolean> = new Subject<boolean>();
+    public runInspect$: Observable<boolean> = this.runInspectSource$.asObservable();
 
     public blockDescriptorSource$: BehaviorSubject<BlockDescriptor[]> = new BehaviorSubject<BlockDescriptor[]>([]);
 
@@ -80,8 +82,20 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public errorMessage$: Observable<string>;
 
     private showBigLoadingViewOnLoading = true;
+    private selectedBlock: DraggableModel;
+    private amount: number = 10;
+    private where: string = "after";
+
 
     constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
+    }
+
+    inspectToggle(flag: boolean) {
+        if (flag) {
+            this.runInspectSource$.next(true);
+        } else {
+            this.runInspectSource$.next(false);
+        }
     }
 
     ngOnInit() {
@@ -102,13 +116,19 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
                 this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
         });
 
-        this.runInspectSource$.subscribe(_ => {
-            //TODO: Trigger data preview
-            // 1. get id of current draggable
-            // 2. get all id's of current pipeline
-            // 3. pause all filters
-            // 4. extract from inValve of currentfilter
-            // 5. extract from outValve of currentfilter
+        this.runInspectSource$.subscribe(flag => {
+            if (flag) {
+                //Extract from currently selected block
+                if (this.selectedBlock != undefined) {
+                    if (this.isSink(this.selectedBlock)) {
+                        this.where = "before";
+                    }
+                    this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, this.where, this.amount));
+                } else {
+                    // extract from source
+                    this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints[0].ref.uuid, this.where, this.amount));
+                }
+            }
         });
         this.errorState$ = this.store.pipe(select(isError));
         this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));
@@ -141,8 +161,12 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new Go({path: ["pipelines/filter/" + filter.ref.uuid + "/"]}));
     }
 
-    public selectBlock(ref:Ref){
-        console.log("SELECTED",ref);
+    public selectBlock(draggableModel: DraggableModel) {
+        this.selectedBlock = draggableModel;
+    }
+
+    public isSink(draggable: DraggableModel) {
+        return draggable.blockDescriptor.nextConnection === undefined;
     }
 
 }

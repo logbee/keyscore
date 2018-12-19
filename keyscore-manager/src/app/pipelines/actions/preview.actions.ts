@@ -1,10 +1,39 @@
 import {Action} from "@ngrx/store";
+import {Dataset} from "../../models/dataset/Dataset";
 
-export const TEST_ACTION = "[Preview] Testaction";
+export const EXTRACT_FROM_SELECTED_BLOCK = "[Preview] ExtractFromSelectedBlock";
+export const EXTRACT_FROM_SELECTED_BLOCK_SUCCESS = "[Preview] ExtractFromSelectedBlockSuccess";
+export const EXTRACT_FROM_SELECTED_BLOCK_FAILURE = "[Preview] ExtractFromSelectedBlockFailure";
 
 export type PreviewActions =
-    | TestAction;
+    | ExtractFromSelectedBlock
+    | ExtractFromSelectedBlockFailure
+    | ExtractFromSelectedBlockSuccess;
 
-export class TestAction implements Action {
-    public readonly type = TEST_ACTION;
+
+export class ExtractFromSelectedBlock implements Action {
+    public readonly type = EXTRACT_FROM_SELECTED_BLOCK;
+
+    constructor(readonly selectedBlockId: string, readonly where: string, readonly amount:number) {
+
+    }
 }
+
+export class ExtractFromSelectedBlockSuccess implements Action {
+    public readonly type = EXTRACT_FROM_SELECTED_BLOCK_SUCCESS;
+
+    constructor(readonly output: Dataset[]) {
+
+    }
+}
+
+export class ExtractFromSelectedBlockFailure implements Action {
+    public readonly type = EXTRACT_FROM_SELECTED_BLOCK_FAILURE;
+
+    constructor(readonly cause: any) {
+
+    }
+}
+
+
+

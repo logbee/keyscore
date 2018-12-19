@@ -85,7 +85,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     @Output() onUpdatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
     @Output() onRunPipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
-    @Output() onSelectBlock: EventEmitter<Ref> = new EventEmitter();
+    @Output() onSelectBlock: EventEmitter<DraggableModel> = new EventEmitter();
 
     public id: string;
 
@@ -134,7 +134,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
     private selectBlock(selected: Draggable) {
         this.selectedDraggableSource.next(selected);
         if (selected) {
-            this.onSelectBlock.emit(selected.getDraggableModel().blueprintRef);
+            this.onSelectBlock.emit(selected.getDraggableModel());
         } else {
             this.onSelectBlock.emit(null);
         }
@@ -347,7 +347,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         });
 
         this.inspectTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
-            console.log("inspect trigger set");
+            //TODO: Disable when no pipeline
             this.isInspecting = !this.isInspecting;
         });
 

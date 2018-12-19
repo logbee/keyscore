@@ -1,24 +1,20 @@
-import {PreviewActions, TEST_ACTION} from "../actions/preview.actions";
-import {createSelector} from "@ngrx/store";
-import {selectPreviewState} from "../index";
-
+import {PreviewActions} from "../actions/preview.actions";
 
 export class PreviewState {
-    public triggered: string;
+    public paused: number;
 }
 export const initalPreviewState: PreviewState = {
-    triggered: "triggered"
+    paused: 0
 };
 
 
 
 export function PreviewReducer(state: PreviewState = initalPreviewState, action: PreviewActions): PreviewState {
+    const result: PreviewState = Object.assign({}, state);
+
     switch (action.type) {
-        case TEST_ACTION:
-            console.log("TEST ACTION triggered in PreviewReducer");
-            return state;
         default:
-            return state;
+            return result;
     }
 }
 

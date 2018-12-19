@@ -65,8 +65,9 @@ export class HeaderBarComponent {
     @Output() public onDelete: EventEmitter<void> = new EventEmitter();
     @Output() public onAdd: EventEmitter<void> = new EventEmitter();
     @Output() public onUpdateRefreshTime: EventEmitter<{ newRefreshTime: number, oldRefreshTime: number }> = new EventEmitter();
-    @Output() public onInspect: EventEmitter<void> = new EventEmitter();
+    @Output() public onInspect: EventEmitter<boolean> = new EventEmitter();
 
+    private inspectToggle: boolean = false;
     private reload() {
         this.onManualReload.emit();
     }
@@ -92,7 +93,14 @@ export class HeaderBarComponent {
     }
 
     private triggeredOnInspect() {
-        this.onInspect.emit();
+        if (this.inspectToggle == false) {
+            this.onInspect.emit(true);
+            this.inspectToggle = true;
+        } else {
+            this.onInspect.emit(false);
+            this.inspectToggle = false;
+
+        }
     }
 
 
