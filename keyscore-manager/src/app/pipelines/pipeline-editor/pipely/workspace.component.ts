@@ -44,7 +44,7 @@ import {Ref} from "../../../models/common/Ref";
                         <puzzle-box *ngIf="!isInspecting; else datasetTable" class="top-shadow" [workspace]="this"
                                     [descriptors]="blockDescriptors$|async"></puzzle-box>
                         <ng-template #datasetTable>
-                            <!--<dataset-table class="top-shadow"></dataset-table>-->
+                            <data-table class="top-shadow"></data-table>
                         </ng-template>
 
                     </div>

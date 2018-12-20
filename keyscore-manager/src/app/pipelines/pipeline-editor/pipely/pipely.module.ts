@@ -12,14 +12,13 @@ import {DraggableFactory} from "./draggable/draggable-factory";
 import {TrashDropzoneSubcomponent} from "./dropzone/trash-dropzone-subcomponent";
 import {ConnectorComponent} from "./connectors/connector.component";
 import {MaterialModule} from "../../../material.module";
-import {ConfiguratorComponent} from "./configurator/configurator.component";
 import {PuzzleBoxComponent} from "./puzzle-box/puzzle-box.component";
 import {PuzzleCategoryComponent} from "./puzzle-box/puzzle-category.component";
 import {ParameterModule} from "../../../common/parameter/parameter.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
 import {ConfiguratorModule} from "./configurator/configurator.module";
-import {DatasetTableModule} from "../../../live-editing/dataset-table/dataset-table.module";
+import {DatatableModule} from "../../datatable/datatable.module";
 
 
 @NgModule({
@@ -31,7 +30,7 @@ import {DatasetTableModule} from "../../../live-editing/dataset-table/dataset-ta
         ReactiveFormsModule,
         ConfiguratorModule,
         FormsModule,
-        DatasetTableModule
+        DatatableModule
     ],
     declarations: [
         WorkspaceComponent,

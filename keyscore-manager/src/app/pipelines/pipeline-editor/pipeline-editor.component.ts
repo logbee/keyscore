@@ -51,7 +51,8 @@ import {DraggableModel} from "./pipely/models/draggable.model";
                               (onUpdatePipeline)="updatePipeline($event)"
                               (onRunPipeline)="runPipeline($event)"
                               (onSelectBlock)="selectBlock($event)"
-                              fxFill></pipely-workspace>
+                              fxFill>
+            </pipely-workspace>
         </ng-template>
 
 

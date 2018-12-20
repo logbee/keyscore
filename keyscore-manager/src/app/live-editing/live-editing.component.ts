@@ -41,26 +41,29 @@ import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
             <div fxLayout="column" fxLayoutGap="15px" fxFlex="">
                 <div fxFlex="" fxLayout="row" fxLayoutGap="15px">
                     <button mat-icon-button>
-                        <mat-icon svgIcon="navigate-to-pipely" matTooltip="Navigate to Pipely." matTooltipPosition="after" (click)="navigateToPipely()">
+                        <mat-icon svgIcon="navigate-to-pipely" matTooltip="Navigate to Pipely."
+                                  matTooltipPosition="after" (click)="navigateToPipely()">
                         </mat-icon>
                     </button>
 
                     <div fxFlex="90"></div>
-                    <button fxFlex="5" fxLayoutAlign="end" *ngIf="!showConfigurator" matTooltip="{{'CONFIGURATOR.SHOW' | translate}}" mat-mini-fab
+                    <button fxFlex="5" fxLayoutAlign="end" *ngIf="!showConfigurator"
+                            matTooltip="{{'CONFIGURATOR.SHOW' | translate}}" mat-mini-fab
                             color="primary"
                             (click)="show()" class="collapseButton">
                         <mat-icon>chevron_left</mat-icon>
                     </button>
                 </div>
-                <div *ngIf="(datasets$ | async).length !== 0; else disclaimer" fxFlex="95" fxFlexFill="" fxLayout="row" fxLayoutGap="15px">
-                    <dataset-table  fxFlex="" class="live-editing-wrapper"></dataset-table>
+                <div *ngIf="(datasets$ | async).length !== 0; else disclaimer" fxFlex="95" fxFlexFill="" fxLayout="row"
+                     fxLayoutGap="15px">
+                    <datatable fxFlex="" class="live-editing-wrapper"></datatable>
                 </div>
             </div>
             <configurator *ngIf="showConfigurator" class="mat-elevation-z6" fxFlex="25"
                           [collapsibleButton]="true"
                           [selectedBlock]="{configuration:(configuration$|async),
                                     descriptor:(filterDescriptor$|async)}"
-                          [showFooter]="true" 
+                          [showFooter]="true"
                           [datasets]="datasets$ | async"
                           (onSave)="saveConfiguration($event)"
                           (onRevert)="revertFilterConfiguration()"
@@ -71,7 +74,7 @@ import {DatasetTableModel} from "../models/dataset/DatasetTableModel";
         <error-component *ngIf="errorHandling" [httpError]="httpError"
                          [message]="message">
         </error-component>
-        
+
         <ng-template #loading>
             <loading-full-view></loading-full-view>
         </ng-template>

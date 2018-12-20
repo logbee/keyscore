@@ -17,6 +17,7 @@ import {MaterialModule} from "../material.module";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
 import {effects, reducers} from "./index";
+import {DatatableModule} from "./datatable/datatable.module";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -38,11 +39,12 @@ export const routes: Routes = [
         HealthModule,
         ErrorModule,
         PipelyModule,
-        MaterialModule
+        MaterialModule,
     ],
     declarations: [
         PipelinesComponent,
         PipelineEditorComponent
+
     ],
     providers: [
         DescriptorResolverService,

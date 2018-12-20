@@ -136,12 +136,12 @@ export class DatasetTable implements AfterViewInit {
         this.dataSource.sort = this.sort;
     }
 
-    applyFilter(filterValue: string) {
-        this.dataSource.filter = filterValue;
-        if (this.dataSource.paginator) {
-            this.dataSource.paginator.firstPage()
-        }
-    }
+    // applyFilter(filterValue: string) {
+    //     this.dataSource.filter = filterValue;
+    //     if (this.dataSource.paginator) {
+    //         this.dataSource.paginator.firstPage()
+    //     }
+    // }
 
     private updateDatasetCounter(count: number) {
         this.datasetIndex.next(count);
