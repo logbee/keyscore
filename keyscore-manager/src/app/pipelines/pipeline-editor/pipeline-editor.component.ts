@@ -19,7 +19,6 @@ import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.serv
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
 import {getEditingPipeline, getFilterDescriptors} from "../index";
-import {Ref} from "../../models/common/Ref";
 import {ExtractFromSelectedBlock, ResetPreviewState} from "../actions/preview.actions";
 import {DraggableModel} from "./pipely/models/draggable.model";
 

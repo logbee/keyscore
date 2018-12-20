@@ -22,16 +22,32 @@ import {getDatasetModels, getExtractFinish} from "../index";
     template: `
 
         <!--Search Field-->
-        <div fxLayout="column" fxFlex="100" fxLayoutGap="15px">
-            <mat-form-field fxFlex="25" style="margin-left: 15px;">
-                <input matInput (keyup)="applyFilterPattern($event.target.value)"
-                       placeholder="{{'GENERAL.SEARCH' | translate}}">
-                <button mat-button matSuffix mat-icon-button aria-label="Search">
-                    <mat-icon>search</mat-icon>
-                </button>
-            </mat-form-field>
+        <div fxLayout="column" fxLayoutGap="15px">
+            <div fxLayout="row"  fxFlex="70">
+                <mat-form-field style="margin-left: 15px;" fxFlex="33">
+                    <input matInput (keyup)="applyFilterPattern($event.target.value)"
+                           placeholder="{{'GENERAL.SEARCH' | translate}}">
+                    <button mat-button matSuffix mat-icon-button aria-label="Search">
+                        <mat-icon>search</mat-icon>
+                    </button>
+                </mat-form-field>
+                <!--Datasets-->
+                <left-right-control  fxFlex="15" [index]="datasetIndex.getValue()"
+                                                 [length]="(datasetModels$ | async).length"
+                                                 [label]="datasetLabel"
+                                                 (counterEvent)="updateDatasetCounter($event)" style="padding-left:15px; margin-top: 15px">
+                </left-right-control>
+                <!--Records-->
+                <left-right-control  fxFlex
+                                     [index]="recordsIndex.getValue()"
+                                     [length]="currentDataset?.records.length"
+                                     [label]="recordLabel"
+                                     (counterEvent)="updateRecordCounter($event)" style="padding-left:15px; margin-top: 15px">
+                </left-right-control>
+            </div>
+            
 
-            <table fxFlex mat-table matSort [dataSource]="dataSource" class="table-position">
+            <table fxFlex="75" mat-table matSort [dataSource]="dataSource" class="table-position">
                 <ng-container matColumnDef="fields">
                     <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header>
                         {{'FILTERLIVEEDITINGCOMPONENT.FIELDS' | translate}}
@@ -65,10 +81,10 @@ import {getDatasetModels, getExtractFinish} from "../index";
     `
 })
 
-export class DatatableComponent implements AfterViewInit {
-    private datasets$: Observable<DatasetTableModel[]> = this.store.pipe(select(getDatasetModels));
+export class DatatableComponent {
+    private datasetModels$: Observable<DatasetTableModel[]> = this.store.pipe(select(getDatasetModels));
     private dataSource: DatasetDataSource;
-    private datasets: DatasetTableModel[];
+    private datasetModels: DatasetTableModel[];
 
     private datasetIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
@@ -76,26 +92,26 @@ export class DatatableComponent implements AfterViewInit {
     private displayedColumns: string[] = ['jsonClass', 'fields', 'outValues'];
     private currentDataset: DatasetTableModel;
 
+    private datasetLabel: string = "Datasets";
+    private recordLabel: string = "Records";
+
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
 
     constructor(private store: Store<any>) {
-        this.datasets$.subscribe(datasets => {
-            this.datasets = datasets;
-            this.currentDataset = datasets[this.datasetIndex.getValue()];
-        });
-        this.store.pipe(select(getExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
-            this.dataSource = new DatasetDataSource(this.datasets$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable());
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-        });
-        // this.store.dispatch(new StoreCurrentDataset(this.datasets[this.datasetIndex.getValue()]));
-        // this.store.dispatch(new StoreCurrentRecordIndex(this.recordsIndex.getValue()));
-    }
+        this.datasetModels$.subscribe(datasets => {
+            this.datasetModels = datasets;
 
-    ngAfterViewInit() {
-
+        });
+        if (this.datasetModels.length > 0) {
+            this.currentDataset = this.datasetModels[this.datasetIndex.getValue()];
+            this.store.pipe(select(getExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
+                this.dataSource = new DatasetDataSource(this.datasetModels$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable());
+                this.dataSource.paginator = this.paginator;
+                this.dataSource.sort = this.sort;
+            });
+        }
     }
 
     applyFilter(filterValue: string) {
@@ -107,12 +123,10 @@ export class DatatableComponent implements AfterViewInit {
 
     private updateDatasetCounter(count: number) {
         this.datasetIndex.next(count);
-        // this.store.dispatch(new StoreCurrentDataset(this.datasets[count]));
     }
 
     private updateRecordCounter(count: number) {
         this.recordsIndex.next(count);
-        // this.store.dispatch(new StoreCurrentRecordIndex(this.recordsIndex.getValue()));
     }
 
     private accessFieldValues(valueObject: Value): any {
