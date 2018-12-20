@@ -1,16 +1,27 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 @Component({
-    selector: "leftTotRight-navigation-control",
+    selector: "left-right-control",
     template: `
         <div fxFlexFill="" style="cursor: pointer;" fxLayoutAlign="end" fxLayout="row" fxLayoutGap="15px">
-            <mat-icon matTooltip="{{'NAVIGATION_CONTROL.MOVE_LEFT' | translate}}" (click)="navigateToLeft()">
-                chevron_left
-            </mat-icon>
-            <div matTooltip="{{'NAVIGATION_CONTROL.SWIPE_DATASETS' | translate}}">{{index + 1}} / {{length}}</div>
-            <mat-icon matTooltip="{{'NAVIGATION_CONTROL.MOVE_RIGHT' | translate}}" (click)="navigateToRight()">
-                chevron_right
-            </mat-icon>
+            <div fxLayout="column" fxFlexFill>
+                <div fxFlex="90">
+                    <div fxLayout="row">
+                        <mat-icon matTooltip="{{'NAVIGATION_CONTROL.MOVE_LEFT' | translate}}"
+                                  (click)="navigateToLeft()">
+                            chevron_left
+                        </mat-icon>
+                        <div matTooltip="{{'NAVIGATION_CONTROL.SWIPE_DATASETS' | translate}}">{{index + 1}} /
+                            {{length}}
+                        </div>
+                        <mat-icon matTooltip="{{'NAVIGATION_CONTROL.MOVE_RIGHT' | translate}}"
+                                  (click)="navigateToRight()">
+                            chevron_right
+                        </mat-icon>
+                    </div>
+                </div>
+                <mat-label style="padding-left: 15px;font-size: small" fxFlex>{{label}}</mat-label>
+            </div>
         </div>
     `
 })
@@ -18,7 +29,8 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 export class LeftToRightNavigationControl {
     @Input() public index: number;
-    @Input() public length: number;
+    @Input() public length: number = 0;
+    @Input() public label: string;
     @Output() public counterEvent: EventEmitter<number> = new EventEmitter();
 
     navigateToRight() {
