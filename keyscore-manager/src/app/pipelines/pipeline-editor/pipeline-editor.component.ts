@@ -127,8 +127,8 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
                     }
                     this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, this.where, this.amount));
                 } else {
-                    // extract from source
-                    this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints[0].ref.uuid, this.where, this.amount));
+                    // extract from sink
+                    this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints.reverse()[0].ref.uuid, this.where, this.amount));
                 }
             }
         });
