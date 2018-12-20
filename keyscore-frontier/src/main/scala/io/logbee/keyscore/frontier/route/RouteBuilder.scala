@@ -12,9 +12,8 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import io.logbee.keyscore.commons._
-import io.logbee.keyscore.commons.util.ServiceDiscovery
-import io.logbee.keyscore.frontier.Frontier
-import io.logbee.keyscore.frontier.app.AppInfo
+import io.logbee.keyscore.commons.util.{AppInfo, ServiceDiscovery}
+import io.logbee.keyscore.frontier.app.FrontierApplication
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, InitializeRouteBuilder, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.frontier.route.routes.AgentRoute.agentsRoute
@@ -50,7 +49,7 @@ object RouteBuilder {
 
 class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLogging with RouteImplicits {
 
-  val appInfo = AppInfo(classOf[Frontier])
+  val appInfo = AppInfo.fromMainClass[FrontierApplication]
 
   implicit val system = context.system
   implicit val executionContext = system.dispatcher

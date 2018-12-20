@@ -1,18 +1,18 @@
-package io.logbee.keyscore.frontier.app
+package io.logbee.keyscore.commons.util
 
 import java.util.jar.Attributes
 
 import io.logbee.keyscore.model.util.Using.using
-import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
+import scala.reflect.ClassTag
 
 object AppInfo {
-  private val log = LoggerFactory.getLogger(classOf[AppInfo])
 
-  def apply(mainClass: Class[_]): AppInfo = {
+  def fromMainClass[T](implicit classTag: ClassTag[T]): AppInfo = {
 
-    var appInfo: AppInfo = AppInfo("<unkown>", "<unkown>", "<unkown>")
+    val mainClass = classTag.runtimeClass
+    var appInfo: AppInfo = AppInfo("<unkown>", "<unkown>", "<unkown>", "<unkown>")
 
     try {
       val manifest: Option[java.util.jar.Manifest] = mainClass.getClassLoader.getResources("META-INF/MANIFEST.MF").asScala
@@ -24,22 +24,31 @@ object AppInfo {
         val implementationTitle = attributes.getValue(Attributes.Name.IMPLEMENTATION_TITLE)
         val implementationVendor = attributes.getValue(Attributes.Name.IMPLEMENTATION_VENDOR)
         val implementationVersion = attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION)
+        val implementationRevision = attributes.getValue("Implementation-Revision")
 
         appInfo = AppInfo(
           if (implementationTitle == null) "<unkown>" else implementationTitle,
           if (implementationVersion == null) "<unkown>" else implementationVersion,
+          if (implementationRevision == null) "<unkown>" else implementationRevision,
           if (implementationVendor == null) "<unkown>" else implementationVendor
         )
       })
     }
     catch {
-      case e: Exception => log.error("Failed to obtain app information!", e)
+      case e: Exception => throw new RuntimeException("Failed to obtain application information!", e)
     }
-
-    log.info("{}", appInfo)
 
     appInfo
   }
+
+  def printAppInfo[T](implicit classTag: ClassTag[T]): Unit = {
+    val appInfo = fromMainClass[T]
+    println(s" Name:     ${appInfo.name}")
+    println(s" Version:  ${appInfo.version}")
+    println(s" Revision: ${appInfo.revision}")
+    println(s" Vendor:   ${appInfo.vendor}")
+    println()
+  }
 }
 
-case class AppInfo(name: String, version: String, vendor: String)
+case class AppInfo(name: String, version: String, revision: String, vendor: String)

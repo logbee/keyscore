@@ -41,6 +41,14 @@ subprojects {
     ext.scmUrl = 'https://github.com/logbee/keyscore/'
     ext.scmConnection = 'git@github.com:logbee/keyscore.git'
     ext.scmDevConnection = 'git@github.com:logbee/keyscore.git'
+    ext.revision = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }()
 
     repositories {
         mavenCentral()
@@ -60,7 +68,6 @@ subprojects {
             }
         }
     }
-
 }
 
 configure ([

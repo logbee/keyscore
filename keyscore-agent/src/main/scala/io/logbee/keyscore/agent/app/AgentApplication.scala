@@ -5,6 +5,7 @@ import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.Agent
 import io.logbee.keyscore.agent.Agent.Initialize
+import io.logbee.keyscore.commons.util.AppInfo.printAppInfo
 import io.logbee.keyscore.commons.util.BannerPrinter.printBanner
 
 import scala.concurrent.duration._
@@ -19,10 +20,15 @@ object AgentApplication extends App {
   implicit val timeout: Timeout = 5 seconds
 
   printBanner()
+  printAppInfo[AgentApplication]
 
   val config = ConfigFactory.load()
   val system = ActorSystem("keyscore", config.getConfig("production").withFallback(config))
   val agent = system.actorOf(Props[Agent], "agent")
 
   agent ! Initialize
+}
+
+class AgentApplication {
+
 }
