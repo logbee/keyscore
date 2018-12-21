@@ -1,5 +1,6 @@
 import {
-    AfterViewInit, ChangeDetectorRef,
+    AfterViewInit,
+    ChangeDetectorRef,
     Component,
     ElementRef,
     EventEmitter,
@@ -29,7 +30,7 @@ import {PipelineConfiguratorService} from "./services/pipeline-configurator.serv
 import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../models/blueprints/Blueprint";
 import {Configuration} from "../../../models/common/Configuration";
 import {TextValue} from "../../../models/dataset/Value";
-import {Ref} from "../../../models/common/Ref";
+import {Store} from "@ngrx/store";
 
 
 @Component({
@@ -44,7 +45,7 @@ import {Ref} from "../../../models/common/Ref";
                         <puzzle-box *ngIf="!isInspecting; else datasetTable" class="top-shadow" [workspace]="this"
                                     [descriptors]="blockDescriptors$|async"></puzzle-box>
                         <ng-template #datasetTable>
-                            <data-table class="top-shadow"></data-table>
+                            <data-table [selectedBlock]="blockToDisplayDataset()" class="top-shadow"></data-table>
                         </ng-template>
 
                     </div>
@@ -114,7 +115,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
     constructor(private dropzoneFactory: DropzoneFactory,
                 private draggableFactory: DraggableFactory,
                 private pipelineConfigurator: PipelineConfiguratorService,
-                private cd: ChangeDetectorRef) {
+                private cd: ChangeDetectorRef,
+                private store: Store<any>) {
         this.id = uuid();
     }
 
@@ -131,6 +133,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     }
 
+    private blockToDisplayDataset() {
+        let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
+        return this.selectedDraggableSource.getValue() ? this.selectedDraggableSource.getValue().getDraggableModel().blueprintRef.uuid : sink.ref.uuid;
+
+    }
     private selectBlock(selected: Draggable) {
         this.selectedDraggableSource.next(selected);
         if (selected) {

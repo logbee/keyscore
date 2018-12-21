@@ -26,7 +26,7 @@ export class PreviewEffects {
         map((action) => (action as ExtractFromSelectedBlock)),
         switchMap((action) => {
             return this.filterControllerService.extractDatasets(action.selectedBlockId, action.amount, action.where).pipe(
-                map((data: Dataset[]) => new ExtractFromSelectedBlockSuccess(data),
+                map((data: Dataset[]) => new ExtractFromSelectedBlockSuccess(data, action.selectedBlockId),
                 catchError((cause: any) => of(new ExtractFromSelectedBlockFailure(cause)))));
         }),
     );

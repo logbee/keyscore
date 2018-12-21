@@ -24,7 +24,7 @@ export class ExtractFromSelectedBlock implements Action {
 export class ExtractFromSelectedBlockSuccess implements Action {
     public readonly type = EXTRACT_FROM_SELECTED_BLOCK_SUCCESS;
 
-    constructor(readonly output: Dataset[]) {
+    constructor(readonly output: Dataset[], readonly blockId: string) {
 
     }
 }

@@ -82,6 +82,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     private selectedBlock: DraggableModel;
     private amount: number = 10;
     private where: string = "after";
+    private previewMode: boolean = false;
 
 
     constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
@@ -89,10 +90,11 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
 
     inspectToggle(flag: boolean) {
         if (flag) {
+            this.previewMode = true;
             this.runInspectSource$.next(true);
         } else {
             this.runInspectSource$.next(false);
-            this.store.dispatch(new ResetPreviewState());
+            this.previewMode = false;
         }
     }
 
@@ -114,10 +116,8 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
                 this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
         });
 
-        this.runInspectSource$.subscribe(flag => {
-            // get 10 datasets for each block in pipeline and store them in state
-            if (flag) {
-                // this.store.dispatch(new TriggerExtractForEachBlueprint(this.storeEditingPipeline.blueprints));
+        this.runInspectSource$.subscribe(enteredPreviewMode => {
+            if (enteredPreviewMode) {
                 this.triggerDataSourceCreation()
             }
         });
@@ -162,9 +162,10 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     }
 
     public selectBlock(draggableModel: DraggableModel) {
-        this.store.dispatch(new ResetPreviewState());
-        this.selectedBlock = draggableModel;
-        this.triggerDataSourceCreation()
+        if (this.previewMode) {
+            this.selectedBlock = draggableModel;
+            this.triggerDataSourceCreation()
+        }
     }
 
     public isSink(draggable: DraggableModel) {

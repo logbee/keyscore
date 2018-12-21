@@ -33,8 +33,8 @@ export const selectPipelineState = createSelector(
 
 // PreviewSelectors
 export const getOutputDatasets = createSelector(selectPreviewState, (state: PreviewState) => state.outputDatasets);
-export const getExtractFinish = createSelector(selectPreviewState, (state: PreviewState) => state.extractFinish);
-export const getDatasetModels = createSelector(selectPreviewState, (state: PreviewState) => state.datasetModels);
+export const getDatasetModels = createSelector(selectPreviewState, (state: PreviewState) => state.datasetModelMap);
+export const getSelectedBlock = createSelector(selectPreviewState, (state: PreviewState) => state.selectedBlock);
 
 
 // Pipeline Selectors

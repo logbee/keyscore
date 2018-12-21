@@ -5,7 +5,7 @@
 .table-position {
     width: 100%;
     table-layout: auto;
-    /*overflow-y: scroll;*/
+    /*overflow: auto;*/
 }
 
 tr.example-element-row:not(.example-expanded-row):hover {

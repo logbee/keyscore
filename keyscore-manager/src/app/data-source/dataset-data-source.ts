@@ -17,14 +17,18 @@ import {StoreCurrentDataset} from "../live-editing/live-editing.actions";
 
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
-    constructor(datasets$: Observable<DatasetTableModel[]>, index$: Observable<number>, recordsIndex$: Observable<number>) {
-        super();
-        combineLatest(datasets$, index$, recordsIndex$).subscribe(([datasets, index, recordsIndex]) => {
-            if (datasets.length > 0) {
-                this.data = datasets[index].records[recordsIndex].rows;
-            }
-        });
+    private numberOfDataset: number = 0;
+    private numberOfRecords: number = 0;
 
+    constructor(datasetTableModels: Map<string, DatasetTableModel[]>, index: number, recordsIndex: number, selectedBlock: string) {
+        super();
+
+        let model = datasetTableModels.get(selectedBlock);
+        if (model && model[index]) {
+            this.numberOfDataset = model.length;
+            this.numberOfRecords = model[index].records.length;
+            this.data = model[index].records[recordsIndex].rows;
+        }
         this.filterPredicate = (datasetModel: DatasetTableRowModel, filter: string) => {
             let searchString = filter.trim();
             return this.filterAccessingRules(datasetModel, searchString);
@@ -50,6 +54,14 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
 
     disconnect() {
 
+    }
+
+    public getNumberOfDatsets() {
+        return this.numberOfDataset;
+    }
+
+    public getNumberOfRecords() {
+        return this.numberOfRecords;
     }
 
     private filterAccessingRules(datasetModel: DatasetTableRowModel, searchString) {

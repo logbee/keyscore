@@ -10,28 +10,27 @@ import {
 } from "../../models/dataset/DatasetTableModel";
 import {Record} from "../../models/dataset/Record";
 import {Field} from "../../models/dataset/Field";
-
+import * as _ from "lodash";
 export class PreviewState {
     public outputDatasets: Dataset[];
     public dummyDataset: Dataset;
-    public datasetModels: DatasetTableModel[];
-    public extractFinish: boolean;
+    public datasetModelMap: Map<string, DatasetTableModel[]>;
+    public selectedBlock: string;
 }
 export const initalPreviewState: PreviewState = {
     outputDatasets: [],
-    datasetModels: [],
+    datasetModelMap: new Map <string, DatasetTableModel[]>(),
     dummyDataset: {
         metaData: {labels: []},
         records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
     },
-    extractFinish: false
+    selectedBlock: "default"
 };
 
 
 
 export function PreviewReducer(state: PreviewState = initalPreviewState, action: PreviewActions): PreviewState {
-    const result: PreviewState = Object.assign({}, state);
-
+    let result = _.cloneDeep(state);
     switch (action.type) {
         case EXTRACT_FROM_SELECTED_BLOCK_SUCCESS:
             result.outputDatasets = action.output;
@@ -41,12 +40,9 @@ export function PreviewReducer(state: PreviewState = initalPreviewState, action:
                     let model = createDatasetTableModel(dataset, result.dummyDataset);
                     models.push(model)
                 });
-                result.datasetModels = models;
-                result.extractFinish = true;
+                result.datasetModelMap.set(action.blockId, models);
             }
             return result;
-        case RESET_PREVIEW_STATE:
-            return Object.assign({}, initalPreviewState);
         default:
             return result;
     }

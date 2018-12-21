@@ -125,7 +125,7 @@ export class DatasetTable implements AfterViewInit {
             this.currentDataset = datasets[this.datasetIndex.getValue()];
         });
         this.store.pipe(select(selectExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
-            this.dataSource = new DatasetDataSource(this.datasets$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable());
+            // this.dataSource = new DatasetDataSource(this.datasets$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable(), "");
         });
         this.store.dispatch(new StoreCurrentDataset(this.datasets[this.datasetIndex.getValue()]));
         this.store.dispatch(new StoreCurrentRecordIndex(this.recordsIndex.getValue()));
