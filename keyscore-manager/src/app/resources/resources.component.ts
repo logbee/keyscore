@@ -64,7 +64,7 @@ import {Health} from "../models/common/Health";
 
                 <!--Resource Id Column-->
                 <ng-container matColumnDef="uuid">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
                     <td mat-cell *matCellDef="let blueprint">{{blueprint?.ref.uuid}}</td>
                 </ng-container>
 

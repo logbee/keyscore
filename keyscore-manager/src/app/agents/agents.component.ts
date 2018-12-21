@@ -45,7 +45,7 @@ import {AgentDataSource} from "../data-source/agent-data-source";
                 </ng-container>
 
                 <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
                     <td mat-cell *matCellDef="let element">
                         {{element.id}}
                     </td>

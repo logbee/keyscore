@@ -73,7 +73,7 @@
     "DESCRIPTION": "FilterDescription",
     "PATTERN": "FilterPattern : ",
     "CATEGORY": "Category : ",
-    "ID": "Id: ",
+    "ID": "ID: ",
     "EXAMPLE_MESSAGE": "Example Message: ",
     "REGEXPATTERN": "Configuration: ",
     "RESULT": "Result Message: ",
