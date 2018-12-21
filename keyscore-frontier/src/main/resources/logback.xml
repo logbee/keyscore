@@ -4,6 +4,8 @@
             <pattern>[%date{yyyy-MM-dd } %X{akkaTimestamp}] [%-5level] %X{akkaSource} %logger - %message%n</pattern>
         </encoder>
     </appender>
+    <logger name="org.apache.kafka" level="info" />
+
     <root level="debug">
         <appender-ref ref="STDOUT" />
     </root>
