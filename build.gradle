@@ -1,6 +1,6 @@
 import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
 import com.bmuschko.gradle.docker.tasks.network.DockerInspectNetwork
-
+import org.apache.tools.ant.filters.EscapeUnicode
 
 buildscript {
     repositories {
@@ -71,6 +71,9 @@ subprojects {
 }
 
 configure ([
+    project(':keyscore-agent'),
+    project(':keyscore-frontier'),
+    project(':keyscore-commons'),
     project(':keyscore-model'),
     project(':keyscore-pipeline:keyscore-pipeline-api'),
     project(':keyscore-pipeline:keyscore-pipeline-contrib')
@@ -111,6 +114,16 @@ configure ([
     artifacts {
         archives sourcesJar
         archives scaladocJar
+    }
+
+
+    //This overrides the copy behaviour for .properties-files (Resource Bundles), so that during Gradle builds (processResources),
+    //the Unicode-characters get escaped, therefore can be decoded with ISO-8859-1, which JDK8 uses to read .properties-files.
+    project.tasks.withType(ProcessResources).each { task ->
+        task.from(task.getSource()) {
+            include '**/*.properties'
+            filter(EscapeUnicode)
+        }
     }
 }
 
