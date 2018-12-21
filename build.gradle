@@ -125,6 +125,20 @@ configure ([
             filter(EscapeUnicode)
         }
     }
+
+    
+    task escapeUnicodeInResourceBundles {
+        def files = sourceSets.main.resources.asFileTree.matching {include '**/*.properties'}.files
+        def cmd = ['native2ascii', '-encoding', 'utf8']
+        doLast {
+            files.forEach({ file ->
+                exec {
+                    workingDir file.parentFile
+                    commandLine cmd.plus(file.name).plus(file.name)
+                }
+            })
+        }
+    }
 }
 
 task setupDockerNetwork(type: DockerInspectNetwork) {
