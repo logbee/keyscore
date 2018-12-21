@@ -20,7 +20,9 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     constructor(datasets$: Observable<DatasetTableModel[]>, index$: Observable<number>, recordsIndex$: Observable<number>) {
         super();
         combineLatest(datasets$, index$, recordsIndex$).subscribe(([datasets, index, recordsIndex]) => {
-            this.data = datasets[index].records[recordsIndex].rows;
+            if (datasets.length > 0) {
+                this.data = datasets[index].records[recordsIndex].rows;
+            }
         });
 
         this.filterPredicate = (datasetModel: DatasetTableRowModel, filter: string) => {
