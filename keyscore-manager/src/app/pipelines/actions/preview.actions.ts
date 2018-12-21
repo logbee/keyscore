@@ -41,6 +41,11 @@ export class ResetPreviewState implements Action {
     public readonly type = RESET_PREVIEW_STATE;
 }
 
+// export class TriggerExtractForEachBlueprint implements Action {
+//     public readonly type = TRIGGER_EXTRACT_FOR_EACH_BLUEPRINT
+//
+// }
+
 
 
 

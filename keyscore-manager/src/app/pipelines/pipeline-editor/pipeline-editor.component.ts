@@ -13,7 +13,6 @@ import {
 import {share, takeUntil} from "rxjs/internal/operators";
 import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
 import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
-import {Configuration} from "../../models/common/Configuration";
 import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
@@ -53,8 +52,6 @@ import {DraggableModel} from "./pipely/models/draggable.model";
                               fxFill>
             </pipely-workspace>
         </ng-template>
-
-
     `,
 })
 export class PipelineEditorComponent implements OnInit, OnDestroy {
@@ -118,22 +115,28 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         });
 
         this.runInspectSource$.subscribe(flag => {
+            // get 10 datasets for each block in pipeline and store them in state
             if (flag) {
-                //Extract from currently selected block
-                if (this.selectedBlock != undefined) {
-                    if (this.isSink(this.selectedBlock)) {
-                        this.where = "before";
-                    }
-                    this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, this.where, this.amount));
-                } else {
-                    // extract from sink
-                    this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints.reverse()[0].ref.uuid, this.where, this.amount));
-                }
+                // this.store.dispatch(new TriggerExtractForEachBlueprint(this.storeEditingPipeline.blueprints));
+                this.triggerDataSourceCreation()
             }
         });
         this.errorState$ = this.store.pipe(select(isError));
         this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));
         this.errorMessage$ = this.store.pipe(select(selectErrorMessage));
+    }
+
+    public triggerDataSourceCreation() {
+        // Extract from currently selected block
+        if (this.selectedBlock != undefined) {
+            if (this.isSink(this.selectedBlock)) {
+                this.where = "before";
+            }
+            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, this.where, this.amount));
+        } else {
+            // extract from sink
+            this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints.reverse()[0].ref.uuid, this.where, this.amount));
+        }
     }
 
     public ngOnDestroy() {
@@ -158,12 +161,10 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new ResetPipelineAction(pipeline.id));
     }
 
-    public callLiveEditing(filter: Configuration) {
-        this.store.dispatch(new Go({path: ["pipelines/filter/" + filter.ref.uuid + "/"]}));
-    }
-
     public selectBlock(draggableModel: DraggableModel) {
+        this.store.dispatch(new ResetPreviewState());
         this.selectedBlock = draggableModel;
+        this.triggerDataSourceCreation()
     }
 
     public isSink(draggable: DraggableModel) {

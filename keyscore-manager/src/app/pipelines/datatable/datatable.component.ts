@@ -74,7 +74,7 @@ import {getDatasetModels, getExtractFinish} from "../index";
                     </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky:true"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
         </div>
@@ -106,6 +106,7 @@ export class DatatableComponent {
         });
             this.currentDataset = this.datasetModels[this.datasetIndex.getValue()];
             this.store.pipe(select(getExtractFinish), filter(extractFinish => extractFinish), take(1)).subscribe(_ => {
+                console.log("Dataset creation constuctor reached");
                 this.dataSource = new DatasetDataSource(this.datasetModels$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable());
                 this.dataSource.paginator = this.paginator;
                 this.dataSource.sort = this.sort;
