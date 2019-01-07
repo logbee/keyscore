@@ -23,7 +23,7 @@ import "../datatable/data-preview-table.css";
         <!--Search Field-->
         <div fxLayout="column" fxLayoutGap="15px">
             <div fxLayout="row"  fxFlex="70">
-                <mat-form-field style="margin-left: 15px;" fxFlex="33">
+                <mat-form-field fxFlex="33">
                     <input matInput (keyup)="applyFilterPattern($event.target.value)"
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
                     <button mat-button matSuffix mat-icon-button aria-label="Search">
@@ -31,20 +31,20 @@ import "../datatable/data-preview-table.css";
                     </button>
                 </mat-form-field>
                 <!--Datasets-->
-                <left-right-control  fxFlex="15" [index]="datasetIndex.getValue()"
+                <left-right-control class="control"  fxFlex="15" [index]="datasetIndex.getValue()"
                                                  [length]="dataSource$.getValue().getNumberOfDatsets()"
                                                  [label]="datasetLabel"
-                                                 (counterEvent)="updateDatasetCounter($event)" style="padding-left:15px; margin-top: 15px">
+                                                 (counterEvent)="updateDatasetCounter($event)">
                 </left-right-control>
                 <!--Records-->
-                <left-right-control  fxFlex
+                <left-right-control  class="control" fxFlex
                                      [index]="recordsIndex.getValue()"
                                      [length]="dataSource$.getValue().getNumberOfRecords()"
                                      [label]="recordLabel"
-                                     (counterEvent)="updateRecordCounter($event)" style="padding-left:15px; margin-top: 15px">
+                                     (counterEvent)="updateRecordCounter($event)">
                 </left-right-control>
 
-                <button style="margin-right: 5px; margin-top: 5px" mat-raised-button 
+                <button class="switch" mat-raised-button 
                         matTooltip="{{'DATATABLE.INOUT_TOOLTIP' | translate}}"
                         (click)="switch()">
                         {{'DATATABLE.INOUTSWITCH' | translate}}
@@ -71,7 +71,7 @@ import "../datatable/data-preview-table.css";
                 </ng-container>
 
                 <ng-container matColumnDef="jsonClass">
-                    <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 15%">
+                    <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header>
                         ValueType
                     </th>
                     <td mat-cell class="text-padding" *matCellDef="let row">
