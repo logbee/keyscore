@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The '''FilterController''' manages all requests for a running Filter. <br><br>
-  * He can change the Configuration of his Filter on runtime, do live-edition operations or retrieve live-stats of the Filter.
+  * He can change the Configuration of his Filter on runtime, do data-preview operations or retrieve live-stats of the Filter.
   *
   * @param inValve The Valve before the Filter
   * @param filter The corresponding Filter

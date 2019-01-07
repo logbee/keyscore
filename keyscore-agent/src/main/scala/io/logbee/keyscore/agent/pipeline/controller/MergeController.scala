@@ -12,7 +12,7 @@ import scala.concurrent.Future
 
 /**
   * The '''MergeController''' manages all requests for a running ~Merge~. <br><br>
-  * He can change the Configuration of his ~Merge~ on runtime, do live-edition operations or retrieve live-stats of the ~Merge~. 
+  * He can change the Configuration of his ~Merge~ on runtime, do data-preview operations or retrieve live-stats of the ~Merge~.
   *
   * @todo Implement
   *

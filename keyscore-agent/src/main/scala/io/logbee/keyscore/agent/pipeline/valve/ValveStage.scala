@@ -23,10 +23,8 @@ object ValveStage {
 }
 
 /**
-  * The '''ValveStage''' is a Stage for live-editing operations for a ~Filter~.
-  *
-  * @todo Enhance Docu @EndallBatan
-  *
+  * The '''ValveStage''' is a Stage for internal operations for a ~Filter~.
+  * It provides  a number of various methods which enable pausing draining inserting extracting etc.
   * @param bufferLimit
   * @param dispatcher
   */

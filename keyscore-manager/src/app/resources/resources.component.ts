@@ -52,16 +52,6 @@ import {Health} from "../models/common/Health";
                         <resource-health [health]="determineHealthOfResource(blueprint)"></resource-health>
                     </td>
                 </ng-container>
-                <!--Link to Live-Editing-->
-                <ng-container matColumnDef="link">
-                    <th mat-header-cell *matHeaderCellDef>Live-Editing</th>
-                    <td mat-cell *matCellDef="let blueprint">
-                        <button mat-icon-button (click)="goToLiveEditing(blueprint)">
-                            <mat-icon>link</mat-icon>
-                        </button>
-                    </td>
-                </ng-container>
-
                 <!--Resource Id Column-->
                 <ng-container matColumnDef="uuid">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
@@ -87,10 +77,10 @@ import {Health} from "../models/common/Health";
                 </ng-container>
 
                 <!--Defining header row -->
-                <tr mat-header-row *matHeaderRowDef="['health', 'jsonClass', 'uuid', 'link']"></tr>
+                <tr mat-header-row *matHeaderRowDef="['health', 'jsonClass', 'uuid']"></tr>
 
                 <!--Defining row with uuid jsonClass and health columns-->
-                <tr mat-row *matRowDef="let blueprint; columns: ['health', 'jsonClass', 'uuid', 'link']"
+                <tr mat-row *matRowDef="let blueprint; columns: ['health', 'jsonClass', 'uuid']"
                     class="example-element-row"
                     [class.expanded]="expandedElement === blueprint"
                     (click)="storeIds(blueprint)"
@@ -172,9 +162,4 @@ export class ResourcesComponent implements AfterViewInit, OnInit {
         }
 
     }
-
-    goToLiveEditing(blueprint: Blueprint) {
-        this.store.dispatch(new Go({path: ["/filter/" + blueprint.ref.uuid]}))
-    }
-
 }

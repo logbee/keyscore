@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The '''SourceController''' manages all requests for a running Source. <br><br>
-  * He can change the Configuration of his Source on runtime, do live-edition operations or retrieve live-stats of the Source.
+  * He can change the Configuration of his Source on runtime, do data-preview operations or retrieve live-stats of the Source.
   *
   * @param source   The corresponding Source
   * @param outValve The Valve after the Source

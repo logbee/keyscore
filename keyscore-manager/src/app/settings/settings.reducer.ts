@@ -34,11 +34,6 @@ const defaultSettings = {
                     "SETTINGS.ITEMS.BLOCKLY_ENABLED_DESCRIPTION",
                     false),
                 new BooleanItem(
-                    "features.live-editing",
-                    "SETTINGS.ITEMS.LIVEEDITING_ENABLED_TITLE",
-                    "SETTINGS.ITEMS.LIVEEDITING_ENABLED_DESCRIPTION",
-                    false),
-                new BooleanItem(
                     "features.settings",
                     "SETTINGS.ITEMS.SETTINGS_ENABLED_TITLE",
                     "SETTINGS.ITEMS.SETTINGS_ENABLED_DESCRIPTION",

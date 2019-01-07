@@ -12,7 +12,7 @@ import scala.concurrent.Future
 
 /**
   * The '''BranchController''' manages all requests for a running ~Branch~. <br><br>
-  * He can change the Configuration of his ~Branch~ on runtime, do live-edition operations or retrieve live-stats of the ~Branch~.
+  * He can change the Configuration of his ~Branch~ on runtime, do data-preview operations or retrieve live-stats of the ~Branch~.
   *
   * @todo Implement
   *

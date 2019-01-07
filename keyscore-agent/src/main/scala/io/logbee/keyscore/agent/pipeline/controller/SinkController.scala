@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The '''SinkController''' manages all requests for a running Sink. <br><br>
-  * He can change the Configuration of his Sink on runtime, do live-edition operations or retrieve live-stats of the Sink.
+  * He can change the Configuration of his Sink on runtime, do data-preview operations or retrieve live-stats of the Sink.
   *
   *
   * @param inValve The Valve before the Sink
