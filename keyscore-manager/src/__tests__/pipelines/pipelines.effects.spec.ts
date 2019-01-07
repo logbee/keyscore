@@ -134,7 +134,7 @@ describe('PipelinesEffects', () => {
 
         });
 
-        it('should return an EditPipelineSuccess action with empty blueprint and config list, when no blueprints are defined', () => {
+        it('should return an EditPipelineSuccess action with empty blueprint and config list, when no blueprints$ are defined', () => {
             const pipelineBlueprint = generatePipelineBlueprint(0);
             const action = new EditPipelineAction(pipelineBlueprint.ref.uuid);
             const outcome = new EditPipelineSuccessAction(pipelineBlueprint, [], []);
@@ -164,7 +164,7 @@ describe('PipelinesEffects', () => {
     });
 
     describe('loadEditBlueprints', () => {
-        it('should return an LoadEditPipelineConfig action containing the loaded blueprints', () => {
+        it('should return an LoadEditPipelineConfig action containing the loaded blueprints$', () => {
             const pipelineBlueprint = generatePipelineBlueprint(3);
             const blueprint = generateBlueprint();
             const blueprints = [blueprint, blueprint, blueprint];
@@ -194,7 +194,7 @@ describe('PipelinesEffects', () => {
         });
     });
     describe('getConfigurations', () => {
-        it('should return an EditPipelineSuccess action containing pipelineBlueprint,blueprints and configs', () => {
+        it('should return an EditPipelineSuccess action containing pipelineBlueprint,blueprints$ and configs', () => {
             const pipelineBlueprint = generatePipelineBlueprint(3);
             const blueprints = generateBlueprints(3);
             const configuration = generateConfiguration();

@@ -1,7 +1,6 @@
-import {Component} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
 import {Store} from "@ngrx/store";
-import {selectConfiguration, selectDescriptor} from "../resources.reducer";
 import {Observable} from "rxjs/index";
 import {Configuration} from "../../models/common/Configuration";
 
@@ -11,7 +10,7 @@ import {Configuration} from "../../models/common/Configuration";
         <mat-tab-group fxFlexFill="" mat-stretch-tabs dynamicHeight>
             <mat-tab label="Descriptor" fxFlexFill="" fxLayoutGap="15px">
                 <div fxFlexFill="" fxLayoutGap="15px">
-                    <ngx-json-viewer fxFlex="90%" [json]="descriptor$ | async"></ngx-json-viewer>
+                    <ngx-json-viewer fxFlex="90%" [json]="descriptor"></ngx-json-viewer>
                     <button matTooltipPosition="after" matTooltip="Copy Json" mat-icon-button fxFlex="10%"
                             (click)="copy('descriptor')">
                         <mat-icon>content_copy</mat-icon>
@@ -20,7 +19,7 @@ import {Configuration} from "../../models/common/Configuration";
             </mat-tab>
             <mat-tab label="Configuration">
                 <div fxFlexFill="" fxLayoutGap="15px">
-                    <ngx-json-viewer fxFlex="90%" [json]="configuration$ | async"></ngx-json-viewer>
+                    <ngx-json-viewer fxFlex="90%" [json]="configuration"></ngx-json-viewer>
                     <button matTooltipPosition="after" matTooltip="Copy Json" mat-icon-button fxFlex="10%" 
                             (click)="copy('configuration')">
                         <mat-icon>content_copy</mat-icon>
@@ -32,20 +31,18 @@ import {Configuration} from "../../models/common/Configuration";
 })
 
 export class JsonVisualizer {
-    private descriptor$: Observable<ResolvedFilterDescriptor>;
-    private configuration$: Observable<Configuration>;
+    @Input() private descriptor: ResolvedFilterDescriptor;
+    @Input()private configuration: Configuration;
 
     constructor(private store: Store<any>) {
-        this.configuration$ = this.store.select(selectConfiguration);
-        this.descriptor$ = this.store.select(selectDescriptor);
     }
 
     copy(which: string) {
         let copiedElement:any;
         if (which == "descriptor") {
-            this.descriptor$.subscribe(desc => copiedElement = desc);
+            copiedElement = this.descriptor
         } else if(which == "configuration")  {
-            this.configuration$.subscribe(conf => copiedElement = conf);
+            copiedElement = this.configuration;
         }
         let val = JSON.stringify(copiedElement);
         let selBox = document.createElement('textarea');

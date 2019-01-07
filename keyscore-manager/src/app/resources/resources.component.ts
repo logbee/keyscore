@@ -1,22 +1,15 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from "@angular/core";
+import {Component, OnInit, ViewChild} from "@angular/core";
 import {select, Store} from "@ngrx/store";
 import "../style/style.scss";
 import "../style/global-table-styles.css";
 import {MatPaginator, MatSort} from "@angular/material";
-import {selectBlueprints, selectStateObjects} from "./resources.reducer";
-import {BlueprintDataSource} from "../data-source/blueprint-data-source";
+import {ResourcesDataSource} from "../data-source/resources-data-source";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {Blueprint} from "../models/blueprints/Blueprint";
-import {
-    GetResourceStateAction,
-    StoreBlueprintRefAction,
-    StoreConfigurationRefAction,
-    StoreDescriptorRefAction
-} from "./resources.actions";
-import {Go} from "../router/router.actions";
-import {Observable} from "rxjs/index";
-import {StateObject} from "../models/common/StateObject";
-import {Health} from "../models/common/Health";
+import {BehaviorSubject, combineLatest, Observable} from "rxjs/index";
+import {ResourceTableModel} from "../models/resources/ResourceTableModel";
+import {selectBlueprints, selectTableModels} from "./resources.reducer";
+import {GetResourceStateAction} from "./resources.actions";
 
 @Component({
     selector: "resource-viewer",
@@ -43,114 +36,108 @@ import {Health} from "../models/common/Health";
             </mat-form-field>
 
             <!--Resources Table-->
-            <table fxFlex="95" mat-table matSort [dataSource]="dataSource"
+            <table fxFlex="95" mat-table matSort [dataSource]="dataSource$.getValue()"
                    class="mat-elevation-z8 table-position">
                 <!--Health Column-->
                 <ng-container matColumnDef="health">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-                    <td mat-cell *matCellDef="let blueprint">
-                        <resource-health [health]="determineHealthOfResource(blueprint)"></resource-health>
+                    <td mat-cell *matCellDef="let resourceModel">
+                        <resource-health [health]="determineHealthOfResource(resourceModel.blueprint)"></resource-health>
                     </td>
                 </ng-container>
                 <!--Resource Id Column-->
                 <ng-container matColumnDef="uuid">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
-                    <td mat-cell *matCellDef="let blueprint">{{blueprint?.ref.uuid}}</td>
+                    <td mat-cell *matCellDef="let resourceModel">{{resourceModel.blueprint?.ref.uuid}}</td>
                 </ng-container>
-
+                
+                <!--Resource display name-->
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+                    <td mat-cell *matCellDef="let resourceModel">{{resourceModel.descriptor?.displayName}}</td>
+                </ng-container>
                 <!--Type Column-->
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
-                    <td mat-cell *matCellDef="let blueprint">
-                        <stage-type [stageType]="blueprint?.jsonClass"></stage-type>
+                    <td mat-cell *matCellDef="let resourceModel">
+                        <stage-type [stageType]="resourceModel.blueprint?.jsonClass"></stage-type>
                     </td>
                 </ng-container>
 
                 <!--Expandend Content Column-->
                 <ng-container matColumnDef="expandedDetail">
-                    <td mat-cell *matCellDef="let blueprint" [attr.colspan]="4">
-                        <json-visualizer
-                                class="jsonViewer"
-                                [class.visible]="expandedElement === blueprint">
+                    <td mat-cell *matCellDef="let resourceModel" [attr.colspan]="4">
+                        <json-visualizer class="jsonViewer" [configuration]="resourceModel.configuration" 
+                                         [descriptor]="resourceModel.descriptor" [class.visible]="expandedElement === blueprint">>
                         </json-visualizer>
                     </td>
                 </ng-container>
 
                 <!--Defining header row -->
-                <tr mat-header-row *matHeaderRowDef="['health', 'jsonClass', 'uuid']"></tr>
+                <tr mat-header-row *matHeaderRowDef="['health', 'jsonClass', 'uuid', 'name']"></tr>
 
                 <!--Defining row with uuid jsonClass and health columns-->
-                <tr mat-row *matRowDef="let blueprint; columns: ['health', 'jsonClass', 'uuid']"
+                <tr mat-row *matRowDef="let resourceModel; columns: ['health', 'jsonClass', 'uuid', 'name']"
                     class="example-element-row"
-                    [class.expanded]="expandedElement === blueprint"
-                    (click)="storeIds(blueprint)"
-                    (click)="setExpanded(blueprint)">
+                    [class.expanded]="expandedElement === resourceModel.blueprint"
+                    (click)="setExpanded(resourceModel.blueprint)">
                 </tr>
 
                 <!--Defining collapasable rows -->
-                <tr mat-row *matRowDef="let blueprint; columns: ['expandedDetail'];
+                <tr mat-row *matRowDef="let resourceModel; columns: ['expandedDetail'];
                  when: isExpansionDetailRow"
                     class="example-detail-row"
-                    [@detailExpand]="blueprint === expandedElement ? 'expanded' : 'collapsed'">
+                    [@detailExpand]="resourceModel.blueprint === expandedElement ? 'expanded' : 'collapsed'">
                 </tr>
             </table>
         </div>
     `
 })
 
-export class ResourcesComponent implements AfterViewInit, OnInit {
+export class ResourcesComponent implements OnInit {
 
     private title: string = "Resources";
-    dataSource: BlueprintDataSource = new BlueprintDataSource(this.store.select(selectBlueprints));
-    blueprints: Observable<Blueprint[]>;
-    stateObjects$: Observable<StateObject[]>;
-    isExpansionDetailRow = (i: number) => i % 2 === 1;
+    private dataSource$: BehaviorSubject<ResourcesDataSource> = new BehaviorSubject<ResourcesDataSource>(new ResourcesDataSource([]));
+    private blueprints$: Observable<Blueprint[]> = this.store.pipe(select(selectBlueprints));
+    private resourceModels$: Observable<ResourceTableModel[]> = this.store.pipe(select(selectTableModels));
+
     expandedElement: any;
-    stateObjects: StateObject[];
+    isExpansionDetailRow = (i: number) => i % 2 === 1;
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
     constructor(private store: Store<any>) {
-        this.blueprints = this.store.select(selectBlueprints);
-        this.blueprints.subscribe(blueprints => {
-            blueprints.forEach((bp) => {
-                this.store.dispatch(new GetResourceStateAction(bp.ref.uuid));
-            })
-        });
-        this.stateObjects$ = this.store.pipe(select(selectStateObjects));
-        this.stateObjects$.subscribe(objects => {
-            this.stateObjects = objects;
-        });
+
     }
 
     ngOnInit() {
+        // this.blueprints$.subscribe(blueprints => {
+        //     blueprints.forEach(blueprint => {
+        //         this.store.dispatch(new GetResourceStateAction(blueprint.ref.uuid));
+        //     });
+        // });
+
+        combineLatest(this.resourceModels$).subscribe(([models]) => {
+            this.dataSource$.next(new ResourcesDataSource(models));
+            this.dataSource$.getValue().paginator = this.paginator;
+            this.dataSource$.getValue().sort = this.sort;
+        });
     }
 
     determineHealthOfResource(blueprint: Blueprint) {
-        const object = this.stateObjects.filter(elem => elem.resourceId == blueprint.ref.uuid)[0];
-        if (object) {
-            return object.resourceInstance.health;
-        } else {
-            return Health.Unknown;
-        }
-    }
-
-    storeIds(blueprint: Blueprint) {
-        this.store.dispatch(new StoreDescriptorRefAction(blueprint.descriptor.uuid));
-        this.store.dispatch(new StoreConfigurationRefAction(blueprint.configuration.uuid));
-        this.store.dispatch(new StoreBlueprintRefAction(blueprint.ref.uuid));
-    }
-
-    ngAfterViewInit() {
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        // const object = this.stateObjects.filter(elem => elem.resourceId == blueprint.ref.uuid)[0];
+        // if (object) {
+        //     return object.resourceInstance.health;
+        // } else {
+        //     return Health.Unknown;
+        // }
     }
 
     applyFilter(filterValue: string) {
-        this.dataSource.filter = filterValue;
-        if (this.dataSource.paginator) {
-            this.dataSource.paginator.firstPage()
+        this.dataSource$.getValue().filter = filterValue;
+        if (this.dataSource$.getValue().paginator) {
+            this.dataSource$.getValue().paginator.firstPage()
         }
     }
 
@@ -162,4 +149,5 @@ export class ResourcesComponent implements AfterViewInit, OnInit {
         }
 
     }
+
 }

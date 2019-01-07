@@ -14,48 +14,59 @@ import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {Configuration} from "../models/common/Configuration";
 import {StateObject} from "../models/common/StateObject";
 import {deepcopy} from "../util";
+import {ResourceTableModel} from "../models/resources/ResourceTableModel";
+import * as _ from "lodash";
 
 export class ResourceViewerState {
     public blueprints: Blueprint[];
     public descriptors: ResolvedFilterDescriptor[];
     public configurations: Configuration[];
-    public configurationRef: string;
-    public descriptorRef: string;
-    public blueprintRef: string;
-    public stateObjects: StateObject[]
+    public stateObjects: StateObject[];
+    public resourceModels: ResourceTableModel[];
 }
 
 const initialState: ResourceViewerState = {
     blueprints: [],
     descriptors: [],
     configurations: [],
-    configurationRef: "",
-    descriptorRef: "",
-    blueprintRef: "",
-    stateObjects: []
-
+    stateObjects: [],
+    resourceModels: []
 };
 
 export function ResourcesReducer(state: ResourceViewerState = initialState, action: ResourcesActions): ResourceViewerState {
-    const result: ResourceViewerState = Object.assign({}, state);
+    let result = _.cloneDeep(state);
     switch (action.type) {
         case LOAD_ALL_BLUEPRINTS_SUCCESS:
             result.blueprints = action.blueprints;
+            const models: ResourceTableModel [] = [];
+            result.blueprints.forEach(bp => {
+                models.push(new ResourceTableModel(bp, undefined, undefined));
+            });
+            result.resourceModels = models;
             break;
         case RESOLVED_ALL_DESCRIPTORS_SUCCESS:
             result.descriptors = action.resolvedDescriptors;
+            let tmpModels = result.resourceModels;
+            result.descriptors.forEach(descriptor => {
+                tmpModels.forEach(model => {
+                    if (descriptor.descriptorRef.uuid === model.blueprint.descriptor.uuid) {
+                        model.descriptor = descriptor;
+                    }
+                });
+            });
+            result.resourceModels = tmpModels;
             break;
         case LOAD_CONFIGURATIONS_SUCCESS:
             result.configurations = action.configurations;
-            break;
-        case STORE_CONFIGURATION_REF:
-            result.configurationRef = action.uuid;
-            break;
-        case STORE_BLUEPRINT_REF:
-            result.blueprintRef = action.uuid;
-            break;
-        case STORE_DESCRIPTOR_REF:
-            result.descriptorRef = action.uuid;
+            let tmp = result.resourceModels;
+            result.configurations.forEach(config => {
+                tmp.forEach(model => {
+                    if (config.ref.uuid === model.blueprint.configuration.uuid) {
+                        model.configuration = config;
+                    }
+                });
+            });
+            result.resourceModels = tmp;
             break;
         case GET_RESOURCE_STATE_SUCCESS:
             let copy = deepcopy(result.stateObjects, []);
@@ -72,6 +83,7 @@ export const getResourceViewerState = createFeatureSelector<ResourceViewerState>
 );
 
 export const selectBlueprints = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.blueprints);
-export const selectDescriptor = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.descriptors.filter((desc) => desc.descriptorRef.uuid == state.descriptorRef)[0]);
-export const selectConfiguration = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.configurations.filter((config) => config.ref.uuid == state.configurationRef)[0]);
 export const selectStateObjects = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.stateObjects);
+export const selectConfigurations = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.configurations);
+export const selectDescriptors = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.descriptors);
+export const selectTableModels = createSelector(getResourceViewerState, (state: ResourceViewerState) => state.resourceModels);

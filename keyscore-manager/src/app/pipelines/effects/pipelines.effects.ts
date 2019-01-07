@@ -323,7 +323,7 @@ export class PipelinesEffects {
     //     map((action) => (action as ConfigurationsForBlueprintId)),
     //     mergeMap(action =>  {
     //
-    //        return this.filterControllerService.pauseFilter(action.blueprints[0].uuid, false).pipe(
+    //        return this.filterControllerService.pauseFilter(action.blueprints$[0].uuid, false).pipe(
     //            map((result) => new DeletePipelineSuccessAction("!"),
     //                catchError(_ => of({stageType: "NOOP"})))
     //        )
