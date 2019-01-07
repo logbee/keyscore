@@ -17,12 +17,11 @@ import {StoreCurrentDataset} from "../live-editing/live-editing.actions";
 
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
-    private numberOfDataset: number = 0;
-    private numberOfRecords: number = 0;
+    readonly numberOfDataset: number = 0;
+    readonly numberOfRecords: number = 0;
 
     constructor(datasetTableModels: Map<string, DatasetTableModel[]>, index: number, recordsIndex: number, selectedBlock: string) {
         super();
-
         let model = datasetTableModels.get(selectedBlock);
         if (model && model[index]) {
             this.numberOfDataset = model.length;

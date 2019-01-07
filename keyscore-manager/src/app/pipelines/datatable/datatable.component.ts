@@ -14,7 +14,7 @@ import {
     Value,
     ValueJsonClass
 } from "../../models/dataset/Value";
-import {getDatasetModels} from "../index";
+import {getInputDatsetModels, getOutputDatasetModels} from "../index";
 
 @Component({
     selector: "data-table",
@@ -45,7 +45,7 @@ import {getDatasetModels} from "../index";
 
                 <button style="margin-right: 5px; margin-top: 5px" mat-raised-button 
                         matTooltip="{{'DATATABLE.INOUT_TOOLTIP' | translate}}"
-                        (click)="switch($event)">
+                        (click)="switch()">
                         {{'DATATABLE.INOUTSWITCH' | translate}}
                 </button>
             </div>
@@ -86,9 +86,14 @@ import {getDatasetModels} from "../index";
 })
 
 export class DatatableComponent implements OnInit {
-    private datasetTableModels$: Observable<Map<string, DatasetTableModel[]> >= this.store.pipe(select(getDatasetModels));
     private dataSource$: BehaviorSubject<DatasetDataSource> = new BehaviorSubject<DatasetDataSource>(new DatasetDataSource(new Map(), 0, 0, ""));
-    private datasetTableModels: Map<string, DatasetTableModel[]>;
+    private selectedModels$: BehaviorSubject<Map<string, DatasetTableModel[]>> = new BehaviorSubject<Map<string, DatasetTableModel[]>>(undefined);
+
+    private outputDatasetTableModels$: Observable<Map<string, DatasetTableModel[]> >= this.store.pipe(select(getOutputDatasetModels));
+    private outputDatasetTableModels: Map<string, DatasetTableModel[]>;
+
+    private inputDatasetTableModels$: Observable<Map<string, DatasetTableModel[]>> = this.store.pipe(select(getInputDatsetModels));
+    private inputDatasetTableModels: Map<string, DatasetTableModel[]>;
 
     private datasetIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
@@ -96,6 +101,7 @@ export class DatatableComponent implements OnInit {
     private displayedColumns: string[] = ['jsonClass', 'fields', 'outValues'];
     private currentDataset: DatasetTableModel;
 
+    private where: string = "after";
     private datasetLabel: string = "Datasets";
     private recordLabel: string = "Records";
 
@@ -113,14 +119,18 @@ export class DatatableComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.datasetTableModels$.subscribe(models => {
-            this.datasetTableModels = models;
-            this.currentDataset = this.datasetTableModels[this.datasetIndex.getValue()];
+        this.outputDatasetTableModels$.subscribe(models => {
+            this.outputDatasetTableModels = models;
+            this.currentDataset = this.outputDatasetTableModels[this.datasetIndex.getValue()];
+            this.selectedModels$.next(this.outputDatasetTableModels);
         });
 
-        combineLatest(this.datasetTableModels$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable(), this.selectedBlock$).subscribe(([datasetTableModels, index, recordsIndex, selectedBlock]) => {
-            this.dataSource$.next(new DatasetDataSource(datasetTableModels, index, recordsIndex, selectedBlock));
+        this.inputDatasetTableModels$.subscribe(models => {
+            this.inputDatasetTableModels = models;
+        });
 
+        combineLatest(this.selectedModels$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable(), this.selectedBlock$).subscribe(([datasetTableModels, index, recordsIndex, selectedBlock]) => {
+            this.dataSource$.next(new DatasetDataSource(datasetTableModels, index, recordsIndex, selectedBlock));
             this.dataSource$.getValue().paginator = this.paginator;
             this.dataSource$.getValue().sort = this.sort;
         });
@@ -136,13 +146,10 @@ export class DatatableComponent implements OnInit {
     }
 
     private updateDatasetCounter(count: number) {
-        console.log("Counter");
         this.datasetIndex.next(count);
     }
 
     private updateRecordCounter(count: number) {
-        console.log("Counter");
-
         this.recordsIndex.next(count);
     }
 
@@ -183,9 +190,14 @@ export class DatatableComponent implements OnInit {
             this.dataSource$.getValue().paginator.firstPage()
         }
     }
-
-    switch(where: string) {
-        //TODO: switch the datsets that are displayed according to the given parameter by selecting them from the store.
+    switch() {
+        if (this.where === "before") {
+            this.selectedModels$.next(this.inputDatasetTableModels);
+            this.where = "after";
+        } else if (this.where === "after") {
+            this.selectedModels$.next(this.outputDatasetTableModels);
+            this.where = "before";
+        }
     }
 
 
