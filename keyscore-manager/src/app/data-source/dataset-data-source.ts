@@ -1,6 +1,6 @@
 import {MatTableDataSource} from "@angular/material";
-import {BehaviorSubject, Observable} from "rxjs/index";
-import {DatasetTableModel, DatasetTableRowModel, DatasetTableRowModelData} from "../models/dataset/DatasetTableModel";
+import {BehaviorSubject} from "rxjs/index";
+import {DatasetTableModel, DatasetTableRowModel} from "../models/dataset/DatasetTableModel";
 import {
     BooleanValue,
     DecimalValue,
@@ -11,10 +11,6 @@ import {
     Value,
     ValueJsonClass
 } from "../models/dataset/Value";
-import {combineLatest} from "rxjs";
-import {Store} from "@ngrx/store";
-import {StoreCurrentDataset} from "../live-editing/live-editing.actions";
-
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
     readonly numberOfDataset: number = 0;
@@ -97,7 +93,5 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     private checkFilterMatch(model, searchString) {
         return model.name.includes(searchString) || model.value.jsonClass.includes(searchString) || this.accessFieldValues(model.value).includes(searchString);
     }
-
-
 }
 
