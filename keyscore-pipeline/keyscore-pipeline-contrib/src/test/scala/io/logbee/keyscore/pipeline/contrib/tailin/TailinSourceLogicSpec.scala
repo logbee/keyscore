@@ -41,7 +41,6 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
   }
   
   override def afterAll = {
-    
     TestKit.shutdownActorSystem(system)
   }
   
@@ -61,25 +60,36 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     )
     
     val testSetups = Seq(
-      TestSetup(
+        
+      TestSetup( //line-wise
           files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmno"))),
           filePattern = "tailin.csv",
           readMode = ReadMode.LINE,
           expectedData = Seq("abcde", "fghij", "klmno"),
       ),
-      TestSetup(
+      TestSetup( //file-wise
           files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmno"))),
           filePattern = "tailin.csv",
           readMode = ReadMode.FILE,
           expectedData = Seq("abcde\n", "fghij\n", "klmno\n"),
       ),
-//      TestSetup( //TODO this test-case (UTF-16) currently still fails, because zero-width Byte Order Marks are inserted into the string. Research how to best handle these.
-//          files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmnö"))),
-//          filePattern = "tailin.csv",
-//          readMode = ReadMode.LINE,
-//          encoding = StandardCharsets.UTF_16,
-//          expectedData = Seq("abcde", "fghij", "klmnö"),
-//      ),
+      
+      
+      //test UTF-16 Little Endian and Big Endian separately, as just "UTF_16" causes the BufferedWriter in the test to write a Byte Order Mark (BOM) before each string that gets appended to the file (therefore failing tests where a file is written to multiple times)
+      TestSetup(
+          files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmnö"))),
+          filePattern = "tailin.csv",
+          readMode = ReadMode.LINE,
+          encoding = StandardCharsets.UTF_16LE,
+          expectedData = Seq("abcde", "fghij", "klmnö"),
+      ),
+      TestSetup(
+          files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmnö"))),
+          filePattern = "tailin.csv",
+          readMode = ReadMode.LINE,
+          encoding = StandardCharsets.UTF_16BE,
+          expectedData = Seq("abcde", "fghij", "klmnö"),
+      ),
     )
     
     
