@@ -30,7 +30,7 @@ mat-form-field {
 }
 
 .switch {
-    margin-right: 5px;
-    margin-top: 5px
+    margin-right: 15px !important;
+    margin-top: 15px !important;
 
 }

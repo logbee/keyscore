@@ -2,7 +2,6 @@ import {PipelinesComponent} from "../../app/pipelines/pipelines.component";
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 import {Subject} from "rxjs";
 import {PipelineEditorComponent} from "../../app/pipelines/pipeline-editor/pipeline-editor.component";
-import {RefreshTimeComponent} from "../../app/common/refresh-button/refresh.component";
 import {RouterTestingModule} from "@angular/router/testing";
 import {Store} from "@ngrx/store";
 import {HeaderBarModule} from "../../app/common/headerbar/headerbar.module";
@@ -14,7 +13,10 @@ import {PipelyModule} from "../../app/pipelines/pipeline-editor/pipely/pipely.mo
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../app/app.module";
 
-import {LoadAllPipelineInstancesAction, UpdatePipelinePollingAction} from "../../app/pipelines/actions/pipelines.actions";
+import {
+    LoadAllPipelineInstancesAction,
+    UpdatePipelinePollingAction
+} from "../../app/pipelines/actions/pipelines.actions";
 import {RefreshTimeModule} from "../../app/common/refresh-button/refresh-time.module";
 import {ErrorModule} from "../../app/common/error/error.module";
 import {DataSourceFactory} from "../../app/data-source/data-source-factory";

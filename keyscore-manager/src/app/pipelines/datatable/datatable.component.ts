@@ -44,7 +44,7 @@ import "../datatable/data-preview-table.css";
                                      (counterEvent)="updateRecordCounter($event)">
                 </left-right-control>
 
-                <button class="switch" mat-raised-button 
+                <button class="switch" mat-raised-button   color="primary"
                         matTooltip="{{'DATATABLE.INOUT_TOOLTIP' | translate}}"
                         (click)="switch()">
                         {{'DATATABLE.INOUTSWITCH' | translate}}
