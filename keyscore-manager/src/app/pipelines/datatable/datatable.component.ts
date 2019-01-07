@@ -15,6 +15,7 @@ import {
     ValueJsonClass
 } from "../../models/dataset/Value";
 import {getInputDatsetModels, getOutputDatasetModels} from "../index";
+import "../datatable/data-preview-table.css";
 
 @Component({
     selector: "data-table",
