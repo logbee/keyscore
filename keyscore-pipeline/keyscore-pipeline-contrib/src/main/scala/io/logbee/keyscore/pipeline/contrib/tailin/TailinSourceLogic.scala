@@ -39,7 +39,7 @@ object TailinSourceLogic extends Described {
       expressionType = RegEx
     ),
     defaultValue = "",
-    mandatory = false
+    mandatory = true
   )
   
   val readMode = ChoiceParameterDescriptor(
