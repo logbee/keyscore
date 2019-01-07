@@ -9,7 +9,7 @@ import {DescriptorResolverService} from "../../services/descriptor-resolver.serv
 import {PipelineService} from "../../services/rest-api/PipelineService";
 import {BlueprintService} from "../../services/rest-api/BlueprintService";
 import {forkJoin, Observable, of} from "rxjs";
-import {catchError, map, switchMap} from "rxjs/operators";
+import {catchError, concatMap, map, switchMap} from "rxjs/operators";
 import {
     EXTRACT_FROM_SELECTED_BLOCK,
     ExtractFromSelectedBlock, ExtractFromSelectedBlockFailure,
@@ -24,9 +24,9 @@ export class PreviewEffects {
     public extractDataFromFilter$: Observable<Action> = this.actions$.pipe(
         ofType(EXTRACT_FROM_SELECTED_BLOCK),
         map((action) => (action as ExtractFromSelectedBlock)),
-        switchMap((action) => {
+        concatMap((action) => {
             return this.filterControllerService.extractDatasets(action.selectedBlockId, action.amount, action.where).pipe(
-                map((data: Dataset[]) => new ExtractFromSelectedBlockSuccess(data, action.selectedBlockId),
+                map((data: Dataset[]) => new ExtractFromSelectedBlockSuccess(data, action.selectedBlockId, action.where),
                 catchError((cause: any) => of(new ExtractFromSelectedBlockFailure(cause)))));
         }),
     );

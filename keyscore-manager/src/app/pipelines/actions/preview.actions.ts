@@ -24,7 +24,7 @@ export class ExtractFromSelectedBlock implements Action {
 export class ExtractFromSelectedBlockSuccess implements Action {
     public readonly type = EXTRACT_FROM_SELECTED_BLOCK_SUCCESS;
 
-    constructor(readonly output: Dataset[], readonly blockId: string) {
+    constructor(readonly extractedDatsets: Dataset[], readonly blockId: string, readonly where: string) {
 
     }
 }
@@ -41,10 +41,6 @@ export class ResetPreviewState implements Action {
     public readonly type = RESET_PREVIEW_STATE;
 }
 
-// export class TriggerExtractForEachBlueprint implements Action {
-//     public readonly type = TRIGGER_EXTRACT_FOR_EACH_BLUEPRINT
-//
-// }
 
 
 

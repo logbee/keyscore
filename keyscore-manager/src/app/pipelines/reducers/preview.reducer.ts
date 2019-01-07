@@ -13,13 +13,17 @@ import {Field} from "../../models/dataset/Field";
 import * as _ from "lodash";
 export class PreviewState {
     public outputDatasets: Dataset[];
+    public inputDatasets: Dataset[];
     public dummyDataset: Dataset;
-    public datasetModelMap: Map<string, DatasetTableModel[]>;
+    public outputDatasetModelMap: Map<string, DatasetTableModel[]>;
+    public inputDatasetModelMap: Map<string, DatasetTableModel[]>;
     public selectedBlock: string;
 }
 export const initalPreviewState: PreviewState = {
     outputDatasets: [],
-    datasetModelMap: new Map <string, DatasetTableModel[]>(),
+    inputDatasets: [],
+    outputDatasetModelMap: new Map <string, DatasetTableModel[]>(),
+    inputDatasetModelMap: new Map <string, DatasetTableModel[]>(),
     dummyDataset: {
         metaData: {labels: []},
         records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
@@ -33,14 +37,26 @@ export function PreviewReducer(state: PreviewState = initalPreviewState, action:
     let result = _.cloneDeep(state);
     switch (action.type) {
         case EXTRACT_FROM_SELECTED_BLOCK_SUCCESS:
-            result.outputDatasets = action.output;
-            if (result.outputDatasets.length !== 0) {
-                const models: DatasetTableModel[] = [];
-                result.outputDatasets.forEach((dataset) => {
-                    let model = createDatasetTableModel(dataset, result.dummyDataset);
-                    models.push(model)
-                });
-                result.datasetModelMap.set(action.blockId, models);
+            if(action.where == "after") {
+                result.outputDatasets = action.extractedDatsets;
+                if (result.outputDatasets.length !== 0) {
+                    const models: DatasetTableModel[] = [];
+                    result.outputDatasets.forEach((dataset) => {
+                        let model = createDatasetTableModel(dataset, result.dummyDataset);
+                        models.push(model)
+                    });
+                    result.outputDatasetModelMap.set(action.blockId, models);
+                }
+            } else if (action.where == "before") {
+                result.inputDatasets = action.extractedDatsets;
+                if (result.inputDatasets.length !== 0) {
+                    const models: DatasetTableModel[] = [];
+                    result.inputDatasets.forEach((dataset) => {
+                        let model = createDatasetTableModel(dataset, result.dummyDataset);
+                        models.push(model)
+                    });
+                    result.inputDatasetModelMap.set(action.blockId, models);
+                }
             }
             return result;
         default:

@@ -81,7 +81,6 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     private showBigLoadingViewOnLoading = true;
     private selectedBlock: DraggableModel;
     private amount: number = 10;
-    private where: string = "after";
     private previewMode: boolean = false;
 
 
@@ -129,13 +128,12 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public triggerDataSourceCreation() {
         // Extract from currently selected block
         if (this.selectedBlock != undefined) {
-            if (this.isSink(this.selectedBlock)) {
-                this.where = "before";
-            }
-            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, this.where, this.amount));
+            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, "before", this.amount));
+            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, "after", this.amount));
         } else {
             // extract from sink
-            this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints.reverse()[0].ref.uuid, this.where, this.amount));
+            this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints.reverse()[0].ref.uuid, "before", this.amount));
+            this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints.reverse()[0].ref.uuid, "after", this.amount));
         }
     }
 

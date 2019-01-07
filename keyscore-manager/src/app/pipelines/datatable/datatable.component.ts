@@ -42,20 +42,26 @@ import {getDatasetModels} from "../index";
                                      [label]="recordLabel"
                                      (counterEvent)="updateRecordCounter($event)" style="padding-left:15px; margin-top: 15px">
                 </left-right-control>
+
+                <button style="margin-right: 5px; margin-top: 5px" mat-raised-button 
+                        matTooltip="{{'DATATABLE.INOUT_TOOLTIP' | translate}}"
+                        (click)="switch($event)">
+                        {{'DATATABLE.INOUTSWITCH' | translate}}
+                </button>
             </div>
             
 
             <table fxFlex="75" mat-table matSort [dataSource]="dataSource$.getValue()" class="table-position">
                 <ng-container matColumnDef="fields">
                     <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header>
-                        {{'FILTERLIVEEDITINGCOMPONENT.FIELDS' | translate}}
+                        {{'DATATABLE.FIELDS' | translate}}
                     </th>
                     <td mat-cell class="text-padding" *matCellDef="let row">{{row?.input.name}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="outValues">
                     <th mat-header-cell class="text-padding" mat-sort-header *matHeaderCellDef>
-                        {{'FILTERLIVEEDITINGCOMPONENT.OUTPUT' | translate}}
+                        {{'DATATABLE.DATASETS' | translate}}
                     </th>
                     <td mat-cell class="cell-border" *matCellDef="let row">
                         <mat-label>{{accessFieldValues(row?.output?.value)}}</mat-label>
@@ -113,7 +119,6 @@ export class DatatableComponent implements OnInit {
         });
 
         combineLatest(this.datasetTableModels$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable(), this.selectedBlock$).subscribe(([datasetTableModels, index, recordsIndex, selectedBlock]) => {
-            console.log("TEST");
             this.dataSource$.next(new DatasetDataSource(datasetTableModels, index, recordsIndex, selectedBlock));
 
             this.dataSource$.getValue().paginator = this.paginator;
@@ -143,7 +148,7 @@ export class DatatableComponent implements OnInit {
 
     private accessFieldValues(valueObject: Value): any {
         if (!valueObject) {
-            return "No output yet!"
+            return "No extractedDatsets yet!"
         } else {
             switch (valueObject.jsonClass) {
                 case ValueJsonClass.BooleanValue: {
@@ -178,4 +183,10 @@ export class DatatableComponent implements OnInit {
             this.dataSource$.getValue().paginator.firstPage()
         }
     }
+
+    switch(where: string) {
+        //TODO: switch the datsets that are displayed according to the given parameter by selecting them from the store.
+    }
+
+
 }

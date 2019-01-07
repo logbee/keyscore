@@ -170,7 +170,7 @@ export class DatasetTable implements AfterViewInit {
     // noinspection JSMethodCanBeStatic
     private accessFieldValues(valueObject: Value): any {
         if (!valueObject) {
-            return "No output yet!"
+            return "No extractedDatsets yet!"
         } else {
             switch (valueObject.jsonClass) {
                 case ValueJsonClass.BooleanValue: {
