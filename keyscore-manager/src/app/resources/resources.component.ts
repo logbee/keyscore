@@ -9,7 +9,6 @@ import {Blueprint} from "../models/blueprints/Blueprint";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs/index";
 import {ResourceTableModel} from "../models/resources/ResourceTableModel";
 import {selectBlueprints, selectTableModels} from "./resources.reducer";
-import {GetResourceStateAction} from "./resources.actions";
 
 @Component({
     selector: "resource-viewer",
@@ -38,13 +37,6 @@ import {GetResourceStateAction} from "./resources.actions";
             <!--Resources Table-->
             <table fxFlex="95" mat-table matSort [dataSource]="dataSource$.getValue()"
                    class="mat-elevation-z8 table-position">
-                <!--Health Column-->
-                <ng-container matColumnDef="health">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-                    <td mat-cell *matCellDef="let resourceModel">
-                        <resource-health [health]="determineHealthOfResource(resourceModel.blueprint)"></resource-health>
-                    </td>
-                </ng-container>
                 <!--Resource Id Column-->
                 <ng-container matColumnDef="uuid">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
@@ -54,8 +46,15 @@ import {GetResourceStateAction} from "./resources.actions";
                 <!--Resource display name-->
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-                    <td mat-cell *matCellDef="let resourceModel">{{resourceModel.descriptor?.displayName}}</td>
+                    <td mat-cell *matCellDef="let resourceModel">{{resourceModel.descriptor?.displayName}}</td>lk
                 </ng-container>
+
+                <!--Resource categories -->
+                <ng-container matColumnDef="categories">
+                    <th mat-header-cell *matHeaderCellDef>Categories</th>
+                    <td mat-cell *matCellDef="let resourceModel">{{getCategories(resourceModel)}}</td>lk
+                </ng-container>
+                
                 <!--Type Column-->
                 <ng-container matColumnDef="jsonClass">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
@@ -68,19 +67,19 @@ import {GetResourceStateAction} from "./resources.actions";
                 <ng-container matColumnDef="expandedDetail">
                     <td mat-cell *matCellDef="let resourceModel" [attr.colspan]="4">
                         <json-visualizer class="jsonViewer" [configuration]="resourceModel.configuration" 
-                                         [descriptor]="resourceModel.descriptor" [class.visible]="expandedElement === blueprint">>
+                                         [descriptor]="resourceModel.descriptor" [class.visible]="expandedElement === resourceModel.blueprint">>
                         </json-visualizer>
                     </td>
                 </ng-container>
 
                 <!--Defining header row -->
-                <tr mat-header-row *matHeaderRowDef="['health', 'jsonClass', 'uuid', 'name']"></tr>
+                <tr mat-header-row *matHeaderRowDef="['jsonClass','name', 'uuid', 'categories']"></tr>
 
                 <!--Defining row with uuid jsonClass and health columns-->
-                <tr mat-row *matRowDef="let resourceModel; columns: ['health', 'jsonClass', 'uuid', 'name']"
+                <tr mat-row *matRowDef="let resourceModel; columns: ['jsonClass', 'name', 'uuid', 'categories']"
                     class="example-element-row"
                     [class.expanded]="expandedElement === resourceModel.blueprint"
-                    (click)="setExpanded(resourceModel.blueprint)">
+                    (click)="setExpanded(resourceModel)">
                 </tr>
 
                 <!--Defining collapasable rows -->
@@ -98,7 +97,6 @@ export class ResourcesComponent implements OnInit {
 
     private title: string = "Resources";
     private dataSource$: BehaviorSubject<ResourcesDataSource> = new BehaviorSubject<ResourcesDataSource>(new ResourcesDataSource([]));
-    private blueprints$: Observable<Blueprint[]> = this.store.pipe(select(selectBlueprints));
     private resourceModels$: Observable<ResourceTableModel[]> = this.store.pipe(select(selectTableModels));
 
     expandedElement: any;
@@ -108,32 +106,15 @@ export class ResourcesComponent implements OnInit {
     @ViewChild(MatSort) sort: MatSort;
 
     constructor(private store: Store<any>) {
-
     }
 
     ngOnInit() {
-        // this.blueprints$.subscribe(blueprints => {
-        //     blueprints.forEach(blueprint => {
-        //         this.store.dispatch(new GetResourceStateAction(blueprint.ref.uuid));
-        //     });
-        // });
-
         combineLatest(this.resourceModels$).subscribe(([models]) => {
             this.dataSource$.next(new ResourcesDataSource(models));
             this.dataSource$.getValue().paginator = this.paginator;
             this.dataSource$.getValue().sort = this.sort;
         });
     }
-
-    determineHealthOfResource(blueprint: Blueprint) {
-        // const object = this.stateObjects.filter(elem => elem.resourceId == blueprint.ref.uuid)[0];
-        // if (object) {
-        //     return object.resourceInstance.health;
-        // } else {
-        //     return Health.Unknown;
-        // }
-    }
-
     applyFilter(filterValue: string) {
         this.dataSource$.getValue().filter = filterValue;
         if (this.dataSource$.getValue().paginator) {
@@ -141,13 +122,25 @@ export class ResourcesComponent implements OnInit {
         }
     }
 
-    setExpanded(blueprint: any) {
-        if (this.expandedElement == blueprint) {
+    setExpanded(resourceModel: ResourceTableModel) {
+        console.log("Triggered setExpanded");
+        if (this.expandedElement === resourceModel.blueprint) {
             this.expandedElement = "";
         } else {
-            this.expandedElement = blueprint;
+            this.expandedElement = resourceModel.blueprint;
         }
+        console.log(this.expandedElement);
+    }
 
+    getCategories(resourceModel: ResourceTableModel) {
+        let descriptor = resourceModel.descriptor;
+        const result: string [] = [];
+        if (descriptor) {
+            descriptor.categories.forEach(category => {
+                result.push(category.displayName)
+            });
+            return result;
+        } else return "";
     }
 
 }
