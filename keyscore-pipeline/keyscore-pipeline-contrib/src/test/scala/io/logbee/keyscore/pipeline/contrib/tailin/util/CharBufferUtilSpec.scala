@@ -13,6 +13,13 @@ import org.scalatest.{FreeSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class CharBufferUtilSpec extends FreeSpec with Matchers {
+  
+  
+  //list of charsets to test with
+  //if you add a charset to this list, you need to create a file with the text "Hello Wörld", saved in the correct encoding, in the resource folder of this class
+  val charsets = Seq(StandardCharsets.UTF_8, StandardCharsets.UTF_16, StandardCharsets.ISO_8859_1, Charset.forName("windows-1252"))
+  
+  
 
   def readBufferFromFile(file: File, charset: Charset, expectedValue: String) {
 
@@ -45,7 +52,7 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
 
     "should decode a buffer section encoded in" - {
 
-      val files = Seq(StandardCharsets.UTF_8, StandardCharsets.ISO_8859_1, Charset.forName("windows-1252"))
+      val files = charsets
         .map(charset => (charset, charset.toString))
         .map { case (charset, charsetName) => (charset, new File(getClass.getResource(s"${charsetName}_Sample").toURI)) }
 
@@ -53,11 +60,10 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
         charset.toString in readBufferFromFile(file, charset, "Hello Wörld")
       }
     }
-
+    
+    
     "should find the start of the next line" - {
       
-      val charsets = Seq(StandardCharsets.UTF_8, StandardCharsets.UTF_16, StandardCharsets.ISO_8859_1)
-
       charsets.foreach { case charset =>
         s"in charset $charset" - {
           
@@ -82,12 +88,22 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
               returnedPosition shouldBe expectedPosition
             }
           }
+          
+          
+          
+          "should throw an exception when starting to search for the start of the next line before the end of the previous line (not on a newline char)" in {
+            
+            assertThrows[IllegalArgumentException] {
+              val string = "______\n_"
+              val buffer = charset.decode(charset.encode(string))
+              
+              val startingPosition = 1
+              
+              val returnedPosition = CharBufferUtil.getStartOfNextLine(buffer, startingPosition)
+            }
+          }
         }
       }
-    }
-
-    "should throw an exception when starting to search for the start of the next line before the end of the previous line (not on a newline char)" in {
-      //TEST exception case
     }
   }
 }

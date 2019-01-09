@@ -1,0 +1,62 @@
+= Releases =
+
+== 0.2.0 (tbd.) ==
+
+=== Features ===
+
+ - Rewrite of the descriptor-api to improve usability for developers.
+   https://github.com/logbee/keyscore/issues/5[#5]
+
+ - Configuration Store.
+   https://github.com/logbee/keyscore/issues/6[#6]
+
+ - SourceController and SinkController are not yet implemented.
+   https://github.com/logbee/keyscore/issues/20[#20]
+
+ - Manual node-downing.
+   https://github.com/logbee/keyscore/issues/29[#29]
+
+ - Atomic Pipeline Configuration Update.
+   https://github.com/logbee/keyscore/issues/46[#46]
+
+ - Rework KafkaSource and KafkaSink to produce/consume plain values instead of encode/decode json
+   https://github.com/logbee/keyscore/issues/68[#68]
+
+=== Fixes ===
+A lot of things has been fixed. The list below is just an excerpt:
+
+ - When a SeedNode is restarted it creates a new cluster instead of joining the old one.
+   https://github.com/logbee/keyscore/issues/4[#4]
+
+ - KafkaSink Descriptor can not be translated.
+   https://github.com/logbee/keyscore/issues/44[#44]
+
+ - Strange behaviour in the Integration Test.
+   https://github.com/logbee/keyscore/issues/50[#50]
+
+ - Pipeline with two identic filters only instantiates one.
+   https://github.com/logbee/keyscore/issues/51[#51]
+
+ - Piply drag and drop broken in Firefox.
+   https://github.com/logbee/keyscore/issues/55[#55]
+
+ - A bug has been fixed which leads to unordered Filters.
+   https://github.com/logbee/keyscore/issues/58[#58]
+
+=== Miscellaneous ===
+With this version we launch a complete new Web-UI. Below an excerpt of changes not only to the UI:
+
+ - Show 404 if edit pipeline url is called with wrong UUID.
+   https://github.com/logbee/keyscore/issues/18[#18]
+
+ - A common header bar for all pages of the web-ui.
+   https://github.com/logbee/keyscore/issues/22[#22]
+
+ - Use krallin/tini for docker container entrypoint.
+   https://github.com/logbee/keyscore/issues/32[#32]
+
+ - Needed custom icons for blocks etc.
+   https://github.com/logbee/keyscore/issues/48[#48]
+
+== 0.1.0 (2016-08-07) ==
+Initial release.

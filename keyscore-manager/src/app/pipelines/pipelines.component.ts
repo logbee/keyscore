@@ -64,7 +64,7 @@ import {PipelineDataSource} from "../data-source/pipeline-data-source";
                 </ng-container>
 
                 <ng-container matColumnDef="uuid">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
                     <td mat-cell *matCellDef="let pipelineTableModel">
                         {{pipelineTableModel.uuid}}
                     </td>

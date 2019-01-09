@@ -64,8 +64,10 @@ test {
 
 jar {
     manifest.attributes([
-            'Implementation-Title'  : project.name,
-            'Implementation-Version': version,
+        'Implementation-Title'  : project.name,
+        'Implementation-Version': version,
+        'Implementation-Revision' : revision,
+        'Implementation-Vendor'   : 'logbee.io'
     ])
     from (rootProject.projectDir) {
         include 'LICENSE'

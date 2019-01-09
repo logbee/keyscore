@@ -1,6 +1,6 @@
 import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
 import com.bmuschko.gradle.docker.tasks.network.DockerInspectNetwork
-
+import org.apache.tools.ant.filters.EscapeUnicode
 
 buildscript {
     repositories {
@@ -41,6 +41,14 @@ subprojects {
     ext.scmUrl = 'https://github.com/logbee/keyscore/'
     ext.scmConnection = 'git@github.com:logbee/keyscore.git'
     ext.scmDevConnection = 'git@github.com:logbee/keyscore.git'
+    ext.revision = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }()
 
     repositories {
         mavenCentral()
@@ -60,10 +68,12 @@ subprojects {
             }
         }
     }
-
 }
 
 configure ([
+    project(':keyscore-agent'),
+    project(':keyscore-frontier'),
+    project(':keyscore-commons'),
     project(':keyscore-model'),
     project(':keyscore-pipeline:keyscore-pipeline-api'),
     project(':keyscore-pipeline:keyscore-pipeline-contrib')
@@ -104,6 +114,30 @@ configure ([
     artifacts {
         archives sourcesJar
         archives scaladocJar
+    }
+
+
+    //This overrides the copy behaviour for .properties-files (Resource Bundles), so that during Gradle builds (processResources),
+    //the Unicode-characters get escaped, therefore can be decoded with ISO-8859-1, which JDK8 uses to read .properties-files.
+    project.tasks.withType(ProcessResources).each { task ->
+        task.from(task.getSource()) {
+            include '**/*.properties'
+            filter(EscapeUnicode)
+        }
+    }
+
+    
+    task escapeUnicodeInResourceBundles {
+        def files = sourceSets.main.resources.asFileTree.matching {include '**/*.properties'}.files
+        def cmd = ['native2ascii', '-encoding', 'utf8']
+        doLast {
+            files.forEach({ file ->
+                exec {
+                    workingDir file.parentFile
+                    commandLine cmd.plus(file.name).plus(file.name)
+                }
+            })
+        }
     }
 }
 

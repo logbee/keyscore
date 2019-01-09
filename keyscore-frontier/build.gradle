@@ -53,13 +53,14 @@ test {
 
 jar {
     manifest.attributes([
-        'Main-Class'            : mainClass,
-        'Implementation-Title'  : project.name,
-        'Implementation-Version': version,
-        'Implementation-Vendor' : 'logbee.io',
-        'Class-Path'            : (configurations.runtime + configurations.compile).collect { 
-                                    "libs/" + it.getName()
-                                  }.join(' ')
+        'Main-Class'              : mainClass,
+        'Implementation-Title'    : project.name,
+        'Implementation-Version'  : version,
+        'Implementation-Revision' : revision,
+        'Implementation-Vendor'   : 'logbee.io',
+        'Class-Path'              : (configurations.runtime + configurations.compile).collect { 
+                                      "libs/" + it.getName()
+                                    }.join(' ')
     ])
 }
 

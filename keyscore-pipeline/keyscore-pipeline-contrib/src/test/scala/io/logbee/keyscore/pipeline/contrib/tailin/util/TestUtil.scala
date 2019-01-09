@@ -11,6 +11,7 @@ import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.OpenOption
 import java.nio.file.StandardOpenOption
+import java.nio.charset.Charset
 
 object TestUtil {
 
@@ -35,7 +36,8 @@ object TestUtil {
   }
   
   
-  def createFile(dir: Path, name: String, content: String): File = {
+  def createFile(dir: Path, name: String, content: String = ""): File = {
+    
     val file = dir.resolve(name).toFile
     
     file.createNewFile()
@@ -60,16 +62,18 @@ object TestUtil {
       }
     })
   }
+  
 
   def waitForWatchService() = {
-    Thread.sleep(500)
+    Thread.sleep(10)
   }
+  
 
-  def writeStringToFile(file: File, string: String, writeMode: OpenOption) {
+  def writeStringToFile(file: File, string: String, writeMode: OpenOption = StandardOpenOption.APPEND, encoding: Charset = StandardCharsets.UTF_8) {
 
     var fileWriter: java.io.BufferedWriter = null
     try {
-      fileWriter = Files.newBufferedWriter(file.toPath, StandardCharsets.UTF_8, writeMode)
+      fileWriter = Files.newBufferedWriter(file.toPath, encoding, writeMode)
       fileWriter.write(string)
       fileWriter.flush
     }
