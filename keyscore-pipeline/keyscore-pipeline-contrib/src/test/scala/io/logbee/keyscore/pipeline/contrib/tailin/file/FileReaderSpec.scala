@@ -13,6 +13,8 @@ import org.scalatest.junit.JUnitRunner
 import scala.reflect.runtime.universe._
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import java.nio.file.Paths
+import java.nio.file.FileSystems
+import scala.io.Source
 
 
 @RunWith(classOf[JUnitRunner])
