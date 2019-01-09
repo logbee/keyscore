@@ -18,7 +18,9 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
 
     constructor(datasetTableModels: Map<string, DatasetTableModel[]>, index: number, recordsIndex: number, selectedBlock: string) {
         super();
+        console.log(selectedBlock);
         let model = datasetTableModels.get(selectedBlock);
+        console.log(model);
         if (model && model[index]) {
             this.numberOfDataset = model.length;
             this.numberOfRecords = model[index].records.length;

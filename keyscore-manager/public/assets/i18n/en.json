@@ -67,7 +67,8 @@
     "HOST": "Host"
   },
   "DATATABLE": {
-    "INOUTSWITCH": "IN/OUT",
+    "INSWITCH": "INPUT",
+    "OUTSWITCH": "OUTPUT",
     "INOUT_TOOLTIP": "Show datasets before and after they where processed by the block.",
     "FIELDS": "Fields",
     "DATASETS": "Datasets"

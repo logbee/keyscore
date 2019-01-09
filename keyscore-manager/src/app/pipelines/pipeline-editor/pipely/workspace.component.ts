@@ -6,7 +6,6 @@ import {
     EventEmitter,
     HostListener,
     Input,
-    OnChanges,
     OnDestroy,
     OnInit,
     Output,
@@ -24,7 +23,7 @@ import {computeRelativePositionToParent} from "./util/util";
 import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subcomponent";
 import {BlockDescriptor} from "./models/block-descriptor.model";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
-import {share, takeUntil} from "rxjs/operators";
+import {share, takeUntil, tap} from "rxjs/operators";
 import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
 import "./style/pipely-style.scss";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
@@ -45,7 +44,7 @@ import {TextValue} from "../../../models/dataset/Value";
                         <puzzle-box *ngIf="!isInspecting; else datasetTable" class="top-shadow" [workspace]="this"
                                     [descriptors]="blockDescriptors$|async"></puzzle-box>
                         <ng-template #datasetTable>
-                            <data-table [selectedBlock]="blockToDisplayDataset()" class="top-shadow"></data-table>
+                            <data-table [selectedBlock]="selectedBlockForDataTable$|async" class="top-shadow"></data-table>
                         </ng-template>
 
                     </div>
@@ -64,7 +63,7 @@ import {TextValue} from "../../../models/dataset/Value";
 })
 
 
-export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges, Workspace {
+export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Workspace {
     @Input() pipeline: EditingPipelineModel;
 
     @Input('blockDescriptors') set blockDescriptors(descriptors: BlockDescriptor[]) {
@@ -86,7 +85,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     @Output() onUpdatePipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
     @Output() onRunPipeline: EventEmitter<EditingPipelineModel> = new EventEmitter();
-    @Output() onSelectBlock: EventEmitter<DraggableModel> = new EventEmitter();
+    @Output() onSelectBlock: EventEmitter<string> = new EventEmitter();
 
     public id: string;
 
@@ -104,6 +103,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
     private selectedDraggableSource: BehaviorSubject<Draggable> = new BehaviorSubject(null);
     private selectedDraggable$: Observable<Draggable> = this.selectedDraggableSource.asObservable().pipe(share());
     private selectedDraggable: Draggable;
+    private selectedBlockForDataTable$: BehaviorSubject<string>;
     private pipelineMetaData: { name: string, description: string };
 
     private mouseDownStart: { x: number, y: number } = {x: -1, y: -1};
@@ -136,18 +136,16 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     }
 
-    private blockToDisplayDataset() {
-        let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
-        return this.selectedDraggableSource.getValue() ? this.selectedDraggableSource.getValue().getDraggableModel().blueprintRef.uuid : sink.ref.uuid;
 
-    }
 
     private selectBlock(selected: Draggable) {
         this.selectedDraggableSource.next(selected);
-        if (selected) {
-            this.onSelectBlock.emit(selected.getDraggableModel());
+        if (selected && this.isInspecting) {
+            this.onSelectBlock.emit(selected.getDraggableModel().blueprintRef.uuid);
         } else {
-            this.onSelectBlock.emit(null);
+            let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
+            console.log("sink!!!!!!!!!!" + sink)
+            this.onSelectBlock.emit(sink.ref.uuid);
         }
     }
 
@@ -168,7 +166,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     @HostListener('mouseup', ['$event'])
     private mouseUp(event: MouseEvent) {
-        if (this.selectedDraggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Toolbar) {
+        if (this.selectedDraggable && this.selectedDraggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Toolbar) {
             this.selectBlock(null);
         }
         if (this.isDragging) {
@@ -369,20 +367,40 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
         this.inspectTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
             //TODO: Disable when no pipeline
+            this.selectBlock(this.selectedDraggableSource.getValue());
+            if (!this.selectedBlockForDataTable$) {
+                let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
+                if (!this.selectedDraggableSource.getValue()) {
+                    this.selectedBlockForDataTable$ = new BehaviorSubject<string>(sink.ref.uuid);
+                } else {
+                    this.selectedBlockForDataTable$ = new BehaviorSubject<string>(this.selectedDraggableSource.getValue().getDraggableModel().blueprintRef.uuid);
+                }
+            }
+
             this.isInspecting = !this.isInspecting;
         });
+
+        this.selectedDraggable$ = this.selectedDraggable$.pipe(tap(draggable => {
+            if (this.selectedBlockForDataTable$) {
+                let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
+                if (!draggable) {
+                    this.selectedBlockForDataTable$.next(sink.ref.uuid);
+                } else {
+                    this.selectedBlockForDataTable$.next(draggable.getDraggableModel().blueprintRef.uuid);
+                }
+            }
+        }));
+
+
 
         this.buildEditPipeline();
         let pipelineName = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value;
         let pipelineDescription = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value;
         this.pipelineMetaData = {name: pipelineName, description: pipelineDescription};
 
+
     }
 
-    ngOnChanges(changes) {
-        if (changes['pipeline']) {
-        }
-    }
 
 
     private buildEditPipeline() {
@@ -418,7 +436,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
             if (i > 0) {
                 models[i].next = models[i - 1]
             }
-
 
             if (nextBlueprint.jsonClass !== BlueprintJsonClass.SourceBlueprint) {
                 nextBlueprint = this.pipeline.blueprints.find(blueprint => blueprint.ref.uuid === (nextBlueprint as FilterBlueprint | SinkBlueprint).in.uuid);

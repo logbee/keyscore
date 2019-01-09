@@ -79,7 +79,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public errorMessage$: Observable<string>;
 
     private showBigLoadingViewOnLoading = true;
-    private selectedBlock: DraggableModel;
+    private selectedBlockId: string;
     private amount: number = 10;
     private previewMode: boolean = false;
 
@@ -115,26 +115,19 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
                 this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
         });
 
-        this.runInspectSource$.subscribe(enteredPreviewMode => {
+        /*this.runInspectSource$.subscribe(enteredPreviewMode => {
             if (enteredPreviewMode) {
                 this.triggerDataSourceCreation()
             }
-        });
+        });*/
         this.errorState$ = this.store.pipe(select(isError));
         this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));
         this.errorMessage$ = this.store.pipe(select(selectErrorMessage));
     }
 
     public triggerDataSourceCreation() {
-        // Extract from currently selected block
-        if (this.selectedBlock != undefined) {
-            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, "before", this.amount));
-            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlock.blueprintRef.uuid, "after", this.amount));
-        } else {
-            // extract from sink
-            this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints.reverse()[0].ref.uuid, "before", this.amount));
-            this.store.dispatch(new ExtractFromSelectedBlock(this.storeEditingPipeline.blueprints.reverse()[0].ref.uuid, "after", this.amount));
-        }
+            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlockId, "before", this.amount));
+            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlockId, "after", this.amount));
     }
 
     public ngOnDestroy() {
@@ -159,11 +152,9 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new ResetPipelineAction(pipeline.id));
     }
 
-    public selectBlock(draggableModel: DraggableModel) {
-        if (this.previewMode) {
-            this.selectedBlock = draggableModel;
+    public selectBlock(selectedBlockId: string) {
+            this.selectedBlockId = selectedBlockId;
             this.triggerDataSourceCreation()
-        }
     }
 
     public isSink(draggable: DraggableModel) {

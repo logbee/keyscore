@@ -67,7 +67,8 @@
     "HOST": "Host"
   },
   "DATATABLE": {
-    "INOUTSWITCH": "IN/OUT",
+    "INSWITCH": "INPUT",
+    "OUTSWITCH": "OUTPUT",
     "INOUT_TOOLTIP": "Zeige Nachrichten vor und nach der Bearbeitung durch den Block.",
     "FIELDS": "Felder",
     "DATASETS": "Nachrichten"

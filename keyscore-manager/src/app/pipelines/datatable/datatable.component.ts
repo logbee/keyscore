@@ -47,7 +47,7 @@ import "../datatable/data-preview-table.css";
                 <button class="switch" mat-raised-button   color="primary"
                         matTooltip="{{'DATATABLE.INOUT_TOOLTIP' | translate}}"
                         (click)="switch()">
-                        {{'DATATABLE.INOUTSWITCH' | translate}}
+                        {{ where === "before" ? ('DATATABLE.INSWITCH' | translate) : ('DATATABLE.OUTSWITCH' | translate)}}
                 </button>
             </div>
             
@@ -107,7 +107,7 @@ export class DatatableComponent implements OnInit {
     private recordLabel: string = "Records";
 
     @Input('selectedBlock') set selectedBlock(selectedBlock: string) {
-        this.selectedBlock$.next(selectedBlock)
+        this.selectedBlock$.next(selectedBlock);
     };
     private selectedBlock$ = new BehaviorSubject<string>("");
 
