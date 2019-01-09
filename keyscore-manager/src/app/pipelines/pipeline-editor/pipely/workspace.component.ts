@@ -10,6 +10,7 @@ import {
     OnDestroy,
     OnInit,
     Output,
+    Renderer2,
     ViewChild,
     ViewContainerRef
 } from "@angular/core";
@@ -30,7 +31,6 @@ import {PipelineConfiguratorService} from "./services/pipeline-configurator.serv
 import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../models/blueprints/Blueprint";
 import {Configuration} from "../../../models/common/Configuration";
 import {TextValue} from "../../../models/dataset/Value";
-import {Store} from "@ngrx/store";
 
 
 @Component({
@@ -38,7 +38,7 @@ import {Store} from "@ngrx/store";
     template: `
         <div class="pipely-wrapper">
             <div class="workspace-container" fxLayout="row" fxFill>
-                <div #workspace class="workspace" fxFlex="75" (mousedown)="triggerWorkspaceMouseDown($event)">
+                <div #workspace class="workspace" fxFlex="75">
                     <div class="row">
                         <ng-template #workspaceContainer>
                         </ng-template>
@@ -112,15 +112,18 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     private isAlive$: Subject<void> = new Subject<void>();
 
+    private isDraggableMouseDown: boolean;
+
     constructor(private dropzoneFactory: DropzoneFactory,
                 private draggableFactory: DraggableFactory,
                 private pipelineConfigurator: PipelineConfiguratorService,
                 private cd: ChangeDetectorRef,
-                private store: Store<any>) {
+                private renderer: Renderer2) {
         this.id = uuid();
     }
 
     private draggableMouseDown(draggable: Draggable, event: MouseEvent) {
+        this.isDraggableMouseDown = true;
         this.mouseDownStart = {x: event.clientX, y: event.clientY};
         if (this.selectedDraggable) {
             this.selectedDraggable.select(false);
@@ -138,6 +141,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
         return this.selectedDraggableSource.getValue() ? this.selectedDraggableSource.getValue().getDraggableModel().blueprintRef.uuid : sink.ref.uuid;
 
     }
+
     private selectBlock(selected: Draggable) {
         this.selectedDraggableSource.next(selected);
         if (selected) {
@@ -164,6 +168,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     @HostListener('mouseup', ['$event'])
     private mouseUp(event: MouseEvent) {
+        if (this.selectedDraggable.getDraggableModel().initialDropzone.getDropzoneModel().dropzoneType === DropzoneType.Toolbar) {
+            this.selectBlock(null);
+        }
         if (this.isDragging) {
             this.stopDragging();
         }
@@ -338,6 +345,13 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, OnC
 
     ngOnInit() {
         this.workspaceDropzone = this.dropzoneFactory.createWorkspaceDropzone(this.workspaceContainer, this);
+        this.renderer.listen(this.workspaceDropzone.getDropzoneElement().nativeElement, 'click', (evt) => {
+            if (this.isDraggableMouseDown) {
+                this.isDraggableMouseDown = false;
+            } else {
+                this.triggerWorkspaceMouseDown(evt);
+            }
+        });
 
         this.dropzones.add(this.workspaceDropzone);
         this.dropzones.add(this.dropzoneFactory.createTrashDropzone(this.workspaceContainer, this));
