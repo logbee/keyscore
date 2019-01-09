@@ -216,8 +216,6 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
   
   private def doCallback(callback: String => Unit, string: String) = {
     
-    log.info("Called back: \"" + leftOverFromPreviousBuffer + string + "\"")
-    
     callback(leftOverFromPreviousBuffer + string)
     leftOverFromPreviousBuffer = ""
   }

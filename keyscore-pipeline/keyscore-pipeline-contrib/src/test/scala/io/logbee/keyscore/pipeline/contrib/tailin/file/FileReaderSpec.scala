@@ -104,8 +104,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
       .expects(logFile.getAbsolutePath, typeTag[RotationRecord])
       .returning(Some(RotationRecord(previousReadPosition, previousReadTimestamp)))
   }
-
-
+  
+  
+  
   "A FileReader" - {
     "should retrieve the list of files it has to read from," - {
       "which should contain" - {
@@ -398,6 +399,52 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           (persistenceContextWithTimestamp.store (_: String, _: RotationRecord))
             .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
           fileReader.fileModified(mockCallback)
+        }
+      }
+      
+      
+      
+      "multiple rotated files after resuming reading" - {
+        
+        case class TestCase(bufferSize: Int, description: String)
+        
+        val bufferSizesToTest = Seq(
+                                    TestCase(  10, "shorter than one line of text"), 
+                                    TestCase( 1024, "longer than one line of text"), 
+                                    TestCase(999999, "longer than the entire text"),
+                                   )
+        
+        
+        bufferSizesToTest.foreach { case TestCase(_bufferSize, description) =>
+          
+          "with buffer size " + _bufferSize + " bytes, which is " + description in new PersistenceContextWithoutTimestamp {
+            
+            TestUtil.writeLogToFileWithRotation(logFile, numberOfLines=1000)
+
+            
+            val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + logFile + rotationSuffix)
+            
+            val files = (logFile.getParentFile.listFiles
+              .filter(file => rotateMatcher.matches(file.toPath)) :+ logFile)
+              .sortBy(file => file.lastModified)
+            
+            var contents = files.foldLeft("")((content, file) => content + Source.fromFile(file).mkString)
+            
+            if (readMode == ReadMode.LINE) { //we don't call back newlines in line-wise reading
+              contents = contents.replace("\n", "")
+            }
+            
+            
+            (persistenceContextWithoutTimestamp.store (_: String, _: Any))
+              .expects(logFile.toString, RotationRecord(logFile.length, logFile.lastModified))
+            
+            var calledBackString = "" 
+            val fileReader = new FileReader(watchedFile=logFile, rotationSuffix, persistenceContextWithoutTimestamp, _bufferSize, charset, readMode)
+            fileReader.fileModified(string => calledBackString += string)
+            
+            
+            calledBackString shouldEqual contents
+          }
         }
       }
     }
