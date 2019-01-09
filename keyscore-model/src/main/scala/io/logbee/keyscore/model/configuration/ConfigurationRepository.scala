@@ -129,7 +129,7 @@ class ConfigurationRepository {
 
   /** Discard all revisions applied after the revision specified by the passed [[ConfigurationRef]] of the denoted [[Configuration]]
     *
-    * @example For a given Configuration there are four revisions (A to D). When the configuration gets rest to B,
+    * @example For a given Configuration there are four revisions (A to D). When the configuration gets reset to B,
     *          then the revisions C and D will be discarded.
     * {{{
     * [ditaa]
