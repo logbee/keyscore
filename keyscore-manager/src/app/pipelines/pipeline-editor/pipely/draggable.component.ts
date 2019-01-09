@@ -29,7 +29,7 @@ import {ConnectorComponent} from "./connectors/connector.component";
     selector: "draggable",
     template: `
         <div #draggableElement fxLayout="column" fxLayoutGap="5px" [class]="'draggable'"
-             [class.mirror]="draggableModel.isMirror"
+             [class.mirror]="draggableModel?.isMirror"
              [class.d-flex]="visible"
              [class.d-none]="!visible"
              (mousedown)="triggerDragStart($event)">
@@ -37,36 +37,36 @@ import {ConnectorComponent} from "./connectors/connector.component";
                 <div class="connection previous-connection" fxLayout="column" fxLayoutAlign="center center">
                     <ng-template #previousConnection></ng-template>
                 </div>
-                <div class="blockContainer" [class.selectedDraggable]="draggableModel.isSelected">
+                <div class="blockContainer" [class.selectedDraggable]="draggableModel?.isSelected">
                     <svg
                             xmlns="http://www.w3.org/2000/svg"
                             version="1.1"
                             viewBox="0 0 971 567.929"
                     >
-                        <svg:g svg-connector [color]="draggableModel.color"
+                        <svg:g svg-connector [color]="draggableModel?.color"
                                [isDroppable]="isPreviousConncetionDroppable"
-                               [connectionType]="draggableModel.blockDescriptor.previousConnection.connectionType"
-                               [isSelected]="draggableModel.isSelected"/>
+                               [connectionType]="draggableModel?.blockDescriptor?.previousConnection?.connectionType"
+                               [isSelected]="draggableModel?.isSelected"/>
 
                         <svg:g>
                             <svg:path d="M282.75 0.5 H 687.75 V 567.429 H 282.75 V 0.5"
                                       id="rect5038"
-                                      attr.fill="{{draggableModel.color}}"/>
+                                      attr.fill="{{draggableModel?.color}}"/>
                             <svg:line x1="280" x2="690.75" y1="15" y2="15"
                                       id="rect5038-selected"
                                       stroke="#6495ED"
-                                      attr.stroke-width="{{draggableModel.isSelected ? '30px' : '0'}}"
+                                      attr.stroke-width="{{draggableModel?.isSelected ? '30px' : '0'}}"
                             />
                             <svg:line x1="280" x2="690.75" y1="552.429" y2="552.429"
                                       id="rect5038-selected"
                                       stroke="#6495ED"
-                                      attr.stroke-width="{{draggableModel.isSelected ? '30px' : '0'}}"
+                                      attr.stroke-width="{{draggableModel?.isSelected ? '30px' : '0'}}"
                             />
                         </svg:g>
-                        <svg:g svg-connector #nextConncetor [color]="draggableModel.color"
+                        <svg:g svg-connector #nextConncetor [color]="draggableModel?.color"
                                [isDroppable]="isNextConnectionDroppable"
-                               [connectionType]="draggableModel.blockDescriptor.nextConnection.connectionType"
-                               [isSelected]="draggableModel.isSelected"/>
+                               [connectionType]="draggableModel?.blockDescriptor?.nextConnection?.connectionType"
+                               [isSelected]="draggableModel?.isSelected"/>
                     </svg>
                     <div class="iconContainer">
                         <div #iconInnerContainer class="iconInnerContainer">
@@ -81,8 +81,8 @@ import {ConnectorComponent} from "./connectors/connector.component";
 
             </div>
             <div fxLayout="row" fxFlexAlign="center" fxLayoutAlign="space-around center" [class]="'draggable-name'"
-                 [class.sink]="draggableModel.blockDescriptor.nextConnection.connectionType === 'no-connection-out'">
-                {{draggableModel.blockDescriptor.displayName}}
+                 [class.sink]="draggableModel?.blockDescriptor?.nextConnection?.connectionType === 'no-connection-out'">
+                {{draggableModel?.blockDescriptor?.displayName}}
             </div>
         </div>
     `
