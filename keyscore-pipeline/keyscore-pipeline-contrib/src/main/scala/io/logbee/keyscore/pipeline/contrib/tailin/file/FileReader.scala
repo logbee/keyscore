@@ -122,7 +122,7 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
             if (coderResult.isMalformed) {
               //TODO handle the case where our persisted byte position starts in the middle of a codepoint for some reason
               
-              if (charBuffer.position + coderResult.length == charBuffer.capacity) { //characters are malformed because of the end of the buffer
+              if (byteBuffer.position + coderResult.length == byteBuffer.capacity) { //characters are malformed because of the end of the buffer
                 bytesRead -= coderResult.length
               }
               else { //actual error case
@@ -215,8 +215,6 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
   
   
   private def doCallback(callback: String => Unit, string: String) = {
-    
-    log.info("Called back: \"" + leftOverFromPreviousBuffer + string + "\"")
     
     callback(leftOverFromPreviousBuffer + string)
     leftOverFromPreviousBuffer = ""
