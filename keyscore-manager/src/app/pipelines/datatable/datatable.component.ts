@@ -45,7 +45,7 @@ import "../datatable/data-preview-table.css";
                 </left-right-control>
 
                 <button class="switch" mat-raised-button   color="primary"
-                        matTooltip="{{'DATATABLE.INOUT_TOOLTIP' | translate}}"
+                        [matTooltip]="where === 'after' ? 'Datasets after the transformation.' : 'Datasets before the transformation.'"
                         (click)="switch()">
                         {{ where === "before" ? ('DATATABLE.INSWITCH' | translate) : ('DATATABLE.OUTSWITCH' | translate)}}
                 </button>
