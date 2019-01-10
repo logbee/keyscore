@@ -5,11 +5,14 @@ import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.commons.extension.ExtensionLoader.{LoadExtensions, RegisterExtension}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
 
 
+@RunWith(classOf[JUnitRunner])
 class ExtensionLoaderSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with WordSpecLike with Matchers {
 
   "An ExtensionManager" should {
