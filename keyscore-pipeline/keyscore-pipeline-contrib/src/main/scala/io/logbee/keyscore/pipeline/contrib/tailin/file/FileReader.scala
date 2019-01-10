@@ -53,11 +53,15 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
         Array()
         
       case rotationPattern =>
-        val filesInSameDir = watchedFile.getParentFile.listFiles
+        val filesInSameDir = watchedFile.toPath.getParent.resolve(rotationPattern).getParent.toFile.listFiles //resolve a relative path, if the rotationPattern contains one
         
-        val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + watchedFile.getParent + "/" + rotationPattern)
-        
-        filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
+        if (filesInSameDir == null) //if the directory doesn't exist
+          Array()
+        else {
+          val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + watchedFile.getParent + "/" + rotationPattern)
+          
+          filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
+        }
     }
   }
   
