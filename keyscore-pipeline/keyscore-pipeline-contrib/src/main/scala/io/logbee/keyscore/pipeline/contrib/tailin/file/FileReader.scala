@@ -45,30 +45,33 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
   
   
   
-  private def getRotationFiles(rotationSuffix: String): Array[File] = {
+  private def getRotatedFiles(rotationSuffix: String): Array[File] = {
     rotationSuffix match {
       case "" =>
-        Array(watchedFile)
+        Array()
       case null =>
-        Array(watchedFile)
+        Array()
         
       case rotationSuffix =>
         val filesInSameDir = watchedFile.getParentFile.listFiles 
     
         val rotateMatcher = FileSystems.getDefault.getPathMatcher(s"glob:${watchedFile.toString}$rotationSuffix")
         
-        val rotatedFiles = filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
-        
-        rotatedFiles :+ watchedFile
+        filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
     }
   }
   
   
   
   def getFilesToRead(): Array[File] = {
-    val rotatedFiles = getRotationFiles(rotationSuffix)
+    val rotatedFiles = getRotatedFiles(rotationSuffix)
     
-    rotatedFiles.filter(rotatedFile => rotatedFile.lastModified >= rotationRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
+    val files = if (rotatedFiles contains watchedFile)
+                   rotatedFiles
+                else
+                   (rotatedFiles :+ watchedFile)
+    
+    files.filter(rotatedFile => rotatedFile.lastModified >= rotationRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
   }
 
   
