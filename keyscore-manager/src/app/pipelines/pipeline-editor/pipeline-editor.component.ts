@@ -115,11 +115,6 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
                 this.pipelyAdapter.resolvedParameterDescriptorToBlockDescriptor(descriptor)))
         });
 
-        /*this.runInspectSource$.subscribe(enteredPreviewMode => {
-            if (enteredPreviewMode) {
-                this.triggerDataSourceCreation()
-            }
-        });*/
         this.errorState$ = this.store.pipe(select(isError));
         this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));
         this.errorMessage$ = this.store.pipe(select(selectErrorMessage));

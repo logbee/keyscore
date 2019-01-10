@@ -124,6 +124,7 @@ export class DatatableComponent implements OnInit {
             this.outputDatasetTableModels = models;
             this.currentDataset = this.outputDatasetTableModels[this.datasetIndex.getValue()];
             this.selectedModels$.next(this.outputDatasetTableModels);
+            console.log("selcetedModels changed to output")
         });
 
         this.inputDatasetTableModels$.subscribe(models => {
@@ -193,10 +194,12 @@ export class DatatableComponent implements OnInit {
     }
     switch() {
         if (this.where === "before") {
-            this.selectedModels$.next(this.inputDatasetTableModels);
+            this.selectedModels$.next(this.outputDatasetTableModels);
+            console.log("selcetedModels changed to input");
             this.where = "after";
         } else if (this.where === "after") {
-            this.selectedModels$.next(this.outputDatasetTableModels);
+            this.selectedModels$.next(this.inputDatasetTableModels);
+            console.log("selcetedModels changed to output by switch method");
             this.where = "before";
         }
     }
