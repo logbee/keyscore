@@ -122,7 +122,16 @@ object TailinSourceLogic extends Described {
     mandatory = true
   )
   
-
+  
+  
+  //not exposed in UI
+  val persistenceFile = TextParameterDescriptor(
+    defaultValue = ".keyscoreFileTailinPersistence",
+    mandatory = false
+  )
+  
+  
+  
   override def describe = Descriptor(
     ref = "5a754cd3-e11d-4dfb-a484-a9f83cf3d795",
     describes = SourceDescriptor(
@@ -155,6 +164,10 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var rotationPattern = TailinSourceLogic.rotationPattern.defaultValue
   private var fieldName = TailinSourceLogic.fieldName.defaultValue
   
+  //not exposed in UI
+  private var persistenceFile = TailinSourceLogic.persistenceFile.defaultValue
+  
+  
   var dirWatcher: DirWatcher = _
 
   val sendBuffer = new SendBuffer()
@@ -169,6 +182,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     encoding = configuration.getValueOrDefault(TailinSourceLogic.encoding, encoding)
     rotationPattern = configuration.getValueOrDefault(TailinSourceLogic.rotationPattern, rotationPattern)
     fieldName = configuration.getValueOrDefault(TailinSourceLogic.fieldName, fieldName)
+    persistenceFile = configuration.getValueOrDefault(TailinSourceLogic.persistenceFile, persistenceFile)
     
     
     
@@ -179,18 +193,17 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     }
     
 
-    val persistenceFile: File = new File(".keyscoreFileTailinPersistence")
-
-    persistenceFile.createNewFile()
+    val _persistenceFile = new File(persistenceFile)
+    _persistenceFile.createNewFile()
     
     for (i <- 1 to 50) {
-      if (persistenceFile.exists == false) {
+      if (_persistenceFile.exists == false) {
         Thread.sleep(100)
       }
     }
     
     
-    val persistenceContext = new FilePersistenceContext(persistenceFile)
+    val persistenceContext = new FilePersistenceContext(_persistenceFile)
     val bufferSize = 1024
 
     val callback: String => Unit = {

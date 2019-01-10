@@ -26,11 +26,14 @@ import io.logbee.keyscore.model.configuration.NumberParameter
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode._
 import java.nio.charset.Charset
 import io.logbee.keyscore.model.conversion.TextValueConversion
+import org.scalatest.ParallelTestExecution
 
 @RunWith(classOf[JUnitRunner])
-class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext with ParallelTestExecution {
   
   var watchDir: Path = _
+  
+  val persistenceFile = new File(".testKeyscorePersistenceFile")
   
   before {
     watchDir = Files.createTempDirectory("watchTest")
@@ -38,11 +41,35 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
   }
   after {
     TestUtil.recursivelyDelete(watchDir)
+    
+    persistenceFile.delete()
   }
   
   override def afterAll = {
     TestKit.shutdownActorSystem(system)
   }
+  
+  
+  trait DefaultSource {
+    val context = StageContext(system, executionContext)
+    
+    val configuration = Configuration(
+      TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir + "/tailin.csv"),
+      ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.LINE.toString),
+      ChoiceParameter(TailinSourceLogic.encoding.ref,        StandardCharsets.UTF_8.toString),
+      TextParameter(  TailinSourceLogic.rotationPattern.ref, "tailin.csv.[1-5]"),
+      TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
+      
+      TextParameter(  TailinSourceLogic.persistenceFile.ref, persistenceFile.getAbsolutePath),
+    )
+    
+    val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, context, configuration), shape)
+    
+    val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID, context, configuration), provider)
+    
+    val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
+  }
+  
   
   
   
@@ -114,6 +141,8 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
             ChoiceParameter(TailinSourceLogic.encoding.ref,        testSetup.encoding.toString),
             TextParameter(  TailinSourceLogic.rotationPattern.ref,  testSetup.rotationPattern),
             TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
+            
+            TextParameter(  TailinSourceLogic.persistenceFile.ref, persistenceFile.getAbsolutePath),
           )
           
           val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, context, configuration), shape)
@@ -218,6 +247,28 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
           datasetText.records.head.fields.head.value shouldEqual TextValue(testSetup.expectedData.head)
         }
       }
+    }
+    
+    
+    
+    "should push realistic log data with rotation" in new DefaultSource {
+      
+      val file = TestUtil.createFile(watchDir, "tailin.csv")
+      
+      val numberOfLines = 1000
+      
+      TestUtil.writeLogToFileWithRotation(file, numberOfLines)
+      
+      var concatenatedString = ""
+      for (i <- 1 to numberOfLines) { //should usually be enough retries
+        sink.request(1)
+        
+        val datasetText = sink.expectNext(10.seconds)
+        
+        concatenatedString += datasetText.records.head.fields.head.value.asInstanceOf[TextValue].value + "\n"
+      }
+      
+      concatenatedString.lines.length shouldEqual numberOfLines
     }
   }
 }
