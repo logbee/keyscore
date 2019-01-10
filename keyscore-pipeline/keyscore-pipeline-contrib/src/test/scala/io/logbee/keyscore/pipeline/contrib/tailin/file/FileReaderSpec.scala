@@ -33,15 +33,16 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   }
 
   
-  var rotationSuffix = ".[1-5]"
-  var bufferSize = 1024
-  var charset = StandardCharsets.UTF_8
-  var readMode = ReadMode.LINE
+  val defaultBufferSize = 1024
+  val defaultCharset = StandardCharsets.UTF_8
+  val defaultReadMode = ReadMode.LINE
   
   
   trait LogFile {
     val logFileData = "Log_File_0_ "
     val logFile = TestUtil.createFile(watchDir, "log.txt", logFileData)
+    
+    val defaultRotationPattern = logFile.getName + ".[1-5]"
   }
   
   
@@ -113,11 +114,11 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     "should retrieve the list of files it has to read from," - {
       "which should contain" - {
         "only the FileReader's file itself," - {
-          "if it got passed null as rotationSuffix" in new PersistenceContextWithoutTimestamp {
+          "if it got passed null as rotationPattern" in new PersistenceContextWithoutTimestamp {
             
-            rotationSuffix = null
+            val rotationPattern = null
             
-            val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, rotationPattern, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
             
             val rotationFiles = fileReader.getFilesToRead
             
@@ -125,11 +126,11 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             rotationFiles(0) shouldBe logFile
           }
           
-          "if it got passed an empty rotationSuffix" in new PersistenceContextWithoutTimestamp {
+          "if it got passed an empty rotationPattern" in new PersistenceContextWithoutTimestamp {
             
-            rotationSuffix = ""
+            val rotationPattern = ""
             
-            val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, rotationPattern, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
             
             val rotationFiles = fileReader.getFilesToRead
             
@@ -138,11 +139,11 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           }
         }
         
-        "all files matching the rotationSuffix," - {
-          "if it got passed a non-empty rotationSuffix" in new PersistenceContextWithTimestamp {
+        "all files matching the rotationPattern," - {
+          "if it got passed a non-empty rotationPattern" in new PersistenceContextWithTimestamp {
             
-            rotationSuffix = ".[1-2]"
-            val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithTimestamp, bufferSize, charset, readMode)
+            val rotationPattern = logFile.getName + ".[1-2]"
+            val fileReader = new FileReader(logFile, rotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
             
             
             val rotationFiles = fileReader.getFilesToRead
@@ -151,10 +152,12 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           }
         }
         
-        "all files matching the rotationSuffix that are newer than the previousReadTimestamp," - {
-          "if it got passed a non-empty rotationSuffix and a previousReadTimestamp" in new PersistenceContextWithTimestamp {
+        "all files matching the rotationPattern that are newer than the previousReadTimestamp," - {
+          "if it got passed a non-empty rotationPattern and a previousReadTimestamp" in new PersistenceContextWithTimestamp {
             
-            val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithTimestamp, bufferSize, charset, readMode)
+            val rotationPattern = logFile.getName + ".[1-5]"
+            
+            val fileReader = new FileReader(logFile, rotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
             
             val rotationFiles = fileReader.getFilesToRead
             
@@ -174,7 +177,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           "if the file contains only one line of text" in new PersistenceContextWithoutTimestamp {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             TestUtil.writeStringToFile(logFile, line1, StandardOpenOption.TRUNCATE_EXISTING)
@@ -191,7 +194,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           "if the file contains only one line of text with a newline at the end" in new PersistenceContextWithoutTimestamp {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             val text = line1 + "\n"
@@ -209,7 +212,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           "if the file contains multiple lines of text" in new PersistenceContextWithoutTimestamp {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             val line2 = "Line2"
@@ -233,7 +236,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           "if the file contains multiple newline-characters directly following each other"  in new PersistenceContextWithoutTimestamp {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             val line3 = "Line3"
@@ -255,7 +258,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           "if the file contains a Windows newline \\r\\n" in new PersistenceContextWithoutTimestamp {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             val line2 = "Line2"
@@ -277,7 +280,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           "if the contents of the file are longer than one buffer's length" in new PersistenceContextWithoutTimestamp {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = new String(new Array[Byte](512))
             val line2 = new String(new Array[Byte](52))
@@ -304,7 +307,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           "if the file contains a line that is longer than the buffer" in new PersistenceContextWithoutTimestamp {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = new String(new Array[Byte](12))
         		val line2 = new String(new Array[Byte](34567))
@@ -331,8 +334,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         
         "in whole from the previous reading position, if file-wise reading is active" in new PersistenceContextWithoutTimestamp {
           
-          readMode = ReadMode.FILE
-          val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+          val readMode = ReadMode.FILE
+          val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
           
           
           val line1 = "Line1"
@@ -354,11 +357,12 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         }
       }
       
+      
       "its file as well as its rotated files, if rotation is active" - {
         "line by line, if line-wise reading is active" in new PersistenceContextWithTimestamp {
           
-          readMode = ReadMode.LINE
-          val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithTimestamp, bufferSize, charset, readMode)
+          val readMode = ReadMode.LINE
+          val fileReader = new FileReader(logFile, defaultRotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, readMode)
           
           
           //write something additional to the file to test line-wise reading
@@ -385,8 +389,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         
         "file by file, if file-wise reading is active" in new PersistenceContextWithTimestamp {
           
-          readMode = ReadMode.FILE
-          val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithTimestamp, bufferSize, charset, readMode)
+          val readMode = ReadMode.FILE
+          val fileReader = new FileReader(logFile, defaultRotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, readMode)
           
           
           val mockCallback = mockFunction[String, Unit]
@@ -417,14 +421,14 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
                                    )
         
         
-        bufferSizesToTest.foreach { case TestCase(_bufferSize, description) =>
+        bufferSizesToTest.foreach { case TestCase(bufferSize, description) =>
           
-          "with buffer size " + _bufferSize + " bytes, which is " + description in new PersistenceContextWithoutTimestamp {
+          "with buffer size " + bufferSize + " bytes, which is " + description in new PersistenceContextWithoutTimestamp {
             
             TestUtil.writeLogToFileWithRotation(logFile, numberOfLines=1000)
 
             
-            val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + logFile + rotationSuffix)
+            val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + logFile.getParent + "/" + defaultRotationPattern)
             
             val files = (logFile.getParentFile.listFiles
               .filter(file => rotateMatcher.matches(file.toPath)) :+ logFile)
@@ -432,7 +436,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             
             var contents = files.foldLeft("")((content, file) => content + Source.fromFile(file).mkString)
             
-            if (readMode == ReadMode.LINE) { //we don't call back newlines in line-wise reading
+            if (defaultReadMode == ReadMode.LINE) { //we don't call back newlines in line-wise reading
               contents = contents.replace("\n", "")
             }
             
@@ -441,7 +445,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
               .expects(logFile.toString, RotationRecord(logFile.length, logFile.lastModified))
             
             var calledBackString = "" 
-            val fileReader = new FileReader(watchedFile=logFile, rotationSuffix, persistenceContextWithoutTimestamp, _bufferSize, charset, readMode)
+            val fileReader = new FileReader(watchedFile=logFile, defaultRotationPattern, persistenceContextWithoutTimestamp, bufferSize, defaultCharset, defaultReadMode)
             fileReader.fileModified(string => calledBackString += string)
             
             
@@ -456,7 +460,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
       "for one log file" - {
         "without rotated files" in new PersistenceContextWithoutTimestamp {
           
-          val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, bufferSize, charset, readMode)
+          val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
           
           (persistenceContextWithoutTimestamp.store (_: String, _: Any))
             .expects(logFile.toString, RotationRecord(logFile.length, logFile.lastModified))
@@ -467,19 +471,14 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         "with rotated files" in new PersistenceContextWithTimestamp {
           //check that store() is called only once and with the correct parameters, even with multiple files (as we only want the read position persisted for the last file, not for the intermediate files)
           
-          val fileReader = new FileReader(logFile, rotationSuffix, persistenceContextWithTimestamp, bufferSize, charset, readMode)
+          val fileReader = new FileReader(logFile, defaultRotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
           
           (persistenceContextWithTimestamp.store (_: String, _: Any))
             .expects(logFile.toString, RotationRecord(logFileData.length, logFile.lastModified))
           
-            
           fileReader.fileModified((_: String) => ())
         }
       }
-    }
-    
-    "should react to a file modification event" - {
-      //TODO integration test
     }
   }
 }

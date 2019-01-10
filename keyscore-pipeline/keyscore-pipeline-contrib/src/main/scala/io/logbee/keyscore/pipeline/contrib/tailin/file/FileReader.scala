@@ -20,10 +20,10 @@ object ReadMode extends Enumeration {
 case class RotationRecord(previousReadPosition: Long, previousReadTimestamp: Long)
 
 /**
- * @param rotationSuffix Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.
+ * @param rotationPattern Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.
  * @param persistenceContext PersistenceContext where RotationRecords are stored and read from.
  */
-class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: PersistenceContext, byteBufferSize: Int, charset: Charset, readMode: ReadMode) extends DefaultFileWatcher(watchedFile) with FileWatcher {
+class FileReader(watchedFile: File, rotationPattern: String, persistenceContext: PersistenceContext, byteBufferSize: Int, charset: Charset, readMode: ReadMode) extends DefaultFileWatcher(watchedFile) with FileWatcher {
   
   private val log = LoggerFactory.getLogger(classOf[FileReader])
   
@@ -45,17 +45,17 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
   
   
   
-  private def getRotatedFiles(rotationSuffix: String): Array[File] = {
-    rotationSuffix match {
+  private def getRotatedFiles(rotationPattern: String): Array[File] = {
+    rotationPattern match {
       case "" =>
         Array()
       case null =>
         Array()
         
-      case rotationSuffix =>
-        val filesInSameDir = watchedFile.getParentFile.listFiles 
-    
-        val rotateMatcher = FileSystems.getDefault.getPathMatcher(s"glob:${watchedFile.toString}$rotationSuffix")
+      case rotationPattern =>
+        val filesInSameDir = watchedFile.getParentFile.listFiles
+        
+        val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + watchedFile.getParent + "/" + rotationPattern)
         
         filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
     }
@@ -64,14 +64,14 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
   
   
   def getFilesToRead(): Array[File] = {
-    val rotatedFiles = getRotatedFiles(rotationSuffix)
+    val rotatedFiles = getRotatedFiles(rotationPattern)
     
     val files = if (rotatedFiles contains watchedFile)
                    rotatedFiles
                 else
                    (rotatedFiles :+ watchedFile)
     
-    files.filter(rotatedFile => rotatedFile.lastModified >= rotationRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
+    files.filter(file => file.lastModified >= rotationRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
   }
 
   
@@ -123,7 +123,6 @@ class FileReader(watchedFile: File, rotationSuffix: String, persistenceContext: 
             val coderResult = decoder.decode(byteBuffer, charBuffer, true)
             
             if (coderResult.isMalformed) {
-              //TODO handle the case where our persisted byte position starts in the middle of a codepoint for some reason
               
               if (byteBuffer.position + coderResult.length == byteBuffer.capacity) { //characters are malformed because of the end of the buffer
                 bytesRead -= coderResult.length

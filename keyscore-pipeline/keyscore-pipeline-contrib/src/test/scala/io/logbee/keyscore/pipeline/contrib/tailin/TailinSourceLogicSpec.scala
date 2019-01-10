@@ -55,7 +55,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         filePattern: String,
         readMode: ReadMode,
         encoding: Charset = StandardCharsets.UTF_8,
-        rotationSuffix: String = "",
+        rotationPattern: String = "",
         expectedData: Seq[String],
     )
     
@@ -97,10 +97,11 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     testSetups.foreach { testSetup =>
       
       s"""with
-        filePattern:    "${testSetup.filePattern}"
-        readMode:       "${testSetup.readMode}"
-        encoding:       "${testSetup.encoding}"
-        rotationSuffix: "${testSetup.rotationSuffix}"""" - {
+        filePattern:     "${testSetup.filePattern}"
+        readMode:        "${testSetup.readMode}"
+        encoding:        "${testSetup.encoding}"
+        rotationPattern: "${testSetup.rotationPattern}"
+      """ - {
         
         
         trait DefaultTailinSourceValues {
@@ -111,7 +112,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
             TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir + "/" + testSetup.filePattern),
             ChoiceParameter(TailinSourceLogic.readMode.ref,        testSetup.readMode.toString),
             ChoiceParameter(TailinSourceLogic.encoding.ref,        testSetup.encoding.toString),
-            TextParameter(  TailinSourceLogic.rotationSuffix.ref,  testSetup.rotationSuffix),
+            TextParameter(  TailinSourceLogic.rotationPattern.ref,  testSetup.rotationPattern),
             TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
           )
           

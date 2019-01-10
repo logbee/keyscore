@@ -96,11 +96,11 @@ object TailinSourceLogic extends Described {
     ),
   )
   
-  val rotationSuffix = TextParameterDescriptor(
-    ref = "tailin.rotation.suffix",
+  val rotationPattern = TextParameterDescriptor(
+    ref = "tailin.rotation.pattern",
     info = ParameterInfo(
-      displayName = TextRef("rotationSuffix"),
-      description = TextRef("rotationSuffixDescription")
+      displayName = TextRef("rotationPattern"),
+      description = TextRef("rotationPatternDescription")
     ),
     validator = StringValidator(
       expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
@@ -134,7 +134,7 @@ object TailinSourceLogic extends Described {
         filePattern,
         readMode,
         encoding,
-        rotationSuffix,
+        rotationPattern,
         fieldName,
       ),
       icon = Icon.fromClass(classOf[TailinSourceLogic])
@@ -152,7 +152,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var filePattern = TailinSourceLogic.filePattern.defaultValue
   private var readMode = ReadMode.LINE.toString
   private var encoding = StandardCharsets.UTF_8.toString
-  private var rotationSuffix = TailinSourceLogic.rotationSuffix.defaultValue
+  private var rotationPattern = TailinSourceLogic.rotationPattern.defaultValue
   private var fieldName = TailinSourceLogic.fieldName.defaultValue
   
   var dirWatcher: DirWatcher = _
@@ -167,7 +167,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
     readMode = configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode)
     encoding = configuration.getValueOrDefault(TailinSourceLogic.encoding, encoding)
-    rotationSuffix = configuration.getValueOrDefault(TailinSourceLogic.rotationSuffix, rotationSuffix)
+    rotationPattern = configuration.getValueOrDefault(TailinSourceLogic.rotationPattern, rotationPattern)
     fieldName = configuration.getValueOrDefault(TailinSourceLogic.fieldName, fieldName)
     
     
@@ -198,7 +198,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
         sendBuffer.addToBuffer(data)
     }
     
-    val rotationReaderProvider = new RotationReaderProvider(rotationSuffix, persistenceContext, bufferSize, callback, Charset.forName(encoding), ReadMode.withName(readMode))
+    val rotationReaderProvider = new RotationReaderProvider(rotationPattern, persistenceContext, bufferSize, callback, Charset.forName(encoding), ReadMode.withName(readMode))
     val dirWatcherConfiguration = DirWatcherConfiguration(baseDir, DirWatcherPattern(filePattern))
     dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
   }
