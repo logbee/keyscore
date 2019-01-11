@@ -260,7 +260,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       TestUtil.writeLogToFileWithRotation(logFile, numberOfLines, slf4j_rotatePattern)
       
       var concatenatedString = ""
-      for (i <- 1 to numberOfLines) { //should usually be enough retries
+      for (i <- 1 to numberOfLines) {
         sink.request(1)
         
         val datasetText = sink.expectNext(10.seconds)
