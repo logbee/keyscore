@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "google/protobuf/any.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.commons.cluster.consensus"
+    flat_package: true
+};
+
+message StartElection {
+
+}
+
+message RequestVote {
+    string candidate = 1;
+    int64 term = 2;
+    int64 lastIndex = 3;
+}
+
+message AgreeVote {
+    int64 term = 2;
+}
+
+message RejectVote {
+
+}
+
+message Append {
+    int64 term = 2;
+    int64 prevLogIndex = 3;
+    int64 prevLogTerm = 4;
+    int64 leaderCommit = 5;
+    repeated google.protobuf.Any entries = 6;
+}
+
+message AppendSuccess {
+    int64 term = 2;
+}
+
+message AppendFailure {
+    int64 term = 2;
+}
+
+message WhatAreYou {}
+
+message IamFollower {}
+
+message IamCandidate {}
+
+message IamLeader {
+    int64 term = 2;
+}

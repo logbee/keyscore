@@ -24,6 +24,7 @@ dependencies {
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit
     testCompile dependency.junit
+    testCompile project(':keyscore-test-fixtures')
 }
 
 test {
