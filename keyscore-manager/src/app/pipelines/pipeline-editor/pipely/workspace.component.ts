@@ -140,9 +140,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
 
     private selectBlock(selected: Draggable) {
         this.selectedDraggableSource.next(selected);
+        console.log(this.isInspecting);
         if (selected && this.isInspecting) {
             this.onSelectBlock.emit(selected.getDraggableModel().blueprintRef.uuid);
-        } else if(this.isInspecting) {
+        } else  if(this.isInspecting) {
             let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
             this.onSelectBlock.emit(sink.ref.uuid);
         }
@@ -366,6 +367,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
 
         this.inspectTrigger$.pipe(takeUntil(this.isAlive$)).subscribe(() => {
             //TODO: Disable when no pipeline
+            this.isInspecting = !this.isInspecting;
+            console.log("set flag to " + this.isInspecting);
             this.selectBlock(this.selectedDraggableSource.getValue());
             if (!this.selectedBlockForDataTable$) {
                 let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
@@ -375,8 +378,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
                     this.selectedBlockForDataTable$ = new BehaviorSubject<string>(this.selectedDraggableSource.getValue().getDraggableModel().blueprintRef.uuid);
                 }
             }
-
-            this.isInspecting = !this.isInspecting;
         });
 
         this.selectedDraggable$ = this.selectedDraggable$.pipe(tap(draggable => {
