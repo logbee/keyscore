@@ -425,7 +425,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           "with buffer size " + bufferSize + " bytes, which is " + description in new PersistenceContextWithoutTimestamp {
             
-            TestUtil.writeLogToFileWithRotation(logFile, numberOfLines=1000)
+            TestUtil.writeLogToFileWithRotation(logFile, numberOfLines=1000, rotatePattern = logFile.getName + ".%i")
 
             
             val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + logFile.getParent + "/" + defaultRotationPattern)

@@ -93,7 +93,7 @@ object TestUtil {
   
   
   
-  def writeLogToFileWithRotation(logFile: File, numberOfLines: Int = 1000) = {
+  def writeLogToFileWithRotation(logFile: File, numberOfLines: Int = 1000, rotatePattern: String) = {
     
     //logger setup
     val context = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
@@ -105,7 +105,7 @@ object TestUtil {
     val rollingPolicy = new FixedWindowRollingPolicy()
     rollingPolicy.setContext(context)
     rollingPolicy.setParent(rollingFileAppender)
-    rollingPolicy.setFileNamePattern(logFile.getAbsolutePath + ".%i")
+    rollingPolicy.setFileNamePattern(logFile.toPath.getParent.resolve(rotatePattern).toString)
     rollingPolicy.start()
     rollingFileAppender.setRollingPolicy(rollingPolicy)
     

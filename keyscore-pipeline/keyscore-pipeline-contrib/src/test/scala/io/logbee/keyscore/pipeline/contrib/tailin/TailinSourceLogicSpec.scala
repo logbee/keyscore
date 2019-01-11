@@ -253,11 +253,11 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     
     "should push realistic log data with rotation" in new DefaultSource {
       
-      val file = TestUtil.createFile(watchDir, "tailin.csv")
-      
+      val logFile = TestUtil.createFile(watchDir, "tailin.csv")
       val numberOfLines = 1000
+      val slf4j_rotatePattern = logFile.getName + ".%i"
       
-      TestUtil.writeLogToFileWithRotation(file, numberOfLines)
+      TestUtil.writeLogToFileWithRotation(logFile, numberOfLines, slf4j_rotatePattern)
       
       var concatenatedString = ""
       for (i <- 1 to numberOfLines) { //should usually be enough retries
