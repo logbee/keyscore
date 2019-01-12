@@ -11,7 +11,7 @@ object ConsensusActor {
   def apply(realm: String, electionSchedulingEnabled: Boolean = true) = Props(new ConsensusActor(realm, electionSchedulingEnabled))
 }
 
-class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean) extends Actor with ActorLogging {
+class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = true) extends Actor with ActorLogging {
 
   import context.{become, dispatcher, watch}
 
