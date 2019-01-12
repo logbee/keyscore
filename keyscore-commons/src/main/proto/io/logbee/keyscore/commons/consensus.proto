@@ -42,6 +42,11 @@ message AppendFailure {
     Term term = 2 [(scalapb.field).no_box = true];
 }
 
+message LeaderDied {
+    string identifier = 1;
+    Term term = 2 [(scalapb.field).no_box = true];
+}
+
 message WhatAreYou {}
 
 message IamFollower {

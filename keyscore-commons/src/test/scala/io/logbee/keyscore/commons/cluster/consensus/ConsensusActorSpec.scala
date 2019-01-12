@@ -6,6 +6,7 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe}
 import akka.serialization.Serialization
 import akka.testkit.TestProbe
+import io.logbee.keyscore.commons.cluster.consensus.ConsensusActor.identifier
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -138,7 +139,7 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
 
         testee tell(IamLeader(), probeA.ref)
 
-        system.stop(probeA.ref)
+        testee tell(LeaderDied(identifier(probeA.ref), Term(0)), system.deadLetters)
 
         probeB.expectMsg(RequestVote(testeeIdentifier, Term(1)))
       }

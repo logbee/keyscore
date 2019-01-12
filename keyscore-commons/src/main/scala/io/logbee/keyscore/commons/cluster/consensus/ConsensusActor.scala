@@ -1,21 +1,25 @@
 package io.logbee.keyscore.commons.cluster.consensus
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import akka.serialization.Serialization
+import io.logbee.keyscore.commons.cluster.consensus.ConsensusActor.identifier
 
 import scala.concurrent.duration._
 
 object ConsensusActor {
+
   def apply(realm: String, electionSchedulingEnabled: Boolean = true) = Props(new ConsensusActor(realm, electionSchedulingEnabled))
+
+  def identifier(actorRef: ActorRef): String = Serialization.serializedActorPath(actorRef)
 }
 
 class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = true) extends Actor with ActorLogging {
 
-  import context.{become, dispatcher, watch}
+  import context.{become, dispatcher, watchWith}
 
-  private val identifier = Serialization.serializedActorPath(self)
+  private val myIdentifier = identifier(self)
 
   private val mediator = DistributedPubSub(context.system).mediator
 
@@ -51,14 +55,9 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
     case StartElection() if state.leader.isEmpty =>
       val candidateState = state.copy(term = state.term.next)
       log.info(s"Starting Election for term: ${candidateState.term}")
-      mediator ! Publish(realm, RequestVote(identifier, candidateState.term, state.lastApplied))
+      mediator ! Publish(realm, RequestVote(myIdentifier, candidateState.term, state.lastApplied))
       self ! VoteCandidate()
       become(candidate(candidateState))
-
-    case Terminated(actorRef) if state.leader.nonEmpty && state.leader.get.equals(actorRef) =>
-      log.info(s"Leader is dead. Long live the Leader. Starting election in $electionDelay.")
-      become(follower(state.copy(leader = None)), discardOld = true)
-      maybeScheduleElection()
 
     case RequestVote(candidate, term, lastIndex) =>
       val actorRef = context.actorSelection(candidate)
@@ -69,10 +68,15 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
         actorRef ! DeclineCandidate()
       }
 
+    case LeaderDied(leaderIdentifier, _) if state.leader.nonEmpty && identifier(state.leader.get).equals(leaderIdentifier) =>
+      log.info(s"The Leader is dead. Long live the Leader. Starting election in $electionDelay.")
+      become(follower(state.copy(leader = None)), discardOld = true)
+      maybeScheduleElection()
+
     case IamLeader(term, index) =>
       log.info("Got message from leader. Staying follower.")
       become(follower(state.copy(leader = Option(sender), term = term)), discardOld = true)
-      watch(sender)
+      watchWith(sender, LeaderDied(identifier(sender), term))
 
     case WhatAreYou() => sender ! IamFollower(state.term, state.committedIndex)
 
@@ -96,9 +100,9 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
     case IamLeader(term, index) =>
       log.info("Got message from leader. Canceling election and becoming follower again.")
       become(follower(state.copy(term = state.term.previous)), discardOld = true)
-      watch(sender)
+      watchWith(sender, LeaderDied(identifier(sender), term))
 
-    case RequestVote(candidate, term, _) if !identifier.equals(candidate)=>
+    case RequestVote(candidate, term, _) if !myIdentifier.equals(candidate)=>
       if(state.term > term) {
         log.info(s"Declining candidate due to higher term: ${state.term} > $term")
         sender ! DeclineCandidate()
