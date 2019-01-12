@@ -18,11 +18,11 @@ message RequestVote {
     int64 lastIndex = 3;
 }
 
-message AgreeVote {
+message VoteCandidate {
     int64 term = 2;
 }
 
-message RejectVote {
+message DeclineCandidate {
 
 }
 
@@ -44,10 +44,17 @@ message AppendFailure {
 
 message WhatAreYou {}
 
-message IamFollower {}
+message IamFollower {
+    int64 term = 2;
+    int64 index = 3;
+}
 
-message IamCandidate {}
+message IamCandidate {
+    int64 term = 2;
+    int64 index = 3;
+}
 
 message IamLeader {
     int64 term = 2;
+    int64 index = 3;
 }
