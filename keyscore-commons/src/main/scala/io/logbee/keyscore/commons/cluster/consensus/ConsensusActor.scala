@@ -49,7 +49,7 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
   private def follower(state: FollowerState): Receive = {
 
     case StartElection() if state.leader.isEmpty =>
-      val candidateState = state.copy(term = state.term + 1)
+      val candidateState = state.copy(term = state.term.next)
       log.info(s"Starting Election for term: ${candidateState.term}")
       mediator ! Publish(realm, RequestVote(identifier, candidateState.term, state.lastApplied))
       self ! VoteCandidate()
@@ -95,7 +95,7 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
 
     case IamLeader(term, index) =>
       log.info("Got message from leader. Canceling election and becoming follower again.")
-      become(follower(state.copy(term = state.term - 1)), discardOld = true)
+      become(follower(state.copy(term = state.term.previous)), discardOld = true)
       watch(sender)
 
     case RequestVote(candidate, term, _) if !identifier.equals(candidate)=>
@@ -105,7 +105,7 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
       } else if (state.term < term) {
         log.info(s"Voting candidate due to lower term: ${state.term} < $term")
         sender ! VoteCandidate()
-        become(follower(state.copy(term = state.term - 1)), discardOld = true)
+        become(follower(state.copy(term = state.term.previous)), discardOld = true)
       } else {
         log.error("Unhandled Split-Vote!")
       }
@@ -123,7 +123,7 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
     }
   }
 
-  case class FollowerState(term: Long = 0, leader: Option[ActorRef] = None, committedIndex: Long = 0, lastApplied: Long = 0)
+  case class FollowerState(term: Term = Term(), leader: Option[ActorRef] = None, committedIndex: Long = 0, lastApplied: Long = 0)
 
-  case class LeaderState(term: Long = 0, leader: Option[ActorRef] = None, committedIndex: Long = 0, nextIndex: Map[ActorRef, Long] = Map.empty, matchIndex: Map[ActorRef, Long] = Map.empty)
+  case class LeaderState(term: Term = Term(), leader: Option[ActorRef] = None, committedIndex: Long = 0, nextIndex: Map[ActorRef, Long] = Map.empty, matchIndex: Map[ActorRef, Long] = Map.empty)
 }

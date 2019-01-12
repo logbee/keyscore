@@ -14,12 +14,12 @@ message StartElection {
 
 message RequestVote {
     string candidate = 1;
-    int64 term = 2;
+    Term term = 2 [(scalapb.field).no_box = true];
     int64 lastIndex = 3;
 }
 
 message VoteCandidate {
-    int64 term = 2;
+    Term term = 2 [(scalapb.field).no_box = true];
 }
 
 message DeclineCandidate {
@@ -27,7 +27,7 @@ message DeclineCandidate {
 }
 
 message Append {
-    int64 term = 2;
+    Term term = 2 [(scalapb.field).no_box = true];
     int64 prevLogIndex = 3;
     int64 prevLogTerm = 4;
     int64 leaderCommit = 5;
@@ -35,26 +35,31 @@ message Append {
 }
 
 message AppendSuccess {
-    int64 term = 2;
+    Term term = 2 [(scalapb.field).no_box = true];
 }
 
 message AppendFailure {
-    int64 term = 2;
+    Term term = 2 [(scalapb.field).no_box = true];
 }
 
 message WhatAreYou {}
 
 message IamFollower {
-    int64 term = 2;
+    Term term = 2 [(scalapb.field).no_box = true];
     int64 index = 3;
 }
 
 message IamCandidate {
-    int64 term = 2;
+    Term term = 2 [(scalapb.field).no_box = true];
     int64 index = 3;
 }
 
 message IamLeader {
-    int64 term = 2;
+    Term term = 2 [(scalapb.field).no_box = true];
     int64 index = 3;
+}
+
+message Term {
+    option (scalapb.message).extends = "io.logbee.keyscore.commons.cluster.consensus.TermVal";
+    int64 value = 1;
 }

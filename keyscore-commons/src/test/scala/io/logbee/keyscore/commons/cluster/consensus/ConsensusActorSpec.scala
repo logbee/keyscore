@@ -34,8 +34,8 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
       val testee = system.actorOf(ConsensusActor(realm))
       val testeeIdentifier = Serialization.serializedActorPath(testee)
 
-      probeA.expectMsg(RequestVote(testeeIdentifier, 1, 0))
-      probeB.expectMsg(RequestVote(testeeIdentifier, 1, 0))
+      probeA.expectMsg(RequestVote(testeeIdentifier, Term(1), 0))
+      probeB.expectMsg(RequestVote(testeeIdentifier, Term(1), 0))
 
       testee tell(VoteCandidate(), probeA.ref)
 
@@ -56,13 +56,13 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
         val testee = system.actorOf(ConsensusActor(realm))
         val testeeIdentifier = Serialization.serializedActorPath(testee)
 
-        probeA.expectMsg(RequestVote(testeeIdentifier, 1, 0))
-        probeB.expectMsg(RequestVote(testeeIdentifier, 1, 0))
+        probeA.expectMsg(RequestVote(testeeIdentifier, Term(1), 0))
+        probeB.expectMsg(RequestVote(testeeIdentifier, Term(1), 0))
 
         testee tell(IamLeader(), probeA.ref)
         testee tell(WhatAreYou(), probeA.ref)
 
-        probeA.expectMsg(IamFollower(term = 0, index = 0))
+        probeA.expectMsg(IamFollower(Term(0), index = 0))
       }
 
       "should accept candidates with newer term" in new RandomRealm {
@@ -75,9 +75,9 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
 
         mediator ! Subscribe(realm, probeA.ref)
 
-        probeA.expectMsg(RequestVote(testeeIdentifier,1))
+        probeA.expectMsg(RequestVote(testeeIdentifier, Term(1)))
 
-        testee tell(RequestVote(probeAIdentifier, 2), probeA.ref)
+        testee tell(RequestVote(probeAIdentifier, Term(2)), probeA.ref)
         probeA.expectMsg(VoteCandidate())
 
         testee tell(WhatAreYou(), probeA.ref)
@@ -95,14 +95,14 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
 
         mediator ! Subscribe(realm, probeA.ref)
 
-        probeA.expectMsg(RequestVote(testeeIdentifier, term = 1))
+        probeA.expectMsg(RequestVote(testeeIdentifier, Term(1)))
 
-        testee tell(RequestVote(probeAIdentifier, term = 0), probeA.ref)
+        testee tell(RequestVote(probeAIdentifier, Term(0)), probeA.ref)
         probeA.expectMsg(DeclineCandidate())
 
         testee tell(WhatAreYou(), probeA.ref)
 
-        probeA.expectMsg(IamCandidate(term = 1))
+        probeA.expectMsg(IamCandidate(Term(1)))
       }
 
       "should start a new election on split-vote" in new RandomRealm {
@@ -115,14 +115,14 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
 
         mediator ! Subscribe(realm, probeA.ref)
 
-        probeA.expectMsg(RequestVote(testeeIdentifier, 1))
+        probeA.expectMsg(RequestVote(testeeIdentifier, Term(1)))
 
         testee tell(RequestVote(probeAIdentifier), probeA.ref)
         probeA.expectMsg(DeclineCandidate())
 
         testee tell(WhatAreYou(), probeA.ref)
 
-        probeA.expectMsg(IamCandidate(term = 1))
+        probeA.expectMsg(IamCandidate(Term(1)))
       }
 
       "should start a new election when the leader died" in new RandomRealm {
@@ -140,7 +140,7 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
 
         system.stop(probeA.ref)
 
-        probeB.expectMsg(RequestVote(testeeIdentifier, 1))
+        probeB.expectMsg(RequestVote(testeeIdentifier, Term(1)))
       }
     }
 
@@ -153,9 +153,9 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
         val testee = system.actorOf(ConsensusActor(realm, electionSchedulingEnabled = false))
 
         mediator ! Subscribe(realm, TestProbe().ref)
-        mediator ! Publish(realm, RequestVote(probeAIdentifier, 1, 0))
+        mediator ! Publish(realm, RequestVote(probeAIdentifier, Term(1), 0))
 
-        probeA.expectMsg(VoteCandidate(1))
+        probeA.expectMsg(VoteCandidate(Term(1)))
       }
 
       "should reject an election for the current term" in new RandomRealm {
@@ -166,7 +166,7 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
         val testee = system.actorOf(ConsensusActor(realm, electionSchedulingEnabled = false))
 
         mediator ! Subscribe(realm, TestProbe().ref)
-        mediator ! Publish(realm, RequestVote(probeAIdentifier, 0, 0))
+        mediator ! Publish(realm, RequestVote(probeAIdentifier, Term(0), 0))
 
         probeA.expectMsg(DeclineCandidate())
       }
@@ -179,7 +179,7 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
         val testee = system.actorOf(ConsensusActor(realm, electionSchedulingEnabled = false))
 
         mediator ! Subscribe(realm, TestProbe().ref)
-        mediator ! Publish(realm, RequestVote(probeAIdentifier, -1, 0))
+        mediator ! Publish(realm, RequestVote(probeAIdentifier, Term(-1), 0))
 
         probeA.expectMsg(DeclineCandidate())
       }
