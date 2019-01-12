@@ -18,7 +18,6 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
   private val identifier = Serialization.serializedActorPath(self)
 
   private val mediator = DistributedPubSub(context.system).mediator
-  private val scheduler = context.system.scheduler
 
   private val nodes = 3 // TODO: How to configure the number of nodes participating in consensus.
   private val initialElectionDelay = 1000 millis
@@ -120,7 +119,7 @@ class ConsensusActor(val realm: String, electionSchedulingEnabled: Boolean = tru
   private def maybeScheduleElection(delay: FiniteDuration = electionDelay): Unit = {
     if (electionSchedulingEnabled) {
       log.debug(s"Scheduling an election in $delay.")
-      scheduler.scheduleOnce(delay, self, StartElection())
+      context.system.scheduler.scheduleOnce(delay, self, StartElection())
     }
   }
 

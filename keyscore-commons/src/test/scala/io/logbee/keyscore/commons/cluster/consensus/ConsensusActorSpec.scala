@@ -95,14 +95,14 @@ class ConsensusActorSpec extends TestSystemWithMaterializerAndExecutionContext w
 
         mediator ! Subscribe(realm, probeA.ref)
 
-        probeA.expectMsg(RequestVote(testeeIdentifier, 1))
+        probeA.expectMsg(RequestVote(testeeIdentifier, term = 1))
 
-        testee tell(RequestVote(probeAIdentifier, 0), probeA.ref)
+        testee tell(RequestVote(probeAIdentifier, term = 0), probeA.ref)
         probeA.expectMsg(DeclineCandidate())
 
         testee tell(WhatAreYou(), probeA.ref)
 
-        probeA.expectMsg(IamCandidate())
+        probeA.expectMsg(IamCandidate(term = 1))
       }
 
       "should start a new election on split-vote" in new RandomRealm {
