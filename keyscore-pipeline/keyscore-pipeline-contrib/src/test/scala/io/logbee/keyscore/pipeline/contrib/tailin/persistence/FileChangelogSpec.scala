@@ -107,6 +107,15 @@ class FileChangelogSpec extends FreeSpec with Matchers with BeforeAndAfter {
       Source.fromFile(changelogFile).mkString shouldBe
         file.getAbsolutePath + | + pos2 + | + pos3 + | + file.lastModified + newline +
         file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
+        
+      fileChangelog.removeNext()
+      
+      Source.fromFile(changelogFile).mkString shouldBe
+        file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
+        
+      fileChangelog.removeNext()
+      
+      Source.fromFile(changelogFile).mkString shouldBe ""
     }
   }
 }
