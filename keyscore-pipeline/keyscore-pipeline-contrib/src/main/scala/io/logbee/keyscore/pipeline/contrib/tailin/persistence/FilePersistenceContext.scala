@@ -16,16 +16,19 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
   implicit val formats = DefaultFormats
   
   private var json: JValue = null
+  
+  private def ensureJsonIsLoaded() = {
+    if (json == null) {
+      json = parse(Source.fromFile(persistenceFile).mkString)
+    }
+  }
 
   
   def store(key: String, value: Any) = {
     
-    if (json == null) {
-      json = parse(Source.fromFile(persistenceFile).mkString)
-    }
+    ensureJsonIsLoaded()
     
     json = json.merge(parse(write(key -> value)))
-    
     
     writeJsonToFile(json, persistenceFile)
   }
@@ -33,9 +36,7 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
   
   def load[T](key: String)(implicit tag: TypeTag[T]): Option[T] = {
     
-    if (json == null) {
-      json = parse(Source.fromFile(persistenceFile).mkString)
-    }
+    ensureJsonIsLoaded()
     
     val value = json \ key
     
@@ -57,9 +58,7 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
   
   def remove(key: String): Unit = {
     
-    if (json == null) {
-      json = parse(Source.fromFile(persistenceFile).mkString)
-    }
+    ensureJsonIsLoaded()
     
     json = json.removeField {
       case (string: String, _) => string == key
@@ -73,6 +72,10 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
   
   
   private def writeJsonToFile(json: JValue, file: File) {
+    
+    if (json == null) {
+      throw new IllegalStateException("Couldn't write JSON to file, because it was not loaded.")
+    }
     
     var output: FileWriter = null
     try {
