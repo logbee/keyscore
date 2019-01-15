@@ -48,11 +48,9 @@ class FileChangelog(changelogFile: File) {
   }
   
   
-  def getNext: FileChange = {
-    
-    val reader = Files.newBufferedReader(changelogFile.toPath, encoding)
-    
-    val cols = reader.readLine.split(|)
+  
+  private def parse(line: String): FileChange = {
+    val cols = line.split(|)
     
     val file = new File(cols(0))
     val startPos = Integer.parseInt(cols(1))
@@ -60,6 +58,51 @@ class FileChangelog(changelogFile: File) {
     val lastModified = java.lang.Long.parseLong(cols(3))
     
     FileChange(file, startPos, endPos, lastModified)
+  }
+  
+  
+  def getNext: Option[FileChange] = {
+    
+    val reader = Files.newBufferedReader(changelogFile.toPath, encoding)
+    
+    val line = reader.readLine
+    if (line != null) {
+      Some(parse(line))
+    }
+    else {
+      None
+    }
+  }
+  
+  def getLatestEntry(file: File): Option[FileChange] = {
+    
+    val pathString = file.getAbsolutePath
+    
+    var latestLine: String = null
+    var reader: BufferedReader = null
+    try {
+      reader = Files.newBufferedReader(changelogFile.toPath)
+      
+      var line = reader.readLine
+      while (line != null) {
+        if (line.startsWith(pathString + |)) {
+          latestLine = line
+        }
+        line = reader.readLine
+      }
+    }
+    finally {
+      if (reader != null) {
+        reader.close()
+      }
+    }
+    
+    if (latestLine != null) {
+      Some(parse(latestLine))
+    }
+    else {
+      None
+    }
   }
   
   
