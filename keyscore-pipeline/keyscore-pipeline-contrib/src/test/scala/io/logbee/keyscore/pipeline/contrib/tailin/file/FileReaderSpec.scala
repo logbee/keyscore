@@ -93,9 +93,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   trait PersistenceContextWithoutTimestamp extends LogFile {
     
     val persistenceContextWithoutTimestamp = mock[FilePersistenceContext]
-    (persistenceContextWithoutTimestamp.load[RotationRecord] (_: String)(_: TypeTag[RotationRecord]))
-      .expects(logFile.getAbsolutePath, typeTag[RotationRecord])
-      .returning(Some(RotationRecord(0, 0)))
+    (persistenceContextWithoutTimestamp.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
+      .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
+      .returning(Some(FileReadRecord(0, 0)))
   }
   
 
@@ -106,9 +106,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     
     val persistenceContextWithTimestamp: FilePersistenceContext = mock[FilePersistenceContext]
     
-    (persistenceContextWithTimestamp.load[RotationRecord] (_: String)(_: TypeTag[RotationRecord]))
-      .expects(logFile.getAbsolutePath, typeTag[RotationRecord])
-      .returning(Some(RotationRecord(previousReadPosition, previousReadTimestamp)))
+    (persistenceContextWithTimestamp.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
+      .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
+      .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp)))
   }
   
   
@@ -178,8 +178,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val line1 = "Line1"
             TestUtil.writeStringToFile(logFile, line1, StandardOpenOption.TRUNCATE_EXISTING)
   
-            (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
-              .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+            (persistenceContextWithoutTimestamp.store (_: String, _: FileReadRecord))
+              .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
   
             val mockCallback = mockFunction[String, Unit]
   
@@ -196,8 +196,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val text = line1 + "\n"
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
   
-            (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
-              .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+            (persistenceContextWithoutTimestamp.store (_: String, _: FileReadRecord))
+              .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
   
             val mockCallback = mockFunction[String, Unit]
   
@@ -217,8 +217,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
-            (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
-              .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+            (persistenceContextWithoutTimestamp.store (_: String, _: FileReadRecord))
+              .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
             
             val mockCallback = mockFunction[String, Unit]
   
@@ -240,8 +240,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
-            (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
-              .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+            (persistenceContextWithoutTimestamp.store (_: String, _: FileReadRecord))
+              .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
             
             val mockCallback = mockFunction[String, Unit]
   
@@ -262,8 +262,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
-            (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
-              .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+            (persistenceContextWithoutTimestamp.store (_: String, _: FileReadRecord))
+              .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
             
             val mockCallback = mockFunction[String, Unit]
   
@@ -294,8 +294,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
               mockCallback expects line3
             }
             
-            (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
-              .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+            (persistenceContextWithoutTimestamp.store (_: String, _: FileReadRecord))
+              .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
             
               
             fileReader.fileModified(mockCallback)
@@ -321,8 +321,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
               mockCallback expects line3
             }
             
-            (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
-              .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+            (persistenceContextWithoutTimestamp.store (_: String, _: FileReadRecord))
+              .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
             
             fileReader.fileModified(mockCallback)
           }
@@ -343,8 +343,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
           
           
-          (persistenceContextWithoutTimestamp.store (_: String, _: RotationRecord))
-            .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+          (persistenceContextWithoutTimestamp.store (_: String, _: FileReadRecord))
+            .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
           
           val mockCallback = mockFunction[String, Unit]
           
@@ -378,8 +378,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             mockCallback expects logFileData
           }
           
-          (persistenceContextWithTimestamp.store (_: String, _: RotationRecord))
-            .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+          (persistenceContextWithTimestamp.store (_: String, _: FileReadRecord))
+            .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
           fileReader.fileModified(mockCallback)
         }
         
@@ -398,8 +398,8 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             mockCallback expects logFileData
           }
           
-          (persistenceContextWithTimestamp.store (_: String, _: RotationRecord))
-            .expects(logFile.getAbsolutePath, RotationRecord(logFile.length, logFile.lastModified))
+          (persistenceContextWithTimestamp.store (_: String, _: FileReadRecord))
+            .expects(logFile.getAbsolutePath, FileReadRecord(logFile.length, logFile.lastModified))
           fileReader.fileModified(mockCallback)
         }
       }
@@ -438,7 +438,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             
             
             (persistenceContextWithoutTimestamp.store (_: String, _: Any))
-              .expects(logFile.toString, RotationRecord(logFile.length, logFile.lastModified))
+              .expects(logFile.toString, FileReadRecord(logFile.length, logFile.lastModified))
             
             var calledBackString = "" 
             val fileReader = new FileReader(watchedFile=logFile, defaultRotationPattern, persistenceContextWithoutTimestamp, bufferSize, defaultCharset, defaultReadMode)
@@ -459,7 +459,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
           
           (persistenceContextWithoutTimestamp.store (_: String, _: Any))
-            .expects(logFile.toString, RotationRecord(logFile.length, logFile.lastModified))
+            .expects(logFile.toString, FileReadRecord(logFile.length, logFile.lastModified))
 
           fileReader.fileModified((_: String) => ())
         }
@@ -470,7 +470,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           val fileReader = new FileReader(logFile, defaultRotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
           
           (persistenceContextWithTimestamp.store (_: String, _: Any))
-            .expects(logFile.toString, RotationRecord(logFileData.length, logFile.lastModified))
+            .expects(logFile.toString, FileReadRecord(logFileData.length, logFile.lastModified))
           
           fileReader.fileModified((_: String) => ())
         }

@@ -17,7 +17,7 @@ object ReadMode extends Enumeration {
   val LINE, FILE = Value
 }
 
-case class RotationRecord(previousReadPosition: Long, previousReadTimestamp: Long)
+case class FileReadRecord(previousReadPosition: Long, previousReadTimestamp: Long)
 
 
 
@@ -74,12 +74,12 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   
   
-  var rotationRecord: RotationRecord = RotationRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
+  var rotationRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
   if (persistenceContext != null) {
-    val loadedRotationRecord = persistenceContext.load[RotationRecord](watchedFile.toString)
+    val loadedRotationRecord = persistenceContext.load[FileReadRecord](watchedFile.toString)
     loadedRotationRecord match {
       case None =>
-      case Some(loadedRotationRecord: RotationRecord) =>
+      case Some(loadedRotationRecord: FileReadRecord) =>
         rotationRecord = loadedRotationRecord
     }
   }

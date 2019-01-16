@@ -1,7 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import java.nio.file.{Files, Path}
-import io.logbee.keyscore.pipeline.contrib.tailin.file.RotationRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -72,16 +72,16 @@ class FilePersistenceContextSpec extends FreeSpec with BeforeAndAfter with Match
       "multiple case classes correctly" in new PersistenceFile {
 
         val key1 = "/path/to/file1"
-        val value1 = RotationRecord(123456789, 987654321)
+        val value1 = FileReadRecord(123456789, 987654321)
 
         filePersistenceContext.store(key1, value1)
 
         val key2 = "/path/to/file2"
-        val value2 = RotationRecord(234567891, 198765432)
+        val value2 = FileReadRecord(234567891, 198765432)
         filePersistenceContext.store(key2, value2)
 
-        val loaded1 = filePersistenceContext.load[RotationRecord](key1)(typeTag[RotationRecord])
-        val loaded2 = filePersistenceContext.load[RotationRecord](key2)(typeTag[RotationRecord])
+        val loaded1 = filePersistenceContext.load[FileReadRecord](key1)(typeTag[FileReadRecord])
+        val loaded2 = filePersistenceContext.load[FileReadRecord](key2)(typeTag[FileReadRecord])
 
         loaded1 shouldBe Some(value1)
         loaded2 shouldBe Some(value2)
