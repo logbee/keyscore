@@ -58,13 +58,15 @@ import {generateRef} from "../../models/common/Ref";
                          cdkDrag>
                         <div>{{getFieldDirectiveDescriptor(fieldDirective).info.displayName}}</div>
                         <mat-divider></mat-divider>
-                        <form [formGroup]="directiveFormGroups.get(getFieldDirectiveDescriptor(fieldDirective).ref.uuid)">
+                        <form [formGroup]="directiveFormGroups.get(fieldDirective.instance.uuid)">
                             <app-parameter
-                                    *ngFor="let parameter of getKeys(directiveParameterMappings.get(getFieldDirectiveDescriptor(fieldDirective).ref.uuid))"
+                                    *ngFor="let parameter of getKeys(directiveParameterMappings.get(fieldDirective.instance.uuid))"
                                     [parameter]="parameter"
-                                    [parameterDescriptor]="directiveParameterMappings.get(getFieldDirectiveDescriptor(fieldDirective).ref.uuid).get(parameter)"
-                                    [form]="directiveFormGroups.get(getFieldDirectiveDescriptor(fieldDirective).ref.uuid)"
-                                    [datasets]="datasets$ | async">
+                                    [parameterDescriptor]="directiveParameterMappings.get(fieldDirective.instance.uuid).get(parameter)"
+                                    [form]="directiveFormGroups.get(fieldDirective.instance.uuid)"
+                                    [datasets]="datasets$ | async"
+                                    [directiveInstance]="fieldDirective.instance.uuid"
+                            >
                             </app-parameter>
                         </form>
                     </div>
@@ -187,19 +189,20 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
 
     private createDirectiveSubForm(values, currentSeqIndex, index, directive: ResolvedFieldDirectiveDescriptor, sequence: FieldDirectiveSequenceConfiguration) {
         let parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map(zip([values[currentSeqIndex].directives[index].parameters.parameters, directive.parameters]));
-        this.directiveParameterMappings.set(directive.ref.uuid, parameterMapping);
-        let form = this.parameterService.toFormGroup(parameterMapping);
+        this.directiveParameterMappings.set(sequence.directives[index].instance.uuid, parameterMapping);
+        let form = this.parameterService.toFormGroup(parameterMapping, sequence.directives[index].instance.uuid);
         let directiveConfiguration = this.parameterValues[currentSeqIndex].directives[index];
         form.valueChanges.subscribe(values => {
+            let instanceRef = Object.keys(values)[0].substring(0,36);
             let newValues = [...this.parameterValues];
             let currentSeqIndex = newValues.findIndex(seq => seq.fieldName === sequence.fieldName);
-            let index = newValues[currentSeqIndex].directives.findIndex(dir => dir.instance.uuid === directiveConfiguration.instance.uuid);
-            newValues[currentSeqIndex].directives[index].parameters.parameters.forEach(parameter => parameter.value = values[parameter.ref.id]);
+            let index = newValues[currentSeqIndex].directives.findIndex(dir => dir.instance.uuid === instanceRef);
+            newValues[currentSeqIndex].directives[index].parameters.parameters.forEach(parameter => parameter.value = values[instanceRef+':'+parameter.ref.id]);
             this.writeValue(newValues);
             console.log("directive values:", values);
             console.log("total values: ", this.parameterValues);
         });
-        this.directiveFormGroups.set(directive.ref.uuid, form);
+        this.directiveFormGroups.set(sequence.directives[index].instance.uuid, form);
     }
 
     public removeDirectiveSequence(sequence: FieldDirectiveSequenceConfiguration) {
