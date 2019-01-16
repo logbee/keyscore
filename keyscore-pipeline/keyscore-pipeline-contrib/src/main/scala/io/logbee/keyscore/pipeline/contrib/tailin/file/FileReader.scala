@@ -67,15 +67,17 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   
   
-  def getFilesToRead(): Array[File] = {
+  def getFilesToRead(mainFile: File): Array[File] = {
     val rotatedFiles = getRotatedFiles(rotationPattern)
     
-    val files = if (rotatedFiles contains watchedFile)
+    val files = if (rotatedFiles contains mainFile)
                    rotatedFiles
                 else
-                   (rotatedFiles :+ watchedFile)
+                   (rotatedFiles :+ mainFile)
     
-    files.filter(file => file.lastModified >= rotationRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
+    val filesToRead = files.filter(_file => _file.lastModified >= rotationRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
+    
+    filesToRead.sortBy(_file => _file.lastModified) //sort from oldest to newest
   }
 
   
@@ -94,7 +96,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
     
     
     
-    val filesToRead = getFilesToRead.sortBy(file => file.lastModified) //sort from oldest to newest
+    val filesToRead = getFilesToRead(watchedFile)
     filesToRead.foreach { file =>
       
       var nextBufferStartPosition = 0L
@@ -228,7 +230,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   
   def pathDeleted() {
-    if (getFilesToRead.length == 0) { //if no rotated files remain
+    if (getFilesToRead(watchedFile).length == 0) { //if no rotated files remain
       persistenceContext.remove(watchedFile.toString)
     }
     tearDown()

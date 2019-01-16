@@ -120,7 +120,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             
             val fileReader = new FileReader(logFile, rotationPattern, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
             
-            val rotationFiles = fileReader.getFilesToRead
+            val rotationFiles = fileReader.getFilesToRead(logFile)
             
             rotationFiles.length shouldBe 1
             rotationFiles(0) shouldBe logFile
@@ -132,7 +132,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             
             val fileReader = new FileReader(logFile, rotationPattern, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
             
-            val rotationFiles = fileReader.getFilesToRead
+            val rotationFiles = fileReader.getFilesToRead(logFile)
             
             rotationFiles.length shouldBe 1
             rotationFiles(0) shouldBe logFile
@@ -146,7 +146,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val fileReader = new FileReader(logFile, rotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
             
             
-            val rotationFiles = fileReader.getFilesToRead
+            val rotationFiles = fileReader.getFilesToRead(logFile)
             
             rotationFiles should contain allOf (logFile, logFile1, logFile2)
           }
@@ -159,7 +159,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             
             val fileReader = new FileReader(logFile, rotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
             
-            val rotationFiles = fileReader.getFilesToRead
+            val rotationFiles = fileReader.getFilesToRead(logFile)
             
             rotationFiles should contain allOf (logFile, logFile1, logFile2, logFile3_ModifiedAfterPreviousReadTimestamp)
             rotationFiles should not contain logFile4_ModifiedBeforePreviousReadTimestamp
