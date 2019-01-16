@@ -152,10 +152,8 @@ export class ParameterComponent implements OnInit {
 
 
     ngOnInit() {
-        console.log("DIRECTIVEINSTANCE:",this.directiveInstance);
         if (this.directiveInstance) {
             this.directiveInstance = this.directiveInstance + ':' + this.parameter.ref.id;
-            console.log("DIRECTIVEINSTANCE AFTER ONINIT::::",this.directiveInstance);
         }
     }
 
