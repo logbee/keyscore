@@ -19,6 +19,47 @@ object ReadMode extends Enumeration {
 
 case class RotationRecord(previousReadPosition: Long, previousReadTimestamp: Long)
 
+
+
+object FileReader {
+  
+  private def getRotatedFiles(file: File, rotationPattern: String): Array[File] = {
+    rotationPattern match {
+      case "" =>
+        Array()
+      case null =>
+        Array()
+        
+      case rotationPattern =>
+        val filesInSameDir = file.toPath.getParent.resolve(rotationPattern).getParent.toFile.listFiles //resolve a relative path, if the rotationPattern contains one
+        
+        if (filesInSameDir == null) //if the directory doesn't exist
+          Array()
+        else {
+          val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + file.getParent + "/" + rotationPattern)
+          
+          filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
+        }
+    }
+  }
+  
+  
+  
+  def getFilesToRead(mainFile: File, rotationPattern: String, previousReadTimestamp: Long): Array[File] = {
+    val rotatedFiles = getRotatedFiles(mainFile, rotationPattern)
+    
+    val files = if (rotatedFiles contains mainFile)
+                   rotatedFiles
+                else
+                   (rotatedFiles :+ mainFile)
+    
+    val filesToRead = files.filter(_file => _file.lastModified >= previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
+    
+    filesToRead.sortBy(_file => _file.lastModified) //sort from oldest to newest
+  }
+}
+
+
 /**
  * @param rotationPattern Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.
  * @param persistenceContext PersistenceContext where RotationRecords are stored and read from.
@@ -44,41 +85,6 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   }
   
   
-  
-  private def getRotatedFiles(rotationPattern: String): Array[File] = {
-    rotationPattern match {
-      case "" =>
-        Array()
-      case null =>
-        Array()
-        
-      case rotationPattern =>
-        val filesInSameDir = watchedFile.toPath.getParent.resolve(rotationPattern).getParent.toFile.listFiles //resolve a relative path, if the rotationPattern contains one
-        
-        if (filesInSameDir == null) //if the directory doesn't exist
-          Array()
-        else {
-          val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + watchedFile.getParent + "/" + rotationPattern)
-          
-          filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
-        }
-    }
-  }
-  
-  
-  
-  def getFilesToRead(mainFile: File): Array[File] = {
-    val rotatedFiles = getRotatedFiles(rotationPattern)
-    
-    val files = if (rotatedFiles contains mainFile)
-                   rotatedFiles
-                else
-                   (rotatedFiles :+ mainFile)
-    
-    val filesToRead = files.filter(_file => _file.lastModified >= rotationRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
-    
-    filesToRead.sortBy(_file => _file.lastModified) //sort from oldest to newest
-  }
 
   
   
@@ -96,7 +102,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
     
     
     
-    val filesToRead = getFilesToRead(watchedFile)
+    val filesToRead = FileReader.getFilesToRead(watchedFile, rotationPattern, rotationRecord.previousReadTimestamp)
     filesToRead.foreach { file =>
       
       var nextBufferStartPosition = 0L
@@ -230,7 +236,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   
   def pathDeleted() {
-    if (getFilesToRead(watchedFile).length == 0) { //if no rotated files remain
+    if (FileReader.getFilesToRead(watchedFile, rotationPattern, rotationRecord.previousReadTimestamp).length == 0) { //if no rotated files remain
       persistenceContext.remove(watchedFile.toString)
     }
     tearDown()
