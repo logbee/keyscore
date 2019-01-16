@@ -2,6 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.io.File
 import java.nio.charset.Charset
+
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 

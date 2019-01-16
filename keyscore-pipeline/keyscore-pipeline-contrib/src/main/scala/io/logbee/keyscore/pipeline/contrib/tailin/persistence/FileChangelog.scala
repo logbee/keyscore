@@ -9,7 +9,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 
 
-case class FileChange(file: File, startPos: Int, endPos: Int, lastModified: Long)
+case class FileChange(file: File, startPos: Long, endPos: Long, lastModified: Long)
 
 
 
@@ -74,7 +74,7 @@ class FileChangelog(changelogFile: File) {
     }
   }
   
-  def getLatestEntry(file: File): Option[FileChange] = {
+  def getLatestEntry(file: File): Option[FileChange] = { //TODO can we iterate in reverse and just stop when we've found the first entry?
     
     val pathString = file.getAbsolutePath
     

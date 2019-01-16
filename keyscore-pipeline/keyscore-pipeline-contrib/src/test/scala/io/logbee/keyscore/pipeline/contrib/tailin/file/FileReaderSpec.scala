@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, StandardOpenOption}
+import java.nio.file._
 
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import org.junit.runner.RunWith
@@ -12,8 +12,6 @@ import org.scalatest.junit.JUnitRunner
 
 import scala.reflect.runtime.universe._
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-import java.nio.file.Paths
-import java.nio.file.FileSystems
 import scala.io.Source
 
 
@@ -452,7 +450,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     }
     
     
-    "should persist a RotationRecord" - {
+    "should persist a FileReadRecord" - {
       "for one log file" - {
         "without rotated files" in new PersistenceContextWithoutTimestamp {
           

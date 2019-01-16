@@ -45,6 +45,11 @@ object FileReader {
   
   
   
+  /**
+   * Returns the given mainFile as well as any rotated files, which have been more recently modified than the previousReadTimestamp.
+   * 
+   * The files are sorted by their lastModified-timestamp, from oldest to newest.
+   */
   def getFilesToRead(mainFile: File, rotationPattern: String, previousReadTimestamp: Long): Array[File] = {
     val rotatedFiles = getRotatedFiles(mainFile, rotationPattern)
     

@@ -2,6 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import scala.reflect.runtime.universe._
 
+
 trait PersistenceContext {
 
   /**
