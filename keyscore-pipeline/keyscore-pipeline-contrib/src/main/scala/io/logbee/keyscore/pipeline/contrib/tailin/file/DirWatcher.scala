@@ -184,7 +184,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
         watchers.foreach(watcher => watcher.tearDown())
     }
 
-    subFileWatchers.remove(path.toFile()) match {
+    subFileWatchers.remove(path.toFile) match {
       case None =>
       case Some(watchers: ListBuffer[FileWatcher]) =>
         watchers.foreach(watcher => watcher.tearDown())
@@ -216,7 +216,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
         watchers.foreach(watcher => watcher.pathDeleted())
     }
     
-    subFileWatchers.remove(path.toFile()) match {
+    subFileWatchers.remove(path.toFile) match {
       case None =>
       case Some(watchers: ListBuffer[FileWatcher]) =>
         watchers.foreach(watcher => watcher.pathDeleted())
