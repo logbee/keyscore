@@ -20,29 +20,37 @@ import {generateRef} from "../../models/common/Ref";
     selector: "parameter-directive",
     template:
             `
-        <div fxLayout="row" fxLayoutGap="15px">
-            <auto-complete-input #addFieldInput
-                                 [datasets]="datasets$ | async"
-                                 [hint]="fieldNameHint.PresentField"
-                                 [parameterDescriptor]="parameterDescriptor"
-                                 [parameter]="parameter">
-
-            </auto-complete-input>
-            <button mat-icon-button color="accent" (click)="addField(addFieldInput.value)">
+        <div fxLayout="row" fxLayoutAlign="space-between center">
+            <div>Directives</div>
+            <button mat-icon-button color="accent" (click)="addField()">
                 <mat-icon>add_circle_outline</mat-icon>
             </button>
         </div>
         <div cdkDropList class="field-directive-sequence" (cdkDropListDropped)="dropFieldDirectiveSequence($event)">
-            <div class="field-directives-box" *ngFor="let fieldDirectiveSequence of parameterValues;index as sequenceIndex" cdkDrag>
+            <div class="field-directives-box"
+                 *ngFor="let fieldDirectiveSequence of parameterValues;index as sequenceIndex" cdkDrag>
                 <div fxLayout="row" fxLayoutAlign="space-between center">
                     <button mat-icon-button color="warn" (click)="removeDirectiveSequence(sequenceIndex)">
                         <mat-icon matTooltip="Remove all directives for this field.">remove_circle_outline</mat-icon>
                     </button>
-                    <div>Fieldname: {{fieldDirectiveSequence.fieldName}}</div>
+                    <div>
+                        <auto-complete-input
+                                [datasets]="datasets$ | async"
+                                [hint]="fieldNameHint.PresentField"
+                                [parameterDescriptor]="parameterDescriptor"
+                                [labelText]="'Field'"
+                                [parameter]="parameter"
+                                [inputValue]="fieldDirectiveSequence.fieldName"
+                                (onChangeEmit)="onFieldNameChange($event,sequenceIndex)"
+
+                        >
+
+                        </auto-complete-input>
+                    </div>
                     <mat-menu #directiveMenu>
                         <button fxLayout="row" fxLayoutAlign="space-between center" mat-menu-item
                                 *ngFor="let directiveDescriptor of parameterDescriptor.directives"
-                                (click)="addDirective(fieldDirectiveSequence,directiveDescriptor)">
+                                (click)="addDirective(fieldDirectiveSequence,directiveDescriptor,sequenceIndex)">
                             <mat-icon>add_circle_outline</mat-icon>
                             {{directiveDescriptor.info.displayName}}
                         </button>
@@ -53,18 +61,22 @@ import {generateRef} from "../../models/common/Ref";
                 </div>
                 <mat-divider class="padding-bottom-5"></mat-divider>
                 <div cdkDropList class="field-directive-sequence"
-                     (cdkDropListDropped)="dropFieldDirective($event,fieldDirectiveSequence)" fxLayout="column">
-                    <div class="field-directives-box" *ngFor="let fieldDirective of fieldDirectiveSequence.directives;index as directiveIndex"
+                     (cdkDropListDropped)="dropFieldDirective($event,sequenceIndex)" fxLayout="column">
+                    <div class="field-directives-box"
+                         *ngFor="let fieldDirective of fieldDirectiveSequence.directives;index as directiveIndex"
                          cdkDrag>
                         <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10">
-                            <button mat-icon-button color="warn" (click)="removeDirective(fieldDirectiveSequence.fieldName,directiveIndex)">
+                            <button mat-icon-button color="warn"
+                                    (click)="removeDirective(sequenceIndex,directiveIndex)">
                                 <mat-icon matTooltip="Remove this directive.">remove_circle_outline</mat-icon>
                             </button>
                             <div>{{getFieldDirectiveDescriptor(fieldDirective).info.displayName}}</div>
                             <div></div>
                         </div>
-                        <mat-divider *ngIf="getKeys(directiveParameterMappings.get(fieldDirective.instance.uuid)).length"></mat-divider>
-                        <form [formGroup]="directiveFormGroups.get(fieldDirective.instance.uuid)" class="directive-form">
+                        <mat-divider
+                                *ngIf="getKeys(directiveParameterMappings.get(fieldDirective.instance.uuid)).length"></mat-divider>
+                        <form [formGroup]="directiveFormGroups.get(fieldDirective.instance.uuid)"
+                              class="directive-form">
                             <app-parameter
                                     *ngFor="let parameter of getKeys(directiveParameterMappings.get(fieldDirective.instance.uuid))"
                                     [parameter]="parameter"
@@ -158,31 +170,30 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
         return [...this.parameterValues];
     }
 
-    public removeDirective(sequenceFieldName: string,directiveIndex:number) {
+    public removeDirective(seqIndex: number, directiveIndex: number) {
         const newValues = [...this.parameterValues];
-        const sequenceIndex = newValues.findIndex(seq => seq.fieldName === sequenceFieldName);
-        if(sequenceIndex !== -1) {
-            newValues[sequenceIndex].directives.splice(directiveIndex, 1);
+        if (seqIndex !== -1) {
+            newValues[seqIndex].directives.splice(directiveIndex, 1);
             this.writeValue(newValues);
         }
     }
 
-    public addField(value: string) {
+    public addField() {
         let newValues = [...this.parameterValues];
-        if (newValues.findIndex(directiveSeq => directiveSeq.fieldName === value) === -1) {
-            let fieldDirectiveSequence: FieldDirectiveSequenceConfiguration = {
-                fieldName: value,
-                directives: []
-            };
-            newValues.push(fieldDirectiveSequence);
-            this.writeValue(newValues);
-        }
+
+        let fieldDirectiveSequence: FieldDirectiveSequenceConfiguration = {
+            fieldName: "",
+            directives: [],
+
+        };
+        newValues.push(fieldDirectiveSequence);
+        this.writeValue(newValues);
+
     }
 
-    public addDirective(sequence: FieldDirectiveSequenceConfiguration, directive: ResolvedFieldDirectiveDescriptor) {
+    public addDirective(sequence: FieldDirectiveSequenceConfiguration, directive: ResolvedFieldDirectiveDescriptor, seqIndex: number) {
         let newValues = [...this.parameterValues];
-        let currentSeqIndex = newValues.findIndex(seq => seq.fieldName === sequence.fieldName);
-        newValues[currentSeqIndex].directives.push({
+        newValues[seqIndex].directives.push({
             ref: directive.ref,
             instance: generateRef(),
             parameters: {
@@ -191,8 +202,8 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
                     parameterDescriptorToParameter(parameter))
             }
         });
-        const index = newValues[currentSeqIndex].directives.length - 1;
-        this.createDirectiveSubForm(newValues, currentSeqIndex, index, directive, sequence);
+        const index = newValues[seqIndex].directives.length - 1;
+        this.createDirectiveSubForm(newValues, seqIndex, index, directive, sequence);
         this.writeValue(newValues);
     }
 
@@ -227,15 +238,20 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
 
     }
 
-    public dropFieldDirective(event: CdkDragDrop<DirectiveConfiguration[]>, sequence: FieldDirectiveSequenceConfiguration) {
+    public dropFieldDirective(event: CdkDragDrop<DirectiveConfiguration[]>, sequenceIndex: number) {
         let newValues = [...this.parameterValues];
-        let index = newValues.findIndex(seq => seq.fieldName === sequence.fieldName);
-        moveItemInArray(newValues[index].directives, event.previousIndex, event.currentIndex);
+        moveItemInArray(newValues[sequenceIndex].directives, event.previousIndex, event.currentIndex);
         this.writeValue(newValues);
     }
 
     public getFieldDirectiveDescriptor(directive: DirectiveConfiguration): ResolvedFieldDirectiveDescriptor {
         return this.parameterDescriptor.directives.find(dir => dir.ref.uuid === directive.ref.uuid);
+    }
+
+    public onFieldNameChange(fieldName: string, seqIndex: number,) {
+        let newValues = [...this.parameterValues];
+        newValues[seqIndex].fieldName = fieldName;
+        this.writeValue(newValues);
     }
 
     getKeys(map: Map<any, any>): any[] {

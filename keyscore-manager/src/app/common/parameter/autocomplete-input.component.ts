@@ -1,4 +1,4 @@
-import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild} from "@angular/core";
 import {ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {Parameter} from "../../models/parameters/Parameter";
 import {ResolvedParameterDescriptor} from "../../models/parameters/ParameterDescriptor";
@@ -12,7 +12,7 @@ import {BehaviorSubject} from "rxjs/index";
         <mat-form-field [formGroup]="group">
             <input #inputField matInput type="text" formControlName="fieldName" [id]="parameter.ref.id"
                    [placeholder]="parameterDescriptor.defaultValue" [matAutocomplete]="auto">
-            <mat-label>{{labelText ? labelText : parameterDescriptor.info.displayName}}</mat-label>
+            <mat-label>{{labelText || parameterDescriptor.info.displayName}}</mat-label>
             <mat-autocomplete #auto="matAutocomplete">
                 <mat-option *ngFor="let field of hints" [value]="field">{{field}}</mat-option>
             </mat-autocomplete>
@@ -41,13 +41,16 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
 
     @Input() hint: string;
     @Input() parameter: Parameter;
-    @Input() labelText:string;
+    @Input() labelText: string;
+    @Input() inputValue: string;
 
     @Input() parameterDescriptor: ResolvedParameterDescriptor;
 
     @Input('datasets') set datasets(data: Dataset[]) {
         this.datasets$.next(data);
     };
+
+    @Output() onChangeEmit: EventEmitter<string> = new EventEmitter<string>();
 
     datasets$: BehaviorSubject<Dataset[]> = new BehaviorSubject<Dataset[]>([]);
 
@@ -56,12 +59,8 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
         return this._fieldName;
     };
 
-    constructor(fb: FormBuilder) {
-        this.group = fb.group({
-            'fieldName': ''
-        });
+    constructor(private fb: FormBuilder) {
 
-        this.group.valueChanges.subscribe(values => this.writeValue(values['fieldName']));
     }
 
 
@@ -77,8 +76,8 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
         this.inputFieldElem.nativeElement.value = '';
     };
 
-    public focus = () =>{
-      this.inputFieldElem.nativeElement.focus();
+    public focus = () => {
+        this.inputFieldElem.nativeElement.focus();
     };
 
 
@@ -100,6 +99,8 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
             this.group.setValue({'fieldName': this._fieldName});
         }
         this.onChange(fieldName);
+        this.onChangeEmit.emit(fieldName);
+
     }
 
     ngOnInit(): void {
@@ -109,6 +110,12 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
                 this.hints = Array.from(new Set(fieldNames));
             }
         });
+
+        this.group = this.fb.group({
+            'fieldName': this.inputValue || ''
+        });
+
+        this.group.valueChanges.subscribe(values => this.writeValue(values['fieldName']));
 
     }
 }

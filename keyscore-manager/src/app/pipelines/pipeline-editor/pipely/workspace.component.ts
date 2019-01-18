@@ -140,7 +140,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
 
     private selectBlock(selected: Draggable) {
         this.selectedDraggableSource.next(selected);
-        console.log(this.isInspecting);
         if (selected && this.isInspecting) {
             this.onSelectBlock.emit(selected.getDraggableModel().blueprintRef.uuid);
         } else  if(this.isInspecting) {
