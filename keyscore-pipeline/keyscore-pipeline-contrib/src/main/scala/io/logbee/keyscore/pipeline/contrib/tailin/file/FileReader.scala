@@ -46,7 +46,10 @@ object FileReader {
   
   
   /**
-   * Returns the given mainFile as well as any rotated files, which have been more recently modified than the previousReadTimestamp.
+   * Returns the given {@code mainFile} as well as any rotated files, which have been modified more recently than or exactly at the {@code previousReadTimestamp}.
+   * 
+   * It also returns the file which has been lastModified at the {@code previousReadTimestamp} (which we don't need to read from anymore),
+   * as we would otherwise continue reading at the {@code previousReadPosition} in the new file.
    * 
    * The files are sorted by their lastModified-timestamp, from oldest to newest.
    */
