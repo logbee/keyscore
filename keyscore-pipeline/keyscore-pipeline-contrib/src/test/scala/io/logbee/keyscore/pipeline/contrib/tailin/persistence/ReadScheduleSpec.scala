@@ -11,10 +11,10 @@ import org.scalatest.Matchers
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
 
-class FileChangelogSpec extends FreeSpec with Matchers with BeforeAndAfter {
+class ReadScheduleSpec extends FreeSpec with Matchers with BeforeAndAfter {
   
-  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FileChangelog.|
-  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FileChangelog.newline
+  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule.|
+  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule.newline
   
   val changelogFile = new File(".keyscoreTailinChangelog")
   
@@ -29,27 +29,27 @@ class FileChangelogSpec extends FreeSpec with Matchers with BeforeAndAfter {
     changelogFile.delete()
   }
   
-  trait FileChangelogSetup {
-    val fileChangelog = new FileChangelog(changelogFile)
+  trait ReadScheduleSetup {
+    val readSchedule = new ReadSchedule(changelogFile)
   }
   
   
-  "A FileChangelog should" - {
+  "A ReadSchedule should" - {
     
-    "queue a FileChange" in new FileChangelogSetup {
+    "queue a read for a change in a file" in new ReadScheduleSetup {
       
       val file = new File(".testFile")
       
       val pos1 = 12
       val pos2 = 23
       
-      fileChangelog.queue(FileChange(file, pos1, pos2, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos1, pos2, file.lastModified))
       
       Source.fromFile(changelogFile).mkString shouldBe
         file.getAbsolutePath + | + pos1 + | + pos2 + | + file.lastModified + newline
     }
     
-    "queue multiple FileChanges in order" in new FileChangelogSetup {
+    "queue multiple reads in order" in new ReadScheduleSetup {
       
       val file = new File(".testFile")
       
@@ -58,9 +58,9 @@ class FileChangelogSpec extends FreeSpec with Matchers with BeforeAndAfter {
       val pos3 = 34
       val pos4 = 45
       
-      fileChangelog.queue(FileChange(file, pos1, pos2, file.lastModified))
-      fileChangelog.queue(FileChange(file, pos2, pos3, file.lastModified))
-      fileChangelog.queue(FileChange(file, pos3, pos4, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos1, pos2, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos2, pos3, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos3, pos4, file.lastModified))
       
       Source.fromFile(changelogFile).mkString shouldBe
         file.getAbsolutePath + | + pos1 + | + pos2 + | + file.lastModified + newline +
@@ -68,7 +68,7 @@ class FileChangelogSpec extends FreeSpec with Matchers with BeforeAndAfter {
         file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
     }
     
-    "return the next FileChange in order" in new FileChangelogSetup {
+    "return the next read schedule item in order" in new ReadScheduleSetup {
       
       val file = new File(".testFile")
       
@@ -77,14 +77,14 @@ class FileChangelogSpec extends FreeSpec with Matchers with BeforeAndAfter {
       val pos3 = 34
       val pos4 = 45
       
-      fileChangelog.queue(FileChange(file, pos1, pos2, file.lastModified))
-      fileChangelog.queue(FileChange(file, pos2, pos3, file.lastModified))
-      fileChangelog.queue(FileChange(file, pos3, pos4, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos1, pos2, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos2, pos3, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos3, pos4, file.lastModified))
       
-      fileChangelog.getNext.get shouldBe FileChange(file.getAbsoluteFile, pos1, pos2, file.lastModified)
+      readSchedule.getNext.get shouldBe ReadScheduleItem(file.getAbsoluteFile, pos1, pos2, file.lastModified)
     }
     
-    "return the latest entry for a given file" in new FileChangelogSetup {
+    "return the latest schedule item for a given file" in new ReadScheduleSetup {
       
       val file = new File(".testFile")
       
@@ -100,17 +100,17 @@ class FileChangelogSpec extends FreeSpec with Matchers with BeforeAndAfter {
       val pos7 = 78
       val pos8 = 89
       
-      fileChangelog.queue(FileChange(file , pos1, pos2, file.lastModified))
-      fileChangelog.queue(FileChange(file2, pos5, pos6, file2.lastModified))
-      fileChangelog.queue(FileChange(file2, pos6, pos7, file2.lastModified))
-      fileChangelog.queue(FileChange(file , pos2, pos3, file.lastModified))
-      fileChangelog.queue(FileChange(file , pos3, pos4, file.lastModified))
-      fileChangelog.queue(FileChange(file2, pos7, pos8, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file , pos1, pos2, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file2, pos5, pos6, file2.lastModified))
+      readSchedule.queue(ReadScheduleItem(file2, pos6, pos7, file2.lastModified))
+      readSchedule.queue(ReadScheduleItem(file , pos2, pos3, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file , pos3, pos4, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file2, pos7, pos8, file.lastModified))
       
-      fileChangelog.getLatestEntry(file).get shouldBe FileChange(file.getAbsoluteFile, pos3, pos4, file.lastModified)
+      readSchedule.getLatestEntry(file).get shouldBe ReadScheduleItem(file.getAbsoluteFile, pos3, pos4, file.lastModified)
     }
     
-    "remove the next FileChange in order" in new FileChangelogSetup {
+    "remove the next schedule item in order" in new ReadScheduleSetup {
       
       val file = new File(".testFile")
       
@@ -119,31 +119,31 @@ class FileChangelogSpec extends FreeSpec with Matchers with BeforeAndAfter {
       val pos3 = 34
       val pos4 = 45
       
-      fileChangelog.queue(FileChange(file, pos1, pos2, file.lastModified))
-      fileChangelog.queue(FileChange(file, pos2, pos3, file.lastModified))
-      fileChangelog.queue(FileChange(file, pos3, pos4, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos1, pos2, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos2, pos3, file.lastModified))
+      readSchedule.queue(ReadScheduleItem(file, pos3, pos4, file.lastModified))
       
       Source.fromFile(changelogFile).mkString shouldBe
         file.getAbsolutePath + | + pos1 + | + pos2 + | + file.lastModified + newline +
         file.getAbsolutePath + | + pos2 + | + pos3 + | + file.lastModified + newline +
         file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
       
-      fileChangelog.removeNext()
+      readSchedule.removeNext()
       
       Source.fromFile(changelogFile).mkString shouldBe
         file.getAbsolutePath + | + pos2 + | + pos3 + | + file.lastModified + newline +
         file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
         
-      fileChangelog.removeNext()
+      readSchedule.removeNext()
       
       Source.fromFile(changelogFile).mkString shouldBe
         file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
         
-      fileChangelog.removeNext()
+      readSchedule.removeNext()
       
       Source.fromFile(changelogFile).mkString shouldBe ""
       
-      fileChangelog.removeNext()
+      readSchedule.removeNext()
       
       Source.fromFile(changelogFile).mkString shouldBe ""
     }

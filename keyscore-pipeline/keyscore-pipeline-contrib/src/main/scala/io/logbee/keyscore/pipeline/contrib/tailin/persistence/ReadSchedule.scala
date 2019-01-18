@@ -9,18 +9,18 @@ import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 
 
-case class FileChange(file: File, startPos: Long, endPos: Long, lastModified: Long)
+case class ReadScheduleItem(file: File, startPos: Long, endPos: Long, lastModified: Long)
 
 
 
-object FileChangelog {
+object ReadSchedule {
   val encoding = StandardCharsets.UTF_8
   val | = " " //column separator
-  val newline = '\n' //OS-independent line separator
+  val newline = '\n' //OS-independent line separator set by us
 }
-class FileChangelog(changelogFile: File) {
+class ReadSchedule(changelogFile: File) {
   
-  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FileChangelog._
+  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule._
   
   
   private def appendToFile(string: String) {
@@ -37,19 +37,19 @@ class FileChangelog(changelogFile: File) {
   }
   
   
-  def queue(fileChange: FileChange) = {
+  def queue(readScheduleItem: ReadScheduleItem) = {
     
-    val string = fileChange.file.getAbsolutePath +
-                 | + fileChange.startPos +
-                 | + fileChange.endPos +
-                 | + fileChange.lastModified + newline
+    val string = readScheduleItem.file.getAbsolutePath +
+                 | + readScheduleItem.startPos +
+                 | + readScheduleItem.endPos +
+                 | + readScheduleItem.lastModified + newline
     
     appendToFile(string)
   }
   
   
   
-  private def parse(line: String): FileChange = {
+  private def parse(line: String): ReadScheduleItem = {
     val cols = line.split(|)
     
     val file = new File(cols(0))
@@ -57,11 +57,11 @@ class FileChangelog(changelogFile: File) {
     val endPos = Integer.parseInt(cols(2))
     val lastModified = java.lang.Long.parseLong(cols(3))
     
-    FileChange(file, startPos, endPos, lastModified)
+    ReadScheduleItem(file, startPos, endPos, lastModified)
   }
   
   
-  def getNext: Option[FileChange] = {
+  def getNext: Option[ReadScheduleItem] = {
     
     val reader = Files.newBufferedReader(changelogFile.toPath, encoding)
     
@@ -74,7 +74,8 @@ class FileChangelog(changelogFile: File) {
     }
   }
   
-  def getLatestEntry(file: File): Option[FileChange] = { //TODO can we iterate in reverse and just stop when we've found the first entry?
+  
+  def getLatestEntry(file: File): Option[ReadScheduleItem] = { //TODO can we iterate in reverse and just stop when we've found the first entry?
     
     val pathString = file.getAbsolutePath
     
