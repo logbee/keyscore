@@ -53,18 +53,18 @@ import {generateRef} from "../../models/common/Ref";
                 </div>
                 <mat-divider class="padding-bottom-5"></mat-divider>
                 <div cdkDropList class="field-directive-sequence"
-                     (cdkDropListDropped)="dropFieldDirective($event,fieldDirectiveSequence)">
+                     (cdkDropListDropped)="dropFieldDirective($event,fieldDirectiveSequence)" fxLayout="column">
                     <div class="field-directives-box" *ngFor="let fieldDirective of fieldDirectiveSequence.directives;index as directiveIndex"
                          cdkDrag>
-                        <div fxLayout="row" fxLayoutAlign="space-between center">
+                        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10">
                             <button mat-icon-button color="warn" (click)="removeDirective(fieldDirectiveSequence.fieldName,directiveIndex)">
-                                <mat-icon matTooltip="Remove all directives for this field.">remove_circle_outline</mat-icon>
+                                <mat-icon matTooltip="Remove this directive.">remove_circle_outline</mat-icon>
                             </button>
                             <div>{{getFieldDirectiveDescriptor(fieldDirective).info.displayName}}</div>
                             <div></div>
                         </div>
-                        <mat-divider></mat-divider>
-                        <form [formGroup]="directiveFormGroups.get(fieldDirective.instance.uuid)">
+                        <mat-divider *ngIf="getKeys(directiveParameterMappings.get(fieldDirective.instance.uuid)).length"></mat-divider>
+                        <form [formGroup]="directiveFormGroups.get(fieldDirective.instance.uuid)" class="directive-form">
                             <app-parameter
                                     *ngFor="let parameter of getKeys(directiveParameterMappings.get(fieldDirective.instance.uuid))"
                                     [parameter]="parameter"
@@ -132,6 +132,7 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
             console.error("Passed the wrong parameter type into the parameter-directive.component. Parametertype is: "
                 + this.parameter.jsonClass + ". But it should be: " + ParameterJsonClass.FieldDirectiveSequenceParameter);
         }
+
     }
 
     public writeValue(elements: FieldDirectiveSequenceConfiguration[]): void {
