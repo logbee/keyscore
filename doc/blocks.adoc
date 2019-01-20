@@ -1,0 +1,170 @@
+:descriptors_base: ../keyscore-model/src/main/proto/io/logbee/keyscore
+:contrib_base: ../keyscore-pipeline/keyscore-pipeline-contrib/src/main/scala/io/logbee/keyscore/pipeline/contrib
+:xrefstyle: short
+
+= Building custom Blocks =
+
+*How to read this chapter*:
+
+- If you are new to KEYSCORE -- nice to see you here, we are curious about your feedback -- you can simply read this
+chapter from top to bottom starting with the <<Introduction>>.
+
+- If you are already familiar with the concepts of blocks in KEYSCORE but need some details jump to the sections about
+the block in question. <<block-types-brief-summary>> is a good starting point.
+
+- If you are a block-developer veteran but you have forgotten some API details of the programming language you are using,
+please refer to the corresponding documentation.
+
+== Introduction ==
+
+Pipelines in KEYSCORE are build by concatenating blocks. A block receives data from it's predecessor, mutates it and
+passes the data to the next block. There are five types of blocks. The main difference between these types of blocks are
+the number of in- and out-ports and therefore how they can be combined to build a pipeline:
+
+[#example-pipeline]
+.Example pipeline, illustrating the different types of blocks.
+[ditaa]
+....
+
+ +----------+                                                                  +----------+
+ |          |                                                                  |          |
+ |  Source  +---+                                                         +--->|   Sink   |
+ |          |   |                                                         |    |          |
+ +----------+   |                                                         |    +----------+
+                |                                                         |
+                |    +-----------+     +------------+     +-----------+   |
+                +--->|           |     |            |     |           +---+
+                     |   Merge   +---->|   Filter   +---->|   Branch  |
+                +--->|           |     |            |     |           +---+
+                |    +-----------+     +------------+     +-----------+   |
+                |                                                         |
+ +----------+   |                                                         |    +----------+
+ |          |   |                                                         |    |          |
+ |  Source  +---+                                                         +--->|   Sink   |
+ |          |                                                                  |          |
+ +----------+                                                                  +----------+
+....
+
+The following table provides a very brief summary of each type of block. See the sections below for more information
+about each block.
+
+[#block-types-brief-summary]
+.Brief description of each block type.
+[cols=2*]
+|===
+|<<Source>>
+|A Source-Block shapes the beginning of a pipeline as shown on the left-hand side in <<#example-pipeline>>.
+ A source has a single out-port to feed data into a pipeline. Often a source is used to communicate with an external
+ system to query data from that system and pass it into the pipeline.
+
+|<<Sink>>
+|A Sink-Block, illustrated on the right-hand side in <<#example-pipeline>> shapes the end of a pipeline. A sink
+has a single in-port and consumes data from the pipeline. Often a sink is used to communicate with an external
+system to pass the data at the end of a pipeline to that system.
+
+|<<Filter>>
+|A Filer-Block mutates, transforms enhances or reduces the data moving through it. As shown in <<#example-pipeline>>
+it has a single in- and out-port.
+
+|<<Branch>>
+|A Branch-Block is a special kind of block as it is capable of splitting the flow of data into two branches as shown
+in <<#example-pipeline>>. Therefore it has a single in- but two out-ports.
+
+|<<Merge>>
+|A Merge-Block is the counterpart of a Branch-Block. As illustrated in <<#example-pipeline>> a Merge-Block combines
+two flows into one. Therefore it has two in- and one out-port.
+|===
+
+== Descriptor API ==
+One of the key features of KEYSCORE is that all blocks are described by a meta-model. This meta-model is build by the so
+call Descriptor API. The Descriptor API facilitates a block-developer to describe various aspects of a block. It is
+import to understand importance of the Descriptor API and the resulting meta-model. The meta-model allows as an example
+the creation of an agnostic web-ui. Because of the meta-model, no changes have to be made to the web-ui when a new block
+is added to the system. Instead the forms, buttons etc. presented to the users are rendered according to the meta-model.
+
+=== Protobuf ===
+To allow the development of blocks in different programing languages the Descriptor API is mostly build with
+https://developers.google.com/protocol-buffers/[Protocol Buffers] hereinafter called Protobuf. Protobuf is a flexible,
+efficient, automated mechanism for serializing and deserializing structured data. Protobuf uses an
+ https://en.wikipedia.org/wiki/Interface_description_language[interface definition language (IDL)] and a source code
+ generator to do this job.
+
+To keep this documentation up-to-date and language agnostic, most parts of the Descriptor API are described with the help
+of Protobuf code. For developers new to Protobuf this section is a brief introduction besides the official
+https://developers.google.com/protocol-buffers/docs/proto3[documentation]. It is not important to understand all aspects
+of the Protobuf IDL in depth. Rather, to understand the examples within this document.
+
+Here is simple example to illustrate the most important bits:
+
+[source]
+----
+message Request { <1>
+    int32 result_per_page = 1; <2>
+    Query query = 2 [(scalapb.field).no_box = true]; <3>
+}
+
+message Query {
+    string query = 1;
+    QueryType type = 2;
+}
+
+/* Which kind of query */ <4>
+enum QueryType { <5>
+    XPath = 0; <6>
+    JSONPath = 1;
+}
+
+----
+
+. Due to the background of Protobuf as foundation for serialization of messages a type definition starts with the
+keyword `message`.
+
+. Similar to struts in the C programming language. A message type consists of a series of fields. A field is defined by
+a https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar type] or a complex type (eg. `int32`) a name
+(eg. `result_per_page`) and a field number (eg. `= 1`).
+
+. A complex type is just another message type defined in the same or another `.proto` file. It is also possible to add
+attributes to control the code generation for example `[(scalapb.field).no_box = true]`.
+
+. Comments use C/C++-style // and /* ... */ syntax.
+
+. Besides normal message types, Protobuf offers https://developers.google.com/protocol-buffers/docs/proto3#enum[enumeration types]
+known from other programming languages like https://en.wikipedia.org/wiki/Enumerated_type#Java[Java] which behave in a
+similar manner.
+
+
+
+=== Source ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=SourceDescriptor]
+----
+
+=== Sink ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=SinkDescriptor]
+----
+
+=== Filter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=FilterDescriptor]
+----
+
+=== Branch ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=BranchDescriptor]
+----
+
+=== Merge ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=MergeDescriptor]
+----

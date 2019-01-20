@@ -14,6 +14,7 @@ message DescriptorRef {
     string uuid = 1 [(scalapb.field).no_box = true];
 }
 
+// tag::Descriptor[]
 message Descriptor {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.DescriptorCompanion";
     DescriptorRef ref = 1 [(scalapb.field).no_box = true];
@@ -21,6 +22,7 @@ message Descriptor {
     SealedDescriptor describes = 3;
     Localization localization = 15;
 }
+// end::Descriptor[]
 
 message SealedDescriptor {
     oneof sealed_value {
@@ -32,6 +34,33 @@ message SealedDescriptor {
     }
 }
 
+// tag::SourceDescriptor[]
+message SourceDescriptor {
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+    repeated Category categories = 4;
+    repeated ParameterDescriptor parameters = 8;
+    OutputDescriptor out = 9;
+    Icon icon = 13;
+    Maturity maturity = 14;
+}
+// end::SourceDescriptor[]
+
+// tag::SinkDescriptor[]
+message SinkDescriptor {
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+    repeated Category categories = 4;
+    repeated ParameterDescriptor parameters = 8;
+    InputDescriptor in = 9;
+    Icon icon = 13;
+    Maturity maturity = 14;
+}
+// end::SinkDescriptor[]
+
+// tag::FilterDescriptor[]
 message FilterDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
@@ -43,29 +72,9 @@ message FilterDescriptor {
     Icon icon = 13;
     Maturity maturity = 14;
 }
+// end::FilterDescriptor[]
 
-message SourceDescriptor {
-    string name = 1;
-    TextRef displayName = 2 [(scalapb.field).no_box = true];
-    TextRef description = 3 [(scalapb.field).no_box = true];
-    repeated Category categories = 4;
-    repeated ParameterDescriptor parameters = 8;
-    OutputDescriptor out = 9;
-    Icon icon = 13;
-    Maturity maturity = 14;
-}
-
-message SinkDescriptor {
-    string name = 1;
-    TextRef displayName = 2 [(scalapb.field).no_box = true];
-    TextRef description = 3 [(scalapb.field).no_box = true];
-    repeated Category categories = 4;
-    repeated ParameterDescriptor parameters = 8;
-    InputDescriptor in = 9;
-    Icon icon = 13;
-    Maturity maturity = 14;
-}
-
+// tag::BranchDescriptor[]
 message BranchDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
@@ -78,7 +87,9 @@ message BranchDescriptor {
     Icon icon = 13;
     Maturity maturity = 14;
 }
+// end::BranchDescriptor[]
 
+// tag::MergeDescriptor[]
 message MergeDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
@@ -91,6 +102,7 @@ message MergeDescriptor {
     Icon icon = 13;
     Maturity maturity = 14;
 }
+// end::MergeDescriptor[]
 
 message ParameterRef {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.ParameterRefCompanion";
