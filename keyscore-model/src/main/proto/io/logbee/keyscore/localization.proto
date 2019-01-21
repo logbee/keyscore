@@ -7,26 +7,34 @@ option (scalapb.options) = {
     flat_package: true
 };
 
+// tag::TextRef[]
 message TextRef {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.localization.TextRefCompanion";
     string id = 1;
 }
+// end::TextRef[]
 
+// tag::Locale[]
 message Locale {
     option (scalapb.message).extends = "io.logbee.keyscore.model.localization.BaseLocale";
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.localization.LocaleCompanion";
     string language = 1;
     string country = 2;
 }
+// end::Locale[]
 
+// tag::TranslationMapping[]
 message TranslationMapping {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.localization.TranslationMappingCompanion";
     map<string, string> translations = 1 [(scalapb.field).key_type = "io.logbee.keyscore.model.localization.Locale"];
 }
+// end::TranslationMapping[]
 
+// tag::Localization[]
 message Localization {
     option (scalapb.message).extends = "io.logbee.keyscore.model.localization.BaseLocalization";
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.localization.LocalizationCompanion";
     repeated Locale locales = 1 [(scalapb.field).collection_type="collection.immutable.Set"];
     map<string, TranslationMapping> mapping = 3 [(scalapb.field).key_type = "io.logbee.keyscore.model.localization.TextRef"];
 }
+// end::Localization[]

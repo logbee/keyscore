@@ -22,40 +22,37 @@ passes the data to the next block. There are five types of blocks. The main diff
 the number of in- and out-ports and therefore how they can be combined to build a pipeline:
 
 [#example-pipeline]
-.Example pipeline, illustrating the different types of blocks.
+.Example pipeline, illustrating the five different types of blocks.
 [ditaa]
 ....
-
- +----------+                                                                  +----------+
- |          |                                                                  |          |
- |  Source  +---+                                                         +--->|   Sink   |
- |          |   |                                                         |    |          |
- +----------+   |                                                         |    +----------+
-                |                                                         |
-                |    +-----------+     +------------+     +-----------+   |
-                +--->|           |     |            |     |           +---+
-                     |   Merge   +---->|   Filter   +---->|   Branch  |
-                +--->|           |     |            |     |           +---+
-                |    +-----------+     +------------+     +-----------+   |
-                |                                                         |
- +----------+   |                                                         |    +----------+
- |          |   |                                                         |    |          |
- |  Source  +---+                                                         +--->|   Sink   |
- |          |                                                                  |          |
- +----------+                                                                  +----------+
++----------+                                                                              +----------+
+|          |                                                                              |          |
+|  Source  +-----+                                                                 +----->|   Sink   |
+|          |     |                                                                 |      |          |
++----------+     |                                                                 |      +----------+
+                 |      +-----------+       +------------+       +-----------+     |
+                 +----->|           |       |            |       |           +-----+
+                        |   Merge   +------>|   Filter   +------>|   Branch  |
+                 +----->|           |       |            |       |           +-----+
+                 |      +-----------+       +------------+       +-----------+     |
++----------+     |                                                                 |      +----------+
+|          |     |                                                                 |      |          |
+|  Source  +-----+                                                                 +----->|   Sink   |
+|          |                                                                              |          |
++----------+                                                                              +----------+
 ....
 
 The following table provides a very brief summary of each type of block. See the sections below for more information
 about each block.
 
 [#block-types-brief-summary]
-.Brief description of each block type.
+.Brief summary of each block type.
 [cols=2*]
 |===
 |<<Source>>
 |A Source-Block shapes the beginning of a pipeline as shown on the left-hand side in <<#example-pipeline>>.
  A source has a single out-port to feed data into a pipeline. Often a source is used to communicate with an external
- system to query data from that system and pass it into the pipeline.
+ system to query data from that system and feed it into the pipeline.
 
 |<<Sink>>
 |A Sink-Block, illustrated on the right-hand side in <<#example-pipeline>> shapes the end of a pipeline. A sink
@@ -77,8 +74,8 @@ two flows into one. Therefore it has two in- and one out-port.
 
 == Descriptor API ==
 One of the key features of KEYSCORE is that all blocks are described by a meta-model. This meta-model is build by the so
-call Descriptor API. The Descriptor API facilitates a block-developer to describe various aspects of a block. It is
-import to understand importance of the Descriptor API and the resulting meta-model. The meta-model allows as an example
+called Descriptor API. The Descriptor API facilitates a block-developer to describe various aspects of a block. It is
+important to understand the importance of the Descriptor API and the resulting meta-model. The meta-model allows as an example
 the creation of an agnostic web-ui. Because of the meta-model, no changes have to be made to the web-ui when a new block
 is added to the system. Instead the forms, buttons etc. presented to the users are rendered according to the meta-model.
 
@@ -113,13 +110,12 @@ enum QueryType { <5>
     XPath = 0; <6>
     JSONPath = 1;
 }
-
 ----
 
 . Due to the background of Protobuf as foundation for serialization of messages a type definition starts with the
 keyword `message`.
 
-. Similar to struts in the C programming language. A message type consists of a series of fields. A field is defined by
+. Similar to structs in the C programming language. A message type consists of a series of fields. A field is defined by
 a https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar type] or a complex type (eg. `int32`) a name
 (eg. `result_per_page`) and a field number (eg. `= 1`).
 
@@ -133,6 +129,8 @@ known from other programming languages like https://en.wikipedia.org/wiki/Enumer
 similar manner.
 
 
+
+== Blocks ==
 
 === Source ===
 
@@ -168,3 +166,218 @@ include::{descriptors_base}/descriptor.proto[tags=BranchDescriptor]
 ----
 include::{descriptors_base}/descriptor.proto[tags=MergeDescriptor]
 ----
+
+== Parameters ==
+
+=== Boolean Parameter ===
+
+==== When to use ====
+- If a user should be able to turn a certain behaviour of a block *on* or *off*.
+
+==== When NOT to use ====
+- If their are more behaviours a user can choose not independently. Prefer: <<Choice Parameter>>
+
+==== Characteristics ====
+The `BooleanParameterDescriptor` offers a default value field to define which value (`true`/`false`) should be set initially.
+It is also possible to choose whether the parameter is mandatory and the user has to configure it or not.
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=BooleanParameterDescriptor]
+----
+
+==== Examples ====
+- Based on a boolean parameter the `Fingerprint` block encodes the computed hash sum to
+https://en.wikipedia.org/wiki/Base64[Base64] or not.
+
+=== Text Parameter ===
+
+==== When to use ====
+- If a user should be able enter simple text.
+
+==== When NOT to use ====
+- If the user should enter a password.
+- If the user should enter just simple numbers. Prefer <<Number Parameter>> / <<Decimal Parameter>>
+- If the user should enter multiple independent strings used to configure the same block behaviour. Prefer <<Text-List Parameter>>
+
+==== Characteristics ====
+
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=TextParameterDescriptor]
+----
+
+=== Expression Parameter ===
+
+==== When to use ====
+- If a user should enter an expression (RegEx, Glob, Grok, JSONPath).
+
+==== When NOT to use ====
+- If the user should enter simple text. Prefer <<Text Parameter>>
+- If the text entered by the user should be validated against a regular expression. Prefer: <<Text Parameter>>
+
+==== Characteristics ====
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=ExpressionParameterDescriptor]
+----
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=ExpressionType]
+----
+
+=== Number Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=NumberParameterDescriptor]
+----
+
+=== Decimal Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=DecimalParameterDescriptor]
+----
+
+=== Field-Name Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=FieldNameParameterDescriptor]
+----
+
+=== Field Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=FieldParameterDescriptor]
+----
+
+=== Text-List Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=TextListParameterDescriptor]
+----
+
+=== Field-Name-List Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=FieldNameListParameterDescriptor]
+----
+
+=== Field-List Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=FieldListParameterDescriptor]
+----
+
+=== Choice Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=ChoiceParameterDescriptor]
+----
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=Choice]
+----
+
+=== ParameterGroupDescriptor ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=ParameterGroupDescriptor]
+----
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=ParameterGroupCondition]
+----
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=BooleanParameterCondition]
+----
+
+=== Field-Directive-Sequence Parameter ===
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=FieldDirectiveSequenceParameterDescriptor]
+----
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=DirectiveRef]
+----
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=FieldDirectiveDescriptor]
+----
+
+== Localization ==
+A very important part when offering a UI to a wide user-base is localisation. You have to support different languages so
+every user can switch to her preferred language. Only a block-developer knows the names, descriptions and texts of a block
+which get displayed within the UI. Therefore the block-developer has to provide the translations. The descriptor API of
+KEYSCORE offers special structures to pass localisation information and translations.
+
+The key point is the usage of `TextRefs`. Instead of using the text to display directly a `TextRef` refers to a `TranslationMapping`.
+A `TranslationMapping` maps `Locales` to the proper text translated in the language denoted by the `Locale` it self.
+At the end a `Localization` consists of a list of all `Locales` the `Localization` provides and all `TranslationMappings`.
+<<#localization-classdiagram-overview>> illustrates the described concept. This allows, for example the keyscore-manager
+to select the text to display based on the `TextRef` given by a parameter and the users Locale.
+
+[#localization-classdiagram-overview]
+.Class-diagram illustrating the assotiations between Localization, TextRef, Locale and TranslationMapping.
+[ditaa]
+....
++--------------+                 +--------------------+
+|              |---------+       |                    |--------+       +--------+
+| Localization | TextRef +------>| TranslationMapping | Locale +------>| String |
+|              |---------+       |                    |--------+       +--------+
++-------+------+                 +--------------------+
+        |
+        |
+        v0..n
+   +----------+
+   |  Locale  |
+   |----------|
+   | language |
+   | country  |
+   +----------+
+....
+
+== Icon ==
+
+== Category ==
+Categories help users to sort and find blocks quickly. A `Category` consists of a unique name and a localized display
+name. Blocks can be assign to multiple categories.
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=Category]
+----
+
+The `Category` is a top level field of a <<Source>>, <<Sink>>, <<Filter>>, <<Branch>> and <<Merge>> block.
+
+== Maturity ==
+Often it is best to release software as soon as possible to get feedback from the user very early in development. The
+drawback when software is released to early is a lack in quality or missing features.
+
+A block-developer can assign a `Maturity` to his block to indicate a certain quality or age of the block.
+The default value is `None` and `Maturity` ranges from `Official` to `Experimental`.
+
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=Maturity]
+----
+
+The `Maturity` is a top level field of a <<Source>>, <<Sink>>, <<Filter>>, <<Branch>> and <<Merge>> block.

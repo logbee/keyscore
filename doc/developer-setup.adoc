@@ -151,7 +151,7 @@ git clone https://github.com/logbee/keyscore.git
     * you can use a _local gradle installation_ or the _gradle wrapper_.
     * if you like you can _Enable auto-import_.
 
-4. When the import finishes run the the following gradle task to generate all source files:
+4. When the import finishes run the the following gradle task from the root of the project to generate all source files:
 ----
 gradle generateScalaPB
 ----
