@@ -15,3 +15,5 @@ include 'keyscore-test-fixtures'
 include 'test'
 include 'test:elasticsearch'
 include 'test:kafka'
+
+include 'doc'

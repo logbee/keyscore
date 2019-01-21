@@ -1,0 +1,31 @@
+= Kafka =
+
+. Start the keyscore kafka container by running the following gradle task from the project root:
++
+[source,sh]
+----
+gradle test:kafka:startContainer
+----
+
+. Start the `kafka-console-consumer` in a separate terminal by running the following command:
++
+[source,sh]
+----
+docker exec keyscore-kafka \
+    /opt/kafka_2.12-1.0.0/bin/kafka-console-consumer.sh \
+    --bootstrap-server localhost:9092 \
+    --topic TopicA
+----
+
+. To produce messages run the `kafka-console-producer` with the command below:
++
+[source,sh]
+----
+docker exec -ti keyscore-kafka \
+    /opt/kafka_2.12-1.0.0/bin/kafka-console-producer.sh \
+    --broker-list localhost:9092 \
+    --topic TopicA
+----
+
+. Now you can enter messages into the cli. The `kafka-console-producer` will write the messages into the topic. The
+`kafka-console-consumer` running in the other terminal consumes from the same topic and therefore prints the messages out.

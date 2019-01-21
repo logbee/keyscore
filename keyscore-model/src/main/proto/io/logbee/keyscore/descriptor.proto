@@ -104,15 +104,19 @@ message MergeDescriptor {
 }
 // end::MergeDescriptor[]
 
+// tag::ParameterRef[]
 message ParameterRef {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.ParameterRefCompanion";
     string id = 1;
 }
+// end::ParameterRef[]
 
+// tag::ParameterInfo[]
 message ParameterInfo {
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
 }
+// end::ParameterInfo[]
 
 message ParameterDescriptor {
     oneof sealed_value {
@@ -132,13 +136,16 @@ message ParameterDescriptor {
     }
 }
 
+// tag::BooleanParameterDescriptor[]
 message BooleanParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
     bool defaultValue = 5;
     bool mandatory = 4;
 }
+// end::BooleanParameterDescriptor[]
 
+// tag::TextParameterDescriptor[]
 message TextParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -146,7 +153,9 @@ message TextParameterDescriptor {
     StringValidator validator = 4;
     bool mandatory = 5;
 }
+// end::TextParameterDescriptor[]
 
+// tag::ExpressionParameterDescriptor[]
 message ExpressionParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -154,7 +163,9 @@ message ExpressionParameterDescriptor {
     string defaultValue = 4;
     bool mandatory = 5;
 }
+// end::ExpressionParameterDescriptor[]
 
+// tag::NumberParameterDescriptor[]
 message NumberParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -162,7 +173,9 @@ message NumberParameterDescriptor {
     NumberRange range = 6;
     bool mandatory = 4;
 }
+// end::NumberParameterDescriptor[]
 
+// tag::DecimalParameterDescriptor[]
 message DecimalParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -171,7 +184,9 @@ message DecimalParameterDescriptor {
     uint32 decimals = 7;
     bool mandatory = 4;
 }
+// end::DecimalParameterDescriptor[]
 
+// tag::FieldNameParameterDescriptor[]
 message FieldNameParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -180,7 +195,9 @@ message FieldNameParameterDescriptor {
     StringValidator validator = 5;
     bool mandatory = 6;
 }
+// end::FieldNameParameterDescriptor[]
 
+// tag::FieldParameterDescriptor[]
 message FieldParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -190,7 +207,9 @@ message FieldParameterDescriptor {
     FieldValueType fieldValueType = 6;
     bool mandatory = 7;
 }
+// end::FieldParameterDescriptor[]
 
+// tag::TextListParameterDescriptor[]
 message TextListParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -198,7 +217,9 @@ message TextListParameterDescriptor {
     uint32 min = 4;
     uint32 max = 5;
 }
+// end::TextListParameterDescriptor[]
 
+// tag::FieldNameListParameterDescriptor[]
 message FieldNameListParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -206,7 +227,9 @@ message FieldNameListParameterDescriptor {
     uint32 min = 4;
     uint32 max = 5;
 }
+// end::FieldNameListParameterDescriptor[]
 
+// tag::FieldListParameterDescriptor[]
 message FieldListParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -214,7 +237,9 @@ message FieldListParameterDescriptor {
     uint32 min = 4;
     uint32 max = 5;
 }
+// end::FieldListParameterDescriptor[]
 
+// tag::ChoiceParameterDescriptor[]
 message ChoiceParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -222,31 +247,41 @@ message ChoiceParameterDescriptor {
     uint32 max = 4;
     repeated Choice choices = 5;
 }
+// end::ChoiceParameterDescriptor[]
 
+// tag::Choice[]
 message Choice {
     string name = 1;
     TextRef displayName = 2;
     TextRef description = 3;
 }
+// end::Choice[]
 
+// tag::ParameterGroupDescriptor[]
 message ParameterGroupDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
     ParameterGroupCondition condition = 3;
     repeated ParameterDescriptor parameters = 4;
 }
+// end::ParameterGroupDescriptor[]
 
+// tag::ParameterGroupCondition[]
 message ParameterGroupCondition {
     oneof sealed_value {
         BooleanParameterCondition booleanParameterCondition = 1;
     }
 }
+// end::ParameterGroupCondition[]
 
+// tag::BooleanParameterCondition[]
 message BooleanParameterCondition {
     ParameterRef parameter = 1 [(scalapb.field).no_box = true];
     bool negate = 2;
 }
+// end::BooleanParameterCondition[]
 
+// tag::FieldDirectiveSequenceParameterDescriptor[]
 message FieldDirectiveSequenceParameterDescriptor {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
@@ -256,21 +291,28 @@ message FieldDirectiveSequenceParameterDescriptor {
     uint32 minSequences = 6;
     uint32 maxSequences = 7;
 }
+// end::FieldDirectiveSequenceParameterDescriptor[]
 
+// tag::DirectiveRef[]
 message DirectiveRef {
     string uuid = 1 [(scalapb.field).no_box = true];
 }
+// end::DirectiveRef[]
 
+// tag::DirectiveInstanceRef[]
 message DirectiveInstanceRef {
     string uuid = 1 [(scalapb.field).no_box = true];
 }
+// end::DirectiveInstanceRef[]
 
+// tag::FieldDirectiveDescriptor[]
 message FieldDirectiveDescriptor {
     DirectiveRef ref = 1 [(scalapb.field).no_box = true];
     ParameterInfo info = 2;
     repeated ParameterDescriptor parameters = 4;
     Icon icon = 13;
 }
+// end::FieldDirectiveDescriptor[]
 
 message StringValidator {
     string expression = 1;
@@ -293,12 +335,14 @@ enum FieldNameValueTypeHint {
     DurationValueField = 5;
 }
 
+// tag::ExpressionType[]
 enum ExpressionType {
     RegEx = 0;
     Grok = 2;
     Glob = 3;
     JSONPath = 4;
 }
+// end::ExpressionType[]
 
 message NumberRange {
     sint32 step = 1;
@@ -312,10 +356,13 @@ message DecimalRange {
     double end = 3;
 }
 
+
+// tag::Category[]
 message Category {
     string name = 1;
     TextRef displayName = 2;
 }
+// end::Category[]
 
 message Icon {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.descriptor.IconLoader";
@@ -333,6 +380,7 @@ enum IconEncoding {
     Base64 = 1;
 }
 
+// tag::Maturity[]
 enum Maturity {
     None = 0;
     Official = 1;
@@ -340,6 +388,7 @@ enum Maturity {
     Development = 3;
     Experimental = 4;
 }
+// end::Maturity[]
 
 message InputDescriptor {
     string name = 1;
