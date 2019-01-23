@@ -5,8 +5,9 @@ import java.util.UUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import io.logbee.keyscore.model.configuration.{Configuration, DirectiveConfiguration, FieldDirectiveSequenceConfiguration, FieldDirectiveSequenceParameter}
-import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
+import io.logbee.keyscore.model.configuration._
+import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.descriptor.ParameterDescriptorMessage.SealedValue
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
@@ -14,6 +15,8 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
+
+import scala.concurrent.duration._
 import org.scalatest.{FreeSpec, Inside, Matchers}
 
 
@@ -35,10 +38,12 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
 
     val sampleData = Dataset(Record(
       Field("message", TextValue(" keyscore   ")),
-      Field("temperature", TextValue("11,5"))
+      Field("temperature", TextValue("11,5")),
+      Field("timestamp", TextValue("2018-12-24T00:00:00")),
+      Field("timestampWOTime", TextValue("2018-12-24"))
     ))
 
-    "(when configured with a trim directive)" - {
+    "when configured with a trim directive" - {
 
       "should remove leading and trailing spaces of the configured field" in new TestStream {
 
@@ -67,6 +72,69 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
 
             inside(record.fields.head) { case Field("message", TextValue(text)) =>
               text shouldBe "keyscore"
+            }
+          }
+        }
+      }
+    }
+    "when configured with a find and replace directive" - {
+      "should replace all occurrences of configured find string with configured replace string" in new TestStream {
+        whenReady(filterFuture) { filter =>
+          val configuration = Configuration(FieldDirectiveSequenceParameter(
+            TextMutatorLogic.directiveSequence.ref, Seq(
+              FieldDirectiveSequenceConfiguration(
+                fieldName = "message",
+                directives = Seq(
+                  DirectiveConfiguration(TextMutatorLogic.findAndReplaceDirective.ref, null, ParameterSet(Seq(
+                    TextParameter(TextMutatorLogic.findPattern.ref, "keyscore"),
+                    TextParameter(TextMutatorLogic.replacePattern.ref, "test success")
+                  )))
+                )
+              )
+            )
+          ))
+
+          whenReady(filter.configure(configuration)) { _ =>
+            source sendNext sampleData
+
+            sink request 1
+            val result = sink.requestNext
+            val record = result.records.head
+
+            inside(record.fields.head) { case Field("message", TextValue(text)) =>
+              text shouldBe " test success   "
+            }
+          }
+        }
+      }
+    }
+    "when configured with a to timestamp directive" - {
+      "should convert timestamp string with date and time to timestamp value" in new TestStream {
+        whenReady(filterFuture) { filter =>
+          val configuration = Configuration(FieldDirectiveSequenceParameter(
+            TextMutatorLogic.directiveSequence.ref, Seq(
+              FieldDirectiveSequenceConfiguration(
+                fieldName = "timestamp",
+                directives = Seq(
+                  DirectiveConfiguration(TextMutatorLogic.toTimestampDirective.ref, null, ParameterSet(Seq(
+                    TextParameter(TextMutatorLogic.toTimestampPattern.ref, "yyyy-MM-dd'T'HH:mm:ss")
+                  )))
+                )
+              )
+            )
+          ))
+
+          whenReady(filter.configure(configuration)) { _ =>
+            source sendNext sampleData
+
+            sink request 1
+            val result = sink.requestNext
+            val record = result.records.head
+
+            inside(record.fields.filter(field => field.name.equals("timestamp")).head) {
+              case Field("timestamp", TimestampValue(seconds, nanos)) =>
+                seconds shouldBe 1545609600
+                nanos shouldBe 0
             }
           }
         }
