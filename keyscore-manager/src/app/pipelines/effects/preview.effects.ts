@@ -24,7 +24,7 @@ export class PreviewEffects {
     public extractDataFromFilter$: Observable<Action> = this.actions$.pipe(
         ofType(EXTRACT_FROM_SELECTED_BLOCK),
         map((action) => (action as ExtractFromSelectedBlock)),
-        mergeMap((action) => {
+        switchMap((action) => {
             return this.filterControllerService.extractDatasets(action.selectedBlockId, action.amount, action.where).pipe(
                 map((data: Dataset[]) => new ExtractFromSelectedBlockSuccess(data, action.selectedBlockId, action.where),
                 catchError((cause: any) => of(new ExtractFromSelectedBlockFailure(cause)))));
