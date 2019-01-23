@@ -84,7 +84,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   var fileReadRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
   if (persistenceContext != null) {
-    val loadedFileReadRecord = persistenceContext.load[FileReadRecord](watchedFile.toString)
+    val loadedFileReadRecord = persistenceContext.load[FileReadRecord](watchedFile.getAbsolutePath)
     loadedFileReadRecord match {
       case None =>
       case Some(loadedFileReadRecord: FileReadRecord) =>
@@ -100,10 +100,10 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
     
     log.info("fileModified() called for " + watchedFile)
     
-    val decoder = charset.newDecoder()
+    val decoder = charset.newDecoder
     decoder.onMalformedInput(CodingErrorAction.REPORT)
     
-    val charBufferSize = Math.ceil(byteBufferSize * charset.newDecoder().maxCharsPerByte).asInstanceOf[Int] //enough space to decode a full byteBuffer
+    val charBufferSize = Math.ceil(byteBufferSize * charset.newDecoder.maxCharsPerByte).asInstanceOf[Int] //enough space to decode a full byteBuffer
     val charBuffer = CharBuffer.allocate(charBufferSize)
     
     val byteBuffer = ByteBuffer.allocate(byteBufferSize)
@@ -121,7 +121,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
       if (nextBufferStartPosition < file.length) { //skip creating a fileReadChannel and persisting the data, if there is nothing to read
         var fileReadChannel: FileChannel = null
         try {
-          fileReadChannel = Files.newByteChannel(file.toPath(), StandardOpenOption.READ).asInstanceOf[FileChannel]
+          fileReadChannel = Files.newByteChannel(file.toPath, StandardOpenOption.READ).asInstanceOf[FileChannel]
           
           
           while (nextBufferStartPosition < file.length) {

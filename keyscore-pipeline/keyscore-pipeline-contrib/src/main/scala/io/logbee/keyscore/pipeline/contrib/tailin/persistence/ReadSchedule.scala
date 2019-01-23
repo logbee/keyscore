@@ -32,7 +32,7 @@ class ReadSchedule(changelogFile: File) {
     }
     finally {
       if (fileWriter != null)
-        fileWriter.close
+        fileWriter.close()
     }
   }
   
@@ -75,8 +75,9 @@ class ReadSchedule(changelogFile: File) {
   }
   
   
-  def getLatestEntry(file: File): Option[ReadScheduleItem] = { //TODO can we iterate in reverse and just stop when we've found the first entry?
+  def getLatestEntry(file: File): Option[ReadScheduleItem] = {
     
+    //TODO it would be faster to read the lines in reverse and take the first matching one, but this seems to be a pain to implement
     val pathString = file.getAbsolutePath
     
     var latestLine: String = null

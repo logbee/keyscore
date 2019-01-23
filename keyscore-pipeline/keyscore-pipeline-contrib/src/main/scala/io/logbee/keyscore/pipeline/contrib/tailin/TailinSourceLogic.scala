@@ -240,7 +240,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       )
     )
 
-    log.info(s"Created Datasets $outData")
+    log.info(s"Created Datasets: $outData")
 
     push(out, outData)
   }

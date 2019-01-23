@@ -72,10 +72,6 @@ class ReadScheduler(file: File, rotationPattern: String, persistenceContext: Per
       }
       startPos = 0 //if there's multiple files, read the next files from the start
     }
-    
-    //TODO
-    //-> we should sort the entries in readSchedule
-    //-> probably makes most sense to traverse it backwards and compare the lastModified time
   }
   
   

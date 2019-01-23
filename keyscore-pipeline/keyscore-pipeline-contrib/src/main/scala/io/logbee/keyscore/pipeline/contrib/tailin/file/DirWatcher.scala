@@ -122,6 +122,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     // in what cases do we need another dirWatcher:
     // if there is a / anywhere
     // if there is an *,?,[ followed at some point by a /
+    // if there is a ** anywhere, doesn't matter if it's followed at some point by a /
     
     val dirWatcher = watcherProvider.createDirWatcher(
       configuration.copy(
