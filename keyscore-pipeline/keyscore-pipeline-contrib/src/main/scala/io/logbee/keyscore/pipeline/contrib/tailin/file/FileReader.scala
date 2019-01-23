@@ -244,7 +244,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   
   def pathDeleted() {
-    if (FileReader.getFilesToRead(watchedFile, rotationPattern, rotationRecord.previousReadTimestamp).length == 0) { //if no rotated files remain
+    if (FileReader.getFilesToRead(watchedFile, rotationPattern, 0).length == 0) { //if no rotated files remain
       persistenceContext.remove(watchedFile.toString)
     }
     tearDown()
