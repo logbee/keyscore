@@ -70,7 +70,7 @@ object FileReader {
 
 /**
  * @param rotationPattern Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.
- * @param persistenceContext PersistenceContext where RotationRecords are stored and read from.
+ * @param persistenceContext PersistenceContext where FileReadRecords are stored and read from.
  */
 class FileReader(watchedFile: File, rotationPattern: String, persistenceContext: PersistenceContext, byteBufferSize: Int, charset: Charset, readMode: ReadMode) extends DefaultFileWatcher(watchedFile) with FileWatcher {
   
@@ -82,13 +82,13 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   
   
-  var rotationRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
+  var fileReadRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
   if (persistenceContext != null) {
-    val loadedRotationRecord = persistenceContext.load[FileReadRecord](watchedFile.toString)
-    loadedRotationRecord match {
+    val loadedFileReadRecord = persistenceContext.load[FileReadRecord](watchedFile.toString)
+    loadedFileReadRecord match {
       case None =>
-      case Some(loadedRotationRecord: FileReadRecord) =>
-        rotationRecord = loadedRotationRecord
+      case Some(loadedFileReadRecord: FileReadRecord) =>
+        fileReadRecord = loadedFileReadRecord
     }
   }
   
@@ -110,12 +110,12 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
     
     
     
-    val filesToRead = FileReader.getFilesToRead(watchedFile, rotationPattern, rotationRecord.previousReadTimestamp)
+    val filesToRead = FileReader.getFilesToRead(watchedFile, rotationPattern, fileReadRecord.previousReadTimestamp)
     filesToRead.foreach { file =>
       
       var nextBufferStartPosition = 0L
       if (file.equals(filesToRead.head)) { //if this is the first file to be read, read from the previousReadPosition
-        nextBufferStartPosition = rotationRecord.previousReadPosition
+        nextBufferStartPosition = fileReadRecord.previousReadPosition
       }
       
       if (nextBufferStartPosition < file.length) { //skip creating a fileReadChannel and persisting the data, if there is nothing to read
@@ -169,10 +169,10 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
           
           if (file.equals(filesToRead.last)) {//if this is the last file to be read, persist the new readPosition and readTimestamp
             
-            rotationRecord = rotationRecord.copy(previousReadPosition = nextBufferStartPosition,
+            fileReadRecord = fileReadRecord.copy(previousReadPosition = nextBufferStartPosition,
                                                  previousReadTimestamp = watchedFile.lastModified)
             
-            persistenceContext.store(watchedFile.getAbsolutePath, rotationRecord)
+            persistenceContext.store(watchedFile.getAbsolutePath, fileReadRecord)
           }
         }
       }
