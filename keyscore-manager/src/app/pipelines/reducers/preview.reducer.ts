@@ -12,16 +12,12 @@ import {Record} from "../../models/dataset/Record";
 import {Field} from "../../models/dataset/Field";
 import * as _ from "lodash";
 export class PreviewState {
-    public outputDatasets: Dataset[];
-    public inputDatasets: Dataset[];
     public dummyDataset: Dataset;
     public outputDatasetModelMap: Map<string, DatasetTableModel[]>;
     public inputDatasetModelMap: Map<string, DatasetTableModel[]>;
     public selectedBlock: string;
 }
 export const initalPreviewState: PreviewState = {
-    outputDatasets: [],
-    inputDatasets: [],
     outputDatasetModelMap: new Map <string, DatasetTableModel[]>(),
     inputDatasetModelMap: new Map <string, DatasetTableModel[]>(),
     dummyDataset: {
@@ -31,27 +27,23 @@ export const initalPreviewState: PreviewState = {
     selectedBlock: "default"
 };
 
-
-
 export function PreviewReducer(state: PreviewState = initalPreviewState, action: PreviewActions): PreviewState {
     let result = _.cloneDeep(state);
     switch (action.type) {
         case EXTRACT_FROM_SELECTED_BLOCK_SUCCESS:
             if(action.where == "after") {
-                result.outputDatasets = action.extractedDatsets;
-                if (result.outputDatasets.length !== 0) {
+                if (action.extractedDatsets.length !== 0) {
                     const models: DatasetTableModel[] = [];
-                    result.outputDatasets.forEach((dataset) => {
+                    action.extractedDatsets.forEach((dataset) => {
                         let model = createDatasetTableModel(dataset, result.dummyDataset);
                         models.push(model)
                     });
                     result.outputDatasetModelMap.set(action.blockId, models);
                 }
             } else if (action.where == "before") {
-                result.inputDatasets = action.extractedDatsets;
-                if (result.inputDatasets.length !== 0) {
+                if (action.extractedDatsets.length !== 0) {
                     const models: DatasetTableModel[] = [];
-                    result.inputDatasets.forEach((dataset) => {
+                    action.extractedDatsets.forEach((dataset) => {
                         let model = createDatasetTableModel(dataset, result.dummyDataset);
                         models.push(model)
                     });
