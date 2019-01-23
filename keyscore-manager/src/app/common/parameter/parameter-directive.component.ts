@@ -89,9 +89,9 @@ import {generateRef} from "../../models/common/Ref";
                     </div>
 
                 </div>
-                    <div class="directive-add" fxLayout="row" fxLayoutAlign="center center" fxFlexAlign="stretch" [matMenuTriggerFor]="directiveMenu">
+                    <button mat-button class="directive-add " fxLayout="row" fxLayoutAlign="center center" fxFlexAlign="stretch" [matMenuTriggerFor]="directiveMenu">
                             <mat-icon matTooltip="Add a new directive to this field" color="accent">add_circle_outline</mat-icon>
-                    </div>
+                    </button>
                     <mat-menu #directiveMenu>
                         <button fxLayout="row" fxLayoutAlign="space-between center" mat-menu-item
                                 *ngFor="let directiveDescriptor of parameterDescriptor.directives"

@@ -107,9 +107,11 @@ mat-expansion-panel-header .mat-content {
 }
 
 .directive-add{
-  margin: 5px 0;
-  padding:10px;
-  border:1px dashed $accent;
-  cursor:pointer;
-  border-radius: 4px;
+  width:100% !important;
+  margin: 5px 0 !important;
+  border:1px dashed $accent !important;
+}
+
+.directive-add:hover{
+  background-color: $accent-transparent;
 }
