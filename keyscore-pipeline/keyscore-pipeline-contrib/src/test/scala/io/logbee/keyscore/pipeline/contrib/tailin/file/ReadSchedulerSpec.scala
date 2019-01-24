@@ -109,132 +109,125 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
   
   
   trait ReadSchedulerSetup extends LogFile {
-    val rotationPattern = logFile.getName + ".[1-5]"
     val readSchedule = mock[ReadSchedule]
   }
   
   
   "A ReadScheduler should" - {
     
-    "queue a read for a change in a file" in new ReadSchedulerSetup {
+    "queue a read for a change in a file" in
+    new ReadSchedulerSetup with PersistenceContextWithoutTimestamp {
       
-      val readScheduler = new ReadScheduler(logFile, rotationPattern, mock[FilePersistenceContext], readSchedule)
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContextWithoutTimestamp, readSchedule)
       
-      inSequence {
-        (readSchedule.getLatestEntry _)
-          .expects(logFile)
-          .returning(Some(ReadScheduleItem(logFile, 0, 0, 0)))
-          
-        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFileData.getBytes.length, logFile.lastModified))
-      }
+      (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFileData.getBytes.length, logFile.lastModified))
+      
       readScheduler.fileModified(_ => ())
     }
     
     
-    "queue multiple reads for a change in a file, to also catch up on changes in its rotated files" in new ReadSchedulerSetup
-      with RotateFiles {
-      
-      val readScheduler = new ReadScheduler(logFile, rotationPattern, mock[FilePersistenceContext], readSchedule)
+    "queue multiple reads for a change in a file, to also catch up on changes in its rotated files" in
+    new ReadSchedulerSetup with RotateFiles {
       
       val previousReadPosition = 2
+      val persistenceContext = mock[FilePersistenceContext]
       
       inSequence {
-        (readSchedule.getLatestEntry _)
-          .expects(logFile)
-          .returning(Some(ReadScheduleItem(logFile, 0, previousReadPosition, 0))) //item scheduled that stops reading at position 0, to make following scheduled reads start at the beginning
-          
+        (persistenceContext.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
+          .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
+          .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp=0)))
+      
+      
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile4Data.getBytes.length, logFile4_ModifiedBeforePreviousReadTimestamp.lastModified))
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile3Data.getBytes.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile2Data.getBytes.length, logFile2.lastModified))
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile1Data.getBytes.length, logFile1.lastModified))
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFileData.getBytes.length, logFile.lastModified))
       }
+      
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContext, readSchedule)
       readScheduler.fileModified(_ => ())
     }
     
     
-    "queue only one read for a change in a file, when rotated files exist that have already been read" in new ReadSchedulerSetup
-      with RotateFiles {
+    "queue only one read for a change in a file, when rotated files exist that have already been read" in
+    new ReadSchedulerSetup with RotateFiles {
       
-      val readScheduler = new ReadScheduler(logFile, rotationPattern, mock[FilePersistenceContext], readSchedule)
+      val persistenceContext = mock[FilePersistenceContext]
       
       inSequence {
-        (readSchedule.getLatestEntry _)
-          .expects(logFile)
-          .returning(Some(ReadScheduleItem(logFile, 0, logFile2Data.getBytes.length, logFile2.lastModified))) //item scheduled that stops reading at position 0, to make following scheduled reads start at the beginning
-          
+        (persistenceContext.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
+          .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
+          .returning(Some(FileReadRecord(previousReadPosition=logFile2.length, previousReadTimestamp=logFile2.lastModified)))
+        
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile1Data.getBytes.length, logFile1.lastModified))
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFileData.getBytes.length,  logFile.lastModified))
       }
+      
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContext, readSchedule)
       readScheduler.fileModified(_ => ())
     }
     
     
-    "queue a read from the correct starting position, when a read up to that position has already been *scheduled*" in new ReadSchedulerSetup {
+    "queue a read from the correct starting position, when a read up to that position has already been *scheduled*" in
+    new ReadSchedulerSetup with PersistenceContextWithoutTimestamp {
       
-      val readScheduler = new ReadScheduler(logFile, rotationPattern, mock[FilePersistenceContext], readSchedule)
-      
-      val previousReadPosition = 3
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContextWithoutTimestamp /*nothing has been read yet*/, readSchedule)
+      val previousReadPosition = logFile.length
       
       inSequence {
-        (readSchedule.getLatestEntry _)
-          .expects(logFile)
-          .returning(Some(ReadScheduleItem(logFile, 0, previousReadPosition, 0)))
-          
-        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFileData.getBytes.length, logFile.lastModified))
+        //schedule a read up to the current file length
+        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=previousReadPosition, logFile.lastModified))
+        readScheduler.fileModified(_ => ())
+        
+        //append something more to the file
+        TestUtil.writeStringToFile(logFile, "222\nö222", StandardOpenOption.APPEND)
+        
+        //expect it to read on from that position
+        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile.length, logFile.lastModified))
+        readScheduler.fileModified(_ => ())
       }
-      readScheduler.fileModified(_ => ())
     }
     
     
-    "queue a read from the correct starting position, when a read up to that position has already been *completed*" in new ReadSchedulerSetup {
-      
-      val persistenceContext = mock[FilePersistenceContext]
-      val readScheduler = new ReadScheduler(logFile, rotationPattern, persistenceContext, readSchedule)
+    "queue a read from the correct starting position, when a read up to that position has already been *completed*" in
+    new ReadSchedulerSetup {
       
       val previousReadPosition = 3
+      val persistenceContext = mock[FilePersistenceContext]
       
       inSequence {
-        (readSchedule.getLatestEntry _)
-          .expects(logFile)
-          .returning(None)
-        
-        
         (persistenceContext.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
           .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
           .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp=0)))
-          
-          
+         
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFileData.getBytes.length, logFile.lastModified))
       }
+      
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContext, readSchedule)
       readScheduler.fileModified(_ => ())
     }
     
     
-    "queue a read from the start (including rotated files), when a read for this file has not yet been scheduled or completed"in new ReadSchedulerSetup
-      with RotateFiles {
+    "queue a read from the start (including rotated files), when a read for this file has not yet been scheduled or completed" in
+    new ReadSchedulerSetup with RotateFiles {
       
       val persistenceContext = mock[FilePersistenceContext]
-      val readScheduler = new ReadScheduler(logFile, rotationPattern, persistenceContext, readSchedule)
-      
       
       inSequence {
-        (readSchedule.getLatestEntry _)
-          .expects(logFile)
-          .returning(None)
-        
-        
         (persistenceContext.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
           .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
           .returning(None)
         
         
-        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile4Data.getBytes.length, logFile4_ModifiedBeforePreviousReadTimestamp.lastModified))
-        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile3Data.getBytes.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
-        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile2Data.getBytes.length, logFile2.lastModified))
-        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile1Data.getBytes.length, logFile1.lastModified))
-        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFileData.getBytes.length, logFile.lastModified))
+        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile4_ModifiedBeforePreviousReadTimestamp.length, logFile4_ModifiedBeforePreviousReadTimestamp.lastModified))
+        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
+        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile2.length, logFile2.lastModified))
+        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile1.length, logFile1.lastModified))
+        (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile.length, logFile.lastModified))
       }
+      
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContext, readSchedule)
       readScheduler.fileModified(_ => ())
     }
   }

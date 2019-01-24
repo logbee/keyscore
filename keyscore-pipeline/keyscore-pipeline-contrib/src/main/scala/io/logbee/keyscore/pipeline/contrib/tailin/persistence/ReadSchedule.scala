@@ -31,9 +31,6 @@ class ReadSchedule() {
       Some(readScheduleQueue.head)
   }
   
-  @deprecated
-  def getLatestEntry(file: File): Option[ReadScheduleItem] = ??? //TODO remove
-  
   
   def removeNext() = {
     if (readScheduleQueue.isEmpty)
