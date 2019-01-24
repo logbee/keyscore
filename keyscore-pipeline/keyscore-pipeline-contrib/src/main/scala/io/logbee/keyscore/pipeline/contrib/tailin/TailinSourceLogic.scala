@@ -15,7 +15,6 @@ import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirWatcher, DirWatcherConfiguration, ReadMode}
-import io.logbee.keyscore.pipeline.contrib.tailin.file.RotationReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode._
 import scala.concurrent.duration._
@@ -24,6 +23,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.InvalidPathException
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirWatcherPattern
+import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadSchedulerProvider
 
 
 object TailinSourceLogic extends Described {
@@ -211,9 +211,9 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
         sendBuffer.addToBuffer(data)
     }
     
-    val rotationReaderProvider = new RotationReaderProvider(rotationPattern, persistenceContext, bufferSize, callback, Charset.forName(encoding), ReadMode.withName(readMode))
+    val readSchedulerProvider = new ReadSchedulerProvider(rotationPattern, persistenceContext, callback)
     val dirWatcherConfiguration = DirWatcherConfiguration(baseDir, DirWatcherPattern(filePattern))
-    dirWatcher = rotationReaderProvider.createDirWatcher(dirWatcherConfiguration)
+    dirWatcher = readSchedulerProvider.createDirWatcher(dirWatcherConfiguration)
   }
   
   

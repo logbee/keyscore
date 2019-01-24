@@ -10,6 +10,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
 import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 import org.slf4j.LoggerFactory
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 
 
 object ReadMode extends Enumeration {
@@ -72,7 +73,7 @@ object FileReader {
  * @param rotationPattern Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.
  * @param persistenceContext PersistenceContext where FileReadRecords are stored and read from.
  */
-class FileReader(watchedFile: File, rotationPattern: String, persistenceContext: PersistenceContext, byteBufferSize: Int, charset: Charset, readMode: ReadMode) extends DefaultFileWatcher(watchedFile) with FileWatcher {
+class FileReader(watchedFile: File, rotationPattern: String, persistenceContext: PersistenceContext, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
   
   private val log = LoggerFactory.getLogger(classOf[FileReader])
   
@@ -96,7 +97,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
 
   
   
-  def fileModified(callback: String => Unit) = {
+  def fileModified(callback: String => Unit, readScheduleItem: ReadScheduleItem) = {
     
     log.info("fileModified() called for " + watchedFile)
     
@@ -110,73 +111,63 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
     
     
     
-    val filesToRead = FileReader.getFilesToRead(watchedFile, rotationPattern, fileReadRecord.previousReadTimestamp)
-    filesToRead.foreach { file =>
-      
-      var nextBufferStartPosition = 0L
-      if (file.equals(filesToRead.head)) { //if this is the first file to be read, read from the previousReadPosition
-        nextBufferStartPosition = fileReadRecord.previousReadPosition
-      }
-      
-      if (nextBufferStartPosition < file.length) { //skip creating a fileReadChannel and persisting the data, if there is nothing to read
-        var fileReadChannel: FileChannel = null
-        try {
-          fileReadChannel = Files.newByteChannel(file.toPath, StandardOpenOption.READ).asInstanceOf[FileChannel]
+    val filesToRead = FileReader.getFilesToRead(watchedFile, rotationPattern, readScheduleItem.lastModified)
+    val file = filesToRead.head
+    
+    println("endPos: " + readScheduleItem.endPos + ", " + file.length)
+    assert(readScheduleItem.endPos <= file.length) //TODO
+    
+    var nextBufferStartPosition = readScheduleItem.startPos
+    
+    if (nextBufferStartPosition < readScheduleItem.endPos) { //skip creating a fileReadChannel and persisting the data, if there is nothing to read
+      var fileReadChannel: FileChannel = null
+      try {
+        fileReadChannel = Files.newByteChannel(file.toPath, StandardOpenOption.READ).asInstanceOf[FileChannel]
+        
+        
+        while (nextBufferStartPosition < readScheduleItem.endPos) {
+          
+          //we're reading and persisting byte positions, because the variable length of encoded chars would mean that we can't resume reading at the same position without decoding every single char in the whole char sequence (file) before it
+          
+          byteBuffer.clear()
+          var bytesRead = fileReadChannel.read(byteBuffer, nextBufferStartPosition)
+          
+          if (bytesRead == -1 || bytesRead == 0) {
+            throw new IllegalStateException("There were no bytes to read.")
+          }
+          
+          byteBuffer.flip() //sets limit to final read position, so that buffer.position can be used as pointer
           
           
-          while (nextBufferStartPosition < file.length) {
+          charBuffer.clear()
+          decoder.reset()
+          val coderResult = decoder.decode(byteBuffer, charBuffer, true)
+          
+          if (coderResult.isMalformed) {
             
-            //we're reading and persisting byte positions, because the variable length of encoded chars would mean that we can't resume reading at the same position without decoding every single char in the whole char sequence (file) before it
-            
-            byteBuffer.clear()
-            var bytesRead = fileReadChannel.read(byteBuffer, nextBufferStartPosition)
-            
-            if (bytesRead == -1 || bytesRead == 0) {
-              throw new IllegalStateException("There were no bytes to read.")
+            if (byteBuffer.position + coderResult.length == byteBuffer.capacity) { //characters are malformed because of the end of the buffer
+              bytesRead -= coderResult.length
             }
-            
-            byteBuffer.flip() //sets limit to final read position, so that buffer.position can be used as pointer
-            
-            
-            charBuffer.clear()
-            decoder.reset()
-            val coderResult = decoder.decode(byteBuffer, charBuffer, true)
-            
-            if (coderResult.isMalformed) {
-              
-              if (byteBuffer.position + coderResult.length == byteBuffer.capacity) { //characters are malformed because of the end of the buffer
-                bytesRead -= coderResult.length
-              }
-              else { //actual error case
-                throw new CharacterCodingException
-              }
+            else { //actual error case
+              throw new CharacterCodingException
             }
-            
-            
-            charBuffer.flip()
-            
-            processBufferContents(charBuffer, callback)
-            
-            
-            nextBufferStartPosition += bytesRead
-          }
-        }
-        finally {
-          if (fileReadChannel != null) {
-            fileReadChannel.close()
           }
           
           
-          if (file.equals(filesToRead.last)) {//if this is the last file to be read, persist the new readPosition and readTimestamp
-            
-            fileReadRecord = fileReadRecord.copy(previousReadPosition = nextBufferStartPosition,
-                                                 previousReadTimestamp = watchedFile.lastModified)
-            
-            persistenceContext.store(watchedFile.getAbsolutePath, fileReadRecord)
-          }
+          charBuffer.flip()
+          
+          processBufferContents(charBuffer, callback)
+          
+          
+          nextBufferStartPosition += bytesRead
         }
       }
-    }//continue in loop with next file
+      finally {
+        if (fileReadChannel != null) {
+          fileReadChannel.close()
+        }
+      }
+    }
   }
   
   
@@ -187,14 +178,14 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
       
       var writtenPositionWithinBuffer = 0
       
-      while (buffer.position() < buffer.limit()) {
+      while (buffer.position < buffer.limit) {
         
         //check for the occurrence of \n or \r, as we do linewise reading
         val byte = buffer.get().toChar //sets pos to pos+1
         
         if (byte == '\n' || byte == '\r') {
   
-          val lengthToWrite = buffer.position() - 1 - writtenPositionWithinBuffer // "-1", because we don't want to count the '\n'
+          val lengthToWrite = buffer.position - 1 - writtenPositionWithinBuffer // "-1", because we don't want to count the '\n'
           
           val string = CharBufferUtil.getBufferSectionAsString(buffer, writtenPositionWithinBuffer, lengthToWrite)
           
@@ -218,13 +209,13 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
     //end of data in buffer reached
     
     
-    val length = buffer.limit() - buffer.position()
+    val length = buffer.limit - buffer.position
     
     if (length > 0) {
       val string = CharBufferUtil.getBufferSectionAsString(buffer, buffer.position, length)
       
       
-      if (buffer.limit() < buffer.capacity) { //end of file
+      if (buffer.limit < buffer.capacity) { //end of file
         
         doCallback(callback, string) //write the remaining bytes
       }
