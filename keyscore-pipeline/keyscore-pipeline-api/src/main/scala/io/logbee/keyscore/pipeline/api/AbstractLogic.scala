@@ -25,6 +25,10 @@ abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, s
     initPromise.success(proxy)
   }
 
+  override def postStop(): Unit = {
+    log.info(s"Stopped <${parameters.uuid}>.")
+  }
+
   def initialize(configuration: Configuration): Unit
 
   def configure(configuration: Configuration): Unit
