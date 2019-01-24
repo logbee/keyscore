@@ -1,14 +1,19 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import java.io.{File, FileWriter}
-
-import org.json4s._
-import org.json4s.native.JsonMethods._
-import org.json4s.native.Serialization.write
+import java.io.File
+import java.io.FileWriter
 
 import scala.io.Source
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe._
+import scala.reflect.runtime.universe.TypeTag
+
+import org.json4s.DefaultFormats
+import org.json4s.JValue
+import org.json4s.jvalue2extractable
+import org.json4s.jvalue2monadic
+import org.json4s.native.JsonMethods.parse
+import org.json4s.native.Serialization.write
+import org.json4s.string2JsonInput
 
 
 class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {

@@ -1,29 +1,44 @@
 package io.logbee.keyscore.pipeline.contrib.tailin
 
 import java.io.File
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import java.nio.file.Paths
+
+import scala.concurrent.duration.DurationInt
+
 import akka.stream.SourceShape
-import io.logbee.keyscore.model._
+import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.Field
+import io.logbee.keyscore.model.data.Record
+import io.logbee.keyscore.model.data.TextValue
+import io.logbee.keyscore.model.descriptor.Category
+import io.logbee.keyscore.model.descriptor.Choice
+import io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor
+import io.logbee.keyscore.model.descriptor.Descriptor
 import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
-import io.logbee.keyscore.model.descriptor._
-import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
+import io.logbee.keyscore.model.descriptor.FieldNameHint
+import io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor
+import io.logbee.keyscore.model.descriptor.Icon
+import io.logbee.keyscore.model.descriptor.ParameterInfo
+import io.logbee.keyscore.model.descriptor.SourceDescriptor
+import io.logbee.keyscore.model.descriptor.StringValidator
+import io.logbee.keyscore.model.descriptor.TextParameterDescriptor
+import io.logbee.keyscore.model.localization.Locale
+import io.logbee.keyscore.model.localization.Localization
+import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
-import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
+import io.logbee.keyscore.pipeline.api.LogicParameters
+import io.logbee.keyscore.pipeline.api.SourceLogic
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirWatcher, DirWatcherConfiguration, ReadMode}
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode._
-import scala.concurrent.duration._
-import java.nio.charset.Charset
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.InvalidPathException
-import io.logbee.keyscore.pipeline.contrib.tailin.file.DirWatcherPattern
-import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadSchedulerProvider
+import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherConfiguration
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadSchedulerProvider
 
 
 object TailinSourceLogic extends Described {

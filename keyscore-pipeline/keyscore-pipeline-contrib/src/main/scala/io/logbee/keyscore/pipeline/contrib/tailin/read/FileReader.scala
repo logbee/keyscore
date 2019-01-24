@@ -1,16 +1,21 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.read
 
 import java.io.File
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
 import java.nio.channels.FileChannel
-import java.nio.charset.{CharacterCodingException, Charset, CodingErrorAction}
-import java.nio.file.{FileSystems, Files, StandardOpenOption}
-import java.nio.{ByteBuffer, CharBuffer}
+import java.nio.charset.CharacterCodingException
+import java.nio.charset.Charset
+import java.nio.charset.CodingErrorAction
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 
-import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
-import io.logbee.keyscore.pipeline.contrib.tailin.file.ReadMode.ReadMode
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 import org.slf4j.LoggerFactory
+
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
+import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
+import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
 
 
 object ReadMode extends Enumeration {

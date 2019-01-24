@@ -1,12 +1,19 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import java.nio.file.{Files, Path}
-import io.logbee.keyscore.pipeline.contrib.tailin.file.FileReadRecord
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+import java.nio.file.Files
+import java.nio.file.Path
+
+import scala.reflect.runtime.universe.typeTag
+
 import org.junit.runner.RunWith
+import org.scalatest.BeforeAndAfter
+import org.scalatest.FreeSpec
+import org.scalatest.Matchers
+import org.scalatest.ParallelTestExecution
+
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, FreeSpec, Matchers, ParallelTestExecution}
-import scala.reflect.runtime.universe._
 
 
 case class TestCaseClass(a: String, b: Integer)

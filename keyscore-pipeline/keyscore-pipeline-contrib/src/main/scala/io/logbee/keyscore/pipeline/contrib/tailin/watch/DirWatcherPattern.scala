@@ -1,8 +1,8 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import java.io.File
-import java.nio.file.Paths
 import java.nio.file.Path
+import java.nio.file.Paths
 
 
 object DirWatcherPattern {

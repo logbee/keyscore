@@ -1,14 +1,16 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import org.junit.runner.RunWith
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FreeSpec
 import org.scalatest.Matchers
-import java.nio.file.Path
-import org.scalatest._
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import java.nio.file.Paths
-import java.nio.file.Files
+
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+import org.scalatest.junit.JUnitRunner
 
 
 @RunWith(classOf[JUnitRunner])

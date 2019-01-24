@@ -1,19 +1,23 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.read
 
-import java.io.File
 import java.nio.charset.StandardCharsets
-import java.nio.file._
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
+import scala.io.Source
+
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{BeforeAndAfter, FreeSpec, Matchers, ParallelTestExecution}
-import org.scalatest.junit.JUnitRunner
+import org.scalatest.BeforeAndAfter
+import org.scalatest.FreeSpec
+import org.scalatest.Matchers
+import org.scalatest.ParallelTestExecution
 
-import scala.reflect.runtime.universe._
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-import scala.io.Source
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+import org.scalatest.junit.JUnitRunner
 
 
 @RunWith(classOf[JUnitRunner])

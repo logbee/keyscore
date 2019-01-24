@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import java.nio.file.Path
 

@@ -1,10 +1,12 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import java.io.File
 
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader
 
 
 class ReadScheduler(file: File, rotationPattern: String, persistenceContext: PersistenceContext, readSchedule: ReadSchedule) extends FileWatcher {

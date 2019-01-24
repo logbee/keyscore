@@ -1,10 +1,11 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import org.scalatest.FreeSpec
 import org.scalatest.Matchers
 import org.scalatest.BeforeAndAfter
 import java.nio.file.Path
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+
 import java.nio.file.Files
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import scala.reflect.runtime.universe._
@@ -14,6 +15,7 @@ import java.io.File
 import scala.io.Source
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import java.nio.file.StandardOpenOption
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with BeforeAndAfter {
   

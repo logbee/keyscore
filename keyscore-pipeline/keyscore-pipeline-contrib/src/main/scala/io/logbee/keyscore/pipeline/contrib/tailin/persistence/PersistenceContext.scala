@@ -1,6 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import scala.reflect.runtime.universe._
+import scala.reflect.runtime.universe.TypeTag
 
 
 trait PersistenceContext {

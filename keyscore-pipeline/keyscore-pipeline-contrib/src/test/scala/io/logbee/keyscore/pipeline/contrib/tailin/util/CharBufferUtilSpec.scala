@@ -3,12 +3,15 @@ package io.logbee.keyscore.pipeline.contrib.tailin.util
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import java.nio.charset.{Charset, StandardCharsets}
-import java.nio.file.{Files, StandardOpenOption}
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 
 import org.junit.runner.RunWith
+import org.scalatest.FreeSpec
+import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers}
 
 
 @RunWith(classOf[JUnitRunner])
