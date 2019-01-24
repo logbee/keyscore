@@ -23,15 +23,6 @@ class ReadSchedule() {
   }
   
   
-  
-  def getNext: Option[ReadScheduleItem] = {
-    if (readScheduleQueue.isEmpty)
-      None
-    else
-      Some(readScheduleQueue.head)
-  }
-  
-  
   def removeNext() = {
     if (readScheduleQueue.isEmpty)
       None

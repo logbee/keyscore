@@ -32,8 +32,8 @@ class ReadScheduler(file: File, rotationPattern: String, persistenceContext: Per
       if (startPos != fileToRead.length) { //getFilesToRead returns files which have lastModified == previousReadTimestamp (which we would technically not need to read, but helps simplify this situation)
         val endPos = fileToRead.length
         val timestamp = fileToRead.lastModified
-        val readScheduleItem = ReadScheduleItem(file, startPos, endPos, timestamp)
-        readSchedule.queue(readScheduleItem)
+        
+        readSchedule.queue(ReadScheduleItem(file, startPos, endPos, timestamp))
         previouslyScheduled = FileReadRecord(endPos, timestamp)
       }
       startPos = 0 //if there's multiple files, read the next files from the start
