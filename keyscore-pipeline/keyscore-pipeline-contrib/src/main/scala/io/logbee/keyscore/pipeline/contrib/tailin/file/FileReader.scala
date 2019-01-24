@@ -71,27 +71,27 @@ object FileReader {
 
 /**
  * @param rotationPattern Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.
- * @param persistenceContext PersistenceContext where FileReadRecords are stored and read from.
  */
-class FileReader(watchedFile: File, rotationPattern: String, persistenceContext: PersistenceContext, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
+class FileReader(watchedFile: File, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
   
   private val log = LoggerFactory.getLogger(classOf[FileReader])
   
   log.info("Instantiated for " + watchedFile)
   var leftOverFromPreviousBuffer = ""
   
+  //TODO keep a pool of the FileChannels for this file + rotatedFiles (just add them as created, create them if not yet exists)
   
   
-  
-  var fileReadRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
-  if (persistenceContext != null) {
-    val loadedFileReadRecord = persistenceContext.load[FileReadRecord](watchedFile.getAbsolutePath)
-    loadedFileReadRecord match {
-      case None =>
-      case Some(loadedFileReadRecord: FileReadRecord) =>
-        fileReadRecord = loadedFileReadRecord
-    }
-  }
+  //TODO this can be removed, maybe reused in FileReaderManager
+//  var fileReadRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
+//  if (persistenceContext != null) {
+//    val loadedFileReadRecord = persistenceContext.load[FileReadRecord](watchedFile.getAbsolutePath)
+//    loadedFileReadRecord match {
+//      case None =>
+//      case Some(loadedFileReadRecord: FileReadRecord) =>
+//        fileReadRecord = loadedFileReadRecord
+//    }
+//  }
   
   
 
@@ -234,10 +234,10 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   }
   
   
-  def pathDeleted() {
-    if (FileReader.getFilesToRead(watchedFile, rotationPattern, 0).length == 0) { //if no rotated files remain
-      persistenceContext.remove(watchedFile.toString)
-    }
+  def pathDeleted() {??? //TODO
+//    if (FileReader.getFilesToRead(watchedFile, rotationPattern, 0).length == 0) { //if no rotated files remain
+//      persistenceContext.remove(watchedFile.toString)
+//    }
     tearDown()
   }
   

@@ -86,30 +86,11 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
     logFile2.setLastModified(logFileModified - 1000 * 2)
     logFile1.setLastModified(logFileModified - 1000 * 1)
     logFile.setLastModified(logFileModified)
-  }
-
-  
-  trait PersistenceContextWithoutTimestamp extends LogFile {
-    
-    val persistenceContextWithoutTimestamp = mock[FilePersistenceContext]
-    (persistenceContextWithoutTimestamp.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-      .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
-      .returning(Some(FileReadRecord(0, 0)))
-  }
-  
-
-  trait PersistenceContextWithTimestamp extends RotateFiles {
     
     val previousReadPosition = logFile3Data.length / 2
     val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
-    
-    val persistenceContextWithTimestamp: FilePersistenceContext = mock[FilePersistenceContext]
-    
-    (persistenceContextWithTimestamp.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-      .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
-      .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp)))
   }
-  
+
   
   
   "A FileReader" - {
@@ -152,7 +133,6 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           "if it got passed a non-empty rotationPattern and a previousReadTimestamp" in new RotateFiles {
             
             val rotationPattern = logFile.getName + ".[1-5]"
-            val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
             
             val rotationFiles = FileReader.getFilesToRead(logFile, rotationPattern, previousReadTimestamp)
             
@@ -170,9 +150,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           
           val readMode = ReadMode.LINE
           
-          "if the file contains only one line of text" in new PersistenceContextWithoutTimestamp {
+          "if the file contains only one line of text" in new LogFile {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
+            val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             TestUtil.writeStringToFile(logFile, line1, StandardOpenOption.TRUNCATE_EXISTING)
@@ -184,9 +164,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
-          "if the file contains only one line of text with a newline at the end" in new PersistenceContextWithoutTimestamp {
+          "if the file contains only one line of text with a newline at the end" in new LogFile {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
+            val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             val text = line1 + "\n"
@@ -199,9 +179,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
-          "if the file contains multiple lines of text" in new PersistenceContextWithoutTimestamp {
+          "if the file contains multiple lines of text" in new LogFile {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
+            val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             val line2 = "Line2"
@@ -220,9 +200,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
-          "if the file contains multiple newline-characters directly following each other"  in new PersistenceContextWithoutTimestamp {
+          "if the file contains multiple newline-characters directly following each other"  in new LogFile {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
+            val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             val line3 = "Line3"
@@ -239,9 +219,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
-          "if the file contains a Windows newline \\r\\n" in new PersistenceContextWithoutTimestamp {
+          "if the file contains a Windows newline \\r\\n" in new LogFile {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
+            val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = "Line1"
             val line2 = "Line2"
@@ -258,9 +238,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
-          "if the contents of the file are longer than one buffer's length" in new PersistenceContextWithoutTimestamp {
+          "if the contents of the file are longer than one buffer's length" in new LogFile {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
+            val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = new String(new Array[Byte](512))
             val line2 = new String(new Array[Byte](52))
@@ -282,9 +262,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
-          "if the file contains a line that is longer than the buffer" in new PersistenceContextWithoutTimestamp {
+          "if the file contains a line that is longer than the buffer" in new LogFile {
             
-            val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
+            val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, readMode)
             
             val line1 = new String(new Array[Byte](12))
         		val line2 = new String(new Array[Byte](34567))
@@ -306,10 +286,10 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           }
         }
         
-        "in whole from the previous reading position, if file-wise reading is active" in new PersistenceContextWithoutTimestamp {
+        "in whole from the previous reading position, if file-wise reading is active" in new LogFile {
           
           val readMode = ReadMode.FILE
-          val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, readMode)
+          val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, readMode)
           
           
           val line1 = "Line1"
@@ -330,10 +310,10 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
       
       
       "its file as well as its rotated files, if rotation is active" - {
-        "line by line, if line-wise reading is active" in new PersistenceContextWithTimestamp {
+        "line by line, if line-wise reading is active" in new RotateFiles {
           
           val readMode = ReadMode.LINE
-          val fileReader = new FileReader(logFile, defaultRotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, readMode)
+          val fileReader = new FileReader(logFile, defaultRotationPattern, defaultBufferSize, defaultCharset, readMode)
           
           
           //write something additional to the file to test line-wise reading
@@ -359,10 +339,10 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
         }
         
-        "file by file, if file-wise reading is active" in new PersistenceContextWithTimestamp {
+        "file by file, if file-wise reading is active" in new RotateFiles {
           
           val readMode = ReadMode.FILE
-          val fileReader = new FileReader(logFile, defaultRotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, readMode)
+          val fileReader = new FileReader(logFile, defaultRotationPattern, defaultBufferSize, defaultCharset, readMode)
           
           
           val mockCallback = mockFunction[String, Unit]
@@ -383,54 +363,54 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
       
       
       //TODO this doesn't work yet, because lastModified-time of rotatedFiles is identical
-//      "multiple rotated files after resuming reading" - {
-//        
-//        case class TestCase(bufferSize: Int, description: String)
-//        
-//        val bufferSizesToTest = Seq(
-//                                    TestCase(  10, "shorter than one line of text"),
-//                                    TestCase( 1024, "longer than one line of text"),
-//                                    TestCase(999999, "longer than the entire text"),
-//                                   )
-//        
-//        
-//        bufferSizesToTest.foreach { case TestCase(bufferSize, description) =>
-//          
-//          "with buffer size " + bufferSize + " bytes, which is " + description in new PersistenceContextWithoutTimestamp {
-//            
-//            TestUtil.writeLogToFileWithRotation(logFile, numberOfLines=1000, rotatePattern = logFile.getName + ".%i")
-//
-//            
-//            val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + logFile.getParent + "/" + defaultRotationPattern)
-//            
-//            val files = (logFile.getParentFile.listFiles
-//              .filter(file => rotateMatcher.matches(file.toPath)) :+ logFile)
-//              .sortBy(file => file.lastModified)
-//            
-//            var contents = files.foldLeft("")((content, file) => content + Source.fromFile(file).mkString)
-//            
-//            if (defaultReadMode == ReadMode.LINE) { //we don't call back newlines in line-wise reading
-//              contents = contents.replace("\n", "")
-//            }
-//            
-//            
-//            var calledBackString = "" 
-//            val fileReader = new FileReader(watchedFile=logFile, defaultRotationPattern, persistenceContextWithoutTimestamp, bufferSize, defaultCharset, defaultReadMode)
-//            
-//            
-//            //schedule a read for every rotation file
-//            val filesToRead = FileReader.getFilesToRead(logFile, defaultRotationPattern, previousReadTimestamp=0)
-//            filesToRead.foreach { file =>
-//              println(file + " " + file.lastModified)
-//              fileReader.fileModified(string => calledBackString += string, ReadScheduleItem(logFile, 0, file.length, file.lastModified))
-//            }
-//            
-//            
-//            
-//            calledBackString shouldEqual contents
-//          }
-//        }
-//      }
+      "multiple rotated files after resuming reading" ignore {
+        
+        case class TestCase(bufferSize: Int, description: String)
+        
+        val bufferSizesToTest = Seq(
+                                    TestCase(  10, "shorter than one line of text"),
+                                    TestCase( 1024, "longer than one line of text"),
+                                    TestCase(999999, "longer than the entire text"),
+                                   )
+        
+        
+        bufferSizesToTest.foreach { case TestCase(bufferSize, description) =>
+          
+          "with buffer size " + bufferSize + " bytes, which is " + description in new LogFile {
+            
+            TestUtil.writeLogToFileWithRotation(logFile, numberOfLines=1000, rotatePattern = logFile.getName + ".%i")
+
+            
+            val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + logFile.getParent + "/" + defaultRotationPattern)
+            
+            val files = (logFile.getParentFile.listFiles
+              .filter(file => rotateMatcher.matches(file.toPath)) :+ logFile)
+              .sortBy(file => file.lastModified)
+            
+            var contents = files.foldLeft("")((content, file) => content + Source.fromFile(file).mkString)
+            
+            if (defaultReadMode == ReadMode.LINE) { //we don't call back newlines in line-wise reading
+              contents = contents.replace("\n", "")
+            }
+            
+            
+            var calledBackString = "" 
+            val fileReader = new FileReader(watchedFile=logFile, defaultRotationPattern, bufferSize, defaultCharset, defaultReadMode)
+            
+            
+            //schedule a read for every rotation file
+            val filesToRead = FileReader.getFilesToRead(logFile, defaultRotationPattern, previousReadTimestamp=0)
+            filesToRead.foreach { file =>
+              println(file + " " + file.lastModified)
+              fileReader.fileModified(string => calledBackString += string, ReadScheduleItem(logFile, 0, file.length, file.lastModified))
+            }
+            
+            
+            
+            calledBackString shouldEqual contents
+          }
+        }
+      }
     }
     
     //TODO this might need to be tested in FileReaderManager and probably also find some way to tell FileReaderManager the endPos 
@@ -438,7 +418,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
 //      "for one log file" - {
 //        "without rotated files" in new PersistenceContextWithoutTimestamp {
 //          
-//          val fileReader = new FileReader(logFile, null, persistenceContextWithoutTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
+//          val fileReader = new FileReader(logFile, null, defaultBufferSize, defaultCharset, defaultReadMode)
 //          
 //          fileReader.fileModified((_: String) => (), ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
 //        }
@@ -446,7 +426,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
 //        "with rotated files" in new PersistenceContextWithTimestamp {
 //          //check that store() is called only once and with the correct parameters, even with multiple files (as we only want the read position persisted for the last file, not for the intermediate files)
 //          
-//          val fileReader = new FileReader(logFile, defaultRotationPattern, persistenceContextWithTimestamp, defaultBufferSize, defaultCharset, defaultReadMode)
+//          val fileReader = new FileReader(logFile, defaultRotationPattern, defaultBufferSize, defaultCharset, defaultReadMode)
 //          
 //          fileReader.fileModified((_: String) => (), ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
 //        }
