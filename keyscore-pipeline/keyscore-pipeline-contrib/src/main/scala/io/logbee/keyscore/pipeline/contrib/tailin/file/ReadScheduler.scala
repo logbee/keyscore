@@ -20,7 +20,7 @@ class ReadScheduler(file: File, rotationPattern: String, persistenceContext: Per
   }
   
   
-  def fileModified(callback: String => Unit): Unit = { //TODO do we want the callback here? We could give it readSchedule.queue as callback -> we still need access to the readSchedule to determine the last-scheduled entry, so this doesn't help much
+  def fileModified(): Unit = {
 
     val filesToRead = FileReader.getFilesToRead(file, rotationPattern, previouslyScheduled.previousReadTimestamp)
     

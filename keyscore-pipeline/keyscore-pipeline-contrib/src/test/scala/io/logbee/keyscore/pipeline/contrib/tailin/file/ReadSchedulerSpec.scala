@@ -122,7 +122,7 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
       
       (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFileData.getBytes.length, logFile.lastModified))
       
-      readScheduler.fileModified(_ => ())
+      readScheduler.fileModified()
     }
     
     
@@ -146,7 +146,7 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContext, readSchedule)
-      readScheduler.fileModified(_ => ())
+      readScheduler.fileModified()
     }
     
     
@@ -165,7 +165,7 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContext, readSchedule)
-      readScheduler.fileModified(_ => ())
+      readScheduler.fileModified()
     }
     
     
@@ -178,14 +178,14 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
       inSequence {
         //schedule a read up to the current file length
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=0, endPos=previousReadPosition, logFile.lastModified))
-        readScheduler.fileModified(_ => ())
+        readScheduler.fileModified()
         
         //append something more to the file
         TestUtil.writeStringToFile(logFile, "222\nö222", StandardOpenOption.APPEND)
         
         //expect it to read on from that position
         (readSchedule.queue _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile.length, logFile.lastModified))
-        readScheduler.fileModified(_ => ())
+        readScheduler.fileModified()
       }
     }
     
@@ -205,7 +205,7 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContext, readSchedule)
-      readScheduler.fileModified(_ => ())
+      readScheduler.fileModified()
     }
     
     
@@ -228,7 +228,7 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, persistenceContext, readSchedule)
-      readScheduler.fileModified(_ => ())
+      readScheduler.fileModified()
     }
   }
 }

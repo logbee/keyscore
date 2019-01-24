@@ -20,7 +20,7 @@ trait DirWatcher {
 case class DirWatcherConfiguration(dirPath: Path, matchPattern: DirWatcherPattern)
 
 
-class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherProvider: WatcherProvider, callback: (String) => Unit) extends PathWatcher(configuration.dirPath) with DirWatcher {
+class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherProvider: WatcherProvider) extends PathWatcher(configuration.dirPath) with DirWatcher {
   
   private val log = LoggerFactory.getLogger(classOf[DefaultDirWatcher])
   
@@ -146,7 +146,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
       
       val fileWatcher = watcherProvider.createFileWatcher(file)
       
-      fileWatcher.fileModified(callback)
+      fileWatcher.fileModified()
       
       val list = subFileWatchers.getOrElse(file, mutable.ListBuffer.empty)
 
@@ -161,7 +161,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     subFileWatchers.get(file) match {
       case None => //can't notify anyone
       case Some(watchers: ListBuffer[FileWatcher]) => {
-        watchers.foreach(watcher => watcher.fileModified(callback))
+        watchers.foreach(watcher => watcher.fileModified())
       }
     }
   }

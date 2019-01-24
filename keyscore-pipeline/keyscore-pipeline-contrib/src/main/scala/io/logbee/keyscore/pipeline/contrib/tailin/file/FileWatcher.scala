@@ -4,7 +4,7 @@ import java.io.File
 
 
 trait FileWatcher {
-  def fileModified(callback: (String) => Unit)
+  def fileModified()
   
   def pathDeleted()
   
