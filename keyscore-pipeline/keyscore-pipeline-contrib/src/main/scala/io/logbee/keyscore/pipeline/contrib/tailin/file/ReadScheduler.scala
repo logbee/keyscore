@@ -8,8 +8,6 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 
 
 class ReadScheduler(file: File, rotationPattern: String, persistenceContext: PersistenceContext, readSchedule: ReadSchedule) extends FileWatcher {
-  //TODO make a generic version of readSchedule, which doesn't write it into a file
-  
   
   
   /**

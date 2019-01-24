@@ -8,8 +8,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 
 class ReadSchedulerProvider(rotationPattern: String, persistenceContext: PersistenceContext, callback: String => Unit) extends WatcherProvider {
   
-  private val changelogFile = new File(".keyscoreTailinReadSchedule")
-  val readSchedule = new ReadSchedule(changelogFile)
+  val readSchedule = new ReadSchedule()
   
   def createDirWatcher(configuration: DirWatcherConfiguration): DirWatcher = {
     new DefaultDirWatcher(configuration, this, callback)
