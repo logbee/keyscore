@@ -15,8 +15,8 @@ case class ReadScheduleItem(file: File, startPos: Long, endPos: Long, lastModifi
 
 object ReadSchedule {
   val encoding = StandardCharsets.UTF_8
-  val | = " " //column separator
-  val newline = '\n' //OS-independent line separator set by us
+  val newCol = " " //column separator
+  val newLine = '\n' //OS-independent line separator set by us
 }
 class ReadSchedule(changelogFile: File) {
   
@@ -40,9 +40,9 @@ class ReadSchedule(changelogFile: File) {
   def queue(readScheduleItem: ReadScheduleItem) = {
     
     val string = readScheduleItem.file.getAbsolutePath +
-                 | + readScheduleItem.startPos +
-                 | + readScheduleItem.endPos +
-                 | + readScheduleItem.lastModified + newline
+                 newCol + readScheduleItem.startPos +
+                 newCol + readScheduleItem.endPos +
+                 newCol + readScheduleItem.lastModified + newLine
     
     appendToFile(string)
   }
@@ -50,7 +50,7 @@ class ReadSchedule(changelogFile: File) {
   
   
   private def parse(line: String): ReadScheduleItem = {
-    val cols = line.split(|)
+    val cols = line.split(newCol)
     
     val file = new File(cols(0))
     val startPos = Integer.parseInt(cols(1))
@@ -87,7 +87,7 @@ class ReadSchedule(changelogFile: File) {
       
       var line = reader.readLine
       while (line != null) {
-        if (line.startsWith(pathString + |)) {
+        if (line.startsWith(pathString + newCol)) {
           latestLine = line
         }
         line = reader.readLine

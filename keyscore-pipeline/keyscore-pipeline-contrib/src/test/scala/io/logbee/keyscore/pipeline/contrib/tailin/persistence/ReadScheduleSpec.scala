@@ -13,8 +13,8 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
 class ReadScheduleSpec extends FreeSpec with Matchers with BeforeAndAfter {
   
-  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule.|
-  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule.newline
+  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule.newCol
+  import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule.newLine
   
   val changelogFile = new File(".keyscoreTailinChangelog")
   
@@ -46,7 +46,7 @@ class ReadScheduleSpec extends FreeSpec with Matchers with BeforeAndAfter {
       readSchedule.queue(ReadScheduleItem(file, pos1, pos2, file.lastModified))
       
       Source.fromFile(changelogFile).mkString shouldBe
-        file.getAbsolutePath + | + pos1 + | + pos2 + | + file.lastModified + newline
+        file.getAbsolutePath + newCol + pos1 + newCol + pos2 + newCol + file.lastModified + newLine
     }
     
     "queue multiple reads in order" in new ReadScheduleSetup {
@@ -63,9 +63,9 @@ class ReadScheduleSpec extends FreeSpec with Matchers with BeforeAndAfter {
       readSchedule.queue(ReadScheduleItem(file, pos3, pos4, file.lastModified))
       
       Source.fromFile(changelogFile).mkString shouldBe
-        file.getAbsolutePath + | + pos1 + | + pos2 + | + file.lastModified + newline +
-        file.getAbsolutePath + | + pos2 + | + pos3 + | + file.lastModified + newline +
-        file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
+        file.getAbsolutePath + newCol + pos1 + newCol + pos2 + newCol + file.lastModified + newLine +
+        file.getAbsolutePath + newCol + pos2 + newCol + pos3 + newCol + file.lastModified + newLine +
+        file.getAbsolutePath + newCol + pos3 + newCol + pos4 + newCol + file.lastModified + newLine
     }
     
     "return the next read schedule item in order" in new ReadScheduleSetup {
@@ -124,20 +124,20 @@ class ReadScheduleSpec extends FreeSpec with Matchers with BeforeAndAfter {
       readSchedule.queue(ReadScheduleItem(file, pos3, pos4, file.lastModified))
       
       Source.fromFile(changelogFile).mkString shouldBe
-        file.getAbsolutePath + | + pos1 + | + pos2 + | + file.lastModified + newline +
-        file.getAbsolutePath + | + pos2 + | + pos3 + | + file.lastModified + newline +
-        file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
+        file.getAbsolutePath + newCol + pos1 + newCol + pos2 + newCol + file.lastModified + newLine +
+        file.getAbsolutePath + newCol + pos2 + newCol + pos3 + newCol + file.lastModified + newLine +
+        file.getAbsolutePath + newCol + pos3 + newCol + pos4 + newCol + file.lastModified + newLine
       
       readSchedule.removeNext()
       
       Source.fromFile(changelogFile).mkString shouldBe
-        file.getAbsolutePath + | + pos2 + | + pos3 + | + file.lastModified + newline +
-        file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
+        file.getAbsolutePath + newCol + pos2 + newCol + pos3 + newCol + file.lastModified + newLine +
+        file.getAbsolutePath + newCol + pos3 + newCol + pos4 + newCol + file.lastModified + newLine
         
       readSchedule.removeNext()
       
       Source.fromFile(changelogFile).mkString shouldBe
-        file.getAbsolutePath + | + pos3 + | + pos4 + | + file.lastModified + newline
+        file.getAbsolutePath + newCol + pos3 + newCol + pos4 + newCol + file.lastModified + newLine
         
       readSchedule.removeNext()
       
