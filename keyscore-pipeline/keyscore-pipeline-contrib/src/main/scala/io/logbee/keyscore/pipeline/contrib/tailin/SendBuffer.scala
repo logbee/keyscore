@@ -1,21 +1,16 @@
 package io.logbee.keyscore.pipeline.contrib.tailin
 
-import scala.collection.Seq
+import scala.collection.mutable.Queue
 
 class SendBuffer {
-  private var buffer: Seq[String] = Seq.empty
+  private var buffer: Queue[String] = Queue.empty
   
   def addToBuffer(string: String) = {
-    buffer = buffer :+ string
+    buffer.enqueue(string)
   }
   
   def getNextElement: String = {
-    
-    val returnVal = buffer.head
-    
-    buffer = buffer.drop(1)
-    
-    returnVal
+    buffer.dequeue()
   }
   
   def isEmpty: Boolean = {
