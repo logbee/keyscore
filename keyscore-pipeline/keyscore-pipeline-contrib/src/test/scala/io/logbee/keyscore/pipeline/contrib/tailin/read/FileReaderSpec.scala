@@ -399,7 +399,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             
             
             var calledBackString = "" 
-            val fileReader = new FileReader(watchedFile=logFile, defaultRotationPattern, bufferSize, defaultCharset, defaultReadMode)
+            val fileReader = new FileReader(baseFile=logFile, defaultRotationPattern, bufferSize, defaultCharset, defaultReadMode)
             
             
             //schedule a read for every rotation file

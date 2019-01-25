@@ -67,21 +67,21 @@ object FileReader {
                 else
                    (rotatedFiles :+ baseFile)
     
-    val filesToRead = files.filter(_file => _file.lastModified >= previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
+    val filesToRead = files.filter(file => file.lastModified >= previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
     
-    filesToRead.sortBy(_file => _file.lastModified) //sort from oldest to newest
+    filesToRead.sortBy(file => file.lastModified) //sort from oldest to newest
   }
 }
 
 
 /**
- * @param rotationPattern Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.
+ * @param rotationPattern Glob-pattern for the file-name of rotated files. If an empty string or null is passed, no rotated files are matched.
  */
-class FileReader(watchedFile: File, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
+class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
   
   private val log = LoggerFactory.getLogger(classOf[FileReader])
   
-  log.info("Instantiated for " + watchedFile)
+  log.info("Instantiated for " + baseFile)
   var leftOverFromPreviousBuffer = ""
   
   //TODO keep a pool of the FileChannels for this file + rotatedFiles (just add them as created, create them if not yet exists)
@@ -104,7 +104,7 @@ class FileReader(watchedFile: File, rotationPattern: String, byteBufferSize: Int
   
   def fileModified(callback: String => Unit, readScheduleItem: ReadScheduleItem) = {
     
-    log.info("fileModified() called for " + watchedFile)
+    log.info("fileModified() called for " + baseFile)
     
     val decoder = charset.newDecoder
     decoder.onMalformedInput(CodingErrorAction.REPORT)
@@ -116,7 +116,7 @@ class FileReader(watchedFile: File, rotationPattern: String, byteBufferSize: Int
     
     
     
-    val filesToRead = FileReader.getFilesToRead(watchedFile, rotationPattern, readScheduleItem.lastModified)
+    val filesToRead = FileReader.getFilesToRead(baseFile, rotationPattern, readScheduleItem.lastModified)
     val file = filesToRead.head
     
     println("endPos: " + readScheduleItem.endPos + ", " + file.length)
@@ -247,6 +247,6 @@ class FileReader(watchedFile: File, rotationPattern: String, byteBufferSize: Int
   }
   
   def tearDown() = {
-    log.info("Teardown for " + watchedFile)
+    log.info("Teardown for " + baseFile)
   }
 }
