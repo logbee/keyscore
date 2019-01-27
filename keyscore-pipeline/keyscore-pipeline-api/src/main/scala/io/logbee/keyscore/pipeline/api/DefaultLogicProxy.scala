@@ -3,6 +3,7 @@ package io.logbee.keyscore.pipeline.api
 import java.util.UUID
 
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline.{FilterState, LogicProxy}
 
 import scala.concurrent.{Future, Promise}
@@ -26,6 +27,10 @@ class DefaultLogicProxy(val logic: AbstractLogic[_]) extends LogicProxy {
     promise.success(logic.state())
   })
 
+  private val scrapeCallback = logic.getAsyncCallback[Promise[MetricsCollection]]({ promise =>
+    promise.success(logic.scrape())
+  })
+
   override val id: UUID = logic.parameters.uuid
 
   override def configure(configuration: Configuration): Future[FilterState] = {
@@ -38,6 +43,12 @@ class DefaultLogicProxy(val logic: AbstractLogic[_]) extends LogicProxy {
   override def state(): Future[FilterState] = {
     val promise = Promise[FilterState]()
     stateCallback.invoke(promise)
+    promise.future
+  }
+
+  override def scrape(): Future[MetricsCollection] = {
+    val promise = Promise[MetricsCollection]
+    scrapeCallback.invoke(promise)
     promise.future
   }
 }

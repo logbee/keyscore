@@ -1,8 +1,9 @@
 syntax = "proto3";
 
 import "scalapb/scalapb.proto";
-import "io/logbee/keyscore/localization.proto";
 import "io/logbee/keyscore/data.proto";
+import "io/logbee/keyscore/localization.proto";
+import "io/logbee/keyscore/metrics.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model.descriptor"
@@ -41,7 +42,8 @@ message SourceDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
-    OutputDescriptor out = 9;
+    repeated MetricDescriptor metrics = 9;
+    OutputDescriptor out = 10;
     Icon icon = 13;
     Maturity maturity = 14;
 }
@@ -54,7 +56,8 @@ message SinkDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
-    InputDescriptor in = 9;
+    repeated MetricDescriptor metrics = 9;
+    InputDescriptor in = 10;
     Icon icon = 13;
     Maturity maturity = 14;
 }
@@ -67,8 +70,9 @@ message FilterDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
-    InputDescriptor in = 9;
-    OutputDescriptor out = 10;
+    repeated MetricDescriptor metrics = 9;
+    InputDescriptor in = 10;
+    OutputDescriptor out = 11;
     Icon icon = 13;
     Maturity maturity = 14;
 }
@@ -81,9 +85,10 @@ message BranchDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
-    InputDescriptor in = 9;
-    OutputDescriptor left = 10;
-    OutputDescriptor right = 11;
+    repeated MetricDescriptor metrics = 9;
+    InputDescriptor in = 10;
+    OutputDescriptor left = 11;
+    OutputDescriptor right = 12;
     Icon icon = 13;
     Maturity maturity = 14;
 }
@@ -96,9 +101,10 @@ message MergeDescriptor {
     TextRef description = 3 [(scalapb.field).no_box = true];
     repeated Category categories = 4;
     repeated ParameterDescriptor parameters = 8;
-    InputDescriptor left = 9;
-    InputDescriptor right = 10;
-    OutputDescriptor out = 11;
+    repeated MetricDescriptor metrics = 9;
+    InputDescriptor left = 10;
+    InputDescriptor right = 11;
+    OutputDescriptor out = 12;
     Icon icon = 13;
     Maturity maturity = 14;
 }

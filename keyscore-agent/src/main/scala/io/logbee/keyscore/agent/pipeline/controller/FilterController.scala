@@ -5,6 +5,7 @@ import java.util.UUID
 import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, ValveState}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.model.{After, WhichValve}
 
@@ -79,6 +80,10 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
       outValveState <- outValve.clear()
       filterState <- filter.state()
     } yield  computeFilterState(inValveState, outValveState, filterState)
+  }
+
+  override def scrape(): Future[MetricsCollection] = {
+    filter.scrape()
   }
 
   private def determineFilterStatus(in: ValveState, out: ValveState): FilterStatus = {

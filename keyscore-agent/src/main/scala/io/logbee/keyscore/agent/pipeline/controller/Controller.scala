@@ -6,6 +6,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveProxy
 import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,4 +51,6 @@ abstract class Controller {
   def state(): Future[FilterState]
 
   def clear(): Future[FilterState]
+
+  def scrape(): Future[MetricsCollection]
 }

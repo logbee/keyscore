@@ -1,13 +1,14 @@
 package io.logbee.keyscore.pipeline.api
 
 import akka.actor.ActorSystem
-import akka.stream.stage.{GraphStageLogic, StageLogging}
+import akka.stream.stage.{StageLogging, TimerGraphStageLogic}
 import akka.stream.{Materializer, Shape}
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline.{FilterState, LogicProxy}
+import io.logbee.keyscore.pipeline.api.metrics.{DefaultMetricsCollector, MetricsCollector}
 
 import scala.concurrent.{ExecutionContextExecutor, Promise}
-import akka.stream.stage.TimerGraphStageLogic
 
 abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, shape: Shape) extends TimerGraphStageLogic(shape) with StageLogging {
 
@@ -18,6 +19,7 @@ abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, s
   protected implicit val system: ActorSystem = parameters.context.system
   protected implicit val dispatcher: ExecutionContextExecutor = parameters.context.dispatcher
   protected override implicit lazy val materializer: Materializer = super.materializer
+  protected val metrics: MetricsCollector = new DefaultMetricsCollector(parameters.uuid)
 
   override def preStart(): Unit = {
     log.info(s"Initializing <${parameters.uuid}> with configuration: ${parameters.configuration}")
@@ -34,4 +36,6 @@ abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, s
   def configure(configuration: Configuration): Unit
 
   def state(): FilterState
+
+  def scrape(): MetricsCollection = metrics.get
 }

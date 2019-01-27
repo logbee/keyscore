@@ -2,14 +2,65 @@ syntax = "proto3";
 
 import "scalapb/scalapb.proto";
 import "io/logbee/keyscore/data.proto";
+import "io/logbee/keyscore/localization.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model.metrics"
     flat_package: true
 };
 
-message Metrics {
-    string uuid = 1;
-    TimestampValue timestamp = 2;
-    repeated Field metrics = 3;
+message MetricDescriptor {
+    oneof sealed_value {
+        CounterMetricDescriptor counter = 1;
+        GaugeMetricDescriptor gauge = 2;
+    }
 }
+
+// tag::CounterMetricDescriptor[]
+message CounterMetricDescriptor {
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+}
+// end::CounterMetricDescriptor[]
+
+// tag::GaugeMetricDescriptor[]
+message GaugeMetricDescriptor {
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+}
+// end::GaugeMetricDescriptor[]
+
+message Metric {
+    oneof sealed_value {
+        CounterMetric counter = 1;
+        GaugeMetric gauge = 2;
+    }
+}
+
+// tag::CounterMetric[]
+message CounterMetric {
+    string name = 1;
+    TimestampValue timestamp = 2;
+    double value = 3;
+}
+// end::CounterMetric[]
+
+// tag::GaugeMetricDescriptor[]
+message GaugeMetric {
+    string name = 1;
+    TimestampValue timestamp = 2;
+    double value = 3;
+    double min = 4;
+    double max = 5;
+}
+// end::GaugeMetricDescriptor[]
+
+// tag::MetricsCollection[]
+message MetricsCollection {
+    string uuid = 1;
+    TimestampValue timestamp = 2 [(scalapb.field).no_box = true];
+    repeated Metric metrics = 3;
+}
+// end::MetricsCollection[]

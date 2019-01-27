@@ -9,8 +9,10 @@ import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
+import io.logbee.keyscore.model.metrics.{GaugeMetricDescriptor, MetricsCollection}
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
+import io.logbee.keyscore.pipeline.contrib.filter.batch.GroupByValueLogic.numberOfGroupsMetric
 import org.json4s.Formats
 
 import scala.collection.mutable
@@ -57,6 +59,12 @@ object GroupByValueLogic extends Described {
     mandatory = true
   )
 
+  val numberOfGroupsMetric = GaugeMetricDescriptor(
+    name = "numberOfGroups",
+    displayName = "numberOfGroups.displayName",
+    description = "numberOfGroups.description",
+  )
+
   override def describe = Descriptor(
     ref = "efbb3b8e-35f4-45ac-87be-f454cf3a951c",
     describes = FilterDescriptor(
@@ -65,6 +73,7 @@ object GroupByValueLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
       parameters = Seq(fieldNameParameter, timeWindowActiveParameter, timeWindowMillisParameter, maxNumberOfGroupsParameter),
+      metrics = Seq(numberOfGroupsMetric),
       icon = Icon.fromClass(classOf[GroupByValueLogic]),
       maturity = Experimental
     ),
@@ -154,6 +163,15 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
         }
       case _ =>
     }
+  }
+
+  override def scrape(): MetricsCollection = {
+    metrics.collect(numberOfGroupsMetric)
+      .min(0)
+      .max(maxNumberOfGroups)
+      .set(groups.size)
+
+    metrics.get
   }
 
   private def schedulePush(): Unit = {
