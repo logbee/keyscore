@@ -28,6 +28,13 @@ image:resources/images/agent-overview.png[Overview for the dashboard.]
 - Agents Table - This Table enlists all the registered agents. By pushing the delete Button you can remove the agent form the list.
   This will not delete the running instance of the agent in the kubernetes cluster.
 
+. Refresh - manual refresh button to reload the data about the agents.
+. Search - here you can search for every criteria which is listed in the data table.
+. Delete - delete the agent from the table.
+
+           Warning! This will not delete the running instance of the agent in the kubernetes cluster.
+
+
 = Dashboard =
 
 image:resources/images/dashboard-overview.png[Overview for the dashboard.]
@@ -44,6 +51,12 @@ image:resources/images/resources-overview.png[Overview for the resources.]
 = Pipelines =
 image:resources/images/pipelines-overview.png[Overview for the pipelines.]
 
+. Refresh Timer - Here you can choose between a range of possibilities to reload the data automatically.
+. Create Pipeline - This button will bring you to the <<Pipeline-Editor>> where you can create a new pipeline.
+. Search - You can search the table of existing pipelines by the table headers.
+. Status - This indicates wheter you pipeline is running/green, materializing/yellow or stopped/red.
+. Forwarding - This will also bring you to the <<Pipeline-Editor>> but with the selected pipeline loaded into it.
+. Response - Responses to creating a pipeline are shown with this popup.
 
 = Pipeline-Editor =
 
