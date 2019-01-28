@@ -9,19 +9,18 @@ chapter from top to bottom starting with the <<Step-by-Step Guide>>.
 will hopefully match your expectations.
 
 
-= Step-by-Step Guide =
+== Step-by-Step Guide ==
 
 This chapter will introduce the UI by providing a step-by-step guide which will conclude in a working pipeline you can
 experiment with.
 After you finished the guide you will be able to create pipelines and be familiar with the multiple concepts of configuration.
 
+=== UI-Overview ===
 
-
-= UI-Overview =
 Here you can find an overview over the multiple screens of the ui.
 They provide a short description for the multiple actions.
 
-= Agents =
+=== Agents ===
 
 image:resources/images/agent-overview.png[Overview for the dashboard.]
 
@@ -35,20 +34,20 @@ image:resources/images/agent-overview.png[Overview for the dashboard.]
            Warning! This will not delete the running instance of the agent in the kubernetes cluster.
 
 
-= Dashboard =
+=== Dashboard ===
 
 image:resources/images/dashboard-overview.png[Overview for the dashboard.]
 
 - Dashboard - Providing information about the state of the running pipelines.
 
-= Resources =
+=== Resources ===
 
 image:resources/images/resources-overview.png[Overview for the resources.]
 
 - Resources - Is a developer only feature which provides you with a list of all resources which are currently stored.
               This includes Configurations and Descriptors for each block.
 
-= Pipelines =
+=== Pipelines ===
 image:resources/images/pipelines-overview.png[Overview for the pipelines.]
 
 . Refresh Timer - Here you can choose between a range of possibilities to reload the data automatically.
@@ -58,7 +57,7 @@ image:resources/images/pipelines-overview.png[Overview for the pipelines.]
 . Forwarding - This will also bring you to the <<Pipeline-Editor>> but with the selected pipeline loaded into it.
 . Response - Responses to creating a pipeline are shown with this popup.
 
-= Pipeline-Editor =
+=== Pipeline-Editor ===
 
 image:resources/images/pipely-overview.png[Overview for the pipelines.]
 
