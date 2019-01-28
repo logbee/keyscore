@@ -27,13 +27,18 @@ image::media/svg/light/keyscore.light.svg[align=center]
 </p>
 ++++
 
-== Sub-Systems
+== Sub-Systems ==
 
-=== link:./keyscore-manager/README.asciidoc[keyscore-manager]
-
-
-=== link:./keyscore-frontier/README.asciidoc[keyscore-frontier]
+=== link:./keyscore-manager/README.asciidoc[keyscore-manager] ===
 
 
-=== link:./keyscore-agent/README.asciidoc[keyscore-agent]
+=== link:./keyscore-frontier/README.asciidoc[keyscore-frontier] ===
 
+
+=== link:./keyscore-agent/README.asciidoc[keyscore-agent] ===
+
+== Contributing ==
+
+In the spirit of https://www.gnu.org/philosophy/free-sw.html[free software], _everyone_ is encouraged to help improve this project.
+If you discover errors or omissions in the source code, documentation, or website content, please don't hesitate to submit an issue or open a pull request with a fix.
+New contributors are always welcome!

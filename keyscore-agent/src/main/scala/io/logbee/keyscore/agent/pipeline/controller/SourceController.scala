@@ -6,6 +6,7 @@ import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, Valve
 import io.logbee.keyscore.model.{After, WhichValve}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -63,6 +64,8 @@ private class SourceController(val source: SourceProxy, val outValve: ValveProxy
       sourceState <- source.state()
     } yield computeSourceState(outValveState, sourceState)
   }
+
+  override def scrape(): Future[MetricsCollection] = source.scrape()
 
   override def clear(): Future[FilterState] = {
     for {

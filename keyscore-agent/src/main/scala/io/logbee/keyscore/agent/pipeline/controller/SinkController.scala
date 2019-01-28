@@ -6,6 +6,7 @@ import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, Valve
 import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -64,6 +65,8 @@ private class SinkController(val inValve: ValveProxy, val sink: SinkProxy)(impli
       sinkState <- sink.state()
     } yield computeSinkState(inValveState, sinkState)
   }
+
+  override def scrape(): Future[MetricsCollection] = sink.scrape()
 
   override def clear(): Future[FilterState] = {
     for {
