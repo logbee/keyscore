@@ -22,10 +22,11 @@ They provide a short description for the multiple actions.
 
 === Agents ===
 
-image:resources/images/agent-overview.png[Overview for the dashboard.]
-
 - Agents Table - This Table enlists all the registered agents. By pushing the delete Button you can remove the agent form the list.
   This will not delete the running instance of the agent in the kubernetes cluster.
+
+image:resources/images/agent-overview.png[Overview for the dashboard.]
+
 
 . Refresh - manual refresh button to reload the data about the agents.
 . Search - here you can search for every criteria which is listed in the data table.
@@ -36,18 +37,24 @@ image:resources/images/agent-overview.png[Overview for the dashboard.]
 
 === Dashboard ===
 
-image:resources/images/dashboard-overview.png[Overview for the dashboard.]
-
 - Dashboard - Providing information about the state of the running pipelines.
 
-=== Resources ===
+image:resources/images/dashboard-overview.png[Overview for the dashboard.]
 
-image:resources/images/resources-overview.png[Overview for the resources.]
+
+=== Resources ===
 
 - Resources - Is a developer only feature which provides you with a list of all resources which are currently stored.
               This includes Configurations and Descriptors for each block.
 
+image:resources/images/resources-overview.png[Overview for the resources.]
+
 === Pipelines ===
+
+This view presents all currently existing pipelines in the system, while displaying general information about them.
+By clicking on a pipeline you will be redirected to the <<Pipeline-Editor>>.
+Further functionality wil be explained after this figure.
+
 image:resources/images/pipelines-overview.png[Overview for the pipelines.]
 
 . Refresh Timer - Here you can choose between a range of possibilities to reload the data automatically.
@@ -58,15 +65,24 @@ image:resources/images/pipelines-overview.png[Overview for the pipelines.]
 . Response - Responses to creating a pipeline are shown with this popup.
 
 === Pipeline-Editor ===
+The Pipeline-Editor is the key-feature of the ui.
+Here you can create a new Pipeline or edit an existing one.
+Simply put the pieces together with drag and drop and configurate them by entering the presented fields.
+
 
 image:resources/images/pipely-overview.png[Overview for the pipelines.]
 
-- Toolbar - In the Toolbar you can find a set of blocks which can be dragged into the workspace.
+Generally there are three main components:
+
+. Toolbar - In the Toolbar you can find a set of blocks which can be dragged into the workspace.
             They are ordered by categories.  If a block is in more than one category it will be present multiple times
             in the Toolbar.
 
-- Configuration - Whether you are configuring the pipelines name, a sink source or filter, the possible configurations
+. Configuration - Whether you are configuring the pipelines name, a sink source or filter, the possible configurations
                   are always displayed here.
-
-- Data Preview - When the Data Preview is active, it is displayed in the same location than the Toolbar.
+//TODO: Add aditional image with datapreview
+. Data Preview - When the Data Preview is active, it is displayed in the same location than the Toolbar.
                  It provides you with detailed information about what kind of data is running through your block.
+
+
+
