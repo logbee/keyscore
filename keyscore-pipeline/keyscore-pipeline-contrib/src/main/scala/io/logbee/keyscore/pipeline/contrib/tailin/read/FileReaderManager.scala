@@ -39,11 +39,14 @@ class FileReaderManager(readSchedule: ReadSchedule, persistenceContext: Persiste
           map + (baseFile -> fileReader)
         }
         
-        fileReader.fileModified(callback, readScheduleItem)
+        
+        fileReader.read(callback, readScheduleItem)
+        
       case None =>//if no reads scheduled
         println("NO READ SCHEDULE ITEM")
        //TODO schedule a dirWatcher.processEvents and a retry
        // -> scheduling a retry can only be done in TailinSourceLogic (?)
+        // -> we might not have to do anything here
        
        
        //TODO maybe pass this method a callback that will doPush()

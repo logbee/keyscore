@@ -100,7 +100,7 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
 
   
   
-  def fileModified(callback: String => Unit, readScheduleItem: ReadScheduleItem) = {
+  def read(callback: String => Unit, readScheduleItem: ReadScheduleItem) = {
     
     log.info("fileModified() called for " + baseFile)
     

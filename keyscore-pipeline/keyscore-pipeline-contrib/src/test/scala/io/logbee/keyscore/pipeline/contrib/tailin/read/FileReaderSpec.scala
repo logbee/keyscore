@@ -165,7 +165,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
             mockCallback expects line1
             
-            fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+            fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
           "if the file contains only one line of text with a newline at the end" in new LogFile {
@@ -180,7 +180,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
   
             mockCallback expects line1
             
-            fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+            fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
           "if the file contains multiple lines of text" in new LogFile {
@@ -201,7 +201,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
               mockCallback expects line2
               mockCallback expects line3
             }
-            fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+            fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
           "if the file contains multiple newline-characters directly following each other"  in new LogFile {
@@ -220,7 +220,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
               mockCallback expects line1
               mockCallback expects line3
             }
-            fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+            fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
           "if the file contains a Windows newline \\r\\n" in new LogFile {
@@ -239,7 +239,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
               mockCallback expects line1
               mockCallback expects line2
             }
-            fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+            fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
           "if the contents of the file are longer than one buffer's length" in new LogFile {
@@ -263,7 +263,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             }
             
               
-            fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+            fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
           
           "if the file contains a line that is longer than the buffer" in new LogFile {
@@ -286,7 +286,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
               mockCallback expects line3
             }
             
-            fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+            fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
         }
         
@@ -308,7 +308,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           val mockCallback = mockFunction[String, Unit]
           
           mockCallback expects text
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
         }
       }
       
@@ -337,10 +337,10 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             mockCallback expects logFileData
           }
           
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, previousReadPosition, logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile2.length, logFile2.lastModified))
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile1.length, logFile1.lastModified))
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, previousReadPosition, logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile2.length, logFile2.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile1.length, logFile1.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
         }
         
         "file by file, if file-wise reading is active" in new RotateFiles {
@@ -358,10 +358,10 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             mockCallback expects logFileData
           }
           
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, previousReadPosition, logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile2.length, logFile2.lastModified))
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile1.length, logFile1.lastModified))
-          fileReader.fileModified(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, previousReadPosition, logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile2.length, logFile2.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile1.length, logFile1.lastModified))
+          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
         }
       }
       
@@ -406,7 +406,7 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val filesToRead = FileReader.getFilesToRead(logFile, defaultRotationPattern, previousReadTimestamp=0)
             filesToRead.foreach { file =>
               println(file + " " + file.lastModified)
-              fileReader.fileModified(string => calledBackString += string, ReadScheduleItem(logFile, 0, file.length, file.lastModified))
+              fileReader.read(string => calledBackString += string, ReadScheduleItem(logFile, 0, file.length, file.lastModified))
             }
             
             
