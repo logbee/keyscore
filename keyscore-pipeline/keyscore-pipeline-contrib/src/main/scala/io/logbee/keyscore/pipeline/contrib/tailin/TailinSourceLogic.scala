@@ -45,6 +45,8 @@ import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherConfiguration
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadSchedulerProvider
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 
 object TailinSourceLogic extends Described {
@@ -192,6 +194,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   var dirWatcher: DirWatcher = _
   
   var sendBuffer: SendBuffer = null
+  var persistenceContext: FilePersistenceContext = null
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -224,7 +227,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     }
     
     
-    val persistenceContext = new FilePersistenceContext(_persistenceFile)
+    persistenceContext = new FilePersistenceContext(_persistenceFile)
     val bufferSize = 1024
 
     val readSchedule = new ReadSchedule()
@@ -272,6 +275,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     log.info(s"Created Datasets: $outData")
 
     push(out, outData)
+    persistenceContext.store(fileReadData.baseFile.getAbsolutePath, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp))
   }
   
   
