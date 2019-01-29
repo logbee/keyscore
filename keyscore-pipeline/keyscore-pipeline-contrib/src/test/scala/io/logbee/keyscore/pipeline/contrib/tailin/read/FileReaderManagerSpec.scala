@@ -1,0 +1,64 @@
+package io.logbee.keyscore.pipeline.contrib.tailin.read
+
+import org.scalatest.FreeSpec
+import org.scalatest.Matchers
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
+import org.scalamock.scalatest.MockFactory
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
+import java.io.File
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+import org.scalatest.BeforeAndAfter
+import java.nio.file.Path
+import java.nio.file.Files
+import java.nio.charset.StandardCharsets
+
+class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with BeforeAndAfter {
+  
+  
+  var watchDir: Path = null
+
+  before {
+    watchDir = Files.createTempDirectory("watchTest")
+
+    TestUtil.waitForFileToExist(watchDir.toFile)
+  }
+
+  after {
+    TestUtil.recursivelyDelete(watchDir)
+  }
+  
+  
+  
+  "A FileReaderManager should" - {
+    
+    "do things" in {
+      val readSchedule = mock[ReadSchedule]
+      val persistenceContext = mock[PersistenceContext]
+      val fileReaderProvider = mock[FileReaderProvider]
+      
+      val fileReaderManager = new FileReaderManager(readSchedule, persistenceContext, fileReaderProvider)
+      
+      
+      val callback = mockFunction[String, Unit]
+      
+      val string = "Hello Wörld\naskljd"
+      val testFile = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile", string)
+      
+      (readSchedule.removeNext _)
+        .expects()
+        .returning(Option(ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, lastModified=0)))
+      
+      (fileReaderProvider.create _)
+        .expects(testFile)
+        .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
+      
+      callback.expects(string.substring(0, string.indexOf("\n")))
+      callback.expects(string.substring(string.indexOf("\n") + 1))
+      
+      fileReaderManager.getNextString(callback)
+    }
+    
+    //upon being pulled, should just return the next string to be pushed
+  }
+}

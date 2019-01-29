@@ -84,8 +84,6 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
   log.info("Instantiated for " + baseFile)
   var leftOverFromPreviousBuffer = ""
   
-  //TODO keep a pool of the FileChannels for this file + rotatedFiles (just add them as created, create them if not yet exists)
-  
   
   //TODO this can be removed, maybe reused in FileReaderManager
 //  var fileReadRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
@@ -119,7 +117,7 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
     val filesToRead = FileReader.getFilesToRead(baseFile, rotationPattern, readScheduleItem.lastModified)
     val file = filesToRead.head
     
-    println("endPos: " + readScheduleItem.endPos + ", " + file.length)
+    println("fileReader-endPos: " + readScheduleItem.endPos + ", file-length: " + file.length)
     assert(readScheduleItem.endPos <= file.length) //TODO
     
     var nextBufferStartPosition = readScheduleItem.startPos
@@ -240,8 +238,8 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
   
   
   def pathDeleted() {??? //TODO
-//    if (FileReader.getFilesToRead(watchedFile, rotationPattern, 0).length == 0) { //if no rotated files remain
-//      persistenceContext.remove(watchedFile.toString)
+//    if (FileReader.getFilesToRead(baseFile, rotationPattern, 0).length == 0) { //if no rotated files remain
+//      persistenceContext.remove(baseFile.toString)
 //    }
     tearDown()
   }

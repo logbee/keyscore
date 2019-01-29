@@ -34,6 +34,9 @@ import io.logbee.keyscore.pipeline.api.SourceLogic
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderManager
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherConfiguration
@@ -184,8 +187,8 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   
   
   var dirWatcher: DirWatcher = _
-
-  val sendBuffer = new SendBuffer()
+  
+  var sendBuffer: SendBuffer = null
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -221,12 +224,13 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val persistenceContext = new FilePersistenceContext(_persistenceFile)
     val bufferSize = 1024
 
-    val callback: String => Unit = {
-      data: String =>
-        sendBuffer.addToBuffer(data)
-    }
+    val readSchedule = new ReadSchedule()
+    val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
     
-    val readSchedulerProvider = new ReadSchedulerProvider(rotationPattern, persistenceContext)
+    val fileReaderManager = new FileReaderManager(readSchedule, persistenceContext, fileReaderProvider)
+    sendBuffer = new SendBuffer(fileReaderManager)
+    
+    val readSchedulerProvider = new ReadSchedulerProvider(readSchedule, rotationPattern, persistenceContext)
     val dirWatcherConfiguration = DirWatcherConfiguration(baseDir, DirWatcherPattern(filePattern))
     dirWatcher = readSchedulerProvider.createDirWatcher(dirWatcherConfiguration)
   }

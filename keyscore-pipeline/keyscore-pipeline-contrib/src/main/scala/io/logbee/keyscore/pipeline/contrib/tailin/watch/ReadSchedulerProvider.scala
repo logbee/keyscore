@@ -6,9 +6,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 
 
-class ReadSchedulerProvider(rotationPattern: String, persistenceContext: PersistenceContext) extends WatcherProvider {
-  
-  val readSchedule = new ReadSchedule()
+class ReadSchedulerProvider(readSchedule: ReadSchedule, rotationPattern: String, persistenceContext: PersistenceContext) extends WatcherProvider {
   
   def createDirWatcher(configuration: DirWatcherConfiguration): DirWatcher = {
     new DefaultDirWatcher(configuration, this)
