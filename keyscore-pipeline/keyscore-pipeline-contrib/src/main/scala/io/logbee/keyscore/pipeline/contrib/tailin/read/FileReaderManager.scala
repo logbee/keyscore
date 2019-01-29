@@ -2,6 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.read
 
 import java.io.File
 
+import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 
@@ -17,7 +18,7 @@ class FileReaderManager(readSchedule: ReadSchedule, persistenceContext: Persiste
   
   
   
-  def getNextString(callback: String => Unit) = {
+  def getNextString(callback: FileReadData => Unit) = {
     
     //dequeue the next schedule entry
     val readScheduleItemOpt = readSchedule.removeNext()

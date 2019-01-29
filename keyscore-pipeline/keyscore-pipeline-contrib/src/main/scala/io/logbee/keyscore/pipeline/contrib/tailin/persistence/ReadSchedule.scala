@@ -5,7 +5,7 @@ import java.io.File
 import scala.collection.mutable.Queue
 
 
-case class ReadScheduleItem(baseFile: File, startPos: Long, endPos: Long, lastModified: Long)
+case class ReadScheduleItem(baseFile: File, startPos: Long, endPos: Long, writeTimestamp: Long)
 
 
 class ReadSchedule() {

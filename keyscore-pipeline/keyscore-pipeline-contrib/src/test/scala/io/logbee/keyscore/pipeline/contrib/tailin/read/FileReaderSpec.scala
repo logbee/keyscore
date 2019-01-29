@@ -15,6 +15,7 @@ import org.scalatest.FreeSpec
 import org.scalatest.Matchers
 import org.scalatest.ParallelTestExecution
 
+import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.scalatest.junit.JUnitRunner
@@ -161,9 +162,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val line1 = "Line1"
             TestUtil.writeStringToFile(logFile, line1, StandardOpenOption.TRUNCATE_EXISTING)
   
-            val mockCallback = mockFunction[String, Unit]
+            val mockCallback = mockFunction[FileReadData, Unit]
   
-            mockCallback expects line1
+            mockCallback expects FileReadData(line1, logFile, logFile.length, logFile.lastModified)
             
             fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
@@ -176,9 +177,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             val text = line1 + "\n"
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
   
-            val mockCallback = mockFunction[String, Unit]
+            val mockCallback = mockFunction[FileReadData, Unit]
   
-            mockCallback expects line1
+            mockCallback expects FileReadData(line1, logFile, logFile.length, logFile.lastModified)
             
             fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
@@ -194,12 +195,12 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
-            val mockCallback = mockFunction[String, Unit]
+            val mockCallback = mockFunction[FileReadData, Unit]
   
             inSequence {
-              mockCallback expects line1
-              mockCallback expects line2
-              mockCallback expects line3
+              mockCallback expects FileReadData(line1, logFile, line1.length + "\n".length, logFile.lastModified)
+              mockCallback expects FileReadData(line2, logFile, line1.length + "\n".length + line2.length + "\n".length, logFile.lastModified)
+              mockCallback expects FileReadData(line3, logFile, line1.length + "\n".length + line2.length + "\n".length + line3.length, logFile.lastModified)
             }
             fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
@@ -214,11 +215,11 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
-            val mockCallback = mockFunction[String, Unit]
+            val mockCallback = mockFunction[FileReadData, Unit]
   
             inSequence {
-              mockCallback expects line1
-              mockCallback expects line3
+              mockCallback expects FileReadData(line1, logFile, line1.length + "\n\n".length, logFile.lastModified)
+              mockCallback expects FileReadData(line3, logFile, line1.length + "\n\n".length + line3.length, logFile.lastModified)
             }
             fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
@@ -233,11 +234,11 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
-            val mockCallback = mockFunction[String, Unit]
+            val mockCallback = mockFunction[FileReadData, Unit]
   
             inSequence {
-              mockCallback expects line1
-              mockCallback expects line2
+              mockCallback expects FileReadData(line1, logFile, line1.length + "\r\n".length, logFile.lastModified)
+              mockCallback expects FileReadData(line2, logFile, line1.length + "\r\n".length + line2.length, logFile.lastModified)
             }
             fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
           }
@@ -254,12 +255,12 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
-            val mockCallback = mockFunction[String, Unit]
+            val mockCallback = mockFunction[FileReadData, Unit]
   
             inSequence {
-              mockCallback expects line1
-              mockCallback expects line2
-              mockCallback expects line3
+              mockCallback expects FileReadData(line1, logFile, line1.length + "\n".length, logFile.lastModified)
+              mockCallback expects FileReadData(line2, logFile, line1.length + "\n".length + line2.length + "\n".length, logFile.lastModified)
+              mockCallback expects FileReadData(line3, logFile, line1.length + "\n".length + line2.length + "\n".length + line3.length, logFile.lastModified)
             }
             
               
@@ -278,12 +279,12 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
             
             
-            val mockCallback = mockFunction[String, Unit]
+            val mockCallback = mockFunction[FileReadData, Unit]
   
             inSequence {
-              mockCallback expects line1
-              mockCallback expects line2
-              mockCallback expects line3
+              mockCallback expects FileReadData(line1, logFile, line1.length + "\n".length, logFile.lastModified)
+              mockCallback expects FileReadData(line2, logFile, line1.length + "\n".length + line2.length + "\n".length, logFile.lastModified)
+              mockCallback expects FileReadData(line3, logFile, line1.length + "\n".length + line2.length + "\n".length + line3.length, logFile.lastModified)
             }
             
             fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
@@ -305,9 +306,9 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING)
           
           
-          val mockCallback = mockFunction[String, Unit]
+          val mockCallback = mockFunction[FileReadData, Unit]
           
-          mockCallback expects text
+          mockCallback expects FileReadData(text, logFile, text.length, logFile.lastModified)
           fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
         }
       }
@@ -327,14 +328,14 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           logFile2.setLastModified(tmp_logFile2_lastModified) //reset the lastModified-time to what it was before writing, to keep the correct order
           
           
-          val mockCallback = mockFunction[String, Unit]
+          val mockCallback = mockFunction[FileReadData, Unit]
   
           inSequence {
-            mockCallback expects logFile3Data.substring(previousReadPosition)
-            mockCallback expects logFile2Data
-            mockCallback expects logFile2_AdditionalData
-            mockCallback expects logFile1Data
-            mockCallback expects logFileData
+            mockCallback expects FileReadData(logFile3Data.substring(previousReadPosition), logFile, logFile3Data.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified)
+            mockCallback expects FileReadData(logFile2Data, logFile, logFile2Data.length + "\n".length, logFile2.lastModified)
+            mockCallback expects FileReadData(logFile2_AdditionalData, logFile, logFile2Data.length + "\n".length + logFile2_AdditionalData.length, logFile2.lastModified)
+            mockCallback expects FileReadData(logFile1Data, logFile, logFile1Data.length, logFile1.lastModified)
+            mockCallback expects FileReadData(logFileData, logFile, logFileData.length, logFile.lastModified)
           }
           
           fileReader.read(mockCallback, ReadScheduleItem(logFile, previousReadPosition, logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
@@ -349,13 +350,13 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
           val fileReader = new FileReader(logFile, defaultRotationPattern, defaultBufferSize, defaultCharset, readMode)
           
           
-          val mockCallback = mockFunction[String, Unit]
+          val mockCallback = mockFunction[FileReadData, Unit]
   
           inSequence {
-            mockCallback expects logFile3Data.substring(previousReadPosition)
-            mockCallback expects logFile2Data
-            mockCallback expects logFile1Data
-            mockCallback expects logFileData
+            mockCallback expects FileReadData(logFile3Data.substring(previousReadPosition), logFile, logFile3Data.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified)
+            mockCallback expects FileReadData(logFile2Data, logFile, logFile2Data.length, logFile2.lastModified)
+            mockCallback expects FileReadData(logFile1Data, logFile, logFile1Data.length, logFile1.lastModified)
+            mockCallback expects FileReadData(logFileData, logFile, logFileData.length, logFile.lastModified)
           }
           
           fileReader.read(mockCallback, ReadScheduleItem(logFile, previousReadPosition, logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))

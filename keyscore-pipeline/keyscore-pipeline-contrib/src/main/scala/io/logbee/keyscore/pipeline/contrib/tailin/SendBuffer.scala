@@ -1,16 +1,23 @@
 package io.logbee.keyscore.pipeline.contrib.tailin
 
+import java.io.File
+
 import scala.collection.mutable.Queue
+
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderManager
 
+
+case class FileReadData(string: String, baseFile: File, readEndPos: Long, writeTimestamp: Long)
+
+
 class SendBuffer(fileReaderManager: FileReaderManager) {
-  private var buffer: Queue[String] = Queue.empty
+  private var buffer: Queue[FileReadData] = Queue.empty
   
-  def addToBuffer(string: String) = {
-    buffer.enqueue(string)
+  def addToBuffer(fileReadData: FileReadData) = {
+    buffer.enqueue(fileReadData)
   }
   
-  def getNextElement: String = {
+  def getNextElement: FileReadData = {
     
     ensureFilledIfPossible()
     

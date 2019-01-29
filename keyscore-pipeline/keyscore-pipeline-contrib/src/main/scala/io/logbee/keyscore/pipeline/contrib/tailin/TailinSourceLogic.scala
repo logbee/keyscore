@@ -11,6 +11,9 @@ import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.data.Field
+import io.logbee.keyscore.model.data.Label
+import io.logbee.keyscore.model.data.MetaData
+import io.logbee.keyscore.model.data.NumberValue
 import io.logbee.keyscore.model.data.Record
 import io.logbee.keyscore.model.data.TextValue
 import io.logbee.keyscore.model.descriptor.Category
@@ -250,13 +253,20 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   
   
   private def doPush() {
+    
+    val fileReadData = sendBuffer.getNextElement
+    
     val outData = Dataset(
-      records = Record(
+      metadata = MetaData(
+        Label("io.logbee.keyscore.pipeline.contrib.tailin.source.BASE_FILE", TextValue(fileReadData.baseFile.getAbsolutePath)),
+        Label("io.logbee.keyscore.pipeline.contrib.tailin.source.WRITE_TIMESTAMP", NumberValue(fileReadData.writeTimestamp)),
+      ),
+      records = List(Record(
         fields = List(Field(
           fieldName,
-          TextValue(sendBuffer.getNextElement)
+          TextValue(fileReadData.string)
         ))
-      )
+      ))
     )
 
     log.info(s"Created Datasets: $outData")

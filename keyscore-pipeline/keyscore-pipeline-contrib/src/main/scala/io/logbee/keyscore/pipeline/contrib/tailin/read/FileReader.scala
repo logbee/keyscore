@@ -13,6 +13,7 @@ import java.nio.file.StandardOpenOption
 
 import org.slf4j.LoggerFactory
 
+import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
@@ -100,7 +101,7 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
 
   
   
-  def read(callback: String => Unit, readScheduleItem: ReadScheduleItem) = {
+  def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem) = {
     
     log.info("fileModified() called for " + baseFile)
     
@@ -114,7 +115,7 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
     
     
     
-    val filesToRead = FileReader.getFilesToRead(baseFile, rotationPattern, readScheduleItem.lastModified)
+    val filesToRead = FileReader.getFilesToRead(baseFile, rotationPattern, readScheduleItem.writeTimestamp)
     val file = filesToRead.head
     
     println("fileReader-endPos: " + readScheduleItem.endPos + ", file-length: " + file.length)
@@ -159,7 +160,7 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
           
           charBuffer.flip()
           
-          processBufferContents(charBuffer, callback)
+          processBufferContents(charBuffer, callback, nextBufferStartPosition, readScheduleItem.writeTimestamp)
           
           
           nextBufferStartPosition += bytesRead
@@ -175,7 +176,7 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
   
   
   
-  private def processBufferContents(buffer: CharBuffer, callback: String => Unit) = {
+  private def processBufferContents(buffer: CharBuffer, callback: FileReadData => Unit, startPositionInFile: Long, callbackWriteTimestamp: Long) = {
       
     if (readMode == ReadMode.LINE) {
       
@@ -192,10 +193,10 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
           
           val string = CharBufferUtil.getBufferSectionAsString(buffer, writtenPositionWithinBuffer, lengthToWrite)
           
-          doCallback(callback, string)
-          
           writtenPositionWithinBuffer += lengthToWrite
           writtenPositionWithinBuffer = CharBufferUtil.getStartOfNextLine(buffer, writtenPositionWithinBuffer)
+          
+          doCallback(callback, string, startPositionInFile + writtenPositionWithinBuffer, callbackWriteTimestamp)
           
           buffer.position(writtenPositionWithinBuffer)
         }
@@ -220,7 +221,7 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
       
       if (buffer.limit < buffer.capacity) { //end of file
         
-        doCallback(callback, string) //write the remaining bytes
+        doCallback(callback, string, startPositionInFile + buffer.limit, callbackWriteTimestamp) //write the remaining bytes
       }
       else { //not end of file
         
@@ -230,9 +231,11 @@ class FileReader(baseFile: File, rotationPattern: String, byteBufferSize: Int, c
   }
   
   
-  private def doCallback(callback: String => Unit, string: String) = {
+  private def doCallback(callback: FileReadData => Unit, string: String, writeEndPos: Long, writeTimestamp: Long) = {
     
-    callback(leftOverFromPreviousBuffer + string)
+    val fileReadData = FileReadData(leftOverFromPreviousBuffer + string, baseFile, writeEndPos, writeTimestamp)
+    
+    callback(fileReadData)
     leftOverFromPreviousBuffer = ""
   }
   

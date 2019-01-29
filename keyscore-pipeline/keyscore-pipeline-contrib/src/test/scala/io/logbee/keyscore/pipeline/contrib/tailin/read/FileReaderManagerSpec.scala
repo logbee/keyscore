@@ -12,6 +12,7 @@ import org.scalatest.BeforeAndAfter
 import java.nio.file.Path
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
+import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 
 class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with BeforeAndAfter {
   
@@ -40,21 +41,23 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
       val fileReaderManager = new FileReaderManager(readSchedule, persistenceContext, fileReaderProvider)
       
       
-      val callback = mockFunction[String, Unit]
+      val callback = mockFunction[FileReadData, Unit]
       
-      val string = "Hello Wörld\naskljd"
+      val line1 = "Hello"
+      val line2 = "Wörld"
+      val string = line1 + "\n" + line2
       val testFile = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile", string)
       
       (readSchedule.removeNext _)
         .expects()
-        .returning(Option(ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, lastModified=0)))
+        .returning(Option(ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, writeTimestamp=testFile.lastModified)))
       
       (fileReaderProvider.create _)
         .expects(testFile)
         .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
       
-      callback.expects(string.substring(0, string.indexOf("\n")))
-      callback.expects(string.substring(string.indexOf("\n") + 1))
+      callback.expects(FileReadData(line1, testFile, line1.length + "\n".length, testFile.lastModified))
+      callback.expects(FileReadData(line2, testFile, string.length, testFile.lastModified))
       
       fileReaderManager.getNextString(callback)
     }
