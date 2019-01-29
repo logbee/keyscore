@@ -7,7 +7,6 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.model.descriptor.ParameterDescriptorMessage.SealedValue
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
@@ -15,8 +14,6 @@ import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
-
-import scala.concurrent.duration._
 import org.scalatest.{FreeSpec, Inside, Matchers}
 
 
@@ -40,7 +37,8 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
       Field("message", TextValue(" keyscore   ")),
       Field("temperature", TextValue("11,5")),
       Field("timestamp", TextValue("2018-12-24T00:00:00")),
-      Field("timestampWOTime", TextValue("2018-12-24"))
+      Field("timestampWOTime", TextValue("2018-12-24")),
+      Field("timestampWZone", TextValue("2018-12-24T10:15:30+01:00"))
     ))
 
     "when configured with a trim directive" - {
@@ -140,5 +138,102 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         }
       }
     }
+    "when configured with a to timestamp directive" - {
+      "should convert timestamp string with only date to timestamp value" in new TestStream {
+        whenReady(filterFuture) { filter =>
+          val configuration = Configuration(FieldDirectiveSequenceParameter(
+            TextMutatorLogic.directiveSequence.ref, Seq(
+              FieldDirectiveSequenceConfiguration(
+                fieldName = "timestampWOTime",
+                directives = Seq(
+                  DirectiveConfiguration(TextMutatorLogic.toTimestampDirective.ref, null, ParameterSet(Seq(
+                    TextParameter(TextMutatorLogic.toTimestampPattern.ref, "yyyy-MM-dd")
+                  )))
+                )
+              )
+            )
+          ))
+
+          whenReady(filter.configure(configuration)) { _ =>
+            source sendNext sampleData
+
+            sink request 1
+            val result = sink.requestNext
+            val record = result.records.head
+
+            inside(record.fields.filter(field => field.name.equals("timestampWOTime")).head) {
+              case Field("timestampWOTime", TimestampValue(seconds, nanos)) =>
+                seconds shouldBe 1545609600
+                nanos shouldBe 0
+            }
+          }
+        }
+      }
+    }
+    "when configured with a to timestamp directive" - {
+      "should convert timestamp string with date time and zone to timestamp value" in new TestStream {
+        whenReady(filterFuture) { filter =>
+          val configuration = Configuration(FieldDirectiveSequenceParameter(
+            TextMutatorLogic.directiveSequence.ref, Seq(
+              FieldDirectiveSequenceConfiguration(
+                fieldName = "timestampWZone",
+                directives = Seq(
+                  DirectiveConfiguration(TextMutatorLogic.toTimestampDirective.ref, null, ParameterSet(Seq(
+                    TextParameter(TextMutatorLogic.toTimestampPattern.ref, "yyyy-MM-dd'T'HH:mm:ssXXX")
+                  )))
+                )
+              )
+            )
+          ))
+
+          whenReady(filter.configure(configuration)) { _ =>
+            source sendNext sampleData
+
+            sink request 1
+            val result = sink.requestNext
+            val record = result.records.head
+
+            inside(record.fields.filter(field => field.name.equals("timestampWZone")).head) {
+              case Field("timestampWZone", TimestampValue(seconds, nanos)) =>
+                seconds shouldBe 1545642930
+                nanos shouldBe 0
+            }
+          }
+        }
+      }
+    }
+    "when configured with a to timestamp directive with wrong pattern" - {
+      "should return the field without any changes" in new TestStream {
+        whenReady(filterFuture) { filter =>
+          val configuration = Configuration(FieldDirectiveSequenceParameter(
+            TextMutatorLogic.directiveSequence.ref, Seq(
+              FieldDirectiveSequenceConfiguration(
+                fieldName = "timestampWZone",
+                directives = Seq(
+                  DirectiveConfiguration(TextMutatorLogic.toTimestampDirective.ref, null, ParameterSet(Seq(
+                    TextParameter(TextMutatorLogic.toTimestampPattern.ref, "yyyy-MM-dd'T'HH:mm:ss")
+                  )))
+                )
+              )
+            )
+          ))
+
+          whenReady(filter.configure(configuration)) { _ =>
+            source sendNext sampleData
+
+            sink request 1
+            val result = sink.requestNext
+            val record = result.records.head
+
+            inside(record.fields.filter(field => field.name.equals("timestampWZone")).head) {
+              case Field("timestampWZone", TextValue(value)) =>
+                value shouldBe "2018-12-24T10:15:30+01:00"
+            }
+          }
+        }
+      }
+    }
   }
 }
+
+
