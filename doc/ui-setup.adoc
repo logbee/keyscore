@@ -49,6 +49,13 @@ image:resources/images/dashboard-overview.png[Overview for the dashboard.]
 
 image:resources/images/resources-overview.png[Overview for the resources.]
 
+. Search - You cann search the table of  existing resources by the tables headers.
+. Details - When clicking on an entry the row will be expanded. The expanded row provides two different tabs [underline]#Descriptor# and [underline]#Configuration#.
+            Both views are providing you with a json visualisation of the current configuration  and descriptor.
+. Descriptor - Showing the descriptor json when selecting this tab.
+. Configuration - Showing the configuration json when selecting this tab.
+. Copy - Copying the selected json to paste it somewhere.
+
 === Pipelines ===
 
 This view presents all currently existing pipelines in the system, while displaying general information about them.
