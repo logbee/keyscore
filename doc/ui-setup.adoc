@@ -87,9 +87,23 @@ Generally there are three main components:
 
 . Configuration - Whether you are configuring the pipelines name, a sink source or filter, the possible configurations
                   are always displayed here.
-//TODO: Add aditional image with datapreview
+
 . Data Preview - When the Data Preview is active, it is displayed in the same location than the Toolbar.
                  It provides you with detailed information about what kind of data is running through your block.
+
+
+image:resources/images/pipely-data-preview.png[Data Preview]
+
+The Data preview provides you with live data for the complete Pipeline or per block if you want.
+If nothing is selected the output of the last block will be displayed.
+When selecting any other block in your pipeline the table will be updated.
+The table shows you the last 10 messages which ran through the block.
+Please note that this can be old data and it does not indicate that there is currently data streamed.
+
+. Input/Output - switching between output and input messages of a block.
+. Records - If there are multiple records in one message you can swipe through them with the provided controls.
+. Messages - If there are multiple messages in you can swipe through them with the provided controls.
+. Search - You can search the table of extracted messages by the table headers.
 
 
 
