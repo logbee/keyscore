@@ -48,7 +48,7 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
       val string = line1 + "\n" + line2
       val testFile = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile", string)
       
-      (readSchedule.removeNext _)
+      (readSchedule.pop _)
         .expects()
         .returning(Option(ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, writeTimestamp=testFile.lastModified)))
       

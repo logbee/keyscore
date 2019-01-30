@@ -3,6 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 import java.io.File
 
 import scala.collection.mutable.Queue
+import scala.collection.mutable.Stack
 
 
 case class ReadScheduleItem(baseFile: File, startPos: Long, endPos: Long, writeTimestamp: Long)
@@ -10,18 +11,18 @@ case class ReadScheduleItem(baseFile: File, startPos: Long, endPos: Long, writeT
 
 class ReadSchedule() {
   
-  private val readScheduleQueue = Queue[ReadScheduleItem]()
+  private val readScheduleStack = Stack[ReadScheduleItem]()
   
   
-  def queue(readScheduleItem: ReadScheduleItem) = {
-    readScheduleQueue.enqueue(readScheduleItem)
+  def push(readScheduleItem: ReadScheduleItem) = {
+    readScheduleStack.push(readScheduleItem)
   }
   
   
-  def removeNext() = {
-    if (readScheduleQueue.isEmpty)
+  def pop() = {
+    if (readScheduleStack.isEmpty)
       None
     else
-      Some(readScheduleQueue.dequeue())
+      Some(readScheduleStack.pop())
   }
 }

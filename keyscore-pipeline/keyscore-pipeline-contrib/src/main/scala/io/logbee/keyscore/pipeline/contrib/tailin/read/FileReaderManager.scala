@@ -21,7 +21,7 @@ class FileReaderManager(readSchedule: ReadSchedule, persistenceContext: Persiste
   def getNextString(callback: FileReadData => Unit) = {
     
     //dequeue the next schedule entry
-    val readScheduleItemOpt = readSchedule.removeNext()
+    val readScheduleItemOpt = readSchedule.pop()
     
     readScheduleItemOpt match {
       case Some(readScheduleItem) =>
