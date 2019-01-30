@@ -26,7 +26,6 @@ class FileReaderManager(readSchedule: ReadSchedule, persistenceContext: Persiste
     readScheduleItemOpt match {
       case Some(readScheduleItem) =>
         
-        println("read schedule item: " + readScheduleItem)
         val baseFile = readScheduleItem.baseFile
         
         var fileReaderOpt = map.get(baseFile)
@@ -44,7 +43,6 @@ class FileReaderManager(readSchedule: ReadSchedule, persistenceContext: Persiste
         fileReader.read(callback, readScheduleItem)
         
       case None =>//if no reads scheduled
-        println("NO READ SCHEDULE ITEM")
        //TODO schedule a dirWatcher.processEvents and a retry
        // -> scheduling a retry can only be done in TailinSourceLogic (?)
         // -> we might not have to do anything here
@@ -63,7 +61,5 @@ class FileReaderManager(readSchedule: ReadSchedule, persistenceContext: Persiste
     // and half the black magic in a RotationReaderHandler-class
     //  let's do the 50% solution first, where we pass it directly to the FileReader and assume no rotation
     //  the RotationReaderHandler-class should be easy to introduce in between
-    
-    // TODO commit to the persistenceContext
   }
 }
