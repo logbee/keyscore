@@ -239,8 +239,8 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val readSchedule = new ReadSchedule()
     val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
     
-    val fileReaderManager = new FileReaderManager(readSchedule, readPersistence, fileReaderProvider)
-    sendBuffer = new SendBuffer(fileReaderManager)
+    val fileReaderManager = new FileReaderManager(readSchedule, fileReaderProvider)
+    sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
     
     val readSchedulerProvider = new ReadSchedulerProvider(readSchedule, rotationPattern, readPersistence)
     val dirWatcherConfiguration = DirWatcherConfiguration(baseDir, DirWatcherPattern(filePattern))

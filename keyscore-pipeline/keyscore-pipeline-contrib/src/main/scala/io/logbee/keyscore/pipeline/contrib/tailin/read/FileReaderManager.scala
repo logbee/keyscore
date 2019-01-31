@@ -9,7 +9,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceCont
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 
-class FileReaderManager(readSchedule: ReadSchedule, readPersistence: ReadPersistence, fileReaderProvider: FileReaderProvider) {
+class FileReaderManager(readSchedule: ReadSchedule, fileReaderProvider: FileReaderProvider) {
   
   
   //what happens if the files get rotated? (i.e. moved underneath the file-handle)
