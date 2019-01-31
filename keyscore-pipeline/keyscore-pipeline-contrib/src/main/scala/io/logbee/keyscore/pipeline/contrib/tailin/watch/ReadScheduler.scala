@@ -14,6 +14,14 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 
 class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileWatcher {
   
+  //TODO detect truncate somehow
+  //probably store baseFile's length with each fileModified()
+  //on resume, restore from getCompletedRead?> under given circumstances probably,
+    //like no other rotatedFiles having been lastModified after that timestamp
+  
+  //when new fileModified's length is shorter than previous lastModify, assume truncate
+  
+  
   def fileModified(): Unit = {
     
     val completedRead = readPersistence.getCompletedRead(baseFile)

@@ -8,15 +8,9 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceCont
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 
-class FileReaderManager(readSchedule: ReadSchedule, fileReaderProvider: FileReaderProvider) {
-  
-  
-  //what happens if the files get rotated? (i.e. moved underneath the file-handle)
-  //does the fileChannel remain untouched?
-  
+class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: ReadSchedule, readPersistence: ReadPersistence) {
   
   val map = Map[File, FileReader]()
-  
   
   
   def getNextString(callback: FileReadData => Unit) = {

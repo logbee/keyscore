@@ -42,7 +42,7 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
       val readPersistence = mock[ReadPersistence]
       val fileReaderProvider = mock[FileReaderProvider]
       
-      val fileReaderManager = new FileReaderManager(readSchedule, fileReaderProvider)
+      val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence)
       
       
       val callback = mockFunction[FileReadData, Unit]
