@@ -8,12 +8,12 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
-import org.junit.runner.RunWith
 import org.scalatest.FreeSpec
 import org.scalatest.Matchers
+
+
+import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-
 @RunWith(classOf[JUnitRunner])
 class CharBufferUtilSpec extends FreeSpec with Matchers {
   

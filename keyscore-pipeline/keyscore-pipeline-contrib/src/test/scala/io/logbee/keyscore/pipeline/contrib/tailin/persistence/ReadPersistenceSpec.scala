@@ -7,6 +7,11 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import scala.reflect.runtime.universe._
 import java.io.File
 
+
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
+@RunWith(classOf[JUnitRunner])
 class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
   
   

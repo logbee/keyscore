@@ -4,15 +4,15 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FreeSpec
 import org.scalatest.Matchers
 
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+
+
+import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-
 @RunWith(classOf[JUnitRunner])
 class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll {
   

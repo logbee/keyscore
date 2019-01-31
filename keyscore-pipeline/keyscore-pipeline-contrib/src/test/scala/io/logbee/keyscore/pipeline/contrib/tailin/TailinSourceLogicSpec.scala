@@ -9,7 +9,6 @@ import java.util.UUID
 
 import scala.concurrent.duration.DurationInt
 
-import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FreeSpec
@@ -34,8 +33,10 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
-import org.scalatest.junit.JUnitRunner
 
+
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext with ParallelTestExecution {
   
@@ -147,7 +148,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
             TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir + "/" + testSetup.filePattern),
             ChoiceParameter(TailinSourceLogic.readMode.ref,        testSetup.readMode.toString),
             ChoiceParameter(TailinSourceLogic.encoding.ref,        testSetup.encoding.toString),
-            TextParameter(  TailinSourceLogic.rotationPattern.ref,  testSetup.rotationPattern),
+            TextParameter(  TailinSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
             TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
             
             TextParameter(  TailinSourceLogic.persistenceFile.ref, persistenceFile.getAbsolutePath),

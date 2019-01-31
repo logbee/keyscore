@@ -8,7 +8,6 @@ import java.nio.file.StandardOpenOption
 
 import scala.io.Source
 
-import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FreeSpec
@@ -18,9 +17,9 @@ import org.scalatest.ParallelTestExecution
 import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+
+import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-
 @RunWith(classOf[JUnitRunner])
 class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with ParallelTestExecution {
 

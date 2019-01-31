@@ -5,7 +5,6 @@ import java.nio.file.Path
 
 import scala.reflect.runtime.universe.typeTag
 
-import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FreeSpec
 import org.scalatest.Matchers
@@ -13,12 +12,13 @@ import org.scalatest.ParallelTestExecution
 
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-import org.scalatest.junit.JUnitRunner
 
 
 case class TestCaseClass(a: String, b: Integer)
 
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class FilePersistenceContextSpec extends FreeSpec with BeforeAndAfter with Matchers with ParallelTestExecution {
 
