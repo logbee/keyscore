@@ -37,7 +37,7 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
   
   "A FileReaderManager should" - {
     
-    "do things" in {
+    "do things" in { //TODO more tests
       val readSchedule = mock[ReadSchedule]
       val readPersistence = mock[ReadPersistence]
       val fileReaderProvider = mock[FileReaderProvider]
@@ -52,16 +52,22 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
       val string = line1 + "\n" + line2
       val testFile = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile", string)
       
-      (readSchedule.pop _)
-        .expects()
-        .returning(Option(ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, writeTimestamp=testFile.lastModified)))
-      
-      (fileReaderProvider.create _)
-        .expects(testFile)
-        .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
-      
-      callback.expects(FileReadData(line1, testFile, line1.length + "\n".length, testFile.lastModified))
-      callback.expects(FileReadData(line2, testFile, string.length, testFile.lastModified))
+      inSequence {
+        (readSchedule.pop _)
+          .expects()
+          .returning(Option(ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, writeTimestamp=testFile.lastModified)))
+        
+        (readPersistence.getCompletedRead _)
+          .expects(testFile)
+          .returning(FileReadRecord(0, 0))
+        
+        (fileReaderProvider.create _)
+          .expects(testFile)
+          .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
+        
+        callback.expects(FileReadData(line1, testFile, line1.length + "\n".length, testFile.lastModified))
+        callback.expects(FileReadData(line2, testFile, string.length, testFile.lastModified))
+      }
       
       fileReaderManager.getNextString(callback)
     }

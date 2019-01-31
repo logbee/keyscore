@@ -12,6 +12,21 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
   
   val map = Map[File, FileReader]()
   
+  private def getFileReader(fileToRead: File): FileReader = {
+    var fileReaderOpt = map.get(fileToRead)
+    
+    var fileReader: FileReader = null
+    if (fileReaderOpt == Some) {
+      fileReader = fileReaderOpt.get
+    }
+    else { //create a new fileReader, if there's not yet one in the map
+      fileReader = fileReaderProvider.create(fileToRead)
+      map + (fileToRead -> fileReader)
+    }
+    
+    fileReader
+  }
+  
   
   def getNextString(callback: FileReadData => Unit) = {
     
@@ -24,21 +39,13 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
         
       case Some(readScheduleItem) =>
         
-        val baseFile = readScheduleItem.file
+        val fileToRead = readScheduleItem.file
         
-        var fileReaderOpt = map.get(baseFile)
+        val completedRead = readPersistence.getCompletedRead(fileToRead)
         
-        var fileReader: FileReader = null
-        if (fileReaderOpt == Some) {
-          fileReader = fileReaderOpt.get
-        }
-        else { //create a new fileReader, if there's not yet one in the map
-          fileReader = fileReaderProvider.create(baseFile)
-          map + (baseFile -> fileReader)
-        }
-        
-        
-        fileReader.read(callback, readScheduleItem)
+        if (readScheduleItem.writeTimestamp > completedRead.previousReadTimestamp)
+          getFileReader(fileToRead).read(callback, readScheduleItem)
+        //else the item is invalid, ignore it (has been removed from the stack already)
     }
   }
 }
