@@ -2,7 +2,6 @@ package io.logbee.keyscore.pipeline.contrib.tailin.read
 
 import java.io.File
 
-import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext

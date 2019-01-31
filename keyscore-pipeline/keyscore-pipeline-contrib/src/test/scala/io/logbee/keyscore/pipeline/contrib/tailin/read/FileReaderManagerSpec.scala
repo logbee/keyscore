@@ -12,7 +12,6 @@ import org.scalatest.BeforeAndAfter
 import java.nio.file.Path
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
-import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 

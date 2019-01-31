@@ -13,7 +13,6 @@ import java.nio.file.StandardOpenOption
 
 import org.slf4j.LoggerFactory
 
-import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil

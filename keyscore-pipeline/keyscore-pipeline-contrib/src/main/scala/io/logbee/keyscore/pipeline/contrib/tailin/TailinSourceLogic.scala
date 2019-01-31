@@ -48,6 +48,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherConfiguration
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadSchedulerProvider
+import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
 
 
 object TailinSourceLogic extends Described {

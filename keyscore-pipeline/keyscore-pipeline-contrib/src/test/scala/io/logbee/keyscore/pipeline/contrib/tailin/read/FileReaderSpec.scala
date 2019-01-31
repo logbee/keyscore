@@ -14,7 +14,6 @@ import org.scalatest.FreeSpec
 import org.scalatest.Matchers
 import org.scalatest.ParallelTestExecution
 
-import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
