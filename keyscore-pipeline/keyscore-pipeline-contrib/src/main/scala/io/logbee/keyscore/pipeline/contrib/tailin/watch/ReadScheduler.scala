@@ -7,19 +7,12 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 
-class ReadScheduler(baseFile: File, rotationPattern: String, persistenceContext: PersistenceContext, readSchedule: ReadSchedule) extends FileWatcher {
+class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileWatcher {
   
-  var previouslyScheduled = FileReadRecord(previousReadPosition=0, previousReadTimestamp=0)
-  
-  val persistenceContextEntryOption = persistenceContext.load[FileReadRecord](baseFile.getAbsolutePath)
-  if (persistenceContextEntryOption != None) {
-    val persistenceContextEntry = persistenceContextEntryOption.get
-    
-    previouslyScheduled = FileReadRecord(previousReadPosition=persistenceContextEntry.previousReadPosition,
-                                        previousReadTimestamp=persistenceContextEntry.previousReadTimestamp)
-  }
+  var previouslyScheduled = readPersistence.getCompletedRead(baseFile) //TODO this is not anymore the previously scheduled thing
   
   
   def fileModified(): Unit = {

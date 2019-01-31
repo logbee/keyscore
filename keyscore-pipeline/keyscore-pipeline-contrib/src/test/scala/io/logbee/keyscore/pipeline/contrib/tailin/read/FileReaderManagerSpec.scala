@@ -13,7 +13,12 @@ import java.nio.file.Path
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 import io.logbee.keyscore.pipeline.contrib.tailin.FileReadData
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
+
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+@RunWith(classOf[JUnitRunner])
 class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with BeforeAndAfter {
   
   
@@ -35,10 +40,10 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
     
     "do things" in {
       val readSchedule = mock[ReadSchedule]
-      val persistenceContext = mock[PersistenceContext]
+      val readPersistence = mock[ReadPersistence]
       val fileReaderProvider = mock[FileReaderProvider]
       
-      val fileReaderManager = new FileReaderManager(readSchedule, persistenceContext, fileReaderProvider)
+      val fileReaderManager = new FileReaderManager(readSchedule, readPersistence, fileReaderProvider)
       
       
       val callback = mockFunction[FileReadData, Unit]

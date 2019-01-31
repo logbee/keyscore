@@ -37,7 +37,10 @@ import io.logbee.keyscore.pipeline.api.SourceLogic
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderManager
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
@@ -45,8 +48,6 @@ import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherConfiguration
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadSchedulerProvider
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 
 object TailinSourceLogic extends Described {
@@ -194,7 +195,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   var dirWatcher: DirWatcher = _
   
   var sendBuffer: SendBuffer = null
-  var persistenceContext: FilePersistenceContext = null
+  var readPersistence: ReadPersistence = null
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -227,16 +228,21 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     }
     
     
-    persistenceContext = new FilePersistenceContext(_persistenceFile)
+    {
+      val completedPersistence = new RAMPersistenceContext()
+      val committedPersistence = new FilePersistenceContext(_persistenceFile)
+      readPersistence = new ReadPersistence(completedPersistence, committedPersistence)
+    }
+    
     val bufferSize = 1024
 
     val readSchedule = new ReadSchedule()
     val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
     
-    val fileReaderManager = new FileReaderManager(readSchedule, persistenceContext, fileReaderProvider)
+    val fileReaderManager = new FileReaderManager(readSchedule, readPersistence, fileReaderProvider)
     sendBuffer = new SendBuffer(fileReaderManager)
     
-    val readSchedulerProvider = new ReadSchedulerProvider(readSchedule, rotationPattern, persistenceContext)
+    val readSchedulerProvider = new ReadSchedulerProvider(readSchedule, rotationPattern, readPersistence)
     val dirWatcherConfiguration = DirWatcherConfiguration(baseDir, DirWatcherPattern(filePattern))
     dirWatcher = readSchedulerProvider.createDirWatcher(dirWatcherConfiguration)
   }
@@ -275,7 +281,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     log.info(s"Created Datasets: $outData")
 
     push(out, outData)
-    persistenceContext.store(fileReadData.baseFile.getAbsolutePath, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp))
+    readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp))
   }
   
   
