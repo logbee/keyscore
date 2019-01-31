@@ -2,26 +2,29 @@ package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import java.io.File
 
-import scala.collection.mutable.Stack
-
 
 case class ReadScheduleItem(baseFile: File, startPos: Long, endPos: Long, writeTimestamp: Long)
 
 
 class ReadSchedule() {
-  
-  private val readScheduleStack = Stack[ReadScheduleItem]()
+  private var readScheduleList = List[ReadScheduleItem]()
   
   
   def push(readScheduleItem: ReadScheduleItem) = {
-    readScheduleStack.push(readScheduleItem)
+    readScheduleList = readScheduleList :+ readScheduleItem
   }
   
   
-  def pop() = {
-    if (readScheduleStack.isEmpty)
+  def pop(): Option[ReadScheduleItem] = {
+    if (readScheduleList.isEmpty) {
       None
-    else
-      Some(readScheduleStack.pop())
+    }
+    else {
+      val returnVal = readScheduleList.last
+      
+      readScheduleList = readScheduleList.dropRight(1)
+      
+      Some(returnVal)
+    }
   }
 }
