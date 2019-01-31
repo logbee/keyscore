@@ -8,19 +8,21 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
+import java.nio.file.FileSystems
+import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 
 
 class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileWatcher {
   
-  var previouslyScheduled = readPersistence.getCompletedRead(baseFile) //TODO this is not anymore the previously scheduled thing
-  
-  
   def fileModified(): Unit = {
+    
+    val completedRead = readPersistence.getCompletedRead(baseFile)
+    
 
-    val filesToRead = FileReader.getFilesToRead(baseFile, rotationPattern, previouslyScheduled.previousReadTimestamp)
+    val filesToRead = RotationHelper.getFilesToRead(baseFile, rotationPattern, completedRead.previousReadTimestamp).sortBy(file => file.getName).reverse //assume the files are created in order .1, .2, .3, etc.
     
     
-    var startPos = previouslyScheduled.previousReadPosition
+    var startPos = completedRead.previousReadPosition
     
     filesToRead.foreach{ fileToRead =>
       
@@ -28,8 +30,7 @@ class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: Re
         val endPos = fileToRead.length
         val timestamp = fileToRead.lastModified
         
-        readSchedule.push(ReadScheduleItem(baseFile, startPos, endPos, timestamp))
-        previouslyScheduled = FileReadRecord(endPos, timestamp)
+        readSchedule.push(ReadScheduleItem(fileToRead, startPos, endPos, timestamp))
       }
       startPos = 0 //if there's multiple files, read the next files from the start
     }

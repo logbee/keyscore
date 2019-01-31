@@ -27,7 +27,7 @@ class FileReaderManager(readSchedule: ReadSchedule, fileReaderProvider: FileRead
     readScheduleItemOpt match {
       case Some(readScheduleItem) =>
         
-        val baseFile = readScheduleItem.baseFile
+        val baseFile = readScheduleItem.file
         
         var fileReaderOpt = map.get(baseFile)
         

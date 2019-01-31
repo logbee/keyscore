@@ -19,133 +19,19 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.util.RotateFilesSetup
+
 @RunWith(classOf[JUnitRunner])
-class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with ParallelTestExecution {
-
-  var watchDir: Path = null
-
-  before {
-    watchDir = Files.createTempDirectory("watchTest")
-
-    TestUtil.waitForFileToExist(watchDir.toFile)
-  }
-
-  after {
-    TestUtil.recursivelyDelete(watchDir)
-  }
-
+class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory with ParallelTestExecution {
+  
   
   val defaultBufferSize = 1024
   val defaultCharset = StandardCharsets.UTF_8
   val defaultReadMode = ReadMode.LINE
-  
-  
-  trait LogFile {
-    val logFileData = "Log_File_0_ "
-    val logFile = TestUtil.createFile(watchDir, "log.txt", logFileData)
-    
-    val defaultRotationPattern = logFile.getName + ".[1-5]"
-  }
-  
-  
-  trait RotateFiles extends LogFile {
-    
-    val logFile1337Data = "Log_File_1337 "
-    val logFile1337 = TestUtil.createFile(watchDir, "log.txt.1337", logFile1337Data)
-    
-    val logFileCsvData = "Log_File_Csv "
-    val logFileCsv = TestUtil.createFile(watchDir, "log.csv", logFileCsvData)
-    
-    
-    val otherLogFile1Data = "other_Log_File_1 "
-    val otherLogFile1 = TestUtil.createFile(watchDir, "other_log.txt.1", otherLogFile1Data)
-    
-    val otherLogFileData = "other_Log_File "
-    val otherLogFile = TestUtil.createFile(watchDir, "other_log.txt", otherLogFileData)
-    
-    
-    val logFile4Data = "Log_File_4_4444 "
-    val logFile4_ModifiedBeforePreviousReadTimestamp = TestUtil.createFile(watchDir, "log.txt.4", logFile4Data)
-    
-    val logFile3Data = "Log_File_3_333 "
-    val logFile3_ModifiedAfterPreviousReadTimestamp = TestUtil.createFile(watchDir, "log.txt.3", logFile3Data)
-    
-    
-    val logFile2Data = "Log_File_2_22 "
-    val logFile2 = TestUtil.createFile(watchDir, "log.txt.2", logFile2Data)
-    
-    val logFile1Data = "Log_File_1_1 "
-    val logFile1 = TestUtil.createFile(watchDir, "log.txt.1", logFile1Data)
-    
-    
-    //set lastModified-times in the necessary order and to differences of bigger than 1 second to deal with common filesystem's lastModified-resolution of 1 second
-    val logFileModified = System.currentTimeMillis
-    logFile1337.setLastModified(logFileModified - 1000 * 3)
-    logFileCsv.setLastModified(logFileModified - 1000 * 3)
-    otherLogFile1.setLastModified(logFileModified - 1000 * 3)
-    otherLogFile.setLastModified(logFileModified - 1000 * 2)
-    logFile4_ModifiedBeforePreviousReadTimestamp.setLastModified(logFileModified - 1000 * 4)
-    logFile3_ModifiedAfterPreviousReadTimestamp.setLastModified(logFileModified - 1000 * 3)
-    logFile2.setLastModified(logFileModified - 1000 * 2)
-    logFile1.setLastModified(logFileModified - 1000 * 1)
-    logFile.setLastModified(logFileModified)
-    
-    val previousReadPosition = logFile3Data.length / 2
-    val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
-  }
 
   
   
   "A FileReader" - {
-    "should retrieve the list of files it has to read from," - {
-      "which should contain" - {
-        "only the FileReader's file itself," - {
-          "if it got passed null as rotationPattern" in new LogFile {
-            
-            val rotationPattern = null
-            
-            val rotationFiles = FileReader.getFilesToRead(logFile, rotationPattern, 0L)
-            
-            rotationFiles.length shouldBe 1
-            rotationFiles(0) shouldBe logFile
-          }
-          
-          "if it got passed an empty rotationPattern" in new LogFile {
-            
-            val rotationPattern = ""
-            
-            val rotationFiles = FileReader.getFilesToRead(logFile, rotationPattern, 0L)
-            
-            rotationFiles.length shouldBe 1
-            rotationFiles(0) shouldBe logFile
-          }
-        }
-        
-        "all files matching the rotationPattern," - {
-          "if it got passed a non-empty rotationPattern" in new RotateFiles {
-            
-            val rotationPattern = logFile.getName + ".[1-2]"
-            
-            val rotationFiles = FileReader.getFilesToRead(logFile, rotationPattern, 0L)
-            
-            rotationFiles should contain allOf (logFile, logFile1, logFile2)
-          }
-        }
-        
-        "all files matching the rotationPattern that are newer than the previousReadTimestamp," - {
-          "if it got passed a non-empty rotationPattern and a previousReadTimestamp" in new RotateFiles {
-            
-            val rotationPattern = logFile.getName + ".[1-5]"
-            
-            val rotationFiles = FileReader.getFilesToRead(logFile, rotationPattern, previousReadTimestamp)
-            
-            rotationFiles should contain allOf (logFile, logFile1, logFile2, logFile3_ModifiedAfterPreviousReadTimestamp)
-            rotationFiles should not contain logFile4_ModifiedBeforePreviousReadTimestamp
-          }
-        }
-      }
-    }
-    
     
     "should read the contents of" - {
       "its file" - {
@@ -365,55 +251,56 @@ class FileReaderSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
       }
       
       
-      //TODO this doesn't work yet, because lastModified-time of rotatedFiles is identical
-      "multiple rotated files after resuming reading" ignore {
-        
-        case class TestCase(bufferSize: Int, description: String)
-        
-        val bufferSizesToTest = Seq(
-                                    TestCase(  10, "shorter than one line of text"),
-                                    TestCase( 1024, "longer than one line of text"),
-                                    TestCase(999999, "longer than the entire text"),
-                                   )
-        
-        
-        bufferSizesToTest.foreach { case TestCase(bufferSize, description) =>
-          
-          "with buffer size " + bufferSize + " bytes, which is " + description in new LogFile {
-            
-            TestUtil.writeLogToFileWithRotation(logFile, numberOfLines=1000, rotatePattern = logFile.getName + ".%i")
-
-            
-            val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + logFile.getParent + "/" + defaultRotationPattern)
-            
-            val files = (logFile.getParentFile.listFiles
-              .filter(file => rotateMatcher.matches(file.toPath)) :+ logFile)
-              .sortBy(file => file.lastModified)
-            
-            var contents = files.foldLeft("")((content, file) => content + Source.fromFile(file).mkString)
-            
-            if (defaultReadMode == ReadMode.LINE) { //we don't call back newlines in line-wise reading
-              contents = contents.replace("\n", "")
-            }
-            
-            
-            var calledBackString = "" 
-            val fileReader = new FileReader(baseFile=logFile, defaultRotationPattern, bufferSize, defaultCharset, defaultReadMode)
-            
-            
-            //schedule a read for every rotation file
-            val filesToRead = FileReader.getFilesToRead(logFile, defaultRotationPattern, previousReadTimestamp=0)
-            filesToRead.foreach { file =>
-              println(file + " " + file.lastModified)
-              fileReader.read(string => calledBackString += string, ReadScheduleItem(logFile, 0, file.length, file.lastModified))
-            }
-            
-            
-            
-            calledBackString shouldEqual contents
-          }
-        }
-      }
+      //TODO this test is obsolete here, as a single FileReader doesn't handle rotation anymore. Possibly reuse code in ReadSchedulerSpec or integration test
+//      //TODO this doesn't work yet, because lastModified-time of rotatedFiles is identical
+//      "multiple rotated files after resuming reading" ignore {
+//        
+//        case class TestCase(bufferSize: Int, description: String)
+//        
+//        val bufferSizesToTest = Seq(
+//                                    TestCase(  10, "shorter than one line of text"),
+//                                    TestCase( 1024, "longer than one line of text"),
+//                                    TestCase(999999, "longer than the entire text"),
+//                                   )
+//        
+//        
+//        bufferSizesToTest.foreach { case TestCase(bufferSize, description) =>
+//          
+//          "with buffer size " + bufferSize + " bytes, which is " + description in new LogFile {
+//            
+//            TestUtil.writeLogToFileWithRotation(logFile, numberOfLines=1000, rotatePattern = logFile.getName + ".%i")
+//
+//            
+//            val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + logFile.getParent + "/" + defaultRotationPattern)
+//            
+//            val files = (logFile.getParentFile.listFiles
+//              .filter(file => rotateMatcher.matches(file.toPath)) :+ logFile)
+//              .sortBy(file => file.lastModified)
+//            
+//            var contents = files.foldLeft("")((content, file) => content + Source.fromFile(file).mkString)
+//            
+//            if (defaultReadMode == ReadMode.LINE) { //we don't call back newlines in line-wise reading
+//              contents = contents.replace("\n", "")
+//            }
+//            
+//            
+//            var calledBackString = "" 
+//            val fileReader = new FileReader(baseFile=logFile, defaultRotationPattern, bufferSize, defaultCharset, defaultReadMode)
+//            
+//            
+//            //schedule a read for every rotation file
+//            val filesToRead = FileReader.getFilesToRead(logFile, defaultRotationPattern, previousReadTimestamp=0)
+//            filesToRead.foreach { file =>
+//              println(file + " " + file.lastModified)
+//              fileReader.read(string => calledBackString += string, ReadScheduleItem(logFile, 0, file.length, file.lastModified))
+//            }
+//            
+//            
+//            
+//            calledBackString shouldEqual contents
+//          }
+//        }
+//      }
     }
     
     //TODO this might need to be tested in FileReaderManager and probably also find some way to tell FileReaderManager the endPos 

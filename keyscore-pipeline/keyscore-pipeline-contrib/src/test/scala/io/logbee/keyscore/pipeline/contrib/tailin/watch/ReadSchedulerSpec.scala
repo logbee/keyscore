@@ -22,74 +22,10 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.util.RotateFilesSetup
+
 @RunWith(classOf[JUnitRunner])
-class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with BeforeAndAfter {
-  
-  
-  var watchDir: Path = null
-  before {
-    watchDir = Files.createTempDirectory("watchTest")
-    TestUtil.waitForFileToExist(watchDir.toFile)
-  }
-  
-  after {
-    TestUtil.recursivelyDelete(watchDir)
-  }
-  
-  
-  
-  
-  trait LogFile {
-    val logFileData = "Log_File_0_ "
-    val logFile = TestUtil.createFile(watchDir, "log.txt", logFileData)
-    
-    val defaultRotationPattern = logFile.getName + ".[1-5]"
-  }
-  
-  
-  trait RotateFiles extends LogFile {
-    
-    val logFile1337Data = "Log_File_1337 "
-    val logFile1337 = TestUtil.createFile(watchDir, "log.txt.1337", logFile1337Data)
-    
-    val logFileCsvData = "Log_File_Csv "
-    val logFileCsv = TestUtil.createFile(watchDir, "log.csv", logFileCsvData)
-    
-    
-    val otherLogFile1Data = "other_Log_File_1 "
-    val otherLogFile1 = TestUtil.createFile(watchDir, "other_log.txt.1", otherLogFile1Data)
-    
-    val otherLogFileData = "other_Log_File "
-    val otherLogFile = TestUtil.createFile(watchDir, "other_log.txt", otherLogFileData)
-    
-    
-    val logFile4Data = "Log_File_4_4444 "
-    val logFile4_ModifiedBeforePreviousReadTimestamp = TestUtil.createFile(watchDir, "log.txt.4", logFile4Data)
-    
-    val logFile3Data = "Log_File_3_333 "
-    val logFile3_ModifiedAfterPreviousReadTimestamp = TestUtil.createFile(watchDir, "log.txt.3", logFile3Data)
-    
-    
-    val logFile2Data = "Log_File_2_22 "
-    val logFile2 = TestUtil.createFile(watchDir, "log.txt.2", logFile2Data)
-    
-    val logFile1Data = "Log_File_1_1 "
-    val logFile1 = TestUtil.createFile(watchDir, "log.txt.1", logFile1Data)
-    
-    
-    //set lastModified-times in the necessary order and to differences of bigger than 1 second to deal with common filesystem's lastModified-resolution of 1 second
-    val logFileModified = System.currentTimeMillis
-    logFile1337.setLastModified(logFileModified - 1000 * 3)
-    logFileCsv.setLastModified(logFileModified - 1000 * 3)
-    otherLogFile1.setLastModified(logFileModified - 1000 * 3)
-    otherLogFile.setLastModified(logFileModified - 1000 * 2)
-    logFile4_ModifiedBeforePreviousReadTimestamp.setLastModified(logFileModified - 1000 * 4)
-    logFile3_ModifiedAfterPreviousReadTimestamp.setLastModified(logFileModified - 1000 * 3)
-    logFile2.setLastModified(logFileModified - 1000 * 2)
-    logFile1.setLastModified(logFileModified - 1000 * 1)
-    logFile.setLastModified(logFileModified)
-  }
-  
+class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory {
   
   
   trait PersistenceContextWithoutTimestamp extends LogFile {
@@ -103,17 +39,12 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
 
   trait PersistenceContextWithTimestamp extends RotateFiles {
     
-    val previousReadPosition = logFile3Data.length / 2
-    val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
-    
     val persistenceContextWithTimestamp = mock[PersistenceContext]
     
     (persistenceContextWithTimestamp.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
       .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
       .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp)))
   }
-  
-  
   
   
   trait ReadSchedulerSetup extends LogFile {
@@ -143,18 +74,16 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
     "queue multiple reads for a change in a file, to also catch up on changes in its rotated files" in
     new ReadSchedulerSetup with RotateFiles {
       
-      val previousReadPosition = 2
       val readPersistence = mock[ReadPersistence]
       
       inSequence {
         (readPersistence.getCompletedRead _)
           .expects(logFile)
-          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp=0))
+          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp))
         
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile4_ModifiedBeforePreviousReadTimestamp.length, logFile4_ModifiedBeforePreviousReadTimestamp.lastModified))
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile2.length, logFile2.lastModified))
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile1.length, logFile1.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile3_ModifiedAfterPreviousReadTimestamp, startPos=previousReadPosition, endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile2, startPos=0, endPos=logFile2.length, logFile2.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile1, startPos=0, endPos=logFile1.length, logFile1.lastModified))
         (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile.length, logFile.lastModified))
       }
       
@@ -163,7 +92,7 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
     }
     
     
-    "queue only one read for a change in a file, when rotated files exist that have already been read" in
+    "schedule only one read for a change in a file, when rotated files exist that have already been read" in
     new ReadSchedulerSetup with RotateFiles {
       
 		  val readPersistence = mock[ReadPersistence]
@@ -173,7 +102,7 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
 		      .expects(logFile)
 		      .returning(FileReadRecord(previousReadPosition=logFile2.length, previousReadTimestamp=logFile2.lastModified))
 		    
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile1Data.getBytes.length, logFile1.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile1, startPos=0, endPos=logFile1Data.getBytes.length, logFile1.lastModified))
         (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFileData.getBytes.length,  logFile.lastModified))
       }
       
@@ -182,36 +111,7 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
     }
     
     
-    "queue a read from the correct starting position, when a read up to that position has already been *scheduled*" in
-    new ReadSchedulerSetup {
-      
-      val readPersistence = mock[ReadPersistence]
-      
-      val previousReadPosition = logFile.length
-      
-      inSequence {
-        (readPersistence.getCompletedRead _)
-          .expects(logFile)
-          .returning(FileReadRecord(0, 0))
-        
-        val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
-        
-        
-        //schedule a read up to the current file length
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=previousReadPosition, logFile.lastModified))
-        readScheduler.fileModified()
-        
-        //append something more to the file
-        TestUtil.writeStringToFile(logFile, "222\nö222", StandardOpenOption.APPEND)
-        
-        //expect it to read on from that position
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile.length, logFile.lastModified))
-        readScheduler.fileModified()
-      }
-    }
-    
-    
-    "queue a read from the correct starting position, when a read up to that position has already been *completed*" in
+    "schedule reads from the correct starting position, when a read up to that position has already been completed" in
     new ReadSchedulerSetup {
       
       val previousReadPosition = 3
@@ -230,7 +130,38 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
     }
     
     
-    "queue a read from the start (including rotated files), when a read for this file has not yet been scheduled or completed" in
+    "schedule reads from the last completed read position, even if a read to a further position has already been scheduled (but not completed)" in
+    new ReadSchedulerSetup {
+      
+      val readPersistence = mock[ReadPersistence]
+      
+      val previousReadTimestamp = 2
+      
+      
+      (readPersistence.getCompletedRead _)
+        .expects(logFile)
+        .returning(FileReadRecord(previousReadTimestamp, previousReadTimestamp=0))
+        .twice
+      
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
+      
+      inSequence {
+        //schedule a read up to the current file length
+        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadTimestamp, endPos=logFile.length, logFile.lastModified))
+        readScheduler.fileModified()
+        
+        //append something more to the file
+        TestUtil.writeStringToFile(logFile, "222\nö222", StandardOpenOption.APPEND)
+        
+        
+        //expect it to read again from the start to the new file length
+        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadTimestamp, endPos=logFile.length, logFile.lastModified))
+        readScheduler.fileModified()
+      }
+    }
+    
+    
+    "schedule reads from the start (including rotated files), when a read for this file has not yet been scheduled or completed" in
     new ReadSchedulerSetup with RotateFiles {
       
       val readPersistence = mock[ReadPersistence]
@@ -240,10 +171,10 @@ class ReadSchedulerSpec extends FreeSpec with Matchers with MockFactory with Bef
           .expects(logFile)
           .returning(FileReadRecord(0, 0))
         
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile4_ModifiedBeforePreviousReadTimestamp.length, logFile4_ModifiedBeforePreviousReadTimestamp.lastModified))
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile2.length, logFile2.lastModified))
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile1.length, logFile1.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile4_ModifiedBeforePreviousReadTimestamp, startPos=0, endPos=logFile4_ModifiedBeforePreviousReadTimestamp.length, logFile4_ModifiedBeforePreviousReadTimestamp.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile3_ModifiedAfterPreviousReadTimestamp, startPos=0, endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile2, startPos=0, endPos=logFile2.length, logFile2.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile1, startPos=0, endPos=logFile1.length, logFile1.lastModified))
         (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile.length, logFile.lastModified))
       }
       

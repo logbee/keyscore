@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 import java.io.File
 
 
-case class ReadScheduleItem(baseFile: File, startPos: Long, endPos: Long, writeTimestamp: Long)
+case class ReadScheduleItem(file: File, startPos: Long, endPos: Long, writeTimestamp: Long)
 
 
 class ReadSchedule() {
