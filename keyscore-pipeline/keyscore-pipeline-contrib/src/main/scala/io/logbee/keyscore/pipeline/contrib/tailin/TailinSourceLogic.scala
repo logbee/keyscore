@@ -264,25 +264,32 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   
   private def doPush() {
     
-    val fileReadData = sendBuffer.getNextElement
+    val fileReadDataOpt = sendBuffer.getNextElement
     
-    val outData = Dataset(
-      metadata = MetaData(
-        Label("io.logbee.keyscore.pipeline.contrib.tailin.source.BASE_FILE", TextValue(fileReadData.baseFile.getAbsolutePath)),
-        Label("io.logbee.keyscore.pipeline.contrib.tailin.source.WRITE_TIMESTAMP", NumberValue(fileReadData.writeTimestamp)),
-      ),
-      records = List(Record(
-        fields = List(Field(
-          fieldName,
-          TextValue(fileReadData.string)
+    fileReadDataOpt match {
+      case None =>
+        scheduleOnce(timerKey = "poll", 1.second)
+      case Some(fileReadData) =>
+      
+      
+      val outData = Dataset(
+        metadata = MetaData(
+          Label("io.logbee.keyscore.pipeline.contrib.tailin.source.BASE_FILE", TextValue(fileReadData.baseFile.getAbsolutePath)),
+          Label("io.logbee.keyscore.pipeline.contrib.tailin.source.WRITE_TIMESTAMP", NumberValue(fileReadData.writeTimestamp)),
+        ),
+        records = List(Record(
+          fields = List(Field(
+            fieldName,
+            TextValue(fileReadData.string)
+          ))
         ))
-      ))
-    )
-
-    log.info(s"Created Datasets: $outData")
-
-    push(out, outData)
-    readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp))
+      )
+  
+      log.info(s"Created Datasets: $outData")
+  
+      push(out, outData)
+      readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp))
+    }
   }
   
   

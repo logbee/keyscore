@@ -13,16 +13,19 @@ case class FileReadData(string: String, baseFile: File, readEndPos: Long, writeT
 class SendBuffer(fileReaderManager: FileReaderManager, readPersistence: ReadPersistence) {
   private var buffer: Queue[FileReadData] = Queue.empty
   
-  def addToBuffer(fileReadData: FileReadData) = {
-    buffer.enqueue(fileReadData)
-  }
   
-  def getNextElement: FileReadData = {
+  def getNextElement: Option[FileReadData] = {
     
     ensureFilledIfPossible()
     
-    buffer.dequeue()
+    if (buffer.isEmpty) {
+      None
+    }
+    else {
+      Some(buffer.dequeue())
+    }
   }
+  
   
   def isEmpty: Boolean = {
     
