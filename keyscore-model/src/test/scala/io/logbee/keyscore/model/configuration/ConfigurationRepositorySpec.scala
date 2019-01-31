@@ -206,7 +206,7 @@ class ConfigurationRepositorySpec extends FreeSpec with Matchers with OptionValu
         exception.yours.parameterSet.parameters shouldBe modifiedExampleConfiguration.parameterSet.parameters
       }
 
-      "should throw an DivergedException where base is null if the reverted configuration is the root" in {
+      "should throw a DivergedException where base is null if the reverted configuration is the root" in {
 
         val exception = intercept[DivergedException] {
           repository.revert(exampleConfigurationRef)
