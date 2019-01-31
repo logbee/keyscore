@@ -198,59 +198,6 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
       }
       
       
-      "its file as well as its rotated files, if rotation is active" - {
-        "line by line, if line-wise reading is active" in new RotateFiles {
-          
-          val readMode = ReadMode.LINE
-          val fileReader = new FileReader(logFile, defaultRotationPattern, defaultBufferSize, defaultCharset, readMode)
-          
-          
-          //write something additional to the file to test line-wise reading
-          val tmp_logFile2_lastModified = logFile2.lastModified
-          val logFile2_AdditionalData = "test"
-          TestUtil.writeStringToFile(logFile2, "\n" + logFile2_AdditionalData, StandardOpenOption.APPEND)
-          logFile2.setLastModified(tmp_logFile2_lastModified) //reset the lastModified-time to what it was before writing, to keep the correct order
-          
-          
-          val mockCallback = mockFunction[FileReadData, Unit]
-  
-          inSequence {
-            mockCallback expects FileReadData(logFile3Data.substring(previousReadPosition), logFile, logFile3Data.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified)
-            mockCallback expects FileReadData(logFile2Data, logFile, logFile2Data.length + "\n".length, logFile2.lastModified)
-            mockCallback expects FileReadData(logFile2_AdditionalData, logFile, logFile2Data.length + "\n".length + logFile2_AdditionalData.length, logFile2.lastModified)
-            mockCallback expects FileReadData(logFile1Data, logFile, logFile1Data.length, logFile1.lastModified)
-            mockCallback expects FileReadData(logFileData, logFile, logFileData.length, logFile.lastModified)
-          }
-          
-          fileReader.read(mockCallback, ReadScheduleItem(logFile, previousReadPosition, logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
-          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile2.length, logFile2.lastModified))
-          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile1.length, logFile1.lastModified))
-          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
-        }
-        
-        "file by file, if file-wise reading is active" in new RotateFiles {
-          
-          val readMode = ReadMode.FILE
-          val fileReader = new FileReader(logFile, defaultRotationPattern, defaultBufferSize, defaultCharset, readMode)
-          
-          
-          val mockCallback = mockFunction[FileReadData, Unit]
-  
-          inSequence {
-            mockCallback expects FileReadData(logFile3Data.substring(previousReadPosition), logFile, logFile3Data.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified)
-            mockCallback expects FileReadData(logFile2Data, logFile, logFile2Data.length, logFile2.lastModified)
-            mockCallback expects FileReadData(logFile1Data, logFile, logFile1Data.length, logFile1.lastModified)
-            mockCallback expects FileReadData(logFileData, logFile, logFileData.length, logFile.lastModified)
-          }
-          
-          fileReader.read(mockCallback, ReadScheduleItem(logFile, previousReadPosition, logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
-          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile2.length, logFile2.lastModified))
-          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile1.length, logFile1.lastModified))
-          fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
-        }
-      }
-      
-      
       //TODO this test is obsolete here, as a single FileReader doesn't handle rotation anymore. Possibly reuse code in ReadSchedulerSpec or integration test
 //      //TODO this doesn't work yet, because lastModified-time of rotatedFiles is identical
 //      "multiple rotated files after resuming reading" ignore {

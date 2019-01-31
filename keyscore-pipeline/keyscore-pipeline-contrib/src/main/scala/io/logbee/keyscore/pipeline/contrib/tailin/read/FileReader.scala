@@ -56,8 +56,6 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem) = {
     
-    log.info("fileModified() called for " + fileToRead)
-    
     val decoder = charset.newDecoder
     decoder.onMalformedInput(CodingErrorAction.REPORT)
     
