@@ -24,15 +24,13 @@ class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: Re
   
   def fileModified(): Unit = {
     
-    val completedRead = readPersistence.getCompletedRead(baseFile)
+    val filesToRead = RotationHelper.getFilesToRead(baseFile, rotationPattern, 0/*TODO*/).sortBy(file => file.getName)
     
-
-    val filesToRead = RotationHelper.getFilesToRead(baseFile, rotationPattern, completedRead.previousReadTimestamp).sortBy(file => file.getName).reverse //assume the files are created in order .1, .2, .3, etc.
-    
-    
-    var startPos = completedRead.previousReadPosition
     
     filesToRead.foreach{ fileToRead =>
+      
+      val completedRead = readPersistence.getCompletedRead(fileToRead)
+      val startPos = completedRead.previousReadPosition
       
       if (startPos != fileToRead.length) { //getFilesToRead returns files which have lastModified == previousReadTimestamp (which we would technically not need to read, but helps simplify this situation)
         val endPos = fileToRead.length
@@ -40,7 +38,6 @@ class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: Re
         
         readSchedule.push(ReadScheduleItem(fileToRead, startPos, endPos, timestamp))
       }
-      startPos = 0 //if there's multiple files, read the next files from the start
     }
   }
   

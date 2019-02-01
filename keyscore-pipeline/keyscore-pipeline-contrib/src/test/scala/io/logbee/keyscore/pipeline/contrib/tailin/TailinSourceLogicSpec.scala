@@ -110,7 +110,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
           expectedData = Seq("abcde\n", "fghij\n", "klmno\n"),
       ),
       
-      
+      //TODO UTF-16 doesn't work yet
       //test UTF-16 Little Endian and Big Endian separately, as just "UTF_16" causes the BufferedWriter in the test to write a Byte Order Mark (BOM) before each string that gets appended to the file (therefore failing tests where a file is written to multiple times)
       TestSetup(
           files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmnö"))),
@@ -240,7 +240,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         }
         
         
-        "should wait for strings to become available if no strings are available when it gets pulled" in new DefaultTailinSourceValues {
+        "should wait for strings to become available, if no strings are available when it gets pulled" in new DefaultTailinSourceValues {
           
           val file = TestUtil.createFile(watchDir, "tailin.csv")
           
@@ -260,7 +260,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     
     
     
-    "should push realistic log data with rotation" ignore new DefaultSource { //TODO this doesn't currently work, because lastModified-times are identical
+    "should push realistic log data with rotation" in new DefaultSource {
       
       val logFile = TestUtil.createFile(watchDir, "tailin.csv")
       val numberOfLines = 1000

@@ -43,7 +43,8 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
         
         val completedRead = readPersistence.getCompletedRead(fileToRead)
         
-        if (readScheduleItem.writeTimestamp > completedRead.previousReadTimestamp)
+        if (readScheduleItem.writeTimestamp == fileToRead.lastModified)
+//        if (readScheduleItem.writeTimestamp > completedRead.previousReadTimestamp)
           getFileReader(fileToRead).read(callback, readScheduleItem)
         //else the item is invalid, ignore it (has been removed from the stack already)
     }

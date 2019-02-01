@@ -38,24 +38,10 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   var leftOverFromPreviousBuffer = ""
   
   
-  //TODO this can be removed, maybe reused in FileReaderManager
-//  var fileReadRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
-//  if (persistenceContext != null) {
-//    val loadedFileReadRecord = persistenceContext.load[FileReadRecord](watchedFile.getAbsolutePath)
-//    loadedFileReadRecord match {
-//      case None =>
-//      case Some(loadedFileReadRecord: FileReadRecord) =>
-//        fileReadRecord = loadedFileReadRecord
-//    }
-//  }
-  
-  
   //TODO move the fileReadChannel up to here, tear it down in tearDown()
-
-  
   
   def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem) = {
-    
+    println("readScheduleItem.endPos: " + readScheduleItem.endPos)
     val decoder = charset.newDecoder
     decoder.onMalformedInput(CodingErrorAction.REPORT)
     
@@ -64,8 +50,6 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
     
     val byteBuffer = ByteBuffer.allocate(byteBufferSize)
     
-    
-    println("fileReader-endPos: " + readScheduleItem.endPos + ", file-length: " + fileToRead.length)
     assert(readScheduleItem.endPos <= fileToRead.length) //TODO
     
     var nextBufferStartPosition = readScheduleItem.startPos
@@ -107,7 +91,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
           
           charBuffer.flip()
           
-          processBufferContents(charBuffer, callback, nextBufferStartPosition, readScheduleItem.writeTimestamp)
+          processBufferContents(charBuffer, callback, nextBufferStartPosition, (readScheduleItem.endPos - charBuffer.limit).asInstanceOf[Int], readScheduleItem.writeTimestamp)
           
           
           nextBufferStartPosition += bytesRead
@@ -123,64 +107,77 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   
   
-  private def processBufferContents(buffer: CharBuffer, callback: FileReadData => Unit, startPositionInFile: Long, callbackWriteTimestamp: Long) = {
+  private def processBufferContents(charBuffer: CharBuffer, callback: FileReadData => Unit, bufferStartPositionInFile: Long, readEndPositionInBuffer: Int, callbackWriteTimestamp: Long) = {
+    println("readEndPositionInBuffer: " + readEndPositionInBuffer)
+    println("charBuffer: " + charBuffer)
+    val limit = Math.min(charBuffer.limit, readEndPositionInBuffer) //FIXME readEndPositionInBuffer muss in chars umgewandelt werden
+    
+    
+    var byteCompletedPositionWithinBuffer = 0
+    
+    if (readMode == ReadMode.FILE) {
+      //do nothing
+      charBuffer.position(0)
+    }
+    else if (readMode == ReadMode.LINE) {
       
-    if (readMode == ReadMode.LINE) {
+      var charCompletedPositionWithinBuffer = 0
       
-      var writtenPositionWithinBuffer = 0
-      
-      while (buffer.position < buffer.limit) {
+      while (charBuffer.position < limit) {
         
         //check for the occurrence of \n or \r, as we do linewise reading
-        val byte = buffer.get().toChar //sets pos to pos+1
+        val char = charBuffer.get().toChar //sets pos to pos+1
         
-        if (byte == '\n' || byte == '\r') {
-  
-          val lengthToWrite = buffer.position - 1 - writtenPositionWithinBuffer // "-1", because we don't want to count the '\n'
+        if (char == '\n' || char == '\r') {
           
-          val string = CharBufferUtil.getBufferSectionAsString(buffer, writtenPositionWithinBuffer, lengthToWrite)
+          charBuffer.position(charBuffer.position - 1)
           
-          writtenPositionWithinBuffer += lengthToWrite
-          writtenPositionWithinBuffer = CharBufferUtil.getStartOfNextLine(buffer, writtenPositionWithinBuffer)
+          val firstNewlineCharPosWithinBuffer = charBuffer.position
           
-          doCallback(callback, string, startPositionInFile + writtenPositionWithinBuffer, callbackWriteTimestamp)
+          val charPosEndOfNewlines = CharBufferUtil.getStartOfNextLine(charBuffer, charBuffer.position)
+          val stringWithNewlines = CharBufferUtil.getBufferSectionAsString(charBuffer, charCompletedPositionWithinBuffer, charPosEndOfNewlines - charCompletedPositionWithinBuffer)
+          val string = stringWithNewlines.substring(0, firstNewlineCharPosWithinBuffer - charCompletedPositionWithinBuffer)
           
-          buffer.position(writtenPositionWithinBuffer)
+          charCompletedPositionWithinBuffer += stringWithNewlines.length
+          byteCompletedPositionWithinBuffer += stringWithNewlines.getBytes.length
+          
+          println("kasjdalksjdlaksjdlkasjdlaksjdalskjd")
+          doCallback(callback, string, bufferStartPositionInFile + byteCompletedPositionWithinBuffer, callbackWriteTimestamp)
+          
+          charBuffer.position(charPosEndOfNewlines)
         }
       }
       
       //if end of buffer reached without finding another newline
-      buffer.position(writtenPositionWithinBuffer) //reset to the previous written position, so that the rest of the buffer can be written
-    }
-    else if (readMode == ReadMode.FILE) {
-      //do nothing
-      buffer.position(0)
+      charBuffer.position(charCompletedPositionWithinBuffer) //reset to the previous written position, so that the rest of the buffer can be read out
     }
     
-    //end of data in buffer reached
     
+    //read out rest of buffer
+    val remainingNumberOfCharsInBuffer = limit - charBuffer.position
     
-    val length = buffer.limit - buffer.position
-    
-    if (length > 0) {
-      val string = CharBufferUtil.getBufferSectionAsString(buffer, buffer.position, length)
+    if (remainingNumberOfCharsInBuffer > 0) {
+      println("rest of buffer")
+      println("limit: " + limit)
+      println("charBuffer.position: " + charBuffer.position)
+      println("byteCompletedPositionWithinBuffer: " + byteCompletedPositionWithinBuffer)
+      println("remainingNumberOfCharsInBuffer: " + remainingNumberOfCharsInBuffer)
+      val string = CharBufferUtil.getBufferSectionAsString(charBuffer, charBuffer.position, remainingNumberOfCharsInBuffer)
+      byteCompletedPositionWithinBuffer += string.getBytes.length
       
-      
-      if (buffer.limit < buffer.capacity) { //end of file
-        
-        doCallback(callback, string, startPositionInFile + buffer.limit, callbackWriteTimestamp) //write the remaining bytes
+      if (charBuffer.limit < charBuffer.capacity) { //end of file
+        doCallback(callback, string, bufferStartPositionInFile + byteCompletedPositionWithinBuffer, callbackWriteTimestamp) //write the remaining bytes
       }
       else { //not end of file
-        
         leftOverFromPreviousBuffer += string //store the remaining bytes, to be written later
       }
     }
   }
   
   
-  private def doCallback(callback: FileReadData => Unit, string: String, writeEndPos: Long, writeTimestamp: Long) = {
-    
-    val fileReadData = FileReadData(leftOverFromPreviousBuffer + string, fileToRead, writeEndPos, writeTimestamp)
+  private def doCallback(callback: FileReadData => Unit, string: String, readEndPos: Long, writeTimestamp: Long) = {
+    println("doCallback: " + readEndPos)
+    val fileReadData = FileReadData(leftOverFromPreviousBuffer + string, fileToRead, readEndPos, writeTimestamp)
     
     callback(fileReadData)
     leftOverFromPreviousBuffer = ""

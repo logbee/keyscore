@@ -65,8 +65,8 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
           .expects(testFile)
           .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
-        callback.expects(FileReadData(line1, testFile, line1.length + "\n".length, testFile.lastModified))
-        callback.expects(FileReadData(line2, testFile, string.length, testFile.lastModified))
+        callback.expects(FileReadData(line1, testFile, line1.getBytes.length + "\n".length, testFile.lastModified))
+        callback.expects(FileReadData(line2, testFile, string.getBytes.length, testFile.lastModified))
       }
       
       fileReaderManager.getNextString(callback)
