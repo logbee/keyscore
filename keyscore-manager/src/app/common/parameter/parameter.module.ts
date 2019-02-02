@@ -10,7 +10,7 @@ import {ParameterControlService} from "./service/parameter-control.service";
 import {AutocompleteInputComponent} from "./autocomplete-input.component";
 import {ParameterDirectiveComponent} from "./parameter-directive.component";
 import {DragDropModule} from '@angular/cdk/drag-drop';
-
+import {PropagationStopModule} from "ngx-propagation-stop";
 
 
 @NgModule({
@@ -20,8 +20,8 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
         ReactiveFormsModule,
         TranslateModule,
         MaterialModule,
-        DragDropModule
-
+        DragDropModule,
+        PropagationStopModule
     ],
     declarations: [
         ParameterMap,

@@ -121,8 +121,8 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     }
 
     public triggerDataSourceCreation() {
-            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlockId, "before", this.amount));
-            this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlockId, "after", this.amount));
+        this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlockId, "before", this.amount));
+        this.store.dispatch(new ExtractFromSelectedBlock(this.selectedBlockId, "after", this.amount));
     }
 
     public ngOnDestroy() {

@@ -70,7 +70,7 @@ object FileReader {
 
 /**
  * @param rotationPattern Glob-pattern for the suffix of rotated files. If an empty string or null is passed, no rotated files are matched.
- * @param persistenceContext PersistenceContext where RotationRecords are stored and read from.
+ * @param persistenceContext PersistenceContext where FileReadRecords are stored and read from.
  */
 class FileReader(watchedFile: File, rotationPattern: String, persistenceContext: PersistenceContext, byteBufferSize: Int, charset: Charset, readMode: ReadMode) extends DefaultFileWatcher(watchedFile) with FileWatcher {
   
@@ -82,13 +82,13 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   
   
-  var rotationRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
+  var fileReadRecord: FileReadRecord = FileReadRecord(0, 0) //the file hasn't yet been persisted, or something went wrong, which we can't recover from
   if (persistenceContext != null) {
-    val loadedRotationRecord = persistenceContext.load[FileReadRecord](watchedFile.toString)
-    loadedRotationRecord match {
+    val loadedFileReadRecord = persistenceContext.load[FileReadRecord](watchedFile.getAbsolutePath)
+    loadedFileReadRecord match {
       case None =>
-      case Some(loadedRotationRecord: FileReadRecord) =>
-        rotationRecord = loadedRotationRecord
+      case Some(loadedFileReadRecord: FileReadRecord) =>
+        fileReadRecord = loadedFileReadRecord
     }
   }
   
@@ -100,28 +100,28 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
     
     log.info("fileModified() called for " + watchedFile)
     
-    val decoder = charset.newDecoder()
+    val decoder = charset.newDecoder
     decoder.onMalformedInput(CodingErrorAction.REPORT)
     
-    val charBufferSize = Math.ceil(byteBufferSize * charset.newDecoder().maxCharsPerByte).asInstanceOf[Int] //enough space to decode a full byteBuffer
+    val charBufferSize = Math.ceil(byteBufferSize * charset.newDecoder.maxCharsPerByte).asInstanceOf[Int] //enough space to decode a full byteBuffer
     val charBuffer = CharBuffer.allocate(charBufferSize)
     
     val byteBuffer = ByteBuffer.allocate(byteBufferSize)
     
     
     
-    val filesToRead = FileReader.getFilesToRead(watchedFile, rotationPattern, rotationRecord.previousReadTimestamp)
+    val filesToRead = FileReader.getFilesToRead(watchedFile, rotationPattern, fileReadRecord.previousReadTimestamp)
     filesToRead.foreach { file =>
       
       var nextBufferStartPosition = 0L
       if (file.equals(filesToRead.head)) { //if this is the first file to be read, read from the previousReadPosition
-        nextBufferStartPosition = rotationRecord.previousReadPosition
+        nextBufferStartPosition = fileReadRecord.previousReadPosition
       }
       
       if (nextBufferStartPosition < file.length) { //skip creating a fileReadChannel and persisting the data, if there is nothing to read
         var fileReadChannel: FileChannel = null
         try {
-          fileReadChannel = Files.newByteChannel(file.toPath(), StandardOpenOption.READ).asInstanceOf[FileChannel]
+          fileReadChannel = Files.newByteChannel(file.toPath, StandardOpenOption.READ).asInstanceOf[FileChannel]
           
           
           while (nextBufferStartPosition < file.length) {
@@ -169,10 +169,10 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
           
           if (file.equals(filesToRead.last)) {//if this is the last file to be read, persist the new readPosition and readTimestamp
             
-            rotationRecord = rotationRecord.copy(previousReadPosition = nextBufferStartPosition,
+            fileReadRecord = fileReadRecord.copy(previousReadPosition = nextBufferStartPosition,
                                                  previousReadTimestamp = watchedFile.lastModified)
             
-            persistenceContext.store(watchedFile.getAbsolutePath, rotationRecord)
+            persistenceContext.store(watchedFile.getAbsolutePath, fileReadRecord)
           }
         }
       }
@@ -244,7 +244,7 @@ class FileReader(watchedFile: File, rotationPattern: String, persistenceContext:
   
   
   def pathDeleted() {
-    if (FileReader.getFilesToRead(watchedFile, rotationPattern, rotationRecord.previousReadTimestamp).length == 0) { //if no rotated files remain
+    if (FileReader.getFilesToRead(watchedFile, rotationPattern, 0).length == 0) { //if no rotated files remain
       persistenceContext.remove(watchedFile.toString)
     }
     tearDown()

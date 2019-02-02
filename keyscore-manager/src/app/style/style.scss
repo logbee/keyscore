@@ -19,6 +19,14 @@
     padding-bottom: 5px;
 }
 
+.margin-left-5{
+    margin-left: 5px;
+}
+
+.margin-left-10{
+    margin-left: 10px;
+}
+
 /*-------------FilterChooser-----------*/
 .modal-lg {
     max-width: 80% !important;
@@ -46,13 +54,13 @@
 }
 
 .mat-error-stroked-button{
-    border-color: $error !important;
-    color:$error !important;
+    border-color: $warn !important;
+    color: $warn !important;
 }
 
 .mat-error-stroked-button:hover{
-    background-color: $error-transparent !important;
-    color:$error !important;
+    background-color: $warn-transparent !important;
+    color: $warn !important;
 
 }
 
@@ -273,7 +281,7 @@
 }
 
 .main-drawer {
-    background: #365880 !important;
+    background: $keyscore-blue !important;
     color: white !important;
     transition: width 0.3s ease-in;
     max-width:250px;
