@@ -26,7 +26,7 @@
 .field-directive-sequence {
   max-width: 100%;
   //border: solid 1px #ccc;
-  background: white;
+  background: $pipeline-editor-configurator-background;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -38,11 +38,11 @@
   box-sizing: border-box;
   cursor: move;
   background: white;
-  margin-top:5px !important;
+  margin-top: 5px !important;
   border-radius: 4px;
 }
 
-.field-directives-box.directive{
+.field-directives-box.directive {
   padding-bottom: 20px;
 }
 
@@ -76,7 +76,7 @@
 }
 
 mat-expansion-panel-header {
-  background-color: rgba(0,0,0,0.03) !important;
+  background-color: rgba(0, 0, 0, 0.03) !important;
   padding: 10px 10px 5px 10px !important;
   height: auto !important;
   color: rgba(0, 0, 0, 0.87);
@@ -89,7 +89,7 @@ mat-expansion-panel-header.is-active {
 }
 
 .directive-header {
-  background-color: rgba(0,0,0,0.03);
+  background-color: rgba(0, 0, 0, 0.03);
   color: rgba(0, 0, 0, 0.87);
 }
 
@@ -106,12 +106,12 @@ mat-expansion-panel-header .mat-content {
   margin-left: 10px !important;
 }
 
-.directive-add{
-  width:100% !important;
+.directive-add {
+  width: 100% !important;
   margin: 5px 0 !important;
-  border:1px dashed $accent !important;
+  border: 1px dashed $accent !important;
 }
 
-.directive-add:hover{
+.directive-add:hover {
   background-color: $accent-transparent;
 }

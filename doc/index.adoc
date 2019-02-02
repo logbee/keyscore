@@ -1,0 +1,13 @@
+= Documentation =
+
+include::ui-setup.adoc[leveloffset=1]
+
+include::blocks.adoc[leveloffset=1]
+
+include::developer-setup.adoc[leveloffset=1]
+
+include::design-guidelines.adoc[leveloffset=1]
+
+include::docker.adoc[leveloffset=1]
+
+include::kafka.adoc[leveloffset=1]

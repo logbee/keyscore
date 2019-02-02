@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+import "io/logbee/keyscore/descriptor.proto";
+import "io/logbee/keyscore/data.proto";
+import "io/logbee/keyscore/configuration.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.model"
+    flat_package: true
+};
+
+message EntityRef {
+    string uuid = 1;
+    string revision = 2;
+    string ancestor = 3;
+}
+
+message Entity {
+    EntityRef ref = 1 [(scalapb.field).no_box = true];
+    repeated Component components = 2;
+}
+
+message Component {
+    oneof sealed_value {
+        ParameterSetComponent parameterSet = 1;
+        FilterBlueprintComponent filterBlueprint = 2;
+        MetaDataComponent metadata = 3;
+        ConfigurationComponent configuration = 4;
+    }
+}
+
+message ParameterSetComponent {
+    repeated Parameter parameters = 1;
+}
+
+message ConfigurationComponent {
+    EntityRef ref = 1 [(scalapb.field).no_box = true];
+    EntityRef parent = 2;
+}
+
+message FilterBlueprintComponent {
+    DescriptorRef descriptor = 2 [(scalapb.field).no_box = true];
+    EntityRef configuration = 3 [(scalapb.field).no_box = true];
+    EntityRef in = 8;
+    EntityRef out = 9;
+}
+
+message MetaDataComponent {
+
+}
+
+/*
+// 2. ConfigurationAspect(ConfigurationComponent, ParameterSetComponent)
+
+// 1. FilterBlueprintAspect(FilterBlueprintComponent)
+
+// 2. FilterBlueprintAspect(FilterBlueprintComponent, MetaDataComponent)
+
+entity
+ - FilterBlueprintComponent
+ - MetaDataComponent
+*/
