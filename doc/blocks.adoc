@@ -6,10 +6,10 @@
 
 *How to read this chapter*:
 
-- If you are new to KEYSCORE -- nice to see you here, we are curious about your feedback -- you can simply read this
+- If you are a new block-developer -- nice to see you here, we are curious about your feedback -- you can simply read this
 chapter from top to bottom starting with the <<Introduction>>.
 
-- If you are already familiar with the concepts of blocks in KEYSCORE but need some details jump to the sections about
+- If you are already familiar with the concepts of blocks but need some details jump to the sections about
 the block in question. <<block-types-brief-summary>> is a good starting point.
 
 - If you are a block-developer veteran but you have forgotten some API details of the programming language you are using,
@@ -17,7 +17,7 @@ please refer to the corresponding documentation.
 
 == Introduction ==
 
-Pipelines in KEYSCORE are build by concatenating blocks. A block receives data from it's predecessor, mutates it and
+Pipelines are build by concatenating blocks. A block receives data from it's predecessor, mutates it and
 passes the data to the next block. There are five types of blocks. The main difference between these types of blocks are
 the number of in- and out-ports and therefore how they can be combined to build a pipeline:
 
@@ -73,7 +73,7 @@ two flows into one. Therefore it has two in- and one out-port.
 |===
 
 == Descriptor API ==
-One of the key features of KEYSCORE is that all blocks are described by a meta-model. This meta-model is build by the so
+One of the key features is that all blocks are described by a meta-model. This meta-model is build by the so
 called Descriptor API. The Descriptor API facilitates a block-developer to describe various aspects of a block. It is
 important to understand the importance of the Descriptor API and the resulting meta-model. The meta-model allows as an example
 the creation of an agnostic web-ui. Because of the meta-model, no changes have to be made to the web-ui when a new block
@@ -177,7 +177,7 @@ include::{descriptors_base}/descriptor.proto[tags=MergeDescriptor]
 ==== When NOT to use ====
 - If their are more behaviours a user can choose not independently. Prefer: <<Choice Parameter>>
 
-==== Characteristics ====
+==== Specification ====
 The `BooleanParameterDescriptor` offers a default value field to define which value (`true`/`false`) should be set initially.
 It is also possible to choose whether the parameter is mandatory and the user has to configure it or not.
 
@@ -200,9 +200,7 @@ https://en.wikipedia.org/wiki/Base64[Base64] or not.
 - If the user should enter just simple numbers. Prefer <<Number Parameter>> / <<Decimal Parameter>>
 - If the user should enter multiple independent strings used to configure the same block behaviour. Prefer <<Text-List Parameter>>
 
-==== Characteristics ====
-
-
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=TextParameterDescriptor]
@@ -217,7 +215,7 @@ include::{descriptors_base}/descriptor.proto[tags=TextParameterDescriptor]
 - If the user should enter simple text. Prefer <<Text Parameter>>
 - If the text entered by the user should be validated against a regular expression. Prefer: <<Text Parameter>>
 
-==== Characteristics ====
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=ExpressionParameterDescriptor]
@@ -230,6 +228,16 @@ include::{descriptors_base}/descriptor.proto[tags=ExpressionType]
 
 === Number Parameter ===
 
+==== When to use ====
+- If a user should be able enter integers.
+- If a user should enter port numbers.
+
+==== When NOT to use ====
+- If the user should enter decimals. Prefer <<Decimal Parameter>>
+- If the user should enter numbers mixed with text. Prefer <<Text Parameter>>
+- If a user should enter a PIN or secret number.
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=NumberParameterDescriptor]
@@ -237,6 +245,14 @@ include::{descriptors_base}/descriptor.proto[tags=NumberParameterDescriptor]
 
 === Decimal Parameter ===
 
+==== When to use ====
+- If a user should be able enter decimals.
+
+==== When NOT to use ====
+- If the user should enter integers. Prefer <<Number Parameter>>
+- If the user should enter decimals mixed with text. Prefer <<Text Parameter>>
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=DecimalParameterDescriptor]
@@ -244,6 +260,13 @@ include::{descriptors_base}/descriptor.proto[tags=DecimalParameterDescriptor]
 
 === Field-Name Parameter ===
 
+==== When to use ====
+- If a user should be able enter names of fields.
+
+==== When NOT to use ====
+- If the user should enter arbitrary text. Prefer <<Text Parameter>>
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=FieldNameParameterDescriptor]
@@ -251,6 +274,14 @@ include::{descriptors_base}/descriptor.proto[tags=FieldNameParameterDescriptor]
 
 === Field Parameter ===
 
+==== When to use ====
+- If a user should be able enter the name and value of a field.
+
+==== When NOT to use ====
+- If the user should enter the name of a field only. Prefer <<Field-Name Parameter>>
+- If the user should enter arbitrary text. Prefer <<Text Parameter>>
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=FieldParameterDescriptor]
@@ -258,6 +289,15 @@ include::{descriptors_base}/descriptor.proto[tags=FieldParameterDescriptor]
 
 === Text-List Parameter ===
 
+==== When to use ====
+- If a user should be able enter a list of arbitrary text.
+- If a user should be able to enter multiple independent strings.
+
+==== When NOT to use ====
+- If the user should enter a PIN or password (a secret).
+- If the user should only enter a single line or word. Prefer <<Text Parameter>>
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=TextListParameterDescriptor]
@@ -265,6 +305,13 @@ include::{descriptors_base}/descriptor.proto[tags=TextListParameterDescriptor]
 
 === Field-Name-List Parameter ===
 
+==== When to use ====
+- If a user should be able enter a list of field-names.
+
+==== When NOT to use ====
+- If a user should be able enter a list of arbitrary text. Prefer <<Text-List Parameter>>
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=FieldNameListParameterDescriptor]
@@ -272,6 +319,14 @@ include::{descriptors_base}/descriptor.proto[tags=FieldNameListParameterDescript
 
 === Field-List Parameter ===
 
+==== When to use ====
+- If a user should be able enter the name and value of multiple fields.
+
+==== When NOT to use ====
+- If the user should enter the name of a single field only. Prefer <<Field-Name Parameter>>
+- If the user should enter a list of arbitrary text. Prefer <<Text-List Parameter>>
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=FieldListParameterDescriptor]
@@ -279,11 +334,22 @@ include::{descriptors_base}/descriptor.proto[tags=FieldListParameterDescriptor]
 
 === Choice Parameter ===
 
+==== When to use ====
+- If a user should be able to choose one or more options of a predefined list.
+
+==== When NOT to use ====
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=ChoiceParameterDescriptor]
 ----
 
+===== Min / Max =====
+- With `min` a block-developer can specified how many `Choices` a user has to select *at least*. Default: 0
+- With `max` a block-developer can specify how many `Choices` a user can select *at most*. Default: 0
+
+===== Choices =====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=Choice]
@@ -291,6 +357,11 @@ include::{descriptors_base}/descriptor.proto[tags=Choice]
 
 === ParameterGroupDescriptor ===
 
+==== When to use ====
+
+==== When NOT to use ====
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=ParameterGroupDescriptor]
@@ -308,6 +379,11 @@ include::{descriptors_base}/descriptor.proto[tags=BooleanParameterCondition]
 
 === Field-Directive-Sequence Parameter ===
 
+==== When to use ====
+
+==== When NOT to use ====
+
+==== Specification ====
 [source]
 ----
 include::{descriptors_base}/descriptor.proto[tags=FieldDirectiveSequenceParameterDescriptor]
@@ -326,13 +402,13 @@ include::{descriptors_base}/descriptor.proto[tags=FieldDirectiveDescriptor]
 == Localization ==
 A very important part when offering a UI to a wide user-base is localisation. You have to support different languages so
 every user can switch to her preferred language. Only a block-developer knows the names, descriptions and texts of a block
-which get displayed within the UI. Therefore the block-developer has to provide the translations. The descriptor API of
-KEYSCORE offers special structures to pass localisation information and translations.
+which get displayed within the UI. Therefore the block-developer has to provide the translations. The descriptor API
+offers special structures to pass localisation information and translations.
 
 The key point is the usage of `TextRefs`. Instead of using the text to display directly a `TextRef` refers to a `TranslationMapping`.
 A `TranslationMapping` maps `Locales` to the proper text translated in the language denoted by the `Locale` it self.
 At the end a `Localization` consists of a list of all `Locales` the `Localization` provides and all `TranslationMappings`.
-<<#localization-classdiagram-overview>> illustrates the described concept. This allows, for example the keyscore-manager
+<<#localization-classdiagram-overview>> illustrates the described concept. This allows, for example the manager-ui
 to select the text to display based on the `TextRef` given by a parameter and the users Locale.
 
 [#localization-classdiagram-overview]
