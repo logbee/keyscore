@@ -14,6 +14,7 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.directive.{FieldDirective, FieldDirectiveSequence}
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, FIELDS}
+import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic
 import io.logbee.keyscore.pipeline.contrib.filter.textmutator.TextMutatorLogic.{findAndReplaceDirective, toTimestampDirective, trimDirective}
 
 import scala.Int.MaxValue
@@ -131,7 +132,8 @@ object TextMutatorLogic extends Described {
       description = TextRef("textmutator.description"),
       categories = Seq(FIELDS),
       parameters = Seq(directiveSequence),
-      maturity = Experimental
+      maturity = Experimental,
+      icon = Icon.fromClass(classOf[TextMutatorLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.textmutator.TextMutatorLogic",
