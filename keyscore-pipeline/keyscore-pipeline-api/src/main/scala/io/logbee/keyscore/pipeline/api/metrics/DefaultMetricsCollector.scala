@@ -13,8 +13,10 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
 
   override def collect(descriptor: CounterMetricDescriptor): CounterMetricCollector = new CounterMetricCollector {
 
+    private val name: String = s"$uuid.${descriptor.name}"
+
     override def reset(): CounterMetricCollector = {
-      metrics.update(descriptor.name, getOrCreate().update(
+      metrics.update(name, getOrCreate().update(
         _.value := 0,
         _.timestamp := now
       ))
@@ -23,7 +25,7 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
 
     override def increment(): CounterMetricCollector = {
       val metric = getOrCreate()
-      metrics.update(descriptor.name, metric.update(
+      metrics.update(name, metric.update(
         _.value := metric.value + 1,
         _.timestamp := now
       ))
@@ -31,14 +33,16 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
     }
 
     private def getOrCreate(): CounterMetric =
-      metrics.getOrElse(descriptor.name, GaugeMetric(descriptor.name))
+      metrics.getOrElse(name, GaugeMetric(name))
         .asInstanceOf[CounterMetric]
   }
 
   override def collect(descriptor: GaugeMetricDescriptor): GaugeMetricCollector = new GaugeMetricCollector {
 
+    private val name: String = s"$uuid.${descriptor.name}"
+
     override def set(value: Double): GaugeMetricCollector = {
-      metrics.update(descriptor.name, getOrCreate().update(
+      metrics.update(name, getOrCreate().update(
         _.value := value,
         _.timestamp := now
       ))
@@ -47,7 +51,7 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
 
     override def increment(amount: Double = 1.0): GaugeMetricCollector = {
       val metric = getOrCreate()
-      metrics.update(descriptor.name, metric.update(
+      metrics.update(name, metric.update(
         _.value := metric.value + amount,
         _.timestamp := now
       ))
@@ -56,7 +60,7 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
 
     override def decrement(amount: Double = 1.0): GaugeMetricCollector = {
       val metric = getOrCreate()
-      metrics.update(descriptor.name, metric.update(
+      metrics.update(name, metric.update(
         _.value := metric.value - amount,
         _.timestamp := now
       ))
@@ -64,7 +68,7 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
     }
 
     override def min(value: Double): GaugeMetricCollector = {
-      metrics.update(descriptor.name, getOrCreate().update(
+      metrics.update(name, getOrCreate().update(
         _.min := value,
         _.timestamp := now
       ))
@@ -72,7 +76,7 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
     }
 
     override def max(value: Double): GaugeMetricCollector = {
-      metrics.update(descriptor.name, getOrCreate().update(
+      metrics.update(name, getOrCreate().update(
         _.max := value,
         _.timestamp := now
       ))
@@ -80,11 +84,11 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
     }
 
     private def getOrCreate(): GaugeMetric =
-      metrics.getOrElse(descriptor.name, GaugeMetric(descriptor.name))
+      metrics.getOrElse(name, GaugeMetric(name))
       .asInstanceOf[GaugeMetric]
   }
 
-  def get: MetricsCollection = MetricsCollection(uuid.toString, now, metrics.values.toSeq)
+  def get: MetricsCollection = MetricsCollection(metrics.values.toSeq)
 
   private def now: TimestampValue = {
     val now = Timestamps.fromMillis(System.currentTimeMillis())

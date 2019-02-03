@@ -65,7 +65,12 @@ private class SourceController(val source: SourceProxy, val outValve: ValveProxy
     } yield computeSourceState(outValveState, sourceState)
   }
 
-  override def scrape(): Future[MetricsCollection] = source.scrape()
+  override def scrape(): Future[MetricsCollection] = {
+    for {
+      sourceMetrics <- source.scrape()
+      outValveMetrics <- outValve.scrape()
+    } yield sourceMetrics ++ outValveMetrics
+  }
 
   override def clear(): Future[FilterState] = {
     for {

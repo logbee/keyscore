@@ -83,7 +83,11 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
   }
 
   override def scrape(): Future[MetricsCollection] = {
-    filter.scrape()
+    for {
+      inValveMetrics <- inValve.scrape()
+      outValveMetrics <- outValve.scrape()
+      filterMetrics <- filter.scrape()
+    } yield inValveMetrics ++ filterMetrics ++ outValveMetrics
   }
 
   private def determineFilterStatus(in: ValveState, out: ValveState): FilterStatus = {

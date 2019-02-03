@@ -11,6 +11,8 @@ import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Ope
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage.{FirstValveTimestamp, PreviousDatasetThroughputTime, PreviousValveTimestamp, TotalDatasetThroughputTime}
 import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
 import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -48,6 +50,8 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private val insertBuffer = RingBuffer[Dataset](bufferLimit)
     private val totalThroughputTime = MovingMedian(bufferLimit)
     private val throughputTime = MovingMedian(bufferLimit)
+
+    private val metrics = new DefaultMetricsCollector(id)
 
     private var state = ValveState(id, bufferLimit = ringBuffer.limit)
 
@@ -94,6 +98,11 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         val datasets = ringBuffer.last(amount)
         promise.success(datasets)
         log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
+    })
+
+    private val scrapeCallback = getAsyncCallback[Promise[MetricsCollection]]({ promise =>
+      //TODO: Scrape Valve Metrics
+      promise.success(metrics.get)
     })
 
     private val clearCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
@@ -143,6 +152,12 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         val list = datasets
         log.debug(s"Inserting ${list.size} datasets into valve <$id>")
         insertCallback.invoke(promise, list)
+        promise.future
+      }
+
+      override def scrape(): Future[MetricsCollection] = {
+        val promise = Promise[MetricsCollection]()
+        scrapeCallback.invoke(promise)
         promise.future
       }
 

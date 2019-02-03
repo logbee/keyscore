@@ -66,7 +66,12 @@ private class SinkController(val inValve: ValveProxy, val sink: SinkProxy)(impli
     } yield computeSinkState(inValveState, sinkState)
   }
 
-  override def scrape(): Future[MetricsCollection] = sink.scrape()
+  override def scrape(): Future[MetricsCollection] = {
+    for {
+      inValveMetrics <- inValve.scrape()
+      sinkMetrics <- sink.scrape()
+    } yield inValveMetrics ++ sinkMetrics
+  }
 
   override def clear(): Future[FilterState] = {
     for {

@@ -59,8 +59,7 @@ message GaugeMetric {
 
 // tag::MetricsCollection[]
 message MetricsCollection {
-    string uuid = 1;
-    TimestampValue timestamp = 2 [(scalapb.field).no_box = true];
+    option (scalapb.message).extends = "io.logbee.keyscore.model.metrics.BaseMetricsCollection";
     repeated Metric metrics = 3;
 }
 // end::MetricsCollection[]
