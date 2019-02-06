@@ -18,6 +18,7 @@ import {DescriptorResolverService} from "../services/descriptor-resolver.service
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
 import {effects, reducers} from "./index";
 import {DatatableModule} from "./datatable/datatable.module";
+import {AppAuthGuard} from "../app.authguard";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent},
@@ -47,6 +48,7 @@ export const routes: Routes = [
 
     ],
     providers: [
+        AppAuthGuard,
         DescriptorResolverService,
         PipelyKeyscoreAdapter
     ]

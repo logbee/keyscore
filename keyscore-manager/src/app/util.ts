@@ -5,6 +5,7 @@ import {
     ResolvedParameterDescriptor
 } from "./models/parameters/ParameterDescriptor";
 import {Parameter, ParameterJsonClass, ParameterPackagePrefix} from "./models/parameters/Parameter";
+import {KeycloakService} from "keycloak-angular";
 
 export function deepcopy(source: any, target?: any): any {
     return jQuery.extend(true, target == null ? {} : target, source);
@@ -12,10 +13,10 @@ export function deepcopy(source: any, target?: any): any {
 
 export function parameterDescriptorToParameter(parameterDescriptor: ResolvedParameterDescriptor): Parameter {
     let type = parameterDescriptor.jsonClass.toString();
-    type = type.substr(type.lastIndexOf('.') +1 );
-    type = type.substr(0,type.length - "Descriptor".length);
+    type = type.substr(type.lastIndexOf('.') + 1);
+    type = type.substr(0, type.length - "Descriptor".length);
 
-    return {ref:parameterDescriptor.ref, value: null, jsonClass: ParameterJsonClass[type]};
+    return {ref: parameterDescriptor.ref, value: null, jsonClass: ParameterJsonClass[type]};
 }
 
 export function zip(arrays) {
