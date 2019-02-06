@@ -1,11 +1,12 @@
 import {HttpClient} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType, ROOT_EFFECTS_INIT} from "@ngrx/effects";
-import {Action, Store} from "@ngrx/store";
+import {Action, select, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
 import {Observable, of} from "rxjs";
-import {switchMap} from "rxjs/operators";
+import {switchMap, take} from "rxjs/operators";
 import {AppState} from "./app.component";
+import {KeycloakConfig, KeycloakService} from "keycloak-angular";
 
 export const CONFIG_LOADED = "[AppConfig] Loaded";
 export const CONFIG_FAILURE = "[AppConfig] Failure";
@@ -83,6 +84,10 @@ export class AppConfig {
         return this.resolveValue(key.split("."), this.configuration) as boolean;
     }
 
+    public getObject<T>(key: string): T {
+        return this.resolveValue(key.split("."), this.configuration) as T;
+    }
+
     private resolveValue(keys: string[], config: any): any {
         if (keys.length === 1) {
             return config[keys[0]];
@@ -98,7 +103,7 @@ export class AppConfigLoader {
 
     }
 
-    public load() {
+    public load(): Promise<any> {
         return new Promise((resolve, reject) => {
 
             this.http.get("application.conf").subscribe(
@@ -112,6 +117,53 @@ export class AppConfigLoader {
 
                 }
             );
+        });
+    }
+}
+
+@Injectable()
+export class KeycloakConfigLoader {
+    constructor(private store: Store<AppState>) {
+    }
+
+    public isKeycloakActive(): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            this.store.pipe(select(selectAppConfig), take(1)).subscribe(conf =>
+                resolve(conf.getBoolean("keyscore.keycloak.active"))
+            )
+        })
+    }
+
+    public getKeycloakConfig(): Promise<KeycloakConfig> {
+        return new Promise<KeycloakConfig>((resolve, reject) => {
+            this.store.pipe(select(selectAppConfig), take(1)).subscribe(conf =>
+                resolve(conf.getObject<KeycloakConfig>("keyscore.keycloak.config"))
+            );
+        })
+    }
+}
+
+export function initializer(configLoader: AppConfigLoader, keycloakConfigLoader: KeycloakConfigLoader, keycloak: KeycloakService): () => Promise<any> {
+    return (): Promise<any> => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await configLoader.load();
+                const isKeycloakActive = await keycloakConfigLoader.isKeycloakActive();
+                if (isKeycloakActive) {
+                    const keycloakConf = await keycloakConfigLoader.getKeycloakConfig();
+                    await keycloak.init({
+                        config: keycloakConf,
+                        initOptions: {
+                            onLoad: 'login-required',
+                            checkLoginIframe: false
+                        },
+                        bearerExcludedUrls: []
+                    });
+                }
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 }

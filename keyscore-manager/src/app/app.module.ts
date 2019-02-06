@@ -4,14 +4,14 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {BrowserModule} from "@angular/platform-browser";
 import {RouterModule, Routes} from "@angular/router";
 
-import {StoreModule} from "@ngrx/store";
+import {Store, StoreModule} from "@ngrx/store";
 import {StoreRouterConnectingModule} from "@ngrx/router-store";
 import {StoreDevtoolsModule} from "@ngrx/store-devtools";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {AgentsModule} from "./agents/agents.module";
 import {AppComponent} from "./app.component";
-import {AppConfigEffects, AppConfigLoader} from "./app.config";
+import {AppConfigEffects, AppConfigLoader, initializer, KeycloakConfigLoader} from "./app.config";
 import {reducers} from "./app.reducers";
 import {DashboardComponent} from "./dashboard/dashboard.component";
 import {metaReducers} from "./meta.reducers";
@@ -28,6 +28,8 @@ import {ResourcesModule} from "./resources/resources.module";
 import {EffectsModule} from "@ngrx/effects";
 import {SnackbarEffects} from "./common/snackbar/snackbar.effects";
 import {DataSourceFactory} from "./data-source/data-source-factory";
+import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
+import {AppAuthGuard} from "./app.authguard";
 
 
 const routes: Routes = [
@@ -66,7 +68,8 @@ export function HttpLoaderFactory(http: HttpClient) {
             maxAge: 20
         }),
         HeaderBarModule,
-        MaterialModule
+        MaterialModule,
+        KeycloakAngularModule
     ],
     declarations: [
         AppComponent,
@@ -76,13 +79,16 @@ export function HttpLoaderFactory(http: HttpClient) {
     ],
     providers: [
         AppConfigLoader,
+        KeycloakConfigLoader,
+        AppAuthGuard,
         {
             provide: APP_INITIALIZER,
-            useFactory: (configLoader: AppConfigLoader) => () => configLoader.load(),
-            deps: [AppConfigLoader],
+            useFactory: initializer,
+            deps: [AppConfigLoader, KeycloakConfigLoader, KeycloakService],
             multi: true
         },
-        DataSourceFactory
+        DataSourceFactory,
+
     ],
     entryComponents: [
         SettingsComponent

@@ -167,13 +167,13 @@ export class PipelinesEffects {
         map(action => (action as UpdatePipelineAction)),
         mergeMap(action => {
             return forkJoin(
+                this.blueprintService.putPipelineBlueprint(action.pipeline.pipelineBlueprint),
                 ...action.pipeline.blueprints.map(blueprint =>
                     this.blueprintService.putBlueprint(blueprint)
                 ),
                 ...action.pipeline.configurations.map(configuration =>
                     this.configurationService.putConfiguration(configuration)
-                ),
-                this.blueprintService.putPipelineBlueprint(action.pipeline.pipelineBlueprint)
+                )
             ).pipe(map(data => new UpdatePipelineSuccessAction(action.pipeline, action.runAfterUpdate)),
                 catchError(cause => of(new UpdatePipelineFailureAction(cause, action.pipeline))))
         })

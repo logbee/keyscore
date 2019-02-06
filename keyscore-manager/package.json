@@ -41,7 +41,8 @@
     "lodash": "4.17.11",
     "bootstrap": "4.1.3",
     "babel-polyfill": "6.26.0",
-    "ngx-propagation-stop": "1.0.6"
+    "ngx-propagation-stop": "1.0.6",
+    "keycloak-angular": "6.0.0"
   },
   "devDependencies": {
     "ajv": "6.5.3",
