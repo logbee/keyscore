@@ -8,10 +8,11 @@ import com.google.protobuf.Duration
 import com.google.protobuf.util.Timestamps
 import com.google.protobuf.util.Timestamps.between
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open, ValvePosition}
-import io.logbee.keyscore.agent.pipeline.valve.ValveStage.{FirstValveTimestamp, PreviousDatasetThroughputTime, PreviousValveTimestamp, TotalDatasetThroughputTime}
+import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.localization.TextRef
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor, MetricsCollection}
 import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
 
 import scala.collection.mutable
@@ -22,11 +23,83 @@ object ValveStage {
   val PreviousValveTimestamp = "io.logbee.keyscore.agent.pipeline.valve.VALVE_PREVIOUS_TIMESTAMP"
   val PreviousDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_PREVIOUS_THROUGHPUT_TIME"
   val TotalDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_TOTAL_THROUGHPUT_TIME"
+
+  /* Metrics */
+
+  /* Global Metrics */
+  val _pulledDatasets = CounterMetricDescriptor(
+    name = "pulled_datasets",
+    displayName = TextRef("pulledDatasetsName"),
+    description = TextRef("pulledDatasetsDesc")
+  )
+
+  val _drainedDatasets = CounterMetricDescriptor(
+    name = "drained_datasets",
+    displayName = TextRef("drainedDatasetsName"),
+    description = TextRef("drainedDatasetsDesc")
+  )
+
+  val _pushedDatasets = CounterMetricDescriptor(
+    name = "pushed_datasets",
+    displayName = TextRef("pushedDatasetsName"),
+    description = TextRef("pushedDatasetsDesc")
+  )
+
+  val _insertedDatasets = CounterMetricDescriptor(
+    name = "inserted_datasets",
+    displayName = TextRef("insertedDatasetsName"),
+    description = TextRef("insertedDatasetsDesc")
+  )
+
+  val _extractedDatasets = CounterMetricDescriptor(
+    name = "extracted_datasets",
+    displayName = TextRef("extractedDatasetsName"),
+    description = TextRef("extractedDatasetsDesc")
+  )
+
+  val _throughputTime = GaugeMetricDescriptor(
+    name = "throughput_time",
+    displayName = TextRef("throughputTimeName"),
+    description = TextRef("throughputTimeDesc"),
+  )
+
+  val _totalThroughputTime = GaugeMetricDescriptor(
+    name = "total_throughput_time",
+    displayName = TextRef("totalThroughputTimeName"),
+    description = TextRef("totalThroughputTimeDesc")
+  )
+
+  /* Temporary Metrics (until the State changes) */
+  val _temporary_pulledDatasets = CounterMetricDescriptor(
+    name = "temporary_pulled_datasets",
+    displayName = TextRef("temporary_pulledDatasetsName"),
+    description = TextRef("temporary_pulledDatasetsDesc")
+  )
+
+  val _temporary_pushedDatasets = CounterMetricDescriptor(
+    name = "temporary_pushed_datasets",
+    displayName = TextRef("temporary_pushedDatasetsName"),
+    description = TextRef("temporary_pushedDatasetsDesc")
+  )
+
+  val _temporary_insertedDatasets = CounterMetricDescriptor(
+    name = "temporary_inserted_datasets",
+    displayName = TextRef("temporary_insertedDatasetsName"),
+    description = TextRef("temporary_insertedDatasetsDesc")
+  )
+
+  val _temporary_extractedDatasets = CounterMetricDescriptor(
+    name = "temporary_extracted_datasets",
+    displayName = TextRef("temporary_extractedDatasetsName"),
+    description = TextRef("temporary_extractedDatasetsDesc")
+  )
+
 }
 
 /**
   * The '''ValveStage''' is a Stage for internal operations for a ~Filter~.
   * It provides  a number of various methods which enable pausing draining inserting extracting etc.
+  *
   * @param bufferLimit
   * @param dispatcher
   */
@@ -81,6 +154,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         pullIn()
         promise.success(state)
         log.debug(s"Valve <$id> does now drain.")
+
       case _ =>
     })
 
@@ -89,6 +163,12 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         datasets.foreach(ringBuffer.push)
         update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         promise.success(state)
+
+        datasets.map(_ => {
+          metrics.collect(_insertedDatasets).increment()
+          metrics.collect(_temporary_insertedDatasets).increment()
+        })
+
         pushOut()
         log.debug(s"Inserted ${datasets.size} datasets into valve <$id>")
     })
@@ -97,12 +177,18 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       case (promise, amount) =>
         val datasets = ringBuffer.last(amount)
         promise.success(datasets)
+
+        datasets.map(_ => {
+          metrics.collect(_extractedDatasets).increment()
+          metrics.collect(_temporary_extractedDatasets).increment()
+        })
+
         log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
 
     private val scrapeCallback = getAsyncCallback[Promise[MetricsCollection]]({ promise =>
-      //TODO: Scrape Valve Metrics
       promise.success(metrics.get)
+      log.debug(s"Scraped a MetricCollection with ${metrics.get.metrics.size} metrics from valve <$id>")
     })
 
     private val clearCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
@@ -201,13 +287,18 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private def pushOut(): Unit = {
 
       if (isAvailable(out) && !isDraining) {
-        val dataset = if (insertBuffer.isNonEmpty) Option(insertBuffer.pull()) else if(ringBuffer.isNonEmpty) Option(ringBuffer.pull()) else None
+        val dataset = if (insertBuffer.isNonEmpty) Option(insertBuffer.pull()) else if (ringBuffer.isNonEmpty) Option(ringBuffer.pull()) else None
 
-        dataset.foreach( dataset => {
+        dataset.foreach(dataset => {
           val labels = mutable.Map.empty[String, Label]
-          compute(totalThroughputTime, FirstValveTimestamp, TotalDatasetThroughputTime, dataset, labels)
-          compute(throughputTime, PreviousValveTimestamp, PreviousDatasetThroughputTime, dataset, labels)
+          val ttt = compute(totalThroughputTime, FirstValveTimestamp, TotalDatasetThroughputTime, dataset, labels)
+          val tt= compute(throughputTime, PreviousValveTimestamp, PreviousDatasetThroughputTime, dataset, labels)
           push(out, withNewLabels(dataset, labels.toMap))
+
+          metrics.collect(_totalThroughputTime).set(durationToNanos(ttt))
+          metrics.collect(_throughputTime).set(durationToNanos(tt))
+          metrics.collect(_pushedDatasets).increment()
+          metrics.collect(_temporary_pushedDatasets).increment()
         })
       }
     }
@@ -215,31 +306,41 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private def pullIn(): Unit = {
       if (!hasBeenPulled(in)) {
         pull(in)
+
+        metrics.collect(_pulledDatasets).increment()
+        metrics.collect(_temporary_pulledDatasets).increment()
       }
     }
 
     private def update(newState: ValveState): ValveState = {
       if (!state.equals(newState)) {
         state = newState
+
+        metrics.collect(_temporary_pulledDatasets).reset()
+        metrics.collect(_temporary_pushedDatasets).reset()
+        metrics.collect(_temporary_insertedDatasets).reset()
+        metrics.collect(_temporary_extractedDatasets).reset()
       }
       state
     }
 
-    private def compute(median: MovingMedian, timestampLabel: String, throughputLabel: String, dataset: Dataset, labels: mutable.Map[String, Label]): Unit = {
+    private def compute(median: MovingMedian, timestampLabel: String, throughputLabel: String, dataset: Dataset, labels: mutable.Map[String, Label]): MovingMedian = {
       val newTimestamp = Timestamps.fromMillis(System.currentTimeMillis())
+
       labels.put(timestampLabel, Label(timestampLabel, TimestampValue(newTimestamp)))
+
       dataset.metadata.labels.find(_.name == timestampLabel) match {
         case Some(Label(_, timestamp: TimestampValue)) =>
           val duration = between(timestamp, newTimestamp)
           labels.put(throughputLabel, Label(throughputLabel, DurationValue(duration)))
           median + duration
+
         case _ =>
           median + Duration.newBuilder().build()
       }
     }
 
     private def withNewLabels(dataset: Dataset, labels: Map[String, Label]) = {
-
       val newLabels = allLabelsExceptFirstValveTimestampIfItIsAlreadyPresent(labels, dataset)
       val retainedLabels = allOtherLabelsAndFirstValveTimestampIfPresent(dataset, labels)
 
@@ -248,6 +349,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def allLabelsExceptFirstValveTimestampIfItIsAlreadyPresent(labels: Map[String, Label], dataset: Dataset) = {
       val isFirstValveTimestampPresent = dataset.metadata.labels.exists(label => label.name == FirstValveTimestamp)
+
       labels.values.filter(label => {
         label.name != FirstValveTimestamp || label.name == FirstValveTimestamp && !isFirstValveTimestampPresent
       })
@@ -258,10 +360,12 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     }
 
     private def isOpen: Boolean = state.position == Open || state.position == Drain
+
     private def isDraining: Boolean = state.position == Drain
 
     private def isNotDraining: Boolean = state.position == Open || state.position == Closed
 
     private def durationToNanos(duration: Duration): Long = duration.getSeconds * 1000000L + duration.getNanos
   }
+
 }
