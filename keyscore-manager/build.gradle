@@ -10,6 +10,10 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
+ext {
+    dockerImageName = "$dockerImageHost/$dockerImageNamespace/${project.name}"
+}
+
 node {
     version = '8.9.4'
     download = true
