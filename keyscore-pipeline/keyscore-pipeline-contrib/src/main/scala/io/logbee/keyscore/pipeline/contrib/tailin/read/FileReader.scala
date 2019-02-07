@@ -160,11 +160,11 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
             
             charBuffer.position(charBuffer.position - 1)
             
-            val firstNewlineCharPosWithinBuffer = charBuffer.position
+            val firstNewlineCharPosWithinBuffer = CharPos(charBuffer.position)
             
-            val charPosEndOfNewlines = CharBufferUtil.getStartOfNextLine(charBuffer, CharPos(charBuffer.position))
+            val charPosEndOfNewlines = CharBufferUtil.getStartOfNextLine(charBuffer, firstNewlineCharPosWithinBuffer)
             val stringWithNewlines = CharBufferUtil.getBufferSectionAsString(charBuffer, charCompletedPositionWithinBuffer, charPosEndOfNewlines - charCompletedPositionWithinBuffer)
-            val string = stringWithNewlines.substring(0, firstNewlineCharPosWithinBuffer - charCompletedPositionWithinBuffer.value)
+            val string = stringWithNewlines.substring(0, (firstNewlineCharPosWithinBuffer - charCompletedPositionWithinBuffer).value)
             
             charCompletedPositionWithinBuffer += CharPos(stringWithNewlines.length)
             byteCompletedPositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
@@ -212,8 +212,8 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
     tearDown()
   }
   
+  
   def tearDown() = {
-    
     if (fileReadChannel != null) {
       fileReadChannel.close()
     }

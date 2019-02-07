@@ -26,12 +26,11 @@ import java.nio.ByteBuffer
 @RunWith(classOf[JUnitRunner])
 class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory with ParallelTestExecution {
   
-  
   val defaultBufferSize = 1024
   
   
   "A FileReader" - {
-    val charsetNames = Seq("UTF-8", "UTF-16LE", "UTF-32", "ISO-8859-1", "Windows-1252")
+    val charsetNames = Seq("UTF-8", "UTF-16LE", "UTF-32", "ISO-8859-1", "Windows-1252") //test with either "UTF-16LE" or "UTF-16BE", not "UTF-16". Otherwise our test setup writes a BOM with every string written to file. 
     charsetNames.foreach {
       charsetName => {
         val charset = Charset.forName(charsetName)
@@ -40,7 +39,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
           charset.encode(string).limit
         }
         
-        "with charset " + charsetName + "" - {
+        "with charset " + charsetName - {
           "should read the contents of" - {
             "its file" - {
               "line by line, if line-wise reading is active," - {
@@ -173,7 +172,6 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                     mockCallback expects FileReadData(line3, logFile, byteLen(line1 + newline + line2 + newline + line3), logFile.lastModified)
                   }
                   
-                  
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified))
                 }
                 
@@ -184,9 +182,9 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val _bufferSize = 1024
                   val fileReader = new FileReader(logFile, null, _bufferSize, charset, lineReadMode)
                   
-                  val line1 = new String(new Array[Byte](12))
-                  val line2 = new String(new Array[Byte](34567))
-                  val line3 = new String(new Array[Byte](89))
+                  val line1 = charset.decode(ByteBuffer.allocate(12)).toString
+                  val line2 = charset.decode(ByteBuffer.allocate(34567)).toString
+                  val line3 = charset.decode(ByteBuffer.allocate(89)).toString
                   val newline = "\n"
                   val text = line1 + newline + line2 + newline + line3
                   
