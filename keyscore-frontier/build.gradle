@@ -15,6 +15,7 @@ repositories {
 
 project.ext {
     distributionDir = "$buildDir/distribution"
+    dockerImageName = "$dockerImageHost/$dockerImageNamespace/${project.name}"
 }
 
 dependencies {
