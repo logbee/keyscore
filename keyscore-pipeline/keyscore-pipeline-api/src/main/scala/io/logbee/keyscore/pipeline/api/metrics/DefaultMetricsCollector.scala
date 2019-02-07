@@ -33,7 +33,7 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
     }
 
     private def getOrCreate(): CounterMetric =
-      metrics.getOrElse(name, GaugeMetric(name))
+      metrics.getOrElse(name, CounterMetric(name))
         .asInstanceOf[CounterMetric]
   }
 
