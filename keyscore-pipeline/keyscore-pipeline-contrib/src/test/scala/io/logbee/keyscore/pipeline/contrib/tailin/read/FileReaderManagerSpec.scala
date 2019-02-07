@@ -17,6 +17,8 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import java.nio.charset.Charset
+
 @RunWith(classOf[JUnitRunner])
 class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with BeforeAndAfter {
   
@@ -33,7 +35,7 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
     TestUtil.recursivelyDelete(watchDir)
   }
   
-  
+  val charset = Charset.forName("UTF-8")
   
   "A FileReaderManager should" - {
     
@@ -65,8 +67,9 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
           .expects(testFile)
           .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
-        callback.expects(FileReadData(line1, testFile, line1.getBytes.length + "\n".length, testFile.lastModified))
-        callback.expects(FileReadData(line2, testFile, string.getBytes.length, testFile.lastModified))
+        
+        callback.expects(FileReadData(line1, testFile, charset.encode(line1).limit + "\n".length, testFile.lastModified))
+        callback.expects(FileReadData(line2, testFile, charset.encode(string).limit, testFile.lastModified))
       }
       
       fileReaderManager.getNextString(callback)

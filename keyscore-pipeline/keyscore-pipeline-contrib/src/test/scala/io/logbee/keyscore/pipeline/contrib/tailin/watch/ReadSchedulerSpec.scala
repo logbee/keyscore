@@ -125,14 +125,14 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
 		      .expects(logFile)
 		      .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0))
 		    
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFileData.getBytes.length,  logFile.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile.length,  logFile.lastModified))
         
         
         (readPersistence.getCompletedRead _)
 		      .expects(logFile1)
 		      .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0))
 		    
-        (readSchedule.push _).expects(ReadScheduleItem(logFile1, startPos=0, endPos=logFile1Data.getBytes.length, logFile1.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile1, startPos=0, endPos=logFile1.length, logFile1.lastModified))
         
         
         
@@ -161,7 +161,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
           .expects(logFile)
           .returning(FileReadRecord(previousReadPosition, previousReadTimestamp=0))
         
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFileData.getBytes.length, logFile.lastModified))
+        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile.length, logFile.lastModified))
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
