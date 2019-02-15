@@ -20,6 +20,7 @@ ext {
         akka_persistence: [
             "com.typesafe.akka:akka-persistence_2.12:$akkaVersion",
             "com.typesafe.akka:akka-persistence-cassandra_2.12:0.92",
+            "com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1"
         ],
         akka_cluster: [
             "com.typesafe.akka:akka-cluster_2.12:$akkaVersion",
@@ -54,7 +55,6 @@ ext {
             "com.typesafe.akka:akka-testkit_2.12:$akkaVersion",
             "com.typesafe.akka:akka-stream-testkit_2.12:$akkaVersion",
             "com.typesafe.akka:akka-http-testkit_2.12:$akkaHttpVersion",
-            "com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1"
         ],
         junit: [
             "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion",
