@@ -4,7 +4,7 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.{Dataset, Record}
 import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
@@ -72,10 +72,10 @@ class GreedyJsonExtractorLogic(parameters: LogicParameters, shape: FlowShape[Dat
   }
 
   override def configure(configuration: Configuration): Unit = {
-    fieldName = configuration.getValueOrDefault(fieldNameParameter, fieldName)
-    prefix = configuration.getValueOrDefault(prefixParameter, prefix)
-    prefix = if (prefix.nonEmpty) prefix else prefixParameter.defaultValue
-    removeField = configuration.getValueOrDefault(removeFieldParameter, removeField)
+    fieldName = configuration.getValueOrDefault(GreedyJsonExtractorLogic.fieldNameParameter, fieldName)
+    prefix = configuration.getValueOrDefault(GreedyJsonExtractorLogic.prefixParameter, prefix)
+    prefix = if (prefix.nonEmpty) prefix else GreedyJsonExtractorLogic.prefixParameter.defaultValue
+    removeField = configuration.getValueOrDefault(GreedyJsonExtractorLogic.removeFieldParameter, removeField)
   }
 
   override def onPull(): Unit = {
