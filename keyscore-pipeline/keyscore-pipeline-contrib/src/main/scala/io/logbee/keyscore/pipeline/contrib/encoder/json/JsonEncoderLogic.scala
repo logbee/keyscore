@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.encoder
+package io.logbee.keyscore.pipeline.contrib.encoder.json
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging

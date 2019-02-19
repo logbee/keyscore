@@ -1,11 +1,11 @@
-package io.logbee.keyscore.pipeline.contrib.decoder
+package io.logbee.keyscore.pipeline.contrib.decoder.json
 
 import io.logbee.keyscore.model.data._
 import org.json4s.JsonAST._
+import org.json4s.native.JsonParser.parse
 
 import scala.collection.mutable
 import scala.util.{Success, Try}
-import org.json4s.native.JsonParser.parse
 
 object JsonDecoderUtil {
 

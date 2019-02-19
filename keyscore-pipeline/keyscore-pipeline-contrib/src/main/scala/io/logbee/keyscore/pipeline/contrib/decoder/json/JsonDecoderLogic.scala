@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.decoder
+package io.logbee.keyscore.pipeline.contrib.decoder.json
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
@@ -48,7 +48,7 @@ object JsonDecoderLogic extends Described {
       icon = Icon.fromClass(classOf[JsonDecoderLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.JsonDecoder",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.json.JsonDecoder",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
