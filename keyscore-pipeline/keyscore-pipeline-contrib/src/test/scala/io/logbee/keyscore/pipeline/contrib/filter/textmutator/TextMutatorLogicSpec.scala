@@ -41,6 +41,12 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
       Field("timestampWZone", TextValue("2018-12-24T10:15:30+01:00"))
     ))
 
+    val sampleData2 = Dataset(Record(
+      Field("Data.1.@test", TextValue(" test ")),
+      Field("False.2.@test", TextValue(" super ")),
+      Field("Data.3.@test", TextValue(" test_2 "))
+    ))
+
     "when configured with a trim directive" - {
 
       "should remove leading and trailing spaces of the configured field" in new TestStream {
@@ -229,6 +235,41 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
               case Field("timestampWZone", TextValue(value)) =>
                 value shouldBe "2018-12-24T10:15:30+01:00"
             }
+          }
+        }
+      }
+    }
+
+    "when configured with fieldpattern" - {
+      "should apply directive to specified field" in new TestStream {
+
+        whenReady(filterFuture) { filter =>
+
+          val configuration = Configuration(FieldDirectiveSequenceParameter(
+            TextMutatorLogic.directiveSequence.ref, Seq(
+              FieldDirectiveSequenceConfiguration(
+                fieldName = "Data\\.[0-9]*\\.@test",
+                directives = Seq(
+                  DirectiveConfiguration(
+                    TextMutatorLogic.trimDirective.ref
+                  )
+                )
+              )
+            )
+          ))
+
+          whenReady(filter.configure(configuration)) { _ =>
+            source sendNext sampleData2
+
+            sink request 1
+            val result = sink.requestNext()
+            val record = result.records.head
+
+            record.fields should contain only(
+              Field("Data.1.@test", TextValue("test")),
+              Field("False.2.@test", TextValue(" super ")),
+              Field("Data.3.@test", TextValue("test_2"))
+            )
           }
         }
       }

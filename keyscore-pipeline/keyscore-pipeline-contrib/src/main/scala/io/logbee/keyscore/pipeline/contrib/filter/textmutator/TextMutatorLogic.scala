@@ -182,7 +182,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
         case (result, (record, sequences)) =>
           result += sequences.foldLeft(record) { case (record, sequence) =>
             record.update(_.fields := record.fields.map {
-              case field@Field(sequence.fieldName, TextValue(_)) =>
+              case field @ Field(name, TextValue(_)) if sequence.fieldName.r.pattern.matcher(name).matches() =>
                 sequence.directives.foldLeft(field) { case (field, directive) =>
                   directive.invoke(field)
                 }
