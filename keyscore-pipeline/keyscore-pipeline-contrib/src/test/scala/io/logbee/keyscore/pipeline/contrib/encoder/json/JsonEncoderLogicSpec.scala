@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.encoder
+package io.logbee.keyscore.pipeline.contrib.encoder.json
 
 import java.util.UUID.randomUUID
 
@@ -9,7 +9,6 @@ import io.logbee.keyscore.model.configuration.{ChoiceParameter, Configuration, T
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
-import io.logbee.keyscore.pipeline.contrib.encoder.JsonEncoderLogic.{KEEP_BATCH, SPLIT_BATCH}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -47,7 +46,7 @@ class JsonEncoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with
 
   "A JsonEncoder" - {
 
-    "should encode _all_ records into json" in new TestStream(strategy = KEEP_BATCH) {
+    "should encode _all_ records into json" in new TestStream(strategy = JsonEncoderLogic.KEEP_BATCH) {
 
       whenReady(filterFuture) { filter =>
 
@@ -64,7 +63,7 @@ class JsonEncoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with
       }
     }
 
-    "should encode _each_ record into json" in new TestStream(strategy = SPLIT_BATCH) {
+    "should encode _each_ record into json" in new TestStream(strategy = JsonEncoderLogic.SPLIT_BATCH) {
 
       whenReady(filterFuture) { filter =>
 

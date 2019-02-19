@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.decoder
+package io.logbee.keyscore.pipeline.contrib.decoder.json
 
 import java.util.UUID.randomUUID
 

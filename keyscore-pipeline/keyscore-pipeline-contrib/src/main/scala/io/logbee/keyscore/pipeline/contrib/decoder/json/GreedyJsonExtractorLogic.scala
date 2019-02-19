@@ -1,19 +1,16 @@
-package io.logbee.keyscore.pipeline.contrib.decoder
-
-import java.awt.Color
+package io.logbee.keyscore.pipeline.contrib.decoder.json
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.{Dataset, Record}
+import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories._
-import io.logbee.keyscore.pipeline.contrib.decoder.GreedyJsonExtractorLogic.{fieldNameParameter, prefixParameter, removeFieldParameter}
 
 object GreedyJsonExtractorLogic extends Described {
 
@@ -58,7 +55,7 @@ object GreedyJsonExtractorLogic extends Described {
       icon = Icon.fromClass(classOf[GreedyJsonExtractorLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.GreedyJsonExtractor",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.json.GreedyJsonExtractor",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
@@ -66,9 +63,9 @@ object GreedyJsonExtractorLogic extends Described {
 
 class GreedyJsonExtractorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private var prefix = prefixParameter.defaultValue
-  private var fieldName = fieldNameParameter.defaultValue
-  private var removeField = removeFieldParameter.defaultValue
+  private var prefix = GreedyJsonExtractorLogic.prefixParameter.defaultValue
+  private var fieldName = GreedyJsonExtractorLogic.fieldNameParameter.defaultValue
+  private var removeField = GreedyJsonExtractorLogic.removeFieldParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
