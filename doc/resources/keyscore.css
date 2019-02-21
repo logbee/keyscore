@@ -1,0 +1,61 @@
+@import "asciidoctor.css";
+
+body {
+    background: #f3f7f8;
+    font-family: "ProximaNova", Arial, Helvetica, sans-serif;
+}
+
+h1, h2, h3, h4, h5 {
+    color: #15a9ce;
+    font-weight: bold
+}
+
+h1 {
+    font-size: 1.8em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+h3 {
+    font-size: 1.25em
+}
+
+h4 {
+    font-size: 1.125em
+}
+
+h5 {
+    font-size: 1.00em
+}
+
+a {
+    color: #ffa94b;
+    font-weight: bold
+}
+
+a:hover {
+    color: #ff931e;
+}
+
+#toc {
+    background: white;
+}
+
+#toc a {
+    color: #0b5567;
+    font-weight: normal;
+}
+
+#toc a:hover {
+    color: #15a9ce;
+}
+
+.listingblock {
+    background-color: white;
+}
+
+pre.CodeRay.highlight {
+    background-color: white;
+}
