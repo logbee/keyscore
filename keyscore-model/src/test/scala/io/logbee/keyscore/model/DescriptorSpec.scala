@@ -37,7 +37,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
       val textParameterDisplayName = TextRef("foo")
       val textParameterDescription = TextRef("bar")
 
-      val textParameter = TextParameterDescriptor("example.filter.simpleText", ParameterInfo(textParameterDisplayName, textParameterDescription), defaultValue = "Hello World", validator = StringValidator("Hello*", ExpressionType.Glob))
+      val textParameter = TextParameterDescriptor("example.filter.simpleText", ParameterInfo(textParameterDisplayName, textParameterDescription), defaultValue = "Hello World", validator = StringValidator("Hello.*"))
 
       val booleanParameterRef = ParameterRef("example.filter.theTruth")
       val booleanParameter = BooleanParameterDescriptor(booleanParameterRef, ParameterInfo(TextRef("booleanParameterDisplayName"), TextRef("booleanParameterDescription")), defaultValue = true)
@@ -95,7 +95,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
               patternParameter, directiveSequenceParameter,
               FieldNameListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
                 ParameterInfo("listParameterDisplayName", "listParameterDescription"),
-                FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*", ExpressionType.RegEx)),
+                FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*")),
                 min = 1, max = Int.MaxValue)
             ))
           ),

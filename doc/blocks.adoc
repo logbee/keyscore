@@ -272,6 +272,18 @@ include::{descriptors_base}/descriptor.proto[tags=DecimalParameterDescriptor]
 include::{descriptors_base}/descriptor.proto[tags=FieldNameParameterDescriptor]
 ----
 
+=== Field-Name-Pattern Parameter ===
+
+==== When to use ====
+
+==== When NOT to use ====
+
+==== Specification ====
+[source]
+----
+include::{descriptors_base}/descriptor.proto[tags=FieldNamePatternParameterDescriptor]
+----
+
 === Field Parameter ===
 
 ==== When to use ====

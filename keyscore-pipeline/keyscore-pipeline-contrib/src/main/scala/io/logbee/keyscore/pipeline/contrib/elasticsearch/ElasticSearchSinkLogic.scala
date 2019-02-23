@@ -10,7 +10,6 @@ import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.Hashing._
@@ -35,7 +34,6 @@ object ElasticSearchSinkLogic extends Described {
     ParameterInfo(TextRef("host"), TextRef("hostDescription")),
     validator = StringValidator(
       expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
-      expressionType = RegEx
     ),
     defaultValue = "example.com",
     mandatory = true

@@ -26,7 +26,6 @@ object FingerprintLogic extends Described {
     ),
     validator = StringValidator(
       expression = ".*",
-      expressionType = ExpressionType.Glob
     ),
     hint = FieldNameHint.AbsentField
   )
