@@ -103,6 +103,14 @@ configure ([
         }
     }
 
+    compileScala {
+        scalaCompileOptions.additionalParameters = [
+            "-deprecation",
+            "-feature",
+            "-Ywarn-unused-import"
+        ]
+    }
+    
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
