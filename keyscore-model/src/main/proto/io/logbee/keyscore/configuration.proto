@@ -32,14 +32,15 @@ message Parameter {
         NumberParameter number = 4;
         DecimalParameter decimal = 5;
         FieldNameParameter fieldName = 6;
-        FieldParameter field = 7;
-        TextListParameter textList = 8;
-        FieldNameListParameter fieldNameList = 9;
-        FieldListParameter fieldList = 10;
-        ChoiceParameter choice = 11;
-        FieldDirectiveSequenceParameter directiveSequences = 12;
-        FieldDirectiveSequenceConfiguration directives = 13;
-        DirectiveConfiguration directive = 14;
+        FieldNamePatternParameter fieldPatternName = 7;
+        FieldParameter field = 8;
+        TextListParameter textList = 9;
+        FieldNameListParameter fieldNameList = 10;
+        FieldListParameter fieldList = 11;
+        ChoiceParameter choice = 12;
+        FieldDirectiveSequenceParameter directiveSequences = 13;
+        FieldDirectiveSequenceConfiguration directives = 14;
+        DirectiveConfiguration directive = 15;
     }
 }
 
@@ -78,6 +79,12 @@ message FieldNameParameter {
     string value = 2;
 }
 
+message FieldNamePatternParameter {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    string value = 2;
+    FieldNamePatternParameterDescriptor.PatternType patternType = 3;
+}
+
 message FieldParameter {
     ParameterRef ref = 1 [(scalapb.field).no_box = true];
     Field value = 2;
@@ -109,7 +116,7 @@ message FieldDirectiveSequenceParameter {
 }
 
 message FieldDirectiveSequenceConfiguration {
-    string fieldName = 1;
+    string id = 1;
     ParameterSet parameters = 2 [(scalapb.field).no_box = true];
     repeated DirectiveConfiguration directives = 3;
 }
