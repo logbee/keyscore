@@ -20,7 +20,6 @@ import io.logbee.keyscore.model.descriptor.Category
 import io.logbee.keyscore.model.descriptor.Choice
 import io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor
 import io.logbee.keyscore.model.descriptor.Descriptor
-import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor.FieldNameHint
 import io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor
 import io.logbee.keyscore.model.descriptor.Icon
@@ -44,11 +43,11 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderManager
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
+import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherConfiguration
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadSchedulerProvider
-import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
 
 
 object TailinSourceLogic extends Described {
@@ -227,11 +226,8 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     }
     
     
-    {
-      val completedPersistence = new RAMPersistenceContext()
-      val committedPersistence = new FilePersistenceContext(_persistenceFile)
-      readPersistence = new ReadPersistence(completedPersistence, committedPersistence)
-    }
+    readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
+                                          committedPersistence = new FilePersistenceContext(_persistenceFile))
     
     val bufferSize = 1024
 
@@ -316,4 +312,3 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     log.info("Tailin source is stopping.")
   }
 }
-

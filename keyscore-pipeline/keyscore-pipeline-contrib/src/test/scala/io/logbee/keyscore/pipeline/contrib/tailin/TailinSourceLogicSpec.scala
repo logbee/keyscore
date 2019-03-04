@@ -272,7 +272,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       for (i <- 1 to numberOfLines) {
         sink.request(1)
         
-        val datasetText = sink.expectNext(10.seconds)
+        val datasetText = sink.expectNext(5.seconds)
         
         concatenatedString += datasetText.records.head.fields.head.value.asInstanceOf[TextValue].value + "\n"
       }

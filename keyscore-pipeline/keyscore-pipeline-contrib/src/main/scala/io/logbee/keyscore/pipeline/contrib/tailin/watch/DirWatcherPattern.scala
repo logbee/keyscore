@@ -7,7 +7,6 @@ import java.nio.file.Paths
 
 object DirWatcherPattern {
   
-  
   def extractInvariableDir(filePattern: String): Path = {
     
     val variableIndex = findFirstVariableIndex(filePattern)

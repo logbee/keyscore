@@ -56,5 +56,4 @@ class RotationHelperSpec extends RotateFilesSetup with Matchers {
       }
     }
   }
-  
 }

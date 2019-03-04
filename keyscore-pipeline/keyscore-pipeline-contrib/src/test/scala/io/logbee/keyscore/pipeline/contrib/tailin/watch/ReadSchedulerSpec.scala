@@ -115,7 +115,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     }
     
     
-    "schedule only reads for files, when they haven't already been completed" in
+    "schedule only reads for files, which haven't already been completely read" in
     new ReadSchedulerSetup with RotateFiles {
       
 		  val readPersistence = mock[ReadPersistence]
@@ -169,7 +169,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     }
     
     
-    "schedule reads from the last completed read position, even if a read to a further position has already been scheduled (but not completed)" in
+    "schedule reads from the last completed read position, even if a read to a further position has already been scheduled (but not completed)" in //our ReadSchedule works like a stack, so the previously scheduled entry will be encountered later and then get ignored
     new ReadSchedulerSetup {
       
       val readPersistence = mock[ReadPersistence]

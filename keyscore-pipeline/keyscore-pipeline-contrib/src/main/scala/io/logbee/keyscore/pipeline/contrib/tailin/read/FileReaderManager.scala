@@ -2,18 +2,16 @@ package io.logbee.keyscore.pipeline.contrib.tailin.read
 
 import java.io.File
 
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 
 
 class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: ReadSchedule, readPersistence: ReadPersistence) {
   
-  val map = Map[File, FileReader]()
+  private val fileReaders = Map[File, FileReader]()
   
   private def getFileReader(fileToRead: File): FileReader = {
-    var fileReaderOpt = map.get(fileToRead)
+    var fileReaderOpt = fileReaders.get(fileToRead)
     
     var fileReader: FileReader = null
     if (fileReaderOpt == Some) {
@@ -21,7 +19,7 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
     }
     else { //create a new fileReader, if there's not yet one in the map
       fileReader = fileReaderProvider.create(fileToRead)
-      map + (fileToRead -> fileReader)
+      fileReaders + (fileToRead -> fileReader)
     }
     
     fileReader

@@ -1,8 +1,10 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import java.io.File
+
+import scala.reflect.runtime.universe.typeTag
+
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
-import scala.reflect.runtime.universe._
 
 
 class ReadPersistence(completedPersistence: PersistenceContext, committedPersistence: PersistenceContext) {
