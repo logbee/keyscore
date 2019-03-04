@@ -148,20 +148,22 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                 }
                 
                 
-                "if the contents of the file are longer than one buffer's length" ignore //TEST
+                "if the contents of the file are longer than one buffer's length" in
                 new LogFile {
                   
-                  val _bufferSize = 1024
-                  val fileReader = new FileReader(logFile, null, _bufferSize, charset, lineReadMode)
-                  
-                  
-                  val line1 = charset.decode(ByteBuffer.allocate(512)).toString
-                  val line2 = charset.decode(ByteBuffer.allocate(52)).toString
-                  val line3 = charset.decode(ByteBuffer.allocate(1023)).toString
+                  val line1 = "äbcdefg"
+                  val line2 = "hij"
+                  val line3 = "klmnö"
                   val newline = "\n"
                   val text = line1 + newline + line2 + newline + line3
                   
                   TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING, charset)
+                  
+                  
+                  
+                  val _bufferSize = byteLen(text) / 2
+                  
+                  val fileReader = new FileReader(logFile, null, _bufferSize, charset, lineReadMode)
                   
                   
                   val mockCallback = mockFunction[FileReadData, Unit]
@@ -176,19 +178,23 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                 }
                 
                 
-                "if the file contains a line that is longer than the buffer" ignore //TEST
+                
+                "if the file contains a line that is longer than the buffer" in
                 new LogFile {
                   
-                  val _bufferSize = 1024
-                  val fileReader = new FileReader(logFile, null, _bufferSize, charset, lineReadMode)
-                  
-                  val line1 = charset.decode(ByteBuffer.allocate(12)).toString
-                  val line2 = charset.decode(ByteBuffer.allocate(34567)).toString
-                  val line3 = charset.decode(ByteBuffer.allocate(89)).toString
+                  val line1 = "äbcdefg"
+                  val line2 = "hij"
+                  val line3 = "klmnö"
                   val newline = "\n"
                   val text = line1 + newline + line2 + newline + line3
                   
                   TestUtil.writeStringToFile(logFile, text, StandardOpenOption.TRUNCATE_EXISTING, charset)
+                  
+                  
+                  
+                  val _bufferSize = byteLen(line1) / 2
+                  
+                  val fileReader = new FileReader(logFile, null, _bufferSize, charset, lineReadMode)
                   
                   
                   val mockCallback = mockFunction[FileReadData, Unit]

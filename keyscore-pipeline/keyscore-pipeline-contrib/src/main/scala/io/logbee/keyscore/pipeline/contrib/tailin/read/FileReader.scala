@@ -26,6 +26,11 @@ case class FileReadRecord(previousReadPosition: Long, previousReadTimestamp: Lon
 
 
 object FileReader {
+  
+  /**
+   * These are basically wrappers around Longs/Ints to prevent accidentally adding char positions onto byte positions (or vice versa).
+   * UTF-8, for example can have 1 to 4 bytes per char.
+   */
   case class BytePos(var value: Long) {
     def <(other: BytePos): Boolean = {
       this.value < other.value
@@ -46,8 +51,8 @@ object FileReader {
       this.value < other.value
     }
     
-    def +=(other: CharPos): Unit = {
-      this.value += other.value
+    def +(other: CharPos): CharPos = {
+      CharPos(this.value + other.value)
     }
     
     def -(other: CharPos): CharPos = {
@@ -96,7 +101,8 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
     
     while (bufferStartPos < readEndPos) {
       
-      //we're reading and persisting byte positions, because the variable length of encoded chars would mean that we can't resume reading at the same position without decoding every single char in the whole char sequence (file) before it
+      //we're reading and persisting byte positions, because the variable byte-length of encoded chars means
+      //that we can't resume reading at the same position without decoding every single char in the whole char sequence (file) before it
       
       byteBuffer.clear()
       val newBufferLimit = (readEndPos - bufferStartPos).value.asInstanceOf[Int]
@@ -119,7 +125,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
       if (coderResult.isMalformed) {
         
         if (byteBuffer.position + coderResult.length == byteBuffer.capacity) { //characters are malformed because of the end of the buffer
-          bytesRead = BytePos(bytesRead.value - coderResult.length)
+          bytesRead -= BytePos(coderResult.length)
         }
         else { //actual error case
           throw new CharacterCodingException
@@ -129,7 +135,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
       
       charBuffer.flip()
       
-      processBufferContents(charBuffer, callback, bufferStartPos, bufferStartPos + bytesRead, readScheduleItem.writeTimestamp)
+      processBufferContents(charBuffer, callback, bufferStartPos, readEndPos, readScheduleItem.writeTimestamp)
       
       
       bufferStartPos += bytesRead
@@ -170,7 +176,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
             byteCompletedPositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
             
             
-            doCallback(callback, string, bufferStartPositionInFile + byteCompletedPositionWithinBuffer /*readEndPosition*/, callbackWriteTimestamp)
+            doCallback(callback, string, bufferStartPositionInFile + byteCompletedPositionWithinBuffer, callbackWriteTimestamp)
             
             charBuffer.position(charPosEndOfNewlines.value)
           }
@@ -189,10 +195,11 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
       val string = CharBufferUtil.getBufferSectionAsString(charBuffer, CharPos(charBuffer.position), remainingNumberOfCharsInBuffer)
       byteCompletedPositionWithinBuffer += BytePos(charset.encode(string).limit)
       
-      if (charBuffer.limit < charBuffer.capacity) { //end of file
-        doCallback(callback, string, /*bufferStartPositionInFile + byteCompletedPositionWithinBuffer*/ readEndPosition, callbackWriteTimestamp) //write the remaining bytes
+      
+      if (bufferStartPositionInFile + byteCompletedPositionWithinBuffer == readEndPosition) { //completed reading
+        doCallback(callback, string, readEndPosition, callbackWriteTimestamp)
       }
-      else { //not end of file
+      else { //not yet completed reading, i.e. another buffer is going to get filled and will continue where this one ended
         leftOverFromPreviousBuffer += string //store the remaining bytes, to be written later
       }
     }
