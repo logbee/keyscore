@@ -1,8 +1,9 @@
 package io.logbee.keyscore.agent.pipeline.valve
 
-import akka.stream.scaladsl.{Keep, Source}
+import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open}
+import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.test.fixtures.ExampleData._
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
@@ -25,30 +26,43 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
       .run()
   }
 
-  class TestWithSourceAndSinkProbe(bufferLimit: Int = 2, testData: List[Dataset]) {
-    val (valveFuture, sink) = Source(List(testData: _*))
-      .viaMat(new ValveStage(bufferLimit))(Keep.right)
-      .toMat(TestSink.probe[Dataset])(Keep.both)
-      .run()
-  }
-
   "A ValveStage" should {
 
-    "pass through datasets" in new TestWithSourceAndSinkProbe(testData = List(dataset1, dataset2, dataset3)) {
+    s"pass through datasets and increase ${requestedDatasets.name} and ${pushedDatasets.name}" in new TestWithSourceProbeAndSinkProbe {
 
       whenReady(valveFuture) { valve =>
+        val wantedDatesets = 3
 
-        sink.request(3)
+        source.sendNext(dataset1)
+        source.sendNext(dataset2)
+        source.sendNext(dataset3)
+
+        sink.request(wantedDatesets)
 
         sink.requestNext().records should contain theSameElementsAs dataset1.records
         sink.requestNext().records should contain theSameElementsAs dataset2.records
         sink.requestNext().records should contain theSameElementsAs dataset3.records
+
+        whenReady(valve.state()) { state =>
+          val id = state.id
+
+          whenReady(valve.scrape()) { mc =>
+            mc.find(requestedDatasets, id).value should equal(wantedDatesets.toDouble+1.0d)
+            mc.find(pushedDatasets, id).value should equal(wantedDatesets.toDouble)
+          }
+        }
+
       }
     }
 
-    "backpressure when closed, so only buffered messages pass through" in new TestWithSourceAndSinkProbe(bufferLimit = 2, testData = List(dataset1, dataset2, dataset3, dataset4)) {
+    "backpressure when closed, so only buffered messages pass through" in new TestWithSourceProbeAndSinkProbe(bufferLimit = 2) {
 
       whenReady(valveFuture) { valve =>
+
+        source.sendNext(dataset1)
+        source.sendNext(dataset2)
+        source.sendNext(dataset3)
+        source.sendNext(dataset4)
 
         sink.requestNext().records should contain theSameElementsAs dataset1.records
 
@@ -67,6 +81,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
     }
 
     "let datasets pass through after it was opened again" in new TestWithSourceProbeAndSinkProbe {
+
       whenReady(valveFuture) { valve =>
         source.sendNext(dataset1)
         source.sendNext(dataset2)
@@ -86,7 +101,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
       }
     }
 
-    "drops datasets when drained" in new TestWithSourceProbeAndSinkProbe {
+    s"drops datasets when drained and increase ${drainedDatasets.name}" in new TestWithSourceProbeAndSinkProbe {
 
       whenReady(valveFuture) { valve =>
 
@@ -115,6 +130,10 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
 
             sink.requestNext().records should contain theSameElementsAs dataset3.records
             sink.requestNext().records should contain theSameElementsAs dataset4.records
+
+            whenReady(valve.scrape()) { mc =>
+              mc.find(drainedDatasets, state.id).value shouldBe 2
+            }
           }
         }
       }
@@ -128,7 +147,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
         val dataset = Dataset(MetaData(expectedLabel), Record(Field("message", TextValue("Hello World!"))))
 
         source.sendNext(dataset)
-        sink.requestNext().metadata.labels should contain (expectedLabel)
+        sink.requestNext().metadata.labels should contain(expectedLabel)
       }
     }
 
@@ -144,10 +163,10 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
           state.totalThroughputTime should equal(0)
           state.bufferLimit shouldBe a[Integer]
           state.bufferSize shouldBe a[Integer]
+
         }
       }
     }
-
 
     "set the drain flag properly" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>
@@ -162,4 +181,5 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
       }
     }
   }
+
 }

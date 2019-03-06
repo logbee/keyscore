@@ -27,31 +27,31 @@ object ValveStage {
   /* Metrics */
 
   /* Global Metrics */
-  val _pulledDatasets = CounterMetricDescriptor(
-    name = "pulled_datasets",
-    displayName = TextRef("pulledDatasetsName"),
-    description = TextRef("pulledDatasetsDesc")
+  val requestedDatasets = CounterMetricDescriptor(
+    name = "requested_datasets",
+    displayName = TextRef("requestedDatasetsName"),
+    description = TextRef("requestedDatasetsDesc")
   )
 
-  val _drainedDatasets = CounterMetricDescriptor(
+  val drainedDatasets = CounterMetricDescriptor(
     name = "drained_datasets",
     displayName = TextRef("drainedDatasetsName"),
     description = TextRef("drainedDatasetsDesc")
   )
 
-  val _pushedDatasets = CounterMetricDescriptor(
+  val pushedDatasets = CounterMetricDescriptor(
     name = "pushed_datasets",
     displayName = TextRef("pushedDatasetsName"),
     description = TextRef("pushedDatasetsDesc")
   )
 
-  val _insertedDatasets = CounterMetricDescriptor(
+  val insertedDatasets = CounterMetricDescriptor(
     name = "inserted_datasets",
     displayName = TextRef("insertedDatasetsName"),
     description = TextRef("insertedDatasetsDesc")
   )
 
-  val _extractedDatasets = CounterMetricDescriptor(
+  val extractedDatasets = CounterMetricDescriptor(
     name = "extracted_datasets",
     displayName = TextRef("extractedDatasetsName"),
     description = TextRef("extractedDatasetsDesc")
@@ -67,31 +67,6 @@ object ValveStage {
     name = "total_throughput_time",
     displayName = TextRef("totalThroughputTimeName"),
     description = TextRef("totalThroughputTimeDesc")
-  )
-
-  /* Temporary Metrics (until the State changes) */
-  val _temporary_pulledDatasets = CounterMetricDescriptor(
-    name = "temporary_pulled_datasets",
-    displayName = TextRef("temporary_pulledDatasetsName"),
-    description = TextRef("temporary_pulledDatasetsDesc")
-  )
-
-  val _temporary_pushedDatasets = CounterMetricDescriptor(
-    name = "temporary_pushed_datasets",
-    displayName = TextRef("temporary_pushedDatasetsName"),
-    description = TextRef("temporary_pushedDatasetsDesc")
-  )
-
-  val _temporary_insertedDatasets = CounterMetricDescriptor(
-    name = "temporary_inserted_datasets",
-    displayName = TextRef("temporary_insertedDatasetsName"),
-    description = TextRef("temporary_insertedDatasetsDesc")
-  )
-
-  val _temporary_extractedDatasets = CounterMetricDescriptor(
-    name = "temporary_extracted_datasets",
-    displayName = TextRef("temporary_extractedDatasetsName"),
-    description = TextRef("temporary_extractedDatasetsDesc")
   )
 
 }
@@ -160,14 +135,12 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private val insertCallback = getAsyncCallback[(Promise[ValveState], List[Dataset])]({
       case (promise, datasets) =>
-        datasets.foreach(ringBuffer.push)
+        datasets.foreach { dataset =>
+          ringBuffer.push(dataset)
+          metrics.collect(insertedDatasets).increment()
+        }
         update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime)))
         promise.success(state)
-
-        datasets.map(_ => {
-          metrics.collect(_insertedDatasets).increment()
-          metrics.collect(_temporary_insertedDatasets).increment()
-        })
 
         pushOut()
         log.debug(s"Inserted ${datasets.size} datasets into valve <$id>")
@@ -178,10 +151,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         val datasets = ringBuffer.last(amount)
         promise.success(datasets)
 
-        datasets.map(_ => {
-          metrics.collect(_extractedDatasets).increment()
-          metrics.collect(_temporary_extractedDatasets).increment()
-        })
+        datasets.map(_ => metrics.collect(extractedDatasets).increment())
 
         log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
@@ -292,13 +262,12 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         dataset.foreach(dataset => {
           val labels = mutable.Map.empty[String, Label]
           val ttt = compute(totalThroughputTime, FirstValveTimestamp, TotalDatasetThroughputTime, dataset, labels)
-          val tt= compute(throughputTime, PreviousValveTimestamp, PreviousDatasetThroughputTime, dataset, labels)
+          val tt = compute(throughputTime, PreviousValveTimestamp, PreviousDatasetThroughputTime, dataset, labels)
           push(out, withNewLabels(dataset, labels.toMap))
 
           metrics.collect(_totalThroughputTime).set(durationToNanos(ttt))
           metrics.collect(_throughputTime).set(durationToNanos(tt))
-          metrics.collect(_pushedDatasets).increment()
-          metrics.collect(_temporary_pushedDatasets).increment()
+          metrics.collect(pushedDatasets).increment()
         })
       }
     }
@@ -307,19 +276,17 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       if (!hasBeenPulled(in)) {
         pull(in)
 
-        metrics.collect(_pulledDatasets).increment()
-        metrics.collect(_temporary_pulledDatasets).increment()
+        if(isDraining){
+          metrics.collect(drainedDatasets).increment()
+        }
+
+        metrics.collect(requestedDatasets).increment()
       }
     }
 
     private def update(newState: ValveState): ValveState = {
       if (!state.equals(newState)) {
         state = newState
-
-        metrics.collect(_temporary_pulledDatasets).reset()
-        metrics.collect(_temporary_pushedDatasets).reset()
-        metrics.collect(_temporary_insertedDatasets).reset()
-        metrics.collect(_temporary_extractedDatasets).reset()
       }
       state
     }
