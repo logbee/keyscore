@@ -79,12 +79,12 @@ class FilePersistenceContextSpec extends FreeSpec with BeforeAndAfter with Match
       "multiple case classes correctly" in new PersistenceFile {
 
         val key1 = "/path/to/file1"
-        val value1 = FileReadRecord(123456789, 987654321)
+        val value1 = FileReadRecord(123456789, 987654321, 0)
 
         filePersistenceContext.store(key1, value1)
 
         val key2 = "/path/to/file2"
-        val value2 = FileReadRecord(234567891, 198765432)
+        val value2 = FileReadRecord(234567891, 198765432, 0)
         filePersistenceContext.store(key2, value2)
 
         val loaded1 = filePersistenceContext.load[FileReadRecord](key1)(typeTag[FileReadRecord])

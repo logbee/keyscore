@@ -37,44 +37,97 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
   
   val charset = Charset.forName("UTF-8")
   
-  "A FileReaderManager should" - {
+  
+  trait FileReaderManagerSetup {
+    val readSchedule = mock[ReadSchedule]
+    val readPersistence = mock[ReadPersistence]
+    val fileReaderProvider = mock[FileReaderProvider]
+    val rotationPattern = ".[1-5]"
     
-    "do things" in { //TODO more tests
-      val readSchedule = mock[ReadSchedule]
-      val readPersistence = mock[ReadPersistence]
-      val fileReaderProvider = mock[FileReaderProvider]
-      
-      val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence)
-      
-      
-      val callback = mockFunction[FileReadData, Unit]
-      
-      val line1 = "Hello"
-      val line2 = "Wörld"
-      val string = line1 + "\n" + line2
-      val testFile = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile", string)
+    val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
+    
+    val callback = mockFunction[FileReadData, Unit]
+    
+    
+    val line1 = "abcde"
+    val line2 = "fghij"
+    val newline = "\n"
+    val text = line1 + newline + line2
+    val testFile = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile", text)
+    
+    val readScheduleItem = ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, testFile.lastModified, newerFilesWithSharedLastModified=0)
+    
+    (readSchedule.dequeue _)
+      .expects()
+      .returning(Option(readScheduleItem))
+  }
+  
+  
+  
+  "A FileReaderManager should" - { //TODO more tests
+    
+    "read out a scheduled entry" in 
+    new FileReaderManagerSetup {
       
       inSequence {
-        (readSchedule.pop _)
-          .expects()
-          .returning(Option(ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, writeTimestamp=testFile.lastModified)))
-        
         (readPersistence.getCompletedRead _)
           .expects(testFile)
-          .returning(FileReadRecord(0, 0))
+          .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0))
         
         (fileReaderProvider.create _)
           .expects(testFile)
           .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
         
-        callback.expects(FileReadData(line1, testFile, charset.encode(line1).limit + "\n".length, testFile.lastModified))
-        callback.expects(FileReadData(line2, testFile, charset.encode(string).limit, testFile.lastModified))
+        callback.expects(FileReadData(line1, testFile, charset.encode(line1 + newline).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
+        callback.expects(FileReadData(line2, testFile, charset.encode(text).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
       }
       
       fileReaderManager.getNextString(callback)
     }
     
-    //upon being pulled, should just return the next string to be pushed
+    
+    
+    "read out multiple scheduled entries" in
+    new FileReaderManagerSetup {
+      inSequence {
+        (readPersistence.getCompletedRead _)
+          .expects(testFile)
+          .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0))
+        
+        
+        (fileReaderProvider.create _)
+          .expects(testFile)
+          .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
+        
+        
+        callback.expects(FileReadData(line1, testFile, charset.encode(line1 + newline).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
+        callback.expects(FileReadData(line2, testFile, charset.encode(text).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
+        
+        
+        
+        val content2 = "22222" 
+        val testFile2 = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile2", content2)
+        
+        val readScheduleItem2 = ReadScheduleItem(testFile2, startPos=0, endPos=testFile2.length, testFile2.lastModified, newerFilesWithSharedLastModified=0)
+        
+        (readSchedule.dequeue _)
+          .expects()
+          .returning(Option(readScheduleItem2))
+        
+        (readPersistence.getCompletedRead _)
+          .expects(testFile2)
+          .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0))
+        
+        (fileReaderProvider.create _)
+          .expects(testFile2)
+          .returning(new FileReader(testFile2, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
+        
+        callback.expects(FileReadData(content2, testFile2, charset.encode(content2).limit, testFile2.lastModified, newerFilesWithSharedLastModified=0))
+      }
+      
+      fileReaderManager.getNextString(callback)
+      fileReaderManager.getNextString(callback)
+    }
   }
 }

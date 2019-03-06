@@ -1,30 +1,27 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import java.io.File
+import scala.collection.mutable.Queue
 
 
-case class ReadScheduleItem(file: File, startPos: Long, endPos: Long, writeTimestamp: Long)
+case class ReadScheduleItem(baseFile: File, startPos: Long, endPos: Long, lastModified: Long, newerFilesWithSharedLastModified: Int)
 
 
 class ReadSchedule() {
-  private var readScheduleList = List[ReadScheduleItem]()
+  private var readScheduleQueue = Queue[ReadScheduleItem]()
   
   
-  def push(readScheduleItem: ReadScheduleItem) = {
-    readScheduleList = readScheduleList :+ readScheduleItem
+  def enqueue(readScheduleItem: ReadScheduleItem) = {
+    readScheduleQueue.enqueue(readScheduleItem)
   }
   
   
-  def pop(): Option[ReadScheduleItem] = {
-    if (readScheduleList.isEmpty) {
+  def dequeue(): Option[ReadScheduleItem] = {
+    if (readScheduleQueue.isEmpty) {
       None
     }
     else {
-      val returnVal = readScheduleList.last
-      
-      readScheduleList = readScheduleList.dropRight(1)
-      
-      Some(returnVal)
+      Some(readScheduleQueue.dequeue())
     }
   }
 }

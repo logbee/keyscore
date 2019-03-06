@@ -25,7 +25,7 @@ object RotationHelper {
     }
   }
   
-  
+  //TODO adjust description -> with the need to differentiate between rotationFiles that have the same lastModified-time, this actually becomes important
   /**
    * Returns the given {@code baseFile} as well as any rotated files, which have been modified more recently than or exactly at the {@code previousReadTimestamp}.
    * 

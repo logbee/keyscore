@@ -22,7 +22,7 @@ object ReadMode extends Enumeration {
   val LINE, FILE = Value
 }
 
-case class FileReadRecord(previousReadPosition: Long, previousReadTimestamp: Long)
+case class FileReadRecord(previousReadPosition: Long, previousReadTimestamp: Long, newerFilesWithSharedLastModified: Int)
 
 
 object FileReader {
@@ -88,7 +88,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   
   
-  def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem) = {
+  def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem) = { //TODO consider less data than a readScheduleItem or a different data structure -> we need the specific file, not the base file and only the startPos and endPos
     
     val readEndPos = BytePos(readScheduleItem.endPos)
     
@@ -135,7 +135,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
       
       charBuffer.flip()
       
-      processBufferContents(charBuffer, callback, bufferStartPos, readEndPos, readScheduleItem.writeTimestamp)
+      processBufferContents(charBuffer, callback, bufferStartPos, readEndPos, readScheduleItem.lastModified, readScheduleItem.newerFilesWithSharedLastModified)
       
       
       bufferStartPos += bytesRead
@@ -144,7 +144,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   
   
-  private def processBufferContents(charBuffer: CharBuffer, callback: FileReadData => Unit, bufferStartPositionInFile: BytePos, readEndPosition: BytePos, callbackWriteTimestamp: Long) = {
+  private def processBufferContents(charBuffer: CharBuffer, callback: FileReadData => Unit, bufferStartPositionInFile: BytePos, readEndPosition: BytePos, callbackWriteTimestamp: Long, newerFilesWithSharedLastModified: Int) = {
     
     var byteCompletedPositionWithinBuffer = BytePos(0)
     
@@ -176,7 +176,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
             byteCompletedPositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
             
             
-            doCallback(callback, string, bufferStartPositionInFile + byteCompletedPositionWithinBuffer, callbackWriteTimestamp)
+            doCallback(callback, string, bufferStartPositionInFile + byteCompletedPositionWithinBuffer, callbackWriteTimestamp, newerFilesWithSharedLastModified)
             
             charBuffer.position(charPosEndOfNewlines.value)
           }
@@ -197,7 +197,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
       
       
       if (bufferStartPositionInFile + byteCompletedPositionWithinBuffer == readEndPosition) { //completed reading
-        doCallback(callback, string, readEndPosition, callbackWriteTimestamp)
+        doCallback(callback, string, readEndPosition, callbackWriteTimestamp, newerFilesWithSharedLastModified)
       }
       else { //not yet completed reading, i.e. another buffer is going to get filled and will continue where this one ended
         leftOverFromPreviousBuffer += string //store the remaining bytes, to be written later
@@ -206,9 +206,9 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   }
   
   
-  private def doCallback(callback: FileReadData => Unit, string: String, readEndPos: BytePos, writeTimestamp: Long) = {
+  private def doCallback(callback: FileReadData => Unit, string: String, readEndPos: BytePos, writeTimestamp: Long, newerFilesWithSharedLastModified: Int) = {
     
-    val fileReadData = FileReadData(leftOverFromPreviousBuffer + string, fileToRead, readEndPos.value, writeTimestamp)
+    val fileReadData = FileReadData(leftOverFromPreviousBuffer + string, fileToRead, readEndPos.value, writeTimestamp, newerFilesWithSharedLastModified)
     
     callback(fileReadData)
     leftOverFromPreviousBuffer = ""

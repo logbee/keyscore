@@ -22,7 +22,7 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
     val readPersistence = new ReadPersistence(completedPersistence, committedPersistence)
     
     val file = new File(".testFile")
-    val fileReadRecord = FileReadRecord(previousReadPosition=1, previousReadTimestamp=2)
+    val fileReadRecord = FileReadRecord(previousReadPosition=1, previousReadTimestamp=2, newerFilesWithSharedLastModified=0)
   }
   
   
@@ -43,7 +43,7 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
             .returning(None)
         }
         
-        readPersistence.getCompletedRead(file) shouldBe FileReadRecord(previousReadPosition=0, previousReadTimestamp=0)
+        readPersistence.getCompletedRead(file) shouldBe FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0)
       }
       
       

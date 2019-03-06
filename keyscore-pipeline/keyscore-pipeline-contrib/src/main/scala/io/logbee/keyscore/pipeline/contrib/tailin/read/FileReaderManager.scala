@@ -4,9 +4,10 @@ import java.io.File
 
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
+import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 
 
-class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: ReadSchedule, readPersistence: ReadPersistence) {
+class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: ReadSchedule, readPersistence: ReadPersistence, rotationPattern: String) {
   
   private val fileReaders = Map[File, FileReader]()
   
@@ -29,7 +30,7 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
   def getNextString(callback: FileReadData => Unit) = {
     
     //dequeue the next schedule entry
-    val readScheduleItemOpt = readSchedule.pop()
+    val readScheduleItemOpt = readSchedule.dequeue()
     
     readScheduleItemOpt match {
       case None => //if no reads scheduled
@@ -37,14 +38,14 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
         
       case Some(readScheduleItem) =>
         
-        val fileToRead = readScheduleItem.file
+        val baseFile = readScheduleItem.baseFile
         
-        val completedRead = readPersistence.getCompletedRead(fileToRead)
+        val completedRead = readPersistence.getCompletedRead(baseFile)
         
-        if (readScheduleItem.writeTimestamp == fileToRead.lastModified)
-//        if (readScheduleItem.writeTimestamp > completedRead.previousReadTimestamp)
-          getFileReader(fileToRead).read(callback, readScheduleItem)
-        //else the item is invalid, ignore it (has been removed from the stack already)
+        
+        val fileToRead = RotationHelper.getFilesToRead(baseFile, rotationPattern, completedRead.previousReadTimestamp).head
+        
+        getFileReader(fileToRead).read(callback, readScheduleItem)
     }
   }
 }

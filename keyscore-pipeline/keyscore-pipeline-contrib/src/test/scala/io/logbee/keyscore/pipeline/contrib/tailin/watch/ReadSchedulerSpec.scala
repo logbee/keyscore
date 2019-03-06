@@ -33,7 +33,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     val persistenceContextWithoutTimestamp = mock[PersistenceContext]
     (persistenceContextWithoutTimestamp.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
       .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
-      .returning(Some(FileReadRecord(0, 0)))
+      .returning(Some(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0)))
   }
   
 
@@ -43,7 +43,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     
     (persistenceContextWithTimestamp.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
       .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
-      .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp)))
+      .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp, newerFilesWithSharedLastModified=0)))
   }
   
   
@@ -61,11 +61,17 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
       
       (readPersistence.getCompletedRead _)
         .expects(logFile)
-        .returning(FileReadRecord(0, 0))
+        .returning(FileReadRecord(0, 0, newerFilesWithSharedLastModified=0))
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
       
-      (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile.length, logFile.lastModified))
+      (readSchedule.enqueue _)
+        .expects(ReadScheduleItem(
+                   logFile,
+                   startPos=0,
+                   endPos=logFile.length,
+                   logFile.lastModified,
+                   newerFilesWithSharedLastModified=0))
       
       readScheduler.fileModified()
     }
@@ -79,35 +85,40 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
       inSequence {
         (readPersistence.getCompletedRead _)
           .expects(logFile)
-          .returning(FileReadRecord(0, 0))
-        
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile.length, logFile.lastModified))
+          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp, newerFilesWithSharedLastModified=0))
         
         
-        (readPersistence.getCompletedRead _)
-          .expects(logFile1)
-          .returning(FileReadRecord(0, 0))
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+                    logFile,
+                    startPos=previousReadPosition,
+                    endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length,
+                    logFile3_ModifiedAfterPreviousReadTimestamp.lastModified,
+                    newerFilesWithSharedLastModified=0))
         
-        (readSchedule.push _).expects(ReadScheduleItem(logFile1, startPos=0, endPos=logFile1.length, logFile1.lastModified))
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+                    logFile,
+                    startPos=0,
+                    endPos=logFile2.length,
+                    logFile2.lastModified,
+                    newerFilesWithSharedLastModified=0))
         
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+                    logFile,
+                    startPos=0,
+                    endPos=logFile1.length,
+                    logFile1.lastModified,
+                    newerFilesWithSharedLastModified=0))
         
-        (readPersistence.getCompletedRead _)
-          .expects(logFile2)
-          .returning(FileReadRecord(0, 0))
-        
-        (readSchedule.push _).expects(ReadScheduleItem(logFile2, startPos=0, endPos=logFile2.length, logFile2.lastModified))
-        
-        
-        (readPersistence.getCompletedRead _)
-          .expects(logFile3_ModifiedAfterPreviousReadTimestamp)
-          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp))
-        
-        (readSchedule.push _).expects(ReadScheduleItem(logFile3_ModifiedAfterPreviousReadTimestamp, startPos=previousReadPosition, endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length, logFile3_ModifiedAfterPreviousReadTimestamp.lastModified))
-        
-        
-        (readPersistence.getCompletedRead _)
-          .expects(logFile4_ModifiedBeforePreviousReadTimestamp)
-          .returning(FileReadRecord(logFile4_ModifiedBeforePreviousReadTimestamp.length, logFile4_ModifiedBeforePreviousReadTimestamp.lastModified))
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+                    logFile,
+                    startPos=0,
+                    endPos=logFile.length,
+                    logFile.lastModified,
+                    newerFilesWithSharedLastModified=0))
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
@@ -115,34 +126,36 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     }
     
     
-    "schedule only reads for files, which haven't already been completely read" in
+    "schedule only reads for files, which haven't already been completely read" in //TEST
     new ReadSchedulerSetup with RotateFiles {
       
-		  val readPersistence = mock[ReadPersistence]
+      val readPersistence = mock[ReadPersistence]
       
       inSequence {
-		    (readPersistence.getCompletedRead _)
-		      .expects(logFile)
-		      .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0))
-		    
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=0, endPos=logFile.length,  logFile.lastModified))
-        
-        
         (readPersistence.getCompletedRead _)
-		      .expects(logFile1)
-		      .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0))
-		    
-        (readSchedule.push _).expects(ReadScheduleItem(logFile1, startPos=0, endPos=logFile1.length, logFile1.lastModified))
+          .expects(logFile)
+          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp, newerFilesWithSharedLastModified=0))
         
+          
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+                       logFile,
+                       startPos=previousReadPosition,
+                       endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length,
+                       logFile3_ModifiedAfterPreviousReadTimestamp.lastModified,
+		                   newerFilesWithSharedLastModified=0))
+          
+        val files = Seq(logFile2, logFile1, logFile)
         
-        
-        val remainingCompletedFiles = Seq(logFile2, logFile3_ModifiedAfterPreviousReadTimestamp, logFile4_ModifiedBeforePreviousReadTimestamp)
-        
-        remainingCompletedFiles.foreach{file =>
-          (readPersistence.getCompletedRead _)
-		      .expects(file)
-		      .returning(FileReadRecord(previousReadPosition=file.length, previousReadTimestamp=file.lastModified))
-		    }
+        files.foreach { file =>
+          (readSchedule.enqueue _)
+            .expects(ReadScheduleItem(
+                       logFile,
+                       startPos=0,
+                       endPos=file.length,
+                       file.lastModified,
+		                   newerFilesWithSharedLastModified=0))
+        }
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
@@ -159,42 +172,62 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
       inSequence {
         (readPersistence.getCompletedRead _)
           .expects(logFile)
-          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp=0))
+          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp=0, newerFilesWithSharedLastModified=0))
         
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile.length, logFile.lastModified))
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+                     logFile,
+                     startPos=previousReadPosition,
+                     endPos=logFile.length,
+                     logFile.lastModified,
+		                 newerFilesWithSharedLastModified=0))
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
       readScheduler.fileModified()
     }
+    //TODO adjust test(-descriptions) to accommodate for us not caring anymore whether a read has completed or just scheduled
     
-    
-    "schedule reads from the last completed read position, even if a read to a further position has already been scheduled (but not completed)" in //our ReadSchedule works like a stack, so the previously scheduled entry will be encountered later and then get ignored
+    "schedule reads from the last completed read position, even if a read to a further position has already been scheduled (but not completed)" in //TODO does this test make sense?
     new ReadSchedulerSetup {
       
       val readPersistence = mock[ReadPersistence]
       
-      val previousReadTimestamp = 2
+      val previousReadPosition = 2
       
       
       (readPersistence.getCompletedRead _)
         .expects(logFile)
-        .returning(FileReadRecord(previousReadTimestamp, previousReadTimestamp=0))
-        .twice
+        .returning(FileReadRecord(previousReadPosition, previousReadTimestamp=0, newerFilesWithSharedLastModified=0))
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
       
       inSequence {
         //schedule a read up to the current file length
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadTimestamp, endPos=logFile.length, logFile.lastModified))
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+                     logFile,
+                     startPos=previousReadPosition,
+                     endPos=logFile.length,
+                     logFile.lastModified,
+		                 newerFilesWithSharedLastModified=0))
         readScheduler.fileModified()
+        
+        val previousEndPos = logFile.length
+        
         
         //append something more to the file
         TestUtil.writeStringToFile(logFile, "222\nö222", StandardOpenOption.APPEND)
         
         
         //expect it to read again from the start to the new file length
-        (readSchedule.push _).expects(ReadScheduleItem(logFile, startPos=previousReadTimestamp, endPos=logFile.length, logFile.lastModified))
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+                     logFile,
+                     startPos=previousEndPos,
+                     endPos=logFile.length,
+                     logFile.lastModified,
+		                 newerFilesWithSharedLastModified=0))
         readScheduler.fileModified()
       }
     }
@@ -206,15 +239,21 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
       val readPersistence = mock[ReadPersistence]
       
       inSequence {
+        (readPersistence.getCompletedRead _)
+          .expects(logFile)
+          .returning(FileReadRecord(0, 0, 0))
         
-        val files = Seq(logFile, logFile1, logFile2, logFile3_ModifiedAfterPreviousReadTimestamp, logFile4_ModifiedBeforePreviousReadTimestamp)
+          
+        val files = Seq(logFile4_ModifiedBeforePreviousReadTimestamp, logFile3_ModifiedAfterPreviousReadTimestamp, logFile2, logFile1, logFile)
         
         files.foreach { file =>
-          (readPersistence.getCompletedRead _)
-            .expects(file)
-            .returning(FileReadRecord(0, 0))
-          
-          (readSchedule.push _).expects(ReadScheduleItem(file, startPos=0, endPos=file.length, file.lastModified))
+          (readSchedule.enqueue _)
+            .expects(ReadScheduleItem(
+                       logFile,
+                       startPos=0,
+                       endPos=file.length,
+                       file.lastModified,
+		                   newerFilesWithSharedLastModified=0))
         }
       }
       
