@@ -277,6 +277,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
         case Success(state) => _sender ! ClearBufferResponse(state)
         case Failure(e) => _sender ! Failure
       })
+
+    case ScrapeMetrics(filterId) =>
+      log.debug(s"Received ScrapeMetrics <$filterId>")
+      val _sender = sender
+      controller.scrape(filterId).foreach(_.onComplete {
+        case Success(collection) => _sender ! ScrapeMetricsResponse(collection)
+        case Failure(e) => _sender ! Failure
+      })
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {

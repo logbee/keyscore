@@ -43,18 +43,20 @@ message Metric {
 // tag::CounterMetric[]
 message CounterMetric {
     string name = 1;
-    TimestampValue timestamp = 2;
-    double value = 3;
+    repeated Label labels = 2 [(scalapb.field).collection_type="collection.immutable.Set"];
+    TimestampValue timestamp = 3;
+    double value = 4;
 }
 // end::CounterMetric[]
 
 // tag::GaugeMetricDescriptor[]
 message GaugeMetric {
     string name = 1;
-    TimestampValue timestamp = 2;
-    double value = 3;
-    double min = 4;
-    double max = 5;
+    repeated Label labels = 2 [(scalapb.field).collection_type="collection.immutable.Set"];
+    TimestampValue timestamp = 3;
+    double value = 4;
+    double min = 5;
+    double max = 6;
 }
 // end::GaugeMetricDescriptor[]
 

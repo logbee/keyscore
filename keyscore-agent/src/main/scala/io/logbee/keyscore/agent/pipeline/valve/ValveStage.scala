@@ -99,7 +99,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private val totalThroughputTime = MovingMedian(bufferLimit)
     private val throughputTime = MovingMedian(bufferLimit)
 
-    private val metrics = new DefaultMetricsCollector(id)
+    private val metrics = new DefaultMetricsCollector()
 
     private var state = ValveState(id, bufferLimit = ringBuffer.limit)
 
@@ -156,8 +156,8 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
 
-    private val scrapeCallback = getAsyncCallback[Promise[MetricsCollection]]({ promise =>
-      promise.success(metrics.get)
+    private val scrapeCallback = getAsyncCallback[(Set[Label], Promise[MetricsCollection])]({ case (labels, promise) =>
+      promise.success(metrics.getWithLabels(labels.+(Label("id", TextValue(id.toString)))))
       log.debug(s"Scraped a MetricCollection with ${metrics.get.metrics.size} metrics from valve <$id>")
     })
 
@@ -211,9 +211,9 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         promise.future
       }
 
-      override def scrape(): Future[MetricsCollection] = {
+      override def scrape(labels: Set[Label]): Future[MetricsCollection] = {
         val promise = Promise[MetricsCollection]()
-        scrapeCallback.invoke(promise)
+        scrapeCallback.invoke(labels, promise)
         promise.future
       }
 

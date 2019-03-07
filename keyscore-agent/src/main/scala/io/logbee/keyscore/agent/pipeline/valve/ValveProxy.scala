@@ -1,6 +1,6 @@
 package io.logbee.keyscore.agent.pipeline.valve
 
-import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.{Dataset, Label}
 import io.logbee.keyscore.model.metrics.MetricsCollection
 
 import scala.concurrent.Future
@@ -19,7 +19,7 @@ trait ValveProxy {
 
   def insert(dataset: List[Dataset]): Future[ValveState]
 
-  def scrape(): Future[MetricsCollection]
+  def scrape(labels: Set[Label] = Set.empty): Future[MetricsCollection]
 
   def clear(): Future[ValveState]
 }

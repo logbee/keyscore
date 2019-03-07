@@ -1,19 +1,17 @@
 package io.logbee.keyscore.pipeline.api.metrics
-import java.util.UUID
-
 import com.google.protobuf.util.Timestamps
-import io.logbee.keyscore.model.data.TimestampValue
+import io.logbee.keyscore.model.data.{Label, TimestampValue}
 import io.logbee.keyscore.model.metrics._
 
 import scala.collection.mutable
 
-class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
+class DefaultMetricsCollector() extends MetricsCollector {
 
   private val metrics = mutable.HashMap.empty[String, Metric]
 
   override def collect(descriptor: CounterMetricDescriptor): CounterMetricCollector = new CounterMetricCollector {
 
-    private val name: String = s"$uuid.${descriptor.name}"
+    private val name: String = descriptor.name
 
     override def reset(): CounterMetricCollector = {
       metrics.update(name, getOrCreate().update(
@@ -39,7 +37,7 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
 
   override def collect(descriptor: GaugeMetricDescriptor): GaugeMetricCollector = new GaugeMetricCollector {
 
-    private val name: String = s"$uuid.${descriptor.name}"
+    private val name: String = descriptor.name
 
     override def set(value: Double): GaugeMetricCollector = {
       metrics.update(name, getOrCreate().update(
@@ -89,6 +87,13 @@ class DefaultMetricsCollector(uuid: UUID) extends MetricsCollector {
   }
 
   def get: MetricsCollection = MetricsCollection(metrics.values.toSeq)
+
+  def getWithLabels(labels: Set[Label]): MetricsCollection = {
+    MetricsCollection(metrics.values.map {
+      case metric @ CounterMetric(_, _, _, _) => metric.update(_.labels :++= labels)
+      case metric @ GaugeMetric(_, _, _, _, _, _) => metric.update(_.labels :++= labels)
+    }.toSeq)
+  }
 
   private def now: TimestampValue = {
     val now = Timestamps.fromMillis(System.currentTimeMillis())

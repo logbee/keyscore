@@ -19,7 +19,7 @@ abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, s
   protected implicit val system: ActorSystem = parameters.context.system
   protected implicit val dispatcher: ExecutionContextExecutor = parameters.context.dispatcher
   protected override implicit lazy val materializer: Materializer = super.materializer
-  protected val metrics: MetricsCollector = new DefaultMetricsCollector(parameters.uuid)
+  protected val metrics: MetricsCollector = new DefaultMetricsCollector()
 
   override def preStart(): Unit = {
     log.info(s"Initializing <${parameters.uuid}> with configuration: ${parameters.configuration}")

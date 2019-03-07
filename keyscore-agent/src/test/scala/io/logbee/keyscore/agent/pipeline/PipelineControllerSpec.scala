@@ -8,7 +8,10 @@ import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter, ParameterSet}
-import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.{Dataset, Label, TextValue}
+import io.logbee.keyscore.model.data.Health.Green
+import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric}
+import io.logbee.keyscore.model.pipeline.Running
 import io.logbee.keyscore.model.{After, Before}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
@@ -37,9 +40,12 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       FieldListParameter(AddFieldsLogic.fieldListParameter.ref, Seq())
     )))
     val testSource = TestSource.probe[Dataset]
-    val testsink = TestSink.probe[Dataset]
+    val testSink = TestSink.probe[Dataset]
     val context = StageContext(system, executionContext)
     val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new ExampleFilter(p, s))
+
+    val inLabel = Label("port", TextValue("in"))
+    val outLabel = Label("port", TextValue("out"))
 
     val ((source, controllerFuture), sink) =
       testSource.viaMat(new ValveStage())(Keep.both)
@@ -56,12 +62,12 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
               (source, controller)
           }
         }
-        .toMat(testsink)(Keep.both).run()
+        .toMat(testSink)(Keep.both).run()
   }
 
-  "A Pipeline" should {
+  "A PipelineController" should {
 
-    "let data pass as expected" in new TestSetup {
+    "not affect the data in a stream" in new TestSetup {
       source.sendNext(dataset1)
       source.sendNext(dataset2)
       source.sendNext(dataset3)
@@ -70,21 +76,30 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       sink.requestNext().records should contain theSameElementsAs dataset3.records
     }
 
-    //    TODO: Fix flaky ValveStage throughputTime computation test
-    //    "valve computes and sets the throughputTime and totalThroughputTime in valvestate" in new TestSetup {
-    //      whenReady(controllerFuture) { controller =>
-    //
-    //        source.sendNext(dataset1)
-    //        sink.requestNext().records should contain theSameElementsAs dataset1.records
-    //
-    //        whenReady(controller.state()) { state =>
-    //          state.throughPutTime.toInt should be > 0
-    //          state.totalThroughputTime.toInt should be > 0
-    //          state.health shouldBe Green
-    //          state.status shouldBe Running
-    //        }
-    //      }
-    //    }
+    "retrieve the state of its pipeline" in new TestSetup {
+      whenReady(controllerFuture) { controller =>
+
+        source.sendNext(dataset1)
+        sink.requestNext().records should contain theSameElementsAs dataset1.records
+
+        whenReady(controller.state()) { state =>
+          //TODO Flaky
+//          state.throughPutTime.toInt should be > 0
+//          state.totalThroughputTime.toInt should be > 0
+          state.health shouldBe Green
+          state.status shouldBe Running
+        }
+
+        whenReady(controller.scrape()) { collection =>
+          collection.metrics shouldNot be (empty)
+          val in = collection.findMetrics[GaugeMetric]("throughput_time", Set(inLabel))
+          in.size should be (1)
+          val out = collection.findMetrics[CounterMetric]("pushed_datasets", Set(outLabel))
+          out.size should be (1)
+          out.head.value should be (1.0)
+        }
+      }
+    }
 
     "close inValve and outValve on pause" in new TestSetup {
       source.sendNext(dataset1)
@@ -103,7 +118,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       }
     }
 
-    "extract a dataset in outValve when no data was streamed before" in new TestSetup {
+    "extract the inserted dataset in the outValve when no data was streamed before" in new TestSetup {
       whenReady(controllerFuture) { controller =>
         val state = for {
           _ <- controller.pause(true)
@@ -119,7 +134,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       }
     }
 
-    "extract a dataset in outValve when data was streamed before" in new TestSetup {
+    "extract the inserted dataset in the outValve when data was streamed before" in new TestSetup {
       source.sendNext(dataset1)
       source.sendNext(dataset2)
       sink.request(2)
@@ -135,7 +150,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       }
     }
 
-    "extract multiple datasets in outValve" in new TestSetup {
+    "extract multiple datasets in the outValve" in new TestSetup {
       whenReady(controllerFuture) { controller =>
 
         val state = for {
@@ -148,9 +163,15 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
           whenReady(controller.extract(3, After)) { datasets =>
 
-            datasets(0).records should contain theSameElementsAs dataset3.records
+            datasets.head.records should contain theSameElementsAs dataset3.records
             datasets(1).records should contain theSameElementsAs dataset2.records
             datasets(2).records should contain theSameElementsAs dataset1.records
+
+            whenReady(controller.scrape()) { collection =>
+              val extracted = collection.findMetrics[CounterMetric]("extracted_datasets", Set(outLabel))
+              extracted.size should be (1)
+              extracted.head.value should be (3.0)
+            }
 
             whenReady(controller.drain(false)) { _ =>
               whenReady(controller.pause(false)) { _ =>
@@ -164,7 +185,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       }
     }
 
-    "extract insert workflow test real" in new TestSetup {
+    "affect the data in a stream after multiple valve actions" in new TestSetup {
 
       source.sendNext(dataset1)
       source.sendNext(dataset2)
@@ -184,7 +205,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(state) { _ =>
           whenReady(controller.extract(3, After)) { datasets =>
-            datasets(0).records should contain theSameElementsAs dataset4.records
+            datasets.head.records should contain theSameElementsAs dataset4.records
             datasets(1).records should contain theSameElementsAs dataset3.records
             datasets(2).records should contain theSameElementsAs dataset2.records
           }
@@ -205,7 +226,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(state) { _ =>
           whenReady(controller.extract(3, After)) { datasets =>
-            datasets(0).records should contain theSameElementsAs dataset5.records
+            datasets.head.records should contain theSameElementsAs dataset5.records
             datasets(1).records should contain theSameElementsAs dataset3.records
             datasets(2).records should contain theSameElementsAs dataset2.records
           }
