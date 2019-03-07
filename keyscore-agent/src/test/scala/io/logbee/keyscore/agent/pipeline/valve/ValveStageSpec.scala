@@ -47,8 +47,8 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
           val id = state.id
 
           whenReady(valve.scrape()) { mc =>
-            mc.find(requestedDatasets, id).value should equal(wantedDatesets.toDouble+1.0d)
-            mc.find(pushedDatasets, id).value should equal(wantedDatesets.toDouble)
+            mc.find(requestedDatasets, id).get.value should equal(wantedDatesets.toDouble+1.0d)
+            mc.find(pushedDatasets, id).get.value should equal(wantedDatesets.toDouble)
           }
         }
 
@@ -132,7 +132,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
             sink.requestNext().records should contain theSameElementsAs dataset4.records
 
             whenReady(valve.scrape()) { mc =>
-              mc.find(drainedDatasets, state.id).value shouldBe 2
+              mc.find(drainedDatasets, state.id).get.value shouldBe 2
             }
           }
         }

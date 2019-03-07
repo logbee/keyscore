@@ -33,6 +33,7 @@ message GaugeMetricDescriptor {
 // end::GaugeMetricDescriptor[]
 
 message Metric {
+    option (scalapb.message).extends = "io.logbee.keyscore.model.metrics.BaseMetric";
     oneof sealed_value {
         CounterMetric counter = 1;
         GaugeMetric gauge = 2;
