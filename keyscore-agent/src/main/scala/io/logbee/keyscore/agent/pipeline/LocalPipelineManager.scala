@@ -143,6 +143,13 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
         log.debug(s"$supervisor")
         supervisor forward message
       })
+
+    case message: ScrapeMetrics =>
+      log.debug(s"Forwarding ScrapeMetrics ($message) to:")
+      children.foreach( supervisor => {
+        log.debug(s"$supervisor")
+        supervisor forward message
+      })
   }
 
   def nameFrom(blueprint: PipelineBlueprint): String = {

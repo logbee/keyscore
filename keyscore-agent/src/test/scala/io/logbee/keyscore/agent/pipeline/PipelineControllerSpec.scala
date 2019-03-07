@@ -185,7 +185,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
       }
     }
 
-    "affect the data in a stream after multiple valve actions" in new TestSetup {
+    "not affect the data in a stream after multiple valve actions" in new TestSetup {
 
       source.sendNext(dataset1)
       source.sendNext(dataset2)

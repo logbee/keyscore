@@ -57,7 +57,7 @@ object ClusterPipelineManager {
   * - forwards all `Controller` messages <br>
   * - creates Blueprint- and Configuration `Collectors` and send them to all agents.
   *
-  * @todo Error Handeling
+  * @todo Error Handling
   *
   * @param clusterAgentManager The [[io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager]]
   * @param localPipelineManagerResolution ~anonymous
@@ -133,6 +133,8 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
     case message: CheckFilterState => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
     case message: ClearBuffer => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
+
+    case message: ScrapeMetrics => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
     case RequestExistingPipelines =>
       val _sender = sender

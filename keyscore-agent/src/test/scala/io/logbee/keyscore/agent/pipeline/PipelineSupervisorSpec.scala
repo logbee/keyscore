@@ -34,7 +34,7 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 @RunWith(classOf[JUnitRunner])
 class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutionContext with WordSpecLike with Matchers with ScalaFutures with MockFactory {
 
-  "A running PipelineSupervisor" should {
+  "A PipelineSupervisor" should {
 
     val filterManager = TestProbe()
 

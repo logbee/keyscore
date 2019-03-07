@@ -109,6 +109,15 @@ object FilterRoute extends RouteImplicits {
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
+          } ~
+          path("scrape") {
+            get {
+              onSuccess(clusterPipelineManager ? ScrapeMetrics(filterId)) {
+                case ScrapeMetricsResponse(metrics) =>
+                  complete(StatusCodes.Accepted, metrics)
+                case _ => complete(StatusCodes.InternalServerError)
+              }
+            }
           }
       }
     }
