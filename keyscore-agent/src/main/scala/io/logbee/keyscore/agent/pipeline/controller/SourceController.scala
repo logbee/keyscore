@@ -5,7 +5,7 @@ import java.util.UUID
 import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, ValveState}
 import io.logbee.keyscore.model.{After, WhichValve}
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.{Dataset, Label, TextValue}
 import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline._
 
@@ -68,7 +68,7 @@ private class SourceController(val source: SourceProxy, val outValve: ValveProxy
   override def scrape(): Future[MetricsCollection] = {
     for {
       sourceMetrics <- source.scrape()
-      outValveMetrics <- outValve.scrape()
+      outValveMetrics <- outValve.scrape(Set(Label("port", TextValue("out"))))
     } yield sourceMetrics ++ outValveMetrics
   }
 

@@ -3,6 +3,7 @@ package io.logbee.keyscore.pipeline.api
 import java.util.UUID
 
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Label
 import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline.{FilterState, LogicProxy}
 
@@ -46,7 +47,7 @@ class DefaultLogicProxy(val logic: AbstractLogic[_]) extends LogicProxy {
     promise.future
   }
 
-  override def scrape(): Future[MetricsCollection] = {
+  override def scrape(labels: Set[Label] = Set.empty): Future[MetricsCollection] = {
     val promise = Promise[MetricsCollection]
     scrapeCallback.invoke(promise)
     promise.future

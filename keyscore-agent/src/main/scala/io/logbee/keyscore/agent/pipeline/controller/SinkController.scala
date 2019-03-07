@@ -5,7 +5,7 @@ import java.util.UUID
 import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, ValveState}
 import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.{Dataset, Label, TextValue}
 import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline._
 
@@ -68,7 +68,7 @@ private class SinkController(val inValve: ValveProxy, val sink: SinkProxy)(impli
 
   override def scrape(): Future[MetricsCollection] = {
     for {
-      inValveMetrics <- inValve.scrape()
+      inValveMetrics <- inValve.scrape(Set(Label("port", TextValue("in"))))
       sinkMetrics <- sink.scrape()
     } yield inValveMetrics ++ sinkMetrics
   }
