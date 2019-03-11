@@ -1,9 +1,12 @@
 package io.logbee.keyscore.pipeline.contrib.kafka
 
+import akka.actor.Status
+import akka.event.Logging
 import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
+import akka.stream.Attributes.LogLevels
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
-import akka.stream.{OverflowStrategy, QueueOfferResult, SinkShape}
+import akka.stream.{Attributes, OverflowStrategy, QueueOfferResult, SinkShape}
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
@@ -17,7 +20,7 @@ import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.{bootstrapServerParameter, bootstrapServerPortParameter, fieldNameParameter, topicParameter}
-import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.producer.{ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.json4s.Formats
 import org.json4s.native.Serialization.write
@@ -97,7 +100,7 @@ object KafkaSinkLogic extends Described {
 class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) extends SinkLogic(parameters, shape) {
 
   private implicit val formats: Formats = KeyscoreFormats.formats
-  private var queue: SourceQueueWithComplete[ProducerMessage.Message[Array[Byte], String, Promise[Unit]]] = _
+  private var queue: SourceQueueWithComplete[ProducerMessage.Envelope[Array[Byte], String, Promise[Unit]]] = _
 
   private val pullAsync = getAsyncCallback[Unit](_ => {
     pull(in)
@@ -127,20 +130,38 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
 
     val settings = producerSettings(s"$bootstrapServer:$bootstrapServerPort")
 
-    val producer = Producer.flow[Array[Byte], String, Promise[Unit]](settings)
+    val producer = Producer.flexiFlow[Array[Byte], String, Promise[Unit]](settings)
 
     tearDown()
 
     queue = Source.queue(1, OverflowStrategy.backpressure)
       .via(producer)
-      .map(_.message)
-      .toMat(Sink.foreach(_.passThrough.success(())))(Keep.left)
+      .map(_.passThrough)
+      .log(s"KafkaSinkLogic: ${parameters.uuid}").withAttributes(
+        Attributes.logLevels(
+          onElement = LogLevels.Off,
+          onFinish = LogLevels.Info,
+          onFailure = LogLevels.Debug
+        )
+      )
+      .toMat(Sink.foreach(_.success(())))(Keep.left)
       .run()
+
+    queue.watchCompletion().onComplete {
+      case Success(_) =>
+        log.info(s"Internal queue completed. ${parameters.uuid}")
+        completeStage()
+      case Failure(exception) =>
+        log.error(exception, s"Internal queue completed unexpectedly. ${parameters.uuid}")
+        failStage(new RuntimeException("Internal queue completed unexpectedly.", exception))
+    }
   }
 
   def producerSettings(bootstrapServer: String): ProducerSettings[Array[Byte], String] = {
     val settings = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
       .withBootstrapServers(bootstrapServer)
+      .withProperty(ProducerConfig.ACKS_CONFIG, "1")
+      .withProperty(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "5000000")
 
     settings
   }
