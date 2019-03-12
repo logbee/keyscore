@@ -13,16 +13,16 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 object AbstractGroupingLogic {
   sealed trait GroupingAction
   case class OpenGroup(id: Option[String]) extends GroupingAction
-  case class CloseGroup(id: Option[String]) extends GroupingAction
+  case class CloseGroupInclusively(id: Option[String]) extends GroupingAction
+  case class CloseGroupExclusively(id: Option[String], nextId: Option[String]) extends GroupingAction
   case class AddToGroup(id: Option[String], openGroup: Boolean = true) extends GroupingAction
   case object PassThrough extends GroupingAction
 }
 
 abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private val passthroughQueue = mutable.Queue.empty[Group]
-  private val windowQueue = mutable.Queue.empty[Group]
-  private val groups = mutable.HashMap.empty[Option[String], Group]
+  private val queue = mutable.PriorityQueue.empty[Element](elementOrdering)
+  private val groups = mutable.HashMap.empty[Option[String], GroupElement]
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -36,9 +36,25 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     val dataset = grab(in)
 
     examine(dataset) match {
+
       case OpenGroup(id) => openGroup(id, dataset)
 
-      case CloseGroup(id) =>
+      case CloseGroupInclusively(id) =>
+        groups.remove(id) match {
+          case Some(group @ GroupElement(_, _)) =>
+            group.datasets += dataset
+            group.close()
+          case _ => // Nothing to do.
+        }
+
+      case CloseGroupExclusively(id, nextId) =>
+        groups.remove(id) match {
+          case Some(group @ GroupElement(_, _)) =>
+            group.close()
+            openGroup(nextId, dataset)
+
+          case _ => openGroup(nextId, dataset)
+        }
 
       case AddToGroup(id, doOpenGroup) =>
         groups.get(id) match {
@@ -52,19 +68,19 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     }
 
     if (isAvailable(out)) {
-      val pushFailed = !pushNextGroup()
+      val pushFailed = !tryPush()
       if (pushFailed && timeWindowActive && !isTimerActive("timeWindow")) {
         schedulePush()
       }
     }
 
-    if (windowQueue.size < maxGroups && passthroughQueue.size < maxGroups) {
+    if (queue.size <= maxGroups) {
       pull(in)
     }
   }
 
   override def onPull(): Unit = {
-    if (pushNextGroup()) {
+    if (tryPush()) {
       if (!hasBeenPulled(in)) pull(in)
     }
   }
@@ -72,78 +88,51 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
   override protected def onTimer(timerKey: Any): Unit = {
     timerKey match {
       case "timeWindow" =>
-        if (!pushNextGroup()) {
-          val timespan = windowQueue.head.expires - System.currentTimeMillis + 100
-          scheduleOnce("timeWindow", Duration(timespan, MILLISECONDS))
+        if (!tryPush()) {
+          schedulePush()
         }
       case _ =>
     }
   }
 
-  private def openGroup(id: Option[String], dataset: Dataset) = {
-    val group = Group(id, mutable.ListBuffer(dataset))
-    windowQueue enqueue group
+  private def openGroup(id: Option[String], dataset: Dataset): Unit = {
+    val group = GroupElement(id, mutable.ListBuffer(dataset))
+    queue enqueue group
     groups.put(id, group)
   }
 
-  private def passthrough(dataset: Dataset) = {
-    passthroughQueue enqueue Group(None, mutable.ListBuffer(dataset))
+  private def passthrough(dataset: Dataset): Unit = {
+    queue enqueue PassThroughElement(dataset)
   }
 
-  private def pushNextGroup(): Boolean = {
-    val passthroughGroupOption = passthroughQueue.headOption
-    val windowGroupOption = windowQueue.headOption
+  private def tryPush(): Boolean = {
 
-    if (passthroughGroupOption.isDefined && windowGroupOption.isDefined) {
-      if (passthroughGroupOption.get.created < windowGroupOption.get.created) {
-        pushNextPassthroughGroup()
-        return true
-      }
-      else {
-        pushNextWindowGroup()
-        return true
-      }
+    if (!isAvailable(out)) return false
+
+    queue.headOption match {
+
+      case Some(PassThroughElement(dataset)) =>
+        queue.dequeue()
+        push(out, dataset)
+        true
+
+      case Some(group @ GroupElement(id, datasets)) if group.isClosed || timeWindowActive && group.isExpired =>
+        queue.dequeue()
+        groups.remove(id)
+        push(out, Dataset(datasets.head.metadata, datasets.flatMap(_.records).toList))
+        true
+
+      case _ => false
     }
-    else if (passthroughGroupOption.isDefined) {
-      pushNextPassthroughGroup()
-      return true
-    }
-    else if (windowGroupOption.isDefined) {
-      if (timeWindowActive) {
-        if (windowGroupOption.get.isExpired) {
-          pushNextWindowGroup()
-          return true
-        }
-      }
-      else {
-        if (windowQueue.size > 1) {
-          pushNextWindowGroup()
-          return true
-        }
-      }
-    }
-
-    false
-  }
-
-  private def pushNextWindowGroup(): Unit = {
-    val group = windowQueue.dequeue()
-    groups.remove(group.id)
-    pushGroup(group)
-  }
-
-  private def pushNextPassthroughGroup(): Unit = {
-    val group = passthroughQueue.dequeue()
-    pushGroup(group)
-  }
-
-  private def pushGroup(group: Group): Unit = {
-    push(out, Dataset(group.datasets.head.metadata, group.datasets.flatMap(_.records).toList))
   }
 
   private def schedulePush(): Unit = {
-    val timespan = windowQueue.head.expires - System.currentTimeMillis + 100
-    scheduleOnce("timeWindow", Duration(timespan, MILLISECONDS))
+    queue.headOption match {
+      case Some(group @ GroupElement(_, _)) =>
+        val timespan = group.expires - System.currentTimeMillis + 100
+        scheduleOnce("timeWindow", Duration(timespan, MILLISECONDS))
+      case _ =>
+    }
   }
 
   /**
@@ -176,9 +165,45 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     */
   protected def maxGroups: Long
 
-  private case class Group(id: Option[String], datasets: mutable.ListBuffer[Dataset]) {
+  private sealed trait Element
+
+  private def elementOrdering(a: Element, b: Element): Int = {
+    (a, b) match {
+      case (PassThroughElement(_), PassThroughElement(_)) => 0
+      case (PassThroughElement(_), GroupElement(_, _)) => -1
+      case (GroupElement(_, _), PassThroughElement(_)) => 1
+      case (a @ GroupElement(_, _), b @ GroupElement(_, _)) =>
+        if (timeWindowActive) {
+          if (a.expires < b.expires) -1
+          else if (a.expires > b.expires) 1
+          else {
+            if (a.isClosed && b.isClosed) 0
+            else if (a.isClosed) -1
+            else if (b.isClosed) 1
+            else 0
+          }
+        }
+        else if (a.isClosed && b.isClosed) 0
+        else if (a.isClosed) -1
+        else if (b.isClosed) 1
+        else 0
+    }
+  }
+
+  private case class PassThroughElement(dataset: Dataset) extends Element
+
+  private case class GroupElement(id: Option[String], datasets: mutable.ListBuffer[Dataset]) extends Element {
+
+    private var closed: Boolean = false
+
     val created: Long = System.currentTimeMillis
+
     def expires: Long = created + timeWindowMillis
+
     def isExpired: Boolean = System.currentTimeMillis > expires
+
+    def close(): Unit = closed = true
+
+    def isClosed: Boolean = closed
   }
 }

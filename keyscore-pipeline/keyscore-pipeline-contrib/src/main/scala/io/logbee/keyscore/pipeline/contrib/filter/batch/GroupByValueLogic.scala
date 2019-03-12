@@ -4,13 +4,14 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.{Dataset, Field}
 import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.{AddToGroup, PassThrough}
+import io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.{AddToGroup, CloseGroupExclusively, PassThrough}
 
 object GroupByValueLogic extends Described {
 
@@ -77,6 +78,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
   private var timeWindowActiveValue = false
   private var timeWindowMillisValue = 0L
   private var maxNumberOfGroupsValue = Long.MaxValue
+  private var lastField: Option[Field] = None
 
   override def configure(configuration: Configuration): Unit = {
 
@@ -94,10 +96,41 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
   override protected def examine(dataset: Dataset): AbstractGroupingLogic.GroupingAction = {
 
-    val candidate =  dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
+    val field =  dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
 
-    candidate match {
+    val result = if (timeWindowActive) {
+      examineWithActiveTimeWindow(field)
+    }
+    else {
+      examineWithInActiveTimeWindow(field)
+    }
+
+    log.info(s"result: $result")
+    result
+  }
+
+  private def examineWithActiveTimeWindow(field: Option[Field]) = {
+    field match {
       case Some(field) => AddToGroup(Some(field.hashCode().toString))
+      case _ => PassThrough
+    }
+  }
+
+  private def examineWithInActiveTimeWindow(field: Option[Field]) = {
+    (lastField, field) match {
+      case (None, Some(current)) =>
+        lastField = current
+        AddToGroup(current.hashCode().toString)
+
+      case (Some(last), Some(current)) =>
+        if (last.equals(current)) {
+          AddToGroup(last.hashCode().toString)
+        }
+        else {
+          lastField = current
+          CloseGroupExclusively(last.hashCode().toString, current.hashCode().toString)
+        }
+
       case _ => PassThrough
     }
   }
