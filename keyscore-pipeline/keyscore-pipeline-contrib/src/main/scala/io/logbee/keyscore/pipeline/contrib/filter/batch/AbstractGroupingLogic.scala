@@ -169,8 +169,8 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
   private def entryOrdering(a: Entry, b: Entry): Int = {
     (a, b) match {
       case (PassThroughEntry(_), PassThroughEntry(_)) => 0
-      case (PassThroughEntry(_), GroupEntry(_, _)) => -1
-      case (GroupEntry(_, _), PassThroughEntry(_)) => 1
+      case (PassThroughEntry(_), GroupEntry(_, _)) => 1
+      case (GroupEntry(_, _), PassThroughEntry(_)) => -1
       case (a @ GroupEntry(_, _), b @ GroupEntry(_, _)) =>
         if (timeWindowActive) {
           if (a.expires < b.expires) 1
