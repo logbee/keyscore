@@ -265,7 +265,42 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     
     
     
-    "should push realistic log data with rotation" ignore //TEST
+    
+    "should push multiple logfiles with the same lastModified-timestamp in the correct order" ignore //TEST
+    new DefaultSource {
+      
+      val baseFile = TestUtil.createFile(watchDir, "file", "0")
+      val rotatePattern = baseFile.getName + ".[1-5]"
+      
+      val file1Name = baseFile.getName + ".1"
+      val file2Name = baseFile.getName + ".2"
+      val file1 = TestUtil.createFile(watchDir, file1Name, "11")
+      val file2 = TestUtil.createFile(watchDir, file2Name, "222")
+      
+      val sharedLastModified = 1234567890
+      
+      baseFile.setLastModified(sharedLastModified)
+      file1.setLastModified(sharedLastModified)
+      file2.setLastModified(sharedLastModified)
+      
+      sink.request(1)
+      
+      sink.expectNoMessage(3.seconds)
+      
+      TestUtil.writeStringToFile(baseFile, "0", StandardOpenOption.APPEND, StandardCharsets.UTF_8)
+      
+      sink.request(1)
+      
+      val datasetText = sink.expectNext()
+      
+      datasetText.records.head.fields.head.value shouldEqual TextValue("222")
+    }
+    
+    
+    
+    
+    
+    "should push realistic log data with rotation" ignore //TEST doesn't work yet, which is presumably a fault of the test, not the code
     new DefaultSource {
       
       val logFile = TestUtil.createFile(watchDir, "tailin.csv")
@@ -283,7 +318,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         concatenatedString += datasetText.records.head.fields.head.value.asInstanceOf[TextValue].value + "\n"
       }
       
-      Thread.sleep(1000) //TODO possibly nothing gets pushed, because nothing is written outside of the shared-lastModified-second
+      Thread.sleep(1000) //TODO nothing gets pushed, because nothing is written outside of the shared-lastModified-second
       TestUtil.writeStringToFile(logFile, "Hello", StandardOpenOption.APPEND)
       
       concatenatedString.lines.length shouldEqual numberOfLines

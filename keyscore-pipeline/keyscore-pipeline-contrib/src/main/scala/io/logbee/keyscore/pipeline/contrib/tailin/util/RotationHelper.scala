@@ -20,19 +20,22 @@ object RotationHelper {
         else {
           val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + baseFile.getParent + "/" + rotationPattern)
           
-          filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
+          val rotatedFilesInSameDir = filesInSameDir.filter(fileInSameDir => rotateMatcher.matches(fileInSameDir.toPath))
+
+          rotatedFilesInSameDir.sortBy(file => (file.lastModified, file.getName))(Ordering.Tuple2(Ordering.Long, Ordering.String.reverse)) //if lastModified-timestamps are equivalent for two files, assume that e.g. .2 was written to before .1
         }
     }
   }
   
-  //TODO adjust description -> with the need to differentiate between rotationFiles that have the same lastModified-time, this actually becomes important
+  
   /**
    * Returns the given {@code baseFile} as well as any rotated files, which have been modified more recently than or exactly at the {@code previousReadTimestamp}.
    * 
-   * It also returns the file which has been lastModified at the {@code previousReadTimestamp} (which we don't need to read from anymore),
-   * as we would otherwise continue reading at the {@code previousReadPosition} in the new file.
+   * It also returns the file which has been lastModified at the {@code previousReadTimestamp},
+   * as we would otherwise continue reading at the {@code previousReadPosition} in the new file and because sometimes files will have the same lastModified-timestamp.
    * 
    * The files are sorted by their lastModified-timestamp, from oldest to newest.
+   * If the lastModified-timestamp is equivalent for two files, they are sorted by their file-name, so that e.g. a file with rotation-index .2 is returned before .1, as .2 should have been written to earlier
    */
   def getFilesToRead(baseFile: File, rotationPattern: String, previousReadTimestamp: Long): Array[File] = {
     val rotatedFiles = getRotatedFiles(baseFile, rotationPattern)

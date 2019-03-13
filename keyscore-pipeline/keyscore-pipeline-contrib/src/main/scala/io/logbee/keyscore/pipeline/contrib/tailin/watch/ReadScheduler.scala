@@ -5,9 +5,8 @@ import java.io.File
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
-import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
-import scala.collection.SortedMap
+import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 
 
 class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileWatcher {
@@ -17,63 +16,43 @@ class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: Re
   
   def fileModified(): Unit = {
     
+    //getFilesToRead also returns files which have lastModified == previousReadTimestamp, as multiple files may have the same lastModified-time
+    //and this helps to simplify the code, because then we know to not continue reading at the previousReadPosition in the next file
+    val filesToRead = RotationHelper.getFilesToRead(baseFile, rotationPattern, previouslyScheduled.previousReadTimestamp) //TODO pass along previousScheduled.newerFilesWithSharedLastModified and use that on the other side to filter out files, too
     
-    val filesToRead = RotationHelper.getFilesToRead(baseFile, rotationPattern, previouslyScheduled.previousReadTimestamp)
-    //getFilesToRead also returns files which have lastModified == previousReadTimestamp (which we would technically not need to read, but helps simplify this situation)
+    
+    
+    var filesToSchedule = filesToRead
+    if (filesToRead.filter(_.lastModified == baseFile.lastModified).size > 1) { //TODO document this
+      filesToSchedule = filesToSchedule.filter(_.lastModified != baseFile.lastModified)
+    }
+    
+    if (filesToSchedule.isEmpty)
+      return
     
     
     //check for files which have the same lastModified-time (which we need to differentiate in order to tell them apart)
-    val filesToReadGroupedByLastModified = filesToRead
-                                             .groupBy(file => file.lastModified) //convert to map lastModified -> Array[File]
-                                             .toSeq.sortBy(_._1) //convert to list of tuples (lastModified, Array[File]) and sort it by lastModified-time
-                                             
-  //TODO might have to sort the entries in the shared-lastModified groups, too (by filename)  
-                                             
-    val filesToReadWithSharedLastModified = filesToReadGroupedByLastModified
-                                              .filter(group => group._2.length > 1) //filter out any files where there are not multiple ones with the same lastModified
+    val filesToScheduleGroupedByLastModified = filesToSchedule
+                                                 .groupBy(file => file.lastModified) //convert to map lastModified -> Array[File]
+                                                 .toSeq.sortBy(_._1) //convert to list of tuples (lastModified, Array[File]) and sort it by lastModified-time
     
-    if (filesToReadWithSharedLastModified.nonEmpty) {
-      
-      val sharedLastModifiedTimes = filesToReadWithSharedLastModified.unzip._1
-      
-      if (sharedLastModifiedTimes.contains(System.currentTimeMillis / 1000)) {
-        //TODO wait for one second,
-        //to ensure that no later created files can get this same lastModified-time
-        println("2KJlaskdjalksdjasdkljas\n\n\n\n\naskljsdhakjsdhaksjd\n\n\n\nkajshdkashdaksdjh")
-      }
-      
-      
-      if (sharedLastModifiedTimes.contains(baseFile.lastModified)) {
-        println("3aslkjdlaksjdalsjdaoisjqoj\n\n\nljkasdlkjasda\n\n\naskalsd")
-        
-        
-        //we have to wait until the baseFile (.0) is modified or rotated to .1, so that the set of files with shared lastModified is fixed (apart from deletion, which we can deal with)
-        return
-        //-> a future fileEvent will rotate .0 away or append something to it, giving it a different lastModified-time
-        //and therefore ensuring that no other files can get this same shared lastModified-time afterwards
-        //this and the fact that we can assume that .2 is older than .1, is older than .0 etc.,
-        //allows us to reference these files by this shared lastModified-time and how far one has to count from the lowest shared-lastModified-index
-        //TODO adjust comment for better understandability
-      }
-    }
-    
-    
+
     
     var startPos = previouslyScheduled.previousReadPosition
-    
-    
-    filesToReadGroupedByLastModified.foreach {
-      case (lastModified, fileToReadGroup) =>
-        var newerFilesWithSharedLastModified = fileToReadGroup.length
+
+
+    filesToScheduleGroupedByLastModified.foreach {
+      case (lastModified, fileToScheduleGroup) =>
+        var newerFilesWithSharedLastModified = fileToScheduleGroup.length
         
-        fileToReadGroup
-          .foreach { fileToRead =>
+        fileToScheduleGroup
+          .foreach { fileToSchedule =>
             newerFilesWithSharedLastModified -= 1
             
-            val endPos = fileToRead.length
+            val endPos = fileToSchedule.length
             if (startPos != endPos) {
 //            if (startPos < endPos) {
-              val lastModified = fileToRead.lastModified
+              val lastModified = fileToSchedule.lastModified
               readSchedule.enqueue(ReadScheduleItem(baseFile, startPos, endPos, lastModified, newerFilesWithSharedLastModified))
               
               previouslyScheduled = FileReadRecord(endPos, lastModified, newerFilesWithSharedLastModified)
