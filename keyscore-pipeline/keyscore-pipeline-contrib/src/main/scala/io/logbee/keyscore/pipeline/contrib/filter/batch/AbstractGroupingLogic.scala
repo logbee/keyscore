@@ -21,8 +21,8 @@ object AbstractGroupingLogic {
 
 abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private val queue = mutable.PriorityQueue.empty[Element](elementOrdering)
-  private val groups = mutable.HashMap.empty[Option[String], GroupElement]
+  private val queue = mutable.PriorityQueue.empty[Entry](entryOrdering)
+  private val groups = mutable.HashMap.empty[Option[String], GroupEntry]
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -41,7 +41,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
       case CloseGroupInclusively(id) =>
         groups.remove(id) match {
-          case Some(group @ GroupElement(_, _)) =>
+          case Some(group @ GroupEntry(_, _)) =>
             group.datasets += dataset
             group.close()
           case _ => // Nothing to do.
@@ -49,7 +49,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
       case CloseGroupExclusively(id, nextId) =>
         groups.remove(id) match {
-          case Some(group @ GroupElement(_, _)) =>
+          case Some(group @ GroupEntry(_, _)) =>
             group.close()
             openGroup(nextId, dataset)
 
@@ -68,8 +68,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     }
 
     if (isAvailable(out)) {
-      val pushFailed = !tryPush()
-      if (pushFailed && timeWindowActive && !isTimerActive("timeWindow")) {
+      if (!tryPush() && timeWindowActive && !isTimerActive("timeWindow")) {
         schedulePush()
       }
     }
@@ -96,13 +95,13 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
   }
 
   private def openGroup(id: Option[String], dataset: Dataset): Unit = {
-    val group = GroupElement(id, mutable.ListBuffer(dataset))
+    val group = GroupEntry(id, mutable.ListBuffer(dataset))
     queue enqueue group
     groups.put(id, group)
   }
 
   private def passthrough(dataset: Dataset): Unit = {
-    queue enqueue PassThroughElement(dataset)
+    queue enqueue PassThroughEntry(dataset)
   }
 
   private def tryPush(): Boolean = {
@@ -111,12 +110,12 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
     queue.headOption match {
 
-      case Some(PassThroughElement(dataset)) =>
+      case Some(PassThroughEntry(dataset)) =>
         queue.dequeue()
         push(out, dataset)
         true
 
-      case Some(group @ GroupElement(id, datasets)) if group.isClosed || timeWindowActive && group.isExpired =>
+      case Some(group @ GroupEntry(id, datasets)) if group.isClosed || timeWindowActive && group.isExpired =>
         queue.dequeue()
         groups.remove(id)
         push(out, Dataset(datasets.head.metadata, datasets.flatMap(_.records).toList))
@@ -128,7 +127,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
   private def schedulePush(): Unit = {
     queue.headOption match {
-      case Some(group @ GroupElement(_, _)) =>
+      case Some(group @ GroupEntry(_, _)) =>
         val timespan = group.expires - System.currentTimeMillis + 100
         scheduleOnce("timeWindow", Duration(timespan, MILLISECONDS))
       case _ =>
@@ -165,34 +164,34 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     */
   protected def maxGroups: Long
 
-  private sealed trait Element
+  private sealed trait Entry
 
-  private def elementOrdering(a: Element, b: Element): Int = {
+  private def entryOrdering(a: Entry, b: Entry): Int = {
     (a, b) match {
-      case (PassThroughElement(_), PassThroughElement(_)) => 0
-      case (PassThroughElement(_), GroupElement(_, _)) => -1
-      case (GroupElement(_, _), PassThroughElement(_)) => 1
-      case (a @ GroupElement(_, _), b @ GroupElement(_, _)) =>
+      case (PassThroughEntry(_), PassThroughEntry(_)) => 0
+      case (PassThroughEntry(_), GroupEntry(_, _)) => -1
+      case (GroupEntry(_, _), PassThroughEntry(_)) => 1
+      case (a @ GroupEntry(_, _), b @ GroupEntry(_, _)) =>
         if (timeWindowActive) {
-          if (a.expires < b.expires) -1
-          else if (a.expires > b.expires) 1
+          if (a.expires < b.expires) 1
+          else if (a.expires > b.expires) -1
           else {
             if (a.isClosed && b.isClosed) 0
-            else if (a.isClosed) -1
-            else if (b.isClosed) 1
+            else if (a.isClosed) 1
+            else if (b.isClosed) -1
             else 0
           }
         }
         else if (a.isClosed && b.isClosed) 0
-        else if (a.isClosed) -1
-        else if (b.isClosed) 1
+        else if (a.isClosed) 1
+        else if (b.isClosed) -1
         else 0
     }
   }
 
-  private case class PassThroughElement(dataset: Dataset) extends Element
+  private case class PassThroughEntry(dataset: Dataset) extends Entry
 
-  private case class GroupElement(id: Option[String], datasets: mutable.ListBuffer[Dataset]) extends Element {
+  private case class GroupEntry(id: Option[String], datasets: mutable.ListBuffer[Dataset]) extends Entry {
 
     private var closed: Boolean = false
 
