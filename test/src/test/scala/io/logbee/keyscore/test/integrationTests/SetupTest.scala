@@ -1,4 +1,4 @@
-package io.logbee.keyscore.test.IntegrationTests
+package io.logbee.keyscore.test.integrationTests
 
 import com.consol.citrus.TestAction
 import com.consol.citrus.annotations.{CitrusResource, CitrusTest}

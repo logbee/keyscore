@@ -1,4 +1,4 @@
-package io.logbee.keyscore.test.IntegrationTests
+package io.logbee.keyscore.test.integrationTests
 
 import com.consol.citrus.TestAction
 import com.consol.citrus.annotations.{CitrusResource, CitrusTest}
@@ -15,11 +15,12 @@ import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.test.integrationTests.behaviors.{DeleteAllBlueprints, DeleteAllConfigurations, DeleteAllPipelines}
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.{Assertion, Matchers}
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 import org.springframework.http.HttpStatus
 
 import scala.concurrent.duration._
@@ -27,10 +28,11 @@ import scala.concurrent.duration._
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class WorkflowTest extends Matchers {
 
-  private implicit val formats = KeyscoreFormats.formats
-  private val logger = LoggerFactory.getLogger(classOf[WorkflowTest])
+  implicit private val formats = KeyscoreFormats.formats
 
-  private val frontierClient: HttpClient = CitrusEndpoints.http()
+  implicit private val logger = LoggerFactory.getLogger(classOf[WorkflowTest])
+
+  implicit private val client: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
     .build()
@@ -76,16 +78,28 @@ class WorkflowTest extends Matchers {
   @Test
   @CitrusTest
   def testWorkflow(implicit @CitrusResource runner: TestRunner): Unit = {
+
+    logger.debug(s"STARTING WorkflowTest")
+
+    logger.debug(s"CREATING Workflow Pipeline")
     createWorkflowPipeline(runner)
+
+    logger.debug(s"LOOKING_UP HealthState of the Workflow Pipeline")
     pollPipelineHealthState() shouldBe true
-    //Insert Datasets
+
+    logger.debug(s"INSERTING Datasets into the Workflow Pipeline")
     insertDatasetsIntoFilter(retainFieldsID, write(List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset)))
-    //Check Datasets
+
+    logger.debug(s"CHECKING Datasets of the Workflow Pipeline")
     pollDatasets(filterID = secondRemoveFieldsID, expect = 3) shouldBe true
-    //Scrape metrics
-    scrape(filterID = secondRemoveFieldsID)
-    //Cleanup
+
+    logger.debug(s"SCRAPING the metrics of the Workflow Pipeline")
+    scrapeMetrics(filterID = secondRemoveFieldsID)
+
+    logger.debug(s"CLEANING_UP the Workflow Pipeline")
     cleanUp
+
+    logger.debug(s"FINISHING WorkflowTest")
   }
 
   private def createWorkflowPipeline(implicit runner: TestRunner): TestAction = {
@@ -135,28 +149,31 @@ class WorkflowTest extends Matchers {
     val elasticSinkConfiguration = loadConfiguration(WORKFLOW, "elasticSinkConfiguration")
     putSingleConfiguration(elasticSinkConfiguration, elasticSinkConfigurationJson)
 
-    //startPipeline
+    //Start the Pipeline
     val pipelineID: String = write(workflowPipelineBlueprint.ref)
     startPipeline(workflowPipelineBlueprint, pipelineID)
   }
 
-  private def cleanUp(implicit runner: TestRunner): TestAction = {
-    deleteBlueprints
-    deleteConfigurations
-    deletePipelines
+  private def cleanUp(implicit runner: TestRunner, client: HttpClient, logger: Logger): Unit = {
+    import runner._
+
+    applyBehavior(new DeleteAllBlueprints())
+    applyBehavior(new DeleteAllConfigurations())
+    applyBehavior(new DeleteAllPipelines())
+
   }
 
-  private def scrape(filterID: String)(implicit runner: TestRunner): Assertion = {
-    logger.debug(s"Scrape metrics for Filter <${filterID}>")
+  private def scrapeMetrics(filterID: String)(implicit runner: TestRunner): Assertion = {
+    logger.debug(s"SCRAPE metrics for Filter <${filterID}>")
 
     var metrics = MetricsCollection()
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .send()
       .get(s"/filter/${filterID}/scrape")
     )
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .receive()
       .response(HttpStatus.OK)
       .validationCallback((message, _) => {
@@ -168,16 +185,16 @@ class WorkflowTest extends Matchers {
   }
 
   private def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"PUT PipelineBlueprint for ${pipelineObject.ref.uuid}")
+    logger.debug(s"PUT PipelineBlueprint for <${pipelineObject.ref.uuid}>")
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .send()
       .put(s"/resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
       .contentType("application/json")
       .payload(pipelineJSON)
     )
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .receive()
       .response(HttpStatus.CREATED)
     )
@@ -185,41 +202,41 @@ class WorkflowTest extends Matchers {
   }
 
   private def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"PUT Blueprint")
+    logger.debug(s"PUT Blueprint for <${blueprintObject.blueprintRef.uuid}>")
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .send()
       .put(s"/resources/blueprint/${blueprintObject.blueprintRef.uuid}")
       .contentType("application/json")
       .payload(pipelineJSON)
     )
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .receive()
       .response(HttpStatus.CREATED)
     )
   }
 
   private def putSingleConfiguration(configurationObject: Configuration, configurationJSON: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"PUT Configuration for ${configurationObject.ref.uuid}")
+    logger.debug(s"PUT Configuration for <${configurationObject.ref.uuid}>")
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .send()
       .put(s"/resources/configuration/${configurationObject.ref.uuid}")
       .contentType("application/json")
       .payload(configurationJSON)
     )
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .receive()
       .response(HttpStatus.CREATED)
     )
   }
 
   private def startPipeline(pipelineObject: PipelineBlueprint, pipelineID: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"Start Pipeline for ${pipelineObject.ref.uuid}")
+    logger.debug(s"START Pipeline <${pipelineObject.ref.uuid}>")
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .send()
       .put(s"/pipeline/blueprint")
       .contentType("application/json")
@@ -231,7 +248,7 @@ class WorkflowTest extends Matchers {
   private def pollPipelineHealthState(maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int = 1)(implicit runner: TestRunner): Boolean = {
     var retries = maxRetries
     while (retries > 0) {
-      logger.debug(s"Check Health State for ${expect} Pipelines with $retries retries remaining.")
+      logger.debug(s"CHECK Health State for ${expect} Pipelines with $retries retries remaining.")
       var greenInstances: Int = 0
 
       val instances = checkHealthStateOfPipelines(runner)
@@ -252,12 +269,12 @@ class WorkflowTest extends Matchers {
   private def checkHealthStateOfPipelines(implicit runner: TestRunner): List[PipelineInstance] = {
     var instances: List[PipelineInstance] = List.empty
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .send()
       .get(s"pipeline/instance/*")
     )
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .receive()
       .response(HttpStatus.OK)
       .validationCallback((message, _) => {
@@ -269,16 +286,16 @@ class WorkflowTest extends Matchers {
   }
 
   private def insertDatasetsIntoFilter(filterID: String, datasets: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"Reached Insert Dataset for ${filterID} with ${datasets}")
+    logger.debug(s"INSERT Dataset for <${filterID}> with ${datasets}")
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .send()
       .put(s"/filter/${filterID}/insert")
       .contentType("application/json")
       .payload(datasets)
     )
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .receive()
       .response(HttpStatus.ACCEPTED)
     )
@@ -315,15 +332,15 @@ class WorkflowTest extends Matchers {
   }
 
   private def extractDatasetsFromFilter(filterID: String, amount: Int)(implicit runner: TestRunner): List[Dataset] = {
-    logger.debug(s"Reached Extract Datasets for ${filterID}")
+    logger.debug(s"EXTRACT Datasets for <${filterID}>")
     var listOfDatasets = List.empty[Dataset]
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .send()
       .get(s"/filter/${filterID}/extract?value=" + amount)
     )
 
-    runner.http(action => action.client(frontierClient)
+    runner.http(action => action.client(client)
       .receive()
       .response(HttpStatus.OK)
       .validationCallback((message, _) => {
@@ -332,38 +349,6 @@ class WorkflowTest extends Matchers {
     )
 
     listOfDatasets
-  }
-
-  private def deleteConfigurations(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"Deleting all configurations")
-
-    runner.http(action => action.client(frontierClient)
-      .send()
-      .delete(s"/resources/configuration/*")
-    )
-  }
-
-  private def deleteBlueprints(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"Deleting all blueprints")
-
-    runner.http(action => action.client(frontierClient)
-      .send()
-      .delete(s"/resources/blueprint/pipeline/*")
-    )
-
-    runner.http(action => action.client(frontierClient)
-      .send()
-      .delete(s"/resources/blueprint/*")
-    )
-  }
-
-  private def deletePipelines(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"Deleting all pipelines")
-
-    runner.http(action => action.client(frontierClient)
-      .send()
-      .delete(s"/pipeline/blueprint/*")
-    )
   }
 
 }
