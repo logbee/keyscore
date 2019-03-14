@@ -1,17 +1,13 @@
 package io.logbee.keyscore.pipeline.contrib.kafka
 
-import akka.actor.Status
-import akka.event.Logging
 import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.stream.Attributes.LogLevels
 import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{Attributes, OverflowStrategy, QueueOfferResult, SinkShape}
-import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
@@ -19,11 +15,9 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.{bootstrapServerParameter, bootstrapServerPortParameter, fieldNameParameter, topicParameter}
 import org.apache.kafka.clients.producer.{ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.json4s.Formats
-import org.json4s.native.Serialization.write
 
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
@@ -75,6 +69,17 @@ object KafkaSinkLogic extends Described {
     mandatory = true
   )
 
+  val maxMessageSizeParameter = NumberParameterDescriptor(
+    ref = "kafka.sink.maxMessageSize",
+    info = ParameterInfo(
+      displayName = TextRef("maxMessageSize.displayName"),
+      description = TextRef("maxMessageSize.description")
+    ),
+    defaultValue = 1000000,
+    mandatory = true,
+    range = NumberRange(1, 0, Long.MaxValue)
+  )
+
   override def describe = Descriptor(
     ref = "4fedbe8e-115e-4408-ba53-5b627b6e2eaf",
     describes = SinkDescriptor(
@@ -86,7 +91,8 @@ object KafkaSinkLogic extends Described {
         bootstrapServerParameter,
         bootstrapServerPortParameter,
         topicParameter,
-        fieldNameParameter
+        fieldNameParameter,
+        maxMessageSizeParameter
       ),
       icon = Icon.fromClass(classOf[KafkaSinkLogic])
     ),
@@ -106,10 +112,11 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
     pull(in)
   })
 
-  private var bootstrapServer = bootstrapServerParameter.defaultValue
-  private var bootstrapServerPort = bootstrapServerPortParameter.defaultValue
-  private var topic = topicParameter.defaultValue
-  private var fieldName = fieldNameParameter.defaultValue
+  private var bootstrapServer = KafkaSinkLogic.bootstrapServerParameter.defaultValue
+  private var bootstrapServerPort = KafkaSinkLogic.bootstrapServerPortParameter.defaultValue
+  private var topic = KafkaSinkLogic.topicParameter.defaultValue
+  private var fieldName = KafkaSinkLogic.fieldNameParameter.defaultValue
+  private var maxMessageSizeBytes = KafkaSinkLogic.maxMessageSizeParameter.defaultValue
 
   override def postStop(): Unit = {
     log.info("Kafka sink is stopping.")
@@ -123,10 +130,11 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
 
   override def configure(configuration: Configuration): Unit = {
 
-    bootstrapServer = configuration.getValueOrDefault(bootstrapServerParameter, bootstrapServer)
-    bootstrapServerPort = configuration.getValueOrDefault(bootstrapServerPortParameter, bootstrapServerPort)
-    topic = configuration.getValueOrDefault(topicParameter, topic)
-    fieldName = configuration.getValueOrDefault(fieldNameParameter, fieldName)
+    bootstrapServer = configuration.getValueOrDefault(KafkaSinkLogic.bootstrapServerParameter, bootstrapServer)
+    bootstrapServerPort = configuration.getValueOrDefault(KafkaSinkLogic.bootstrapServerPortParameter, bootstrapServerPort)
+    topic = configuration.getValueOrDefault(KafkaSinkLogic.topicParameter, topic)
+    fieldName = configuration.getValueOrDefault(KafkaSinkLogic.fieldNameParameter, fieldName)
+    maxMessageSizeBytes = configuration.getValueOrDefault(KafkaSinkLogic.maxMessageSizeParameter, maxMessageSizeBytes)
 
     val settings = producerSettings(s"$bootstrapServer:$bootstrapServerPort")
 
@@ -172,9 +180,16 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
 
     val messages = dataset.records.foldLeft(mutable.ListBuffer.empty[(ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit])]) { case (result, record) =>
       record.fields.find(field => fieldName == field.name) match {
-        case Some(Field(_, TextValue(value))) =>
-          val promise = Promise[Unit]
-          result += ((ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, value), promise), promise.future))
+        case Some(Field(_, textValue @ TextValue(_))) =>
+          if (textValue.serializedSize <= maxMessageSizeBytes) {
+            val promise = Promise[Unit]
+            result += ((ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, textValue.value), promise), promise.future))
+          }
+          else {
+            log.error(s"Message too large! Message with size ${textValue.serializedSize} is larger than the configured limit of $maxMessageSizeBytes bytes.")
+            log.error(s"Message too large: $textValue")
+            result
+          }
         case _ =>
           result
       }
