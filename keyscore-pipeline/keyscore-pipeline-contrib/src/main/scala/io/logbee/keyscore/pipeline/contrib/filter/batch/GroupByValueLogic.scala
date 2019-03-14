@@ -11,7 +11,6 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.{AddToGroup, CloseGroupExclusively, PassThrough}
 
 object GroupByValueLogic extends Described {
 
@@ -94,44 +93,48 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
     }
   }
 
-  override protected def examine(dataset: Dataset): AbstractGroupingLogic.GroupingAction = {
+  override protected def examine(dataset: Dataset): Unit = {
 
     val field =  dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
 
-    val result = if (timeWindowActive) {
-      examineWithActiveTimeWindow(field)
+    if (timeWindowActive) {
+      examineWithActiveTimeWindow(field, dataset)
     }
     else {
-      examineWithInActiveTimeWindow(field)
+      examineWithInActiveTimeWindow(field, dataset)
     }
-
-    log.info(s"result: $result")
-    result
   }
 
-  private def examineWithActiveTimeWindow(field: Option[Field]) = {
+  private def examineWithActiveTimeWindow(field: Option[Field], dataset: Dataset): Unit = {
     field match {
-      case Some(field) => AddToGroup(Some(field.hashCode().toString))
-      case _ => PassThrough
+      case Some(field) => addToGroup(field.hashCode().toString, dataset)
+      case _ => passthrough(dataset)
     }
   }
 
-  private def examineWithInActiveTimeWindow(field: Option[Field]) = {
+  private def examineWithInActiveTimeWindow(field: Option[Field], dataset: Dataset): Unit = {
     (lastField, field) match {
       case (None, Some(current)) =>
         lastField = current
-        AddToGroup(current.hashCode().toString)
+        addToGroup(current.hashCode().toString, dataset)
 
       case (Some(last), Some(current)) =>
+
+        val lastId = last.hashCode().toString
+
         if (last.equals(current)) {
-          AddToGroup(last.hashCode().toString)
+          addToGroup(lastId, dataset)
         }
         else {
           lastField = current
-          CloseGroupExclusively(last.hashCode().toString, current.hashCode().toString)
+          val currentId = current.hashCode().toString
+
+          closeGroup(lastId)
+          openGroup(currentId)
+          addToGroup(currentId, dataset)
         }
 
-      case _ => PassThrough
+      case _ => passthrough(dataset)
     }
   }
 
