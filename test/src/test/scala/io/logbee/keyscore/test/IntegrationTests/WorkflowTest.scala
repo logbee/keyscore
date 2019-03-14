@@ -14,10 +14,11 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.scalatest.Matchers
+import org.scalatest.{Assertion, Matchers}
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 
@@ -81,6 +82,8 @@ class WorkflowTest extends Matchers {
     insertDatasetsIntoFilter(retainFieldsID, write(List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset)))
     //Check Datasets
     pollDatasets(filterID = secondRemoveFieldsID, expect = 3) shouldBe true
+    //Scrape metrics
+    scrape(filterID = secondRemoveFieldsID)
     //Cleanup
     cleanUp
   }
@@ -143,8 +146,29 @@ class WorkflowTest extends Matchers {
     deletePipelines
   }
 
+  private def scrape(filterID: String)(implicit runner: TestRunner): Assertion = {
+    logger.debug(s"Scrape metrics for Filter <${filterID}>")
+
+    var metrics = MetricsCollection()
+
+    runner.http(action => action.client(frontierClient)
+      .send()
+      .get(s"/filter/${filterID}/scrape")
+    )
+
+    runner.http(action => action.client(frontierClient)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, _) => {
+        metrics = read[MetricsCollection](message.getPayload.asInstanceOf[String])
+      })
+    )
+
+    metrics.metrics shouldNot be (empty)
+  }
+
   private def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"Reached PUT PipelineBlueprint for ${pipelineObject.ref.uuid}")
+    logger.debug(s"PUT PipelineBlueprint for ${pipelineObject.ref.uuid}")
 
     runner.http(action => action.client(frontierClient)
       .send()
@@ -244,12 +268,12 @@ class WorkflowTest extends Matchers {
     instances
   }
 
-  private def insertDatasetsIntoFilter(filterId: String, datasets: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"Reached Insert Dataset for ${filterId} with ${datasets}")
+  private def insertDatasetsIntoFilter(filterID: String, datasets: String)(implicit runner: TestRunner): TestAction = {
+    logger.debug(s"Reached Insert Dataset for ${filterID} with ${datasets}")
 
     runner.http(action => action.client(frontierClient)
       .send()
-      .put(s"/filter/${filterId}/insert")
+      .put(s"/filter/${filterID}/insert")
       .contentType("application/json")
       .payload(datasets)
     )
@@ -265,15 +289,15 @@ class WorkflowTest extends Matchers {
     while (retries > 0) {
       logger.debug(s"Check Datasets for ${expect} Filter with $retries retries remaining.")
 
-      val listOfDatasets = extractDatsetsFromFilter(filterID, amount = expect)
+      val listOfDatasets = extractDatasetsFromFilter(filterID, amount = expect)
 
       if (listOfDatasets.size == expect) {
         listOfDatasets.foreach(dataset => {
           dataset.records should have size 1
           dataset.records.head.fields should have size 2
           val fieldNames = dataset.records.head.fields.map(field => field.name)
-          fieldNames should contain ("text3")
-          fieldNames should contain ("number1")
+          fieldNames should contain("text3")
+          fieldNames should contain("number1")
           fieldNames should not contain ("text1")
           fieldNames should not contain ("text2")
           fieldNames should not contain ("number2")
@@ -290,13 +314,13 @@ class WorkflowTest extends Matchers {
     false
   }
 
-  private def extractDatsetsFromFilter(filterId: String, amount: Int)(implicit runner: TestRunner): List[Dataset] = {
-    logger.debug(s"Reached Extract Datasets for ${filterId}")
+  private def extractDatasetsFromFilter(filterID: String, amount: Int)(implicit runner: TestRunner): List[Dataset] = {
+    logger.debug(s"Reached Extract Datasets for ${filterID}")
     var listOfDatasets = List.empty[Dataset]
 
     runner.http(action => action.client(frontierClient)
       .send()
-      .get(s"/filter/${filterId}/extract?value=" + amount)
+      .get(s"/filter/${filterID}/extract?value=" + amount)
     )
 
     runner.http(action => action.client(frontierClient)
