@@ -7,8 +7,7 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import com.consol.citrus.message.MessageType
-import io.logbee.keyscore.JsonData
-import io.logbee.keyscore.JsonData._
+import io.logbee.keyscore.test.util.JsonData._
 import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import org.json4s.native.Serialization.read

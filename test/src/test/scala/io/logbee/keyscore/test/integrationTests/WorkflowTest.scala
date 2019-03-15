@@ -6,21 +6,19 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.JsonData._
-import io.logbee.keyscore.model.PipelineInstance
-import io.logbee.keyscore.model.data.Health.Green
+import io.logbee.keyscore.test.util.JsonData._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.test.util.TestingMethods._
+import io.logbee.keyscore.test.fixtures.ExampleData._
 import io.logbee.keyscore.test.integrationTests.behaviors._
-import org.json4s.native.Serialization.{read, write}
+import org.json4s.native.Serialization.write
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.{Assertion, Matchers}
 import org.slf4j.{Logger, LoggerFactory}
-import org.springframework.http.HttpStatus
 
-import scala.concurrent.duration._
+import scala.language.postfixOps
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class WorkflowTest extends Matchers {
@@ -34,41 +32,8 @@ class WorkflowTest extends Matchers {
     .requestUrl("http://localhost:4711")
     .build()
 
-  //Records and Datasets
-  val workflowFirstRecord = Record(
-    Field("text1", TextValue("01text1")),
-    Field("text2", TextValue("01text2")),
-    Field("text3", TextValue("01text3")),
-    Field("number1", NumberValue(1001L)),
-    Field("number2", NumberValue(1002L)),
-    Field("wanted", BooleanValue(false)),
-    Field("health", HealthValue(Health.Green))
-  )
 
-  val workflowSecondRecord = Record(
-    Field("text1", TextValue("02text1")),
-    Field("text2", TextValue("02text2")),
-    Field("text3", TextValue("02text3")),
-    Field("number1", NumberValue(2001L)),
-    Field("number2", NumberValue(2002L)),
-    Field("wanted", BooleanValue(true)),
-    Field("health", HealthValue(Health.Yellow))
-  )
-
-  val workflowThirdRecord = Record(
-    Field("text1", TextValue("03text1")),
-    Field("text2", TextValue("03text2")),
-    Field("text3", TextValue("03text3")),
-    Field("number1", NumberValue(3001L)),
-    Field("number2", NumberValue(3002L)),
-    Field("wanted", BooleanValue(false)),
-    Field("health", HealthValue(Health.Red))
-  )
-
-  val workflowFirstDataset = Dataset(workflowFirstRecord)
-  val workflowSecondDataset = Dataset(workflowSecondRecord)
-  val workflowThirdDataset = Dataset(workflowThirdRecord)
-
+  //From the belonging JSONs
   val retainFieldsID = "f368c58c-db9a-43dc-8ccb-f495d29c441f"
   val secondRemoveFieldsID = "921a7d13-ebe0-49f8-8fc6-1e9064d1eba9"
 
@@ -89,10 +54,10 @@ class WorkflowTest extends Matchers {
     applyBehavior(new InsertDatasets(retainFieldsID, write(List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset))))
 
     logger.debug(s"CHECKING Datasets of the Workflow Pipeline")
-    pollDatasets(filterID = secondRemoveFieldsID, expect = 3) shouldBe true
+    pollDatasets(filterID = secondRemoveFieldsID, f = checkWorkflowDatasets, expect = 3) shouldBe true
 
     logger.debug(s"SCRAPING the metrics of the Workflow Pipeline")
-    scrapeMetrics(filterID = secondRemoveFieldsID)
+    scrapeMetrics(filterID = secondRemoveFieldsID).metrics shouldNot be (empty)
 
     logger.debug(s"CLEANING_UP the Workflow Pipeline")
     cleanUp
@@ -154,125 +119,18 @@ class WorkflowTest extends Matchers {
     applyBehavior(new StartPipeline(workflowPipelineBlueprint, pipelineID))
   }
 
-  private def cleanUp(implicit runner: TestRunner, client: HttpClient, logger: Logger): Unit = {
-    import runner._
+  private def checkWorkflowDatasets(dataset: Dataset): Assertion = {
 
-    applyBehavior(new DeleteAllBlueprints())
-    applyBehavior(new DeleteAllConfigurations())
-    applyBehavior(new DeleteAllPipelines())
+    dataset.records should have size 1
+    dataset.records.head.fields should have size 2
+    val fieldNames = dataset.records.head.fields.map(field => field.name)
+    fieldNames should contain("text3")
+    fieldNames should contain("number1")
+    fieldNames should not contain ("text1")
+    fieldNames should not contain ("text2")
+    fieldNames should not contain ("number2")
+    fieldNames should not contain ("health")
+    fieldNames should not contain ("wanted")
 
   }
-
-  private def scrapeMetrics(filterID: String)(implicit runner: TestRunner): Assertion = {
-    logger.debug(s"SCRAPE metrics for Filter <${filterID}>")
-
-    var metrics = MetricsCollection()
-
-    runner.http(action => action.client(client)
-      .send()
-      .get(s"/filter/${filterID}/scrape")
-    )
-
-    runner.http(action => action.client(client)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, _) => {
-        metrics = read[MetricsCollection](message.getPayload.asInstanceOf[String])
-      })
-    )
-
-    metrics.metrics shouldNot be (empty)
-  }
-
-  private def pollPipelineHealthState(maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int = 1)(implicit runner: TestRunner): Boolean = {
-    var retries = maxRetries
-    while (retries > 0) {
-      logger.debug(s"CHECK Health State for ${expect} Pipelines with $retries retries remaining.")
-      var greenInstances: Int = 0
-
-      val instances = checkHealthStateOfPipelines(runner)
-
-      instances.foreach(instance => {
-        if (instance.health == Green) greenInstances += 1
-      })
-
-      if (greenInstances == expect) return true
-
-      Thread.sleep(interval.toMillis)
-      retries -= 1
-    }
-
-    false
-  }
-
-  private def checkHealthStateOfPipelines(implicit runner: TestRunner): List[PipelineInstance] = {
-    var instances: List[PipelineInstance] = List.empty
-
-    runner.http(action => action.client(client)
-      .send()
-      .get(s"pipeline/instance/*")
-    )
-
-    runner.http(action => action.client(client)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, _) => {
-        val payload = message.getPayload.asInstanceOf[String]
-        instances = read[List[PipelineInstance]](payload)
-      }))
-
-    instances
-  }
-
-  private def pollDatasets(filterID: String, expect: Int = 1, maxRetries: Int = 10, interval: FiniteDuration = 2 seconds)(implicit runner: TestRunner): Boolean = {
-    var retries = maxRetries
-    while (retries > 0) {
-      logger.debug(s"Check Datasets for ${expect} Filter with $retries retries remaining.")
-
-      val listOfDatasets = extractDatasetsFromFilter(filterID, amount = expect)
-
-      if (listOfDatasets.size == expect) {
-        listOfDatasets.foreach(dataset => {
-          dataset.records should have size 1
-          dataset.records.head.fields should have size 2
-          val fieldNames = dataset.records.head.fields.map(field => field.name)
-          fieldNames should contain("text3")
-          fieldNames should contain("number1")
-          fieldNames should not contain ("text1")
-          fieldNames should not contain ("text2")
-          fieldNames should not contain ("number2")
-          fieldNames should not contain ("health")
-          fieldNames should not contain ("wanted")
-        })
-        return true
-      }
-
-      Thread.sleep(interval.toMillis)
-      retries -= 1
-    }
-
-    false
-  }
-
-  private def extractDatasetsFromFilter(filterID: String, amount: Int)(implicit runner: TestRunner): List[Dataset] = {
-    logger.debug(s"EXTRACT Datasets for <${filterID}>")
-    var listOfDatasets = List.empty[Dataset]
-
-    runner.http(action => action.client(client)
-      .send()
-      .get(s"/filter/${filterID}/extract?value=" + amount)
-    )
-
-    runner.http(action => action.client(client)
-      .receive()
-      .response(HttpStatus.OK)
-      .validationCallback((message, _) => {
-        listOfDatasets = read[List[Dataset]](message.getPayload.asInstanceOf[String])
-      })
-    )
-
-    listOfDatasets
-  }
-  
-
 }

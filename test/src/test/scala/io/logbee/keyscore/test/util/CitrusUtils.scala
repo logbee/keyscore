@@ -1,4 +1,4 @@
-package io.logbee.keyscore.test
+package io.logbee.keyscore.test.util
 
 import com.consol.citrus.message.Message
 import org.json4s.Formats

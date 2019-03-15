@@ -1,4 +1,4 @@
-package io.logbee.keyscore
+package io.logbee.keyscore.test.util
 
 import io.logbee.keyscore.model.blueprint.{FilterBlueprint, PipelineBlueprint, SinkBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration

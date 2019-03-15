@@ -1,24 +1,20 @@
 package io.logbee.keyscore.test.integrationTests
 
-import com.consol.citrus.TestAction
 import com.consol.citrus.annotations.{CitrusResource, CitrusTest}
 import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import com.consol.citrus.message.MessageType
-import io.logbee.keyscore.JsonData
-import io.logbee.keyscore.JsonData._
-import io.logbee.keyscore.model.configuration.{Configuration, ConfigurationRef}
+import io.logbee.keyscore.model.configuration.ConfigurationRef
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.test.CitrusUtils
-import io.logbee.keyscore.test.CitrusUtils.readPayload
-import org.json4s.native.Serialization.{read, write}
-import org.junit.jupiter.api.{AfterEach, Test}
+import io.logbee.keyscore.test.util.CitrusUtils.readPayload
+import io.logbee.keyscore.test.util.JsonData._
+import org.json4s.native.Serialization.write
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.{AfterEach, Test}
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
-import org.springframework.http.{HttpStatus, MediaType}
+import org.springframework.http.HttpStatus
 
 
 @ExtendWith(value = Array(classOf[CitrusExtension]))
