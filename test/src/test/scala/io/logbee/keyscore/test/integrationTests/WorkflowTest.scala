@@ -8,14 +8,11 @@ import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.JsonData._
 import io.logbee.keyscore.model.PipelineInstance
-import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
-import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint}
-import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.metrics.MetricsCollection
-import io.logbee.keyscore.test.integrationTests.behaviors.{DeleteAllBlueprints, DeleteAllConfigurations, DeleteAllPipelines}
+import io.logbee.keyscore.test.integrationTests.behaviors._
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -78,17 +75,18 @@ class WorkflowTest extends Matchers {
   @Test
   @CitrusTest
   def testWorkflow(implicit @CitrusResource runner: TestRunner): Unit = {
+    import runner.applyBehavior
 
     logger.debug(s"STARTING WorkflowTest")
 
     logger.debug(s"CREATING Workflow Pipeline")
-    createWorkflowPipeline(runner)
+    createWorkflowPipeline(runner,client,logger)
 
     logger.debug(s"LOOKING_UP HealthState of the Workflow Pipeline")
     pollPipelineHealthState() shouldBe true
 
     logger.debug(s"INSERTING Datasets into the Workflow Pipeline")
-    insertDatasetsIntoFilter(retainFieldsID, write(List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset)))
+    applyBehavior(new InsertDatasets(retainFieldsID, write(List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset))))
 
     logger.debug(s"CHECKING Datasets of the Workflow Pipeline")
     pollDatasets(filterID = secondRemoveFieldsID, expect = 3) shouldBe true
@@ -102,56 +100,58 @@ class WorkflowTest extends Matchers {
     logger.debug(s"FINISHING WorkflowTest")
   }
 
-  private def createWorkflowPipeline(implicit runner: TestRunner): TestAction = {
+  private def createWorkflowPipeline(implicit runner: TestRunner, client: HttpClient, logger: Logger): TestAction = {
+    import runner.applyBehavior
+
     //1. KafkaSource Blueprint
     val kafkaSourceBlueprintJSON = loadJson(BLUEPRINTS, WORKFLOW, "kafkaSourceBlueprint")
     val kafkaSourceBlueprint = loadSourceBlueprint(WORKFLOW, "kafkaSourceBlueprint")
-    putSingleBlueprint(kafkaSourceBlueprint, kafkaSourceBlueprintJSON)
+    applyBehavior(new PutSingleBlueprint(kafkaSourceBlueprint, kafkaSourceBlueprintJSON))
     //2. RetainFields Blueprint
     val retainFieldsBlueprintJSON = loadJson(BLUEPRINTS, WORKFLOW, "retainFieldsBlueprint")
     val retainFieldsBlueprint = loadFilterBlueprint(WORKFLOW, "retainFieldsBlueprint")
-    putSingleBlueprint(retainFieldsBlueprint, retainFieldsBlueprintJSON)
+    applyBehavior(new PutSingleBlueprint(retainFieldsBlueprint, retainFieldsBlueprintJSON))
     //3. First RemoveFields Blueprint
     val firstRemoveFieldsBlueprintJSON = loadJson(BLUEPRINTS, WORKFLOW, "firstRemoveFieldsBlueprint")
     val firstRemoveFieldsBlueprint = loadFilterBlueprint(WORKFLOW, "firstRemoveFieldsBlueprint")
-    putSingleBlueprint(firstRemoveFieldsBlueprint, firstRemoveFieldsBlueprintJSON)
+    applyBehavior(new PutSingleBlueprint(firstRemoveFieldsBlueprint, firstRemoveFieldsBlueprintJSON))
     //4. Second RemoveFields Blueprint
     val secondRemoveFieldsBlueprintJSON = loadJson(BLUEPRINTS, WORKFLOW, "secondRemoveFieldsBlueprint")
     val secondRemoveFieldsBlueprint = loadFilterBlueprint(WORKFLOW, "secondRemoveFieldsBlueprint")
-    putSingleBlueprint(secondRemoveFieldsBlueprint, secondRemoveFieldsBlueprintJSON)
+    applyBehavior(new PutSingleBlueprint(secondRemoveFieldsBlueprint, secondRemoveFieldsBlueprintJSON))
     //5. ElasticSink Blueprint
     val elasticSinkBlueprintJSON = loadJson(BLUEPRINTS, WORKFLOW, "elasticSinkBlueprint")
     val elasticSinkBlueprint = loadSinkBlueprint(WORKFLOW, "elasticSinkBlueprint")
-    putSingleBlueprint(elasticSinkBlueprint, elasticSinkBlueprintJSON)
+    applyBehavior(new PutSingleBlueprint(elasticSinkBlueprint, elasticSinkBlueprintJSON))
     //6. Pipeline Blueprint
     val workflowPipelineBlueprintJSON = loadJson(BLUEPRINTS, WORKFLOW, "workflowPipelineBlueprint")
     val workflowPipelineBlueprint = loadPipelineBlueprint(WORKFLOW, "workflowPipelineBlueprint")
-    putSinglePipelineBlueprint(workflowPipelineBlueprint, workflowPipelineBlueprintJSON)
+    applyBehavior(new PutSinglePipelineBlueprint(workflowPipelineBlueprint, workflowPipelineBlueprintJSON))
 
     //1. KafkaSource Configuration
     val kafkaSourceConfigurationJSON = loadJson(CONFIGURATIONS, WORKFLOW, "kafkaSourceConfiguration")
     val kafkaSourceConfiguration = loadConfiguration(WORKFLOW, "kafkaSourceConfiguration")
-    putSingleConfiguration(kafkaSourceConfiguration, kafkaSourceConfigurationJSON)
+    applyBehavior(new PutSingleConfiguration(kafkaSourceConfiguration, kafkaSourceConfigurationJSON))
     //2. RetainFields Configuration
     val retainFieldsConfigurationJSON = loadJson(CONFIGURATIONS, WORKFLOW, "retainFieldsConfiguration")
     val retainFieldsConfiguration = loadConfiguration(WORKFLOW, "retainFieldsConfiguration")
-    putSingleConfiguration(retainFieldsConfiguration, retainFieldsConfigurationJSON)
+    applyBehavior(new PutSingleConfiguration(retainFieldsConfiguration, retainFieldsConfigurationJSON))
     //3. First RemoveFields Configuration
     val firstRemoveFieldsConfigurationJSON = loadJson(CONFIGURATIONS, WORKFLOW, "firstRemoveFieldsConfiguration")
     val firstRemoveFieldsConfiguration = loadConfiguration(WORKFLOW, "firstRemoveFieldsConfiguration")
-    putSingleConfiguration(firstRemoveFieldsConfiguration, firstRemoveFieldsConfigurationJSON)
+    applyBehavior(new PutSingleConfiguration(firstRemoveFieldsConfiguration, firstRemoveFieldsConfigurationJSON))
     //4. Second RemoveFields Configuration
     val secondRemoveFieldsConfigurationJSON = loadJson(CONFIGURATIONS, WORKFLOW, "secondRemoveFieldsConfiguration")
     val secondRemoveFieldsConfiguration = loadConfiguration(WORKFLOW, "secondRemoveFieldsConfiguration")
-    putSingleConfiguration(secondRemoveFieldsConfiguration, secondRemoveFieldsConfigurationJSON)
+    applyBehavior(new PutSingleConfiguration(secondRemoveFieldsConfiguration, secondRemoveFieldsConfigurationJSON))
     //5. ElasticSink Configuration
     val elasticSinkConfigurationJson = loadJson(CONFIGURATIONS, WORKFLOW, "elasticSinkConfiguration")
     val elasticSinkConfiguration = loadConfiguration(WORKFLOW, "elasticSinkConfiguration")
-    putSingleConfiguration(elasticSinkConfiguration, elasticSinkConfigurationJson)
+    applyBehavior(new PutSingleConfiguration(elasticSinkConfiguration, elasticSinkConfigurationJson))
 
     //Start the Pipeline
     val pipelineID: String = write(workflowPipelineBlueprint.ref)
-    startPipeline(workflowPipelineBlueprint, pipelineID)
+    applyBehavior(new StartPipeline(workflowPipelineBlueprint, pipelineID))
   }
 
   private def cleanUp(implicit runner: TestRunner, client: HttpClient, logger: Logger): Unit = {
@@ -182,67 +182,6 @@ class WorkflowTest extends Matchers {
     )
 
     metrics.metrics shouldNot be (empty)
-  }
-
-  private def putSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"PUT PipelineBlueprint for <${pipelineObject.ref.uuid}>")
-
-    runner.http(action => action.client(client)
-      .send()
-      .put(s"/resources/blueprint/pipeline/${pipelineObject.ref.uuid}")
-      .contentType("application/json")
-      .payload(pipelineJSON)
-    )
-
-    runner.http(action => action.client(client)
-      .receive()
-      .response(HttpStatus.CREATED)
-    )
-
-  }
-
-  private def putSingleBlueprint(blueprintObject: SealedBlueprint, pipelineJSON: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"PUT Blueprint for <${blueprintObject.blueprintRef.uuid}>")
-
-    runner.http(action => action.client(client)
-      .send()
-      .put(s"/resources/blueprint/${blueprintObject.blueprintRef.uuid}")
-      .contentType("application/json")
-      .payload(pipelineJSON)
-    )
-
-    runner.http(action => action.client(client)
-      .receive()
-      .response(HttpStatus.CREATED)
-    )
-  }
-
-  private def putSingleConfiguration(configurationObject: Configuration, configurationJSON: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"PUT Configuration for <${configurationObject.ref.uuid}>")
-
-    runner.http(action => action.client(client)
-      .send()
-      .put(s"/resources/configuration/${configurationObject.ref.uuid}")
-      .contentType("application/json")
-      .payload(configurationJSON)
-    )
-
-    runner.http(action => action.client(client)
-      .receive()
-      .response(HttpStatus.CREATED)
-    )
-  }
-
-  private def startPipeline(pipelineObject: PipelineBlueprint, pipelineID: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"START Pipeline <${pipelineObject.ref.uuid}>")
-
-    runner.http(action => action.client(client)
-      .send()
-      .put(s"/pipeline/blueprint")
-      .contentType("application/json")
-      .payload(pipelineID)
-    )
-
   }
 
   private def pollPipelineHealthState(maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int = 1)(implicit runner: TestRunner): Boolean = {
@@ -283,22 +222,6 @@ class WorkflowTest extends Matchers {
       }))
 
     instances
-  }
-
-  private def insertDatasetsIntoFilter(filterID: String, datasets: String)(implicit runner: TestRunner): TestAction = {
-    logger.debug(s"INSERT Dataset for <${filterID}> with ${datasets}")
-
-    runner.http(action => action.client(client)
-      .send()
-      .put(s"/filter/${filterID}/insert")
-      .contentType("application/json")
-      .payload(datasets)
-    )
-
-    runner.http(action => action.client(client)
-      .receive()
-      .response(HttpStatus.ACCEPTED)
-    )
   }
 
   private def pollDatasets(filterID: String, expect: Int = 1, maxRetries: Int = 10, interval: FiniteDuration = 2 seconds)(implicit runner: TestRunner): Boolean = {
@@ -350,5 +273,6 @@ class WorkflowTest extends Matchers {
 
     listOfDatasets
   }
+  
 
 }
