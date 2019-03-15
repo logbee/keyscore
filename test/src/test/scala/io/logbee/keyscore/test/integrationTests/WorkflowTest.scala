@@ -12,6 +12,7 @@ import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.test.util.TestingMethods._
 import io.logbee.keyscore.test.fixtures.ExampleData._
 import io.logbee.keyscore.test.integrationTests.behaviors._
+import org.json4s.Formats
 import org.json4s.native.Serialization.write
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,15 +24,14 @@ import scala.language.postfixOps
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class WorkflowTest extends Matchers {
 
-  implicit private val formats = KeyscoreFormats.formats
+  implicit private val formats: Formats = KeyscoreFormats.formats
 
-  implicit private val logger = LoggerFactory.getLogger(classOf[WorkflowTest])
+  implicit private val logger: Logger = LoggerFactory.getLogger(classOf[WorkflowTest])
 
   implicit private val client: HttpClient = CitrusEndpoints.http()
     .client()
     .requestUrl("http://localhost:4711")
     .build()
-
 
   //From the belonging JSONs
   val retainFieldsID = "f368c58c-db9a-43dc-8ccb-f495d29c441f"
@@ -39,13 +39,13 @@ class WorkflowTest extends Matchers {
 
   @Test
   @CitrusTest
-  def testWorkflow(implicit @CitrusResource runner: TestRunner): Unit = {
+  def runWorkflowTest(implicit @CitrusResource runner: TestRunner): Unit = {
     import runner.applyBehavior
 
     logger.debug(s"STARTING WorkflowTest")
 
     logger.debug(s"CREATING Workflow Pipeline")
-    createWorkflowPipeline(runner,client,logger)
+    createWorkflowPipeline(runner, client, logger)
 
     logger.debug(s"LOOKING_UP HealthState of the Workflow Pipeline")
     pollPipelineHealthState() shouldBe true
@@ -54,10 +54,10 @@ class WorkflowTest extends Matchers {
     applyBehavior(new InsertDatasets(retainFieldsID, write(List(workflowFirstDataset, workflowSecondDataset, workflowThirdDataset))))
 
     logger.debug(s"CHECKING Datasets of the Workflow Pipeline")
-    pollDatasets(filterID = secondRemoveFieldsID, f = checkWorkflowDatasets, expect = 3) shouldBe true
+    checkDatasets(filterID = secondRemoveFieldsID, f = checkWorkflowDatasets, amount = 3, expect = 3) shouldBe true
 
     logger.debug(s"SCRAPING the metrics of the Workflow Pipeline")
-    scrapeMetrics(filterID = secondRemoveFieldsID).metrics shouldNot be (empty)
+    scrapeMetrics(filterID = secondRemoveFieldsID).metrics shouldNot be(empty)
 
     logger.debug(s"CLEANING_UP the Workflow Pipeline")
     cleanUp
@@ -116,7 +116,7 @@ class WorkflowTest extends Matchers {
 
     //Start the Pipeline
     val pipelineID: String = write(workflowPipelineBlueprint.ref)
-    applyBehavior(new StartPipeline(workflowPipelineBlueprint, pipelineID))
+    applyBehavior(new PipelineStart(workflowPipelineBlueprint, pipelineID))
   }
 
   private def checkWorkflowDatasets(dataset: Dataset): Assertion = {

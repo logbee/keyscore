@@ -5,20 +5,17 @@ import com.consol.citrus.http.client.HttpClient
 import org.slf4j.Logger
 import org.springframework.http.HttpStatus
 
-class InsertDatasets(filterID: String, datasets: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger) extends AbstractTestBehavior {
+class DeleteSinglePipelineBlueprint(blueprintID: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger) extends AbstractTestBehavior {
   override def apply(): Unit = {
-    logger.debug(s"INSERT Dataset into <${filterID}> with ${datasets}")
+    logger.debug(s"DELETE PipelineBlueprint for <${blueprintID}>")
 
     runner.http(action => action.client(client)
       .send()
-      .put(s"/filter/${filterID}/insert")
-      .contentType("application/json")
-      .payload(datasets)
+      .delete(s"resources/blueprint/pipeline/${blueprintID}")
     )
 
     runner.http(action => action.client(client)
       .receive()
-      .response(HttpStatus.ACCEPTED)
-    )
+      .response(HttpStatus.OK))
   }
 }

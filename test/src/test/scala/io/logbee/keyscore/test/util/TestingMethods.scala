@@ -3,11 +3,14 @@ package io.logbee.keyscore.test.util
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.model.PipelineInstance
+import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.pipeline.FilterState
 import io.logbee.keyscore.test.integrationTests.behaviors.{DeleteAllBlueprints, DeleteAllConfigurations, DeleteAllPipelines}
+import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization.read
 import org.scalatest.Assertion
 import org.slf4j.Logger
@@ -43,7 +46,7 @@ object TestingMethods {
     datasets
   }
 
-  private[test] def pollDatasets(filterID: String, f: Dataset => Assertion, expect: Int = 1, maxRetries: Int = 10, interval: FiniteDuration = 2 seconds)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Boolean = {
+  private[test] def checkDatasets(filterID: String, f: Dataset => Assertion, amount: Int = 1, expect: Int = 1, maxRetries: Int = 10, interval: FiniteDuration = 2 seconds)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Boolean = {
     var retries = maxRetries
     while (retries > 0) {
       logger.debug(s"Check Datasets for ${expect} Filter with $retries retries remaining.")
@@ -60,6 +63,71 @@ object TestingMethods {
     }
 
     false
+  }
+
+  private[test] def getSinglePipelineBlueprint(blueprintID: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): PipelineBlueprint = {
+    logger.debug(s"GET PipelineBlueprint for <${blueprintID}>")
+
+    var pipelineBlueprint = PipelineBlueprint()
+
+    runner.http(action => action.client(client)
+      .send()
+      .get(s"resources/blueprint/pipeline/${blueprintID}")
+    )
+
+    runner.http(action => action.client(client)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, _) => {
+        val payload = message.getPayload().asInstanceOf[String]
+        pipelineBlueprint = read[PipelineBlueprint](payload)
+      })
+    )
+
+    pipelineBlueprint
+  }
+
+  private[test] def getAllPipelineBlueprints(implicit runner: TestRunner, client: HttpClient, logger: Logger): Map[BlueprintRef, PipelineBlueprint] = {
+    logger.debug(s"GET_ALL PipelineBlueprints")
+
+    var pipelineBlueprints = Map.empty[BlueprintRef, PipelineBlueprint]
+
+    runner.http(action => action.client(client)
+      .send()
+      .get(s"resources/blueprint/pipeline/*")
+    )
+
+    runner.http(action => action.client(client)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, _) => {
+        val payload = message.getPayload().asInstanceOf[String]
+        pipelineBlueprints = read[Map[BlueprintRef, PipelineBlueprint]](payload)
+      })
+    )
+
+    pipelineBlueprints
+  }
+
+  private[test] def getFilterState(filterId: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): FilterState = {
+    logger.debug(s"GET Filter State for <${filterId}>")
+
+    var state: FilterState = null
+
+    runner.http(action => action.client(client)
+      .send()
+      .get(s"/filter/${filterId}/state")
+    )
+
+    runner.http(action => action.client(client)
+      .receive()
+      .response(HttpStatus.ACCEPTED)
+      .validationCallback((message, context) => {
+        val payload = message.getPayload.asInstanceOf[String]
+        state = read[FilterState](payload)
+      })
+    )
+    state
   }
 
   private[test] def getAllPipelineInstances(implicit runner: TestRunner, client: HttpClient, logger: Logger): List[PipelineInstance] = {
@@ -103,6 +171,51 @@ object TestingMethods {
     false
   }
 
+  private[test] def getElementsFromElasticTopic(topic: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Int = {
+    logger.debug(s"GET Elements from ($topic) in elastic.")
+
+    var hits: Int = -1
+
+    runner.http(action => action.client(client)
+      .send()
+      .get(s"/$topic/_search")
+    )
+
+    runner.http(action => action.client(client)
+      .receive()
+      .response(HttpStatus.OK)
+      .validationCallback((message, context) => {
+        val response = message.getPayload.asInstanceOf[String]
+        val json = parse(response)
+        hits = (json \ "hits" \ "total").extract[Int]
+      }))
+
+    logger.debug(s"$hits hits for topic ($topic) in elastic.")
+    hits
+  }
+
+  private[test] def pollElasticElements(topic: String, maxRetries: Int = 10, interval: FiniteDuration = 2 seconds, expect: Int)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Boolean = {
+    var retries = maxRetries
+    while (retries > 0) {
+      logger.info(s"POLL elastic in ($topic) for ${expect} elements with $retries retries remaining.")
+
+      try {
+        val elements = getElementsFromElasticTopic(topic)(runner, client, logger)
+        if (elements == expect) {
+          return true
+        }
+      }
+      catch {
+        case e: Throwable => logger.error("Something went wrong while polling elasticsearch.", e)
+      }
+
+      Thread.sleep(interval.toMillis)
+      retries -= 1
+    }
+
+    false
+  }
+
   private[test] def scrapeMetrics(filterID: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): MetricsCollection = {
     logger.debug(s"SCRAPE metrics for Filter <${filterID}>")
 
@@ -125,7 +238,7 @@ object TestingMethods {
   }
 
   private[test] def cleanUp(implicit runner: TestRunner, client: HttpClient, logger: Logger): Unit = {
-    import runner._
+    import runner.applyBehavior
 
     applyBehavior(new DeleteAllBlueprints())
     applyBehavior(new DeleteAllConfigurations())
