@@ -16,9 +16,10 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
 import {JsonVisualizer} from "./components/json-visualizer";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
+import {AppAuthGuard} from "../app.authguard";
 
 export const routes: Routes = [
-    {path:"", component: ResourcesComponent}
+    {path:"", component: ResourcesComponent, canActivate:[AppAuthGuard]}
 ];
 
 @NgModule({

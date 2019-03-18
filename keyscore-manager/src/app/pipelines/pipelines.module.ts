@@ -21,9 +21,9 @@ import {DatatableModule} from "./datatable/datatable.module";
 import {AppAuthGuard} from "../app.authguard";
 
 export const routes: Routes = [
-    {path: "", component: PipelinesComponent},
-    {path: ":id", component: PipelineEditorComponent},
-    {path: "error", component: ErrorComponent}
+    {path: "", component: PipelinesComponent,canActivate:[AppAuthGuard]},
+    {path: ":id", component: PipelineEditorComponent,canActivate:[AppAuthGuard]},
+    {path: "error", component: ErrorComponent,canActivate:[AppAuthGuard]}
 ];
 
 @NgModule({

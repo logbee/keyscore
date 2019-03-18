@@ -34,10 +34,10 @@ import {AppAuthGuard} from "./app.authguard";
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
-    {path: "dashboard", component: DashboardComponent},
+    {path: "dashboard", component: DashboardComponent, canActivate:[AppAuthGuard]},
     {path: "agent", loadChildren: () => AgentsModule},
     {path: "pipelines", loadChildren: () => PipelinesModule},
-    {path: "settings", component: SettingsComponent},
+    {path: "settings", component: SettingsComponent, canActivate:[AppAuthGuard]},
     {path: "resources", loadChildren: () => ResourcesModule}
 ];
 

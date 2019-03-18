@@ -23,6 +23,7 @@ export class AppAuthGuard extends KeycloakAuthGuard {
                 }
             );
             if (isAuth) {
+                console.log("IsAUTH is TRUE");
                 if (!this.authenticated) {
                     this.keycloakService.login();
                     return;
@@ -45,6 +46,7 @@ export class AppAuthGuard extends KeycloakAuthGuard {
                     resolve(granted);
                 }
             } else {
+                console.log("isAuth is FALSE");
                 resolve(true);
             }
         });

@@ -148,18 +148,17 @@ export function initializer(configLoader: AppConfigLoader, keycloakConfigLoader:
         return new Promise(async (resolve, reject) => {
             try {
                 await configLoader.load();
-                const isKeycloakActive = await keycloakConfigLoader.isKeycloakActive();
-                if (isKeycloakActive) {
-                    const keycloakConf = await keycloakConfigLoader.getKeycloakConfig();
-                    await keycloak.init({
-                        config: keycloakConf,
-                        initOptions: {
-                            onLoad: 'login-required',
-                            checkLoginIframe: false
-                        },
-                        bearerExcludedUrls: []
-                    });
-                }
+
+                const keycloakConf = await keycloakConfigLoader.getKeycloakConfig();
+                await keycloak.init({
+                    config: keycloakConf,
+                    initOptions: {
+                        onLoad: 'login-required',
+                        checkLoginIframe: false
+                    },
+                    bearerExcludedUrls: []
+                });
+
                 resolve();
             } catch (error) {
                 reject(error);
