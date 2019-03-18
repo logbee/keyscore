@@ -1,0 +1,26 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"840df94d-ed20-47ca-b061-6daceb8cb747",
+    "revision":"",
+    "ancestor":""
+  },
+  "parameterSet":{
+    "parameters":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.BooleanParameter",
+        "ref":{
+          "id":"removeSourceField"
+        },
+        "value":true
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+        "ref":{
+          "id":"sourceFieldName"
+        },
+        "value":"__data_"
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"e6609c8c-9a53-4af7-a0d9-3016680b3e99",
+    "revision":"",
+    "ancestor":""
+  },
+  "parameterSet":{
+    "parameters":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+        "ref":{
+          "id":"jsonEncoder.fieldName"
+        },
+        "value":"__data_"
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.ChoiceParameter",
+        "ref":{
+          "id":"jsonEncoder.batchStrategy"
+        },
+        "value":"jsonEncoder.batch.KEEP_BATCH"
+      }
+    ]
+  }
+}

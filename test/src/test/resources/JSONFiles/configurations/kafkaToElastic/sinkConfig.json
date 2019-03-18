@@ -1,39 +1,33 @@
 {
   "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
   "ref":{
-    "uuid":"d35d1f46-cd41-4a25-8d83-02cf9348d87e"
+    "uuid":"d35d1f46-cd41-4a25-8d83-02cf9348d87e",
+    "revision":"",
+    "ancestor":""
   },
-  "parameterSet": {
-    "parameters": [
+  "parameterSet":{
+    "parameters":[
       {
-        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
-        "ref": {
-          "id": "elastic.host"
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+        "ref":{
+          "id":"elastic.host"
         },
-        "value": "keyscore-elasticsearch"
+        "value":"keyscore-elasticsearch"
       },
       {
-        "jsonClass": "io.logbee.keyscore.model.configuration.NumberParameter",
-        "ref": {
-          "id": "elastic.port"
+        "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
+        "ref":{
+          "id":"elastic.port"
         },
-        "value": 9200
+        "value":9200
       },
       {
-        "jsonClass": "io.logbee.keyscore.model.configuration.TextParameter",
-        "ref": {
-          "id": "elastic.index"
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+        "ref":{
+          "id":"elastic.index"
         },
-        "value": "test"
-      },
-      {
-        "jsonClass": "io.logbee.keyscore.model.configuration.FieldNameParameter",
-        "ref": {
-          "id": "kafka.sink.fieldName"
-        },
-        "value": "foo"
+        "value":"test"
       }
-    ],
-    "jsonClass": "io.logbee.keyscore.model.configuration.ParameterSet"
+    ]
   }
 }

@@ -8,24 +8,35 @@
       "uuid":"d69c8aca-2ceb-49c5-b4f8-f8298e5187cd"
     },
     {
+      "uuid":"484b22d0-1d6e-46c4-94ac-9662ff20ee1d"
+    },
+    {
       "uuid":"24a88215-cfe0-47a1-a889-7f3e9f8260ef"
+    },
+    {
+      "uuid":"735db838-a6fb-40a1-a53b-6a0749d9a4e8"
     },
     {
       "uuid":"80851e06-7191-4d96-8e4d-de66a5a12e81"
     }
   ],
   "metadata":{
+    "jsonClass":"io.logbee.keyscore.model.data.MetaData",
     "labels":[
       {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
         "name":"pipeline.name",
         "value":{
-          "value":"IntegrationTestPipeline"
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"Kafka-To-Kafka"
         }
       },
       {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
         "name":"pipeline.description",
         "value":{
-          "value":"It's valid"
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"Ships from TopicA to TopicB"
         }
       }
     ]

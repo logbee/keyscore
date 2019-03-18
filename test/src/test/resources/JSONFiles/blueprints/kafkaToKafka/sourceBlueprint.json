@@ -7,6 +7,8 @@
     "uuid":"6a9671d9-93a9-4fe4-b779-b4e0cf9a6e6c"
   },
   "configuration":{
-    "uuid":"bae4e0bc-2784-416a-a93d-0e36ed80d6e0"
+    "uuid":"bae4e0bc-2784-416a-a93d-0e36ed80d6e0",
+    "revision":"",
+    "ancestor":""
   }
 }

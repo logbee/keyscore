@@ -34,7 +34,6 @@ class SetupTest extends Matchers {
 
   private val frontierClient: HttpClient = CitrusEndpoints.http()
     .client()
-//    .requestUrl("http://s415vm1803.detss.corpintra.net:4711")
     .requestUrl("http://localhost:4711")
     .build()
 

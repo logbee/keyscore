@@ -16,7 +16,7 @@ import org.json4s.native.Serialization.write
 
 object JsonEncoderLogic extends Described {
 
-  private[encoder] val fieldNameParameter = FieldNameParameterDescriptor(
+  val fieldNameParameter = FieldNameParameterDescriptor(
     ref = "jsonEncoder.fieldName",
     info = ParameterInfo(
       displayName = TextRef("jsonEncoder.fieldName.displayName"),
@@ -26,10 +26,10 @@ object JsonEncoderLogic extends Described {
     mandatory = true
   )
 
-  private[encoder] val KEEP_BATCH = "jsonEncoder.batch.KEEP_BATCH"
-  private[encoder] val SPLIT_BATCH = "jsonEncoder.batch.SPLIT_BATCH"
+  val KEEP_BATCH = "jsonEncoder.batch.KEEP_BATCH"
+  val SPLIT_BATCH = "jsonEncoder.batch.SPLIT_BATCH"
 
-  private[encoder] val batchStrategyParameter = ChoiceParameterDescriptor(
+  val batchStrategyParameter = ChoiceParameterDescriptor(
     ref = "jsonEncoder.batchStrategy",
     info = ParameterInfo(
       displayName = TextRef("jsonEncoder.batchStrategy.displayName"),

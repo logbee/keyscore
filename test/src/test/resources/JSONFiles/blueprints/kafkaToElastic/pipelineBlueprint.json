@@ -8,6 +8,9 @@
       "uuid":"4a696573-ce73-4bb2-8d9a-b2a90e834153"
     },
     {
+      "uuid":"af14c4a5-9770-4375-b57d-e82bf7ce9afe"
+    },
+    {
       "uuid":"dc882c27-3de2-4603-b272-b35cf81080e2"
     },
     {
@@ -15,17 +18,22 @@
     }
   ],
   "metadata":{
+    "jsonClass":"io.logbee.keyscore.model.data.MetaData",
     "labels":[
       {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
         "name":"pipeline.name",
         "value":{
-          "value":"IntegrationTestPipeline"
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"Kafka-To-Elastic"
         }
       },
       {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
         "name":"pipeline.description",
         "value":{
-          "value":"It's valid"
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"Ships from TopicA to index: test"
         }
       }
     ]
