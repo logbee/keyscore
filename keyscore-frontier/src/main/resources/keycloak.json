@@ -1,0 +1,10 @@
+{
+  "auth-server-url": "",
+  "realm": "kubernetes",
+  "resource": "keyscore",
+  "ssl-required": "external",
+  "bearer-only":true,
+  "enable-cors":true,
+  "cors-allowed-methods" : "POST, PUT, DELETE, GET",
+  "public-client": true
+}

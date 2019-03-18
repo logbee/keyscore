@@ -16,7 +16,7 @@ import io.logbee.keyscore.commons.util.{AppInfo, ServiceDiscovery}
 import io.logbee.keyscore.frontier.app.FrontierApplication
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, InitializeRouteBuilder, RouteBuilderInitialized, RouteResponse}
-import io.logbee.keyscore.frontier.route.routes.AgentRoute.agentsRoute
+import io.logbee.keyscore.frontier.route.routes.AgentRoute
 import io.logbee.keyscore.frontier.route.routes.FilterRoute._
 import io.logbee.keyscore.frontier.route.routes.PipelineRoute._
 import io.logbee.keyscore.frontier.route.routes.resources.BlueprintResourceRoute._
@@ -47,7 +47,7 @@ object RouteBuilder {
   }
 }
 
-class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLogging with RouteImplicits {
+class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLogging with RouteImplicits with AgentRoute {
 
   val appInfo = AppInfo.fromMainClass[FrontierApplication]
 
