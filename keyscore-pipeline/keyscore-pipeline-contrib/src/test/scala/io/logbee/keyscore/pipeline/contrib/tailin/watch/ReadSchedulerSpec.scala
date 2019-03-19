@@ -262,11 +262,11 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
       val file1 = TestUtil.createFile(watchDir, file1Name, "11")
       val file2 = TestUtil.createFile(watchDir, file2Name, "222")
       
-      val sharedLastModifiedTime = 123456789
+      val sharedLastModified = 123456789
       
-      baseFile.setLastModified(sharedLastModifiedTime + 12345678) //specifically different from the others (in the happy flow)
-      file1.setLastModified(sharedLastModifiedTime)
-      file2.setLastModified(sharedLastModifiedTime)
+      baseFile.setLastModified(sharedLastModified + 12345678) //specifically different from the others (in the happy flow)
+      file1.setLastModified(sharedLastModified)
+      file2.setLastModified(sharedLastModified)
     }
     
     
@@ -320,7 +320,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     
     
     
-    "schedule reads correctly when it needs to resume in files with shared lastModified-timestamps" ignore //TEST
+    "schedule reads correctly when it needs to resume in files with shared lastModified-timestamps" in
     new ReadSchedulerSetup with SharedLastModifiedFilesSetup {
       
       val previousReadPosition = file1.length / 2
@@ -330,7 +330,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
         (readPersistence.getCompletedRead _)
           .expects(baseFile)
           .returning(FileReadRecord(previousReadPosition,
-                                    previousReadTimestamp=0,
+                                    previousReadTimestamp=file1.lastModified, //==sharedLastModified (except that it may be rounded down, because the filesystem does not have the same resolution for lastModified-timestamps)
                                     newerFilesWithSharedLastModified))
         
         (readSchedule.enqueue _)
@@ -339,6 +339,16 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
             startPos = previousReadPosition,
             endPos = file1.length,
             file1.lastModified,
+            newerFilesWithSharedLastModified = 0)
+          )
+          
+          
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+            baseFile,
+            startPos = 0,
+            endPos = baseFile.length,
+            baseFile.lastModified,
             newerFilesWithSharedLastModified = 0)
           )
       }
@@ -367,8 +377,8 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
       
       
       
-      baseFile.setLastModified(sharedLastModifiedTime) //this file specifically shares its lastModified-timestamp in this example
-      file2.setLastModified(sharedLastModifiedTime - 12345) //this file has an older lastModified-timestamp, so should still get scheduled
+      baseFile.setLastModified(sharedLastModified) //this file specifically shares its lastModified-timestamp in this example
+      file2.setLastModified(sharedLastModified - 12345) //this file has an older lastModified-timestamp, so should still get scheduled
       
       val previousReadPosition = file2.length / 2
       
