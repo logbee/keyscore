@@ -40,6 +40,11 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
                          expectedSubDirPath: String)
     
     val testSetups = Seq(
+        TestSetup(filePattern        = "test/tailin.csv",
+                  expectedFixedPath  = "test",
+                  expectedVariableIndex = -1,
+                  expectedSubDirPath = "tailin.csv"),
+        
         TestSetup(filePattern        = "**/tailin.csv",
                   expectedFixedPath  = "",
                   expectedVariableIndex = 0,
