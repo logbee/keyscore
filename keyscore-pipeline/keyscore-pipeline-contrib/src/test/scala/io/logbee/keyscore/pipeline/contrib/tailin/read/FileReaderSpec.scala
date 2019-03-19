@@ -57,7 +57,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
-                  mockCallback expects FileReadData(line1, logFile, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0)
+                  mockCallback expects FileReadData(line1, null, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0)
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -74,7 +74,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
-                  mockCallback expects FileReadData(line1, logFile, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0)
+                  mockCallback expects FileReadData(line1, null, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0)
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -96,9 +96,9 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(line1, logFile, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(line2, logFile, byteLen(line1 + newline + line2 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(line3, logFile, byteLen(line1 + newline + line2 + newline + line3), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line1, null, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line2, null, byteLen(line1 + newline + line2 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line3, null, byteLen(line1 + newline + line2 + newline + line3), logFile.lastModified, newerFilesWithSharedLastModified=0)
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -119,8 +119,8 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(line1, logFile, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(line3, logFile, byteLen(line1 + newline + line3), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line1, null, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line3, null, byteLen(line1 + newline + line3), logFile.lastModified, newerFilesWithSharedLastModified=0)
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -141,8 +141,8 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(line1, logFile, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(line2, logFile, byteLen(line1 + newline + line2), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line1, null, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line2, null, byteLen(line1 + newline + line2), logFile.lastModified, newerFilesWithSharedLastModified=0)
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -169,9 +169,9 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(line1, logFile, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(line2, logFile, byteLen(line1 + newline + line2 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(line3, logFile, byteLen(line1 + newline + line2 + newline + line3), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line1, null, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line2, null, byteLen(line1 + newline + line2 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line3, null, byteLen(line1 + newline + line2 + newline + line3), logFile.lastModified, newerFilesWithSharedLastModified=0)
                   }
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -200,9 +200,9 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(line1, logFile, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(line2, logFile, byteLen(line1 + newline + line2 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(line3, logFile, byteLen(line1 + newline + line2 + newline + line3), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line1, null, byteLen(line1 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line2, null, byteLen(line1 + newline + line2 + newline), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                    mockCallback expects FileReadData(line3, null, byteLen(line1 + newline + line2 + newline + line3), logFile.lastModified, newerFilesWithSharedLastModified=0)
                   }
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -228,7 +228,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                 
                 val mockCallback = mockFunction[FileReadData, Unit]
                 
-                mockCallback expects FileReadData(text, logFile, byteLen(text), logFile.lastModified, newerFilesWithSharedLastModified=0)
+                mockCallback expects FileReadData(text, null, byteLen(text), logFile.lastModified, newerFilesWithSharedLastModified=0)
                 fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
               }
             }

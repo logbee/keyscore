@@ -118,14 +118,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
           files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmnö"))),
           filePattern = "tailin.csv",
           readMode = ReadMode.LINE,
-          encoding = StandardCharsets.UTF_16LE,
-          expectedData = Seq("abcde", "fghij", "klmnö"),
-      ),
-      TestSetup(
-          files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmnö"))),
-          filePattern = "tailin.csv",
-          readMode = ReadMode.LINE,
-          encoding = StandardCharsets.UTF_16BE,
+          encoding = StandardCharsets.UTF_16LE, /*16BE*/
           expectedData = Seq("abcde", "fghij", "klmnö"),
       ),
     )
@@ -287,7 +280,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       
       sink.expectNoMessage(3.seconds)
       
-      TestUtil.writeStringToFile(baseFile, "0", StandardOpenOption.APPEND, StandardCharsets.UTF_8)
+      TestUtil.writeStringToFile(baseFile, "0", StandardOpenOption.APPEND, StandardCharsets.UTF_8) //this should trigger things to be read out, as we don't read out files which share their lastModified-timestamp with the baseFile
       
       sink.request(1)
       

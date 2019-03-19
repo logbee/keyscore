@@ -45,7 +45,13 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
         
         val fileToRead = RotationHelper.getRotationFilesToRead(baseFile, rotationPattern, completedRead).head
         
-        getFileReader(fileToRead).read(callback, readScheduleItem) //TODO this callbacks the wrong file , i.e. the .1 file, not the baseFile
+        
+        val callback2: FileReadData => Unit =
+          fileReadData => {
+            callback(fileReadData.copy(baseFile=baseFile)) //fileReader doesn't know what the baseFile is
+          }
+        
+        getFileReader(fileToRead).read(callback2, readScheduleItem)
     }
   }
 }

@@ -18,7 +18,7 @@ class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: Re
     
     //getFilesToRead also returns files which have lastModified == previousReadTimestamp, as multiple files may have the same lastModified-time
     //and this helps to simplify the code, because then we know to not continue reading at the previousReadPosition in the next file
-    val filesToRead = RotationHelper.getRotationFilesToRead(baseFile, rotationPattern, previouslyScheduled) //FIXME pass along previouslyScheduled.newerFilesWithSharedLastModified and use that on the other side to filter out files, too
+    val filesToRead = RotationHelper.getRotationFilesToRead(baseFile, rotationPattern, previouslyScheduled)
     
     
     var filesToSchedule = filesToRead

@@ -64,9 +64,9 @@ class RotationHelperSpec extends RotateFilesSetup with Matchers {
     }
   }
   
-  "we have files with shared lastModified-timestamp" - { //TODO adjust these test descriptions and put them in a proper place in the test tree
+  "we have files with shared lastModified-timestamp and" - { //TODO adjust these test descriptions and put them in a proper place in the test tree
     
-    "and no files were deleted (simplest case)" in
+    "no files were deleted (simplest case)" in
     new RotateFiles {
       
       val sharedLastModified = 123456789
@@ -88,7 +88,7 @@ class RotationHelperSpec extends RotateFilesSetup with Matchers {
     }
     
     
-    "and 1 file was deleted" in
+    "1 file was deleted" in
     new RotateFiles {
       //TODO
     }
