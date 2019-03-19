@@ -18,12 +18,15 @@ class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: Re
     
     //getFilesToRead also returns files which have lastModified == previousReadTimestamp, as multiple files may have the same lastModified-time
     //and this helps to simplify the code, because then we know to not continue reading at the previousReadPosition in the next file
-    val filesToRead = RotationHelper.getFilesToRead(baseFile, rotationPattern, previouslyScheduled.previousReadTimestamp) //TODO pass along previousScheduled.newerFilesWithSharedLastModified and use that on the other side to filter out files, too
-    
+    val filesToRead = RotationHelper.getRotationFilesToRead(baseFile, rotationPattern, previouslyScheduled) //FIXME pass along previouslyScheduled.newerFilesWithSharedLastModified and use that on the other side to filter out files, too
     
     
     var filesToSchedule = filesToRead
-    if (filesToRead.filter(_.lastModified == baseFile.lastModified).size > 1) { //TODO document this
+    //baseFile can still be written to, meaning its lastModified-timestamp could change at any point in the future
+    //therefore, if files share their lastModified-timestamp with the baseFile,
+    //the 'newest' (lowest rotation-index in file-name) file with this shared lastModified-timestamp could still change.
+    //We rely on this to not change anymore to be able to differentiate them (via another index - the number of newerFilesWithSharedLastModified).
+    if (filesToRead.filter(_.lastModified == baseFile.lastModified).size > 1) {
       filesToSchedule = filesToSchedule.filter(_.lastModified != baseFile.lastModified)
     }
     
@@ -38,9 +41,12 @@ class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: Re
     
 
     
+    
+    
+    
+    //do the scheduling
     var startPos = previouslyScheduled.previousReadPosition
-
-
+    
     filesToScheduleGroupedByLastModified.foreach {
       case (lastModified, fileToScheduleGroup) =>
         var newerFilesWithSharedLastModified = fileToScheduleGroup.length

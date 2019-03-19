@@ -34,7 +34,7 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
     
     readScheduleItemOpt match {
       case None => //if no reads scheduled
-        //do nothing, rescheduling is done by caller
+        //do nothing, rescheduling is triggered by caller
         
       case Some(readScheduleItem) =>
         
@@ -43,9 +43,9 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
         val completedRead = readPersistence.getCompletedRead(baseFile)
         
         
-        val fileToRead = RotationHelper.getFilesToRead(baseFile, rotationPattern, completedRead.previousReadTimestamp).head
+        val fileToRead = RotationHelper.getRotationFilesToRead(baseFile, rotationPattern, completedRead).head
         
-        getFileReader(fileToRead).read(callback, readScheduleItem)
+        getFileReader(fileToRead).read(callback, readScheduleItem) //TODO this callbacks the wrong file , i.e. the .1 file, not the baseFile
     }
   }
 }
