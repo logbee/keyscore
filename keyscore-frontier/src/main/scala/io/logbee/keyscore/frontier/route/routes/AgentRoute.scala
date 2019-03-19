@@ -20,7 +20,7 @@ trait AgentRoute extends RouteImplicits with AuthorizationHandler  {
 
   def agentsRoute(clusterAgentManager: ActorRef): Route = {
     pathPrefix("agent") {
-      //authorize { token =>
+      authorize { token =>
         pathPrefix(JavaUUID) { agentID =>
           delete {
             onSuccess(clusterAgentManager ? RemoveAgentFromCluster(agentID)) {
@@ -35,7 +35,7 @@ trait AgentRoute extends RouteImplicits with AuthorizationHandler  {
               case _ => complete(StatusCodes.InternalServerError)
             }
           }
-      //}
+      }
     }
   }
 }

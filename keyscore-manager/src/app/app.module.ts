@@ -1,8 +1,8 @@
 import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {APP_INITIALIZER, NgModule} from "@angular/core";
+import {APP_INITIALIZER, Injector, NgModule} from "@angular/core";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {BrowserModule} from "@angular/platform-browser";
-import {RouterModule, Routes} from "@angular/router";
+import {Router, RouterModule, Routes} from "@angular/router";
 
 import {Store, StoreModule} from "@ngrx/store";
 import {StoreRouterConnectingModule} from "@ngrx/router-store";
@@ -30,7 +30,6 @@ import {SnackbarEffects} from "./common/snackbar/snackbar.effects";
 import {DataSourceFactory} from "./data-source/data-source-factory";
 import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
 import {AppAuthGuard} from "./app.authguard";
-
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},

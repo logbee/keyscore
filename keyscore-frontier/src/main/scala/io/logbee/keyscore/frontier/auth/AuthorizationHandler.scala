@@ -14,6 +14,7 @@ import akka.http.scaladsl.server.Directives.{extractCredentials, onComplete, pro
 import akka.http.scaladsl.server.{AuthorizationFailedRejection, Directive1}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
+import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
@@ -34,7 +35,9 @@ trait AuthorizationHandler extends Json4sSupport {
 
   def log: LoggingAdapter
 
-  def authorize: Directive1[AccessToken] =
+  val config = ConfigFactory.load()
+
+  def authorize: Directive1[AccessToken] = if (system.settings.config.getBoolean("authentication.enable-keycloak"))
     extractCredentials.flatMap {
       case Some(OAuth2BearerToken(token)) =>
         onComplete(verifyToken(token)).flatMap {
@@ -48,7 +51,7 @@ trait AuthorizationHandler extends Json4sSupport {
       case _ =>
         log.warning("no token present in request")
         reject(AuthorizationFailedRejection)
-    }
+    } else provide(null)
 
   private[auth] def verifyToken(token: String): Future[Option[AccessToken]] = {
     val tokenVerifier = TokenVerifier.create(token, classOf[AccessToken])

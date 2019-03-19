@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import io.logbee.keyscore.commons.pipeline._
+import io.logbee.keyscore.frontier.auth.AuthorizationHandler
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.RequestExistingBlueprints
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.model.WhichValve.whichValve
@@ -20,10 +21,11 @@ import io.logbee.keyscore.model.data.Dataset
   *
   * @todo Fix RequestExistingPipelines
   */
-object FilterRoute extends RouteImplicits {
+trait FilterRoute extends RouteImplicits with AuthorizationHandler{
 
   def filterRoute(clusterPipelineManager: ActorRef): Route = {
     pathPrefix("filter") {
+      authorize{ token =>
       pathPrefix(JavaUUID) { filterId =>
         path("pause") {
           post {
@@ -110,6 +112,7 @@ object FilterRoute extends RouteImplicits {
               }
             }
           }
+        }
       }
     }
   }

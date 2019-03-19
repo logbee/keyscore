@@ -14,8 +14,9 @@ import {MaterialModule} from "../material.module";
 import {AppAuthGuard} from "../app.authguard";
 
 export const routes: Routes = [
-    {path: "", component: AgentsComponent, canActivate:[AppAuthGuard]}
+    {path: "", component: AgentsComponent, canActivate: [AppAuthGuard]}
 ];
+
 
 @NgModule({
     imports: [
@@ -32,6 +33,9 @@ export const routes: Routes = [
     declarations: [
         AgentsComponent
     ],
-    providers: []
+    providers: [
+
+    ]
 })
-export class AgentsModule { }
+export class AgentsModule {
+}

@@ -34,7 +34,7 @@ export class PipelineService {
     }
 
     loadAllInstances():Observable<any>{
-        return this.httpClient.get(`${PipelineService.BASE_URL}/instance/*}`);
+        return this.httpClient.get(`${PipelineService.BASE_URL}/instance/*`);
     }
 
     loadInstance(id:string):Observable<any>{

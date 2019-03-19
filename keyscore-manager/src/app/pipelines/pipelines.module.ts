@@ -26,6 +26,12 @@ export const routes: Routes = [
     {path: "error", component: ErrorComponent,canActivate:[AppAuthGuard]}
 ];
 
+export const routesWithoutAuth: Routes = [
+    {path: "", component: PipelinesComponent},
+    {path: ":id", component: PipelineEditorComponent},
+    {path: "error", component: ErrorComponent}
+];
+
 @NgModule({
     imports: [
         CommonModule,
