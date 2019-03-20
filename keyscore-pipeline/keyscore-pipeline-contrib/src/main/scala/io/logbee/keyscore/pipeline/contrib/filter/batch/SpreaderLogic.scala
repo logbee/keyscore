@@ -41,7 +41,7 @@ object SpreaderLogic extends Described {
       parameters = List(fieldNamesParameter)
     ),
     localization = Option(Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.SpreaderLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.SpreaderLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION)
   )
