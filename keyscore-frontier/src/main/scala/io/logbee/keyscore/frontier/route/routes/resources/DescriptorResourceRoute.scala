@@ -6,6 +6,7 @@ import akka.http.scaladsl.server.Directives.{JavaUUID, as, complete, delete, ent
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages._
+import io.logbee.keyscore.frontier.auth.AuthorizationHandler
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 
@@ -14,55 +15,57 @@ import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
   * `Directives`: GET | PUT | POST | DELETE <br>
   * Operations: For all `Descriptors` or a single one.
   */
-object DescriptorResourceRoute extends RouteImplicits {
+trait DescriptorResourceRoute extends RouteImplicits with AuthorizationHandler {
 
   def descriptorResourcesRoute(descriptorManager: ActorRef): Route = {
     pathPrefix("resources") {
-      pathPrefix("descriptor") {
-        pathPrefix("*") {
-          get {
-            onSuccess(descriptorManager ? GetAllDescriptorsRequest) {
-              case GetAllDescriptorsResponse(descriptors) => complete(StatusCodes.OK, descriptors)
-              case _ => complete(StatusCodes.InternalServerError)
-            }
-          } ~
-            delete {
-              onSuccess(descriptorManager ? DeleteAllDescriptorsRequest) {
-                case DeleteAllDescriptorsResponse => complete(StatusCodes.OK)
+      authorize { token =>
+        pathPrefix("descriptor") {
+          pathPrefix("*") {
+            get {
+              onSuccess(descriptorManager ? GetAllDescriptorsRequest) {
+                case GetAllDescriptorsResponse(descriptors) => complete(StatusCodes.OK, descriptors)
                 case _ => complete(StatusCodes.InternalServerError)
               }
-            }
-        } ~
-          pathPrefix(JavaUUID) { descriptorId =>
-            post {
-              entity(as[Descriptor]) { descriptor =>
-                onSuccess(descriptorManager ? UpdateDescriptorRequest(descriptor)) {
-                  case UpdateDescriptorSuccessResponse => complete(StatusCodes.OK)
-                  case _ => complete(StatusCodes.NoContent)
+            } ~
+              delete {
+                onSuccess(descriptorManager ? DeleteAllDescriptorsRequest) {
+                  case DeleteAllDescriptorsResponse => complete(StatusCodes.OK)
+                  case _ => complete(StatusCodes.InternalServerError)
                 }
               }
-            } ~
-              put {
+          } ~
+            pathPrefix(JavaUUID) { descriptorId =>
+              post {
                 entity(as[Descriptor]) { descriptor =>
-                  onSuccess(descriptorManager ? StoreDescriptorRequest(descriptor)) {
-                    case StoreDescriptorResponse => complete(StatusCodes.Created)
-                    case _ => complete(StatusCodes.InternalServerError)
+                  onSuccess(descriptorManager ? UpdateDescriptorRequest(descriptor)) {
+                    case UpdateDescriptorSuccessResponse => complete(StatusCodes.OK)
+                    case _ => complete(StatusCodes.NoContent)
                   }
                 }
               } ~
-              get {
-                onSuccess((descriptorManager ? GetDescriptorRequest(DescriptorRef(descriptorId.toString))).mapTo[GetDescriptorResponse]) {
-                  case GetDescriptorResponse(descriptor) => complete(StatusCodes.OK, descriptor)
-                  case _ => complete(StatusCodes.InternalServerError)
+                put {
+                  entity(as[Descriptor]) { descriptor =>
+                    onSuccess(descriptorManager ? StoreDescriptorRequest(descriptor)) {
+                      case StoreDescriptorResponse => complete(StatusCodes.Created)
+                      case _ => complete(StatusCodes.InternalServerError)
+                    }
+                  }
+                } ~
+                get {
+                  onSuccess((descriptorManager ? GetDescriptorRequest(DescriptorRef(descriptorId.toString))).mapTo[GetDescriptorResponse]) {
+                    case GetDescriptorResponse(descriptor) => complete(StatusCodes.OK, descriptor)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
+                } ~
+                delete {
+                  onSuccess(descriptorManager ? DeleteDescriptorRequest(DescriptorRef(descriptorId.toString))) {
+                    case DeleteDescriptorResponse => complete(StatusCodes.OK)
+                    case _ => complete(StatusCodes.InternalServerError)
+                  }
                 }
-              } ~
-              delete {
-                onSuccess(descriptorManager ? DeleteDescriptorRequest(DescriptorRef(descriptorId.toString))) {
-                  case DeleteDescriptorResponse => complete(StatusCodes.OK)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              }
-          }
+            }
+        }
       }
     }
   }

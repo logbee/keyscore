@@ -7,14 +7,10 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, Field}
 import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor._
-import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
-import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import org.json4s.Formats
-
-import scala.collection.mutable
-import scala.concurrent.duration.{Duration, MILLISECONDS}
 
 object GroupByValueLogic extends Described {
 
@@ -75,146 +71,76 @@ object GroupByValueLogic extends Described {
   )
 }
 
-class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
-
-  private implicit val jsonFormats: Formats = KeyscoreFormats.formats
+class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends AbstractGroupingLogic(parameters, shape) with StageLogging {
 
   private var fieldName = ""
-  private var timeWindowActive = false
-  private var timeWindowMillis = 0L
-  private var maxNumberOfGroups = Long.MaxValue
-
-  private val passthroughQueue = mutable.Queue.empty[Group]
-  private val windowQueue = mutable.Queue.empty[Group]
-  private val groups = mutable.HashMap.empty[Field, Group]
-
-  override def initialize(configuration: Configuration): Unit = {
-    configure(configuration)
-    pull(in)
-  }
+  private var timeWindowActiveValue = false
+  private var timeWindowMillisValue = 0L
+  private var maxNumberOfGroupsValue = Long.MaxValue
+  private var lastField: Option[Field] = None
 
   override def configure(configuration: Configuration): Unit = {
 
     fieldName = configuration.getValueOrDefault(GroupByValueLogic.fieldNameParameter, fieldName)
-    timeWindowActive = configuration.getValueOrDefault(GroupByValueLogic.timeWindowActiveParameter, timeWindowActive)
-    maxNumberOfGroups = configuration.getValueOrDefault(GroupByValueLogic.maxNumberOfGroupsParameter, maxNumberOfGroups)
+    timeWindowActiveValue = configuration.getValueOrDefault(GroupByValueLogic.timeWindowActiveParameter, timeWindowActiveValue)
+    maxNumberOfGroupsValue = configuration.getValueOrDefault(GroupByValueLogic.maxNumberOfGroupsParameter, maxNumberOfGroupsValue)
 
-    if (timeWindowActive) {
-      timeWindowMillis = configuration.getValueOrDefault(GroupByValueLogic.timeWindowMillisParameter, timeWindowMillis)
+    if (timeWindowActiveValue) {
+      timeWindowMillisValue = configuration.getValueOrDefault(GroupByValueLogic.timeWindowMillisParameter, timeWindowMillisValue)
     }
     else {
-      timeWindowMillis = 0
+      timeWindowMillisValue = 0
     }
   }
 
-  override def onPush(): Unit = {
+  override protected def examine(dataset: Dataset): Unit = {
 
-    val dataset = grab(in)
+    val field =  dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
 
-    val fieldOption = dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
+    if (timeWindowActive) {
+      examineWithActiveTimeWindow(field, dataset)
+    }
+    else {
+      examineWithInActiveTimeWindow(field, dataset)
+    }
+  }
 
-    fieldOption match {
-      case Some(field) =>
-        groups.get(field) match {
-          case Some(group) =>
-            group.datasets += dataset
-          case _ =>
-            val group = Group(fieldOption, mutable.ListBuffer(dataset))
-            windowQueue enqueue group
-            groups.put(field, group)
+  private def examineWithActiveTimeWindow(field: Option[Field], dataset: Dataset): Unit = {
+    field match {
+      case Some(field) => addToGroup(field.hashCode().toString, dataset)
+      case _ => passthrough(dataset)
+    }
+  }
+
+  private def examineWithInActiveTimeWindow(field: Option[Field], dataset: Dataset): Unit = {
+    (lastField, field) match {
+      case (None, Some(current)) =>
+        lastField = current
+        addToGroup(current.hashCode().toString, dataset)
+
+      case (Some(last), Some(current)) =>
+
+        val lastId = last.hashCode().toString
+
+        if (last.equals(current)) {
+          addToGroup(lastId, dataset)
+        }
+        else {
+          lastField = current
+          val currentId = current.hashCode().toString
+
+          closeGroup(lastId)
+          openGroup(currentId)
+          addToGroup(currentId, dataset)
         }
 
-      case _ => passthroughQueue enqueue Group(None, mutable.ListBuffer(dataset))
-    }
-
-    if (isAvailable(out)) {
-      val pushFailed = !pushNextGroup()
-      if (pushFailed && timeWindowActive && !isTimerActive("timeWindow")) {
-        schedulePush()
-      }
-    }
-
-    if (windowQueue.size < maxNumberOfGroups && passthroughQueue.size < maxNumberOfGroups) {
-      pull(in)
+      case _ => passthrough(dataset)
     }
   }
 
-  override def onPull(): Unit = {
-    if (pushNextGroup()) {
-      if (!hasBeenPulled(in)) pull(in)
-    }
-  }
+  override protected def timeWindowActive: Boolean = timeWindowActiveValue
 
-  override protected def onTimer(timerKey: Any): Unit = {
-    timerKey match {
-      case "timeWindow" =>
-        if (!pushNextGroup()) {
-          val timespan = windowQueue.head.expires - System.currentTimeMillis + 100
-          scheduleOnce("timeWindow", Duration(timespan, MILLISECONDS))
-        }
-      case _ =>
-    }
-  }
+  override protected def timeWindowMillis: Long = timeWindowMillisValue
 
-  private def schedulePush(): Unit = {
-    val timespan = windowQueue.head.expires - System.currentTimeMillis + 100
-    scheduleOnce("timeWindow", Duration(timespan, MILLISECONDS))
-  }
-
-  private def pushNextGroup(): Boolean = {
-    val passthroughGroupOption = passthroughQueue.headOption
-    val windowGroupOption = windowQueue.headOption
-
-    if (passthroughGroupOption.isDefined && windowGroupOption.isDefined) {
-      if (passthroughGroupOption.get.created < windowGroupOption.get.created) {
-        pushNextPassthroughGroup()
-        return true
-      }
-      else {
-        pushNextWindowGroup()
-        return true
-      }
-    }
-    else if (passthroughGroupOption.isDefined) {
-      pushNextPassthroughGroup()
-      return true
-    }
-    else if (windowGroupOption.isDefined) {
-      if (timeWindowActive) {
-        if (windowGroupOption.get.isExpired) {
-          pushNextWindowGroup()
-          return true
-        }
-      }
-      else {
-        if (windowQueue.size > 1) {
-          pushNextWindowGroup()
-          return true
-        }
-      }
-    }
-
-    false
-  }
-
-  private def pushNextWindowGroup(): Unit = {
-    val group = windowQueue.dequeue()
-    groups.remove(group.field.get)
-    pushGroup(group)
-  }
-
-  private def pushNextPassthroughGroup(): Unit = {
-    val group = passthroughQueue.dequeue()
-    pushGroup(group)
-  }
-
-  private def pushGroup(group: Group): Unit = {
-    push(out, Dataset(group.datasets.head.metadata, group.datasets.flatMap(_.records).toList))
-  }
-
-  case class Group(field: Option[Field], datasets: mutable.ListBuffer[Dataset]) {
-    val created: Long = System.currentTimeMillis
-    def expires: Long = created + timeWindowMillis
-    def isExpired: Boolean = System.currentTimeMillis > expires
-  }
+  override protected def maxGroups: Long = maxNumberOfGroupsValue
 }

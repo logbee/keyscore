@@ -8,13 +8,13 @@ import java.util.Base64
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.headers.OAuth2BearerToken
-import akka.http.scaladsl.model.{HttpEntity, HttpRequest}
 import akka.http.scaladsl.server.Directives.{extractCredentials, onComplete, provide, reject}
 import akka.http.scaladsl.server.{AuthorizationFailedRejection, Directive1}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import com.typesafe.sslconfig.akka.AkkaSSLConfig
+import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
@@ -35,30 +35,37 @@ trait AuthorizationHandler extends Json4sSupport {
 
   def log: LoggingAdapter
 
-  def authorize: Directive1[AccessToken] =
+  val config = ConfigFactory.load()
+
+  def authorize: Directive1[AccessToken] = if (system.settings.config.getBoolean("authentication.enable-keycloak"))
     extractCredentials.flatMap {
       case Some(OAuth2BearerToken(token)) =>
         onComplete(verifyToken(token)).flatMap {
           case Success(Some(t)) =>
             provide(t)
-          case _ =>
+          case e =>
             log.warning(s"token $token is not valid")
+            log.debug(s"Failure: $e")
             reject(AuthorizationFailedRejection)
         }
       case _ =>
         log.warning("no token present in request")
         reject(AuthorizationFailedRejection)
-    }
+    } else provide(null)
 
-  private def verifyToken(token: String): Future[Option[AccessToken]] = {
+  private[auth] def verifyToken(token: String): Future[Option[AccessToken]] = {
     val tokenVerifier = TokenVerifier.create(token, classOf[AccessToken])
-      .withDefaultChecks()
     for {
       publicKey <- publicKeys.map(_.get(tokenVerifier.getHeader.getKeyId))
     } yield publicKey match {
-      case Some(publicKey) =>
-        val token = tokenVerifier.publicKey(publicKey).verify().getToken
-        Some(token)
+      case Some(publicKeyResult) =>
+        val token = tokenVerifier.publicKey(publicKeyResult).verify().getToken
+        if(!token.isExpired)
+          Some(token)
+        else{
+          log.warning(s"Token is expired!")
+          None
+        }
       case None =>
         log.warning(s"no public key found for id ${tokenVerifier.getHeader.getKeyId}")
         None
@@ -67,20 +74,12 @@ trait AuthorizationHandler extends Json4sSupport {
 
   val keycloakDeployment: KeycloakDeployment = KeycloakDeploymentBuilder.build(getClass.getResourceAsStream("/keycloak.json"))
 
-
-  case class Keys(keys: Seq[KeyData])
-
-  case class KeyData(kid: String, n: String, e: String)
-
   def publicKeys: Future[Map[String, PublicKey]] = {
     implicit val serialization = Serialization
     implicit val formats = DefaultFormats
 
-    /*val badSslConfig = AkkaSSLConfig().mapSettings(s => s.withLoose(s.loose.withAcceptAnyCertificate(true)))
-    val badCtx = Http().createClientHttpsContext(badSslConfig)*/
-
     Http().singleRequest(HttpRequest(uri = keycloakDeployment.getJwksUrl)).flatMap(response => {
-      Unmarshal(response.entity.asInstanceOf[HttpEntity]).to[Keys].map(_.keys.map(k => (k.kid, generateKey(k))).toMap)
+      Unmarshal(response.entity).to[Keys].map(_.keys.map(k => (k.kid, generateKey(k))).toMap)
     })
   }
 
@@ -93,3 +92,7 @@ trait AuthorizationHandler extends Json4sSupport {
   }
 
 }
+
+case class Keys(keys: Seq[KeyData])
+
+case class KeyData(kid: String, n: String, e: String)

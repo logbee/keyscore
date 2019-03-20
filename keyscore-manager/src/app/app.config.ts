@@ -126,10 +126,10 @@ export class KeycloakConfigLoader {
     constructor(private store: Store<AppState>) {
     }
 
-    public isKeycloakActive(): Promise<boolean> {
+    public isKeycloakEnabled(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             this.store.pipe(select(selectAppConfig), take(1)).subscribe(conf =>
-                resolve(conf.getBoolean("keyscore.keycloak.active"))
+                resolve(conf.getBoolean("keyscore.keycloak.enabled"))
             )
         })
     }
@@ -143,14 +143,15 @@ export class KeycloakConfigLoader {
     }
 }
 
-export function initializer(configLoader: AppConfigLoader, keycloakConfigLoader: KeycloakConfigLoader, keycloak: KeycloakService): () => Promise<any> {
+export function initializer(configLoader: AppConfigLoader, keycloakConfigLoader: KeycloakConfigLoader,
+                            keycloak: KeycloakService): () => Promise<any> {
     return (): Promise<any> => {
         return new Promise(async (resolve, reject) => {
             try {
                 await configLoader.load();
-                const isKeycloakActive = await keycloakConfigLoader.isKeycloakActive();
-                if (isKeycloakActive) {
-                    const keycloakConf = await keycloakConfigLoader.getKeycloakConfig();
+                const keycloakConf = await keycloakConfigLoader.getKeycloakConfig();
+                const isKeycloakEnabled = await keycloakConfigLoader.isKeycloakEnabled();
+                if(isKeycloakEnabled) {
                     await keycloak.init({
                         config: keycloakConf,
                         initOptions: {

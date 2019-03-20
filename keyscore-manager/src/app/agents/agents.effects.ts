@@ -1,10 +1,10 @@
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATION} from "@ngrx/router-store";
 import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {Action, Store} from "@ngrx/store";
-import {Observable, of} from "rxjs";
+import {Observable, of, pipe} from "rxjs";
 import {exhaustMap, withLatestFrom} from "rxjs/internal/operators";
 import {catchError, map, mergeMap} from "rxjs/operators";
 import {AppState} from "../app.component";
@@ -23,6 +23,9 @@ import {
 } from "./agents.actions";
 import {Go} from "../router/router.actions";
 import {Agent} from "../models/common/Agent";
+import {RequestOptions} from "@angular/http";
+import {KeycloakService} from "keycloak-angular";
+import {AgentService} from "../services/rest-api/AgentService";
 
 @Injectable()
 export class AgentsEffects {
@@ -53,13 +56,8 @@ export class AgentsEffects {
     @Effect() public deleteAgent$: Observable<Action> = this.actions$.pipe(
         ofType(REMOVE_AGENT),
         map(action => (action as RemoveCurrentAgentAction)),
-        withLatestFrom(this.store.select(selectAppConfig)),
-        exhaustMap(([action, config]) => {
-
-                const url: string = config.getString("keyscore.frontier.base-url") + "/agent/" + action.id;
-                return this.http.delete(url, {
-                    responseType: "text"
-                }).pipe(
+        exhaustMap((action) => {
+                return this.agentService.deleteAgent(action.id).pipe(
                     map(() => new DeleteAgentSuccessAction()),
                     catchError((cause: any) => of(new DeleteAgentFailureAction(cause)))
                 );
@@ -69,14 +67,12 @@ export class AgentsEffects {
 
     @Effect() public loadAgents$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_AGENTS),
-        withLatestFrom(this.store.select(selectAppConfig)),
-        mergeMap(([action, appConfig]) => {
+        mergeMap((_) => {
             try {
-                const url: string = appConfig.getString("keyscore.frontier.base-url") + "/agents/";
-                return this.http.get(url).pipe(
-                    map((data) => new LoadAgentsSuccessAction((data as Agent[]))),
-                    catchError((cause: any) => of(new LoadAgentsFailureAction(cause)))
-                );
+                return this.agentService.loadAgents().pipe(
+                        map((data) => new LoadAgentsSuccessAction((data as Agent[]))),
+                        catchError((cause: any) => of(new LoadAgentsFailureAction(cause)))
+                )
             } catch (exception) {
                 return of(new LoadAgentsFailureAction(exception));
             }
@@ -88,7 +84,7 @@ export class AgentsEffects {
         map(_ => new Go({path: ["/agent/"]}))
     );
 
-    constructor(private store: Store<AppState>, private actions$: Actions, private http: HttpClient) {
+    constructor(private store: Store<AppState>, private actions$: Actions, private agentService: AgentService) {
 
     }
 

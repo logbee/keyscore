@@ -129,7 +129,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
       println(write(descriptor))
     }
 
-    "should deserialize" in {
+    "should deserialize" ignore {
       val exmapleJson = Source.fromInputStream(getClass.getResourceAsStream("/example-filter-descriptor.json")).mkString
 
       val parsedDescriptor = read[Descriptor](exmapleJson)

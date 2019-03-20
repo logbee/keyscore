@@ -15,7 +15,7 @@ import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import scala.concurrent.ExecutionContextExecutor
 import scala.reflect.runtime.universe._
 
-class TestStreamFor[T <: FilterLogic](configuration: Configuration)(implicit system: ActorSystem, executionContext: ExecutionContextExecutor, materializer: Materializer, tag: TypeTag[T]) {
+class TestStreamFor[T <: FilterLogic](configuration: Configuration = Configuration())(implicit system: ActorSystem, executionContext: ExecutionContextExecutor, materializer: Materializer, tag: TypeTag[T]) {
 
   private val context = StageContext(system, executionContext)
   private val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), createFilterLogicProvider(resolveClass(tag)))
