@@ -93,10 +93,39 @@ task buildDockerfile(type: Dockerfile) {
     instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
 }
 
-task buildDockerImage(type: DockerBuildImage, dependsOn: [buildDistribution, buildDockerfile]) {
-    inputDir = projectDir
-    dockerFile = buildDockerfile.destFile
-    tag = "$dockerImageName:$version"
+task buildRaspbianDockerfile(type: Dockerfile) {
+    destFile = project.file("$buildDir/tmp/RaspbianDockerfile")
+    from 'balenalib/raspberrypi3-alpine-openjdk' //TODO alpine?
+
+    instruction { "RUN [ \"cross-build-start\" ]"}
+
+    //instruction { "RUN apt-get update" }
+    //instruction { "RUN apt-get install -y default-jre" }
+
+    //install keyscore
+    instruction { "COPY build/distribution/ /opt/keyscore-agent/" }
+    instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
+
+    instruction { "RUN [ \"cross-build-end\" ]"}
+
+    //TODO drop privileges
+//    instruction { "RUN useradd -m keyscore-agent" }
+//    instruction { "USER keyscore-agent" }
+//    instruction { "WORKDIR /opt/keyscore-agent" }
+}
+
+["", "Raspbian"].each { arch ->
+    def dockerfileTask = tasks["build${arch}Dockerfile"]
+    task "build${arch}DockerImage"(type: DockerBuildImage, dependsOn: [buildDistribution, dockerfileTask]) {
+        inputDir = projectDir
+        dockerFile = dockerfileTask.destFile
+        if (arch.isEmpty()) {
+            tag = "$dockerImageName:$version"
+        }
+        else {
+            tag = "$dockerImageName:${arch.toLowerCase()}-$version"
+        }
+    }
 }
 
 task createDockerContainer(type: DockerCreateContainer) {
