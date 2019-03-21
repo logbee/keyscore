@@ -27,17 +27,6 @@ object CSVDecoderLogic extends Described {
     mandatory = true
   )
 
-  val modeParameter = ChoiceParameterDescriptor(
-    ref = "csv.mode",
-    info = ParameterInfo(
-      TextRef("csv.mode.displayName"),
-      TextRef("csv.mode.description")
-    ),
-    min = 1,
-    max = 1,
-    choices = Seq(lineMode, fileMode)
-  )
-
   val lineMode = Choice(
     name = "csv.mode.line",
     TextRef("csv.mode.line.displayName"),
@@ -48,6 +37,17 @@ object CSVDecoderLogic extends Described {
     name = "csv.mode.file",
     TextRef("csv.mode.file.displayName"),
     TextRef("csv.mode.file.description")
+  )
+
+  val modeParameter = ChoiceParameterDescriptor(
+    ref = "csv.mode",
+    info = ParameterInfo(
+      TextRef("csv.mode.displayName"),
+      TextRef("csv.mode.description")
+    ),
+    min = 1,
+    max = 1,
+    choices = Seq(lineMode, fileMode)
   )
 
   val delimiterParameter = TextParameterDescriptor(
