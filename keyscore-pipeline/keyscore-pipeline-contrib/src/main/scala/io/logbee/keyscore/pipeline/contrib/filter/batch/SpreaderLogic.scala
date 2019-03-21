@@ -74,7 +74,4 @@ class SpreaderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Datas
   override def onPull(): Unit = {
     pull(in)
   }
-
-
 }
-

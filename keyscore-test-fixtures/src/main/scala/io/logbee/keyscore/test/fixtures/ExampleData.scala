@@ -24,10 +24,6 @@ object ExampleData {
     Field("42", TextValue("example-bar"))
   )
 
-  //CSV Filter
-  val csvA = Record(Field("message", TextValue("13;07;09;15;;;")))
-  val csvB = Record(Field("message", TextValue(";03;05;01;;;")))
-
   //Kafka
   val kafka1 = Record(
     Field("id", TextValue("01")),
@@ -61,10 +57,6 @@ object ExampleData {
 
   val datasetMulti1 = Dataset(multiFields1)
   val datasetMulti2 = Dataset(multiFields2)
-
-  //CSV
-  val csvDatasetA = Dataset(csvA)
-  val csvDatasetB = Dataset(csvB)
 
   //Kafka
   val kafkaDataset1 = Dataset(kafka1)
