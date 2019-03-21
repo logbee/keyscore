@@ -1,4 +1,3 @@
-import "jquery";
 import {v4 as uuid} from "uuid";
 import {
     ParameterDescriptorJsonClass, ParameterDescriptorPackagePrefix,
@@ -6,9 +5,12 @@ import {
 } from "./models/parameters/ParameterDescriptor";
 import {Parameter, ParameterJsonClass, ParameterPackagePrefix} from "./models/parameters/Parameter";
 import {KeycloakService} from "keycloak-angular";
+import * as _ from 'lodash'
 
+//TODO find usages and replace with lodash
 export function deepcopy(source: any, target?: any): any {
-    return jQuery.extend(true, target == null ? {} : target, source);
+    return _.cloneDeep(source);
+    //return jQuery.extend(true, target == null ? {} : target, source);
 }
 
 export function parameterDescriptorToParameter(parameterDescriptor: ResolvedParameterDescriptor): Parameter {
