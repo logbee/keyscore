@@ -1,0 +1,88 @@
+= Keycloak Configuration
+
+To correctly enable Keycloak authentication you have to configure and enable it for the Keyscore Manager as well
+as for the Keyscore Frontier.
+
+== Keyscore Manager ==
+
+To enable Keycloak for the Keyscore Manager you have to set the enable-flag in your
+
+./keyscore-manager/conf/appllication.conf
+----
+{
+  "keyscore": {
+    "frontier": {
+      "base-url": "http://localhost:4711"
+    },
+    "manager": {
+      "features": {
+        "editing-gui": "pipely",
+        "settings": false
+      }
+    },
+    "keycloak": {
+      "enabled":true,
+      "config": {
+        "url": "your.keycloak.auth.url",
+        "realm": "kubernetes",
+        "clientId": "keyscore",
+        "ssl-required": true,
+        "public-client": true,
+        "confidential-port": 0
+      }
+    }
+  }
+}
+----
+
+For any further information on the configuration please refer to the https://www.keycloak.org/docs/2.5/securing_apps/topics/oidc/javascript-adapter.html[official keycloak documentation]
+
+== Keyscore Frontier ==
+
+To enable Keycloak for the Keyscore Frontier you have to set the enable flag in your
+
+./keyscore-frontier/src/main/resources/application.conf
+----
+...
+
+production {
+
+  akka {
+    ...
+  }
+
+  authentication {
+    enable-keycloak = true
+  }
+
+  ...
+}
+----
+
+You also have to configure your keycloak url etc. in
+
+./keyscore-frontier/src/main/resources/keycloak.json
+----
+{
+  "auth-server-url": "your.keycloak.auth.url",
+  "realm": "kubernetes",
+  "resource": "keyscore",
+  "ssl-required": "external",
+  "bearer-only":true,
+  "enable-cors":true,
+  "cors-allowed-methods" : "POST, PUT, DELETE, GET",
+  "public-client": true
+}
+----
+
+For any further information on the configuration please refer to the https://www.keycloak.org/docs/2.5/securing_apps/topics/oidc/java/java-adapter-config.html[official keycloak documentation]
+
+== SSL-Certificates ==
+Your Keycloak-Server might use self-signed certificates or certificates which are signed by a CA
+which is not in the truststore. In such a case simply put the certificate inside
+
+./keyscore-frontier/src/main/resources/trusted-certs
+
+Keyscore adds all certificates inside this folder to the truststore for connections to your Keycloak-Server
+
+

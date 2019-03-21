@@ -84,7 +84,7 @@ trait AuthorizationHandler extends Json4sSupport {
     implicit val formats = DefaultFormats
     val https = buildHttpsConnectionContext
 
-    Http().singleRequest(HttpRequest(uri = keycloakDeployment.getJwksUrl),https).flatMap(response => {
+    Http().singleRequest(HttpRequest(uri = keycloakDeployment.getJwksUrl),if (https != null) https else Http().createDefaultClientHttpsContext()).flatMap(response => {
       Unmarshal(response.entity).to[Keys].map(_.keys.map(k => (k.kid, generateKey(k))).toMap)
     })
   }
@@ -97,35 +97,44 @@ trait AuthorizationHandler extends Json4sSupport {
 
     val cas = getTrustedCerts
 
-    cas.zipWithIndex.foreach { case (ca, i) =>
-      ks.setCertificateEntry("certificate" ++ i.toString, ca)
+    if (cas.isEmpty) null
+    else {
+      cas.zipWithIndex.foreach { case (ca, i) =>
+        ks.setCertificateEntry("certificate" ++ i.toString, ca)
+      }
+
+      val keyManagerFactory: KeyManagerFactory = KeyManagerFactory.getInstance("SunX509")
+      keyManagerFactory.init(ks, password)
+
+      val sslConfig = AkkaSSLConfig()
+      val config = sslConfig.config
+
+      val trustManager: TrustManagerFactory = TrustManagerFactory.getInstance("SunX509")
+      trustManager.init(ks)
+
+      val sslContext: SSLContext = SSLContext.getInstance("TLS")
+      sslContext.init(keyManagerFactory.getKeyManagers, trustManager.getTrustManagers, new SecureRandom)
+
+      ConnectionContext.https(sslContext)
     }
-
-    val keyManagerFactory: KeyManagerFactory = KeyManagerFactory.getInstance("SunX509")
-    keyManagerFactory.init(ks, password)
-
-    val sslConfig = AkkaSSLConfig()
-    val config = sslConfig.config
-
-    val trustManager: TrustManagerFactory = TrustManagerFactory.getInstance("SunX509")
-    trustManager.init(ks)
-
-    val sslContext: SSLContext = SSLContext.getInstance("TLS")
-    sslContext.init(keyManagerFactory.getKeyManagers, trustManager.getTrustManagers, new SecureRandom)
-
-    ConnectionContext.https(sslContext)
   }
 
   private def getTrustedCerts: List[Certificate] = {
     val cas = new ListBuffer[Certificate]()
     val cf: CertificateFactory = CertificateFactory.getInstance("X.509")
-    val path = getClass.getResource("/trusted-certs").getPath
+    val trustedDir = getClass.getResource("/trusted-certs")
+
+    if(trustedDir == null) return cas.toList
+
+    val path = trustedDir.getPath
     val dir = new File(path)
     val fileIt = walkTree(dir).toIterator
+
+    if(!fileIt.hasNext) return cas.toList
+
     fileIt.next()
     while (fileIt.hasNext) {
       val f = fileIt.next()
-      val test = f.getName
       val is: InputStream = getClass.getResourceAsStream("/trusted-certs/" ++ f.getName)
       val caInput: InputStream = new BufferedInputStream(is)
       val ca: Certificate = cf.generateCertificate(caInput)
