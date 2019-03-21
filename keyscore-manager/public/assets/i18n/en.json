@@ -20,7 +20,8 @@
     "SOURCE": "Source",
     "SINK": "Sink",
     "MERGE": "Merge Block",
-    "BRANCH": "Branch Block"
+    "BRANCH": "Branch Block",
+    "LOGOUT": "Logout"
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",

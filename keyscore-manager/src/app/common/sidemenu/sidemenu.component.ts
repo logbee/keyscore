@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
+import {KeycloakService} from "keycloak-angular";
 
 @Component({
     selector: "sidemenu",
@@ -82,6 +83,11 @@ import {TranslateService} from "@ngx-translate/core";
                         </button>
                     </mat-menu>
                     
+                    <a *ngIf="isLoggedIn" mat-list-item (click)="keycloak.logout()">
+                        <p mat-line *ngIf="isExpanded">{{'GENERAL.LOGOUT' | translate}}</p>
+                        <mat-icon>exit_to_app</mat-icon>
+                    </a>
+                    
                     <a mat-list-item (click)="toggleMenu()">
                         <p matLine *ngIf="isExpanded">{{'GENERAL.COLLAPSE' | translate}}</p>
                         <mat-icon *ngIf="!isExpanded" svgIcon="expand-nav"></mat-icon>
@@ -100,9 +106,14 @@ export class SidemenuComponent {
 
     public sideBarClassName: string = "";
     public isExpanded: boolean = true;
+    public isLoggedIn: boolean = false;
 
-    constructor(private translate: TranslateService) {
+    constructor(private translate: TranslateService,private keycloak:KeycloakService) {
+        this.checkIsLoggedIn();
+    }
 
+    private async checkIsLoggedIn(){
+        this.isLoggedIn = await this.keycloak.isLoggedIn();
     }
 
     public toggleMenu() {
