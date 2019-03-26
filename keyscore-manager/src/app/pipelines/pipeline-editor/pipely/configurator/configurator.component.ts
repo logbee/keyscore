@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
-import {BehaviorSubject, Subject} from "rxjs";
+import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
 import {deepcopy, zip} from "../../../../util";
 import {Parameter, ParameterJsonClass} from "../../../../models/parameters/Parameter";
@@ -158,12 +158,17 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     private lastID: string = "";
     private lastValues = null;
+    private formSubscription: Subscription;
 
     constructor(private parameterService: ParameterControlService) {
     }
 
     public ngOnInit(): void {
+
         this.selectedBlock$.pipe(takeUntil(this.isAlive), filter(block => block.configuration.ref.uuid !== this.lastID)).subscribe(selectedBlock => {
+            if(this.formSubscription){
+                this.formSubscription.unsubscribe();
+            }
             this.lastID = selectedBlock.configuration.ref.uuid;
 
             this.parameterMapping =
@@ -175,13 +180,14 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             }
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
 
-            this.form.valueChanges.subscribe(values => {
-                if (!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues, values)) {
+            this.formSubscription = this.form.valueChanges.subscribe(values => {
+                if (!this.isAllNullOrEmpty(values) && !_.isEqual(this.lastValues, values) ) {
                     this.lastValues = values;
                     this.saveConfiguration();
                 }
             });
         });
+
 
         this.pipelineForm = new FormGroup({
             'pipeline.name': new FormControl(this.pipelineMetaData.name),
@@ -229,13 +235,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             });
             this.onSave.emit(configuration);
         }
-        this.applyTestFlag = false;
     }
 
-    overwriteConfiguration() {
-        this.applyTestFlag = true;
-        this.onOverwriteConfiguration.emit();
-    }
 
     getKeys(map: Map<any, any>): any[] {
         return Array.from(map.keys());
