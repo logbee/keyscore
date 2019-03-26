@@ -250,6 +250,44 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     
     
     
+    "schedule a read only for the newest file, if the files have been rotated" in
+    new ReadSchedulerSetup with RotateFiles {
+      
+      inSequence {
+        (readPersistence.getCompletedRead _)
+          .expects(logFile)
+          .returning(FileReadRecord(previousReadPosition=logFile.length,
+                                    previousReadTimestamp=logFile.lastModified,
+                                    newerFilesWithSharedLastModified=0)
+                    )
+        
+        
+        logFile3_ModifiedAfterPreviousReadTimestamp.renameTo(logFile4_ModifiedBeforePreviousReadTimestamp)
+        logFile2.renameTo(logFile3_ModifiedAfterPreviousReadTimestamp)
+        logFile1.renameTo(logFile2)
+        logFile.renameTo(logFile1)
+        
+        Thread.sleep(1000) //TODO this is currently necessary to offset the lastModified-timestamps -> make this nicer by manually setting the lastModified-timestamps
+        
+        logFile.createNewFile()
+        TestUtil.waitForFileToExist(logFile)
+        TestUtil.writeStringToFile(logFile, "Test", StandardOpenOption.APPEND)
+        println("logFile: " + logFile.lastModified)
+        
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+            logFile,
+            startPos = 0,
+            endPos = logFile.length,
+            logFile.lastModified,
+            newerFilesWithSharedLastModified = 0))
+      }
+      
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
+      readScheduler.fileModified()
+    }
+    
+    
     
     trait SharedLastModifiedFilesSetup {
       val baseFile = TestUtil.createFile(watchDir, "file", "0")
