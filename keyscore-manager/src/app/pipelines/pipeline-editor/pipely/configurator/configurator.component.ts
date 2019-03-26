@@ -70,43 +70,11 @@ import {Dataset} from "../../../../models/dataset/Dataset";
                     </form>
                 </div>
             </div>
-            <div *ngIf="showFooter" fxLayout="column" class="configurator-footer" fxLayoutGap="10px">
-                <mat-divider></mat-divider>
-                <div fxLayout="row" fxLayoutAlign="space-between">
-                    <div fxLayout="row" fxLayoutGap="10px">
-                        <button matTooltip="{{'PIPELY.REVERT_TOOLTIP'| translate}}" mat-raised-button (click)="revert()"
-                                color="warn">
-                            <mat-icon>undo</mat-icon>
-                            {{'PIPELY.REVERT' | translate}}
-                        </button>
-                        <button mat-raised-button matTooltip="{{'PIPELY.RESET_TOOLTIP'| translate}}" (click)="reset()"
-                                color="default">
-                            <mat-icon>cancel</mat-icon>
-                            {{'PIPELY.RESET' | translate}}
-                        </button>
-                    </div>
-                    <button *ngIf="applyTestFlag;else apply" #save mat-raised-button color="primary"
-                            matTooltip="{{'PIPELY.TEST_TOOLTIP'| translate}}"
-                            (click)="saveConfiguration()">
-                        <mat-icon>play_arrow</mat-icon>
-                        {{'PIPELY.TEST' | translate}}
-                    </button>
-                    <ng-template #apply>
-                        <button save mat-raised-button color="primary"
-                                matTooltip=" {{'PIPELY.APPLY_TOOLTIP' | translate}}"
-                                (click)="overwriteConfiguration()">
-                            <mat-icon>done</mat-icon>
-                            {{'PIPELY.APPLY' | translate}}
-                        </button>
-                    </ng-template>
-                </div>
-            </div>
         </div>
     `
 })
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
-    @Input() showFooter: boolean;
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
 
@@ -150,7 +118,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     private datasets$ = new BehaviorSubject<Dataset[]>([]);
 
     isVisible: boolean = true;
-    applyTestFlag: boolean = true;
     isAlive: Subject<void> = new Subject();
     form: FormGroup;
     pipelineForm: FormGroup;

@@ -390,8 +390,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
             }
         }));
 
-
-
         this.buildEditPipeline();
         let pipelineName = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value;
         let pipelineDescription = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value;
@@ -399,8 +397,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
 
 
     }
-
-
 
     private buildEditPipeline() {
         let nextBlueprint: Blueprint = this.pipeline.blueprints.find(blueprint =>
