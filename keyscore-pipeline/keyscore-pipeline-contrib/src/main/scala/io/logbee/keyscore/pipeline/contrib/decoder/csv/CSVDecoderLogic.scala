@@ -109,6 +109,7 @@ class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
   private var mode: String = CSVDecoderLogic.lineMode.name
   private var headerList: Seq[String] = Seq.empty
   private var delimiter: String = CSVDecoderLogic.delimiterParameter.defaultValue
+  private var removeSourceField = CSVDecoderLogic.removeSourceFieldParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -120,6 +121,7 @@ class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
     mode = configuration.getValueOrDefault(CSVDecoderLogic.modeParameter, mode)
     headerList = configuration.getValueOrDefault(CSVDecoderLogic.headerParameter, headerList)
     delimiter = configuration.getValueOrDefault(CSVDecoderLogic.delimiterParameter, delimiter)
+    removeSourceField = configuration.getValueOrDefault(CSVDecoderLogic.removeSourceFieldParameter, removeSourceField)
   }
 
   override def onPush(): Unit = {
@@ -158,10 +160,17 @@ class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
 
     records.map(record => record.update(_.fields := record.fields.foldLeft(mutable.ListBuffer.empty[Field]) {
 
-      case (fields, Field(`fieldName`, TextValue(line))) =>
+      case (fields, source @ Field(`fieldName`, TextValue(line))) =>
+
         fields ++= headerList.zip(line.split(delimiter)).map {
           case (name, value) => Field(name, TextValue(value))
         }
+
+        if (!removeSourceField) {
+          fields += source
+        }
+
+        fields
 
       case (fields, field) => fields += field
 
@@ -172,10 +181,23 @@ class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
 
     records.flatMap(record => {
       record.fields.find(field => fieldName.equals(field.name) && field.value.isInstanceOf[TextValue]) match {
-        case Some(Field(_, TextValue(content))) =>
+        case Some(source @ Field(_, TextValue(content))) =>
           val lines = content.lines.toList
           val header = lines.head.split(delimiter)
-          record +: lines.tail.map(_.split(delimiter).zip(header).map { case (value, name) => Field(name, TextValue(value)) }).map(Record(_:_*))
+          val parsed = lines.tail.map(_.split(delimiter).zip(header).map { case (value, name) => Field(name, TextValue(value)) }).map(Record(_:_*))
+
+          if (removeSourceField) {
+            if (record.fields.size > 1) {
+              record.withFields(record.fields.filter(source.ne)) +: parsed
+            }
+            else { // if there is only the source field, drop the whole record
+              parsed
+            }
+          }
+          else {
+            record +: parsed
+          }
+
         case _ => List(record)
       }
     })
