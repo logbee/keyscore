@@ -269,7 +269,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       val outData = Dataset(
         metadata = MetaData(
           Label("io.logbee.keyscore.pipeline.contrib.tailin.source.BASE_FILE", TextValue(fileReadData.baseFile.getAbsolutePath)),
-          Label("io.logbee.keyscore.pipeline.contrib.tailin.source.WRITE_TIMESTAMP", NumberValue(fileReadData.lastModified)),
+          Label("io.logbee.keyscore.pipeline.contrib.tailin.source.WRITE_TIMESTAMP", NumberValue(fileReadData.writeTimestamp)),
         ),
         records = List(Record(
           fields = List(Field(
@@ -282,7 +282,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       log.info(s"Created Datasets: $outData")
   
       push(out, outData)
-      readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.lastModified, fileReadData.newerFilesWithSharedLastModified))
+      readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp, fileReadData.newerFilesWithSharedLastModified))
     }
   }
   

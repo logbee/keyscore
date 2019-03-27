@@ -61,7 +61,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                                                     baseFile=null,
                                                     physicalFile=logFile,
                                                     readEndPos=logFile.length,
-                                                    lastModified=logFile.lastModified,
+                                                    writeTimestamp=logFile.lastModified,
                                                     newerFilesWithSharedLastModified=0)
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -83,7 +83,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                                                     baseFile=null,
                                                     physicalFile=logFile,
                                                     readEndPos=logFile.length,
-                                                    lastModified=logFile.lastModified,
+                                                    writeTimestamp=logFile.lastModified,
                                                     newerFilesWithSharedLastModified=0)
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -110,19 +110,19 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                     mockCallback expects FileReadData(string=line2,
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline + line2 + newline),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                     mockCallback expects FileReadData(string=line3,
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline + line2 + newline + line3),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -148,13 +148,13 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                     mockCallback expects FileReadData(string=line3,
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline + line3),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -180,13 +180,13 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                     mockCallback expects FileReadData(string=line2,
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline + line2),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -218,19 +218,19 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                     mockCallback expects FileReadData(string=line2,
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline + line2 + newline),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                     mockCallback expects FileReadData(string=line3,
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline + line2 + newline + line3),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                   }
                   
@@ -264,19 +264,19 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                     mockCallback expects FileReadData(string=line2,
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline + line2 + newline),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                     mockCallback expects FileReadData(string=line3,
                                                       baseFile=null,
                                                       physicalFile=logFile,
                                                       readEndPos=byteLen(line1 + newline + line2 + newline + line3),
-                                                      lastModified=logFile.lastModified,
+                                                      writeTimestamp=logFile.lastModified,
                                                       newerFilesWithSharedLastModified=0)
                   }
                   
@@ -307,7 +307,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                                                   baseFile=null,
                                                   physicalFile=logFile,
                                                   readEndPos=byteLen(text),
-                                                  lastModified=logFile.lastModified,
+                                                  writeTimestamp=logFile.lastModified,
                                                   newerFilesWithSharedLastModified=0)
                 fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
               }

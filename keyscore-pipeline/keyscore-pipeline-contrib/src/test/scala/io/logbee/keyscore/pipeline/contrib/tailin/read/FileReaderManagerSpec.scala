@@ -83,13 +83,13 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
                                       baseFile=testFile,
                                       physicalFile=testFile,
                                       readEndPos=charset.encode(line1 + newline).limit,
-                                      lastModified=testFile.lastModified,
+                                      writeTimestamp=testFile.lastModified,
                                       newerFilesWithSharedLastModified=0))
         callback.expects(FileReadData(string=line2,
                                       baseFile=testFile,
                                       physicalFile=testFile,
                                       readEndPos=charset.encode(text).limit,
-                                      lastModified=testFile.lastModified,
+                                      writeTimestamp=testFile.lastModified,
                                       newerFilesWithSharedLastModified=0))
       }
       
@@ -115,13 +115,13 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
                                       baseFile=testFile,
                                       physicalFile=testFile,
                                       readEndPos=charset.encode(line1 + newline).limit,
-                                      lastModified=testFile.lastModified,
+                                      writeTimestamp=testFile.lastModified,
                                       newerFilesWithSharedLastModified=0))
         callback.expects(FileReadData(string=line2,
                                       baseFile=testFile,
                                       physicalFile=testFile,
                                       readEndPos=charset.encode(text).limit,
-                                      lastModified=testFile.lastModified,
+                                      writeTimestamp=testFile.lastModified,
                                       newerFilesWithSharedLastModified=0))
         
         
@@ -147,7 +147,7 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
                                       baseFile=testFile2,
                                       physicalFile=testFile2,
                                       readEndPos=charset.encode(content2).limit,
-                                      lastModified=testFile2.lastModified,
+                                      writeTimestamp=testFile2.lastModified,
                                       newerFilesWithSharedLastModified=0))
       }
       
