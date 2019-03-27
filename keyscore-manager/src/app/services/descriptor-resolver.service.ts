@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
-import {Descriptor} from "../models/descriptors/Descriptor";
-import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {Descriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
+import {FilterDescriptor, ResolvedFilterDescriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 import {
     Choice, FieldDirectiveDescriptor, FieldDirectiveSequenceParameterDescriptor,
     FieldNameParameterDescriptor,
@@ -14,7 +14,7 @@ import {
     ResolvedStringValidator,
     StringValidator,
     TextParameterDescriptor
-} from "../models/parameters/ParameterDescriptor";
+} from "../../../modules/keyscore-manager-models/src/main/parameters/ParameterDescriptor";
 
 @Injectable()
 export class DescriptorResolverService {

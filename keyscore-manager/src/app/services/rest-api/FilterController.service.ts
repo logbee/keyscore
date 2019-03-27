@@ -4,10 +4,10 @@ import {AppState} from "../../app.component";
 import {AppConfig, selectAppConfig} from "../../app.config";
 import {select, Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
-import {Dataset} from "../../models/dataset/Dataset";
-import {Configuration} from "../../models/common/Configuration";
-import {ResourceInstanceState} from "../../models/filter-model/ResourceInstanceState";
-import {Ref} from "../../models/common/Ref";
+import {Dataset} from "../../../../modules/keyscore-manager-models/src/main/dataset/Dataset";
+import {Configuration} from "../../../../modules/keyscore-manager-models/src/main/common/Configuration";
+import {ResourceInstanceState} from "../../../../modules/keyscore-manager-models/src/main/filter-model/ResourceInstanceState";
+import {Ref} from "../../../../modules/keyscore-manager-models/src/main/common/Ref";
 
 
 @Injectable({

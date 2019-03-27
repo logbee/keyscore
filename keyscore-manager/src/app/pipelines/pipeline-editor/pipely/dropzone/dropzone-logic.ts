@@ -4,7 +4,7 @@ import {DropzoneComponent} from "../dropzone.component";
 import {DraggableModel} from "../models/draggable.model";
 import {computeDistance, intersects} from "../util/util";
 import {Rectangle} from "../models/rectangle";
-import {generateRef} from "../../../../models/common/Ref";
+import {generateRef} from "../../../../../../modules/keyscore-manager-models/src/main/common/Ref";
 
 export abstract class DropzoneLogic {
 
