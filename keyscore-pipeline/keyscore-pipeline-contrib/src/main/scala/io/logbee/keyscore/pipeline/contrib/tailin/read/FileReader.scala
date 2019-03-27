@@ -213,6 +213,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
                                     physicalFile=fileToRead,
                                     readEndPos=readEndPos.value,
                                     writeTimestamp=writeTimestamp,
+                                    readTimestamp=System.currentTimeMillis,
                                     newerFilesWithSharedLastModified=newerFilesWithSharedLastModified)
     
     callback(fileReadData)

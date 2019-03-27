@@ -1,11 +1,12 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import java.nio.file.Path
+
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FreeSpec
 import java.nio.file.Files
 
-
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadData
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
@@ -77,5 +78,21 @@ class RotateFilesSetup extends FreeSpec with BeforeAndAfter {
     
     val previousReadPosition = logFile3Data.length / 2
     val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
+  }
+  
+  
+  
+  
+  def calledBackDataIsSimilarTo(expected: FileReadData): FileReadData => Boolean = {
+    actual: FileReadData => {
+      expected.string == actual.string &&
+      Option(expected.baseFile).equals(Option(actual.baseFile)) &&
+      Option(expected.physicalFile).equals(Option(actual.physicalFile)) &&
+      expected.readEndPos == actual.readEndPos &&
+      expected.writeTimestamp == actual.writeTimestamp &&
+      actual.readTimestamp >= actual.writeTimestamp &&
+      actual.readTimestamp <= System.currentTimeMillis &&
+      expected.newerFilesWithSharedLastModified == actual.newerFilesWithSharedLastModified
+    }
   }
 }

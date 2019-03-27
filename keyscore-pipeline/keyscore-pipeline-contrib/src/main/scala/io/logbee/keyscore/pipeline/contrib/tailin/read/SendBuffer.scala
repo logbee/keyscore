@@ -12,6 +12,7 @@ case class FileReadData(string: String,
                         physicalFile: File,
                         readEndPos: Long,
                         writeTimestamp: Long,
+                        readTimestamp: Long,
                         newerFilesWithSharedLastModified: Int)
 
 

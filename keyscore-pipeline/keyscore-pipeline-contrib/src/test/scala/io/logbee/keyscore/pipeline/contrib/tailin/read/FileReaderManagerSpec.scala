@@ -61,8 +61,14 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
       .expects()
       .returning(Option(readScheduleItem))
   }
-  
-  
+
+  def calledBackDataIsSimilarTo(expected: FileReadData): FileReadData => Boolean = { //TODO remove from here, instead get it from RotateFilesSetup
+    actual: FileReadData => {
+      expected.baseFile.equals(actual.baseFile) &&
+        actual.readTimestamp >= actual.writeTimestamp &&
+        actual.readTimestamp <= System.currentTimeMillis
+    }
+  }
   
   "A FileReaderManager should" - { //TODO more tests
     
@@ -79,18 +85,33 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
           .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
         
-        callback.expects(FileReadData(string=line1,
-                                      baseFile=testFile,
-                                      physicalFile=testFile,
-                                      readEndPos=charset.encode(line1 + newline).limit,
-                                      writeTimestamp=testFile.lastModified,
-                                      newerFilesWithSharedLastModified=0))
-        callback.expects(FileReadData(string=line2,
-                                      baseFile=testFile,
-                                      physicalFile=testFile,
-                                      readEndPos=charset.encode(text).limit,
-                                      writeTimestamp=testFile.lastModified,
-                                      newerFilesWithSharedLastModified=0))
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string=line1,
+              baseFile=testFile,
+              physicalFile=testFile,
+              readEndPos=charset.encode(line1 + newline).limit,
+              writeTimestamp=testFile.lastModified,
+              readTimestamp = -1,
+              newerFilesWithSharedLastModified=0
+            )
+          )
+        }
+
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string=line2,
+              baseFile=testFile,
+              physicalFile=testFile,
+              readEndPos=charset.encode(text).limit,
+              writeTimestamp=testFile.lastModified,
+              readTimestamp = -1L, //TODO
+              newerFilesWithSharedLastModified=0
+            )
+          )
+        }
       }
       
       fileReaderManager.getNextString(callback)
@@ -110,22 +131,36 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
           .expects(testFile)
           .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
-        
-        callback.expects(FileReadData(string=line1,
-                                      baseFile=testFile,
-                                      physicalFile=testFile,
-                                      readEndPos=charset.encode(line1 + newline).limit,
-                                      writeTimestamp=testFile.lastModified,
-                                      newerFilesWithSharedLastModified=0))
-        callback.expects(FileReadData(string=line2,
-                                      baseFile=testFile,
-                                      physicalFile=testFile,
-                                      readEndPos=charset.encode(text).limit,
-                                      writeTimestamp=testFile.lastModified,
-                                      newerFilesWithSharedLastModified=0))
-        
-        
-        
+
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string=line1,
+              baseFile=testFile,
+              physicalFile=testFile,
+              readEndPos=charset.encode(line1 + newline).limit,
+              writeTimestamp=testFile.lastModified,
+              readTimestamp = -1L,
+              newerFilesWithSharedLastModified = 0
+            )
+          )
+        }
+
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string=line2,
+              baseFile = testFile,
+              physicalFile = testFile,
+              readEndPos = charset.encode(text).limit,
+              writeTimestamp = testFile.lastModified,
+              readTimestamp = -1L,
+              newerFilesWithSharedLastModified = 0
+            )
+          )
+        }
+
+
         val content2 = "22222" 
         val testFile2 = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile2", content2)
         
@@ -143,12 +178,20 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
           .expects(testFile2)
           .returning(new FileReader(testFile2, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
-        callback.expects(FileReadData(string=content2,
-                                      baseFile=testFile2,
-                                      physicalFile=testFile2,
-                                      readEndPos=charset.encode(content2).limit,
-                                      writeTimestamp=testFile2.lastModified,
-                                      newerFilesWithSharedLastModified=0))
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string = content2,
+              baseFile = testFile2,
+              physicalFile = testFile2,
+              readEndPos = charset.encode(content2).limit,
+              writeTimestamp = testFile2.lastModified,
+              readTimestamp = -1L, //TODO
+              newerFilesWithSharedLastModified = 0
+            )
+          )
+        }
+        
       }
       
       fileReaderManager.getNextString(callback)

@@ -57,12 +57,19 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
-                  mockCallback expects FileReadData(string=line1,
-                                                    baseFile=null,
-                                                    physicalFile=logFile,
-                                                    readEndPos=logFile.length,
-                                                    writeTimestamp=logFile.lastModified,
-                                                    newerFilesWithSharedLastModified=0)
+                  mockCallback expects where {
+                    calledBackDataIsSimilarTo(
+                      FileReadData(
+                        string=line1,
+                        baseFile=null,
+                        physicalFile=logFile,
+                        readEndPos=logFile.length,
+                        writeTimestamp=logFile.lastModified,
+                        readTimestamp = -1,
+                        newerFilesWithSharedLastModified=0
+                      )
+                    )
+                  }
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -79,12 +86,19 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
-                  mockCallback expects FileReadData(string=line1,
-                                                    baseFile=null,
-                                                    physicalFile=logFile,
-                                                    readEndPos=logFile.length,
-                                                    writeTimestamp=logFile.lastModified,
-                                                    newerFilesWithSharedLastModified=0)
+                  mockCallback expects where {
+                    calledBackDataIsSimilarTo(
+                      FileReadData(
+                        string=line1,
+                        baseFile=null,
+                        physicalFile=logFile,
+                        readEndPos=logFile.length,
+                        writeTimestamp=logFile.lastModified,
+                        readTimestamp = -1L,
+                        newerFilesWithSharedLastModified=0
+                      )
+                    )
+                  }
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -106,24 +120,48 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(string=line1,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(string=line2,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline + line2 + newline),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(string=line3,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline + line2 + newline + line3),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+
+                        FileReadData(
+                          string=line1,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
+
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line2,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline + line2 + newline),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
+
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line3,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline + line2 + newline + line3),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -144,18 +182,33 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(string=line1,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(string=line3,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline + line3),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line1,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
+
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line3,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline + line3),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -176,18 +229,33 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(string=line1,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(string=line2,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline + line2),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line1,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
+
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line2,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline + line2),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
                   }
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
                 }
@@ -214,24 +282,46 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(string=line1,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(string=line2,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline + line2 + newline),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(string=line3,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline + line2 + newline + line3),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line1,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line2,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline + line2 + newline),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
+
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line3,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline + line2 + newline + line3),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
                   }
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -260,24 +350,47 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                   val mockCallback = mockFunction[FileReadData, Unit]
                   
                   inSequence {
-                    mockCallback expects FileReadData(string=line1,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(string=line2,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline + line2 + newline),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
-                    mockCallback expects FileReadData(string=line3,
-                                                      baseFile=null,
-                                                      physicalFile=logFile,
-                                                      readEndPos=byteLen(line1 + newline + line2 + newline + line3),
-                                                      writeTimestamp=logFile.lastModified,
-                                                      newerFilesWithSharedLastModified=0)
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line1,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
+
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line2,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline + line2 + newline),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
+
+                    mockCallback expects where {
+                      calledBackDataIsSimilarTo(
+                        FileReadData(
+                          string=line3,
+                          baseFile=null,
+                          physicalFile=logFile,
+                          readEndPos=byteLen(line1 + newline + line2 + newline + line3),
+                          writeTimestamp=logFile.lastModified,
+                          readTimestamp = -1L, //TODO
+                          newerFilesWithSharedLastModified=0
+                        )
+                      )
+                    }
                   }
                   
                   fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
@@ -303,16 +416,29 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                 
                 val mockCallback = mockFunction[FileReadData, Unit]
                 
-                mockCallback expects FileReadData(string=text,
-                                                  baseFile=null,
-                                                  physicalFile=logFile,
-                                                  readEndPos=byteLen(text),
-                                                  writeTimestamp=logFile.lastModified,
-                                                  newerFilesWithSharedLastModified=0)
+
+
+                mockCallback expects where {
+                  calledBackDataIsSimilarTo(
+                    FileReadData(
+                      string=text,
+                      baseFile=null,
+                      physicalFile=logFile,
+                      readEndPos=byteLen(text),
+                      writeTimestamp=logFile.lastModified,
+                      readTimestamp = -1L, //TODO
+                      newerFilesWithSharedLastModified=0
+                    )
+                  )
+                }
+
+
                 fileReader.read(mockCallback, ReadScheduleItem(logFile, 0, logFile.length, logFile.lastModified, newerFilesWithSharedLastModified=0))
               }
             }
-            
+
+
+
             
             //TODO this test is obsolete here, as a single FileReader doesn't handle rotation anymore. Possibly reuse code in ReadSchedulerSpec or integration test
       //      //TODO this doesn't work yet, because lastModified-time of rotatedFiles is identical
