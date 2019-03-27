@@ -6,26 +6,21 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.JsonData.{getClass, _}
-import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
+import io.logbee.keyscore.JsonData._
 import io.logbee.keyscore.model.PipelineInstance
+import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.util.Using
 import org.json4s.native.Serialization.{read, write}
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.json4s.native.JsonMethods.parse
 
 import scala.concurrent.duration._
-import scala.io.Source
-import scala.io.Source.fromInputStream
 
 /*********************************************
 * Comment out all annotations before pushing *
@@ -166,7 +161,7 @@ class SetupTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
 
   }
@@ -183,7 +178,7 @@ class SetupTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 
@@ -199,7 +194,7 @@ class SetupTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 

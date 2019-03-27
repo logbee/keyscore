@@ -49,7 +49,7 @@ trait BlueprintResourceRoute extends RouteImplicits with AuthorizationHandler{
                   put {
                     entity(as[PipelineBlueprint]) { pipelineBlueprint =>
                       onSuccess(blueprintManager ? StoreOrUpdatePipelineBlueprintRequest(pipelineBlueprint)) {
-                        case StorePipelineBlueprintResponse => complete(StatusCodes.Created)
+                        case StorePipelineBlueprintResponse => complete(StatusCodes.OK)
                         case UpdatePipelineBlueprintResponseSuccess => complete(StatusCodes.OK)
                         case _ => complete(StatusCodes.InternalServerError)
                       }
@@ -81,7 +81,7 @@ trait BlueprintResourceRoute extends RouteImplicits with AuthorizationHandler{
                 put {
                   entity(as[SealedBlueprint]) { blueprint =>
                     onSuccess(blueprintManager ? StoreOrUpdateBlueprintRequest(blueprint)) {
-                      case StoreBlueprintResponse => complete(StatusCodes.Created)
+                      case StoreBlueprintResponse => complete(StatusCodes.OK)
                       case UpdateBlueprintResponseSuccess => complete(StatusCodes.OK)
                       case _ => complete(StatusCodes.InternalServerError)
                     }

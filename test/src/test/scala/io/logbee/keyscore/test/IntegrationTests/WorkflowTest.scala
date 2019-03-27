@@ -1,9 +1,8 @@
 package io.logbee.keyscore.test.IntegrationTests
 
 import com.consol.citrus.TestAction
-import com.consol.citrus.annotations.{CitrusResource, CitrusTest}
+import com.consol.citrus.annotations.CitrusResource
 import com.consol.citrus.dsl.endpoint.CitrusEndpoints
-import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.JsonData._
@@ -15,8 +14,6 @@ import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import org.json4s.native.Serialization.{read, write}
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.Matchers
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -156,7 +153,7 @@ class WorkflowTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
 
   }
@@ -173,7 +170,7 @@ class WorkflowTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 
@@ -189,7 +186,7 @@ class WorkflowTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 

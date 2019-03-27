@@ -7,14 +7,14 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import io.logbee.keyscore.JsonData._
+import io.logbee.keyscore.model.PipelineInstance
 import io.logbee.keyscore.model.blueprint.ToBase.sealedToBase
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data.{Dataset, Health}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline._
-import io.logbee.keyscore.model.PipelineInstance
-import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1, datasetMulti2}
 import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization.{read, write}
@@ -181,7 +181,7 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 
@@ -197,7 +197,7 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 
@@ -213,7 +213,7 @@ class PipelineIntegrationTest extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 

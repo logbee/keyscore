@@ -47,7 +47,7 @@ trait ConfigurationResourceRoute extends RouteImplicits with AuthorizationHandle
                 put {
                   entity(as[Configuration]) { configuration =>
                     onSuccess(configurationManager ? StoreOrUpdateConfigurationRequest(configuration)) {
-                      case StoreConfigurationResponse => complete(StatusCodes.Created)
+                      case StoreConfigurationResponse => complete(StatusCodes.OK)
                       case UpdateConfigurationSuccessResponse => complete(StatusCodes.OK)
                       case _ => complete(StatusCodes.InternalServerError)
                     }

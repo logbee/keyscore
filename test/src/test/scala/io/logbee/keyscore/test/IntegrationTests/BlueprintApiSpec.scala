@@ -7,7 +7,6 @@ import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
 import com.consol.citrus.message.MessageType
-import io.logbee.keyscore.JsonData
 import io.logbee.keyscore.JsonData._
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
@@ -73,7 +72,7 @@ class BlueprintApiSpec extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 
@@ -149,7 +148,7 @@ class BlueprintApiSpec extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 

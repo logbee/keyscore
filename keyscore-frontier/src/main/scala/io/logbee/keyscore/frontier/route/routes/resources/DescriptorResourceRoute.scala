@@ -47,7 +47,7 @@ trait DescriptorResourceRoute extends RouteImplicits with AuthorizationHandler {
                 put {
                   entity(as[Descriptor]) { descriptor =>
                     onSuccess(descriptorManager ? StoreDescriptorRequest(descriptor)) {
-                      case StoreDescriptorResponse => complete(StatusCodes.Created)
+                      case StoreDescriptorResponse => complete(StatusCodes.OK)
                       case _ => complete(StatusCodes.InternalServerError)
                     }
                   }
