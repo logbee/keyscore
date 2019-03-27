@@ -7,7 +7,12 @@ import scala.collection.mutable.Queue
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 
-case class FileReadData(string: String, baseFile: File, readEndPos: Long, lastModified: Long, newerFilesWithSharedLastModified: Int)
+case class FileReadData(string: String,
+                        baseFile: File,
+                        physicalFile: File,
+                        readEndPos: Long,
+                        lastModified: Long,
+                        newerFilesWithSharedLastModified: Int)
 
 
 class SendBuffer(fileReaderManager: FileReaderManager, readPersistence: ReadPersistence) {

@@ -208,7 +208,12 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   private def doCallback(callback: FileReadData => Unit, string: String, readEndPos: BytePos, writeTimestamp: Long, newerFilesWithSharedLastModified: Int) = {
     
-    val fileReadData = FileReadData(leftOverFromPreviousBuffer + string, null, readEndPos.value, writeTimestamp, newerFilesWithSharedLastModified)
+    val fileReadData = FileReadData(string=leftOverFromPreviousBuffer + string,
+                                    baseFile=null,
+                                    physicalFile=fileToRead,
+                                    readEndPos=readEndPos.value,
+                                    lastModified=writeTimestamp,
+                                    newerFilesWithSharedLastModified=newerFilesWithSharedLastModified)
     
     callback(fileReadData)
     leftOverFromPreviousBuffer = ""

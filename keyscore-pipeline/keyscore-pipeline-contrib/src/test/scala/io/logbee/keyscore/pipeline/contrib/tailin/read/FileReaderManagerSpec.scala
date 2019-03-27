@@ -79,8 +79,18 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
           .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
         
-        callback.expects(FileReadData(line1, testFile, charset.encode(line1 + newline).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
-        callback.expects(FileReadData(line2, testFile, charset.encode(text).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
+        callback.expects(FileReadData(string=line1,
+                                      baseFile=testFile,
+                                      physicalFile=testFile,
+                                      readEndPos=charset.encode(line1 + newline).limit,
+                                      lastModified=testFile.lastModified,
+                                      newerFilesWithSharedLastModified=0))
+        callback.expects(FileReadData(string=line2,
+                                      baseFile=testFile,
+                                      physicalFile=testFile,
+                                      readEndPos=charset.encode(text).limit,
+                                      lastModified=testFile.lastModified,
+                                      newerFilesWithSharedLastModified=0))
       }
       
       fileReaderManager.getNextString(callback)
@@ -101,8 +111,18 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
           .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
         
-        callback.expects(FileReadData(line1, testFile, charset.encode(line1 + newline).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
-        callback.expects(FileReadData(line2, testFile, charset.encode(text).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
+        callback.expects(FileReadData(string=line1,
+                                      baseFile=testFile,
+                                      physicalFile=testFile,
+                                      readEndPos=charset.encode(line1 + newline).limit,
+                                      lastModified=testFile.lastModified,
+                                      newerFilesWithSharedLastModified=0))
+        callback.expects(FileReadData(string=line2,
+                                      baseFile=testFile,
+                                      physicalFile=testFile,
+                                      readEndPos=charset.encode(text).limit,
+                                      lastModified=testFile.lastModified,
+                                      newerFilesWithSharedLastModified=0))
         
         
         
@@ -123,7 +143,12 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
           .expects(testFile2)
           .returning(new FileReader(testFile2, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
         
-        callback.expects(FileReadData(content2, testFile2, charset.encode(content2).limit, testFile2.lastModified, newerFilesWithSharedLastModified=0))
+        callback.expects(FileReadData(string=content2,
+                                      baseFile=testFile2,
+                                      physicalFile=testFile2,
+                                      readEndPos=charset.encode(content2).limit,
+                                      lastModified=testFile2.lastModified,
+                                      newerFilesWithSharedLastModified=0))
       }
       
       fileReaderManager.getNextString(callback)
