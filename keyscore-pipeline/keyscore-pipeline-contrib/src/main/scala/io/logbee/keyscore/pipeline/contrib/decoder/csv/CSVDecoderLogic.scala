@@ -92,7 +92,7 @@ object CSVDecoderLogic extends Described {
         modeParameter,
         delimiterParameter,
         headerParameter,
-        //removeSourceFieldParameter //TODO: Enable when ready.
+        removeSourceFieldParameter
       ),
       icon = Icon.fromClass(classOf[CSVDecoderLogic])
     ),
