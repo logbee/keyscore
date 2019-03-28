@@ -3,19 +3,20 @@
 *How to read this chapter*:
 
 - If you are new -- nice to see you here, we are curious about your feedback -- you can simply read this
-chapter from top to bottom starting with the <<Step-by-Step Guide>>.
+chapter from top to bottom starting with the <<userguide-step-by-step, Step-by-Step Guide>>.
 
-- If you are already familiar with the UI and only need some general information about where to do what the <<UI-overview>>
+- If you are already familiar with the UI and only need some general information about where to do what the <<userguide-ui-overview, overview>>
 will hopefully match your expectations.
 
-
+[[userguide-step-by-step]]
 == Step-by-Step Guide ==
 
 This chapter will introduce the UI by providing a step-by-step guide which will conclude in a working pipeline you can
 experiment with.
 After you finished the guide you will be able to create pipelines and be familiar with the multiple concepts of configuration.
 
-=== UI-Overview ===
+[[userguide-ui-overview]]
+== Overview ==
 
 Here you can find an overview over the multiple screens of the ui.
 They provide a short description for the multiple actions.
