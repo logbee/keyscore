@@ -2,15 +2,11 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angula
 import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
-import {deepcopy, zip} from "../../../../util";
-import {Parameter, ParameterJsonClass} from "../../../../../../modules/keyscore-manager-models/src/main/parameters/Parameter";
-import {ResolvedParameterDescriptor} from "../../../../../../modules/keyscore-manager-models/src/main/parameters/ParameterDescriptor";
-import {ParameterControlService} from "../../../../../../modules/keyscore-manager-pipeline-parameters/src/main/service/parameter-control.service";
-import {Configuration} from "../../../../../../modules/keyscore-manager-models/src/main/common/Configuration";
+import {Parameter, ParameterJsonClass,ResolvedParameterDescriptor,Dataset,Configuration} from "keyscore-manager-models";
+import {ParameterControlService} from "keyscore-manager-pipeline-parameters";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
-import {Dataset} from "../../../../../../modules/keyscore-manager-models/src/main/dataset/Dataset";
 
 
 @Component({
@@ -139,9 +135,9 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.lastID = selectedBlock.configuration.ref.uuid;
 
             this.parameterMapping =
-                new Map(zip([selectedBlock.configuration.parameterSet.parameters,
+                new Map(_.zip(selectedBlock.configuration.parameterSet.parameters,
                     selectedBlock.descriptor.parameters
-                ]));
+                ));
             if (this.form) {
                 this.form.reset();
             }
@@ -193,7 +189,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     }
 
     saveConfiguration() {
-        let configuration: Configuration = deepcopy(this.selectedBlock$.getValue().configuration);
+        let configuration: Configuration = _.cloneDeep(this.selectedBlock$.getValue().configuration);
         if (configuration.ref.uuid !== 'init') {
             configuration.parameterSet.parameters.forEach((parameter) => {
                 if (this.form.controls[parameter.ref.id]) {

@@ -1,12 +1,11 @@
 import {
     ParameterDescriptorJsonClass,
     ResolvedParameterDescriptor
-} from "../../../../modules/keyscore-manager-models/src/main/parameters/ParameterDescriptor";
-import {Parameter, ParameterJsonClass} from "../../../../modules/keyscore-manager-models/src/main/parameters/Parameter";
-import {generateParameter, generateResolvedParameterDescriptor} from "../../../../modules/keyscore-manager-models/src/test/fake-data/model-fakes";
-import {zip} from "../../../app/util";
-import {ParameterControlService} from "../../../../modules/keyscore-manager-pipeline-parameters/src/main/service/parameter-control.service";
-
+} from "keyscore-manager-models";
+import {Parameter, ParameterJsonClass} from "keyscore-manager-models";
+import {generateParameter, generateResolvedParameterDescriptor} from "keyscore-manager-test-fixtures";
+import {ParameterControlService} from "keyscore-manager-pipeline-parameters";
+import * as _ from 'lodash'
 describe('Service: ParameterControlService',()=> {
     let service:ParameterControlService = new ParameterControlService();
 
@@ -25,7 +24,7 @@ describe('Service: ParameterControlService',()=> {
     let parameterDescriptors: ResolvedParameterDescriptor[] = descriptorJsonClasses.map(jsonClass => generateResolvedParameterDescriptor(jsonClass));
     let parameters: Parameter[] = parameterJsonClasses.map(jsonClass => generateParameter(jsonClass));
 
-    let parametersMap:Map<Parameter,ResolvedParameterDescriptor> = new Map(zip([parameters, parameterDescriptors]));
+    let parametersMap:Map<Parameter,ResolvedParameterDescriptor> = new Map(_.zip(parameters, parameterDescriptors));
 
     describe('toFormGroup', () => {
         it('should create the form group with formControls for each descriptor named by them and fill them with the parameter values', () => {

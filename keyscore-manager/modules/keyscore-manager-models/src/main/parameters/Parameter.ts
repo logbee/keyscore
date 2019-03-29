@@ -1,4 +1,4 @@
-import {ParameterRef, Ref} from "../common/Ref";
+import {ParameterRef, Ref} from "../common";
 
 export interface Parameter {
     ref: ParameterRef;

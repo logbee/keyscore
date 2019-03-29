@@ -1,8 +1,6 @@
 import {Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild} from "@angular/core";
 import {ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {Parameter} from "../../../keyscore-manager-models/src/main/parameters/Parameter";
-import {ResolvedParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/ParameterDescriptor";
-import {Dataset} from "../../../keyscore-manager-models/src/main/dataset/Dataset";
+import {Parameter, ResolvedParameterDescriptor,Dataset} from "keyscore-manager-models";
 import * as _ from "lodash"
 import {BehaviorSubject} from "rxjs/index";
 

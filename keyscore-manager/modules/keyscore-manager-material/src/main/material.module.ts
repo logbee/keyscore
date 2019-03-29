@@ -1,28 +1,31 @@
 import {NgModule} from '@angular/core';
 
 import {
+    MatAutocompleteModule,
     MatButtonModule,
-    MatMenuModule,
-    MatToolbarModule,
-    MatIconModule,
     MatCardModule,
-    MatGridListModule,
-    MatListModule,
-    MatDividerModule,
-    MatTableModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSidenavModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatSlideToggleModule,
-    MatTooltipModule,
-    MatSelectModule,
-    MatAutocompleteModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatGridListModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatMenuModule,
     MatPaginatorModule,
+    MatProgressBarModule,
+    MatRippleModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
     MatSortModule,
-    MatTableDataSource, MatRippleModule, MatTabsModule, MatSnackBarModule, MatProgressBarModule, MatExpansionModule
-
+    MatTableModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatTooltipModule
 } from '@angular/material';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {HttpClientModule} from "@angular/common/http";

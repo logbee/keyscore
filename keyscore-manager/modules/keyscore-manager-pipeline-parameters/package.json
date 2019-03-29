@@ -1,0 +1,32 @@
+{
+  "name": "keyscore-manager-pipeline-parameters",
+  "version": "0.3.0",
+  "description": "Component Library to represent form-controls for keyscore pipeline parameters ",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "prepare": "npm run build && npm run copy-css",
+    "copy-css": "copyfiles src/main/style/*.scss build/",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "keyscore",
+    "parameter",
+    "pipeline",
+    "component",
+    "library"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "keyscore-manager-models": "file:../keyscore-manager-models",
+    "keyscore-manager-test-fixtures": "file:../keyscore-manager-test-fixtures",
+    "keyscore-manager-material": "file:../keyscore-manager-material"
+  },
+  "devDependencies": {
+    "@types/angular": "1.6.51",
+    "typescript": "3.3.4000",
+    "copyfiles": "2.1.0"
+  }
+}

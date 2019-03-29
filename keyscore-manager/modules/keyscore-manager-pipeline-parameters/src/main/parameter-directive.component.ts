@@ -1,20 +1,22 @@
 import {Component, forwardRef, Input, OnInit} from "@angular/core";
 import {ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {Parameter, ParameterJsonClass} from "../../../keyscore-manager-models/src/main/parameters/Parameter";
 import {
+    Dataset,
+    DirectiveConfiguration,
+    FieldDirectiveSequenceConfiguration,
     FieldDirectiveSequenceParameterDescriptor,
     FieldNameHint,
+    generateRef,
+    Parameter,
+    ParameterJsonClass,
     ResolvedFieldDirectiveDescriptor,
     ResolvedParameterDescriptor
-} from "../../../keyscore-manager-models/src/main/parameters/ParameterDescriptor";
+} from "keyscore-manager-models";
 import {BehaviorSubject} from "rxjs/index";
-import {Dataset} from "../../../keyscore-manager-models/src/main/dataset/Dataset";
-import {DirectiveConfiguration, FieldDirectiveSequenceConfiguration} from "../../../keyscore-manager-models/src/main/common/Configuration";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterControlService} from "./service/parameter-control.service";
-import {parameterDescriptorToParameter, zip} from "../../../../src/app/util";
-import uuid = require("uuid");
-import {generateRef} from "../../../keyscore-manager-models/src/main/common/Ref";
+import {ParameterFactoryService} from "./service/parameter-factory.service";
+import * as _ from 'lodash'
 
 @Component({
     selector: "parameter-directive",
@@ -34,27 +36,27 @@ import {generateRef} from "../../../keyscore-manager-models/src/main/common/Ref"
                 <mat-expansion-panel-header [class.is-active]="isSequenceExpanded[sequenceIndex]"
                                             (click)="expandSequence(sequenceIndex)" [collapsedHeight]="'*'"
                                             [expandedHeight]="'*'">
-                        <div fxLayout="row" fxLayoutAlign="space-between center" class="sequence-header">
-                            <auto-complete-input
-                                    propagationStop
-                                    class="margin-left-10"
-                                    [datasets]="datasets$ | async"
-                                    [hint]="fieldNameHint.PresentField"
-                                    [parameterDescriptor]="parameterDescriptor"
-                                    [labelText]="'Field'"
-                                    [parameter]="parameter"
-                                    [inputValue]="fieldDirectiveSequence.fieldName"
-                                    (onChangeEmit)="onFieldNameChange($event,sequenceIndex)"
+                    <div fxLayout="row" fxLayoutAlign="space-between center" class="sequence-header">
+                        <auto-complete-input
+                                propagationStop
+                                class="margin-left-10"
+                                [datasets]="datasets$ | async"
+                                [hint]="fieldNameHint.PresentField"
+                                [parameterDescriptor]="parameterDescriptor"
+                                [labelText]="'Field'"
+                                [parameter]="parameter"
+                                [inputValue]="fieldDirectiveSequence.fieldName"
+                                (onChangeEmit)="onFieldNameChange($event,sequenceIndex)"
 
-                            >
+                        >
 
-                            </auto-complete-input>
-                            <button propagationStop mat-icon-button color="warn"
-                                    (click)="removeDirectiveSequence(sequenceIndex)">
-                                <mat-icon matTooltip="Remove all directives for this field.">close
-                                </mat-icon>
-                            </button>
-                        </div>
+                        </auto-complete-input>
+                        <button propagationStop mat-icon-button color="warn"
+                                (click)="removeDirectiveSequence(sequenceIndex)">
+                            <mat-icon matTooltip="Remove all directives for this field.">close
+                            </mat-icon>
+                        </button>
+                    </div>
                 </mat-expansion-panel-header>
                 <div *ngIf="fieldDirectiveSequence.directives.length" cdkDropList class="field-directive-sequence"
                      (cdkDropListDropped)="dropFieldDirective($event,sequenceIndex)" fxLayout="column">
@@ -89,17 +91,19 @@ import {generateRef} from "../../../keyscore-manager-models/src/main/common/Ref"
                     </div>
 
                 </div>
-                    <button mat-button class="directive-add " fxLayout="row" fxLayoutAlign="center center" fxFlexAlign="stretch" [matMenuTriggerFor]="directiveMenu">
-                            <mat-icon matTooltip="Add a new directive to this field" color="accent">add_circle_outline</mat-icon>
+                <button mat-button class="directive-add " fxLayout="row" fxLayoutAlign="center center"
+                        fxFlexAlign="stretch" [matMenuTriggerFor]="directiveMenu">
+                    <mat-icon matTooltip="Add a new directive to this field" color="accent">add_circle_outline
+                    </mat-icon>
+                </button>
+                <mat-menu #directiveMenu>
+                    <button fxLayout="row" fxLayoutAlign="space-between center" mat-menu-item
+                            *ngFor="let directiveDescriptor of parameterDescriptor.directives"
+                            (click)="addDirective(fieldDirectiveSequence,directiveDescriptor,sequenceIndex)">
+                        <mat-icon>add_circle_outline</mat-icon>
+                        {{directiveDescriptor.info.displayName}}
                     </button>
-                    <mat-menu #directiveMenu>
-                        <button fxLayout="row" fxLayoutAlign="space-between center" mat-menu-item
-                                *ngFor="let directiveDescriptor of parameterDescriptor.directives"
-                                (click)="addDirective(fieldDirectiveSequence,directiveDescriptor,sequenceIndex)">
-                            <mat-icon>add_circle_outline</mat-icon>
-                            {{directiveDescriptor.info.displayName}}
-                        </button>
-                    </mat-menu>
+                </mat-menu>
             </mat-expansion-panel>
         </div>
 
@@ -134,7 +138,7 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
     public directiveFormGroups: Map<string, FormGroup> = new Map();
     public directiveParameterMappings: Map<string, Map<Parameter, ResolvedParameterDescriptor>> = new Map();
 
-    public constructor(private parameterService: ParameterControlService) {
+    public constructor(private parameterService: ParameterControlService,private parameterFactory: ParameterFactoryService) {
 
     }
 
@@ -213,7 +217,7 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
             parameters: {
                 jsonClass: ParameterJsonClass.ParameterSet,
                 parameters: directive.parameters.map(parameter =>
-                    parameterDescriptorToParameter(parameter))
+                    this.parameterFactory.parameterDescriptorToParameter(parameter))
             }
         });
         const index = newValues[seqIndex].directives.length - 1;
@@ -228,7 +232,7 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
 
 
     private createDirectiveSubForm(values, currentSeqIndex, index, directive: ResolvedFieldDirectiveDescriptor, sequence: FieldDirectiveSequenceConfiguration) {
-        let parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map(zip([values[currentSeqIndex].directives[index].parameters.parameters, directive.parameters]));
+        let parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map(_.zip(values[currentSeqIndex].directives[index].parameters.parameters, directive.parameters));
         this.directiveParameterMappings.set(sequence.directives[index].instance.uuid, parameterMapping);
         let form = this.parameterService.toFormGroup(parameterMapping, sequence.directives[index].instance.uuid);
         let directiveConfiguration = this.parameterValues[currentSeqIndex].directives[index];

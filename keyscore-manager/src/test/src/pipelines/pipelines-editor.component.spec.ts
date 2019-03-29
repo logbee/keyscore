@@ -6,14 +6,14 @@ import {RefreshTimeComponent} from "../../../app/common/refresh-button/refresh.c
 import {RouterTestingModule} from "@angular/router/testing";
 import {Store} from "@ngrx/store";
 import {HeaderBarModule} from "../../../app/common/headerbar/headerbar.module";
-import {MaterialModule} from "../../../app/material.module";
+import {MaterialModule} from "keyscore-manager-material";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {LoadingModule} from "../../../app/common/loading/loading.module";
 import {HealthModule} from "../../../app/common/health/health.module";
 import {PipelyModule} from "../../../app/pipelines/pipeline-editor/pipely/pipely.module";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../../app/app.module";
-import {generateEditingPipelineModel} from "../../../../modules/keyscore-manager-models/src/test/fake-data/model-fakes";
+import {generateEditingPipelineModel} from "../../../../modules/keyscore-manager-test-fixtures/src/main/data-generators";
 import {hot} from "jasmine-marbles";
 
 import {LoadFilterDescriptorsAction, UpdatePipelineAction} from "../../../app/pipelines/actions/pipelines.actions";
