@@ -132,13 +132,14 @@ message ParameterDescriptor {
         TextParameterDescriptor textParameter = 4;
         ExpressionParameterDescriptor expressionParameter = 5;
         FieldNameParameterDescriptor fieldNameParameter = 6;
-        FieldParameterDescriptor fieldParameter = 7;
-        ChoiceParameterDescriptor choiceParameter = 8;
-        ParameterGroupDescriptor conditionalParameter = 9;
-        TextListParameterDescriptor textListParameter = 10;
-        FieldNameListParameterDescriptor fieldNameListParameter = 11;
-        FieldListParameterDescriptor fieldListParameter = 12;
-        FieldDirectiveSequenceParameterDescriptor fieldDirectiveSequenceParameter = 13;
+        FieldNamePatternParameterDescriptor fieldNamePatternParameter = 7;
+        FieldParameterDescriptor fieldParameter = 8;
+        ChoiceParameterDescriptor choiceParameter = 9;
+        ParameterGroupDescriptor conditionalParameter = 10;
+        TextListParameterDescriptor textListParameter = 11;
+        FieldNameListParameterDescriptor fieldNameListParameter = 12;
+        FieldListParameterDescriptor fieldListParameter = 13;
+        FieldDirectiveSequenceParameterDescriptor fieldDirectiveSequenceParameter = 14;
     }
 }
 
@@ -200,6 +201,22 @@ message FieldNameParameterDescriptor {
     FieldNameHint hint = 4;
     StringValidator validator = 5;
     bool mandatory = 6;
+}
+// end::FieldNameParameterDescriptor[]
+
+// tag::FieldNameParameterDescriptor[]
+message FieldNamePatternParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    string defaultValue = 3;
+    FieldNameHint hint = 4;
+    repeated PatternType supports = 5;
+    bool mandatory = 6;
+    enum PatternType {
+        None = 0;
+        RegEx = 1;
+        Glob = 2;
+    }
 }
 // end::FieldNameParameterDescriptor[]
 
@@ -322,8 +339,7 @@ message FieldDirectiveDescriptor {
 
 message StringValidator {
     string expression = 1;
-    ExpressionType expressionType = 2;
-    TextRef description = 3;
+    TextRef description = 2;
 }
 
 enum FieldNameHint {

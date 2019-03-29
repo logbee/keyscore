@@ -18,18 +18,25 @@ case class ToTimestampDirective(pattern: String) extends FieldDirective {
           } else if (value.contains("T")) {
             date = LocalDateTime.parse(value, format).toInstant(ZoneOffset.UTC)
           } else {
-            date = LocalDate.parse(value, format).atStartOfDay(ZoneOffset.UTC).toInstant
+            try {
+              date = LocalDateTime.parse(value, format).toInstant(ZoneOffset.UTC)
+            }
+            catch {
+              case _: DateTimeParseException =>
+                date = LocalDate.parse(value, format).atStartOfDay(ZoneOffset.UTC).toInstant
+            }
           }
         } catch {
-          case e: DateTimeParseException =>
+          case _: DateTimeParseException =>
             return field
         }
 
         if (date != null) {
           val seconds = date.getEpochSecond
           val nanos = date.getNano
-          Field(name, TimestampValue(seconds, nanos))
-        } else {
+          return Field(name, TimestampValue(seconds, nanos))
+        }
+        else {
           field
         }
       case _ =>

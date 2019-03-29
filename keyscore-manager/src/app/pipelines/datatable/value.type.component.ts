@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {ValueJsonClass} from "../../models/dataset/Value";
+import {ValueJsonClass} from "../../../../modules/keyscore-manager-models/src/main/dataset/Value";
 
 @Component({
     selector: "value-type",
@@ -18,7 +18,7 @@ import {ValueJsonClass} from "../../models/dataset/Value";
                 <mat-icon svgIcon="decimal-icon"></mat-icon>
             </div>
             <div *ngSwitchCase="jsonClass.TimestampValue" matTooltip="TimestampValue">
-                <mat-icon svgIcon="timestamp-icon"></mat-icon>m
+                <mat-icon svgIcon="timestamp-icon"></mat-icon>
             </div>
             <div *ngSwitchCase="jsonClass.DurationValue" matTooltip="DurationValue">
                 <mat-icon svgIcon="duration-icon"></mat-icon>

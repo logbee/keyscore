@@ -1,16 +1,17 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import java.nio.CharBuffer
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.CharPos
 
 object CharBufferUtil {
   
-  def getBufferSectionAsString(buffer: CharBuffer, position: Int, length: Int): String = {
+  def getBufferSectionAsString(buffer: CharBuffer, position: CharPos, length: CharPos): String = {
     
     val tmpPos = buffer.position()
-    buffer.position(position)
+    buffer.position(position.value)
     
-    var array = new Array[Char](length)
-    buffer.get(array, 0, length)
+    var array = new Array[Char](length.value)
+    buffer.get(array, 0, length.value)
     val returnString = new String(array)
     
     buffer.position(tmpPos) //set the position back
@@ -23,20 +24,20 @@ object CharBufferUtil {
    * 
    * @return The next position to not contain a newline-char.
    */
-  def getStartOfNextLine(buffer: CharBuffer, position: Int): Int = {
+  def getStartOfNextLine(buffer: CharBuffer, position: CharPos): CharPos = {
     
-    if (buffer.get(position) != '\n' && buffer.get(position) != '\r') {
+    if (buffer.get(position.value) != '\n' && buffer.get(position.value) != '\r') {
       throw new IllegalArgumentException("The given starting position does not contain a newline-char.")
     }
     
-    var _position = position
+    var _position = position.value
     
     while (_position < buffer.limit() &&
         (buffer.get(_position) == '\n' || buffer.get(_position) == '\r')) { //skip any following newline-chars, which explicitly includes "\n", "\r", "\r\n", as well as "\n\n\n\n\n\n\n..."
       _position += 1
     }
     
-    _position
+    CharPos(_position)
   }
   
 }

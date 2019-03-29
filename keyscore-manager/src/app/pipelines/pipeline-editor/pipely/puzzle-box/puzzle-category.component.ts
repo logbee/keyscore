@@ -5,9 +5,9 @@ import {DraggableFactory} from "../draggable/draggable-factory";
 import {DropzoneFactory} from "../dropzone/dropzone-factory";
 import {parameterDescriptorToParameter} from "../../../../util";
 import {v4 as uuid} from "uuid";
-import {generateRef} from "../../../../models/common/Ref";
-import {Category} from "../../../../models/descriptors/Category";
-import {ParameterJsonClass} from "../../../../models/parameters/Parameter";
+import {generateRef} from "../../../../../../modules/keyscore-manager-models/src/main/common/Ref";
+import {Category} from "../../../../../../modules/keyscore-manager-models/src/main/descriptors/Category";
+import {ParameterJsonClass} from "../../../../../../modules/keyscore-manager-models/src/main/parameters/Parameter";
 
 
 @Component({

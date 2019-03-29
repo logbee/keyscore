@@ -1,17 +1,24 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import java.nio.file.{Files, Path}
-import io.logbee.keyscore.pipeline.contrib.tailin.file.FileReadRecord
+import java.nio.file.Files
+import java.nio.file.Path
+
+import scala.reflect.runtime.universe.typeTag
+
+import org.scalatest.BeforeAndAfter
+import org.scalatest.FreeSpec
+import org.scalatest.Matchers
+import org.scalatest.ParallelTestExecution
+
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfter, FreeSpec, Matchers, ParallelTestExecution}
-import scala.reflect.runtime.universe._
 
 
 case class TestCaseClass(a: String, b: Integer)
 
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class FilePersistenceContextSpec extends FreeSpec with BeforeAndAfter with Matchers with ParallelTestExecution {
 
@@ -72,12 +79,12 @@ class FilePersistenceContextSpec extends FreeSpec with BeforeAndAfter with Match
       "multiple case classes correctly" in new PersistenceFile {
 
         val key1 = "/path/to/file1"
-        val value1 = FileReadRecord(123456789, 987654321)
+        val value1 = FileReadRecord(123456789, 987654321, 0)
 
         filePersistenceContext.store(key1, value1)
 
         val key2 = "/path/to/file2"
-        val value2 = FileReadRecord(234567891, 198765432)
+        val value2 = FileReadRecord(234567891, 198765432, 0)
         filePersistenceContext.store(key2, value2)
 
         val loaded1 = filePersistenceContext.load[FileReadRecord](key1)(typeTag[FileReadRecord])

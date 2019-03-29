@@ -48,6 +48,15 @@ Environment="NO_PROXY=localhost,127.0.0.1,localaddress,.localdomain.com"
 . Flush changes: `systemctl daemon-reload`
 . Restart Docker: `systemctl restart docker`
 
+== Build Docker images ==
+// tag::docker-tiny-note[]
+[NOTE]
+====
+.Tiny as ENTRYPOINT
+
+It is recommended to use https://github.com/krallin/tini[Tiny] as `ENTRYPOINT` for Docker images.
+====
+// end::docker-tiny-note[]
 
 == Akka setups involving NATs ==
 

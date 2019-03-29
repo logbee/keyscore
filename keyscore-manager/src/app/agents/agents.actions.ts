@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {Agent} from "../models/common/Agent";
+import {Agent} from "../../../modules/keyscore-manager-models/src/main/common/Agent";
 
 export const LOAD_AGENTS = "[Agents] Load";
 export const LOAD_AGENTS_SUCCESS = "[Agents] LoadSuccess";

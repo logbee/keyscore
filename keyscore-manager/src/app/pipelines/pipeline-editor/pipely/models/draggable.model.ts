@@ -1,8 +1,8 @@
 import {Draggable, Dropzone} from "./contract";
 import {DropzoneType} from "./dropzone-type";
 import {BlockDescriptor} from "./block-descriptor.model";
-import {Ref} from "../../../../models/common/Ref";
-import {Configuration} from "../../../../models/common/Configuration";
+import {Ref} from "../../../../../../modules/keyscore-manager-models/src/main/common/Ref";
+import {Configuration} from "../../../../../../modules/keyscore-manager-models/src/main/common/Configuration";
 
 export interface DraggableModel {
     blockDescriptor: BlockDescriptor;

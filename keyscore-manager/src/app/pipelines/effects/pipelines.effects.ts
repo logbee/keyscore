@@ -55,12 +55,12 @@ import {
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
 } from "../actions/pipelines.actions";
-import {PipelineInstance} from "../../models/pipeline-model/PipelineInstance";
-import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {PipelineInstance} from "../../../../modules/keyscore-manager-models/src/main/pipeline-model/PipelineInstance";
+import {ResolvedFilterDescriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 import {BlueprintService} from "../../services/rest-api/BlueprintService";
-import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
-import {Configuration} from "../../models/common/Configuration";
-import {Descriptor} from "../../models/descriptors/Descriptor";
+import {Blueprint, PipelineBlueprint} from "../../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Configuration} from "../../../../modules/keyscore-manager-models/src/main/common/Configuration";
+import {Descriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
 import {DescriptorResolverService} from "../../services/descriptor-resolver.service";
 import {StringTMap} from "../../common/object-maps";
 import {SnackbarOpen} from "../../common/snackbar/snackbar.actions";
@@ -68,7 +68,7 @@ import {ConfigurationService} from "../../services/rest-api/ConfigurationService
 import {DescriptorService} from "../../services/rest-api/DescriptorService";
 import {PipelineService} from "../../services/rest-api/PipelineService";
 import {FilterControllerService} from "../../services/rest-api/FilterController.service";
-import {Health} from "../../models/common/Health";
+import {Health} from "../../../../modules/keyscore-manager-models/src/main/common/Health";
 import {getPipelinePolling, selectIsCreating} from "../index";
 
 @Injectable()
@@ -167,13 +167,13 @@ export class PipelinesEffects {
         map(action => (action as UpdatePipelineAction)),
         mergeMap(action => {
             return forkJoin(
+                this.blueprintService.putPipelineBlueprint(action.pipeline.pipelineBlueprint),
                 ...action.pipeline.blueprints.map(blueprint =>
                     this.blueprintService.putBlueprint(blueprint)
                 ),
                 ...action.pipeline.configurations.map(configuration =>
                     this.configurationService.putConfiguration(configuration)
-                ),
-                this.blueprintService.putPipelineBlueprint(action.pipeline.pipelineBlueprint)
+                )
             ).pipe(map(data => new UpdatePipelineSuccessAction(action.pipeline, action.runAfterUpdate)),
                 catchError(cause => of(new UpdatePipelineFailureAction(cause, action.pipeline))))
         })

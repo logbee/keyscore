@@ -1,16 +1,16 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
-import {BehaviorSubject, Subject} from "rxjs";
+import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
 import {deepcopy, zip} from "../../../../util";
-import {Parameter, ParameterJsonClass} from "../../../../models/parameters/Parameter";
-import {ResolvedParameterDescriptor} from "../../../../models/parameters/ParameterDescriptor";
-import {ParameterControlService} from "../../../../common/parameter/service/parameter-control.service";
-import {Configuration} from "../../../../models/common/Configuration";
+import {Parameter, ParameterJsonClass} from "../../../../../../modules/keyscore-manager-models/src/main/parameters/Parameter";
+import {ResolvedParameterDescriptor} from "../../../../../../modules/keyscore-manager-models/src/main/parameters/ParameterDescriptor";
+import {ParameterControlService} from "../../../../../../modules/keyscore-manager-pipeline-parameters/src/main/service/parameter-control.service";
+import {Configuration} from "../../../../../../modules/keyscore-manager-models/src/main/common/Configuration";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
-import {Dataset} from "../../../../models/dataset/Dataset";
+import {Dataset} from "../../../../../../modules/keyscore-manager-models/src/main/dataset/Dataset";
 
 
 @Component({
@@ -70,43 +70,11 @@ import {Dataset} from "../../../../models/dataset/Dataset";
                     </form>
                 </div>
             </div>
-            <div *ngIf="showFooter" fxLayout="column" class="configurator-footer" fxLayoutGap="10px">
-                <mat-divider></mat-divider>
-                <div fxLayout="row" fxLayoutAlign="space-between">
-                    <div fxLayout="row" fxLayoutGap="10px">
-                        <button matTooltip="{{'PIPELY.REVERT_TOOLTIP'| translate}}" mat-raised-button (click)="revert()"
-                                color="warn">
-                            <mat-icon>undo</mat-icon>
-                            {{'PIPELY.REVERT' | translate}}
-                        </button>
-                        <button mat-raised-button matTooltip="{{'PIPELY.RESET_TOOLTIP'| translate}}" (click)="reset()"
-                                color="default">
-                            <mat-icon>cancel</mat-icon>
-                            {{'PIPELY.RESET' | translate}}
-                        </button>
-                    </div>
-                    <button *ngIf="applyTestFlag;else apply" #save mat-raised-button color="primary"
-                            matTooltip="{{'PIPELY.TEST_TOOLTIP'| translate}}"
-                            (click)="saveConfiguration()">
-                        <mat-icon>play_arrow</mat-icon>
-                        {{'PIPELY.TEST' | translate}}
-                    </button>
-                    <ng-template #apply>
-                        <button save mat-raised-button color="primary"
-                                matTooltip=" {{'PIPELY.APPLY_TOOLTIP' | translate}}"
-                                (click)="overwriteConfiguration()">
-                            <mat-icon>done</mat-icon>
-                            {{'PIPELY.APPLY' | translate}}
-                        </button>
-                    </ng-template>
-                </div>
-            </div>
         </div>
     `
 })
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
-    @Input() showFooter: boolean;
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
 
@@ -150,7 +118,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     private datasets$ = new BehaviorSubject<Dataset[]>([]);
 
     isVisible: boolean = true;
-    applyTestFlag: boolean = true;
     isAlive: Subject<void> = new Subject();
     form: FormGroup;
     pipelineForm: FormGroup;
@@ -158,12 +125,17 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     private lastID: string = "";
     private lastValues = null;
+    private formSubscription: Subscription;
 
     constructor(private parameterService: ParameterControlService) {
     }
 
     public ngOnInit(): void {
+
         this.selectedBlock$.pipe(takeUntil(this.isAlive), filter(block => block.configuration.ref.uuid !== this.lastID)).subscribe(selectedBlock => {
+            if(this.formSubscription){
+                this.formSubscription.unsubscribe();
+            }
             this.lastID = selectedBlock.configuration.ref.uuid;
 
             this.parameterMapping =
@@ -175,13 +147,14 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             }
             this.form = this.parameterService.toFormGroup(this.parameterMapping);
 
-            this.form.valueChanges.subscribe(values => {
-                if (!this.isAllNullOrEmpty(values) && !this.showFooter && !_.isEqual(this.lastValues, values)) {
+            this.formSubscription = this.form.valueChanges.subscribe(values => {
+                if (!this.isAllNullOrEmpty(values) && !_.isEqual(this.lastValues, values) ) {
                     this.lastValues = values;
                     this.saveConfiguration();
                 }
             });
         });
+
 
         this.pipelineForm = new FormGroup({
             'pipeline.name': new FormControl(this.pipelineMetaData.name),
@@ -229,13 +202,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             });
             this.onSave.emit(configuration);
         }
-        this.applyTestFlag = false;
     }
 
-    overwriteConfiguration() {
-        this.applyTestFlag = true;
-        this.onOverwriteConfiguration.emit();
-    }
 
     getKeys(map: Map<any, any>): any[] {
         return Array.from(map.keys());

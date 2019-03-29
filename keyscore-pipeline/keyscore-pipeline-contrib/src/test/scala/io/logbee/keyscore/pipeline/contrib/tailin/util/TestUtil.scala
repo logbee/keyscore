@@ -1,24 +1,25 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import java.io.File
-import java.nio.file.SimpleFileVisitor
-import java.nio.file.Path
-import java.nio.file.FileVisitResult
-import java.nio.file.attribute.BasicFileAttributes
+import java.io.IOException
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
-import java.io.IOException
-import java.nio.charset.StandardCharsets
 import java.nio.file.OpenOption
+import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardOpenOption
-import java.nio.charset.Charset
+import java.nio.file.attribute.BasicFileAttributes
+
 import org.slf4j.LoggerFactory
+
 import ch.qos.logback.classic.LoggerContext
-import ch.qos.logback.core.rolling.RollingFileAppender
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
+import ch.qos.logback.core.rolling.RollingFileAppender
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
 import ch.qos.logback.core.util.FileSize
 
 object TestUtil {

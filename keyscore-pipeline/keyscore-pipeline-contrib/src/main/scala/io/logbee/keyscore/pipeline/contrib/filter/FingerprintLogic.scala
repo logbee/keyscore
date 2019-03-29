@@ -14,11 +14,11 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 
+import scala.collection.mutable
+
 object FingerprintLogic extends Described {
-  private val iconName = "io.logbee.keyscore.pipeline.contrib.icon/fingerprint.svg"
 
-
-  private val fieldNameParameter = FieldNameParameterDescriptor(
+  val fieldNameParameter = FieldNameParameterDescriptor(
     ref = "fingerprint.fieldName",
     info = ParameterInfo(
       displayName = TextRef("fieldName"),
@@ -26,17 +26,29 @@ object FingerprintLogic extends Described {
     ),
     validator = StringValidator(
       expression = ".*",
-      expressionType = ExpressionType.Glob
     ),
-    hint = FieldNameHint.AbsentField
+    hint = FieldNameHint.AbsentField,
+    defaultValue = "fingerprint"
   )
 
-  private val encodingParameter = BooleanParameterDescriptor(
+  val recomputeParameter = BooleanParameterDescriptor(
+    ref = "fingerprint.recompute",
+    info = ParameterInfo(
+      displayName = TextRef("fingerprint.recompute.displayName"),
+      description = TextRef("fingerprint.recompute.description")
+    ),
+    defaultValue = false,
+    mandatory = true
+  )
+
+  val encodingParameter = BooleanParameterDescriptor(
     ref = "fingerprint.encoding",
     info = ParameterInfo(
-      displayName = TextRef("base64Encoding"),
-      description = TextRef("base64EncodingDescription")
-    )
+      displayName = TextRef("fingerprint.encoding.displayName"),
+      description = TextRef("fingerprint.encoding.description")
+    ),
+    defaultValue = false,
+    mandatory = true
   )
 
   override def describe = Descriptor(
@@ -46,7 +58,11 @@ object FingerprintLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(Category("fingerprint", TextRef("category.fingerprint.displayName"))),
-      parameters = Seq(fieldNameParameter,encodingParameter),
+      parameters = Seq(
+        fieldNameParameter,
+        recomputeParameter,
+        encodingParameter
+      ),
       icon = Icon.fromClass(classOf[FingerprintLogic])
     ),
     localization = Localization.fromResourceBundle(
@@ -58,8 +74,9 @@ object FingerprintLogic extends Described {
 
 class FingerprintLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private var fieldName = "fingerprint"
-  private var base64Encoding = false
+  private var fieldName = FingerprintLogic.fieldNameParameter.defaultValue
+  private var recompute = FingerprintLogic.recomputeParameter.defaultValue
+  private var encoding = FingerprintLogic.encodingParameter.defaultValue
 
   private val digest = MessageDigest.getInstance("MD5")
 
@@ -69,33 +86,46 @@ class FingerprintLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   override def configure(configuration: Configuration): Unit = {
 
-    base64Encoding = configuration.getValueOrDefault(FingerprintLogic.encodingParameter, base64Encoding)
     fieldName = configuration.getValueOrDefault(FingerprintLogic.fieldNameParameter, fieldName)
+    recompute = configuration.getValueOrDefault(FingerprintLogic.recomputeParameter, recompute)
+    encoding = configuration.getValueOrDefault(FingerprintLogic.encodingParameter, encoding)
   }
 
   override def onPush(): Unit = {
 
+    val name = fieldName
     val dataset = grab(in)
-    val records = dataset.records.map(record => {
 
-      var fingerprint: String = "<unknown>"
-      val hashBytes = record.fields.foldLeft(digest) {
-        case (md5, field) =>
-          md5.update(s"${field.name}=${field.value}".getBytes(Charsets.UTF_8))
-          md5
-      }.digest()
+    push(out, dataset.update(_.records := dataset.records.map(record => {
 
-      if (base64Encoding) {
-        fingerprint = base64().encode(hashBytes)
-      }
-      else {
-        fingerprint = hashBytes.map("%02x".format(_)).mkString
-      }
+      record.update(_.fields := record.fields
 
-      Record(Field(fieldName, TextValue(fingerprint)) +: record.fields)
-    })
+        .foldLeft((mutable.HashSet.empty[Field], Option[String](null), digest)) {
 
-    push(out, Dataset(dataset.metadata, records))
+          case ((result, _, digest), Field(`name`, TextValue(_))) if recompute =>
+            (result, None, digest)
+
+          case ((result, _, digest), Field(`name`, TextValue(fingerprint))) =>
+            (result, Some(fingerprint), digest)
+
+          case ((result, fingerprint, digest), field) =>
+            digest.update(s"${field.name}=${field.value}".getBytes(Charsets.UTF_8))
+            (result += field, fingerprint, digest)
+
+        }
+        .map {
+
+          case (fields, None, digest) if encoding => fields += Field(fieldName, TextValue(base64().encode(digest.digest())))
+
+          case (fields, None, digest) => fields += Field(fieldName, TextValue(digest.digest().map("%02x".format(_)).mkString))
+
+          case (fields, Some(fingerprint), _) =>
+            digest.reset()
+            fields += Field(fieldName, TextValue(fingerprint))
+        }
+        .get.toList
+      )
+    })))
   }
 
   override def onPull(): Unit = {

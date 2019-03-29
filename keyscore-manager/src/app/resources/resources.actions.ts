@@ -1,10 +1,10 @@
 import {Action} from "@ngrx/store";
-import {Blueprint} from "../models/blueprints/Blueprint";
-import {Descriptor} from "../models/descriptors/Descriptor";
-import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {Configuration} from "../models/common/Configuration";
-import {Health} from "../models/common/Health";
-import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
+import {Blueprint} from "../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Descriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
+import {ResolvedFilterDescriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {Configuration} from "../../../modules/keyscore-manager-models/src/main/common/Configuration";
+import {Health} from "../../../modules/keyscore-manager-models/src/main/common/Health";
+import {ResourceInstanceState} from "../../../modules/keyscore-manager-models/src/main/filter-model/ResourceInstanceState";
 
 export const LOAD_ALL_BLUEPRINTS = "[Resources]GetAllBluePrintsAction";
 export const LOAD_ALL_BLUEPRINTS_SUCCESS = "[Resources]LoadAllBlueprintsSuccess";

@@ -19,7 +19,7 @@ class PutSinglePipelineBlueprint(pipelineObject: PipelineBlueprint, pipelineJSON
 
     runner.http(action => action.client(client)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 }

@@ -24,12 +24,12 @@ import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subco
 import {BlockDescriptor} from "./models/block-descriptor.model";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {share, takeUntil, tap} from "rxjs/operators";
-import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
+import {EditingPipelineModel} from "../../../../../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
 import "./style/pipely-style.scss";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
-import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../models/blueprints/Blueprint";
-import {Configuration} from "../../../models/common/Configuration";
-import {TextValue} from "../../../models/dataset/Value";
+import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Configuration} from "../../../../../modules/keyscore-manager-models/src/main/common/Configuration";
+import {TextValue} from "../../../../../modules/keyscore-manager-models/src/main/dataset/Value";
 
 
 @Component({
@@ -390,8 +390,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
             }
         }));
 
-
-
         this.buildEditPipeline();
         let pipelineName = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value;
         let pipelineDescription = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value;
@@ -399,8 +397,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
 
 
     }
-
-
 
     private buildEditPipeline() {
         let nextBlueprint: Blueprint = this.pipeline.blueprints.find(blueprint =>

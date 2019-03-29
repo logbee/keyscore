@@ -20,7 +20,8 @@
     "SOURCE": "Quelle",
     "SINK": "Senke",
     "MERGE": "Fusionierungsblock",
-    "BRANCH": "Verzweigungsblock"
+    "BRANCH": "Verzweigungsblock",
+    "LOGOUT": "Logout"
   },
   "APPCOMPONENT": {
     "AGENTS": "Agenten",

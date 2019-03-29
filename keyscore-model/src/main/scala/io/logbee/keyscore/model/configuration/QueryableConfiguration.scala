@@ -3,28 +3,29 @@ package io.logbee.keyscore.model.configuration
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 
+import scala.collection.mutable
+
 trait QueryableConfiguration {
 
   this: Configuration =>
 
-  private def parameterMapping: Map[String, Any] = parameterSet.parameters.foldLeft(scala.collection.mutable.Map.empty[String, Any]) {
-      case (result, parameter: BooleanParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: TextParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: ExpressionParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: NumberParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: DecimalParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldNameParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: TextListParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldNameListParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldListParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: ChoiceParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldDirectiveSequenceParameter) => result + (parameter.ref.id -> parameter.value)
-      case (result, parameter: DirectiveConfiguration) => result + (parameter.ref.uuid -> parameter.parameters)
+  private def parameterMapping: Map[String, Any] = parameterSet.parameters.foldLeft(mutable.HashMap.empty[String, Any]) {
+      case (result, parameter: BooleanParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: TextParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: ExpressionParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: NumberParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: DecimalParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldNameParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldNamePatternParameter) => result += (parameter.ref.id -> parameter)
+      case (result, parameter: FieldParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: TextListParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldNameListParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldListParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: ChoiceParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: FieldDirectiveSequenceParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: DirectiveConfiguration) => result += (parameter.ref.uuid -> parameter.parameters)
       case (result, _) => result
     }.toMap
-
-
 
   def findBooleanValue(ref: ParameterRef): Option[Boolean] = parameterMapping.get(ref.id) match {
     case Some(value: Boolean) => Some(value)
@@ -63,6 +64,11 @@ trait QueryableConfiguration {
 
   def findValue(descriptor: FieldNameParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
     case Some(value: String) => Option(value)
+    case _ => None
+  }
+
+  def findValue(descriptor: FieldNamePatternParameterDescriptor): Option[FieldNamePattern] = parameterMapping.get(descriptor.ref.id) match {
+    case Some(FieldNamePatternParameter(_, value, patternType)) => Option(FieldNamePattern(value, patternType))
     case _ => None
   }
 

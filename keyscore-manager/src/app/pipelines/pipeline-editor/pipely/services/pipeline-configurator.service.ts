@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {Draggable} from "../models/contract";
-import {EditingPipelineModel} from "../../../../models/pipeline-model/EditingPipelineModel";
-import {Configuration} from "../../../../models/common/Configuration";
+import {EditingPipelineModel} from "../../../../../../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
+import {Configuration} from "../../../../../../modules/keyscore-manager-models/src/main/common/Configuration";
 import {deepcopy} from "../../../../util";
 import {DraggableModel} from "../models/draggable.model";
 import {
@@ -10,8 +10,8 @@ import {
     FilterBlueprint,
     SinkBlueprint,
     SourceBlueprint
-} from "../../../../models/blueprints/Blueprint";
-import {Ref} from "../../../../models/common/Ref";
+} from "../../../../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Ref} from "../../../../../../modules/keyscore-manager-models/src/main/common/Ref";
 
 
 @Injectable()

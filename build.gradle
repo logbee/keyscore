@@ -103,6 +103,14 @@ configure ([
         }
     }
 
+    compileScala {
+        scalaCompileOptions.additionalParameters = [
+            "-deprecation",
+            "-feature",
+            "-Ywarn-unused-import"
+        ]
+    }
+    
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
@@ -118,7 +126,6 @@ configure ([
         archives scaladocJar
     }
 
-
     //This overrides the copy behaviour for .properties-files (Resource Bundles), so that during Gradle builds (processResources),
     //the Unicode-characters get escaped, therefore can be decoded with ISO-8859-1, which JDK8 uses to read .properties-files.
     project.tasks.withType(ProcessResources).each { task ->
@@ -128,7 +135,6 @@ configure ([
         }
     }
 
-    
     task escapeUnicodeInResourceBundles {
         def files = sourceSets.main.resources.asFileTree.matching {include '**/*.properties'}.files
         def cmd = ['native2ascii', '-encoding', 'utf8']
@@ -171,8 +177,12 @@ configure ([
         resources {
             from("$projectDir/resources/images/") {
                 include '**/*.png'
+                into "resources/images"
             }
-            into "resources/images"
+            from("$projectDir/resources/") {
+                include '**/*.css'
+                into "resources"
+            }
         }
         outputDir = buildDir
         gemPath = jrubyPrepare.outputDir
@@ -191,7 +201,9 @@ configure ([
             'idprefix': '',
             'idseparator': '-',
             'docinfo1': '',
-            'source-highlighter': 'coderay'
+            'source-highlighter': 'coderay',
+            'stylesheet': 'resources/keyscore.css',
+            'linkcss': true,
         ])
     }
 }

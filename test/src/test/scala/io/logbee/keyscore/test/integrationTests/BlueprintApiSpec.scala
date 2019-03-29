@@ -72,7 +72,7 @@ class BlueprintApiSpec extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 
@@ -148,7 +148,7 @@ class BlueprintApiSpec extends Matchers {
 
     runner.http(action => action.client(frontierClient)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 

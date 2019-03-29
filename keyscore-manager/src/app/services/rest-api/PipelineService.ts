@@ -4,7 +4,7 @@ import {AppState} from "../../app.component";
 import {HttpClient} from "@angular/common/http";
 import {AppConfig, selectAppConfig} from "../../app.config";
 import {Observable} from "rxjs/index";
-import {Ref} from "../../models/common/Ref";
+import {Ref} from "../../../../modules/keyscore-manager-models/src/main/common/Ref";
 
 @Injectable({
     providedIn: 'root'
@@ -34,7 +34,7 @@ export class PipelineService {
     }
 
     loadAllInstances():Observable<any>{
-        return this.httpClient.get(`${PipelineService.BASE_URL}/instance/*}`);
+        return this.httpClient.get(`${PipelineService.BASE_URL}/instance/*`);
     }
 
     loadInstance(id:string):Observable<any>{

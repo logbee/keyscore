@@ -19,7 +19,7 @@ class PutSingleConfiguration(configurationObject: Configuration, configurationJS
 
     runner.http(action => action.client(client)
       .receive()
-      .response(HttpStatus.CREATED)
+      .response(HttpStatus.OK)
     )
   }
 }

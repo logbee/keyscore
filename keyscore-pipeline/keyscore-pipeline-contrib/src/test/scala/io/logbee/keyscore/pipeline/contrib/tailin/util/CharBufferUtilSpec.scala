@@ -3,13 +3,18 @@ package io.logbee.keyscore.pipeline.contrib.tailin.util
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import java.nio.charset.{Charset, StandardCharsets}
-import java.nio.file.{Files, StandardOpenOption}
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
+import org.scalatest.FreeSpec
+import org.scalatest.Matchers
+
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers}
-
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.CharPos
 
 @RunWith(classOf[JUnitRunner])
 class CharBufferUtilSpec extends FreeSpec with Matchers {
@@ -28,17 +33,17 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
     var readChannel: FileChannel = null
 
     try {
-
+      
       readChannel = Files.newByteChannel(file.toPath, StandardOpenOption.READ).asInstanceOf[FileChannel]
-
+      
       byteBuffer.clear()
       readChannel.read(byteBuffer, 0)
-
+      
       byteBuffer.flip()
-
+      
       val charBuffer = charset.decode(byteBuffer)
-      val decoded = CharBufferUtil.getBufferSectionAsString(charBuffer, 0, charBuffer.length)
-
+      val decoded = CharBufferUtil.getBufferSectionAsString(charBuffer, CharPos(0), CharPos(charBuffer.length))
+      
       decoded shouldBe expectedValue
     }
     finally {
@@ -83,9 +88,9 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
     
             s"""at expected position $expectedPosition when starting to search from position $startingPosition in a buffer that contains "$escapedContent"""" in {
     
-              val returnedPosition = CharBufferUtil.getStartOfNextLine(buffer, startingPosition)
+              val returnedPosition = CharBufferUtil.getStartOfNextLine(buffer, CharPos(startingPosition))
     
-              returnedPosition shouldBe expectedPosition
+              returnedPosition shouldBe CharPos(expectedPosition)
             }
           }
           
@@ -99,7 +104,7 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
               
               val startingPosition = 1
               
-              val returnedPosition = CharBufferUtil.getStartOfNextLine(buffer, startingPosition)
+              val returnedPosition = CharBufferUtil.getStartOfNextLine(buffer, CharPos(startingPosition))
             }
           }
         }

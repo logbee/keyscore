@@ -5,10 +5,10 @@ import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data.{Label, MetaData, TextValue}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
-import io.logbee.keyscore.pipeline.contrib.decoder.JsonDecoderLogic
+import io.logbee.keyscore.pipeline.contrib.decoder.json.JsonDecoderLogic
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
-import io.logbee.keyscore.pipeline.contrib.encoder.JsonEncoderLogic
-import io.logbee.keyscore.pipeline.contrib.encoder.JsonEncoderLogic._
+import io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoderLogic
+import io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoderLogic._
 import io.logbee.keyscore.pipeline.contrib.filter.{RemoveFieldsLogic, RetainFieldsLogic}
 import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext

@@ -10,6 +10,10 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
+ext {
+    dockerImageName = "$dockerImageHost/$dockerImageNamespace/${project.name}"
+}
+
 node {
     version = '8.9.4'
     download = true
@@ -29,6 +33,10 @@ task webpack(type: NodeTask, dependsOn: npmInstall) {
 
 task serve(type: NodeTask, dependsOn: npmInstall) {
     script = file('node_modules/.bin/webpack-dev-server')
+}
+
+task storybook(type: NpmTask, dependsOn: npmInstall) {
+    args = ['run','storybook']
 }
 
 task createDockerfile(type: Dockerfile) {
@@ -92,5 +100,9 @@ task clean(type: Delete) {
 }
 
 task cleanAll(type: Delete, dependsOn: clean) {
+    delete 'node_modules'
+}
+
+task cleanNode(type: Delete) {
     delete 'node_modules'
 }

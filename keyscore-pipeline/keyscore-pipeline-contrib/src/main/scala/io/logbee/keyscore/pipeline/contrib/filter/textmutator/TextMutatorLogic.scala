@@ -6,15 +6,16 @@ import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.{Configuration, DirectiveConfiguration}
 import io.logbee.keyscore.model.data.FieldValueType.Text
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
+import io.logbee.keyscore.model.descriptor.FieldNameHint.PresentField
+import io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor.PatternType
 import io.logbee.keyscore.model.descriptor.Maturity.Experimental
 import io.logbee.keyscore.model.descriptor.ToDescriptorRef.stringToDescriptorRef
 import io.logbee.keyscore.model.descriptor.{ParameterGroupDescriptor, _}
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
-import io.logbee.keyscore.pipeline.api.directive.{FieldDirective, FieldDirectiveSequence}
+import io.logbee.keyscore.pipeline.api.directive.FieldDirective
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, FIELDS}
-import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic
 import io.logbee.keyscore.pipeline.contrib.filter.textmutator.TextMutatorLogic.{findAndReplaceDirective, toTimestampDirective, trimDirective}
 
 import scala.Int.MaxValue
@@ -81,27 +82,38 @@ object TextMutatorLogic extends Described {
     )
   )
 
-  val sequenceInplace = BooleanParameterDescriptor(
+  val fieldNamePatternParameter = FieldNamePatternParameterDescriptor(
+    ref = "textmutator.fieldName",
+    info = ParameterInfo(
+      displayName = "textmutator.fieldName.displayName",
+      description = "textmutator.fieldName.description"
+    ),
+    hint = PresentField,
+    supports = Seq(PatternType.RegEx),
+    mandatory = true
+  )
+
+  val sequenceInplaceParameter = BooleanParameterDescriptor(
     ref = "textmutator.directiveSequence.inplace",
     info = ParameterInfo(
-      displayName = "textmutator.sequenceInplace.displayName",
-      description = "textmutator.sequenceInplace.description"
+      displayName = "textmutator.sequenceInplaceParameter.displayName",
+      description = "textmutator.sequenceInplaceParameter.description"
     ),
     defaultValue = true,
   )
 
-  val newFieldName = FieldNameParameterDescriptor(
-    ref = "textmutator.directiveSequence.newFieldName",
+  val mutatedFieldName = FieldNameParameterDescriptor(
+    ref = "textmutator.directiveSequence.mutatedFieldName",
     info = ParameterInfo(
-      displayName = "textmutator.newFieldName.displayName",
-      description = "textmutator.newFieldName.description"
+      displayName = "textmutator.mutatedFieldName.displayName",
+      description = "textmutator.mutatedFieldName.description"
     ),
   )
 
   val conditionalInplaceParameters = ParameterGroupDescriptor(
-    ref = "textmutator.group.newFieldName",
-    condition = BooleanParameterCondition(sequenceInplace.ref, negate = true),
-    parameters = Seq(newFieldName)
+    ref = "textmutator.group.mutatedFieldName",
+    condition = BooleanParameterCondition(sequenceInplaceParameter.ref, negate = true),
+    parameters = Seq(mutatedFieldName)
   )
 
   val directiveSequence = FieldDirectiveSequenceParameterDescriptor(
@@ -112,7 +124,8 @@ object TextMutatorLogic extends Described {
     ),
     fieldTypes = Seq(Text),
     parameters = Seq(
-      sequenceInplace,
+      fieldNamePatternParameter,
+      sequenceInplaceParameter,
       conditionalInplaceParameters
     ),
     directives = Seq(
@@ -144,7 +157,7 @@ object TextMutatorLogic extends Described {
 
 class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  var sequences = Seq.empty[FieldDirectiveSequence[FieldDirective]]
+  var sequences = Seq.empty[TextMutatorDirectiveSequence[FieldDirective]]
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -152,24 +165,36 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   override def configure(configuration: Configuration): Unit = {
 
-    sequences = configuration.getValueOrDefault(TextMutatorLogic.directiveSequence, Seq.empty).map(sequenceConfiguration => {
+    sequences = configuration.getValueOrDefault(TextMutatorLogic.directiveSequence, Seq.empty)
+      .foldLeft(mutable.ListBuffer.empty[TextMutatorDirectiveSequence[FieldDirective]]) { case (result, sequenceConfiguration) =>
 
-      val directives = sequenceConfiguration.directives.foldLeft(Seq.empty[FieldDirective]) {
-        case (result, DirectiveConfiguration(toTimestampDirective.ref, instance, parameters)) =>
-          val timestampPattern = parameters.getValueOrDefault(TextMutatorLogic.toTimestampPattern, "")
-          result :+ ToTimestampDirective(timestampPattern)
-        case (result, DirectiveConfiguration(findAndReplaceDirective.ref, instance, parameters)) =>
-          val findPattern = parameters.getValueOrDefault(TextMutatorLogic.findPattern, "")
-          val replacePattern = parameters.getValueOrDefault(TextMutatorLogic.replacePattern, "")
-          result :+ FindReplaceDirective(findPattern, replacePattern)
-        case (result, DirectiveConfiguration(trimDirective.ref, instance, parameters)) =>
-          result :+ TrimDirective()
-        case (result, _) =>
-          result
+        val directives = sequenceConfiguration.directives.foldLeft(Seq.empty[FieldDirective]) {
+          case (result, DirectiveConfiguration(toTimestampDirective.ref, instance, parameters)) =>
+            val timestampPattern = parameters.getValueOrDefault(TextMutatorLogic.toTimestampPattern, "")
+            result :+ ToTimestampDirective(timestampPattern)
+          case (result, DirectiveConfiguration(findAndReplaceDirective.ref, instance, parameters)) =>
+            val findPattern = parameters.getValueOrDefault(TextMutatorLogic.findPattern, "")
+            val replacePattern = parameters.getValueOrDefault(TextMutatorLogic.replacePattern, "")
+            result :+ FindReplaceDirective(findPattern, replacePattern)
+          case (result, DirectiveConfiguration(trimDirective.ref, instance, parameters)) =>
+            result :+ TrimDirective()
+          case (result, _) =>
+            result
+        }
+
+        val config = (
+          sequenceConfiguration.parameters.findValue(TextMutatorLogic.fieldNamePatternParameter),
+          sequenceConfiguration.parameters.getValueOrDefault(TextMutatorLogic.sequenceInplaceParameter, TextMutatorLogic.sequenceInplaceParameter.defaultValue),
+          sequenceConfiguration.parameters.findValue(TextMutatorLogic.mutatedFieldName),
+        )
+        config match {
+          case (Some(pattern), false, Some(name)) if directives.nonEmpty =>
+            result += TextMutatorDirectiveSequence(pattern, inplace = false, name, directives)
+          case (Some(pattern), true, _) if directives.nonEmpty =>
+            result += TextMutatorDirectiveSequence(pattern, inplace = true, "", directives)
+          case _ => result
+        }
       }
-
-      FieldDirectiveSequence(sequenceConfiguration.fieldName, sequenceConfiguration.parameters, directives)
-    })
   }
 
   override def onPush(): Unit = {
@@ -179,15 +204,22 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
       val dataset = grab(in)
 
       push(out, dataset.update(_.records := dataset.records.map((_, sequences)).foldLeft(mutable.ListBuffer.empty[Record]) {
-        case (result, (record, sequences)) =>
-          result += sequences.foldLeft(record) { case (record, sequence) =>
-            record.update(_.fields := record.fields.map {
-              case field@Field(sequence.fieldName, TextValue(_)) =>
-                sequence.directives.foldLeft(field) { case (field, directive) =>
+        case (records, (record, sequences)) =>
+          records += sequences.foldLeft(record) { case (record, sequence) =>
+            record.update(_.fields := record.fields.foldLeft(mutable.ListBuffer.empty[Field]) {
+              case (fields, field @ Field(fieldName, TextValue(_))) if sequence.fieldNamePattern.matches(fieldName) =>
+                val mutated = sequence.directives.foldLeft(field) { case (field, directive) =>
                   directive.invoke(field)
                 }
-              case field => field
-            })
+                if (sequence.inplace) {
+                  fields += mutated.withName(fieldName)
+                }
+                else {
+                  fields += (field, mutated.withName(sequence.mutatedFieldName))
+                }
+
+              case (fields, field) => fields += field
+            }.toList)
           }
       }.toList))
     }
