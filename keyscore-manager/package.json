@@ -40,15 +40,15 @@
     "zone.js": "0.8.26",
     "named-js-regexp": "1.3.3",
     "uuid": "3.3.2",
-    "node-sass": "4.11.0",
+    "node-sass": "4.8.3",
     "lodash": "4.17.11",
     "bootstrap": "4.1.3",
     "babel-polyfill": "6.26.0",
     "ngx-propagation-stop": "1.0.6",
     "keycloak-angular": "6.0.0",
     "keyscore-manager-models": "file:modules/keyscore-manager-models",
-    "keyscore-manager-pipeline-parameters": "file:modules/keyscore-manager-pipeline-parameters",
-    "keyscore-manager-material": "file:modules/keyscore-manager-material"
+    "keyscore-manager-material": "file:modules/keyscore-manager-material",
+    "keyscore-manager-pipeline-parameters": "file:modules/keyscore-manager-pipeline-parameters"
   },
   "devDependencies": {
     "ajv": "6.5.3",
@@ -80,7 +80,6 @@
     "ts-jest": "23.1.4",
     "jest-preset-angular": "6.0.0",
     "jasmine-marbles": "0.4.0",
-    "faker": "4.1.0",
     "ngx-json-viewer": "2.3.1",
     "@babel/core": "^7.4.0",
     "babel-loader": "^8.0.5",
