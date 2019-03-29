@@ -3,18 +3,10 @@ import {
     LOAD_ALL_BLUEPRINTS_SUCCESS,
     LOAD_CONFIGURATIONS_SUCCESS,
     RESOLVED_ALL_DESCRIPTORS_SUCCESS,
-    ResourcesActions,
-    STORE_BLUEPRINT_REF,
-    STORE_CONFIGURATION_REF,
-    STORE_DESCRIPTOR_REF
+    ResourcesActions
 } from "./resources.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Blueprint} from "../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
-import {ResolvedFilterDescriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
-import {Configuration} from "../../../modules/keyscore-manager-models/src/main/common/Configuration";
-import {StateObject} from "../../../modules/keyscore-manager-models/src/main/common/StateObject";
-import {deepcopy} from "../util";
-import {ResourceTableModel} from "../../../modules/keyscore-manager-models/src/main/resources/ResourceTableModel";
+import {Blueprint, ResolvedFilterDescriptor, Configuration, StateObject, ResourceTableModel} from "keyscore-manager-models";
 import * as _ from "lodash";
 
 export class ResourceViewerState {
@@ -69,7 +61,7 @@ export function ResourcesReducer(state: ResourceViewerState = initialState, acti
             result.resourceModels = tmp;
             break;
         case GET_RESOURCE_STATE_SUCCESS:
-            let copy = deepcopy(result.stateObjects, []);
+            let copy = _.cloneDeep(result.stateObjects);
             copy.push(new StateObject(action.resourceId, action.instance));
             result.stateObjects = copy;
             break;

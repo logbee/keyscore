@@ -1,7 +1,7 @@
 import {NgModule} from "@angular/core";
 import {LoadingComponent} from "./loading.component";
 import {LoadingFullViewComponent} from "./loading-full-view.component";
-import {MaterialModule} from "../../material.module";
+import {MaterialModule} from "keyscore-manager-material";
 
 @NgModule({
     imports: [MaterialModule],

@@ -45,7 +45,10 @@
     "bootstrap": "4.1.3",
     "babel-polyfill": "6.26.0",
     "ngx-propagation-stop": "1.0.6",
-    "keycloak-angular": "6.0.0"
+    "keycloak-angular": "6.0.0",
+    "keyscore-manager-models": "file:modules/keyscore-manager-models",
+    "keyscore-manager-pipeline-parameters": "file:modules/keyscore-manager-pipeline-parameters",
+    "keyscore-manager-material": "file:modules/keyscore-manager-material"
   },
   "devDependencies": {
     "ajv": "6.5.3",
@@ -85,7 +88,8 @@
     "@storybook/addon-notes": "^5.0.3",
     "@storybook/addon-actions": "^5.0.3",
     "@storybook/addon-links": "^5.0.3",
-    "@storybook/addons": "^5.0.3"
+    "@storybook/addons": "^5.0.3",
+    "keyscore-manager-test-fixtures": "file:modules/keyscore-manager-test-fixtures"
   },
   "jest": {
     "preset": "jest-preset-angular",

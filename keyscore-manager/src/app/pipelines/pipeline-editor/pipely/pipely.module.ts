@@ -11,7 +11,7 @@ import {ConnectorDropzoneSubcomponent} from "./dropzone/connector-dropzone-subco
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {TrashDropzoneSubcomponent} from "./dropzone/trash-dropzone-subcomponent";
 import {ConnectorComponent} from "./connectors/connector.component";
-import {MaterialModule} from "../../../material.module";
+import {MaterialModule} from "keyscore-manager-material";
 import {PuzzleBoxComponent} from "./puzzle-box/puzzle-box.component";
 import {PuzzleCategoryComponent} from "./puzzle-box/puzzle-category.component";
 import {ParameterModule} from "../../../../../modules/keyscore-manager-pipeline-parameters/src/main/parameter.module";

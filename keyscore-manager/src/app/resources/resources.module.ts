@@ -10,7 +10,7 @@ import {ResourcesEffects} from "./resources.effects";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
-import {MaterialModule} from "../material.module";
+import {MaterialModule} from "keyscore-manager-material";
 import {StageType} from "./components/stage-type.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'

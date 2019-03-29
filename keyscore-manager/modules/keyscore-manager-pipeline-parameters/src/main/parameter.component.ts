@@ -1,10 +1,7 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {FormGroup} from "@angular/forms";
-import {ParameterDescriptorJsonClass, ResolvedParameterDescriptor,} from "../../../keyscore-manager-models/src/main/parameters/ParameterDescriptor";
-import {Parameter} from "../../../keyscore-manager-models/src/main/parameters/Parameter";
-
+import {ParameterDescriptorJsonClass, ResolvedParameterDescriptor,Parameter,Dataset} from "keyscore-manager-models";
 import "./style/parameter-module-style.scss";
-import {Dataset} from "../../../keyscore-manager-models/src/main/dataset/Dataset";
 import {BehaviorSubject} from "rxjs/index";
 
 @Component({

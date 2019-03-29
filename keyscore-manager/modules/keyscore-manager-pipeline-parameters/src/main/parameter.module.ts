@@ -5,12 +5,13 @@ import {ParameterMap} from "./parameter-map.component";
 import {ParameterListComponent} from "./parameter-list.component";
 import {ParameterComponent} from "./parameter.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {MaterialModule} from "../../../../src/app/material.module";
 import {ParameterControlService} from "./service/parameter-control.service";
 import {AutocompleteInputComponent} from "./autocomplete-input.component";
 import {ParameterDirectiveComponent} from "./parameter-directive.component";
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {PropagationStopModule} from "ngx-propagation-stop";
+import {ParameterFactoryService} from "./service/parameter-factory.service";
+import {MaterialModule} from "keyscore-manager-material";
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import {PropagationStopModule} from "ngx-propagation-stop";
         ParameterComponent
     ],
     providers: [
-        ParameterControlService
+        ParameterControlService,
+        ParameterFactoryService
     ]
 })
 export class ParameterModule {

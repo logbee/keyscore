@@ -1,23 +1,15 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {deepcopy} from "../../../../src/app/util";
-import {Field} from "../../../keyscore-manager-models/src/main/dataset/Field";
-import {TextValue, ValueJsonClass} from "../../../keyscore-manager-models/src/main/dataset/Value";
-import {Parameter} from "../../../keyscore-manager-models/src/main/parameters/Parameter";
-import {BehaviorSubject} from "rxjs/index";
-import {ResolvedParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/ParameterDescriptor";
-import {Dataset} from "../../../keyscore-manager-models/src/main/dataset/Dataset";
+import {Field,TextValue,ValueJsonClass,Parameter,ResolvedParameterDescriptor,Dataset} from "keyscore-manager-models";
+import {BehaviorSubject} from "rxjs";
 import {AutocompleteInputComponent} from "./autocomplete-input.component";
+import * as _ from 'lodash';
 
 @Component({
     selector: "parameter-map",
     template:
             `
         <div fxLayout="row" fxLayoutGap="15px">
-            <!--<mat-form-field class="half">-->
-            <!--<input matInput #addItemInputKey type="text" placeholder="Key" value="" [matAutocomplete]="auto">-->
-            <!--</mat-form-field>-->
-
             <auto-complete-input #addItemInputKey
                                  [datasets]="datasets$ | async"
                                  [hint]="parameterDescriptor?.descriptor?.hint"
@@ -94,7 +86,7 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
     };
 
     public writeValue(elements: Field[]): void {
-        this.parameterValues = deepcopy(elements, []);
+        this.parameterValues = _.cloneDeep(elements);
         this.onChange(elements);
     }
 
@@ -122,7 +114,7 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
     public removeItem(toRemove: Field) {
         let removeIndex = this.parameterValues.findIndex(field => field.name === toRemove.name);
         if (removeIndex >= 0) {
-            let newValues: Field[] = deepcopy(this.parameterValues, []);
+            let newValues: Field[] = _.cloneDeep(this.parameterValues);
             newValues.splice(removeIndex, 1);
             this.writeValue(newValues);
         }
@@ -132,7 +124,7 @@ export class ParameterMap implements ControlValueAccessor, OnInit {
         if (key) {
             this.keyEmpty = false;
             this.duplicateMapping = false;
-            const newValues: Field[] = deepcopy(this.parameterValues, []);
+            const newValues: Field[] = _.cloneDeep(this.parameterValues);
             let existingIndex = newValues.findIndex(field => field.name === key);
             if (existingIndex >= 0) {
                 let currentVal = (newValues[existingIndex].value as TextValue).value;

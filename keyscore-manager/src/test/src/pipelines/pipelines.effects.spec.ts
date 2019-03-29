@@ -12,7 +12,7 @@ import {
     generateConfiguration,
     generateEditingPipelineModel,
     generatePipelineBlueprint
-} from "../../../../modules/keyscore-manager-models/src/test/fake-data/model-fakes";
+} from "../../../../modules/keyscore-manager-test-fixtures/src/main/data-generators";
 import {
     EditPipelineAction,
     EditPipelineFailureAction,

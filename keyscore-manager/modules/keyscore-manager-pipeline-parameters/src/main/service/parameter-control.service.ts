@@ -2,10 +2,10 @@ import {
     BooleanParameterDescriptor,
     ParameterDescriptorJsonClass,
     ResolvedParameterDescriptor,
-    SingleResolvedParameterDescriptor
-} from "../../../../keyscore-manager-models/src/main/parameters/ParameterDescriptor";
+    SingleResolvedParameterDescriptor,
+    Parameter
+} from "keyscore-manager-models";
 import {Injectable} from "@angular/core";
-import {Parameter} from "../../../../keyscore-manager-models/src/main/parameters/Parameter";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Injectable()

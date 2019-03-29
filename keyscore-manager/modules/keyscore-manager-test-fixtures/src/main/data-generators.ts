@@ -1,40 +1,42 @@
 import * as faker from 'faker/locale/en_US';
-import {PipelineInstance} from "../../main/pipeline-model/PipelineInstance";
-import {Health} from "../../main/common/Health";
 import {
     Blueprint,
     BlueprintJsonClass,
-    FilterBlueprint,
-    PipelineBlueprint,
-    SinkBlueprint,
-    SourceBlueprint
-} from "../../main/blueprints/Blueprint";
-import {generateParameterRef, generateRef, generateRefs} from "../../main/common/Ref";
-import {Value, ValueJsonClass} from "../../main/dataset/Value";
-import {Label} from "../../main/common/MetaData";
-import {Configuration} from "../../main/common/Configuration";
-import {Parameter, ParameterJsonClass, ParameterSet} from "../../main/parameters/Parameter";
-import {Field} from "../../main/dataset/Field";
-import {
+    Configuration,
+    Dataset,
     DirectiveDescriptorJsonClass,
+    EditingPipelineModel,
     ExpressionType,
+    Field,
     FieldNameHint,
     FieldNameParameterDescriptor,
     FieldParameterDescriptor,
     FieldValueType,
+    FilterBlueprint,
+    generateParameterRef,
+    generateRef,
+    generateRefs,
+    Health,
+    Label,
     NumberRange,
+    Parameter,
     ParameterDescriptorJsonClass,
+    ParameterJsonClass,
+    ParameterSet,
+    PipelineBlueprint,
+    PipelineInstance,
+    Record,
     ResolvedChoice,
     ResolvedFieldDirectiveDescriptor,
     ResolvedParameterDescriptor,
     ResolvedParameterInfo,
     ResolvedStringValidator,
-    TextParameterDescriptor
-} from "../../main/parameters/ParameterDescriptor";
-import {EditingPipelineModel} from "../../main/pipeline-model/EditingPipelineModel";
-import {Dataset} from "../../main/dataset/Dataset";
-import {Record} from "../../main/dataset/Record";
-import {count} from "rxjs/operators";
+    SinkBlueprint,
+    SourceBlueprint,
+    TextParameterDescriptor,
+    Value,
+    ValueJsonClass
+} from "keyscore-manager-models";
 
 export const generatePipeline = (): PipelineInstance => {
     return {

@@ -4,7 +4,7 @@ import {ResolvedParameterDescriptor} from "../../../../../../modules/keyscore-ma
 import {
     generateResolvedParameterDescriptors,
     generateWordList
-} from "../../../../../../modules/keyscore-manager-models/src/test/fake-data/model-fakes";
+} from "../../../../../../modules/keyscore-manager-test-fixtures/src/main/data-generators";
 import {Ref} from "../../../../../../modules/keyscore-manager-models/src/main/common/Ref";
 import {Category, ResolvedCategory} from "../../../../../../modules/keyscore-manager-models/src/main/descriptors/Category";
 import {Icon} from "../../../../../../modules/keyscore-manager-models/src/main/descriptors/Icon";

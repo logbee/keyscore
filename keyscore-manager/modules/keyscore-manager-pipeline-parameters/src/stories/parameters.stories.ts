@@ -1,24 +1,21 @@
-import {Dataset} from "../../../keyscore-manager-models/src/main/dataset/Dataset";
-import {ValueJsonClass} from "../../../keyscore-manager-models/src/main/dataset/Value";
+import {Dataset, ParameterDescriptorJsonClass, ParameterJsonClass, ValueJsonClass} from "keyscore-manager-models";
 import {moduleMetadata, storiesOf} from "@storybook/angular";
-import {ParameterMap} from "../main/parameter-map.component";
-import {ParameterListComponent} from "../main/parameter-list.component";
-import {ParameterComponent} from "../main/parameter.component";
-import {AutocompleteInputComponent} from "../main/autocomplete-input.component";
-import {ParameterDirectiveComponent} from "../main/parameter-directive.component";
+import {AutocompleteInputComponent,} from "../main/autocomplete-input.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CommonModule} from "@angular/common";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
-import {MaterialModule} from "../../../../src/app/material.module";
+import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import {PropagationStopModule} from "ngx-propagation-stop";
-import {generateResolvedParameterDescriptor} from "../../../keyscore-manager-models/src/test/fake-data/model-fakes";
-import {ParameterDescriptorJsonClass} from "../../../keyscore-manager-models/src/main/parameters/ParameterDescriptor";
-import {ParameterJsonClass} from "../../../keyscore-manager-models/src/main/parameters/Parameter";
-import {ParameterControlService} from "../main/service/parameter-control.service";
 import {HttpClient} from "@angular/common/http";
-import {HttpLoaderFactory} from "../../../../src/app/app.module";
+import {generateResolvedParameterDescriptor} from "keyscore-manager-test-fixtures";
+import {TranslateHttpLoader} from "@ngx-translate/http-loader";
+import {MaterialModule} from "keyscore-manager-material";
+import {ParameterMap} from "../main/parameter-map.component";
+import {ParameterListComponent} from "../main/parameter-list.component";
+import {ParameterComponent} from "../main/parameter.component";
+import {ParameterDirectiveComponent} from "../main/parameter-directive.component";
+import {ParameterControlService} from "../main/service/parameter-control.service";
 
 const exampleDatasets: Dataset[] = [{
     metaData: null,
@@ -43,6 +40,10 @@ const exampleDatasets: Dataset[] = [{
         }
     ]
 }];
+
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http);
+}
 
 storiesOf('Parameter', module).addDecorator(
     moduleMetadata({
