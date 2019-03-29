@@ -21,7 +21,7 @@ apply plugin: 'com.github.node-gradle.node'
 
 ext {
     dockerImageName = "$dockerImageHost/$dockerImageNamespace/${project.name}"
-    nodeVersion = '8.9.4'
+    nodeVersion = '10.15.3'
 }
 
 node {
@@ -69,6 +69,8 @@ task serve(type: NodeTask, dependsOn: npmInstall) {
 task storybook(type: NpmTask, dependsOn: npmInstall) {
     args = ['run','storybook']
 }
+
+task onceUponATimeInKeyscore(dependsOn: storybook) {}
 
 task createDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
