@@ -16,6 +16,7 @@ import {ParameterListComponent} from "../main/parameter-list.component";
 import {ParameterComponent} from "../main/parameter.component";
 import {ParameterDirectiveComponent} from "../main/parameter-directive.component";
 import {ParameterControlService} from "../main/service/parameter-control.service";
+import {ParameterFactoryService} from "../main/service/parameter-factory.service";
 
 const exampleDatasets: Dataset[] = [{
     metaData: null,
@@ -66,7 +67,7 @@ storiesOf('Parameter', module).addDecorator(
             MaterialModule,
             DragDropModule,
             PropagationStopModule],
-        providers:[ParameterControlService]
+        providers: [ParameterControlService, ParameterFactoryService]
     })).add('TextParameter', () => ({
     component: ParameterComponent,
     props: {
@@ -113,7 +114,7 @@ storiesOf('Parameter', module).addDecorator(
     component: ParameterComponent,
     props: {
         parameterDescriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.FieldNameParameterDescriptor),
-        parameter: {ref:{id: "testID"}, value: "",jsonClass: ParameterJsonClass.FieldNameParameter},
+        parameter: {ref: {id: "testID"}, value: "", jsonClass: ParameterJsonClass.FieldNameParameter},
         form: new FormGroup({"testID": new FormControl("")}),
         datasets: exampleDatasets
     }
@@ -137,7 +138,7 @@ storiesOf('Parameter', module).addDecorator(
         parameterDescriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.FieldNameListParameterDescriptor),
         parameter: {ref: {id: "testID"}, value: [], jsonClass: ParameterJsonClass.FieldNameListParameter},
         form: new FormGroup(({"testID": new FormControl([])})),
-        datasets:exampleDatasets
+        datasets: exampleDatasets
     }
 })).add('FieldListParameter', () => ({
     component: ParameterComponent,
