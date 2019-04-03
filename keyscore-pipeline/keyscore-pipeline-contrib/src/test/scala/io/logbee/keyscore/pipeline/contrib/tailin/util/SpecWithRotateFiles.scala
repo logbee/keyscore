@@ -12,7 +12,7 @@ import org.scalatest.junit.JUnitRunner
 import java.nio.file.StandardOpenOption
 
 @RunWith(classOf[JUnitRunner])
-class RotateFilesSetup extends SpecWithTempDir {
+class SpecWithRotateFiles extends SpecWithTempDir {
   
   
   trait LogFile {

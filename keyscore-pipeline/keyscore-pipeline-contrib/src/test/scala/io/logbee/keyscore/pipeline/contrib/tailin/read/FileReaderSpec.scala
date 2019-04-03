@@ -19,12 +19,12 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.util.RotateFilesSetup
+import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
 import java.nio.charset.Charset
 import java.nio.ByteBuffer
 
 @RunWith(classOf[JUnitRunner])
-class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory with ParallelTestExecution {
+class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory with ParallelTestExecution {
   
   val defaultBufferSize = 1024
   

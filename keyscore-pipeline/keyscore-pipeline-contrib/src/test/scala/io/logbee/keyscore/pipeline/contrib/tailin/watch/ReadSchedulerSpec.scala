@@ -14,10 +14,10 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.util.RotateFilesSetup
+import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
 
 @RunWith(classOf[JUnitRunner])
-class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory {
+class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFactory {
 
   trait PersistenceContextWithoutTimestamp extends LogFile {
     

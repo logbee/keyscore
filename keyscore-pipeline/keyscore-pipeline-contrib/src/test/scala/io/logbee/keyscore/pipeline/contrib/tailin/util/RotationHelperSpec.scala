@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitRunner
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 @RunWith(classOf[JUnitRunner])
-class RotationHelperSpec extends RotateFilesSetup with Matchers {
+class RotationHelperSpec extends SpecWithRotateFiles with Matchers {
   
   
   //TODO test what happens if null is passed as previousReadRecord
