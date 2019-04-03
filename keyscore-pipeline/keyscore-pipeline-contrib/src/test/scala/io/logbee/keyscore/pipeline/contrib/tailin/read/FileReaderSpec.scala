@@ -62,7 +62,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                       FileReadData(
                         string=line1,
                         baseFile=null,
-                        physicalFile=logFile,
+                        physicalFile=logFile.getAbsolutePath,
                         readEndPos=logFile.length,
                         writeTimestamp=logFile.lastModified,
                         readTimestamp = -1,
@@ -91,7 +91,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                       FileReadData(
                         string=line1,
                         baseFile=null,
-                        physicalFile=logFile,
+                        physicalFile=logFile.getAbsolutePath,
                         readEndPos=logFile.length,
                         writeTimestamp=logFile.lastModified,
                         readTimestamp = -1,
@@ -126,7 +126,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line1,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -140,7 +140,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line2,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline + line2 + newline),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -154,7 +154,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line3,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline + line2 + newline + line3),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -187,7 +187,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line1,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -201,7 +201,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line3,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline + line3),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -234,7 +234,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line1,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -248,7 +248,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line2,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline + line2),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -287,7 +287,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line1,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -300,7 +300,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line2,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline + line2 + newline),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -314,7 +314,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line3,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline + line2 + newline + line3),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -355,7 +355,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line1,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -369,7 +369,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line2,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline + line2 + newline),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -383,7 +383,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                         FileReadData(
                           string=line3,
                           baseFile=null,
-                          physicalFile=logFile,
+                          physicalFile=logFile.getAbsolutePath,
                           readEndPos=byteLen(line1 + newline + line2 + newline + line3),
                           writeTimestamp=logFile.lastModified,
                           readTimestamp = -1,
@@ -423,7 +423,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                     FileReadData(
                       string=text,
                       baseFile=null,
-                      physicalFile=logFile,
+                      physicalFile=logFile.getAbsolutePath,
                       readEndPos=byteLen(text),
                       writeTimestamp=logFile.lastModified,
                       readTimestamp = -1,

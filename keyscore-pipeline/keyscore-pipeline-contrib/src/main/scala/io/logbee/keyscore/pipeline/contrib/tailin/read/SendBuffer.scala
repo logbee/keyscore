@@ -9,7 +9,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 case class FileReadData(string: String,
                         baseFile: File,
-                        physicalFile: File,
+                        physicalFile: String,
                         readEndPos: Long,
                         writeTimestamp: Long,
                         readTimestamp: Long,

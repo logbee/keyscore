@@ -210,7 +210,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
     
     val fileReadData = FileReadData(string=leftOverFromPreviousBuffer + string,
                                     baseFile=null,
-                                    physicalFile=fileToRead,
+                                    physicalFile=fileToRead.getAbsolutePath,
                                     readEndPos=readEndPos.value,
                                     writeTimestamp=writeTimestamp,
                                     readTimestamp=System.currentTimeMillis,
