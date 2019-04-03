@@ -94,7 +94,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                         physicalFile=logFile,
                         readEndPos=logFile.length,
                         writeTimestamp=logFile.lastModified,
-                        readTimestamp = -1L,
+                        readTimestamp = -1,
                         newerFilesWithSharedLastModified=0
                       )
                     )
@@ -129,7 +129,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -143,7 +143,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline + line2 + newline),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -157,7 +157,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline + line2 + newline + line3),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -190,7 +190,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -204,7 +204,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline + line3),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -237,7 +237,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -251,7 +251,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline + line2),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -290,7 +290,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -303,7 +303,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline + line2 + newline),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -317,7 +317,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline + line2 + newline + line3),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -358,7 +358,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -372,7 +372,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline + line2 + newline),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -386,7 +386,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                           physicalFile=logFile,
                           readEndPos=byteLen(line1 + newline + line2 + newline + line3),
                           writeTimestamp=logFile.lastModified,
-                          readTimestamp = -1L, //TODO
+                          readTimestamp = -1,
                           newerFilesWithSharedLastModified=0
                         )
                       )
@@ -426,7 +426,7 @@ class FileReaderSpec extends RotateFilesSetup with Matchers with MockFactory wit
                       physicalFile=logFile,
                       readEndPos=byteLen(text),
                       writeTimestamp=logFile.lastModified,
-                      readTimestamp = -1L, //TODO
+                      readTimestamp = -1,
                       newerFilesWithSharedLastModified=0
                     )
                   )

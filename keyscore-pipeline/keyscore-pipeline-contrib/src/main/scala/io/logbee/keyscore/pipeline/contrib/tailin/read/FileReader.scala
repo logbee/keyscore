@@ -90,12 +90,12 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem) = { //TODO consider less data than a readScheduleItem or a different data structure -> we need the specific file, not the base file and only the startPos and endPos
     
+    assert(readScheduleItem.startPos <= readScheduleItem.endPos) //TODO
+    assert(readScheduleItem.endPos <= fileToRead.length) //TODO
+    
+    
     val readEndPos = BytePos(readScheduleItem.endPos)
     
-    
-    
-    assert(readScheduleItem.startPos <= readEndPos.value) //TODO
-    assert(readEndPos.value <= fileToRead.length) //TODO
     
     var bufferStartPos = BytePos(readScheduleItem.startPos)
     
