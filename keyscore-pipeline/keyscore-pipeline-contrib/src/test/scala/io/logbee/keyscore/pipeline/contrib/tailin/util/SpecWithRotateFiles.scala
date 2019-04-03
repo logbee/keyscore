@@ -12,20 +12,7 @@ import org.scalatest.junit.JUnitRunner
 import java.nio.file.StandardOpenOption
 
 @RunWith(classOf[JUnitRunner])
-class RotateFilesSetup extends FreeSpec with BeforeAndAfter {
-  
-  
-  var watchDir: Path = null
-
-  before {
-    watchDir = Files.createTempDirectory("watchTest")
-
-    TestUtil.waitForFileToExist(watchDir.toFile)
-  }
-
-  after {
-    TestUtil.recursivelyDelete(watchDir)
-  }
+class RotateFilesSetup extends SpecWithTempDir {
   
   
   trait LogFile {

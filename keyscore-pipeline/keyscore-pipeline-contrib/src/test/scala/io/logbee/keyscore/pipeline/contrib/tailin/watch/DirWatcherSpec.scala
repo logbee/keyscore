@@ -10,20 +10,10 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
+
 @RunWith(classOf[JUnitRunner])
-class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
-
-  var watchDir: Path = null
-
-  before {
-    watchDir = Files.createTempDirectory("watchTest")
-
-    TestUtil.waitForFileToExist(watchDir.toFile)
-  }
-
-  after {
-    TestUtil.recursivelyDelete(watchDir)
-  }
+class DirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
 
   
   trait DirWatcherParams {
