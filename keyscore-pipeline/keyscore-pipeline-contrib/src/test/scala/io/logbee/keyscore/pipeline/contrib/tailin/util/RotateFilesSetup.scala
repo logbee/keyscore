@@ -9,6 +9,8 @@ import java.nio.file.Files
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadData
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import java.nio.file.StandardOpenOption
+
 @RunWith(classOf[JUnitRunner])
 class RotateFilesSetup extends FreeSpec with BeforeAndAfter {
   
@@ -78,6 +80,20 @@ class RotateFilesSetup extends FreeSpec with BeforeAndAfter {
     
     val previousReadPosition = logFile3Data.length / 2
     val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
+    
+    
+    def rotate() {
+        logFile3_ModifiedAfterPreviousReadTimestamp.renameTo(logFile4_ModifiedBeforePreviousReadTimestamp)
+        logFile2.renameTo(logFile3_ModifiedAfterPreviousReadTimestamp)
+        logFile1.renameTo(logFile2)
+        logFile.renameTo(logFile1)
+        
+        Thread.sleep(1000) //TODO this is currently necessary to offset the lastModified-timestamps -> make this nicer by manually setting the lastModified-timestamps
+        
+        logFile.createNewFile()
+        TestUtil.waitForFileToExist(logFile)
+        TestUtil.writeStringToFile(logFile, "Rotated", StandardOpenOption.APPEND)
+    }
   }
   
   

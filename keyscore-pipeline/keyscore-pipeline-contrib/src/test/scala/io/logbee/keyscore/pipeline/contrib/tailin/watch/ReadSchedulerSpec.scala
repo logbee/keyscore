@@ -262,16 +262,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
                     )
         
         
-        logFile3_ModifiedAfterPreviousReadTimestamp.renameTo(logFile4_ModifiedBeforePreviousReadTimestamp)
-        logFile2.renameTo(logFile3_ModifiedAfterPreviousReadTimestamp)
-        logFile1.renameTo(logFile2)
-        logFile.renameTo(logFile1)
-        
-        Thread.sleep(1000) //TODO this is currently necessary to offset the lastModified-timestamps -> make this nicer by manually setting the lastModified-timestamps
-        
-        logFile.createNewFile()
-        TestUtil.waitForFileToExist(logFile)
-        TestUtil.writeStringToFile(logFile, "Test", StandardOpenOption.APPEND)
+        rotate()
         println("logFile: " + logFile.lastModified)
         
         (readSchedule.enqueue _)
