@@ -1,5 +1,5 @@
 import {NgModule} from "@angular/core";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "../../material.module";
 import {TranslateModule} from "@ngx-translate/core";
 import {CommonModule} from "@angular/common";
 import {ViewPresets} from "./view.presets.component";

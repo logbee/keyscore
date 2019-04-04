@@ -1,17 +1,17 @@
 import {Injectable} from "@angular/core";
 import {Draggable} from "../models/contract";
+import {EditingPipelineModel} from "../../../../models/pipeline-model/EditingPipelineModel";
+import {Configuration} from "../../../../models/common/Configuration";
+import {deepcopy} from "../../../../util";
 import {DraggableModel} from "../models/draggable.model";
 import {
     Blueprint,
     BlueprintJsonClass,
-    Configuration,
-    EditingPipelineModel,
     FilterBlueprint,
-    Ref,
     SinkBlueprint,
     SourceBlueprint
-} from "keyscore-manager-models";
-import * as _ from 'lodash';
+} from "../../../../models/blueprints/Blueprint";
+import {Ref} from "../../../../models/common/Ref";
 
 
 @Injectable()
@@ -20,7 +20,7 @@ export class PipelineConfiguratorService {
     //TODO: Handle errors, invalid configurations and multiple pipelines
 
     updatePipelineModel(draggableHeads: Draggable[], pipeline: EditingPipelineModel): EditingPipelineModel {
-        let pipelineResult: EditingPipelineModel = _.cloneDeep(pipeline);
+        let pipelineResult: EditingPipelineModel = deepcopy(pipeline);
         draggableHeads.forEach(draggable => {
             if (draggable.getDraggableModel().blockDescriptor.previousConnection.connectionType === 'no-connection-in' &&
                 draggable.getTail().getDraggableModel().blockDescriptor.nextConnection.connectionType === 'no-connection-out'

@@ -24,12 +24,12 @@ import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subco
 import {BlockDescriptor} from "./models/block-descriptor.model";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {share, takeUntil, tap} from "rxjs/operators";
-import {EditingPipelineModel} from "../../../../../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
+import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
 import "./style/pipely-style.scss";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
-import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
-import {Configuration} from "../../../../../modules/keyscore-manager-models/src/main/common/Configuration";
-import {TextValue} from "../../../../../modules/keyscore-manager-models/src/main/dataset/Value";
+import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../models/blueprints/Blueprint";
+import {Configuration} from "../../../models/common/Configuration";
+import {TextValue} from "../../../models/dataset/Value";
 
 
 @Component({

@@ -1,6 +1,7 @@
 include 'keyscore-agent'
 include 'keyscore-commons'
 include 'keyscore-frontier'
+include 'keyscore-manager'
 include 'keyscore-model'
 
 include 'keyscore-pipeline'
@@ -16,21 +17,3 @@ include 'test:elasticsearch'
 include 'test:kafka'
 
 include 'doc'
-
-include 'keyscore-manager'
-
-
-include 'keyscore-manager:keyscore-manager-material'
-project(':keyscore-manager:keyscore-manager-material').projectDir = new File(project(':keyscore-manager').projectDir, "modules/keyscore-manager-material")
-
-include 'keyscore-manager:keyscore-manager-models'
-project(':keyscore-manager:keyscore-manager-models').projectDir = new File(project(':keyscore-manager').projectDir, "modules/keyscore-manager-models")
-
-include 'keyscore-manager:keyscore-manager-pipeline-parameters'
-project(':keyscore-manager:keyscore-manager-pipeline-parameters').projectDir = new File(project(':keyscore-manager').projectDir, "modules/keyscore-manager-pipeline-parameters")
-
-include 'keyscore-manager:keyscore-manager-pipely'
-project(':keyscore-manager:keyscore-manager-pipely').projectDir = new File(project(':keyscore-manager').projectDir, "modules/keyscore-manager-pipely")
-
-include 'keyscore-manager:keyscore-manager-test-fixtures'
-project(':keyscore-manager:keyscore-manager-test-fixtures').projectDir = new File(project(':keyscore-manager').projectDir, "modules/keyscore-manager-test-fixtures")

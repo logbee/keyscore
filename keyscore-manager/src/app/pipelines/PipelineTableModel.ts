@@ -1,4 +1,4 @@
-import {Health} from "keyscore-manager-models";
+import {Health} from "../models/common/Health";
 
 export interface PipelineTableModel {
     uuid: string,

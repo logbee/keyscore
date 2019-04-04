@@ -3,8 +3,11 @@ import {BlockDescriptor} from "../models/block-descriptor.model";
 import {Dropzone, Workspace} from "../models/contract";
 import {DraggableFactory} from "../draggable/draggable-factory";
 import {DropzoneFactory} from "../dropzone/dropzone-factory";
-import {generateRef, ParameterJsonClass} from "keyscore-manager-models";
-import {ParameterFactoryService} from "keyscore-manager-pipeline-parameters";
+import {parameterDescriptorToParameter} from "../../../../util";
+import {v4 as uuid} from "uuid";
+import {generateRef} from "../../../../models/common/Ref";
+import {Category} from "../../../../models/descriptors/Category";
+import {ParameterJsonClass} from "../../../../models/parameters/Parameter";
 
 
 @Component({
@@ -27,7 +30,7 @@ export class PuzzleCategoryComponent implements OnInit {
     private toolbarDropzone: Dropzone;
 
 
-    constructor(private dropzoneFactory: DropzoneFactory, private draggableFactory: DraggableFactory,private parameterFactory:ParameterFactoryService) {
+    constructor(private dropzoneFactory: DropzoneFactory, private draggableFactory: DraggableFactory) {
 
     }
 
@@ -42,7 +45,7 @@ export class PuzzleCategoryComponent implements OnInit {
                 console.log("TextMUTATOR:::::", blockDescriptor);
             }
             let parameters = blockDescriptor.parameters.map(parameterDescriptor =>
-                this.parameterFactory.parameterDescriptorToParameter(parameterDescriptor));
+                parameterDescriptorToParameter(parameterDescriptor));
 
             let blockConfiguration = {
                 ref: generateRef(),

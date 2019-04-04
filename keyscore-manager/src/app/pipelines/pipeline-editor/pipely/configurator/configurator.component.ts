@@ -2,11 +2,15 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angula
 import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
-import {Parameter, ParameterJsonClass,ResolvedParameterDescriptor,Dataset,Configuration} from "keyscore-manager-models";
-import {ParameterControlService} from "keyscore-manager-pipeline-parameters";
+import {deepcopy, zip} from "../../../../util";
+import {Parameter, ParameterJsonClass} from "../../../../models/parameters/Parameter";
+import {ResolvedParameterDescriptor} from "../../../../models/parameters/ParameterDescriptor";
+import {ParameterControlService} from "../../../../common/parameter/service/parameter-control.service";
+import {Configuration} from "../../../../models/common/Configuration";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
+import {Dataset} from "../../../../models/dataset/Dataset";
 
 
 @Component({
@@ -135,9 +139,9 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.lastID = selectedBlock.configuration.ref.uuid;
 
             this.parameterMapping =
-                new Map(_.zip(selectedBlock.configuration.parameterSet.parameters,
+                new Map(zip([selectedBlock.configuration.parameterSet.parameters,
                     selectedBlock.descriptor.parameters
-                ));
+                ]));
             if (this.form) {
                 this.form.reset();
             }
@@ -189,7 +193,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     }
 
     saveConfiguration() {
-        let configuration: Configuration = _.cloneDeep(this.selectedBlock$.getValue().configuration);
+        let configuration: Configuration = deepcopy(this.selectedBlock$.getValue().configuration);
         if (configuration.ref.uuid !== 'init') {
             configuration.parameterSet.parameters.forEach((parameter) => {
                 if (this.form.controls[parameter.ref.id]) {

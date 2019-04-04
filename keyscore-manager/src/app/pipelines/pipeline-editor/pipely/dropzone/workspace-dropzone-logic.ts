@@ -4,7 +4,9 @@ import {computeRelativePositionToParent, intersects} from "../util/util";
 import {Rectangle} from "../models/rectangle";
 import {DropzoneComponent} from "../dropzone.component";
 import {DropzoneType} from "../models/dropzone-type";
-import * as _ from 'lodash';
+import {DraggableModel} from "../models/draggable.model";
+import {WorkspaceDropzoneSubcomponent} from "./workspace-dropzone-subcomponent";
+import {deepcopy} from "../../../../util";
 
 export class WorkspaceDropzoneLogic extends DropzoneLogic {
 
@@ -20,7 +22,7 @@ export class WorkspaceDropzoneLogic extends DropzoneLogic {
     }
 
     computeDraggableModel(mirror: Draggable, currentDragged: Draggable) {
-        let draggableModel = _.cloneDeep(currentDragged.getDraggableModel());
+        let draggableModel = deepcopy(currentDragged.getDraggableModel());
         draggableModel.initialDropzone = this.component;
         draggableModel.rootDropzone = DropzoneType.Workspace;
         draggableModel.position = computeRelativePositionToParent(mirror.getAbsoluteDraggablePosition(),
