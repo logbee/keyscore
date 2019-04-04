@@ -78,7 +78,7 @@ object TestUtil {
     Thread.sleep(10)
   }
   
-
+  
   def writeStringToFile(file: File, string: String, writeMode: OpenOption = StandardOpenOption.APPEND, encoding: Charset = StandardCharsets.UTF_8) {
 
     var fileWriter: java.io.BufferedWriter = null
@@ -92,7 +92,6 @@ object TestUtil {
         fileWriter.close
     }
   }
-  
   
   
   def writeLogToFileWithRotation(logFile: File, numberOfLines: Int = 1000, rotatePattern: String) = {

@@ -64,7 +64,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
             FileReadData(
               string = logFile3Data.substring(previousReadPosition),
               baseFile = logFile,
-              physicalFile = logFile3_ModifiedAfterPreviousReadTimestamp.getAbsolutePath,
+              physicalFile = logFile3_ModifiedAfterPreviousReadTimestamp.absolutePath,
               readEndPos = charset.encode(logFile3Data).limit,
               writeTimestamp = previousReadTimestamp,
               readTimestamp = -1,
@@ -107,7 +107,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
             FileReadData(
               string = logFile3Data.substring(previousReadPosition),
               baseFile = logFile,
-              physicalFile = logFile3_ModifiedAfterPreviousReadTimestamp.getAbsolutePath,
+              physicalFile = logFile3_ModifiedAfterPreviousReadTimestamp.absolutePath,
               readEndPos = charset.encode(logFile3Data).limit,
               writeTimestamp = previousReadTimestamp,
               readTimestamp = -1,
@@ -138,7 +138,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
             FileReadData(
               string = logFile2Data,
               baseFile = logFile,
-              physicalFile = logFile2.getAbsolutePath,
+              physicalFile = logFile2.absolutePath,
               readEndPos = charset.encode(logFile2Data).limit,
               writeTimestamp = logFile2.lastModified,
               readTimestamp = -1,
@@ -191,7 +191,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
             FileReadData(
               string=logFile3Data.substring(previousReadPosition),
               baseFile=logFile,
-              physicalFile=logFile4_ModifiedBeforePreviousReadTimestamp.getAbsolutePath,
+              physicalFile=logFile4_ModifiedBeforePreviousReadTimestamp.absolutePath,
               readEndPos=charset.encode(logFile3Data).limit,
               writeTimestamp=previousReadTimestamp,
               readTimestamp = -1,

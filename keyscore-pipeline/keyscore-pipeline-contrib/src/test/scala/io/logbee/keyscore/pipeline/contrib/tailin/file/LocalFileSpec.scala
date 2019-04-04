@@ -8,13 +8,22 @@ import java.nio.ByteBuffer
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import java.nio.file.StandardOpenOption
+
 @RunWith(classOf[JUnitRunner])
 class LocalFileSpec extends SpecWithTempDir with Matchers with BeforeAndAfterAll {
   
   
   def withLocalFile(testCode: (LocalFile, java.io.File) => Any) = {
     val name = "localFile.txt"
-    val actualFile = TestUtil.createFile(watchDir, name, "fileContent")
+    
+    
+    val actualFile = watchDir.resolve(name).toFile
+    actualFile.createNewFile()
+    TestUtil.waitForFileToExist(actualFile)
+    
+    TestUtil.writeStringToFile(actualFile, "fileContent", StandardOpenOption.CREATE)
+    
     
     val localFile = new LocalFile(actualFile)
     
