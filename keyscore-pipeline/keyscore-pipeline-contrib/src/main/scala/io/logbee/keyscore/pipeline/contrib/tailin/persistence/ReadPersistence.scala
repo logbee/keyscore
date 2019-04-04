@@ -2,13 +2,13 @@ package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import scala.reflect.runtime.universe.typeTag
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.File
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 
 class ReadPersistence(completedPersistence: PersistenceContext, committedPersistence: PersistenceContext) {
   
-  def getCompletedRead(baseFile: File): FileReadRecord = {
+  def getCompletedRead(baseFile: FileHandle): FileReadRecord = {
     
     var nextRead = FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0)
     
@@ -35,7 +35,7 @@ class ReadPersistence(completedPersistence: PersistenceContext, committedPersist
   }
   
   
-  def completeRead(baseFile: File, fileReadRecord: FileReadRecord) = {
+  def completeRead(baseFile: FileHandle, fileReadRecord: FileReadRecord) = {
     
     val readPersistenceEntryOpt = completedPersistence.load[FileReadRecord](baseFile.absolutePath)(typeTag[FileReadRecord])
     readPersistenceEntryOpt match {
@@ -50,7 +50,7 @@ class ReadPersistence(completedPersistence: PersistenceContext, committedPersist
   }
   
   
-  def commitRead(baseFile: File, fileReadRecord: FileReadRecord) = {
+  def commitRead(baseFile: FileHandle, fileReadRecord: FileReadRecord) = {
     
     { //check if the timestamp to commit is for some reason newer than the timestamp of the last completed read
       val readPersistenceEntryOpt = completedPersistence.load[FileReadRecord](baseFile.absolutePath)(typeTag[FileReadRecord])

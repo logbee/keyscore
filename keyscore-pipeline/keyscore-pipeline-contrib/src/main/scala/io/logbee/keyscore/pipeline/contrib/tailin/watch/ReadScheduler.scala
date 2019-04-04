@@ -1,6 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.File
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
@@ -8,7 +8,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 
 
-class ReadScheduler(baseFile: File, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileWatcher {
+class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileWatcher {
   
   var previouslyScheduled = readPersistence.getCompletedRead(baseFile)
   

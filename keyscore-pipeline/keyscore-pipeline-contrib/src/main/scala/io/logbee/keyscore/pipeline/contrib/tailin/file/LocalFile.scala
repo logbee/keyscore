@@ -12,7 +12,7 @@ object LocalFile {
   implicit def localFile2File(localFile: LocalFile) = localFile.file
 }
 
-class LocalFile(val file: java.io.File) extends File {
+class LocalFile(val file: java.io.File) extends FileHandle {
   
   def name: String = {
     file.getName

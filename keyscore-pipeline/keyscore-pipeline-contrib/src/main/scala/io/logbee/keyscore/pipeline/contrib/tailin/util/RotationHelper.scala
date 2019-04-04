@@ -1,6 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.File
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 
@@ -15,7 +15,7 @@ object RotationHelper {
    * The files are sorted by their lastModified-timestamp, from oldest to newest.
    * If the lastModified-timestamp is equivalent for two files, they are sorted by their file-name, so that e.g. a file with rotation-index .2 is returned before .1, as .2 should have been written to earlier
    */
-  def getRotationFilesToRead(baseFile: File, rotationPattern: String, previousReadRecord: FileReadRecord): Seq[File] = {
+  def getRotationFilesToRead(baseFile: FileHandle, rotationPattern: String, previousReadRecord: FileReadRecord): Seq[FileHandle] = {
     
     val rotatedFiles = baseFile.listRotatedFiles(rotationPattern)
     

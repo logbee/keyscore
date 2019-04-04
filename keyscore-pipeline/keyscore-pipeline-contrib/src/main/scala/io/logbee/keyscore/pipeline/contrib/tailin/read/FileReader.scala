@@ -8,7 +8,7 @@ import java.nio.charset.CodingErrorAction
 
 import org.slf4j.LoggerFactory
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.File
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
@@ -62,7 +62,7 @@ object FileReader {
 /**
  * @param rotationPattern Glob-pattern for the file-name of rotated files. If an empty string or null is passed, no rotated files are matched.
  */
-class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
+class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
   
   import FileReader.BytePos
   import FileReader.CharPos
