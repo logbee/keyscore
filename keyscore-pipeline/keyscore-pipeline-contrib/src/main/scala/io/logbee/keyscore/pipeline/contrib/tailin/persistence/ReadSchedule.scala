@@ -1,7 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import java.io.File
 import scala.collection.mutable.Queue
+
+import io.logbee.keyscore.pipeline.contrib.tailin.file.File
 
 
 case class ReadScheduleItem(baseFile: File, startPos: Long, endPos: Long, lastModified: Long, newerFilesWithSharedLastModified: Int)

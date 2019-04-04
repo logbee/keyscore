@@ -15,6 +15,8 @@ import scala.collection.mutable.ListBuffer
 
 import org.slf4j.LoggerFactory
 
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+
 
 trait DirWatcher {
   def tearDown()
@@ -152,7 +154,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     
     if (fileMatcher.matches(file.toPath)) {
       
-      val fileWatcher = watcherProvider.createFileWatcher(file)
+      val fileWatcher = watcherProvider.createFileWatcher(new LocalFile(file))
       
       fileWatcher.fileModified()
       

@@ -10,6 +10,9 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadData
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import java.nio.file.StandardOpenOption
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile.localFile2File
 
 @RunWith(classOf[JUnitRunner])
 class SpecWithRotateFiles extends SpecWithTempDir {
@@ -19,7 +22,7 @@ class SpecWithRotateFiles extends SpecWithTempDir {
     val logFileData = "Log_File_0_ "
     val logFile = TestUtil.createFile(watchDir, "log.txt", logFileData)
     
-    val defaultRotationPattern = logFile.getName + ".[1-5]"
+    val defaultRotationPattern = logFile.name + ".[1-5]"
   }
   
   

@@ -1,17 +1,14 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
-import java.io.File
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.channels.FileChannel
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
 
 import org.slf4j.LoggerFactory
 
+import io.logbee.keyscore.pipeline.contrib.tailin.file.File
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
@@ -81,8 +78,6 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   private val byteBuffer = ByteBuffer.allocate(byteBufferSize)
   
-  private val fileReadChannel = Files.newByteChannel(fileToRead.toPath, StandardOpenOption.READ).asInstanceOf[FileChannel]
-  
   
   private var leftOverFromPreviousBuffer = ""
   
@@ -109,7 +104,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
       if (newBufferLimit < byteBufferSize)
         byteBuffer.limit(newBufferLimit) //set the limit to the end of what it should read out
         
-      var bytesRead = BytePos(fileReadChannel.read(byteBuffer, bufferStartPos.value))
+      var bytesRead = BytePos(fileToRead.read(byteBuffer, bufferStartPos.value))
       
       if (bytesRead.value == -1 || bytesRead.value == 0) {
         throw new IllegalStateException("There were no bytes to read.")
@@ -210,7 +205,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
     
     val fileReadData = FileReadData(string=leftOverFromPreviousBuffer + string,
                                     baseFile=null,
-                                    physicalFile=fileToRead.getAbsolutePath,
+                                    physicalFile=fileToRead.absolutePath,
                                     readEndPos=readEndPos.value,
                                     writeTimestamp=writeTimestamp,
                                     readTimestamp=System.currentTimeMillis,
@@ -227,9 +222,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   
   def tearDown() = {
-    if (fileReadChannel != null) {
-      fileReadChannel.close()
-    }
+    fileToRead.tearDown()
     
     log.info("Teardown for " + fileToRead)
   }

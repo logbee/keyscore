@@ -268,7 +268,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       
       val outData = Dataset(
         metadata = MetaData(
-          Label("io.logbee.keyscore.pipeline.contrib.tailin.source.BASE_FILE", TextValue(fileReadData.baseFile.getAbsolutePath)),
+          Label("io.logbee.keyscore.pipeline.contrib.tailin.source.BASE_FILE", TextValue(fileReadData.baseFile.absolutePath)),
           Label("io.logbee.keyscore.pipeline.contrib.tailin.source.WRITE_TIMESTAMP", NumberValue(fileReadData.writeTimestamp)),
         ),
         records = List(Record(

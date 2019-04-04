@@ -1,8 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
-import java.io.File
 import java.nio.charset.Charset
 
+import io.logbee.keyscore.pipeline.contrib.tailin.file.File
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 
 class FileReaderProvider(rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode)  {

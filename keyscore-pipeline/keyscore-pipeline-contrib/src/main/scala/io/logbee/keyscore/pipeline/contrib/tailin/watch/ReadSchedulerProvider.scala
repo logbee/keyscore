@@ -1,7 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import java.io.File
-
+import io.logbee.keyscore.pipeline.contrib.tailin.file.File
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 

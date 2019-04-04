@@ -7,9 +7,13 @@ trait File {
   
   def absolutePath: String
   
+  def listRotatedFiles(rotationPattern: String): Seq[File]
+  
   def length: Long
   
   def lastModified: Long
   
   def read(buffer: ByteBuffer, offset: Long): Int
+  
+  def tearDown()
 }

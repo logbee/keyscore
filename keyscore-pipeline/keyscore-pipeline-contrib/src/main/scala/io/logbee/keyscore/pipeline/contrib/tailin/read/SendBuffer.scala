@@ -1,9 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
-import java.io.File
-
 import scala.collection.mutable.Queue
 
+import io.logbee.keyscore.pipeline.contrib.tailin.file.File
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 

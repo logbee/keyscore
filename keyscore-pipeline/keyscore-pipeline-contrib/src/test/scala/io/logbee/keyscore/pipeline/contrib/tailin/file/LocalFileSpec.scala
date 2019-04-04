@@ -6,10 +6,13 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.scalatest.BeforeAndAfterAll
 import java.nio.ByteBuffer
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+@RunWith(classOf[JUnitRunner])
 class LocalFileSpec extends SpecWithTempDir with Matchers with BeforeAndAfterAll {
   
   
-  def withLocalFile(testCode: (File, java.io.File) => Any) = {
+  def withLocalFile(testCode: (LocalFile, java.io.File) => Any) = {
     val name = "localFile.txt"
     val actualFile = TestUtil.createFile(watchDir, name, "fileContent")
     
@@ -30,6 +33,17 @@ class LocalFileSpec extends SpecWithTempDir with Matchers with BeforeAndAfterAll
     "return its full path" in withLocalFile {
       (localFile, actualFile) =>
         localFile.absolutePath shouldBe watchDir.resolve(actualFile.getName).toString
+    }
+    
+    
+    "list its rotated files" in withLocalFile {
+      (localFile, actualFile) =>
+        val rotFile1 = TestUtil.createFile(watchDir, localFile.name + ".1", "fileContent1")
+        val rotFile2 = TestUtil.createFile(watchDir, localFile.name + ".2", "fileContent22")
+        
+        val rotationPattern = localFile.name + ".[1-5]"
+        
+        localFile.listRotatedFiles(rotationPattern) should contain allOf(rotFile1, rotFile2)
     }
     
     
