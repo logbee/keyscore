@@ -21,6 +21,11 @@ import org.slf4j.{Logger, LoggerFactory}
 
 import scala.language.postfixOps
 
+/**
+  * This Citrus Integration-Test should ensure that all necessary '''data passes through''' a complete pipeline. <br><br>
+  *
+  * Therefor 3 Datasets with __one__ Record and __multiple__ Fields are inserted into the pipeline and are checked after they passed the __last__ Filter.
+  */
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class WorkflowTest extends Matchers {
 
@@ -124,13 +129,13 @@ class WorkflowTest extends Matchers {
     dataset.records should have size 1
     dataset.records.head.fields should have size 2
     val fieldNames = dataset.records.head.fields.map(field => field.name)
-    fieldNames should contain("text3")
-    fieldNames should contain("number1")
-    fieldNames should not contain ("text1")
-    fieldNames should not contain ("text2")
-    fieldNames should not contain ("number2")
-    fieldNames should not contain ("health")
-    fieldNames should not contain ("wanted")
+    fieldNames should contain ("text3")
+    fieldNames should contain ("number1")
+    fieldNames should not contain "text1"
+    fieldNames should not contain "text2"
+    fieldNames should not contain "number2"
+    fieldNames should not contain "health"
+    fieldNames should not contain "wanted"
 
   }
 }

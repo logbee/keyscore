@@ -24,7 +24,13 @@ import org.slf4j.{Logger, LoggerFactory}
 
 import scala.language.postfixOps
 
-//TODO Use JsonEncoder and JsonDecoder!!! @mlandth
+/**
+  * This Citrus Integration-Test should ensure that all '''basic Filter operations''' work as expected. <br>
+  * Also all inserted data should be passed through to the end of the pipeline as expected. <br><br>
+  *
+  * Therefor two pipelines with JSON De-/Encoder and one Filters each are created. <br>
+  * Various Filter operations(''insert, extract, status'') are tested with multiple Datasets.
+  */
 @ExtendWith(value = Array(classOf[CitrusExtension]))
 class PipelineIntegrationTest extends Matchers {
 
@@ -58,8 +64,6 @@ class PipelineIntegrationTest extends Matchers {
 
   /*
   * TODO:
-  * 1. Generate JSONs for 2 JsonDecoder (Source) and ~1 JsonEncoder (Sink)
-  * 2. Integrate in both existing pipelines
   * 3. Check if all Fields of all Records of all Datasets are passing through the pipeline
   * 4. Check if the datasets in elastic are the same as the original datasets
   */
