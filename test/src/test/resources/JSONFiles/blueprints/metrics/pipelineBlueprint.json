@@ -1,0 +1,50 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.blueprint.PipelineBlueprint",
+  "ref":{
+    "uuid":"7063b8fe-3abe-4513-a53a-da608ff75cac"
+  },
+  "blueprints":[
+    {
+      "uuid":"19665f08-7117-47c2-83c9-a99c069d6edc"
+    },
+    {
+      "uuid":"1d8d0973-d9ed-418c-917c-5f4c18fd51e7"
+    },
+    {
+      "uuid":"a2912661-7ce2-40d3-b490-d6c58a5cb70f"
+    },
+    {
+      "uuid":"e3d82c2a-9bfd-4118-93aa-11c1b1dfaf82"
+    },
+    {
+      "uuid":"34402c9c-09bb-4fc8-be8f-70a513ed6d66"
+    },
+    {
+      "uuid":"4f7ed3f3-b6b3-489c-ade6-f7cd09fb0197"
+    },
+    {
+      "uuid":"23482214-664e-4298-8e0e-533a68e19e35"
+    }
+  ],
+  "metadata":{
+    "jsonClass":"io.logbee.keyscore.model.data.MetaData",
+    "labels":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
+        "name":"pipeline.name",
+        "value":{
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"Metrics Pipeline"
+        }
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
+        "name":"pipeline.description",
+        "value":{
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"For checking metrics."
+        }
+      }
+    ]
+  }
+}

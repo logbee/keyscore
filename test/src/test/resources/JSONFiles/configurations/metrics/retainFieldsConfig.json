@@ -1,0 +1,24 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"08fe9d53-bdb1-4c20-89be-b63aba621602",
+    "revision":"",
+    "ancestor":""
+  },
+  "parameterSet":{
+    "parameters":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextListParameter",
+        "ref":{
+          "id":"retain.fieldNames"
+        },
+        "value":[
+          "text",
+          "number",
+          "first_added",
+          "second_added"
+        ]
+      }
+    ]
+  }
+}

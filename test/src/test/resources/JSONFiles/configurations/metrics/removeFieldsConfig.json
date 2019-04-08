@@ -1,0 +1,22 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"5342872a-2195-4af8-8b57-39ebcf0c6a0a",
+    "revision":"",
+    "ancestor":""
+  },
+  "parameterSet":{
+    "parameters":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.FieldNameListParameter",
+        "ref":{
+          "id":"removeFields.fieldsToRemove"
+        },
+        "value":[
+          "first_added",
+          "second_added"
+        ]
+      }
+    ]
+  }
+}

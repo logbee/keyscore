@@ -2,14 +2,15 @@ package io.logbee.keyscore.agent
 
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
-import io.logbee.keyscore.model.data.{Label, MetaData, TextValue}
+import io.logbee.keyscore.model.data.{Field, NumberValue, _}
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.contrib.decoder.json.JsonDecoderLogic
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
 import io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoderLogic
 import io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoderLogic._
-import io.logbee.keyscore.pipeline.contrib.filter.{RemoveFieldsLogic, RetainFieldsLogic}
+import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic.fieldListParameter
+import io.logbee.keyscore.pipeline.contrib.filter.{AddFieldsLogic, RemoveFieldsLogic, RetainFieldsLogic}
 import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.json4s.native.Serialization.writePretty
@@ -191,6 +192,90 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
     )
   }
 
+  trait Metrics {
+
+    //Configurations
+    val sourceConfigurationRef = ConfigurationRef("3496a84b-4bf0-494a-8a19-bb081a6d0803")
+    val sourceConfig = Configuration(sourceConfigurationRef,
+      parameterSet = ParameterSet(Seq(
+        TextParameter(KafkaSourceLogic.serverParameter.ref, "keyscore-kafka"),
+        NumberParameter(KafkaSourceLogic.portParameter.ref, 9092),
+        TextParameter(KafkaSourceLogic.groupIdParameter.ref, "groupId"),
+        ChoiceParameter(KafkaSourceLogic.offsetParameter.ref, "earliest"),
+        TextParameter(KafkaSourceLogic.topicParameter.ref, "Topic1"),
+        FieldNameParameter(KafkaSourceLogic.fieldNameParameter.ref, "__data_")
+      )))
+
+    val jsonDecoderConfigurationRef = ConfigurationRef("6da87d75-d90f-4601-a633-c56f67164048")
+    val jsonDecoderConfig = Configuration(jsonDecoderConfigurationRef,
+      parameterSet = ParameterSet(Seq(
+        BooleanParameter(JsonDecoderLogic.removeSourceFieldParameter.ref, true),
+        TextParameter(JsonDecoderLogic.sourceFieldNameParameter.ref, "__data_")
+      )))
+
+    val addFieldsConfigurationRef = ConfigurationRef("da345c10-0ddc-422a-8793-b33d595525d5")
+    val addFieldsConfig = Configuration(addFieldsConfigurationRef,
+      parameterSet = ParameterSet(Seq(
+        FieldListParameter(fieldListParameter.ref, Seq(
+          Field("first_added", TextValue("hitchhiker")),
+          Field("second_added", NumberValue(42L))
+        )))))
+
+    val retainFieldsConfigurationRef = ConfigurationRef("08fe9d53-bdb1-4c20-89be-b63aba621602")
+    val retainFieldsConfig = Configuration(retainFieldsConfigurationRef,
+      parameterSet = ParameterSet(Seq(
+        TextListParameter(RetainFieldsLogic.fieldNamesParameter.ref, Seq("text", "number", "first_added", "second_added"))
+      )))
+
+    val removeFieldsConfigurationRef = ConfigurationRef("5342872a-2195-4af8-8b57-39ebcf0c6a0a")
+    val removeFieldsConfig = Configuration(removeFieldsConfigurationRef,
+      parameterSet = ParameterSet(Seq(
+        FieldNameListParameter(RemoveFieldsLogic.fieldsToRemoveParameter.ref, Seq("first_added","second_added"))
+      )))
+
+    val jsonEncoderConfigurationRef = ConfigurationRef("df35866f-01d8-4de7-889a-721d5d115b42")
+    val jsonEncoderConfig = Configuration(jsonEncoderConfigurationRef,
+      parameterSet = ParameterSet(Seq(
+        TextParameter(fieldNameParameter.ref, "__data_"),
+        ChoiceParameter(batchStrategyParameter.ref, KEEP_BATCH)
+      )))
+
+    val sinkConfigurationRef = ConfigurationRef("cf4a508b-1383-4ef3-8b5c-3d018d49b158")
+    val sinkConfig = Configuration(sinkConfigurationRef,
+      parameterSet = ParameterSet(Seq(
+        TextParameter(KafkaSinkLogic.bootstrapServerParameter.ref, "keyscore-kafka"),
+        NumberParameter(KafkaSinkLogic.bootstrapServerPortParameter.ref, 9092),
+        TextParameter(KafkaSinkLogic.topicParameter.ref, "Topic2"),
+        FieldNameParameter(KafkaSinkLogic.fieldNameParameter.ref, "__data_")
+      )))
+
+
+    //Blueprints
+    val sourceBlueprint = SourceBlueprint(BlueprintRef("19665f08-7117-47c2-83c9-a99c069d6edc"), KafkaSourceLogic.describe.ref, sourceConfigurationRef)
+    val jsonDecoderBlueprint = FilterBlueprint(BlueprintRef("1d8d0973-d9ed-418c-917c-5f4c18fd51e7"), JsonDecoderLogic.describe.ref, jsonDecoderConfigurationRef)
+    val addFieldsBlueprint = FilterBlueprint(BlueprintRef("a2912661-7ce2-40d3-b490-d6c58a5cb70f"), AddFieldsLogic.describe.ref, addFieldsConfigurationRef)
+    val retainFieldsBlueprint = FilterBlueprint(BlueprintRef("e3d82c2a-9bfd-4118-93aa-11c1b1dfaf82"), RetainFieldsLogic.describe.ref, retainFieldsConfigurationRef)
+    val removeFieldsBlueprint = FilterBlueprint(BlueprintRef("34402c9c-09bb-4fc8-be8f-70a513ed6d66"), RemoveFieldsLogic.describe.ref, removeFieldsConfigurationRef)
+    val jsonEncoderBlueprint = FilterBlueprint(BlueprintRef("4f7ed3f3-b6b3-489c-ade6-f7cd09fb0197"), JsonEncoderLogic.describe.ref, jsonEncoderConfigurationRef)
+    val sinkBlueprint = SinkBlueprint(BlueprintRef("23482214-664e-4298-8e0e-533a68e19e35"), KafkaSinkLogic.describe.ref, sinkConfigurationRef)
+
+    val pipelineBlueprint = PipelineBlueprint(BlueprintRef("7063b8fe-3abe-4513-a53a-da608ff75cac"), Seq(
+      sourceBlueprint.ref,
+      jsonDecoderBlueprint.ref,
+      addFieldsBlueprint.ref,
+      retainFieldsBlueprint.ref,
+      removeFieldsBlueprint.ref,
+      jsonEncoderBlueprint.ref,
+      sinkBlueprint.ref),
+      metadata = MetaData(
+        Label("pipeline.name", TextValue("Metrics Pipeline")),
+        Label("pipeline.description", TextValue("For checking metrics."))
+      )
+    )
+
+
+  }
+
   "A running PipelineSupervisor" should {
 
     "Generate json files for KafkaToKafka" in new KafkaToKafka {
@@ -256,6 +341,28 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
       println(writePretty(firstRemoveFieldsConfiguration))
       println(writePretty(secondRemoveFieldsConfiguration))
       println(writePretty(elasticSinkConfiguration))
+    }
+
+    "Generate json files for Metrics" in new Metrics {
+      println("Metrics JSONs")
+
+      println(writePretty(sourceBlueprint))
+      println(writePretty(jsonDecoderBlueprint))
+      println(writePretty(addFieldsBlueprint))
+      println(writePretty(retainFieldsBlueprint))
+      println(writePretty(removeFieldsBlueprint))
+      println(writePretty(jsonEncoderBlueprint))
+      println(writePretty(sinkBlueprint))
+
+      println(writePretty(pipelineBlueprint))
+
+      println(writePretty(sourceConfig))
+      println(writePretty(jsonDecoderConfig))
+      println(writePretty(addFieldsConfig))
+      println(writePretty(retainFieldsConfig))
+      println(writePretty(removeFieldsConfig))
+      println(writePretty(jsonEncoderConfig))
+      println(writePretty(sinkConfig))
     }
 
   }

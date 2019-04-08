@@ -28,7 +28,7 @@ task startContainer(type: DockerStartContainer) {
 task createKafkaTopics_with_a_lightning_fast_script_created_by_max(type: DockerExecContainer) {
     dependsOn startContainer
     targetContainerId { createContainer.containerName }
-    cmd = ["/usr/bin/create-topics.sh", "TopicA,TopicB,TopicC,TopicW1,TopicW2"]
+    cmd = ["/usr/bin/create-topics.sh", "TopicA,TopicB,TopicC,TopicW1,TopicW2,TopicW3,Topic1,Topic2,Topic3"]
 }
 
 task stopContainer(type: DockerStopContainer) {

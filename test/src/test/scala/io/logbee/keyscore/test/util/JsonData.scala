@@ -25,6 +25,7 @@ object JsonData {
   val WORKFLOW = "workflow"
   val TS = "testSetup"
   val FK = "fillKafka"
+  val METRICS = "metrics"
 
   def loadJson(resource: String, pipeline: String, name: String): String = {
     Using.using(getClass.getResourceAsStream(ResourcePath + resource + "/" + pipeline + "/" + name + JSONType)) { stream =>

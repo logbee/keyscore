@@ -1,0 +1,34 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"da345c10-0ddc-422a-8793-b33d595525d5",
+    "revision":"",
+    "ancestor":""
+  },
+  "parameterSet":{
+    "parameters":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.FieldListParameter",
+        "ref":{
+          "id":"fieldList"
+        },
+        "value":[
+          {
+            "name":"first_added",
+            "value":{
+              "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+              "value":"hitchhiker"
+            }
+          },
+          {
+            "name":"second_added",
+            "value":{
+              "jsonClass":"io.logbee.keyscore.model.data.NumberValue",
+              "value":42
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
