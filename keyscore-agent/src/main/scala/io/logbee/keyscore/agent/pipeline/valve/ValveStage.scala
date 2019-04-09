@@ -24,8 +24,6 @@ object ValveStage {
   val PreviousDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_PREVIOUS_THROUGHPUT_TIME"
   val TotalDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_TOTAL_THROUGHPUT_TIME"
 
-  /* Metrics */
-
   /* Global Metrics */
   val requestedDatasets = CounterMetricDescriptor(
     name = "requested_datasets",
@@ -151,7 +149,9 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
         val datasets = ringBuffer.last(amount)
         promise.success(datasets)
 
-        datasets.map(_ => metrics.collect(extractedDatasets).increment())
+        datasets.map(_ => {
+          metrics.collect(extractedDatasets).increment()
+        })
 
         log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
@@ -267,7 +267,9 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
           metrics.collect(_totalThroughputTime).set(durationToNanos(ttt))
           metrics.collect(_throughputTime).set(durationToNanos(tt))
-          metrics.collect(pushedDatasets).increment()
+          if(state.position == Open) {
+            metrics.collect(pushedDatasets).increment()
+          }
         })
       }
     }
