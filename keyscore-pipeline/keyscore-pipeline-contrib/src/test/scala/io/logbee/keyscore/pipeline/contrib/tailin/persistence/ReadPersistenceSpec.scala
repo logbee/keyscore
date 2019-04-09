@@ -10,6 +10,7 @@ import java.io.File
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
 
 @RunWith(classOf[JUnitRunner])
 class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
@@ -21,7 +22,7 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
     
     val readPersistence = new ReadPersistence(completedPersistence, committedPersistence)
     
-    val file = new File(".testFile")
+    val file = new LocalFile(new File(".testFile"))
     val fileReadRecord = FileReadRecord(previousReadPosition=1, previousReadTimestamp=2, newerFilesWithSharedLastModified=0)
   }
   
@@ -35,11 +36,11 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
         
         inSequence {
           (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-            .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+            .expects(file.absolutePath, typeTag[FileReadRecord])
             .returning(None)
           
           (committedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-            .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+            .expects(file.absolutePath, typeTag[FileReadRecord])
             .returning(None)
         }
         
@@ -52,11 +53,11 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
         
         inSequence {
           (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-            .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+            .expects(file.absolutePath, typeTag[FileReadRecord])
             .returning(None)
           
           (committedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-            .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+            .expects(file.absolutePath, typeTag[FileReadRecord])
             .returning(Some(fileReadRecord))
         }
         
@@ -68,7 +69,7 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
       new ReadPersistenceSetup {
         
         (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(Some(fileReadRecord))
         
         readPersistence.getCompletedRead(file) shouldBe fileReadRecord
@@ -80,11 +81,11 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
     new ReadPersistenceSetup {
       
       (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(None)
       
       (completedPersistence.store _)
-        .expects(file.getAbsolutePath, fileReadRecord)
+        .expects(file.absolutePath, fileReadRecord)
       
       readPersistence.completeRead(file, fileReadRecord)
     }
@@ -95,15 +96,15 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
       
       inSequence {
         (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(Some(fileReadRecord))
         
         (committedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(None)
         
         (committedPersistence.store _)
-          .expects(file.getAbsolutePath, fileReadRecord)
+          .expects(file.absolutePath, fileReadRecord)
       }
       
       readPersistence.commitRead(file, fileReadRecord)
@@ -115,18 +116,18 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
       
       inSequence {
         (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(None)
         
         (completedPersistence.store _)
-          .expects(file.getAbsolutePath, fileReadRecord)
+          .expects(file.absolutePath, fileReadRecord)
         
         (committedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(None)
         
         (committedPersistence.store _)
-          .expects(file.getAbsolutePath, fileReadRecord)
+          .expects(file.absolutePath, fileReadRecord)
       }
       
       readPersistence.commitRead(file, fileReadRecord)
@@ -138,7 +139,7 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
       
       inSequence {
         (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(Some(fileReadRecord.copy(previousReadTimestamp=fileReadRecord.previousReadTimestamp+1)))
         
         (completedPersistence.store _)
@@ -155,7 +156,7 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
       
       inSequence {
         (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(Some(fileReadRecord.copy(previousReadTimestamp=fileReadRecord.previousReadTimestamp+1))) //this does not need to be updated
         
         (completedPersistence.store _)
@@ -163,7 +164,7 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
           .never
         
         (committedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(Some(fileReadRecord.copy(previousReadTimestamp=fileReadRecord.previousReadTimestamp+1))) //this does not need to be updated
         
         (committedPersistence.store _)
@@ -180,14 +181,14 @@ class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {
       
       inSequence {
         (completedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(Some(fileReadRecord.copy(previousReadTimestamp=fileReadRecord.previousReadTimestamp-1))) //this needs to be updated
         
         (completedPersistence.store _)
-          .expects(file.getAbsolutePath, fileReadRecord)
+          .expects(file.absolutePath, fileReadRecord)
         
         (committedPersistence.load[FileReadRecord] (_: String)(_: TypeTag[FileReadRecord]))
-          .expects(file.getAbsolutePath, typeTag[FileReadRecord])
+          .expects(file.absolutePath, typeTag[FileReadRecord])
           .returning(Some(fileReadRecord.copy(previousReadTimestamp=fileReadRecord.previousReadTimestamp+1))) //this does not need to be updated
         
         (committedPersistence.store _)

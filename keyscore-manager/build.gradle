@@ -35,10 +35,6 @@ task serve(type: NodeTask, dependsOn: npmInstall) {
     script = file('node_modules/.bin/webpack-dev-server')
 }
 
-task storybook(type: NpmTask, dependsOn: npmInstall) {
-    args = ['run','storybook']
-}
-
 task createDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'quay.io/logbee/nginx:v1.13.7'
@@ -100,9 +96,5 @@ task clean(type: Delete) {
 }
 
 task cleanAll(type: Delete, dependsOn: clean) {
-    delete 'node_modules'
-}
-
-task cleanNode(type: Delete) {
-    delete 'node_modules'
+    delete 'node_modules', 'package-lock.json'
 }

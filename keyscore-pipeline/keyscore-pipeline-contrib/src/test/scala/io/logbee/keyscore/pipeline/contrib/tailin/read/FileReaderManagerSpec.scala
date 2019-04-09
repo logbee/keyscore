@@ -18,69 +18,60 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import java.nio.charset.Charset
+import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
 
 @RunWith(classOf[JUnitRunner])
-class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with BeforeAndAfter {
-  
-  
-  var watchDir: Path = null
-
-  before {
-    watchDir = Files.createTempDirectory("watchTest")
-
-    TestUtil.waitForFileToExist(watchDir.toFile)
-  }
-
-  after {
-    TestUtil.recursivelyDelete(watchDir)
-  }
+class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockFactory {
   
   val charset = Charset.forName("UTF-8")
   
   
-  trait FileReaderManagerSetup {
+  trait FileReaderManagerSetup extends RotateFiles {
     val readSchedule = mock[ReadSchedule]
     val readPersistence = mock[ReadPersistence]
     val fileReaderProvider = mock[FileReaderProvider]
-    val rotationPattern = ".[1-5]"
     
-    val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
+    val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, defaultRotationPattern)
     
     val callback = mockFunction[FileReadData, Unit]
-    
-    
-    val line1 = "abcde"
-    val line2 = "fghij"
-    val newline = "\n"
-    val text = line1 + newline + line2
-    val testFile = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile", text)
-    
-    val readScheduleItem = ReadScheduleItem(testFile, startPos=0, endPos=testFile.length, testFile.lastModified, newerFilesWithSharedLastModified=0)
-    
-    (readSchedule.dequeue _)
-      .expects()
-      .returning(Option(readScheduleItem))
   }
   
   
   
   "A FileReaderManager should" - { //TODO more tests
     
-    "read out a scheduled entry" in 
+    "read out a scheduled entry" in
     new FileReaderManagerSetup {
       
       inSequence {
+        val readScheduleItem = ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length, previousReadTimestamp, newerFilesWithSharedLastModified=0)
+        
+        (readSchedule.dequeue _)
+          .expects()
+          .returning(Option(readScheduleItem))
+        
         (readPersistence.getCompletedRead _)
-          .expects(testFile)
-          .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0))
+          .expects(logFile)
+          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp, newerFilesWithSharedLastModified=0))
         
         (fileReaderProvider.create _)
-          .expects(testFile)
-          .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
+          .expects(logFile3_ModifiedAfterPreviousReadTimestamp)
+          .returning(new FileReader(logFile3_ModifiedAfterPreviousReadTimestamp, rotationPattern="", byteBufferSize=1024, charset=charset, readMode=ReadMode.LINE))
         
         
-        callback.expects(FileReadData(line1, testFile, charset.encode(line1 + newline).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
-        callback.expects(FileReadData(line2, testFile, charset.encode(text).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string = logFile3Data.substring(previousReadPosition),
+              baseFile = logFile,
+              physicalFile = logFile3_ModifiedAfterPreviousReadTimestamp.absolutePath,
+              readEndPos = charset.encode(logFile3Data).limit,
+              writeTimestamp = previousReadTimestamp,
+              readTimestamp = -1,
+              newerFilesWithSharedLastModified = 0
+            )
+          )
+        }
       }
       
       fileReaderManager.getNextString(callback)
@@ -91,43 +82,130 @@ class FileReaderManagerSpec extends FreeSpec with Matchers with MockFactory with
     "read out multiple scheduled entries" in
     new FileReaderManagerSetup {
       inSequence {
+        val readScheduleItem = ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=logFile3_ModifiedAfterPreviousReadTimestamp.length, previousReadTimestamp, newerFilesWithSharedLastModified=0)
+        
+        (readSchedule.dequeue _)
+          .expects()
+          .returning(Option(readScheduleItem))
+        
         (readPersistence.getCompletedRead _)
-          .expects(testFile)
-          .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0))
+          .expects(logFile)
+          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp, newerFilesWithSharedLastModified=0))
         
         
         (fileReaderProvider.create _)
-          .expects(testFile)
-          .returning(new FileReader(testFile, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
+          .expects(logFile3_ModifiedAfterPreviousReadTimestamp)
+          .returning(new FileReader(fileToRead=logFile3_ModifiedAfterPreviousReadTimestamp,
+                                    rotationPattern=defaultRotationPattern,
+                                    byteBufferSize=1024,
+                                    charset=StandardCharsets.UTF_8,
+                                    readMode=ReadMode.LINE))
         
         
-        callback.expects(FileReadData(line1, testFile, charset.encode(line1 + newline).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
-        callback.expects(FileReadData(line2, testFile, charset.encode(text).limit, testFile.lastModified, newerFilesWithSharedLastModified=0))
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string = logFile3Data.substring(previousReadPosition),
+              baseFile = logFile,
+              physicalFile = logFile3_ModifiedAfterPreviousReadTimestamp.absolutePath,
+              readEndPos = charset.encode(logFile3Data).limit,
+              writeTimestamp = previousReadTimestamp,
+              readTimestamp = -1,
+              newerFilesWithSharedLastModified = 0
+            )
+          )
+        }
         
-        
-        
-        val content2 = "22222" 
-        val testFile2 = TestUtil.createFile(watchDir, ".fileReaderManagerTestFile2", content2)
-        
-        val readScheduleItem2 = ReadScheduleItem(testFile2, startPos=0, endPos=testFile2.length, testFile2.lastModified, newerFilesWithSharedLastModified=0)
+        val readScheduleItem2 = ReadScheduleItem(logFile, startPos=0, endPos=logFile2.length, logFile2.lastModified, newerFilesWithSharedLastModified=0)
         
         (readSchedule.dequeue _)
           .expects()
           .returning(Option(readScheduleItem2))
         
         (readPersistence.getCompletedRead _)
-          .expects(testFile2)
-          .returning(FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0))
+          .expects(logFile)
+          .returning(FileReadRecord(previousReadPosition=charset.encode(logFile3Data).limit,
+                                    previousReadTimestamp=readScheduleItem2.lastModified,
+                                    newerFilesWithSharedLastModified=0))
         
         (fileReaderProvider.create _)
-          .expects(testFile2)
-          .returning(new FileReader(testFile2, rotationPattern="", byteBufferSize=1024, charset=StandardCharsets.UTF_8, readMode=ReadMode.LINE))
+          .expects(logFile2)
+          .returning(new FileReader(logFile2, rotationPattern=defaultRotationPattern, byteBufferSize=1024, charset=charset, readMode=ReadMode.LINE))
         
-        callback.expects(FileReadData(content2, testFile2, charset.encode(content2).limit, testFile2.lastModified, newerFilesWithSharedLastModified=0))
+        
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string = logFile2Data,
+              baseFile = logFile,
+              physicalFile = logFile2.absolutePath,
+              readEndPos = charset.encode(logFile2Data).limit,
+              writeTimestamp = logFile2.lastModified,
+              readTimestamp = -1,
+              newerFilesWithSharedLastModified = 0
+            )
+          )
+        }
       }
       
       fileReaderManager.getNextString(callback)
       fileReaderManager.getNextString(callback)
     }
+    
+    
+    "read out a scheduled entry from the correct file when rotation has occurred after scheduling and before reading out" in
+    new FileReaderManagerSetup {
+      
+      rotate()
+      
+      inSequence {
+        val readScheduleItem = ReadScheduleItem(logFile, startPos=previousReadPosition, endPos=charset.encode(logFile3Data).limit, previousReadTimestamp, newerFilesWithSharedLastModified=0)
+        
+        (readSchedule.dequeue _)
+          .expects()
+          .returning(Option(readScheduleItem))
+        
+        (readPersistence.getCompletedRead _)
+          .expects(logFile)
+          .returning(FileReadRecord(previousReadPosition, previousReadTimestamp, newerFilesWithSharedLastModified=0))
+        
+        
+        
+        //TODO is maybe this FileReader created before the rotate happens and therefore its fileReadChannel points to fileContent4 ?
+          //Test works, if the rotate happens beforehand, which would confirm it,
+          //but changing fileReaderManager to create a new fileReader every time doesn't seem to affect it.
+          //
+          //maybe because we always return the same in the following, it shadows the behaviour:
+          //(real test does not currently work either, though)
+        (fileReaderProvider.create _)
+          .expects(logFile4_ModifiedBeforePreviousReadTimestamp) 
+          .returning(new FileReader(fileToRead=logFile4_ModifiedBeforePreviousReadTimestamp,
+                                    rotationPattern=defaultRotationPattern,
+                                    byteBufferSize=1024,
+                                    charset=charset,
+                                    readMode=ReadMode.LINE))
+        
+        
+        callback expects where {
+          calledBackDataIsSimilarTo(
+            FileReadData(
+              string=logFile3Data.substring(previousReadPosition),
+              baseFile=logFile,
+              physicalFile=logFile4_ModifiedBeforePreviousReadTimestamp.absolutePath,
+              readEndPos=charset.encode(logFile3Data).limit,
+              writeTimestamp=previousReadTimestamp,
+              readTimestamp = -1,
+              newerFilesWithSharedLastModified=0
+            )
+          )
+        }
+        
+      }
+      
+//      rotate()
+      fileReaderManager.getNextString(callback)
+    }
+    
+    //TODO TEST where rotation happens between readings, so that the newly rotated file is directly on the file-path we just read out
   }
 }

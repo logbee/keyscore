@@ -2,8 +2,8 @@ import {v4 as uuid} from "uuid";
 import {
     ParameterDescriptorJsonClass, ParameterDescriptorPackagePrefix,
     ResolvedParameterDescriptor
-} from "../../modules/keyscore-manager-models/src/main/parameters/ParameterDescriptor";
-import {Parameter, ParameterJsonClass, ParameterPackagePrefix} from "../../modules/keyscore-manager-models/src/main/parameters/Parameter";
+} from "./models/parameters/ParameterDescriptor";
+import {Parameter, ParameterJsonClass, ParameterPackagePrefix} from "./models/parameters/Parameter";
 import {KeycloakService} from "keycloak-angular";
 import * as _ from 'lodash'
 

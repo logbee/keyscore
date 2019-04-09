@@ -3,7 +3,7 @@ import {select, Store} from "@ngrx/store";
 import {AppState} from "../../app.component";
 import {HttpClient} from "@angular/common/http";
 import {AppConfig, selectAppConfig} from "../../app.config";
-import {Configuration} from "../../../../modules/keyscore-manager-models/src/main/common/Configuration";
+import {Configuration} from "../../models/common/Configuration";
 import {Observable} from "rxjs/index";
 
 @Injectable({

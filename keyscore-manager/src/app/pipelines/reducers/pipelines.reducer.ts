@@ -13,17 +13,17 @@ import {
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "../actions/pipelines.actions";
-import {ResolvedFilterDescriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
-import {Descriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
+import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {Descriptor} from "../../models/descriptors/Descriptor";
 import {
     EditingPipelineModel,
     generateEmptyEditingPipelineModel
-} from "../../../../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
-import {ResolvedCategory} from "../../../../modules/keyscore-manager-models/src/main/descriptors/Category";
+} from "../../models/pipeline-model/EditingPipelineModel";
+import {ResolvedCategory} from "../../models/descriptors/Category";
 import {PipelineTableModel} from "../PipelineTableModel";
-import {Health} from "../../../../modules/keyscore-manager-models/src/main/common/Health";
-import {TextValue} from "../../../../modules/keyscore-manager-models/src/main/dataset/Value";
-import {Label} from "../../../../modules/keyscore-manager-models/src/main/common/MetaData";
+import {Health} from "../../models/common/Health";
+import {TextValue} from "../../models/dataset/Value";
+import {Label} from "../../models/common/MetaData";
 
 
 export class PipelinesState {

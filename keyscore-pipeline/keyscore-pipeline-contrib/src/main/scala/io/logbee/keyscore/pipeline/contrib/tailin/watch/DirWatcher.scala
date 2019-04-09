@@ -15,6 +15,8 @@ import scala.collection.mutable.ListBuffer
 
 import org.slf4j.LoggerFactory
 
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+
 
 trait DirWatcher {
   def tearDown()
@@ -52,9 +54,9 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
   private val subFileWatchers = mutable.Map.empty[File, ListBuffer[FileWatcher]]
-
   
-
+  
+  
   
   //recursive setup
   val subPaths = configuration.dirPath.toFile.listFiles
@@ -91,7 +93,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     }
     
     key.foreach(key => key.pollEvents.asScala.foreach { event =>
-    
+      
       val path: Path = configuration.dirPath.resolve(event.context.asInstanceOf[Path])
       
       event.kind match {
@@ -120,7 +122,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
       }
     })
   }
-
+  
   
   
   
@@ -149,21 +151,21 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   private def addSubFileWatcher(file: File) = {
-
+    
     if (fileMatcher.matches(file.toPath)) {
       
-      val fileWatcher = watcherProvider.createFileWatcher(file)
+      val fileWatcher = watcherProvider.createFileWatcher(new LocalFile(file))
       
       fileWatcher.fileModified()
       
       val list = subFileWatchers.getOrElse(file, mutable.ListBuffer.empty)
-
+      
       subFileWatchers.put(file, list)
       list += fileWatcher
     }
   }
-
-
+  
+  
   
   def fireFileModified(file: File) = {
     subFileWatchers.get(file) match {
@@ -176,8 +178,8 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   
-
-
+  
+  
   /**
    * We can't detect, whether a delete event happened for a file or for a directory,
    * however a directory and a file can't share the same name within the same directory.
@@ -192,7 +194,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
       case Some(watchers: ListBuffer[DirWatcher]) => 
         watchers.foreach(watcher => watcher.tearDown())
     }
-
+    
     subFileWatchers.remove(path.toFile) match {
       case None =>
       case Some(watchers: ListBuffer[FileWatcher]) =>
@@ -239,15 +241,19 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     log.info("Teardown for " + configuration.dirPath)
     
     //call tearDown on all watchers attached to this
-    subFileWatchers.foreach { case (_: File, subFileWatchers: ListBuffer[FileWatcher]) =>
-      subFileWatchers.foreach { case watcher =>
-        watcher.tearDown()
-      }
+    subFileWatchers.foreach {
+      case (_: File, subFileWatchers: ListBuffer[FileWatcher]) =>
+        subFileWatchers.foreach {
+          case watcher =>
+            watcher.tearDown()
+        }
     }
-    subDirWatchers.foreach { case (_: Path, subDirWatchers: ListBuffer[DirWatcher]) => 
-      subDirWatchers.foreach { case watcher => 
-        watcher.tearDown() 
-      }
+    subDirWatchers.foreach {
+      case (_: Path, subDirWatchers: ListBuffer[DirWatcher]) =>
+        subDirWatchers.foreach {
+          case watcher =>
+            watcher.tearDown() 
+        }
     }
     
     

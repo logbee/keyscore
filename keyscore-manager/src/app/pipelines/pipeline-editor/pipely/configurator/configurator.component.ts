@@ -3,14 +3,14 @@ import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
 import {deepcopy, zip} from "../../../../util";
-import {Parameter, ParameterJsonClass} from "../../../../../../modules/keyscore-manager-models/src/main/parameters/Parameter";
-import {ResolvedParameterDescriptor} from "../../../../../../modules/keyscore-manager-models/src/main/parameters/ParameterDescriptor";
-import {ParameterControlService} from "../../../../../../modules/keyscore-manager-pipeline-parameters/src/main/service/parameter-control.service";
-import {Configuration} from "../../../../../../modules/keyscore-manager-models/src/main/common/Configuration";
+import {Parameter, ParameterJsonClass} from "../../../../models/parameters/Parameter";
+import {ResolvedParameterDescriptor} from "../../../../models/parameters/ParameterDescriptor";
+import {ParameterControlService} from "../../../../common/parameter/service/parameter-control.service";
+import {Configuration} from "../../../../models/common/Configuration";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
-import {Dataset} from "../../../../../../modules/keyscore-manager-models/src/main/dataset/Dataset";
+import {Dataset} from "../../../../models/dataset/Dataset";
 
 
 @Component({

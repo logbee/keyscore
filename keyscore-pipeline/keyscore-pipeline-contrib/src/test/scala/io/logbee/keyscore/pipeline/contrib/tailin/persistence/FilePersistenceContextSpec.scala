@@ -19,19 +19,10 @@ case class TestCaseClass(a: String, b: Integer)
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
+
 @RunWith(classOf[JUnitRunner])
-class FilePersistenceContextSpec extends FreeSpec with BeforeAndAfter with Matchers with ParallelTestExecution {
-
-  var watchDir: Path = null
-
-  before {
-    watchDir = Files.createTempDirectory("watchTest")
-    TestUtil.waitForFileToExist(watchDir.toFile)
-  }
-
-  after {
-    TestUtil.recursivelyDelete(watchDir)
-  }
+class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with ParallelTestExecution {
 
   trait PersistenceFile {
 

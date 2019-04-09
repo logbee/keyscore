@@ -22,7 +22,7 @@ import {
     RemoveCurrentAgentAction
 } from "./agents.actions";
 import {Go} from "../router/router.actions";
-import {Agent} from "../../../modules/keyscore-manager-models/src/main/common/Agent";
+import {Agent} from "../models/common/Agent";
 import {RequestOptions} from "@angular/http";
 import {KeycloakService} from "keycloak-angular";
 import {AgentService} from "../services/rest-api/AgentService";

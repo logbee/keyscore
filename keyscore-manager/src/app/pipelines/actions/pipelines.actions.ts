@@ -1,11 +1,11 @@
 import {Action} from "@ngrx/store";
-import {PipelineInstance} from "../../../../modules/keyscore-manager-models/src/main/pipeline-model/PipelineInstance";
-import {ResolvedFilterDescriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
-import {Blueprint, PipelineBlueprint} from "../../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
-import {Configuration} from "../../../../modules/keyscore-manager-models/src/main/common/Configuration";
-import {Descriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
-import {EditingPipelineModel} from "../../../../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
-import {Ref} from "../../../../modules/keyscore-manager-models/src/main/common/Ref";
+import {PipelineInstance} from "../../models/pipeline-model/PipelineInstance";
+import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
+import {Configuration} from "../../models/common/Configuration";
+import {Descriptor} from "../../models/descriptors/Descriptor";
+import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
+import {Ref} from "../../models/common/Ref";
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 export const CREATED_PIPELINE = "[Pipeline] CreatedPipeline";

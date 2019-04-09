@@ -1,5 +1,5 @@
 import {ConfiguratorComponent} from "./configurator.component";
-import {ParameterModule} from "../../../../../../modules/keyscore-manager-pipeline-parameters/src/main/parameter.module";
+import {ParameterModule} from "../../../../common/parameter/parameter.module";
 import {MaterialModule} from "../../../../material.module";
 import {TranslateModule} from "@ngx-translate/core";
 import {CommonModule} from "@angular/common";

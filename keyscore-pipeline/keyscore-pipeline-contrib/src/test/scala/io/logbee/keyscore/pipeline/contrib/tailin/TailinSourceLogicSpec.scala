@@ -263,10 +263,10 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     new DefaultSource {
       
       val baseFile = TestUtil.createFile(watchDir, "file", "0")
-      val rotatePattern = baseFile.getName + ".[1-5]"
+      val rotatePattern = baseFile.name + ".[1-5]"
       
-      val file1Name = baseFile.getName + ".1"
-      val file2Name = baseFile.getName + ".2"
+      val file1Name = baseFile.name + ".1"
+      val file2Name = baseFile.name + ".2"
       val file1 = TestUtil.createFile(watchDir, file1Name, "11")
       val file2 = TestUtil.createFile(watchDir, file2Name, "222")
       
@@ -298,7 +298,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       
       val logFile = TestUtil.createFile(watchDir, "tailin.csv")
       val numberOfLines = 1000
-      val slf4j_rotatePattern = logFile.getName + ".%i"
+      val slf4j_rotatePattern = logFile.name + ".%i"
       
       TestUtil.writeLogToFileWithRotation(logFile, numberOfLines, slf4j_rotatePattern)
       

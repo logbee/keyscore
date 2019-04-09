@@ -9,12 +9,12 @@ import {
     STORE_DESCRIPTOR_REF
 } from "./resources.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Blueprint} from "../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
-import {ResolvedFilterDescriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
-import {Configuration} from "../../../modules/keyscore-manager-models/src/main/common/Configuration";
-import {StateObject} from "../../../modules/keyscore-manager-models/src/main/common/StateObject";
+import {Blueprint} from "../models/blueprints/Blueprint";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
+import {Configuration} from "../models/common/Configuration";
+import {StateObject} from "../models/common/StateObject";
 import {deepcopy} from "../util";
-import {ResourceTableModel} from "../../../modules/keyscore-manager-models/src/main/resources/ResourceTableModel";
+import {ResourceTableModel} from "../models/resources/ResourceTableModel";
 import * as _ from "lodash";
 
 export class ResourceViewerState {

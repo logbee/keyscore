@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-descriptor.model";
-import {FilterDescriptorJsonClass, ResolvedFilterDescriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {FilterDescriptorJsonClass, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 
 @Injectable()
 export class PipelyKeyscoreAdapter {

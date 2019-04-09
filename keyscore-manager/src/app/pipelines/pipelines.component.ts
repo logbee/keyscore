@@ -15,7 +15,7 @@ import {getPipelineList} from "./index";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
 import "../style/style.scss";
-import {Ref} from "../../../modules/keyscore-manager-models/src/main/common/Ref";
+import {Ref} from "../models/common/Ref";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {PipelinesState} from "./reducers/pipelines.reducer";
 import {DataSourceFactory} from "../data-source/data-source-factory";

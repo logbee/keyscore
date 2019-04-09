@@ -10,20 +10,11 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+
 @RunWith(classOf[JUnitRunner])
-class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
-
-  var watchDir: Path = null
-
-  before {
-    watchDir = Files.createTempDirectory("watchTest")
-
-    TestUtil.waitForFileToExist(watchDir.toFile)
-  }
-
-  after {
-    TestUtil.recursivelyDelete(watchDir)
-  }
+class DirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
 
   
   trait DirWatcherParams {
@@ -109,7 +100,7 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
             
             val file = new File(watchDir + "/test.txt")
             
-            (provider.createFileWatcher _).expects(file).returning(stub[FileWatcher])
+            (provider.createFileWatcher _).expects(new LocalFile(file)).returning(stub[FileWatcher])
     
             file.createNewFile()
     
@@ -175,58 +166,58 @@ class DirWatcherSpec extends FreeSpec with BeforeAndAfter with Matchers with Moc
         
         val file = new File(watchDir + "/test.foobar")
         
-        (provider.createFileWatcher _).expects(file).never()
-
+        (provider.createFileWatcher _).expects(new LocalFile(file)).never()
+        
         file.createNewFile()
-
+        
         TestUtil.waitForFileToExist(file)
-
+        
         dirWatcher.processEvents()
       }
 
       "is modified, should notify the responsible FileWatchers that the file was modified" in new DirWatcherParams {
         
         val dirWatcher = new DefaultDirWatcher(configuration, provider)
-
+        
         val file = new File(watchDir + "/test.txt")
-
+        
         val subFileWatcher = stub[FileWatcher]
-        (provider.createFileWatcher _).expects(file).returning(subFileWatcher)
-
+        (provider.createFileWatcher _).expects(new LocalFile(file)).returning(subFileWatcher)
+        
         file.createNewFile()
         TestUtil.waitForFileToExist(file)
-
+        
         dirWatcher.processEvents()
-
+        
         //write something to file
         TestUtil.writeStringToFile(file, "Hello World", StandardOpenOption.APPEND)
-
+        
         TestUtil.waitForWatchService()
-
+        
         dirWatcher.processEvents()
-
+        
         (subFileWatcher.fileModified _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileWatcher
       }
-
+      
       "is deleted, should notify the responsible FileWatcher" in new DirWatcherParams {
         
         val dirWatcher = new DefaultDirWatcher(configuration, provider)
         
         val file = new File(watchDir + "/test.txt")
-
+        
         val subFileWatcher = stub[FileWatcher]
-        (provider.createFileWatcher _).expects(file).returning(subFileWatcher)
-
+        (provider.createFileWatcher _).expects(new LocalFile(file)).returning(subFileWatcher)
+        
         file.createNewFile
         TestUtil.waitForFileToExist(file)
-
+        
         dirWatcher.processEvents()
-
+        
         file.delete()
         TestUtil.waitForFileToBeDeleted(file)
-
+        
         dirWatcher.processEvents()
-
+        
         (subFileWatcher.pathDeleted _).verify()
       }
     }

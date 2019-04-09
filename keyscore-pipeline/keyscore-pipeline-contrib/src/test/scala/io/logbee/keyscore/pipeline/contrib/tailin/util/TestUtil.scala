@@ -21,6 +21,7 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
 import ch.qos.logback.core.rolling.RollingFileAppender
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
 import ch.qos.logback.core.util.FileSize
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
 
 object TestUtil {
 
@@ -45,7 +46,7 @@ object TestUtil {
   }
   
   
-  def createFile(dir: Path, name: String, content: String = ""): File = {
+  def createFile(dir: Path, name: String, content: String = ""): LocalFile = {
     
     val file = dir.resolve(name).toFile
     
@@ -54,7 +55,7 @@ object TestUtil {
     
     TestUtil.writeStringToFile(file, content, StandardOpenOption.CREATE)
     
-    file
+    new LocalFile(file)
   }
 
 
@@ -77,7 +78,7 @@ object TestUtil {
     Thread.sleep(10)
   }
   
-
+  
   def writeStringToFile(file: File, string: String, writeMode: OpenOption = StandardOpenOption.APPEND, encoding: Charset = StandardCharsets.UTF_8) {
 
     var fileWriter: java.io.BufferedWriter = null
@@ -91,7 +92,6 @@ object TestUtil {
         fileWriter.close
     }
   }
-  
   
   
   def writeLogToFileWithRotation(logFile: File, numberOfLines: Int = 1000, rotatePattern: String) = {
