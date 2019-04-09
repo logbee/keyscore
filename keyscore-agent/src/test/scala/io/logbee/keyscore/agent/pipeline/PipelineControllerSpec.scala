@@ -7,8 +7,9 @@ import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
+import io.logbee.keyscore.agent.pipeline.valve.ValveStage._totalThroughputTime
 import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter, ParameterSet}
-import io.logbee.keyscore.model.data.{Dataset, Label, TextValue}
+import io.logbee.keyscore.model.data.{Dataset, Label, Record, TextValue}
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric}
 import io.logbee.keyscore.model.pipeline.Running
@@ -67,6 +68,27 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
   "A PipelineController" should {
 
+//    "return the correct total_throughputTime" in new TestSetup {
+//      whenReady(controllerFuture) { controller =>
+//
+//        for (x <- 1 to 15) {
+//          Thread.sleep(1000)
+//          source.sendNext(Dataset(Record()))
+//          sink.requestNext()
+//
+//          whenReady(controller.state()) { state =>
+//
+//            println(s"$x : ${state.totalThroughputTime}")
+//
+//            whenReady(controller.scrape()) { collection =>
+//              val ttt = (collection find _totalThroughputTime get).value
+//              println(s"ttt: $ttt")
+//            }
+//          }
+//        }
+//      }
+//    }
+
     "not affect the data in a stream" in new TestSetup {
       source.sendNext(dataset1)
       source.sendNext(dataset2)
@@ -83,9 +105,6 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
         sink.requestNext().records should contain theSameElementsAs dataset1.records
 
         whenReady(controller.state()) { state =>
-          //TODO Flaky
-//          state.throughPutTime.toInt should be > 0
-//          state.totalThroughputTime.toInt should be > 0
           state.health shouldBe Green
           state.status shouldBe Running
         }

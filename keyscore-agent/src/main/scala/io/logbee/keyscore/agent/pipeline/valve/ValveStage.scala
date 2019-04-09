@@ -12,7 +12,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.localization.TextRef
-import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor, MetricsCollection}
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetric, GaugeMetricDescriptor, MetricsCollection}
 import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
 
 import scala.collection.mutable
@@ -261,12 +261,13 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
         dataset.foreach(dataset => {
           val labels = mutable.Map.empty[String, Label]
-          val ttt = compute(totalThroughputTime, FirstValveTimestamp, TotalDatasetThroughputTime, dataset, labels)
-          val tt = compute(throughputTime, PreviousValveTimestamp, PreviousDatasetThroughputTime, dataset, labels)
+          compute(totalThroughputTime, FirstValveTimestamp, TotalDatasetThroughputTime, dataset, labels, "ttt")
+          compute(throughputTime, PreviousValveTimestamp, PreviousDatasetThroughputTime, dataset, labels, "tt")
           push(out, withNewLabels(dataset, labels.toMap))
 
-          metrics.collect(_totalThroughputTime).set(durationToNanos(ttt))
-          metrics.collect(_throughputTime).set(durationToNanos(tt))
+          metrics.collect(_totalThroughputTime).set(durationToNanos(totalThroughputTime))
+          metrics.collect(_throughputTime).set(durationToNanos(throughputTime))
+
           if(state.position == Open) {
             metrics.collect(pushedDatasets).increment()
           }
@@ -293,7 +294,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       state
     }
 
-    private def compute(median: MovingMedian, timestampLabel: String, throughputLabel: String, dataset: Dataset, labels: mutable.Map[String, Label]): MovingMedian = {
+    private def compute(median: MovingMedian, timestampLabel: String, throughputLabel: String, dataset: Dataset, labels: mutable.Map[String, Label], kind: String = ""): MovingMedian = {
       val newTimestamp = Timestamps.fromMillis(System.currentTimeMillis())
 
       labels.put(timestampLabel, Label(timestampLabel, TimestampValue(newTimestamp)))

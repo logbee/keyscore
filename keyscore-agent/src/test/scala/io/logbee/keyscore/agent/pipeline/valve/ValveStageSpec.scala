@@ -31,13 +31,13 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
     s"pass through datasets and increase ${requestedDatasets.name} and ${pushedDatasets.name}" in new TestWithSourceProbeAndSinkProbe {
 
       whenReady(valveFuture) { valve =>
-        val wantedDatesets = 3
+        val wantedDatasets = 3
 
         source.sendNext(dataset1)
         source.sendNext(dataset2)
         source.sendNext(dataset3)
 
-        sink.request(wantedDatesets)
+        sink.request(wantedDatasets)
 
         sink.requestNext().records should contain theSameElementsAs dataset1.records
         sink.requestNext().records should contain theSameElementsAs dataset2.records
@@ -47,8 +47,8 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
           val id = state.id
 
           whenReady(valve.scrape()) { mc =>
-            mc.find(requestedDatasets).get.value should equal(wantedDatesets.toDouble+1.0d)
-            mc.find(pushedDatasets).get.value should equal(wantedDatesets.toDouble)
+            mc.find(requestedDatasets).get.value should equal(wantedDatasets.toDouble+1.0d)
+            mc.find(pushedDatasets).get.value should equal(wantedDatasets.toDouble)
           }
         }
 

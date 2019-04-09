@@ -29,10 +29,10 @@ class MovingMedianSpec extends WordSpec with Matchers {
     "return the minimal item" in {
       val minMedian = initMedians.min
       val oldestTime = minMedian.currentSystemTime
-      oldestTime shouldBe (min)
+      oldestTime shouldBe min
     }
     "return the right index of a minimal item" in {
-      initMedians.indexOf(initMedians.min) shouldBe (3)
+      initMedians.indexOf(initMedians.min) shouldBe 3
     }
     "update a new item correct" in {
       movingMedian + Duration.newBuilder().setSeconds(10).build()
