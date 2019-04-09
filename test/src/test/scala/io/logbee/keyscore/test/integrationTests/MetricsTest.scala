@@ -12,7 +12,7 @@ import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.pipeline.{Dismantled, FilterStatus, Paused, Running}
 import io.logbee.keyscore.test.integrationTests.behaviors._
-import io.logbee.keyscore.test.util.JsonData.{BLUEPRINTS, CONFIGURATIONS, METRICS, loadConfiguration, loadFilterBlueprint, loadJson, loadPipelineBlueprint, loadSinkBlueprint, loadSourceBlueprint}
+import io.logbee.keyscore.test.util.JsonData._
 import io.logbee.keyscore.test.util.TestingMethods._
 import org.json4s.Formats
 import org.json4s.native.Serialization.write
@@ -48,9 +48,11 @@ class MetricsTest extends Matchers {
   val d8 = Dataset(Record(Field("number", NumberValue(8L)), Field("text", TextValue("_")), Field("delete", BooleanValue(true))))
   val d9 = Dataset(Record(Field("number", NumberValue(9L)), Field("text", TextValue("_")), Field("delete", BooleanValue(true))))
 
+  val decoderID = "1d8d0973-d9ed-418c-917c-5f4c18fd51e7"
   val addFieldsID = "a2912661-7ce2-40d3-b490-d6c58a5cb70f"
   val retainID = "e3d82c2a-9bfd-4118-93aa-11c1b1dfaf82"
   val removeID = "34402c9c-09bb-4fc8-be8f-70a513ed6d66"
+  val encoderID = "4f7ed3f3-b6b3-489c-ade6-f7cd09fb0197"
 
   @Test
   @CitrusTest
@@ -87,12 +89,17 @@ class MetricsTest extends Matchers {
 
     applyBehavior(new InsertDatasets(retainID, write(List(d4, d5, d6))))
     (scrapeMetrics(retainID) find insertedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID) find drainedDatasets get).value shouldBe 3
     (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 3
 
     applyBehavior(new FilterPause(retainID, "false"))
     applyBehavior(new FilterDrain(retainID, "false"))
     checkFilterState(retainID, Green, Running)
     (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 3
+    scrapeMetrics(addFieldsID) find drainedDatasets should be(None)
+    (scrapeMetrics(removeID) find drainedDatasets get).value should be (3)
+    scrapeMetrics(encoderID) find drainedDatasets should be(None)
+
 
     logger.debug("From the last filter 6 datasets should have been extracted.")
     (scrapeMetrics(removeID) find pushedDatasets get).value shouldBe 3
@@ -102,6 +109,11 @@ class MetricsTest extends Matchers {
 
     extractDatasets(removeID, 10).size shouldBe 6
     (scrapeMetrics(removeID) find extractedDatasets get).value shouldBe 6
+
+    logger.debug("The total throughputTime should increase over time.")
+    applyBehavior(new InsertDatasets(decoderID, write(List(d1, d2, d3, d4, d5, d6, d7, d8, d9, d1, d2, d3, d4, d5, d6, d7, d8, d9))))
+    (scrapeMetrics(decoderID) find _totalThroughputTime get).value shouldBe < ((scrapeMetrics(encoderID) find _totalThroughputTime get).value)
+    (scrapeMetrics(addFieldsID) find _totalThroughputTime get).value shouldBe < ((scrapeMetrics(removeID) find _totalThroughputTime get).value)
 
     logger.debug("CLEANING_UP the Metrics Pipeline")
     cleanUp
