@@ -1,0 +1,89 @@
+[
+  {
+    "message": "This is an example message.",
+    "device": {
+      "name": "robot",
+      "decimal": 73.42,
+      "logs": [
+        "Hello World",
+        "The weather is cloudy!",
+        "Robot fucked up beyond all recognition!"
+      ],
+      "temperatures": {
+        "data": [
+          {
+            "time": 1,
+            "temperature": 5
+          },
+          {
+            "time": 3,
+            "temperature": 7
+          },
+          {
+            "time": 7,
+            "temperature": 15
+          }
+        ]
+      },
+      "vendor": "kuka"
+    }
+  },
+  {
+    "message": "This is an example message.",
+    "device": {
+      "name": "robot",
+      "decimal": 73.42,
+      "logs": [
+        "Hello World",
+        "The weather is cloudy!",
+        "Robot fucked up beyond all recognition!"
+      ],
+      "temperatures": {
+        "data": [
+          {
+            "time": 1,
+            "temperature": 5
+          },
+          {
+            "time": 3,
+            "temperature": 7
+          },
+          {
+            "time": 7,
+            "temperature": 15
+          }
+        ]
+      },
+      "vendor": "kuka"
+    }
+  },
+  {
+    "message": "This is an example message.",
+    "device": {
+      "name": "robot",
+      "decimal": 73.42,
+      "logs": [
+        "Hello World",
+        "The weather is cloudy!",
+        "Robot fucked up beyond all recognition!"
+      ],
+      "temperatures": {
+        "data": [
+          {
+            "time": 1,
+            "temperature": 5
+          },
+          {
+            "time": 3,
+            "temperature": 7
+          },
+          {
+            "time": 7,
+            "temperature": 15
+          }
+        ]
+      },
+      "vendor": "kuka"
+    }
+  }
+]
