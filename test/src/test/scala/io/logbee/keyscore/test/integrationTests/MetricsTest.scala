@@ -119,15 +119,11 @@ class MetricsTest extends Matchers {
 
     Thread.sleep(7000)
 
-    val firstIn  = scrapeMetrics(addFieldsID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("in")))).get.value
-    val firstOut = scrapeMetrics(addFieldsID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
-    val lastIn  = scrapeMetrics(removeID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("in")))).get.value
-    val lastOut = scrapeMetrics(removeID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val firstOut = scrapeMetrics(decoderID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val lastOut = scrapeMetrics(encoderID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
 
     lastOut should be > 0.0
-    lastIn should be <= lastOut
 
-    firstIn should be < lastIn
     firstOut should be < lastOut
 
     logger.debug("CLEANING_UP the Metrics Pipeline")
@@ -171,7 +167,6 @@ class MetricsTest extends Matchers {
     val pipelineBlueprintJSON = loadJson(BLUEPRINTS, METRICS, "pipelineBlueprint")
     val pipelineBlueprint = loadPipelineBlueprint(METRICS, "pipelineBlueprint")
     applyBehavior(new PutSinglePipelineBlueprint(pipelineBlueprint, pipelineBlueprintJSON))
-
 
     // 1. KafkaSource Configuration
     val sourceConfiguration = loadJson(CONFIGURATIONS, METRICS, "sourceConfig")

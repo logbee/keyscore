@@ -59,4 +59,8 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
   def scrape(id: UUID): Option[Future[MetricsCollection]] = {
     controllerMap.get(id).map(_.scrape())
   }
+
+  def scrapePipeline(): Map[UUID, Future[MetricsCollection]] = {
+    controllerMap.map{case (id, controller) => (id, controller.scrape())}
+  }
 }

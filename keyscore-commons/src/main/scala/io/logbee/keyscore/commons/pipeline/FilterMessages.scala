@@ -31,3 +31,9 @@ case class ClearBufferResponse(state: FilterState)
 
 case class ScrapeMetrics(id:UUID)
 case class ScrapeMetricsResponse(metricsCollection: MetricsCollection)
+
+case class ScrapePipelineMetrics(pipelineID : UUID)
+case class ScrapePipelineMetricsResponse(metricsCollection: (UUID,Map[UUID, MetricsCollection]))
+
+case class ScrapePipelinesMetrics()
+case class ScrapePipelinesMetricsResponse(metricsCollection: Seq[Map[UUID,MetricsCollection]])

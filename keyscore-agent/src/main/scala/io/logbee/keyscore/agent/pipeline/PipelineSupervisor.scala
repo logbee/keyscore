@@ -1,5 +1,7 @@
 package io.logbee.keyscore.agent.pipeline
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
@@ -12,6 +14,7 @@ import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.data.Health.{Green, Red, Yellow}
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.pipeline.api.stage.StageContext
 
 import scala.concurrent.ExecutionContextExecutor
@@ -285,6 +288,20 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
         case Success(collection) => _sender ! ScrapeMetricsResponse(collection)
         case Failure(e) => _sender ! Failure
       })
+
+    case ScrapePipelineMetrics(pipelineID) =>
+      log.debug(s"Received ScrapePipelineMetrics")
+      val _sender = sender
+      val scrapeMetrics = Map.empty[UUID, MetricsCollection]
+      controller.scrapePipeline().foreach { case (id, collection) => {
+        collection.onComplete {
+          case Success(c) => scrapeMetrics + (id -> c)
+          case Failure(e) => _sender ! Failure
+        }
+      }
+      }
+      _sender ! ScrapePipelineMetricsResponse(pipelineID, scrapeMetrics)
+
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {
