@@ -1,3 +1,83 @@
-= Deploying a Manager =
+:root_doc: ../../doc
+:config_dir: ../conf
 
-Deploying the Manager
+= Deploying the Manager =
+
+== Configuration ==
+
+The Manager can be configured by an `application.conf` file. The file has to be served as static content, so the web-ui can
+load it like any other resource. The listing below illustrates the default configuration.
+
+.application.conf
+[source]
+----
+include::{config_dir}/application.conf[]
+----
+
+1. `keyscore.frontier.base-url`: Probably the most important configuration option. The `base-url` has to point to the
+    Frontier's HTTP-API.
+
+2. `keyscore.manager.featrues`: Feature-Toggles are used to enable or disable features of the Manager which are currently under
+    development.
+
+3. `keyscore.keycloak`: Currently a development-only feature. Leave it disabled! ;-)
+
+== Docker Container ==
+
+The easiest and recommended way to run the Manager is to use a Docker container. You can use an official image or build
+your own Docker image as described <<manager-custom-docker-image, below>>.
+
+In contrast to an Agent or a Frontier, the Manager can not be configured through environment variables. Instead you have to
+change the Manager's `application.conf`
+
+
+.Running the Manager as Docker container.
+----
+docker run --publish 8080:80 \
+           quay.io/logbee/keyscore-manager:0.3.0-alpha.1
+----
+
+== Zip Distribution ==
+
+If Docker is not a option for you, don't worry. You can run the Manager by serving the web-content with a web-server of
+your choice. Get the Zip-Distribution, extract it to the content-root of your web-server and adapt the `application.conf`
+to your setup.
+
+[[manager-custom-docker-image]]
+== Building a custom Docker Image ==
+
+Building your own Docker image is a simple task, because the only requirement to run the Manager inside a Docker container is a
+web-server. The following listing illustrates the Dockerfile we use to build the official Docker image:
+
+.Dockerfile
+----
+FROM quay.io/logbee/nginx:v1.13.7 <1>
+
+COPY conf/nginx.conf /etc/nginx/nginx.conf <2>
+
+COPY build/install/keyscore-manager/web-content /usr/share/nginx/html/ <3>
+
+CMD nginx -g 'daemon off;' <4>
+
+EXPOSE 80
+----
+
+1.  Choose your base image. In the example we use a base image which includes https://www.nginx.com/[NGINX] as
+    web-server.
+
+2.  Change the web-server's configuration. We provide a custom NGINX configuration by copying it into the
+    Docker image. The listing <<manager-nginx-config, below>> shows the NGINX configuration we use.
+
+2.  Copy the web-content of the zip-distribution into the Docker image. In the example above everything is copied
+    to `/usr/share/nginx/html/`.
+
+3.  At the end, specify the command to run the web-server.
+
+include::{root_doc}/docker.adoc[tags=docker-tiny-note]
+
+[[manager-nginx-config]]
+=== Example NGINX configuration ===
+[source]
+----
+include::{config_dir}/nginx.conf[]
+----

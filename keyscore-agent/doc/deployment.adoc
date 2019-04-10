@@ -8,7 +8,7 @@ The easiest and recommended way to run an Agent is to use a Docker container. Yo
 <<agent-custom-docker-image, below>>.
 
 All important configurations to run an Agent can be passed as environment variables. So running it with Docker is very
-comfortable. In the example, the seed-node host and port are passed as environment variable:
+comfortable. In the example, the seed-node host and port are passed as environment variables:
 
 .Running the Agent as Docker container.
 ----

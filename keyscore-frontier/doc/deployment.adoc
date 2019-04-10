@@ -8,13 +8,16 @@ The easiest and recommended way to run a Frontier is to use a Docker container. 
 <<frontier-custom-docker-image, below>>.
 
 All important configurations to run a Frontier can be passed as environment variables. So running it with Docker is very
-comfortable. In the example, the seed-node host and port are passed as environment variable:
+comfortable. In the example, the seed-node host and port are passed as environment variables:
 
 .Running the Frontier as Docker container.
 ----
 docker run --publish 2551:2551 4711:4711 \
            --env KEYSCORE_CLUSTER_SEED_NODE_HOST=localhost \
            --env KEYSCORE_CLUSTER_SEED_NODE_PORT=2551 \
+           --env KEYSCORE_PERSISTENCE_JOURNAL_PLUGIN=cassandra-journal \
+           --env KEYSCORE_SNAPSHOT_STORE_PLUGIN=cassandra-snapshot-store \
+           --env KEYSCORE_CASSANDRA_JOURNAL_CONTACT_POINTS=localhost:9042 \
            quay.io/logbee/keyscore-frontier:0.3.0-alpha.1
 ----
 
@@ -42,7 +45,7 @@ CMD /opt/keyscore-frontier/keyscore-frontier <3>
 1.  Choose your base image. If your base image does not include a JRE, install it during the docker build.
     In our case we use a base image with a pre-installed JRE.
 
-2.  Copy the content of the zip-distribution into the Docker image. In the example above everything is copied
+2.  Copy the content of the zip-distribution into the Dockerfile. In the example above everything is copied
     to `/opt/keyscore-frontier/`.
 
 3.  At the end, specify the shell script `keyscore-frontier` as command.
