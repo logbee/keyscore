@@ -119,10 +119,16 @@ class MetricsTest extends Matchers {
 
     Thread.sleep(7000)
 
-    val firstTTT = scrapeMetrics(decoderID).findMetrics[GaugeMetric](_totalThroughputTime.name).map(_.value).max
-    val lastTTT = scrapeMetrics(encoderID).findMetrics[GaugeMetric](_totalThroughputTime.name).map(_.value).max
+    val firstIn  = scrapeMetrics(addFieldsID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("in")))).get.value
+    val firstOut = scrapeMetrics(addFieldsID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val lastIn  = scrapeMetrics(removeID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("in")))).get.value
+    val lastOut = scrapeMetrics(removeID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
 
-    firstTTT shouldBe < (lastTTT)
+    lastOut should be > 0.0
+    lastIn should be <= lastOut
+
+    firstIn should be < lastIn
+    firstOut should be < lastOut
 
     logger.debug("CLEANING_UP the Metrics Pipeline")
     cleanUp
