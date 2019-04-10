@@ -1,15 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib.decoder.json
 
-import java.util.UUID.randomUUID
-
-import akka.stream.FlowShape
-import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration.{BooleanParameter, Configuration, TextParameter}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.util.Using
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
