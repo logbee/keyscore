@@ -10,6 +10,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import io.logbee.keyscore.model.metrics.GaugeMetric
 import io.logbee.keyscore.model.pipeline.{Dismantled, FilterStatus, Paused, Running}
 import io.logbee.keyscore.test.integrationTests.behaviors._
 import io.logbee.keyscore.test.util.JsonData._
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.scalatest.{Assertion, Matchers}
 import org.slf4j.{Logger, LoggerFactory}
+
+import scala.language.postfixOps
 
 /**
   * This Citrus Integration-Test should ensure that '''Metrics''' from a __specific__ Filter can be collected. <br><br>
@@ -97,7 +100,7 @@ class MetricsTest extends Matchers {
     checkFilterState(retainID, Green, Running)
     (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 3
     scrapeMetrics(addFieldsID) find drainedDatasets should be(None)
-    (scrapeMetrics(removeID) find drainedDatasets get).value should be (3)
+    (scrapeMetrics(removeID) find drainedDatasets get).value should be(3)
     scrapeMetrics(encoderID) find drainedDatasets should be(None)
 
 
@@ -114,7 +117,12 @@ class MetricsTest extends Matchers {
     logger.debug("The total throughputTime should increase over time.")
     applyBehavior(new InsertDatasets(decoderID, write(List(d1, d2, d3, d4, d5, d6, d7, d8, d9, d1, d2, d3, d4, d5, d6, d7, d8, d9))))
 
-    //TODO Metrics for totalThroughputTime wont work correctly @mlandth
+    Thread.sleep(7000)
+
+    val firstTTT = scrapeMetrics(decoderID).findMetrics[GaugeMetric](_totalThroughputTime.name).map(_.value).max
+    val lastTTT = scrapeMetrics(encoderID).findMetrics[GaugeMetric](_totalThroughputTime.name).map(_.value).max
+
+    firstTTT shouldBe < (lastTTT)
 
     logger.debug("CLEANING_UP the Metrics Pipeline")
     cleanUp

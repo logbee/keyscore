@@ -68,26 +68,23 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
   "A PipelineController" should {
 
-//    "return the correct total_throughputTime" in new TestSetup {
-//      whenReady(controllerFuture) { controller =>
-//
-//        for (x <- 1 to 15) {
-//          Thread.sleep(1000)
-//          source.sendNext(Dataset(Record()))
-//          sink.requestNext()
-//
-//          whenReady(controller.state()) { state =>
-//
-//            println(s"$x : ${state.totalThroughputTime}")
-//
-//            whenReady(controller.scrape()) { collection =>
-//              val ttt = (collection find _totalThroughputTime get).value
-//              println(s"ttt: $ttt")
-//            }
-//          }
-//        }
-//      }
-//    }
+    "return the correct total_throughputTime" in new TestSetup {
+      whenReady(controllerFuture) { controller =>
+
+        Thread.sleep(5000)
+        source.sendNext(Dataset(Record()))
+        sink.requestNext()
+
+        whenReady(controller.state()) { state =>
+
+          whenReady(controller.scrape()) { collection =>
+            val metrics = collection.findMetrics[GaugeMetric]("total_throughput_time")
+            val times = metrics.map(_.value)
+            times should contain(state.totalThroughputTime)
+          }
+        }
+      }
+    }
 
     "not affect the data in a stream" in new TestSetup {
       source.sendNext(dataset1)
@@ -110,12 +107,12 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
         }
 
         whenReady(controller.scrape()) { collection =>
-          collection.metrics shouldNot be (empty)
+          collection.metrics shouldNot be(empty)
           val in = collection.findMetrics[GaugeMetric]("throughput_time", Set(inLabel))
-          in.size should be (1)
+          in.size should be(1)
           val out = collection.findMetrics[CounterMetric]("pushed_datasets", Set(outLabel))
-          out.size should be (1)
-          out.head.value should be (1.0)
+          out.size should be(1)
+          out.head.value should be(1.0)
         }
       }
     }
@@ -188,8 +185,8 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
             whenReady(controller.scrape()) { collection =>
               val extracted = collection.findMetrics[CounterMetric]("extracted_datasets", Set(outLabel))
-              extracted.size should be (1)
-              extracted.head.value should be (3.0)
+              extracted.size should be(1)
+              extracted.head.value should be(3.0)
             }
 
             whenReady(controller.drain(false)) { _ =>
