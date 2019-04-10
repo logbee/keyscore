@@ -5,6 +5,9 @@ import java.nio.ByteBuffer
 trait FileHandle {
   def name: String
   
+  /**
+   * Usually used as unique identifier.
+   */
   def absolutePath: String
   
   def listRotatedFiles(rotationPattern: String): Seq[FileHandle]

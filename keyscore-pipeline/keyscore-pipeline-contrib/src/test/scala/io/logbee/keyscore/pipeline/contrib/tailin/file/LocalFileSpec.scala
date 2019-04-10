@@ -3,7 +3,6 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
 import org.scalatest.Matchers
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-import org.scalatest.BeforeAndAfterAll
 import java.nio.ByteBuffer
 
 import org.junit.runner.RunWith
@@ -11,7 +10,7 @@ import org.scalatest.junit.JUnitRunner
 import java.nio.file.StandardOpenOption
 
 @RunWith(classOf[JUnitRunner])
-class LocalFileSpec extends SpecWithTempDir with Matchers with BeforeAndAfterAll {
+class LocalFileSpec extends SpecWithTempDir with Matchers {
   
   
   def withLocalFile(testCode: (LocalFile, java.io.File) => Any) = {
@@ -56,15 +55,15 @@ class LocalFileSpec extends SpecWithTempDir with Matchers with BeforeAndAfterAll
     }
     
     
-    "return its length" in withLocalFile {
-      (localFile, actualFile) =>
-        localFile.length shouldBe actualFile.length
-    }
-    
-    
     "return its lastModified" in withLocalFile {
       (localFile, actualFile) =>
         localFile.lastModified shouldBe actualFile.lastModified
+    }
+    
+    
+    "return its length" in withLocalFile {
+      (localFile, actualFile) =>
+        localFile.length shouldBe actualFile.length
     }
     
     
