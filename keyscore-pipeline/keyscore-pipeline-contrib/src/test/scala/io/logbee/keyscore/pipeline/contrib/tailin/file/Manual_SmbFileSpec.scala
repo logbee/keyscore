@@ -121,18 +121,18 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
     
     
     
-//    "list its rotated files" ignore withShare { share =>
-//      withSmbFile(share, {
-//        (smbFile, expected) =>
-//          
-//          val rotFile1 = createFile(share, smbFile.name + ".1", "fileContent1", charset)
-//          val rotFile2 = createFile(share, smbFile.name + ".2", "fileContent22", charset)
-//          
-//          val rotationPattern = smbFile.name + ".[1-5]"
-//          
-//          smbFile.listRotatedFiles(rotationPattern) should contain allOf(rotFile1, rotFile2)
-//      })
-//    }
+    "list its rotated files" ignore withShare { share => //TEST
+      withSmbFile(share, "smbTestFile.txt", charset.encode("base file"), { smbFile =>
+        withSmbFile(share, "smbTestFile.txt.1", charset.encode("rotated file 1"), { rotFile1 =>
+          withSmbFile(share, "smbTestFile.txt.2", charset.encode("rotated file 22"), { rotFile2 =>
+            
+            val rotationPattern = smbFile.name + ".[1-5]"
+            
+            smbFile.listRotatedFiles(rotationPattern) should contain allOf(rotFile1, rotFile2)
+          })
+        })
+      })
+    }
     
     
     
@@ -165,8 +165,8 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
           smbFile.read(buffer, offset)
           
           buffer.array shouldBe content.array
-                                  .drop(offset) //
-                                  .dropRight(content.capacity - content.limit)
+                                  .drop(offset)
+                                  .dropRight(content.capacity - content.limit) //the resulting array has 0s from the buffer's limit to the end, which we drop here
       })
     }
   }
