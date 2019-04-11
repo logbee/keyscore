@@ -1,22 +1,20 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.nio.ByteBuffer
-import org.scalatest.Matchers
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-import java.nio.file.StandardOpenOption
-import com.hierynomus.smbj.share.File
-import com.hierynomus.smbj.SMBClient
-import org.scalatest.FreeSpec
-import com.hierynomus.smbj.auth.AuthenticationContext
-import com.hierynomus.smbj.share.DiskShare
+import java.nio.charset.StandardCharsets
 import java.util.EnumSet
+
+import org.scalatest.FreeSpec
+import org.scalatest.Matchers
+
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.SMB2ShareAccess
 import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.mssmb2.SMB2CreateOptions
-import java.nio.charset.StandardCharsets
-import java.nio.charset.Charset
+import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.smbj.SMBClient
+import com.hierynomus.smbj.auth.AuthenticationContext
+import com.hierynomus.smbj.share.DiskShare
 
 
 /**
@@ -24,12 +22,6 @@ import java.nio.charset.Charset
  */
 //no JUnitRunner, so that it doesn't get executed automatically by Gradle
 class Manual_SmbFileSpec extends FreeSpec with Matchers {
-  
-  
-  private case class ExpectedData(name: String,
-                                  absolutePath: String,
-                                  length: Long,
-                                  content: Array[Byte])
   
   
   val client = new SMBClient()
@@ -104,10 +96,11 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
   
   
   "A SmbFile should" - {
+    val charset = StandardCharsets.UTF_8
+    
     "return correct metadata" in withShare { share =>
       
       val fileName = "smbTestFile.txt"
-      val charset = StandardCharsets.UTF_8
       val content = charset.encode("Hellö Wörld")
       
       withSmbFile(share, fileName, content, {
@@ -122,7 +115,7 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
           assert(smbFile.lastModified <= currentTime + 60 * 1000)
           
           
-          smbFile.length shouldBe content.limit,
+          smbFile.length shouldBe content.limit
       })
     }
     
@@ -145,11 +138,9 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
     
     "read its content into a buffer" in withShare { share =>
       
-      val fileName = "smbTestFile.txt"
-      val charset = StandardCharsets.UTF_8
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile(share, fileName, content, {
+      withSmbFile(share, "smbTestFile.txt", content, {
         smbFile =>
           val buffer = ByteBuffer.allocate(content.limit)
           
@@ -162,11 +153,9 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
     
     "read its content from an offset into a buffer" in withShare { share =>
       
-      val fileName = "smbTestFile.txt"
-      val charset = StandardCharsets.UTF_8
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile(share, fileName, content, {
+      withSmbFile(share, "smbTestFile.txt", content, {
         smbFile =>
           val fileLength = content.limit
           val offset = fileLength / 2
@@ -175,7 +164,9 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
           
           smbFile.read(buffer, offset)
           
-          buffer.array shouldBe content.array.drop(offset).dropRight(content.capacity - content.limit)
+          buffer.array shouldBe content.array
+                                  .drop(offset) //
+                                  .dropRight(content.capacity - content.limit)
       })
     }
   }
