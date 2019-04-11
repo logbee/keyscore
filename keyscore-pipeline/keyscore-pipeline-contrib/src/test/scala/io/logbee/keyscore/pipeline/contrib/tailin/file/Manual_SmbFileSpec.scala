@@ -121,7 +121,7 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
     
     
     
-    "list its rotated files" ignore withShare { share => //TEST
+    "list its rotated files" in withShare { share => //TEST
       withSmbFile(share, "smbTestFile.txt", charset.encode("base file"), { smbFile =>
         withSmbFile(share, "smbTestFile.txt.1", charset.encode("rotated file 1"), { rotFile1 =>
           withSmbFile(share, "smbTestFile.txt.2", charset.encode("rotated file 22"), { rotFile2 =>
