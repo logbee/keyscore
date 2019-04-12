@@ -191,7 +191,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
   
   
   def pathDeleted() {
-    firePathDeleted(dirPath)
+    firePathDeleted(dirPath) //TODO this doesn't do anything
     
     tearDown()
   }

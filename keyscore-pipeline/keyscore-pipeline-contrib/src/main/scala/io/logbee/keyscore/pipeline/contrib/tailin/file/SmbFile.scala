@@ -16,7 +16,7 @@ import com.hierynomus.smbj.common.SmbPath
 
 class SmbFile(val file: smbj.share.File) extends FileHandle {
   
-  val share = file.getDiskShare
+  private val share = file.getDiskShare
   
   def name: String = {
     SmbPath.parse(absolutePath).getPath
