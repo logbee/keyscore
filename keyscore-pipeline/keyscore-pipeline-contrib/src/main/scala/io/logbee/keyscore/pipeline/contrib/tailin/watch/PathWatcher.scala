@@ -14,3 +14,12 @@ trait PathWatcher {
    */
   def tearDown()
 }
+
+
+trait DirWatcher extends PathWatcher {
+  def processEvents()
+}
+
+trait FileWatcher extends PathWatcher {
+  def fileModified()
+}

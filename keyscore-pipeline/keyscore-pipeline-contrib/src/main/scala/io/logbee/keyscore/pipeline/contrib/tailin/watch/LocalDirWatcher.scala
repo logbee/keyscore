@@ -18,14 +18,9 @@ import org.slf4j.LoggerFactory
 import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
 
 
-trait DirWatcher extends PathWatcher {
-  def processEvents()
-}
-
-
-class DefaultDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, val watcherProvider: WatcherProvider) extends DirWatcher {
+class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider) extends DirWatcher {
   
-  private val log = LoggerFactory.getLogger(classOf[DefaultDirWatcher])
+  private val log = LoggerFactory.getLogger(classOf[LocalDirWatcher])
   
   
   
@@ -33,7 +28,6 @@ class DefaultDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, val watc
     throw new InvalidPathException(dirPath.toString, "The given path is not a directory or doesn't exist.")
   }
   
-  log.info("Instantiating for " + dirPath + " with fileMatchPattern: \"" + matchPattern.fullFilePattern + "\"")
   
   private val watchService = FileSystems.getDefault.newWatchService()
   private val watchKey = dirPath.register(

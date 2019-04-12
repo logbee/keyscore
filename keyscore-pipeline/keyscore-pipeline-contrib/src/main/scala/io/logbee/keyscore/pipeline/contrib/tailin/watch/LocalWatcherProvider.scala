@@ -6,10 +6,10 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import java.nio.file.Path
 
 
-class ReadSchedulerProvider(readSchedule: ReadSchedule, rotationPattern: String, readPersistence: ReadPersistence) extends WatcherProvider {
+class LocalWatcherProvider(readSchedule: ReadSchedule, rotationPattern: String, readPersistence: ReadPersistence) extends WatcherProvider {
   
   def createDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern): DirWatcher = {
-    new DefaultDirWatcher(dirPath, matchPattern, this)
+    new LocalDirWatcher(dirPath, matchPattern, this)
   }
   
   def createFileWatcher(file: FileHandle): FileWatcher = {
