@@ -8,5 +8,5 @@ trait WatcherProvider {
   
 	def createDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern): DirWatcher
   
-	def createFileWatcher(file: FileHandle): FileWatcher
+	def createFileEventHandler(file: FileHandle): FileEventHandler
 }

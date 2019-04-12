@@ -40,7 +40,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
   private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + matchPattern.fullFilePattern)
   
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
-  private val subFileWatchers = mutable.Map.empty[File, ListBuffer[FileWatcher]]
+  private val subFileEventHandlers = mutable.Map.empty[File, ListBuffer[FileEventHandler]]
   
   
   
@@ -52,7 +52,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
       if (path.isDirectory) {
         addSubDirWatcher(path.toPath)
       } else {
-        addSubFileWatcher(path)
+        addSubFileEventHandler(path)
       }
     }
   }
@@ -89,7 +89,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
           if (Files.isDirectory(path)) {
             addSubDirWatcher(path)
           } else if (Files.isRegularFile(path)) {
-            addSubFileWatcher(path.toFile)
+            addSubFileEventHandler(path.toFile)
           }
         }
         
@@ -135,27 +135,27 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
   
   
   
-  private def addSubFileWatcher(file: File) = {
+  private def addSubFileEventHandler(file: File) = {
     
     if (fileMatcher.matches(file.toPath)) {
       
-      val fileWatcher = watcherProvider.createFileWatcher(new LocalFile(file))
+      val fileEventHandler = watcherProvider.createFileEventHandler(new LocalFile(file))
       
-      fileWatcher.fileModified()
+      fileEventHandler.fileModified()
       
-      val list = subFileWatchers.getOrElse(file, mutable.ListBuffer.empty)
+      val list = subFileEventHandlers.getOrElse(file, mutable.ListBuffer.empty)
       
-      subFileWatchers.put(file, list)
-      list += fileWatcher
+      subFileEventHandlers.put(file, list)
+      list += fileEventHandler
     }
   }
   
   
   
   def fireFileModified(file: File) = {
-    subFileWatchers.get(file) match {
+    subFileEventHandlers.get(file) match {
       case None => //can't notify anyone
-      case Some(watchers: ListBuffer[FileWatcher]) => {
+      case Some(watchers: ListBuffer[FileEventHandler]) => {
         watchers.foreach(watcher => watcher.fileModified())
       }
     }
@@ -180,9 +180,9 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
         watchers.foreach(watcher => watcher.tearDown())
     }
     
-    subFileWatchers.remove(path.toFile) match {
+    subFileEventHandlers.remove(path.toFile) match {
       case None =>
-      case Some(watchers: ListBuffer[FileWatcher]) =>
+      case Some(watchers: ListBuffer[FileEventHandler]) =>
         watchers.foreach(watcher => watcher.tearDown())
     }
   }
@@ -212,9 +212,9 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
         watchers.foreach(watcher => watcher.pathDeleted())
     }
     
-    subFileWatchers.remove(path.toFile) match {
+    subFileEventHandlers.remove(path.toFile) match {
       case None =>
-      case Some(watchers: ListBuffer[FileWatcher]) =>
+      case Some(watchers: ListBuffer[FileEventHandler]) =>
         watchers.foreach(watcher => watcher.pathDeleted())
     }
   }
@@ -226,9 +226,9 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
     log.info("Teardown for " + dirPath)
     
     //call tearDown on all watchers attached to this
-    subFileWatchers.foreach {
-      case (_: File, subFileWatchers: ListBuffer[FileWatcher]) =>
-        subFileWatchers.foreach {
+    subFileEventHandlers.foreach {
+      case (_: File, subFileEventHandlers: ListBuffer[FileEventHandler]) =>
+        subFileEventHandlers.foreach {
           case watcher =>
             watcher.tearDown()
         }

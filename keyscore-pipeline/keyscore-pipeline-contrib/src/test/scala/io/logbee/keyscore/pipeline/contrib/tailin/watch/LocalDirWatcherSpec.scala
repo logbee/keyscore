@@ -78,7 +78,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
     
     
     "when a file" - {
-      "is created, should create a FileWatcher, for the file pattern" - {
+      "is created, should create a FileEventHandler, for the file pattern" - {
         
         case class FilePatternSetup(pattern: String)
         
@@ -101,7 +101,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             
             val file = new File(watchDir + "/test.txt")
             
-            (provider.createFileWatcher _).expects(new LocalFile(file)).returning(stub[FileWatcher])
+            (provider.createFileEventHandler _).expects(new LocalFile(file)).returning(stub[FileEventHandler])
             
             file.createNewFile()
             
@@ -113,7 +113,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       }
       
       
-      "is created in a sub-directory, should create a FileWatcher, for the pattern" - {
+      "is created in a sub-directory, should create a FileEventHandler, for the pattern" - {
         
         case class SubDirFilePatternSetup(startingPattern: String, subDirPattern: String)
         
@@ -147,26 +147,26 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             
             dirWatcher.processEvents()
             
-            val fileWatcher = stub[FileWatcher]
-            (provider.createFileWatcher _).when(file).returns(fileWatcher)
+            val fileEventHandler = stub[FileEventHandler]
+            (provider.createFileEventHandler _).when(file).returns(fileEventHandler)
             
             val subMatchPattern = DirWatcherPattern(matchPattern.fullFilePattern, setup.subDirPattern, depth=3)
             val subDirWatcher = new LocalDirWatcher(subDir, subMatchPattern, provider)
             (provider.createDirWatcher _).verify(subDir, subMatchPattern).returns(subDirWatcher)
             
-            (fileWatcher.fileModified _).verify()
+            (fileEventHandler.fileModified _).verify()
           }
         }
       }
       
       
-      "is created, but doesn't match the file pattern, should NOT create a FileWatcher" in new DirWatcherParams {
+      "is created, but doesn't match the file pattern, should NOT create a FileEventHandler" in new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
         val file = new File(watchDir + "/test.foobar")
         
-        (provider.createFileWatcher _).expects(new LocalFile(file)).never()
+        (provider.createFileEventHandler _).expects(new LocalFile(file)).never()
         
         file.createNewFile()
         
@@ -176,14 +176,14 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       }
       
       
-      "is modified, should notify the responsible FileWatchers that the file was modified" in new DirWatcherParams {
+      "is modified, should notify the responsible FileEventHandlers that the file was modified" in new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
         val file = new File(watchDir + "/test.txt")
         
-        val subFileWatcher = stub[FileWatcher]
-        (provider.createFileWatcher _).expects(new LocalFile(file)).returning(subFileWatcher)
+        val subFileEventHandler = stub[FileEventHandler]
+        (provider.createFileEventHandler _).expects(new LocalFile(file)).returning(subFileEventHandler)
         
         file.createNewFile()
         TestUtil.waitForFileToExist(file)
@@ -197,18 +197,18 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         dirWatcher.processEvents()
         
-        (subFileWatcher.fileModified _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileWatcher
+        (subFileEventHandler.fileModified _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileEventHandler
       }
       
       
-      "is deleted, should notify the responsible FileWatcher" in new DirWatcherParams {
+      "is deleted, should notify the responsible FileEventHandler" in new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
         val file = new File(watchDir + "/test.txt")
         
-        val subFileWatcher = stub[FileWatcher]
-        (provider.createFileWatcher _).expects(new LocalFile(file)).returning(subFileWatcher)
+        val subFileEventHandler = stub[FileEventHandler]
+        (provider.createFileEventHandler _).expects(new LocalFile(file)).returning(subFileEventHandler)
         
         file.createNewFile
         TestUtil.waitForFileToExist(file)
@@ -220,7 +220,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         dirWatcher.processEvents()
         
-        (subFileWatcher.pathDeleted _).verify()
+        (subFileEventHandler.pathDeleted _).verify()
       }
     }
     

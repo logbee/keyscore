@@ -12,7 +12,7 @@ class LocalWatcherProvider(readSchedule: ReadSchedule, rotationPattern: String, 
     new LocalDirWatcher(dirPath, matchPattern, this)
   }
   
-  def createFileWatcher(file: FileHandle): FileWatcher = {
+  def createFileEventHandler(file: FileHandle): FileEventHandler = {
     new ReadScheduler(file, rotationPattern, readPersistence, readSchedule)
   }
 }
