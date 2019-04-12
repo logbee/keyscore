@@ -29,7 +29,7 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
   val hostName = scala.io.StdIn.readLine("Host name: ")
   val userName = scala.io.StdIn.readLine("User name: ")
   val password = scala.io.StdIn.readLine("Password: ")
-  println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") //hide password //TODO use proper password read method
+  println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") //hide password //TODO use proper password read method
   val domain = scala.io.StdIn.readLine("Domain: ")
   val shareName = scala.io.StdIn.readLine("Share name: ")
   
@@ -122,11 +122,15 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
     
     
     "list its rotated files" in withShare { share => //TEST
-      withSmbFile(share, "smbTestFile.txt", charset.encode("base file"), { smbFile =>
-        withSmbFile(share, "smbTestFile.txt.1", charset.encode("rotated file 1"), { rotFile1 =>
-          withSmbFile(share, "smbTestFile.txt.2", charset.encode("rotated file 22"), { rotFile2 =>
+      
+      val dir = "testDir/" //TODO we don't function when we're at the root /  -> do we function in LocalFile?
+      val fileName = "smbTestFile.txt"
+      
+      withSmbFile(share, dir + fileName, charset.encode("base file"), { smbFile =>
+        withSmbFile(share, dir + fileName + ".1", charset.encode("rotated file 1"), { rotFile1 =>
+          withSmbFile(share, dir + fileName + ".2", charset.encode("rotated file 22"), { rotFile2 =>
             
-            val rotationPattern = smbFile.name + ".[1-5]"
+            val rotationPattern = fileName + ".[1-5]"
             
             smbFile.listRotatedFiles(rotationPattern) should contain allOf(rotFile1, rotFile2)
           })
