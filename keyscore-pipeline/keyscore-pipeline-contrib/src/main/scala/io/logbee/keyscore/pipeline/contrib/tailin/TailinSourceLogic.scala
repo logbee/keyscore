@@ -45,7 +45,6 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherConfiguration
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadSchedulerProvider
 
@@ -238,8 +237,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
     
     val readSchedulerProvider = new ReadSchedulerProvider(readSchedule, rotationPattern, readPersistence)
-    val dirWatcherConfiguration = DirWatcherConfiguration(baseDir, DirWatcherPattern(filePattern))
-    dirWatcher = readSchedulerProvider.createDirWatcher(dirWatcherConfiguration)
+    dirWatcher = readSchedulerProvider.createDirWatcher(baseDir, DirWatcherPattern(filePattern))
   }
   
   

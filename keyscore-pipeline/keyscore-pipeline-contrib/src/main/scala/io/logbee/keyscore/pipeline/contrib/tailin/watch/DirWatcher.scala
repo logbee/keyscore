@@ -18,39 +18,32 @@ import org.slf4j.LoggerFactory
 import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
 
 
-trait DirWatcher {
-  def tearDown()
-  
-  def pathDeleted()
-
+trait DirWatcher extends PathWatcher {
   def processEvents()
 }
 
 
-case class DirWatcherConfiguration(dirPath: Path, matchPattern: DirWatcherPattern)
-
-
-class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherProvider: WatcherProvider) extends PathWatcher(configuration.dirPath) with DirWatcher {
+class DefaultDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, val watcherProvider: WatcherProvider) extends DirWatcher {
   
   private val log = LoggerFactory.getLogger(classOf[DefaultDirWatcher])
   
   
   
-  if (Files.isDirectory(configuration.dirPath) == false) {
-    throw new InvalidPathException(configuration.dirPath.toString, "The given path is not a directory or doesn't exist.")
+  if (Files.isDirectory(dirPath) == false) {
+    throw new InvalidPathException(dirPath.toString, "The given path is not a directory or doesn't exist.")
   }
   
-  log.info("Instantiating for " + configuration.dirPath + " with fileMatchPattern: \"" + configuration.matchPattern.fullFilePattern + "\"")
+  log.info("Instantiating for " + dirPath + " with fileMatchPattern: \"" + matchPattern.fullFilePattern + "\"")
   
   private val watchService = FileSystems.getDefault.newWatchService()
-  private val watchKey = configuration.dirPath.register(
+  private val watchKey = dirPath.register(
     watchService,
     StandardWatchEventKinds.ENTRY_CREATE,
     StandardWatchEventKinds.ENTRY_MODIFY,
     StandardWatchEventKinds.ENTRY_DELETE)
   
   
-  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + configuration.matchPattern.fullFilePattern)
+  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + matchPattern.fullFilePattern)
   
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
   private val subFileWatchers = mutable.Map.empty[File, ListBuffer[FileWatcher]]
@@ -59,7 +52,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   //recursive setup
-  val subPaths = configuration.dirPath.toFile.listFiles
+  val subPaths = dirPath.toFile.listFiles
   subPaths.foreach { path =>
     {
       if (path.isDirectory) {
@@ -87,17 +80,17 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     }
     catch {
       case e: ClosedWatchServiceException =>
-        if (configuration.dirPath.toFile.isDirectory == false) {
+        if (dirPath.toFile.isDirectory == false) {
           pathDeleted()
         }
     }
     
     key.foreach(key => key.pollEvents.asScala.foreach { event =>
       
-      val path: Path = configuration.dirPath.resolve(event.context.asInstanceOf[Path])
+      val path: Path = dirPath.resolve(event.context.asInstanceOf[Path])
       
       event.kind match {
-      
+        
         case StandardWatchEventKinds.ENTRY_CREATE => {
           if (Files.isDirectory(path)) {
             addSubDirWatcher(path)
@@ -105,16 +98,16 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
             addSubFileWatcher(path.toFile)
           }
         }
-
+        
         case StandardWatchEventKinds.ENTRY_DELETE => {
           firePathDeleted(path)
         }
-
+        
         case StandardWatchEventKinds.ENTRY_MODIFY => { //renaming a file does not trigger this (on Linux+tmpfs at least)
           fireFileModified(path.toFile)
         }
       }
-
+      
       //do in all cases
       val valid: Boolean = key.reset()
       if (!valid) { //directory no longer accessible
@@ -135,10 +128,8 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
     // if there is a ** anywhere, doesn't matter if it's followed at some point by a /
     
     val dirWatcher = watcherProvider.createDirWatcher(
-      configuration.copy(
-          dirPath = subDir,
-          matchPattern = configuration.matchPattern.copy(depth = configuration.matchPattern.depth + 1)
-      )
+      dirPath = subDir,
+      matchPattern = matchPattern.copy(depth = matchPattern.depth + 1)
     )
     
     val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
@@ -206,7 +197,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   
   def pathDeleted() {
-    firePathDeleted(configuration.dirPath)
+    firePathDeleted(dirPath)
     
     tearDown()
   }
@@ -238,7 +229,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
   
   def tearDown() {
     
-    log.info("Teardown for " + configuration.dirPath)
+    log.info("Teardown for " + dirPath)
     
     //call tearDown on all watchers attached to this
     subFileWatchers.foreach {

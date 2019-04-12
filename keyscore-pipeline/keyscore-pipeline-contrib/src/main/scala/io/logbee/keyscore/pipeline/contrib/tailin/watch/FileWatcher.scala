@@ -1,9 +1,5 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-trait FileWatcher {
+trait FileWatcher extends PathWatcher {
   def fileModified()
-  
-  def pathDeleted()
-  
-  def tearDown()
 }
