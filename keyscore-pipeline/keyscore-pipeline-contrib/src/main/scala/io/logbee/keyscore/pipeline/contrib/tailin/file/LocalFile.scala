@@ -60,7 +60,6 @@ class LocalFile(val file: java.io.File) extends FileHandle {
   
   
   
-  //Currently, this is only necessary in LocalFile (for testing)
   override def equals(other: Any): Boolean = {
     other match {
       case that: LocalFile =>

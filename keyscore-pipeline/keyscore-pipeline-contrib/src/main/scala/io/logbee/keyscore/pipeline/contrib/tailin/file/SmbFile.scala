@@ -1,26 +1,28 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.nio.ByteBuffer
-
-import com.hierynomus.smbj
-import java.util.concurrent.TimeUnit
+import java.nio.file.FileSystems
+import java.nio.file.Paths
 import java.util.EnumSet
-import com.hierynomus.msdtyp.AccessMask
-import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.SMB2CreateOptions
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2ShareAccess
-import com.hierynomus.smbj.share.DiskShare
-import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation
-import java.util.function.Consumer
+
 import scala.collection.JavaConverters
 
+import com.hierynomus.msdtyp.AccessMask
+import com.hierynomus.msfscc.FileAttributes
+import com.hierynomus.mssmb2.SMB2CreateDisposition
+import com.hierynomus.mssmb2.SMB2CreateOptions
+import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.smbj
+import com.hierynomus.smbj.common.SmbPath
 
-class SmbFile(file: smbj.share.File) extends FileHandle {
+
+class SmbFile(val file: smbj.share.File) extends FileHandle {
+  
+  val share = file.getDiskShare
   
   def name: String = {
     val path = file.getFileName
-    path.substring(path.lastIndexOf("\\") + 1)
+    SmbPath.parse(path).getPath
   }
   
   
@@ -29,28 +31,26 @@ class SmbFile(file: smbj.share.File) extends FileHandle {
   }
   
   
-  //TODO consider moving these v private methods to some SmbTestUtil-class, so that they don't have to be private and a Spec can be written for them
-  
-  private def openDir(share: DiskShare, path: String): smbj.share.Directory = {
+  private def parent: smbj.share.Directory = {
+    
+    var filePath = SmbPath.parse(file.getFileName).getPath
+    
+    val fileNameStart = filePath.lastIndexOf("\\")
+    if (fileNameStart != -1) {
+      filePath = filePath.substring(0, fileNameStart) //cut off file-name from the end
+    }
+    else {
+      //TODO
+    }
+    
     share.openDirectory(
-      path,
+      filePath,
       EnumSet.of(AccessMask.GENERIC_READ),
       EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
       SMB2ShareAccess.ALL,
       SMB2CreateDisposition.FILE_OPEN,
       EnumSet.noneOf(classOf[SMB2CreateOptions])
     )
-  }
-  
-  
-  private def parent: smbj.share.Directory = {
-    var path = file.getFileName
-    path = path.substring(0, path.lastIndexOf("\\")) //cut off file-name from the end
-    
-    //TEST
-    val directory = openDir(file.getDiskShare, path.substring(path.lastIndexOf("\\") + 1))
-    
-    directory
   }
   
   
@@ -61,21 +61,39 @@ class SmbFile(file: smbj.share.File) extends FileHandle {
       case null =>
         Seq()
       case rotationPattern =>
-        val parentPath = this.parent.getFileName
-        //FIXME already fails before this
-        println("\n\n\n\n\n\n\nParent path: " + parentPath + "\n\n\n\n\n\n\n")
+        val parentFullPath = parent.getFileName
+        val parentPath = SmbPath.parse(parentFullPath).getPath
         
-        val resolvedPath = java.nio.file.Paths.get(parentPath).resolve(rotationPattern).toString //TEST
         
-        val dir = openDir(file.getDiskShare, resolvedPath)
+        val rotationDir = Paths.get(parentPath).resolve(rotationPattern).getParent.toString //if the rotationPattern contains a relative path, resolve that
         
-        val list = dir.list(classOf[FileIdBothDirectoryInformation], rotationPattern) //TEST
+        val dirListing = share.list(rotationDir)
         
-        val seq = JavaConverters.asScalaIteratorConverter(list.iterator).asScala.toSeq //convert to Seq
+        val dirListingSeq = JavaConverters.asScalaIteratorConverter(dirListing.iterator).asScala.toSeq //convert to Seq
         
-        seq.map {fileIdBothDirectoryInformation => 
-          new SmbFile(fileIdBothDirectoryInformation.asInstanceOf[smbj.share.File]) //TEST
+        
+        val fileNames = dirListingSeq.map(_.getFileName)
+        
+        
+        val rotateMatcher = FileSystems.getDefault.getPathMatcher("glob:" + parentPath + "/" + rotationPattern)
+        
+        
+        val rotatedFileNamesInSameDir = fileNames.filter(fileName => rotateMatcher.matches(Paths.get(parentPath + "/" + fileName)))
+        
+        
+        val rotatedFilesInSameDir = rotatedFileNamesInSameDir.map {
+          fileName =>
+            share.openFile(
+              parentPath + "/" + fileName,
+              EnumSet.of(AccessMask.GENERIC_ALL),
+              EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
+              SMB2ShareAccess.ALL,
+              SMB2CreateDisposition.FILE_OPEN,
+              EnumSet.noneOf(classOf[SMB2CreateOptions])
+            )
         }
+        
+        rotatedFilesInSameDir.map(new SmbFile(_))
     }
   }
   
@@ -92,6 +110,16 @@ class SmbFile(file: smbj.share.File) extends FileHandle {
   
   def read(buffer: ByteBuffer, offset: Long): Int = {
     file.read(buffer.array, offset)
+  }
+  
+  
+  
+  override def equals(other: Any): Boolean = {
+    other match {
+      case that: SmbFile =>
+        this.isInstanceOf[SmbFile] && file.getFileName.equals(that.file.getFileName)
+      case _ => false
+    }
   }
   
   
