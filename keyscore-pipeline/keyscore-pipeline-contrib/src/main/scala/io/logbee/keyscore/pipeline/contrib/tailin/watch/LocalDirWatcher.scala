@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
 
 
-class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider) extends DirWatcher {
+class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[Path]) extends DirWatcher {
   
   private val log = LoggerFactory.getLogger(classOf[LocalDirWatcher])
   
