@@ -29,7 +29,7 @@ class Manual_SmbFileSpec extends FreeSpec with Matchers {
   val hostName = scala.io.StdIn.readLine("Host name: ")
   val userName = scala.io.StdIn.readLine("User name: ")
   val password = scala.io.StdIn.readLine("Password: ")
-  println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") //hide password //TODO use proper password read method
+  println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") //hide password from view
   val domain = scala.io.StdIn.readLine("Domain: ")
   val shareName = scala.io.StdIn.readLine("Share name: ")
   
