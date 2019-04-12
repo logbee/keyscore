@@ -110,7 +110,7 @@ class DefaultDirWatcher(val configuration: DirWatcherConfiguration, val watcherP
           firePathDeleted(path)
         }
 
-        case StandardWatchEventKinds.ENTRY_MODIFY => { //renaming a directory does not trigger this (on Linux+tmpfs at least)
+        case StandardWatchEventKinds.ENTRY_MODIFY => { //renaming a file does not trigger this (on Linux+tmpfs at least)
           fireFileModified(path.toFile)
         }
       }
