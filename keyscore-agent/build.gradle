@@ -5,6 +5,8 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
+import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 
 apply from: rootProject.file('dependencies.gradle')
 
@@ -19,6 +21,9 @@ project.ext {
 
 configurations {
     testOutput
+    bundle
+    bundleProject
+    bundleProject.transitive = false
 }
 
 dependencies {
@@ -36,6 +41,17 @@ dependencies {
     compile dependency.akka_http
     compile dependency.akka_http_json
     compile dependency.akka_cluster
+
+    compile dependency.osgi
+    compile dependency.felix
+
+//    bundle dependency.osgi_compendium
+    bundle dependency.slf4j
+//    bundle dependency.logback
+//    bundle dependency.felix_cmpn
+//    bundle dependency.pax_assembly
+
+    bundle project(':keyscore-agent:keyscore-agent-core')
 
     runtime project(':keyscore-pipeline:keyscore-pipeline-contrib')
 
@@ -86,6 +102,30 @@ distributions {
         }
     }
 }
+
+task prepareBundles(type: Copy) {
+    into '.bundles'
+    from(configurations.bundle)
+
+    doLast {
+        configurations.bundle.dependencies.forEach({ dependency ->
+            if (dependency instanceof DefaultProjectDependency) {
+                println "project: " + dependency
+                (dependency as DefaultProjectDependency).artifacts.forEach { artifact ->
+                    println "artifact: " + artifact
+                }
+            }
+            else if (dependency instanceof DefaultExternalModuleDependency) {
+                println "external: " + dependency
+                (dependency as DefaultExternalModuleDependency).artifacts.forEach { artifact -> 
+                    println "artifact: " + artifact
+                }
+            }
+        })
+    }
+}
+
+task prepare(dependsOn: [prepareBundles]) {}
 
 task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
@@ -183,4 +223,8 @@ task pushDockerImage(type: DockerPushImage) {
     dependsOn buildDockerImage
     imageName = dockerImageName
     tag = version
+}
+
+task cleanAll(type: Delete, dependsOn: clean) {
+    delete '.bundles', '.felix'
 }

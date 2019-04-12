@@ -1,4 +1,6 @@
 include 'keyscore-agent'
+include 'keyscore-agent:keyscore-agent-core'
+
 include 'keyscore-commons'
 include 'keyscore-frontier'
 include 'keyscore-model'

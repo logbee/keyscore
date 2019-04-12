@@ -1,0 +1,10 @@
+{
+  "assembly": {
+    "directory": {
+      "path": "keyscore-agent-core/out/production/classes/"
+    },
+    "directory": {
+      "path": "keyscore-agent-core/out/production/resources"
+    }
+  }
+}

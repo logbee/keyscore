@@ -1,0 +1,10 @@
+{
+  "assembly": {
+    "directory": {
+      "path": "../keyscore-pipeline/keyscore-pipeline-contrib/out/production/classes/"
+    },
+    "directory": {
+      "path": "../keyscore-pipeline/keyscore-pipeline-contrib/out/production/resources"
+    }
+  }
+}

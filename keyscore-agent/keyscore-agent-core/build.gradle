@@ -1,0 +1,28 @@
+apply plugin: 'scala'
+apply plugin: 'osgi'
+
+apply from: rootProject.file('dependencies.gradle')
+
+ext.description =
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile dependency.scala_lang
+    compile dependency.osgi
+    compile dependency.akka_actor
+    compile dependency.akka_cluster
+}
+
+jar {
+    manifest {
+        from ("src/main/resources/META-INF/MANIFEST.MF")
+        vendor 'logbee.io'
+        symbolicName "${project.group}.${project.name}"
+        description 'The core bundle of the agent, providing basic functionality.'
+        instruction 'Export-Package', '!io.logbee.keyscore.agent.*'
+    }
+}

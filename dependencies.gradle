@@ -74,10 +74,32 @@ ext {
         ],
     ]
 
+    osgiVersion = '6.0.0'
     dependency += [
+        osgi: [
+            "org.osgi:osgi.core:$osgiVersion",
+            "org.osgi:osgi.cmpn:$osgiVersion",
+            "org.osgi:org.osgi.util.promise:1.1.1",
+            "org.osgi:org.osgi.util.function:1.1.0",
+            "org.osgi:org.osgi.service.component.annotations:1.4.0"
+        ],
+    ]
+
+    dependency += [
+        felix: "org.apache.felix:org.apache.felix.framework:6.0.2",
+        felix_cmpn: [
+                "org.apache.felix:org.apache.felix.scr:2.1.16",
+                "org.apache.felix:org.apache.felix.eventadmin:1.5.0",
+                "org.apache.felix:org.apache.felix.configadmin:1.9.14"
+        ],
+        pax_assembly: "org.ops4j.pax.url:pax-url-assembly:2.6.1",
+    ]
+
+    dependency += [
+        slf4j: "org.slf4j:slf4j-api:1.7.26",
         scalapb_runtime: "com.thesamet.scalapb:scalapb-runtime_2.13:0.9.0",
-        ehcache: 'org.ehcache:ehcache:3.7.1',
-        logback: 'ch.qos.logback:logback-classic:1.2.3',
+        ehcache: "org.ehcache:ehcache:3.7.1",
+        logback: "ch.qos.logback:logback-classic:1.2.3",
         smbj: [
             "com.hierynomus:smbj:0.9.1",
         ],

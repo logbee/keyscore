@@ -17,7 +17,6 @@ package-lock.json
 .idea/
 out/
 
-
 #####################################
 #              Eclipse              #
 #####################################
@@ -26,6 +25,13 @@ out/
 .classpath
 .cache-main
 .cache-tests
+
+#####################################
+#             OSGI/Flix             #
+#####################################
+.bundles
+.felix
+felix-cache
 
 #####################################
 #     Build, Binaries and Libs      #

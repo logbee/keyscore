@@ -16,6 +16,7 @@ dependencies {
     compile dependency.akka_http
     compile dependency.akka_http_json
     compile dependency.akka_stream_kafka
+    compile dependency.osgi
     compile dependency.smbj
 
     compile dependency.math_expression_parser

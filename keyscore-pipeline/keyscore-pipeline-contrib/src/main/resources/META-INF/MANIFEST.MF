@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: keyscore-agent-bundle
+Bundle-Version: 0.0.0
+Bundle-Activator: io.logbee.keyscore.pipeline.contrib.ContribBundleActivator
+Import-Package: scala,org.osgi.framework;version="1.8"

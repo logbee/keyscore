@@ -24,6 +24,7 @@ import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.metrics.{GaugeMetricDescriptor, MetricsCollection}
 import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
+import org.osgi.framework.BundleContext
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -75,7 +76,7 @@ object Agent {
   )
 
 
-  def apply(id: UUID, name: String): Props = Props(new Agent(id, name))
+  def apply(id: UUID, name: String, bundleContext: BundleContext): Props = Props(new Agent(id, name, bundleContext))
 }
 
 /**
@@ -87,7 +88,7 @@ object Agent {
   *   * [[io.logbee.keyscore.agent.pipeline.LocalPipelineManager]] <br>
   *   * [[io.logbee.keyscore.commons.extension.ExtensionLoader]] <br>
   */
-class Agent(id: UUID, name: String) extends Actor with ActorLogging {
+class Agent(id: UUID, name: String, bundleContext: BundleContext) extends Actor with ActorLogging {
   import Agent._
 
   private implicit val ec: ExecutionContext = context.dispatcher
@@ -100,7 +101,7 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
   private val metrics = new DefaultMetricsCollector()
 
   //Cluster
-  Cluster(context.system)
+  private val cluster = Cluster(context.system)
   private val mediator = DistributedPubSub(context.system).mediator
 
   //System

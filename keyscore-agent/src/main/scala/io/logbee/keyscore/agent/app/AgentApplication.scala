@@ -1,16 +1,16 @@
 package io.logbee.keyscore.agent.app
 
-import java.util.UUID
+import java.io.File
+import java.util
 
-import akka.actor.ActorSystem
 import akka.util.Timeout
-import com.typesafe.config.{Config, ConfigFactory}
-import io.logbee.keyscore.agent.Agent
-import io.logbee.keyscore.agent.Agent.Initialize
-import io.logbee.keyscore.commons.util.AppInfo.printAppInfo
-import io.logbee.keyscore.commons.util.BannerPrinter.printBanner
-import io.logbee.keyscore.commons.util.RandomNameGenerator
+import com.google.common.io.PatternFilenameFilter
+import com.typesafe.config.ConfigFactory
+import org.apache.felix.framework.Felix
+import org.apache.felix.framework.util.FelixConstants
+import org.osgi.framework.{BundleActivator, Constants}
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -22,47 +22,39 @@ object AgentApplication extends App {
 
   implicit val timeout: Timeout = 5 seconds
   val config = ConfigFactory.load()
-  val id = computeId(config)
-  val name = computeName(config)
 
-  printBanner()
-  printAppInfo[AgentApplication]
-  printIdAndName(id, name)
+  val systemPackagesList = config.getStringList("keyscore.agent.system-packages").asScala
+  val bundleLocations = config.getStringList("keyscore.agent.bundle-locations").asScala
 
-  val system = ActorSystem("keyscore", config.getConfig("production").withFallback(config))
-  val agent = system.actorOf(Agent(id, name), "agent")
+  val frameworkConfig = new util.HashMap[String, Object]()
+  val agentAppActivator = new AgentAppActivator()
+  val activators = new util.ArrayList[BundleActivator]()
 
-  agent ! Initialize
+  frameworkConfig.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activators)
+  frameworkConfig.put(Constants.FRAMEWORK_STORAGE, ".felix")
+  frameworkConfig.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT)
+  frameworkConfig.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, systemPackagesList.mkString(","))
 
-  private def computeName(config: Config): String = {
-    val name = config.getString("keyscore.agent.name")
+  val bundleURLs = bundleLocations
+    .map(new File(_))
+    .filter(_.exists())
+    .flatMap(file => file.listFiles(new PatternFilenameFilter(".*\\.jar$")))
+    .map(_.toURI.toURL.toString)
 
-    if (name.isEmpty) {
-      new RandomNameGenerator("/agents.txt").nextName()
-    }
-    else {
-      name
-    }
-  }
+  val framework = new Felix(frameworkConfig)
 
-  private def computeId(config: Config): UUID = {
-    val id = config.getString("keyscore.agent.uuid")
+  framework.start()
 
-    if (id.isEmpty) {
-      UUID.randomUUID()
-    }
-    else {
-      UUID.fromString(id)
-    }
-  }
+  val ctx = framework.getBundleContext
+  bundleURLs.map(location => {
+    ctx.installBundle(location)
+  }).foreach( bundle => {
+    bundle.start()
+  })
 
-  private def printIdAndName(id: UUID, name: String): Unit = {
-    println(" -------------------------------------------------------")
-    println(s" Agent: $name <$id>")
-    println()
-  }
+  Seq("assemblyref:file:./assembly.json", "assemblyref:file:./contrib-assembly.json").foreach( url => {
+    ctx.installBundle(url).start()
+  })
 }
 
-class AgentApplication {
-
-}
+class AgentApplication
