@@ -4,23 +4,18 @@ import java.util.UUID
 
 import io.logbee.keyscore.model.metrics.MetricsCollection
 
-case class ScrapeMetricRequest(filterID: UUID)
-case class ScrapedMetricResponse(filterID: UUID, metricsCollection: MetricsCollection)
-case class ScrapedMetricResponseFailure(filterID: UUID)
+case class ScrapeFilterMetricRequest(filterID: UUID)
+case class ScrapedFilterMetricResponse(filterID: UUID, metricsCollection: MetricsCollection)
+case class ScrapedFilterMetricResponseFailure(filterID: UUID)
 
-case class ScrapePipelineMetricsRequest(pipelineID: UUID)
-case class ScrapedPipelineMetricsResponse(pipelineID: UUID, metrics: Map[UUID, MetricsCollection])
-case class ScrapedPipelineMetricsResponseFailure(pipelineID: UUID)
+case class ScrapeFiltersOfPipelineMetricsRequest(pipelineID: UUID)
+case class ScrapedFiltersOfPipelineMetricsResponse(pipelineID: UUID, metrics: Map[UUID, MetricsCollection])
+case class ScrapedFiltersOfPipelineMetricsResponseFailure(pipelineID: UUID)
 
-case class ScrapeMetrics(filterID: UUID)
-case class ScrapedMetrics(pipelineID : UUID, filterID: UUID, metricsCollection: MetricsCollection)
-case class ScrapedMetricsFailure(pipelineID : UUID, filterID: UUID, e: Throwable)
+case class ScrapeFilterMetrics(filterID: UUID)
+case class ScrapedFilterMetrics(pipelineID : UUID, filterID: UUID, metricsCollection: MetricsCollection)
+case class ScrapedFilterMetricsFailure(pipelineID : UUID, filterID: UUID, e: Throwable)
 
-
-case object ScrapePipelineMetrics
-case class ScrapedPipelineMetrics(pipelineID : UUID, metrics: Map[UUID, MetricsCollection])
-case class ScrapedPipelineMetricsFailure(pipelineID : UUID, e: Throwable)
-
-case class PipelineMaterialized(uuid: UUID)
-
-case class PipelineRemoved(uuid: UUID)
+case object ScrapeFiltersOfPipelineMetrics
+case class ScrapedFiltersOfPipelineMetrics(pipelineID : UUID, metrics: Map[UUID, MetricsCollection])
+case class ScrapedFiltersOfPipelineMetricsFailure(pipelineID : UUID, e: Throwable)

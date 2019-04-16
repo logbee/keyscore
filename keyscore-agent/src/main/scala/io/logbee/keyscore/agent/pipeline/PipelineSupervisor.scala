@@ -296,18 +296,18 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
         case Failure(e) => _sender ! Failure(e)
       })
 
-    case ScrapeMetrics(filterId) =>
-      log.debug(s"<$pipelineID> Received ScrapeMetrics for filter <$filterId>")
+    case ScrapeFilterMetrics(filterId) =>
+      log.debug(s"<$pipelineID> Received ScrapeFilterMetrics for filter <$filterId>")
       controller.scrape(filterId).foreach(_.onComplete {
-        case Success(collection) => mediator ! Publish(MetricsTopic, ScrapedMetrics(pipelineID, filterId, collection))
-        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedMetricsFailure(pipelineID, filterId, e))
+        case Success(collection) => mediator ! Publish(MetricsTopic, ScrapedFilterMetrics(pipelineID, filterId, collection))
+        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedFilterMetricsFailure(pipelineID, filterId, e))
       })
 
-    case ScrapePipelineMetrics =>
-      log.debug(s"<$pipelineID> Received ScrapePipelineMetrics")
+    case ScrapeFiltersOfPipelineMetrics =>
+      log.debug(s"<$pipelineID> Received ScrapeFiltersOfPipelineMetrics")
       controller.scrapePipeline().onComplete {
-        case Success(map) => mediator ! Publish(MetricsTopic, ScrapedPipelineMetrics(pipelineID, map))
-        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedPipelineMetricsFailure(pipelineID, e))
+        case Success(map) => mediator ! Publish(MetricsTopic, ScrapedFiltersOfPipelineMetrics(pipelineID, map))
+        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedFiltersOfPipelineMetricsFailure(pipelineID, e))
       }
 
   }

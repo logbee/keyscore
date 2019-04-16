@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorLogging}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.Topics.{MetricsRequestsTopic, MetricsTopic}
+import io.logbee.keyscore.commons.pipeline.{PipelineMaterialized, PipelineRemoved}
 import io.logbee.keyscore.model.metrics.MetricsCollection
 
 import scala.collection.mutable
@@ -29,18 +30,18 @@ class MetricsManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
 
-    case ScrapeMetricRequest(filterID) =>
+    case ScrapeFilterMetricRequest(filterID) =>
       log.debug(s"Received ScrapeMetricsRequest for filter <$filterID>")
       filterToMetrics.get(filterID) match {
-        case Some(m: MetricsCollection) => sender ! ScrapedMetricResponse(filterID, m)
-        case None => sender ! ScrapedMetricResponseFailure
+        case Some(m: MetricsCollection) => sender ! ScrapedFilterMetricResponse(filterID, m)
+        case None => sender ! ScrapedFilterMetricResponseFailure
       }
 
-    case ScrapePipelineMetricsRequest(pipelineID) =>
+    case ScrapeFiltersOfPipelineMetricsRequest(pipelineID) =>
       log.debug(s"Received ScrapePipelineMetricsRequest for pipeline <$pipelineID>")
       pipelineToMetrics.get(pipelineID) match {
-        case Some(map: Map[UUID, MetricsCollection]) => sender ! ScrapedPipelineMetricsResponse(pipelineID, map)
-        case None => sender ! ScrapedPipelineMetricsResponseFailure
+        case Some(map: Map[UUID, MetricsCollection]) => sender ! ScrapedFiltersOfPipelineMetricsResponse(pipelineID, map)
+        case None => sender ! ScrapedFiltersOfPipelineMetricsResponseFailure
       }
 
     case PipelineMaterialized(uuid) =>
@@ -51,23 +52,23 @@ class MetricsManager extends Actor with ActorLogging {
       log.debug(s"Removed metrics of pipeline <$uuid>")
       pipelineToMetrics - uuid
 
-    case ScrapedMetrics(pipelineID, filterID, metricsCollection) =>
+    case ScrapedFilterMetrics(pipelineID, filterID, metricsCollection) =>
       log.debug(s"Retrieved metrics for filter <$filterID> of pipeline <$pipelineID>")
       filterToMetrics += (filterID -> metricsCollection)
       val updatedMap = pipelineToMetrics(pipelineID) + (filterID -> metricsCollection)
       pipelineToMetrics.updated(pipelineID, updatedMap)
 
-    case ScrapedPipelineMetrics(pipelineID, metrics) =>
+    case ScrapedFiltersOfPipelineMetrics(pipelineID, metrics) =>
       log.debug(s"Retrieved all metrics of pipeline <$pipelineID>")
       pipelineToMetrics += (pipelineID -> metrics)
       metrics.foreach( i => {
         filterToMetrics += (i._1 -> i._2)
       })
 
-    case ScrapedMetricsFailure(pipelineID, filterID, e) =>
+    case ScrapedFilterMetricsFailure(pipelineID, filterID, e) =>
       log.debug(s"Could not retrieve the metrics of <$filterID> in the pipeline <$pipelineID>: $e")
 
-    case ScrapedPipelineMetricsFailure(pipelineID, e) =>
+    case ScrapedFiltersOfPipelineMetricsFailure(pipelineID, e) =>
       log.warning(s"Could not retrieve metrics for the pipeline <$pipelineID>: $e")
 
   }
@@ -84,6 +85,6 @@ class MetricsManager extends Actor with ActorLogging {
 
   private def pollMetrics(): Unit = {
     log.debug("Polling Metrics")
-    mediator ! Publish(MetricsRequestsTopic, ScrapePipelineMetrics)
+    mediator ! Publish(MetricsRequestsTopic, ScrapeFiltersOfPipelineMetrics)
   }
 }
