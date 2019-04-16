@@ -12,6 +12,7 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import io.logbee.keyscore.commons._
+import io.logbee.keyscore.commons.metrics.MetricsManager
 import io.logbee.keyscore.commons.util.{AppInfo, ServiceDiscovery}
 import io.logbee.keyscore.frontier.app.FrontierApplication
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
@@ -68,6 +69,7 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
 
   private val clusterAgentManager = clusterAgentManagerRef
   private val clusterPipelineManager: ActorRef = system.actorOf(ClusterPipelineManager(clusterAgentManager))
+  private val metricsManager: ActorRef = system.actorOf(Props[MetricsManager])
   private var blueprintManager: ActorRef = _
 
   override def preStart(): Unit = {
@@ -119,7 +121,7 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
     * @return The complete Route for a Standard Full-Operating Frontier
     */
   private def buildFullRoute: Route = {
-    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager)
+    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager, metricsManager) ~ filterRoute(clusterPipelineManager, metricsManager)
 
     settings { fullRoute }
   }

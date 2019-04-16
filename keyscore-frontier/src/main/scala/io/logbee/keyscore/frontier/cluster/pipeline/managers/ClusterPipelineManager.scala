@@ -134,8 +134,6 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
     case message: ClearBuffer => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
-    case message: ScrapeMetrics => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
-
     case RequestExistingPipelines =>
       val _sender = sender
       (agentStatsManager ? GetAvailableAgentsRequest).onComplete {

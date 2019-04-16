@@ -52,7 +52,7 @@ class Agent extends Actor with ActorLogging {
   private var joined: Boolean = false
 
   //Cluster
-  private val cluster = Cluster(context.system)
+  Cluster(context.system)
   private val mediator = DistributedPubSub(context.system).mediator
 
   //System
@@ -61,8 +61,8 @@ class Agent extends Actor with ActorLogging {
 
   //Necessary Actors for the whole keyscore-agent system
   private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val localPipelineManager = context.actorOf(LocalPipelineManager(filterManager), "LocalPipelineManager")
   private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
+  context.actorOf(LocalPipelineManager(filterManager), "LocalPipelineManager")
 
   override def preStart(): Unit = {
     log.info(s"The Agent ${agentName} has started.")

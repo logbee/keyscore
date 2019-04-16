@@ -11,16 +11,16 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline.FilterState
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The '''PipelineController''' holds the `Pipeline` and a list of `Controllers` for each ~Filter~. <br><br>
   * He forwards all requests to the matching `Controllers`.
   *
-  * @param pipeline The Pipeline object.
+  * @param pipeline    The Pipeline object.
   * @param controllers The list of Controllers.
   */
-class PipelineController(val pipeline: Pipeline, val controllers: List[Controller]) {
+class PipelineController(val pipeline: Pipeline, val controllers: List[Controller])(implicit ex: ExecutionContext) {
 
   private val controllerMap = controllers.map(controller => controller.id -> controller).toMap
 
@@ -44,7 +44,7 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
     controllerMap.get(id).map(_.insert(dataset, Before))
   }
 
-  def extract(id: UUID, amount: Int = 1, where:WhichValve): Option[Future[List[Dataset]]] = {
+  def extract(id: UUID, amount: Int = 1, where: WhichValve): Option[Future[List[Dataset]]] = {
     controllerMap.get(id).map(_.extract(amount, where))
   }
 
@@ -60,7 +60,17 @@ class PipelineController(val pipeline: Pipeline, val controllers: List[Controlle
     controllerMap.get(id).map(_.scrape())
   }
 
-  def scrapePipeline(): Map[UUID, Future[MetricsCollection]] = {
-    controllerMap.map{case (id, controller) => (id, controller.scrape())}
+  def scrapePipeline(): Future[Map[UUID, MetricsCollection]] = {
+    val metrics = controllerMap.map { case (id, controller) => (id, controller.scrape()) }
+    transformMap(metrics)
   }
+
+  private def transformMap[MetricsCollections](map: Map[UUID, Future[MetricsCollection]]): Future[Map[UUID, MetricsCollection]] = {
+    val seq: Seq[Future[(UUID, MetricsCollection)]] = map.toSeq.map { case (k, v) =>
+      v.map(mc => k -> mc)
+    }
+
+    Future.foldLeft(seq.toList)(Map.empty[UUID, MetricsCollection])(_ + _)
+  }
+
 }

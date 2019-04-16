@@ -5,7 +5,6 @@ import java.util.UUID
 import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.pipeline.FilterState
 
 case class PauseFilter(id: UUID, pause: Boolean)
@@ -28,12 +27,3 @@ case class CheckFilterStateResponse(state: FilterState)
 
 case class ClearBuffer(id:UUID)
 case class ClearBufferResponse(state: FilterState)
-
-case class ScrapeMetrics(id:UUID)
-case class ScrapeMetricsResponse(metricsCollection: MetricsCollection)
-
-case class ScrapePipelineMetrics(pipelineID : UUID)
-case class ScrapePipelineMetricsResponse(metricsCollection: (UUID,Map[UUID, MetricsCollection]))
-
-case class ScrapePipelinesMetrics()
-case class ScrapePipelinesMetricsResponse(metricsCollection: Seq[Map[UUID,MetricsCollection]])

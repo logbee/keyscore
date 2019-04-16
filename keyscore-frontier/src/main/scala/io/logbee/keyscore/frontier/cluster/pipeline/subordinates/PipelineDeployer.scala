@@ -94,11 +94,10 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
       blueprintManager ! GetPipelineBlueprintRequest(blueprintRef)
 
     case GetPipelineBlueprintResponse(blueprint) => blueprint match {
-      case Some(pipelineBlueprint) => {
+      case Some(pipelineBlueprint) =>
         log.debug(s"Starting BlueprintCollector for <${pipelineBlueprint.ref.uuid}>")
         context.actorOf(BlueprintCollector(pipelineBlueprint, blueprintManager))
         blueprintForPipeline = pipelineBlueprint
-      }
       case _ =>
         log.error(s"Received unknown type of Blueprint for $blueprint.")
     }
@@ -117,7 +116,7 @@ class PipelineDeployer(localPipelineManagerResolution: (ActorRef, ActorContext) 
 
     case AgentsForPipelineResponse(possibleAgents) =>
       log.debug(s"Received list of possible Agents: $possibleAgents")
-      if (!possibleAgents.isEmpty) {
+      if (possibleAgents.nonEmpty) {
         log.debug("Requesting Stats for list of possible Agents.")
         agentStatsManager ! StatsForAgentsRequest(possibleAgents)
       } else {

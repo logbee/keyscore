@@ -5,9 +5,13 @@ package io.logbee.keyscore.commons.cluster
   */
 object Topics {
   /** Topic for all WhoIs requests and their HereIAm responses. */
-  val WhoIsTopic = "whois"
+  val WhoIsTopic = "WHOIS_TOPIC"
   /** Topic for all cluster wide messages from members with the role "agent". */
-  val AgentsTopic = "agents"
+  val AgentsTopic = "AGENTS_TOPIC"
   /** Topic for all cluster wide messages for managing the cluster members. */
-  val ClusterTopic = "cluster"
+  val ClusterTopic = "CLUSTER_TOPIC"
+  /** Topic for Filter and Pipeline Metrics */
+  val MetricsTopic = "METRICS_TOPIC"
+  /** Topic for all Metrics Request */
+  val MetricsRequestsTopic = "METRICS_REQUESTS_TOPIC"
 }

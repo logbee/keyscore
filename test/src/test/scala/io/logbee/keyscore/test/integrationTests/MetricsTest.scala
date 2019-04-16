@@ -76,6 +76,8 @@ class MetricsTest extends Matchers {
 
     logger.debug(s"Now 3 datasets should be inserted.")
     applyBehavior(new InsertDatasets(addFieldsID, write(List(d1, d2, d3))))
+
+    Thread.sleep(5000)
     (scrapeMetrics(addFieldsID) find insertedDatasets get).value shouldBe 3
 
     logger.debug(s"Also 3 datasets should been now pushed to the next filter.")
@@ -88,9 +90,9 @@ class MetricsTest extends Matchers {
     applyBehavior(new FilterDrain(retainID, "true"))
     checkFilterState(retainID, Green, Dismantled)
 
-    Thread.sleep(2000)
-
     applyBehavior(new InsertDatasets(retainID, write(List(d4, d5, d6))))
+
+    Thread.sleep(5000)
     (scrapeMetrics(retainID) find insertedDatasets get).value shouldBe 3
     (scrapeMetrics(retainID) find drainedDatasets get).value shouldBe 3
     (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 3
@@ -98,6 +100,8 @@ class MetricsTest extends Matchers {
     applyBehavior(new FilterPause(retainID, "false"))
     applyBehavior(new FilterDrain(retainID, "false"))
     checkFilterState(retainID, Green, Running)
+
+    Thread.sleep(5000)
     (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 3
     scrapeMetrics(addFieldsID) find drainedDatasets should be(None)
     (scrapeMetrics(removeID) find drainedDatasets get).value should be(3)
@@ -107,17 +111,21 @@ class MetricsTest extends Matchers {
     logger.debug("From the last filter 6 datasets should have been extracted.")
     (scrapeMetrics(removeID) find pushedDatasets get).value shouldBe 3
     applyBehavior(new InsertDatasets(retainID, write(List(d7, d8, d9))))
+
+    Thread.sleep(5000)
     (scrapeMetrics(retainID) find insertedDatasets get).value shouldBe 6
     (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 6
 
     extractDatasets(removeID, 10).size shouldBe 6
+
+    Thread.sleep(5000)
     (scrapeMetrics(removeID) find extractedDatasets get).value shouldBe 6
 
     //The throughputTime can sometimes be flaky (0.0)
     logger.debug("The total throughputTime should increase over time.")
     applyBehavior(new InsertDatasets(decoderID, write(List(d1, d2, d3, d4, d5, d6, d7, d8, d9, d1, d2, d3, d4, d5, d6, d7, d8, d9))))
 
-    Thread.sleep(7000)
+    Thread.sleep(5000)
 
     val firstOut = scrapeMetrics(decoderID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
     val lastOut = scrapeMetrics(encoderID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value

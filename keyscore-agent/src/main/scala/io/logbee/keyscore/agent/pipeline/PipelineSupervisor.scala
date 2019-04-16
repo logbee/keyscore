@@ -3,6 +3,8 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
@@ -10,11 +12,12 @@ import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.controller.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
+import io.logbee.keyscore.commons.cluster.Topics.{MetricsRequestsTopic, MetricsTopic}
+import io.logbee.keyscore.commons.metrics._
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.data.Health.{Green, Red, Yellow}
-import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.pipeline.api.stage.StageContext
 
 import scala.concurrent.ExecutionContextExecutor
@@ -72,11 +75,17 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
   private val pipelineStartDelay = 5 seconds
   private val pipelineStartTrials = 3
 
+  private var pipelineID: UUID = _
+
+  private val mediator = DistributedPubSub(context.system).mediator
+
   override def preStart(): Unit = {
     log.info(" started.")
   }
 
   override def postStop(): Unit = {
+    mediator ! Publish(MetricsTopic, PipelineRemoved(pipelineID))
+    mediator ! Unsubscribe(MetricsRequestsTopic, self)
     log.info(" stopped.")
   }
 
@@ -89,6 +98,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.info(s"Creating pipeline <${pipelineBlueprint.ref.uuid}>.")
 
       val pipeline = Pipeline(pipelineBlueprint)
+      pipelineID = pipeline.id
 
       become(configuring(pipeline))
 
@@ -197,7 +207,12 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case ControllerMaterialized(controller) =>
       log.debug(s"Last Controller <${controller.id}> has been materialized.")
-      become(running(new PipelineController(pipeline, controllers :+ controller)), discardOld = true)
+
+      //Publishes that this Pipeline was materialized and Metrics can be scraped
+      mediator ! Publish(MetricsTopic, PipelineMaterialized(pipelineID))
+      mediator ! Subscribe(MetricsRequestsTopic, self)
+
+      become(running(new PipelineController(pipeline, controllers :+ controller)(executionContext)), discardOld = true)
 
     case ControllerMaterializationFailed(cause) =>
       log.error(message = s"Could not construct pipeline <${pipeline.id}> due to a failed materialization a controller!", cause = cause)
@@ -218,89 +233,82 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       log.info(s"Updating pipeline <${configuration.id}>")
 
     case RequestPipelineInstance =>
-      log.debug(s"Received Request for Pipeline Instance")
+      log.debug(s"<$pipelineID> Received Request for Pipeline Instance")
       sender ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.ref.uuid, controller.pipelineBlueprint.ref.uuid, Green)
 
     case RequestPipelineBlueprints(receiver) =>
-      log.debug(s"Received Request for Pipeline Blueprints")
+      log.debug(s"<$pipelineID> Received Request for Pipeline Blueprints")
       receiver ! controller.pipelineBlueprint
 
     case PauseFilter(filterId, doPause) =>
-      log.debug(s"Received PauseFilter($doPause) <$filterId>")
+      log.debug(s"<$pipelineID> Received PauseFilter($doPause) for filter <$filterId>")
       val _sender = sender
       controller.close(filterId, doPause).foreach(_.onComplete {
         case Success(state) => _sender ! PauseFilterResponse(state)
-        case Failure(e) => _sender ! Failure
+        case Failure(e) => _sender ! Failure(e)
       })
 
     case DrainFilterValve(filterId, doDrain) =>
-      log.debug(s"Received DrainFilter($doDrain) <$filterId>")
+      log.debug(s"<$pipelineID> Received DrainFilter($doDrain) for filter <$filterId>")
       val _sender = sender
       controller.drain(filterId, doDrain).foreach(_.onComplete {
         case Success(state) => _sender ! DrainFilterResponse(state)
-        case Failure(e) => _sender ! Failure
+        case Failure(e) => _sender ! Failure(e)
       })
 
     case InsertDatasets(filterId, datasets, where) =>
-      log.debug(s"Received InsertDatasets with $datasets in <$filterId>")
+      log.debug(s"<$pipelineID> Received InsertDatasets with $datasets for filter <$filterId>")
       val _sender = sender
       controller.insert(filterId, datasets, where).foreach(_.onComplete {
         case Success(state) => _sender ! InsertDatasetsResponse(state)
-        case Failure(e) => _sender ! Failure
+        case Failure(e) => _sender ! Failure(e)
       })
 
     case ExtractDatasets(filterId, amount, where) =>
-      log.debug(s"Received ExtractDatasets($amount) in <$filterId>")
+      log.debug(s"<$pipelineID> Received ExtractDatasets($amount) in for filter <$filterId>")
       val _sender = sender
       controller.extract(filterId, amount, where).foreach(_.onComplete {
         case Success(datasets) => _sender ! ExtractDatasetsResponse(datasets)
-        case Failure(e) => _sender ! Failure
+        case Failure(e) => _sender ! Failure(e)
       })
 
     case ConfigureFilter(filterId, filterConfig) =>
-      log.debug(s"Received ConfigureFilter with $filterConfig <$filterId>")
+      log.debug(s"<$pipelineID> Received ConfigureFilter with $filterConfig for filter <$filterId>")
       val _sender = sender
       controller.configure(filterId, filterConfig).foreach(_.onComplete {
         case Success(state) => _sender ! ConfigureFilterResponse(state)
-        case Failure(e) => _sender ! Failure
+        case Failure(e) => _sender ! Failure(e)
       })
 
     case CheckFilterState(filterId) =>
-      log.debug(s"Received CheckFilterState <$filterId>")
+      log.debug(s"<$pipelineID> Received CheckFilterState for filter <$filterId>")
       val _sender = sender
       controller.state(filterId).foreach(_.onComplete {
         case Success(state) => _sender ! CheckFilterStateResponse(state)
-        case Failure(e) => _sender ! Failure
+        case Failure(e) => _sender ! Failure(e)
       })
 
     case ClearBuffer(filterId) =>
-      log.debug(s"Received ClearBuffer <$filterId>")
+      log.debug(s"<$pipelineID> Received ClearBuffer for filter <$filterId>")
       val _sender = sender
       controller.clear(filterId).foreach(_.onComplete {
         case Success(state) => _sender ! ClearBufferResponse(state)
-        case Failure(e) => _sender ! Failure
+        case Failure(e) => _sender ! Failure(e)
       })
 
     case ScrapeMetrics(filterId) =>
-      log.debug(s"Received ScrapeMetrics <$filterId>")
-      val _sender = sender
+      log.debug(s"<$pipelineID> Received ScrapeMetrics for filter <$filterId>")
       controller.scrape(filterId).foreach(_.onComplete {
-        case Success(collection) => _sender ! ScrapeMetricsResponse(collection)
-        case Failure(e) => _sender ! Failure
+        case Success(collection) => mediator ! Publish(MetricsTopic, ScrapedMetrics(pipelineID, filterId, collection))
+        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedMetricsFailure(pipelineID, filterId, e))
       })
 
-    case ScrapePipelineMetrics(pipelineID) =>
-      log.debug(s"Received ScrapePipelineMetrics")
-      val _sender = sender
-      val scrapeMetrics = Map.empty[UUID, MetricsCollection]
-      controller.scrapePipeline().foreach { case (id, collection) => {
-        collection.onComplete {
-          case Success(c) => scrapeMetrics + (id -> c)
-          case Failure(e) => _sender ! Failure
-        }
+    case ScrapePipelineMetrics =>
+      log.debug(s"<$pipelineID> Received ScrapePipelineMetrics")
+      controller.scrapePipeline().onComplete {
+        case Success(map) => mediator ! Publish(MetricsTopic, ScrapedPipelineMetrics(pipelineID, map))
+        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedPipelineMetricsFailure(pipelineID, e))
       }
-      }
-      _sender ! ScrapePipelineMetricsResponse(pipelineID, scrapeMetrics)
 
   }
 
