@@ -13,5 +13,5 @@ object Topics {
   /** Topic for Filter and Pipeline Metrics */
   val MetricsTopic = "METRICS_TOPIC"
   /** Topic for all Metrics Request */
-  val MetricsRequestsTopic = "METRICS_REQUESTS_TOPIC"
+  val FilterMetricsTopic = "FILTER_METRICS_TOPIC"
 }

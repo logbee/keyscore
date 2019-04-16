@@ -6,7 +6,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
-import io.logbee.keyscore.commons.metrics.{ScrapeFiltersOfPipelineMetricsRequest, ScrapedFiltersOfPipelineMetricsResponse, ScrapedFiltersOfPipelineMetricsResponseFailure}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.auth.AuthorizationHandler
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
@@ -24,7 +23,7 @@ import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
   */
 trait PipelineRoute extends RouteImplicits with AuthorizationHandler {
 
-  def pipelineRoute(clusterPipelineManager: ActorRef, blueprintManager: ActorRef, metricsManager: ActorRef): Route = {
+  def pipelineRoute(clusterPipelineManager: ActorRef, blueprintManager: ActorRef): Route = {
     pathPrefix("pipeline") {
       authorize { token =>
         pathPrefix("blueprint") {
@@ -97,17 +96,6 @@ trait PipelineRoute extends RouteImplicits with AuthorizationHandler {
                     }
                   }
               }
-          } ~
-          pathPrefix("metrics") {
-            pathPrefix(JavaUUID) { pipelineID =>
-              get {
-                onSuccess(metricsManager ? ScrapeFiltersOfPipelineMetricsRequest(pipelineID)) {
-                  case ScrapedFiltersOfPipelineMetricsResponse(id, metricsMap) => complete(StatusCodes.OK, metricsMap)
-                  case ScrapedFiltersOfPipelineMetricsResponseFailure(id) => complete(StatusCodes.NotFound, id)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              }
-            }
           }
       }
     }

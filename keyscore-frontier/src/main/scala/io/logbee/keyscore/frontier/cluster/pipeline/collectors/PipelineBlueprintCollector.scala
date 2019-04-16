@@ -2,7 +2,7 @@ package io.logbee.keyscore.frontier.cluster.pipeline.collectors
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import io.logbee.keyscore.commons.pipeline.PipelineBlueprintsResponse
-import io.logbee.keyscore.frontier.cluster.pipeline.collectors.PipelineBlueprintCollector.{CheckPipelineBlueprints, PipelineBlueprintsResponseFailure}
+import io.logbee.keyscore.frontier.cluster.pipeline.collectors.PipelineBlueprintCollector.CheckPipelineBlueprints
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 
 import scala.collection.mutable

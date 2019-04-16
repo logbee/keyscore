@@ -121,7 +121,7 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
     * @return The complete Route for a Standard Full-Operating Frontier
     */
   private def buildFullRoute: Route = {
-    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager, metricsManager) ~ filterRoute(clusterPipelineManager, metricsManager)
+    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager, metricsManager)
 
     settings { fullRoute }
   }

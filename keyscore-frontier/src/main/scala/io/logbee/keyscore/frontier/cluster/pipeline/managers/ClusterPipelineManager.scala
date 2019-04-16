@@ -22,7 +22,9 @@ import io.logbee.keyscore.model.blueprint._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.language.postfixOps
 import scala.util.{Failure, Success}
+
 
 object ClusterPipelineManager {
 

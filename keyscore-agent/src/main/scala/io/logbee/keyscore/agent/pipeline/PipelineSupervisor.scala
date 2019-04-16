@@ -12,7 +12,7 @@ import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.controller.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.commons.cluster.Topics.{MetricsRequestsTopic, MetricsTopic}
+import io.logbee.keyscore.commons.cluster.Topics.{FilterMetricsTopic, MetricsTopic}
 import io.logbee.keyscore.commons.metrics._
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
@@ -84,8 +84,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
   }
 
   override def postStop(): Unit = {
-    mediator ! Publish(MetricsTopic, PipelineRemoved(pipelineID))
-    mediator ! Unsubscribe(MetricsRequestsTopic, self)
+    mediator ! Unsubscribe(FilterMetricsTopic, self)
     log.info(" stopped.")
   }
 
@@ -208,9 +207,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ControllerMaterialized(controller) =>
       log.debug(s"Last Controller <${controller.id}> has been materialized.")
 
-      //Publishes that this Pipeline was materialized and Metrics can be scraped
-      mediator ! Publish(MetricsTopic, PipelineMaterialized(pipelineID))
-      mediator ! Subscribe(MetricsRequestsTopic, self)
+      mediator ! Subscribe(FilterMetricsTopic, self)
 
       become(running(new PipelineController(pipeline, controllers :+ controller)(executionContext)), discardOld = true)
 
@@ -299,8 +296,8 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ScrapeFilterMetrics(filterId) =>
       log.debug(s"<$pipelineID> Received ScrapeFilterMetrics for filter <$filterId>")
       controller.scrape(filterId).foreach(_.onComplete {
-        case Success(collection) => mediator ! Publish(MetricsTopic, ScrapedFilterMetrics(pipelineID, filterId, collection))
-        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedFilterMetricsFailure(pipelineID, filterId, e))
+        case Success(collection) => mediator ! Publish(MetricsTopic, ScrapedFilterMetrics(filterId, collection))
+        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedFilterMetricsFailure(filterId, e))
       })
 
     case ScrapeFiltersOfPipelineMetrics =>
