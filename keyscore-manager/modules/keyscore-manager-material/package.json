@@ -7,7 +7,8 @@
   "scripts": {
     "prepare": "npm run build && npm run copy-css",
     "copy-css": "copyfiles src/main/style/*.scss build/",
-    "build": "tsc",
+    "clean": "rimraf -rf ./build",
+    "build": "npm run clean && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -17,16 +18,18 @@
   ],
   "author": "",
   "license": "Apache-2.0",
-  "dependencies": {
-    "@angular/material": "7.1.1",
-    "@angular/animations": "7.1.1",
-    "@angular/cdk": "7.1.1",
-    "@angular/flex-layout": "7.0.0-beta.24",
-    "material-design-icons": "3.0.1"
+  "dependencies": {},
+  "peerDependencies": {
+    "@angular/material": "^7.1.1",
+    "@angular/animations": "^7.1.1",
+    "@angular/cdk": "^7.1.1",
+    "@angular/flex-layout": "^7.0.0-beta.24",
+    "material-design-icons": "^3.0.1"
   },
   "devDependencies": {
     "@types/angular": "1.6.51",
     "typescript": "3.3.4000",
-    "copyfiles": "2.1.0"
+    "copyfiles": "2.1.0",
+    "rimraf": "2.6.3"
   }
 }

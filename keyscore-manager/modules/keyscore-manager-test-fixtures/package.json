@@ -6,7 +6,8 @@
   "types": "build/index.d.ts",
   "scripts": {
     "prepare": "npm run build",
-    "build": "tsc",
+    "clean": "rimraf -rf ./build",
+    "build": "npm run clean && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "typescript": "3.3.4000",
-    "@types/faker": "4.1.5"
+    "@types/faker": "4.1.5",
+    "rimraf": "2.6.3"
   }
 }

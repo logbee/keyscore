@@ -35,7 +35,7 @@ npmInstall {
 
 subprojects {
     project.apply plugin: 'com.github.node-gradle.node'
-    
+
     node {
         version = nodeVersion
         download = true
@@ -57,17 +57,18 @@ subprojects {
 task webpack(type: NodeTask, dependsOn: npmInstall) {
     script = file('node_modules/.bin/webpack')
     inputs.files([
-        file('node_modules/.bin/webpack'),
-        files("src")
+            file('node_modules/.bin/webpack'),
+            files("src")
     ])
 }
 
 task serve(type: NodeTask, dependsOn: npmInstall) {
+    subprojects.each { dependsOn("${it.name}:npmInstall") }
     script = file('node_modules/.bin/webpack-dev-server')
 }
 
 task storybook(type: NpmTask, dependsOn: npmInstall) {
-    args = ['run','storybook']
+    args = ['run', 'storybook']
 }
 
 task onceUponATimeInKeyscore(dependsOn: storybook) {}
