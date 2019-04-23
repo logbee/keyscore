@@ -303,8 +303,10 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ScrapeFiltersOfPipelineMetrics =>
       log.debug(s"<$pipelineID> Received ScrapeFiltersOfPipelineMetrics")
       controller.scrapePipeline().onComplete {
-        case Success(map) => mediator ! Publish(MetricsTopic, ScrapedFiltersOfPipelineMetrics(pipelineID, map))
-        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedFiltersOfPipelineMetricsFailure(pipelineID, e))
+        case Success(map) =>
+          mediator ! Publish(MetricsTopic, ScrapedFiltersOfPipelineMetrics(pipelineID, map))
+        case Failure(e) =>
+          mediator ! Publish(MetricsTopic, ScrapedFiltersOfPipelineMetricsFailure(pipelineID, e))
       }
 
   }

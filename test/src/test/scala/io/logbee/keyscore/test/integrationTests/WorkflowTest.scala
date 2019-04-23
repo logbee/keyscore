@@ -61,6 +61,8 @@ class WorkflowTest extends Matchers {
     logger.debug(s"CHECKING Datasets of the Workflow Pipeline")
     checkDatasets(filterID = secondRemoveFieldsID, f = checkWorkflowDatasets, amount = 3, expect = 3) shouldBe true
 
+    Thread.sleep(5000)
+
     logger.debug(s"SCRAPING the metrics of the Workflow Pipeline")
     scrapeMetrics(filterID = secondRemoveFieldsID).metrics shouldNot be (empty)
 

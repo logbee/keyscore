@@ -1,14 +1,11 @@
 package io.logbee.keyscore.commons.metrics
 
-import java.util.UUID
-
 import akka.actor.{Actor, ActorLogging}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.Topics.{FilterMetricsTopic, MetricsTopic}
-import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.commons.ehcache.MetricsCacheManager
 
-import scala.collection.mutable
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -22,7 +19,7 @@ class MetricsManager extends Actor with ActorLogging {
   private implicit val executionContext: ExecutionContextExecutor = context.dispatcher
   private val mediator = DistributedPubSub(context.system).mediator
 
-  private val metricsMap: collection.mutable.HashMap[UUID, MetricsCollection] = mutable.HashMap.empty[UUID, MetricsCollection]
+  val metricsCacheManager = new MetricsCacheManager
 
   context.system.scheduler.schedule(5 seconds, 2 seconds)(pollMetrics())
 
@@ -30,19 +27,21 @@ class MetricsManager extends Actor with ActorLogging {
 
     case ScrapeMetricRequest(id) =>
       log.debug(s"Received ScrapeMetricRequest <$id>")
-      metricsMap.get(id) match {
-        case Some(m: MetricsCollection) => sender ! ScrapedMetricResponse(id, m)
-        case None => sender ! ScrapedMetricResponseFailure
+      metricsCacheManager.getNewestEntry(id) match {
+        case Some(mc) =>
+          sender ! ScrapedMetricResponse(id, mc)
+        case None =>
+          sender ! ScrapedMetricResponseFailure
       }
 
     case ScrapedFilterMetrics(filterID, metricsCollection) =>
       log.debug(s"Retrieved metrics for filter <$filterID>")
-      metricsMap += (filterID -> metricsCollection)
+      metricsCacheManager.putEntry(filterID, metricsCollection)
 
     case ScrapedFiltersOfPipelineMetrics(pipelineID, metrics) =>
       log.debug(s"Retrieved all metrics of pipeline <$pipelineID>")
       metrics.foreach( i => {
-        metricsMap += (i._1 -> i._2)
+        metricsCacheManager.putEntry(i._1, i._2)
       })
 
     case ScrapedFilterMetricsFailure(filterID, e) =>
