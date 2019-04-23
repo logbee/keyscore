@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorLogging}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.Topics.{FilterMetricsTopic, MetricsTopic}
-import io.logbee.keyscore.commons.ehcache.MetricsCacheManager
+import io.logbee.keyscore.commons.ehcache.MetricsCache
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -21,7 +21,7 @@ class MetricsManager extends Actor with ActorLogging {
   private implicit val executionContext: ExecutionContextExecutor = context.dispatcher
   private val mediator = DistributedPubSub(context.system).mediator
 
-  val metricsCacheManager = new MetricsCacheManager(10L, 10L, ofSeconds(60))
+  val metricsCacheManager = new MetricsCache(10L, 10L, ofSeconds(60))
 
   context.system.scheduler.schedule(5 seconds, 2 seconds)(pollMetrics())
 
@@ -29,7 +29,7 @@ class MetricsManager extends Actor with ActorLogging {
 
     case ScrapeMetricRequest(id) =>
       log.debug(s"Received ScrapeMetricRequest <$id>")
-      metricsCacheManager.getNewestEntry(id) match {
+      metricsCacheManager.getNewest(id) match {
         case Some(mc) =>
           sender ! ScrapedMetricResponse(id, mc)
         case None =>
@@ -38,12 +38,12 @@ class MetricsManager extends Actor with ActorLogging {
 
     case ScrapedFilterMetrics(filterID, metricsCollection) =>
       log.debug(s"Retrieved metrics for filter <$filterID>")
-      metricsCacheManager.putEntry(filterID, metricsCollection)
+      metricsCacheManager.put(filterID, metricsCollection)
 
     case ScrapedFiltersOfPipelineMetrics(pipelineID, metrics) =>
       log.debug(s"Retrieved all metrics of pipeline <$pipelineID>")
       metrics.foreach( i => {
-        metricsCacheManager.putEntry(i._1, i._2)
+        metricsCacheManager.put(i._1, i._2)
       })
 
     case ScrapedFilterMetricsFailure(filterID, e) =>

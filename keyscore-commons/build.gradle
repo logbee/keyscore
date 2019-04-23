@@ -21,7 +21,7 @@ dependencies {
     compile dependency.akka_cluster
     compile dependency.json4s
 
-    compile "org.ehcache:ehcache:3.7.0"
+    compile dependency.ehcache
 
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit

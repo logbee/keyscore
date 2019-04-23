@@ -1,6 +1,6 @@
 package io.logbee.keyscore.commons.ehcache
 
-import java.io.File
+import java.nio.file.Files
 import java.time.Duration
 import java.util.UUID
 
@@ -12,11 +12,11 @@ import org.ehcache.{Cache, PersistentCacheManager}
 
 import scala.collection.mutable
 
-object MetricsCacheManager {
-  def apply(heapEntries: Long = 10L, diskSize: Long = 10L, expiration: Duration = Duration.ofSeconds(60)): MetricsCacheManager = new MetricsCacheManager(heapEntries, diskSize, expiration)
+object MetricsCache {
+  def apply(heapEntries: Long = 10L, diskSize: Long = 10L, expiration: Duration = Duration.ofSeconds(60)): MetricsCache = new MetricsCache(heapEntries, diskSize, expiration)
 }
 
-class MetricsCacheManager(val heapEntries: Long, val diskSize: Long, val expiration: Duration) {
+class MetricsCache(val heapEntries: Long, val diskSize: Long, val expiration: Duration) {
   private val MetricsCache = "metrics_cache"
 
   private val idToMetrics: mutable.HashMap[UUID, (Long, Long)] = mutable.HashMap.empty[UUID, (Long, Long)]
@@ -27,24 +27,16 @@ class MetricsCacheManager(val heapEntries: Long, val diskSize: Long, val expirat
 
   private val config: CacheConfigurationBuilder[String, MetricsCollection] = CacheConfigurationBuilder.newCacheConfigurationBuilder(classOf[String], classOf[MetricsCollection], resourcePool).withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(expiration))
 
-  private val persistence: CacheManagerConfiguration[PersistentCacheManager] = CacheManagerBuilder.persistence(new File("./metrics"))
+  private val persistence: CacheManagerConfiguration[PersistentCacheManager] = CacheManagerBuilder.persistence(Files.createTempDirectory("keyscore-metrics-cache-").toFile)
   private val cacheManager: PersistentCacheManager = newCacheManagerBuilder().`with`(persistence).withCache(MetricsCache, config).build(true)
   private val cache: Cache[String, MetricsCollection] = cacheManager.getCache(MetricsCache, classOf[String], classOf[MetricsCollection])
 
-
-  def get: PersistentCacheManager = {
-    cacheManager
-  }
-
   def close(): Unit = {
+    cacheManager.destroy()
     cacheManager.close()
   }
 
-  def destroy(): Unit = {
-    cacheManager.destroy()
-  }
-
-  def clearCache(): Unit = {
+  def clear(): Unit = {
     cache.clear()
   }
 
@@ -74,7 +66,7 @@ class MetricsCacheManager(val heapEntries: Long, val diskSize: Long, val expirat
     }
   }
 
-  def putEntry(id: UUID, collection: MetricsCollection): Unit = {
+  def put(id: UUID, collection: MetricsCollection): Unit = {
     idToMetrics.get(id) match {
       case Some(tuple) =>
         idToMetrics += (id -> (tuple._1, tuple._2 + 1L))
@@ -87,15 +79,15 @@ class MetricsCacheManager(val heapEntries: Long, val diskSize: Long, val expirat
     }
   }
 
-  def getAllEntries(id: UUID): Option[Seq[MetricsCollection]] = {
+  def getAll(id: UUID): Seq[MetricsCollection] = {
     idToMetrics.get(id) match {
       case Some(tuple) =>
-        Some(getAllFrom(id, tuple._2))
-      case None => None
+        getAllFrom(id, tuple._2)
+      case None => Seq.empty
     }
   }
 
-  def getNewestEntry(id: UUID): Option[MetricsCollection] = {
+  def getNewest(id: UUID): Option[MetricsCollection] = {
     idToMetrics.get(id) match {
       case Some(tuple) => cache.get(calculateKey(id, tuple._2)) match {
         case mc: MetricsCollection => Some(mc)
@@ -105,7 +97,7 @@ class MetricsCacheManager(val heapEntries: Long, val diskSize: Long, val expirat
     }
   }
 
-  def getOldestEntry(id: UUID): Option[MetricsCollection] = {
+  def getOldest(id: UUID): Option[MetricsCollection] = {
     idToMetrics.get(id) match {
       case Some(tuple) => cache.get(calculateKey(id, tuple._1)) match {
         case mc: MetricsCollection => Some(mc)

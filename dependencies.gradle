@@ -47,6 +47,7 @@ ext {
                 "org.json4s:json4s-core_2.12:$json4sVersion"
         ],
         protobuf_java: 'com.google.protobuf:protobuf-java:3.6.1',
+        ehcache: 'org.ehcache:ehcache:3.7.0',
         scala_test: [
             'org.scalatest:scalatest_2.12:3.0.5',
             'org.scalamock:scalamock_2.12:4.1.0'
