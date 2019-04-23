@@ -1,30 +1,31 @@
 package io.logbee.keyscore.commons.ehcache
 
 import java.io.File
+import java.time.Duration
 import java.util.UUID
 
 import io.logbee.keyscore.model.metrics.MetricsCollection
 import org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder
-import org.ehcache.config.builders.{CacheConfigurationBuilder, CacheManagerBuilder, CacheManagerConfiguration, ResourcePoolsBuilder}
+import org.ehcache.config.builders._
 import org.ehcache.config.units.MemoryUnit
 import org.ehcache.{Cache, PersistentCacheManager}
 
 import scala.collection.mutable
 
 object MetricsCacheManager {
-  def apply: MetricsCacheManager = new MetricsCacheManager()
+  def apply(heapEntries: Long = 10L, diskSize: Long = 10L, expiration: Duration = Duration.ofSeconds(60)): MetricsCacheManager = new MetricsCacheManager(heapEntries, diskSize, expiration)
 }
 
-class MetricsCacheManager {
+class MetricsCacheManager(val heapEntries: Long, val diskSize: Long, val expiration: Duration) {
   private val MetricsCache = "metrics_cache"
 
   private val idToMetrics: mutable.HashMap[UUID, (Long, Long)] = mutable.HashMap.empty[UUID, (Long, Long)]
 
   private val resourcePool = ResourcePoolsBuilder
-    .heap(10)
-    .disk(10L, MemoryUnit.MB)
+    .heap(heapEntries)
+    .disk(diskSize, MemoryUnit.MB)
 
-  private val config: CacheConfigurationBuilder[String, MetricsCollection] = CacheConfigurationBuilder.newCacheConfigurationBuilder(classOf[String], classOf[MetricsCollection], resourcePool)
+  private val config: CacheConfigurationBuilder[String, MetricsCollection] = CacheConfigurationBuilder.newCacheConfigurationBuilder(classOf[String], classOf[MetricsCollection], resourcePool).withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(expiration))
 
   private val persistence: CacheManagerConfiguration[PersistentCacheManager] = CacheManagerBuilder.persistence(new File("./metrics"))
   private val cacheManager: PersistentCacheManager = newCacheManagerBuilder().`with`(persistence).withCache(MetricsCache, config).build(true)

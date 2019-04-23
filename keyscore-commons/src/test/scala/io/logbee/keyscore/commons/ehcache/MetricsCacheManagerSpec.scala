@@ -1,5 +1,6 @@
 package io.logbee.keyscore.commons.ehcache
 
+import java.time.Duration.ofSeconds
 import java.util.UUID
 
 import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric, MetricsCollection}
@@ -38,7 +39,7 @@ class MetricsCacheManagerSpec extends FreeSpec with Matchers {
 
   "A Metrics CacheManager" - {
 
-    val metricsCacheManager = new MetricsCacheManager
+    val metricsCacheManager = new MetricsCacheManager(10L, 10L, ofSeconds(5))
 
     "should put a multiple metrics the cache" in {
       metricsCacheManager.putEntry(id01, m01)
@@ -47,8 +48,6 @@ class MetricsCacheManagerSpec extends FreeSpec with Matchers {
       metricsCacheManager.putEntry(id08, m08)
       metricsCacheManager.putEntry(id09, m09)
       metricsCacheManager.putEntry(id10, m10)
-      metricsCacheManager.putEntry(id11, m11)
-      metricsCacheManager.putEntry(id12, m12)
       metricsCacheManager.putEntry(id13, m13)
 
       Thread.sleep(1000)
@@ -73,6 +72,16 @@ class MetricsCacheManagerSpec extends FreeSpec with Matchers {
       metricsCacheManager.getOldestEntry(id03).get shouldBe m03
       metricsCacheManager.getNewestEntry(id03).get shouldBe m06
 
+    }
+
+    "should remove all old entris" in {
+      metricsCacheManager.putEntry(id11, m11)
+
+      Thread.sleep(10000)
+      metricsCacheManager.putEntry(id12, m12)
+
+      metricsCacheManager.getOldestEntry(id12) shouldNot be (None)
+      metricsCacheManager.getOldestEntry(id11) shouldBe None
     }
 
     "should remove all entries" in {

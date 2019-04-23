@@ -1,5 +1,7 @@
 package io.logbee.keyscore.commons.metrics
 
+import java.time.Duration.ofSeconds
+
 import akka.actor.{Actor, ActorLogging}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
@@ -19,7 +21,7 @@ class MetricsManager extends Actor with ActorLogging {
   private implicit val executionContext: ExecutionContextExecutor = context.dispatcher
   private val mediator = DistributedPubSub(context.system).mediator
 
-  val metricsCacheManager = new MetricsCacheManager
+  val metricsCacheManager = new MetricsCacheManager(10L, 10L, ofSeconds(60))
 
   context.system.scheduler.schedule(5 seconds, 2 seconds)(pollMetrics())
 
