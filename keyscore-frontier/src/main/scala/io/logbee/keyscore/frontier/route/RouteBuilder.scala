@@ -69,7 +69,7 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
 
   private val clusterAgentManager = clusterAgentManagerRef
   private val clusterPipelineManager: ActorRef = system.actorOf(ClusterPipelineManager(clusterAgentManager))
-  private val metricsManager: ActorRef = system.actorOf(Props[MetricsManager])
+  private val metricsManager: ActorRef = system.actorOf(MetricsManager(), "metrics-manager")
   private var blueprintManager: ActorRef = _
 
   override def preStart(): Unit = {

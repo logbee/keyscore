@@ -3,6 +3,7 @@ package io.logbee.keyscore.commons.ehcache
 import java.time.Duration.ofSeconds
 import java.util.UUID
 
+import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
 import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric, MetricsCollection}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -40,7 +41,7 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
   "A Metrics Cache" - {
 
     "should put a multiple metrics the cache" in {
-      val metricsCache = new MetricsCache(10L, 10L, ofSeconds(5))
+      val metricsCache = new MetricsCache(Configuration(10L, 10000000L, ofSeconds(5)))
 
       metricsCache.put(id01, m01)
       metricsCache.put(id02, m02)
@@ -62,7 +63,7 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
     }
 
     "should update the tuple for multiple entries for a single uuid" in {
-      val metricsCache = new MetricsCache(10L, 10L, ofSeconds(5))
+      val metricsCache = new MetricsCache(Configuration(10L, 10000000L, ofSeconds(5)))
 
       metricsCache.put(id03, m03)
       metricsCache.put(id03, m04)
@@ -80,7 +81,7 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
     }
 
     "should remove all old entries" in {
-      val metricsCache = new MetricsCache(10L, 10L, ofSeconds(1))
+      val metricsCache = new MetricsCache(Configuration(10L, 10000000L, ofSeconds(1)))
 
       metricsCache.put(id11, m11)
 

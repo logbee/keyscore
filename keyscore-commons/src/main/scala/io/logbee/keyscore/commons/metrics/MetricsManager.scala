@@ -1,12 +1,11 @@
 package io.logbee.keyscore.commons.metrics
 
-import java.time.Duration.ofSeconds
-
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import io.logbee.keyscore.commons.cluster.Topics.{FilterMetricsTopic, MetricsTopic}
 import io.logbee.keyscore.commons.ehcache.MetricsCache
+import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -14,6 +13,7 @@ import scala.language.postfixOps
 
 object MetricsManager {
 
+  def apply(): Props = Props(new MetricsManager())
 }
 
 class MetricsManager extends Actor with ActorLogging {
@@ -21,15 +21,25 @@ class MetricsManager extends Actor with ActorLogging {
   private implicit val executionContext: ExecutionContextExecutor = context.dispatcher
   private val mediator = DistributedPubSub(context.system).mediator
 
-  val metricsCacheManager = new MetricsCache(10L, 10L, ofSeconds(60))
+  val cache = MetricsCache(Configuration(context.system.settings.config))
 
   context.system.scheduler.schedule(5 seconds, 2 seconds)(pollMetrics())
+
+  override def preStart(): Unit = {
+    log.debug(s" started with the following cache configuration: ${cache.configuration}")
+    mediator ! Subscribe(MetricsTopic, self)
+  }
+
+  override def postStop(): Unit = {
+    mediator ! Unsubscribe(MetricsTopic, self)
+    log.debug(" stopped.")
+  }
 
   override def receive: Receive = {
 
     case ScrapeMetricRequest(id) =>
       log.debug(s"Received ScrapeMetricRequest <$id>")
-      metricsCacheManager.getNewest(id) match {
+      cache.getNewest(id) match {
         case Some(mc) =>
           sender ! ScrapedMetricResponse(id, mc)
         case None =>
@@ -38,12 +48,12 @@ class MetricsManager extends Actor with ActorLogging {
 
     case ScrapedFilterMetrics(filterID, metricsCollection) =>
       log.debug(s"Retrieved metrics for filter <$filterID>")
-      metricsCacheManager.put(filterID, metricsCollection)
+      cache.put(filterID, metricsCollection)
 
     case ScrapedFiltersOfPipelineMetrics(pipelineID, metrics) =>
       log.debug(s"Retrieved all metrics of pipeline <$pipelineID>")
       metrics.foreach( i => {
-        metricsCacheManager.put(i._1, i._2)
+        cache.put(i._1, i._2)
       })
 
     case ScrapedFilterMetricsFailure(filterID, e) =>
@@ -54,18 +64,7 @@ class MetricsManager extends Actor with ActorLogging {
 
   }
 
-  override def preStart(): Unit = {
-    log.debug(" started.")
-    mediator ! Subscribe(MetricsTopic, self)
-  }
-
-  override def postStop(): Unit = {
-    mediator ! Unsubscribe(MetricsTopic, self)
-    log.debug(" stopped.")
-  }
-
   private def pollMetrics(): Unit = {
-    log.debug("Polling Metrics")
     mediator ! Publish(FilterMetricsTopic, ScrapeFiltersOfPipelineMetrics)
   }
 }

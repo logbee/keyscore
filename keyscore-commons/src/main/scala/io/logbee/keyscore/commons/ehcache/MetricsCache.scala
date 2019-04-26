@@ -4,6 +4,8 @@ import java.nio.file.Files
 import java.time.Duration
 import java.util.UUID
 
+import com.typesafe.config.Config
+import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
 import io.logbee.keyscore.model.metrics.MetricsCollection
 import org.ehcache.PersistentUserManagedCache
 import org.ehcache.config.builders._
@@ -14,25 +16,43 @@ import org.ehcache.impl.persistence.DefaultLocalPersistenceService
 import scala.collection.mutable
 
 object MetricsCache {
-  def apply(heapEntries: Long = 10L, diskSize: Long = 10L, expiration: Duration = Duration.ofSeconds(60)): MetricsCache = new MetricsCache(heapEntries, diskSize, expiration)
+
+  def apply(configuration: Configuration): MetricsCache = new MetricsCache(configuration)
+
+  object Configuration {
+    val root = "keyscore.metrics.cache"
+
+    def apply(config: Config): Configuration = {
+
+      val resolvedConfig = config.getConfig(s"$root")
+
+      new Configuration(
+        heapEntries = resolvedConfig.getLong("heap-entries"),
+        diskSize = resolvedConfig.getMemorySize("disk-size").toBytes,
+        expiration = resolvedConfig.getDuration("expiration"),
+      )
+    }
+  }
+
+  case class Configuration(
+    heapEntries: Long,
+    diskSize: Long,
+    expiration: Duration
+  )
 }
 
-class MetricsCache(val heapEntries: Long, val diskSize: Long, val expiration: Duration) {
-  private val MetricsCache = "metrics_cache"
+class MetricsCache(val configuration: Configuration) {
 
   private val idToMetrics: mutable.HashMap[UUID, (Long, Long)] = mutable.HashMap.empty[UUID, (Long, Long)]
 
   private val resourcePool = ResourcePoolsBuilder
-    .heap(heapEntries)
-    .disk(diskSize, MemoryUnit.MB)
+    .heap(configuration.heapEntries)
+    .disk(configuration.diskSize, MemoryUnit.B)
 
-  private val configExpiry = ExpiryPolicyBuilder.timeToLiveExpiration(expiration)
-
-  private val persistenceConfiguration = new DefaultPersistenceConfiguration(Files.createTempDirectory("keyscore-metrics-cache-").toFile)
-
+  private val configExpiry = ExpiryPolicyBuilder.timeToLiveExpiration(configuration.expiration)
+  private val persistenceConfiguration = new DefaultPersistenceConfiguration(Files.createTempDirectory("keyscore.metrics-cache-").toFile)
   private val persistenceService = new DefaultLocalPersistenceService(persistenceConfiguration)
-
-  private val persistenceContext = new UserManagedPersistenceContext[String, MetricsCollection](MetricsCache, persistenceService)
+  private val persistenceContext = new UserManagedPersistenceContext[String, MetricsCollection]("keyscore.metrics-cache", persistenceService)
 
   private val cache: PersistentUserManagedCache[String, MetricsCollection] = UserManagedCacheBuilder.newUserManagedCacheBuilder(classOf[String], classOf[MetricsCollection])
     .`with`(persistenceContext)
