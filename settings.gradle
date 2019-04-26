@@ -8,6 +8,10 @@ include 'keyscore-pipeline'
 include 'keyscore-pipeline:keyscore-pipeline-api'
 include 'keyscore-pipeline:keyscore-pipeline-contrib'
 
+include 'keyscore-python'
+include 'keyscore-python:keyscore_python_api'
+include 'keyscore-python:keyscore_python_runtime'
+
 include 'keyscore-simple-persistence'
 
 include 'keyscore-test-fixtures'

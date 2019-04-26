@@ -1,0 +1,14 @@
+apply plugin: 'com.linkedin.python-cli'
+
+dependencies {
+
+    python project(':keyscore-python:keyscore_python_api')
+
+    test 'pypi:mock:2.0.0'
+}
+
+python {
+    pex {
+        fatPex = true // default
+    }
+}

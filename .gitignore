@@ -11,6 +11,15 @@ node_modules/
 package-lock.json
 
 #####################################
+#              Python               #
+#####################################
+.pytest_cache
+*.egg-info/
+setup.cfg
+pinned.txt
+activate
+
+#####################################
 #              IntelliJ             #
 #####################################
 *.iml
@@ -76,4 +85,3 @@ Thumbs.db
 *.vpp~*
 *.vpp.bak*
 *.vpp.working*
-

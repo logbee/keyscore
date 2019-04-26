@@ -17,6 +17,7 @@ buildscript {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath 'com.github.jruby-gradle:jruby-gradle-plugin:1.6.0'
         classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2'
+        classpath "gradle.plugin.com.linkedin.pygradle:pygradle-plugin:0.9.11"
     }
 }
 
@@ -53,11 +54,6 @@ subprojects {
         return stdout.toString().trim()
     }()
 
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-
     apply plugin: 'com.bmuschko.docker-remote-api'
 
     docker {
@@ -87,6 +83,11 @@ configure ([
     project.apply plugin: 'maven-publish'
     project.apply plugin: 'com.jfrog.bintray'
     project.apply plugin: 'distribution'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
 
     bintray {
         user = "$bintrayUser"
@@ -166,6 +167,8 @@ configure ([
 
     repositories {
         maven { url "http://rubygems-proxy.torquebox.org/releases" }
+        mavenCentral()
+        jcenter()
     }
 
     dependencies {
