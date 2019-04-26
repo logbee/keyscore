@@ -37,58 +37,60 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
   val m12 = MetricsCollection(Seq(GaugeMetric(name = "gm2", value = 2.2)))
   val m13 = MetricsCollection(Seq(GaugeMetric(name = "gm3", value = 2.3)))
 
-  "A Metrics CacheManager" - {
+  "A Metrics Cache" - {
 
     "should put a multiple metrics the cache" in {
-      val metricsCacheManager = new MetricsCache(10L, 10L, ofSeconds(5))
+      val metricsCache = new MetricsCache(10L, 10L, ofSeconds(5))
 
-      metricsCacheManager.put(id01, m01)
-      metricsCacheManager.put(id02, m02)
-      metricsCacheManager.put(id07, m07)
-      metricsCacheManager.put(id08, m08)
-      metricsCacheManager.put(id09, m09)
-      metricsCacheManager.put(id10, m10)
-      metricsCacheManager.put(id13, m13)
+      metricsCache.put(id01, m01)
+      metricsCache.put(id02, m02)
+      metricsCache.put(id07, m07)
+      metricsCache.put(id08, m08)
+      metricsCache.put(id09, m09)
+      metricsCache.put(id10, m10)
+      metricsCache.put(id13, m13)
 
       Thread.sleep(1000)
 
-      metricsCacheManager.getOldest(id01).get shouldBe m01
-      metricsCacheManager.getOldest(id07).get shouldBe m07
-      metricsCacheManager.getNewest(id07).get shouldBe m07
-      metricsCacheManager.getOldest(id13).get shouldBe m13
+      metricsCache.getOldest(id01).get shouldBe m01
+      metricsCache.getOldest(id07).get shouldBe m07
+      metricsCache.getNewest(id07).get shouldBe m07
+      metricsCache.getOldest(id13).get shouldBe m13
 
-      metricsCacheManager.clear()
-      metricsCacheManager.getOldest(id03) shouldBe None
+      metricsCache.clear()
+      metricsCache.getOldest(id03) shouldBe None
     }
 
     "should update the tuple for multiple entries for a single uuid" in {
-      val metricsCacheManager = new MetricsCache(10L, 10L, ofSeconds(5))
+      val metricsCache = new MetricsCache(10L, 10L, ofSeconds(5))
 
-      metricsCacheManager.put(id03, m03)
-      metricsCacheManager.put(id03, m04)
-      metricsCacheManager.put(id03, m05)
-      metricsCacheManager.put(id03, m06)
+      metricsCache.put(id03, m03)
+      metricsCache.put(id03, m04)
+      metricsCache.put(id03, m05)
+      metricsCache.put(id03, m06)
 
       Thread.sleep(1000)
 
-      val seq = metricsCacheManager.getAll(id03)
+      val seq = metricsCache.getAll(id03)
       seq.size shouldBe 4
 
-      metricsCacheManager.getOldest(id03).get shouldBe m03
-      metricsCacheManager.getNewest(id03).get shouldBe m06
+      metricsCache.getOldest(id03).get shouldBe m03
+      metricsCache.getNewest(id03).get shouldBe m06
 
     }
 
     "should remove all old entries" in {
-      val metricsCacheManager = new MetricsCache(10L, 10L, ofSeconds(1))
+      val metricsCache = new MetricsCache(10L, 10L, ofSeconds(1))
 
-      metricsCacheManager.put(id11, m11)
+      metricsCache.put(id11, m11)
 
       Thread.sleep(1000)
-      metricsCacheManager.put(id12, m12)
+      metricsCache.put(id12, m12)
 
-      metricsCacheManager.getOldest(id12) shouldNot be (None)
-      metricsCacheManager.getOldest(id11) shouldBe None
+      metricsCache.getOldest(id12) shouldNot be (None)
+      metricsCache.getOldest(id11) shouldBe None
+      
+      metricsCache.close()
 
     }
 

@@ -5,10 +5,11 @@ import java.time.Duration
 import java.util.UUID
 
 import io.logbee.keyscore.model.metrics.MetricsCollection
-import org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder
+import org.ehcache.PersistentUserManagedCache
 import org.ehcache.config.builders._
 import org.ehcache.config.units.MemoryUnit
-import org.ehcache.{Cache, PersistentCacheManager}
+import org.ehcache.impl.config.persistence.{DefaultPersistenceConfiguration, UserManagedPersistenceContext}
+import org.ehcache.impl.persistence.DefaultLocalPersistenceService
 
 import scala.collection.mutable
 
@@ -25,15 +26,23 @@ class MetricsCache(val heapEntries: Long, val diskSize: Long, val expiration: Du
     .heap(heapEntries)
     .disk(diskSize, MemoryUnit.MB)
 
-  private val config: CacheConfigurationBuilder[String, MetricsCollection] = CacheConfigurationBuilder.newCacheConfigurationBuilder(classOf[String], classOf[MetricsCollection], resourcePool).withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(expiration))
+  private val configExpiry = ExpiryPolicyBuilder.timeToLiveExpiration(expiration)
 
-  private val persistence: CacheManagerConfiguration[PersistentCacheManager] = CacheManagerBuilder.persistence(Files.createTempDirectory("keyscore-metrics-cache-").toFile)
-  private val cacheManager: PersistentCacheManager = newCacheManagerBuilder().`with`(persistence).withCache(MetricsCache, config).build(true)
-  private val cache: Cache[String, MetricsCollection] = cacheManager.getCache(MetricsCache, classOf[String], classOf[MetricsCollection])
+  private val persistenceConfiguration = new DefaultPersistenceConfiguration(Files.createTempDirectory("keyscore-metrics-cache-").toFile)
+
+  private val persistenceService = new DefaultLocalPersistenceService(persistenceConfiguration)
+
+  private val persistenceContext = new UserManagedPersistenceContext[String, MetricsCollection](MetricsCache, persistenceService)
+
+  private val cache: PersistentUserManagedCache[String, MetricsCollection] = UserManagedCacheBuilder.newUserManagedCacheBuilder(classOf[String], classOf[MetricsCollection])
+    .`with`(persistenceContext)
+    .withExpiry(configExpiry)
+    .withResourcePools(resourcePool)
+    .build(true)
 
   def close(): Unit = {
-    cacheManager.destroy()
-    cacheManager.close()
+    cache.close()
+    cache.destroy()
   }
 
   def clear(): Unit = {
