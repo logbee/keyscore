@@ -18,13 +18,12 @@ import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic.{hostParameter, indexParameter, portParameter}
-import org.json4s.NoTypeHints
+import org.json4s.{Formats, NoTypeHints}
 import org.json4s.ext.JavaTypesSerializers
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
 
 import scala.concurrent.Promise
-import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 object ElasticSearchSinkLogic extends Described {
@@ -82,7 +81,7 @@ class ElasticSearchSinkLogic(parameters: LogicParameters, shape: SinkShape[Datas
 
   private val pullAsync = getAsyncCallback[Unit](_ => pull(in))
 
-  private implicit val formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
+  private implicit val formats: Formats = Serialization.formats(NoTypeHints) ++ JavaTypesSerializers.all
 
   override def initialize(configuration: Configuration): Unit = {
 

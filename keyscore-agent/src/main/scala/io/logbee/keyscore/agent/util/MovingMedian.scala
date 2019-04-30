@@ -2,7 +2,7 @@ package io.logbee.keyscore.agent.util
 
 import com.google.protobuf.Duration
 import io.logbee.keyscore.agent.util.MovingMedian.MovingMedianItem
-
+import scala.language.implicitConversions
 
 object MovingMedian {
   def apply(window: Int = 10): MovingMedian = new MovingMedian(window)

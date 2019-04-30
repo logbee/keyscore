@@ -12,7 +12,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.localization.TextRef
-import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetric, GaugeMetricDescriptor, MetricsCollection}
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor, MetricsCollection}
 import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
 
 import scala.collection.mutable
@@ -90,7 +90,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
   class ValveLogic extends GraphStageLogic(shape) with InHandler with OutHandler with StageLogging {
 
-    val initPromise = Promise[ValveProxy]
+    val initPromise: Promise[ValveProxy] = Promise[ValveProxy]
 
     private val ringBuffer = RingBuffer[Dataset](bufferLimit)
     private val insertBuffer = RingBuffer[Dataset](bufferLimit)

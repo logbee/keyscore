@@ -9,7 +9,6 @@ import akka.stream.{Attributes, SourceShape}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.model.descriptor.ExpressionType.RegEx
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
@@ -42,7 +41,7 @@ object KafkaSourceLogic extends Described {
       TextRef("port"),
       TextRef("portDescription")),
     defaultValue = 9092L,
-    range = NumberRange(step = 1, start = 0, end = 65535),
+    range = NumberRange(step = 1, end = 65535),
     mandatory = true
   )
 

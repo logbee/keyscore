@@ -1,7 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.filter
 
 import io.logbee.keyscore.model.Described
-import io.logbee.keyscore.model.data.FieldValueType
 import io.logbee.keyscore.model.descriptor.Descriptor
 
 

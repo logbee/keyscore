@@ -3,7 +3,7 @@ package io.logbee.keyscore.agent.pipeline.controller
 import java.util.UUID
 
 import io.logbee.keyscore.agent.pipeline.valve.{ValvePosition, ValveProxy, ValveState}
-import io.logbee.keyscore.model.{After, WhichValve}
+import io.logbee.keyscore.model.WhichValve
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, Label, TextValue}
 import io.logbee.keyscore.model.metrics.MetricsCollection

@@ -46,6 +46,7 @@ object JsonDecoderUtil {
     }
   }
 
+  @Deprecated
   def extract(value: String, prefix: String): Set[Field] = {
 
     val candidates = value
@@ -83,6 +84,7 @@ object JsonDecoderUtil {
     fields.values.toSet
   }
 
+  @Deprecated
   private def removeSubs(depth: Int, stack: mutable.Stack[(Int, Int, Int)]): Unit = {
     while (stack.nonEmpty) {
       if (stack.top._3 <= depth) return
