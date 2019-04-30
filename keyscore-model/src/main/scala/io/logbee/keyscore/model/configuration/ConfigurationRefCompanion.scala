@@ -1,6 +1,7 @@
 package io.logbee.keyscore.model.configuration
 
 import scalapb.TypeMapper
+import scala.language.implicitConversions
 
 trait ConfigurationRefCompanion {
 

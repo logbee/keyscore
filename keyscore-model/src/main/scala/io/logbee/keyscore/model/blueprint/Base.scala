@@ -1,6 +1,7 @@
 package io.logbee.keyscore.model.blueprint
 
 import io.logbee.keyscore.model.descriptor.DescriptorRef
+import scala.language.implicitConversions
 
 object ToBase {
   implicit def sealedToBase(sealedBlueprint: SealedBlueprint): BaseBlueprint = BaseBlueprint(sealedBlueprint)

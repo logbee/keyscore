@@ -5,7 +5,6 @@ import io.logbee.keyscore.model.descriptor._
 
 import scala.collection.mutable
 
-
 trait QueryableParameterSet {
   this: ParameterSet =>
 

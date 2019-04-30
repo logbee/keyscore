@@ -5,6 +5,7 @@ import java.util.UUID
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.ConfigurationRef
 import io.logbee.keyscore.model.descriptor.DescriptorRef
+import scala.language.implicitConversions
 
 object UUIDConversion {
 

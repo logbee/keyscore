@@ -1,5 +1,7 @@
 package io.logbee.keyscore.model.util
 
+import scala.language.implicitConversions
+
 object Hex {
 
   implicit def toHexable(bytes: Array[Byte]): Hexable = new Hexable(bytes)

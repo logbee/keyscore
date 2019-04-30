@@ -1,6 +1,7 @@
 package io.logbee.keyscore.model.blueprint
 
 import java.util.UUID
+import scala.language.implicitConversions
 
 object ToBlueprintRef {
   implicit def stringToBlueprintRef(uuid: String): BlueprintRef = uuidToBlueprintRef(UUID.fromString(uuid))

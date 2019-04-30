@@ -1,5 +1,7 @@
 package io.logbee.keyscore.model
 
+import scala.language.implicitConversions
+
 object WhichValve {
   implicit def whichValve(which: String): WhichValve = {
     which match {

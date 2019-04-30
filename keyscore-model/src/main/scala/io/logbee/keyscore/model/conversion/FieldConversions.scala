@@ -2,6 +2,7 @@ package io.logbee.keyscore.model.conversion
 
 import com.google.protobuf.Timestamp
 import io.logbee.keyscore.model.data._
+import scala.language.implicitConversions
 
 case class BaseField(private val field: Field) {
   def isTextField: Boolean = field.value.isInstanceOf[TextValue]

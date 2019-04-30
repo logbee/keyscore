@@ -4,6 +4,8 @@ import java.util
 
 import scalapb.TypeMapper
 
+import scala.language.implicitConversions
+
 trait BaseLocale {
 
   this: Locale =>

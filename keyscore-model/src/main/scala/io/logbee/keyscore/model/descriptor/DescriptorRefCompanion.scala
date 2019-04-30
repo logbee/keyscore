@@ -3,6 +3,7 @@ package io.logbee.keyscore.model.descriptor
 import java.util.UUID
 
 import scalapb.TypeMapper
+import scala.language.implicitConversions
 
 trait DescriptorRefCompanion {
 

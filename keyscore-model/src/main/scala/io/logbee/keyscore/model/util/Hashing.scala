@@ -3,6 +3,8 @@ package io.logbee.keyscore.model.util
 import java.security.MessageDigest
 import java.util.{Base64, UUID}
 
+import scala.language.implicitConversions
+
 object Hashing {
 
   implicit def toHashable(data: String): Hashable = new Hashable(data)

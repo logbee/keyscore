@@ -1,5 +1,7 @@
 package io.logbee.keyscore.model.descriptor
 
+import scala.language.implicitConversions
+
 object ToParameterRef {
 
   implicit def toRef(descriptor: ParameterDescriptor): ParameterRef = descriptor match {
