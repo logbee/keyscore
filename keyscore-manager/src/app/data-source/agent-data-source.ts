@@ -1,6 +1,6 @@
 import {MatTableDataSource} from "@angular/material";
 import {BehaviorSubject, Observable} from "rxjs/index";
-import {Agent} from "../models/common/Agent";
+import {Agent} from "keyscore-manager-models";
 
 export class AgentDataSource extends MatTableDataSource<Agent> {
 

@@ -3,7 +3,6 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {select, Store} from "@ngrx/store";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
-import {Go} from "../../router/router.actions";
 import {
     DeletePipelineAction,
     LoadFilterDescriptorsAction,
@@ -11,14 +10,12 @@ import {
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
 import {share, takeUntil} from "rxjs/internal/operators";
-import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
-import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
-import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
+import {EditingPipelineModel, InternalPipelineConfiguration, ResolvedFilterDescriptor} from "keyscore-manager-models";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
 import {getEditingPipeline, getFilterDescriptors} from "../index";
-import {ExtractFromSelectedBlock, ResetPreviewState} from "../actions/preview.actions";
+import {ExtractFromSelectedBlock} from "../actions/preview.actions";
 import {DraggableModel} from "./pipely/models/draggable.model";
 
 @Component({

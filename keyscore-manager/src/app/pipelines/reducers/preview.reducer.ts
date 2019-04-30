@@ -1,25 +1,28 @@
-import {EXTRACT_FROM_SELECTED_BLOCK_SUCCESS, PreviewActions, RESET_PREVIEW_STATE} from "../actions/preview.actions";
-import {Dataset} from "../../models/dataset/Dataset";
-import {ValueJsonClass} from "../../models/dataset/Value";
+import {EXTRACT_FROM_SELECTED_BLOCK_SUCCESS, PreviewActions} from "../actions/preview.actions";
 import {
     ChangeType,
+    Dataset,
     DatasetTableModel,
     DatasetTableRecordModel,
     DatasetTableRowModel,
-    DatasetTableRowModelData
-} from "../../models/dataset/DatasetTableModel";
-import {Record} from "../../models/dataset/Record";
-import {Field} from "../../models/dataset/Field";
+    DatasetTableRowModelData,
+    Field,
+    Record,
+    ValueJsonClass
+} from "keyscore-manager-models";
+
 import * as _ from "lodash";
+
 export class PreviewState {
     public dummyDataset: Dataset;
     public outputDatasetModelMap: Map<string, DatasetTableModel[]>;
     public inputDatasetModelMap: Map<string, DatasetTableModel[]>;
     public selectedBlock: string;
 }
+
 export const initalPreviewState: PreviewState = {
-    outputDatasetModelMap: new Map <string, DatasetTableModel[]>(),
-    inputDatasetModelMap: new Map <string, DatasetTableModel[]>(),
+    outputDatasetModelMap: new Map<string, DatasetTableModel[]>(),
+    inputDatasetModelMap: new Map<string, DatasetTableModel[]>(),
     dummyDataset: {
         metaData: {labels: []},
         records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
@@ -31,7 +34,7 @@ export function PreviewReducer(state: PreviewState = initalPreviewState, action:
     let result = _.cloneDeep(state);
     switch (action.type) {
         case EXTRACT_FROM_SELECTED_BLOCK_SUCCESS:
-            if(action.where == "after") {
+            if (action.where == "after") {
                 if (action.extractedDatsets.length !== 0) {
                     const models: DatasetTableModel[] = [];
                     action.extractedDatsets.forEach((dataset) => {

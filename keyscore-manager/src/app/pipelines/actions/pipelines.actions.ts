@@ -1,11 +1,15 @@
 import {Action} from "@ngrx/store";
-import {PipelineInstance} from "../../models/pipeline-model/PipelineInstance";
-import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
-import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
-import {Configuration} from "../../models/common/Configuration";
-import {Descriptor} from "../../models/descriptors/Descriptor";
-import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
-import {Ref} from "../../models/common/Ref";
+import {
+    PipelineInstance,
+    ResolvedFilterDescriptor,
+    Blueprint,
+    PipelineBlueprint,
+    Configuration,
+    Descriptor,
+    EditingPipelineModel,
+    Ref
+} from "keyscore-manager-models";
+
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";
 export const CREATED_PIPELINE = "[Pipeline] CreatedPipeline";

@@ -1,4 +1,4 @@
-import {Configuration} from "../../../../models/common/Configuration";
+import {Configuration} from "keyscore-manager-models";
 
 export interface PipelyPipelineConfiguration {
     id: string;

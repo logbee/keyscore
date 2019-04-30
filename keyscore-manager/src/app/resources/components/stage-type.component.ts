@@ -1,7 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {BlueprintJsonClass} from "../../models/blueprints/Blueprint";
-import {MatIconRegistry} from "@angular/material";
-import {DomSanitizer} from "@angular/platform-browser";
+import {BlueprintJsonClass} from "keyscore-manager-models";
 
 @Component({
     selector: "stage-type",

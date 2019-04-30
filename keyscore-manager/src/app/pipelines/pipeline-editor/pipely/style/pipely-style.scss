@@ -18,15 +18,13 @@
 .draggable-name {
   font-size: 0.7em;
   margin-left: -15px;
-  //box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
   padding: 4px;
   color: #1d1d1d;
   text-align: center;
-  max-height: 2em;
+  max-height: 2.5em;
   max-width: 100px;
-  //background-color: white;
-  //padding-right:12px;
   overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .draggable-name.sink {

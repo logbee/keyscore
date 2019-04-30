@@ -1,8 +1,6 @@
 import {Component, Input} from "@angular/core";
-import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {Configuration, ResolvedFilterDescriptor} from "keyscore-manager-models";
 import {Store} from "@ngrx/store";
-import {Observable} from "rxjs/index";
-import {Configuration} from "../../models/common/Configuration";
 
 @Component({
     selector: "json-visualizer",
