@@ -12,7 +12,7 @@ import io.logbee.keyscore.commons.metrics.MetricsManager.Configuration
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
-import scala.language.postfixOps
+import scala.language.implicitConversions
 
 object MetricsManager {
 

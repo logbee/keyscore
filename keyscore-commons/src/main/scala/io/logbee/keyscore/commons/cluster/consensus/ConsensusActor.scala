@@ -7,6 +7,7 @@ import akka.serialization.Serialization
 import io.logbee.keyscore.commons.cluster.consensus.ConsensusActor.identifier
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 object ConsensusActor {
 

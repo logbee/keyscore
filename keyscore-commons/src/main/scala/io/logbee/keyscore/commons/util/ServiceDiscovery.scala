@@ -8,7 +8,8 @@ import io.logbee.keyscore.commons.util.ServiceDiscovery.Timeout
 import io.logbee.keyscore.commons.{HereIam, Service, WhoIs}
 
 import scala.concurrent.duration._
-import scala.concurrent.{Future, Promise, TimeoutException}
+import scala.concurrent.{ExecutionContextExecutor, Future, Promise, TimeoutException}
+import scala.language.postfixOps
 
 object ServiceDiscovery {
 
@@ -26,7 +27,7 @@ class ServiceDiscovery(services: Seq[Service], strict: Boolean = true, promise: 
   import context.become
 
   private val mediator = DistributedPubSub(context.system).mediator
-  private implicit val ec = context.dispatcher
+  private implicit val ec: ExecutionContextExecutor = context.dispatcher
 
   override def preStart(): Unit = {
 

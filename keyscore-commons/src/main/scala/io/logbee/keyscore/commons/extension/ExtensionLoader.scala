@@ -7,7 +7,6 @@ import io.logbee.keyscore.commons.extension.ExtensionLoader.{LoadExtensions, Reg
 import io.logbee.keyscore.commons.extension.ExtensionType.fromString
 
 import scala.collection.JavaConverters._
-import scala.reflect.internal.util.ScalaClassLoader
 import scala.util.{Failure, Success, Try}
 
 
