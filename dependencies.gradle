@@ -69,6 +69,9 @@ ext {
             "com.consol.citrus:citrus-core:$citrusVersion",
             "com.consol.citrus:citrus-http:$citrusVersion",
             "com.consol.citrus:citrus-java-dsl:$citrusVersion"
+        ],
+        smbj: [
+        	"com.hierynomus:smbj:0.9.1",
         ]
     ]
 }

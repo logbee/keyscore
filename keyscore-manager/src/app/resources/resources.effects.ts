@@ -18,16 +18,16 @@ import {
     LoadAllDescriptorsForBlueprintSuccessAction, LoadConfigurationsFailureAction, LoadConfigurationsSuccessAction,
     ResolvedAllDescriptorsSuccessAction,
 } from "./resources.actions";
-import {Blueprint} from "../../../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Blueprint} from "../models/blueprints/Blueprint";
 import {AppState} from "../app.component";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
-import {Descriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
-import {ResolvedFilterDescriptor} from "../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {Descriptor} from "../models/descriptors/Descriptor";
+import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {StringTMap} from "../common/object-maps";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {BlueprintService} from "../services/rest-api/BlueprintService";
-import {Configuration} from "../../../modules/keyscore-manager-models/src/main/common/Configuration";
-import {ResourceInstanceState} from "../../../modules/keyscore-manager-models/src/main/filter-model/ResourceInstanceState";
+import {Configuration} from "../models/common/Configuration";
+import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
 

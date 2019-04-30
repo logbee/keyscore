@@ -7,7 +7,7 @@ import {
 } from "./agents.actions";
 
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Agent} from "../../../modules/keyscore-manager-models/src/main/common/Agent";
+import {Agent} from "../models/common/Agent";
 
 export class AgentsState {
     agents: Agent[];

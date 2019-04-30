@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {ValueJsonClass} from "../../../../modules/keyscore-manager-models/src/main/dataset/Value";
+import {ValueJsonClass} from "../../models/dataset/Value";
 
 @Component({
     selector: "value-type",

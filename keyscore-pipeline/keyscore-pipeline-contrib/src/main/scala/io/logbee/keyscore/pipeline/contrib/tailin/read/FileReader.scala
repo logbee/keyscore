@@ -1,17 +1,14 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
-import java.io.File
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.channels.FileChannel
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
 
 import org.slf4j.LoggerFactory
 
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
@@ -65,7 +62,7 @@ object FileReader {
 /**
  * @param rotationPattern Glob-pattern for the file-name of rotated files. If an empty string or null is passed, no rotated files are matched.
  */
-class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
+class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
   
   import FileReader.BytePos
   import FileReader.CharPos
@@ -81,8 +78,6 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   private val byteBuffer = ByteBuffer.allocate(byteBufferSize)
   
-  private val fileReadChannel = Files.newByteChannel(fileToRead.toPath, StandardOpenOption.READ).asInstanceOf[FileChannel]
-  
   
   private var leftOverFromPreviousBuffer = ""
   
@@ -90,12 +85,12 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem) = { //TODO consider less data than a readScheduleItem or a different data structure -> we need the specific file, not the base file and only the startPos and endPos
     
+    assert(readScheduleItem.startPos <= readScheduleItem.endPos) //TODO
+    assert(readScheduleItem.endPos <= fileToRead.length) //TODO
+    
+    
     val readEndPos = BytePos(readScheduleItem.endPos)
     
-    
-    
-    assert(readScheduleItem.startPos <= readEndPos.value) //TODO
-    assert(readEndPos.value <= fileToRead.length) //TODO
     
     var bufferStartPos = BytePos(readScheduleItem.startPos)
     
@@ -109,7 +104,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
       if (newBufferLimit < byteBufferSize)
         byteBuffer.limit(newBufferLimit) //set the limit to the end of what it should read out
         
-      var bytesRead = BytePos(fileReadChannel.read(byteBuffer, bufferStartPos.value))
+      var bytesRead = BytePos(fileToRead.read(byteBuffer, bufferStartPos.value))
       
       if (bytesRead.value == -1 || bytesRead.value == 0) {
         throw new IllegalStateException("There were no bytes to read.")
@@ -208,7 +203,13 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   private def doCallback(callback: FileReadData => Unit, string: String, readEndPos: BytePos, writeTimestamp: Long, newerFilesWithSharedLastModified: Int) = {
     
-    val fileReadData = FileReadData(leftOverFromPreviousBuffer + string, null, readEndPos.value, writeTimestamp, newerFilesWithSharedLastModified)
+    val fileReadData = FileReadData(string=leftOverFromPreviousBuffer + string,
+                                    baseFile=null,
+                                    physicalFile=fileToRead.absolutePath,
+                                    readEndPos=readEndPos.value,
+                                    writeTimestamp=writeTimestamp,
+                                    readTimestamp=System.currentTimeMillis,
+                                    newerFilesWithSharedLastModified=newerFilesWithSharedLastModified)
     
     callback(fileReadData)
     leftOverFromPreviousBuffer = ""
@@ -221,9 +222,7 @@ class FileReader(fileToRead: File, rotationPattern: String, byteBufferSize: Int,
   
   
   def tearDown() = {
-    if (fileReadChannel != null) {
-      fileReadChannel.close()
-    }
+    fileToRead.tearDown()
     
     log.info("Teardown for " + fileToRead)
   }

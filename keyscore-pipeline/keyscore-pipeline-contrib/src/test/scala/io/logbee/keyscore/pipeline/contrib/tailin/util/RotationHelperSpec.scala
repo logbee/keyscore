@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitRunner
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 @RunWith(classOf[JUnitRunner])
-class RotationHelperSpec extends RotateFilesSetup with Matchers {
+class RotationHelperSpec extends SpecWithRotateFiles with Matchers {
   
   
   //TODO test what happens if null is passed as previousReadRecord
@@ -41,7 +41,7 @@ class RotationHelperSpec extends RotateFilesSetup with Matchers {
       "all files matching the rotationPattern," - {
         "if it got passed a non-empty rotationPattern" in new RotateFiles {
           
-          val rotationPattern = logFile.getName + ".[1-2]"
+          val rotationPattern = logFile.name + ".[1-2]"
           
           val rotationFiles = RotationHelper.getRotationFilesToRead(logFile, rotationPattern, noPreviousReadRecord)
           
@@ -53,7 +53,7 @@ class RotationHelperSpec extends RotateFilesSetup with Matchers {
       "all files matching the rotationPattern that are newer than the previousReadTimestamp," - {
         "if it got passed a non-empty rotationPattern and a previousReadTimestamp" in new RotateFiles {
           
-          val rotationPattern = logFile.getName + ".[1-5]"
+          val rotationPattern = logFile.name + ".[1-5]"
           
           val rotationFiles = RotationHelper.getRotationFilesToRead(logFile, rotationPattern, new FileReadRecord(previousReadPosition=0, previousReadTimestamp, newerFilesWithSharedLastModified=0))
           

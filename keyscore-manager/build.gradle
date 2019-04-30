@@ -62,6 +62,25 @@ task webpack(type: NodeTask, dependsOn: npmInstall) {
     ])
 }
 
+task copyResources(type: Copy) {
+    from file('../media/svg/light/keyscore.light.svg')
+    into "$buildDir/resources/"
+}
+
+distributions {
+    main {
+        contents {
+            into('web-content') {
+                from('conf/application.conf')
+                from('public/')
+                from('build/webpack/')
+                from(copyResources.outputs)
+                from(webpack)
+            }
+        }
+    }
+}
+
 task serve(type: NodeTask, dependsOn: npmInstall) {
     subprojects.each { dependsOn("${it.name}:npmInstall") }
     script = file('node_modules/.bin/webpack-dev-server')
@@ -76,20 +95,13 @@ task onceUponATimeInKeyscore(dependsOn: storybook) {}
 task createDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'quay.io/logbee/nginx:v1.13.7'
-    instruction { 'COPY public/ build/webpack/ /usr/share/nginx/html/' }
     instruction { 'COPY conf/nginx.conf /etc/nginx/nginx.conf' }
-    instruction { 'COPY conf/application.conf /usr/share/nginx/html/' }
-    instruction { 'COPY build/resources/keyscore.light.svg /usr/share/nginx/html/' }
+    instruction { 'COPY build/install/keyscore-manager/web-content /usr/share/nginx/html/' }
     instruction { "CMD nginx -g 'daemon off;'" }
     instruction { 'EXPOSE 80' }
 }
 
-task copyResources(type: Copy) {
-    from file('../media/svg/light/keyscore.light.svg')
-    into "$buildDir/resources/"
-}
-
-task buildDockerImage(type: DockerBuildImage, dependsOn: [createDockerfile, copyResources, webpack]) {
+task buildDockerImage(type: DockerBuildImage, dependsOn: [createDockerfile, installDist]) {
     inputDir = projectDir
     dockerFile = createDockerfile.destFile
     tag = "$dockerImageName:$version"
@@ -122,21 +134,10 @@ task pushDockerImage(type: DockerPushImage) {
     tag = version
 }
 
-task build(dependsOn: webpack) {
-}
-
-task check(dependsOn: build) {
-
-}
-
-task clean(type: Delete) {
+clean {
     delete 'build'
 }
 
 task cleanAll(type: Delete, dependsOn: clean) {
-    delete 'node_modules'
-}
-
-task cleanNode(type: Delete) {
-    delete 'node_modules'
+    delete 'node_modules', 'package-lock.json'
 }

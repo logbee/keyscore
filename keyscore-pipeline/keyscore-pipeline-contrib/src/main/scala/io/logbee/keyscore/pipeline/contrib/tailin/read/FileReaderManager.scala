@@ -1,7 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
-import java.io.File
-
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
@@ -9,9 +8,9 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 
 class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: ReadSchedule, readPersistence: ReadPersistence, rotationPattern: String) {
   
-  private val fileReaders = Map[File, FileReader]()
+  private val fileReaders = Map[FileHandle, FileReader]()
   
-  private def getFileReader(fileToRead: File): FileReader = {
+  private def getFileReader(fileToRead: FileHandle): FileReader = {
     var fileReaderOpt = fileReaders.get(fileToRead)
     
     var fileReader: FileReader = null

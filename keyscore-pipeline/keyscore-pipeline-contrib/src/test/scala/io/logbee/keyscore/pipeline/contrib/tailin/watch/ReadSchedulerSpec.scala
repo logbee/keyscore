@@ -14,16 +14,16 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.util.RotateFilesSetup
+import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
 
 @RunWith(classOf[JUnitRunner])
-class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory {
+class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFactory {
 
   trait PersistenceContextWithoutTimestamp extends LogFile {
     
     val persistenceContextWithoutTimestamp = mock[PersistenceContext]
     (persistenceContextWithoutTimestamp.load[FileReadRecord](_: String)(_: TypeTag[FileReadRecord]))
-      .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
+      .expects(logFile.absolutePath, typeTag[FileReadRecord])
       .returning(Some(FileReadRecord(previousReadPosition = 0, previousReadTimestamp = 0, newerFilesWithSharedLastModified = 0)))
   }
   
@@ -33,7 +33,7 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     val persistenceContextWithTimestamp = mock[PersistenceContext]
     
     (persistenceContextWithTimestamp.load[FileReadRecord](_: String)(_: TypeTag[FileReadRecord]))
-      .expects(logFile.getAbsolutePath, typeTag[FileReadRecord])
+      .expects(logFile.absolutePath, typeTag[FileReadRecord])
       .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp, newerFilesWithSharedLastModified = 0)))
   }
   
@@ -250,14 +250,43 @@ class ReadSchedulerSpec extends RotateFilesSetup with Matchers with MockFactory 
     
     
     
+    "schedule a read only for the newest file, if the files have been rotated" in
+    new ReadSchedulerSetup with RotateFiles {
+      
+      inSequence {
+        (readPersistence.getCompletedRead _)
+          .expects(logFile)
+          .returning(FileReadRecord(previousReadPosition=logFile.length,
+                                    previousReadTimestamp=logFile.lastModified,
+                                    newerFilesWithSharedLastModified=0)
+                    )
+        
+        
+        rotate()
+        println("logFile: " + logFile.lastModified)
+        
+        (readSchedule.enqueue _)
+          .expects(ReadScheduleItem(
+            logFile,
+            startPos = 0,
+            endPos = logFile.length,
+            logFile.lastModified,
+            newerFilesWithSharedLastModified = 0))
+      }
+      
+      val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
+      readScheduler.fileModified()
+    }
+    
+    
     
     trait SharedLastModifiedFilesSetup {
       val baseFile = TestUtil.createFile(watchDir, "file", "0")
-      val rotatePattern = baseFile.getName + ".[1-5]"
+      val rotatePattern = baseFile.name + ".[1-5]"
       
       //if the lastModified-timestamp is equal, how new the file is, is decided by what rotation-index is included in the file-name (usually something like '.1', '.2' etc.)
-      val file1Name = baseFile.getName + ".1"
-      val file2Name = baseFile.getName + ".2"
+      val file1Name = baseFile.name + ".1"
+      val file2Name = baseFile.name + ".2"
       
       val file1 = TestUtil.createFile(watchDir, file1Name, "11")
       val file2 = TestUtil.createFile(watchDir, file2Name, "222")

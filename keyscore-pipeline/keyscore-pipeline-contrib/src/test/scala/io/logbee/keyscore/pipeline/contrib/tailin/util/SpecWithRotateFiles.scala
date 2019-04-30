@@ -1,35 +1,28 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import java.nio.file.Path
+
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FreeSpec
 import java.nio.file.Files
 
-
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadData
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import java.nio.file.StandardOpenOption
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile.localFile2File
+
 @RunWith(classOf[JUnitRunner])
-class RotateFilesSetup extends FreeSpec with BeforeAndAfter {
-  
-  
-  var watchDir: Path = null
-
-  before {
-    watchDir = Files.createTempDirectory("watchTest")
-
-    TestUtil.waitForFileToExist(watchDir.toFile)
-  }
-
-  after {
-    TestUtil.recursivelyDelete(watchDir)
-  }
+class SpecWithRotateFiles extends SpecWithTempDir {
   
   
   trait LogFile {
     val logFileData = "Log_File_0_ "
     val logFile = TestUtil.createFile(watchDir, "log.txt", logFileData)
     
-    val defaultRotationPattern = logFile.getName + ".[1-5]"
+    val defaultRotationPattern = logFile.name + ".[1-5]"
   }
   
   
@@ -77,5 +70,35 @@ class RotateFilesSetup extends FreeSpec with BeforeAndAfter {
     
     val previousReadPosition = logFile3Data.length / 2
     val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
+    
+    
+    def rotate() {
+        logFile3_ModifiedAfterPreviousReadTimestamp.renameTo(logFile4_ModifiedBeforePreviousReadTimestamp)
+        logFile2.renameTo(logFile3_ModifiedAfterPreviousReadTimestamp)
+        logFile1.renameTo(logFile2)
+        logFile.renameTo(logFile1)
+        
+        Thread.sleep(1000) //TODO this is currently necessary to offset the lastModified-timestamps -> make this nicer by manually setting the lastModified-timestamps
+        
+        logFile.createNewFile()
+        TestUtil.waitForFileToExist(logFile)
+        TestUtil.writeStringToFile(logFile, "Rotated", StandardOpenOption.APPEND)
+    }
+  }
+  
+  
+  
+  
+  def calledBackDataIsSimilarTo(expected: FileReadData): FileReadData => Boolean = {
+    actual: FileReadData => {
+      expected.string == actual.string &&
+      Option(expected.baseFile).equals(Option(actual.baseFile)) &&
+      Option(expected.physicalFile).equals(Option(actual.physicalFile)) &&
+      expected.readEndPos == actual.readEndPos &&
+      expected.writeTimestamp == actual.writeTimestamp &&
+      actual.readTimestamp >= actual.writeTimestamp &&
+      actual.readTimestamp <= System.currentTimeMillis &&
+      expected.newerFilesWithSharedLastModified == actual.newerFilesWithSharedLastModified
+    }
   }
 }

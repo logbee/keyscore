@@ -11,9 +11,9 @@ import {
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
 import {share, takeUntil} from "rxjs/internal/operators";
-import {InternalPipelineConfiguration} from "../../../../modules/keyscore-manager-models/src/main/pipeline-model/InternalPipelineConfiguration";
-import {ResolvedFilterDescriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
-import {EditingPipelineModel} from "../../../../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
+import {InternalPipelineConfiguration} from "../../models/pipeline-model/InternalPipelineConfiguration";
+import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
+import {EditingPipelineModel} from "../../models/pipeline-model/EditingPipelineModel";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
