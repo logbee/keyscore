@@ -82,14 +82,9 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
           sink.expectNoMessage(remaining = 2 seconds)
 
           whenReady(filter.scrape()) { mc =>
-            mc.find(enqueuedPassedThroughEntries).get.value shouldBe 2
-            mc.find(pushedPassedThroughEntries).get.value shouldBe 2
-            mc.find(addedDatasets).get.value shouldBe 2
-            mc.find(queueEntries).get.value shouldBe 2
-            mc.find(groupEntries) shouldBe None
-            mc.find(addedGroupEntries) shouldBe None
-            mc.find(enqueuedGroupEntries) shouldBe None
-            mc.find(pushedGroupEntries) shouldBe None
+            mc.find(queuedEntries).get.value shouldBe 2
+            mc.find(pushedEntries).get.value shouldBe 2
+//            mc.find(queueMemory).get.value shouldBe > (0L)
           }
         }
       }
@@ -105,7 +100,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
       "should group consecutive datasets by the value of the configured field" in new TestStreamFor[GroupByValueLogic](configuration) {
 
-        whenReady(filterFuture) { filter =>
+        whenReady(filterFuture) { _ =>
 
           sink.request(3)
 
@@ -121,22 +116,9 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
 
           sink.expectNoMessage(remaining = 1 seconds)
 
-          whenReady(filter.scrape()) { mc =>
-            mc.find(addedGroupEntries).get.value shouldBe 2
-            mc.find(addedToGroup).get.value shouldBe 3
-            mc.find(addedDatasets).get.value shouldBe 3
-          }
-
           sampleDatasets.foreach(source.sendNext)
 
           actual = sink.requestNext()
-
-          whenReady(filter.scrape()) { mc =>
-            mc.find(pushedGroupEntries).get.value shouldBe 2
-            mc.find(pushedPassedThroughEntries) shouldBe None
-            mc.find(closedGroupEntries).get.value shouldBe 2
-            mc.find(droppedGroupEntries) shouldBe None
-          }
 
           actual shouldBe singleDataset
 
@@ -162,7 +144,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
           )
         )
 
-        whenReady(filterFuture) { filter =>
+        whenReady(filterFuture) { _ =>
 
           sink.request(1)
           source.sendNext(sample)
@@ -172,30 +154,17 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
           val actual = sink.requestNext(1000 millis)
 
           actual shouldBe sample
-
-          whenReady(filter.scrape()) { mc =>
-            mc.find(pushedGroupEntries).get.value shouldBe 1
-            mc.find(enqueuedGroupEntries).get.value shouldBe 1
-            mc.find(closedGroupEntries) shouldBe None
-            mc.find(pushedPassedThroughEntries) shouldBe None
-          }
-
         }
       }
 
       "should group consecutive datasets but not push until the time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
 
-        whenReady(filterFuture) { filter =>
+        whenReady(filterFuture) { _ =>
 
           sink.request(3)
 
           sampleDatasets.foreach(source.sendNext)
           source.sendNext(singleDataset)
-
-          whenReady(filter.scrape()) { mc =>
-            mc.find(pushedGroupEntries) shouldBe None
-            mc.find(enqueuedGroupEntries).get.value shouldBe 2
-          }
 
           sink.expectNoMessage(remaining = 1000 millis)
 
@@ -206,11 +175,6 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
           actual = sink.requestNext(1000 millis)
 
           actual shouldBe singleDataset
-
-          whenReady(filter.scrape()) { mc =>
-            mc.find(pushedGroupEntries).get.value shouldBe 2
-            mc.find(enqueuedGroupEntries).get.value shouldBe 2
-          }
         }
       }
     }

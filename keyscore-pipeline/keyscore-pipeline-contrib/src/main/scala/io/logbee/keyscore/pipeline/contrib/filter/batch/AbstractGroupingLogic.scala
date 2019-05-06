@@ -4,6 +4,7 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.Importance.{High, Medium}
 import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor}
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
@@ -13,70 +14,31 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 
 object AbstractGroupingLogic {
 
-  val enqueuedPassedThroughEntries = CounterMetricDescriptor(
-    name = "enqueued_passed_through_entries",
-    displayName = TextRef("enqueuedPassedThroughEntriesName"),
-    description = TextRef("enqueuedPassedThroughEntriesDesc")
+  val pushedEntries = CounterMetricDescriptor(
+    name = "pushed_entries",
+    displayName = TextRef("pushedEntriesName"),
+    description = TextRef("pushedEntriesDesc"),
+    importance = Medium
   )
 
-  val enqueuedGroupEntries = CounterMetricDescriptor(
-    name = "enqueued_group_entries",
-    displayName = TextRef("enqueuedGroupEntriesName"),
-    description = TextRef("enqueuedGroupEntriesDesc")
+  val queuedEntries = GaugeMetricDescriptor(
+    name = "queued_entries",
+    displayName = TextRef("queuedEntriesName"),
+    description = TextRef("queuedEntriesDesc"),
+    importance = High
   )
 
-  val pushedPassedThroughEntries = CounterMetricDescriptor(
-    name = "pushed_passed_through_entries",
-    displayName = TextRef("pushedPassedThroughEntriesName"),
-    description = TextRef("pushedPassedThroughEntriesDesc")
+  val queueMemory = GaugeMetricDescriptor(
+    name = "queued_memory",
+    displayName = TextRef("queuedMemoryName"),
+    description = TextRef("queuedMemoryDesc"),
+    importance = High
   )
 
-  val pushedGroupEntries = CounterMetricDescriptor(
-    name = "pushed_group_entries",
-    displayName = TextRef("pushedGroupEntriesName"),
-    description = TextRef("pushedGroupEntriesDesc")
-  )
-
-  val addedDatasets = CounterMetricDescriptor(
-    name = "added_datasets",
-    displayName = TextRef("addedDatasetsName"),
-    description = TextRef("addedDatasetsDesc")
-  )
-
-  val addedToGroup = CounterMetricDescriptor(
-    name = "added_to_group",
-    displayName = TextRef("addedToGroup"),
-    description = TextRef("addedToGroup")
-  )
-
-  val addedGroupEntries = CounterMetricDescriptor(
-    name = "added_group_entries",
-    displayName = TextRef("addedGroupEntriesName"),
-    description = TextRef("addedGroupEntriesDesc")
-  )
-
-  val closedGroupEntries = CounterMetricDescriptor(
-    name = "closed_group_entries",
-    displayName = TextRef("closedGroupEntriesName"),
-    description = TextRef("closedGroupEntriesDesc")
-  )
-
-  val droppedGroupEntries = CounterMetricDescriptor(
-    name = "dropped_group_entries",
-    displayName = TextRef("droppedGroupEntriesName"),
-    description = TextRef("droppedGroupEntriesDesc")
-  )
-
-  val groupEntries = GaugeMetricDescriptor(
-    name = "group_entries",
-    displayName = TextRef("groupEntriesName"),
-    description = TextRef("groupEntriesDesc")
-  )
-
-  val queueEntries = GaugeMetricDescriptor(
-    name = "queue_entries",
-    displayName = TextRef("queueEntriesName"),
-    description = TextRef("queueEntriesDesc")
+  val metrics = Seq(
+    queuedEntries,
+    queueMemory,
+    pushedEntries
   )
 }
 
@@ -127,20 +89,17 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
   protected def passthrough(dataset: Dataset): Unit = {
     queue enqueue PassThroughEntry(dataset)
-    metrics.collect(enqueuedPassedThroughEntries).increment()
-    metrics.collect(queueEntries).set(queue.size)
-    metrics.collect(addedDatasets).increment()
+    metrics.collect(queuedEntries).set(queue.size)
+    metrics.collect(queueMemory).set(getQueueSizeInByte)
   }
 
   protected def openGroup(id: String): Unit = {
     val group = GroupEntry()
     group.identifier(id)
     queue enqueue group
-    metrics.collect(enqueuedGroupEntries).increment()
-    metrics.collect(queueEntries).set(queue.size)
+    metrics.collect(queuedEntries).set(queue.size)
+    metrics.collect(queueMemory).set(getQueueSizeInByte)
     groups.put(id, group)
-    metrics.collect(addedGroupEntries).increment()
-    metrics.collect(groupEntries).set(groups.size)
   }
 
   protected def closeGroup(id: String): Unit = {
@@ -156,12 +115,12 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     groups.get(id) match {
       case Some(group) =>
         group.add(dataset)
-        metrics.collect(addedDatasets).increment()
-        metrics.collect(addedToGroup).increment()
+        metrics.collect(queueMemory).set(getQueueSizeInByte)
       case _ if doOpenGroup =>
         openGroup(id)
         addToGroup(id, dataset)
-      case _ => passthrough(dataset)
+      case _ =>
+        passthrough(dataset)
     }
   }
 
@@ -235,18 +194,21 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
       case Some(PassThroughEntry(dataset)) =>
         queue.dequeue()
         push(out, dataset)
-        metrics.collect(pushedPassedThroughEntries).increment()
+        metrics.collect(pushedEntries).increment()
+        metrics.collect(queueMemory).set(getQueueSizeInByte)
         true
 
       case Some(group @ GroupEntry()) if group.isDropped =>
         queue.dequeue()
+        metrics.collect(queueMemory).set(getQueueSizeInByte)
         false
 
       case Some(group @ GroupEntry()) if group.isClosed || timeWindowActive && group.isExpired =>
         queue.dequeue()
         group.identifiers.foreach(groups.remove)
         push(out, fold(group.datasets))
-        metrics.collect(pushedGroupEntries).increment()
+        metrics.collect(pushedEntries).increment()
+        metrics.collect(queueMemory).set(getQueueSizeInByte)
         true
 
       case _ => false
@@ -308,10 +270,12 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
     def add(dataset: Dataset): Unit = {
       _datasets += dataset
+      metrics.collect(queueMemory).set(getQueueSizeInByte)
     }
 
     def add(datasets: Seq[Dataset]): Unit = {
       _datasets ++= datasets
+      metrics.collect(queueMemory).set(getQueueSizeInByte)
     }
 
     def datasets: Seq[Dataset] = _datasets
@@ -320,18 +284,17 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
     def isExpired: Boolean = System.currentTimeMillis > expires
 
-    def close(): Unit = {
-      closed = true
-      metrics.collect(closedGroupEntries).increment()
-    }
+    def close(): Unit = closed = true
 
-    def drop(): Unit = {
-      dropped = true
-      metrics.collect(droppedGroupEntries).increment()
-    }
-
+    def drop(): Unit = dropped = true
+    
     def isClosed: Boolean = closed
 
     def isDropped: Boolean = dropped
+  }
+
+  private def getQueueSizeInByte: Long = {
+    //TODO Get Bytesize of Queue
+    -1L
   }
 }

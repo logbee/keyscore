@@ -107,3 +107,12 @@ enum FieldValueType {
     Timestamp = 5;
     Duration = 6;
 }
+
+enum Importance {
+    Undefined = 0;
+    Low = 1;
+    Lower = 2;
+    Medium = 3;
+    Higher = 4;
+    High = 5;
+}

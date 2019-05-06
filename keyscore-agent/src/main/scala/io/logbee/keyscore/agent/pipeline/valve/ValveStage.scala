@@ -10,6 +10,7 @@ import com.google.protobuf.util.Timestamps.between
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open, ValvePosition}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
+import io.logbee.keyscore.model.data.Importance.{Lower, Medium}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor, MetricsCollection}
@@ -24,48 +25,33 @@ object ValveStage {
   val PreviousDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_PREVIOUS_THROUGHPUT_TIME"
   val TotalDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_TOTAL_THROUGHPUT_TIME"
 
-  val requestedDatasets = CounterMetricDescriptor(
-    name = "requested_datasets",
-    displayName = TextRef("requestedDatasetsName"),
-    description = TextRef("requestedDatasetsDesc")
-  )
-
-  val drainedDatasets = CounterMetricDescriptor(
-    name = "drained_datasets",
-    displayName = TextRef("drainedDatasetsName"),
-    description = TextRef("drainedDatasetsDesc")
-  )
-
   val pushedDatasets = CounterMetricDescriptor(
     name = "pushed_datasets",
     displayName = TextRef("pushedDatasetsName"),
-    description = TextRef("pushedDatasetsDesc")
+    description = TextRef("pushedDatasetsDesc"),
+    importance = Lower
   )
 
   val insertedDatasets = CounterMetricDescriptor(
     name = "inserted_datasets",
     displayName = TextRef("insertedDatasetsName"),
-    description = TextRef("insertedDatasetsDesc")
-  )
-
-  val extractedDatasets = CounterMetricDescriptor(
-    name = "extracted_datasets",
-    displayName = TextRef("extractedDatasetsName"),
-    description = TextRef("extractedDatasetsDesc")
+    description = TextRef("insertedDatasetsDesc"),
+    importance = Lower
   )
 
   val _throughputTime = GaugeMetricDescriptor(
     name = "throughput_time",
     displayName = TextRef("throughputTimeName"),
     description = TextRef("throughputTimeDesc"),
+    importance = Medium
   )
 
   val _totalThroughputTime = GaugeMetricDescriptor(
     name = "total_throughput_time",
     displayName = TextRef("totalThroughputTimeName"),
-    description = TextRef("totalThroughputTimeDesc")
+    description = TextRef("totalThroughputTimeDesc"),
+    importance = Medium
   )
-
 }
 
 /**
@@ -147,10 +133,6 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       case (promise, amount) =>
         val datasets = ringBuffer.last(amount)
         promise.success(datasets)
-
-        datasets.map(_ => {
-          metrics.collect(extractedDatasets).increment()
-        })
 
         log.debug(s"Extracted ${datasets.size} datasets from valve <$id>")
     })
@@ -278,11 +260,6 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       if (!hasBeenPulled(in)) {
         pull(in)
 
-        if(isDraining){
-          metrics.collect(drainedDatasets).increment()
-        }
-
-        metrics.collect(requestedDatasets).increment()
       }
     }
 

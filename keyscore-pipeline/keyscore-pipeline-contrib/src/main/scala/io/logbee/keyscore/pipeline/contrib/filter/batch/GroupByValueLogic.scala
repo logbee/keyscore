@@ -61,6 +61,7 @@ object GroupByValueLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
       parameters = Seq(fieldNameParameter, timeWindowActiveParameter, timeWindowMillisParameter, maxNumberOfGroupsParameter),
+      metrics = AbstractGroupingLogic.metrics,
       icon = Icon.fromClass(classOf[GroupByValueLogic]),
       maturity = Experimental
     ),

@@ -21,6 +21,7 @@ message CounterMetricDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
+    Importance importance = 4;
 }
 // end::CounterMetricDescriptor[]
 
@@ -29,6 +30,7 @@ message GaugeMetricDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
+    Importance importance = 4;
 }
 // end::GaugeMetricDescriptor[]
 

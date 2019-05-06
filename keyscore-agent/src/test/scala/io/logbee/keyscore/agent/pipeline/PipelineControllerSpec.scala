@@ -7,10 +7,9 @@ import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.agent.pipeline.valve.ValveStage._totalThroughputTime
 import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter, ParameterSet}
-import io.logbee.keyscore.model.data.{Dataset, Label, Record, TextValue}
 import io.logbee.keyscore.model.data.Health.Green
+import io.logbee.keyscore.model.data.{Dataset, Label, Record, TextValue}
 import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric}
 import io.logbee.keyscore.model.pipeline.Running
 import io.logbee.keyscore.model.{After, Before}
@@ -182,12 +181,6 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
             datasets.head.records should contain theSameElementsAs dataset3.records
             datasets(1).records should contain theSameElementsAs dataset2.records
             datasets(2).records should contain theSameElementsAs dataset1.records
-
-            whenReady(controller.scrape()) { collection =>
-              val extracted = collection.findMetrics[CounterMetric]("extracted_datasets", Set(outLabel))
-              extracted.size should be(1)
-              extracted.head.value should be(3.0)
-            }
 
             whenReady(controller.drain(false)) { _ =>
               whenReady(controller.pause(false)) { _ =>
