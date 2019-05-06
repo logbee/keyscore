@@ -43,6 +43,12 @@ object AbstractGroupingLogic {
     description = TextRef("addedDatasetsDesc")
   )
 
+  val addedToGroup = CounterMetricDescriptor(
+    name = "added_to_group",
+    displayName = TextRef("addedToGroup"),
+    description = TextRef("addedToGroup")
+  )
+
   val addedGroupEntries = CounterMetricDescriptor(
     name = "added_group_entries",
     displayName = TextRef("addedGroupEntriesName"),
@@ -142,7 +148,6 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
       case Some(group @ GroupEntry()) =>
         group.identifiers.foreach(groups.remove)
         group.close()
-        metrics.collect(closedGroupEntries).increment()
       case _ => // Nothing to do.
     }
   }
@@ -152,6 +157,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
       case Some(group) =>
         group.add(dataset)
         metrics.collect(addedDatasets).increment()
+        metrics.collect(addedToGroup).increment()
       case _ if doOpenGroup =>
         openGroup(id)
         addToGroup(id, dataset)
@@ -169,7 +175,6 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
       case Some(group) =>
         group.identifiers.foreach(groups.remove)
         group.drop()
-        metrics.collect(droppedGroupEntries).increment()
       case _ =>
     }
   }
@@ -317,11 +322,12 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
     def close(): Unit = {
       closed = true
-
+      metrics.collect(closedGroupEntries).increment()
     }
 
     def drop(): Unit = {
       dropped = true
+      metrics.collect(droppedGroupEntries).increment()
     }
 
     def isClosed: Boolean = closed
