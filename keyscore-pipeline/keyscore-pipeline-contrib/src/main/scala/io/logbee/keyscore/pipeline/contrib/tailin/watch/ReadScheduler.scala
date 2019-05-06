@@ -8,7 +8,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 
 
-class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileWatcher {
+class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileEventHandler {
   
   var previouslyScheduled = readPersistence.getCompletedRead(baseFile)
   

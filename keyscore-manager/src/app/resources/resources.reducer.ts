@@ -3,18 +3,10 @@ import {
     LOAD_ALL_BLUEPRINTS_SUCCESS,
     LOAD_CONFIGURATIONS_SUCCESS,
     RESOLVED_ALL_DESCRIPTORS_SUCCESS,
-    ResourcesActions,
-    STORE_BLUEPRINT_REF,
-    STORE_CONFIGURATION_REF,
-    STORE_DESCRIPTOR_REF
+    ResourcesActions
 } from "./resources.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Blueprint} from "../models/blueprints/Blueprint";
-import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {Configuration} from "../models/common/Configuration";
-import {StateObject} from "../models/common/StateObject";
-import {deepcopy} from "../util";
-import {ResourceTableModel} from "../models/resources/ResourceTableModel";
+import {Blueprint, ResolvedFilterDescriptor, Configuration, StateObject, ResourceTableModel} from "keyscore-manager-models";
 import * as _ from "lodash";
 
 export class ResourceViewerState {
@@ -69,7 +61,7 @@ export function ResourcesReducer(state: ResourceViewerState = initialState, acti
             result.resourceModels = tmp;
             break;
         case GET_RESOURCE_STATE_SUCCESS:
-            let copy = deepcopy(result.stateObjects, []);
+            let copy = _.cloneDeep(result.stateObjects);
             copy.push(new StateObject(action.resourceId, action.instance));
             result.stateObjects = copy;
             break;

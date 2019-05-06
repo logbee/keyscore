@@ -1,0 +1,52 @@
+{
+  "name": "keyscore-manager-pipeline-parameters",
+  "version": "0.3.0",
+  "description": "Component Library to represent form-controls for keyscore pipeline parameters ",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "prepare": "npm run build && npm run copy-css",
+    "copy-css": "copyfiles src/main/style/*.scss build/",
+    "clean": "rimraf -rf ./build",
+    "build": "npm run clean && tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "keyscore",
+    "parameter",
+    "pipeline",
+    "component",
+    "library"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ngx-propagation-stop": "1.0.6",
+    "keyscore-manager-models": "file:../keyscore-manager-models",
+    "keyscore-manager-test-fixtures": "file:../keyscore-manager-test-fixtures",
+    "keyscore-manager-material": "file:../keyscore-manager-material"
+  },
+  "peerDependencies": {
+    "@angular/common": "^7.1.1",
+    "@angular/compiler": "^7.1.1",
+    "@angular/core": "^7.1.1",
+    "@angular/forms": "^7.1.1",
+    "@angular/http": "^7.1.1",
+    "@angular/platform-browser": "^7.1.1",
+    "@angular/platform-browser-dynamic": "^7.1.1",
+    "@angular/router": "^7.1.1",
+    "@angular-devkit/core": "^7.3.6",
+    "@angular/material": "^7.1.1",
+    "@angular/animations": "^7.1.1",
+    "@angular/cdk": "^7.1.1",
+    "@angular/flex-layout": "^7.0.0-beta.24",
+    "material-design-icons": "^3.0.1",
+    "rxjs": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/angular": "1.6.51",
+    "typescript": "3.3.4000",
+    "copyfiles": "2.1.0",
+    "rimraf": "2.6.3"
+  }
+}

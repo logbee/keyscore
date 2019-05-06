@@ -24,12 +24,17 @@ import {WorkspaceDropzoneSubcomponent} from "./dropzone/workspace-dropzone-subco
 import {BlockDescriptor} from "./models/block-descriptor.model";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {share, takeUntil, tap} from "rxjs/operators";
-import {EditingPipelineModel} from "../../../models/pipeline-model/EditingPipelineModel";
+import {
+    EditingPipelineModel,
+    Blueprint,
+    BlueprintJsonClass,
+    FilterBlueprint,
+    SinkBlueprint,
+    Configuration,
+    TextValue
+} from "keyscore-manager-models";
 import "./style/pipely-style.scss";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
-import {Blueprint, BlueprintJsonClass, FilterBlueprint, SinkBlueprint} from "../../../models/blueprints/Blueprint";
-import {Configuration} from "../../../models/common/Configuration";
-import {TextValue} from "../../../models/dataset/Value";
 
 
 @Component({
@@ -44,7 +49,8 @@ import {TextValue} from "../../../models/dataset/Value";
                         <puzzle-box *ngIf="!isInspecting; else datasetTable" class="top-shadow" [workspace]="this"
                                     [descriptors]="blockDescriptors$|async"></puzzle-box>
                         <ng-template #datasetTable>
-                            <data-table [selectedBlock]="selectedBlockForDataTable$|async" class="top-shadow"></data-table>
+                            <data-table [selectedBlock]="selectedBlockForDataTable$|async"
+                                        class="top-shadow"></data-table>
                         </ng-template>
 
                     </div>
@@ -137,12 +143,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     }
 
 
-
     private selectBlock(selected: Draggable) {
         this.selectedDraggableSource.next(selected);
         if (selected && this.isInspecting) {
             this.onSelectBlock.emit(selected.getDraggableModel().blueprintRef.uuid);
-        } else  if(this.isInspecting) {
+        } else if (this.isInspecting) {
             let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
             this.onSelectBlock.emit(sink.ref.uuid);
         }

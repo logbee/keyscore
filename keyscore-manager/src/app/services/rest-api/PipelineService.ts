@@ -4,7 +4,7 @@ import {AppState} from "../../app.component";
 import {HttpClient} from "@angular/common/http";
 import {AppConfig, selectAppConfig} from "../../app.config";
 import {Observable} from "rxjs/index";
-import {Ref} from "../../models/common/Ref";
+import {Ref} from "keyscore-manager-models";
 
 @Injectable({
     providedIn: 'root'

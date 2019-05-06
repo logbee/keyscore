@@ -55,12 +55,15 @@ import {
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
 } from "../actions/pipelines.actions";
-import {PipelineInstance} from "../../models/pipeline-model/PipelineInstance";
-import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
-import {BlueprintService} from "../../services/rest-api/BlueprintService";
-import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
-import {Configuration} from "../../models/common/Configuration";
-import {Descriptor} from "../../models/descriptors/Descriptor";
+import {
+    PipelineInstance,
+    ResolvedFilterDescriptor,
+    Blueprint,
+    PipelineBlueprint,
+    Configuration,
+    Descriptor,
+    Health
+} from "keyscore-manager-models";
 import {DescriptorResolverService} from "../../services/descriptor-resolver.service";
 import {StringTMap} from "../../common/object-maps";
 import {SnackbarOpen} from "../../common/snackbar/snackbar.actions";
@@ -68,8 +71,8 @@ import {ConfigurationService} from "../../services/rest-api/ConfigurationService
 import {DescriptorService} from "../../services/rest-api/DescriptorService";
 import {PipelineService} from "../../services/rest-api/PipelineService";
 import {FilterControllerService} from "../../services/rest-api/FilterController.service";
-import {Health} from "../../models/common/Health";
 import {getPipelinePolling, selectIsCreating} from "../index";
+import {BlueprintService} from "../../services/rest-api/BlueprintService";
 
 @Injectable()
 export class PipelinesEffects {

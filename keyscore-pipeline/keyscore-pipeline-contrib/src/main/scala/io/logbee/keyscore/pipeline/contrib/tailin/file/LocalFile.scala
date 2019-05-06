@@ -30,7 +30,7 @@ class LocalFile(val file: java.io.File) extends FileHandle {
         Seq()
       case rotationPattern =>
         val filesInSameDir = file.getParentFile.toPath.resolve(rotationPattern).getParent.toFile.listFiles //resolve a relative path, if the rotationPattern contains one
-            
+        
         if (filesInSameDir == null) //if the directory doesn't exist
           Seq()
         else {
@@ -60,7 +60,6 @@ class LocalFile(val file: java.io.File) extends FileHandle {
   
   
   
-  //Currently, this is only necessary in LocalFile (for testing)
   override def equals(other: Any): Boolean = {
     other match {
       case that: LocalFile =>

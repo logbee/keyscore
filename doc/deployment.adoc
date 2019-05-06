@@ -1,4 +1,73 @@
+:xrefstyle: short
+
 = Deployment =
+
+=== Overview ===
+
+The simplest setup is a cluster with one of each subsystem. <<#deployment-example-setup-a>> illustrates this setup. Further
+illustrates <<#deployment-example-setup-a>> a logical structure not a physical. Therefore all subsystems can be installed
+on one physical node or can be distributed over a set of nodes - its up to you, to choose a setup which matches your needs.
+
+[#deployment-example-setup-a]
+.Example cluster-setup with one Manager, one Frontier and one Agent.
+[ditaa]
+....
+            /----------\         /----------\                         /-------\
+            |          |  http   |          |------------------------>|       |
+User ------>|  Manager |-------->| Frontier |            tcp          | Agent |
+            |          |         |          |<------------------------|       |
+            \----------/         \----------/                         \-------/
+                                      |
+                                      |
+                                      v
+                                   /------\
+                                   |{s}   |
+                                   |  DB  |
+                                   |      |
+                                   \------/
+....
+
+All subsystems can be scaled separately. One of the first systems which get properly scaled is the Agent. <<#deployment-example-setup-b>>
+illustrates a cluster with three Agents to distribute the worker-load over more nodes.
+
+[#deployment-example-setup-b]
+.Example cluster-setup with one Manager, one Frontier and three Agents.
+[ditaa]
+....
+                                                        /-------\
+                                      /-----------------|       |<----------\
+                                      |                 | Agent |           |
+                                      |  /------------->|       |--------\  |
+                                      |  |              \-------/        |  |
+                                      |  |                 |  ^          |  |
+                                      |  |                 |  |          |  |
+                                      |  |                 |  |          |  |
+                                      |  |                 |  |          |  |
+                                      v  |                 |  |          v  |
+            /----------\         /-----------\             |  |        /-------\
+            |          |         |           |-------------|  |------->|       |
+User ------>|  Manager |-------->|  Frontier |             |  |        | Agent |
+            |          |         |           |<------------|  |--------|       |
+            \----------/         \-----------/             |  |        \-------/
+                                   |     |  |              |  |          ^  |
+                                   |     |  |              |  |          |  |
+                                   |     |  |              |  |          |  |
+                                   v     |  |              |  |          |  |
+                                /------\ |  |              v  |          |  |
+                                |{s}   | |  |           /-------\        |  |
+                                |  DB  | |  \---------->|       |--------/  |
+                                |      | |              | Agent |           |
+                                \------/ \--------------|       |<----------/
+                                                        \-------/
+....
+
+[NOTE]
+====
+.Peer-to-Peer
+
+Agents and Frontier form a peer-to-peer cluster where each subsystem communicates with each other in booth directions.
+Keep this in mind when it comes to firewall or general network configurations.
+====
 
 include::../keyscore-frontier/doc/deployment.adoc[leveloffset=2]
 include::../keyscore-agent/doc/deployment.adoc[leveloffset=2]

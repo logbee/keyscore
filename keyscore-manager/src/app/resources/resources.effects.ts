@@ -9,25 +9,31 @@ import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module
 import {catchError, map, switchMap} from "rxjs/operators";
 import {
     GET_RESOURCE_STATE,
-    GetResourceStateAction, GetResourceStateFailure, GetResourceStateSuccess,
+    GetResourceStateAction,
+    GetResourceStateFailure,
+    GetResourceStateSuccess,
     LOAD_ALL_BLUEPRINTS_SUCCESS,
     LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS,
     LoadAllBlueprintsActionFailure,
     LoadAllBlueprintsActionSuccess,
     LoadAllDescriptorsForBlueprintFailureAction,
-    LoadAllDescriptorsForBlueprintSuccessAction, LoadConfigurationsFailureAction, LoadConfigurationsSuccessAction,
+    LoadAllDescriptorsForBlueprintSuccessAction,
+    LoadConfigurationsFailureAction,
+    LoadConfigurationsSuccessAction,
     ResolvedAllDescriptorsSuccessAction,
 } from "./resources.actions";
-import {Blueprint} from "../models/blueprints/Blueprint";
+import {
+    Blueprint,
+    Configuration,
+    Descriptor,
+    ResolvedFilterDescriptor,
+    ResourceInstanceState
+} from "keyscore-manager-models";
 import {AppState} from "../app.component";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
-import {Descriptor} from "../models/descriptors/Descriptor";
-import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {StringTMap} from "../common/object-maps";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {BlueprintService} from "../services/rest-api/BlueprintService";
-import {Configuration} from "../models/common/Configuration";
-import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
 import {ConfigurationService} from "../services/rest-api/ConfigurationService";
 import {DescriptorService} from "../services/rest-api/DescriptorService";
 

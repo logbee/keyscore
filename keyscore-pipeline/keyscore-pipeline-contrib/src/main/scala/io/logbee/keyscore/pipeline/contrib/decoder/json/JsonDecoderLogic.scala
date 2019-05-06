@@ -14,6 +14,8 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATI
 import org.json4s.JsonAST._
 import org.json4s.native.JsonParser._
 
+import scala.collection.mutable
+
 object JsonDecoderLogic extends Described {
 
   val sourceFieldNameParameter = FieldNameParameterDescriptor(
@@ -69,30 +71,39 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
   }
 
   override def onPush(): Unit = {
+
     val dataset = grab(in)
 
-    val records = dataset.records.map(record => {
+    push(out, dataset.update(_.records := dataset.records.foldLeft(mutable.ListBuffer.empty[Record]) {
 
-      val sourceField = record.fields.find(sourceFieldName == _.name)
+      case (result, record) =>
 
-      if (sourceField.isDefined && sourceField.get.isTextField) {
+        val sourceField = record.fields.find(sourceFieldName == _.name)
 
-        val root = parse(sourceField.get.toTextField.value)
-        val fields = extract(root, List.empty, List.empty)
+        if (sourceField.isDefined && sourceField.get.isTextField) {
+          result ++= (parse(sourceField.get.toTextField.value) match {
+            case obj @ JObject(_) => List(Record(extract(obj, List.empty, List.empty)))
+            case JArray(arr) => arr.map(obj => Record(extract(obj, List.empty, List.empty)))
+            case _ => List.empty
+          })
 
-        if (removeSourceField) {
-          Record(record.fields.filter(sourceFieldName != _.name ) ++ fields)
+          if (removeSourceField) {
+
+            val remainingFields = record.fields.filter(sourceFieldName != _.name )
+
+            if (remainingFields.nonEmpty) {
+
+              result += Record(remainingFields)
+            }
+          }
+          else {
+            result += record
+          }
         }
-        else {
-          Record(record.fields ++ fields)
-        }
-      }
-      else {
-        record
-      }
-    })
 
-    push(out, Dataset(dataset.metadata, records))
+        result
+
+    }.toList))
   }
 
   override def onPull(): Unit = {

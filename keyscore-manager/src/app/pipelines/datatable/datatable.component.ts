@@ -1,10 +1,10 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs";
-import {DatasetTableModel} from "../../models/dataset/DatasetTableModel";
 import {select, Store} from "@ngrx/store";
 import {DatasetDataSource} from "../../data-source/dataset-data-source";
 import {MatPaginator, MatSort} from "@angular/material";
 import {
+    DatasetTableModel,
     BooleanValue,
     DecimalValue,
     DurationValue,
@@ -13,7 +13,7 @@ import {
     TimestampValue,
     Value,
     ValueJsonClass
-} from "../../models/dataset/Value";
+} from "keyscore-manager-models";
 import {getInputDatsetModels, getOutputDatasetModels} from "../index";
 import "../datatable/data-preview-table.css";
 

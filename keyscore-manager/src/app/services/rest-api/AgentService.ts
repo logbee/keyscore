@@ -1,12 +1,10 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs/index";
-import {Blueprint, PipelineBlueprint} from "../../models/blueprints/Blueprint";
+import {Agent} from "keyscore-manager-models";
 import {AppState} from "../../app.component";
 import {AppConfig, selectAppConfig} from "../../app.config";
 import {select, Store} from "@ngrx/store";
-import {StringTMap} from "../../common/object-maps";
-import {Agent} from "../../models/common/Agent";
 
 @Injectable({
     providedIn: 'root'

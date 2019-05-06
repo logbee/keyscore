@@ -1,20 +1,24 @@
 import {Injectable} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
-import {Descriptor} from "../models/descriptors/Descriptor";
-import {FilterDescriptor, ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
 import {
-    Choice, FieldDirectiveDescriptor, FieldDirectiveSequenceParameterDescriptor,
+    Choice,
+    Descriptor,
+    FieldDirectiveDescriptor,
     FieldNameParameterDescriptor,
     FieldParameterDescriptor,
+    FilterDescriptor,
     ParameterDescriptor,
-    ParameterDescriptorJsonClass, ParameterInfo,
-    ResolvedChoice, ResolvedFieldDirectiveDescriptor,
+    ParameterDescriptorJsonClass,
+    ParameterInfo,
+    ResolvedChoice,
+    ResolvedFieldDirectiveDescriptor,
+    ResolvedFilterDescriptor,
     ResolvedParameterDescriptor,
     ResolvedParameterInfo,
     ResolvedStringValidator,
     StringValidator,
     TextParameterDescriptor
-} from "../models/parameters/ParameterDescriptor";
+} from "keyscore-manager-models";
 
 @Injectable()
 export class DescriptorResolverService {

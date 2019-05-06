@@ -1,6 +1,6 @@
 import {NgModule} from "@angular/core";
 import {ErrorComponent} from "./error.component";
-import {MaterialModule} from "../../material.module";
+import {MaterialModule} from "keyscore-manager-material";
 
 @NgModule({
     imports:[MaterialModule],

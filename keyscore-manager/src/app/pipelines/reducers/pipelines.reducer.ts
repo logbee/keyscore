@@ -1,4 +1,3 @@
-import {deepcopy} from "../../util";
 import {
     CREATE_PIPELINE,
     CREATED_PIPELINE,
@@ -13,18 +12,9 @@ import {
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "../actions/pipelines.actions";
-import {ResolvedFilterDescriptor} from "../../models/descriptors/FilterDescriptor";
-import {Descriptor} from "../../models/descriptors/Descriptor";
-import {
-    EditingPipelineModel,
-    generateEmptyEditingPipelineModel
-} from "../../models/pipeline-model/EditingPipelineModel";
-import {ResolvedCategory} from "../../models/descriptors/Category";
+import {ResolvedFilterDescriptor,Descriptor, EditingPipelineModel, generateEmptyEditingPipelineModel, ResolvedCategory, Health, TextValue, Label} from "keyscore-manager-models";
 import {PipelineTableModel} from "../PipelineTableModel";
-import {Health} from "../../models/common/Health";
-import {TextValue} from "../../models/dataset/Value";
-import {Label} from "../../models/common/MetaData";
-
+import * as _ from 'lodash';
 
 export class PipelinesState {
     public editingPipeline: EditingPipelineModel;
@@ -106,7 +96,7 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 })
             };
         case LOAD_ALL_PIPELINE_INSTANCES_SUCCESS:
-            let pipelineListCopy: PipelineTableModel[] = deepcopy(state.pipelineList, []);
+            let pipelineListCopy: PipelineTableModel[] = _.cloneDeep(state.pipelineList);
             action.pipelineInstances.forEach(instance => {
                 const index = pipelineListCopy.findIndex(dataModel => dataModel.uuid === instance.id);
                 if (index >= 0) {
@@ -118,11 +108,11 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 pipelineList: pipelineListCopy
             };
         case DELETE_PIPELINE_SUCCESS:
-            let pipelineList = deepcopy(state.pipelineList, []).filter((pipeline) => action.id !== pipeline.id);
+            let pipelineList = _.cloneDeep(state.pipelineList).filter((pipeline) => action.id !== pipeline.uuid);
             return {...state, pipelineList: pipelineList};
         case DELETE_PIPELINE_FAILURE:
             if (action.cause.status === 404) {
-                let pipelineList = deepcopy(state.pipelineList, []).filter((pipeline) => action.id !== pipeline.id);
+                let pipelineList = _.cloneDeep(state.pipelineList).filter((pipeline) => action.id !== pipeline.uuid);
                 return {...state, pipelineList: pipelineList};
             }
             return state;
@@ -130,7 +120,6 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
             return {...state, pipelineInstancePolling: action.isPolling};
         default:
             return state;
-
     }
 }
 

@@ -5,10 +5,9 @@ import "../style/global-table-styles.css";
 import {MatPaginator, MatSort} from "@angular/material";
 import {ResourcesDataSource} from "../data-source/resources-data-source";
 import {animate, state, style, transition, trigger} from "@angular/animations";
-import {Blueprint} from "../models/blueprints/Blueprint";
+import {ResourceTableModel} from "keyscore-manager-models";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs/index";
-import {ResourceTableModel} from "../models/resources/ResourceTableModel";
-import {selectBlueprints, selectTableModels} from "./resources.reducer";
+import {selectTableModels} from "./resources.reducer";
 
 @Component({
     selector: "resource-viewer",

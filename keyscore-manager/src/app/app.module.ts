@@ -23,7 +23,7 @@ import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
 import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MaterialModule} from "./material.module";
+import {MaterialModule} from "keyscore-manager-material";
 import {ResourcesModule} from "./resources/resources.module";
 import {EffectsModule} from "@ngrx/effects";
 import {SnackbarEffects} from "./common/snackbar/snackbar.effects";

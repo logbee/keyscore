@@ -8,7 +8,7 @@ import {RemoveCurrentAgentAction} from "../agents.actions";
 import {skipWhile, take, takeUntil} from "rxjs/operators";
 import {Subject} from "rxjs/internal/Subject";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
-import {Agent} from "../../models/common/Agent";
+import {Agent} from "keyscore-manager-models";
 
 @Component({
     selector: "agents-details",

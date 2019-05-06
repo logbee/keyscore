@@ -21,6 +21,7 @@ buildscript {
 }
 
 apply plugin: 'idea'
+apply plugin: 'distribution'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
 ext.dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
@@ -85,6 +86,7 @@ configure ([
     project.apply plugin: 'maven'
     project.apply plugin: 'maven-publish'
     project.apply plugin: 'com.jfrog.bintray'
+    project.apply plugin: 'distribution'
 
     bintray {
         user = "$bintrayUser"
@@ -150,10 +152,17 @@ configure ([
 }
 
 configure ([
+    project(':keyscore-manager')
+]) {
+    project.apply plugin: 'distribution'
+}
+
+configure ([
     project(':doc')
 ]) {
     project.apply plugin: 'com.github.jruby-gradle.base'
     project.apply plugin: 'org.asciidoctor.convert'
+    project.apply plugin: 'distribution'
 
     repositories {
         maven { url "http://rubygems-proxy.torquebox.org/releases" }
@@ -205,6 +214,37 @@ configure ([
             'stylesheet': 'resources/keyscore.css',
             'linkcss': true,
         ])
+    }
+
+    distributions {
+        main {
+            baseName = "keyscore-${project.name}"
+            contents {
+                from(asciidoctor) {
+                    include 'html5/**'
+                    exclude 'html5/.asciidoctor'
+                }
+            }
+        }
+    }
+}
+
+distributions {
+    main {
+        contents {
+            from(project(':doc').tasks['installDist']) {
+                into 'doc'
+            }
+            from(project(':keyscore-agent').tasks['installDist']) {
+                into 'keyscore-agent'
+            }
+            from(project(':keyscore-frontier').tasks['installDist']) {
+                into 'keyscore-frontier'
+            }
+            from(project(':keyscore-manager').tasks['installDist']) {
+                into 'keyscore-manager'
+            }
+        }
     }
 }
 

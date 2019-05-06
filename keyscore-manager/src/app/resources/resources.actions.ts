@@ -1,10 +1,11 @@
 import {Action} from "@ngrx/store";
-import {Blueprint} from "../models/blueprints/Blueprint";
-import {Descriptor} from "../models/descriptors/Descriptor";
-import {ResolvedFilterDescriptor} from "../models/descriptors/FilterDescriptor";
-import {Configuration} from "../models/common/Configuration";
-import {Health} from "../models/common/Health";
-import {ResourceInstanceState} from "../models/filter-model/ResourceInstanceState";
+import {
+    Blueprint,
+    Configuration,
+    Descriptor,
+    ResolvedFilterDescriptor,
+    ResourceInstanceState
+} from "keyscore-manager-models";
 
 export const LOAD_ALL_BLUEPRINTS = "[Resources]GetAllBluePrintsAction";
 export const LOAD_ALL_BLUEPRINTS_SUCCESS = "[Resources]LoadAllBlueprintsSuccess";
