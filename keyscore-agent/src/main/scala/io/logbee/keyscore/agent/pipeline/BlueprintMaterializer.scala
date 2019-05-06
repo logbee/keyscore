@@ -108,7 +108,7 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
 
     case GetDescriptorResponse(descriptor) =>
       if (descriptor.isDefined) {
-        log.debug(s"Resolved descriptor of blueprint <${wrapper.blueprintRef.uuid}>: ${descriptor.get}")
+        log.debug(s"Resolved descriptor of blueprint <${wrapper.blueprintRef.uuid}>")
         maybeBecomeMaterializing(wrapper, preparation.copy(descriptor = descriptor))
       } else {
         log.error(s"Could not resolve descriptor <${wrapper.descriptorRef.uuid}> of blueprint <${wrapper.blueprintRef.uuid}>")
