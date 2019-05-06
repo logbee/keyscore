@@ -9,6 +9,7 @@ import io.logbee.keyscore.frontier.Frontier
 import io.logbee.keyscore.frontier.Frontier.InitFrontier
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 /**
   * The '''FrontierApplication''' is the Main class of the keyscore-frontier package. <br><br>

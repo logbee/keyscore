@@ -4,11 +4,10 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import io.logbee.keyscore.frontier.Frontier._
-import io.logbee.keyscore.frontier.cluster.pipeline.managers.{AgentStatsManager, ClusterAgentManager, ClusterManager}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterAgentManager.{ClusterAgentManagerInitialized, Init}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.{ClusterAgentManager, ClusterManager}
 import io.logbee.keyscore.frontier.cluster.resources.{BlueprintManager, ConfigurationManager, DescriptorManager}
 import io.logbee.keyscore.frontier.config.FrontierConfigProvider
 import io.logbee.keyscore.frontier.route.RouteBuilder
@@ -18,7 +17,7 @@ import org.json4s.native.Serialization
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
+import scala.language.postfixOps
 
 object Frontier {
 

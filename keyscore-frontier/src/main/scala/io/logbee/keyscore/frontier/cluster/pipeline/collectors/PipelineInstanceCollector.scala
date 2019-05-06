@@ -2,12 +2,11 @@ package io.logbee.keyscore.frontier.cluster.pipeline.collectors
 
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
 import io.logbee.keyscore.commons.pipeline.{PipelineInstanceResponse, RequestPipelineInstance}
-import io.logbee.keyscore.frontier.cluster.pipeline.collectors.PipelineInstanceCollector.{CheckStates, PipelineInstanceResponseFailure}
+import io.logbee.keyscore.frontier.cluster.pipeline.collectors.PipelineInstanceCollector.CheckStates
 import io.logbee.keyscore.model.PipelineInstance
 
 import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.language.postfixOps
 
 /**
   * Returns a list of all received PipelineInstances for each required agent.

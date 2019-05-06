@@ -1,6 +1,9 @@
 package io.logbee.keyscore.frontier.route
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import org.json4s.Formats
+
+import scala.language.postfixOps
 
 /** Implicits values for all Routes. <br><br>
   * `timeout` | `serialization` | `formats` <br>
@@ -15,8 +18,8 @@ trait RouteImplicits extends Json4sSupport{
   import scala.concurrent.duration._
 
   implicit val timeout: Timeout = 30 seconds
-  implicit val serialization = Serialization
-  implicit val formats = KeyscoreFormats.formats
+  implicit val serialization: Serialization.type = Serialization
+  implicit val formats: Formats = KeyscoreFormats.formats
 
 }
 

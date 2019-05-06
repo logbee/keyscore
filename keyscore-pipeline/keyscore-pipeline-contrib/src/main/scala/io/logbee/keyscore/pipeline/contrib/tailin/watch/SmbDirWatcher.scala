@@ -1,22 +1,17 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import com.hierynomus.smbj.share.Directory
-import org.slf4j.LoggerFactory
-import scala.collection.mutable.ListBuffer
-import com.hierynomus.smbj.share.File
-import scala.collection.mutable
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
-import java.nio.file.FileSystems
-import java.nio.file.Paths
-import scala.collection.JavaConverters
-import com.hierynomus.mssmb2.SMB2CreateDisposition
+import java.nio.file.{FileSystems, Paths}
 import java.util.EnumSet
-import com.hierynomus.mssmb2.SMB2ShareAccess
-import com.hierynomus.mssmb2.SMB2CreateOptions
-import com.hierynomus.msfscc.FileAttributes
+
 import com.hierynomus.msdtyp.AccessMask
-import java.nio.file.Path
-import com.hierynomus.smbj.share.DiskEntry
+import com.hierynomus.msfscc.FileAttributes
+import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess}
+import com.hierynomus.smbj.share.{Directory, File}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
+import org.slf4j.LoggerFactory
+
+import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable.ListBuffer
 
 class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[Directory]) extends DirWatcher {
   

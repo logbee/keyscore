@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.managers
 
-import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill}
+import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, SubscribeAck, Unsubscribe}
 import akka.cluster.{Cluster, Member, UniqueAddress}
