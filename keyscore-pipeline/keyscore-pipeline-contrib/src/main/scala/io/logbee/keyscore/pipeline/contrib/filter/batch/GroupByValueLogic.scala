@@ -95,7 +95,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
   override protected def examine(dataset: Dataset): Unit = {
 
-    val field =  dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
+    val field = dataset.records.flatMap(record => record.fields).find(field => field.name == fieldName)
 
     if (timeWindowActive) {
       examineWithActiveTimeWindow(field, dataset)

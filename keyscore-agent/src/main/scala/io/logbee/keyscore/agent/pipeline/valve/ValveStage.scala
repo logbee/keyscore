@@ -24,7 +24,6 @@ object ValveStage {
   val PreviousDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_PREVIOUS_THROUGHPUT_TIME"
   val TotalDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_TOTAL_THROUGHPUT_TIME"
 
-  /* Global Metrics */
   val requestedDatasets = CounterMetricDescriptor(
     name = "requested_datasets",
     displayName = TextRef("requestedDatasetsName"),

@@ -4,12 +4,78 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.localization.TextRef
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor}
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 
 import scala.collection.mutable
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
+object AbstractGroupingLogic {
+
+  val enqueuedPassedThroughEntries = CounterMetricDescriptor(
+    name = "enqueued_passed_through_entries",
+    displayName = TextRef("enqueuedPassedThroughEntriesName"),
+    description = TextRef("enqueuedPassedThroughEntriesDesc")
+  )
+
+  val enqueuedGroupEntries = CounterMetricDescriptor(
+    name = "enqueued_group_entries",
+    displayName = TextRef("enqueuedGroupEntriesName"),
+    description = TextRef("enqueuedGroupEntriesDesc")
+  )
+
+  val pushedPassedThroughEntries = CounterMetricDescriptor(
+    name = "pushed_passed_through_entries",
+    displayName = TextRef("pushedPassedThroughEntriesName"),
+    description = TextRef("pushedPassedThroughEntriesDesc")
+  )
+
+  val pushedGroupEntries = CounterMetricDescriptor(
+    name = "pushed_group_entries",
+    displayName = TextRef("pushedGroupEntriesName"),
+    description = TextRef("pushedGroupEntriesDesc")
+  )
+
+  val addedDatasets = CounterMetricDescriptor(
+    name = "added_datasets",
+    displayName = TextRef("addedDatasetsName"),
+    description = TextRef("addedDatasetsDesc")
+  )
+
+  val addedGroupEntries = CounterMetricDescriptor(
+    name = "added_group_entries",
+    displayName = TextRef("addedGroupEntriesName"),
+    description = TextRef("addedGroupEntriesDesc")
+  )
+
+  val closedGroupEntries = CounterMetricDescriptor(
+    name = "closed_group_entries",
+    displayName = TextRef("closedGroupEntriesName"),
+    description = TextRef("closedGroupEntriesDesc")
+  )
+
+  val droppedGroupEntries = CounterMetricDescriptor(
+    name = "dropped_group_entries",
+    displayName = TextRef("droppedGroupEntriesName"),
+    description = TextRef("droppedGroupEntriesDesc")
+  )
+
+  val groupEntries = GaugeMetricDescriptor(
+    name = "group_entries",
+    displayName = TextRef("groupEntriesName"),
+    description = TextRef("groupEntriesDesc")
+  )
+
+  val queueEntries = GaugeMetricDescriptor(
+    name = "queue_entries",
+    displayName = TextRef("queueEntriesName"),
+    description = TextRef("queueEntriesDesc")
+  )
+}
+
 abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
+  import AbstractGroupingLogic._
 
   private val queue = mutable.PriorityQueue.empty[Entry](entryOrdering)
   private val groups = mutable.HashMap.empty[String, GroupEntry]
@@ -34,6 +100,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     if (queue.size <= maxGroups) {
       pull(in)
     }
+
   }
 
   override def onPull(): Unit = {
@@ -54,13 +121,20 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
   protected def passthrough(dataset: Dataset): Unit = {
     queue enqueue PassThroughEntry(dataset)
+    metrics.collect(enqueuedPassedThroughEntries).increment()
+    metrics.collect(queueEntries).set(queue.size)
+    metrics.collect(addedDatasets).increment()
   }
 
   protected def openGroup(id: String): Unit = {
     val group = GroupEntry()
     group.identifier(id)
     queue enqueue group
+    metrics.collect(enqueuedGroupEntries).increment()
+    metrics.collect(queueEntries).set(queue.size)
     groups.put(id, group)
+    metrics.collect(addedGroupEntries).increment()
+    metrics.collect(groupEntries).set(groups.size)
   }
 
   protected def closeGroup(id: String): Unit = {
@@ -68,17 +142,19 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
       case Some(group @ GroupEntry()) =>
         group.identifiers.foreach(groups.remove)
         group.close()
+        metrics.collect(closedGroupEntries).increment()
       case _ => // Nothing to do.
     }
   }
 
   protected def addToGroup(id: String, dataset: Dataset, doOpenGroup: Boolean = true): Unit = {
     groups.get(id) match {
-      case Some(group) => group.add(dataset)
+      case Some(group) =>
+        group.add(dataset)
+        metrics.collect(addedDatasets).increment()
       case _ if doOpenGroup =>
         openGroup(id)
         addToGroup(id, dataset)
-
       case _ => passthrough(dataset)
     }
   }
@@ -93,6 +169,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
       case Some(group) =>
         group.identifiers.foreach(groups.remove)
         group.drop()
+        metrics.collect(droppedGroupEntries).increment()
       case _ =>
     }
   }
@@ -116,7 +193,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
   /**
     * Returns a [[Dataset]] which will be pushed out
     *
-    * @param datasets a Seq[[Dataset]]
+    * @param datasets a Seq[Dataset]
     * @return
     */
   protected def fold(datasets: Seq[Dataset]): Dataset = {
@@ -153,6 +230,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
       case Some(PassThroughEntry(dataset)) =>
         queue.dequeue()
         push(out, dataset)
+        metrics.collect(pushedPassedThroughEntries).increment()
         true
 
       case Some(group @ GroupEntry()) if group.isDropped =>
@@ -163,6 +241,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
         queue.dequeue()
         group.identifiers.foreach(groups.remove)
         push(out, fold(group.datasets))
+        metrics.collect(pushedGroupEntries).increment()
         true
 
       case _ => false
@@ -236,9 +315,14 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
 
     def isExpired: Boolean = System.currentTimeMillis > expires
 
-    def close(): Unit = closed = true
+    def close(): Unit = {
+      closed = true
 
-    def drop(): Unit = dropped = true
+    }
+
+    def drop(): Unit = {
+      dropped = true
+    }
 
     def isClosed: Boolean = closed
 
