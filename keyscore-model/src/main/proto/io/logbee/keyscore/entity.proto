@@ -10,6 +10,12 @@ option (scalapb.options) = {
     flat_package: true
 };
 
+message Hash {
+    option (scalapb.message).extends = "io.logbee.keyscore.model.BaseHash";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.HashCompanion";
+    string value = 1;
+}
+
 message EntityRef {
     string uuid = 1;
     string revision = 2;
