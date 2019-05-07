@@ -10,7 +10,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
-
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class ExtensionLoaderSpec extends TestKit(ActorSystem("spec")) with ImplicitSender with WordSpecLike with Matchers {

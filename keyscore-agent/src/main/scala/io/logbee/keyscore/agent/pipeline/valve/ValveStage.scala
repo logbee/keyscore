@@ -14,6 +14,7 @@ import io.logbee.keyscore.model.data._
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.language.postfixOps
 
 object ValveStage {
   val FirstValveTimestamp = "io.logbee.keyscore.agent.pipeline.valve.VALVE_FIRST_TIMESTAMP"

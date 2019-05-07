@@ -3,7 +3,6 @@ package io.logbee.keyscore.agent
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data.{Label, MetaData, TextValue}
-import io.logbee.keyscore.model.descriptor.ParameterDescriptorMessage.SealedValue
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
