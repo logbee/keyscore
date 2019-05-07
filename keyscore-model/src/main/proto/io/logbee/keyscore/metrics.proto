@@ -65,6 +65,6 @@ message GaugeMetric {
 // tag::MetricsCollection[]
 message MetricsCollection {
     option (scalapb.message).extends = "io.logbee.keyscore.model.metrics.BaseMetricsCollection";
-    repeated Metric metrics = 3;
+    repeated Metric metrics = 3 [(scalapb.field).collection_type="collection.immutable.Seq"];
 }
 // end::MetricsCollection[]

@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
+import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
@@ -12,8 +12,8 @@ import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.controller.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.commons.cluster.Topics.{FilterMetricsTopic, MetricsTopic}
-import io.logbee.keyscore.commons.metrics._
+import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
+import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsFailure, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
@@ -84,7 +84,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
   }
 
   override def postStop(): Unit = {
-    mediator ! Unsubscribe(FilterMetricsTopic, self)
+    mediator ! Unsubscribe(MetricsTopic, self)
     log.info(" stopped.")
   }
 
@@ -207,7 +207,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case ControllerMaterialized(controller) =>
       log.debug(s"Last Controller <${controller.id}> has been materialized.")
 
-      mediator ! Subscribe(FilterMetricsTopic, self)
+      mediator ! Subscribe(MetricsTopic, self)
 
       become(running(new PipelineController(pipeline, controllers :+ controller)(executionContext)), discardOld = true)
 
@@ -293,22 +293,14 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
         case Failure(e) => _sender ! Failure(e)
       })
 
-    case ScrapeFilterMetrics(filterId) =>
-      log.debug(s"<$pipelineID> Received ScrapeFilterMetrics for filter <$filterId>")
-      controller.scrape(filterId).foreach(_.onComplete {
-        case Success(collection) => mediator ! Publish(MetricsTopic, ScrapedFilterMetrics(filterId, collection))
-        case Failure(e) => mediator ! Publish(MetricsTopic, ScrapedFilterMetricsFailure(filterId, e))
-      })
-
-    case ScrapeFiltersOfPipelineMetrics =>
-      log.debug(s"<$pipelineID> Received ScrapeFiltersOfPipelineMetrics")
+    case ScrapeMetrics(manager) =>
+      log.debug(s"<$pipelineID> Received ScrapeMetrics")
       controller.scrapePipeline().onComplete {
-        case Success(map) =>
-          mediator ! Publish(MetricsTopic, ScrapedFiltersOfPipelineMetrics(pipelineID, map))
+        case Success(metrics) =>
+          manager ! ScrapeMetricsSuccess(metrics.map { case (id, collection) => id.toString -> collection })
         case Failure(e) =>
-          mediator ! Publish(MetricsTopic, ScrapedFiltersOfPipelineMetricsFailure(pipelineID, e))
+          manager ! ScrapeMetricsFailure(pipelineID.toString, e.getMessage)
       }
-
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {

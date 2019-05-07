@@ -29,6 +29,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 @RunWith(classOf[JUnitRunner])

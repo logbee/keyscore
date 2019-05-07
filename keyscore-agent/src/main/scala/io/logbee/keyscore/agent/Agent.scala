@@ -1,5 +1,6 @@
 package io.logbee.keyscore.agent
 
+import java.lang.management.ManagementFactory
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, Props}
@@ -8,16 +9,21 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.sun.management.OperatingSystemMXBean
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.agent.Agent.{CheckJoin, ClusterAgentManagerDied, Initialize, SendJoin}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
 import io.logbee.keyscore.agent.pipeline.{FilterManager, LocalPipelineManager}
-import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic}
+import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, MetricsTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.extension.ExtensionLoader
 import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
+import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
 import io.logbee.keyscore.commons.util.{RandomNameGenerator, StartUpWatch}
+import io.logbee.keyscore.model.data.Importance.High
+import io.logbee.keyscore.model.localization.TextRef
+import io.logbee.keyscore.model.metrics.{GaugeMetricDescriptor, MetricsCollection}
+import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -31,6 +37,42 @@ object Agent {
   private case object CheckJoin
 
   private case object ClusterAgentManagerDied
+
+  val processUsedMemoryMetric = GaugeMetricDescriptor(
+    name = "process_used_memory",
+    displayName = TextRef("processUsedMemoryName"),
+    description = TextRef("processUsedMemoryDesc"),
+    importance = High
+  )
+
+  val systemUsedMemoryMetric = GaugeMetricDescriptor(
+    name = "system_used_memory",
+    displayName = TextRef("systemUsedMemoryName"),
+    description = TextRef("systemUsedMemoryDesc"),
+    importance = High
+  )
+
+  val freeMemoryMetric = GaugeMetricDescriptor(
+    name = "free_memory",
+    displayName = TextRef("freeMemoryName"),
+    description = TextRef("freeMemoryDesc"),
+    importance = High
+  )
+
+  val processCpuLoadMetric = GaugeMetricDescriptor(
+    name = "process_cpu_load",
+    displayName = TextRef("processCpuLoadName"),
+    description = TextRef("processCpuLoadDesc"),
+    importance = High,
+  )
+
+  val systemCpuLoadMetric = GaugeMetricDescriptor(
+    name = "system_cpu_load",
+    displayName = TextRef("systemCpuLoadName"),
+    description = TextRef("systemCpuLoadDesc"),
+    importance = High
+  )
+
 }
 
 /**
@@ -43,6 +85,7 @@ object Agent {
   *   * [[io.logbee.keyscore.commons.extension.ExtensionLoader]] <br>
   */
 class Agent extends Actor with ActorLogging {
+  import Agent._
 
   private implicit val ec: ExecutionContext = context.dispatcher
   private implicit val timeout: Timeout = 30 seconds
@@ -50,6 +93,10 @@ class Agent extends Actor with ActorLogging {
   //Agent properties
   private val agentName: String = new RandomNameGenerator("/agents.txt").nextName()
   private var joined: Boolean = false
+  private val agentID = UUID.randomUUID()
+
+  //Metrics
+  private val metrics = new DefaultMetricsCollector()
 
   //Cluster
   Cluster(context.system)
@@ -65,7 +112,7 @@ class Agent extends Actor with ActorLogging {
   context.actorOf(LocalPipelineManager(filterManager), "LocalPipelineManager")
 
   override def preStart(): Unit = {
-    log.info(s"The Agent ${agentName} has started.")
+    log.info(s"The Agent $agentName <$agentID> has started.")
     Cluster(context.system) registerOnMemberUp {
       scheduler.scheduleOnce(5 second) {
         self ! SendJoin
@@ -73,6 +120,7 @@ class Agent extends Actor with ActorLogging {
     }
     mediator ! Subscribe(AgentsTopic, self)
     mediator ! Subscribe(ClusterTopic, self)
+    mediator ! Subscribe(MetricsTopic, self)
     mediator ! Publish(ClusterTopic, ActorJoin(Roles.AgentRole, self))
   }
 
@@ -80,7 +128,8 @@ class Agent extends Actor with ActorLogging {
     mediator ! Publish(ClusterTopic, ActorLeave(Roles.AgentRole, self))
     mediator ! Unsubscribe(AgentsTopic, self)
     mediator ! Unsubscribe(ClusterTopic, self)
-    log.info(s"The Agent ${agentName} has stopped.")
+    mediator ! Unsubscribe(MetricsTopic, self)
+    log.info(s"The Agent $agentName <$agentID> has stopped.")
   }
 
   override def receive: Receive = {
@@ -97,7 +146,7 @@ class Agent extends Actor with ActorLogging {
       }
 
     case SendJoin =>
-      val agentJoin = AgentJoin(UUID.randomUUID(), agentName)
+      val agentJoin = AgentJoin(agentID, agentName)
       log.info(s"Trying to join cluster: $agentJoin")
       mediator ! Publish(AgentsTopic, agentJoin)
       scheduler.scheduleOnce(10 seconds) {
@@ -115,15 +164,15 @@ class Agent extends Actor with ActorLogging {
       (filterManager ? RequestDescriptors).mapTo[DescriptorsResponse].onComplete {
         case Success(message) =>
           mediator ! Publish(AgentsTopic, AgentCapabilities(message.descriptors))
-          log.info(s"Published ${agentName}'s capabilities to the topic agents.")
+          log.info(s"Published $agentName's capabilities to the topic agents.")
         case Failure(e) =>
-          log.error(e, s"Failed to publish ${agentName}'s capabilities!")
+          log.error(e, s"Failed to publish $agentName's capabilities!")
           context.stop(self)
       }
       context.watchWith(sender, ClusterAgentManagerDied)
 
     case AgentJoinFailure =>
-      log.error(s"Agent ${agentName}'s join failed")
+      log.error(s"Agent $agentName's join failed")
       context.stop(self)
 
     case ClusterAgentManagerDied =>
@@ -131,5 +180,33 @@ class Agent extends Actor with ActorLogging {
       joined = false
       self ! SendJoin
 
+    case ScrapeMetrics(manager) =>
+      val collection = computeMetrics()
+      val map = Map(agentID.toString -> collection)
+      manager ! ScrapeMetricsSuccess(map)
+  }
+
+  private def computeMetrics(): MetricsCollection = {
+
+    val runtime = Runtime.getRuntime
+    val osBean = ManagementFactory.getPlatformMXBean(classOf[OperatingSystemMXBean])
+
+    val physicalTotalMemory = osBean.getTotalPhysicalMemorySize
+    val jvmTotalMemory = runtime.totalMemory()
+
+    metrics.collect(processUsedMemoryMetric)
+      .set(jvmTotalMemory - runtime.freeMemory())
+      .min(0)
+      .max(runtime.maxMemory())
+
+    metrics.collect(systemUsedMemoryMetric)
+      .set(physicalTotalMemory - osBean.getFreePhysicalMemorySize)
+      .min(0)
+      .max(physicalTotalMemory)
+
+    metrics.collect(processCpuLoadMetric).set(osBean.getProcessCpuLoad).min(0).max(1)
+    metrics.collect(systemCpuLoadMetric).set(osBean.getSystemCpuLoad).min(0).max(1)
+
+    metrics.get
   }
 }

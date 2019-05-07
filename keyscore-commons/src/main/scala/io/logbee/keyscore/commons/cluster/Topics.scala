@@ -12,6 +12,4 @@ object Topics {
   val ClusterTopic = "CLUSTER_TOPIC"
   /** Topic for Filter and Pipeline Metrics */
   val MetricsTopic = "METRICS_TOPIC"
-  /** Topic for all Metrics Request */
-  val FilterMetricsTopic = "FILTER_METRICS_TOPIC"
 }

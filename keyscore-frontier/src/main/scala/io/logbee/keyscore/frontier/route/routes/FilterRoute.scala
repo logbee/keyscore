@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
-import io.logbee.keyscore.commons.metrics.{ScrapeMetricRequest, ScrapedMetricResponse, ScrapedMetricResponseFailure}
+import io.logbee.keyscore.commons.metrics.{RequestMetrics, MetricsResponseSuccess, MetricsResponseFailure}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.auth.AuthorizationHandler
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.RequestExistingBlueprints
@@ -115,9 +115,9 @@ trait FilterRoute extends RouteImplicits with AuthorizationHandler {
             } ~
             path("scrape") {
               get {
-                onSuccess(metricsManager ? ScrapeMetricRequest(filterId)) {
-                  case ScrapedMetricResponse(id, metricsCollection) => complete(StatusCodes.OK, metricsCollection)
-                  case ScrapedMetricResponseFailure(id) => complete(StatusCodes.NotFound, id)
+                onSuccess(metricsManager ? RequestMetrics(filterId)) {
+                  case MetricsResponseSuccess(id, metricsCollection) => complete(StatusCodes.OK, metricsCollection)
+                  case MetricsResponseFailure(id) => complete(StatusCodes.NotFound, id)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
               }

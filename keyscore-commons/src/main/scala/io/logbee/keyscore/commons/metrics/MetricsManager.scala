@@ -1,12 +1,13 @@
 package io.logbee.keyscore.commons.metrics
 
 import java.time.Duration
+import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
+import akka.cluster.pubsub.DistributedPubSubMediator.Publish
 import com.typesafe.config.Config
-import io.logbee.keyscore.commons.cluster.Topics.{FilterMetricsTopic, MetricsTopic}
+import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
 import io.logbee.keyscore.commons.ehcache.MetricsCache
 import io.logbee.keyscore.commons.metrics.MetricsManager.Configuration
 
@@ -52,44 +53,33 @@ class MetricsManager(configuration: Configuration) extends Actor with ActorLoggi
 
   override def preStart(): Unit = {
     log.debug(s" started with the following cache configuration: ${cache.configuration}")
-    mediator ! Subscribe(MetricsTopic, self)
   }
 
   override def postStop(): Unit = {
-    mediator ! Unsubscribe(MetricsTopic, self)
     log.debug(" stopped.")
   }
 
   override def receive: Receive = {
 
-    case ScrapeMetricRequest(id) =>
+    case RequestMetrics(id) =>
       log.debug(s"Received ScrapeMetricRequest <$id>")
       cache.getNewest(id) match {
         case Some(mc) =>
-          sender ! ScrapedMetricResponse(id, mc)
+          sender ! MetricsResponseSuccess(id, mc)
         case None =>
-          sender ! ScrapedMetricResponseFailure
+          sender ! MetricsResponseFailure
       }
 
-    case ScrapedFilterMetrics(filterID, metricsCollection) =>
-      log.debug(s"Retrieved metrics for filter <$filterID>")
-      cache.put(filterID, metricsCollection)
-
-    case ScrapedFiltersOfPipelineMetrics(pipelineID, metrics) =>
-      log.debug(s"Retrieved all metrics of pipeline <$pipelineID>")
+    case ScrapeMetricsSuccess(metrics) =>
       metrics.foreach( i => {
-        cache.put(i._1, i._2)
+        cache.put(UUID.fromString(i._1), i._2)
       })
 
-    case ScrapedFilterMetricsFailure(filterID, e) =>
-      log.debug(s"Could not retrieve the metrics of <$filterID>: $e")
-
-    case ScrapedFiltersOfPipelineMetricsFailure(pipelineID, e) =>
-      log.warning(s"Could not retrieve metrics for the pipeline <$pipelineID>: $e")
-
+    case ScrapeMetricsFailure(id, e) =>
+      log.warning(s"Could not retrieve metrics for  <$id>: $e")
   }
 
   private def pollMetrics(): Unit = {
-    mediator ! Publish(FilterMetricsTopic, ScrapeFiltersOfPipelineMetrics)
+    mediator ! Publish(MetricsTopic, ScrapeMetrics(self))
   }
 }

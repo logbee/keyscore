@@ -86,7 +86,7 @@ class DefaultMetricsCollector() extends MetricsCollector {
       .asInstanceOf[GaugeMetric]
   }
 
-  def get: MetricsCollection = MetricsCollection(metrics.values.toSeq)
+  def get: MetricsCollection = MetricsCollection(metrics.values.toList)
 
   def getWithLabels(labels: Set[Label]): MetricsCollection = {
     MetricsCollection(metrics.values.map {
