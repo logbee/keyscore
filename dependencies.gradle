@@ -1,11 +1,11 @@
 ext {
     scalaVersion = '2.12.8'
-    akkaVersion = '2.5.19'
-    akkaHttpVersion = '10.1.5'
-    citrusVersion = '2.7.8'
-    json4sVersion = '3.6.2'
-    junitJupiterVersion = '5.3.2'
-    junitPlatformVersion = '1.3.2'
+    akkaVersion = '2.5.22'
+    akkaHttpVersion = '10.1.8'
+    citrusVersion = '2.8.0'
+    json4sVersion = '3.6.5'
+    junitJupiterVersion = '5.4.2'
+    junitPlatformVersion = '1.4.2'
 
     dependency = [
         scala_lang: [
@@ -16,10 +16,11 @@ ext {
         akka_actor: "com.typesafe.akka:akka-actor_2.12:$akkaVersion",
         akka_slf4j: "com.typesafe.akka:akka-slf4j_2.12:$akkaVersion",
         akka_stream: "com.typesafe.akka:akka-stream_2.12:$akkaVersion",
-        akka_stream_kafka: "com.typesafe.akka:akka-stream-kafka_2.12:0.22",
+        akka_stream_kafka: "com.typesafe.akka:akka-stream-kafka_2.12:1.0.2",
         akka_persistence: [
             "com.typesafe.akka:akka-persistence_2.12:$akkaVersion",
-            "com.typesafe.akka:akka-persistence-cassandra_2.12:0.92",
+            "com.typesafe.akka:akka-persistence-query_2.12:$akkaVersion",
+            "com.typesafe.akka:akka-persistence-cassandra_2.12:0.96",
             "com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1"
         ],
         akka_cluster: [
@@ -31,7 +32,7 @@ ext {
             "com.typesafe.akka:akka-http-spray-json_2.12:$akkaHttpVersion",
         ],
         akka_http_json: [
-            'de.heikoseeberger:akka-http-json4s_2.12:1.22.0',
+            'de.heikoseeberger:akka-http-json4s_2.12:1.25.2',
         ],
         akka_http_cors: 'ch.megard:akka-http-cors_2.12:0.2.2',
         keycloak: [
@@ -46,10 +47,10 @@ ext {
                 "org.json4s:json4s-ext_2.12:$json4sVersion",
                 "org.json4s:json4s-core_2.12:$json4sVersion"
         ],
-        protobuf_java: 'com.google.protobuf:protobuf-java:3.6.1',
+        protobuf_java: 'com.google.protobuf:protobuf-java:3.7.1',
         scala_test: [
-            'org.scalatest:scalatest_2.12:3.0.5',
-            'org.scalamock:scalamock_2.12:4.1.0'
+            'org.scalatest:scalatest_2.12:3.0.7',
+            'org.scalamock:scalamock_2.12:4.2.0'
         ],
         akka_testkit: [
             "com.typesafe.akka:akka-testkit_2.12:$akkaVersion",
