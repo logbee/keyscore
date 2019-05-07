@@ -18,7 +18,7 @@ import io.logbee.keyscore.frontier.app.FrontierApplication
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager
 import io.logbee.keyscore.frontier.route.RouteBuilder.{BuildFullRoute, InitializeRouteBuilder, RouteBuilderInitialized, RouteResponse}
 import io.logbee.keyscore.frontier.route.routes.{AgentRoute, FilterRoute, PipelineRoute}
-import io.logbee.keyscore.frontier.route.routes.resources.{BlueprintResourceRoute, ConfigurationResourceRoute, DescriptorResourceRoute}
+import io.logbee.keyscore.frontier.route.routes.resources.{BlueprintResourceRoute, ConfigurationResourceRoute, DescriptorResourceRoute, MetricsRoute}
 
 import scala.util.{Failure, Success}
 
@@ -45,7 +45,7 @@ object RouteBuilder {
 }
 
 class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLogging with RouteImplicits with AgentRoute
-  with PipelineRoute with FilterRoute with ConfigurationResourceRoute with BlueprintResourceRoute with DescriptorResourceRoute {
+  with PipelineRoute with FilterRoute with ConfigurationResourceRoute with BlueprintResourceRoute with DescriptorResourceRoute with MetricsRoute {
 
   val appInfo = AppInfo.fromMainClass[FrontierApplication]
 
@@ -121,7 +121,7 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
     * @return The complete Route for a Standard Full-Operating Frontier
     */
   private def buildFullRoute: Route = {
-    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager, metricsManager)
+    val fullRoute = mainRoute ~ agentsRoute(clusterAgentManager) ~ pipelineRoute(clusterPipelineManager, blueprintManager) ~ filterRoute(clusterPipelineManager) ~ metricsRoute(metricsManager)
 
     settings { fullRoute }
   }

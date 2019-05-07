@@ -216,21 +216,21 @@ object TestingMethods {
     false
   }
 
-  private[test] def scrapeMetrics(filterID: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): MetricsCollection = {
-    logger.debug(s"SCRAPE metrics for Filter <${filterID}>")
+  private[test] def scrapeMetrics(id: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Seq[MetricsCollection] = {
+    logger.debug(s"SCRAPE metrics for <${id}>")
 
-    var metrics = MetricsCollection()
+    var metrics = Seq(MetricsCollection())
 
     runner.http(action => action.client(client)
       .send()
-      .get(s"/filter/${filterID}/scrape")
+      .get(s"/metrics/${id}")
     )
 
     runner.http(action => action.client(client)
       .receive()
       .response(HttpStatus.OK)
       .validationCallback((message, _) => {
-        metrics = read[MetricsCollection](message.getPayload.asInstanceOf[String])
+        metrics = read[Seq[MetricsCollection]](message.getPayload.asInstanceOf[String])
       })
     )
 

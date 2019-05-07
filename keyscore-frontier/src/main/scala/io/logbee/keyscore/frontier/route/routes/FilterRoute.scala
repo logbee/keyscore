@@ -24,7 +24,7 @@ import io.logbee.keyscore.model.data.Dataset
   */
 trait FilterRoute extends RouteImplicits with AuthorizationHandler {
 
-  def filterRoute(clusterPipelineManager: ActorRef, metricsManager: ActorRef): Route = {
+  def filterRoute(clusterPipelineManager: ActorRef): Route = {
     pathPrefix("filter") {
       authorize { token =>
         pathPrefix(JavaUUID) { filterId =>
@@ -109,15 +109,6 @@ trait FilterRoute extends RouteImplicits with AuthorizationHandler {
                 onSuccess(clusterPipelineManager ? ClearBuffer(filterId)) {
                   case ClearBufferResponse(state) =>
                     complete(StatusCodes.Accepted, state)
-                  case _ => complete(StatusCodes.InternalServerError)
-                }
-              }
-            } ~
-            path("scrape") {
-              get {
-                onSuccess(metricsManager ? RequestMetrics(filterId)) {
-                  case MetricsResponseSuccess(id, metricsCollection) => complete(StatusCodes.OK, metricsCollection)
-                  case MetricsResponseFailure(id) => complete(StatusCodes.NotFound, id)
                   case _ => complete(StatusCodes.InternalServerError)
                 }
               }

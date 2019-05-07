@@ -63,10 +63,10 @@ class MetricsManager(configuration: Configuration) extends Actor with ActorLoggi
 
     case RequestMetrics(id) =>
       log.debug(s"Received ScrapeMetricRequest <$id>")
-      cache.getNewest(id) match {
-        case Some(mc) =>
-          sender ! MetricsResponseSuccess(id, mc)
-        case None =>
+      cache.getAll(id) match {
+        case mcs =>
+          sender ! MetricsResponseSuccess(id, mcs)
+        case _ =>
           sender ! MetricsResponseFailure
       }
 

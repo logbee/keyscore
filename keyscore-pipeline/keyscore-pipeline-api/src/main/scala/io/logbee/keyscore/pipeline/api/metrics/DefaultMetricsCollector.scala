@@ -92,7 +92,7 @@ class DefaultMetricsCollector() extends MetricsCollector {
     MetricsCollection(metrics.values.map {
       case metric @ CounterMetric(_, _, _, _) => metric.update(_.labels :++= labels)
       case metric @ GaugeMetric(_, _, _, _, _, _) => metric.update(_.labels :++= labels)
-    }.toSeq)
+    }.toList)
   }
 
   private def now: TimestampValue = {

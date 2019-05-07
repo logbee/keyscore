@@ -29,8 +29,8 @@ class BaseMetricsCollectionSpec extends FreeSpec with Matchers {
     val gaugeMetric = GaugeMetric(gaugeName, Set(inLabel), timestamp = None, 2.0, 0.0, 42.0)
     val gaugeMetric2 = GaugeMetric(gaugeName, Set(outLabel), timestamp = None, 2.1, 0.0, 42.0)
 
-    val metrics = Seq(counterMetric,gaugeMetric,gaugeMetric2)
-    val otherMetrics = Seq(other)
+    val metrics = List(counterMetric,gaugeMetric,gaugeMetric2)
+    val otherMetrics = List(other)
     val collection = MetricsCollection(metrics)
     val otherCollection = MetricsCollection(otherMetrics)
 
