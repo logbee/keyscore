@@ -23,13 +23,13 @@ trait BaseMetricsCollection {
     }).map(m => m.asInstanceOf[T])
   }
 
-  def findMetrics[T <: Metric](name: String, labels: Set[Label] = Set.empty)(implicit classTag: ClassTag[T]): Seq[T] = {
+  def findMetrics[T <: Metric](name: String, labels: Set[Label] = Set.empty)(implicit classTag: ClassTag[T]): List[T] = {
     metrics.filter(metric => {
       classTag.runtimeClass.equals(metric.getClass) && name.equals(metric.asMessage.name) && labels.forall(metric.asMessage.labels.contains)
     }).map(m => m.asInstanceOf[T])
   }
 
-  def findMetricsWithLabels[T <: Metric](labels: Set[Label] = Set.empty)(implicit classTag: ClassTag[T]): Seq[T] = {
+  def findMetricsWithLabels[T <: Metric](labels: Set[Label] = Set.empty)(implicit classTag: ClassTag[T]): List[T] = {
     metrics.filter(metric => {
       classTag.runtimeClass.equals(metric.getClass) && labels.forall(metric.asMessage.labels.contains)
     }).map(m => m.asInstanceOf[T])

@@ -64,7 +64,7 @@ class WorkflowTest extends Matchers {
     Thread.sleep(5000)
 
     logger.debug(s"SCRAPING the metrics of the Workflow Pipeline")
-    scrapeMetrics(id = secondRemoveFieldsID).metrics shouldNot be (empty)
+    scrapeMetrics(id = secondRemoveFieldsID).last.metrics shouldNot be (empty)
 
     logger.debug(s"CLEANING_UP the Workflow Pipeline")
     cleanUp

@@ -11,6 +11,7 @@ import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.metrics.GaugeMetric
+import io.logbee.keyscore.model.metrics.BaseMetricsCollection
 import io.logbee.keyscore.model.pipeline.{Dismantled, FilterStatus, Paused, Running}
 import io.logbee.keyscore.test.integrationTests.behaviors._
 import io.logbee.keyscore.test.util.JsonData._
@@ -71,17 +72,17 @@ class MetricsTest extends Matchers {
     pollPipelineHealthState() should be(true)
 
     logger.debug(s"At the beginning no datasets should be inserted or extracted.")
-    scrapeMetrics(addFieldsID) find insertedDatasets should be(None)
+    scrapeMetrics(addFieldsID).last find insertedDatasets should be(None)
 
     logger.debug(s"Now 3 datasets should be inserted.")
     applyBehavior(new InsertDatasets(addFieldsID, write(List(d1, d2, d3))))
 
     Thread.sleep(3000)
-    (scrapeMetrics(addFieldsID) find insertedDatasets get).value shouldBe 3
+    (scrapeMetrics(addFieldsID).last find insertedDatasets get).value shouldBe 3
 
     logger.debug(s"Also 3 datasets should been now pushed to the next filter.")
-    (scrapeMetrics(addFieldsID) find pushedDatasets get).value shouldBe 3
-    (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(addFieldsID).last find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID).last find pushedDatasets get).value shouldBe 3
 
     logger.debug(s"There still should be 3 datasets that were pushed to the next filter")
     applyBehavior(new FilterPause(retainID, "true"))
@@ -92,23 +93,23 @@ class MetricsTest extends Matchers {
     applyBehavior(new InsertDatasets(retainID, write(List(d4, d5, d6))))
 
     Thread.sleep(3000)
-    (scrapeMetrics(retainID) find insertedDatasets get).value shouldBe 3
-    (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID).last find insertedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID).last find pushedDatasets get).value shouldBe 3
 
     applyBehavior(new FilterPause(retainID, "false"))
     applyBehavior(new FilterDrain(retainID, "false"))
     checkFilterState(retainID, Green, Running)
 
     Thread.sleep(3000)
-    (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID).last find pushedDatasets get).value shouldBe 3
 
     logger.debug("From the last filter 6 datasets should have been extracted.")
-    (scrapeMetrics(removeID) find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(removeID).last find pushedDatasets get).value shouldBe 3
     applyBehavior(new InsertDatasets(retainID, write(List(d7, d8, d9))))
 
     Thread.sleep(3000)
-    (scrapeMetrics(retainID) find insertedDatasets get).value shouldBe 6
-    (scrapeMetrics(retainID) find pushedDatasets get).value shouldBe 6
+    (scrapeMetrics(retainID).last find insertedDatasets get).value shouldBe 6
+    (scrapeMetrics(retainID).last find pushedDatasets get).value shouldBe 6
 
     extractDatasets(removeID, 10).size shouldBe 6
 
@@ -118,8 +119,8 @@ class MetricsTest extends Matchers {
 
     Thread.sleep(3000)
 
-    val firstOut = scrapeMetrics(decoderID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
-    val lastOut = scrapeMetrics(encoderID).find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val firstOut = scrapeMetrics(decoderID).last.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val lastOut = scrapeMetrics(encoderID).last.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
 
     lastOut should be > 0.0
 
