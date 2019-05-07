@@ -9,7 +9,7 @@ import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionCo
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -84,7 +84,6 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
           whenReady(filter.scrape()) { mc =>
             mc.find(queuedEntries).get.value shouldBe 2
             mc.find(pushedEntries).get.value shouldBe 2
-//            mc.find(queueMemory).get.value shouldBe > (0L)
           }
         }
       }
@@ -144,16 +143,36 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
           )
         )
 
-        whenReady(filterFuture) { _ =>
+        private val expectedSize = sample.serializedSize
+
+        whenReady(filterFuture) { filter =>
 
           sink.request(1)
           source.sendNext(sample)
+
+          whenReady(filter.scrape()) { mc =>
+            mc.find(queueMemory).get.value shouldBe expectedSize
+          }
 
           sink.expectNoMessage(remaining = 1000 millis)
 
           val actual = sink.requestNext(1000 millis)
 
           actual shouldBe sample
+        }
+      }
+
+      "should compute the bytesize of all elements in the queue" in new TestStreamFor[GroupByValueLogic](configuration) {
+        whenReady(filterFuture) { filter =>
+          sink.request(3)
+
+          val expectedSize = sampleDatasets.map(_.serializedSize).sum
+
+          sampleDatasets.foreach(source.sendNext)
+
+          whenReady(filter.scrape()) { mc =>
+            mc.find(queueMemory).get.value shouldBe expectedSize
+          }
         }
       }
 

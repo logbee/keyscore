@@ -294,7 +294,10 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
   }
 
   private def getQueueSizeInByte: Long = {
-    //TODO Get Bytesize of Queue
-    -1L
+    queue.flatMap {
+      case group: GroupEntry => group.datasets.map(_.serializedSize)
+      case passThroughEntry: PassThroughEntry => Seq(passThroughEntry.dataset.serializedSize)
+      case _ => Seq.empty
+    }.sum
   }
 }
