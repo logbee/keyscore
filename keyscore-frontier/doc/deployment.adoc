@@ -18,7 +18,7 @@ docker run --publish 2551:2551 4711:4711 \
            --env KEYSCORE_PERSISTENCE_JOURNAL_PLUGIN=cassandra-journal \
            --env KEYSCORE_SNAPSHOT_STORE_PLUGIN=cassandra-snapshot-store \
            --env KEYSCORE_CASSANDRA_JOURNAL_CONTACT_POINTS=localhost:9042 \
-           quay.io/logbee/keyscore-frontier:0.3.0-alpha.1
+           quay.io/logbee/keyscore-frontier:0.3.0-alpha.2
 ----
 
 == Zip Distribution ==
