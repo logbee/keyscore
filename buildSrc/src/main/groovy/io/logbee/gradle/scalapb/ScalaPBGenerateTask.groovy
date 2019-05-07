@@ -29,7 +29,7 @@ class ScalaPBGenerateTask extends DefaultTask {
 
     File extractedProtoDir = project.file("${project.buildDir}/tmp/proto")
 
-    String protocVersion = "-v360"
+    String protocVersion = "-v371"
 
     @TaskAction
     void generate() {
