@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": [ "es2017", "dom" ],
+    "lib": [ "es2017", "dom", "es5","es6" ],
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
     "strict": false,
