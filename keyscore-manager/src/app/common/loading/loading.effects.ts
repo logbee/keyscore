@@ -123,7 +123,7 @@ export class LoadingEffects {
             }
         }),
         mergeMap((_) => {
-            return of();
+            return of({type:'NOOP'});
         })
     );
 

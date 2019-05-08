@@ -3,9 +3,8 @@ import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
 import {Observable, of} from "rxjs/index";
 import {HttpClient} from "@angular/common/http";
-import {ROUTER_NAVIGATION} from "@ngrx/router-store";
+import {ROUTER_NAVIGATION,RouterNavigationAction} from "@ngrx/router-store";
 import {mergeMap} from "rxjs/internal/operators";
-import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
 import {catchError, map, switchMap} from "rxjs/operators";
 import {
     GET_RESOURCE_STATE,
@@ -51,7 +50,7 @@ export class ResourcesEffects {
                     catchError((cause: any) => of(new LoadAllBlueprintsActionFailure(cause)))
                 )
             }
-            return of();
+            return of({type:'NOOP'});
         })
     );
 

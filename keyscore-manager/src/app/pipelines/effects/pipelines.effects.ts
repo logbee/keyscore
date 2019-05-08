@@ -1,8 +1,7 @@
 import {HttpClient} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
-import {ROUTER_NAVIGATION} from "@ngrx/router-store";
-import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
+import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {Action, select, Store} from "@ngrx/store";
 import {forkJoin, Observable, of} from "rxjs";
 import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
