@@ -4,6 +4,11 @@ package io.logbee.keyscore.pipeline.contrib.tailin.watch
 trait PathWatcher {
   
   /**
+   * Determines if files have been changed in this path and executes the implemented action for it.
+   */
+  def processFileChanges()
+  
+  /**
    * Notifies this PathWatcher that its path has been deleted and allows it to react to that scenario.
    */
   def pathDeleted()
@@ -16,10 +21,6 @@ trait PathWatcher {
 }
 
 
-trait DirWatcher extends PathWatcher {
-  def processFileChanges()
-}
+trait DirWatcher extends PathWatcher;
 
-trait FileEventHandler extends PathWatcher {
-  def processFileChanges()
-}
+trait FileEventHandler extends PathWatcher;
