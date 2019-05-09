@@ -26,7 +26,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
   
   "A DirWatcher," - {
     "when a sub-directory" - {
-      "is created, should create a DirWatcher for that sub-directory, which's processEvents() is called when the parent's processEvents() is called" in new DirWatcherParams {
+      "is created, should create a DirWatcher for that sub-directory, which's processFileChanges() is called when the parent's processFileChanges() is called" in new DirWatcherParams {
         
         matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt", depth = 2)
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
