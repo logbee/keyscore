@@ -20,13 +20,14 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
   trait DirWatcherParams {
     var provider = mock[WatcherProvider[Path]]
     var dirPath = watchDir
-    var matchPattern = DirWatcherPattern(watchDir + "/*.txt")
+    var matchPattern = DirWatcherPattern(dirPath + "/*.txt")
   }
   
   
-  "A DirWatcher," - {
+  "A LocalDirWatcher," - {
     "when a sub-directory" - {
-      "is created, should create a DirWatcher for that sub-directory, which's processFileChanges() is called when the parent's processFileChanges() is called" in new DirWatcherParams {
+      "is created, should create a DirWatcher for that sub-directory" in
+      new DirWatcherParams {
         
         matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt", depth = 2)
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
@@ -50,7 +51,8 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       }
       
       
-      "is deleted, should notify the responsible DirWatcher" in new DirWatcherParams {
+      "is deleted, should notify the responsible DirWatcher" in
+      new DirWatcherParams {
         
         matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt", depth=2)
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
@@ -94,7 +96,8 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         filePatterns.foreach { setup => //individual test cases
           
-          setup.pattern in new DirWatcherParams {
+          setup.pattern in
+          new DirWatcherParams {
             
             matchPattern = DirWatcherPattern(watchDir + "/" + setup.pattern)
             val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
@@ -131,7 +134,8 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         filePatterns.foreach { setup => //individual test cases
           
-          setup.startingPattern in new DirWatcherParams {
+          setup.startingPattern in
+          new DirWatcherParams {
             
             provider = stub[WatcherProvider[Path]]
             matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/" + setup.startingPattern, depth=2)
@@ -160,7 +164,8 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       }
       
       
-      "is created, but doesn't match the file pattern, should NOT create a FileEventHandler" in new DirWatcherParams {
+      "is created, but doesn't match the file pattern, should NOT create a FileEventHandler" in
+      new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
@@ -176,7 +181,8 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       }
       
       
-      "is modified, should notify the responsible FileEventHandlers that the file was modified" in new DirWatcherParams {
+      "is modified, should notify the responsible FileEventHandlers that the file was modified" in
+      new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
@@ -201,7 +207,8 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       }
       
       
-      "is deleted, should notify the responsible FileEventHandler" in new DirWatcherParams {
+      "is deleted, should notify the responsible FileEventHandler" in
+      new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
@@ -225,7 +232,8 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
     }
     
     
-    "when its configured directory doesn't exist, should throw an exception" in new DirWatcherParams {
+    "when its configured directory doesn't exist, should throw an exception" in
+    new DirWatcherParams {
       
       val watchDir = Paths.get("/abc/def/ghi/jkl/mno/pqr/stu/vwx")
       dirPath = watchDir
