@@ -154,7 +154,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             val subDirWatcher = new LocalDirWatcher(subDir, subMatchPattern, provider)
             (provider.createDirWatcher _).verify(subDir, subMatchPattern).returns(subDirWatcher)
             
-            (fileEventHandler.fileModified _).verify()
+            (fileEventHandler.processFileChanges _).verify()
           }
         }
       }
@@ -197,7 +197,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         dirWatcher.processFileChanges()
         
-        (subFileEventHandler.fileModified _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileEventHandler
+        (subFileEventHandler.processFileChanges _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileEventHandler
       }
       
       

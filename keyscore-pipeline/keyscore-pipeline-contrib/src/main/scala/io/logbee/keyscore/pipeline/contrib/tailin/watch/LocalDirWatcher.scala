@@ -141,7 +141,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
       
       val fileEventHandler = watcherProvider.createFileEventHandler(new LocalFile(file))
       
-      fileEventHandler.fileModified()
+      fileEventHandler.processFileChanges()
       
       val list = subFileEventHandlers.getOrElse(file, mutable.ListBuffer.empty)
       
@@ -156,7 +156,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
     subFileEventHandlers.get(file) match {
       case None => //can't notify anyone
       case Some(watchers: ListBuffer[FileEventHandler]) => {
-        watchers.foreach(watcher => watcher.fileModified())
+        watchers.foreach(watcher => watcher.processFileChanges())
       }
     }
   }

@@ -120,7 +120,7 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
       
       val fileEventHandler = watcherProvider.createFileEventHandler(new SmbFile(file))
       
-      fileEventHandler.fileModified()
+      fileEventHandler.processFileChanges()
       
       val list = subFileEventHandlers.getOrElse(file, mutable.ListBuffer.empty)
       
@@ -135,7 +135,7 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
     subFileEventHandlers.get(file) match {
       case None => //can't notify anyone
       case Some(watchers: ListBuffer[FileEventHandler]) => {
-        watchers.foreach(watcher => watcher.fileModified())
+        watchers.foreach(watcher => watcher.processFileChanges())
       }
     }
   }
