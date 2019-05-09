@@ -243,7 +243,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   
 
   override def onTimer(timerKey: Any) {
-    dirWatcher.processEvents()
+    dirWatcher.processFileChanges()
     
     if (!sendBuffer.isEmpty) {
       doPush()
@@ -291,7 +291,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       doPush()
     }
     else {
-      dirWatcher.processEvents()
+      dirWatcher.processFileChanges()
       
       if (!sendBuffer.isEmpty) {
         doPush()

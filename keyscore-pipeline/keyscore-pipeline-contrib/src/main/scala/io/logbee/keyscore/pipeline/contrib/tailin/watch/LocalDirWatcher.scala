@@ -60,11 +60,11 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
   
   
   
-  def processEvents() = {
+  def processFileChanges() = {
     //call processEvents() on subDirWatchers
     subDirWatchers.foreach {
       case (path: Path, subDirWatchers: ListBuffer[DirWatcher]) => subDirWatchers.foreach {
-        case (watcher: DirWatcher) => watcher.processEvents()
+        case (watcher: DirWatcher) => watcher.processFileChanges()
       }
     }
     

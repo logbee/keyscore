@@ -60,11 +60,11 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
   
   
   
-  def processEvents() = {
+  def processFileChanges() = {
     //call processEvents() on subDirWatchers
     subDirWatchers.foreach {
       case (path: Directory, subDirWatchers: ListBuffer[DirWatcher]) => subDirWatchers.foreach {
-        case (watcher: DirWatcher) => watcher.processEvents()
+        case (watcher: DirWatcher) => watcher.processFileChanges()
       }
     }
     

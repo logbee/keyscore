@@ -17,7 +17,7 @@ trait PathWatcher {
 
 
 trait DirWatcher extends PathWatcher {
-  def processEvents()
+  def processFileChanges()
 }
 
 trait FileEventHandler extends PathWatcher {
