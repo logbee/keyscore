@@ -1,18 +1,21 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
+import java.nio.ByteBuffer
+import java.util.EnumSet
+
 import org.scalatest.FreeSpec
 
-import com.hierynomus.smbj.SMBClient
-import com.hierynomus.smbj.auth.AuthenticationContext
-import com.hierynomus.smbj.share.DiskShare
-import java.nio.ByteBuffer
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
-import java.util.EnumSet
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.SMB2ShareAccess
 import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.mssmb2.SMB2CreateOptions
+import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.smbj.SMBClient
+import com.hierynomus.smbj.auth.AuthenticationContext
+import com.hierynomus.smbj.share.Directory
+import com.hierynomus.smbj.share.DiskShare
+
+import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
 
 /**
  * Semi-automatic test. Requires user-interaction and an SMB share.
@@ -55,6 +58,8 @@ class Manual_SpecWithSmbShare extends FreeSpec {
   
   
   
+  
+  
   private def createFile(share: DiskShare, fileName: String, content: ByteBuffer): SmbFile = {
     
     val writeBuffer = content
@@ -89,5 +94,34 @@ class Manual_SpecWithSmbShare extends FreeSpec {
       finally {
         share.rm(fileName)
       }
+  }
+  
+  
+  
+  
+  
+  private def createDir(share: DiskShare, dirName: String): Directory = {
+    share.openDirectory(
+      dirName,
+      EnumSet.of(AccessMask.GENERIC_ALL),
+      EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
+      SMB2ShareAccess.ALL,
+      SMB2CreateDisposition.FILE_CREATE,
+      EnumSet.noneOf(classOf[SMB2CreateOptions])
+    )
+  }
+  
+  
+  
+  def withSmbDir(share: DiskShare, dirName: String, testCode: Directory => Any) = {
+    
+    try {
+      val smbDir = createDir(share, dirName)
+      
+      testCode(smbDir)
+    }
+    finally {
+      share.rmdir(dirName, true)
+    }
   }
 }
