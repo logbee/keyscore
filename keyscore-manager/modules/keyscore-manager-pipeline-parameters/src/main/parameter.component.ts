@@ -6,7 +6,7 @@ import {BehaviorSubject} from "rxjs/index";
 
 @Component({
     selector: "app-parameter",
-    template: `        
+    template: `
         <div [ngSwitch]="parameterDescriptor.jsonClass" [formGroup]="form" class="parameter-wrapper">
             <mat-form-field *ngSwitchCase="jsonClass.TextParameterDescriptor">
                 <input matInput type="text" [placeholder]="parameterDescriptor.defaultValue"
@@ -121,7 +121,7 @@ import {BehaviorSubject} from "rxjs/index";
 
             <parameter-directive *ngSwitchCase="jsonClass.FieldDirectiveSequenceParameterDescriptor"
                                  [formControlName]="directiveInstance || parameter.ref.id"
-                                 [parameterDescriptor]="parameterDescriptor"
+                                 [fieldDirectiveSequenceParameterDescriptor]="parameterDescriptor"
                                  [parameter]="parameter"
                                  [id]="directiveInstance || parameter.ref.id"
                                  [datasets]="datasets$ | async"

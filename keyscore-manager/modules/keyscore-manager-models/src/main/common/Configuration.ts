@@ -14,6 +14,7 @@ export interface DirectiveConfiguration {
 }
 
 export interface FieldDirectiveSequenceConfiguration {
-    fieldName: string;
+    id: string;
+    parameters:ParameterSet;
     directives: DirectiveConfiguration[];
 }

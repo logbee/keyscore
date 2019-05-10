@@ -175,7 +175,7 @@ export const generateResolvedParameterDescriptor = (type: ParameterDescriptorJso
             return {
                 ...initialize,
                 fieldTypes: FieldValueType.Text,
-                parameters: generateResolvedParameterDescriptors(),
+                parameters: generateResolvedParameterDescriptors(1),
                 directives: generateResolvedFieldDirectiveDescriptors(),
                 minSequences: 0,
                 maxSequences: 100
