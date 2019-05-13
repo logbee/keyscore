@@ -73,6 +73,18 @@ object DirWatcherPattern {
   }
   
   
+  /**
+   * Returns a transformed version of the given path that looks like a Unix-path.
+   * 
+   * This is useful for the Java PathMatcher API that can't work for example with SMB-paths.
+   */
+  def getUnixLikePath(fullFilePattern: String) = {
+    fullFilePattern
+      .replace("\\\\", "/") //replace "\\" at the start of SMB-paths with just a /
+      .replace('\\', '/') //replace '\' as in Windows-like paths with '/'
+  }
+  
+  
   def apply(fullFilePattern: String, depth: Int = 0): DirWatcherPattern = {
     
     //TODO if it's a Windows file-path with '\' in it, change those to '/' -> mind that a '\' might also appear in a Unix path, so we can't just swap them out unconditionally

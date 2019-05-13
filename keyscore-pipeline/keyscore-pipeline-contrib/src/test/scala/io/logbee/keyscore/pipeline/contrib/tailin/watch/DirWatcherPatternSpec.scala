@@ -25,7 +25,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
   }
   
   
-  "A DirWatcherPattern's" - {
+  "A DirWatcherPattern" - {
     
     tmpDir = Files.createTempDirectory("extractInvariableDir") //put everything into a temp-directory to be OS-agnostic and be able to create files and clean them up without problem
     TestUtil.waitForFileToExist(tmpDir.toFile)
@@ -123,11 +123,12 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
     
     
     
-    "extractInvariableDir() should get the fixed directory's path" - {
+    "should get the fixed directory's path" - {
       
       testSetups.foreach { testSetup =>
         
-        s"${testSetup.filePattern} has fixed parent-dir: ${testSetup.expectedFixedPath}" in {
+        s"${testSetup.filePattern} has fixed parent-dir: ${testSetup.expectedFixedPath}" in
+        {
           val result = DirWatcherPattern.extractInvariableDir(tmpDir + "/" + testSetup.filePattern)
           
           result shouldBe (
@@ -141,11 +142,12 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
     }
     
     
-    "findFirstVariableIndex() should find the first index containing" - {
+    "should find the first index containing" - {
       
       testSetups.foreach { testSetup =>
         
-        s"${testSetup.filePattern} has variable symbol at position ${testSetup.expectedVariableIndex}" in {
+        s"${testSetup.filePattern} has variable symbol at position ${testSetup.expectedVariableIndex}" in
+        {
           val result = DirWatcherPattern.findFirstVariableIndex(testSetup.filePattern)
           
           result shouldBe (
@@ -160,11 +162,12 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
     
     
     
-    "removeFirstDirPrefixFromMatchPattern() should correctly remove the first part of a filePattern, transforming" - {
+    "should correctly remove the first part of a filePattern, transforming" - {
       
       testSetups.foreach { testSetup =>
         
-        s"${testSetup.filePattern} into ${testSetup.expectedSubDirPath}" in {
+        s"${testSetup.filePattern} into ${testSetup.expectedSubDirPath}" in
+        {
           val result = DirWatcherPattern.removeFirstDirPrefixFromMatchPattern(testSetup.filePattern)
           
           result shouldBe (
@@ -175,6 +178,15 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
                           )
         }
       }
+    }
+    
+    
+    "transform an SMB-path into a Unix-like path" in
+    {
+      val fullFilePattern = "\\\\some.host.name\\share\\file\\path"
+      val result = DirWatcherPattern.getUnixLikePath(fullFilePattern)
+      
+      result shouldBe "/some.host.name/share/file/path"
     }
   }
 }
