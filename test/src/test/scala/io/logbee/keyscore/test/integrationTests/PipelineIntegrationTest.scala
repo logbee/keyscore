@@ -10,6 +10,7 @@ import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.data.Health
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
+import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric}
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1, datasetMulti2}
 import io.logbee.keyscore.test.integrationTests.behaviors._
@@ -50,8 +51,10 @@ class PipelineIntegrationTest extends Matchers {
 
   //The FilterID must equal the BlueprintRefs of the Filters
   //From the belonging JSONs
+  private val k2kSinkId = "80851e06-7191-4d96-8e4d-de66a5a12e81"
   private val k2kFilterId = "24a88215-cfe0-47a1-a889-7f3e9f8260ef"
   private val k2eFilterId = "dc882c27-3de2-4603-b272-b35cf81080e2"
+  private val k2eSourceId = "4a696573-ce73-4bb2-8d9a-b2a90e834153"
 
   val k2kObject: PipelineBlueprint = loadPipelineBlueprint(K2K, "pipelineBlueprint")
   val k2eObject: PipelineBlueprint = loadPipelineBlueprint(K2E, "pipelineBlueprint")
@@ -109,6 +112,11 @@ class PipelineIntegrationTest extends Matchers {
 
     //Wait until all Dataset are pushed to the Elastic index
     pollElasticElements(topic = "test", expect = 2)(runner, elasticClient, logger) shouldBe true
+
+    scrapeMetrics(k2eSourceId).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read").get.value shouldBe 2.0
+    scrapeMetrics(k2eSourceId).last.find[GaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read").get.value should be > 595.0
+    scrapeMetrics(k2kSinkId).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written").get.value shouldBe 2.0
+    scrapeMetrics(k2kSinkId).last.find[GaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.bytes-written").get.value should be > 800.0
 
     //Cleanup
     cleanIntegrationTest

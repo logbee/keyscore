@@ -80,7 +80,7 @@ private class SourceController(val source: SourceProxy, val outValve: ValveProxy
   }
 
 
-  private def computeSourceState(outValveState: ValveState, sourceState: FilterState) = {
+  private def computeSourceState(outValveState: ValveState, sourceState: FilterState): FilterState = {
     FilterState(sourceState.id, sourceState.health, outValveState.throughputTime, outValveState.totalThroughputTime, determineSourceStatus(outValveState))
   }
 

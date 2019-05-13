@@ -7,10 +7,12 @@ import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{Attributes, OverflowStrategy, QueueOfferResult, SinkShape}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
@@ -101,6 +103,20 @@ object KafkaSinkLogic extends Described {
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
+
+  val datasetsWritten = CounterMetricDescriptor(
+    name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written",
+    displayName = TextRef("datasetsWrittenName"),
+    description = TextRef("datasetsWrittenDesc"),
+    importance = High
+  )
+
+  val bytesWritten = GaugeMetricDescriptor(
+    name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.bytes-written",
+    displayName = TextRef("bytesWrittenName"),
+    description = TextRef("bytesWrittenDesc"),
+    importance = High
+  )
 }
 
 class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) extends SinkLogic(parameters, shape) {
@@ -108,8 +124,12 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
   private implicit val formats: Formats = KeyscoreFormats.formats
   private var queue: SourceQueueWithComplete[ProducerMessage.Envelope[Array[Byte], String, Promise[Unit]]] = _
 
-  private val pullAsync = getAsyncCallback[Unit](_ => {
+  private val pullAndUpdateMetricsAsync = getAsyncCallback[Option[Dataset]](dataset => {
     pull(in)
+    dataset.foreach(dataset => {
+      metrics.collect(KafkaSinkLogic.datasetsWritten).increment()
+      metrics.collect(KafkaSinkLogic.bytesWritten).increment(dataset.serializedSize)
+    })
   })
 
   private var bootstrapServer = KafkaSinkLogic.bootstrapServerParameter.defaultValue
@@ -196,14 +216,14 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
     }.toList
 
     if (messages.nonEmpty) {
-      enqueue(messages.head, messages.tail)
+      enqueue(dataset, messages.head, messages.tail)
     }
     else {
       pull(in)
     }
   }
 
-  private def enqueue(message: (ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit]), tail: List[(ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit])]): Unit = {
+  private def enqueue(dataset: Dataset, message: (ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit]), tail: List[(ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit])]): Unit = {
     val future = for {
       queueReady <- queue.offer(message._1).map({
         case QueueOfferResult.Enqueued =>
@@ -216,12 +236,12 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
 
     future.onComplete({
       case Success((_, messages)) if messages.nonEmpty =>
-        enqueue(messages.head, messages.tail)
+        enqueue(dataset, messages.head, messages.tail)
       case Success((_, _)) =>
-        pullAsync.invoke(())
+        pullAndUpdateMetricsAsync.invoke(dataset)
       case Failure(exception) =>
         log.error(exception, message = "Enqueuing of message failed. Skipping to next Dataset.")
-        pullAsync.invoke(())
+        pullAndUpdateMetricsAsync.invoke(None)
     })
   }
 

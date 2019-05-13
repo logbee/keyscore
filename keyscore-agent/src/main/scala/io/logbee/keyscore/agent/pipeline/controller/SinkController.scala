@@ -81,7 +81,7 @@ private class SinkController(val inValve: ValveProxy, val sink: SinkProxy)(impli
   }
 
 
-  private def computeSinkState(inValveState: ValveState, sinkState: FilterState) = {
+  private def computeSinkState(inValveState: ValveState, sinkState: FilterState): FilterState = {
     FilterState(sinkState.id, sinkState.health, inValveState.throughputTime, inValveState.totalThroughputTime, determineSinkStatus(inValveState))
   }
 

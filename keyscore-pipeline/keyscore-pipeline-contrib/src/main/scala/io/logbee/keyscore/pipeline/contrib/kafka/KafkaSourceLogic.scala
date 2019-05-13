@@ -8,9 +8,11 @@ import akka.stream.scaladsl.{Sink, SinkQueueWithCancel}
 import akka.stream.{Attributes, SourceShape}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.data.Importance.{Lower, Medium}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
@@ -120,21 +122,38 @@ object KafkaSourceLogic extends Described {
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
+
+  val datasetsRead = CounterMetricDescriptor(
+    name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read",
+    displayName = TextRef("datasetsReadName"),
+    description = TextRef("datasetsReadDesc"),
+    importance = Lower
+  )
+
+  val bytesRead = GaugeMetricDescriptor(
+    name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read",
+    displayName = TextRef("bytesReadName"),
+    description = TextRef("bytesReadDesc"),
+    importance = Medium
+  )
 }
 
 class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
+  import KafkaSourceLogic._
 
   private var queue: SinkQueueWithCancel[Dataset] = _
 
   private var server = ""
-  private var port = KafkaSourceLogic.portParameter.defaultValue
+  private var port = portParameter.defaultValue
   private var groupID = ""
   private var offsetConfig = ""
   private var topic = ""
-  private var fieldName = KafkaSourceLogic.fieldNameParameter.defaultValue
+  private var fieldName = fieldNameParameter.defaultValue
 
   private val pushAsync = getAsyncCallback[Dataset] { dataset =>
     push(out, dataset)
+    metrics.collect(datasetsRead).increment()
+    metrics.collect(bytesRead).increment(dataset.serializedSize)
   }
 
   override def initialize(configuration: Configuration): Unit = {
@@ -148,12 +167,12 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
 
   override def configure(configuration: Configuration): Unit = {
 
-    server = configuration.getValueOrDefault(KafkaSourceLogic.serverParameter, server)
-    port = configuration.getValueOrDefault(KafkaSourceLogic.portParameter, port)
-    groupID = configuration.getValueOrDefault(KafkaSourceLogic.groupIdParameter, groupID)
-    offsetConfig = configuration.getValueOrDefault(KafkaSourceLogic.offsetParameter, offsetConfig)
-    topic = configuration.getValueOrDefault(KafkaSourceLogic.topicParameter, topic)
-    fieldName = configuration.getValueOrDefault(KafkaSourceLogic.fieldNameParameter, fieldName)
+    server = configuration.getValueOrDefault(serverParameter, server)
+    port = configuration.getValueOrDefault(portParameter, port)
+    groupID = configuration.getValueOrDefault(groupIdParameter, groupID)
+    offsetConfig = configuration.getValueOrDefault(offsetParameter, offsetConfig)
+    topic = configuration.getValueOrDefault(topicParameter, topic)
+    fieldName = configuration.getValueOrDefault(fieldNameParameter, fieldName)
 
     tearDown()
 
@@ -169,7 +188,8 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
 
   override def onPull(): Unit = {
     queue.pull().onComplete {
-      case Success(Some(dataset)) => pushAsync.invoke(dataset)
+      case Success(Some(dataset)) =>
+        pushAsync.invoke(dataset)
       case Failure(exception) => log.error(exception, "Failed to pull from kafka consumer queue!")
       case _ => log.info("Failed to pull from kafka consumer queue!")
     }
@@ -206,4 +226,5 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
       queue.cancel()
     }
   }
+
 }

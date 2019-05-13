@@ -27,28 +27,28 @@ object ValveStage {
   val TotalDatasetThroughputTime = "io.logbee.keyscore.agent.pipeline.valve.DATASET_TOTAL_THROUGHPUT_TIME"
 
   val pushedDatasets = CounterMetricDescriptor(
-    name = "pushed_datasets",
+    name = "io.logbee.keyscore.agent.pipeline.valve.ValveStage.pushed-datasets",
     displayName = TextRef("pushedDatasetsName"),
     description = TextRef("pushedDatasetsDesc"),
     importance = Lower
   )
 
   val insertedDatasets = CounterMetricDescriptor(
-    name = "inserted_datasets",
+    name = "io.logbee.keyscore.agent.pipeline.valve.ValveStage.inserted-datasets",
     displayName = TextRef("insertedDatasetsName"),
     description = TextRef("insertedDatasetsDesc"),
     importance = Lower
   )
 
   val _throughputTime = GaugeMetricDescriptor(
-    name = "throughput_time",
+    name = "io.logbee.keyscore.agent.pipeline.valve.ValveStage.throughput-time",
     displayName = TextRef("throughputTimeName"),
     description = TextRef("throughputTimeDesc"),
     importance = Medium
   )
 
   val _totalThroughputTime = GaugeMetricDescriptor(
-    name = "total_throughput_time",
+    name = "io.logbee.keyscore.agent.pipeline.valve.ValveStage.total-throughput-time",
     displayName = TextRef("totalThroughputTimeName"),
     description = TextRef("totalThroughputTimeDesc"),
     importance = Medium

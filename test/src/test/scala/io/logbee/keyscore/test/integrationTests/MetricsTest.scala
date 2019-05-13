@@ -11,7 +11,6 @@ import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.metrics.GaugeMetric
-import io.logbee.keyscore.model.metrics.BaseMetricsCollection
 import io.logbee.keyscore.model.pipeline.{Dismantled, FilterStatus, Paused, Running}
 import io.logbee.keyscore.test.integrationTests.behaviors._
 import io.logbee.keyscore.test.util.JsonData._

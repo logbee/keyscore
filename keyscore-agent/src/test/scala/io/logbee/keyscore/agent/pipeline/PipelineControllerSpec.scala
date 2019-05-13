@@ -77,7 +77,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
         whenReady(controller.state()) { state =>
 
           whenReady(controller.scrape()) { collection =>
-            val metrics = collection.findMetrics[GaugeMetric]("total_throughput_time")
+            val metrics = collection.findMetrics[GaugeMetric]("io.logbee.keyscore.agent.pipeline.valve.ValveStage.total-throughput-time")
             val times = metrics.map(_.value)
             times should contain(state.totalThroughputTime)
           }
@@ -107,9 +107,9 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(controller.scrape()) { collection =>
           collection.metrics shouldNot be(empty)
-          val in = collection.findMetrics[GaugeMetric]("throughput_time", Set(inLabel))
+          val in = collection.findMetrics[GaugeMetric]("io.logbee.keyscore.agent.pipeline.valve.ValveStage.throughput-time", Set(inLabel))
           in.size should be(1)
-          val out = collection.findMetrics[CounterMetric]("pushed_datasets", Set(outLabel))
+          val out = collection.findMetrics[CounterMetric]("io.logbee.keyscore.agent.pipeline.valve.ValveStage.pushed-datasets", Set(outLabel))
           out.size should be(1)
           out.head.value should be(1.0)
         }

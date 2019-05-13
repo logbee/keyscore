@@ -15,21 +15,21 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 object AbstractGroupingLogic {
 
   val pushedEntries = CounterMetricDescriptor(
-    name = "pushed_entries",
+    name = "io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.pushed-entries",
     displayName = TextRef("pushedEntriesName"),
     description = TextRef("pushedEntriesDesc"),
     importance = Medium
   )
 
   val queuedEntries = GaugeMetricDescriptor(
-    name = "queued_entries",
+    name = "io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.queued-entries",
     displayName = TextRef("queuedEntriesName"),
     description = TextRef("queuedEntriesDesc"),
     importance = High
   )
 
   val queueMemory = GaugeMetricDescriptor(
-    name = "queued_memory",
+    name = "io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.queued-memory",
     displayName = TextRef("queuedMemoryName"),
     description = TextRef("queuedMemoryDesc"),
     importance = High
