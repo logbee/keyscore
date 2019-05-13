@@ -10,6 +10,7 @@ import com.typesafe.config.Config
 import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
 import io.logbee.keyscore.commons.ehcache.MetricsCache
 import io.logbee.keyscore.commons.metrics.MetricsManager.Configuration
+import io.logbee.keyscore.model.metrics.MetricsCollection
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -61,10 +62,10 @@ class MetricsManager(configuration: Configuration) extends Actor with ActorLoggi
 
   override def receive: Receive = {
 
-    case RequestMetrics(id) =>
+    case RequestMetrics(id, seconds, nanos, max) =>
       log.debug(s"Received ScrapeMetricRequest <$id>")
-      cache.getAll(id) match {
-        case mcs =>
+      cache.getAll(id, seconds, nanos, max) match {
+        case mcs: Seq[MetricsCollection] =>
           sender ! MetricsResponseSuccess(id, mcs)
         case _ =>
           sender ! MetricsResponseFailure

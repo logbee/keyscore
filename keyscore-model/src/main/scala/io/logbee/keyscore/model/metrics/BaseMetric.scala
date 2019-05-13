@@ -1,6 +1,6 @@
 package io.logbee.keyscore.model.metrics
 
-import io.logbee.keyscore.model.data.Label
+import io.logbee.keyscore.model.data.{Label, TimestampValue}
 
 trait BaseMetric {
   this: MetricMessage =>
@@ -18,6 +18,14 @@ trait BaseMetric {
       case CounterMetric(_, labelsSet, _, _) => labelsSet
       case GaugeMetric(_, labelsSet, _, _, _, _) => labelsSet
       case _  => Set.empty
+    }
+  }
+
+  def timestamp: TimestampValue = {
+    sealedValue.value match {
+      case CounterMetric(_, _, timestamp, _) => timestamp.get
+      case GaugeMetric(_, _, timestamp, _, _, _) => timestamp.get
+      case _ => TimestampValue()
     }
   }
 }

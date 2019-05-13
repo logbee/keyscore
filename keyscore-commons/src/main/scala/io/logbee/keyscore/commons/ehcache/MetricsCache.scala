@@ -77,18 +77,22 @@ class MetricsCache(val configuration: Configuration) {
     }
   }
 
-  private def getCounter(s: String): Long = {
-    s.substring(s.lastIndexOf("|") + 1).toLong
-  }
-
   private def calculateKey(id: UUID, counter: Long): String = {
     id.toString + "|" + counter
   }
 
-  private def getAllFrom(id: UUID, entry: Long, seq: Seq[MetricsCollection] = Seq.empty[MetricsCollection]): Seq[MetricsCollection] = {
+  private def getAllFrom(id: UUID, entry: Long, seconds: Long, nanos: Int, max: Long, seq: Seq[MetricsCollection] = Seq.empty[MetricsCollection]): Seq[MetricsCollection] = {
     cache.get(calculateKey(id, entry)) match {
       case mc: MetricsCollection =>
-        getAllFrom(id, entry - 1, mc +: seq)
+
+        val timestampSeconds = mc.metrics.head.asMessage.timestamp.seconds
+        val timestampNanos = mc.metrics.head.asMessage.timestamp.nanos
+
+        if (seq.size < max && seconds <= timestampSeconds && nanos <= timestampNanos){
+          getAllFrom(id, entry - 1, seconds, nanos, max, mc +: seq)
+        } else {
+          seq
+        }
       case _ =>
         updateTuple(id, entry + 1)
         seq
@@ -108,10 +112,10 @@ class MetricsCache(val configuration: Configuration) {
     }
   }
 
-  def getAll(id: UUID): Seq[MetricsCollection] = {
+  def getAll(id: UUID, seconds: Long, nanos: Int, max: Long): Seq[MetricsCollection] = {
     idToMetrics.get(id) match {
       case Some(tuple) =>
-        getAllFrom(id, tuple._2)
+        getAllFrom(id, tuple._2, seconds, nanos, max)
       case None => Seq.empty
     }
   }

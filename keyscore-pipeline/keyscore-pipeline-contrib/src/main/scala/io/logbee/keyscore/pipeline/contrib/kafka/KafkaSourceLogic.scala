@@ -8,7 +8,7 @@ import akka.stream.scaladsl.{Sink, SinkQueueWithCancel}
 import akka.stream.{Attributes, SourceShape}
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Importance.{Lower, Medium}
+import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
@@ -127,14 +127,14 @@ object KafkaSourceLogic extends Described {
     name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read",
     displayName = TextRef("datasetsReadName"),
     description = TextRef("datasetsReadDesc"),
-    importance = Lower
+    importance = High
   )
 
   val bytesRead = GaugeMetricDescriptor(
     name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read",
     displayName = TextRef("bytesReadName"),
     description = TextRef("bytesReadDesc"),
-    importance = Medium
+    importance = High
   )
 }
 

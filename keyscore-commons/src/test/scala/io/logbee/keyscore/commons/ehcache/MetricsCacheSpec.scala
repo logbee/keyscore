@@ -3,12 +3,13 @@ package io.logbee.keyscore.commons.ehcache
 import java.time.Duration.ofSeconds
 import java.util.UUID
 
+import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
+import io.logbee.keyscore.model.data.TimestampValue
 import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric, MetricsCollection}
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
-
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class MetricsCacheSpec extends FreeSpec with Matchers {
@@ -23,20 +24,22 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
   val id11: UUID = UUID.fromString("7dadd770-e7d3-4d42-b860-fa61ca24382b")
   val id12: UUID = UUID.fromString("6281dbd5-a8b2-4e89-bfbf-c60bcc36c068")
   val id13: UUID = UUID.fromString("eb800877-2f90-49dc-97aa-f0c22e2b003e")
+    
+  val m01 = MetricsCollection(List(CounterMetric("cm1", value = 1.1, timestamp = Some(now))))
+  val m02 = MetricsCollection(List(CounterMetric("cm2", value = 1.2, timestamp = Some(now))))
 
-  val m01 = MetricsCollection(List(CounterMetric(name = "cm1", value = 1.1)))
-  val m02 = MetricsCollection(List(CounterMetric(name = "cm2", value = 1.2)))
-  val m03 = MetricsCollection(List(CounterMetric(name = "cm3", value = 1.3)))
-  val m04 = MetricsCollection(List(CounterMetric(name = "cm4", value = 1.4)))
-  val m05 = MetricsCollection(List(CounterMetric(name = "cm5", value = 1.5)))
-  val m06 = MetricsCollection(List(CounterMetric(name = "cm6", value = 1.6)))
-  val m07 = MetricsCollection(List(CounterMetric(name = "cm7", value = 1.7)))
-  val m08 = MetricsCollection(List(CounterMetric(name = "cm8", value = 1.8)))
-  val m09 = MetricsCollection(List(CounterMetric(name = "cm9", value = 1.9)))
-  val m10 = MetricsCollection(List(CounterMetric(name = "cm0", value = 1.0)))
-  val m11 = MetricsCollection(List(GaugeMetric(name = "gm1", value = 2.1)))
-  val m12 = MetricsCollection(List(GaugeMetric(name = "gm2", value = 2.2)))
-  val m13 = MetricsCollection(List(GaugeMetric(name = "gm3", value = 2.3)))
+  val m03 = MetricsCollection(List(CounterMetric("cm3", value = 1.3, timestamp = Some(TimestampValue(9,25)))))
+  val m04 = MetricsCollection(List(CounterMetric("cm4", value = 1.4, timestamp = Some(TimestampValue(11,27)))))
+  val m05 = MetricsCollection(List(CounterMetric("cm5", value = 1.5, timestamp = Some(TimestampValue(11,42)))))
+  val m06 = MetricsCollection(List(CounterMetric("cm6", value = 1.6, timestamp = Some(TimestampValue(12,73)))))
+
+  val m07 = MetricsCollection(List(CounterMetric("cm7", value = 1.7, timestamp = Some(now))))
+  val m08 = MetricsCollection(List(CounterMetric("cm8", value = 1.8, timestamp = Some(now))))
+  val m09 = MetricsCollection(List(CounterMetric("cm9", value = 1.9, timestamp = Some(now))))
+  val m10 = MetricsCollection(List(CounterMetric("cm0", value = 1.0, timestamp = Some(now))))
+  val m11 = MetricsCollection(List(GaugeMetric("gm1", value = 2.1, timestamp = Some(now))))
+  val m12 = MetricsCollection(List(GaugeMetric("gm2", value = 2.2, timestamp = Some(now))))
+  val m13 = MetricsCollection(List(GaugeMetric("gm3", value = 2.3, timestamp = Some(now))))
 
   "A Metrics Cache" - {
 
@@ -72,8 +75,9 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
 
       Thread.sleep(1000)
 
-      val seq = metricsCache.getAll(id03)
-      seq.size shouldBe 4
+      metricsCache.getAll(id03, 9, 25, 3).size shouldBe 3
+      metricsCache.getAll(id03, 9, 25, 10).size shouldBe 4
+      metricsCache.getAll(id03, 10, 30, 10).size shouldBe 2
 
       metricsCache.getOldest(id03).get shouldBe m03
       metricsCache.getNewest(id03).get shouldBe m06
@@ -95,6 +99,11 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
 
     }
 
+  }
+
+  private def now: TimestampValue = {
+    val now = Timestamps.fromMillis(System.currentTimeMillis())
+    TimestampValue(now.getSeconds, now.getNanos)
   }
 
 

@@ -15,10 +15,12 @@ trait MetricsRoute extends RouteImplicits with AuthorizationHandler {
     pathPrefix("metrics") {
       pathPrefix(JavaUUID) { id =>
         get {
-          onSuccess(metricsManager ? RequestMetrics(id)) {
-            case MetricsResponseSuccess(_, metrics) => complete(StatusCodes.OK, metrics)
-            case MetricsResponseFailure(_) => complete(StatusCodes.NotFound, id)
-            case _ => complete(StatusCodes.InternalServerError)
+          parameters('seconds.as[Long] ? 0L, 'nanos.as[Int] ? 0, 'max.as[Long] ? Long.MaxValue) { (seconds, nanos, max) =>
+            onSuccess(metricsManager ? RequestMetrics(id, seconds, nanos, max)) {
+              case MetricsResponseSuccess(_, metrics) => complete(StatusCodes.OK, metrics)
+              case MetricsResponseFailure(_) => complete(StatusCodes.NotFound, id)
+              case _ => complete(StatusCodes.InternalServerError)
+            }
           }
         }
       }
