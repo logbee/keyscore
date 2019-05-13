@@ -84,15 +84,16 @@ class MetricsCache(val configuration: Configuration) {
   private def getAllFrom(id: UUID, entry: Long, seconds: Long, nanos: Int, max: Long, seq: Seq[MetricsCollection] = Seq.empty[MetricsCollection]): Seq[MetricsCollection] = {
     cache.get(calculateKey(id, entry)) match {
       case mc: MetricsCollection =>
+        if (mc.metrics.nonEmpty) {
+          val timestampSeconds = mc.metrics.head.asMessage.timestamp.seconds
+          val timestampNanos = mc.metrics.head.asMessage.timestamp.nanos
 
-        val timestampSeconds = mc.metrics.head.asMessage.timestamp.seconds
-        val timestampNanos = mc.metrics.head.asMessage.timestamp.nanos
-
-        if (seq.size < max && seconds <= timestampSeconds && nanos <= timestampNanos){
-          getAllFrom(id, entry - 1, seconds, nanos, max, mc +: seq)
-        } else {
-          seq
-        }
+          if (seq.size < max && seconds <= timestampSeconds && nanos <= timestampNanos) {
+            getAllFrom(id, entry - 1, seconds, nanos, max, mc +: seq)
+          } else {
+            seq
+          }
+        } else seq
       case _ =>
         updateTuple(id, entry + 1)
         seq

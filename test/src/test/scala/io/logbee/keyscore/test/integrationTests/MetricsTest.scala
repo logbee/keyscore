@@ -71,8 +71,7 @@ class MetricsTest extends Matchers {
     pollPipelineHealthState() should be(true)
 
     logger.debug(s"At the beginning no datasets should be inserted or extracted.")
-    scrapeMetrics(addFieldsID).last find insertedDatasets should be(None)
-
+    scrapeMetrics(addFieldsID) shouldBe Seq()
     logger.debug(s"Now 3 datasets should be inserted.")
     applyBehavior(new InsertDatasets(addFieldsID, write(List(d1, d2, d3))))
 

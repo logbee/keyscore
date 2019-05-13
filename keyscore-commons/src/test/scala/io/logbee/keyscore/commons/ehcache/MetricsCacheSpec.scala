@@ -63,6 +63,7 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
 
       metricsCache.clear()
       metricsCache.getOldest(id03) shouldBe None
+      metricsCache.getAll(id03, 0, 0, 10) shouldBe Seq()
     }
 
     "should update the tuple for multiple entries for a single uuid" in {
