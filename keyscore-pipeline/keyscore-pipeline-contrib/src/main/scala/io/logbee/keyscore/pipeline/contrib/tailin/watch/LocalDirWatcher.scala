@@ -191,8 +191,6 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
   
   
   def pathDeleted() {
-    firePathDeleted(dirPath) //TODO this doesn't do anything
-    
     tearDown()
   }
   
@@ -208,7 +206,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
     
     subDirWatchers.remove(path) match {
       case None =>
-      case Some(watchers: ListBuffer[DirWatcher]) => 
+      case Some(watchers: ListBuffer[DirWatcher]) =>
         watchers.foreach(watcher => watcher.pathDeleted())
     }
     

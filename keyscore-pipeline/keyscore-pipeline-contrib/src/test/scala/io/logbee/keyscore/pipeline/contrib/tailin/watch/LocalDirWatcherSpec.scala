@@ -36,7 +36,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         val subDirWatcher = stub[DirWatcher]
         (provider.createDirWatcher _)
-          .expects(subDir, matchPattern.copy(subDirPattern = "*", depth=3))
+          .expects(subDir, matchPattern.copy(depth = 3))
           .returning(subDirWatcher)
         
         subDir.toFile.mkdir
