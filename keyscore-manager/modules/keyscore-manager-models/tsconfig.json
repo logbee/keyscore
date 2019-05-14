@@ -1,7 +1,14 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "module": "commonjs",
+    "module":"commonjs",
+    "lib": [
+      "es2017",
+      "es2016",
+      "es6",
+      "es5",
+      "dom"
+    ],
     "declaration": true,
     "outDir": "./build",
     "strict": true

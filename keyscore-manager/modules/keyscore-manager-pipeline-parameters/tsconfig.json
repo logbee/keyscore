@@ -2,6 +2,13 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
+    "lib": [
+      "es2017",
+      "es2016",
+      "es6",
+      "es5",
+      "dom"
+    ],
     "declaration": true,
     "moduleResolution": "node",
     "outDir": "./build",
@@ -16,5 +23,4 @@
     "src/**/*",
     "index.ts"
   ]
-
 }

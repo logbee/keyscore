@@ -1,14 +1,11 @@
-import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
-import {ROUTER_NAVIGATION} from "@ngrx/router-store";
-import {RouterNavigationAction} from "@ngrx/router-store/src/router_store_module";
+import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {Action, Store} from "@ngrx/store";
-import {Observable, of, pipe} from "rxjs";
-import {exhaustMap, withLatestFrom} from "rxjs/internal/operators";
+import {Observable, of} from "rxjs";
+import {exhaustMap} from "rxjs/internal/operators";
 import {catchError, map, mergeMap} from "rxjs/operators";
 import {AppState} from "../app.component";
-import {selectAppConfig} from "../app.config";
 import {
     DELETE_AGENT_SUCCESS,
     DeleteAgentFailureAction,
@@ -23,8 +20,6 @@ import {
 } from "./agents.actions";
 import {Go} from "../router/router.actions";
 import {Agent} from "keyscore-manager-models";
-import {RequestOptions} from "@angular/http";
-import {KeycloakService} from "keycloak-angular";
 import {AgentService} from "../services/rest-api/AgentService";
 
 @Injectable()
@@ -36,7 +31,7 @@ export class AgentsEffects {
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 return of(new LoadAgentsAction());
             }
-            return of();
+            return of({type:'NOOP'});
         })
     );
 
@@ -49,7 +44,7 @@ export class AgentsEffects {
                         this.getAgentIdfromRouterAction(action as RouterNavigationAction)
                     ));
                 }
-                return of();
+                return of({type:'NOOP'});
             }
         ));
 
