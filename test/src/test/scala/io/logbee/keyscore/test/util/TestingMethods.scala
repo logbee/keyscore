@@ -216,14 +216,16 @@ object TestingMethods {
     false
   }
 
-  private[test] def scrapeMetrics(id: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Seq[MetricsCollection] = {
-    logger.debug(s"SCRAPE metrics for <${id}>")
+  private[test] def scrapeMetrics(id: String, mq: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Seq[MetricsCollection] = {
+    logger.debug(s"Query metrics for <$id> with $mq")
 
     var metrics = Seq(MetricsCollection())
 
     runner.http(action => action.client(client)
       .send()
-      .get(s"/metrics/${id}")
+      .get(s"/filter/$id")
+      .contentType("application/json")
+      .payload(mq)
     )
 
     runner.http(action => action.client(client)

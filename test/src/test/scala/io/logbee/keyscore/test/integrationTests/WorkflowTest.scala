@@ -6,12 +6,13 @@ import com.consol.citrus.dsl.endpoint.CitrusEndpoints
 import com.consol.citrus.dsl.junit.jupiter.CitrusExtension
 import com.consol.citrus.dsl.runner.TestRunner
 import com.consol.citrus.http.client.HttpClient
-import io.logbee.keyscore.test.util.JsonData._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.test.util.TestingMethods._
 import io.logbee.keyscore.test.fixtures.ExampleData._
 import io.logbee.keyscore.test.integrationTests.behaviors._
+import io.logbee.keyscore.test.util.JsonData._
+import io.logbee.keyscore.test.util.TestData._
+import io.logbee.keyscore.test.util.TestingMethods._
 import org.json4s.Formats
 import org.json4s.native.Serialization.write
 import org.junit.jupiter.api.Test
@@ -64,7 +65,7 @@ class WorkflowTest extends Matchers {
     Thread.sleep(5000)
 
     logger.debug(s"SCRAPING the metrics of the Workflow Pipeline")
-    scrapeMetrics(id = secondRemoveFieldsID).last.metrics shouldNot be (empty)
+    scrapeMetrics(id = secondRemoveFieldsID, mq = write(standardTimestamp)).last.metrics shouldNot be (empty)
 
     logger.debug(s"CLEANING_UP the Workflow Pipeline")
     cleanUp

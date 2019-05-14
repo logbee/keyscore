@@ -16,3 +16,11 @@ message ScrapeMetricsFailure {
     string id = 1;
     string cause = 2;
 }
+
+message MetricsQuery {
+    option (scalapb.message).extends = "io.logbee.keyscore.commons.metrics.BaseMetricsQuery";
+    int64 limit = 1;
+    string earliest = 3;
+    string latest = 4;
+    string format = 6;
+}

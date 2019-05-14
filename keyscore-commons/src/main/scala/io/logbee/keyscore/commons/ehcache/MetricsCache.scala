@@ -4,6 +4,7 @@ import java.nio.file.Files
 import java.time.Duration
 import java.util.UUID
 
+import com.google.protobuf.timestamp.Timestamp
 import com.typesafe.config.Config
 import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
 import io.logbee.keyscore.model.metrics.MetricsCollection
@@ -35,10 +36,11 @@ object MetricsCache {
   }
 
   case class Configuration(
-    heapEntries: Long,
-    diskSize: Long,
-    expiration: Duration
-  )
+                            heapEntries: Long,
+                            diskSize: Long,
+                            expiration: Duration
+                          )
+
 }
 
 class MetricsCache(val configuration: Configuration) {
@@ -81,18 +83,21 @@ class MetricsCache(val configuration: Configuration) {
     id.toString + "|" + counter
   }
 
-  private def getAllFrom(id: UUID, entry: Long, seconds: Long, nanos: Int, max: Long, seq: Seq[MetricsCollection] = Seq.empty[MetricsCollection]): Seq[MetricsCollection] = {
+  private def getAllFrom(id: UUID, entry: Long, earliest: Timestamp, latest: Timestamp, limit: Long, seq: Seq[MetricsCollection] = Seq.empty[MetricsCollection]): Seq[MetricsCollection] = {
     cache.get(calculateKey(id, entry)) match {
       case mc: MetricsCollection =>
         if (mc.metrics.nonEmpty) {
-          val timestampSeconds = mc.metrics.head.asMessage.timestamp.seconds
-          val timestampNanos = mc.metrics.head.asMessage.timestamp.nanos
+          val timestamp = Timestamp(mc.metrics.head.asMessage.timestamp.seconds, mc.metrics.head.asMessage.timestamp.nanos)
 
-          if (seq.size < max && seconds <= timestampSeconds && nanos <= timestampNanos) {
-            getAllFrom(id, entry - 1, seconds, nanos, max, mc +: seq)
-          } else {
-            seq
-          }
+          if (seq.size < limit) {
+            if (isLatest(timestamp, latest)) {
+              if (isEarliest(timestamp, earliest)) {
+                getAllFrom(id, entry - 1, earliest, latest, limit, mc +: seq)
+              } else seq
+            } else {
+              getAllFrom(id, entry - 1, earliest, latest, limit, seq)
+            }
+          } else seq
         } else seq
       case _ =>
         updateTuple(id, entry + 1)
@@ -104,7 +109,7 @@ class MetricsCache(val configuration: Configuration) {
     idToMetrics.get(id) match {
       case Some(tuple) =>
         idToMetrics += (id -> (tuple._1, tuple._2 + 1L))
-        val key = calculateKey(id, tuple._2 +1L)
+        val key = calculateKey(id, tuple._2 + 1L)
         cache.put(key, collection)
       case None =>
         idToMetrics += (id -> (0L, 0L))
@@ -113,10 +118,10 @@ class MetricsCache(val configuration: Configuration) {
     }
   }
 
-  def getAll(id: UUID, seconds: Long, nanos: Int, max: Long): Seq[MetricsCollection] = {
+  def getAll(id: UUID, earliest: Timestamp, latest: Timestamp, limit: Long): Seq[MetricsCollection] = {
     idToMetrics.get(id) match {
       case Some(tuple) =>
-        getAllFrom(id, tuple._2, seconds, nanos, max)
+        getAllFrom(id, tuple._2, earliest = earliest, latest = latest, limit)
       case None => Seq.empty
     }
   }
@@ -139,6 +144,24 @@ class MetricsCache(val configuration: Configuration) {
       }
       case None => None
     }
+  }
+
+  private def isLatest(actual: Timestamp, latest: Timestamp): Boolean = {
+    if (actual.seconds < latest.seconds) true
+    else if (actual.seconds == latest.seconds) {
+      if (actual.nanos <= latest.nanos) true
+      else false
+    }
+    else false
+  }
+
+  private def isEarliest(actual: Timestamp, earliest: Timestamp): Boolean = {
+    if(actual.seconds > earliest.seconds) true
+    else if (actual.seconds == earliest.seconds) {
+      if (actual.nanos >= earliest.nanos) true
+      else false
+    }
+    else false
   }
 
 }
