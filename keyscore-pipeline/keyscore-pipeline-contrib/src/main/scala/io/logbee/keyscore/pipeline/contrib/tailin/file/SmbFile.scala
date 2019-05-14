@@ -110,6 +110,7 @@ class SmbFile(val file: smbj.share.File) extends FileHandle {
   
   def tearDown() = {
     if (file != null) {
+      file.flush()
       file.close()
     }
   }

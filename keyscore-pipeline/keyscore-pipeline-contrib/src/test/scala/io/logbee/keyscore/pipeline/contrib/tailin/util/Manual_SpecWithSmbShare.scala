@@ -86,14 +86,19 @@ class Manual_SpecWithSmbShare extends FreeSpec {
   
   def withSmbFile(share: DiskShare, fileName: String, content: ByteBuffer, testCode: SmbFile => Any) = {
     
-      try {
-        val smbFile = createFile(share, fileName, content)
-        
-        testCode(smbFile)
-      }
-      finally {
-        share.rm(fileName)
-      }
+    var smbFile: SmbFile = null
+    
+    try {
+      smbFile = createFile(share, fileName, content)
+      
+      testCode(smbFile)
+    }
+    finally {
+      println("rmFile: " + fileName)
+      
+      if (smbFile != null)
+        smbFile.tearDown()
+    }
   }
   
   
@@ -101,6 +106,7 @@ class Manual_SpecWithSmbShare extends FreeSpec {
   
   
   private def createDir(share: DiskShare, dirName: String): Directory = {
+    
     share.openDirectory(
       dirName,
       EnumSet.of(AccessMask.GENERIC_ALL),
@@ -115,12 +121,20 @@ class Manual_SpecWithSmbShare extends FreeSpec {
   
   def withSmbDir(share: DiskShare, dirName: String, testCode: Directory => Any) = {
     
+    var smbDir: Directory = null
     try {
-      val smbDir = createDir(share, dirName)
+      smbDir = createDir(share, dirName)
       
       testCode(smbDir)
     }
-    finally {
+    finally { //TODO calling rmdir will interrupt file-deletion, because non-empty dir being deleted, therefore cause nothing to be deleted
+      println("rmDir: " + dirName)
+      
+      if (smbDir != null) {
+        smbDir.flush()
+        smbDir.close() //FIXME closing this should theoretically remove it (but this doesn't work), unless it's only upon closing the share
+      }
+      
       share.rmdir(dirName, true)
     }
   }

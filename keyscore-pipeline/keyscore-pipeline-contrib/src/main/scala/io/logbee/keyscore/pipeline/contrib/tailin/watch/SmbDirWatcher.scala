@@ -15,7 +15,9 @@ import com.hierynomus.msfscc.FileAttributes
 import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.mssmb2.SMB2CreateOptions
 import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.smbj.common.SmbPath
 import com.hierynomus.smbj.share.Directory
+import com.hierynomus.smbj.share.DiskEntry
 import com.hierynomus.smbj.share.File
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
@@ -32,13 +34,15 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
 //  }
   
   
-  
-  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + matchPattern.fullFilePattern)
+  private val pattern = DirWatcherPattern.getUnixLikePath(matchPattern.fullFilePattern)
+  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + pattern)
   
   private val subDirWatchers = mutable.Map.empty[Directory, ListBuffer[DirWatcher]]
   private val subFileEventHandlers = mutable.Map.empty[File, ListBuffer[FileEventHandler]]
   
-  
+  private def subPathWatchers: mutable.Map[DiskEntry, ListBuffer[PathWatcher]] =
+      subDirWatchers.asInstanceOf[mutable.Map[DiskEntry, ListBuffer[PathWatcher]]] ++
+      subFileEventHandlers.asInstanceOf[mutable.Map[DiskEntry, ListBuffer[PathWatcher]]]
   
   
   //recursive setup
@@ -50,31 +54,50 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
   
   
   def listDirsAndFiles: (Seq[Directory], Seq[File]) = {
-    val subPaths = JavaConverters.asScalaBuffer(dirPath.list).toSeq
     
-    val dirs = Seq.empty
-    val files = Seq.empty
+    val subPaths = JavaConverters.asScalaBuffer(dirPath.list).toSeq
+                     .filterNot(subPath => subPath.getFileName.endsWith("\\.")
+                                        || subPath.getFileName.equals(".")
+                                        || subPath.getFileName.endsWith("\\..")
+                                        || subPath.getFileName.equals("..")
+                                )
+    
+    
+    var dirs: Seq[Directory] = Seq.empty
+    var files: Seq[File] = Seq.empty
     
     subPaths.foreach { subPath =>
-      {
-        val diskEntry = share.open(
-          subPath.getFileName,
-          EnumSet.of(AccessMask.GENERIC_ALL),
-          EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
-          SMB2ShareAccess.ALL,
-          SMB2CreateDisposition.FILE_OPEN,
-          EnumSet.noneOf(classOf[SMB2CreateOptions])
-        )
-        
-        if (diskEntry.isInstanceOf[Directory]) {
-          dirs :+ diskEntry.asInstanceOf[Directory]
-        } else {
-          dirs :+ diskEntry.asInstanceOf[File]
-        }
+      val dirPathName = SmbPath.parse(dirPath.getFileName).getPath //just the directory's name, i.e. not the absolute path
+      
+      val diskEntry = share.open(
+        dirPathName + subPath.getFileName,
+        EnumSet.of(AccessMask.GENERIC_ALL),
+        EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
+        SMB2ShareAccess.ALL,
+        SMB2CreateDisposition.FILE_OPEN,
+        EnumSet.noneOf(classOf[SMB2CreateOptions])
+      )
+      
+      if (diskEntry.isInstanceOf[Directory]) {
+        dirs = dirs :+ diskEntry.asInstanceOf[Directory]
+      } else {
+        files = files :+ diskEntry.asInstanceOf[File]
       }
     }
     
     (dirs, files)
+  }
+  
+  
+  
+  private def doForEachDiskEntry(diskEntries: Seq[DiskEntry], func: PathWatcher => Unit) = {
+    diskEntries.foreach { diskEntry =>
+      subPathWatchers.get(diskEntry).foreach { dirWatchers =>
+        dirWatchers.foreach { dirWatcher =>
+          func(dirWatcher)
+        }
+      }
+    }
   }
   
   
@@ -91,57 +114,34 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
     
     val (currentSubDirs, currentSubFiles) = listDirsAndFiles
     
-    val previousSubDirs = subDirWatchers.keys.toSeq
-    val deletedDirs = previousSubDirs.diff(currentSubDirs)
-    val dirsContinuingToExist = previousSubDirs.intersect(currentSubDirs)
-    val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
-    
-    def doForEachDir(directories: Seq[Directory], func: DirWatcher => Unit) = {
-      directories.foreach { dir =>
-        subDirWatchers.get(dir).foreach { dirWatchers =>
-          dirWatchers.foreach { dirWatcher =>
-            func(dirWatcher)
-          }
-        }
-      }
-    }
-    
-    doForEachDir(deletedDirs, _.pathDeleted())
-    doForEachDir(dirsContinuingToExist, _.processFileChanges())
-    newlyCreatedDirs.foreach { dir =>
-      val subDirWatcher = addSubDirWatcher(dir)
-      subDirWatcher.processFileChanges()
+    { //process dir-changes
+      val previousSubDirs = subDirWatchers.keys.toSeq
+      val deletedDirs = previousSubDirs.diff(currentSubDirs)
+      val dirsContinuingToExist = previousSubDirs.intersect(currentSubDirs)
+      val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
+      
+      doForEachDiskEntry(deletedDirs, _.pathDeleted())
+      doForEachDiskEntry(dirsContinuingToExist, _.processFileChanges())
+      newlyCreatedDirs.foreach {addSubDirWatcher(_)}
     }
     
     
-    
-    val previousSubFiles = subFileEventHandlers.keys.toSeq
-    val deletedFiles = previousSubFiles.diff(currentSubFiles)
-    val filesContinuingToExist = previousSubFiles.intersect(currentSubFiles)
-    val newlyCreatedFiles = currentSubFiles.diff(previousSubFiles)
-    
-    def doForEachFile(files: Seq[File], func: FileEventHandler => Unit) = {
-      files.foreach { file =>
-        subFileEventHandlers.get(file).foreach { fileEventHandlers =>
-          fileEventHandlers.foreach { fileEventHandler =>
-            func(fileEventHandler)
-          }
-        }
-      }
-    }
-    
-    doForEachFile(deletedFiles, _.pathDeleted())
-    doForEachFile(filesContinuingToExist, _.processFileChanges())
-    newlyCreatedFiles.foreach { file =>
-      val subFileEventHandler = addSubFileEventHandler(file)
-      subFileEventHandler.foreach(_.processFileChanges())
+    { //process file-changes
+      val previousSubFiles = subFileEventHandlers.keys.toSeq
+      val deletedFiles = previousSubFiles.diff(currentSubFiles)
+      val filesContinuingToExist = previousSubFiles.intersect(currentSubFiles)
+      val newlyCreatedFiles = currentSubFiles.diff(previousSubFiles)
+      
+      doForEachDiskEntry(deletedFiles, _.pathDeleted())
+      doForEachDiskEntry(filesContinuingToExist, _.processFileChanges())
+      newlyCreatedFiles.foreach {addSubFileEventHandler(_)}
     }
   }
   
   
   
   
-  private def addSubDirWatcher(subDir: Directory): DirWatcher = {
+  private def addSubDirWatcher(subDir: Directory) = {
     
     //TODO if no further subDirWatcher necessary, don't create one  -> don't use a matcher -> somehow just check that we don't need to create another dirWatcher
     // in what cases do we need another dirWatcher:
@@ -149,25 +149,27 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
     // if there is an *,?,[ followed at some point by a /
     // if there is a ** anywhere, doesn't matter if it's followed at some point by a /
     
-    val dirWatcher = watcherProvider.createDirWatcher(
+    val subDirWatcher = watcherProvider.createDirWatcher(
       dirPath = subDir,
       matchPattern = matchPattern.copy(depth = matchPattern.depth + 1)
     )
     
+    subDirWatcher.processFileChanges()
+    
     val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
     
     subDirWatchers.put(subDir, list)
-    list += dirWatcher
-    
-    dirWatcher
+    list += subDirWatcher
   }
   
   
   
   
-  private def addSubFileEventHandler(file: File): Option[FileEventHandler] = {
+  private def addSubFileEventHandler(file: File) = {
     
-    if (fileMatcher.matches(Paths.get(file.getFileName))) { //TEST -> maybe we can only match the filesystem-path
+    val path = Paths.get(DirWatcherPattern.getUnixLikePath(file.getFileName))
+    
+    if (fileMatcher.matches(path)) {
       
       val fileEventHandler = watcherProvider.createFileEventHandler(new SmbFile(file))
       
@@ -177,11 +179,6 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
       
       subFileEventHandlers.put(file, list)
       list += fileEventHandler
-      
-      Some(fileEventHandler)
-    }
-    else {
-      None
     }
   }
   
@@ -209,40 +206,25 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
    */
   private def removeSubPathWatcher(path: String) = {
     
-    {
-      val subDirWatcherToRemove = subDirWatchers.find {
-        case (diskEntry, _) => diskEntry.getFileName equals path
-      }
-      
-      subDirWatcherToRemove.foreach {
-        subDirWatcherToRemove => subDirWatcherToRemove match {
-          case (diskEntry, _) => {
-            val removedSubDirWatcher = subDirWatchers.remove(diskEntry)
-            
-            removedSubDirWatcher.foreach {
-              removedSubDirWatcher => removedSubDirWatcher.foreach(_.tearDown())
-            }
-          }
-        }
-      }
+    val subDiskEntryHandlerToRemove = subPathWatchers.find {
+      case (diskEntry, _) => diskEntry.getFileName equals path
     }
     
-    
-    {
-      val subFileEventHandlerToRemove = subFileEventHandlers.find {
-        case (diskEntry, _) => diskEntry.getFileName equals path
+    subDiskEntryHandlerToRemove.foreach {
+      var removedSubDiskEntryHandlers: Option[ListBuffer[_ <: PathWatcher]] = null
+      
+      subDiskEntryHandlerToRemove => subDiskEntryHandlerToRemove match {
+        case (diskEntry: Directory, _) => {
+          removedSubDiskEntryHandlers = subDirWatchers.remove(diskEntry)
+        }
+        case (diskEntry: File, _) => {
+          removedSubDiskEntryHandlers = subFileEventHandlers.remove(diskEntry)
+        }
+        case (_, _) => {}
       }
       
-      subFileEventHandlerToRemove.foreach {
-        subFileEventHandlerToRemove => subFileEventHandlerToRemove match {
-          case (diskEntry, _) => {
-            val removedSubFileEventHandler = subFileEventHandlers.remove(diskEntry)
-            
-            removedSubFileEventHandler.foreach {
-              removedSubFileEventHandler => removedSubFileEventHandler.foreach(_.tearDown())
-            }
-          }
-        }
+      removedSubDiskEntryHandlers.foreach {
+        removedSubDiskEntryHandler => removedSubDiskEntryHandler.foreach(_.tearDown())
       }
     }
   }
@@ -251,8 +233,6 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
   
   
   def pathDeleted() {
-    firePathDeleted(dirPath.getFileName) //TODO this doesn't do anything
-    
     tearDown()
   }
   
@@ -264,19 +244,21 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
    * Therefore we can safely iterate over all files and directories within this directory
    * and just call PathWatcher.pathDeleted() on the one that matches the name.
    */
-  private def firePathDeleted(path: String) = {
-    //TODO
-//    subDirWatchers.remove(path) match {
-//      case None =>
-//      case Some(watchers: ListBuffer[DirWatcher]) => 
-//        watchers.foreach(watcher => watcher.pathDeleted())
-//    }
-//    
-//    subFileEventHandlers.remove(path.toFile) match {
-//      case None =>
-//      case Some(watchers: ListBuffer[FileEventHandler]) =>
-//        watchers.foreach(watcher => watcher.pathDeleted())
-//    }
+  private def firePathDeleted(path: DiskEntry) = {
+    path match {
+      case dir: Directory =>
+        subDirWatchers.remove(dir) match {
+          case None =>
+          case Some(watchers: ListBuffer[DirWatcher]) =>
+            watchers.foreach(_.pathDeleted())
+        }
+      case file: File =>
+        subFileEventHandlers.remove(file) match {
+          case None =>
+          case Some(watchers: ListBuffer[FileEventHandler]) =>
+            watchers.foreach(_.pathDeleted())
+        }
+    }
   }
   
   
@@ -286,22 +268,16 @@ class SmbDirWatcher(dirPath: Directory, matchPattern: DirWatcherPattern, watcher
     log.info("Teardown for " + dirPath)
     
     //call tearDown on all watchers attached to this
-    subFileEventHandlers.foreach {
-      case (_: File, subFileEventHandlers: ListBuffer[FileEventHandler]) =>
-        subFileEventHandlers.foreach {
-          case watcher =>
-            watcher.tearDown()
-        }
-    }
-    subDirWatchers.foreach {
-      case (_: Directory, subDirWatchers: ListBuffer[DirWatcher]) =>
-        subDirWatchers.foreach {
-          case watcher =>
-            watcher.tearDown() 
+    subPathWatchers.foreach {
+      case (_, subPathWatchers) =>
+        subPathWatchers.foreach {
+          case subPathWatcher =>
+            subPathWatcher.tearDown()
         }
     }
     
     
+    dirPath.flush()
     dirPath.close()
   }
 }
