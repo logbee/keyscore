@@ -9,10 +9,10 @@ import scala.collection.mutable.ListBuffer
 import org.slf4j.LoggerFactory
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbDir
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 
-class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[SmbDir, SmbFile]) extends DirWatcher {
+class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[DirHandle, FileHandle]) extends DirWatcher {
   
   private val log = LoggerFactory.getLogger(classOf[SmbDirWatcher])
   
@@ -20,8 +20,8 @@ class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherPr
   private val pattern = DirWatcherPattern.getUnixLikePath(matchPattern.fullFilePattern)
   private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + pattern)
   
-  private val subDirWatchers = mutable.Map.empty[SmbDir, ListBuffer[DirWatcher]]
-  private val subFileEventHandlers = mutable.Map.empty[SmbFile, ListBuffer[FileEventHandler]]
+  private val subDirWatchers = mutable.Map.empty[DirHandle, ListBuffer[DirWatcher]]
+  private val subFileEventHandlers = mutable.Map.empty[FileHandle, ListBuffer[FileEventHandler]]
   
   private def subPathHandlers: mutable.Map[PathHandle, ListBuffer[PathWatcher]] =
       subDirWatchers.asInstanceOf[mutable.Map[PathHandle, ListBuffer[PathWatcher]]] ++
@@ -48,13 +48,6 @@ class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherPr
   
   
   def processFileChanges() = {
-    //call processFileChanges() on subDirWatchers
-    subDirWatchers.foreach {
-      case (path: SmbDir, subDirWatchers: ListBuffer[DirWatcher]) => subDirWatchers.foreach {
-        case (watcher: DirWatcher) => watcher.processFileChanges()
-      }
-    }
-    
     
     val (currentSubDirs, currentSubFiles) = watchDir.listDirsAndFiles
     
@@ -65,7 +58,7 @@ class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherPr
       val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
       
       doForEachPath(deletedDirs, _.pathDeleted())
-      doForEachPath(dirsContinuingToExist, _.processFileChanges())
+      doForEachPath(dirsContinuingToExist, _.processFileChanges()) //call processFileChanges() on subDirWatchers
       newlyCreatedDirs.foreach {addSubDirWatcher(_)}
     }
     
@@ -84,7 +77,7 @@ class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherPr
   
   
   
-  private def addSubDirWatcher(subDir: SmbDir) = {
+  private def addSubDirWatcher(subDir: DirHandle) = {
     
     //TODO if no further subDirWatcher necessary, don't create one  -> don't use a matcher -> somehow just check that we don't need to create another dirWatcher
     // in what cases do we need another dirWatcher:
@@ -107,7 +100,7 @@ class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherPr
   
   
   
-  private def addSubFileEventHandler(file: SmbFile) = {
+  private def addSubFileEventHandler(file: FileHandle) = {
     
     val path = Paths.get(DirWatcherPattern.getUnixLikePath(file.absolutePath))
     
@@ -126,7 +119,7 @@ class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherPr
   
   
   
-  def fireFileModified(file: SmbFile) = {
+  def fireFileModified(file: FileHandle) = {
     subFileEventHandlers.get(file) match {
       case None => //can't notify anyone
       case Some(watchers: ListBuffer[FileEventHandler]) => {
@@ -156,10 +149,10 @@ class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherPr
       var removedSubPathHandlers: Option[ListBuffer[_ <: PathWatcher]] = null
       
       subPathHandlerToRemove => subPathHandlerToRemove match {
-        case (dir: SmbDir, _) => {
+        case (dir: DirHandle, _) => {
           removedSubPathHandlers = subDirWatchers.remove(dir)
         }
-        case (file: SmbFile, _) => {
+        case (file: FileHandle, _) => {
           removedSubPathHandlers = subFileEventHandlers.remove(file)
         }
         case (_, _) => {}
@@ -187,13 +180,13 @@ class SmbDirWatcher(watchDir: SmbDir, matchPattern: DirWatcherPattern, watcherPr
    */
   private def firePathDeleted(path: PathHandle) = {
     path match {
-      case dir: SmbDir =>
+      case dir: DirHandle =>
         subDirWatchers.remove(dir) match {
           case None =>
           case Some(watchers: ListBuffer[DirWatcher]) =>
             watchers.foreach(_.pathDeleted())
         }
-      case file: SmbFile =>
+      case file: FileHandle =>
         subFileEventHandlers.remove(file) match {
           case None =>
           case Some(watchers: ListBuffer[FileEventHandler]) =>

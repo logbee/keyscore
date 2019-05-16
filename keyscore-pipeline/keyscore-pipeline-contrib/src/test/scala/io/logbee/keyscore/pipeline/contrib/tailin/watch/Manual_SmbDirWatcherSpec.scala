@@ -13,13 +13,15 @@ import com.hierynomus.mssmb2.SMB2CreateOptions
 import java.nio.charset.StandardCharsets
 import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbDir
 import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 
 
 class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory {
   //TODO
   
   trait DirWatcherParams {
-    var provider = mock[WatcherProvider[SmbDir, SmbFile]]
+    var provider = mock[WatcherProvider[DirHandle, FileHandle]]
     var matchPattern = DirWatcherPattern("/*.txt")
   }
   
@@ -59,23 +61,10 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
               
               //call another time to verify that it's called on the sub-DirWatcher
               (subDirWatcher.processFileChanges _).expects()
-              
-              //TODO due .equals() not being implemented correctly for smbj's DiskEntry,
-              //the code that compares previously existing files with new files does not work correctly
-              //and therefore the following calls are erroneously made
-              //////////////////////////////////////////
-              (subDirWatcher.pathDeleted _).expects()
-              (provider.createDirWatcher _)
-                .expects(*, matchPattern.copy(depth = 3))
-                .returning(subDirWatcher)
-              (subDirWatcher.processFileChanges _).expects()
-              /////////////////////////////////////////
-              
               dirWatcher.processFileChanges()
               
               
-              
-              subDirWatcher.tearDown()
+              (subDirWatcher.tearDown _).expects()
               dirWatcher.tearDown()
             })
           })
@@ -86,7 +75,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
     
     "when a file" - {
       "is created, should create a FileEventHandler" - { //TODO different file patterns
-        "" ignore //TODO
+        "" in //TODO
         new DirWatcherParams {
           
           withShare { share =>
@@ -105,14 +94,16 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
                 
                 val fileEventHandler = mock[FileEventHandler]
                 
-                (fileEventHandler.processFileChanges _)
-                  .expects()
+                (fileEventHandler.processFileChanges _).expects()
                 
                 (provider.createFileEventHandler _)
                   .expects(file)
                   .returning(fileEventHandler)
                 
                 dirWatcher.processFileChanges()
+                
+                (fileEventHandler.tearDown _).expects()
+                dirWatcher.tearDown()
               })
             })
           }

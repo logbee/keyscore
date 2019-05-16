@@ -38,7 +38,7 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
                                                  .groupBy(file => file.lastModified) //convert to map lastModified -> Array[File]
                                                  .toSeq.sortBy(_._1) //convert to list of tuples (lastModified, Array[File]) and sort it by lastModified-time
     
-
+    
     
     
     
@@ -74,8 +74,12 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
   }
   
   
-  def pathDeleted(): Unit = {} //TODO delete entries from file or somehow tell fileReader to teardown (FileReader should probably finish reading out rotated files, if those haven't been deleted yet, before it does so)
+  def pathDeleted(): Unit = {
+    tearDown()
+  } //TODO delete entries from file or somehow tell fileReader to teardown (FileReader should probably finish reading out rotated files, if those haven't been deleted yet, before it does so)
                                //in general, FileReader should have a mechanism of dealing with missing files, too.
   
-  def tearDown(): Unit = {}
+  def tearDown(): Unit = {
+    baseFile.tearDown()
+  }
 }

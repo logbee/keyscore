@@ -131,11 +131,10 @@ class Manual_SpecWithSmbShare extends FreeSpec {
       println("rmDir: " + dirName)
       
       if (smbDir != null) {
-        smbDir.flush()
         smbDir.close() //FIXME closing this should theoretically remove it (but this doesn't work), unless it's only upon closing the share
       }
       
-      share.rmdir(dirName, true)
+//      share.rmdir(dirName, true)
     }
   }
 }

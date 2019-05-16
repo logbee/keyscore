@@ -14,10 +14,10 @@ import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.File
 
 
-class SmbDir(val dir: Directory) extends DirHandle {
+class SmbDir(dir: Directory) extends DirHandle {
   
-  override def absolutePath = dir.getFileName //TODO try changing these to val
-  def share = dir.getDiskShare
+  override def absolutePath = dir.getFileName
+  
   
   
   override def listDirsAndFiles: (Seq[SmbDir], Seq[SmbFile]) = {
@@ -77,4 +77,7 @@ class SmbDir(val dir: Directory) extends DirHandle {
     val state = Seq(this.absolutePath, this.share)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+  
+  
+  private def share = dir.getDiskShare
 }
