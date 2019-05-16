@@ -7,7 +7,7 @@ import java.nio.file.Paths
 
 object DirWatcherPattern {
   
-  def extractInvariableDir(filePattern: String): Path = {
+  def extractInvariableDir(filePattern: String): Option[Path] = {
     
     val variableIndex = findFirstVariableIndex(filePattern)
     
@@ -20,18 +20,18 @@ object DirWatcherPattern {
     val lastSlashIndex = invariableString.lastIndexOf(File.separator) + 1
     
     if (lastSlashIndex == -1) {
-      null
+      None
     }
     else {
       invariableString = invariableString.substring(0, lastSlashIndex)
       
       val invariablePathDir = Paths.get(invariableString)
       if (invariablePathDir.toFile.isDirectory) {
-        invariablePathDir
+        Some(invariablePathDir)
       }
       else { //path specified by user doesn't exist or is completely malformed input
         //TODO it might not exist yet, but the user will probably want it monitored when it starts to exist later
-        null
+        None
       }
     }
   }

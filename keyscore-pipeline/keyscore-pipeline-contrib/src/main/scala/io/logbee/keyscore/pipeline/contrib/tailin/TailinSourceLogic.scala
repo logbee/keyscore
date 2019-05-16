@@ -47,6 +47,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.LocalWatcherProvider
+import java.nio.file.Path
 
 
 object TailinSourceLogic extends Described {
@@ -208,36 +209,37 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     
     
     
-    var baseDir = DirWatcherPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future 
-    if (baseDir == null) {
-      log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
-      return
+    var baseDir = DirWatcherPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
+    baseDir match {
+      case None =>
+        log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
+        return
+      case Some(baseDir: Path) =>
+        
+        val _persistenceFile = new File(persistenceFile)
+        _persistenceFile.createNewFile()
+        
+        for (i <- 1 to 50) {
+          if (_persistenceFile.exists == false) {
+            Thread.sleep(100)
+          }
+        }
+        
+        
+        readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
+                                              committedPersistence = new FilePersistenceContext(_persistenceFile))
+        
+        val bufferSize = 1024
+    
+        val readSchedule = new ReadSchedule()
+        val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
+        
+        val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
+        sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
+        
+        val readSchedulerProvider = new LocalWatcherProvider(readSchedule, rotationPattern, readPersistence)
+        dirWatcher = readSchedulerProvider.createDirWatcher(baseDir, DirWatcherPattern(filePattern))
     }
-    
-
-    val _persistenceFile = new File(persistenceFile)
-    _persistenceFile.createNewFile()
-    
-    for (i <- 1 to 50) {
-      if (_persistenceFile.exists == false) {
-        Thread.sleep(100)
-      }
-    }
-    
-    
-    readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
-                                          committedPersistence = new FilePersistenceContext(_persistenceFile))
-    
-    val bufferSize = 1024
-
-    val readSchedule = new ReadSchedule()
-    val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
-    
-    val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
-    sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
-    
-    val readSchedulerProvider = new LocalWatcherProvider(readSchedule, rotationPattern, readPersistence)
-    dirWatcher = readSchedulerProvider.createDirWatcher(baseDir, DirWatcherPattern(filePattern))
   }
   
   
