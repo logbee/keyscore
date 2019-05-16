@@ -2,13 +2,8 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file
 
 import java.nio.ByteBuffer
 
-trait FileHandle {
+trait FileHandle extends PathHandle {
   def name: String
-  
-  /**
-   * Usually used as unique identifier.
-   */
-  def absolutePath: String
   
   def listRotatedFiles(rotationPattern: String): Seq[FileHandle]
   
@@ -17,6 +12,4 @@ trait FileHandle {
   def lastModified: Long
   
   def read(buffer: ByteBuffer, offset: Long): Int
-  
-  def tearDown()
 }

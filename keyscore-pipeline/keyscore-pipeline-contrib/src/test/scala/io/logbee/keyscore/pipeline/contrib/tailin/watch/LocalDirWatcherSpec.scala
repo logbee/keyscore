@@ -18,7 +18,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
   
   
   trait DirWatcherParams {
-    var provider = mock[WatcherProvider[Path]]
+    var provider = mock[WatcherProvider[Path, LocalFile]]
     var dirPath = watchDir
     var matchPattern = DirWatcherPattern(dirPath + "/*.txt")
   }
@@ -137,7 +137,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
           setup.startingPattern in
           new DirWatcherParams {
             
-            provider = stub[WatcherProvider[Path]]
+            provider = stub[WatcherProvider[Path, LocalFile]]
             matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/" + setup.startingPattern, depth=2)
             val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
             

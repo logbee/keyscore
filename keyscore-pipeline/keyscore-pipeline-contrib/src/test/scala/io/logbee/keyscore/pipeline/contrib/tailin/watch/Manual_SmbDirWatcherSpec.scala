@@ -11,13 +11,15 @@ import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.msfscc.FileAttributes
 import com.hierynomus.mssmb2.SMB2CreateOptions
 import java.nio.charset.StandardCharsets
+import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbDir
+import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
 
 
 class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory {
   //TODO
   
   trait DirWatcherParams {
-    var provider = mock[WatcherProvider[Directory]]
+    var provider = mock[WatcherProvider[SmbDir, SmbFile]]
     var matchPattern = DirWatcherPattern("/*.txt")
   }
   
@@ -32,7 +34,9 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
         withShare { share =>
           
           val dirPath = "testDir\\"
-          withSmbDir(share, dirPath, { dir =>
+          withSmbDir(share, dirPath, { realDir =>
+            
+            val dir = new SmbDir(realDir)
             
             matchPattern = DirWatcherPattern(fullFilePattern = "\\\\" + hostName + "\\" + shareName + "\\" + dirPath + "*\\test.txt", depth = 2)
             val dirWatcher = new SmbDirWatcher(dir, matchPattern, provider)
@@ -88,9 +92,10 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
           withShare { share =>
             
             val dirPath = "testDir\\"
-            withSmbDir(share, dirPath, { dir =>
-              println("matchPattern: " + dir.getFileName + "test.txt")
-              matchPattern = DirWatcherPattern(dir.getFileName + "test.txt") //FIXME correct this filePattern
+            withSmbDir(share, dirPath, { realDir =>
+              val dir = new SmbDir(realDir)
+              println("matchPattern: " + dir.absolutePath + "test.txt")
+              matchPattern = DirWatcherPattern(dir.absolutePath + "test.txt") //FIXME correct this filePattern
               val dirWatcher = new SmbDirWatcher(dir, matchPattern, provider)
               
               

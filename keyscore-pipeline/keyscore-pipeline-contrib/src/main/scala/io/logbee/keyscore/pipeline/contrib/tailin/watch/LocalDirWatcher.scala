@@ -18,19 +18,19 @@ import org.slf4j.LoggerFactory
 import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
 
 
-class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[Path]) extends DirWatcher {
+class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[Path, LocalFile]) extends DirWatcher {
   
   private val log = LoggerFactory.getLogger(classOf[LocalDirWatcher])
   
   
   
-  if (Files.isDirectory(dirPath) == false) {
-    throw new InvalidPathException(dirPath.toString, "The given path is not a directory or doesn't exist.")
+  if (Files.isDirectory(watchDir) == false) {
+    throw new InvalidPathException(watchDir.toString, "The given path is not a directory or doesn't exist.")
   }
   
   
   private val watchService = FileSystems.getDefault.newWatchService()
-  private val watchKey = dirPath.register(
+  private val watchKey = watchDir.register(
     watchService,
     StandardWatchEventKinds.ENTRY_CREATE,
     StandardWatchEventKinds.ENTRY_MODIFY,
@@ -46,7 +46,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
   
   
   //recursive setup
-  val subPaths = dirPath.toFile.listFiles
+  val subPaths = watchDir.toFile.listFiles
   subPaths.foreach { path =>
     {
       if (path.isDirectory) {
@@ -74,14 +74,14 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
     }
     catch {
       case e: ClosedWatchServiceException =>
-        if (dirPath.toFile.isDirectory == false) {
+        if (watchDir.toFile.isDirectory == false) {
           pathDeleted()
         }
     }
     
     key.foreach(key => key.pollEvents.asScala.foreach { event =>
       
-      val path: Path = dirPath.resolve(event.context.asInstanceOf[Path])
+      val path: Path = watchDir.resolve(event.context.asInstanceOf[Path])
       
       event.kind match {
         
@@ -122,7 +122,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
     // if there is a ** anywhere, doesn't matter if it's followed at some point by a /
     
     val dirWatcher = watcherProvider.createDirWatcher(
-      dirPath = subDir,
+      watchDir = subDir,
       matchPattern = matchPattern.copy(depth = matchPattern.depth + 1)
     )
     
@@ -221,7 +221,7 @@ class LocalDirWatcher(dirPath: Path, matchPattern: DirWatcherPattern, watcherPro
   
   def tearDown() {
     
-    log.info("Teardown for " + dirPath)
+    log.info("Teardown for " + watchDir)
     
     //call tearDown on all watchers attached to this
     subFileEventHandlers.foreach {
