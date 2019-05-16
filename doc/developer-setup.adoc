@@ -161,6 +161,7 @@ gradle generateScalaPB
 [CAUTION]
 ====
 Gradle's parallel execution can lead to failing builds. E.g. there are known problems when running `npm` tasks of the keyscore-manager.
+Disable parallel exectuin by setting `org.gradle.parallel=false` in `~/.gradle/gradle.properties`.
 ====
 
 == How to run with Docker ==
