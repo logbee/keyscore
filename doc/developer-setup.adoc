@@ -158,6 +158,11 @@ gradle generateScalaPB
 
 5. Finally refresh the gradle project within IntelliJ.
 
+[CAUTION]
+====
+Gradle's parallel execution can lead to failing builds. E.g. there are known problems when running `npm` tasks of the keyscore-manager.
+====
+
 == How to run with Docker ==
 
 [NOTE]
