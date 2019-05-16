@@ -1,7 +1,7 @@
 {
-  "name": "keyscore-manager-models",
+  "name": "keyscore-manager-pipely",
   "version": "0.3.0",
-  "description": "Datamodels for Keyscore-Manager",
+  "description": "Pipeline Editor",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -13,7 +13,7 @@
   "keywords": [
     "keyscore",
     "keyscore-manager",
-    "models"
+    "pipely"
   ],
   "author": "",
   "license": "Apache-2.0",
