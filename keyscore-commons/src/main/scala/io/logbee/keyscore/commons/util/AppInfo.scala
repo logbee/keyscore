@@ -12,7 +12,7 @@ object AppInfo {
   def fromMainClass[T](implicit classTag: ClassTag[T]): AppInfo = {
 
     val mainClass = classTag.runtimeClass
-    var appInfo: AppInfo = AppInfo("<unkown>", "<unkown>", "<unkown>", "<unkown>")
+    var appInfo: AppInfo = AppInfo("<unknown>", "<unknown>", "<unknown>", "<unknown>")
 
     try {
       val manifest: Option[java.util.jar.Manifest] = mainClass.getClassLoader.getResources("META-INF/MANIFEST.MF").asScala
@@ -27,10 +27,10 @@ object AppInfo {
         val implementationRevision = attributes.getValue("Implementation-Revision")
 
         appInfo = AppInfo(
-          if (implementationTitle == null) "<unkown>" else implementationTitle,
-          if (implementationVersion == null) "<unkown>" else implementationVersion,
-          if (implementationRevision == null) "<unkown>" else implementationRevision,
-          if (implementationVendor == null) "<unkown>" else implementationVendor
+          if (implementationTitle == null) "<unknown>" else implementationTitle,
+          if (implementationVersion == null) "<unknown>" else implementationVersion,
+          if (implementationRevision == null) "<unknown>" else implementationRevision,
+          if (implementationVendor == null) "<unknown>" else implementationVendor
         )
       })
     }
