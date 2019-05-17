@@ -19,7 +19,6 @@ class SmbDir(dir: Directory) extends DirHandle {
   override def absolutePath = dir.getFileName
   
   
-  
   override def listDirsAndFiles: (Seq[SmbDir], Seq[SmbFile]) = {
     
     val subPaths = JavaConverters.asScalaBuffer(dir.list).toSeq
@@ -58,7 +57,6 @@ class SmbDir(dir: Directory) extends DirHandle {
   
   
   def tearDown() = {
-    dir.flush()
     dir.close()
   }
   
@@ -68,13 +66,13 @@ class SmbDir(dir: Directory) extends DirHandle {
   override def equals(other: Any): Boolean = other match {
     case that: SmbDir =>
       (that canEqual this) &&
-        this.absolutePath == that.absolutePath &&
-        this.share == that.share
+        this.absolutePath == that.absolutePath// &&
+//        this.share.getSmbPath.equals(that.share.getSmbPath)
     case _ => false
   }
   
   override def hashCode(): Int = {
-    val state = Seq(this.absolutePath, this.share)
+    val state = Seq(this.absolutePath/*, this.share*/)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
   
