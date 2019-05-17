@@ -1,8 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import java.io.File
-import java.nio.file.Path
-import java.nio.file.Paths
 
 
 object DirWatcherPattern {
@@ -23,7 +21,11 @@ object DirWatcherPattern {
       None
     }
     else {
-      Some(invariableString.substring(0, lastSlashIndex))
+      var result = invariableString.substring(0, lastSlashIndex)
+      if (result.endsWith("/") == false) {
+        result += "/"
+      }
+      Some(result)
     }
   }
   

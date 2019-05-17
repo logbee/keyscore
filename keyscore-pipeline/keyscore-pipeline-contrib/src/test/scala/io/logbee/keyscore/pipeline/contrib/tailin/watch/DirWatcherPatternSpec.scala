@@ -41,7 +41,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
     
     val testSetups = Seq(
         TestSetup(filePattern        = "test/tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = -1,
                   expectedSubDirPath = "tailin.csv"),
         
@@ -51,22 +51,22 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
                   expectedSubDirPath = "**/tailin.csv"),
         
         TestSetup(filePattern        = "test/**/tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = 5,
                   expectedSubDirPath = "**/tailin.csv"),
                   
         TestSetup(filePattern        = "test/**/foo/**/tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = 5,
                   expectedSubDirPath = "**/foo/**/tailin.csv"),
                   
         TestSetup(filePattern        = "test/*/tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = 5,
                   expectedSubDirPath = "*/tailin.csv"),
                   
         TestSetup(filePattern        = "test/*tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = 5,
                   expectedSubDirPath = "*tailin.csv"),
                   
@@ -114,11 +114,6 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
                   expectedFixedPath  = "",
                   expectedVariableIndex = 0,
                   expectedSubDirPath = "tailin.csv"),
-                  
-        TestSetup(filePattern        = "nonexistent-dir/**/tailin.csv",
-                  expectedFixedPath  = null,
-                  expectedVariableIndex = 16,
-                  expectedSubDirPath = "**/tailin.csv"), //TODO it might not exist yet, but the user will probably want it monitored when it starts to exist later
       )
     
     
@@ -131,12 +126,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
         {
           val result = DirWatcherPattern.extractInvariableDir(tmpDir + "/" + testSetup.filePattern)
           
-          result shouldBe (
-                            if (testSetup.expectedFixedPath == null)
-                              null
-                            else
-                              Paths.get(tmpDir + "/" + testSetup.expectedFixedPath)
-                          )
+          result shouldBe Some(tmpDir + "/" + testSetup.expectedFixedPath)
         }
       }
     }
