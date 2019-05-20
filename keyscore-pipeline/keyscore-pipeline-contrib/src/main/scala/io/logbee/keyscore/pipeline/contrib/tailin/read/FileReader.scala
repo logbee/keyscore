@@ -6,8 +6,6 @@ import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
 
-import org.slf4j.LoggerFactory
-
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
@@ -68,8 +66,6 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   import FileReader.CharPos
   
   
-  private val log = LoggerFactory.getLogger(classOf[FileReader])
-  
   private val decoder = charset.newDecoder
   decoder.onMalformedInput(CodingErrorAction.REPORT)
   
@@ -87,7 +83,6 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
     
     assert(readScheduleItem.startPos <= readScheduleItem.endPos) //TODO
     assert(readScheduleItem.endPos <= fileToRead.length) //TODO
-    
     
     val readEndPos = BytePos(readScheduleItem.endPos)
     
@@ -110,8 +105,8 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
         throw new IllegalStateException("There were no bytes to read.")
       }
       
-      byteBuffer.flip() //sets limit to final read position, so that buffer.position can be used as pointer
       
+      byteBuffer.rewind()
       
       charBuffer.clear()
       decoder.reset()
@@ -140,7 +135,6 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   
   
   private def processBufferContents(charBuffer: CharBuffer, callback: FileReadData => Unit, bufferStartPositionInFile: BytePos, readEndPosition: BytePos, callbackWriteTimestamp: Long, newerFilesWithSharedLastModified: Int) = {
-    
     var byteCompletedPositionWithinBuffer = BytePos(0)
     
     
@@ -223,7 +217,5 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   
   def tearDown() = {
     fileToRead.tearDown()
-    
-    log.info("Teardown for " + fileToRead)
   }
 }
