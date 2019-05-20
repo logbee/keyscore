@@ -1,6 +1,6 @@
 {
   "GENERAL": {
-    "APPNAME": "Keyscore",
+    "APPNAME": "KEYSCORE",
     "EDIT": "Bearbeiten",
     "SAVE": "Speichern",
     "DELETE": "Löschen",
@@ -115,8 +115,8 @@
     "SAVE_SUCCESS": "Die Pipeline wurde erfolgreich gespeichert!",
     "SAVE_FAILURE": "Beim Speichern der Pipeline ist ein Fehler aufgetreten.",
     "TEST_TOOLTIP": "Testet die aktuelle Konfiguration.",
-    "REVERT_TOOLTIP": "Stellt die Ausgangskonfiugration wieder her.",
-    "RESET_TOOLTIP": "Setzt das Formular zurück und stellt die Ausganskonfiguration wieder her.",
+    "REVERT_TOOLTIP": "Stellt die Ausgangskonfiguration wieder her.",
+    "RESET_TOOLTIP": "Setzt das Formular zurück und stellt die Ausgangskonfiguration wieder her.",
     "RESET": "Leeren",
     "REVERT": "Verwerfen",
     "TEST": "Testen",
@@ -125,9 +125,9 @@
   },
   "ERRORS": {
     "404": "Der angeforderte Filter konnte nicht gefunden werden.",
-    "0": "Die angegebene Url ist nicht valide.",
-    "503": "Keyscore konnte die Anfrage leider  nicht erfüllen.",
-    "999": "Dieses Feature ist nocht nicht verfügbar"
+    "0": "Die angegebene URL ist nicht valide.",
+    "503": "KEYSCORE konnte die Anfrage leider nicht erfüllen.",
+    "999": "Dieses Feature ist noch nicht verfügbar."
   },
   "NAVIGATION_CONTROL": {
     "MOVE_LEFT": "Vorherige Nachricht.",
@@ -137,11 +137,11 @@
   "HEADER_BAR": {
     "DELETE": "Löscht die aktuell ausgewählte Pipeline.",
     "SAVE": "Speichert die aktuell ausgewählte Pipeline.",
-    "RUN": "Start/Neustartet der aktuell ausgewählten Pipeline. Dies speichert auch die Pipeline.",
+    "RUN": "Start/Neustart der aktuell ausgewählten Pipeline. Dies speichert auch die Pipeline.",
     "MANUEL_RELOAD": "Aktualisiere die angezeigten Daten.",
-    "REFRESH": "Automatisches neu laden der angezeigten Daten ist aktiv.",
+    "REFRESH": "Automatisches Neuladen der angezeigten Daten ist aktiv.",
     "ADD": "Erstelle eine neue Pipeline.",
-    "PREVIEW": "Datenvorschau/Pipelineerstellung",
-    "TIMER": "Intervall für das automatisch neu laden der Daten."
+    "PREVIEW": "Datenvorschau / Pipeline-Erstellung",
+    "TIMER": "Intervall für das automatische Neuladen der Daten."
   }
 }
