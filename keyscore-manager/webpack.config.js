@@ -2,9 +2,16 @@ const path = require('path');
 const webpack = require("webpack");
 const helpers = require('./helpers');
 
+let modules = [
+    './modules/keyscore-manager-material/index.ts',
+    './modules/keyscore-manager-models/index.ts',
+    './modules/keyscore-manager-pipeline-parameters/index.ts',
+    './modules/keyscore-manager-test-fixtures/index.ts'
+]
+
 module.exports = {
     entry: {
-        app: ['babel-polyfill','./src/main.ts']
+        app: ['babel-polyfill', './src/main.ts',...modules]
     },
     mode: 'development',
     devtool: 'source-map', // Slows down the build
@@ -16,7 +23,7 @@ module.exports = {
                 use: [
                     {
                         loader: 'tslint-loader',
-                        options: { /* Loader options go here */ }
+                        options: {/* Loader options go here */}
                     }
                 ]
             },
@@ -33,8 +40,8 @@ module.exports = {
                         minimize: true,
                         removeAttributeQuotes: false,
                         caseSensitive: true,
-                        customAttrSurround: [ [/#/, /(?:)/], [/\*/, /(?:)/], [/\[?\(?/, /(?:)/] ],
-                        customAttrAssign: [ /\)?\]?=/ ]
+                        customAttrSurround: [[/#/, /(?:)/], [/\*/, /(?:)/], [/\[?\(?/, /(?:)/]],
+                        customAttrAssign: [/\)?\]?=/]
                     }
                 }]
             },
@@ -73,24 +80,24 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: [ ".tsx", ".ts", ".js" ]
+        extensions: [".tsx", ".ts", ".js"]
     },
     output: {
         filename: 'keyscore.bundle.js',
         path: path.resolve(__dirname, 'build/webpack'),
-        publicPath:"/"
+        publicPath: "/"
     },
-    optimization:{
-       runtimeChunk: "single",
-       splitChunks: {
-           cacheGroups: {
-               vendor:{
-                   test: /[\\/]node_modules[\\/]/,
-                   name: "vendors",
-                   chunks: "all"
-               }
-           }
-       }
+    optimization: {
+        runtimeChunk: "single",
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    chunks: "all"
+                }
+            }
+        }
     },
     plugins: [
         new webpack.ProvidePlugin({
@@ -105,7 +112,7 @@ module.exports = {
             /\@angular(\\|\/)core(\\|\/)fesm5/,
             helpers.root('./src'),
             {}
-        )    ],
+        )],
     devServer: {
         contentBase: [
             path.join(__dirname, "/public"),
@@ -117,6 +124,6 @@ module.exports = {
         quiet: false,
         noInfo: false,
         historyApiFallback: true,
-        watchContentBase:true
+        watchContentBase: true
     }
 };
