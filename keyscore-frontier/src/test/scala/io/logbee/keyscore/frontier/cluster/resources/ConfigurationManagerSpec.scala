@@ -4,14 +4,13 @@ import akka.testkit.{ImplicitSender, TestKit, TestKitBase}
 import akka.util.Timeout
 import io.logbee.keyscore.commons.cluster.resources._
 import io.logbee.keyscore.commons.{ConfigurationService, HereIam, WhoIs}
-import io.logbee.keyscore.model.configuration
 import io.logbee.keyscore.model.configuration.ConfigurationRepository.ROOT_ANCESTOR
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.descriptor.ParameterRef
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpecLike, Inside, Matchers, OptionValues}
 
 import scala.concurrent.duration._

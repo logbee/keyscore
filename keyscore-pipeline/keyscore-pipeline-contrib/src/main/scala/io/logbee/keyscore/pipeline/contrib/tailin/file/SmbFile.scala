@@ -96,17 +96,25 @@ class SmbFile(val file: smbj.share.File) extends FileHandle {
   def read(buffer: ByteBuffer, offset: Long): Int = {
     file.read(buffer.array, offset)
   }
-  
-  
-  
-  override def equals(other: Any): Boolean = {
-    other match {
-      case that: SmbFile =>
-        this.isInstanceOf[SmbFile] && file.getFileName.equals(that.file.getFileName)
-      case _ => false
-    }
+
+
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[SmbFile]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: SmbFile =>
+      (that canEqual this) &&
+//        share == that.share &&
+        absolutePath == that.absolutePath
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(/*share, */absolutePath)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
   
+
   
   def tearDown() = {
     if (file != null) {

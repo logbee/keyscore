@@ -3,6 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 
 import scala.concurrent.duration.DurationInt
 
@@ -22,7 +23,7 @@ import io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor
 import io.logbee.keyscore.model.descriptor.Descriptor
 import io.logbee.keyscore.model.descriptor.FieldNameHint
 import io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor
-import io.logbee.keyscore.model.descriptor.Icon
+import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.descriptor.ParameterInfo
 import io.logbee.keyscore.model.descriptor.SourceDescriptor
 import io.logbee.keyscore.model.descriptor.StringValidator
@@ -208,13 +209,15 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     
     
     
-    var baseDir = DirWatcherPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future 
-    if (baseDir == null) {
-      log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
-      return
+    var invariableString = DirWatcherPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
+    if (invariableString.isEmpty
+        || Paths.get(invariableString.get).toFile.isDirectory == false) {
+        log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
+        return
     }
     
-
+    val baseDir = Paths.get(invariableString.get)
+        
     val _persistenceFile = new File(persistenceFile)
     _persistenceFile.createNewFile()
     
@@ -229,7 +232,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
                                           committedPersistence = new FilePersistenceContext(_persistenceFile))
     
     val bufferSize = 1024
-
+    
     val readSchedule = new ReadSchedule()
     val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
     
@@ -243,7 +246,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   
 
   override def onTimer(timerKey: Any) {
-    dirWatcher.processEvents()
+    dirWatcher.processFileChanges()
     
     if (!sendBuffer.isEmpty) {
       doPush()
@@ -291,7 +294,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       doPush()
     }
     else {
-      dirWatcher.processEvents()
+      dirWatcher.processFileChanges()
       
       if (!sendBuffer.isEmpty) {
         doPush()

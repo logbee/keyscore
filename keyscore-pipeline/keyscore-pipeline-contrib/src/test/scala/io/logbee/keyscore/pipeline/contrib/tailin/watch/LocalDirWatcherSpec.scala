@@ -3,30 +3,28 @@ package io.logbee.keyscore.pipeline.contrib.tailin.watch
 import java.io.File
 import java.nio.file._
 
-import io.logbee.keyscore.pipeline.contrib.tailin._
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.util.{SpecWithTempDir, TestUtil}
+import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {
   
   
   trait DirWatcherParams {
-    var provider = mock[WatcherProvider[Path]]
+    var provider = mock[WatcherProvider[Path, LocalFile]]
     var dirPath = watchDir
-    var matchPattern = DirWatcherPattern(watchDir + "/*.txt")
+    var matchPattern = DirWatcherPattern(dirPath + "/*.txt")
   }
   
   
-  "A DirWatcher," - {
+  "A LocalDirWatcher," - {
     "when a sub-directory" - {
-      "is created, should create a DirWatcher for that sub-directory, which's processEvents() is called when the parent's processEvents() is called" in new DirWatcherParams {
+      "is created, should create a DirWatcher for that sub-directory" in
+      new DirWatcherParams {
         
         matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt", depth = 2)
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
@@ -35,22 +33,23 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         val subDirWatcher = stub[DirWatcher]
         (provider.createDirWatcher _)
-          .expects(subDir, matchPattern.copy(subDirPattern = "*", depth=3))
+          .expects(subDir, matchPattern.copy(depth = 3))
           .returning(subDirWatcher)
         
         subDir.toFile.mkdir
         TestUtil.waitForFileToExist(subDir.toFile)
         
         
-        dirWatcher.processEvents()
+        dirWatcher.processFileChanges()
         
         //call another time to verify that it's called on the sub-DirWatcher
-        dirWatcher.processEvents()
-        (subDirWatcher.processEvents _).verify()
+        dirWatcher.processFileChanges()
+        (subDirWatcher.processFileChanges _).verify()
       }
       
       
-      "is deleted, should notify the responsible DirWatcher" in new DirWatcherParams {
+      "is deleted, should notify the responsible DirWatcher" in
+      new DirWatcherParams {
         
         matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt", depth=2)
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
@@ -66,12 +65,12 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         subDir.toFile.mkdir()
         TestUtil.waitForFileToExist(subDir.toFile)
         
-        dirWatcher.processEvents()
+        dirWatcher.processFileChanges()
         
         subDir.toFile.delete()
         TestUtil.waitForFileToBeDeleted(subDir.toFile)
         
-        dirWatcher.processEvents()
+        dirWatcher.processFileChanges()
         (subDirWatcher.pathDeleted _).verify()
       }
     }
@@ -94,7 +93,8 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         filePatterns.foreach { setup => //individual test cases
           
-          setup.pattern in new DirWatcherParams {
+          setup.pattern in
+          new DirWatcherParams {
             
             matchPattern = DirWatcherPattern(watchDir + "/" + setup.pattern)
             val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
@@ -107,7 +107,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             
             TestUtil.waitForFileToExist(file)
             
-            dirWatcher.processEvents()
+            dirWatcher.processFileChanges()
           }
         }
       }
@@ -131,9 +131,10 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         filePatterns.foreach { setup => //individual test cases
           
-          setup.startingPattern in new DirWatcherParams {
+          setup.startingPattern in
+          new DirWatcherParams {
             
-            provider = stub[WatcherProvider[Path]]
+            provider = stub[WatcherProvider[Path, LocalFile]]
             matchPattern = DirWatcherPattern(fullFilePattern = watchDir + "/" + setup.startingPattern, depth=2)
             val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
             
@@ -145,7 +146,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             
             val file = TestUtil.createFile(subDir, "test.txt", "testContent")
             
-            dirWatcher.processEvents()
+            dirWatcher.processFileChanges()
             
             val fileEventHandler = stub[FileEventHandler]
             (provider.createFileEventHandler _).when(file).returns(fileEventHandler)
@@ -154,13 +155,14 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             val subDirWatcher = new LocalDirWatcher(subDir, subMatchPattern, provider)
             (provider.createDirWatcher _).verify(subDir, subMatchPattern).returns(subDirWatcher)
             
-            (fileEventHandler.fileModified _).verify()
+            (fileEventHandler.processFileChanges _).verify()
           }
         }
       }
       
       
-      "is created, but doesn't match the file pattern, should NOT create a FileEventHandler" in new DirWatcherParams {
+      "is created, but doesn't match the file pattern, should NOT create a FileEventHandler" in
+      new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
@@ -172,11 +174,12 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         TestUtil.waitForFileToExist(file)
         
-        dirWatcher.processEvents()
+        dirWatcher.processFileChanges()
       }
       
       
-      "is modified, should notify the responsible FileEventHandlers that the file was modified" in new DirWatcherParams {
+      "is modified, should notify the responsible FileEventHandlers that the file was modified" in
+      new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
@@ -188,20 +191,21 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         file.createNewFile()
         TestUtil.waitForFileToExist(file)
         
-        dirWatcher.processEvents()
+        dirWatcher.processFileChanges()
         
         //write something to file
         TestUtil.writeStringToFile(file, "Hello World", StandardOpenOption.APPEND)
         
         TestUtil.waitForWatchService()
         
-        dirWatcher.processEvents()
+        dirWatcher.processFileChanges()
         
-        (subFileEventHandler.fileModified _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileEventHandler
+        (subFileEventHandler.processFileChanges _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileEventHandler
       }
       
       
-      "is deleted, should notify the responsible FileEventHandler" in new DirWatcherParams {
+      "is deleted, should notify the responsible FileEventHandler" in
+      new DirWatcherParams {
         
         val dirWatcher = new LocalDirWatcher(dirPath, matchPattern, provider)
         
@@ -213,19 +217,20 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         file.createNewFile
         TestUtil.waitForFileToExist(file)
         
-        dirWatcher.processEvents()
+        dirWatcher.processFileChanges()
         
         file.delete()
         TestUtil.waitForFileToBeDeleted(file)
         
-        dirWatcher.processEvents()
+        dirWatcher.processFileChanges()
         
         (subFileEventHandler.pathDeleted _).verify()
       }
     }
     
     
-    "when its configured directory doesn't exist, should throw an exception" in new DirWatcherParams {
+    "when its configured directory doesn't exist, should throw an exception" in
+    new DirWatcherParams {
       
       val watchDir = Paths.get("/abc/def/ghi/jkl/mno/pqr/stu/vwx")
       dirPath = watchDir

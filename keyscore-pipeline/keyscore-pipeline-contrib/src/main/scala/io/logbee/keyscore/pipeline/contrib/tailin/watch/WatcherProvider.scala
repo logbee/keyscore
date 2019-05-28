@@ -1,11 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
-
-
-trait WatcherProvider[T] {
+trait WatcherProvider[T, S] {
   
-	def createDirWatcher(dirPath: T, matchPattern: DirWatcherPattern): DirWatcher
+	def createDirWatcher(watchDir: T, matchPattern: DirWatcherPattern): DirWatcher
   
-	def createFileEventHandler(file: FileHandle): FileEventHandler
+	def createFileEventHandler(file: S): FileEventHandler
 }

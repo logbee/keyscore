@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.filter
 import akka.stream.FlowShape
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.{Dataset, Field, Record}
+import io.logbee.keyscore.model.data.{Dataset, Field, Icon, Record}
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT

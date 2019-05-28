@@ -1,18 +1,12 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FreeSpec
-import org.scalatest.Matchers
+import java.nio.file.{Files, Path}
 
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-
-
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
+
 @RunWith(classOf[JUnitRunner])
 class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll {
   
@@ -25,7 +19,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
   }
   
   
-  "A DirWatcherPattern's" - {
+  "A DirWatcherPattern" - {
     
     tmpDir = Files.createTempDirectory("extractInvariableDir") //put everything into a temp-directory to be OS-agnostic and be able to create files and clean them up without problem
     TestUtil.waitForFileToExist(tmpDir.toFile)
@@ -41,7 +35,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
     
     val testSetups = Seq(
         TestSetup(filePattern        = "test/tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = -1,
                   expectedSubDirPath = "tailin.csv"),
         
@@ -51,22 +45,22 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
                   expectedSubDirPath = "**/tailin.csv"),
         
         TestSetup(filePattern        = "test/**/tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = 5,
                   expectedSubDirPath = "**/tailin.csv"),
                   
         TestSetup(filePattern        = "test/**/foo/**/tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = 5,
                   expectedSubDirPath = "**/foo/**/tailin.csv"),
                   
         TestSetup(filePattern        = "test/*/tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = 5,
                   expectedSubDirPath = "*/tailin.csv"),
                   
         TestSetup(filePattern        = "test/*tailin.csv",
-                  expectedFixedPath  = "test",
+                  expectedFixedPath  = "test/",
                   expectedVariableIndex = 5,
                   expectedSubDirPath = "*tailin.csv"),
                   
@@ -114,38 +108,30 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
                   expectedFixedPath  = "",
                   expectedVariableIndex = 0,
                   expectedSubDirPath = "tailin.csv"),
-                  
-        TestSetup(filePattern        = "nonexistent-dir/**/tailin.csv",
-                  expectedFixedPath  = null,
-                  expectedVariableIndex = 16,
-                  expectedSubDirPath = "**/tailin.csv"), //TODO it might not exist yet, but the user will probably want it monitored when it starts to exist later
       )
     
     
     
-    "extractInvariableDir() should get the fixed directory's path" - {
+    "should get the fixed directory's path" - {
       
       testSetups.foreach { testSetup =>
         
-        s"${testSetup.filePattern} has fixed parent-dir: ${testSetup.expectedFixedPath}" in {
+        s"${testSetup.filePattern} has fixed parent-dir: ${testSetup.expectedFixedPath}" in
+        {
           val result = DirWatcherPattern.extractInvariableDir(tmpDir + "/" + testSetup.filePattern)
           
-          result shouldBe (
-                            if (testSetup.expectedFixedPath == null)
-                              null
-                            else
-                              Paths.get(tmpDir + "/" + testSetup.expectedFixedPath)
-                          )
+          result shouldBe Some(tmpDir + "/" + testSetup.expectedFixedPath)
         }
       }
     }
     
     
-    "findFirstVariableIndex() should find the first index containing" - {
+    "should find the first index containing" - {
       
       testSetups.foreach { testSetup =>
         
-        s"${testSetup.filePattern} has variable symbol at position ${testSetup.expectedVariableIndex}" in {
+        s"${testSetup.filePattern} has variable symbol at position ${testSetup.expectedVariableIndex}" in
+        {
           val result = DirWatcherPattern.findFirstVariableIndex(testSetup.filePattern)
           
           result shouldBe (
@@ -160,11 +146,12 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
     
     
     
-    "removeFirstDirPrefixFromMatchPattern() should correctly remove the first part of a filePattern, transforming" - {
+    "should correctly remove the first part of a filePattern, transforming" - {
       
       testSetups.foreach { testSetup =>
         
-        s"${testSetup.filePattern} into ${testSetup.expectedSubDirPath}" in {
+        s"${testSetup.filePattern} into ${testSetup.expectedSubDirPath}" in
+        {
           val result = DirWatcherPattern.removeFirstDirPrefixFromMatchPattern(testSetup.filePattern)
           
           result shouldBe (
@@ -175,6 +162,15 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
                           )
         }
       }
+    }
+    
+    
+    "transform an SMB-path into a Unix-like path" in
+    {
+      val fullFilePattern = "\\\\some.host.name\\share\\file\\path"
+      val result = DirWatcherPattern.getUnixLikePath(fullFilePattern)
+      
+      result shouldBe "/some.host.name/share/file/path"
     }
   }
 }

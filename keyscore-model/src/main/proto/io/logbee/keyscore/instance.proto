@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "scalapb/scalapb.proto";
-import "io/logbee/keyscore/metrics.proto";
 import "io/logbee/keyscore/blueprint.proto";
 
 option (scalapb.options) = {

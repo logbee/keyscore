@@ -20,7 +20,6 @@ import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
 import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.util.StartUpWatch
 import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
-import io.logbee.keyscore.commons.util.{RandomNameGenerator, StartUpWatch}
 import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.metrics.{GaugeMetricDescriptor, MetricsCollection}

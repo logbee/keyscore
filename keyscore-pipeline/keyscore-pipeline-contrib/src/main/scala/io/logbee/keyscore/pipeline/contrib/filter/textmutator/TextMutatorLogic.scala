@@ -5,7 +5,7 @@ import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.{Configuration, DirectiveConfiguration}
 import io.logbee.keyscore.model.data.FieldValueType.Text
-import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
+import io.logbee.keyscore.model.data.{Dataset, Field, Icon, Record, TextValue}
 import io.logbee.keyscore.model.descriptor.FieldNameHint.PresentField
 import io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor.PatternType
 import io.logbee.keyscore.model.descriptor.Maturity.Experimental

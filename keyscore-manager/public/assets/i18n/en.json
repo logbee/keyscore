@@ -36,8 +36,8 @@
     "ITEMS": {
       "BASE_URL_TITLE": "Base-URL",
       "BASE_URL_DESCRIPTION": "Base-URL",
-      "LANGUAGE_TITLE": "Languange",
-      "LANGUAGE_DESCRIPTION": "Languange",
+      "LANGUAGE_TITLE": "Language",
+      "LANGUAGE_DESCRIPTION": "Language",
       "BLOCKLY_ENABLED_TITLE": "Activate Blockly",
       "BLOCKLY_ENABLED_DESCRIPTION": "Blockly",
       "LIVEEDITING_ENABLED_TITLE": "Activate Live Editing",
@@ -112,11 +112,11 @@
     "ENGLISH": "English"
   },
   "PIPELY": {
-    "SAVE_SUCCESS": "The pipeline was saved successfully",
-    "SAVE_FAILURE": "An error occurred while saving your pipeline. ",
-    "TEST_TOOLTIP": "Tests the configuration",
+    "SAVE_SUCCESS": "The pipeline was saved successfully.",
+    "SAVE_FAILURE": "An error occurred while saving your pipeline.",
+    "TEST_TOOLTIP": "Tests the configuration.",
     "REVERT_TOOLTIP": "Reverts your applied configuration.",
-    "RESET_TOOLTIP": "Clear the form and restore the initial state",
+    "RESET_TOOLTIP": "Clear the form and restore the initial state.",
     "RESET": "Clear",
     "REVERT": "Revert",
     "TEST": "Test",
@@ -125,9 +125,9 @@
   },
   "ERRORS": {
     "404": "The requested filter does not exist.",
-    "503": "Keyscore was not able too process your request.",
-    "0": "The url you requested was not valid.",
-    "999": "This feature is not yet available"
+    "503": "KEYSCORE was not able to process your request.",
+    "0": "The URL you requested was not valid.",
+    "999": "This feature is not yet available."
   },
   "NAVIGATION_CONTROL": {
     "MOVE_LEFT": "Previous Dataset.",
@@ -142,9 +142,9 @@
     "SAVE": "Save the current Pipeline.",
     "RUN": "Runs or reruns the current Pipeline. This will also save the pipeline.",
     "MANUEL_RELOAD": "Reload the current Data.",
-    "REFRESH": "Automatic reload of current Data is activ.",
+    "REFRESH": "Automatic reload of current Data is active.",
     "ADD": "Create a new Pipeline.",
-    "PREVIEW": "Datapreview/Pipelinecreation",
+    "PREVIEW": "Data Preview / Pipeline Creation",
     "TIMER": "Interval for automatic data reload."
   }
 }

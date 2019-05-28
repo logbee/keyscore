@@ -1,13 +1,11 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import java.io.File
-import java.nio.file.Path
-import java.nio.file.Paths
 
 
 object DirWatcherPattern {
   
-  def extractInvariableDir(filePattern: String): Path = {
+  def extractInvariableDir(filePattern: String): Option[String] = {
     
     val variableIndex = findFirstVariableIndex(filePattern)
     
@@ -20,19 +18,14 @@ object DirWatcherPattern {
     val lastSlashIndex = invariableString.lastIndexOf(File.separator) + 1
     
     if (lastSlashIndex == -1) {
-      null
+      None
     }
     else {
-      invariableString = invariableString.substring(0, lastSlashIndex)
-      
-      val invariablePathDir = Paths.get(invariableString)
-      if (invariablePathDir.toFile.isDirectory) {
-        invariablePathDir
+      var result = invariableString.substring(0, lastSlashIndex)
+      if (result.endsWith("/") == false) {
+        result += "/"
       }
-      else { //path specified by user doesn't exist or is completely malformed input
-        //TODO it might not exist yet, but the user will probably want it monitored when it starts to exist later
-        null
-      }
+      Some(result)
     }
   }
   
@@ -70,6 +63,18 @@ object DirWatcherPattern {
         matchPattern.substring(slashIndex + 1)
       }
     }
+  }
+  
+  
+  /**
+   * Returns a transformed version of the given path that looks like a Unix-path.
+   * 
+   * This is useful for the Java PathMatcher API that can't work for example with SMB-paths.
+   */
+  def getUnixLikePath(fullFilePattern: String) = {
+    fullFilePattern
+      .replace("\\\\", "/") //replace "\\" at the start of SMB-paths with just a /
+      .replace('\\', '/') //replace '\' as in Windows-like paths with '/'
   }
   
   

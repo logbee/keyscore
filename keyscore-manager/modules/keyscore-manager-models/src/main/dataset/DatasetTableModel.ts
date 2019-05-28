@@ -1,6 +1,4 @@
 import {MetaData} from "../common/MetaData";
-import {Field} from "./Field";
-import {Meta} from "@angular/platform-browser";
 import {Value} from "./Value";
 
 

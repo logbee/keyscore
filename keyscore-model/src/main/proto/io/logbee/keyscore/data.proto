@@ -116,3 +116,19 @@ enum Importance {
     Higher = 4;
     High = 5;
 }
+
+message Icon {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.data.IconLoader";
+    string data = 1;
+    IconFormat format = 2;
+    IconEncoding encoding = 3;
+}
+
+enum IconFormat {
+    SVG = 0;
+}
+
+enum IconEncoding {
+    RAW = 0;
+    Base64 = 1;
+}

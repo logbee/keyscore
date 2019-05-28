@@ -163,7 +163,7 @@ configurator {
 }
 
 .configurator-body {
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: calc(95vh - 100px);
   padding: 10px 0;
 }

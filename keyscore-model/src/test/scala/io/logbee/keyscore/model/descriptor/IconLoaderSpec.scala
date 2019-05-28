@@ -1,7 +1,8 @@
 package io.logbee.keyscore.model.descriptor
 
-import io.logbee.keyscore.model.descriptor.IconEncoding.RAW
-import io.logbee.keyscore.model.descriptor.IconFormat.SVG
+import io.logbee.keyscore.model.data.Icon
+import io.logbee.keyscore.model.data.IconEncoding.RAW
+import io.logbee.keyscore.model.data.IconFormat.SVG
 import org.scalatest.{FreeSpec, Matchers}
 
 import scala.io.Source
