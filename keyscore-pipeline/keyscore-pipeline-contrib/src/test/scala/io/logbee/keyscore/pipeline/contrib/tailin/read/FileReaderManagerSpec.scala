@@ -1,24 +1,13 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
-import org.scalatest.FreeSpec
-import org.scalatest.Matchers
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
-import org.scalamock.scalatest.MockFactory
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.PersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
-import java.io.File
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-import org.scalatest.BeforeAndAfter
-import java.nio.file.Path
-import java.nio.file.Files
-import java.nio.charset.StandardCharsets
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
+import java.nio.charset.{Charset, StandardCharsets}
 
-
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import java.nio.charset.Charset
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{ReadPersistence, ReadSchedule, ReadScheduleItem}
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
+import org.junit.runner.RunWith
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.Matchers
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockFactory {

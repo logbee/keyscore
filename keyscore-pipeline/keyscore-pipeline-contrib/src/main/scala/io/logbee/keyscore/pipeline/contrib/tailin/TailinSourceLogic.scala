@@ -23,7 +23,7 @@ import io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor
 import io.logbee.keyscore.model.descriptor.Descriptor
 import io.logbee.keyscore.model.descriptor.FieldNameHint
 import io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor
-import io.logbee.keyscore.model.descriptor.Icon
+import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.descriptor.ParameterInfo
 import io.logbee.keyscore.model.descriptor.SourceDescriptor
 import io.logbee.keyscore.model.descriptor.StringValidator

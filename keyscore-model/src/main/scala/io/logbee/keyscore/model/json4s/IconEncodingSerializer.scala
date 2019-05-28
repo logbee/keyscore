@@ -1,6 +1,6 @@
 package io.logbee.keyscore.model.json4s
 
-import io.logbee.keyscore.model.descriptor.IconEncoding
+import io.logbee.keyscore.model.data.IconEncoding
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.{JNull, JString}
 

@@ -3,15 +3,12 @@ package io.logbee.keyscore.pipeline.contrib.tailin.watch
 import java.io.File
 import java.nio.file._
 
-import io.logbee.keyscore.pipeline.contrib.tailin._
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.util.{SpecWithTempDir, TestUtil}
+import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
-
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory with Inside with OptionValues with ParallelTestExecution {

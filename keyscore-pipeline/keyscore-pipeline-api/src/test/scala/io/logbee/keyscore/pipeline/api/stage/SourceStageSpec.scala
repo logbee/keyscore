@@ -13,7 +13,7 @@ import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionCo
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 import scala.concurrent.Promise

@@ -2,15 +2,13 @@ package io.logbee.keyscore.pipeline.contrib
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.stream.{FlowShape, SourceShape}
+import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import com.typesafe.config.ConfigFactory
+import akka.stream.testkit.scaladsl.TestSink
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data.{Dataset, Field, TextValue}
 import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{FilterStage, SourceStage, StageContext}
+import io.logbee.keyscore.pipeline.api.stage.{SourceStage, StageContext}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures

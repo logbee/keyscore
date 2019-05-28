@@ -5,10 +5,10 @@ import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import org.json4s.native.Serialization.write
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
-import org.json4s.native.Serialization.{read, write, writePretty}
 
 
 @RunWith(classOf[JUnitRunner])

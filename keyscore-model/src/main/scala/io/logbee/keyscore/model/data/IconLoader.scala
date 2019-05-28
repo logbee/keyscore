@@ -1,7 +1,7 @@
-package io.logbee.keyscore.model.descriptor
+package io.logbee.keyscore.model.data
 
-import io.logbee.keyscore.model.descriptor.IconEncoding.RAW
-import io.logbee.keyscore.model.descriptor.IconFormat.SVG
+import io.logbee.keyscore.model.data.IconEncoding.RAW
+import io.logbee.keyscore.model.data.IconFormat.SVG
 import io.logbee.keyscore.model.util.Using.using
 
 import scala.io.Source

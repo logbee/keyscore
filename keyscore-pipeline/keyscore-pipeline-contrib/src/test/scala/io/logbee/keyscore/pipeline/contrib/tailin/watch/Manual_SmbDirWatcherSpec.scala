@@ -1,20 +1,10 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
+import java.nio.charset.StandardCharsets
+
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, FileHandle, SmbDir}
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
 import org.scalamock.scalatest.MockFactory
-import com.hierynomus.smbj.share.Directory
-import scala.collection.JavaConverters
-import java.util.EnumSet
-import com.hierynomus.mssmb2.SMB2ShareAccess
-import com.hierynomus.msdtyp.AccessMask
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.SMB2CreateOptions
-import java.nio.charset.StandardCharsets
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbDir
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
-import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 
 
 class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory {

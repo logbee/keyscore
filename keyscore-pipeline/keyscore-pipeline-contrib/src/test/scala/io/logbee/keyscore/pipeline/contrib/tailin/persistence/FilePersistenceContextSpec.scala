@@ -1,25 +1,18 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import java.nio.file.Files
-import java.nio.file.Path
-
-import scala.reflect.runtime.universe.typeTag
-
-import org.scalatest.BeforeAndAfter
-import org.scalatest.FreeSpec
-import org.scalatest.Matchers
-import org.scalatest.ParallelTestExecution
-
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+import org.scalatest.{Matchers, ParallelTestExecution}
+
+import scala.reflect.runtime.universe.typeTag
 
 
 case class TestCaseClass(a: String, b: Integer)
 
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
+import org.junit.runner.RunWith
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with ParallelTestExecution {

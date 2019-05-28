@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib
 import akka.stream.SourceShape
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
+import io.logbee.keyscore.model.data.{Dataset, Field, Icon, Record, TextValue}
 import io.logbee.keyscore.model.descriptor.FieldNameHint.PresentField
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}

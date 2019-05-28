@@ -4,7 +4,7 @@ import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
+import io.logbee.keyscore.model.data.{Dataset, Icon}
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}

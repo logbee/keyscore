@@ -1,18 +1,11 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
-import java.nio.file.Path
-
-import org.scalatest.BeforeAndAfter
-import org.scalatest.FreeSpec
-import java.nio.file.Files
-
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadData
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import java.nio.file.StandardOpenOption
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile.localFile2File
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadData
+import org.junit.runner.RunWith
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class SpecWithRotateFiles extends SpecWithTempDir {

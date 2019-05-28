@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "scalapb/scalapb.proto";
 import "io/logbee/keyscore/descriptor.proto";
+import "io/logbee/keyscore/parameter-descriptor.proto";
 import "io/logbee/keyscore/data.proto";
 
 option (scalapb.options) = {
