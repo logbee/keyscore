@@ -1,6 +1,6 @@
 import {Component, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {Parameter, ResolvedParameterDescriptor,FieldNamePatternParameter, DatasetTableModel, Dataset, PatternType} from "keyscore-manager-models";
+import {Parameter, ResolvedParameterDescriptor,FieldNamePatternParameter, DatasetTableModel, Dataset, PatternType, PatternTypeToString} from "keyscore-manager-models";
 import {BehaviorSubject, Observable} from "rxjs";
 import {AutocompleteInputComponent} from "./autocomplete-input.component";
 
@@ -21,7 +21,7 @@ import {AutocompleteInputComponent} from "./autocomplete-input.component";
                 <mat-label>Pattern Type</mat-label>
                 <mat-select #patternSelect (selectionChange)="writeValue({fieldName:addItemInput.value,patternType:patternSelect.value})">
                     <mat-option *ngFor="let choice of parameterDescriptor.supports" [value]="choice">
-                        {{choice}}
+                        {{patternToString(choice)}}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
@@ -87,5 +87,7 @@ export class ParameterFieldnamepatternComponent implements ControlValueAccessor,
     get value(): { fieldName: string, patternType: PatternType } {
         return this.parameterValue;
     }
+
+    private patternToString = PatternTypeToString;
 
 }

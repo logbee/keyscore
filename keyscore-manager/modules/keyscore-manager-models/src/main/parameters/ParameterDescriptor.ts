@@ -68,7 +68,7 @@ export interface ParameterDescriptor {
     max?: number;
     choices?: Choice[];
     descriptor?: ParameterDescriptor;
-    fieldTypes?:FieldValueType;
+    fieldTypes?: FieldValueType;
     parameters?: ParameterDescriptor[];
     directives?: FieldDirectiveDescriptor[];
     minSequences?: number;
@@ -191,7 +191,7 @@ export interface FieldNameParameterDescriptor {
 
 }
 
-export interface FieldNamePatternParameterDescriptor{
+export interface FieldNamePatternParameterDescriptor {
     ref: ParameterRef;
     info: ParameterInfo;
     jsonClass: ParameterDescriptorJsonClass;
@@ -201,8 +201,12 @@ export interface FieldNamePatternParameterDescriptor{
     mandatory: boolean;
 }
 
-export enum PatternType{
-    None = 0,RegEx = 1, Glob = 2
+export enum PatternType {
+    None = 0, RegEx = 1, Glob = 2
+}
+
+export function PatternTypeToString(type: PatternType) {
+    return type === PatternType.None ? "None" : type === PatternType.Glob ? "Glob Pattern" : "Regular Expression";
 }
 
 export interface FieldParameterDescriptor {
