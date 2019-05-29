@@ -2,6 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.http
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.SourceShape
 import io.logbee.keyscore.commons.metrics.MetricsQuery
 import io.logbee.keyscore.model.Described
@@ -10,11 +11,12 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
+import io.logbee.keyscore.model.metrics.MetricsCollection
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import org.json4s.Formats
+import org.json4s.{Formats, Serialization}
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
 
@@ -75,13 +77,13 @@ object MetricSourceLogic extends Described {
     mandatory = true
   )
 
-  val formatParameter = ExpressionParameterDescriptor(
+  // TODO: Replace with DateTimeParameterDescriptor...when we have one. ;-)
+  val formatParameter = TextParameterDescriptor(
     ref = "metric.source.format",
     info = ParameterInfo(
       displayName = TextRef("format"),
       description = TextRef("formatDescription")
     ),
-    expressionType = ExpressionType.JavaDateTime,
     defaultValue = "dd.MM.yyy_HH:mm:ss:nnnnnnnnn",
     mandatory = true
   )
@@ -137,7 +139,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   import MetricSourceLogic._
 
   implicit private val formats: Formats = KeyscoreFormats.formats
-  implicit val serialization = Serialization
+  implicit val serialization: Serialization = Serialization
 
   private var server = "localhost"
   private var port = 4711L
