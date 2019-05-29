@@ -18,7 +18,7 @@ message ScrapeMetricsFailure {
 }
 
 message MetricsQuery {
-    option (scalapb.message).extends = "io.logbee.keyscore.commons.metrics.BaseMetricsQuery";
+    option (scalapb.message).extends = "io.logbee.keyscore.model.metrics.BaseMetricsQuery";
     int64 limit = 1;
     string earliest = 3;
     string latest = 4;

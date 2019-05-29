@@ -1,9 +1,10 @@
-package io.logbee.keyscore.commons.metrics
+package io.logbee.keyscore.model.metrics
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneId}
 
 import com.google.protobuf.timestamp.Timestamp
+import io.logbee.keyscore.commons.metrics.MetricsQuery
 
 trait BaseMetricsQuery {
   this: MetricsQuery =>
