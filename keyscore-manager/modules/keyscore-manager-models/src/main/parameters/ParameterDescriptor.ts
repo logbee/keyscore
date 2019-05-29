@@ -78,8 +78,6 @@ export interface ParameterDescriptor {
 
 }
 
-export const ParameterDescriptorPackagePrefix = "io.logbee.keyscore.model.descriptor";
-
 export enum ParameterDescriptorJsonClass {
     TextParameterDescriptor = "io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
     BooleanParameterDescriptor = "io.logbee.keyscore.model.descriptor.BooleanParameterDescriptor",
@@ -87,6 +85,7 @@ export enum ParameterDescriptorJsonClass {
     NumberParameterDescriptor = "io.logbee.keyscore.model.descriptor.NumberParameterDescriptor",
     DecimalParameterDescriptor = "io.logbee.keyscore.model.descriptor.DecimalParameterDescriptor",
     FieldNameParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor",
+    FieldNamePatternParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor",
     FieldParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldParameterDescriptor",
     TextListParameterDescriptor = "io.logbee.keyscore.model.descriptor.TextListParameterDescriptor",
     FieldNameListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNameListParameterDescriptor",
@@ -110,6 +109,7 @@ export type ResolvedParameterDescriptor =
     | FieldParameterDescriptor
     | TextListParameterDescriptor
     | FieldNameListParameterDescriptor
+    | FieldNamePatternParameterDescriptor
     | FieldListParameterDescriptor
     | ChoiceParameterDescriptor
     | FieldDirectiveSequenceParameterDescriptor;
@@ -121,6 +121,7 @@ export type SingleResolvedParameterDescriptor =
     | NumberParameterDescriptor
     | DecimalParameterDescriptor
     | FieldNameParameterDescriptor
+    | FieldNamePatternParameterDescriptor
     | FieldParameterDescriptor;
 
 export type ListResolvedParameterDescriptor =
@@ -188,6 +189,20 @@ export interface FieldNameParameterDescriptor {
     validator: ResolvedStringValidator;
     mandatory: boolean;
 
+}
+
+export interface FieldNamePatternParameterDescriptor{
+    ref: ParameterRef;
+    info: ParameterInfo;
+    jsonClass: ParameterDescriptorJsonClass;
+    defaultValue: string;
+    hint: FieldNameHint;
+    supports: PatternType[];
+    mandatory: boolean;
+}
+
+export enum PatternType{
+    None = 0,RegEx = 1, Glob = 2
 }
 
 export interface FieldParameterDescriptor {

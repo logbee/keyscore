@@ -35,7 +35,8 @@ import {
     SourceBlueprint,
     TextParameterDescriptor,
     Value,
-    ValueJsonClass
+    ValueJsonClass,
+    PatternType
 } from "keyscore-manager-models";
 
 export const generatePipeline = (): PipelineInstance => {
@@ -76,6 +77,7 @@ export const generateResolvedParameterDescriptor = (type: ParameterDescriptorJso
         ParameterDescriptorJsonClass.ChoiceParameterDescriptor, ParameterDescriptorJsonClass.BooleanParameterDescriptor,
         ParameterDescriptorJsonClass.DecimalParameterDescriptor, ParameterDescriptorJsonClass.FieldListParameterDescriptor,
         ParameterDescriptorJsonClass.FieldNameListParameterDescriptor, ParameterDescriptorJsonClass.FieldNameParameterDescriptor,
+        ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor,
         ParameterDescriptorJsonClass.FieldParameterDescriptor, ParameterDescriptorJsonClass.NumberParameterDescriptor,
         ParameterDescriptorJsonClass.TextListParameterDescriptor, ParameterDescriptorJsonClass.TextParameterDescriptor];
     if (type === null) {
@@ -137,6 +139,16 @@ export const generateResolvedParameterDescriptor = (type: ParameterDescriptorJso
                 validator: generateValidator(),
                 mandatory: faker.random.boolean()
             };
+        case ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor:
+            return {
+                ...initialize,
+                info: generateInfo("Fieldname"),
+                defaultValue: faker.random.word(),
+                hint: FieldNameHint.PresentField,
+                validator: generateValidator(),
+                mandatory: faker.random.boolean(),
+                supports: [PatternType.RegEx, PatternType.Glob]
+            };
         case ParameterDescriptorJsonClass.TextListParameterDescriptor:
             return {
                 ...initialize,
@@ -193,7 +205,7 @@ export const generateResolvedFieldDirectiveDescriptor = (): ResolvedFieldDirecti
         ref: generateRef(),
         info: generateInfo(),
         jsonClass: DirectiveDescriptorJsonClass.FieldDirectiveDescriptor,
-        parameters: generateResolvedParameterDescriptors(faker.random.number({min:1,max:4})),
+        parameters: generateResolvedParameterDescriptors(faker.random.number({min: 1, max: 4})),
         minSequences: 0,
         maxSequences: 100
     }
@@ -240,10 +252,10 @@ export const generateValidator = (): ResolvedStringValidator => {
     };
 };
 
-export const generateInfo = (): ResolvedParameterInfo => {
+export const generateInfo = (displayName?: string, description?: string): ResolvedParameterInfo => {
     return {
-        displayName: faker.random.word(),
-        description: faker.lorem.sentence()
+        displayName: displayName || faker.random.word(),
+        description: description || faker.lorem.sentence()
     };
 };
 

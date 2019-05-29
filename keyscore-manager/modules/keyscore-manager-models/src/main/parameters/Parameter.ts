@@ -1,8 +1,20 @@
 import {ParameterRef, Ref} from "../common";
+import {PatternType} from "./ParameterDescriptor";
 
-export interface Parameter {
+export type Parameter =
+    | DefaultParameter
+    | FieldNamePatternParameter
+
+export interface DefaultParameter {
     ref: ParameterRef;
     value: any;
+    jsonClass: string;
+}
+
+export interface FieldNamePatternParameter extends DefaultParameter {
+    ref: ParameterRef;
+    value: string;
+    patternType: PatternType;
     jsonClass: string;
 }
 
@@ -15,6 +27,7 @@ export enum ParameterJsonClass {
     NumberParameter = "io.logbee.keyscore.model.configuration.NumberParameter",
     DecimalParameter = "io.logbee.keyscore.model.configuration.DecimalParameter",
     FieldNameParameter = "io.logbee.keyscore.model.configuration.FieldNameParameter",
+    FieldNamePatternParameter = "io.logbee.keyscore.model.configuration.FieldNamePatternParameter",
     FieldParameter = "io.logbee.keyscore.model.configuration.FieldParameter",
     TextListParameter = "io.logbee.keyscore.model.configuration.TextListParameter",
     FieldNameListParameter = "io.logbee.keyscore.model.configuration.FieldNameListParameter",
@@ -25,6 +38,6 @@ export enum ParameterJsonClass {
 }
 
 export interface ParameterSet {
-    jsonClass:string;
+    jsonClass: string;
     parameters: Parameter[];
 }

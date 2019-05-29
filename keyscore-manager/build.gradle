@@ -86,6 +86,10 @@ task serve(type: NodeTask, dependsOn: npmInstall) {
     script = file('node_modules/.bin/webpack-dev-server')
 }
 
+task npmInstallAll(type: NodeTask,dependsOn:npmInstall) {
+    subprojects.each { dependsOn("${it.name}:npmInstall") }
+}
+
 task storybook(type: NpmTask, dependsOn: npmInstall) {
     args = ['run', 'storybook']
 }

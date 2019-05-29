@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {FormGroup} from "@angular/forms";
-import {ParameterDescriptorJsonClass, ResolvedParameterDescriptor,Parameter,Dataset} from "keyscore-manager-models";
+import {ParameterDescriptorJsonClass, ResolvedParameterDescriptor, Parameter, Dataset} from "keyscore-manager-models";
 import "./style/parameter-module-style.scss";
 import {BehaviorSubject} from "rxjs/index";
 
@@ -83,6 +83,13 @@ import {BehaviorSubject} from "rxjs/index";
 
             </auto-complete-input>
 
+            <parameter-fieldnamepattern *ngSwitchCase="jsonClass.FieldNamePatternParameterDescriptor"
+                                        [id]="directiveInstance || parameter.ref.id"
+                                        [parameter]="parameter"
+                                        [datasets]="datasets$ | async"
+                                        [parameterDescriptor]="parameterDescriptor"
+                                        [formControlName]="directiveInstance || parameter.ref.id"
+            ></parameter-fieldnamepattern>
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldParameterDescriptor"
                             [id]="directiveInstance || parameter.ref.id">
