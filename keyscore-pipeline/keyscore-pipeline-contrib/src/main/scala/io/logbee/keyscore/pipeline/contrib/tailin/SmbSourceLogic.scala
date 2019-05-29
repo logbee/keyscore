@@ -27,7 +27,7 @@ import io.logbee.keyscore.model.data.Record
 import io.logbee.keyscore.model.data.TextValue
 import io.logbee.keyscore.model.descriptor.Category
 import io.logbee.keyscore.model.descriptor.Descriptor
-import io.logbee.keyscore.model.descriptor.Icon
+import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.descriptor.ParameterInfo
 import io.logbee.keyscore.model.descriptor.SourceDescriptor
 import io.logbee.keyscore.model.descriptor.StringValidator
