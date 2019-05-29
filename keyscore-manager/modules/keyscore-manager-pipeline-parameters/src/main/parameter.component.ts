@@ -28,6 +28,17 @@ import {BehaviorSubject} from "rxjs/index";
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
+            
+            <!--<div *ngSwitchCase="jsonClass.ParameterGroupDescriptor">
+                <div *ngIf="form.value[parameterDescriptor.condition.parameter.id] ? !parameterDescriptor.condition.negate
+                        : parameterDescriptor.condition.negate">
+                    <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
+                                   [parameterDescriptor]="parameterMapping.get(parameter)"
+                                   [form]="form"
+                                   [datasets]="datasets$ | async">
+                    </app-parameter>                
+                </div>
+            </div>-->
 
             <mat-form-field *ngSwitchCase="jsonClass.DecimalParameterDescriptor">
                 <input matInput type="number"
@@ -161,6 +172,7 @@ export class ParameterComponent implements OnInit {
         if (this.directiveInstance) {
             this.directiveInstance = this.directiveInstance + ':' + this.parameter.ref.id;
         }
+
     }
 
 

@@ -74,6 +74,7 @@ export interface ParameterDescriptor {
     minSequences?: number;
     maxSequences?: number;
     fieldValueType?: FieldValueType;
+    condition?:BooleanParameterCondition;
 
 
 }
@@ -112,6 +113,7 @@ export type ResolvedParameterDescriptor =
     | FieldNamePatternParameterDescriptor
     | FieldListParameterDescriptor
     | ChoiceParameterDescriptor
+    | ParameterGroupDescriptor
     | FieldDirectiveSequenceParameterDescriptor;
 
 export type SingleResolvedParameterDescriptor =
@@ -313,7 +315,8 @@ export interface ParameterGroupCondition {
     jsonClass: string;
 }
 
-export interface BooleanParameterCondition {
+export interface BooleanParameterCondition extends ParameterGroupCondition {
+    jsonClass:string;
     parameter: ParameterRef;
     negate: boolean;
 }
