@@ -5,7 +5,6 @@ import "io/logbee/keyscore/data.proto";
 import "io/logbee/keyscore/localization.proto";
 import "io/logbee/keyscore/metrics.proto";
 import "io/logbee/keyscore/parameter-descriptor.proto";
-import "io/logbee/keyscore/service-descriptor.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model.descriptor"
@@ -34,7 +33,6 @@ message SealedDescriptor {
         SinkDescriptor sink = 3;
         BranchDescriptor branch = 4;
         MergeDescriptor merge = 5;
-        HttpServiceDescriptor httpService = 6;
     }
 }
 
