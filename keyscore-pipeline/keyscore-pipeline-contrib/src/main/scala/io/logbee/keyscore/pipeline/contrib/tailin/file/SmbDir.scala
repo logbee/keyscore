@@ -5,10 +5,12 @@ import java.util.EnumSet
 import scala.collection.JavaConverters
 
 import com.hierynomus.msdtyp.AccessMask
+import com.hierynomus.mserref.NtStatus
 import com.hierynomus.msfscc.FileAttributes
 import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.mssmb2.SMB2CreateOptions
 import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.mssmb2.SMBApiException
 import com.hierynomus.smbj.common.SmbPath
 import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.File
@@ -35,19 +37,31 @@ class SmbDir(dir: Directory) extends DirHandle {
     subPaths.foreach { subPath =>
       val dirPathName = SmbPath.parse(absolutePath).getPath //just the directory's name, i.e. not the absolute path
       
-      val diskEntry = share.open(
-        dirPathName + subPath.getFileName,
-        EnumSet.of(AccessMask.GENERIC_ALL),
-        EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
-        SMB2ShareAccess.ALL,
-        SMB2CreateDisposition.FILE_OPEN,
-        EnumSet.noneOf(classOf[SMB2CreateOptions])
-      )
-      
-      if (diskEntry.isInstanceOf[Directory]) {
-        dirs = dirs :+ new SmbDir(diskEntry.asInstanceOf[Directory])
-      } else {
-        files = files :+ new SmbFile(diskEntry.asInstanceOf[File])
+      try {
+        val diskEntry = share.open(
+          dirPathName + subPath.getFileName,
+          EnumSet.of(AccessMask.GENERIC_ALL),
+          EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
+          SMB2ShareAccess.ALL,
+          SMB2CreateDisposition.FILE_OPEN,
+          EnumSet.noneOf(classOf[SMB2CreateOptions])
+        )
+        
+        
+        if (diskEntry.isInstanceOf[Directory]) {
+          dirs = dirs :+ new SmbDir(diskEntry.asInstanceOf[Directory])
+        } else {
+          files = files :+ new SmbFile(diskEntry.asInstanceOf[File])
+        }
+      }
+      catch {
+        case ex: SMBApiException =>
+          if (ex.getStatus == NtStatus.STATUS_DELETE_PENDING) {
+            //this file is being deleted, so don't add it to the listing
+          }
+          else {
+            throw ex
+          }
       }
     }
     
