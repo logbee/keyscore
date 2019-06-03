@@ -57,7 +57,9 @@ class SmbDir(dir: Directory) extends DirHandle {
   
   
   def tearDown() = {
-    dir.close()
+    if (dir != null) {
+      dir.close()
+    }
   }
   
   
