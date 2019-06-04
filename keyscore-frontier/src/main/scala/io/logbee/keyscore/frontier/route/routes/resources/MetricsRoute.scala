@@ -15,7 +15,7 @@ trait MetricsRoute extends RouteImplicits with AuthorizationHandler {
     pathPrefix("metrics") {
       pathPrefix(JavaUUID) { id =>
         println(s"MetricsRoute: $id")
-        put {
+        post {
           println("MetricsRoute GET")
           entity(as[MetricsQuery]) { mq =>
             println(s"MetricsRoute: $mq")

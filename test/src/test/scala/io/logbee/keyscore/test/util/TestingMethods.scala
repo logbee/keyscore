@@ -223,7 +223,7 @@ object TestingMethods {
 
     runner.http(action => action.client(client)
       .send()
-      .put(s"/metrics/$id")
+      .post(s"/metrics/$id")
       .contentType("application/json")
       .payload(mq)
     )
