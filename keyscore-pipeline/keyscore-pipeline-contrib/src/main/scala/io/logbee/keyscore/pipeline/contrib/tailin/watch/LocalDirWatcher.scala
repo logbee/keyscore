@@ -123,7 +123,7 @@ class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherPr
     
     val dirWatcher = watcherProvider.createDirWatcher(
       watchDir = subDir,
-      matchPattern = matchPattern.copy(depth = matchPattern.depth + 1)
+      matchPattern
     )
     
     val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)

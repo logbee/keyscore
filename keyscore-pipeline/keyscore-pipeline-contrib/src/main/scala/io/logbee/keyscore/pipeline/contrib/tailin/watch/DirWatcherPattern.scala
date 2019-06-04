@@ -78,7 +78,7 @@ object DirWatcherPattern {
   }
   
   
-  def apply(fullFilePattern: String, depth: Int = 0): DirWatcherPattern = {
+  def apply(fullFilePattern: String): DirWatcherPattern = {
     
     //TODO if it's a Windows file-path with '\' in it, change those to '/' -> mind that a '\' might also appear in a Unix path, so we can't just swap them out unconditionally
     
@@ -93,29 +93,7 @@ object DirWatcherPattern {
     }
     
     
-    val subDirPattern = {
-      var tmpPattern = fullPattern
-      for (i <- 0 to depth) {
-        tmpPattern = removeFirstDirPrefixFromMatchPattern(tmpPattern)
-      }
-      
-      //remove trailing file-part
-      val lastSlashIndex = tmpPattern.lastIndexOf(File.separator)
-      if (lastSlashIndex > -1) {
-        tmpPattern.substring(0, lastSlashIndex)
-      }
-      else {
-        
-        val indexOfDoubleAsterisk = tmpPattern.lastIndexOf("**")
-        if (indexOfDoubleAsterisk > -1) {
-          tmpPattern = tmpPattern.substring(0, indexOfDoubleAsterisk) + "**"
-        }
-        
-        tmpPattern
-      }
-    }
-                         
-    new DirWatcherPattern(fullPattern, subDirPattern, depth)
+    new DirWatcherPattern(fullPattern)
   }
 }
-case class DirWatcherPattern(fullFilePattern: String, subDirPattern: String, depth: Int)
+case class DirWatcherPattern(fullFilePattern: String)

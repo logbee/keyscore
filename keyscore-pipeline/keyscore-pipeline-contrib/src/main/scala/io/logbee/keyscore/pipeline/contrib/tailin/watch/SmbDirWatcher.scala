@@ -84,7 +84,7 @@ class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watche
     
     val subDirWatcher = watcherProvider.createDirWatcher(
       watchDir = subDir,
-      matchPattern = matchPattern.copy(depth = matchPattern.depth + 1)
+      matchPattern
     )
     
     subDirWatcher.processFileChanges()

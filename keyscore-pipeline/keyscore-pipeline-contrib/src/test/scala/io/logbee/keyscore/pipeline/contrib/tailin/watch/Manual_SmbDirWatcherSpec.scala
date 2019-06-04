@@ -30,7 +30,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
             
             val dir = new SmbDir(realDir)
             
-            matchPattern = DirWatcherPattern(fullFilePattern = "\\\\" + hostName + "\\" + shareName + "\\" + dirPath + "*\\test.txt", depth = 2)
+            matchPattern = DirWatcherPattern(fullFilePattern = "\\\\" + hostName + "\\" + shareName + "\\" + dirPath + "*\\test.txt")
             val dirWatcher = new SmbDirWatcher(dir, matchPattern, provider)
             
             
@@ -40,7 +40,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
               val subDirWatcher = mock[DirWatcher]
               
               (provider.createDirWatcher _)
-                .expects(*, matchPattern.copy(depth = 3))
+                .expects(*, matchPattern)
                 .returning(subDirWatcher)
               
               
