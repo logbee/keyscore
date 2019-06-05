@@ -95,10 +95,8 @@ class DirWatcherPattern(fullFilePattern: String) {
     
     var sections = tmpPattern.split('/').filterNot(_.isEmpty)
     if (sections.last.contains("**") == false) {
-      println("dropping last")
       sections = sections.dropRight(1) //drop the file-part (unnecessary to check and causes problems when it's "*")
     }
-    println(sections.last)
     
     val dirPath = Paths.get(dir.absolutePath)
     for (i <- 0 to sections.length) {
@@ -106,7 +104,6 @@ class DirWatcherPattern(fullFilePattern: String) {
       
       val matcher = FileSystems.getDefault.getPathMatcher("glob:" + DirWatcherPattern.getUnixLikePath(dirPattern))
       if (matcher.matches(dirPath)) {
-        println("matches!")
         return true
       }
       
