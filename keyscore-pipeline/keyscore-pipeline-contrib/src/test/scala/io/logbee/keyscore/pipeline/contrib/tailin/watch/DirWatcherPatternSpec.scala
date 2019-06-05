@@ -6,108 +6,83 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import java.nio.file.Paths
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
+import org.scalamock.scalatest.MockFactory
+import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
+import java.nio.file.FileSystems
 
 @RunWith(classOf[JUnitRunner])
-class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll {
-  
-  var tmpDir: Path = null
-  
-  override def afterAll() = {
-    if (tmpDir != null) {
-      TestUtil.recursivelyDelete(tmpDir)
-    }
-  }
-  
+class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll with MockFactory {
   
   "A DirWatcherPattern" - {
-    
-    tmpDir = Files.createTempDirectory("extractInvariableDir") //put everything into a temp-directory to be OS-agnostic and be able to create files and clean them up without problem
-    TestUtil.waitForFileToExist(tmpDir.toFile)
-    
-    val testDir = tmpDir.resolve("test")
-    Files.createDirectory(testDir)
-    TestUtil.waitForFileToExist(testDir.toFile)
     
     case class TestSetup(filePattern: String,
                          expectedFixedPath: String,
                          expectedVariableIndex: Int,
-                         expectedSubDirPath: String)
+                        )
     
     val testSetups = Seq(
-        TestSetup(filePattern        = "test/tailin.csv",
-                  expectedFixedPath  = "test/",
-                  expectedVariableIndex = -1,
-                  expectedSubDirPath = "tailin.csv"),
+        TestSetup(filePattern        = "/test/tailin.csv",
+                  expectedFixedPath  = "/test/",
+                  expectedVariableIndex = -1),
         
-        TestSetup(filePattern        = "**/tailin.csv",
-                  expectedFixedPath  = "",
-                  expectedVariableIndex = 0,
-                  expectedSubDirPath = "**/tailin.csv"),
+        TestSetup(filePattern        = "/**/tailin.csv",
+                  expectedFixedPath  = "/",
+                  expectedVariableIndex = 1),
         
-        TestSetup(filePattern        = "test/**/tailin.csv",
-                  expectedFixedPath  = "test/",
-                  expectedVariableIndex = 5,
-                  expectedSubDirPath = "**/tailin.csv"),
+        TestSetup(filePattern        = "/test/**/tailin.csv",
+                  expectedFixedPath  = "/test/",
+                  expectedVariableIndex = 6),
                   
-        TestSetup(filePattern        = "test/**/foo/**/tailin.csv",
-                  expectedFixedPath  = "test/",
-                  expectedVariableIndex = 5,
-                  expectedSubDirPath = "**/foo/**/tailin.csv"),
+        TestSetup(filePattern        = "/test/**/foo/**/tailin.csv",
+                  expectedFixedPath  = "/test/",
+                  expectedVariableIndex = 6),
                   
-        TestSetup(filePattern        = "test/*/tailin.csv",
-                  expectedFixedPath  = "test/",
-                  expectedVariableIndex = 5,
-                  expectedSubDirPath = "*/tailin.csv"),
+        TestSetup(filePattern        = "/test/*/tailin.csv",
+                  expectedFixedPath  = "/test/",
+                  expectedVariableIndex = 6),
                   
-        TestSetup(filePattern        = "test/*tailin.csv",
-                  expectedFixedPath  = "test/",
-                  expectedVariableIndex = 5,
-                  expectedSubDirPath = "*tailin.csv"),
+        TestSetup(filePattern        = "/test/*tailin.csv",
+                  expectedFixedPath  = "/test/",
+                  expectedVariableIndex = 6),
                   
-//        TestSetup(filePattern        = "test**/tailin.csv", //TODO do we support this? What should it do?
-//                  expectedFixedPath  = "",
-//                  expectedVariableIndex = 4,
-//                  expectedSubDirPath = "**/tailin.csv"),
+//        TestSetup(filePattern        = "/test**/tailin.csv", //TODO do we support this? What should it do?
+//                  expectedFixedPath  = "/",
+//                  expectedVariableIndex = 5),
 //                  
-//        TestSetup(filePattern        = "test/**tailin.csv", //TODO do we support this? What should it do?
-//                  expectedFixedPath  = "",
-//                  expectedVariableIndex = 5,
-//                  expectedSubDirPath = "**tailin.csv"),
+//        TestSetup(filePattern        = "/test/**tailin.csv", //not supported
+//                  expectedFixedPath  = "/",
+//                  expectedVariableIndex = 6),
                   
-        TestSetup(filePattern        = "test*/tailin.csv",
-                  expectedFixedPath  = "",
-                  expectedVariableIndex = 4,
-                  expectedSubDirPath = "tailin.csv"),
+        TestSetup(filePattern        = "/test*/tailin.csv",
+                  expectedFixedPath  = "/",
+                  expectedVariableIndex = 5),
                   
-        TestSetup(filePattern        = "test?/tailin.csv",
-                  expectedFixedPath  = "",
-                  expectedVariableIndex = 4,
-                  expectedSubDirPath = "tailin.csv"),
+        TestSetup(filePattern        = "/test?/tailin.csv",
+                  expectedFixedPath  = "/",
+                  expectedVariableIndex = 5),
                   
-        TestSetup(filePattern        = "tes*/tailin.csv",
-                  expectedFixedPath  = "",
-                  expectedVariableIndex = 3,
-                  expectedSubDirPath = "tailin.csv"),
+        TestSetup(filePattern        = "/tes*/tailin.csv",
+                  expectedFixedPath  = "/",
+                  expectedVariableIndex = 4),
                   
-        TestSetup(filePattern        = "tes[a,t]/tailin.csv",
-                  expectedFixedPath  = "",
-                  expectedVariableIndex = 3,
-                  expectedSubDirPath = "tailin.csv"),
+        TestSetup(filePattern        = "/tes[a,t]/tailin.csv",
+                  expectedFixedPath  = "/",
+                  expectedVariableIndex = 4),
                   
-        TestSetup(filePattern        = "tes[a-zA-Z]/tailin.csv",
-                  expectedFixedPath  = "",
-                  expectedVariableIndex = 3,
-                  expectedSubDirPath = "tailin.csv"),
+        TestSetup(filePattern        = "/tes[a-zA-Z]/tailin.csv",
+                  expectedFixedPath  = "/",
+                  expectedVariableIndex = 4),
                   
-        TestSetup(filePattern        = "te*t/tailin.csv",
-                  expectedFixedPath  = "",
-                  expectedVariableIndex = 2,
-                  expectedSubDirPath = "tailin.csv"),
+        TestSetup(filePattern        = "/te*t/tailin.csv",
+                  expectedFixedPath  = "/",
+                  expectedVariableIndex = 3),
                   
-        TestSetup(filePattern        = "*est/tailin.csv",
-                  expectedFixedPath  = "",
-                  expectedVariableIndex = 0,
-                  expectedSubDirPath = "tailin.csv"),
+        TestSetup(filePattern        = "/*est/tailin.csv",
+                  expectedFixedPath  = "/",
+                  expectedVariableIndex = 1),
       )
     
     
@@ -118,19 +93,19 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
         
         s"${testSetup.filePattern} has fixed parent-dir: ${testSetup.expectedFixedPath}" in
         {
-          val result = DirWatcherPattern.extractInvariableDir(tmpDir + "/" + testSetup.filePattern)
+          val result = DirWatcherPattern.extractInvariableDir(testSetup.filePattern)
           
-          result shouldBe Some(tmpDir + "/" + testSetup.expectedFixedPath)
+          result shouldBe Some(testSetup.expectedFixedPath)
         }
       }
     }
     
     
-    "should find the first index containing" - {
+    "should find the first variable index in" - {
       
       testSetups.foreach { testSetup =>
         
-        s"${testSetup.filePattern} has variable symbol at position ${testSetup.expectedVariableIndex}" in
+        s"${testSetup.filePattern} which should be at position ${testSetup.expectedVariableIndex}" in
         {
           val result = DirWatcherPattern.findFirstVariableIndex(testSetup.filePattern)
           
@@ -146,31 +121,50 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
     
     
     
-    "should correctly remove the first part of a filePattern, transforming" - {
+    "should match" -
+    {
+      val tests = Seq(
+                  ("\\\\path\\t*\\log.txt",
+                   "\\\\path\\to\\log.txt"),
+                  ("/path/t*/log.txt",
+                   "/path/to/log.txt"),
+                  ("C:\\path\\t*\\log.txt",
+                   "C:\\path\\to\\log.txt"),
+                 )
       
-      testSetups.foreach { testSetup =>
+      tests.foreach { test =>
         
-        s"${testSetup.filePattern} into ${testSetup.expectedSubDirPath}" in
-        {
-          val result = DirWatcherPattern.removeFirstDirPrefixFromMatchPattern(testSetup.filePattern)
+        test._2 + " on " + test._1 in {
+          val patternString = test._1
+          val matchPattern = new DirWatcherPattern(patternString)
           
-          result shouldBe (
-                            if (testSetup.expectedSubDirPath == null)
-                              null
-                            else
-                              testSetup.expectedSubDirPath
-                          )
+          val fileName = test._2
+          val file = mock[FileHandle]
+          (file.absolutePath _)
+            .expects()
+            .returns(fileName)
+          
+          matchPattern.matches(file) shouldBe true
         }
       }
     }
     
     
-    "transform an SMB-path into a Unix-like path" in
-    {
-      val fullFilePattern = "\\\\some.host.name\\share\\file\\path"
-      val result = DirWatcherPattern.getUnixLikePath(fullFilePattern)
-      
-      result shouldBe "/some.host.name/share/file/path"
+    "should determine that a given directory is on the correct path (is a super-directory of matching files)" - {
+      "" in {
+        
+        val patternString = "/path/to/test/log.txt"
+        val matchPattern = new DirWatcherPattern(patternString)
+        
+        val dirPath = "/path/to/"
+        
+        val dir = mock[DirHandle]
+        (dir.absolutePath _)
+          .expects()
+          .returns(dirPath)
+          
+        matchPattern.isSuperDir(dir) shouldBe true
+      }
     }
   }
 }

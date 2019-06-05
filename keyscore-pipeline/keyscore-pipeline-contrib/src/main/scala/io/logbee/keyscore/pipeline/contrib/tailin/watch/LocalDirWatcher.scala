@@ -16,6 +16,7 @@ import scala.collection.mutable.ListBuffer
 import org.slf4j.LoggerFactory
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalDir
 
 
 class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[Path, LocalFile]) extends DirWatcher {
@@ -37,8 +38,6 @@ class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherPr
     StandardWatchEventKinds.ENTRY_DELETE)
   
   
-  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + matchPattern.fullFilePattern)
-  
   private val subDirWatchers = mutable.Map.empty[Path, ListBuffer[DirWatcher]]
   private val subFileEventHandlers = mutable.Map.empty[File, ListBuffer[FileEventHandler]]
   
@@ -52,7 +51,7 @@ class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherPr
       if (path.isDirectory) {
         addSubDirWatcher(path.toPath)
       } else {
-        addSubFileEventHandler(path)
+        addSubFileEventHandler(new LocalFile(path))
       }
     }
   }
@@ -89,7 +88,7 @@ class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherPr
           if (Files.isDirectory(path)) {
             addSubDirWatcher(path)
           } else if (Files.isRegularFile(path)) {
-            addSubFileEventHandler(path.toFile)
+            addSubFileEventHandler(new LocalFile(path.toFile))
           }
         }
         
@@ -98,7 +97,7 @@ class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherPr
         }
         
         case StandardWatchEventKinds.ENTRY_MODIFY => { //renaming a file does not trigger this (on Linux+tmpfs at least)
-          fireFileModified(path.toFile)
+          fireFileModified(new LocalFile(path.toFile))
         }
       }
       
@@ -115,29 +114,26 @@ class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherPr
   
   private def addSubDirWatcher(subDir: Path) = {
     
-    //TODO if no further subDirWatcher necessary, don't create one  -> don't use a matcher -> somehow just check that we don't need to create another dirWatcher
-    // in what cases do we need another dirWatcher:
-    // if there is a / anywhere
-    // if there is an *,?,[ followed at some point by a /
-    // if there is a ** anywhere, doesn't matter if it's followed at some point by a /
-    
-    val dirWatcher = watcherProvider.createDirWatcher(
-      watchDir = subDir,
-      matchPattern
-    )
-    
-    val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
-    
-    subDirWatchers.put(subDir, list)
-    list += dirWatcher
+    if (matchPattern.isSuperDir(new LocalDir(subDir))) {
+      
+      val dirWatcher = watcherProvider.createDirWatcher(
+        watchDir = subDir,
+        matchPattern = matchPattern
+      )
+      
+      val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
+      
+      subDirWatchers.put(subDir, list)
+      list += dirWatcher
+    }
   }
   
   
   
   
-  private def addSubFileEventHandler(file: File) = {
+  private def addSubFileEventHandler(file: LocalFile) = {
     
-    if (fileMatcher.matches(file.toPath)) {
+    if (matchPattern.matches(file)) {
       
       val fileEventHandler = watcherProvider.createFileEventHandler(new LocalFile(file))
       
@@ -152,7 +148,7 @@ class LocalDirWatcher(watchDir: Path, matchPattern: DirWatcherPattern, watcherPr
   
   
   
-  def fireFileModified(file: File) = {
+  def fireFileModified(file: LocalFile) = {
     subFileEventHandlers.get(file) match {
       case None => //can't notify anyone
       case Some(watchers: ListBuffer[FileEventHandler]) => {

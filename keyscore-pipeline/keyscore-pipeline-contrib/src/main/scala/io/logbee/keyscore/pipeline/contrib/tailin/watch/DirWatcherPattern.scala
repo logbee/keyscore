@@ -1,6 +1,11 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import java.io.File
+import java.nio.file.FileSystems
+import java.nio.file.Paths
+
+import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 
 
 object DirWatcherPattern {
@@ -47,53 +52,67 @@ object DirWatcherPattern {
   
   
   
-  def removeFirstDirPrefixFromMatchPattern(matchPattern: String): String = {
-    
-    if (matchPattern.startsWith("**")) {
-      matchPattern //return same pattern because infinite directories can be matched with **
-    }
-    else {
-      val slashIndex = matchPattern.indexOf(File.separator)
-      
-      if (slashIndex == -1) { //no slash found
-        //we're already at the last directory to need dirWatchers
-        ""
-      }
-      else {
-        matchPattern.substring(slashIndex + 1)
-      }
-    }
-  }
-  
-  
   /**
    * Returns a transformed version of the given path that looks like a Unix-path.
    * 
    * This is useful for the Java PathMatcher API that can't work for example with SMB-paths.
    */
-  def getUnixLikePath(fullFilePattern: String) = {
+  private def getUnixLikePath(fullFilePattern: String): String = { //TODO try to make Java do this conversion by throwing it into a Path or something (this current naive approach fails for example for \-escaped spaces and such in UNIX-like paths
     fullFilePattern
       .replace("\\\\", "/") //replace "\\" at the start of SMB-paths with just a /
       .replace('\\', '/') //replace '\' as in Windows-like paths with '/'
   }
+}
+
+
+class DirWatcherPattern(fullFilePattern: String) {
+  
+  val filePattern = {
+    if (fullFilePattern.endsWith(File.separator)) {
+      //if the user specifies a directory, assume that they want all files in the directory
+      //can't do this by just checking, if the specified path is a directory, because the same path could in the future lead to a file
+      fullFilePattern + "*"
+    } else {
+      fullFilePattern
+    }
+  }
   
   
-  def apply(fullFilePattern: String): DirWatcherPattern = {
+  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + DirWatcherPattern.getUnixLikePath(filePattern))
+  
+  def matches(file: FileHandle): Boolean = {
+    val path = Paths.get(DirWatcherPattern.getUnixLikePath(file.absolutePath))
+    fileMatcher.matches(path)
+  }
+  
+  def isSuperDir(dir: DirHandle): Boolean = { //TODO
     
-    //TODO if it's a Windows file-path with '\' in it, change those to '/' -> mind that a '\' might also appear in a Unix path, so we can't just swap them out unconditionally
-    
-    val fullPattern: String = {
-      if (fullFilePattern.endsWith(File.separator)) {
-        //if the user specifies a directory, assume that they want all files in the directory
-        //can't do this by just checking, if the specified path is a directory, because the same path could in the future lead to a file
-        fullFilePattern + "*"
-      } else {
-        fullFilePattern
-      }
+    var tmpPattern = filePattern
+    while (tmpPattern.endsWith("/")) { //remove trailing slashes, as PathMatcher doesn't work with a slash at the end
+      tmpPattern = tmpPattern.substring(0, tmpPattern.length - 1)
     }
     
     
-    new DirWatcherPattern(fullPattern)
+    var sections = tmpPattern.split('/').filterNot(_.isEmpty)
+    if (sections.last.contains("**") == false) {
+      println("dropping last")
+      sections = sections.dropRight(1) //drop the file-part (unnecessary to check and causes problems when it's "*")
+    }
+    println(sections.last)
+    
+    val dirPath = Paths.get(dir.absolutePath)
+    for (i <- 0 to sections.length) {
+      val dirPattern = sections.foldLeft("")((a: String, b: String) => a + "/" + b)
+      
+      val matcher = FileSystems.getDefault.getPathMatcher("glob:" + DirWatcherPattern.getUnixLikePath(dirPattern))
+      if (matcher.matches(dirPath)) {
+        println("matches!")
+        return true
+      }
+      
+      sections = sections.dropRight(1)
+    }
+    
+    false
   }
 }
-case class DirWatcherPattern(fullFilePattern: String)

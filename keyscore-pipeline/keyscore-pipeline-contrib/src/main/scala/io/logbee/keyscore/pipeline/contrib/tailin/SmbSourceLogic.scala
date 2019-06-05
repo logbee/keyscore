@@ -259,7 +259,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
         
         
         val smbFilePatternString = "\\\\" + hostName + "\\" + shareName + "\\" + filePatternWithoutLeadingSlashes
-        dirWatcher = readSchedulerProvider.createDirWatcher(new SmbDir(dir), DirWatcherPattern(smbFilePatternString))
+        dirWatcher = readSchedulerProvider.createDirWatcher(new SmbDir(dir), new DirWatcherPattern(smbFilePatternString))
     }
   }
   

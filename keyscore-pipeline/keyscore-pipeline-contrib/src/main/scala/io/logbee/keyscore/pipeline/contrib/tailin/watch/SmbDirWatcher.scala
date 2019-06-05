@@ -1,8 +1,5 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import java.nio.file.FileSystems
-import java.nio.file.Paths
-
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -11,9 +8,6 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
 
 class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[DirHandle, FileHandle]) extends DirWatcher {
-  
-  private val pattern = DirWatcherPattern.getUnixLikePath(matchPattern.fullFilePattern)
-  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + pattern)
   
   private val subDirWatchers = mutable.Map.empty[DirHandle, ListBuffer[DirWatcher]]
   private val subFileEventHandlers = mutable.Map.empty[FileHandle, ListBuffer[FileEventHandler]]
@@ -76,32 +70,27 @@ class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watche
   
   private def addSubDirWatcher(subDir: DirHandle) = {
     
-    //TODO if no further subDirWatcher necessary, don't create one  -> don't use a matcher -> somehow just check that we don't need to create another dirWatcher
-    // in what cases do we need another dirWatcher:
-    // if there is a / anywhere
-    // if there is an *,?,[ followed at some point by a /
-    // if there is a ** anywhere, doesn't matter if it's followed at some point by a /
-    
-    val subDirWatcher = watcherProvider.createDirWatcher(
-      watchDir = subDir,
-      matchPattern
-    )
-    
-    subDirWatcher.processFileChanges()
-    
-    val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
-    
-    subDirWatchers.put(subDir, list)
-    list += subDirWatcher
+    if (matchPattern.isSuperDir(subDir)) {
+      
+      val subDirWatcher = watcherProvider.createDirWatcher(
+        watchDir = subDir,
+        matchPattern
+      )
+      
+      subDirWatcher.processFileChanges()
+      
+      val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
+      
+      subDirWatchers.put(subDir, list)
+      list += subDirWatcher
+    }
   }
   
   
   
   private def addSubFileEventHandler(file: FileHandle) = {
     
-    val path = Paths.get(DirWatcherPattern.getUnixLikePath(file.absolutePath))
-    
-    if (fileMatcher.matches(path)) {
+    if (matchPattern.matches(file)) {
       val fileEventHandler = watcherProvider.createFileEventHandler(file)
       
       fileEventHandler.processFileChanges()
