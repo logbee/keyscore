@@ -57,15 +57,21 @@ class LocalFile(val file: java.io.File) extends FileHandle {
   def read(buffer: ByteBuffer, offset: Long): Int = {
     fileReadChannel.read(buffer, offset)
   }
-  
-  
-  
-  override def equals(other: Any): Boolean = {
-    other match {
-      case that: LocalFile =>
-        this.isInstanceOf[LocalFile] && file == that.file
-      case _ => false
-    }
+
+
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[LocalFile]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: LocalFile =>
+      (that canEqual this) &&
+        file == that.file
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(file)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
   
   
