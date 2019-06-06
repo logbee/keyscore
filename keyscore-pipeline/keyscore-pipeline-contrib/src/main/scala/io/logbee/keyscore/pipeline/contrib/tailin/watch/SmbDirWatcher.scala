@@ -7,8 +7,18 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
 
+
+case class DirChanges(
+  newlyCreatedDirs: Seq[DirHandle],
+  newlyCreatedFiles: Seq[FileHandle],
+  deletedPaths: Seq[PathHandle],
+  potentiallyModifiedDirs: Seq[DirHandle],
+  potentiallyModifiedFiles: Seq[FileHandle],
+)
+
+
 class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider[DirHandle, FileHandle]) extends DirWatcher {
-  
+  //TODO rename to DirWatcher
   private val subDirWatchers = mutable.Map.empty[DirHandle, ListBuffer[DirWatcher]]
   private val subFileEventHandlers = mutable.Map.empty[FileHandle, ListBuffer[FileEventHandler]]
   
@@ -17,12 +27,12 @@ class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watche
       subFileEventHandlers.asInstanceOf[mutable.Map[PathHandle, ListBuffer[PathWatcher]]]
   
   
-  //recursive setup
-  var (previousSubDirs, previousSubFiles) = watchDir.listDirsAndFiles
-  
-  previousSubDirs.foreach(addSubDirWatcher(_))
-  previousSubFiles.foreach(addSubFileEventHandler(_))
-  
+  { //recursive setup
+    val (subDirs, subFiles) = watchDir.listDirsAndFiles
+    
+    subDirs.foreach(addSubDirWatcher(_))
+    subFiles.foreach(addSubFileEventHandler(_))
+  }
   
   
   private def doForEachPath(paths: Seq[PathHandle], func: PathWatcher => Unit) = {
@@ -36,34 +46,27 @@ class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watche
   }
   
   
-  def processFileChanges() = {
+  def processFileChanges() = { //TODO rename to processChanges()
     
-    val (currentSubDirs, currentSubFiles) = watchDir.listDirsAndFiles
+    val changes = watchDir.getChanges
     
-    { //process dir-changes
-      val deletedDirs = previousSubDirs.diff(currentSubDirs)
-      val dirsContinuingToExist = previousSubDirs.intersect(currentSubDirs)
-      val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
-      
-      doForEachPath(deletedDirs, _.pathDeleted()) //FIXME we also need to remove the pathWatcher from subWatcher map, if it's in there
-      doForEachPath(dirsContinuingToExist, _.processFileChanges()) //call processFileChanges() on subDirWatchers
-      newlyCreatedDirs.foreach {addSubDirWatcher(_)}
-      
-      previousSubDirs = currentSubDirs
+    
+    doForEachPath(changes.potentiallyModifiedDirs, _.processFileChanges()) //call processFileChanges() on subDirWatchers
+    
+    
+    doForEachPath(changes.deletedPaths, _.pathDeleted())
+    
+    changes.deletedPaths.foreach { path =>
+      subDirWatchers.remove(path.asInstanceOf[DirHandle])
+      subFileEventHandlers.remove(path.asInstanceOf[FileHandle])
     }
     
     
-    { //process file-changes
-      val deletedFiles = previousSubFiles.diff(currentSubFiles)
-      val filesContinuingToExist = previousSubFiles.intersect(currentSubFiles)
-      val newlyCreatedFiles = currentSubFiles.diff(previousSubFiles)
-      
-      doForEachPath(deletedFiles, _.pathDeleted()) //FIXME we also need to remove the pathWatcher from subFileEventHandler map, if it's in there
-      doForEachPath(filesContinuingToExist, _.processFileChanges())
-      newlyCreatedFiles.foreach {addSubFileEventHandler(_)}
-      
-      previousSubFiles = currentSubFiles
-    }
+    changes.newlyCreatedDirs.foreach {addSubDirWatcher(_)}
+    changes.newlyCreatedFiles.foreach {addSubFileEventHandler(_)}
+    
+    
+    doForEachPath(changes.potentiallyModifiedFiles, _.processFileChanges())
   }
   
   

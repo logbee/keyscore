@@ -14,14 +14,18 @@ import com.hierynomus.mssmb2.SMBApiException
 import com.hierynomus.smbj.common.SmbPath
 import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.File
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
 
 
 class SmbDir(dir: Directory) extends DirHandle {
   
+  var (previousSubDirs, previousSubFiles) = listDirsAndFiles
+  
+  
   override def absolutePath = dir.getFileName
   
   
-  override def listDirsAndFiles: (Seq[SmbDir], Seq[SmbFile]) = {
+  override def listDirsAndFiles: (Seq[SmbDir], Seq[SmbFile]) = { //TODO try to make private or remove
     
     val subPaths = JavaConverters.asScalaBuffer(dir.list).toSeq
                      .filterNot(subPath => subPath.getFileName.endsWith("\\.")
@@ -68,6 +72,37 @@ class SmbDir(dir: Directory) extends DirHandle {
     (dirs, files)
   }
   
+  
+  
+  
+  def getChanges: DirChanges = {
+    
+    val (currentSubDirs, currentSubFiles) = listDirsAndFiles
+    
+    
+    //process dir-changes
+    var deletedPaths: Seq[PathHandle] = previousSubDirs.diff(currentSubDirs)
+    val dirsContinuingToExist = previousSubDirs.intersect(currentSubDirs)
+    val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
+    
+    previousSubDirs = currentSubDirs
+    
+    
+    //process file-changes
+    deletedPaths = (deletedPaths :+ previousSubFiles.diff(currentSubFiles)).asInstanceOf[Seq[PathHandle]]
+    val filesContinuingToExist = previousSubFiles.intersect(currentSubFiles)
+    val newlyCreatedFiles = currentSubFiles.diff(previousSubFiles)
+    
+    previousSubFiles = currentSubFiles
+    
+    
+    DirChanges(newlyCreatedDirs,
+               newlyCreatedFiles,
+               deletedPaths,
+               dirsContinuingToExist,
+               filesContinuingToExist,
+              )
+  }
   
   
   def tearDown() = {
