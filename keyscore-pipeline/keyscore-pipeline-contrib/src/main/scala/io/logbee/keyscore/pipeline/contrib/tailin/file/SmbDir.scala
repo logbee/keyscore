@@ -89,7 +89,7 @@ class SmbDir(dir: Directory) extends DirHandle {
     
     
     //process file-changes
-    deletedPaths = (deletedPaths :+ previousSubFiles.diff(currentSubFiles)).asInstanceOf[Seq[PathHandle]]
+    deletedPaths = deletedPaths ++ previousSubFiles.diff(currentSubFiles)
     val filesContinuingToExist = previousSubFiles.intersect(currentSubFiles)
     val newlyCreatedFiles = currentSubFiles.diff(previousSubFiles)
     
