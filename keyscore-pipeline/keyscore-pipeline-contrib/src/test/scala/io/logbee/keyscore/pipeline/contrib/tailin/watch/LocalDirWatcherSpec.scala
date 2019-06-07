@@ -49,7 +49,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       }
       
       
-      "is deleted, should notify the responsible DirWatcher" ignore //TEST
+      "is deleted, should notify the responsible DirWatcher" in
       new DirWatcherParams {
         
         matchPattern = new DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt")
@@ -225,19 +225,6 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         dirWatcher.processFileChanges()
         
         (subFileEventHandler.pathDeleted _).verify()
-      }
-    }
-    
-    
-    "when its configured directory doesn't exist, should throw an exception" ignore //TEST
-    new DirWatcherParams {
-      
-      val watchDir = Paths.get("/abc/def/ghi/jkl/mno/pqr/stu/vwx")
-      dirPath = watchDir
-      
-      
-      assertThrows[InvalidPathException] {
-        val dirWatcher = new SmbDirWatcher(new LocalDir(dirPath), matchPattern, provider)
       }
     }
   }
