@@ -9,11 +9,11 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
 
 
 case class DirChanges(
-  newlyCreatedDirs: Seq[DirHandle],
-  newlyCreatedFiles: Seq[FileHandle],
-  deletedPaths: Seq[PathHandle],
-  potentiallyModifiedDirs: Seq[DirHandle],
-  potentiallyModifiedFiles: Seq[FileHandle],
+  newlyCreatedDirs: Set[_ <: DirHandle],
+  newlyCreatedFiles: Set[_ <: FileHandle],
+  deletedPaths: Set[_ <: PathHandle],
+  potentiallyModifiedDirs: Set[_ <: DirHandle],
+  potentiallyModifiedFiles: Set[_ <: FileHandle],
 )
 
 
@@ -27,15 +27,7 @@ class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watche
       subFileEventHandlers.asInstanceOf[mutable.Map[PathHandle, ListBuffer[PathWatcher]]]
   
   
-  { //recursive setup
-    val (subDirs, subFiles) = watchDir.listDirsAndFiles
-    
-    subDirs.foreach(addSubDirWatcher(_))
-    subFiles.foreach(addSubFileEventHandler(_))
-  }
-  
-  
-  private def doForEachPath(paths: Seq[PathHandle], func: PathWatcher => Unit) = {
+  private def doForEachPath(paths: Set[_ <: PathHandle], func: PathWatcher => Unit) = {
     paths.foreach { path =>
       subPathHandlers.get(path).foreach { pathHandler =>
         pathHandler.foreach { pathHandler =>
@@ -57,8 +49,11 @@ class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watche
     doForEachPath(changes.deletedPaths, _.pathDeleted())
     
     changes.deletedPaths.foreach { path =>
-      subDirWatchers.remove(path.asInstanceOf[DirHandle])
-      subFileEventHandlers.remove(path.asInstanceOf[FileHandle])
+      if (path.isInstanceOf[DirHandle]) {
+        subDirWatchers.remove(path.asInstanceOf[DirHandle])
+      } else {
+        subFileEventHandlers.remove(path.asInstanceOf[FileHandle])
+      }
     }
     
     

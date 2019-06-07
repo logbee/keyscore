@@ -14,6 +14,7 @@ import com.hierynomus.mssmb2.SMBApiException
 import com.hierynomus.smbj.common.SmbPath
 import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.File
+
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
 
 
@@ -25,7 +26,7 @@ class SmbDir(dir: Directory) extends DirHandle {
   override def absolutePath = dir.getFileName
   
   
-  override def listDirsAndFiles: (Seq[SmbDir], Seq[SmbFile]) = { //TODO try to make private or remove
+  private def listDirsAndFiles: (Set[SmbDir], Set[SmbFile]) = {
     
     val subPaths = JavaConverters.asScalaBuffer(dir.list).toSeq
                      .filterNot(subPath => subPath.getFileName.endsWith("\\.")
@@ -35,8 +36,8 @@ class SmbDir(dir: Directory) extends DirHandle {
                                 )
     
     
-    var dirs: Seq[SmbDir] = Seq.empty
-    var files: Seq[SmbFile] = Seq.empty
+    var dirs: Set[SmbDir] = Set.empty
+    var files: Set[SmbFile] = Set.empty
     
     subPaths.foreach { subPath =>
       val dirPathName = SmbPath.parse(absolutePath).getPath //just the directory's name, i.e. not the absolute path
@@ -53,9 +54,9 @@ class SmbDir(dir: Directory) extends DirHandle {
         
         
         if (diskEntry.isInstanceOf[Directory]) {
-          dirs = dirs :+ new SmbDir(diskEntry.asInstanceOf[Directory])
+          dirs = dirs + new SmbDir(diskEntry.asInstanceOf[Directory])
         } else {
-          files = files :+ new SmbFile(diskEntry.asInstanceOf[File])
+          files = files + new SmbFile(diskEntry.asInstanceOf[File])
         }
       }
       catch {
@@ -81,7 +82,7 @@ class SmbDir(dir: Directory) extends DirHandle {
     
     
     //process dir-changes
-    var deletedPaths: Seq[PathHandle] = previousSubDirs.diff(currentSubDirs)
+    var deletedPaths: Set[PathHandle] = previousSubDirs.toSeq.diff(currentSubDirs.toSeq).toSet
     val dirsContinuingToExist = previousSubDirs.intersect(currentSubDirs)
     val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
     
