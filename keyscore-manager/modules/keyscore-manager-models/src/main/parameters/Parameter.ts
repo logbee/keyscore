@@ -26,7 +26,10 @@ export interface ParameterGroup {
     value?:any;
 }
 
-export const ParameterPackagePrefix = "io.logbee.keyscore.model.configuration";
+export interface ParameterSet {
+    jsonClass: string;
+    parameters: Parameter[];
+}
 
 export enum ParameterJsonClass {
     BooleanParameter = "io.logbee.keyscore.model.configuration.BooleanParameter",
@@ -46,7 +49,3 @@ export enum ParameterJsonClass {
     ParameterGroup = "io.logbee.keyscore.model.configuration.ParameterGroup"
 }
 
-export interface ParameterSet {
-    jsonClass: string;
-    parameters: Parameter[];
-}

@@ -11,11 +11,13 @@ import {Injectable} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import * as _ from "lodash";
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ParameterControlService {
 
     public toFormGroup(parameterMapping: Map<Parameter, ResolvedParameterDescriptor>, directiveInstance: string = null) {
-        console.log("TEST LOGGING");
+        console.log("ControlService Parameters::::::", parameterMapping.keys());
         let group: any = {};
 
         parameterMapping.forEach((parameterDescriptor, parameter) => {
@@ -53,7 +55,7 @@ export class ParameterControlService {
                     break;
                 default:
                     const descriptor = parameterDescriptor as SingleResolvedParameterDescriptor;
-                    parameter.value = parameter.value ? parameter.value : "";
+                    parameter.value = parameter.value || "";
                     group[id] = new FormControl(parameter.value, descriptor.mandatory ? Validators.required : null);
 
             }
@@ -61,4 +63,5 @@ export class ParameterControlService {
         });
         return new FormGroup(group);
     }
+
 }

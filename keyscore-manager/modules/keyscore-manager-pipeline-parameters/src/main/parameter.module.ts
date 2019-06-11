@@ -1,4 +1,4 @@
-import {NgModule} from "@angular/core";
+import {APP_INITIALIZER, NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ParameterMap} from "./parameter-map.component";
@@ -13,6 +13,7 @@ import {PropagationStopModule} from "ngx-propagation-stop";
 import {ParameterFactoryService} from "./service/parameter-factory.service";
 import {MaterialModule} from "keyscore-manager-material";
 import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.component";
+import {TextParameterModule} from "./text-parameter/text-parameter.module";
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.c
         TranslateModule,
         MaterialModule,
         DragDropModule,
-        PropagationStopModule
+        PropagationStopModule,
+        TextParameterModule
     ],
     declarations: [
         ParameterMap,
@@ -42,4 +44,7 @@ import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.c
     ]
 })
 export class ParameterModule {
+    constructor() {
+        console.log("INIT ParameterModule");
+    }
 }
