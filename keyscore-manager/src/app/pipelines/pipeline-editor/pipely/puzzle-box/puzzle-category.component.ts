@@ -3,7 +3,7 @@ import {BlockDescriptor} from "../models/block-descriptor.model";
 import {Dropzone, Workspace} from "../models/contract";
 import {DraggableFactory} from "../draggable/draggable-factory";
 import {DropzoneFactory} from "../dropzone/dropzone-factory";
-import {generateRef, ParameterJsonClass} from "keyscore-manager-models";
+import {generateRef, ParameterJsonClass, Parameter} from "keyscore-manager-models";
 import {ParameterFactoryService} from "keyscore-manager-pipeline-parameters";
 
 
@@ -27,7 +27,7 @@ export class PuzzleCategoryComponent implements OnInit {
     private toolbarDropzone: Dropzone;
 
 
-    constructor(private dropzoneFactory: DropzoneFactory, private draggableFactory: DraggableFactory,private parameterFactory:ParameterFactoryService) {
+    constructor(private dropzoneFactory: DropzoneFactory, private draggableFactory: DraggableFactory, private parameterFactory: ParameterFactoryService) {
 
     }
 
@@ -38,7 +38,7 @@ export class PuzzleCategoryComponent implements OnInit {
 
     private createDraggables() {
         this.descriptors.forEach(blockDescriptor => {
-            if(blockDescriptor.ref.uuid === "bf9c0ff2-64d5-44ed-9957-8128a50ab567"){
+            if (blockDescriptor.ref.uuid === "bf9c0ff2-64d5-44ed-9957-8128a50ab567") {
                 console.log("TextMUTATOR:::::", blockDescriptor);
             }
             let parameters = blockDescriptor.parameters.map(parameterDescriptor =>
@@ -47,7 +47,10 @@ export class PuzzleCategoryComponent implements OnInit {
             let blockConfiguration = {
                 ref: generateRef(),
                 parent: null,
-                parameterSet: {jsonClass: ParameterJsonClass.ParameterSet, parameters: parameters}
+                parameterSet: {
+                    jsonClass: ParameterJsonClass.ParameterSet,
+                    parameters: parameters
+                }
             };
             this.draggableFactory.createDraggable(this.toolbarDropzone.getDraggableContainer(), {
                 blockDescriptor: blockDescriptor,

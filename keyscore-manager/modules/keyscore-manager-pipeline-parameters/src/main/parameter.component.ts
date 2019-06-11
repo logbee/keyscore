@@ -1,6 +1,13 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {FormGroup} from "@angular/forms";
-import {ParameterDescriptorJsonClass, ResolvedParameterDescriptor, Parameter, Dataset} from "keyscore-manager-models";
+import {
+    Dataset,
+    Parameter,
+    ParameterDescriptorJsonClass,
+    ParameterGroup,
+    ParameterGroupDescriptor,
+    ResolvedParameterDescriptor
+} from "keyscore-manager-models";
 import "./style/parameter-module-style.scss";
 import {BehaviorSubject} from "rxjs/index";
 
@@ -28,17 +35,17 @@ import {BehaviorSubject} from "rxjs/index";
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-            
-            <!--<div *ngSwitchCase="jsonClass.ParameterGroupDescriptor">
+
+            <div *ngSwitchCase="jsonClass.ParameterGroupDescriptor">
                 <div *ngIf="form.value[parameterDescriptor.condition.parameter.id] ? !parameterDescriptor.condition.negate
                         : parameterDescriptor.condition.negate">
-                    <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
-                                   [parameterDescriptor]="parameterMapping.get(parameter)"
+                    <app-parameter *ngFor="let parameterI of getKeys(parameterGroupMapping)" [parameter]="parameterI"
+                                   [parameterDescriptor]="parameterGroupMapping.get(parameterI)"
                                    [form]="form"
                                    [datasets]="datasets$ | async">
-                    </app-parameter>                
+                    </app-parameter>
                 </div>
-            </div>-->
+            </div>
 
             <mat-form-field *ngSwitchCase="jsonClass.DecimalParameterDescriptor">
                 <input matInput type="number"
@@ -167,16 +174,30 @@ export class ParameterComponent implements OnInit {
         this.datasets$.next(data);
     };
 
+    public parameterGroupMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map();
 
     ngOnInit() {
         if (this.directiveInstance) {
             this.directiveInstance = this.directiveInstance + ':' + this.parameter.ref.id;
         }
+        if (this.parameterDescriptor.jsonClass === ParameterDescriptorJsonClass.ParameterGroupDescriptor) {
+            (this.parameterDescriptor as ParameterGroupDescriptor).parameters.forEach((descriptor, i) =>
+                this.parameterGroupMapping.set((this.parameter as ParameterGroup).parameters.parameters[i], descriptor)
+            )
+        }
 
     }
 
+    getKeys(map: Map<any, any>): any[] {
+        return Array.from(map.keys());
+    }
 
     get isValid() {
+        if (this.parameterDescriptor.jsonClass === ParameterDescriptorJsonClass.ParameterGroupDescriptor) {
+            let groupValids: boolean[] = (this.parameter as ParameterGroup).parameters.parameters.map(parameter =>
+                this.form.controls[parameter.ref.id].valid);
+            return groupValids.every((value) => value);
+        }
         return this.form.controls[this.directiveInstance || this.parameter.ref.id].valid;
     }
 

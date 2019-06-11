@@ -136,8 +136,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
             this.parameterMapping =
                 new Map(_.zip(selectedBlock.configuration.parameterSet.parameters,
-                    selectedBlock.descriptor.parameters
-                ));
+                    selectedBlock.descriptor.parameters));
             if (this.form) {
                 this.form.reset();
             }

@@ -38,16 +38,17 @@ import uuid = require("uuid");
                                             (click)="expandSequence(sequenceIndex)" [collapsedHeight]="'*'"
                                             [expandedHeight]="'*'">
                     <div fxLayout="row" fxLayoutAlign="space-between center" class="sequence-header">
-                      
+
                         <form *ngIf="fieldDirectiveSequence.parameters.parameters.length"
-                                [formGroup]="sequenceFormGroups.get(fieldDirectiveSequence.id)"
-                                class="sequence-form"
+                              [formGroup]="sequenceFormGroups.get(fieldDirectiveSequence.id)"
+                              class="sequence-form"
                               propagationStop>
-                            <app-parameter *ngFor="let parameter of getKeys(sequenceParameterMappings.get(fieldDirectiveSequence.id))"
-                                            [parameter]="parameter"
-                                           [parameterDescriptor]="sequenceParameterMappings.get(fieldDirectiveSequence.id).get(parameter)"
-                                           [form] = sequenceFormGroups.get(fieldDirectiveSequence.id)
-                                           [datasets]="datasets$|async"
+                            <app-parameter
+                                    *ngFor="let parameter of getKeys(sequenceParameterMappings.get(fieldDirectiveSequence.id))"
+                                    [parameter]="parameter"
+                                    [parameterDescriptor]="sequenceParameterMappings.get(fieldDirectiveSequence.id).get(parameter)"
+                                    [form]=sequenceFormGroups.get(fieldDirectiveSequence.id)
+                                    [datasets]="datasets$|async"
                             ></app-parameter>
                         </form>
                         <button propagationStop mat-icon-button color="warn"
@@ -134,10 +135,10 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
     public parameterValues: FieldDirectiveSequenceConfiguration[] = [];
     public isSequenceExpanded: boolean[] = [];
 
-    public sequenceFormGroups: Map<string,FormGroup> = new Map();
+    public sequenceFormGroups: Map<string, FormGroup> = new Map();
     public directiveFormGroups: Map<string, FormGroup> = new Map();
     public directiveParameterMappings: Map<string, Map<Parameter, ResolvedParameterDescriptor>> = new Map();
-    public sequenceParameterMappings: Map<string,Map<Parameter,ResolvedParameterDescriptor>> = new Map();
+    public sequenceParameterMappings: Map<string, Map<Parameter, ResolvedParameterDescriptor>> = new Map();
 
     public constructor(private parameterService: ParameterControlService, private parameterFactory: ParameterFactoryService) {
 
@@ -201,6 +202,7 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
     }
 
     public addDirectiveSequence() {
+        console.log("FieldDirectiveSequenceConf after init: ");
         let newValues = [...this.parameterValues];
 
         let fieldDirectiveSequence: FieldDirectiveSequenceConfiguration = {
@@ -213,6 +215,7 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
             directives: [],
 
         };
+        console.log("FieldDirectiveSequenceConf after init: ", fieldDirectiveSequence);
         newValues.push(fieldDirectiveSequence);
         this.createSequenceForm(fieldDirectiveSequence, newValues.length - 1);
         this.isSequenceExpanded.push(true);
@@ -245,14 +248,14 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
         let parameterMapping: Map<Parameter, ResolvedParameterDescriptor> =
             new Map(_.zip(sequence.parameters.parameters, this.fieldDirectiveSequenceParameterDescriptor.parameters));
         let form = this.parameterService.toFormGroup(parameterMapping);
-        this.sequenceParameterMappings.set(sequence.id,parameterMapping);
+        this.sequenceParameterMappings.set(sequence.id, parameterMapping);
         form.valueChanges.subscribe(values => {
             let newValues = [...this.parameterValues];
             newValues[seqIndex].parameters.parameters.forEach(parameter =>
                 parameter.value = values[parameter.ref.id]);
             this.writeValue(newValues);
         });
-        this.sequenceFormGroups.set(sequence.id,form);
+        this.sequenceFormGroups.set(sequence.id, form);
     }
 
     private createDirectiveSubForm(values, currentSeqIndex, index, directive: ResolvedFieldDirectiveDescriptor,

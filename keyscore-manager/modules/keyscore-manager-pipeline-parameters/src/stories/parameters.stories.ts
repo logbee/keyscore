@@ -1,4 +1,13 @@
-import {Dataset, ParameterDescriptorJsonClass, ParameterJsonClass, ValueJsonClass} from "keyscore-manager-models";
+import {
+    BooleanParameterDescriptor,
+    Dataset,
+    generateParameterRef,
+    ParameterDescriptorJsonClass,
+    ParameterGroupDescriptor,
+    ParameterJsonClass,
+    ValueJsonClass,
+    ParameterGroup
+} from "keyscore-manager-models";
 import {moduleMetadata, storiesOf} from "@storybook/angular";
 import {AutocompleteInputComponent,} from "../main/autocomplete-input.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
@@ -8,7 +17,7 @@ import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import {PropagationStopModule} from "ngx-propagation-stop";
 import {HttpClient} from "@angular/common/http";
-import {generateResolvedParameterDescriptor} from "keyscore-manager-test-fixtures";
+import {generateInfo, generateResolvedParameterDescriptor} from "keyscore-manager-test-fixtures";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {MaterialModule} from "keyscore-manager-material";
 import {ParameterMap} from "../main/parameter-map.component";
@@ -42,6 +51,96 @@ const exampleDatasets: Dataset[] = [{
         }
     ]
 }];
+
+const exampleConditionParameterFalse: BooleanParameterDescriptor = {
+    ref: {
+        id: "conditionFalseID"
+    },
+    info: generateInfo("Inplace"),
+    jsonClass: ParameterDescriptorJsonClass.BooleanParameterDescriptor,
+    defaultValue: false,
+    mandatory: false
+};
+
+const exampleConditionParameterTrue: BooleanParameterDescriptor = {
+    ref: {
+        id: "conditionTrueID"
+    },    info: generateInfo("Inplace"),
+    jsonClass: ParameterDescriptorJsonClass.BooleanParameterDescriptor,
+    defaultValue: true,
+    mandatory: false
+};
+
+const exampleGroupDescriptorTrue: ParameterGroupDescriptor = {
+    ref: generateParameterRef(),
+    info: generateInfo(),
+    jsonClass: ParameterDescriptorJsonClass.ParameterGroupDescriptor,
+    condition: {
+        jsonClass: ParameterDescriptorJsonClass.BooleanParameterCondition,
+        parameter: exampleConditionParameterFalse.ref,
+        negate: true
+    },
+    parameters: [
+        {
+            ref: {
+                id: "testID"
+            },
+            info: generateInfo(),
+            jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+            defaultValue: "",
+            validator: null,
+            mandatory: false
+        }
+    ]
+};
+
+const exampleGroupDescriptorFalse: ParameterGroupDescriptor = {
+    ref: generateParameterRef(),
+    info: generateInfo(),
+    jsonClass: ParameterDescriptorJsonClass.ParameterGroupDescriptor,
+    condition: {
+        jsonClass: ParameterDescriptorJsonClass.BooleanParameterCondition,
+        parameter: exampleConditionParameterTrue.ref,
+        negate: true
+    },
+    parameters: [
+        {
+            ref: {
+                id: "testID"
+            },
+            info: generateInfo(),
+            jsonClass: ParameterDescriptorJsonClass.TextParameterDescriptor,
+            defaultValue: "",
+            validator: null,
+            mandatory: false
+        }
+    ]
+};
+
+
+const exampleGroupParameter: ParameterGroup = {
+    ref: exampleGroupDescriptorTrue.ref,
+    jsonClass: ParameterJsonClass.ParameterGroup,
+    parameters: {
+        jsonClass: ParameterJsonClass.ParameterSet,
+        parameters: [{
+            ref: exampleGroupDescriptorTrue.parameters[0].ref,
+            jsonClass: ParameterJsonClass.TextParameter,
+            value: ""
+        }]
+    }
+};const exampleGroupParameterFalse: ParameterGroup = {
+    ref: exampleGroupDescriptorFalse.ref,
+    jsonClass: ParameterJsonClass.ParameterGroup,
+    parameters: {
+        jsonClass: ParameterJsonClass.ParameterSet,
+        parameters: [{
+            ref: exampleGroupDescriptorFalse.parameters[0].ref,
+            jsonClass: ParameterJsonClass.TextParameter,
+            value: ""
+        }]
+    }
+};
 
 export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http);
@@ -160,9 +259,28 @@ storiesOf('Parameter', module).addDecorator(
 })).add('FieldNamePatternParameter', () => ({
     component: ParameterComponent,
     props: {
-        datasets:exampleDatasets,
+        datasets: exampleDatasets,
         parameterDescriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor),
-        parameter: {ref: {id: "testID"}, value: "test", patternType:0,  jsonClass: ParameterJsonClass.FieldNamePatternParameter},
+        parameter: {
+            ref: {id: "testID"},
+            value: "test",
+            patternType: 0,
+            jsonClass: ParameterJsonClass.FieldNamePatternParameter
+        },
         form: new FormGroup(({"testID": new FormControl("test")}))
+    }
+})).add('ParameterGroup Condition True', () => ({
+    component: ParameterComponent,
+    props: {
+        parameterDescriptor: exampleGroupDescriptorTrue,
+        parameter: exampleGroupParameter,
+        form: new FormGroup(({"testID": new FormControl("test"), "conditionFalseID": new FormControl(false)}))
+    }
+})).add('ParameterGroup Condition False', () => ({
+    component: ParameterComponent,
+    props: {
+        parameterDescriptor: exampleGroupDescriptorFalse,
+        parameter: exampleGroupParameterFalse,
+        form: new FormGroup(({"testID": new FormControl("test"), "conditionTrueID": new FormControl(true)}))
     }
 }));

@@ -1,18 +1,23 @@
 import {
     BooleanParameterDescriptor,
+    Parameter,
     ParameterDescriptorJsonClass,
     ResolvedParameterDescriptor,
     SingleResolvedParameterDescriptor,
-    Parameter
+    ParameterGroupDescriptor,
+    ParameterGroup
 } from "keyscore-manager-models";
 import {Injectable} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import * as _ from "lodash";
 
 @Injectable()
 export class ParameterControlService {
 
-    public toFormGroup(parameterMapping: Map<Parameter, ResolvedParameterDescriptor>, directiveInstance?: string) {
-        const group: any = {};
+    public toFormGroup(parameterMapping: Map<Parameter, ResolvedParameterDescriptor>, directiveInstance: string = null) {
+        console.log("TEST LOGGING");
+        let group: any = {};
+
         parameterMapping.forEach((parameterDescriptor, parameter) => {
             const id = directiveInstance ? directiveInstance + ':' + parameter.ref.id : parameter.ref.id;
             switch (parameterDescriptor.jsonClass) {
@@ -34,6 +39,17 @@ export class ParameterControlService {
                 case ParameterDescriptorJsonClass.DecimalParameterDescriptor:
                     parameter.value = parameter.value === 0 ? null : parameter.value;
                     group[id] = new FormControl(parameter.value, (parameterDescriptor as SingleResolvedParameterDescriptor).mandatory ? Validators.required : null);
+                    break;
+                case ParameterDescriptorJsonClass.ParameterGroupDescriptor:
+                    const parameterGroupMapping: Map<Parameter, ResolvedParameterDescriptor> =
+                        new Map(_.zip((parameter as ParameterGroup).parameters.parameters, (parameterDescriptor as ParameterGroupDescriptor).parameters));
+                    console.log("ParameterGroupMapping: ", parameterGroupMapping);
+                    let parameterGroup: FormGroup = this.toFormGroup(parameterGroupMapping);
+                    group = {
+                        ...group,
+                        ...parameterGroup.value
+                    };
+                    console.log("Group after ParameterGroup in ControlService: ", group);
                     break;
                 default:
                     const descriptor = parameterDescriptor as SingleResolvedParameterDescriptor;

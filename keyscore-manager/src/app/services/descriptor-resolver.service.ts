@@ -169,6 +169,20 @@ export class DescriptorResolverService {
                     minSequences: parameterDescriptor.minSequences,
                     maxSequences: parameterDescriptor.maxSequences
                 };
+            case ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor:
+                return{
+                    ...initialize,
+                    defaultValue: parameterDescriptor.defaultValue,
+                    hint: parameterDescriptor.hint,
+                    supports:parameterDescriptor.supports,
+                    mandatory:parameterDescriptor.mandatory
+                };
+            case ParameterDescriptorJsonClass.ParameterGroupDescriptor:
+                return{
+                    ...initialize,
+                    condition:parameterDescriptor.condition,
+                    parameters: parameterDescriptor.parameters.map(parameter => this.resolveParameterDescriptor(settings,parameter))
+                };
             default:
                 return null;
 

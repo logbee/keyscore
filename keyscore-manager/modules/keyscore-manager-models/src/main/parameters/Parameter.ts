@@ -4,6 +4,7 @@ import {PatternType} from "./ParameterDescriptor";
 export type Parameter =
     | DefaultParameter
     | FieldNamePatternParameter
+    | ParameterGroup
 
 export interface DefaultParameter {
     ref: ParameterRef;
@@ -16,6 +17,13 @@ export interface FieldNamePatternParameter extends DefaultParameter {
     value: string;
     patternType: PatternType;
     jsonClass: string;
+}
+
+export interface ParameterGroup {
+    ref: ParameterRef;
+    jsonClass: string;
+    parameters: ParameterSet;
+    value?:any;
 }
 
 export const ParameterPackagePrefix = "io.logbee.keyscore.model.configuration";
@@ -34,7 +42,8 @@ export enum ParameterJsonClass {
     FieldListParameter = "io.logbee.keyscore.model.configuration.FieldListParameter",
     ChoiceParameter = "io.logbee.keyscore.model.configuration.ChoiceParameter",
     FieldDirectiveSequenceParameter = "io.logbee.keyscore.model.configuration.FieldDirectiveSequenceParameter",
-    ParameterSet = "io.logbee.keyscore.model.configuration.ParameterSet"
+    ParameterSet = "io.logbee.keyscore.model.configuration.ParameterSet",
+    ParameterGroup = "io.logbee.keyscore.model.configuration.ParameterGroup"
 }
 
 export interface ParameterSet {

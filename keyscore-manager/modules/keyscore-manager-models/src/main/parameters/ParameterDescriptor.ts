@@ -75,6 +75,7 @@ export interface ParameterDescriptor {
     maxSequences?: number;
     fieldValueType?: FieldValueType;
     condition?:BooleanParameterCondition;
+    supports?:PatternType[];
 
 
 }
@@ -93,6 +94,7 @@ export enum ParameterDescriptorJsonClass {
     FieldListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldListParameterDescriptor",
     ChoiceParameterDescriptor = "io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor",
     ParameterGroupDescriptor = "io.logbee.keyscore.model.descriptor.ParameterGroupDescriptor",
+    BooleanParameterCondition = "io.logbee.keyscore.model.descriptor.BooleanParameterCondition",
     FieldDirectiveSequenceParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldDirectiveSequenceParameterDescriptor"
 }
 
@@ -277,7 +279,7 @@ export interface ParameterGroupDescriptor {
     info: ResolvedParameterInfo;
     jsonClass: ParameterDescriptorJsonClass;
     condition: ParameterGroupCondition;
-    parameters: ParameterDescriptor[];
+    parameters: ResolvedParameterDescriptor[];
 
 }
 
@@ -311,11 +313,10 @@ export interface ResolvedFieldDirectiveDescriptor {
     maxSequences: number;
 }
 
-export interface ParameterGroupCondition {
-    jsonClass: string;
-}
+export type ParameterGroupCondition =
+    |BooleanParameterCondition
 
-export interface BooleanParameterCondition extends ParameterGroupCondition {
+export interface BooleanParameterCondition{
     jsonClass:string;
     parameter: ParameterRef;
     negate: boolean;
