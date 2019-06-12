@@ -7,6 +7,7 @@ import scala.collection.JavaConverters
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.mserref.NtStatus
 import com.hierynomus.msfscc.FileAttributes
+import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation
 import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.mssmb2.SMB2CreateOptions
 import com.hierynomus.mssmb2.SMB2ShareAccess
@@ -26,6 +27,17 @@ class SmbDir(dir: Directory) extends DirHandle {
   override def absolutePath = dir.getFileName
   
   
+  /**
+   * \\hostname\share\path\to\ -> path\to\
+   */
+  private def pathWithinShare: String = SmbPath.parse(absolutePath).getPath
+  
+  
+  private def isDirectory(fileIdBothDirectoryInformation: FileIdBothDirectoryInformation): Boolean = {
+    (fileIdBothDirectoryInformation.getFileAttributes & 0x10) == 0x10 // 0001 0000 -> if 5th bit is 1, it's a directory, else a file (according to SMB spec)
+  }
+  
+  
   private def listDirsAndFiles: (Set[SmbDir], Set[SmbFile]) = {
     
     val subPaths = JavaConverters.asScalaBuffer(dir.list).toSeq
@@ -40,11 +52,16 @@ class SmbDir(dir: Directory) extends DirHandle {
     var files: Set[SmbFile] = Set.empty
     
     subPaths.foreach { subPath =>
-      val dirPathName = SmbPath.parse(absolutePath).getPath //just the directory's name, i.e. not the absolute path
       
       try {
+        val subPathString = if (isDirectory(subPath)) {
+                              pathWithinShare + subPath.getFileName + "\\"
+                            } else {
+                              pathWithinShare + subPath.getFileName
+                            }
+        
         val diskEntry = share.open(
-          dirPathName + subPath.getFileName,
+          subPathString,
           EnumSet.of(AccessMask.GENERIC_ALL),
           EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
           SMB2ShareAccess.ALL,
