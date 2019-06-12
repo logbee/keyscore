@@ -1,34 +1,63 @@
 package io.logbee.keyscore.agent.pipeline.valve
 
+import akka.actor.ActorRef
 import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
+import akka.testkit.TestProbe
+import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.test.fixtures.ExampleData._
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.test.fixtures.ToActorRef.Probe2ActorRef
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class ValveStageSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
-  class TestWithSourceProbeAndSinkProbe(bufferLimit: Int = 2) {
+  class TestWithSourceProbeAndSinkProbe(supervisor: ActorRef = system.deadLetters, bufferLimit: Int = 2) {
     val ((source, valveFuture), sink) = TestSource.probe[Dataset]
-      .viaMat(new ValveStage(bufferLimit))(Keep.both)
+      .viaMat(new ValveStage(supervisor, bufferLimit))(Keep.both)
       .toMat(TestSink.probe[Dataset])(Keep.both)
       .run()
   }
 
-  "A ValveStage" should {
+  "A ValveStage" - {
 
-    s"pass through datasets and increase ${pushedDatasets.name}" in new TestWithSourceProbeAndSinkProbe {
+    "on completion" - {
+
+      val supervisor = TestProbe()
+
+      "should send StageCompleted message" in new TestWithSourceProbeAndSinkProbe(supervisor) {
+
+        source.sendComplete()
+        val message = supervisor.receiveOne(5 seconds).asInstanceOf[StageCompleted]
+        message.id should not be null
+      }
+    }
+
+    "on failure" - {
+
+      val supervisor = TestProbe()
+
+      "should send StageFailure message" in new TestWithSourceProbeAndSinkProbe(supervisor) {
+
+        source.sendError(new Exception("Hammer to fall!"))
+        val message = supervisor.receiveOne(5 seconds).asInstanceOf[StageFailed]
+        message.id should not be null
+
+      }
+    }
+
+    s"should pass through datasets and increase ${pushedDatasets.name}" in new TestWithSourceProbeAndSinkProbe {
 
       whenReady(valveFuture) { valve =>
         val wantedDatasets = 3
@@ -50,11 +79,10 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
             mc.find(pushedDatasets).get.value should equal(wantedDatasets.toDouble)
           }
         }
-
       }
     }
 
-    "backpressure when closed, so only buffered messages pass through" in new TestWithSourceProbeAndSinkProbe(bufferLimit = 2) {
+    "should backpressure when closed, so only buffered messages pass through"  in new TestWithSourceProbeAndSinkProbe(bufferLimit = 2) {
 
       whenReady(valveFuture) { valve =>
 
@@ -79,9 +107,10 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
       }
     }
 
-    "let datasets pass through after it was opened again" in new TestWithSourceProbeAndSinkProbe {
+    "should let datasets pass through after it was opened again" in new TestWithSourceProbeAndSinkProbe {
 
       whenReady(valveFuture) { valve =>
+
         source.sendNext(dataset1)
         source.sendNext(dataset2)
 
@@ -100,7 +129,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
       }
     }
 
-    s"drops datasets when drained" in new TestWithSourceProbeAndSinkProbe {
+    "should drop datasets when drained" in new TestWithSourceProbeAndSinkProbe {
 
       whenReady(valveFuture) { valve =>
 
@@ -129,13 +158,12 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
 
             sink.requestNext().records should contain theSameElementsAs dataset3.records
             sink.requestNext().records should contain theSameElementsAs dataset4.records
-
           }
         }
       }
     }
 
-    "retains the labels of dataset" in new TestWithSourceProbeAndSinkProbe {
+    "should retains the labels of dataset" in new TestWithSourceProbeAndSinkProbe {
 
       whenReady(valveFuture) { valve =>
 
@@ -147,7 +175,7 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
       }
     }
 
-    "returns the complete state when state method is called" in new TestWithSourceProbeAndSinkProbe {
+    "should returns the complete state when state method is called" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>
 
         Await.ready(valve.close(), 5 seconds)
@@ -159,12 +187,11 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
           state.totalThroughputTime should equal(0)
           state.bufferLimit shouldBe a[Integer]
           state.bufferSize shouldBe a[Integer]
-
         }
       }
     }
 
-    "set the drain flag properly" in new TestWithSourceProbeAndSinkProbe {
+    "should set the drain flag properly" in new TestWithSourceProbeAndSinkProbe {
       whenReady(valveFuture) { valve =>
         whenReady(valve.drain()) { state =>
           state.position shouldBe Drain
@@ -177,5 +204,4 @@ class ValveStageSpec extends WordSpec with Matchers with ScalaFutures with TestS
       }
     }
   }
-
 }

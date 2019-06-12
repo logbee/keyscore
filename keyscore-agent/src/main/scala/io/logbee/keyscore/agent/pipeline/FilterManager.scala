@@ -11,6 +11,7 @@ import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.LogicProviderFactory._
 import io.logbee.keyscore.pipeline.api._
 import io.logbee.keyscore.pipeline.api.stage._
@@ -26,23 +27,23 @@ object FilterManager {
 
   trait StageCreated
 
-  case class CreateSourceStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
+  case class CreateSourceStage(blueprintRef: BlueprintRef, supervisor: StageSupervisor, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
   case class SourceStageCreated(blueprintRef: BlueprintRef, stage: SourceStage) extends StageCreated
 
-  case class CreateSinkStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
+  case class CreateSinkStage(blueprintRef: BlueprintRef, supervisor: StageSupervisor, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
   case class SinkStageCreated(blueprintRef: BlueprintRef, stage: SinkStage) extends StageCreated
 
-  case class CreateFilterStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
+  case class CreateFilterStage(blueprintRef: BlueprintRef, supervisor: StageSupervisor, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
   case class FilterStageCreated(blueprintRef: BlueprintRef, stage: FilterStage) extends StageCreated
 
-  case class CreateBranchStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
+  case class CreateBranchStage(blueprintRef: BlueprintRef, supervisor: StageSupervisor, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
   case class BranchStageCreated(blueprintRef: BlueprintRef, stage: BranchStage) extends StageCreated
 
-  case class CreateMergeStage(blueprintRef: BlueprintRef, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
+  case class CreateMergeStage(blueprintRef: BlueprintRef, supervisor: StageSupervisor, context: StageContext, descriptor: DescriptorRef, configuration: Configuration)
 
   case class MergeStageCreated(blueprintRef: BlueprintRef, stage: MergeStage) extends StageCreated
 
@@ -85,65 +86,65 @@ class FilterManager extends Actor with ActorLogging {
       log.debug("Sending Descriptors.")
       sender ! DescriptorsResponse(descriptors.values.map(_.descriptor).toList)
 
-    case CreateSinkStage(ref, stageContext, descriptor, configuration) =>
+    case CreateSinkStage(ref, supervisor, stageContext, descriptor, configuration) =>
       log.debug(s"Creating SinkStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
           val provider = createSinkLogicProvider(registration.logicClass)
-          val stage = new SinkStage(LogicParameters(ref, stageContext, configuration), provider)
+          val stage = new SinkStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
           sender ! SinkStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create SinkStage: ${descriptor.uuid}")
       }
 
-    case CreateSourceStage(ref, stageContext, descriptor, configuration) =>
+    case CreateSourceStage(ref, supervisor, stageContext, descriptor, configuration) =>
 
       log.debug(s"Creating SourceStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
           val provider = createSourceLogicProvider(registration.logicClass)
-          val stage = new SourceStage(LogicParameters(ref, stageContext, configuration), provider)
+          val stage = new SourceStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
           sender ! SourceStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create SourceStage: ${descriptor.uuid}")
       }
 
-    case CreateFilterStage(ref, stageContext, descriptor, configuration) =>
+    case CreateFilterStage(ref, supervisor, stageContext, descriptor, configuration) =>
 
       log.debug(s"Creating FilterStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
           val provider = createFilterLogicProvider(registration.logicClass)
-          val stage = new FilterStage(LogicParameters(ref, stageContext, configuration), provider)
+          val stage = new FilterStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
           sender ! FilterStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create FilterStage: ${descriptor.uuid}")
       }
 
-    case CreateBranchStage(ref, stageContext, descriptor, configuration) =>
+    case CreateBranchStage(ref, supervisor, stageContext, descriptor, configuration) =>
 
       log.debug(s"Creating BranchStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
           val provider = createBranchLogicProvider(registration.logicClass)
-          val stage = new BranchStage(LogicParameters(ref, stageContext, configuration), provider)
+          val stage = new BranchStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
           sender ! BranchStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create BranchStage: ${descriptor.uuid}")
       }
 
-    case CreateMergeStage(ref, stageContext, descriptor, configuration) =>
+    case CreateMergeStage(ref, supervisor, stageContext, descriptor, configuration) =>
 
       log.debug(s"Creating MergeStage: ${descriptor.uuid}")
 
       descriptors.get(descriptor) match {
         case Some(registration) =>
           val provider = createMergeLogicProvider(registration.logicClass)
-          val stage = new MergeStage(LogicParameters(ref, stageContext, configuration), provider)
+          val stage = new MergeStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
           sender ! MergeStageCreated(ref, stage)
         case _ =>
           log.error(s"Could not create MergeStage: ${descriptor.uuid}")

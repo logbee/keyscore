@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.math
 
 import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet, TextParameter}
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -34,7 +34,7 @@ class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFut
       Field("message", TextValue("Hello World!"))
     ))
 
-    "should let pass datasets unchanged if they do not contain all required fields" in new TestStreamFor[DifferentialQuotientLogic](configuration) {
+    "should let pass datasets unchanged if they do not contain all required fields" in new TestStreamForFilter[DifferentialQuotientLogic](configuration) {
 
       sink.request(1)
       source.sendNext(unwantedSample)
@@ -42,7 +42,7 @@ class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFut
       sink.requestNext() shouldBe unwantedSample
     }
 
-    "should set the computed differential quotient to 0 on the first dataset" in new TestStreamFor[DifferentialQuotientLogic](configuration) {
+    "should set the computed differential quotient to 0 on the first dataset" in new TestStreamForFilter[DifferentialQuotientLogic](configuration) {
 
       sink.request(1)
       source.sendNext(sample1)
@@ -54,7 +54,7 @@ class DifferentialQuotientLogicSpec extends FreeSpec with Matchers with ScalaFut
       slope.get.toDecimalField.value shouldBe 0
     }
 
-    "should compute the differential quotient of the specified field between two consecutive datasets" in new TestStreamFor[DifferentialQuotientLogic](configuration) {
+    "should compute the differential quotient of the specified field between two consecutive datasets" in new TestStreamForFilter[DifferentialQuotientLogic](configuration) {
 
       sink.request(2)
       source.sendNext(sample1)

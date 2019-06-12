@@ -6,7 +6,7 @@ import akka.actor.ActorRef
 import akka.stream.{FlowShape, SinkShape, SourceShape}
 import akka.testkit.{TestActor, TestProbe}
 import io.logbee.keyscore.agent.pipeline.FilterManager.{CreateFilterStage, CreateSinkStage, CreateSourceStage}
-import io.logbee.keyscore.agent.pipeline.PipelineSupervisor.CreatePipeline
+import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.StoreConfigurationRequest
 import io.logbee.keyscore.commons.cluster.resources.DescriptorMessages.StoreDescriptorRequest
@@ -19,13 +19,15 @@ import io.logbee.keyscore.model.conversion.UUIDConversion.uuidFromString
 import io.logbee.keyscore.model.data.Health.{Green, Red}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api._
 import io.logbee.keyscore.pipeline.api.stage._
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
+import io.logbee.keyscore.test.fixtures.ToActorRef.Probe2ActorRef
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
@@ -81,51 +83,181 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
       )
     )
 
-    val agent = TestProbe("agent")
-    val supervisor = system.actorOf(PipelineSupervisor(filterManager.ref))
-
-    trait SupervisorSpecSetup {
-      val sinkStage = new SinkStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), sinkLogicProvider)
-      val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), sourceLogicProvider)
-      val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), stub[StageContext], Configuration()), filterLogicProvider)
-
+    def supervisorSpecSetup() = {
       filterManager.setAutoPilot((sender: ActorRef, message: Any) => message match {
-        case _: CreateSinkStage =>
-          sender ! FilterManager.SinkStageCreated(sinkBlueprintRef, sinkStage)
+        case message: CreateSinkStage =>
+          sender ! FilterManager.SinkStageCreated(sinkBlueprintRef, new SinkStage(LogicParameters(UUID.randomUUID(), message.supervisor, stub[StageContext], Configuration()), sinkLogicProvider))
           TestActor.KeepRunning
-        case _: CreateSourceStage =>
-          sender ! FilterManager.SourceStageCreated(sourceBlueprintRef, sourceStage)
+        case message: CreateSourceStage =>
+          sender ! FilterManager.SourceStageCreated(sourceBlueprintRef, new SourceStage(LogicParameters(UUID.randomUUID(), message.supervisor, stub[StageContext], Configuration()), sourceLogicProvider))
           TestActor.KeepRunning
-        case _: CreateFilterStage =>
-          sender ! FilterManager.FilterStageCreated(filterBlueprintRef, filterStage)
+        case message: CreateFilterStage =>
+          sender ! FilterManager.FilterStageCreated(filterBlueprintRef, new FilterStage(LogicParameters(UUID.randomUUID(), message.supervisor, stub[StageContext], Configuration()), filterLogicProvider))
           TestActor.KeepRunning
       })
     }
 
-    def pollPipelineHealthState(maxRetries: Int = 10, interval: FiniteDuration = 5 seconds): Boolean = {
-      var retries = maxRetries
-      while (retries > 0) {
 
-        supervisor tell(RequestPipelineInstance, agent.ref)
-        val pipelineInstance = agent.receiveOne(2 seconds).asInstanceOf[PipelineInstance]
-        if (pipelineInstance.health.equals(Green)) {
-          return true
-        }
-        Thread.sleep(interval.toMillis)
-        retries -= 1
-      }
+    def withRunningPipeline(testCode: (ActorRef, TestProbe) => Any): Unit = {
 
-      false
-    }
+      supervisorSpecSetup()
 
-    "start a pipeline with a correct configuration" in new SupervisorSpecSetup {
+      val supervisor = system.actorOf(PipelineSupervisor(filterManager))
+
+      val agent = TestProbe("agent")
+      val watcher = TestProbe("watcher")
+      watcher.watch(supervisor)
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Init)
 
       supervisor ! CreatePipeline(pipelineBlueprint)
 
-      supervisor tell(RequestPipelineInstance, agent.ref)
+      supervisor tell(RequestPipelineInstance, agent)
       agent.expectMsg(PipelineInstance(pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, Red))
 
-      pollPipelineHealthState() shouldBe true
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Configuring)
+
+      isRunning(10, 3 seconds, supervisor, agent) shouldBe true
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+
+      try {
+        testCode(supervisor, agent)
+      }
+      finally {
+        system.stop(supervisor)
+        watcher.expectTerminated(supervisor, 5 seconds)
+      }
+    }
+
+    def testContext(testCode: (ActorRef, TestProbe) => Any): Unit = {
+      supervisorSpecSetup()
+
+      val supervisor = system.actorOf(PipelineSupervisor(filterManager))
+      val agent = TestProbe("agent")
+
+      try {
+        testCode(supervisor, agent)
+      }
+      finally {
+        system.stop(supervisor)
+      }
+    }
+
+    "start a pipeline with a correct configuration" in testContext { (supervisor, agent) =>
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Init)
+
+      supervisor ! CreatePipeline(pipelineBlueprint)
+
+      supervisor tell(RequestPipelineInstance, agent)
+      agent.expectMsg(PipelineInstance(pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, pipelineBlueprint.ref.uuid, Red))
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Configuring)
+
+      isRunning(5, 3 seconds, supervisor, agent) shouldBe true
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+    }
+
+    "should restart a pipeline when receiving StageFailed from source" in withRunningPipeline { (supervisor, agent) =>
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+
+      supervisor tell(StageFailed(sourceBlueprintRef.uuid, new Throwable), agent)
+      agent.expectMsg(StageFailedAck)
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(TearDown)
+
+      supervisor tell(StageCompleted(sinkBlueprintRef.uuid), agent)
+      agent.expectMsg(StageCompletedAck)
+
+      isRunning(10, 3 seconds, supervisor, agent) shouldBe true
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+    }
+
+    "should restart a pipeline after receiving StageFailed from filter" in withRunningPipeline { (supervisor, agent) =>
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+
+      supervisor tell(StageFailed(UUID.randomUUID(), new Throwable), agent)
+      agent.expectMsg(StageFailedAck)
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(TearDown)
+
+      supervisor tell(StageCompleted(sinkBlueprintRef.uuid), agent)
+      agent.expectMsg(StageCompletedAck)
+
+      isRunning(10, 3 seconds, supervisor, agent) shouldBe true
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+    }
+
+    "should restart a pipeline after receiving StageFailed from sink only" in withRunningPipeline { (supervisor, agent) =>
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+
+      supervisor tell(StageFailed(sinkBlueprintRef.uuid, new Throwable), agent)
+      agent.expectMsg(StageFailedAck)
+
+      isRunning(5, 3 seconds, supervisor, agent) shouldBe true
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+    }
+
+    "should  shut down regularly when receiving StageCompleted from sink only" in withRunningPipeline { (supervisor, agent) =>
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+
+      supervisor tell(StageCompleted(sinkBlueprintRef.uuid), agent)
+      agent.expectMsg(StageCompletedAck)
+
+      checkIfPipelineShutdown(10, 5 seconds, supervisor, agent) shouldBe true
+
+    }
+
+    "should shut down regularly when receiving StageCompleted from filter" in withRunningPipeline { (supervisor, agent) =>
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+
+
+      supervisor tell(StageCompleted(UUID.randomUUID()), agent)
+      agent.expectMsg(StageCompletedAck)
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(TearDown)
+
+      supervisor tell(StageCompleted(sinkBlueprintRef.uuid), agent)
+      agent.expectMsg(StageCompletedAck)
+      checkIfPipelineShutdown(10, 5 seconds, supervisor, agent) shouldBe true
+
+    }
+
+    "should teardown after timout is run out" in withRunningPipeline { (supervisor, agent) =>
+
+      supervisor tell(GetState, agent)
+      agent.expectMsg(Running)
+
+      supervisor tell(StageCompleted(UUID.randomUUID()), agent)
+      agent.expectMsg(StageCompletedAck)
+
+      checkIfPipelineShutdown(5, 3 seconds, supervisor, agent) shouldBe true
 
     }
   }
@@ -186,5 +318,38 @@ class PipelineSupervisorSpec extends ProductionSystemWithMaterializerAndExecutio
         pull(in)
       }
     }
+  }
+
+  def isRunning(maxRetries: Int = 5, interval: FiniteDuration = 3 seconds, supervisor: ActorRef, agent: TestProbe): Boolean = {
+    var retries = maxRetries
+    while (retries > 0) {
+
+      supervisor tell(RequestPipelineInstance, agent)
+
+      val pipelineInstance = agent.receiveOne(2 seconds).asInstanceOf[PipelineInstance]
+      if (pipelineInstance != null && pipelineInstance.health.equals(Green)) {
+        return true
+      }
+      Thread.sleep(interval.toMillis)
+      retries -= 1
+    }
+
+    false
+  }
+
+  def checkIfPipelineShutdown(maxRetries: Int = 10, interval: FiniteDuration = 3 seconds, supervisor: ActorRef, agent: TestProbe): Boolean = {
+
+    var retries = maxRetries
+    while (retries > 0) {
+      supervisor tell(GetState, agent)
+      val response = agent.receiveOne(max = 2 seconds).asInstanceOf[State]
+      if(response != null) {
+        response shouldBe TearDown
+        Thread.sleep(interval.toMillis)
+        retries -= 1
+      }
+      else return true
+    }
+    false
   }
 }

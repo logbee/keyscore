@@ -40,8 +40,3 @@ export class ExtractFromSelectedBlockFailure implements Action {
 export class ResetPreviewState implements Action {
     public readonly type = RESET_PREVIEW_STATE;
 }
-
-
-
-
-

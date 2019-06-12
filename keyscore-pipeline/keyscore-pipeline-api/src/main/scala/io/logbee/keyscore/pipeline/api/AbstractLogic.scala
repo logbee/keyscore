@@ -4,8 +4,8 @@ import akka.actor.ActorSystem
 import akka.stream.stage.{StageLogging, TimerGraphStageLogic}
 import akka.stream.{Materializer, Shape}
 import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.pipeline.{FilterState, LogicProxy, StageSupervisor}
 import io.logbee.keyscore.model.metrics.MetricsCollection
-import io.logbee.keyscore.model.pipeline.{FilterState, LogicProxy}
 import io.logbee.keyscore.pipeline.api.metrics.{DefaultMetricsCollector, MetricsCollector}
 
 import scala.concurrent.{ExecutionContextExecutor, Promise}
@@ -15,6 +15,7 @@ abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, s
   private[api] val initPromise = Promise[P]
 
   protected val proxy: P
+  protected val supervisor: StageSupervisor = parameters.supervisor
 
   protected implicit val system: ActorSystem = parameters.context.system
   protected implicit val dispatcher: ExecutionContextExecutor = parameters.context.dispatcher

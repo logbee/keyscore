@@ -16,4 +16,12 @@ abstract class SinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset])
   setHandler(in, this)
 
   def state(): FilterState = FilterState(parameters.uuid, Green)
+
+  override def onUpstreamFailure(ex: Throwable): Unit = {
+    supervisor.fail(ex)
+  }
+
+  override def onUpstreamFinish(): Unit = {
+    supervisor.complete()
+  }
 }

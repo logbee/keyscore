@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.pipeline.api.stage
 
 import scala.language.postfixOps
 

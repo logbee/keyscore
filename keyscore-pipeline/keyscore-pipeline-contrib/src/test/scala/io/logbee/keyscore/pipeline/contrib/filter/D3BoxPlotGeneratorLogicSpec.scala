@@ -1,98 +1,85 @@
 package io.logbee.keyscore.pipeline.contrib.filter
 
 import java.io.{File, PrintWriter}
-import java.util.UUID
 
-import akka.stream.FlowShape
-import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration.{Configuration, TextParameter}
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
 import io.logbee.keyscore.pipeline.contrib.filter.D3BoxPlotGeneratorLogic.{groupIdentifierParameter, itemIdentifierParameter}
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.{ExampleData, TestSystemWithMaterializerAndExecutionContext}
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatest.{FreeSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class D3BoxPlotGeneratorLogicSpec extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class D3BoxPlotGeneratorLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
-  trait TestStream {
+  val d1 = Dataset(
+    Record(
+      Field("id", NumberValue(1)),
+      Field("count", NumberValue(14))
+    ),
+    Record(
+      Field("id", NumberValue(1)),
+      Field("count", NumberValue(17))
+    ),
+    Record(
+      Field("id", NumberValue(1)),
+      Field("count", NumberValue(19))
+    ),
+    Record(
+      Field("id", NumberValue(1)),
+      Field("count", NumberValue(12))
+    ),
+    Record(
+      Field("id", NumberValue(1)),
+      Field("count", NumberValue(15))
+    )
+  )
+
+  val d2 = Dataset(
+    Record(
+      Field("id", NumberValue(2)),
+      Field("count", NumberValue(24))
+    ),
+    Record(
+      Field("id", NumberValue(2)),
+      Field("count", NumberValue(18))
+    ),
+    Record(
+      Field("id", NumberValue(2)),
+      Field("count", NumberValue(21))
+    ),
+    Record(
+      Field("id", NumberValue(2)),
+      Field("count", NumberValue(22))
+    ),
+    Record(
+      Field("id", NumberValue(2)),
+      Field("count", NumberValue(25))
+    )
+  )
+
+  val resultDataset = Dataset(
+    Record(Field("d3_boxplot",TextValue(ExampleData.boxplot_html))
+  ))
+
+  "A D3 BoxPlot" - {
+
     val groupIdentifier = "id"
     val itemIdentifier = "count"
     val groupType = ""
     val itemType = ""
 
-    val context = StageContext(system, executionContext)
     val configuration = Configuration(
       TextParameter(groupIdentifierParameter.ref, groupIdentifier),
       TextParameter(itemIdentifierParameter.ref, itemIdentifier)
     )
 
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset,Dataset]) => new D3BoxPlotGeneratorLogic(parameters, s)
-    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
+    "should generate the correct html data" in new TestStreamForFilter[D3BoxPlotGeneratorLogic](configuration) {
 
-    val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
-      .viaMat(filterStage)(Keep.both)
-      .toMat(TestSink.probe[Dataset])(Keep.both)
-      .run()
-
-    val d1 = Dataset(
-      Record(
-        Field("id", NumberValue(1)),
-        Field("count", NumberValue(14))
-      ),
-      Record(
-        Field("id", NumberValue(1)),
-        Field("count", NumberValue(17))
-      ),
-      Record(
-        Field("id", NumberValue(1)),
-        Field("count", NumberValue(19))
-      ),
-      Record(
-        Field("id", NumberValue(1)),
-        Field("count", NumberValue(12))
-      ),
-      Record(
-        Field("id", NumberValue(1)),
-        Field("count", NumberValue(15))
-      )
-    )
-    val d2 = Dataset(
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(24))
-      ),
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(18))
-      ),
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(21))
-      ),
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(22))
-      ),
-      Record(
-        Field("id", NumberValue(2)),
-        Field("count", NumberValue(25))
-      )
-    )
-
-    val resultDataset = Dataset(
-      Record(Field("d3_boxplot",TextValue(ExampleData.boxplot_html))
-    ))
-  }
-
-  "A D3 BoxPlot" should {
-    "generate the correct html data" in new TestStream {
-      whenReady(filterFuture) { f =>
+      whenReady(filterFuture) { _ =>
         sink.request(1)
         source.sendNext(d1)
 

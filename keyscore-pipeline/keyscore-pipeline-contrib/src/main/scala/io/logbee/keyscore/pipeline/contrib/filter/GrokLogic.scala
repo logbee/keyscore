@@ -62,7 +62,7 @@ object GrokLogic extends Described {
 class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private val GROK_PATTERN: Regex = "\\(\\?<(\\w*)>".r
-  private val NUMBER_PATTERN: Regex = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$".r
+  private val DECIMAL_PATTERN: Regex = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$".r
 
   private var fieldNames = Seq.empty[String]
   private var pattern = ""
@@ -96,7 +96,7 @@ class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
           regex.findFirstMatchIn(field.value.asInstanceOf[TextValue].value).foreach(patternMatch =>
             patternMatch.groupNames.map(name => {
               patternMatch.group(name) match {
-                case value@NUMBER_PATTERN(_*) => Field(name, DecimalValue(value.toDouble))
+                case value@DECIMAL_PATTERN(_*) => Field(name, DecimalValue(value.toDouble))
                 case value => Field(name, TextValue(value))
               }
             }).foldLeft(fields) { (fields, field) => fields += field })

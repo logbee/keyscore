@@ -4,12 +4,12 @@ import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic._
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -63,7 +63,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         FieldNameParameter(GroupByValueLogic.fieldNameParameter, "key")
       )
 
-      "should let records pass which do not contain the configured field" in new TestStreamFor[GroupByValueLogic](configuration) {
+      "should let records pass which does not contain the configured field" in new TestStreamForFilter[GroupByValueLogic](configuration) {
 
         private val datasets = Seq(
           Dataset(Record(
@@ -88,7 +88,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         }
       }
 
-      "should not let records pass when the value of the configured field does not change" in new TestStreamFor[GroupByValueLogic](configuration) {
+      "should not let records pass when the value of the configured field does not change" in new TestStreamForFilter[GroupByValueLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
           sampleDatasets.foreach(source.sendNext)
@@ -97,7 +97,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         }
       }
 
-      "should group consecutive datasets by the value of the configured field" in new TestStreamFor[GroupByValueLogic](configuration) {
+      "should group consecutive datasets by the value of the configured field" in new TestStreamForFilter[GroupByValueLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 
@@ -134,7 +134,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         NumberParameter(GroupByValueLogic.timeWindowMillisParameter, 1000),
       )
 
-      "should push out a single dataset when time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
+      "should push out a single dataset when time window has expired" in new TestStreamForFilter[GroupByValueLogic](configuration) {
 
         private val sample = Dataset(
           Record(
@@ -162,8 +162,10 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         }
       }
 
-      "should compute the bytesize of all elements in the queue" in new TestStreamFor[GroupByValueLogic](configuration) {
+      "should compute the bytesize of all elements in the queue" in new TestStreamForFilter[GroupByValueLogic](configuration) {
+
         whenReady(filterFuture) { filter =>
+
           sink.request(3)
 
           val expectedSize = sampleDatasets.map(_.serializedSize).sum
@@ -176,7 +178,7 @@ class GroupByValueLogicSpec extends FreeSpec with ScalaFutures with Matchers wit
         }
       }
 
-      "should group consecutive datasets but not push until the time window has expired" in new TestStreamFor[GroupByValueLogic](configuration) {
+      "should group consecutive datasets but not push until the time window has expired" in new TestStreamForFilter[GroupByValueLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 

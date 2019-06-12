@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.pipeline.api.stage
 
 import java.util.UUID
 
@@ -6,15 +6,15 @@ import akka.stream.SinkShape
 import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.pipeline.api.stage.{SinkStage, StageContext}
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.test.fixtures.ExampleData._
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Promise
 import scala.language.postfixOps
@@ -49,7 +49,7 @@ class SinkStageSpec extends FreeSpec with Matchers with ScalaFutures with MockFa
       }
 
       val sinkFuture = Source(List(dataset1, dataset2))
-        .toMat(new SinkStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider))(Keep.right)
+        .toMat(new SinkStage(LogicParameters(UUID.randomUUID(), StageSupervisor.noop, context, configurationA), provider))(Keep.right)
         .run()
 
       whenReady(sinkFuture) { sink =>
