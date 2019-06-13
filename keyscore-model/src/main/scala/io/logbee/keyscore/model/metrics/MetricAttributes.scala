@@ -13,4 +13,8 @@ object MetricAttributes {
   val METRIC_TIMESTAMP: String = "_keyscore_metric_timestamp"
   val METRIC_MAX: String = "_keyscore_metric_min"
   val METRIC_MIN: String = "_keyscore_metric_max"
+  /**
+    * Specifies the ID (eg. filter or agent) of all metrics in this collection
+    */
+  val METRIC_COLLECTION_ID: String = "_keyscore_metric_collection_id"
 }

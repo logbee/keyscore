@@ -1,11 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib.http
 
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.HttpMethods.POST
-import akka.http.scaladsl.model.MediaTypes.`application/json`
 import akka.http.scaladsl.model._
-import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
-import akka.stream.{OverflowStrategy, SourceShape}
+import akka.stream.SourceShape
 import io.logbee.keyscore.commons.metrics.MetricsQuery
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
@@ -13,7 +10,7 @@ import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
-import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.metrics.{MetricConversion, MetricsCollection}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
@@ -23,7 +20,6 @@ import org.json4s.native.Serialization.write
 import org.json4s.{Formats, Serialization}
 
 import scala.collection.mutable
-import scala.concurrent.Promise
 import scala.util.{Failure, Success}
 
 object MetricSourceLogic extends Described {
@@ -80,7 +76,6 @@ object MetricSourceLogic extends Described {
     mandatory = true
   )
 
-  // TODO: Replace with DateTimeParameterDescriptor...when we have one. ;-)
   val formatParameter = TextParameterDescriptor(
     ref = "metric.source.format",
     info = ParameterInfo(
@@ -145,21 +140,21 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   implicit private val formats: Formats = KeyscoreFormats.formats
   implicit val serialization: Serialization = Serialization
 
-  private var server = "localhost"
-  private var port = 4711L
-  private var interval = 5L
+  private var server = "http://localhost"
+  private var port: Long = 4711
+  private var interval: Long = 5
   private var ids = Seq.empty[String]
   private var limit = Long.MaxValue
   private var format = "dd.MM.yyy_HH:mm:ss:nnnnnnnnn"
   private var earliest = "01.01.2000_00:00:00:000000000"
   private var latest = "31.12.9999_23:59:59:999999999"
 
-  private var queue: SourceQueueWithComplete[(HttpRequest, Promise[HttpResponse])] = _
-
   private val metricCollections = mutable.HashMap.empty[String, Seq[MetricsCollection]]
   private val idToEarliest = mutable.HashMap.empty[String, String]
 
-  private val parseAsync = getAsyncCallback[HttpResponse](response => parseHttpResponse(response))
+  private val parseAsync = getAsyncCallback[(String, HttpResponse)]({case (id, response) =>
+    metricCollections += (id -> parseHttpResponse(response))
+  })
 
   override def initialize(configuration: Configuration): Unit = {
     //1. Configure
@@ -172,22 +167,11 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   override def configure(configuration: Configuration): Unit = {
     applyConfiguration(configuration)
 
-    val pool = Http().cachedHostConnectionPool[Promise[HttpResponse]](host = server, port = port.intValue())
-    queue = Source.queue[(HttpRequest, Promise[HttpResponse])](1, OverflowStrategy.dropNew)
-      .via(pool)
-      .toMat(Sink.foreach({
-        case (Success(response), promise) => promise.success(response)
-        case (Failure(throwable), promise) => promise.failure(throwable)
-      }))(Keep.left)
-      .run()
-
   }
 
   override def onPull(): Unit = {
 
-    //1. Convert MetricCollections in the HashMap into datasets and push them
-
-    //2. _updateEarliest()_
+    pushMetrics()
 
     //3. Clear the HashMap
     metricCollections.clear()
@@ -195,29 +179,6 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     //4. Wait _interval_ and _collectMetrics()_ with
 
 
-  }
-
-  private def collectMetrics(): Unit = {
-
-
-    ids.map(id => {
-      //TODO Update earliest for each id
-      //1.1 Create a MetricsQuery
-      val mq = MetricsQuery(limit, earliest, latest, format)
-
-      //1.2 Send n HTTP Request to get the MetricCollections for the _id's_
-      HttpRequest(POST, uri = s"/metrics/$id", entity = HttpEntity(`application/json`, write(mq))) -> Promise[HttpResponse]
-
-    })
-      .foreach({
-        case tuple@(request, promise) =>
-          queue.offer(tuple).flatMap(_ => promise.future).onComplete({
-            case Success(response) =>
-              //2. Parse the HTTP responses to Seq[MetricCollection] and store them in the HashMap
-              parseAsync.invoke(response)
-            case Failure(cause) => log.error(s"Retrieve MetricCollections for ${request.uri.path} failed: $cause")
-          })
-      })
   }
 
   private def applyConfiguration(configuration: Configuration): Unit = {
@@ -231,30 +192,49 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     latest = configuration.getValueOrDefault(latestParameter, latest)
   }
 
-  private def parseHttpResponse(response: HttpResponse): Unit = {
+  private def collectMetrics(): Unit = {
 
-    org.json4s.native.Serialization.read[Seq[MetricsCollection]](response.entity.toString)
+    ids.map(id => {
 
-//    implicit val um: Unmarshaller[HttpEntity, Seq[MetricsCollection]] = {
-//      Unmarshaller.byteStringUnmarshaller.mapWithCharset { (data, charset) =>
-//        val charBuffer = Unmarshaller.bestUnmarshallingCharsetFor(data)
-////        JsonFormat.fromJsonString(data.decodeString(charBuffer.nioCharset().name()))(MetricsCollection)
-//        /*PropertyEntity.parseFrom(CodedInputStream.newInstance(data.asByteBuffer))*/
-//
-//      }
-//    }
-//
-//    val mcs = Unmarshal(response.entity)
-  }
+      val newest = idToEarliest.getOrElse(id, earliest)
+      val mq = MetricsQuery(limit, newest, latest, format)
 
-  private def convertMetricCollections(mcs: Seq[MetricsCollection]): Seq[Dataset] = {
-    //TODO implement
-    val datasets: Seq[Dataset] = mcs.map(mc => {
-      Dataset()
+      //1.2 Send n HTTP Request to get the MetricCollections for the _id's_
+      val uri = Uri(s"$server:$port/metrics/$id")
+      id -> Http().singleRequest(HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq))))
+
     })
-
-    datasets
+      .foreach({
+        case (id, future) =>
+          future.onComplete({
+            case Success(response) =>
+              parseAsync.invoke((id, response))
+            case Failure(cause) =>
+              log.error(s"Retrieve MetricCollections for <$id> failed: $cause")
+          })
+      })
   }
+
+  private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
+    val body = response.entity.asInstanceOf[HttpEntity.Strict].data.utf8String
+
+    org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
+  }
+
+  private def pushMetrics(): Unit = {
+    metricCollections.foreach(mcs => {
+
+
+
+      mcs._2.foreach(mc => {
+        push(out, MetricConversion.convertMetricCollectionToDataset(mcs._1, mc))
+      })
+    })
+  }
+
+
+
+
 
 
 }

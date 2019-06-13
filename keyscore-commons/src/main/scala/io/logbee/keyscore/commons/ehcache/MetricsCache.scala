@@ -87,6 +87,8 @@ class MetricsCache(val configuration: Configuration) {
     cache.get(calculateKey(id, entry)) match {
       case mc: MetricsCollection =>
         if (mc.metrics.nonEmpty) {
+
+          //TODO find a better solution as head ~> MetricConversion
           val timestamp = Timestamp(mc.metrics.head.asMessage.timestamp.seconds, mc.metrics.head.asMessage.timestamp.nanos)
 
           if (seq.size < limit) {

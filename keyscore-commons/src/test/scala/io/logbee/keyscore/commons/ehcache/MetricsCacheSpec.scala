@@ -77,10 +77,11 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
 
       Thread.sleep(1000)
 
+      metricsCache.getAll(id03, earliest = Timestamp(8, 25), latest = Timestamp(13, 73), limit = 10).size shouldBe 4
       metricsCache.getAll(id03, earliest = Timestamp(8, 25), latest = Timestamp(13, 73), limit = 3).size shouldBe 3
       metricsCache.getAll(id03, earliest = Timestamp(9, 26), latest = Timestamp(11, 72), limit = 3).size shouldBe 2
-      metricsCache.getAll(id03, earliest = Timestamp(9, 25), latest = Timestamp(12, 73), limit = 3).size shouldBe 3
-      metricsCache.getAll(id03, earliest = Timestamp(9, 25), latest = Timestamp(12, 72), limit = 5).size shouldBe 3
+      metricsCache.getAll(id03, earliest = Timestamp(9, 25), latest = Timestamp(12, 73), limit = 10).size shouldBe 4
+      metricsCache.getAll(id03, earliest = Timestamp(9, 25), latest = Timestamp(12, 72), limit = 10).size shouldBe 3
       metricsCache.getAll(id03, earliest = Timestamp(9, 25), latest = Timestamp(12, 74), limit = 10).size shouldBe 4
       metricsCache.getAll(id03, earliest = Timestamp(11, 26), latest = Timestamp(12, 74), limit = 10).size shouldBe 3
       metricsCache.getAll(id03, earliest = Timestamp(10, 27), latest = Timestamp(13, 73), limit = 10).size shouldBe 3
