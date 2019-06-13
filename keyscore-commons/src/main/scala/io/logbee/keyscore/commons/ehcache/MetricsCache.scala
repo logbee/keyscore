@@ -7,7 +7,7 @@ import java.util.UUID
 import com.google.protobuf.timestamp.Timestamp
 import com.typesafe.config.Config
 import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
-import io.logbee.keyscore.model.metrics.MetricsCollection
+import io.logbee.keyscore.model.metrics.{MetricConversion, MetricsCollection}
 import org.ehcache.PersistentUserManagedCache
 import org.ehcache.config.builders._
 import org.ehcache.config.units.MemoryUnit
@@ -88,16 +88,18 @@ class MetricsCache(val configuration: Configuration) {
       case mc: MetricsCollection =>
         if (mc.metrics.nonEmpty) {
 
-          //TODO find a better solution as head ~> MetricConversion
-          val timestamp = Timestamp(mc.metrics.head.asMessage.timestamp.seconds, mc.metrics.head.asMessage.timestamp.nanos)
+          val actualLatest = MetricConversion.getLatest(mc)
+          val actualTimestamp = Timestamp(actualLatest.seconds, actualLatest.nanos)
 
           if (seq.size < limit) {
-            if (isLatest(timestamp, latest)) {
-              if (isEarliest(timestamp, earliest)) {
-                getAllFrom(id, entry - 1, earliest, latest, limit, mc +: seq)
-              } else seq
-            } else {
+            if(newerThanLatest(actualTimestamp, latest)){
               getAllFrom(id, entry - 1, earliest, latest, limit, seq)
+            } else {
+              if(olderThanEarliest(actualTimestamp, earliest)){
+                seq
+              } else {
+                getAllFrom(id, entry - 1, earliest, latest, limit, seq :+ mc)
+              }
             }
           } else seq
         } else seq
@@ -148,19 +150,19 @@ class MetricsCache(val configuration: Configuration) {
     }
   }
 
-  private def isLatest(actual: Timestamp, latest: Timestamp): Boolean = {
-    if (actual.seconds < latest.seconds) true
+  private def newerThanLatest(actual: Timestamp, latest: Timestamp): Boolean = {
+    if (actual.seconds > latest.seconds) true
     else if (actual.seconds == latest.seconds) {
-      if (actual.nanos <= latest.nanos) true
+      if (actual.nanos > latest.nanos) true
       else false
     }
     else false
   }
 
-  private def isEarliest(actual: Timestamp, earliest: Timestamp): Boolean = {
-    if(actual.seconds > earliest.seconds) true
+  private def olderThanEarliest(actual: Timestamp, earliest: Timestamp): Boolean = {
+    if(actual.seconds < earliest.seconds) true
     else if (actual.seconds == earliest.seconds) {
-      if (actual.nanos >= earliest.nanos) true
+      if (actual.nanos < earliest.nanos) true
       else false
     }
     else false

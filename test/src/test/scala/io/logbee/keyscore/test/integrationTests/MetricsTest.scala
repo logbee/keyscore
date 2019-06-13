@@ -77,11 +77,11 @@ class MetricsTest extends Matchers {
     applyBehavior(new InsertDatasets(addFieldsID, write(List(d1, d2, d3))))
 
     Thread.sleep(3000)
-    (scrapeMetrics(addFieldsID, write(standardTimestamp)).last find insertedDatasets get).value shouldBe 3
+    (scrapeMetrics(addFieldsID, write(standardTimestamp)).head find insertedDatasets get).value shouldBe 3
 
     logger.debug(s"Also 3 datasets should been now pushed to the next filter.")
-    (scrapeMetrics(addFieldsID, write(standardTimestamp)).last find pushedDatasets get).value shouldBe 3
-    (scrapeMetrics(retainID, write(standardTimestamp)).last find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(addFieldsID, write(standardTimestamp)).head find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID, write(standardTimestamp)).head find pushedDatasets get).value shouldBe 3
 
     logger.debug(s"There still should be 3 datasets that were pushed to the next filter")
     applyBehavior(new FilterPause(retainID, "true"))
@@ -92,23 +92,23 @@ class MetricsTest extends Matchers {
     applyBehavior(new InsertDatasets(retainID, write(List(d4, d5, d6))))
 
     Thread.sleep(3000)
-    (scrapeMetrics(retainID, write(standardTimestamp)).last find insertedDatasets get).value shouldBe 3
-    (scrapeMetrics(retainID, write(standardTimestamp)).last find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID, write(standardTimestamp)).head find insertedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID, write(standardTimestamp)).head find pushedDatasets get).value shouldBe 3
 
     applyBehavior(new FilterPause(retainID, "false"))
     applyBehavior(new FilterDrain(retainID, "false"))
     checkFilterState(retainID, Green, Running)
 
     Thread.sleep(3000)
-    (scrapeMetrics(retainID, write(standardTimestamp)).last find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(retainID, write(standardTimestamp)).head find pushedDatasets get).value shouldBe 3
 
     logger.debug("From the last filter 6 datasets should have been extracted.")
-    (scrapeMetrics(removeID, write(standardTimestamp)).last find pushedDatasets get).value shouldBe 3
+    (scrapeMetrics(removeID, write(standardTimestamp)).head find pushedDatasets get).value shouldBe 3
     applyBehavior(new InsertDatasets(retainID, write(List(d7, d8, d9))))
 
     Thread.sleep(3000)
-    (scrapeMetrics(retainID, write(standardTimestamp)).last find insertedDatasets get).value shouldBe 6
-    (scrapeMetrics(retainID, write(standardTimestamp)).last find pushedDatasets get).value shouldBe 6
+    (scrapeMetrics(retainID, write(standardTimestamp)).head find insertedDatasets get).value shouldBe 6
+    (scrapeMetrics(retainID, write(standardTimestamp)).head find pushedDatasets get).value shouldBe 6
 
     extractDatasets(removeID, 10).size shouldBe 6
 
@@ -118,8 +118,8 @@ class MetricsTest extends Matchers {
 
     Thread.sleep(3000)
 
-    val firstOut = scrapeMetrics(decoderID, write(standardTimestamp)).last.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
-    val lastOut = scrapeMetrics(encoderID, write(standardTimestamp)).last.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val firstOut = scrapeMetrics(decoderID, write(standardTimestamp)).head.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val lastOut = scrapeMetrics(encoderID, write(standardTimestamp)).head.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
 
     lastOut should be > 0.0
 

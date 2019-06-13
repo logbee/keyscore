@@ -55,7 +55,7 @@ object MetricConversion {
       if (first.nanos > second.seconds) second
       else first
     }
-    first
+    else first
   }
 
 }
