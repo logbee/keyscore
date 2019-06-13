@@ -44,14 +44,14 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
                 .returning(subDirWatcher)
               
               
-              (subDirWatcher.processFileChanges _).expects()
-              dirWatcher.processFileChanges()
+              (subDirWatcher.processChanges _).expects()
+              dirWatcher.processChanges()
               
               
               
               //call another time to verify that it's called on the sub-DirWatcher
-              (subDirWatcher.processFileChanges _).expects()
-              dirWatcher.processFileChanges()
+              (subDirWatcher.processChanges _).expects()
+              dirWatcher.processChanges()
               
               
               (subDirWatcher.tearDown _).expects()
@@ -84,13 +84,13 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
                 
                 val fileEventHandler = mock[FileEventHandler]
                 
-                (fileEventHandler.processFileChanges _).expects()
+                (fileEventHandler.processChanges _).expects()
                 
                 (provider.createFileEventHandler _)
                   .expects(file)
                   .returning(fileEventHandler)
                 
-                dirWatcher.processFileChanges()
+                dirWatcher.processChanges()
                 
                 (fileEventHandler.tearDown _).expects()
                 dirWatcher.tearDown()

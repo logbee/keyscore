@@ -66,7 +66,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
           logFile.lastModified,
           newerFilesWithSharedLastModified = 0))
           
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
     
     
@@ -114,7 +114,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
     
     
@@ -152,7 +152,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
     
     
@@ -178,7 +178,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
     //TODO adjust test(-descriptions) to accommodate for us not caring anymore whether a read has completed or just scheduled
     
@@ -203,7 +203,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
             endPos = logFile.length,
             logFile.lastModified,
             newerFilesWithSharedLastModified = 0))
-        readScheduler.processFileChanges()
+        readScheduler.processChanges()
         
         val previousEndPos = logFile.length
         
@@ -218,7 +218,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
             endPos = logFile.length,
             logFile.lastModified,
             newerFilesWithSharedLastModified = 0))
-        readScheduler.processFileChanges()
+        readScheduler.processChanges()
       }
     }
     
@@ -245,7 +245,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
     
     
@@ -274,7 +274,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
       }
       
       val readScheduler = new ReadScheduler(logFile, defaultRotationPattern, readPersistence, readSchedule)
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
     
     
@@ -343,7 +343,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
       }
       
       val readScheduler = new ReadScheduler(baseFile, rotatePattern, readPersistence, readSchedule)
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
     
     
@@ -381,7 +381,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
           )
       }
       val readScheduler = new ReadScheduler(baseFile, rotatePattern, readPersistence, readSchedule)
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
     
     
@@ -433,7 +433,7 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
       }
       
       val readScheduler = new ReadScheduler(baseFile, rotatePattern, readPersistence, readSchedule)
-      readScheduler.processFileChanges()
+      readScheduler.processChanges()
     }
   }
 }

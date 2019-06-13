@@ -43,9 +43,9 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
           .returning(subDirWatcher)
         
         
-        dirWatcher.processFileChanges()
+        dirWatcher.processChanges()
         
-        (subDirWatcher.processFileChanges _).verify()
+        (subDirWatcher.processChanges _).verify()
       }
       
       
@@ -66,12 +66,12 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
           .returning(subDirWatcher)
         
         
-        dirWatcher.processFileChanges()
+        dirWatcher.processChanges()
         
         subDir.toFile.delete()
         TestUtil.waitForFileToBeDeleted(subDir.toFile)
         
-        dirWatcher.processFileChanges()
+        dirWatcher.processChanges()
         (subDirWatcher.pathDeleted _).verify()
       }
     }
@@ -107,7 +107,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             
             TestUtil.waitForFileToExist(file)
             
-            dirWatcher.processFileChanges()
+            dirWatcher.processChanges()
           }
         }
       }
@@ -149,13 +149,13 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
             val dirWatcher = new DirWatcher(new LocalDir(dirPath), matchPattern, provider)
             
             
-            dirWatcher.processFileChanges()
+            dirWatcher.processChanges()
             
             
             
             
             
-            (fileEventHandler.processFileChanges _).verify()
+            (fileEventHandler.processChanges _).verify()
           }
         }
       }
@@ -174,7 +174,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         
         TestUtil.waitForFileToExist(file)
         
-        dirWatcher.processFileChanges()
+        dirWatcher.processChanges()
       }
       
       
@@ -191,16 +191,16 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         file.createNewFile()
         TestUtil.waitForFileToExist(file)
         
-        dirWatcher.processFileChanges()
+        dirWatcher.processChanges()
         
         //write something to file
         TestUtil.writeStringToFile(file, "Hello World", StandardOpenOption.APPEND)
         
         TestUtil.waitForWatchService()
         
-        dirWatcher.processFileChanges()
+        dirWatcher.processChanges()
         
-        (subFileEventHandler.processFileChanges _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileEventHandler
+        (subFileEventHandler.processChanges _).verify().twice //twice, because DirWatcher calls this, too, when setting up the FileEventHandler
       }
       
       
@@ -217,12 +217,12 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
         file.createNewFile
         TestUtil.waitForFileToExist(file)
         
-        dirWatcher.processFileChanges()
+        dirWatcher.processChanges()
         
         file.delete()
         TestUtil.waitForFileToBeDeleted(file)
         
-        dirWatcher.processFileChanges()
+        dirWatcher.processChanges()
         
         (subFileEventHandler.pathDeleted _).verify()
       }

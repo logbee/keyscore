@@ -48,12 +48,12 @@ class DirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherPr
   }
   
   
-  def processFileChanges() = { //TODO rename to processChanges()
+  def processChanges() = {
     
     val changes = watchDir.getChanges
     
     
-    doForEachPath(changes.potentiallyModifiedDirs, _.processFileChanges()) //call processFileChanges() on subDirWatchers
+    doForEachPath(changes.potentiallyModifiedDirs, _.processChanges()) //call processFileChanges() on subDirWatchers
     
     
     doForEachPath(changes.deletedPaths, _.pathDeleted())
@@ -71,7 +71,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherPr
     changes.newlyCreatedFiles.foreach {addSubFileEventHandler(_)}
     
     
-    doForEachPath(changes.potentiallyModifiedFiles, _.processFileChanges())
+    doForEachPath(changes.potentiallyModifiedFiles, _.processChanges())
   }
   
   
@@ -85,7 +85,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherPr
         matchPattern
       )
       
-      subDirWatcher.processFileChanges()
+      subDirWatcher.processChanges()
       
       val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
       
@@ -101,7 +101,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherPr
     if (matchPattern.matches(file)) {
       val fileEventHandler = watcherProvider.createFileEventHandler(file)
       
-      fileEventHandler.processFileChanges()
+      fileEventHandler.processChanges()
       
       val list = subFileEventHandlers.getOrElse(file, mutable.ListBuffer.empty)
       
@@ -116,7 +116,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherPr
     subFileEventHandlers.get(file) match {
       case None => //can't notify anyone
       case Some(watchers: ListBuffer[FileEventHandler]) => {
-        watchers.foreach(watcher => watcher.processFileChanges())
+        watchers.foreach(watcher => watcher.processChanges())
       }
     }
   }

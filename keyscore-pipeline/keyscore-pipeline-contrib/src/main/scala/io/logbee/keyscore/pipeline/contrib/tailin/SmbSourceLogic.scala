@@ -267,7 +267,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
   
   
   override def onTimer(timerKey: Any) {
-    dirWatcher.processFileChanges()
+    dirWatcher.processChanges()
     
     if (!sendBuffer.isEmpty) {
       doPush()
@@ -314,7 +314,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
       doPush()
     }
     else {
-      dirWatcher.processFileChanges()
+      dirWatcher.processChanges()
       
       if (!sendBuffer.isEmpty) {
         doPush()
