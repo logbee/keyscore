@@ -183,7 +183,7 @@ It is also possible to choose whether the parameter is mandatory and the user ha
 
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=BooleanParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=BooleanParameterDescriptor]
 ----
 
 ==== Examples ====
@@ -203,7 +203,7 @@ https://en.wikipedia.org/wiki/Base64[Base64] or not.
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=TextParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=TextParameterDescriptor]
 ----
 
 === Expression Parameter ===
@@ -218,12 +218,12 @@ include::{descriptors_base}/descriptor.proto[tags=TextParameterDescriptor]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=ExpressionParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=ExpressionParameterDescriptor]
 ----
 
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=ExpressionType]
+include::{descriptors_base}/parameter-descriptor.proto[tags=ExpressionType]
 ----
 
 === Number Parameter ===
@@ -240,7 +240,7 @@ include::{descriptors_base}/descriptor.proto[tags=ExpressionType]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=NumberParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=NumberParameterDescriptor]
 ----
 
 === Decimal Parameter ===
@@ -255,7 +255,7 @@ include::{descriptors_base}/descriptor.proto[tags=NumberParameterDescriptor]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=DecimalParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=DecimalParameterDescriptor]
 ----
 
 === Field-Name Parameter ===
@@ -269,7 +269,7 @@ include::{descriptors_base}/descriptor.proto[tags=DecimalParameterDescriptor]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=FieldNameParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=FieldNameParameterDescriptor]
 ----
 
 === Field-Name-Pattern Parameter ===
@@ -281,7 +281,7 @@ include::{descriptors_base}/descriptor.proto[tags=FieldNameParameterDescriptor]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=FieldNamePatternParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=FieldNamePatternParameterDescriptor]
 ----
 
 === Field Parameter ===
@@ -296,7 +296,7 @@ include::{descriptors_base}/descriptor.proto[tags=FieldNamePatternParameterDescr
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=FieldParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=FieldParameterDescriptor]
 ----
 
 === Text-List Parameter ===
@@ -312,7 +312,7 @@ include::{descriptors_base}/descriptor.proto[tags=FieldParameterDescriptor]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=TextListParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=TextListParameterDescriptor]
 ----
 
 === Field-Name-List Parameter ===
@@ -326,7 +326,7 @@ include::{descriptors_base}/descriptor.proto[tags=TextListParameterDescriptor]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=FieldNameListParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=FieldNameListParameterDescriptor]
 ----
 
 === Field-List Parameter ===
@@ -341,7 +341,7 @@ include::{descriptors_base}/descriptor.proto[tags=FieldNameListParameterDescript
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=FieldListParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=FieldListParameterDescriptor]
 ----
 
 === Choice Parameter ===
@@ -354,7 +354,7 @@ include::{descriptors_base}/descriptor.proto[tags=FieldListParameterDescriptor]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=ChoiceParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=ChoiceParameterDescriptor]
 ----
 
 ===== Min / Max =====
@@ -364,7 +364,7 @@ include::{descriptors_base}/descriptor.proto[tags=ChoiceParameterDescriptor]
 ===== Choices =====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=Choice]
+include::{descriptors_base}/parameter-descriptor.proto[tags=Choice]
 ----
 
 === ParameterGroupDescriptor ===
@@ -376,17 +376,17 @@ include::{descriptors_base}/descriptor.proto[tags=Choice]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=ParameterGroupDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=ParameterGroupDescriptor]
 ----
 
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=ParameterGroupCondition]
+include::{descriptors_base}/parameter-descriptor.proto[tags=ParameterGroupCondition]
 ----
 
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=BooleanParameterCondition]
+include::{descriptors_base}/parameter-descriptor.proto[tags=BooleanParameterCondition]
 ----
 
 === Field-Directive-Sequence Parameter ===
@@ -398,17 +398,17 @@ include::{descriptors_base}/descriptor.proto[tags=BooleanParameterCondition]
 ==== Specification ====
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=FieldDirectiveSequenceParameterDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=FieldDirectiveSequenceParameterDescriptor]
 ----
 
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=DirectiveRef]
+include::{descriptors_base}/parameter-descriptor.proto[tags=DirectiveRef]
 ----
 
 [source]
 ----
-include::{descriptors_base}/descriptor.proto[tags=FieldDirectiveDescriptor]
+include::{descriptors_base}/parameter-descriptor.proto[tags=FieldDirectiveDescriptor]
 ----
 
 == Localization ==
