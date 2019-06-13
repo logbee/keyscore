@@ -38,7 +38,7 @@ class SmbDir(dir: Directory) extends DirHandle {
   }
   
   
-  private def listDirsAndFiles: (Set[SmbDir], Set[SmbFile]) = {
+  override def listDirsAndFiles: (Set[SmbDir], Set[SmbFile]) = {
     
     val subPaths = JavaConverters.asScalaBuffer(dir.list).toSeq
                      .filterNot(subPath => subPath.getFileName.endsWith("\\.")

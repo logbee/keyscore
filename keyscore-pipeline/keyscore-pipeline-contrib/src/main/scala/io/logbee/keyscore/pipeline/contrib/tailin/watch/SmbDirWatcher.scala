@@ -27,6 +27,16 @@ class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watche
       subFileEventHandlers.asInstanceOf[mutable.Map[PathHandle, ListBuffer[PathWatcher]]]
   
   
+  
+  
+  //recursive setup
+  val (initialSubDirs, initialSubFiles) = watchDir.listDirsAndFiles
+  initialSubDirs.foreach(addSubDirWatcher(_))
+  initialSubFiles.foreach(addSubFileEventHandler(_))
+  
+  
+  
+  
   private def doForEachPath(paths: Set[_ <: PathHandle], func: PathWatcher => Unit) = {
     paths.foreach { path =>
       subPathHandlers.get(path).foreach { pathHandler =>

@@ -30,11 +30,11 @@ class LocalDir(dir: Path) extends DirHandle {
   }
   
   
-  private def listDirsAndFiles: (Set[DirHandle], Set[FileHandle]) = {
+  override def listDirsAndFiles: (Set[LocalDir], Set[LocalFile]) = {
     val contents = dir.toFile.listFiles
     
-    var dirs: Set[DirHandle] = Set.empty
-    var files: Set[FileHandle] = Set.empty
+    var dirs: Set[LocalDir] = Set.empty
+    var files: Set[LocalFile] = Set.empty
     
     contents.foreach { file =>
       if (file.isDirectory) {
