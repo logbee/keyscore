@@ -242,7 +242,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
         
         val client = new SMBClient()
         connection = client.connect(hostName)
-        val authContext = new AuthenticationContext(loginName, password.toCharArray, "") //TODO domain
+        val authContext = new AuthenticationContext(loginName, password.toCharArray, domainName)
         val session = connection.authenticate(authContext)
         
         // Connect to Share
