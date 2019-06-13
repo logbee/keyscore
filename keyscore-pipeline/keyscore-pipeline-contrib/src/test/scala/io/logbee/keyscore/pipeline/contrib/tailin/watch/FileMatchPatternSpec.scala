@@ -14,9 +14,9 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import java.nio.file.FileSystems
 
 @RunWith(classOf[JUnitRunner])
-class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll with MockFactory {
+class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll with MockFactory {
   
-  "A DirWatcherPattern" - {
+  "A FileMatchPattern" - {
     
     case class TestSetup(filePattern: String,
                          expectedFixedPath: String,
@@ -93,7 +93,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
         
         s"${testSetup.filePattern} has fixed parent-dir: ${testSetup.expectedFixedPath}" in
         {
-          val result = DirWatcherPattern.extractInvariableDir(testSetup.filePattern)
+          val result = FileMatchPattern.extractInvariableDir(testSetup.filePattern)
           
           result shouldBe Some(testSetup.expectedFixedPath)
         }
@@ -107,7 +107,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
         
         s"${testSetup.filePattern} which should be at position ${testSetup.expectedVariableIndex}" in
         {
-          val result = DirWatcherPattern.findFirstVariableIndex(testSetup.filePattern)
+          val result = FileMatchPattern.findFirstVariableIndex(testSetup.filePattern)
           
           result shouldBe (
                             if (testSetup.expectedVariableIndex == -1)
@@ -136,7 +136,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
         
         test._2 + " on " + test._1 in {
           val patternString = test._1
-          val matchPattern = new DirWatcherPattern(patternString)
+          val matchPattern = new FileMatchPattern(patternString)
           
           val fileName = test._2
           val file = mock[FileHandle]
@@ -154,7 +154,7 @@ class DirWatcherPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAl
       "" in {
         
         val patternString = "/path/to/test/log.txt"
-        val matchPattern = new DirWatcherPattern(patternString)
+        val matchPattern = new FileMatchPattern(patternString)
         
         val dirPath = "/path/to/"
         

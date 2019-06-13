@@ -8,7 +8,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 
 
-object DirWatcherPattern {
+object FileMatchPattern {
   
   def extractInvariableDir(filePattern: String): Option[String] = {
     
@@ -65,7 +65,7 @@ object DirWatcherPattern {
 }
 
 
-class DirWatcherPattern(fullFilePattern: String) {
+class FileMatchPattern(fullFilePattern: String) {
   
   val filePattern = {
     if (fullFilePattern.endsWith(File.separator)) {
@@ -78,10 +78,10 @@ class DirWatcherPattern(fullFilePattern: String) {
   }
   
   
-  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + DirWatcherPattern.getUnixLikePath(filePattern))
+  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + FileMatchPattern.getUnixLikePath(filePattern))
   
   def matches(file: FileHandle): Boolean = {
-    val path = Paths.get(DirWatcherPattern.getUnixLikePath(file.absolutePath))
+    val path = Paths.get(FileMatchPattern.getUnixLikePath(file.absolutePath))
     fileMatcher.matches(path)
   }
   
@@ -102,7 +102,7 @@ class DirWatcherPattern(fullFilePattern: String) {
     for (i <- 0 to sections.length) {
       val dirPattern = sections.foldLeft("")((a: String, b: String) => a + "/" + b)
       
-      val matcher = FileSystems.getDefault.getPathMatcher("glob:" + DirWatcherPattern.getUnixLikePath(dirPattern))
+      val matcher = FileSystems.getDefault.getPathMatcher("glob:" + FileMatchPattern.getUnixLikePath(dirPattern))
       if (matcher.matches(dirPath)) {
         return true
       }

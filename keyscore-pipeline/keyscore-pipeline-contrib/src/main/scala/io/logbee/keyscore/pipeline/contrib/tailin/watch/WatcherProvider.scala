@@ -7,7 +7,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 
 class WatcherProvider(readSchedule: ReadSchedule, rotationPattern: String, readPersistence: ReadPersistence) {
   
-  def createDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern): BaseDirWatcher = {
+  def createDirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern): BaseDirWatcher = {
     new DirWatcher(watchDir, matchPattern, this)
   }
 

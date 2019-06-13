@@ -47,7 +47,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.BaseDirWatcher
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.FileMatchPattern
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.WatcherProvider
 
 
@@ -210,7 +210,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     
     
     
-    var invariableString = DirWatcherPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
+    var invariableString = FileMatchPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
     if (invariableString.isEmpty
         || Paths.get(invariableString.get).toFile.isDirectory == false) {
         log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
@@ -241,7 +241,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
     
     val readSchedulerProvider = new WatcherProvider(readSchedule, rotationPattern, readPersistence)
-    dirWatcher = readSchedulerProvider.createDirWatcher(new LocalDir(baseDir), new DirWatcherPattern(filePattern))
+    dirWatcher = readSchedulerProvider.createDirWatcher(new LocalDir(baseDir), new FileMatchPattern(filePattern))
   }
   
   

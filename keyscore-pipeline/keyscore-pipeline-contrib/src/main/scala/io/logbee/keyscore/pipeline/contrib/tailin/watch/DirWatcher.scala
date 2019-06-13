@@ -17,7 +17,7 @@ case class DirChanges(
 )
 
 
-class DirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider) extends BaseDirWatcher {
+class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherProvider: WatcherProvider) extends BaseDirWatcher {
   
   private val subDirWatchers = mutable.Map.empty[DirHandle, ListBuffer[BaseDirWatcher]]
   private val subFileEventHandlers = mutable.Map.empty[FileHandle, ListBuffer[FileEventHandler]]

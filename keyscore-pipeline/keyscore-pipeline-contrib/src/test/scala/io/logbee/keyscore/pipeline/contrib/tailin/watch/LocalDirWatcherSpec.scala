@@ -20,7 +20,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
   trait DirWatcherParams {
     var provider = mock[WatcherProvider]
     var dirPath = watchDir
-    var matchPattern = new DirWatcherPattern(dirPath + "/*.txt")
+    var matchPattern = new FileMatchPattern(dirPath + "/*.txt")
   }
   
   
@@ -29,7 +29,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       "is created, should create a DirWatcher for that sub-directory" in
       new DirWatcherParams {
         
-        matchPattern = new DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt")
+        matchPattern = new FileMatchPattern(fullFilePattern = watchDir + "/*/test.txt")
         val dirWatcher = new DirWatcher(new LocalDir(dirPath), matchPattern, provider)
         
         val subDir = Paths.get(watchDir + "/testDir/")
@@ -52,7 +52,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
       "is deleted, should notify the responsible DirWatcher" in
       new DirWatcherParams {
         
-        matchPattern = new DirWatcherPattern(fullFilePattern = watchDir + "/*/test.txt")
+        matchPattern = new FileMatchPattern(fullFilePattern = watchDir + "/*/test.txt")
         val dirWatcher = new DirWatcher(new LocalDir(dirPath), matchPattern, provider)
         
         //create and register a directory
@@ -96,7 +96,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
           setup.pattern in
           new DirWatcherParams {
             
-            matchPattern = new DirWatcherPattern(watchDir + "/" + setup.pattern)
+            matchPattern = new FileMatchPattern(watchDir + "/" + setup.pattern)
             val dirWatcher = new DirWatcher(new LocalDir(dirPath), matchPattern, provider)
             
             val file = new File(watchDir + "/test.txt")
@@ -133,7 +133,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
           setup.startingPattern ignore //TEST
           new DirWatcherParams {
             
-            matchPattern = new DirWatcherPattern(fullFilePattern = watchDir + "/" + setup.startingPattern)
+            matchPattern = new FileMatchPattern(fullFilePattern = watchDir + "/" + setup.startingPattern)
             
             val subDir = Paths.get(watchDir + "/subDir/")
             Files.createDirectory(subDir)
