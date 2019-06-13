@@ -3,13 +3,13 @@ package io.logbee.keyscore.pipeline.contrib.tailin.watch
 import java.io.File
 import java.nio.file._
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile
 import io.logbee.keyscore.pipeline.contrib.tailin.util.{SpecWithTempDir, TestUtil}
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatestplus.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalDir
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalDir
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 

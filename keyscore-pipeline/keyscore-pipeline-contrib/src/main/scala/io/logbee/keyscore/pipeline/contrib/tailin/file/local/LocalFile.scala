@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -7,6 +7,7 @@ import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
 import scala.language.implicitConversions
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 
 object LocalFile {
   implicit def localFile2File(localFile: LocalFile) = localFile.file

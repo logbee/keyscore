@@ -2,7 +2,8 @@ package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import java.nio.charset.StandardCharsets
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, FileHandle, SmbDir}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, FileHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
 import org.scalamock.scalatest.MockFactory
 

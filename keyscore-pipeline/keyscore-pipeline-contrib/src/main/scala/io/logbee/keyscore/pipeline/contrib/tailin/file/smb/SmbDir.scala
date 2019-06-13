@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 
 import java.util.EnumSet
 
@@ -17,7 +17,8 @@ import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.File
 
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
-import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
 
 
 class SmbDir(dir: Directory) extends DirHandle {

@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 
 import java.nio.file.ClosedWatchServiceException
 import java.nio.file.FileSystems
@@ -9,6 +9,9 @@ import java.nio.file.WatchKey
 import java.nio.file.WatchService
 
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
 
 class LocalDir(dir: Path) extends DirHandle {
   

@@ -2,15 +2,17 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import org.scalatest.Matchers
-import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
+
 import org.scalactic.source.Position.apply
+import org.scalatest.Matchers
+
+import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
 
 
 class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
   
   
-  "A SmbFile should" - {
+  "An SmbFile should" - {
     val charset = StandardCharsets.UTF_8
     
     "return correct metadata" in withShare { share =>

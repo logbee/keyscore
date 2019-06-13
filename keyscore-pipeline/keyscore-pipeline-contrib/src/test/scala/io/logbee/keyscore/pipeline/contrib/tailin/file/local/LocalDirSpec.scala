@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil

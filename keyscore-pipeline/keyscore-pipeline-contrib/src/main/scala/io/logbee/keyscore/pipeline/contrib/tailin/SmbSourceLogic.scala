@@ -40,7 +40,7 @@ import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.SourceLogic
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbDir
+import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence

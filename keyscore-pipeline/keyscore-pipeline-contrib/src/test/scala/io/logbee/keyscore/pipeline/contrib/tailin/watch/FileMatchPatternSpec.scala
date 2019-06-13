@@ -6,7 +6,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile
 import java.nio.file.Paths
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import org.scalamock.scalatest.MockFactory
