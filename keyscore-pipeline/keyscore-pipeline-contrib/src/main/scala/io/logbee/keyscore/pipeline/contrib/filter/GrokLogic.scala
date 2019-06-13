@@ -63,7 +63,7 @@ object GrokLogic extends Described {
       icon = Icon.fromClass(classOf[GrokLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Grok",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.GrokLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
