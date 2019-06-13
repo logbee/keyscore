@@ -18,7 +18,7 @@ class LocalDirWatcherSpec extends SpecWithTempDir with Matchers with MockFactory
   
   
   trait DirWatcherParams {
-    var provider = mock[WatcherProvider[DirHandle, FileHandle]]
+    var provider = mock[SmbWatcherProvider]
     var dirPath = watchDir
     var matchPattern = new DirWatcherPattern(dirPath + "/*.txt")
   }

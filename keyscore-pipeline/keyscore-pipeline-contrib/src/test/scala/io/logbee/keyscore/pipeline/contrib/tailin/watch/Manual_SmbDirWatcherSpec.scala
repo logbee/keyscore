@@ -11,7 +11,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
   //TODO
   
   trait DirWatcherParams {
-    var provider = mock[WatcherProvider[DirHandle, FileHandle]]
+    var provider = mock[SmbWatcherProvider]
     var matchPattern = new DirWatcherPattern("/*.txt")
   }
   

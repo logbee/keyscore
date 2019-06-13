@@ -12,6 +12,7 @@ import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.data.Field
+import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.data.Label
 import io.logbee.keyscore.model.data.MetaData
 import io.logbee.keyscore.model.data.NumberValue
@@ -23,7 +24,6 @@ import io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor
 import io.logbee.keyscore.model.descriptor.Descriptor
 import io.logbee.keyscore.model.descriptor.FieldNameHint
 import io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor
-import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.descriptor.ParameterInfo
 import io.logbee.keyscore.model.descriptor.SourceDescriptor
 import io.logbee.keyscore.model.descriptor.StringValidator
@@ -36,6 +36,7 @@ import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.SourceLogic
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalDir
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
@@ -47,9 +48,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.LocalWatcherProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.SmbWatcherProvider
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalDir
 
 
 object TailinSourceLogic extends Described {
