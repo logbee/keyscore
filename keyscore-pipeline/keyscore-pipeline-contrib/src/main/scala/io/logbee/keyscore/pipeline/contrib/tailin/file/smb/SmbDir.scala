@@ -17,6 +17,7 @@ import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.File
 
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
+import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbFile
 
 
 class SmbDir(dir: Directory) extends DirHandle {

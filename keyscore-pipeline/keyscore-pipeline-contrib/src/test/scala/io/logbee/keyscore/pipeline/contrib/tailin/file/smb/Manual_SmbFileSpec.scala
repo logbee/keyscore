@@ -1,11 +1,10 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-
 import org.scalatest.Matchers
-
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
+import org.scalactic.source.Position.apply
 
 
 class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {

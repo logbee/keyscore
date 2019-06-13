@@ -1,14 +1,15 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
 import org.scalatest.Matchers
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import java.nio.ByteBuffer
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import java.nio.file.StandardOpenOption
 import java.nio.charset.StandardCharsets
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile.localFile2File
+import org.scalactic.source.Position.apply
 
 @RunWith(classOf[JUnitRunner])
 class LocalFileSpec extends SpecWithTempDir with Matchers {
