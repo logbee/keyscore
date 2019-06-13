@@ -21,6 +21,6 @@ trait PathWatcher {
 }
 
 
-trait DirWatcher extends PathWatcher;
+trait BaseDirWatcher extends PathWatcher
 
-trait FileEventHandler extends PathWatcher;
+trait FileEventHandler extends PathWatcher

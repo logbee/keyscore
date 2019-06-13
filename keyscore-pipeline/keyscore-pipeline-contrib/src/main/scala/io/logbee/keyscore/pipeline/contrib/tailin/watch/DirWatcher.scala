@@ -17,9 +17,9 @@ case class DirChanges(
 )
 
 
-class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherProvider: SmbWatcherProvider) extends DirWatcher {
-  //TODO rename to DirWatcher
-  private val subDirWatchers = mutable.Map.empty[DirHandle, ListBuffer[DirWatcher]]
+class DirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watcherProvider: WatcherProvider) extends BaseDirWatcher {
+  
+  private val subDirWatchers = mutable.Map.empty[DirHandle, ListBuffer[BaseDirWatcher]]
   private val subFileEventHandlers = mutable.Map.empty[FileHandle, ListBuffer[FileEventHandler]]
   
   private def subPathHandlers: mutable.Map[PathHandle, ListBuffer[PathWatcher]] =
@@ -176,7 +176,7 @@ class SmbDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern, watche
       case dir: DirHandle =>
         subDirWatchers.remove(dir) match {
           case None =>
-          case Some(watchers: ListBuffer[DirWatcher]) =>
+          case Some(watchers: ListBuffer[BaseDirWatcher]) =>
             watchers.foreach(_.pathDeleted())
         }
       case file: FileHandle =>

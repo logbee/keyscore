@@ -5,10 +5,10 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 
-class SmbWatcherProvider(readSchedule: ReadSchedule, rotationPattern: String, readPersistence: ReadPersistence) {
+class WatcherProvider(readSchedule: ReadSchedule, rotationPattern: String, readPersistence: ReadPersistence) {
   
-  def createDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern): DirWatcher = {
-    new SmbDirWatcher(watchDir, matchPattern, this)
+  def createDirWatcher(watchDir: DirHandle, matchPattern: DirWatcherPattern): BaseDirWatcher = {
+    new DirWatcher(watchDir, matchPattern, this)
   }
 
   def createFileEventHandler(file: FileHandle): FileEventHandler = {

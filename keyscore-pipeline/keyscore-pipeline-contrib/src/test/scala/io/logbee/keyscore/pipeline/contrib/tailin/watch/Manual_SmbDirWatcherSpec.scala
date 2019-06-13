@@ -11,7 +11,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
   //TODO
   
   trait DirWatcherParams {
-    var provider = mock[SmbWatcherProvider]
+    var provider = mock[WatcherProvider]
     var matchPattern = new DirWatcherPattern("/*.txt")
   }
   
@@ -31,13 +31,13 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
             val dir = new SmbDir(realDir)
             
             matchPattern = new DirWatcherPattern(fullFilePattern = "\\\\" + hostName + "\\" + shareName + "\\" + dirPath + "*\\test.txt")
-            val dirWatcher = new SmbDirWatcher(dir, matchPattern, provider)
+            val dirWatcher = new DirWatcher(dir, matchPattern, provider)
             
             
             val subDirPath = dirPath + "subDir"
             withSmbDir(share, subDirPath, { subDir =>
               
-              val subDirWatcher = mock[DirWatcher]
+              val subDirWatcher = mock[BaseDirWatcher]
               
               (provider.createDirWatcher _)
                 .expects(*, matchPattern)
@@ -75,7 +75,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
               val dir = new SmbDir(realDir)
               println("matchPattern: " + dir.absolutePath + "test.txt")
               matchPattern = new DirWatcherPattern(dir.absolutePath + "test.txt") //FIXME correct this filePattern
-              val dirWatcher = new SmbDirWatcher(dir, matchPattern, provider)
+              val dirWatcher = new DirWatcher(dir, matchPattern, provider)
               
               
               val filePath = dirPath + "test.txt"
