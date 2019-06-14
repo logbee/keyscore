@@ -36,7 +36,8 @@ class SmbDir(dir: Directory) extends DirHandle {
   
   
   private def isDirectory(fileIdBothDirectoryInformation: FileIdBothDirectoryInformation): Boolean = {
-    (fileIdBothDirectoryInformation.getFileAttributes & 0x10) == 0x10 // 0001 0000 -> if 5th bit is 1, it's a directory, else a file (according to SMB spec)
+    import FileAttributes._
+    (fileIdBothDirectoryInformation.getFileAttributes & FILE_ATTRIBUTE_DIRECTORY.getValue) == FILE_ATTRIBUTE_DIRECTORY.getValue
   }
   
   
@@ -72,19 +73,21 @@ class SmbDir(dir: Directory) extends DirHandle {
         )
         
         
-        if (diskEntry.isInstanceOf[Directory]) {
-          dirs = dirs + new SmbDir(diskEntry.asInstanceOf[Directory])
-        } else {
-          files = files + new SmbFile(diskEntry.asInstanceOf[File])
+        diskEntry match {
+          case dir: Directory =>
+            dirs = dirs + new SmbDir(dir)
+            
+          case file: File =>
+            files = files + new SmbFile(file)
         }
       }
       catch {
-        case ex: SMBApiException =>
-          if (ex.getStatus == NtStatus.STATUS_DELETE_PENDING) {
-            //this file is being deleted, so don't add it to the listing
+        case smbException: SMBApiException =>
+          if (smbException.getStatus == NtStatus.STATUS_DELETE_PENDING) {
+            //this file/dir is being deleted, so don't add it to the listing
           }
           else {
-            throw ex
+            throw smbException
           }
       }
     }
@@ -100,7 +103,7 @@ class SmbDir(dir: Directory) extends DirHandle {
     val (currentSubDirs, currentSubFiles) = listDirsAndFiles
     
     
-    //process dir-changes
+    //determine dir-changes
     var deletedPaths: Set[PathHandle] = previousSubDirs.toSeq.diff(currentSubDirs.toSeq).toSet
     val dirsContinuingToExist = previousSubDirs.intersect(currentSubDirs)
     val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
@@ -108,7 +111,7 @@ class SmbDir(dir: Directory) extends DirHandle {
     previousSubDirs = currentSubDirs
     
     
-    //process file-changes
+    //determine file-changes
     deletedPaths = deletedPaths ++ previousSubFiles.diff(currentSubFiles)
     val filesContinuingToExist = previousSubFiles.intersect(currentSubFiles)
     val newlyCreatedFiles = currentSubFiles.diff(previousSubFiles)
