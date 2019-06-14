@@ -13,6 +13,7 @@ import {PropagationStopModule} from "ngx-propagation-stop";
 import {ParameterFactoryService} from "./service/parameter-factory.service";
 import {MaterialModule} from "keyscore-manager-material";
 import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.component";
+import {ExpressionParameterModule} from "./parameters/expression-parameter/expression-parameter.module";
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.c
         TranslateModule,
         MaterialModule,
         DragDropModule,
-        PropagationStopModule
+        PropagationStopModule,
+        ExpressionParameterModule
     ],
     declarations: [
         ParameterMap,
@@ -31,7 +33,7 @@ import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.c
         ParameterComponent,
         AutocompleteInputComponent,
         ParameterDirectiveComponent,
-        ParameterFieldnamepatternComponent
+        ParameterFieldnamepatternComponent,
     ],
     exports: [
         ParameterComponent
