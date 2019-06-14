@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 trait FileHandle extends PathHandle {
   def name: String
   
-  def listRotatedFiles(rotationPattern: String): Seq[FileHandle]
+  def listRotatedFiles(rotationPattern: String): Seq[_ <: FileHandle]
   
   def length: Long
   

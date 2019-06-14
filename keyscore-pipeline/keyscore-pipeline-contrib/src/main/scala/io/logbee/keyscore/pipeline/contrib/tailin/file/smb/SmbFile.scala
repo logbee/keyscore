@@ -40,17 +40,17 @@ class SmbFile(path: String, share: DiskShare) extends FileHandle {
   
   private def parentPath: String = {
     
-    var filePath = SmbPath.parse(file.getFileName).getPath
+    var parentPath = absolutePath
     
-    val fileNameStart = filePath.lastIndexOf("\\")
+    val fileNameStart = parentPath.lastIndexOf("\\")
     if (fileNameStart != -1) {
-      filePath = filePath.substring(0, fileNameStart) //cut off file-name from the end
+      parentPath = parentPath.substring(0, fileNameStart) //cut off file-name from the end
     }
     else {
-      filePath = ""
+      parentPath = ""
     }
     
-    filePath
+    parentPath
   }
   
   
@@ -115,7 +115,7 @@ class SmbFile(path: String, share: DiskShare) extends FileHandle {
   
 
   
-  def tearDown() = {
+  def tearDown(): Unit = {
     if (file != null) {
       file.close()
     }
