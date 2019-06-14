@@ -16,6 +16,7 @@ import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.DiskShare
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
 
 /**
  * Semi-automatic test. Requires user-interaction and an SMB share.
@@ -79,7 +80,7 @@ class Manual_SpecWithSmbShare extends FreeSpec {
     
     actualSmbFile.write(writeArray, 0)
     
-    new SmbFile(actualSmbFile)
+    new SmbFile(fileName, share)
   }
   
   
@@ -119,13 +120,13 @@ class Manual_SpecWithSmbShare extends FreeSpec {
   
   
   
-  def withSmbDir(share: DiskShare, dirName: String, testCode: Directory => Any) = {
+  def withSmbDir(share: DiskShare, dirName: String, testCode: SmbDir => Any) = {
     
     var smbDir: Directory = null
     try {
-      smbDir = createDir(share, dirName)
+      createDir(share, dirName)
       
-      testCode(smbDir)
+      testCode(new SmbDir(dirName, share))
     }
     finally { //TODO calling rmdir will interrupt file-deletion, because non-empty dir being deleted, therefore cause nothing to be deleted
       println("rmDir: " + dirName)

@@ -27,9 +27,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
         withShare { share =>
           
           val dirPath = "testDir\\"
-          withSmbDir(share, dirPath, { realDir =>
-            
-            val dir = new SmbDir(realDir)
+          withSmbDir(share, dirPath, { dir =>
             
             matchPattern = new FileMatchPattern(fullFilePattern = "\\\\" + hostName + "\\" + shareName + "\\" + dirPath + "*\\test.txt")
             val dirWatcher = new DirWatcher(dir, matchPattern, provider)
@@ -72,8 +70,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
           withShare { share =>
             
             val dirPath = "testDir\\"
-            withSmbDir(share, dirPath, { realDir =>
-              val dir = new SmbDir(realDir)
+            withSmbDir(share, dirPath, { dir =>
               println("matchPattern: " + dir.absolutePath + "test.txt")
               matchPattern = new FileMatchPattern(dir.absolutePath + "test.txt") //FIXME correct this filePattern
               val dirWatcher = new DirWatcher(dir, matchPattern, provider)

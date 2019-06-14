@@ -14,16 +14,27 @@ import com.hierynomus.mssmb2.SMB2ShareAccess
 import com.hierynomus.mssmb2.SMBApiException
 import com.hierynomus.smbj.common.SmbPath
 import com.hierynomus.smbj.share.Directory
-import com.hierynomus.smbj.share.File
+import com.hierynomus.smbj.share.DiskShare
 
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
 
 
-class SmbDir(dir: Directory) extends DirHandle {
+class SmbDir(path: String, share: DiskShare) extends DirHandle {
   
-  var (previousSubDirs, previousSubFiles) = listDirsAndFiles
+  
+  private lazy val dir: Directory = share.openDirectory(
+    path,
+    EnumSet.of(AccessMask.GENERIC_READ),
+    EnumSet.of(FileAttributes.FILE_ATTRIBUTE_DIRECTORY),
+    SMB2ShareAccess.ALL,
+    SMB2CreateDisposition.FILE_OPEN,
+    EnumSet.noneOf(classOf[SMB2CreateOptions])
+  )
+  
+  
+  private var (previousSubDirs, previousSubFiles) = listDirsAndFiles
   
   
   override def absolutePath = dir.getFileName
@@ -36,14 +47,14 @@ class SmbDir(dir: Directory) extends DirHandle {
   
   
   private def isDirectory(fileIdBothDirectoryInformation: FileIdBothDirectoryInformation): Boolean = {
-    import FileAttributes._
+    import com.hierynomus.msfscc.FileAttributes._
     (fileIdBothDirectoryInformation.getFileAttributes & FILE_ATTRIBUTE_DIRECTORY.getValue) == FILE_ATTRIBUTE_DIRECTORY.getValue
   }
   
   
   override def listDirsAndFiles: (Set[SmbDir], Set[SmbFile]) = {
     
-    val subPaths = JavaConverters.asScalaBuffer(dir.list).toSeq
+    val subPaths = JavaConverters.asScalaBuffer(dir.list).toSet
                      .filterNot(subPath => subPath.getFileName.endsWith("\\.")
                                         || subPath.getFileName.equals(".")
                                         || subPath.getFileName.endsWith("\\..")
@@ -57,28 +68,10 @@ class SmbDir(dir: Directory) extends DirHandle {
     subPaths.foreach { subPath =>
       
       try {
-        val subPathString = if (isDirectory(subPath)) {
-                              pathWithinShare + subPath.getFileName + "\\"
-                            } else {
-                              pathWithinShare + subPath.getFileName
-                            }
-        
-        val diskEntry = share.open(
-          subPathString,
-          EnumSet.of(AccessMask.GENERIC_ALL),
-          EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
-          SMB2ShareAccess.ALL,
-          SMB2CreateDisposition.FILE_OPEN,
-          EnumSet.noneOf(classOf[SMB2CreateOptions])
-        )
-        
-        
-        diskEntry match {
-          case dir: Directory =>
-            dirs = dirs + new SmbDir(dir)
-            
-          case file: File =>
-            files = files + new SmbFile(file)
+        if (isDirectory(subPath)) {
+          dirs = dirs + new SmbDir(pathWithinShare + subPath.getFileName + "\\", share)
+        } else {
+          files = files + new SmbFile(pathWithinShare + subPath.getFileName, share)
         }
       }
       catch {
@@ -149,7 +142,4 @@ class SmbDir(dir: Directory) extends DirHandle {
     val state = Seq(this.absolutePath/*, this.share*/)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
-  
-  
-  private def share = dir.getDiskShare
 }

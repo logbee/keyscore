@@ -58,9 +58,11 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
       _ match {
         case dir: DirHandle => {
           subDirWatchers.remove(dir)
+          dir.tearDown()
         }
         case file: FileHandle => {
           subFileEventHandlers.remove(file)
+          file.tearDown()
         }
       }
     }

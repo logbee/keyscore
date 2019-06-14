@@ -7,6 +7,9 @@ import java.util.EnumSet
 import akka.stream.SourceShape
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2ShareAccess}
+
+import scala.concurrent.duration.DurationInt
+
 import com.hierynomus.smbj.SMBClient
 import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.connection.Connection
@@ -221,18 +224,8 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
         // Connect to Share
         share = session.connectShare(shareName).asInstanceOf[DiskShare]
         
-        val dir = share.openDirectory(
-            baseDir,
-            EnumSet.of(AccessMask.GENERIC_READ),
-            null,
-            SMB2ShareAccess.ALL,
-            SMB2CreateDisposition.FILE_OPEN,
-            null
-          )
-        
-        
         val smbFilePatternString = "\\\\" + hostName + "\\" + shareName + "\\" + filePatternWithoutLeadingSlashes
-        dirWatcher = readSchedulerProvider.createDirWatcher(new SmbDir(dir), new FileMatchPattern(smbFilePatternString))
+        dirWatcher = readSchedulerProvider.createDirWatcher(new SmbDir(baseDir, share), new FileMatchPattern(smbFilePatternString))
     }
   }
   

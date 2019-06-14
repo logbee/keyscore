@@ -1,20 +1,32 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 
 import java.nio.ByteBuffer
-import java.nio.file.{FileSystems, Paths}
+import java.nio.file.{ FileSystems, Paths }
 import java.util.EnumSet
+
+import scala.collection.Seq
 
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess}
-import com.hierynomus.smbj
+import com.hierynomus.mssmb2.{ SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess }
 import com.hierynomus.smbj.common.SmbPath
+import com.hierynomus.smbj.share.DiskShare
+import com.hierynomus.smbj.share.File
+
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 
 
-class SmbFile(val file: smbj.share.File) extends FileHandle {
+class SmbFile(path: String, share: DiskShare) extends FileHandle {
   
-  private val share = file.getDiskShare
+  private lazy val file: File = share.openFile(
+              path,
+              EnumSet.of(AccessMask.GENERIC_READ),
+              EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
+              SMB2ShareAccess.ALL,
+              SMB2CreateDisposition.FILE_OPEN,
+              EnumSet.noneOf(classOf[SMB2CreateOptions])
+            )
+  
   
   def name: String = {
     SmbPath.parse(absolutePath).getPath
@@ -40,13 +52,13 @@ class SmbFile(val file: smbj.share.File) extends FileHandle {
     
     filePath
   }
-
-  def listRotatedFiles(rotationPattern: String): Seq[FileHandle] = {
+  
+  
+  override def listRotatedFiles(rotationPattern: String): Seq[FileHandle] = {
     rotationPattern match {
-      case "" =>
-        Seq()
-      case null =>
-        Seq()
+      case "" | null =>
+        Seq.empty
+      
       case rotationPattern =>
         val rotationDir = Paths.get(parentPath).resolve(rotationPattern).getParent.toString //if the rotationPattern contains a relative path, resolve that
         
@@ -63,19 +75,9 @@ class SmbFile(val file: smbj.share.File) extends FileHandle {
         val rotatedFileNamesInSameDir = fileNames.filter(fileName => rotateMatcher.matches(Paths.get(rotationDir + "/" + fileName)))
         
         
-        val rotatedFilesInSameDir = rotatedFileNamesInSameDir.map {
-          fileName =>
-            share.openFile(
-              rotationDir + "/" + fileName,
-              EnumSet.of(AccessMask.GENERIC_ALL),
-              EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
-              SMB2ShareAccess.ALL,
-              SMB2CreateDisposition.FILE_OPEN,
-              EnumSet.noneOf(classOf[SMB2CreateOptions])
-            )
+        rotatedFileNamesInSameDir.map {
+          fileName => new SmbFile(rotationDir + "/" + fileName, share)
         }
-        
-        rotatedFilesInSameDir.map(new SmbFile(_)) //wrap in SmbFile
     }
   }
   

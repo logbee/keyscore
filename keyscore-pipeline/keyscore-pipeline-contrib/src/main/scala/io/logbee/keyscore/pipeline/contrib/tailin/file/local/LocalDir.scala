@@ -136,8 +136,11 @@ class LocalDir(dir: Path) extends DirHandle {
   
   
   def tearDown(): Unit = {
-    watchKey.cancel()
-    watchService.close()
+    if (watchKey != null)
+      watchKey.cancel()
+
+    if (watchService != null)
+      watchService.close()
   }
   
   
