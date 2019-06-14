@@ -1,7 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
@@ -19,12 +18,10 @@ case class DirChanges(
 
 class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherProvider: WatcherProvider) extends BaseDirWatcher {
   
-  private val subDirWatchers = mutable.Map.empty[DirHandle, ListBuffer[BaseDirWatcher]]
-  private val subFileEventHandlers = mutable.Map.empty[FileHandle, ListBuffer[FileEventHandler]]
+  private val subDirWatchers = mutable.Map.empty[DirHandle, BaseDirWatcher]
+  private val subFileEventHandlers = mutable.Map.empty[FileHandle, FileEventHandler]
   
-  private def subPathHandlers: mutable.Map[PathHandle, ListBuffer[PathWatcher]] =
-      subDirWatchers.asInstanceOf[mutable.Map[PathHandle, ListBuffer[PathWatcher]]] ++
-      subFileEventHandlers.asInstanceOf[mutable.Map[PathHandle, ListBuffer[PathWatcher]]]
+  private def subPathHandlers: mutable.Map[PathHandle, _ <: PathWatcher] = subDirWatchers ++ subFileEventHandlers
   
   
   
@@ -40,9 +37,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   private def doForEachPathHandler(paths: Set[_ <: PathHandle], func: PathWatcher => Unit): Unit = {
     paths.foreach { path =>
       subPathHandlers.get(path).foreach { pathHandler =>
-        pathHandler.foreach { pathHandler =>
-          func(pathHandler)
-        }
+        func(pathHandler)
       }
     }
   }
@@ -91,10 +86,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
       
       subDirWatcher.processChanges()
       
-      val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
-      
-      subDirWatchers.put(subDir, list)
-      list += subDirWatcher
+      subDirWatchers.put(subDir, subDirWatcher)
     }
   }
   
@@ -107,10 +99,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
       
       fileEventHandler.processChanges()
       
-      val list = subFileEventHandlers.getOrElse(file, mutable.ListBuffer.empty)
-      
-      subFileEventHandlers.put(file, list)
-      list += fileEventHandler
+      subFileEventHandlers.put(file, fileEventHandler)
     }
   }
   
@@ -126,11 +115,8 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
     
     //call tearDown on all watchers attached to this
     subPathHandlers.foreach {
-      case (_, subPathWatchers) =>
-        subPathWatchers.foreach {
-          case subPathWatcher =>
-            subPathWatcher.tearDown()
-        }
+      case (_, subPathWatcher) =>
+        subPathWatcher.tearDown()
     }
     
     watchDir.tearDown()
