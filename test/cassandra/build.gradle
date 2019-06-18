@@ -13,17 +13,17 @@ docker {
 }
 
 task pullImage(type: DockerPullImage) {
-    repository = 'docker.elastic.co/elasticsearch/elasticsearch-oss'
-    tag = '6.2.4'
+    repository = 'cassandra'
+    tag = '3.11.4'
 }
 
 task createContainer(type: DockerCreateContainer) {
     dependsOn = ['pullImage']
-    containerName = 'keyscore-elasticsearch'
+    containerName = 'keyscore-cassandra'
     targetImageId { pullImage.getImageId() }
-    env = ['discovery.type=single-node', 'ES_JAVA_OPTS=-Xms512m -Xmx512m']
-    portBindings = ['9200:9200', '9300:9300']
-    hostName = 'keyscore-elasticsearch'
+    env = []
+    portBindings = ['9042:9042']
+    hostName = 'keyscore-cassandra'
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 

@@ -12,6 +12,7 @@ include 'keyscore-simple-persistence'
 include 'keyscore-test-fixtures'
 
 include 'test'
+include 'test:cassandra'
 include 'test:elasticsearch'
 include 'test:kafka'
 
