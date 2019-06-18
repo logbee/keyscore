@@ -59,15 +59,15 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
 //    }
 
     "convert Metric to Record" in {
-      val cmr = metricToRecord(cm)
-      val gmr = metricToRecord(gm)
+      val cmr = metricToRecord(cm, addFieldsIdFromMetricsTest)
+      val gmr = metricToRecord(gm, addFieldsIdFromMetricsTest)
 
-      cmr shouldBe Record(List(Field("_keyscore_metric_typ", TextValue(CounterMetricTyp.toString)), Field("_keyscore_metric_name", TextValue("cm3")), Field("_keyscore_metric_value", DecimalValue(1.3)), Field("_keyscore_metric_timestamp", TimestampValue(9, 25)), Field("test", DecimalValue(42.0)), Field("x", TextValue("x"))))
-      gmr shouldBe Record(List(Field("_keyscore_metric_typ", TextValue(GaugeMetricTyp.toString)), Field("_keyscore_metric_name", TextValue("gm4")), Field("_keyscore_metric_value", DecimalValue(1.4)), Field("_keyscore_metric_timestamp", TimestampValue(11, 27)), Field("_keyscore_metric_max", DecimalValue(0.0)), Field("_keyscore_metric_min", DecimalValue(42.0)), Field("test2", DecimalValue(242.0)), Field("y", TextValue("y"))))
+      cmr shouldBe Record(List(Field("_keyscore_metric_id",TextValue(addFieldsIdFromMetricsTest)),Field("_keyscore_metric_typ", TextValue(CounterMetricTyp.toString)), Field("_keyscore_metric_name", TextValue("cm3")), Field("_keyscore_metric_value", DecimalValue(1.3)), Field("_keyscore_metric_timestamp", TimestampValue(9, 25)), Field("test", DecimalValue(42.0)), Field("x", TextValue("x"))))
+      gmr shouldBe Record(List(Field("_keyscore_metric_id",TextValue(addFieldsIdFromMetricsTest)),Field("_keyscore_metric_typ", TextValue(GaugeMetricTyp.toString)), Field("_keyscore_metric_name", TextValue("gm4")), Field("_keyscore_metric_value", DecimalValue(1.4)), Field("_keyscore_metric_timestamp", TimestampValue(11, 27)), Field("_keyscore_metric_max", DecimalValue(0.0)), Field("_keyscore_metric_min", DecimalValue(42.0)), Field("test2", DecimalValue(242.0)), Field("y", TextValue("y"))))
     }
 
     "convert MetricCollection to Dataset" in {
-      val dataset = Dataset(MetaData(Label(MetricAttributes.METRIC_COLLECTION_ID, TextValue(addFieldsIdFromMetricsTest))), List(Record(List(Field("_keyscore_metric_typ",TextValue(CounterMetricTyp.toString)), Field("_keyscore_metric_name",TextValue("cm3")), Field("_keyscore_metric_value",DecimalValue(1.3)), Field("_keyscore_metric_timestamp",TimestampValue(9,25)), Field("test",DecimalValue(42.0)), Field("x",TextValue("x")))), Record(List(Field("_keyscore_metric_typ",TextValue(GaugeMetricTyp.toString)), Field("_keyscore_metric_name",TextValue("gm4")), Field("_keyscore_metric_value",DecimalValue(1.4)), Field("_keyscore_metric_timestamp",TimestampValue(11,27)), Field("_keyscore_metric_max",DecimalValue(0.0)), Field("_keyscore_metric_min",DecimalValue(42.0)), Field("test2",DecimalValue(242.0)), Field("y",TextValue("y"))))))
+      val dataset = Dataset(metadata = MetaData(),List(Record(List(Field("_keyscore_metric_id",TextValue(addFieldsIdFromMetricsTest)), Field("_keyscore_metric_typ",TextValue(CounterMetricTyp.toString)), Field("_keyscore_metric_name",TextValue("cm3")), Field("_keyscore_metric_value",DecimalValue(1.3)), Field("_keyscore_metric_timestamp",TimestampValue(9,25)), Field("test",DecimalValue(42.0)), Field("x",TextValue("x")))), Record(List(Field("_keyscore_metric_id",TextValue(addFieldsIdFromMetricsTest)), Field("_keyscore_metric_typ",TextValue(GaugeMetricTyp.toString)), Field("_keyscore_metric_name",TextValue("gm4")), Field("_keyscore_metric_value",DecimalValue(1.4)), Field("_keyscore_metric_timestamp",TimestampValue(11,27)), Field("_keyscore_metric_max",DecimalValue(0.0)), Field("_keyscore_metric_min",DecimalValue(42.0)), Field("test2",DecimalValue(242.0)), Field("y",TextValue("y"))))))
       convertMetricCollectionToDataset(addFieldsIdFromMetricsTest, mcs) shouldBe dataset
     }
 

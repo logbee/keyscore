@@ -20,6 +20,7 @@ import org.json4s.native.Serialization.write
 import org.json4s.{Formats, Serialization}
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success}
 
 object MetricSourceLogic extends Described {
@@ -142,43 +143,42 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   private var server = "http://localhost"
   private var port: Long = 4711
-  private var interval: Long = 5
+  private var interval: Long = 5000
   private var ids = Seq.empty[String]
   private var limit = Long.MaxValue
   private var format = "dd.MM.yyy_HH:mm:ss:nnnnnnnnn"
   private var earliest = "01.01.2000_00:00:00:000000000"
   private var latest = "31.12.9999_23:59:59:999999999"
+  private var timestamp = 0L
 
-  private val metricCollections = mutable.HashMap.empty[String, Seq[MetricsCollection]]
+  private val metricCollections: ListBuffer[(String, MetricsCollection)] = ListBuffer.empty[(String, MetricsCollection)]
+
   private val idToEarliest = mutable.HashMap.empty[String, String]
 
-  private val parseAsync = getAsyncCallback[(String, HttpResponse)]({case (id, response) =>
-    metricCollections += (id -> parseHttpResponse(response))
+  private val parseAsync = getAsyncCallback[(String, HttpResponse)]({ case (id, response) =>
+    val mcs = parseHttpResponse(response)
+
+    mcs.foreach { mc => metricCollections.append((id, mc)) }
+
+    idToEarliest.update(id, getEarliest(mcs))
   })
 
   override def initialize(configuration: Configuration): Unit = {
-    //1. Configure
     configure(configuration)
 
-    //2. Send first HTTP Request and store processed responses in the HashMap
-    collectMetrics()
+    timestamp = System.currentTimeMillis()
+
+    scrapeMetrics()
   }
 
   override def configure(configuration: Configuration): Unit = {
     applyConfiguration(configuration)
-
   }
 
   override def onPull(): Unit = {
+    if(metricCollections.nonEmpty) pushSingleMetric()
 
-    pushMetrics()
-
-    //3. Clear the HashMap
-    metricCollections.clear()
-
-    //4. Wait _interval_ and _collectMetrics()_ with
-
-
+    checkInterval()
   }
 
   private def applyConfiguration(configuration: Configuration): Unit = {
@@ -192,14 +192,13 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     latest = configuration.getValueOrDefault(latestParameter, latest)
   }
 
-  private def collectMetrics(): Unit = {
+  private def scrapeMetrics(): Unit = {
 
     ids.map(id => {
 
       val newest = idToEarliest.getOrElse(id, earliest)
       val mq = MetricsQuery(limit, newest, latest, format)
 
-      //1.2 Send n HTTP Request to get the MetricCollections for the _id's_
       val uri = Uri(s"$server:$port/metrics/$id")
       id -> Http().singleRequest(HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq))))
 
@@ -215,26 +214,33 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       })
   }
 
+  private def checkInterval(): Unit = {
+    val now = System.currentTimeMillis()
+    if (now - timestamp >= interval) {
+      timestamp = now
+      scrapeMetrics()
+    }
+  }
+
   private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
     val body = response.entity.asInstanceOf[HttpEntity.Strict].data.utf8String
 
     org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
   }
 
-  private def pushMetrics(): Unit = {
-    metricCollections.foreach(mcs => {
+  private def pushSingleMetric(): Unit = {
+    val metric = metricCollections.head
 
+    push(out, MetricConversion.convertMetricCollectionToDataset(metric._1, metric._2))
 
-
-      mcs._2.foreach(mc => {
-        push(out, MetricConversion.convertMetricCollectionToDataset(mcs._1, mc))
-      })
-    })
+    metricCollections -= metric
   }
 
+  private def getEarliest(mcs: Seq[MetricsCollection]): String = {
+    val timestampValue = MetricConversion.getLatest(mcs.head)
 
-
-
+    MetricConversion.timestampToString(timestampValue, format)
+  }
 
 
 }

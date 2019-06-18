@@ -1,5 +1,8 @@
 package io.logbee.keyscore.model.metrics
 
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, OffsetDateTime, ZoneId}
+
 import io.logbee.keyscore.model.data._
 
 object MetricConversion {
@@ -8,10 +11,11 @@ object MetricConversion {
     Field(label.name, label.value)
   }
 
-  def metricToRecord(metric: Metric): Record = {
+  def metricToRecord(metric: Metric, id: String): Record = {
 
     val typ = metric.asMessage.typ
 
+    val idField = Field(MetricAttributes.METRIC_ID, TextValue(id))
     val typField = Field(MetricAttributes.METRIC_TYP, TextValue(typ.toString))
     val nameField = Field(MetricAttributes.METRIC_NAME, TextValue(metric.asMessage.name))
     val valueField = Field(MetricAttributes.METRIC_VALUE, DecimalValue(metric.asMessage.value))
@@ -23,17 +27,19 @@ object MetricConversion {
       case (name, v: Some[Double]) => Field(name, DecimalValue(v.value))
     }
 
-    Record(List(typField, nameField, valueField, timestamp) ++ gaugeFields ++ labels)
+    Record(List(idField, typField, nameField, valueField, timestamp) ++ gaugeFields ++ labels)
 
   }
 
   def convertMetricCollectionToDataset(id: String, mc: MetricsCollection): Dataset = {
-    val records = mc.metrics.map { metricToRecord }
-    Dataset(metadata = MetaData(Set(Label(MetricAttributes.METRIC_COLLECTION_ID, TextValue(id)))), records)
+    val records = mc.metrics.map { m =>
+      metricToRecord(m, id)
+    }
+    Dataset(records)
   }
 
   def getLatest(mc: MetricsCollection): TimestampValue = {
-    mc.metrics.map{ metric => metric.asMessage.timestamp }.reduceLeft(latest)
+    mc.metrics.map { metric => metric.asMessage.timestamp }.reduceLeft(latest)
   }
 
   def getEarliest(mc: MetricsCollection): TimestampValue = {
@@ -41,9 +47,9 @@ object MetricConversion {
   }
 
   private def latest(first: TimestampValue, second: TimestampValue): TimestampValue = {
-    if(first.seconds < second.seconds) second
+    if (first.seconds < second.seconds) second
     else if (first.seconds == second.seconds) {
-      if(first.nanos < second.nanos) second
+      if (first.nanos < second.nanos) second
       else first
     }
     else first
@@ -51,11 +57,17 @@ object MetricConversion {
 
   private def earliest(first: TimestampValue, second: TimestampValue): TimestampValue = {
     if (first.seconds > second.seconds) second
-    else if(first.seconds == second.seconds) {
+    else if (first.seconds == second.seconds) {
       if (first.nanos > second.seconds) second
       else first
     }
     else first
+  }
+
+  def timestampToString(tsv: TimestampValue, format: String): String = {
+    val localDateTime = LocalDateTime.ofEpochSecond(tsv.seconds, tsv.nanos, OffsetDateTime.now(ZoneId.systemDefault()).getOffset)
+
+    localDateTime.format(DateTimeFormatter.ofPattern(format))
   }
 
 }

@@ -40,4 +40,6 @@ trait BaseMetricsCollection {
       metrics = this.metrics ++ other.metrics
     )
   }
+
+
 }
