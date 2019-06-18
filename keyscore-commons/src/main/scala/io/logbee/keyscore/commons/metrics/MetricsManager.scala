@@ -63,7 +63,7 @@ class MetricsManager(configuration: Configuration) extends Actor with ActorLoggi
   override def receive: Receive = {
 
     case RequestMetrics(id, mq) =>
-      log.debug(s"Received ScrapeMetricRequest <$id>")
+//      log.debug(s"Received ScrapeMetricRequest <$id>")
       cache.getAll(id, earliest = mq.earliestTimestamp, latest = mq.latestTimestamp, mq.limit) match {
         case mcs: Seq[MetricsCollection] =>
           sender ! MetricsResponseSuccess(id, mcs)
