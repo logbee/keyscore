@@ -13,7 +13,7 @@ import {PropagationStopModule} from "ngx-propagation-stop";
 import {ParameterFactoryService} from "./service/parameter-factory.service";
 import {MaterialModule} from "keyscore-manager-material";
 import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.component";
-import {TextParameterModule} from "./text-parameter/text-parameter.module";
+import {TextParameterModule} from "./parameters/text-parameter/text-parameter.module";
 import {ExpressionParameterModule} from "./parameters/expression-parameter/expression-parameter.module";
 
 
