@@ -143,7 +143,6 @@ class LocalPipelineManager(filterManager: ActorRef) extends Actor with ActorLogg
         log.debug(s"$supervisor")
         supervisor forward message
       })
-
   }
 
   def nameFrom(blueprint: PipelineBlueprint): String = {

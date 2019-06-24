@@ -19,11 +19,11 @@ import scala.util.matching.Regex
 
 object GrokLogic extends Described {
 
-  private[filter] val fieldNamesParameter = FieldNameListParameterDescriptor(
+  val fieldNamesParameter = FieldNameListParameterDescriptor(
     ref = "grok.fieldNames",
     info = ParameterInfo(
-      displayName = TextRef("fieldNames"),
-      description = TextRef("fieldNamesDescription")
+      displayName = TextRef("grok.fieldNames.displayName"),
+      description = TextRef("grok.fieldNames.description")
     ),
     descriptor = FieldNameParameterDescriptor(
       hint = PresentField
@@ -32,13 +32,23 @@ object GrokLogic extends Described {
     max = MaxValue
   )
 
-  private[filter] val patternParameter = ExpressionParameterDescriptor(
+  val patternParameter = ExpressionParameterDescriptor(
     ref = "grok.pattern",
     info = ParameterInfo(
-      displayName = TextRef("patternKeyNameHeader"),
-      description = TextRef("patternKeyDescriptionHeader")
+      displayName = TextRef("grok.pattern.displayName"),
+      description = TextRef("grok.pattern.description")
     ),
     expressionType = ExpressionType.Grok,
+    mandatory = true
+  )
+
+  val autoDetectParameter = BooleanParameterDescriptor(
+    ref = "grok.autodetect",
+    info = ParameterInfo(
+      displayName = TextRef("grok.autodetect.displayName"),
+      description = TextRef("grok.autodetect.description")
+    ),
+    defaultValue = false,
     mandatory = true
   )
 
@@ -49,11 +59,11 @@ object GrokLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.DATA_EXTRACTION),
-      parameters = Seq(fieldNamesParameter, patternParameter),
+      parameters = Seq(fieldNamesParameter, patternParameter, autoDetectParameter),
       icon = Icon.fromClass(classOf[GrokLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Grok",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.GrokLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
@@ -62,11 +72,14 @@ object GrokLogic extends Described {
 class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private val GROK_PATTERN: Regex = "\\(\\?<(\\w*)>".r
-  private val NUMBER_PATTERN: Regex = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$".r
+  private val NUMBER_PATTERN: Regex = "^[+-]?[\\d]+$".r
+  private val DECIMAL_PATTERN: Regex = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$".r
+  private val BOOLEAN_PATTERN: Regex = "^[Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]$".r
 
   private var fieldNames = Seq.empty[String]
   private var pattern = ""
   private var regex: Regex = "".r
+  private var autoDetect = GrokLogic.autoDetectParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -76,6 +89,7 @@ class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
 
     fieldNames = configuration.getValueOrDefault(fieldNamesParameter, fieldNames)
     pattern = configuration.getValueOrDefault(GrokLogic.patternParameter, pattern)
+    autoDetect = configuration.getValueOrDefault(GrokLogic.autoDetectParameter, autoDetect)
     regex = pattern.r(GROK_PATTERN.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
   }
 
@@ -96,7 +110,9 @@ class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
           regex.findFirstMatchIn(field.value.asInstanceOf[TextValue].value).foreach(patternMatch =>
             patternMatch.groupNames.map(name => {
               patternMatch.group(name) match {
-                case value@NUMBER_PATTERN(_*) => Field(name, DecimalValue(value.toDouble))
+                case value@BOOLEAN_PATTERN(_*) if autoDetect => Field(name, BooleanValue(value.toBoolean))
+                case value@NUMBER_PATTERN(_*) if autoDetect => Field(name, NumberValue(value.toLong))
+                case value@DECIMAL_PATTERN(_*) if autoDetect => Field(name, DecimalValue(value.toDouble))
                 case value => Field(name, TextValue(value))
               }
             }).foldLeft(fields) { (fields, field) => fields += field })

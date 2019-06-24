@@ -20,6 +20,7 @@ object CommonCategories {
   val VISUALIZATION = Category("contrib.visualization", TextRef("contrib.category.visualization.displayName"))
   val ENCODING = Category("contrib.encoding", TextRef("contrib.category.encoding.displayName"))
   val DECODING = Category("contrib.decoding", TextRef("contrib.category.decoding.displayName"))
+  val CONVERSION = Category("contrib.conversion", TextRef("contrib.category.conversion.displayName"))
 
   import Locale.{ENGLISH, GERMAN}
 
@@ -81,6 +82,10 @@ object CommonCategories {
       DECODING.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Decoding",
         GERMAN -> "Decodierung"
+      )),
+      CONVERSION.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "Conversion",
+        GERMAN -> "Konvertierung"
       ))
     )
   )

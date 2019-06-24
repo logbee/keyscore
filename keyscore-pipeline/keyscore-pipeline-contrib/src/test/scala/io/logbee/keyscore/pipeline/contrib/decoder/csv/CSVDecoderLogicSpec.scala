@@ -4,12 +4,12 @@ import io.logbee.keyscore.model.configuration.{BooleanParameter, ChoiceParameter
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.model.util.Using
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 import scala.io.Source.fromInputStream
@@ -41,7 +41,7 @@ class CSVDecoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with 
           ))
         )
 
-        "should convert a line into a record with fields with the source field" in new TestStreamFor[CSVDecoderLogic](configuration) {
+        "should convert a line into a record with fields with the source field" in new TestStreamForFilter[CSVDecoderLogic](configuration) {
 
           whenReady(filterFuture) { _ =>
 
@@ -80,7 +80,7 @@ class CSVDecoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with 
           ))
         )
 
-        "should convert a line into a record with fields without the source field" in new TestStreamFor[CSVDecoderLogic](configuration) {
+        "should convert a line into a record with fields without the source field" in new TestStreamForFilter[CSVDecoderLogic](configuration) {
 
           whenReady(filterFuture) { _ =>
 
@@ -118,7 +118,7 @@ class CSVDecoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with 
           ))
         )
 
-        "should convert lines into records with fields with the source field" in new TestStreamFor[CSVDecoderLogic](configuration) {
+        "should convert lines into records with fields with the source field" in new TestStreamForFilter[CSVDecoderLogic](configuration) {
 
           whenReady(filterFuture) { _ =>
 
@@ -152,7 +152,7 @@ class CSVDecoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with 
           ))
         )
 
-        "should convert lines into records with fields without the source field" in new TestStreamFor[CSVDecoderLogic](configuration) {
+        "should convert lines into records with fields without the source field" in new TestStreamForFilter[CSVDecoderLogic](configuration) {
 
           whenReady(filterFuture) { _ =>
 

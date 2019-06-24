@@ -13,13 +13,14 @@ import io.logbee.keyscore.model.blueprint.BlueprintWrapper.wrap
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.descriptor.Descriptor
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.stage.StageContext
 
 import scala.util.{Failure, Success}
 
 object BlueprintMaterializer {
 
-  def apply(stagecontext: StageContext, blueprintRef: BlueprintRef, filterManager: ActorRef): Props = Props(new BlueprintMaterializer(stagecontext, blueprintRef, filterManager))
+  def apply(supervisor: StageSupervisor, stagecontext: StageContext, blueprintRef: BlueprintRef, filterManager: ActorRef): Props = Props(new BlueprintMaterializer(supervisor, stagecontext, blueprintRef, filterManager))
 
   private case class Initialize(blueprintManager: ActorRef, descriptorManager: ActorRef, configurationManager: ActorRef)
 
@@ -42,7 +43,7 @@ object BlueprintMaterializer {
   * @param initialConfigurationManager A ''optional'' ConfigurationManager Ref
   * @param stageContext ~
   */
-class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintRef, filterManager: ActorRef, initialBlueprintManager: Option[ActorRef] = None, initialDescriptorManager: Option[ActorRef] = None, initialConfigurationManager: Option[ActorRef] = None) extends Actor with ActorLogging {
+class BlueprintMaterializer(supervisor: StageSupervisor, stageContext: StageContext, blueprintRef: BlueprintRef, filterManager: ActorRef, initialBlueprintManager: Option[ActorRef] = None, initialDescriptorManager: Option[ActorRef] = None, initialConfigurationManager: Option[ActorRef] = None) extends Actor with ActorLogging {
 
   private val mediator = DistributedPubSub(context.system).mediator
 
@@ -120,15 +121,15 @@ class BlueprintMaterializer(stageContext: StageContext, blueprintRef: BlueprintR
     case InstantiateStage =>
       wrapper.blueprint match {
         case blueprint: FilterBlueprint =>
-          filterManager ! CreateFilterStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+          filterManager ! CreateFilterStage(blueprint.ref, supervisor, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: SourceBlueprint =>
-          filterManager ! CreateSourceStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+          filterManager ! CreateSourceStage(blueprint.ref, supervisor, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: SinkBlueprint =>
-          filterManager ! CreateSinkStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+          filterManager ! CreateSinkStage(blueprint.ref, supervisor, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: BranchBlueprint =>
-          filterManager ! CreateBranchStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+          filterManager ! CreateBranchStage(blueprint.ref, supervisor, stageContext, materialization.descriptor.ref, materialization.configuration)
         case blueprint: MergeBlueprint =>
-          filterManager ! CreateMergeStage(blueprint.ref, stageContext, materialization.descriptor.ref, materialization.configuration)
+          filterManager ! CreateMergeStage(blueprint.ref, supervisor, stageContext, materialization.descriptor.ref, materialization.configuration)
         case e => log.error("Received unknown blueprint for InstantiateStage: ", e)
       }
       log.debug(s"Initiated instantiation of ${wrapper.blueprint.getClass.getSimpleName} from blueprint <${wrapper.blueprintRef.uuid}>")

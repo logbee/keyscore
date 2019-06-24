@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import java.nio.file.StandardOpenOption
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile.localFile2File
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile.localFile2File
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadData
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner

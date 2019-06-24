@@ -1,4 +1,4 @@
-import {APP_INITIALIZER, NgModule} from "@angular/core";
+import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ParameterMap} from "./parameter-map.component";
@@ -14,6 +14,7 @@ import {ParameterFactoryService} from "./service/parameter-factory.service";
 import {MaterialModule} from "keyscore-manager-material";
 import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.component";
 import {TextParameterModule} from "./text-parameter/text-parameter.module";
+import {ExpressionParameterModule} from "./parameters/expression-parameter/expression-parameter.module";
 
 
 @NgModule({
@@ -25,6 +26,7 @@ import {TextParameterModule} from "./text-parameter/text-parameter.module";
         MaterialModule,
         DragDropModule,
         PropagationStopModule,
+        ExpressionParameterModule,
         TextParameterModule
     ],
     declarations: [

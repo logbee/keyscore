@@ -11,7 +11,7 @@ import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data.{Dataset, Label, Record, TextValue}
 import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric}
-import io.logbee.keyscore.model.pipeline.Running
+import io.logbee.keyscore.model.pipeline.{Running, StageSupervisor}
 import io.logbee.keyscore.model.{After, Before}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
@@ -21,9 +21,9 @@ import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionCo
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.time.{Second, Seconds, Span}
 import org.scalatest.{Matchers, WordSpec}
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -42,15 +42,15 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
     val testSource = TestSource.probe[Dataset]
     val testSink = TestSink.probe[Dataset]
     val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new ExampleFilter(p, s))
+    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), StageSupervisor.noop, context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new ExampleFilter(p, s))
 
     val inLabel = Label("port", TextValue("in"))
     val outLabel = Label("port", TextValue("out"))
 
     val ((source, controllerFuture), sink) =
-      testSource.viaMat(new ValveStage())(Keep.both)
+      testSource.viaMat(new ValveStage(system.deadLetters))(Keep.both)
         .viaMat(filterStage)(Keep.both)
-        .viaMat(new ValveStage(5)) { (left, right) =>
+        .viaMat(new ValveStage(system.deadLetters, 5)) { (left, right) =>
           left match {
             case ((source, inValveProxyFuture), filterProxyFuture) =>
               val controller = for {
@@ -214,7 +214,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(state) { _ =>
           whenReady(controller.extract(3, After)) { datasets =>
-            datasets.head.records should contain theSameElementsAs dataset4.records
+            datasets(0).records should contain theSameElementsAs dataset4.records
             datasets(1).records should contain theSameElementsAs dataset3.records
             datasets(2).records should contain theSameElementsAs dataset2.records
           }
@@ -235,7 +235,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(state) { _ =>
           whenReady(controller.extract(3, After)) { datasets =>
-            datasets.head.records should contain theSameElementsAs dataset5.records
+            datasets(0).records should contain theSameElementsAs dataset5.records
             datasets(1).records should contain theSameElementsAs dataset3.records
             datasets(2).records should contain theSameElementsAs dataset2.records
           }

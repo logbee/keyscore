@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.pipeline.api.stage
 
 import java.util.UUID
 
@@ -8,13 +8,13 @@ import akka.stream.scaladsl.GraphDSL
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.api.stage._
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.{LogicParameters, MergeLogic, MergeShape}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Promise
 import scala.language.postfixOps
@@ -32,7 +32,7 @@ class MergeStageSpec extends FreeSpec with Matchers with ScalaFutures with TestS
 
       val provider: (LogicParameters, MergeShape[Dataset, Dataset, Dataset]) => MergeLogic
 
-      lazy val stage = new MergeStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)
+      lazy val stage = new MergeStage(LogicParameters(UUID.randomUUID(), StageSupervisor.noop, context, configurationA), provider)
 
       lazy val (left, right, mergeFuture, sink) = RunnableGraph.fromGraph(
         GraphDSL.create(TestSource.probe[Dataset], TestSource.probe[Dataset], stage, TestSink.probe[Dataset]) { (left, right, merge, sink) =>

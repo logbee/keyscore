@@ -1,14 +1,14 @@
-package io.logbee.keyscore.pipeline.contrib.tailin.file
+package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
 import org.scalatest.Matchers
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import java.nio.ByteBuffer
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import java.nio.file.StandardOpenOption
 import java.nio.charset.StandardCharsets
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile.localFile2File
+import org.scalactic.source.Position.apply
 
 @RunWith(classOf[JUnitRunner])
 class LocalFileSpec extends SpecWithTempDir with Matchers {
@@ -18,16 +18,14 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
   
   def withLocalFile(fileName: String, content: ByteBuffer, testCode: LocalFile => Any) = {
     
-    val actualFile = TestUtil.createFile(watchDir, fileName, charset.decode(content).toString)
-    
-    val localFile = new LocalFile(actualFile)
+    val localFile = TestUtil.createFile(watchDir, fileName, charset.decode(content).toString)
     
     try {
       testCode(localFile)
     }
     finally {
-      if (actualFile != null) {
-        actualFile.delete()
+      if (localFile != null) {
+        localFile.delete()
       }
     }
   }

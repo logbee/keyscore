@@ -13,7 +13,7 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
   var previouslyScheduled = readPersistence.getCompletedRead(baseFile)
   
   
-  def processFileChanges(): Unit = {
+  def processChanges(): Unit = {
     
     //getFilesToRead also returns files which have lastModified == previousReadTimestamp, as multiple files may have the same lastModified-time
     //and this helps to simplify the code, because then we know to not continue reading at the previousReadPosition in the next file

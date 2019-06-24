@@ -332,5 +332,3 @@ export class CheckIsPipelineRunning implements Action {
 
     }
 }
-
-

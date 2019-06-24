@@ -1,37 +1,17 @@
 package io.logbee.keyscore.pipeline.contrib.filter.textmutator
 
-import java.util.UUID
-
-import akka.stream.FlowShape
-import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data.{Field, _}
-import io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor
 import io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor.PatternType
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
-import org.scalamock.scalatest.MockFactory
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Inside, Matchers}
 
 
 @RunWith(classOf[JUnitRunner])
-class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with Inside with TestSystemWithMaterializerAndExecutionContext {
-
-  class TestStream(configuration: Configuration) {
-    val context = StageContext(system, executionContext)
-    val provider = (parameters: LogicParameters, s: FlowShape[Dataset, Dataset]) => new TextMutatorLogic(parameters, s)
-    val filterStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
-
-    val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
-      .viaMat(filterStage)(Keep.both)
-      .toMat(TestSink.probe[Dataset])(Keep.both)
-      .run()
-  }
+class TextMutatorLogicSpec extends FreeSpec with Matchers with Inside with TestSystemWithMaterializerAndExecutionContext {
 
   "A TextMutator" - {
 
@@ -61,7 +41,7 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         )
       ))
 
-      "should pass datasets unmodified" in new TestStream(configuration) {
+      "should pass datasets unmodified" in new TestStreamForFilter[TextMutatorLogic](configuration) {
 
         sink.request(1)
         source.sendNext(Dataset(Record(Field("message", TextValue("   hello world   ")))))
@@ -91,7 +71,7 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         )
       ))
 
-      "should replace the configured field" in new TestStream(configuration) {
+      "should replace the configured field" in new TestStreamForFilter[TextMutatorLogic](configuration) {
 
         sink.request(1)
         source.sendNext(Dataset(Record(Field("message", TextValue("   hello world   ")))))
@@ -122,7 +102,7 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         )
       ))
 
-      "should add a new field with the configured name" in new TestStream(configuration) {
+      "should add a new field with the configured name" in new TestStreamForFilter[TextMutatorLogic](configuration) {
 
         sink.request(1)
         source.sendNext(Dataset(Record(Field("message", TextValue("   hello world   ")))))
@@ -158,7 +138,7 @@ class TextMutatorLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         Field("temperature", TextValue("11"))
       ))
 
-      "should mutated matching fields only" in new TestStream(configuration) {
+      "should mutated matching fields only" in new TestStreamForFilter[TextMutatorLogic](configuration) {
 
         sink.request(1)
         source.sendNext(sample)

@@ -82,8 +82,8 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
         if (sourceField.isDefined && sourceField.get.isTextField) {
           result ++= (parse(sourceField.get.toTextField.value) match {
-            case obj @ JObject(_) => List(Record(extract(obj, List.empty, List.empty)))
-            case JArray(arr) => arr.map(obj => Record(extract(obj, List.empty, List.empty)))
+            case obj @ JObject(_) => List(Record(JsonDecoderUtil.extract(obj, List.empty, List.empty)))
+            case JArray(arr) => arr.map(obj => Record(JsonDecoderUtil.extract(obj, List.empty, List.empty)))
             case _ => List.empty
           })
 
@@ -108,42 +108,5 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   override def onPull(): Unit = {
     pull(in)
-  }
-
-  private def extract(node: JValue, path: List[String], fields: List[Field] = List.empty): List[Field] = {
-    node match {
-      case obj: JObject =>
-        obj.obj.foldLeft(fields) {
-          case (fields, (name, jValue)) =>
-            extract(jValue, path :+ name, fields)
-        }
-
-      case JArray(elements) =>
-        elements.zipWithIndex.foldLeft(fields) {
-          case (fields, (jValue, index)) =>
-            extract(jValue, path :+ index.toString, fields)
-        }
-
-      case JBool(value) =>
-        fields :+ Field(path.mkString("."), BooleanValue(value))
-
-      case JInt(value) =>
-        fields :+ Field(path.mkString("."), NumberValue(value.toLong))
-
-      case JLong(value) =>
-        fields :+ Field(path.mkString("."), NumberValue(value.toLong))
-
-      case JDouble(value) =>
-        fields :+ Field(path.mkString("."), DecimalValue(value))
-
-      case JDecimal(value) =>
-        fields :+ Field(path.mkString("."), DecimalValue(value.toDouble))
-
-      case JString(value) =>
-        fields :+ Field(path.mkString("."), TextValue(value))
-
-      case _ =>
-        fields
-    }
   }
 }

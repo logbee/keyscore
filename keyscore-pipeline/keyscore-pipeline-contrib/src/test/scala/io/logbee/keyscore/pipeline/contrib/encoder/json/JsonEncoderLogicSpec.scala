@@ -1,14 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib.encoder.json
 
-import java.util.UUID.randomUUID
-
-import akka.stream.FlowShape
-import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration.{ChoiceParameter, Configuration, TextParameter}
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -18,20 +12,11 @@ import org.scalatest.{FreeSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class JsonEncoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
-  class TestStream(strategy: String) {
-    val configuration = Configuration(
+  class TestStream(strategy: String) extends TestStreamForFilter[JsonEncoderLogic](
+    Configuration(
       TextParameter(JsonEncoderLogic.fieldNameParameter.ref, "output"),
       ChoiceParameter(JsonEncoderLogic.batchStrategyParameter.ref, strategy)
-    )
-
-    val context = StageContext(system, executionContext)
-    val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new JsonEncoderLogic(p, s))
-
-    val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
-      .viaMat(filterStage)(Keep.both)
-      .toMat(TestSink.probe[Dataset])(Keep.both)
-      .run()
-  }
+    ))
 
   val sample = Dataset(
     Record(

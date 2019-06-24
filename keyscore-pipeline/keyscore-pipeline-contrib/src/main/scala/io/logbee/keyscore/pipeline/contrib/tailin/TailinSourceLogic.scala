@@ -12,6 +12,7 @@ import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.data.Field
+import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.data.Label
 import io.logbee.keyscore.model.data.MetaData
 import io.logbee.keyscore.model.data.NumberValue
@@ -23,7 +24,6 @@ import io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor
 import io.logbee.keyscore.model.descriptor.Descriptor
 import io.logbee.keyscore.model.descriptor.FieldNameHint
 import io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor
-import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.descriptor.ParameterInfo
 import io.logbee.keyscore.model.descriptor.SourceDescriptor
 import io.logbee.keyscore.model.descriptor.StringValidator
@@ -36,6 +36,7 @@ import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.SourceLogic
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalDir
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
@@ -45,9 +46,9 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderManager
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.LocalWatcherProvider
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.BaseDirWatcher
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.FileMatchPattern
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.WatcherProvider
 
 
 object TailinSourceLogic extends Described {
@@ -190,7 +191,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var persistenceFile = TailinSourceLogic.persistenceFile.defaultValue
   
   
-  var dirWatcher: DirWatcher = _
+  var dirWatcher: BaseDirWatcher = _
   
   var sendBuffer: SendBuffer = null
   var readPersistence: ReadPersistence = null
@@ -209,7 +210,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     
     
     
-    var invariableString = DirWatcherPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
+    var invariableString = FileMatchPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
     if (invariableString.isEmpty
         || Paths.get(invariableString.get).toFile.isDirectory == false) {
         log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
@@ -239,14 +240,14 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
     sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
     
-    val readSchedulerProvider = new LocalWatcherProvider(readSchedule, rotationPattern, readPersistence)
-    dirWatcher = readSchedulerProvider.createDirWatcher(baseDir, DirWatcherPattern(filePattern))
+    val readSchedulerProvider = new WatcherProvider(readSchedule, rotationPattern, readPersistence)
+    dirWatcher = readSchedulerProvider.createDirWatcher(new LocalDir(baseDir), new FileMatchPattern(filePattern))
   }
   
   
 
   override def onTimer(timerKey: Any) {
-    dirWatcher.processFileChanges()
+    dirWatcher.processChanges()
     
     if (!sendBuffer.isEmpty) {
       doPush()
@@ -294,7 +295,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       doPush()
     }
     else {
-      dirWatcher.processFileChanges()
+      dirWatcher.processChanges()
       
       if (!sendBuffer.isEmpty) {
         doPush()

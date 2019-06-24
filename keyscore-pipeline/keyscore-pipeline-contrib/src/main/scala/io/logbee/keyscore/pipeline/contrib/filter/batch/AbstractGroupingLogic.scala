@@ -124,11 +124,21 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     }
   }
 
+  /**
+    * Returns all identifiers for a group.
+    *
+    * @param id of the group you receive identifiers for.
+    * @return a Set[String] of ids which are set for the group.
+    */
   protected def findIdentifiers(id: String): Set[String] = groups.get(id) match {
     case Some(group) => group.identifiers
     case None => Set.empty
   }
 
+  /**
+    * Drops the group specified by the passed id.
+    * @param id of group to be dropped.
+    */
   protected def dropGroup(id: String): Unit = {
     groups.remove(id) match {
       case Some(group) =>
@@ -138,10 +148,15 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
     }
   }
 
+  /**
+    * Adds an additional identifier to a group.
+    * @param existing - id of the group you want to add an identifier to.
+    * @param additional - new id for the group.
+    */
   protected def addIdentifier(existing: String, additional: String): Unit = {
     groups.get(existing) match {
       case Some(group) =>
-        groups.put(additional, group)
+        groups.put(existing, group)
         group.identifier(additional)
       case None => // Nothing to do.
     }

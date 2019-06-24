@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.filter
 import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParameter}
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -32,7 +32,7 @@ class RetainRecordsLogicSpec extends FreeSpec with Matchers with ScalaFutures wi
       )
     )
 
-    "should only let records pass which contain all of the specified fields" in new TestStreamFor[RetainRecordsLogic](configuration) {
+    "should only let records pass which contain all of the specified fields" in new TestStreamForFilter[RetainRecordsLogic](configuration) {
 
       whenReady(filterFuture){ _ =>
 

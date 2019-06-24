@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.filter
 import io.logbee.keyscore.model.configuration.{BooleanParameter, Configuration}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FreeSpec, Matchers}
@@ -28,7 +28,7 @@ class FingerprintLogicSpec extends FreeSpec with Matchers with ScalaFutures with
 
     "with default configuration" - {
 
-      "should compute different fingerprints for different record" in new TestStreamFor[FingerprintLogic]() {
+      "should compute different fingerprints for different record" in new TestStreamForFilter[FingerprintLogic]() {
 
         whenReady(filterFuture) { _ =>
 
@@ -62,7 +62,7 @@ class FingerprintLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         BooleanParameter(FingerprintLogic.encodingParameter, true)
       )
 
-      "should compute a fingerprint encoded in base64" in new TestStreamFor[FingerprintLogic](configuration) {
+      "should compute a fingerprint encoded in base64" in new TestStreamForFilter[FingerprintLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 
@@ -91,7 +91,7 @@ class FingerprintLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         Record(Field("message", TextValue("Hello World")))
       )
 
-      "should not touch records which already have a fingerprint" in new TestStreamFor[FingerprintLogic](configuration) {
+      "should not touch records which already have a fingerprint" in new TestStreamForFilter[FingerprintLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 
@@ -131,7 +131,7 @@ class FingerprintLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         Record(Field("message", TextValue("Hello World")))
       )
 
-      "should update the fingerprint field of a record" in new TestStreamFor[FingerprintLogic](configuration) {
+      "should update the fingerprint field of a record" in new TestStreamForFilter[FingerprintLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 

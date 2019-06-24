@@ -108,7 +108,7 @@ class GroupByValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, D
 
   private def examineWithActiveTimeWindow(field: Option[Field], dataset: Dataset): Unit = {
     field match {
-      case Some(f) => addToGroup(f.hashCode().toString, dataset)
+      case Some(field) => addToGroup(field.hashCode().toString, dataset)
       case _ => passthrough(dataset)
     }
   }
