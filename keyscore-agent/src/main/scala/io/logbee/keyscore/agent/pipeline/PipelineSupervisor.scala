@@ -294,7 +294,6 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
       })
 
     case ScrapeMetrics(manager) =>
-      log.debug(s"<$pipelineID> Received ScrapeMetrics")
       controller.scrapePipeline().onComplete {
         case Success(metrics) =>
           manager ! ScrapeMetricsSuccess(metrics.map { case (id, collection) => id.toString -> collection })

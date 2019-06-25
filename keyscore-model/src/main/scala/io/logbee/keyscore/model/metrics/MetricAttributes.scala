@@ -7,14 +7,14 @@ case object CounterMetricTyp extends MetricTyp
 case object UnknownMetricTyp extends MetricTyp
 
 object MetricAttributes {
-  val METRIC_TYP: String = "_keyscore_metric_typ"
-  val METRIC_NAME: String = "_keyscore_metric_name"
-  val METRIC_VALUE: String = "_keyscore_metric_value"
-  val METRIC_TIMESTAMP: String = "_keyscore_metric_timestamp"
-  val METRIC_MAX: String = "_keyscore_metric_min"
-  val METRIC_MIN: String = "_keyscore_metric_max"
   /**
     * Specifies the ID (eg. filter or agent)
     */
-  val METRIC_ID: String = "_keyscore_metric_id"
+  val METRIC_ID: String = "metric.id"
+  val METRIC_TYP: String = "metric.typ"
+  val METRIC_NAME: String = "metric.name"
+  val METRIC_VALUE: String = "metric.value"
+  val METRIC_TIMESTAMP: String = "metric.timestamp"
+  val METRIC_MAX: String = "metric.min"
+  val METRIC_MIN: String = "metric.max"
 }

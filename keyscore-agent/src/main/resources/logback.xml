@@ -6,6 +6,7 @@
     </appender>
     <logger name="org.apache.kafka" level="info" />
     <logger name="com.hierynomus" level="info" />
+    <logger name="akka.actor.TimerScheduler" level="info" />
 
     <root level="debug">
         <appender-ref ref="STDOUT" />
