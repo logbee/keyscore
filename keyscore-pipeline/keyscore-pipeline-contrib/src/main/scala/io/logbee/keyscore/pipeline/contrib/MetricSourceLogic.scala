@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.http
+package io.logbee.keyscore.pipeline.contrib
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
@@ -13,7 +13,6 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.metrics.{MetricConversion, MetricsCollection}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
-import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
@@ -95,7 +94,7 @@ object MetricSourceLogic extends Described {
       //      icon = Icon.fromClass(classOf[MetricSourceLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.http.MetricSourceLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.MetricSourceLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
