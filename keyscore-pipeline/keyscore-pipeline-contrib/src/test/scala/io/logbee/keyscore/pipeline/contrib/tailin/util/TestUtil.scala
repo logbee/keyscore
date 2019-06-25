@@ -21,7 +21,7 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
 import ch.qos.logback.core.rolling.RollingFileAppender
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
 import ch.qos.logback.core.util.FileSize
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile
 
 object TestUtil {
 

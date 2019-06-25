@@ -1,18 +1,12 @@
 package io.logbee.keyscore.pipeline.contrib.decoder.json
 
-import java.util.UUID.randomUUID
-
-import akka.stream.FlowShape
-import akka.stream.scaladsl.{Keep, Source}
-import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{FilterStage, StageContext}
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
@@ -63,28 +57,15 @@ class GreedyJsonExtractorLogicSpec extends FreeSpec with Matchers with ScalaFutu
     )),
   )
 
-  trait TestStream {
+  "A GreedyJsonExtractor" - {
 
     val configuration = Configuration(parameterSet = ParameterSet(Seq(
       FieldNameParameter(GreedyJsonExtractorLogic.fieldNameParameter.ref, "message"),
       TextParameter(GreedyJsonExtractorLogic.prefixParameter.ref, "greedy")
     )))
 
-    val context = StageContext(system, executionContext)
-
-    val filterStage = new FilterStage(LogicParameters(randomUUID(), context, configuration), (p: LogicParameters, s: FlowShape[Dataset, Dataset]) => new GreedyJsonExtractorLogic(p, s))
-
-    val ((source, filterFuture), sink) = Source.fromGraph(TestSource.probe[Dataset])
-      .viaMat(filterStage)(Keep.both)
-      .toMat(TestSink.probe[Dataset])(Keep.both)
-      .run()
-
-  }
-
-  "A GreedyJsonExtractor" - {
-
     samples.zipWithIndex.foreach { case ((json, expectedFields), index) =>
-      s"should extract json from example ${index + 1}" in new TestStream {
+      s"should extract json from example ${index + 1}" in new TestStreamForFilter[GreedyJsonExtractorLogic](configuration) {
         whenReady(filterFuture) { _ =>
           val messageField = Field("message", TextValue(json))
 
@@ -97,7 +78,7 @@ class GreedyJsonExtractorLogicSpec extends FreeSpec with Matchers with ScalaFutu
       }
     }
 
-    "should remove configured field" in new TestStream {
+    "should remove configured field" in new TestStreamForFilter[GreedyJsonExtractorLogic]() {
       whenReady(filterFuture) { filterProxy =>
         val newConfiguration = configuration.update(_.parameterSet.parameters :+= BooleanParameter(GreedyJsonExtractorLogic.removeFieldParameter.ref, true))
         whenReady(filterProxy.configure(newConfiguration)) { _ =>

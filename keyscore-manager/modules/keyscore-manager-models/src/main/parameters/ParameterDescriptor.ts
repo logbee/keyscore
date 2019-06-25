@@ -68,17 +68,16 @@ export interface ParameterDescriptor {
     max?: number;
     choices?: Choice[];
     descriptor?: ParameterDescriptor;
-    fieldTypes?:FieldValueType;
+    fieldTypes?: FieldValueType;
     parameters?: ParameterDescriptor[];
     directives?: FieldDirectiveDescriptor[];
     minSequences?: number;
     maxSequences?: number;
     fieldValueType?: FieldValueType;
+    condition?:BooleanParameterCondition;
 
 
 }
-
-export const ParameterDescriptorPackagePrefix = "io.logbee.keyscore.model.descriptor";
 
 export enum ParameterDescriptorJsonClass {
     TextParameterDescriptor = "io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
@@ -87,6 +86,7 @@ export enum ParameterDescriptorJsonClass {
     NumberParameterDescriptor = "io.logbee.keyscore.model.descriptor.NumberParameterDescriptor",
     DecimalParameterDescriptor = "io.logbee.keyscore.model.descriptor.DecimalParameterDescriptor",
     FieldNameParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor",
+    FieldNamePatternParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor",
     FieldParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldParameterDescriptor",
     TextListParameterDescriptor = "io.logbee.keyscore.model.descriptor.TextListParameterDescriptor",
     FieldNameListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNameListParameterDescriptor",
@@ -110,8 +110,10 @@ export type ResolvedParameterDescriptor =
     | FieldParameterDescriptor
     | TextListParameterDescriptor
     | FieldNameListParameterDescriptor
+    | FieldNamePatternParameterDescriptor
     | FieldListParameterDescriptor
     | ChoiceParameterDescriptor
+    | ParameterGroupDescriptor
     | FieldDirectiveSequenceParameterDescriptor;
 
 export type SingleResolvedParameterDescriptor =
@@ -121,6 +123,7 @@ export type SingleResolvedParameterDescriptor =
     | NumberParameterDescriptor
     | DecimalParameterDescriptor
     | FieldNameParameterDescriptor
+    | FieldNamePatternParameterDescriptor
     | FieldParameterDescriptor;
 
 export type ListResolvedParameterDescriptor =
@@ -188,6 +191,24 @@ export interface FieldNameParameterDescriptor {
     validator: ResolvedStringValidator;
     mandatory: boolean;
 
+}
+
+export interface FieldNamePatternParameterDescriptor {
+    ref: ParameterRef;
+    info: ParameterInfo;
+    jsonClass: ParameterDescriptorJsonClass;
+    defaultValue: string;
+    hint: FieldNameHint;
+    supports: PatternType[];
+    mandatory: boolean;
+}
+
+export enum PatternType {
+    None = 0, RegEx = 1, Glob = 2
+}
+
+export function PatternTypeToString(type: PatternType) {
+    return type === PatternType.None ? "None" : type === PatternType.Glob ? "Glob Pattern" : "Regular Expression";
 }
 
 export interface FieldParameterDescriptor {
@@ -294,7 +315,8 @@ export interface ParameterGroupCondition {
     jsonClass: string;
 }
 
-export interface BooleanParameterCondition {
+export interface BooleanParameterCondition extends ParameterGroupCondition {
+    jsonClass:string;
     parameter: ParameterRef;
     negate: boolean;
 }

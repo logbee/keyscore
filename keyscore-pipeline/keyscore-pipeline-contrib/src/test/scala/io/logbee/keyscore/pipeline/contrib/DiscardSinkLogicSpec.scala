@@ -9,13 +9,14 @@ import akka.stream.{FlowShape, SinkShape}
 import io.logbee.keyscore.model.configuration.{Configuration, NumberParameter, ParameterSet}
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.stage.{FilterStage, SinkStage, StageContext}
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.PatienceConfiguration.{Interval, Timeout}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.time.{Millis, Span}
 import org.scalatest.{FreeSpec, Matchers}
 
@@ -73,8 +74,8 @@ class DiscardSinkLogicSpec extends FreeSpec with Matchers with ScalaFutures with
         }
       }
 
-      val sinkStage = new SinkStage(LogicParameters(UUID.randomUUID(), context, configuration), provider)
-      val dummyStage = new FilterStage(LogicParameters(UUID.randomUUID(), context, Configuration()), dummyProvider)
+      val sinkStage = new SinkStage(LogicParameters(UUID.randomUUID(), StageSupervisor.noop, context, configuration), provider)
+      val dummyStage = new FilterStage(LogicParameters(UUID.randomUUID(), StageSupervisor.noop, context, Configuration()), dummyProvider)
 
       val source = Source.fromGraph(TestSource.probe[Dataset])
         .viaMat(dummyStage)(Keep.left)

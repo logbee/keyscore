@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.filter.batch
 import io.logbee.keyscore.model.configuration.{Configuration, FieldNameParameter, ParameterSet}
 import io.logbee.keyscore.model.data.{Record, _}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -35,7 +35,7 @@ class FoldBatchLogicSpec extends FreeSpec with ScalaFutures with Matchers with T
         FieldNameParameter(FoldBatchLogic.orderParameter, "LEFT")
       )))
 
-      "should overwrite the first with the last" in new TestStreamFor[FoldBatchLogic](configuration) {
+      "should overwrite the first with the last" in new TestStreamForFilter[FoldBatchLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 
@@ -58,7 +58,7 @@ class FoldBatchLogicSpec extends FreeSpec with ScalaFutures with Matchers with T
         FieldNameParameter(FoldBatchLogic.orderParameter, "RIGHT")
       )))
 
-      "should overwrite the last with the first" in new TestStreamFor[FoldBatchLogic](configuration) {
+      "should overwrite the last with the first" in new TestStreamForFilter[FoldBatchLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 

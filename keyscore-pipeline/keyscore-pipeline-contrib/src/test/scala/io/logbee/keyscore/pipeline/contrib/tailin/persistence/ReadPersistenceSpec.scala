@@ -9,8 +9,8 @@ import java.io.File
 
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.file.LocalFile
+import org.scalatestplus.junit.JUnitRunner
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile
 
 @RunWith(classOf[JUnitRunner])
 class ReadPersistenceSpec extends FreeSpec with Matchers with MockFactory {

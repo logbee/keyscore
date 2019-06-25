@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {FormGroup} from "@angular/forms";
-import {ParameterDescriptorJsonClass, ResolvedParameterDescriptor,Parameter,Dataset} from "keyscore-manager-models";
+import {ParameterDescriptorJsonClass, ResolvedParameterDescriptor, Parameter, Dataset} from "keyscore-manager-models";
 import "./style/parameter-module-style.scss";
 import {BehaviorSubject} from "rxjs/index";
 
@@ -28,6 +28,17 @@ import {BehaviorSubject} from "rxjs/index";
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
+            
+            <!--<div *ngSwitchCase="jsonClass.ParameterGroupDescriptor">
+                <div *ngIf="form.value[parameterDescriptor.condition.parameter.id] ? !parameterDescriptor.condition.negate
+                        : parameterDescriptor.condition.negate">
+                    <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
+                                   [parameterDescriptor]="parameterMapping.get(parameter)"
+                                   [form]="form"
+                                   [datasets]="datasets$ | async">
+                    </app-parameter>                
+                </div>
+            </div>-->
 
             <mat-form-field *ngSwitchCase="jsonClass.DecimalParameterDescriptor">
                 <input matInput type="number"
@@ -83,6 +94,13 @@ import {BehaviorSubject} from "rxjs/index";
 
             </auto-complete-input>
 
+            <parameter-fieldnamepattern *ngSwitchCase="jsonClass.FieldNamePatternParameterDescriptor"
+                                        [id]="directiveInstance || parameter.ref.id"
+                                        [parameter]="parameter"
+                                        [datasets]="datasets$ | async"
+                                        [parameterDescriptor]="parameterDescriptor"
+                                        [formControlName]="directiveInstance || parameter.ref.id"
+            ></parameter-fieldnamepattern>
 
             <mat-form-field *ngSwitchCase="jsonClass.FieldParameterDescriptor"
                             [id]="directiveInstance || parameter.ref.id">
@@ -154,6 +172,7 @@ export class ParameterComponent implements OnInit {
         if (this.directiveInstance) {
             this.directiveInstance = this.directiveInstance + ':' + this.parameter.ref.id;
         }
+
     }
 
 

@@ -17,6 +17,7 @@ import {ParameterComponent} from "../main/parameter.component";
 import {ParameterDirectiveComponent} from "../main/parameter-directive.component";
 import {ParameterControlService} from "../main/service/parameter-control.service";
 import {ParameterFactoryService} from "../main/service/parameter-factory.service";
+import {ParameterFieldnamepatternComponent} from "../main/parameter-fieldnamepattern.component";
 
 const exampleDatasets: Dataset[] = [{
     metaData: null,
@@ -52,7 +53,9 @@ storiesOf('Parameter', module).addDecorator(
             ParameterListComponent,
             ParameterComponent,
             AutocompleteInputComponent,
-            ParameterDirectiveComponent],
+            ParameterDirectiveComponent,
+            ParameterFieldnamepatternComponent
+        ],
         imports: [BrowserAnimationsModule,
             CommonModule,
             FormsModule,
@@ -153,5 +156,13 @@ storiesOf('Parameter', module).addDecorator(
         parameterDescriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.FieldDirectiveSequenceParameterDescriptor),
         parameter: {ref: {id: "testID"}, value: [], jsonClass: ParameterJsonClass.FieldDirectiveSequenceParameter},
         form: new FormGroup(({"testID": new FormControl([])}))
+    }
+})).add('FieldNamePatternParameter', () => ({
+    component: ParameterComponent,
+    props: {
+        datasets:exampleDatasets,
+        parameterDescriptor: generateResolvedParameterDescriptor(ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor),
+        parameter: {ref: {id: "testID"}, value: "test", patternType:0,  jsonClass: ParameterJsonClass.FieldNamePatternParameter},
+        form: new FormGroup(({"testID": new FormControl("test")}))
     }
 }));

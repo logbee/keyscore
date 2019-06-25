@@ -83,4 +83,3 @@ function createDatasetTableRowModel(field: Field): DatasetTableRowModel {
 function findFieldByName(name: string, record: Record): Field {
     return record.fields.find(field => field.name === name);
 }
-

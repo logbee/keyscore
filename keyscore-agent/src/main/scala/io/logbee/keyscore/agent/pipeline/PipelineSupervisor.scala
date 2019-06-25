@@ -2,17 +2,16 @@ package io.logbee.keyscore.agent.pipeline
 
 import java.util.UUID
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, UnhandledMessage}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Source}
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.controller.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
-import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
 import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsFailure, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
@@ -24,6 +23,10 @@ import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
+import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
+import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsFailure, ScrapeMetricsSuccess}
+import io.logbee.keyscore.model.pipeline.StageSupervisor
+import io.logbee.keyscore.model.util.ToFiniteDuration.asFiniteDuration
 
 object PipelineSupervisor {
 
@@ -33,11 +36,37 @@ object PipelineSupervisor {
 
   case class ConfigurePipeline(configurePipeline: PipelineConfiguration)
 
+  case class StageCompleted(id: UUID)
+
+  case object StageCompletedAck
+
+  case class StageFailed(id: UUID, ex: Throwable)
+
+  case object StageFailedAck
+
+  case object GetState
+
+  case object InitiateTeardown
+
+  case object FinalizeTeardown
+
   private case class ControllerMaterialized(controller: Controller)
 
   private case class ControllerMaterializationFailed(cause: Throwable)
 
   def apply(filterManager: ActorRef) = Props(new PipelineSupervisor(filterManager))
+
+  sealed trait State
+
+  case object Init extends State
+
+  case object Configuring extends State
+
+  case object Materializing extends State
+
+  case object Running extends State
+
+  case object TearDown extends State
 }
 
 /**
@@ -74,6 +103,12 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
   private val pipelineStartDelay = 5 seconds
   private val pipelineStartTrials = 3
+  private val config = context.system.settings.config
+  private var teardownTimeout:FiniteDuration = 5 seconds
+
+  if(config.hasPath("keyscore.pipeline-supervisor")) {
+    teardownTimeout = config.getConfig("keyscore.pipeline-supervisor").getDuration("teardown-timeout")
+  }
 
   private var pipelineID: UUID = _
 
@@ -101,9 +136,18 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
       become(configuring(pipeline))
 
-      pipelineBlueprint.blueprints.foreach { stageBlueprint =>
-        log.debug(s"Starting Materializer for blueprint: <${stageBlueprint.uuid}>")
-        context.actorOf(BlueprintMaterializer(stageContext, stageBlueprint, filterManager))
+      pipelineBlueprint.blueprints.foreach { ref =>
+        log.debug(s"Starting Materializer for blueprint: <${ref.uuid}>")
+        context.actorOf(BlueprintMaterializer(new StageSupervisor {
+
+          override def complete(): Unit = {
+            log.info(s" Sink signaled completion. Sending StageFailed(${ref.uuid})")
+            self ! StageCompleted(UUID.fromString(ref.uuid))
+          }
+
+          override def fail(ex: Throwable): Unit = self ! StageFailed(UUID.fromString(ref.uuid), ex)
+
+        }, stageContext, ref, filterManager))
       }
 
       scheduleStart(pipeline, pipelineStartTrials)
@@ -111,6 +155,10 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case RequestPipelineInstance =>
       log.debug("Received RequestPipelineInstance")
       sender ! PipelineInstance(Red)
+
+    case GetState => sender ! Init
+
+    case message: UnhandledMessage => log.info(s"Unhandled Message in Supervisor: ${message.message}")
   }
 
   private def configuring(pipeline: Pipeline): Receive = {
@@ -129,7 +177,6 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case StartPipeline(trials) =>
       log.info(s"Received StartPipeline with $trials trials.")
-
       if (trials <= 1) {
         log.error(s"Failed to start pipeline <${pipeline.id}> with ${pipeline.pipelineBlueprint}")
         context.stop(self)
@@ -140,7 +187,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
           log.info(s"Constructing pipeline: <${pipeline.pipelineBlueprint}>")
 
-          val head = Source.fromGraph(pipeline.source.get).viaMat(new ValveStage) { (sourceProxyFuture, valveProxyFuture) =>
+          val head = Source.fromGraph(pipeline.sources.head._2).viaMat(new ValveStage(self)) { (sourceProxyFuture, valveProxyFuture) =>
             val controller = for {
               sourceProxy <- sourceProxyFuture
               valveProxy <- valveProxyFuture
@@ -156,7 +203,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
             val pipelineFilters = filterBlueprints.map(key => pipeline.filters(key))
 
             pipelineFilters.foldLeft(head) { (previousValve, filterStage) =>
-              previousValve.viaMat(filterStage)(Keep.both).viaMat(new ValveStage) { (previous, outValveProxyFuture) =>
+              previousValve.viaMat(filterStage)(Keep.both).viaMat(new ValveStage(self)) { (previous, outValveProxyFuture) =>
                 previous match {
                   case (inValveProxyFuture, filterProxyFuture) =>
                     val controller = for {
@@ -170,7 +217,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
               }
             }
           } else head
-          val tail = last.toMat(pipeline.sink.get) { (valveProxyFuture, sinkProxyFuture) =>
+          val tail = last.toMat(pipeline.sinks.head._2) { (valveProxyFuture, sinkProxyFuture) =>
             val controller = for {
               valveProxy <- valveProxyFuture
               sinkProxy <- sinkProxyFuture
@@ -196,6 +243,10 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case RequestPipelineBlueprints(receiver) =>
       log.debug(s"Received RequestPipelineBlueprints from $receiver")
       receiver ! pipeline.pipelineBlueprint
+
+    case GetState => sender ! Configuring
+
+    case message: UnhandledMessage => log.info(s"Unhandled Message in Supervisor: ${message.message}")
   }
 
   private def materializing(pipeline: Pipeline, controllers: List[Controller]): Receive = {
@@ -206,9 +257,7 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
 
     case ControllerMaterialized(controller) =>
       log.debug(s"Last Controller <${controller.id}> has been materialized.")
-
       mediator ! Subscribe(MetricsTopic, self)
-
       become(running(new PipelineController(pipeline, controllers :+ controller)(executionContext)), discardOld = true)
 
     case ControllerMaterializationFailed(cause) =>
@@ -222,6 +271,10 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
     case RequestPipelineBlueprints(receiver) =>
       log.debug(s"Received Request for Pipeline Blueprints: <${pipeline.id}>")
       receiver ! pipeline.pipelineBlueprint
+
+    case GetState => sender ! Materializing
+
+    case message: UnhandledMessage => log.info(s"Unhandled Message in Supervisor: ${message.message}")
   }
 
   private def running(controller: PipelineController): Receive = {
@@ -300,6 +353,78 @@ class PipelineSupervisor(filterManager: ActorRef) extends Actor with ActorLoggin
         case Failure(e) =>
           manager ! ScrapeMetricsFailure(pipelineID.toString, e.getMessage)
       }
+
+    case RequestPipelineInstance =>
+      log.debug(s"Received Request for Pipeline Instance")
+      sender ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.ref.uuid, controller.pipelineBlueprint.ref.uuid, Red)
+
+    case GetState => sender ! Running
+
+    case StageCompleted(id) =>
+      val remaining = controller.pipeline.sinksRefs.map(_.uuid.toString).filter(rid => !id.toString.equals(rid))
+      become(teardown(controller, remaining), discardOld = true)
+      log.debug(s" Stage $id completed. Changing behaviour to teardown. Remaining stages: $remaining.")
+      self ! InitiateTeardown
+
+     sender ! StageCompletedAck
+
+    case StageFailed(id, ex) =>
+      log.error(s" Stage $id failed with the following exception: \n $ex. Changing behaviour to teardown.")
+      val remaining = controller.pipeline.sinksRefs.map(_.uuid.toString).filter(rid => !id.toString.equals(rid))
+      become(teardown(controller, remaining, restart = true))
+      self ! InitiateTeardown
+
+      sender ! StageFailedAck
+
+    case message: UnhandledMessage => log.info(s"Unhandled Message in Supervisor: ${message.message}")
+  }
+
+  private def teardown(controller: PipelineController, remaining: Set[String], restart: Boolean = false): Receive = {
+
+    case InitiateTeardown if remaining.isEmpty =>
+      log.info(s" Initiate Teardown received from sink.")
+      self ! FinalizeTeardown
+
+    case InitiateTeardown =>
+      log.info(s" Initiate Teardown => starting timeout with $teardownTimeout.")
+      context.system.scheduler.scheduleOnce(teardownTimeout, self, FinalizeTeardown)
+
+    case FinalizeTeardown =>
+      restartOrShutdown(controller, restart)
+
+    case StageFailed(_, _) => sender ! StageFailedAck
+
+    case StageCompleted(id) =>
+      val filtered = remaining.filter(rid => !id.toString.equals(rid))
+
+      if (filtered.nonEmpty) {
+        become(teardown(controller, filtered, restart), discardOld = true)
+      }
+      else {
+        self ! FinalizeTeardown
+      }
+
+      sender ! StageCompletedAck
+
+    case GetState => sender ! TearDown
+
+    case RequestPipelineInstance =>
+      log.debug(s"Received Request for Pipeline Instance")
+      sender ! PipelineInstance(controller.pipelineBlueprint.ref, controller.pipelineBlueprint.ref.uuid, controller.pipelineBlueprint.ref.uuid, Red)
+
+    case message: UnhandledMessage => log.info(s"Unhandled Message in Supervisor: ${message.message}")
+  }
+
+  private def restartOrShutdown(controller: PipelineController, restart: Boolean): Unit = {
+    if (restart) {
+      log.info(s" Restarting pipeline ${controller.pipeline.pipelineBlueprint.ref.uuid}.")
+      become(receive, discardOld = true)
+      self ! CreatePipeline(controller.pipeline.pipelineBlueprint)
+    }
+    else {
+      log.info(s" Stopping supervisor for ${controller.pipeline.pipelineBlueprint.ref.uuid}.")
+      context.stop(self)
+    }
   }
 
   private def scheduleStart(pipeline: Pipeline, trials: Int): Unit = {

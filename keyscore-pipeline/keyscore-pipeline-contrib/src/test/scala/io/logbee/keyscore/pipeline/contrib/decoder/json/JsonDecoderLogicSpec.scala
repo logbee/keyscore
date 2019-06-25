@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.decoder.json
 import io.logbee.keyscore.model.configuration.{BooleanParameter, Configuration, TextParameter}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.util.Using
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -32,7 +32,7 @@ class JsonDecoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with
       JsonDecoderLogic.describe should not be null
     }
 
-    "should extract all json values into separate fields" in new TestStreamFor[JsonDecoderLogic](configuration) {
+    "should extract all json values into separate fields" in new TestStreamForFilter[JsonDecoderLogic](configuration) {
 
       whenReady(filterFuture) { _ =>
 
@@ -63,7 +63,7 @@ class JsonDecoderLogicSpec extends FreeSpec with Matchers with ScalaFutures with
       }
     }
 
-    "should decode a json batch into several records" in new TestStreamFor[JsonDecoderLogic](configuration) {
+    "should decode a json batch into several records" in new TestStreamForFilter[JsonDecoderLogic](configuration) {
 
       whenReady(filterFuture) { _ =>
 

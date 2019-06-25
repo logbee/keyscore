@@ -12,6 +12,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {PropagationStopModule} from "ngx-propagation-stop";
 import {ParameterFactoryService} from "./service/parameter-factory.service";
 import {MaterialModule} from "keyscore-manager-material";
+import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.component";
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import {MaterialModule} from "keyscore-manager-material";
         ParameterListComponent,
         ParameterComponent,
         AutocompleteInputComponent,
-        ParameterDirectiveComponent
+        ParameterDirectiveComponent,
+        ParameterFieldnamepatternComponent
     ],
     exports: [
         ParameterComponent

@@ -31,9 +31,7 @@ image::media/svg/light/keyscore.light.svg[align=center]
 
 === link:./keyscore-manager/README.asciidoc[keyscore-manager] ===
 
-
 === link:./keyscore-frontier/README.asciidoc[keyscore-frontier] ===
-
 
 === link:./keyscore-agent/README.asciidoc[keyscore-agent] ===
 

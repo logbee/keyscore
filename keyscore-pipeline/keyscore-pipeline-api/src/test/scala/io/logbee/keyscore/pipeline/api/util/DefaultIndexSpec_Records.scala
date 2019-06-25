@@ -6,7 +6,7 @@ import io.logbee.keyscore.pipeline.api.util.Characteristic.whereAll
 import io.logbee.keyscore.pipeline.api.util.DefaultDataIndex.FIELD_PRESENT
 import io.logbee.keyscore.pipeline.api.util.DefaultDataIndex.Record.{byField, byPresentField, withField}
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

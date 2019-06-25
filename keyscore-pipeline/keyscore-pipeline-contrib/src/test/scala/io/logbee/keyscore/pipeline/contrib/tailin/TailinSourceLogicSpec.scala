@@ -8,14 +8,12 @@ import java.nio.file.Path
 import java.util.UUID
 
 import scala.concurrent.duration.DurationInt
-
 import org.scalatest.BeforeAndAfter
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FreeSpec
 import org.scalatest.Matchers
 import org.scalatest.ParallelTestExecution
 import org.scalatest.concurrent.ScalaFutures
-
 import akka.stream.SourceShape
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Source
@@ -33,19 +31,19 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
-
-
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import java.nio.file.StandardOpenOption
+
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext with ParallelTestExecution {
-  
+
   var watchDir: Path = _
-  
+
   val persistenceFile = new File(".testKeyscorePersistenceFile")
-  
+
   before {
     watchDir = Files.createTempDirectory("watchTest")
     TestUtil.waitForFileToExist(watchDir.toFile)
@@ -55,35 +53,29 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     
     persistenceFile.delete()
   }
-  
+
   override def afterAll = {
     TestKit.shutdownActorSystem(system)
   }
-  
-  
+
   trait DefaultSource {
     val context = StageContext(system, executionContext)
-    
+
     val configuration = Configuration(
       TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir + "/tailin.csv"),
       ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.LINE.toString),
       ChoiceParameter(TailinSourceLogic.encoding.ref,        StandardCharsets.UTF_8.toString),
       TextParameter(  TailinSourceLogic.rotationPattern.ref, "tailin.csv.[1-5]"),
       TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
-      
+
       TextParameter(  TailinSourceLogic.persistenceFile.ref, persistenceFile.getAbsolutePath),
     )
-    
-    val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, context, configuration), shape)
-    
-    val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID, context, configuration), provider)
-    
+
+    val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
+    val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), provider)
     val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
   }
-  
-  
-  
-  
+
   "A TailinSource" - {
     
     case class FileWithContent(path: String, lines: Seq[String])
@@ -122,45 +114,36 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
           expectedData = Seq("abcde", "fghij", "klmnö"),
       ),
     )
-    
-    
-    
+
     testSetups.foreach { testSetup =>
-      
+
       s"""with
         filePattern:     "${testSetup.filePattern}"
         readMode:        "${testSetup.readMode}"
         encoding:        "${testSetup.encoding}"
         rotationPattern: "${testSetup.rotationPattern}"
       """ - {
-        
-        
+
         trait DefaultTailinSourceValues {
-          
+
           val context = StageContext(system, executionContext)
-          
+
           val configuration = Configuration(
             TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir + "/" + testSetup.filePattern),
             ChoiceParameter(TailinSourceLogic.readMode.ref,        testSetup.readMode.toString),
             ChoiceParameter(TailinSourceLogic.encoding.ref,        testSetup.encoding.toString),
             TextParameter(  TailinSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
             TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
-            
             TextParameter(  TailinSourceLogic.persistenceFile.ref, persistenceFile.getAbsolutePath),
           )
-          
-          val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, context, configuration), shape)
-          
-          val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID, context, configuration), provider)
-          
+
+          val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
+          val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), provider)
           val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
         }
-        
-        
-        
-        "should push one available string for one available pull" in
-        new DefaultTailinSourceValues {
-          
+
+        "should push one available string for one available pull" in new DefaultTailinSourceValues {
+
           val file = TestUtil.createFile(watchDir, testSetup.files.head.path)
           
           val text = testSetup.files.head.lines.head
@@ -171,8 +154,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
           result.records.head.fields should have size 1
           result.records.head.fields.head.value shouldEqual TextValue(testSetup.expectedData.head)
         }
-        
-        
+
         "should push multiple available strings" - {
           
           Seq(true, false).foreach { waitFor_DirWatcher_processEvents =>
@@ -193,15 +175,13 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
                   Thread.sleep(1500)
                 }
               }
-              
-              
-              
+
               var concatenatedExpectedData = testSetup.expectedData.fold("")((string1, string2) => string1 + string2)
-              
+
               sink.request(texts.size)
-              
+
               var concatenatedReturnedData = ""
-              
+
               for (i <- 1 to texts.size) {
                 val datasets: Seq[Dataset] = sink.receiveWithin(max=3.seconds, messages=texts.size)
 
@@ -209,13 +189,12 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
                   concatenatedReturnedData += dataset.records.head.fields.head.value.asInstanceOf[TextValue].value
                 }
               }
-              
+
               concatenatedReturnedData shouldEqual concatenatedExpectedData
             }
           }
         }
-        
-        
+
         "should push multiple strings that become available in a delayed manner for multiple delayed pulls" in
         new DefaultTailinSourceValues {
           
@@ -235,8 +214,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
             datasetText.records.head.fields.head.value shouldEqual TextValue(expectedText)
           }
         }
-        
-        
+
         "should wait for strings to become available, if no strings are available when it gets pulled" in
         new DefaultTailinSourceValues {
           
@@ -255,13 +233,10 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         }
       }
     }
-    
-    
-    
-    
+
     "should push multiple logfiles with the same lastModified-timestamp in the correct order" ignore //TEST
     new DefaultSource {
-      
+
       val baseFile = TestUtil.createFile(watchDir, "file", "0")
       val rotatePattern = baseFile.name + ".[1-5]"
       
@@ -288,14 +263,10 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       
       datasetText.records.head.fields.head.value shouldEqual TextValue("222")
     }
-    
-    
-    
-    
-    
+
     "should push realistic log data with rotation" ignore //TEST doesn't work yet, which is presumably a fault of the test, not the code
     new DefaultSource {
-      
+
       val logFile = TestUtil.createFile(watchDir, "tailin.csv")
       val numberOfLines = 1000
       val slf4j_rotatePattern = logFile.name + ".%i"

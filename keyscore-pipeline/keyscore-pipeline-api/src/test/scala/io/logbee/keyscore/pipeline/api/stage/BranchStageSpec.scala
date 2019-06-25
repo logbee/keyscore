@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.pipeline.api.stage
 
 import java.util.UUID
 
@@ -8,13 +8,13 @@ import akka.stream.scaladsl.GraphDSL
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
-import io.logbee.keyscore.pipeline.api.stage._
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.{BranchLogic, BranchShape, LogicParameters}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Promise
 import scala.language.postfixOps
@@ -32,7 +32,7 @@ class BranchStageSpec extends FreeSpec with Matchers with ScalaFutures with Test
 
       val provider: (LogicParameters, BranchShape[Dataset, Dataset, Dataset]) => BranchLogic
 
-      lazy val stage = new BranchStage(LogicParameters(UUID.randomUUID(), context, configurationA), provider)
+      lazy val stage = new BranchStage(LogicParameters(UUID.randomUUID(), StageSupervisor.noop, context, configurationA), provider)
 
       lazy val (source, branchFuture, left, right) = RunnableGraph.fromGraph(
         GraphDSL.create(TestSource.probe[Dataset], stage, TestSink.probe[Dataset], TestSink.probe[Dataset]) { (source, branch, left, right) =>

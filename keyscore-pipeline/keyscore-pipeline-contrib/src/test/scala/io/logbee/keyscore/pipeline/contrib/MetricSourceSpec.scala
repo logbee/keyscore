@@ -31,9 +31,6 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
     "convert MetricCollection to Dataset" in {
       val dataset = Dataset(metadata = MetaData(),List(Record(List(Field("metric.id",TextValue(addFieldsIdFromMetricsTest)), Field("metric.typ",TextValue(CounterMetricTyp.toString)), Field("metric.name",TextValue("cm3")), Field("metric.value",DecimalValue(1.3)), Field("metric.timestamp",TimestampValue(9,25)), Field("test",DecimalValue(42.0)), Field("x",TextValue("x")))), Record(List(Field("metric.id",TextValue(addFieldsIdFromMetricsTest)), Field("metric.typ",TextValue(GaugeMetricTyp.toString)), Field("metric.name",TextValue("gm4")), Field("metric.value",DecimalValue(1.4)), Field("metric.timestamp",TimestampValue(11,27)), Field("metric.max",DecimalValue(0.0)), Field("metric.min",DecimalValue(42.0)), Field("test2",DecimalValue(242.0)), Field("y",TextValue("y"))))))
       convertMetricCollectionToDataset(addFieldsIdFromMetricsTest, mcs) shouldBe dataset
- }
-
-
+    }
   }
-
 }

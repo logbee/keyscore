@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.filter.batch
 
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamFor
+import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -28,7 +28,7 @@ class SpreaderLogicSpec extends FreeSpec with Matchers with ScalaFutures with Te
 
     "when configured without any field" - {
 
-      "should let datasets pass unmodifed" in new TestStreamFor[SpreaderLogic]() {
+      "should let datasets pass unmodifed" in new TestStreamForFilter[SpreaderLogic]() {
 
         whenReady(filterFuture) { _ =>
 
@@ -46,7 +46,7 @@ class SpreaderLogicSpec extends FreeSpec with Matchers with ScalaFutures with Te
         FieldNameListParameter(SpreaderLogic.fieldNamesParameter.ref, Seq("kind", "date"))
       )))
 
-      "should spread the configured fields over all Records within a Dataset" in new TestStreamFor[SpreaderLogic](configuration) {
+      "should spread the configured fields over all Records within a Dataset" in new TestStreamForFilter[SpreaderLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 
@@ -66,7 +66,7 @@ class SpreaderLogicSpec extends FreeSpec with Matchers with ScalaFutures with Te
         FieldNameListParameter(SpreaderLogic.fieldNamesParameter.ref, Seq("k.*", "..te"))
       )))
 
-      "should spread matching fields over all Records within a Dataset" in new TestStreamFor[SpreaderLogic](configuration) {
+      "should spread matching fields over all Records within a Dataset" in new TestStreamForFilter[SpreaderLogic](configuration) {
 
         whenReady(filterFuture) { _ =>
 

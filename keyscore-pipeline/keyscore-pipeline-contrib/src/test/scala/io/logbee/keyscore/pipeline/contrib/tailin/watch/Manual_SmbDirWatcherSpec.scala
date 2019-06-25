@@ -2,7 +2,8 @@ package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import java.nio.charset.StandardCharsets
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, FileHandle, SmbDir}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, FileHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
 import org.scalamock.scalatest.MockFactory
 
@@ -11,8 +12,8 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
   //TODO
   
   trait DirWatcherParams {
-    var provider = mock[WatcherProvider[DirHandle, FileHandle]]
-    var matchPattern = DirWatcherPattern("/*.txt")
+    var provider = mock[WatcherProvider]
+    var matchPattern = new FileMatchPattern("/*.txt")
   }
   
   
@@ -30,28 +31,28 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
             
             val dir = new SmbDir(realDir)
             
-            matchPattern = DirWatcherPattern(fullFilePattern = "\\\\" + hostName + "\\" + shareName + "\\" + dirPath + "*\\test.txt", depth = 2)
-            val dirWatcher = new SmbDirWatcher(dir, matchPattern, provider)
+            matchPattern = new FileMatchPattern(fullFilePattern = "\\\\" + hostName + "\\" + shareName + "\\" + dirPath + "*\\test.txt")
+            val dirWatcher = new DirWatcher(dir, matchPattern, provider)
             
             
             val subDirPath = dirPath + "subDir"
             withSmbDir(share, subDirPath, { subDir =>
               
-              val subDirWatcher = mock[DirWatcher]
+              val subDirWatcher = mock[BaseDirWatcher]
               
               (provider.createDirWatcher _)
-                .expects(*, matchPattern.copy(depth = 3))
+                .expects(*, matchPattern)
                 .returning(subDirWatcher)
               
               
-              (subDirWatcher.processFileChanges _).expects()
-              dirWatcher.processFileChanges()
+              (subDirWatcher.processChanges _).expects()
+              dirWatcher.processChanges()
               
               
               
               //call another time to verify that it's called on the sub-DirWatcher
-              (subDirWatcher.processFileChanges _).expects()
-              dirWatcher.processFileChanges()
+              (subDirWatcher.processChanges _).expects()
+              dirWatcher.processChanges()
               
               
               (subDirWatcher.tearDown _).expects()
@@ -74,8 +75,8 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
             withSmbDir(share, dirPath, { realDir =>
               val dir = new SmbDir(realDir)
               println("matchPattern: " + dir.absolutePath + "test.txt")
-              matchPattern = DirWatcherPattern(dir.absolutePath + "test.txt") //FIXME correct this filePattern
-              val dirWatcher = new SmbDirWatcher(dir, matchPattern, provider)
+              matchPattern = new FileMatchPattern(dir.absolutePath + "test.txt") //FIXME correct this filePattern
+              val dirWatcher = new DirWatcher(dir, matchPattern, provider)
               
               
               val filePath = dirPath + "test.txt"
@@ -84,13 +85,13 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
                 
                 val fileEventHandler = mock[FileEventHandler]
                 
-                (fileEventHandler.processFileChanges _).expects()
+                (fileEventHandler.processChanges _).expects()
                 
                 (provider.createFileEventHandler _)
                   .expects(file)
                   .returning(fileEventHandler)
                 
-                dirWatcher.processFileChanges()
+                dirWatcher.processChanges()
                 
                 (fileEventHandler.tearDown _).expects()
                 dirWatcher.tearDown()

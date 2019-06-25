@@ -20,6 +20,7 @@ import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.data.Field
+import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.data.Label
 import io.logbee.keyscore.model.data.MetaData
 import io.logbee.keyscore.model.data.NumberValue
@@ -27,7 +28,6 @@ import io.logbee.keyscore.model.data.Record
 import io.logbee.keyscore.model.data.TextValue
 import io.logbee.keyscore.model.descriptor.Category
 import io.logbee.keyscore.model.descriptor.Descriptor
-import io.logbee.keyscore.model.data.Icon
 import io.logbee.keyscore.model.descriptor.ParameterInfo
 import io.logbee.keyscore.model.descriptor.SourceDescriptor
 import io.logbee.keyscore.model.descriptor.StringValidator
@@ -40,7 +40,7 @@ import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.SourceLogic
 import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbDir
+import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
@@ -50,9 +50,9 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderManager
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcher
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirWatcherPattern
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.SmbWatcherProvider
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.BaseDirWatcher
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.FileMatchPattern
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.WatcherProvider
 
 object SmbSourceLogic extends Described {
   
@@ -179,7 +179,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
   var share: DiskShare = null
   
   
-  var dirWatcher: DirWatcher = _
+  var dirWatcher: BaseDirWatcher = _
   
   var sendBuffer: SendBuffer = null
   var readPersistence: ReadPersistence = null
@@ -209,7 +209,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
       filePatternWithoutLeadingSlashes = filePatternWithoutLeadingSlashes.substring(1)
     }
     
-    var baseDir = DirWatcherPattern.extractInvariableDir(filePatternWithoutLeadingSlashes) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
+    var baseDir = FileMatchPattern.extractInvariableDir(filePatternWithoutLeadingSlashes) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
     baseDir match {
       case None =>
         log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
@@ -237,12 +237,12 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
         val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
         sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
         
-        val readSchedulerProvider = new SmbWatcherProvider(readSchedule, rotationPattern, readPersistence)
+        val readSchedulerProvider = new WatcherProvider(readSchedule, rotationPattern, readPersistence)
         
         
         val client = new SMBClient()
         connection = client.connect(hostName)
-        val authContext = new AuthenticationContext(loginName, password.toCharArray, "") //TODO domain
+        val authContext = new AuthenticationContext(loginName, password.toCharArray, domainName)
         val session = connection.authenticate(authContext)
         
         // Connect to Share
@@ -259,7 +259,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
         
         
         val smbFilePatternString = "\\\\" + hostName + "\\" + shareName + "\\" + filePatternWithoutLeadingSlashes
-        dirWatcher = readSchedulerProvider.createDirWatcher(new SmbDir(dir), DirWatcherPattern(smbFilePatternString))
+        dirWatcher = readSchedulerProvider.createDirWatcher(new SmbDir(dir), new FileMatchPattern(smbFilePatternString))
     }
   }
   
@@ -267,7 +267,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
   
   
   override def onTimer(timerKey: Any) {
-    dirWatcher.processFileChanges()
+    dirWatcher.processChanges()
     
     if (!sendBuffer.isEmpty) {
       doPush()
@@ -314,7 +314,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
       doPush()
     }
     else {
-      dirWatcher.processFileChanges()
+      dirWatcher.processChanges()
       
       if (!sendBuffer.isEmpty) {
         doPush()

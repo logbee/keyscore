@@ -15,7 +15,7 @@ import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.DiskShare
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.SmbFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbFile
 
 /**
  * Semi-automatic test. Requires user-interaction and an SMB share.

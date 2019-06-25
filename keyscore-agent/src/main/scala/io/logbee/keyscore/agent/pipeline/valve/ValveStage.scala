@@ -2,11 +2,15 @@ package io.logbee.keyscore.agent.pipeline.valve
 
 import java.util.UUID
 
+import akka.actor.ActorRef
+import akka.pattern.ask
 import akka.stream.stage._
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
+import akka.util.Timeout
 import com.google.protobuf.Duration
 import com.google.protobuf.util.Timestamps
 import com.google.protobuf.util.Timestamps.between
+import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.valve.ValvePosition.{Closed, Drain, Open, ValvePosition}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
@@ -17,8 +21,10 @@ import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDes
 import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
 
 import scala.collection.mutable
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.postfixOps
+import scala.util.Success
 
 object ValveStage {
   val FirstValveTimestamp = "io.logbee.keyscore.agent.pipeline.valve.VALVE_FIRST_TIMESTAMP"
@@ -62,7 +68,7 @@ object ValveStage {
   * @param bufferLimit
   * @param dispatcher
   */
-class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContext) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {
+class ValveStage(supervisor: ActorRef, bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContext) extends GraphStageWithMaterializedValue[FlowShape[Dataset, Dataset], Future[ValveProxy]] {
   private val id = UUID.randomUUID()
   private val in = Inlet[Dataset]("inlet")
   private val out = Outlet[Dataset]("outlet")
@@ -82,9 +88,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private val insertBuffer = RingBuffer[Dataset](bufferLimit)
     private val totalThroughputTime = MovingMedian(bufferLimit)
     private val throughputTime = MovingMedian(bufferLimit)
-
     private val metrics = new DefaultMetricsCollector()
-
     private var state = ValveState(id, bufferLimit = ringBuffer.limit)
 
     private val stateCallback = getAsyncCallback[Promise[ValveState]]({ promise =>
@@ -147,6 +151,16 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       ringBuffer.clear()
       promise.success(update(ValveState(id, state.position, ringBuffer.size, ringBuffer.limit, durationToNanos(throughputTime), durationToNanos(totalThroughputTime))))
       log.debug(s"Cleared buffer of valve <$id>")
+    })
+
+    private val completeCallback = getAsyncCallback[Unit]({ _ =>
+      complete(out)
+      log.debug(s"Sending complete out.")
+    })
+
+    private val failCallback = getAsyncCallback[Throwable]({ ex =>
+      fail(out, ex)
+      log.debug(s"Sending fail out.")
     })
 
     private val valveProxy = new ValveProxy {
@@ -236,6 +250,28 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
       }
     }
 
+    override def onUpstreamFinish(): Unit = {
+      log.debug(s"UpstreamFinish! sending StageCompleted to $supervisor.")
+      implicit val timeout = Timeout(5 seconds)
+      (supervisor ? StageCompleted(id)).onComplete {
+        case Success(StageCompletedAck) =>
+          completeCallback.invoke()
+        case _ =>
+          completeCallback.invoke()
+      }
+    }
+
+    override def onUpstreamFailure(ex: Throwable): Unit = {
+      log.debug(s"UpstreamFailure! Sending StageFailed to $supervisor.")
+      implicit val timeout = Timeout(5 seconds)
+      (supervisor ? StageFailed(id, ex)).onComplete {
+        case Success(StageFailedAck) =>
+          completeCallback.invoke()
+        case _ =>
+          failCallback.invoke(ex)
+      }
+    }
+
     private def pushOut(): Unit = {
 
       if (isAvailable(out) && !isDraining) {
@@ -260,7 +296,6 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
     private def pullIn(): Unit = {
       if (!hasBeenPulled(in)) {
         pull(in)
-
       }
     }
 
@@ -273,9 +308,7 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def compute(median: MovingMedian, timestampLabel: String, throughputLabel: String, dataset: Dataset, labels: mutable.Map[String, Label], kind: String = ""): MovingMedian = {
       val newTimestamp = Timestamps.fromMillis(System.currentTimeMillis())
-
       labels.put(timestampLabel, Label(timestampLabel, TimestampValue(newTimestamp)))
-
       dataset.metadata.labels.find(_.name == timestampLabel) match {
         case Some(Label(_, timestamp: TimestampValue)) =>
           val duration = between(timestamp, newTimestamp)
@@ -296,7 +329,6 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def allLabelsExceptFirstValveTimestampIfItIsAlreadyPresent(labels: Map[String, Label], dataset: Dataset) = {
       val isFirstValveTimestampPresent = dataset.metadata.labels.exists(label => label.name == FirstValveTimestamp)
-
       labels.values.filter(label => {
         label.name != FirstValveTimestamp || label.name == FirstValveTimestamp && !isFirstValveTimestampPresent
       })
@@ -314,5 +346,4 @@ class ValveStage(bufferLimit: Int = 10)(implicit val dispatcher: ExecutionContex
 
     private def durationToNanos(duration: Duration): Long = duration.getSeconds * 1000000L + duration.getNanos
   }
-
 }

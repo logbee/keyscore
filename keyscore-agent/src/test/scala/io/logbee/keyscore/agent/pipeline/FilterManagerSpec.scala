@@ -12,6 +12,7 @@ import io.logbee.keyscore.commons.extension.FilterExtension
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidToString
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.stage.StageContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -43,7 +44,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should instantiate a filter stage" in {
 
-      val result = Await.ready(filterManager ? CreateFilterStage(BlueprintRef(randomUUID()), StageContext(system, system.dispatcher), ExampleFilter.describe.ref, Configuration()), 10 seconds)
+      val result = Await.ready(filterManager ? CreateFilterStage(BlueprintRef(randomUUID()), StageSupervisor.noop, StageContext(system, system.dispatcher), ExampleFilter.describe.ref, Configuration()), 10 seconds)
 
       result shouldBe a[Future[_]]
     }
@@ -58,7 +59,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should create a sink stage" in {
 
-      filterManager ! CreateSinkStage(BlueprintRef(randomUUID()), ctx , ExampleFilter.describe.ref, Configuration.empty)
+      filterManager ! CreateSinkStage(BlueprintRef(randomUUID()), StageSupervisor.noop, ctx , ExampleFilter.describe.ref, Configuration.empty)
 
       val message = receiveOne(5 seconds).asInstanceOf[SinkStageCreated]
 
@@ -67,7 +68,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should create a source stage" in {
 
-      filterManager ! CreateSourceStage(BlueprintRef(randomUUID()), ctx, ExampleFilter.describe.ref, Configuration.empty)
+      filterManager ! CreateSourceStage(BlueprintRef(randomUUID()), StageSupervisor.noop, ctx, ExampleFilter.describe.ref, Configuration.empty)
 
       val message = receiveOne(5 seconds).asInstanceOf[SourceStageCreated]
 
@@ -76,7 +77,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should create a filter stage" in {
 
-      filterManager ! CreateFilterStage(BlueprintRef(randomUUID()), ctx, ExampleFilter.describe.ref, Configuration.empty)
+      filterManager ! CreateFilterStage(BlueprintRef(randomUUID()), StageSupervisor.noop, ctx, ExampleFilter.describe.ref, Configuration.empty)
 
       val message = receiveOne(5 seconds).asInstanceOf[FilterStageCreated]
 
@@ -85,7 +86,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should create a branch stage" in {
 
-      filterManager ! CreateBranchStage(BlueprintRef(randomUUID()), ctx, ExampleFilter.describe.ref, Configuration.empty)
+      filterManager ! CreateBranchStage(BlueprintRef(randomUUID()), StageSupervisor.noop, ctx, ExampleFilter.describe.ref, Configuration.empty)
 
       val message = receiveOne(5 seconds).asInstanceOf[BranchStageCreated]
 
@@ -94,7 +95,7 @@ class FilterManagerSpec extends TestKit(ActorSystem("spec")) with ImplicitSender
 
     "should create a merge stage" in {
 
-      filterManager ! CreateMergeStage(BlueprintRef(randomUUID()), ctx, ExampleFilter.describe.ref, Configuration.empty)
+      filterManager ! CreateMergeStage(BlueprintRef(randomUUID()), StageSupervisor.noop, ctx, ExampleFilter.describe.ref, Configuration.empty)
 
       val message = receiveOne(5 seconds).asInstanceOf[MergeStageCreated]
 

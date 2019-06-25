@@ -6,7 +6,7 @@ trait PathWatcher {
   /**
    * Determines if files have been changed in this path and executes the implemented action for it.
    */
-  def processFileChanges()
+  def processChanges()
   
   /**
    * Notifies this PathWatcher that its path has been deleted and allows it to react to that scenario.
@@ -21,6 +21,6 @@ trait PathWatcher {
 }
 
 
-trait DirWatcher extends PathWatcher;
+trait BaseDirWatcher extends PathWatcher
 
-trait FileEventHandler extends PathWatcher;
+trait FileEventHandler extends PathWatcher
