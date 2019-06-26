@@ -1,6 +1,9 @@
 import {ParameterRef, ResolvedParameterInfo} from "keyscore-manager-models";
 import {Parameter, ParameterDescriptor} from "../parameter.model";
 
+export const JSONCLASS_EXPRESSION_PARAM = "io.logbee.keyscore.model.configuration.ExpressionParameter";
+export const JSONCLASS_EXPRESSION_DESCR = "io.logbee.keyscore.model.descriptor.ExpressionParameterDescriptor";
+
 export class ExpressionParameterChoice {
     constructor(
         readonly name: string,
@@ -11,7 +14,7 @@ export class ExpressionParameterChoice {
 }
 
 export class ExpressionParameterDescriptor extends ParameterDescriptor {
-    public readonly jsonClass = "io.logbee.keyscore.model.descriptor.ExpressionParameterDescriptor";
+    public readonly jsonClass = JSONCLASS_EXPRESSION_DESCR;
 
     constructor(
         readonly ref: ParameterRef,
@@ -26,7 +29,7 @@ export class ExpressionParameterDescriptor extends ParameterDescriptor {
 }
 
 export class ExpressionParameter extends Parameter {
-    public readonly jsonClass = "io.logbee.keyscore.model.configuration.ExpressionParameter";
+    public readonly jsonClass = JSONCLASS_EXPRESSION_PARAM;
 
     constructor(
         readonly ref: ParameterRef,

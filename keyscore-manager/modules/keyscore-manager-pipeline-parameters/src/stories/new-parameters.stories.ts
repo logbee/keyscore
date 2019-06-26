@@ -17,6 +17,8 @@ import {ExpressionParameterModule} from "../main/parameters/expression-parameter
 import {TextParameterModule} from "../main/parameters/text-parameter/text-parameter.module";
 import {ParameterComponentFactoryService} from "../main/service/parameter-component-factory.service";
 import {ParameterFormComponent} from "../main/parameter-form.component";
+import {NumberParameterComponent} from "../main/parameters/number-parameter/number-parameter.component";
+import {NumberParameter, NumberParameterDescriptor} from "../main/parameters/number-parameter/number-parameter.model";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -33,13 +35,14 @@ storiesOf('Parameters/ExpressionParameter', module)
     .add("default", () => ({
         component: ExpressionParameterComponent,
         props: {
-            descriptor$: of(new ExpressionParameterDescriptor({id: "myexpression"}, "Field Pattern", "", "", [
-                    new ExpressionParameterChoice("expression.regex", "RegEx", ""),
-                    new ExpressionParameterChoice("expression.grok", "Grok", ""),
-                    new ExpressionParameterChoice("expression.glob", "Glob", "")
-                ]),
-            ),
-            parameter$: of(new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"))
+            descriptor: new ExpressionParameterDescriptor({id: "myexpression"}, "Field Pattern", "", "", [
+                new ExpressionParameterChoice("expression.regex", "RegEx", ""),
+                new ExpressionParameterChoice("expression.grok", "Grok", ""),
+                new ExpressionParameterChoice("expression.glob", "Glob", "")
+            ])
+            ,
+            parameter: new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"),
+            emitter: action('Value Change')
         }
     }));
 
@@ -55,12 +58,46 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
     })).add("default", () => ({
     component: TextParameterComponent,
     props: {
-        descriptor$: of(new TextParameterDescriptor({id: "myTextParameter"},
+        descriptor: new TextParameterDescriptor({id: "myTextParameter"},
             "Text Parameter", "My text parameter",
             "Default Value",
             {expression: "*", expressionType: ExpressionType.RegEx, description: "test"}, false)
-        ),
-        parameter$: of(new TextParameter({id: "myTextParameter"}, "Initial Value"))
+        ,
+        parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
+        emitter: action('Value Change')
+    }
+}));
+
+storiesOf('Parameters/NumberParameter', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule
+        ],
+        providers: []
+    })).add("Without Range", () => ({
+    component: NumberParameterComponent,
+    props: {
+        descriptor: new NumberParameterDescriptor({id: "myNumberParameter"},
+            "Number Parameter", "My number parameter",
+            0,
+            null, false)
+        ,
+        parameter: new NumberParameter({id: "myNumberParameter"}, 0),
+        emitter: action('Value Change')
+    }
+})).add("With Range: 0-10 Step:2", () => ({
+    component: NumberParameterComponent,
+    props: {
+        descriptor: new NumberParameterDescriptor({id: "myNumberParameter"},
+            "Number Parameter", "My number parameter",
+            0,
+            {start: 0, end: 10, step: 2}, false)
+        ,
+        parameter: new NumberParameter({id: "myNumberParameter"}, 0),
+        emitter: action('Value Change')
     }
 }));
 

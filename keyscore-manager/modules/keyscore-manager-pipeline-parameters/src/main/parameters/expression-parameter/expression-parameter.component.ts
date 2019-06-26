@@ -12,6 +12,9 @@ import {ParameterRef} from "keyscore-manager-models";
                 <mat-label>{{descriptor.displayName}}</mat-label>
                 <input #expression matInput type="text" placeholder="expression"
                        (change)="onChanged(expression.value, expressionType.value)">
+                <button mat-button *ngIf="expression.value" matSuffix mat-icon-button aria-label="Clear" (click)="expression.value='';onChange('',expressionType.value)">
+                    <mat-icon>close</mat-icon>
+                </button>
             </mat-form-field>
             <mat-form-field fxFlex>
                 <mat-label>Pattern Type</mat-label>
