@@ -1,31 +1,39 @@
-import {Component, ComponentRef, Input, OnInit, ViewChild, ViewContainerRef} from "@angular/core";
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewContainerRef} from "@angular/core";
 import {ParameterComponentFactoryService} from "./service/parameter-component-factory.service";
-import {Parameter, ParameterDescriptor, ParameterMap} from "./parameters/parameter.model";
-import {ParameterComponent} from "./parameters/ParameterComponent";
+import {Parameter, ParameterMap} from "./parameters/parameter.model";
+import {of, Subscription} from "rxjs";
 
 @Component({
     selector: 'parameter-form',
     template: `
-        <h1>Parameter Form</h1>
         <ng-template #formContainer></ng-template>
     `
 })
-export class ParameterFormComponent implements OnInit {
+export class ParameterFormComponent implements OnInit, OnDestroy {
     @Input() parameters: ParameterMap;
+
+    @Output() onValueChange: EventEmitter<Parameter> = new EventEmitter();
 
     @ViewChild("formContainer", {read: ViewContainerRef}) formContainer: ViewContainerRef;
 
-    private components: ComponentRef<ParameterComponent<ParameterDescriptor, Parameter>>[];
+    private subs: Subscription[] = [];
 
     constructor(private parameterComponentFactory: ParameterComponentFactoryService) {
     }
 
     ngOnInit() {
         this.parameters.refs.forEach(ref => {
-            let parameterDescriptorTuple = this.parameters.parameters[ref];
-            console.log("Component creation for ", parameterDescriptorTuple[1].jsonClass);
-            this.components.push(this.parameterComponentFactory.createParameterComponent(parameterDescriptorTuple[1].jsonClass, this.formContainer));
+            const parameterDescriptorTuple = this.parameters.parameters[ref];
+            const componentRef = this.parameterComponentFactory.createParameterComponent(parameterDescriptorTuple[1].jsonClass, this.formContainer);
+            componentRef.instance.parameter$ = of(parameterDescriptorTuple[0]);
+            componentRef.instance.descriptor$ = of(parameterDescriptorTuple[1]);
+            const sub = componentRef.instance.emitter.subscribe(parameter => this.onValueChange.emit(parameter));
+            this.subs.push(sub);
         })
+    }
+
+    ngOnDestroy() {
+        this.subs.forEach(sub => sub.unsubscribe());
     }
 
 

@@ -2,7 +2,7 @@ import {ParameterRef, ResolvedParameterInfo, ResolvedStringValidator} from 'keys
 import {Parameter, ParameterDescriptor} from "../parameter.model";
 
 export class TextParameterDescriptor extends ParameterDescriptor {
-    public static readonly jsonClass = "io.logbee.keyscore.model.descriptor.TextParameterDescriptor";
+    public readonly jsonClass = "io.logbee.keyscore.model.descriptor.TextParameterDescriptor";
 
     constructor(
         readonly ref: ParameterRef,
@@ -17,7 +17,7 @@ export class TextParameterDescriptor extends ParameterDescriptor {
 }
 
 export class TextParameter extends Parameter {
-    public static readonly jsonClass = "io.logbee.keyscore.model.configuration.TextParameter";
+    public readonly jsonClass = "io.logbee.keyscore.model.configuration.TextParameter";
 
     constructor(
         readonly ref: ParameterRef,

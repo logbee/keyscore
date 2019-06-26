@@ -1,6 +1,5 @@
-import {Descriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
 import {resolvedRemoveFieldsFilterDE} from "../pipelines/resolved-remove-fields-filter-descriptor";
-import {ResolvedFilterDescriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {ResolvedFilterDescriptor,Descriptor} from "keyscore-manager-models";
 import {DescriptorResolverService} from "../../../app/services/descriptor-resolver.service";
 import {TranslateService} from "@ngx-translate/core";
 import {TestBed} from "@angular/core/testing";

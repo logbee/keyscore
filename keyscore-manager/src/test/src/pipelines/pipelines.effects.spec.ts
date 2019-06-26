@@ -12,7 +12,7 @@ import {
     generateConfiguration,
     generateEditingPipelineModel,
     generatePipelineBlueprint
-} from "../../../../modules/keyscore-manager-test-fixtures/src/main/data-generators";
+} from "keyscore-manager-test-fixtures";
 import {
     EditPipelineAction,
     EditPipelineFailureAction,
@@ -32,9 +32,8 @@ import {
     removeFieldFilterDescriptorJson,
     resolvedRemoveFieldsFilterDE
 } from "./resolved-remove-fields-filter-descriptor";
-import {Descriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
+import {Descriptor,ResolvedFilterDescriptor} from "keyscore-manager-models";
 import {DescriptorResolverService} from "../../../app/services/descriptor-resolver.service";
-import {ResolvedFilterDescriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 import {BlueprintService} from "../../../app/services/rest-api/BlueprintService";
 import {Error} from "tslint/lib/error";
 import {ConfigurationService} from "../../../app/services/rest-api/ConfigurationService";

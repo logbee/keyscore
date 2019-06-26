@@ -14,6 +14,7 @@ import {ParameterComponentFactoryService} from "../../service/parameter-componen
         MaterialModule
     ],
     declarations: [TextParameterComponent],
+    entryComponents:[TextParameterComponent],
     exports: [TextParameterComponent]
 
 })
@@ -23,7 +24,7 @@ export class TextParameterModule {
             console.log("Created TextParameter from TextParameterDescriptor");
             return new TextParameter(descriptor.ref, "");
         });
-        this.componentFactory.register(TextParameterDescriptor.jsonClass, (containerRef: ViewContainerRef) => {
+        this.componentFactory.register("io.logbee.keyscore.model.descriptor.TextParameterDescriptor", (containerRef: ViewContainerRef) => {
             const compFactory = this.resolver.resolveComponentFactory(TextParameterComponent);
             return containerRef.createComponent(compFactory);
         });

@@ -1,9 +1,8 @@
-import {Descriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
-import {FilterDescriptorJsonClass, ResolvedFilterDescriptor} from "../../../../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 import {
-    ExpressionType, FieldNameHint,
+    FilterDescriptorJsonClass, ResolvedFilterDescriptor, FieldNameHint,
     ParameterDescriptorJsonClass
-} from "../../../../modules/keyscore-manager-models/src/main/parameters/ParameterDescriptor";
+} from "keyscore-manager-models";
+
 
 export const removeFieldFilterDescriptorJson = `{
   "jsonClass":"io.logbee.keyscore.model.descriptor.Descriptor",
@@ -185,32 +184,32 @@ export const resolvedRemoveFieldsFilterDE: ResolvedFilterDescriptor = {
         name: "contrib.remove-drop",
         displayName: "Entfernen/Verwerfen"
     }],
-    parameters:[
+    parameters: [
         {
-            ref:{
-                id:"removeFields.fieldsToRemove"
+            ref: {
+                id: "removeFields.fieldsToRemove"
             },
-            info:{
-                displayName:"Feld das entfernt werden soll",
-                description:"Feld wird vom Filter entfernt"
+            info: {
+                displayName: "Feld das entfernt werden soll",
+                description: "Feld wird vom Filter entfernt"
             },
-            jsonClass:ParameterDescriptorJsonClass.FieldNameListParameterDescriptor,
-            descriptor:{
-                jsonClass:ParameterDescriptorJsonClass.FieldNameParameterDescriptor,
-                ref:{
-                    id:""
+            jsonClass: ParameterDescriptorJsonClass.FieldNameListParameterDescriptor,
+            descriptor: {
+                jsonClass: ParameterDescriptorJsonClass.FieldNameParameterDescriptor,
+                ref: {
+                    id: ""
                 },
-                info:{
-                  displayName:"",
-                  description:""
+                info: {
+                    displayName: "",
+                    description: ""
                 },
-                defaultValue:"",
-                validator:null,
-                hint:FieldNameHint.PresentField,
-                mandatory:false
+                defaultValue: "",
+                validator: null,
+                hint: FieldNameHint.PresentField,
+                mandatory: false
             },
-            min:1,
-            max:2147483647
+            min: 1,
+            max: 2147483647
         }
     ]
 };

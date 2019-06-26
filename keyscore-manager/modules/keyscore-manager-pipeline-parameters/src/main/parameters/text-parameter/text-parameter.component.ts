@@ -9,7 +9,7 @@ import {TextParameter, TextParameterDescriptor} from "./text-parameter.model";
         <mat-form-field>
             <input matInput type="text" [placeholder]="(descriptor$ | async).defaultValue"
                    [id]="(parameter$ | async).ref.id" (change)="onChange($event.target.value)" [value]="(parameter$ | async).value">
-            <mat-label>{{(descriptor$ | async).info.displayName}}</mat-label>
+            <mat-label>{{(descriptor$ | async).displayName}}</mat-label>
 
             <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
                 <mat-icon>close</mat-icon>

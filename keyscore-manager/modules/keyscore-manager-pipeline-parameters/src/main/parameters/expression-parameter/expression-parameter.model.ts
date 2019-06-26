@@ -11,7 +11,7 @@ export class ExpressionParameterChoice {
 }
 
 export class ExpressionParameterDescriptor extends ParameterDescriptor {
-    public static readonly jsonClass = "io.logbee.keyscore.model.descriptor.ExpressionParameterDescriptor";
+    public readonly jsonClass = "io.logbee.keyscore.model.descriptor.ExpressionParameterDescriptor";
 
     constructor(
         readonly ref: ParameterRef,
@@ -26,7 +26,7 @@ export class ExpressionParameterDescriptor extends ParameterDescriptor {
 }
 
 export class ExpressionParameter extends Parameter {
-    public static readonly jsonClass = "io.logbee.keyscore.model.configuration.ExpressionParameter";
+    public readonly jsonClass = "io.logbee.keyscore.model.configuration.ExpressionParameter";
 
     constructor(
         readonly ref: ParameterRef,

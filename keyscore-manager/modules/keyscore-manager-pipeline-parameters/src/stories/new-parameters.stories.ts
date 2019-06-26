@@ -32,13 +32,13 @@ storiesOf('Parameters/ExpressionParameter', module)
     .add("default", () => ({
         component: ExpressionParameterComponent,
         props: {
-            descriptor$: of(new ExpressionParameterDescriptor({id:"myexpression"}, "Field Pattern", "", "", [
+            descriptor$: of(new ExpressionParameterDescriptor({id: "myexpression"}, "Field Pattern", "", "", [
                     new ExpressionParameterChoice("expression.regex", "RegEx", ""),
                     new ExpressionParameterChoice("expression.grok", "Grok", ""),
                     new ExpressionParameterChoice("expression.glob", "Glob", "")
                 ]),
             ),
-            parameter$: of(new ExpressionParameter({id:"myexpression"}, "Hello World", "regex"))
+            parameter$: of(new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"))
         }
     }));
 
@@ -63,25 +63,36 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
     }
 }));
 
-storiesOf('Parameters/ParameterForm',module).addDecorator(
+storiesOf('Parameters/ParameterForm', module).addDecorator(
     moduleMetadata({
-        declarations:[],
-        imports:[
+        declarations: [],
+        imports: [
             CommonModule,
             MaterialModule,
             BrowserAnimationsModule,
             ExpressionParameterModule,
             TextParameterModule
         ],
-        providers:[
+        providers: [
             ParameterComponentFactoryService
         ]
-    }).add("default",()=>({
-        component:ParameterFormComponent,
-        props:{
-            parameters:{
-
+    })).add("default", () => ({
+    component: ParameterFormComponent,
+    props: {
+        parameters: {
+            refs: ['expressionParameter','textParameter'],
+            parameters: {
+                'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
+                    new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
+                        "", "", [
+                            new ExpressionParameterChoice("expression.regex", "RegEx", ""),
+                            new ExpressionParameterChoice("expression.grok", "Grok", ""),
+                            new ExpressionParameterChoice("expression.glob", "Glob", "")
+                        ])],
+                'textParameter': [
+                    new TextParameter({id:'textParameter'},"initialValue"),
+                    new TextParameterDescriptor({id:'textParameter'},"Text Parameter","","",null,true)]
             }
         }
-    }))
-)
+    }
+}));

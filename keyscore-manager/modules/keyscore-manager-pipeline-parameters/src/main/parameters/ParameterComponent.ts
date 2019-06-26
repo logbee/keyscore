@@ -4,13 +4,13 @@ import {Observable, Subscription} from "rxjs";
 export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 
     @Input('descriptor')
-    protected descriptor$: Observable<D>;
+    public descriptor$: Observable<D>;
 
     @Input('parameter')
-    protected parameter$: Observable<P>;
+    public parameter$: Observable<P>;
 
     @Output('parameter')
-    protected emitter = new EventEmitter<P>();
+    public emitter = new EventEmitter<P>();
 
     private descriptorSubscription: Subscription;
     private parameterSubscription: Subscription;

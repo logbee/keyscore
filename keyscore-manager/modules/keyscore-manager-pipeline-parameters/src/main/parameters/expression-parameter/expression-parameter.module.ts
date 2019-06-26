@@ -16,6 +16,9 @@ import {ParameterComponentFactoryService} from "../../service/parameter-componen
     declarations: [
         ExpressionParameterComponent
     ],
+    entryComponents: [
+        ExpressionParameterComponent
+    ],
     exports: [
         ExpressionParameterComponent
     ],
@@ -23,11 +26,11 @@ import {ParameterComponentFactoryService} from "../../service/parameter-componen
 })
 export class ExpressionParameterModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
-        this.factory.register(ExpressionParameterDescriptor.jsonClass, (descriptor: ExpressionParameterDescriptor) => {
+        this.factory.register("io.logbee.keyscore.model.descriptor.ExpressionParameterDescriptor", (descriptor: ExpressionParameterDescriptor) => {
             return new ExpressionParameter(descriptor.ref, "", null);
         });
 
-        this.componentFactory.register(ExpressionParameterDescriptor.jsonClass, (containerRef:ViewContainerRef) => {
+        this.componentFactory.register("io.logbee.keyscore.model.descriptor.ExpressionParameterDescriptor", (containerRef: ViewContainerRef) => {
             const compFactory = this.resolver.resolveComponentFactory(ExpressionParameterComponent);
             return containerRef.createComponent(compFactory);
         });

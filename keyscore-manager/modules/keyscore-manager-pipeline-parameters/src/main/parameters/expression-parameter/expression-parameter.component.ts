@@ -7,15 +7,20 @@ import {ParameterRef} from "keyscore-manager-models";
 @Component({
     selector: `parameter-expression`,
     template: `
-        <div style="display: flex;">
-            <mat-label>{{(descriptor$ | async).info.displayName}}</mat-label>
-            <input #expression matInput type="text" placeholder="expression"
-                   (input)="onChanged(expression.value, expressionType.value)">
-            <mat-select #expressionType (selectionChange)="onChanged(expression.value, expressionType.value)">
-                <mat-option *ngFor="let choice of (descriptor$ | async).choices" [value]="choice.name">
-                    {{choice.displayName}}
-                </mat-option>
-            </mat-select>
+        <div fxLayout="row" fxLayoutGap="15px">
+            <mat-form-field fxFlex="80">
+                <mat-label>{{(descriptor$ | async).displayName}}</mat-label>
+                <input #expression matInput type="text" placeholder="expression"
+                       (input)="onChanged(expression.value, expressionType.value)">
+            </mat-form-field>
+            <mat-form-field fxFlex>
+                <mat-label>Pattern Type</mat-label>
+                <mat-select #expressionType (selectionChange)="onChanged(expression.value, expressionType.value)">
+                    <mat-option *ngFor="let choice of (descriptor$ | async).choices" [value]="choice.name">
+                        {{choice.displayName}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
         </div>
     `
 })
