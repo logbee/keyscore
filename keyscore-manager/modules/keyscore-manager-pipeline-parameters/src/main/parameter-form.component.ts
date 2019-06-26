@@ -24,10 +24,14 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.parameters.refs.forEach(ref => {
             const parameterDescriptorTuple = this.parameters.parameters[ref];
+
             const componentRef = this.parameterComponentFactory.createParameterComponent(parameterDescriptorTuple[1].jsonClass, this.formContainer);
-            componentRef.instance.parameter$ = of(parameterDescriptorTuple[0]);
-            componentRef.instance.descriptor$ = of(parameterDescriptorTuple[1]);
-            const sub = componentRef.instance.emitter.subscribe(parameter => this.onValueChange.emit(parameter));
+            componentRef.instance.parameter = parameterDescriptorTuple[0];
+            componentRef.instance.descriptor = parameterDescriptorTuple[1];
+
+            const sub = componentRef.instance.emitter.subscribe(parameter =>
+                this.onValueChange.emit(parameter));
+
             this.subs.push(sub);
         })
     }

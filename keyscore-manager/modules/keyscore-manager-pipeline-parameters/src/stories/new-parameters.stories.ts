@@ -1,4 +1,5 @@
 import {moduleMetadata, storiesOf} from "@storybook/angular";
+import {action} from '@storybook/addon-actions';
 import {ExpressionParameterComponent} from "../main/parameters/expression-parameter/expression-parameter.component";
 import {MaterialModule} from "keyscore-manager-material";
 import {CommonModule} from "@angular/common";
@@ -80,7 +81,7 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
     component: ParameterFormComponent,
     props: {
         parameters: {
-            refs: ['expressionParameter','textParameter'],
+            refs: ['expressionParameter', 'textParameter'],
             parameters: {
                 'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
                     new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
@@ -90,9 +91,11 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
                             new ExpressionParameterChoice("expression.glob", "Glob", "")
                         ])],
                 'textParameter': [
-                    new TextParameter({id:'textParameter'},"initialValue"),
-                    new TextParameterDescriptor({id:'textParameter'},"Text Parameter","","",null,true)]
+                    new TextParameter({id: 'textParameter'}, "initialValue"),
+                    new TextParameterDescriptor({id: 'textParameter'}, "Text Parameter", "", "", null, true)]
             }
-        }
+        },
+        onValueChange: action('Value changed')
+
     }
 }));
