@@ -42,6 +42,12 @@ export interface NumberRange {
     end: number;
 }
 
+export interface DecimalRange{
+    step: number;
+    start: number;
+    end: number;
+}
+
 export interface ParameterInfo {
     displayName: TextRef;
     description: TextRef;

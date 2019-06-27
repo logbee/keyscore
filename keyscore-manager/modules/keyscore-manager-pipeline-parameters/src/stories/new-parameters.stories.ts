@@ -20,6 +20,11 @@ import {ParameterFormComponent} from "../main/parameter-form.component";
 import {NumberParameterComponent} from "../main/parameters/number-parameter/number-parameter.component";
 import {NumberParameter, NumberParameterDescriptor} from "../main/parameters/number-parameter/number-parameter.model";
 import {StringValidatorService} from "../main/service/string-validator.service";
+import {
+    DecimalParameter,
+    DecimalParameterDescriptor
+} from "../main/parameters/decimal-parameter/decimal-parameter.model";
+import {DecimalParameterComponent} from "../main/parameters/decimal-parameter/decimal-parameter.component";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -120,6 +125,39 @@ storiesOf('Parameters/NumberParameter', module).addDecorator(
             {start: 0, end: 10, step: 2}, false)
         ,
         parameter: new NumberParameter({id: "myNumberParameter"}, 0),
+        emitter: action('Value Change')
+    }
+}));
+
+storiesOf('Parameters/DecimalParameter', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule
+        ],
+        providers: []
+    })).add("Without Range", () => ({
+    component: DecimalParameterComponent,
+    props: {
+        descriptor: new DecimalParameterDescriptor({id: "myDecimalParameter"},
+            "Decimal Parameter", "My decimal parameter",
+            0.00,
+            null, 2,true)
+        ,
+        parameter: new DecimalParameter({id: "myDecimalParameter"}, 0.00),
+        emitter: action('Value Change')
+    }
+})).add("With Range: 0-1 Step:0.2", () => ({
+    component: DecimalParameterComponent,
+    props: {
+        descriptor: new DecimalParameterDescriptor({id: "myDecimalParameter"},
+            "Decimal Parameter", "My decimal parameter",
+            0.00,
+            {start: 0.00, end: 1.00, step: 0.02},2, true)
+        ,
+        parameter: new DecimalParameter({id: "myDecimalParameter"}, 0),
         emitter: action('Value Change')
     }
 }));
