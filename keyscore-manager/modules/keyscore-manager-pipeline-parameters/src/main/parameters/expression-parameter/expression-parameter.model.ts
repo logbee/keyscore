@@ -21,6 +21,7 @@ export class ExpressionParameterDescriptor extends ParameterDescriptor {
         readonly displayName: string,
         readonly description: string,
         readonly defaultValue: string,
+        readonly mandatory: boolean,
         readonly choices: ExpressionParameterChoice[]
     ) {
         super(ref, displayName, description);

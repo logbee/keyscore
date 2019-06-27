@@ -25,6 +25,8 @@ import {ParameterRef} from "keyscore-manager-models";
                 </mat-select>
             </mat-form-field>
         </div>
+        <p class="parameter-required" *ngIf="descriptor.mandatory && (!expression.value || !expressionType.value)">{{descriptor.displayName}} is
+            required!</p>
     `
 })
 export class ExpressionParameterComponent extends ParameterComponent<ExpressionParameterDescriptor, ExpressionParameter> {

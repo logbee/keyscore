@@ -36,7 +36,7 @@ storiesOf('Parameters/ExpressionParameter', module)
     .add("default", () => ({
         component: ExpressionParameterComponent,
         props: {
-            descriptor: new ExpressionParameterDescriptor({id: "myexpression"}, "Field Pattern", "", "", [
+            descriptor: new ExpressionParameterDescriptor({id: "myexpression"}, "Field Pattern", "", "", true, [
                 new ExpressionParameterChoice("expression.regex", "RegEx", ""),
                 new ExpressionParameterChoice("expression.grok", "Grok", ""),
                 new ExpressionParameterChoice("expression.glob", "Glob", "")
@@ -135,7 +135,8 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             TextParameterModule
         ],
         providers: [
-            ParameterComponentFactoryService
+            ParameterComponentFactoryService,
+            StringValidatorService
         ]
     })).add("default", () => ({
     component: ParameterFormComponent,
@@ -145,7 +146,7 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             parameters: {
                 'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
                     new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
-                        "", "", [
+                        "", "", true,[
                             new ExpressionParameterChoice("expression.regex", "RegEx", ""),
                             new ExpressionParameterChoice("expression.grok", "Grok", ""),
                             new ExpressionParameterChoice("expression.glob", "Glob", "")

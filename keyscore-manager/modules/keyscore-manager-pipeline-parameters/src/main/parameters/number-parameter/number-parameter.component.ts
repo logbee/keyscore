@@ -15,7 +15,18 @@ import {NumberParameter, NumberParameterDescriptor} from "./number-parameter.mod
                     (click)="numberInput.value='';onChange(null)">
                 <mat-icon>close</mat-icon>
             </button>
-        </mat-form-field>`
+        </mat-form-field>
+        <p class="parameter-required" *ngIf="descriptor.mandatory && !numberInput.value">{{descriptor.displayName}} is
+            required!</p>
+        <p class="parameter-warn"
+           *ngIf="descriptor.range && (numberInput.value > descriptor.range.end || numberInput.value < descriptor.range.start)">
+            {{descriptor.displayName}} hast to be between {{descriptor.range.start}} and {{descriptor.range.end}}.
+        </p>
+        <p class="parameter-warn"
+           *ngIf="descriptor.range && (numberInput.value % descriptor.range.step !== 0)">
+            {{descriptor.displayName}} only allows inputs in {{descriptor.range.step}} - steps starting with {{descriptor.range.start}}.
+        </p>
+    `
 })
 export class NumberParameterComponent extends ParameterComponent<NumberParameterDescriptor, NumberParameter> {
     private ref: ParameterRef;
