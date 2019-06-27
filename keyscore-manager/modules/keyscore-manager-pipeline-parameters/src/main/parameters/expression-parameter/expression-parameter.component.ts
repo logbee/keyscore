@@ -11,14 +11,14 @@ import {ParameterRef} from "keyscore-manager-models";
             <mat-form-field fxFlex="80">
                 <mat-label>{{descriptor.displayName}}</mat-label>
                 <input #expression matInput type="text" placeholder="expression"
-                       (change)="onChanged(expression.value, expressionType.value)">
+                       (change)="onChange(expression.value, expressionType.value)">
                 <button mat-button *ngIf="expression.value" matSuffix mat-icon-button aria-label="Clear" (click)="expression.value='';onChange('',expressionType.value)">
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
             <mat-form-field fxFlex>
                 <mat-label>Pattern Type</mat-label>
-                <mat-select #expressionType (selectionChange)="onChanged(expression.value, expressionType.value)">
+                <mat-select #expressionType (selectionChange)="onChange(expression.value, expressionType.value)">
                     <mat-option *ngFor="let choice of descriptor.choices" [value]="choice.name">
                         {{choice.displayName}}
                     </mat-option>
@@ -35,7 +35,7 @@ export class ExpressionParameterComponent extends ParameterComponent<ExpressionP
         this.ref = this.descriptor.ref
     }
 
-    private onChanged(expression: string, expressionType: string): void {
+    private onChange(expression: string, expressionType: string): void {
         const parameter = new ExpressionParameter(this.ref, expression, expressionType);
         console.log("changed: ", parameter);
         this.emit(parameter)

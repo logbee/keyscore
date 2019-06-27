@@ -15,6 +15,7 @@ import {MaterialModule} from "keyscore-manager-material";
 import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.component";
 import {TextParameterModule} from "./parameters/text-parameter/text-parameter.module";
 import {ExpressionParameterModule} from "./parameters/expression-parameter/expression-parameter.module";
+import {StringValidatorService} from "./service/string-validator.service";
 
 
 @NgModule({
@@ -42,11 +43,10 @@ import {ExpressionParameterModule} from "./parameters/expression-parameter/expre
     ],
     providers: [
         ParameterControlService,
-        ParameterFactoryService
+        ParameterFactoryService,
+        StringValidatorService
     ]
 })
 export class ParameterModule {
-    constructor() {
-        console.log("INIT ParameterModule");
-    }
+
 }

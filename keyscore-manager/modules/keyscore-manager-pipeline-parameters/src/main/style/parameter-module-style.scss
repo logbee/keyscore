@@ -1,8 +1,15 @@
 @import "~keyscore-manager-material/src/main/style/variables";
 
 .parameter-required {
+  margin-top:-5px;
   color: $warn;
-  font-size: 0.8em;
+  font-size: 0.9em;
+}
+
+.parameter-warn {
+  margin-top:-5px;
+  color: $warn;
+  font-size: 0.9em;
 }
 
 .parameter-wrapper {
@@ -75,7 +82,7 @@
   padding: 0 5px;
 }
 
-.sequence-form{
+.sequence-form {
   padding: 0 5px;
 }
 

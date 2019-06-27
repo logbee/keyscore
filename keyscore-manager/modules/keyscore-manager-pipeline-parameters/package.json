@@ -22,6 +22,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "ngx-propagation-stop": "1.0.6",
+    "minimatch": "3.0.4",
     "keyscore-manager-models": "file:../keyscore-manager-models",
     "keyscore-manager-test-fixtures": "file:../keyscore-manager-test-fixtures",
     "keyscore-manager-material": "file:../keyscore-manager-material"

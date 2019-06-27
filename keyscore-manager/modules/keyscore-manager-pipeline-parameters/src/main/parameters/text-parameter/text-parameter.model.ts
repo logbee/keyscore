@@ -9,8 +9,8 @@ export class TextParameterDescriptor extends ParameterDescriptor {
         readonly displayName: string,
         readonly description: string,
         readonly defaultValue: string,
-        validator: ResolvedStringValidator,
-        mandatory: boolean
+        readonly validator: ResolvedStringValidator,
+        readonly mandatory: boolean
     ) {
         super(ref, displayName, description);
     }

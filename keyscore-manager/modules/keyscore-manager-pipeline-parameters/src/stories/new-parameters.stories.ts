@@ -19,6 +19,7 @@ import {ParameterComponentFactoryService} from "../main/service/parameter-compon
 import {ParameterFormComponent} from "../main/parameter-form.component";
 import {NumberParameterComponent} from "../main/parameters/number-parameter/number-parameter.component";
 import {NumberParameter, NumberParameterDescriptor} from "../main/parameters/number-parameter/number-parameter.model";
+import {StringValidatorService} from "../main/service/string-validator.service";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -54,14 +55,36 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
             MaterialModule,
             BrowserAnimationsModule
         ],
-        providers: []
+        providers: [StringValidatorService]
     })).add("default", () => ({
     component: TextParameterComponent,
     props: {
         descriptor: new TextParameterDescriptor({id: "myTextParameter"},
             "Text Parameter", "My text parameter",
             "Default Value",
-            {expression: "*", expressionType: ExpressionType.RegEx, description: "test"}, false)
+            null, false)
+        ,
+        parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
+        emitter: action('Value Change')
+    }
+})).add("With RegEx Validator", () => ({
+    component: TextParameterComponent,
+    props: {
+        descriptor: new TextParameterDescriptor({id: "myTextParameter"},
+            "Text Parameter", "My text parameter",
+            "Default Value",
+            {expression: ".*test", expressionType: ExpressionType.RegEx, description: "test"}, true)
+        ,
+        parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
+        emitter: action('Value Change')
+    }
+})).add("With Glob Validator", () => ({
+    component: TextParameterComponent,
+    props: {
+        descriptor: new TextParameterDescriptor({id: "myTextParameter"},
+            "Text Parameter", "My text parameter",
+            "Default Value",
+            {expression: "**/*.txt", expressionType: ExpressionType.Glob, description: "test"}, true)
         ,
         parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
         emitter: action('Value Change')
