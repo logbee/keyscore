@@ -147,7 +147,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   private def tryPush(): Unit = {
 
-    if (!isAvailable(out)) return
+    if (!isAvailable(out) || metricCollections.isEmpty) return
 
     val metric = metricCollections.head
 
