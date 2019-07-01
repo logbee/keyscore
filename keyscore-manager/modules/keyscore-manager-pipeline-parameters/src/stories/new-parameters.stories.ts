@@ -25,6 +25,12 @@ import {
     DecimalParameterDescriptor
 } from "../main/parameters/decimal-parameter/decimal-parameter.model";
 import {DecimalParameterComponent} from "../main/parameters/decimal-parameter/decimal-parameter.component";
+import {NumberParameterModule} from "../main/parameters/number-parameter/number-parameter.module";
+import {BooleanParameterComponent} from "../main/parameters/boolean-parameter/boolean-parameter.component";
+import {
+    BooleanParameter,
+    BooleanParameterDescriptor
+} from "../main/parameters/boolean-parameter/boolean-parameter.model";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -144,20 +150,39 @@ storiesOf('Parameters/DecimalParameter', module).addDecorator(
         descriptor: new DecimalParameterDescriptor({id: "myDecimalParameter"},
             "Decimal Parameter", "My decimal parameter",
             0.00,
-            null, 2,true)
+            null, 2, true)
         ,
         parameter: new DecimalParameter({id: "myDecimalParameter"}, 0.00),
         emitter: action('Value Change')
     }
-})).add("With Range: 0-1 Step:0.2", () => ({
+})).add("With Range: 0-1 Step:0.02", () => ({
     component: DecimalParameterComponent,
     props: {
         descriptor: new DecimalParameterDescriptor({id: "myDecimalParameter"},
             "Decimal Parameter", "My decimal parameter",
             0.00,
-            {start: 0.00, end: 1.00, step: 0.02},2, true)
+            {start: 0.00, end: 1.00, step: 0.02}, 2, true)
         ,
         parameter: new DecimalParameter({id: "myDecimalParameter"}, 0),
+        emitter: action('Value Change')
+    }
+}));
+
+storiesOf('Parameters/BooleanParameter', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule
+        ],
+        providers: []
+    })).add("default", () => ({
+    component: BooleanParameterComponent,
+    props: {
+        descriptor: new BooleanParameterDescriptor({id: "myBooleanParameter"}, "Boolean Parameter",
+            "My boolean Parameter", false, true),
+        parameter: new BooleanParameter({id: "myBooleanParameter"}, false),
         emitter: action('Value Change')
     }
 }));
@@ -170,7 +195,8 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             MaterialModule,
             BrowserAnimationsModule,
             ExpressionParameterModule,
-            TextParameterModule
+            TextParameterModule,
+            NumberParameterModule
         ],
         providers: [
             ParameterComponentFactoryService,
@@ -180,18 +206,23 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
     component: ParameterFormComponent,
     props: {
         parameters: {
-            refs: ['expressionParameter', 'textParameter'],
+            refs: ['expressionParameter', 'textParameter', 'numberParameter'],
             parameters: {
                 'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
                     new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
-                        "", "", true,[
+                        "", "", true, [
                             new ExpressionParameterChoice("expression.regex", "RegEx", ""),
                             new ExpressionParameterChoice("expression.grok", "Grok", ""),
                             new ExpressionParameterChoice("expression.glob", "Glob", "")
                         ])],
                 'textParameter': [
                     new TextParameter({id: 'textParameter'}, "initialValue"),
-                    new TextParameterDescriptor({id: 'textParameter'}, "Text Parameter", "", "", null, true)]
+                    new TextParameterDescriptor({id: 'textParameter'}, "Text Parameter", "", "", null, true)],
+                'numberParameter': [new NumberParameter({id: "myNumberParameter"}, 0),
+                    new NumberParameterDescriptor({id: "myNumberParameter"},
+                        "Number Parameter", "My number parameter",
+                        0,
+                        {start: 0, end: 10, step: 2}, false)]
             }
         },
         onValueChange: action('Value changed')

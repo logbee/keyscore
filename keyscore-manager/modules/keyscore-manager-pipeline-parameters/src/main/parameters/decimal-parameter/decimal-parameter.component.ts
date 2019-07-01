@@ -25,7 +25,7 @@ import {DecimalParameter, DecimalParameterDescriptor} from "./decimal-parameter.
         </p>
         <p class="parameter-warn"
            *ngIf="descriptor.range && !validateStep(numberInput.value)">
-            {{descriptor.displayName}} only allows inputs in {{descriptor.range.step}} - steps starting with
+            {{descriptor.displayName}} only allows inputs in {{descriptor.range.step}} - steps. Starting with
             {{descriptor.range.start}}.
         </p>
     `
@@ -37,6 +37,13 @@ export class DecimalParameterComponent extends ParameterComponent <DecimalParame
         this.ref = this.descriptor.ref;
     }
 
+    private onChange(value: string): void {
+        let decimal = Number(value).toFixed(this.descriptor.decimals);
+        const parameter = new DecimalParameter(this.ref, +decimal);
+        console.log("changed: ", parameter);
+        this.emit(parameter)
+    }
+
     private validateStep(value: string) {
         const val = +Number(value).toFixed(this.descriptor.decimals);
         const decimalFactor = Math.pow(10, this.descriptor.decimals);
@@ -46,12 +53,4 @@ export class DecimalParameterComponent extends ParameterComponent <DecimalParame
         return powedVal % powedStep === 0;
     }
 
-    private onChange(value: string): void {
-        let decimal = Number(value).toFixed(this.descriptor.decimals);
-        console.log("Decimal::::: ", decimal);
-        console.log("Decimal with +::::: ", +decimal);
-        const parameter = new DecimalParameter(this.ref, +decimal);
-        console.log("changed: ", parameter);
-        this.emit(parameter)
-    }
 }

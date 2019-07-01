@@ -10,7 +10,7 @@ import {StringValidatorService} from "../../service/string-validator.service";
     template: `
         <mat-form-field>
             <input #textInput matInput type="text" [placeholder]="descriptor.defaultValue"
-                   [id]="parameter.ref.id" (change)="onChange($event.target.value)"
+                   (change)="onChange($event.target.value)"
                    [value]="parameter.value">
             <mat-label>{{descriptor.displayName}}</mat-label>
 
@@ -27,18 +27,14 @@ import {StringValidatorService} from "../../service/string-validator.service";
 
 })
 export class TextParameterComponent extends ParameterComponent<TextParameterDescriptor, TextParameter> {
-    private ref: ParameterRef;
 
     constructor(private stringValidator: StringValidatorService) {
         super();
     }
 
-    protected onInit(): void {
-        this.ref = this.descriptor.ref;
-    }
 
     private onChange(value: string): void {
-        const parameter = new TextParameter(this.ref, value);
+        const parameter = new TextParameter(this.descriptor.ref, value);
         console.log("changed: ", parameter);
         this.emit(parameter);
     }
