@@ -37,7 +37,7 @@ object AddFields extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
       parameters = Seq(fieldListParameter, targetFieldParameter),
-      // icon = Icon.fromClass(classOf[AddFields])
+      icon = Icon.fromClass(classOf[AddFields])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.math.AddFields",
