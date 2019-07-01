@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath
 import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.JsonPath.ParserLike
 import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.Tokenizer.{IndexTokenizer, NodeTokenizer, RootTokenizer, WildcardTokenizer}
 
-import scala.annotation.tailrec
+import scala.annotation.{implicitNotFound, tailrec}
 import scala.language.implicitConversions
 
 
@@ -11,8 +11,13 @@ object JsonPath {
 
   case class JsonPathParserException(message: String) extends RuntimeException(message)
 
+  @implicitNotFound("No JsonPath parser in scope for ${T}")
   trait ParserLike[T] {
     def parse(in: T, jsonpath: JsonPath): T
+  }
+
+  trait Selectable[T] {
+    def select(jsonPath: JsonPath): T
   }
 
   def apply(jsonpath: String): JsonPath = {
@@ -35,8 +40,8 @@ class JsonPath(val tokens: List[Token]) {
 
   val path: String = tokens.map(_.token).mkString
 
-  def parse[T](json: T)(implicit jsonLike: ParserLike[T]): T = {
-    jsonLike.parse(json, this)
+  def parse[T](json: T)(implicit parser: ParserLike[T]): T = {
+    parser.parse(json, this)
   }
 
   def canEqual(a: Any): Boolean = a.isInstanceOf[JsonPath]
@@ -51,4 +56,6 @@ class JsonPath(val tokens: List[Token]) {
   override def hashCode(): Int = {
     Seq(tokens).map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def toString = s"JsonPath($path)"
 }

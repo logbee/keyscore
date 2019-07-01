@@ -1,13 +1,16 @@
 package io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.json4s
 
-import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.JsonPath.{JsonPathParserException, ParserLike}
+import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.JsonPath.{JsonPathParserException, ParserLike, Selectable}
 import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.{JsonPath, Token}
 import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.Token.{IndexToken, NodeToken, RootToken, WildcardToken}
 import org.json4s.JsonAST.{JArray, JObject, JValue}
 
 import scala.annotation.tailrec
+import scala.language.implicitConversions
 
 object JsonPathJson4s {
+
+  implicit def JValue2Selectable(value: JValue): Selectable[JValue] = (jsonPath: JsonPath) => jsonPath.parse(value)
 
   implicit object Parser extends ParserLike[JValue] {
     override def parse(in: JValue, jsonpath: JsonPath): JValue = {

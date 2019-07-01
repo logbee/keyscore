@@ -11,7 +11,10 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, DECODING, JSON}
-import org.json4s.JsonAST._
+import io.logbee.keyscore.pipeline.contrib.decoder.json.JsonDecoderUtil.extract
+import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.JsonPath
+import io.logbee.keyscore.pipeline.contrib.decoder.json.jsonpath.json4s.JsonPathJson4s._
+import org.json4s.JsonAST.{JValue, _}
 import org.json4s.native.JsonParser._
 
 import scala.collection.mutable
@@ -67,20 +70,20 @@ object JsonPathJsonExtractorLogic extends Described {
 
 class JsonPathJsonExtractorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) with StageLogging {
 
-  private var jsonpath = JsonPathJsonExtractorLogic.jsonpathParameter.defaultValue
+  private var path = JsonPathJsonExtractorLogic.jsonpathParameter.defaultValue
   private var sourceFieldName = JsonPathJsonExtractorLogic.sourceFieldNameParameter.defaultValue
   private var removeSourceField = JsonPathJsonExtractorLogic.removeSourceFieldParameter.defaultValue
 
-  private var paths = List.empty[String]
+  private var jsonPath = JsonPath(path)
 
   override def initialize(configuration: Configuration): Unit = configure(configuration)
 
   override def configure(configuration: Configuration): Unit = {
-    jsonpath = configuration.getValueOrDefault(JsonPathJsonExtractorLogic.jsonpathParameter, jsonpath)
+    path = configuration.getValueOrDefault(JsonPathJsonExtractorLogic.jsonpathParameter, path)
     sourceFieldName = configuration.getValueOrDefault(JsonPathJsonExtractorLogic.sourceFieldNameParameter, sourceFieldName)
     removeSourceField = configuration.getValueOrDefault(JsonPathJsonExtractorLogic.removeSourceFieldParameter, removeSourceField)
 
-    paths = jsonpath.split("\\.").toList
+    jsonPath = JsonPath(path)
   }
 
   override def onPush(): Unit = {
@@ -90,8 +93,15 @@ class JsonPathJsonExtractorLogic(parameters: LogicParameters, shape: FlowShape[D
     push(out, dataset.withRecords(dataset.records.foldLeft(mutable.ListBuffer.empty[Record]) { case (result, record) =>
 
       record.fields.find(sourceFieldName == _.name) match {
-        case Some(field @ Field(_, TextValue(value))) =>
-          result ++= evaluate(record, field.toTextField)
+        case Some(Field(_, TextValue(value))) =>
+          parse(value).select(jsonPath) match {
+            case JArray(array) => (result += record) ++ array.map(node => Record(extract(node)))
+            case JObject(obj) => (result += record) ++ obj.map(kv => Record(extract(kv._2, List(kv._1))))
+            case jvalue: JValue =>
+              val originField = if (removeSourceField) record.fields.filterNot(_.name == sourceFieldName) else record.fields
+              result += record.update(_.fields := originField ++ extract(jvalue, List(jsonPath.tokens.last.token.substring(1))))
+            case _ => result
+          }
         case _ =>
           result += record
       }
@@ -100,14 +110,5 @@ class JsonPathJsonExtractorLogic(parameters: LogicParameters, shape: FlowShape[D
 
   override def onPull(): Unit = {
     pull(in)
-  }
-
-  private def evaluate(record: Record, field: TextField): List[Record] = {
-    val json = parse(field.value)
-    List.empty
-  }
-
-  private def parseJson(json: JValue): List[Record] = {
-    List.empty
   }
 }
