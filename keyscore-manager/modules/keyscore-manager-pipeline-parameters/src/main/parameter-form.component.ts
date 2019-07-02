@@ -11,6 +11,7 @@ import {of, Subscription} from "rxjs";
 })
 export class ParameterFormComponent implements OnInit, OnDestroy {
     @Input() parameters: ParameterMap;
+    @Input() autoCompleteDataList:string[] = [];
 
     @Output() onValueChange: EventEmitter<Parameter> = new EventEmitter();
 
@@ -28,6 +29,7 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
             const componentRef = this.parameterComponentFactory.createParameterComponent(parameterDescriptorTuple[1].jsonClass, this.formContainer);
             componentRef.instance.parameter = parameterDescriptorTuple[0];
             componentRef.instance.descriptor = parameterDescriptorTuple[1];
+            componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
 
             const sub = componentRef.instance.emitter.subscribe(parameter =>
                 this.onValueChange.emit(parameter));

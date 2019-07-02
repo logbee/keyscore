@@ -20,7 +20,6 @@ import {BooleanParameter, BooleanParameterDescriptor, JSONCLASS_BOOLEAN_DESCR} f
 export class BooleanParameterModule{
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
         this.factory.register(JSONCLASS_BOOLEAN_DESCR, (descriptor: BooleanParameterDescriptor) => {
-            console.log("Created TextParameter from TextParameterDescriptor");
             return new BooleanParameter(descriptor.ref, descriptor.defaultValue || false);
         });
         this.componentFactory.register(JSONCLASS_BOOLEAN_DESCR, (containerRef: ViewContainerRef) => {

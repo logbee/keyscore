@@ -9,6 +9,9 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
     @Input('parameter')
     public parameter: P;
 
+    @Input('autoCompleteDataList')
+    public autoCompleteDataList: string[];
+
     @Output('parameter')
     public emitter = new EventEmitter<P>();
 

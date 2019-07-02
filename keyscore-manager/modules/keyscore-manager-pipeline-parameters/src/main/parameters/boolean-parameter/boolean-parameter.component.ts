@@ -5,11 +5,9 @@ import {BooleanParameter, BooleanParameterDescriptor} from "./boolean-parameter.
 @Component({
     selector: 'parameter-boolean',
     template: `
-        <div class="toggleCheckbox">
             <mat-slide-toggle [checked]="parameter.value" (change)="onChange($event.checked)">
                 {{descriptor.displayName}}
-            </mat-slide-toggle>
-        </div>`,
+            </mat-slide-toggle>`,
 })
 export class BooleanParameterComponent extends ParameterComponent<BooleanParameterDescriptor, BooleanParameter> {
 

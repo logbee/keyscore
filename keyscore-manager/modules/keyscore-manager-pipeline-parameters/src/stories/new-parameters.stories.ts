@@ -4,15 +4,14 @@ import {ExpressionParameterComponent} from "../main/parameters/expression-parame
 import {MaterialModule} from "keyscore-manager-material";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {of} from "rxjs";
 import {
-    ExpressionParameterChoice,
     ExpressionParameter,
+    ExpressionParameterChoice,
     ExpressionParameterDescriptor,
 } from "../main/parameters/expression-parameter/expression-parameter.model";
 import {TextParameterComponent} from "../main/parameters/text-parameter/text-parameter.component";
 import {TextParameter, TextParameterDescriptor} from "../main/parameters/text-parameter/text-parameter.model";
-import {ExpressionType} from "keyscore-manager-models";
+import {ExpressionType, FieldNameHint} from "keyscore-manager-models";
 import {ExpressionParameterModule} from "../main/parameters/expression-parameter/expression-parameter.module";
 import {TextParameterModule} from "../main/parameters/text-parameter/text-parameter.module";
 import {ParameterComponentFactoryService} from "../main/service/parameter-component-factory.service";
@@ -31,6 +30,12 @@ import {
     BooleanParameter,
     BooleanParameterDescriptor
 } from "../main/parameters/boolean-parameter/boolean-parameter.model";
+import {BooleanParameterModule} from "../main/parameters/boolean-parameter/boolean-parameter.module";
+import {FieldNameParameterComponent} from "../main/parameters/fieldname-parameter/field-name-parameter.component";
+import {
+    FieldNameParameter,
+    FieldNameParameterDescriptor
+} from "../main/parameters/fieldname-parameter/fieldname-parameter.model";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -78,24 +83,24 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
         parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
         emitter: action('Value Change')
     }
-})).add("With RegEx Validator", () => ({
+})).add("With RegEx Validator, no validator description", () => ({
     component: TextParameterComponent,
     props: {
         descriptor: new TextParameterDescriptor({id: "myTextParameter"},
             "Text Parameter", "My text parameter",
             "Default Value",
-            {expression: ".*test", expressionType: ExpressionType.RegEx, description: "test"}, true)
+            {expression: ".*test", expressionType: ExpressionType.RegEx, description: ""}, true)
         ,
         parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
         emitter: action('Value Change')
     }
-})).add("With Glob Validator", () => ({
+})).add("With Glob Validator, with validator description", () => ({
     component: TextParameterComponent,
     props: {
         descriptor: new TextParameterDescriptor({id: "myTextParameter"},
-            "Text Parameter", "My text parameter",
+            "Path to File", "My text parameter",
             "Default Value",
-            {expression: "**/*.txt", expressionType: ExpressionType.Glob, description: "test"}, true)
+            {expression: "**/*.txt", expressionType: ExpressionType.Glob, description: "Path has to point to a '.txt' file in the same directory or a subdirectory"}, true)
         ,
         parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
         emitter: action('Value Change')
@@ -187,6 +192,46 @@ storiesOf('Parameters/BooleanParameter', module).addDecorator(
     }
 }));
 
+storiesOf('Parameters/FieldNameParameter', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule
+        ],
+        providers: [StringValidatorService]
+    })).add("Present Field Hints", () => ({
+    component: FieldNameParameterComponent,
+    props: {
+        descriptor: new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
+            "My field name Parameter", "Fieldname", FieldNameHint.PresentField,null,true),
+        parameter: new FieldNameParameter({id: "myFieldNameParameter"}, ""),
+        autoCompleteDataList:['message','timestamp','robo_time','logbee_time','logbee_id'],
+        emitter: action('Value Change')
+    }
+})).add("Absent Field Hints", () => ({
+    component: FieldNameParameterComponent,
+    props: {
+        descriptor: new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
+            "My field name Parameter", "Fieldname", FieldNameHint.AbsentField,null,true),
+        parameter: new FieldNameParameter({id: "myFieldNameParameter"}, ""),
+        autoCompleteDataList:['message','timestamp','robo_time','logbee_time','logbee_id'],
+        emitter: action('Value Change')
+    }
+})).add("Any Field Hints with Validator", () => ({
+    component: FieldNameParameterComponent,
+    props: {
+        descriptor: new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
+            "My field name Parameter", "Fieldname", FieldNameHint.AnyField,{expression:".*_time$",description:"Field Name has to end with '_time'",expressionType:ExpressionType.RegEx},true),
+        parameter: new FieldNameParameter({id: "myFieldNameParameter"}, ""),
+        autoCompleteDataList:['message','timestamp','robo_time','logbee_time','logbee_id'],
+        emitter: action('Value Change')
+    }
+}));
+
+
+
 storiesOf('Parameters/ParameterForm', module).addDecorator(
     moduleMetadata({
         declarations: [],
@@ -196,7 +241,8 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             BrowserAnimationsModule,
             ExpressionParameterModule,
             TextParameterModule,
-            NumberParameterModule
+            NumberParameterModule,
+            BooleanParameterModule
         ],
         providers: [
             ParameterComponentFactoryService,
@@ -206,7 +252,7 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
     component: ParameterFormComponent,
     props: {
         parameters: {
-            refs: ['expressionParameter', 'textParameter', 'numberParameter'],
+            refs: ['expressionParameter', 'textParameter', 'numberParameter', 'booleanParameter'],
             parameters: {
                 'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
                     new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
@@ -222,7 +268,10 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
                     new NumberParameterDescriptor({id: "myNumberParameter"},
                         "Number Parameter", "My number parameter",
                         0,
-                        {start: 0, end: 10, step: 2}, false)]
+                        {start: 0, end: 10, step: 2}, false)],
+                'booleanParameter': [new BooleanParameter({id: "myBooleanParameter"}, false),
+                    new BooleanParameterDescriptor({id: "myBooleanParameter"}, "Boolean Parameter",
+                        "My boolean Parameter", false, true)]
             }
         },
         onValueChange: action('Value changed')

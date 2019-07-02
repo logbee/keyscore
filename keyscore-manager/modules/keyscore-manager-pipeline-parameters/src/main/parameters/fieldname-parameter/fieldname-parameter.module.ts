@@ -2,14 +2,10 @@ import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/cor
 import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {TextParameterComponent} from "./text-parameter.component";
 import {MaterialModule} from "keyscore-manager-material";
-import {
-    JSONCLASS_TEXT_DESCR,
-    TextParameter,
-    TextParameterDescriptor
-} from "./text-parameter.model";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
+import {FieldNameParameterComponent} from "./field-name-parameter.component";
+import {FieldNameParameter, FieldNameParameterDescriptor, JSONCLASS_FIELDNAME_DESCR} from "./fieldname-parameter.model";
 
 @NgModule({
     imports: [
@@ -17,18 +13,18 @@ import {ParameterComponentFactoryService} from "../../service/parameter-componen
         BrowserAnimationsModule,
         MaterialModule
     ],
-    declarations: [TextParameterComponent],
-    entryComponents:[TextParameterComponent],
-    exports: [TextParameterComponent]
+    declarations: [FieldNameParameterComponent],
+    entryComponents: [FieldNameParameterComponent],
+    exports: [FieldNameParameterComponent]
 
 })
 export class TextParameterModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
-        this.factory.register(JSONCLASS_TEXT_DESCR, (descriptor: TextParameterDescriptor) => {
-            return new TextParameter(descriptor.ref, "");
+        this.factory.register(JSONCLASS_FIELDNAME_DESCR, (descriptor: FieldNameParameterDescriptor) => {
+            return new FieldNameParameter(descriptor.ref, "");
         });
-        this.componentFactory.register(JSONCLASS_TEXT_DESCR, (containerRef: ViewContainerRef) => {
-            const compFactory = this.resolver.resolveComponentFactory(TextParameterComponent);
+        this.componentFactory.register(JSONCLASS_FIELDNAME_DESCR, (containerRef: ViewContainerRef) => {
+            const compFactory = this.resolver.resolveComponentFactory(FieldNameParameterComponent);
             return containerRef.createComponent(compFactory);
         });
 
