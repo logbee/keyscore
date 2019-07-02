@@ -38,7 +38,13 @@ object GrokLogic extends Described {
       displayName = TextRef("grok.pattern.displayName"),
       description = TextRef("grok.pattern.description")
     ),
-    expressionType = ExpressionType.Grok,
+    choices = Seq(
+      Choice(
+        name = "GROK",
+        displayName = TextRef("grok.pattern.displayName"),
+        description = TextRef("grok.pattern.description")
+      )
+    ),
     mandatory = true
   )
 
