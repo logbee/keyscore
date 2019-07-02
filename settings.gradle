@@ -7,8 +7,6 @@ include 'keyscore-pipeline'
 include 'keyscore-pipeline:keyscore-pipeline-api'
 include 'keyscore-pipeline:keyscore-pipeline-contrib'
 
-include 'keyscore-simple-persistence'
-
 include 'keyscore-test-fixtures'
 
 include 'test'
@@ -19,7 +17,6 @@ include 'test:kafka'
 include 'doc'
 
 include 'keyscore-manager'
-
 
 include 'keyscore-manager:keyscore-manager-material'
 project(':keyscore-manager:keyscore-manager-material').projectDir = new File(project(':keyscore-manager').projectDir, "modules/keyscore-manager-material")

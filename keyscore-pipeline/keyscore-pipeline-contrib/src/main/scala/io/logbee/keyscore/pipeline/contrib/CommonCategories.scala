@@ -21,6 +21,7 @@ object CommonCategories {
   val ENCODING = Category("contrib.encoding", TextRef("contrib.category.encoding.displayName"))
   val DECODING = Category("contrib.decoding", TextRef("contrib.category.decoding.displayName"))
   val CONVERSION = Category("contrib.conversion", TextRef("contrib.category.conversion.displayName"))
+  val FLOW = Category("contrib.flow", TextRef("contrib.category.flow.displayName"))
 
   import Locale.{ENGLISH, GERMAN}
 
@@ -86,6 +87,10 @@ object CommonCategories {
       CONVERSION.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "Conversion",
         GERMAN -> "Konvertierung"
+      )),
+      FLOW.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "Flow Control",
+        GERMAN -> "Flusskontrolle"
       ))
     )
   )
