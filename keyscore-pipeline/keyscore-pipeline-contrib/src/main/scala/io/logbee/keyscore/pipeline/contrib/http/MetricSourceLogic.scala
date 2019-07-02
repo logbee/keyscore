@@ -1,8 +1,11 @@
 package io.logbee.keyscore.pipeline.contrib.http
 
+import java.net.URL
+
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
-import akka.stream.SourceShape
+import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
+import akka.stream.{OverflowStrategy, SourceShape}
 import io.logbee.keyscore.commons.metrics.MetricsQuery
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
@@ -21,6 +24,7 @@ import org.json4s.{Formats, Serialization}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Promise
 import scala.util.{Failure, Success}
 
 object MetricSourceLogic extends Described {
@@ -116,6 +120,8 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var earliest = MetricSourceLogic.earliestParameter.defaultValue
   private var latest = MetricSourceLogic.latestParameter.defaultValue
 
+  private var queue:  SourceQueueWithComplete[(HttpRequest, Promise[HttpResponse])] = _
+
   private val metricCollections: ListBuffer[(String, MetricsCollection)] = ListBuffer.empty[(String, MetricsCollection)]
 
   private val idToEarliest = mutable.HashMap.empty[String, String]
@@ -124,8 +130,10 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val mcs = parseHttpResponse(response)
     mcs.foreach { mc => metricCollections.append((id, mc)) }
 
-    idToEarliest.update(id, getEarliest(mcs))
-    tryPush()
+    if(mcs.nonEmpty) {
+      idToEarliest.update(id, getEarliest(mcs))
+      tryPush()
+    }
   })
 
   override def initialize(configuration: Configuration): Unit = {
@@ -134,6 +142,25 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   override def configure(configuration: Configuration): Unit = {
+    setDefaults(configuration)
+
+    val poolUrl = new URL(url)
+    val pool = Http().cachedHostConnectionPool[Promise[HttpResponse]](host = poolUrl.getHost, port = poolUrl.getPort)
+
+    queue = Source.queue[(HttpRequest, Promise[HttpResponse])](1, OverflowStrategy.dropNew)
+      .via(pool)
+      .toMat(Sink.foreach({
+        case (Success(response), promise) => promise.success(response)
+        case (Failure(throwable), promise) => promise.failure(throwable)
+      }))(Keep.left)
+      .run()
+  }
+  override def onPull(): Unit = {
+    if(metricCollections.nonEmpty) tryPush()
+    else scrapeMetrics()
+  }
+
+  private def setDefaults(configuration: Configuration): Unit = {
     url = configuration.getValueOrDefault(urlParameter, url)
     ids = configuration.getValueOrDefault(idsParameter, ids)
     limit = configuration.getValueOrDefault(limitParameter, limit)
@@ -141,14 +168,9 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     latest = configuration.getValueOrDefault(latestParameter, latest)
   }
 
-  override def onPull(): Unit = {
-    if(metricCollections.nonEmpty) tryPush()
-    else scrapeMetrics()
-  }
-
   private def tryPush(): Unit = {
 
-    if (!isAvailable(out)) return
+    if (!isAvailable(out) || metricCollections.isEmpty) return
 
     val metric = metricCollections.head
 
@@ -167,16 +189,16 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       val mq = MetricsQuery(limit, newest, latest, format)
 
       val uri = Uri(s"$url/metrics/$id")
-      id -> Http().singleRequest(HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq))))
+      (id, HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq))), Promise[HttpResponse])
 
     })
       .foreach({
-        case (id, future) =>
-          future.onComplete({
+        case (id, request, promise) =>
+          queue.offer((request, promise)).flatMap(_ => promise.future).onComplete({
             case Success(response) =>
-              parseAsync.invoke((id, response))
+              parseAsync.invoke(id, response)
             case Failure(cause) =>
-              log.error(s"Retrieve MetricCollections for <$id> failed: $cause")
+              log.error(s"Couldn't retrieve metrics: $cause")
           })
       })
   }

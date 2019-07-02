@@ -123,7 +123,7 @@ class ElasticSearchSinkLogic(parameters: LogicParameters, shape: SinkShape[Datas
         HttpRequest(POST, uri = s"/$elasticIndex/_doc/${fields.hashCode().base64()}/", entity = HttpEntity(`application/json`, write(fields))) -> Promise[HttpResponse]
       })
       .foreach({
-        case tuple @ (request, promise) =>
+        case tuple @ (_, promise) =>
           queue.offer(tuple).flatMap(_ => promise.future).onComplete({
             case Success(response) =>
               log.info(s"$response")
