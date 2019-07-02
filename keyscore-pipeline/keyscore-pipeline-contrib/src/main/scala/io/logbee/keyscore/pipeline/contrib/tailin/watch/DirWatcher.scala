@@ -37,7 +37,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   
   
   
-  private def doForEachPath(paths: Set[_ <: PathHandle], func: PathWatcher => Unit) = {
+  private def doForEachPathHandler(paths: Set[_ <: PathHandle], func: PathWatcher => Unit): Unit = {
     paths.foreach { path =>
       subPathHandlers.get(path).foreach { pathHandler =>
         pathHandler.foreach { pathHandler =>
@@ -48,21 +48,25 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   }
   
   
-  def processChanges() = {
+  
+  def processChanges(): Unit = {
     
     val changes = watchDir.getChanges
     
     
-    doForEachPath(changes.potentiallyModifiedDirs, _.processChanges()) //call processFileChanges() on subDirWatchers
+    doForEachPathHandler(changes.potentiallyModifiedDirs, _.processChanges())
     
     
-    doForEachPath(changes.deletedPaths, _.pathDeleted())
+    doForEachPathHandler(changes.deletedPaths, _.pathDeleted())
     
-    changes.deletedPaths.foreach { path =>
-      if (path.isInstanceOf[DirHandle]) {
-        subDirWatchers.remove(path.asInstanceOf[DirHandle])
-      } else {
-        subFileEventHandlers.remove(path.asInstanceOf[FileHandle])
+    changes.deletedPaths.foreach {
+      _ match {
+        case dir: DirHandle => {
+          subDirWatchers.remove(dir)
+        }
+        case file: FileHandle => {
+          subFileEventHandlers.remove(file)
+        }
       }
     }
     
@@ -71,12 +75,12 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
     changes.newlyCreatedFiles.foreach {addSubFileEventHandler(_)}
     
     
-    doForEachPath(changes.potentiallyModifiedFiles, _.processChanges())
+    doForEachPathHandler(changes.potentiallyModifiedFiles, _.processChanges())
   }
   
   
   
-  private def addSubDirWatcher(subDir: DirHandle) = {
+  private def addSubDirWatcher(subDir: DirHandle): Unit = {
     
     if (matchPattern.isSuperDir(subDir)) {
       
@@ -96,7 +100,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   
   
   
-  private def addSubFileEventHandler(file: FileHandle) = {
+  private def addSubFileEventHandler(file: FileHandle): Unit = {
     
     if (matchPattern.matches(file)) {
       val fileEventHandler = watcherProvider.createFileEventHandler(file)
@@ -112,85 +116,13 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   
   
   
-  def fireFileModified(file: FileHandle) = {
-    subFileEventHandlers.get(file) match {
-      case None => //can't notify anyone
-      case Some(watchers: ListBuffer[FileEventHandler]) => {
-        watchers.foreach(watcher => watcher.processChanges())
-      }
-    }
-  }
-  
-  
-  
-  
-  
-  /**
-   * We can't detect, whether a delete event happened for a file or for a directory,
-   * however a directory and a file can't share the same name within the same directory.
-   *
-   * Therefore we can safely iterate over all files and directories within this directory
-   * and just PathWatcher.tearDown() the one that matches the name.
-   */
-  private def removeSubPathWatcher(path: String) = {
-    
-    val subPathHandlerToRemove = subPathHandlers.find {
-      case (path, _) => path.absolutePath equals path
-    }
-    
-    subPathHandlerToRemove.foreach {
-      var removedSubPathHandlers: Option[ListBuffer[_ <: PathWatcher]] = null
-      
-      subPathHandlerToRemove => subPathHandlerToRemove match {
-        case (dir: DirHandle, _) => {
-          removedSubPathHandlers = subDirWatchers.remove(dir)
-        }
-        case (file: FileHandle, _) => {
-          removedSubPathHandlers = subFileEventHandlers.remove(file)
-        }
-        case (_, _) => {}
-      }
-      
-      removedSubPathHandlers.foreach {
-        removedSubPathHandler => removedSubPathHandler.foreach(_.tearDown())
-      }
-    }
-  }
-  
-  
-  
-  def pathDeleted() {
+  def pathDeleted(): Unit = {
     tearDown()
   }
   
   
-  /**
-   * We can't detect, whether a delete event happened for a file or for a directory,
-   * however a directory and a file can't share the same name within the same directory.
-   *
-   * Therefore we can safely iterate over all files and directories within this directory
-   * and just call PathWatcher.pathDeleted() on the one that matches the name.
-   */
-  private def firePathDeleted(path: PathHandle) = {
-    path match {
-      case dir: DirHandle =>
-        subDirWatchers.remove(dir) match {
-          case None =>
-          case Some(watchers: ListBuffer[BaseDirWatcher]) =>
-            watchers.foreach(_.pathDeleted())
-        }
-      case file: FileHandle =>
-        subFileEventHandlers.remove(file) match {
-          case None =>
-          case Some(watchers: ListBuffer[FileEventHandler]) =>
-            watchers.foreach(_.pathDeleted())
-        }
-    }
-  }
   
-  
-  
-  override def tearDown() {
+  override def tearDown(): Unit = {
     
     //call tearDown on all watchers attached to this
     subPathHandlers.foreach {
@@ -200,7 +132,6 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
             subPathWatcher.tearDown()
         }
     }
-    
     
     watchDir.tearDown()
   }

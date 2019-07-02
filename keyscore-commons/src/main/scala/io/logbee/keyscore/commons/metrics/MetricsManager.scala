@@ -47,7 +47,7 @@ class MetricsManager(configuration: Configuration) extends Actor with ActorLoggi
 
   val cache = MetricsCache(MetricsCache.Configuration(context.system.settings.config))
 
-  context.system.scheduler.schedule(initialDelay = configuration.initialDelay, interval = configuration.interval)(pollMetrics())
+  context.system.scheduler.schedule(initialDelay = configuration.initialDelay, interval = configuration.interval, mediator, Publish(MetricsTopic, ScrapeMetrics(self)))
 
   implicit def asFiniteDuration(d: java.time.Duration): FiniteDuration =
     scala.concurrent.duration.Duration.fromNanos(d.toNanos)
@@ -62,9 +62,9 @@ class MetricsManager(configuration: Configuration) extends Actor with ActorLoggi
 
   override def receive: Receive = {
 
-    case RequestMetrics(id, seconds, nanos, max) =>
-      log.debug(s"Received ScrapeMetricRequest <$id>")
-      cache.getAll(id, seconds, nanos, max) match {
+    case RequestMetrics(id, mq) =>
+//      log.debug(s"Received ScrapeMetricRequest <$id>")
+      cache.getAll(id, earliest = mq.earliestTimestamp, latest = mq.latestTimestamp, mq.limit) match {
         case mcs: Seq[MetricsCollection] =>
           sender ! MetricsResponseSuccess(id, mcs)
         case _ =>
@@ -78,9 +78,5 @@ class MetricsManager(configuration: Configuration) extends Actor with ActorLoggi
 
     case ScrapeMetricsFailure(id, e) =>
       log.warning(s"Could not retrieve metrics for  <$id>: $e")
-  }
-
-  private def pollMetrics(): Unit = {
-    mediator ! Publish(MetricsTopic, ScrapeMetrics(self))
   }
 }

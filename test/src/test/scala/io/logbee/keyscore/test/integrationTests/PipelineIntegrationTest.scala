@@ -15,6 +15,7 @@ import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1, datasetMulti2}
 import io.logbee.keyscore.test.integrationTests.behaviors._
 import io.logbee.keyscore.test.util.JsonData._
+import io.logbee.keyscore.test.util.TestData.standardTimestamp
 import io.logbee.keyscore.test.util.TestingMethods._
 import org.json4s.Formats
 import org.json4s.native.Serialization.write
@@ -66,7 +67,7 @@ class PipelineIntegrationTest extends Matchers {
   var pipelineBlueprintsCount = 0
 
   /*
-  * TODO:
+  * TODO:fromMillis
   * 3. Check if all Fields of all Records of all Datasets are passing through the pipeline
   * 4. Check if the datasets in elastic are the same as the original datasets
   */
@@ -113,10 +114,10 @@ class PipelineIntegrationTest extends Matchers {
     //Wait until all Dataset are pushed to the Elastic index
     pollElasticElements(topic = "test", expect = 2)(runner, elasticClient, logger) shouldBe true
 
-    scrapeMetrics(k2eSourceId).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read").get.value shouldBe 2.0
-    scrapeMetrics(k2eSourceId).last.find[GaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read").get.value should be > 595.0
-    scrapeMetrics(k2kSinkId).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written").get.value shouldBe 2.0
-    scrapeMetrics(k2kSinkId).last.find[GaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.bytes-written").get.value should be > 800.0
+    scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read").get.value shouldBe 2.0
+    scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[GaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read").get.value should be > 595.0
+    scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written").get.value shouldBe 2.0
+    scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[GaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.bytes-written").get.value should be > 800.0
 
     //Cleanup
     cleanIntegrationTest

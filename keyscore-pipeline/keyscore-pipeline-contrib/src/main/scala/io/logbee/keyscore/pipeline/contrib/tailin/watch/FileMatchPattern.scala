@@ -85,7 +85,8 @@ class FileMatchPattern(fullFilePattern: String) {
     fileMatcher.matches(path)
   }
   
-  def isSuperDir(dir: DirHandle): Boolean = { //TODO
+  
+  def isSuperDir(dir: DirHandle): Boolean = {
     
     var tmpPattern = filePattern
     while (tmpPattern.endsWith("/")) { //remove trailing slashes, as PathMatcher doesn't work with a slash at the end

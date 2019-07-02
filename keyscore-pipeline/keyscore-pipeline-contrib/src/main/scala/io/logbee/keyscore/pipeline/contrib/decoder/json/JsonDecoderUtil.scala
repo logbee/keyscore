@@ -9,7 +9,7 @@ import scala.util.{Success, Try}
 
 object JsonDecoderUtil {
 
-  def extract(node: JValue, path: List[String], fields: List[Field] = List.empty): List[Field] = {
+  def extract(node: JValue, path: List[String] = List.empty, fields: List[Field] = List.empty): List[Field] = {
     node match {
       case obj: JObject =>
         obj.obj.foldLeft(fields) {

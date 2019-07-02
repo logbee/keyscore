@@ -144,7 +144,7 @@ class ValveStage(supervisor: ActorRef, bufferLimit: Int = 10)(implicit val dispa
 
     private val scrapeCallback = getAsyncCallback[(Set[Label], Promise[MetricsCollection])]({ case (labels, promise) =>
       promise.success(metrics.getWithLabels(labels.+(Label("id", TextValue(id.toString)))))
-      log.debug(s"Scraped a MetricCollection with ${metrics.get.metrics.size} metrics from valve <$id>")
+//      log.debug(s"Scraped a MetricCollection with ${metrics.get.metrics.size} metrics from valve <$id>")
     })
 
     private val clearCallback = getAsyncCallback[Promise[ValveState]]({ promise =>

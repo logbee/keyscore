@@ -39,7 +39,7 @@ class SmbFile(val file: smbj.share.File) extends FileHandle {
       filePath = filePath.substring(0, fileNameStart) //cut off file-name from the end
     }
     else {
-      //TODO
+      filePath = ""
     }
     
     filePath

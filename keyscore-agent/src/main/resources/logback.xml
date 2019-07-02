@@ -4,8 +4,11 @@
             <pattern>[%date{yyyy-MM-dd } %X{akkaTimestamp}] [%-5level] %X{akkaSource} %logger - %message%n</pattern>
         </encoder>
     </appender>
-    <logger name="org.apache.kafka" level="info" />
+    <logger name="akka.actor.TimerScheduler" level="info" />
+    <logger name="akka.http" level="info" />
+    <logger name="akka.kafka" level="info" />
     <logger name="com.hierynomus" level="info" />
+    <logger name="org.apache.kafka" level="info" />
 
     <root level="debug">
         <appender-ref ref="STDOUT" />

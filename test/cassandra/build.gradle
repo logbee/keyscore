@@ -1,0 +1,71 @@
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+
+docker {
+    registryCredentials {
+        url = "https://docker.elastic.co"
+        username = ""
+        password = ""
+    }
+}
+
+task pullImage(type: DockerPullImage) {
+    repository = 'cassandra'
+    tag = '3.11.4'
+}
+
+task createContainer(type: DockerCreateContainer) {
+    dependsOn = ['pullImage']
+    containerName = 'keyscore-cassandra'
+    targetImageId { pullImage.getImageId() }
+    env = []
+    portBindings = ['9042:9042']
+    hostName = 'keyscore-cassandra'
+    network = project.findProperty('containerNetwork') ?: 'host'
+}
+
+task startContainer(type: DockerStartContainer) {
+    dependsOn = ['createContainer','::setupDockerNetwork']
+    targetContainerId { createContainer.containerName }
+}
+
+task stopContainer(type: DockerStopContainer) {
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+}
+
+task removeContainer(type: DockerRemoveContainer) {
+    dependsOn stopContainer
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}
+
+task stopContainerOnStartup(type: DockerStopContainer) {
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+}
+
+task removeContainerOnStartup(type: DockerRemoveContainer) {
+    dependsOn stopContainerOnStartup
+    targetContainerId { createContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}

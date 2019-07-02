@@ -39,7 +39,6 @@ task stopContainer(type: DockerStopContainer) {
             println("Container " + createContainer.containerName + " has already been stopped")
         } else throw exception
     }
-
 }
 
 task removeContainer(type: DockerRemoveContainer) {
@@ -50,7 +49,6 @@ task removeContainer(type: DockerRemoveContainer) {
             println("Container " + createContainer.containerName + " has already been removed")
         } else throw exception
     }
-
 }
 
 task stopContainerOnStartup(type: DockerStopContainer) {
@@ -60,7 +58,6 @@ task stopContainerOnStartup(type: DockerStopContainer) {
             println("Container " + createContainer.containerName + " has already been stopped")
         } else throw exception
     }
-
 }
 
 task removeContainerOnStartup(type: DockerRemoveContainer) {
@@ -71,5 +68,4 @@ task removeContainerOnStartup(type: DockerRemoveContainer) {
             println("Container " + createContainer.containerName + " has already been removed")
         } else throw exception
     }
-
 }
