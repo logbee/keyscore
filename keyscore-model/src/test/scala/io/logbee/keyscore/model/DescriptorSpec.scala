@@ -42,7 +42,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
       val booleanParameterRef = ParameterRef("example.filter.theTruth")
       val booleanParameter = BooleanParameterDescriptor(booleanParameterRef, ParameterInfo(TextRef("booleanParameterDisplayName"), TextRef("booleanParameterDescription")), defaultValue = true)
 
-      val patternParameter = ExpressionParameterDescriptor("example.filter.aGrokPattern", expressionType = Grok)
+      val patternParameter = ExpressionParameterDescriptor("example.filter.aGrokPattern")
 
       val choiceParameter = ChoiceParameterDescriptor("example.filter.myChoice", min = 1, max = 1, choices = Seq(
         Choice("red"),
