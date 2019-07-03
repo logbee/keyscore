@@ -1,8 +1,6 @@
 import {Component} from "@angular/core";
-import {ExpressionType, ParameterRef} from "keyscore-manager-models"
 import {ParameterComponent} from "../ParameterComponent";
 import {TextParameter, TextParameterDescriptor} from "./text-parameter.model";
-import * as globmatch from "minimatch";
 import {StringValidatorService} from "../../service/string-validator.service";
 
 @Component({

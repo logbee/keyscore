@@ -16,6 +16,11 @@ import {ParameterFieldnamepatternComponent} from "./parameter-fieldnamepattern.c
 import {TextParameterModule} from "./parameters/text-parameter/text-parameter.module";
 import {ExpressionParameterModule} from "./parameters/expression-parameter/expression-parameter.module";
 import {StringValidatorService} from "./service/string-validator.service";
+import {NumberParameterModule} from "./parameters/number-parameter/number-parameter.module";
+import {DecimalParameterModule} from "./parameters/decimal-parameter/decimal-parameter.module";
+import {FieldNamePatternParameterModule} from "./parameters/field-name-pattern-parameter/field-name-pattern-parameter.module";
+import {FieldNameParameterModule} from "./parameters/field-name-parameter/field-name-parameter.module";
+import {BooleanParameterModule} from "./parameters/boolean-parameter/boolean-parameter.module";
 
 
 @NgModule({
@@ -28,7 +33,12 @@ import {StringValidatorService} from "./service/string-validator.service";
         DragDropModule,
         PropagationStopModule,
         ExpressionParameterModule,
-        TextParameterModule
+        TextParameterModule,
+        NumberParameterModule,
+        DecimalParameterModule,
+        FieldNamePatternParameterModule,
+        FieldNameParameterModule,
+        BooleanParameterModule
     ],
     declarations: [
         ParameterMap,
@@ -37,6 +47,7 @@ import {StringValidatorService} from "./service/string-validator.service";
         AutocompleteInputComponent,
         ParameterDirectiveComponent,
         ParameterFieldnamepatternComponent
+
     ],
     exports: [
         ParameterComponent
