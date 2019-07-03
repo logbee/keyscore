@@ -33,7 +33,7 @@ import {SharedControlsModule} from "../../shared-controls/shared-controls.module
 export class FieldNamePatternParameterModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
         this.factory.register(JSONCLASS_FIELDNAMEPATTERN_DESCR, (descriptor: FieldNamePatternParameterDescriptor) => {
-            return new FieldNamePatternParameter(descriptor.ref, "", null);
+            return new FieldNamePatternParameter(descriptor.ref, descriptor.defaultValue || "", null);
         });
 
         this.componentFactory.register(JSONCLASS_FIELDNAMEPATTERN_DESCR, (containerRef: ViewContainerRef) => {

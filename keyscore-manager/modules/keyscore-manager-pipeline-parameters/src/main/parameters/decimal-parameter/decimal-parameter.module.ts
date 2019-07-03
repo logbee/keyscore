@@ -27,7 +27,7 @@ import {DecimalParameter, DecimalParameterDescriptor, JSONCLASS_DECIMAL_DESCR} f
 export class DecimalParameterModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
         this.factory.register(JSONCLASS_DECIMAL_DESCR, (descriptor: DecimalParameterDescriptor) => {
-            return new DecimalParameter(descriptor.ref,0);
+            return new DecimalParameter(descriptor.ref,descriptor.defaultValue || 0);
         });
 
         this.componentFactory.register(JSONCLASS_DECIMAL_DESCR, (containerRef: ViewContainerRef) => {

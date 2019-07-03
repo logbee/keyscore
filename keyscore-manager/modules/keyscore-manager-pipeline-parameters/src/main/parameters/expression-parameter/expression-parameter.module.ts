@@ -31,7 +31,7 @@ import {ParameterComponentFactoryService} from "../../service/parameter-componen
 export class ExpressionParameterModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
         this.factory.register(JSONCLASS_EXPRESSION_DESCR, (descriptor: ExpressionParameterDescriptor) => {
-            return new ExpressionParameter(descriptor.ref, "", null);
+            return new ExpressionParameter(descriptor.ref, descriptor.defaultValue || "", null);
         });
 
         this.componentFactory.register(JSONCLASS_EXPRESSION_DESCR, (containerRef: ViewContainerRef) => {

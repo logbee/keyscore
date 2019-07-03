@@ -27,7 +27,7 @@ import {JSONCLASS_NUMBER_DESCR, NumberParameter, NumberParameterDescriptor} from
 export class NumberParameterModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
         this.factory.register(JSONCLASS_NUMBER_DESCR, (descriptor: NumberParameterDescriptor) => {
-            return new NumberParameter(descriptor.ref, 0);
+            return new NumberParameter(descriptor.ref, descriptor.defaultValue || 0);
         });
 
         this.componentFactory.register(JSONCLASS_NUMBER_DESCR, (containerRef: ViewContainerRef) => {
