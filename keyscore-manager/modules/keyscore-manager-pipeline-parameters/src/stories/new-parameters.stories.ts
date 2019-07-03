@@ -31,11 +31,19 @@ import {
     BooleanParameterDescriptor
 } from "../main/parameters/boolean-parameter/boolean-parameter.model";
 import {BooleanParameterModule} from "../main/parameters/boolean-parameter/boolean-parameter.module";
-import {FieldNameParameterComponent} from "../main/parameters/fieldname-parameter/field-name-parameter.component";
+import {FieldNameParameterComponent} from "../main/parameters/field-name-parameter/field-name-parameter.component";
 import {
     FieldNameParameter,
     FieldNameParameterDescriptor
-} from "../main/parameters/fieldname-parameter/fieldname-parameter.model";
+} from "../main/parameters/field-name-parameter/field-name-parameter.model";
+import {FieldNamePatternParameterComponent} from "../main/parameters/field-name-pattern-parameter/field-name-pattern-parameter.component";
+import {
+    FieldNamePatternParameter,
+    FieldNamePatternParameterDescriptor,
+    PatternType, PatternTypeChoice
+} from "../main/parameters/field-name-pattern-parameter/field-name-pattern-parameter.model";
+import {SharedControlsModule} from "../main/shared-controls/shared-controls.module";
+import {ReactiveFormsModule} from "@angular/forms";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -52,7 +60,8 @@ storiesOf('Parameters/ExpressionParameter', module)
     .add("default", () => ({
         component: ExpressionParameterComponent,
         props: {
-            descriptor: new ExpressionParameterDescriptor({id: "myexpression"}, "Field Pattern", "", "", true, [
+            descriptor: new ExpressionParameterDescriptor({id: "myexpression"},
+                "Field Pattern", "", "", true, [
                 new ExpressionParameterChoice("expression.regex", "RegEx", ""),
                 new ExpressionParameterChoice("expression.grok", "Grok", ""),
                 new ExpressionParameterChoice("expression.glob", "Glob", "")
@@ -100,7 +109,8 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
         descriptor: new TextParameterDescriptor({id: "myTextParameter"},
             "Path to File", "My text parameter",
             "Default Value",
-            {expression: "**/*.txt", expressionType: ExpressionType.Glob, description: "Path has to point to a '.txt' file in the same directory or a subdirectory"}, true)
+            {expression: "**/*.txt", expressionType: ExpressionType.Glob,
+                description: "Path has to point to a '.txt' file in the same directory or a subdirectory"}, true)
         ,
         parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
         emitter: action('Value Change')
@@ -198,7 +208,10 @@ storiesOf('Parameters/FieldNameParameter', module).addDecorator(
         imports: [
             CommonModule,
             MaterialModule,
-            BrowserAnimationsModule
+            BrowserAnimationsModule,
+            SharedControlsModule
+
+
         ],
         providers: [StringValidatorService]
     })).add("Present Field Hints", () => ({
@@ -223,12 +236,42 @@ storiesOf('Parameters/FieldNameParameter', module).addDecorator(
     component: FieldNameParameterComponent,
     props: {
         descriptor: new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
-            "My field name Parameter", "Fieldname", FieldNameHint.AnyField,{expression:".*_time$",description:"Field Name has to end with '_time'",expressionType:ExpressionType.RegEx},true),
+            "My field name Parameter", "Fieldname", FieldNameHint.AnyField,
+            {expression:".*_time$",
+                description:"Field Name has to end with '_time'",expressionType:ExpressionType.RegEx},true),
         parameter: new FieldNameParameter({id: "myFieldNameParameter"}, ""),
         autoCompleteDataList:['message','timestamp','robo_time','logbee_time','logbee_id'],
         emitter: action('Value Change')
     }
 }));
+
+storiesOf('Parameters/FieldNamePatternParameter', module)
+    .addDecorator(
+        moduleMetadata({
+            declarations: [],
+            imports: [
+                CommonModule,
+                MaterialModule,
+                BrowserAnimationsModule,
+                SharedControlsModule
+            ],
+            providers: []
+        }))
+    .add("Hint Present Field", () => ({
+        component: FieldNamePatternParameterComponent,
+        props: {
+            descriptor: new FieldNamePatternParameterDescriptor({id: "myFieldNamePatternParameter"},
+                "Field Name Pattern", "", "", FieldNameHint.PresentField, [
+                PatternTypeChoice.fromPatternType(PatternType.None),
+                PatternTypeChoice.fromPatternType(PatternType.RegEx),
+                PatternTypeChoice.fromPatternType(PatternType.Glob)
+            ],true)
+            ,
+            parameter: new FieldNamePatternParameter({id: "myFieldNamePatternParameter"}, "", null),
+            autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
+            emitter: action('Value Change')
+        }
+    }));
 
 
 
@@ -263,7 +306,8 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
                         ])],
                 'textParameter': [
                     new TextParameter({id: 'textParameter'}, "initialValue"),
-                    new TextParameterDescriptor({id: 'textParameter'}, "Text Parameter", "", "", null, true)],
+                    new TextParameterDescriptor({id: 'textParameter'}, "Text Parameter",
+                        "", "", null, true)],
                 'numberParameter': [new NumberParameter({id: "myNumberParameter"}, 0),
                     new NumberParameterDescriptor({id: "myNumberParameter"},
                         "Number Parameter", "My number parameter",

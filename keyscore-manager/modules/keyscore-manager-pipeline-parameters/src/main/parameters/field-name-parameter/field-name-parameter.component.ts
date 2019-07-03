@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {FieldNameParameter, FieldNameParameterDescriptor} from "./fieldname-parameter.model";
+import {FieldNameParameter, FieldNameParameterDescriptor} from "./field-name-parameter.model";
 import {StringValidatorService} from "../../service/string-validator.service";
 import {FieldNameHint} from "keyscore-manager-models";
 
@@ -8,29 +8,34 @@ import {FieldNameHint} from "keyscore-manager-models";
     selector: 'parameter-fieldname',
     template: `
         <mat-form-field>
-            <input #inputField matInput type="text"
-                   [placeholder]="descriptor.defaultValue" [matAutocomplete]="auto"
-                   (change)="onChange($event.target.value)">
+            <ks-autocomplete-input #inputField [value]="parameter.value"
+                                   [placeholder]="'Field Name'" [options]="autoCompleteDataList"
+                                   (change)="onChange(inputField.value)">
+            </ks-autocomplete-input>
             <mat-label>{{descriptor.displayName}} ({{descriptor.hint}})</mat-label>
-            <mat-autocomplete #auto="matAutocomplete">
-                <mat-option *ngFor="let item of autoCompleteDataList" [value]="item">{{item}}</mat-option>
-            </mat-autocomplete>
+            <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="inputField.value='';onChange('');">
+                <mat-icon>close</mat-icon>
+            </button>
         </mat-form-field>
         <p class="parameter-required" *ngIf="descriptor.mandatory && !inputField.value">{{descriptor.displayName}} is
             required!</p>
-        <p class="parameter-warn" *ngIf="!isValid(inputField.value) && descriptor.validator.description">{{descriptor.validator.description}}</p>
-        <p class="parameter-warn" *ngIf="!isValid(inputField.value) && !descriptor.validator.description">Your Input has to fulfill the following Pattern:
+        <p class="parameter-warn" *ngIf="!isValid(inputField.value) && descriptor.validator.description">
+            {{descriptor.validator.description}}</p>
+        <p class="parameter-warn" *ngIf="!isValid(inputField.value) && !descriptor.validator.description">Your Input has
+            to fulfill the following Pattern:
             {{descriptor.validator.expression}}</p>
     `
 })
 export class FieldNameParameterComponent extends ParameterComponent<FieldNameParameterDescriptor, FieldNameParameter> {
 
+
     constructor(private stringValidator: StringValidatorService) {
         super();
     }
 
-    protected onInit(){
-        if(this.descriptor.hint === FieldNameHint.AbsentField){
+    protected onInit() {
+        if (this.descriptor.hint === FieldNameHint.AbsentField) {
             this.autoCompleteDataList = [];
         }
     }
