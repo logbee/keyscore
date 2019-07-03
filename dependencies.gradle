@@ -74,6 +74,9 @@ ext {
         ],
         smbj: [
         	"com.hierynomus:smbj:0.9.1",
+        ], 
+        math_expression_parser: [
+            "org.scijava:jep:2.4.2"
         ]
     ]
 }
