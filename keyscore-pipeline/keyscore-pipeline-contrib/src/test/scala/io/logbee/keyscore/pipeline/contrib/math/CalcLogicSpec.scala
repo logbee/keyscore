@@ -20,29 +20,39 @@ class CalcLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFa
 
   "A CalcLogic" - {
 
-    val sample = Dataset(records = Record(
+    val sample1 = Dataset(records = Record(
       Field("a", DecimalValue(3)),
       Field("b", DecimalValue(7.0)),
+      Field("c", NumberValue(2)),
+    ))
+
+    val sample2 = Dataset(records = Record(
+      Field("a.field", DecimalValue(3)),
+      Field("b_field", DecimalValue(7.0)),
       Field("c", NumberValue(2)),
     ))
 
     Seq(
       Fixture(
         expression = "a + b + c",
-        sample = sample,
+        sample = sample1,
         expectation = 12.0),
       Fixture(
         expression = "a * b * c",
-        sample = sample,
+        sample = sample1,
         expectation = 42.0),
       Fixture(
         expression = "a / c",
-        sample = sample,
+        sample = sample1,
         expectation = 1.5),
       Fixture(
         expression = "b - c",
-        sample = sample,
+        sample = sample1,
         expectation = 5.0),
+      Fixture(
+        expression = "a.field + b_field",
+        sample = sample2,
+        expectation = 10.0),
     )
 
     .foreach { case Fixture(expression, sample, expectation) =>
