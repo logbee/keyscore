@@ -72,13 +72,13 @@ class CalcLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
           case (jep, Field(name, DecimalValue(value))) =>
             jep.addVariable(name.replace(' ', '_'), value)
             jep
+          case (jep, _) => jep
         }
         try {
           val result = jep.evaluate(jep.parse(expression))
           record.update(_.fields :+= Field(resultFieldName, DecimalValue(s"$result".toDouble)))
         } catch {
-          case _: org.nfunk.jep.TokenMgrError => record   // undefined variable mentioned in expression
-          case _: org.nfunk.jep.ParseException => record  // invalid expression, e.g. containing whitespace
+          case _ : Throwable => record
         }
       })))
     }
