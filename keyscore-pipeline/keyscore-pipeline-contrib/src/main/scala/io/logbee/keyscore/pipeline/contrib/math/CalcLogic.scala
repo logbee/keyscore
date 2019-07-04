@@ -12,43 +12,40 @@ import io.logbee.keyscore.pipeline.contrib.CommonCategories
 import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
 import org.nfunk.jep.JEP
 
-import scala.util.Try
+object CalcLogic extends Described {
 
-object EvaluateExpression extends Described {
-
-  val expressionFieldParameter = TextParameterDescriptor(
-    ParameterRef("expressionField"),
+  val expressionParameter = TextParameterDescriptor(
+    ParameterRef("expression"),
     ParameterInfo(
-      displayName = TextRef("expressionField.DisplayName"),
-      description = TextRef("expressionField.Description")
+      displayName = TextRef("expression.DisplayName"),
+      description = TextRef("expression.Description")
     )
   )
 
-  val resultFieldParameter = FieldNameParameterDescriptor(
-    ParameterRef("resultField"),
+  val resultFieldNameParameter = FieldNameParameterDescriptor(
+    ParameterRef("resultFieldName"),
     ParameterInfo(
-      displayName = TextRef("resultField.DisplayName"),
-      description = TextRef("resultField.Description")
+      displayName = TextRef("resultFieldName.DisplayName"),
+      description = TextRef("resultFieldName.Description")
     )
   )
 
   override def describe = Descriptor(
     ref = "0718f882-9da0-11e9-9f0d-5f0379a089c3",
     describes = FilterDescriptor(
-      name = classOf[EvaluateExpression].getName,
+      name = classOf[CalcLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
-      parameters = Seq(expressionFieldParameter, resultFieldParameter),
-      // icon = Icon.fromClass(classOf[EvaluateExpression])
+      parameters = Seq(expressionParameter, resultFieldNameParameter),
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.math.EvaluateExpression",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.math.CalcLogic",
       Locale.ENGLISH, Locale.GERMAN) ++ CATEGORY_LOCALIZATION
   )
 }
 
-class EvaluateExpression(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
+class CalcLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
   private var expression = ""
   private var resultFieldName = "result"
@@ -56,9 +53,8 @@ class EvaluateExpression(parameters: LogicParameters, shape: FlowShape[Dataset, 
   override def initialize(configuration: Configuration): Unit = configure(configuration)
 
   override def configure(configuration: Configuration): Unit = {
-
-    expression = configuration.getValueOrDefault(EvaluateExpression.expressionFieldParameter, expression)
-    resultFieldName = configuration.getValueOrDefault(EvaluateExpression.resultFieldParameter, resultFieldName)
+    expression = configuration.getValueOrDefault(CalcLogic.expressionParameter, expression)
+    resultFieldName = configuration.getValueOrDefault(CalcLogic.resultFieldNameParameter, resultFieldName)
   }
 
   override def onPush(): Unit = {
