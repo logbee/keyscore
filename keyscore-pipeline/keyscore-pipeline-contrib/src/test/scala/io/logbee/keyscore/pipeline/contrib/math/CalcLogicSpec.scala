@@ -11,12 +11,14 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
 
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
+
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class CalcLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
 
-  case class Fixture(expression: String, sample: Dataset, expectation: Double)
+  case class Fixture(expression: String, sample: Dataset, expectation: Option[Double])
 
   "A CalcLogic" - {
 
@@ -26,9 +28,15 @@ class CalcLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFa
       Field("c", NumberValue(2)),
     ))
 
-    val sample2 = Dataset(records = Record(
+    val sample2_dot_underscore = Dataset(records = Record(
       Field("a.field", DecimalValue(3)),
       Field("b_field", DecimalValue(7.0)),
+      Field("c", NumberValue(2)),
+    ))
+
+    val sample3_whitespace = Dataset(records = Record(
+      Field("a field", DecimalValue(3)),
+      Field("b field", DecimalValue(7.0)),
       Field("c", NumberValue(2)),
     ))
 
@@ -51,8 +59,16 @@ class CalcLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFa
         expectation = 5.0),
       Fixture(
         expression = "a.field + b_field",
-        sample = sample2,
+        sample = sample2_dot_underscore,
         expectation = 10.0),
+      Fixture(
+        expression = "a_field + b_field",
+        sample = sample3_whitespace,
+        expectation = 10.0),
+      Fixture(
+        expression = "b_field + c field",
+        sample = sample3_whitespace,
+        expectation = None),
     )
 
     .foreach { case Fixture(expression, sample, expectation) =>
@@ -68,7 +84,12 @@ class CalcLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFa
 
             source.sendNext(sample)
 
-            sink.requestNext() shouldBe sample.update(_.records := List(sample.records.head.update(_.fields :+= Field("result", DecimalValue(expectation)))))
+            if (expectation.nonEmpty) {
+              sink.requestNext() shouldBe sample.update(_.records := List(sample.records.head.update(_.fields :+= Field("result", DecimalValue(expectation.get)))))
+            }
+            else {
+              sink.requestNext() shouldBe sample
+            }
           }
         }
       }

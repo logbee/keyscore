@@ -38,6 +38,7 @@ object CalcLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
       parameters = Seq(expressionParameter, resultFieldNameParameter),
+      icon = Icon.fromClass(classOf[CalcLogic])
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.math.CalcLogic",
@@ -66,17 +67,18 @@ class CalcLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
       push(out, dataset.update(_.records := dataset.records.map(record => {
         val jep = record.fields.foldLeft(new JEP()) {
           case (jep, Field(name, NumberValue(value))) =>
-            jep.addVariable(name, value)
+            jep.addVariable(name.replace(' ', '_'), value)
             jep
           case (jep, Field(name, DecimalValue(value))) =>
-            jep.addVariable(name, value)
+            jep.addVariable(name.replace(' ', '_'), value)
             jep
         }
         try {
           val result = jep.evaluate(jep.parse(expression))
           record.update(_.fields :+= Field(resultFieldName, DecimalValue(s"$result".toDouble)))
         } catch {
-          case _: org.nfunk.jep.TokenMgrError => record
+          case _: org.nfunk.jep.TokenMgrError => record   // undefined variable mentioned in expression
+          case _: org.nfunk.jep.ParseException => record  // invalid expression, e.g. containing whitespace
         }
       })))
     }
