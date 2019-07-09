@@ -5,12 +5,13 @@ export enum ValueJsonClass {
     NumberValue = "io.logbee.keyscore.model.data.NumberValue",
     DecimalValue = "io.logbee.keyscore.model.data.DecimalValue",
     TimestampValue = "io.logbee.keyscore.model.data.TimestampValue",
-    DurationValue = "io.logbee.keyscore.model.data.DurationValue"
+    DurationValue = "io.logbee.keyscore.model.data.DurationValue",
+    HealthValue = "io.logbee.keyscore.model.data.HealthValue"
 }
 
 
 export interface BooleanValue {
-    jsonClass: ValueJsonClass.BooleanValue;
+    readonly jsonClass: ValueJsonClass.BooleanValue;
     value: boolean;
 }
 
