@@ -2,6 +2,7 @@ import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {TextValue} from "../models/value.model";
+import {ValueComponent} from "./value-component.interface";
 
 @Component({
     selector: 'ks-text-value-input',
@@ -17,7 +18,7 @@ import {TextValue} from "../models/value.model";
         </mat-form-field>
     `
 })
-export class TextValueComponent {
+export class TextValueComponent implements ValueComponent{
 
     static nextId = 0;
 

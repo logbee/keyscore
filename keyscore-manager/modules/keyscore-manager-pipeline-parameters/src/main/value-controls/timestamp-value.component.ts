@@ -3,12 +3,13 @@ import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {TimestampValue} from "../models/value.model";
 import * as moment from "moment-timezone";
+import {ValueComponent} from "./value-component.interface";
 
 @Component({
     selector: 'ks-timestamp-value-input',
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-form-field fxFlex="80">
+            <mat-form-field fxFlex="50">
                 <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()"
                        [placeholder]="'Value'" step="1">
                 <mat-label>{{label}}</mat-label>
@@ -26,7 +27,7 @@ import * as moment from "moment-timezone";
         </div>
     `
 })
-export class TimestampValueComponent {
+export class TimestampValueComponent implements ValueComponent {
 
     static nextId = 0;
 

@@ -11,7 +11,7 @@ import {
 } from "../main/parameters/expression-parameter/expression-parameter.model";
 import {TextParameterComponent} from "../main/parameters/text-parameter/text-parameter.component";
 import {TextParameter, TextParameterDescriptor} from "../main/parameters/text-parameter/text-parameter.model";
-import {ExpressionType, FieldNameHint} from "keyscore-manager-models";
+import {ExpressionType, FieldNameHint, FieldValueType} from "keyscore-manager-models";
 import {ExpressionParameterModule} from "../main/parameters/expression-parameter/expression-parameter.module";
 import {TextParameterModule} from "../main/parameters/text-parameter/text-parameter.module";
 import {ParameterComponentFactoryService} from "../main/service/parameter-component-factory.service";
@@ -40,10 +40,14 @@ import {FieldNamePatternParameterComponent} from "../main/parameters/field-name-
 import {
     FieldNamePatternParameter,
     FieldNamePatternParameterDescriptor,
-    PatternType, PatternTypeChoice
+    PatternType,
+    PatternTypeChoice
 } from "../main/parameters/field-name-pattern-parameter/field-name-pattern-parameter.model";
 import {SharedControlsModule} from "../main/shared-controls/shared-controls.module";
-import {ReactiveFormsModule} from "@angular/forms";
+import {ValueControlsModule} from "../main/value-controls/value-controls.module";
+import {FieldParameterComponent} from "../main/parameters/field-parameter/field-parameter.component";
+import {FieldParameter, FieldParameterDescriptor} from "../main/parameters/field-parameter/field-parameter.model";
+import {ValueComponentRegistryService} from "../main/value-controls/services/value-component-registry.service";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -268,6 +272,30 @@ storiesOf('Parameters/FieldNamePatternParameter', module)
             ],true)
             ,
             parameter: new FieldNamePatternParameter({id: "myFieldNamePatternParameter"}, "", null),
+            autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
+            emitter: action('Value Change')
+        }
+    }));
+
+storiesOf('Parameters/FieldParameter', module)
+    .addDecorator(
+        moduleMetadata({
+            declarations: [],
+            imports: [
+                CommonModule,
+                MaterialModule,
+                BrowserAnimationsModule,
+                ValueControlsModule
+            ],
+            providers: [StringValidatorService,ValueComponentRegistryService]
+        }))
+    .add("default", () => ({
+        component: FieldParameterComponent,
+        props: {
+            descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
+                "Field", "", "", FieldNameHint.AnyField, null,FieldValueType.Timestamp,true)
+            ,
+            parameter: new FieldParameter({id: "myFieldParameter"}, null),
             autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
             emitter: action('Value Change')
         }

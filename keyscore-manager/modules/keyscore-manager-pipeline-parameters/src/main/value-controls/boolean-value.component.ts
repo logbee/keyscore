@@ -2,6 +2,7 @@ import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {BooleanValue} from "../models/value.model";
+import {ValueComponent} from "./value-component.interface";
 
 @Component({
     selector: 'ks-boolean-value-input',
@@ -10,7 +11,7 @@ import {BooleanValue} from "../models/value.model";
             {{label}}
         </mat-slide-toggle>`
 })
-export class BooleanValueComponent {
+export class BooleanValueComponent implements ValueComponent {
 
     static nextId = 0;
 
