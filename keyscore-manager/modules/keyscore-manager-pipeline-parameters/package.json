@@ -23,6 +23,7 @@
   "dependencies": {
     "ngx-propagation-stop": "1.0.6",
     "minimatch": "3.0.4",
+    "moment-timezone": "^0.5.26",
     "keyscore-manager-models": "file:../keyscore-manager-models",
     "keyscore-manager-test-fixtures": "file:../keyscore-manager-test-fixtures",
     "keyscore-manager-material": "file:../keyscore-manager-material"
@@ -46,6 +47,7 @@
   },
   "devDependencies": {
     "@types/angular": "1.6.51",
+    "@types/moment-timezone": "^0.5.12",
     "typescript": "3.3.4000",
     "copyfiles": "2.1.0",
     "rimraf": "2.6.3"

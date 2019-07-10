@@ -69,8 +69,14 @@ storiesOf('Values/TimestampValue', module).addDecorator(
     .add("default", () => ({
         component: TimestampValueComponent,
         props: {
-            value:{seconds:1562690391,nanos:69558544},
             changed: action('Value Change')
         }
 
-    }));
+    })).add("with initial date", () => ({
+    component: TimestampValueComponent,
+    props: {
+        value:{seconds:1562690391,nanos:0},
+        changed: action('Value Change')
+    }
+
+}));

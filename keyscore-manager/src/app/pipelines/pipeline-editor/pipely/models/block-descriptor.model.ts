@@ -1,13 +1,13 @@
 import * as faker from 'faker/locale/en_US';
 import {Connection} from "./connection.model";
-import {ResolvedParameterDescriptor} from "../../../../../../modules/keyscore-manager-models/src/main/parameters/ParameterDescriptor";
+import {ResolvedParameterDescriptor} from "keyscore-manager-models";
 import {
     generateResolvedParameterDescriptors,
     generateWordList
-} from "../../../../../../modules/keyscore-manager-test-fixtures/src/main/data-generators";
-import {Ref} from "../../../../../../modules/keyscore-manager-models/src/main/common/Ref";
-import {Category, ResolvedCategory} from "../../../../../../modules/keyscore-manager-models/src/main/descriptors/Category";
-import {Icon} from "../../../../../../modules/keyscore-manager-models/src/main/descriptors/Icon";
+} from "keyscore-manager-test-fixtures";
+import {Ref} from "keyscore-manager-models";
+import {Category, ResolvedCategory} from "keyscore-manager-models";
+import {Icon} from "keyscore-manager-models";
 
 export interface BlockDescriptor {
     ref: Ref;
@@ -44,7 +44,9 @@ export const generateBlockDescriptor = (categories: ResolvedCategory[] = null): 
         nextPermitted = true;
     }
     return {
-        ref: faker.random.uuid(),
+        ref: {
+            uuid: faker.random.uuid()
+        },
         displayName: faker.random.word(),
         description: faker.lorem.sentence(),
         previousConnection: {

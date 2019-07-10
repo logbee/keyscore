@@ -1,20 +1,29 @@
-import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
+import {Component, EventEmitter, HostBinding, Input, OnInit, Output} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {TimestampValue} from "../models/value.model";
+import * as moment from "moment-timezone";
 
 @Component({
     selector: 'ks-timestamp-value-input',
     template: `
-        <mat-form-field>
-            <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()"
-                   [placeholder]="'Value'" step="1">
-            <mat-label>{{label}}</mat-label>
-            <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="inputControl.setValue('');onChange( )">
-                <mat-icon>close</mat-icon>
-            </button>
-        </mat-form-field>
+        <div fxLayout="row" fxLayoutGap="15px">
+            <mat-form-field fxFlex="80">
+                <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()"
+                       [placeholder]="'Value'" step="1">
+                <mat-label>{{label}}</mat-label>
+                <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
+                        (click)="inputControl.setValue('');onChange( )">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+            <mat-form-field fxFlex>
+                <mat-label>Timezone</mat-label>
+                <mat-select [formControl]="selectControl" (selectionChange)="onChange()">
+                    <mat-option *ngFor="let timezone of timeZones" [value]="timezone">{{timezone}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
     `
 })
 export class TimestampValueComponent {
@@ -23,19 +32,19 @@ export class TimestampValueComponent {
 
     @HostBinding() id = `ks-timestamp-value-input-${TimestampValueComponent.nextId++}`;
     inputControl = new FormControl();
+    selectControl = new FormControl(moment.tz.guess());
 
     @Input()
     get value(): TimestampValue {
-        let seconds = Date.parse(this.inputControl.value) / 1000;
+        let date = moment.tz(this.inputControl.value, this.selectControl.value).format();
+        let seconds = Date.parse(date) / 1000;
         return new TimestampValue(seconds, 0);
     }
 
     set value(val: TimestampValue) {
-        let date: Date = new Date(val.seconds * 1000);
-        let iso:string = date.toISOString().split('.')[0].concat("Z");
-
-        console.log(iso);
-        this.inputControl.setValue(iso);
+        let date = moment.tz(val.seconds * 1000, this.selectControl.value).format().substring(0, 19);
+        this.inputControl.setValue(date);
+        this.onChange();
     }
 
     @Input()
@@ -45,7 +54,7 @@ export class TimestampValueComponent {
 
     set disabled(value: boolean) {
         this._disabled = coerceBooleanProperty(value);
-        this._disabled ? this.inputControl.disable() : this.inputControl.enable();
+        this._disabled ? this.disable() : this.enable();
     }
 
     private _disabled = false;
@@ -54,8 +63,21 @@ export class TimestampValueComponent {
 
     @Output() changed: EventEmitter<TimestampValue> = new EventEmitter<TimestampValue>();
 
+    private timeZones: string[] = moment.tz.names();
+
+
     onChange() {
         this.changed.emit(this.value);
+    }
+
+    private disable() {
+        this.inputControl.disable();
+        this.selectControl.disable();
+    }
+
+    private enable() {
+        this.inputControl.enable();
+        this.selectControl.enable();
     }
 
 
