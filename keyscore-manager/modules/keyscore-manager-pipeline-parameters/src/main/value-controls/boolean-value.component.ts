@@ -7,9 +7,11 @@ import {ValueComponent} from "./value-component.interface";
 @Component({
     selector: 'ks-boolean-value-input',
     template: `
-        <mat-slide-toggle [formControl]="slideControl" (change)="onChange()">
-            {{label}}
-        </mat-slide-toggle>`
+        <div fxLayout="row" fxFill fxLayoutAlign="start center">
+            <mat-slide-toggle  [formControl]="slideControl" (change)="onChange()">
+                {{label}}
+            </mat-slide-toggle>
+        </div>`
 })
 export class BooleanValueComponent implements ValueComponent {
 
