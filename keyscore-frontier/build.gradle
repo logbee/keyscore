@@ -13,7 +13,7 @@ apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')
 
-evaluationDependsOn ':keyscore-model'
+evaluationDependsOn ':keyscore-commons'
 
 repositories {
     mavenCentral()
