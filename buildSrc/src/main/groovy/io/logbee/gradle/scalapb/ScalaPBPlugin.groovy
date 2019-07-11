@@ -31,7 +31,11 @@ class ScalaPBPlugin implements Plugin<Project> {
             Task processResourcesTask = project.tasks.getByName(sourceSet.getTaskName('process', 'resources'))
             File outputBaseDir = project.file("${project.buildDir}/generated/source/scalapb/${sourceSet.name}/scala")
             Set<File> protoDirs = sourceSet.proto.srcDirs.findAll{dir -> dir.exists()}
-            Set<File> protoFiles = protoDirs.collect{dir -> project.fileTree(dir).files}.flatten()
+            Set<File> protoFiles = protoDirs.collect { dir ->
+                project.fileTree(dir).files.findAll { file ->
+                    file.name.endsWith(".proto")
+                }
+            }.flatten()
             Task scalapb = project.tasks.create(scalapbTaskName(sourceSet), ScalaPBGenerateTask) {
                 it.description = "Compiles protobuf '${sourceSet.name}' sources and generates scala code.'"
                 it.group = "generate"
