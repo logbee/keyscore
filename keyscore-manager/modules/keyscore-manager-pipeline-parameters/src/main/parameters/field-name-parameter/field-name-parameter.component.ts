@@ -12,23 +12,29 @@ import {FieldNameHint} from "keyscore-manager-models";
                                    [placeholder]="'Field Name'" [options]="autoCompleteDataList"
                                    (change)="onChange(inputField.value)">
             </ks-autocomplete-input>
-            <mat-label>{{descriptor.displayName}} ({{descriptor.hint}})</mat-label>
+            <mat-label>{{descriptor.displayName}}</mat-label>
             <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputField.value='';onChange('');">
                 <mat-icon>close</mat-icon>
             </button>
+            <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField">You should choose a
+                {{descriptor.hint}}
+            </mat-hint>
         </mat-form-field>
-        <p class="parameter-required" *ngIf="descriptor.mandatory && !inputField.value">{{descriptor.displayName}} is
-            required!</p>
-        <p class="parameter-warn" *ngIf="!isValid(inputField.value) && descriptor.validator.description">
+        <p class="parameter-warn-with-hint" *ngIf="descriptor.mandatory && !inputField.value">{{descriptor.displayName}}
+            is
+            required!
+        </p>
+        <p class="parameter-warn-with-hint" *ngIf="!isValid(inputField.value) && descriptor.validator.description">
             {{descriptor.validator.description}}</p>
-        <p class="parameter-warn" *ngIf="!isValid(inputField.value) && !descriptor.validator.description">Your Input has
-            to fulfill the following Pattern:
-            {{descriptor.validator.expression}}</p>
+        <p class="parameter-warn-with-hint" *ngIf="!isValid(inputField.value) && !descriptor.validator.description">
+            Your Input has to fulfill the following Pattern: {{descriptor.validator.expression}}</p>
+
     `
 })
 export class FieldNameParameterComponent extends ParameterComponent<FieldNameParameterDescriptor, FieldNameParameter> {
 
+    public fieldNameHint: typeof FieldNameHint = FieldNameHint;
 
     constructor(private stringValidator: StringValidatorService) {
         super();

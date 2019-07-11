@@ -1,15 +1,17 @@
 @import "~keyscore-manager-material/src/main/style/variables";
 
-.parameter-required {
-  margin-top:-5px;
+.parameter-warn {
+  margin-top: -10px;
+  line-height: 1.2em;
   color: $warn;
-  font-size: 0.9em;
+  font-size: 75%;
+
 }
 
-.parameter-warn {
-  margin-top:-5px;
+.parameter-warn-with-hint {
+  margin-top: -1px;
   color: $warn;
-  font-size: 0.9em;
+  font-size: 75%;
 }
 
 .parameter-wrapper {

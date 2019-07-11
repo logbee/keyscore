@@ -17,10 +17,12 @@ import {StringValidatorService} from "../../service/string-validator.service";
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
-        <p class="parameter-required" *ngIf="descriptor.mandatory && !textInput.value">{{descriptor.displayName}} is
+        <p class="parameter-warn" *ngIf="descriptor.mandatory && !textInput.value">{{descriptor.displayName}} is
             required!</p>
-        <p class="parameter-warn" *ngIf="!isValid(textInput.value) && descriptor.validator.description">{{descriptor.validator.description}}</p>
-        <p class="parameter-warn" *ngIf="!isValid(textInput.value) && !descriptor.validator.description">Your Input has to fulfill the following Pattern:
+        <p class="parameter-warn" *ngIf="!isValid(textInput.value) && descriptor.validator.description">
+            {{descriptor.validator.description}}</p>
+        <p class="parameter-warn" *ngIf="!isValid(textInput.value) && !descriptor.validator.description">Your Input has
+            to fulfill the following Pattern:
             {{descriptor.validator.expression}}</p>
     `,
 

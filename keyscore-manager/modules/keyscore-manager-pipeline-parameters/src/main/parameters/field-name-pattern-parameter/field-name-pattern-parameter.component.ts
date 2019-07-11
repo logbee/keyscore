@@ -17,12 +17,12 @@ import {FieldNameHint} from "keyscore-manager-models";
                                        [value]="parameter.value"
                                        (change)="onChange(fieldName.value,patternType.value)">
                 </ks-autocomplete-input>
-                <mat-label>{{descriptor.displayName}} ({{descriptor.hint}})</mat-label>
+                <mat-label>{{descriptor.displayName}}</mat-label>
                 <button mat-button *ngIf="fieldName.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="fieldName.value='';onChange('',patternType.value)">
                     <mat-icon>close</mat-icon>
                 </button>
-
+                <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField">You should choose a {{descriptor.hint}}</mat-hint>
             </mat-form-field>
             <mat-form-field fxFlex>
                 <mat-label>Pattern Type</mat-label>
@@ -33,10 +33,11 @@ import {FieldNameHint} from "keyscore-manager-models";
                 </mat-select>
             </mat-form-field>
         </div>
-        <p class="parameter-required" *ngIf="descriptor.mandatory && (!fieldName.value || !patternType.value)">
+        <p class="parameter-warn-with-hint" *ngIf="descriptor.mandatory && (!fieldName.value || !patternType.value)">
             {{descriptor.displayName}} is required!</p>`
 })
 export class FieldNamePatternParameterComponent extends ParameterComponent<FieldNamePatternParameterDescriptor, FieldNamePatternParameter> {
+    public fieldNameHint: typeof FieldNameHint = FieldNameHint;
 
     protected onInit() {
         if (this.descriptor.hint === FieldNameHint.AbsentField) {

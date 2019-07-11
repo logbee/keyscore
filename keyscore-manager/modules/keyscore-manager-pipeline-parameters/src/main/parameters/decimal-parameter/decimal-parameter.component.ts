@@ -17,7 +17,7 @@ import {DecimalParameter, DecimalParameterDescriptor} from "./decimal-parameter.
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
-        <p class="parameter-required" *ngIf="descriptor.mandatory && !numberInput.value">{{descriptor.displayName}} is
+        <p class="parameter-warn" *ngIf="descriptor.mandatory && !numberInput.value">{{descriptor.displayName}} is
             required!</p>
         <p class="parameter-warn"
            *ngIf="descriptor.range && (numberInput.value > descriptor.range.end || numberInput.value < descriptor.range.start)">
