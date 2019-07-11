@@ -18,7 +18,7 @@ case class NumberToTimestampDirective(unit: NumberToTimestampDirective.Unit, sou
 
     field match {
 
-      case Field(name, NumberValue(value)) =>
+      case Field(name, NumberValue(value, _)) =>
 
         val instant = unit match {
           case Seconds => Instant.ofEpochSecond(value)

@@ -72,8 +72,8 @@ class AddFields(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
 
       push(out, dataset.update(_.records := dataset.records.map(record => {
         record.update(_.fields :+= record.fields.foldLeft(0.0) {
-          case (result, Field(name, NumberValue(value))) if fieldsToAdd.contains(name) => result + value
-          case (result, Field(name, DecimalValue(value))) if fieldsToAdd.contains(name) => result + value
+          case (result, Field(name, NumberValue(value, _))) if fieldsToAdd.contains(name) => result + value
+          case (result, Field(name, DecimalValue(value, _))) if fieldsToAdd.contains(name) => result + value
           case (result, _) => result
         }
           .map(result => Field(targetFieldName, DecimalValue(result)))

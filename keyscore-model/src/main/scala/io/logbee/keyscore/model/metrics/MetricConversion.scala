@@ -17,7 +17,7 @@ object MetricConversion {
     val typField = Field(MetricAttributes.METRIC_TYP, TextValue(metric.asMessage.typ.toString))
     val nameField = Field(MetricAttributes.METRIC_NAME, TextValue(metric.asMessage.name))
     val timestamp = Field(MetricAttributes.METRIC_TIMESTAMP, TimestampValue(metric.asMessage.timestamp))
-    val timedelta = Field(MetricAttributes.METRIC_TIMEDELTA, NumberValue(metric.asMessage.timedelta))
+    val timedelta = Field(MetricAttributes.METRIC_TIMEDELTA, metric.asMessage.timedelta)
 
     val metricValues = metric match {
       case CounterMetric(_, _, _, _, value) => List(Field(MetricAttributes.METRIC_VALUE, NumberValue(value)))

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 import "scalapb/scalapb.proto";
+import "io/logbee/keyscore/uom.proto";
 
 option (scalapb.options) = {
     package_name: "io.logbee.keyscore.model.data"
@@ -37,9 +38,10 @@ message Field {
 
 message Value {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.ValueConversion";
+//    option (scalapb.message).sealed_oneof_extends = "io.logbee.keyscore.commons.entity.BaseEvent";
     oneof sealed_value {
         BooleanValue boolean = 1;
-        NumberValue number = 2;
+        NativeNumberValue number = 2;
         DecimalValue decimal = 3;
         TextValue text = 4;
         TimestampValue timestamp = 5;
@@ -53,14 +55,17 @@ message BooleanValue {
     bool value = 1;
 }
 
-message NumberValue {
+message NativeNumberValue {
+//    option (scalapb.message).extends = "io.logbee.keyscore.model.data.NumericValue.NumberValueLike";
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.NumberValueConversion";
     sint64 value = 1;
+    Unit unit = 2;// [(scalapb.field).no_box = true];
 }
 
 message DecimalValue {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.DecimalValueConversion";
     double value = 1;
+    Unit unit = 2;// [(scalapb.field).no_box = true];
 }
 
 message TextValue {

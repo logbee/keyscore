@@ -33,9 +33,9 @@ trait BaseMetric { this: MetricMessage =>
 
   def timedelta: NumberValue = {
     sealedValue.value match {
-      case CounterMetric(_, _, _, timedelta, _) => timedelta
-      case NumberGaugeMetric(_, _, _, timedelta, _, _, _) => timedelta
-      case DecimalGaugeMetric(_, _, _, timedelta, _, _, _) => timedelta
+      case CounterMetric(_, _, _, timedelta, _) => NumberValue(timedelta)
+      case NumberGaugeMetric(_, _, _, timedelta, _, _, _) => NumberValue(timedelta)
+      case DecimalGaugeMetric(_, _, _, timedelta, _, _, _) => NumberValue(timedelta)
       case _ => NumberValue()
     }
   }

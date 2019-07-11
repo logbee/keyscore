@@ -97,10 +97,10 @@ class CalcLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
 
       push(out, dataset.update(_.records := dataset.records.map(record => {
         val jep = record.fields.foldLeft(new JEP()) {
-          case (jep, Field(name, NumberValue(value))) =>
+          case (jep, Field(name, NumberValue(value, _))) =>
             jep.addVariable(name.replace(' ', '_'), value)
             jep
-          case (jep, Field(name, DecimalValue(value))) =>
+          case (jep, Field(name, DecimalValue(value, _))) =>
             jep.addVariable(name.replace(' ', '_'), value)
             jep
           case (jep, _) => jep

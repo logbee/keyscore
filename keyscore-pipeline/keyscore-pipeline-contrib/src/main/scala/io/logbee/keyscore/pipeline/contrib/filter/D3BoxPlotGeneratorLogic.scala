@@ -109,7 +109,7 @@ class D3BoxPlotGeneratorLogic(parameters: LogicParameters, shape: FlowShape[Data
   private def checkGroup(record: Record) = {
     val group = groupIdentifier
     record.fields.find {
-      case Field(`group`, NumberValue(_)) => true
+      case Field(`group`, NumberValue(_, _)) => true
       case _ => false
     }.map(field => {
       if (!allItems.contains(field.value)) {
@@ -123,7 +123,7 @@ class D3BoxPlotGeneratorLogic(parameters: LogicParameters, shape: FlowShape[Data
   private def addItemValue(record: Record, f: Field) = {
     val item = itemIdentifier
     record.fields.find {
-      case Field(`item`, NumberValue(_)) => true
+      case Field(`item`, NumberValue(_, _)) => true
       case _ => false
     }.map(valueField => {
       allItems += (f.value -> (allItems(f.value) += valueField.value))

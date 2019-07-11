@@ -48,8 +48,8 @@ object DefaultDataIndex {
         (fieldA.get.value, fieldB.get.value) match {
           case (TextValue(valueA), TextValue(valueB)) => valueA.compareTo(valueB)
           case (BooleanValue(valueA), BooleanValue(valueB)) => valueA.compareTo(valueB)
-          case (DecimalValue(valueA), DecimalValue(valueB)) => valueA.compareTo(valueB)
-          case (NumberValue(valueA), NumberValue(valueB)) => valueA.compareTo(valueB)
+          case (DecimalValue(valueA, _), DecimalValue(valueB, _)) => valueA.compareTo(valueB)
+          case (NumberValue(valueA, _), NumberValue(valueB, _)) => valueA.compareTo(valueB)
           case (TimestampValue(secondsA, nanosA), TimestampValue(secondsB, nanosB)) =>
             val result = secondsA.compareTo(secondsB)
             if (result == 0) {

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.model.data.uom"
+    flat_package: true
+};
+
+message Quantity {
+    string name = 1;
+}
+
+message Unit {
+//    option (scalapb.message).extends = "io.logbee.keyscore.model.data.uom.UnitConverterLike.UnitOps";
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.data.uom.UnitCompanion";
+    string symbol = 1;
+    Quantity quantity = 2;
+    Prefix prefix = 3;
+    repeated Derived derived = 4 [(scalapb.field).collection_type="scala.collection.immutable.List"];
+}
+
+message Derived {
+    Unit unit = 1 [(scalapb.field).no_box = true];
+    int32 exponent = 2;
+    double scale = 3;
+    double shift = 4;
+}
+
+message Prefix {
+    string prefix = 1;
+    int32 scale = 2;
+    int32 exponent = 3;
+}
+
+message DerivedUnit {
+    //    option (scalapb.message).extends = "io.logbee.keyscore.model.data.DerivedUnitLike";
+
+}

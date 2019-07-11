@@ -156,8 +156,8 @@ class ElasticSearchSinkLogic(parameters: LogicParameters, shape: SinkShape[Datas
           case (map, Field(name, value)) =>
             value match {
               case TextValue(text) => map + (name -> text)
-              case NumberValue(number) => map + (name -> number)
-              case DecimalValue(decimal) => map + (name -> decimal)
+              case NumberValue(number, _) => map + (name -> number)
+              case DecimalValue(decimal, _) => map + (name -> decimal)
               case timestampValue: TimestampValue => map + (name -> Timestamps.toString(timestampValue))
               case _ => map
             }

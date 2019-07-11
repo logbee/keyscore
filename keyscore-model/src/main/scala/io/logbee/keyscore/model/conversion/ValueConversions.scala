@@ -18,8 +18,8 @@ trait TextValueConversion {
 }
 
 trait NumberValueConversion {
-  implicit def numberValueToInt(numberValue: NumberValue): Long = numberValue.value
-  implicit def numberValueFromInt(value: Long): NumberValue = NumberValue(value)
+//  implicit def numberValueToInt(numberValue: NumberValue): Long = numberValue.value
+//  implicit def numberValueFromInt(value: Long): NumberValue = NumberValue(value)
 }
 
 trait DecimalValueConversion {

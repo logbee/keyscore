@@ -113,8 +113,8 @@ class QuotientLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Datas
 
   private def numericValue(field: Field): Option[Double] = {
     field.value match {
-      case DecimalValue(value) => value
-      case NumberValue(value) => value.toDouble
+      case DecimalValue(value, _) => value
+      case NumberValue(value, _) => value.toDouble
       case _ => None
     }
   }
