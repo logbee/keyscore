@@ -8,6 +8,8 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {TextValueComponent} from "../main/value-controls/text-value.component";
 import {TimestampValue} from "../main/models/value.model";
 import {TimestampValueComponent} from "../main/value-controls/timestamp-value.component";
+import {DurationValueComponent} from "../main/value-controls/duration-value.component";
+import {SharedControlsModule} from "../main/shared-controls/shared-controls.module";
 
 storiesOf('Values/BooleanValue', module)
     .addDecorator(
@@ -80,3 +82,23 @@ storiesOf('Values/TimestampValue', module).addDecorator(
     }
 
 }));
+
+storiesOf('Values/DurationValue', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule,
+            ReactiveFormsModule,
+            SharedControlsModule
+        ],
+        providers: []
+    }))
+    .add("default", () => ({
+        component: DurationValueComponent,
+        props: {
+            changed: action('Value Change')
+        }
+
+    }));

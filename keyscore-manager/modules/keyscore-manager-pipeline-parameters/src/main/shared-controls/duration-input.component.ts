@@ -1,5 +1,15 @@
-import {Component, ElementRef, EventEmitter, HostBinding, Input, OnDestroy, Output} from "@angular/core";
-import {FormBuilder, FormGroup, NgControl} from "@angular/forms";
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostBinding,
+    Input,
+    OnDestroy,
+    Optional,
+    Output,
+    Self
+} from "@angular/core";
+import {ControlValueAccessor, FormBuilder, FormGroup, NgControl} from "@angular/forms";
 import {MatFormFieldControl} from "@angular/material";
 import {Subject} from "rxjs";
 import {FocusMonitor} from "@angular/cdk/a11y";
@@ -91,11 +101,11 @@ class Duration {
 
         span.input-header {
             font-size: 70%;
-            position:absolute;
+            position: absolute;
         }
 
         :host.floating span.input-header {
-            position:relative;
+            position: relative;
         }
 
         :host.floating span {
@@ -104,17 +114,16 @@ class Duration {
     `],
     providers: [{provide: MatFormFieldControl, useExisting: DurationInputComponent}]
 })
-export class DurationInputComponent implements MatFormFieldControl<number>, OnDestroy {
+export class DurationInputComponent implements MatFormFieldControl<number>, OnDestroy, ControlValueAccessor {
     static nextId = 0;
 
     @HostBinding() id = `ks-duration-input-${DurationInputComponent.nextId++}`;
     @HostBinding('attr.aria-describedby') describedBy = '';
     parts: FormGroup;
     stateChanges: Subject<void> = new Subject<void>();
-    ngControl: NgControl = null;
     focused = false;
     errorState = false;
-    constrolType = 'ks-duration-input';
+    controlType = 'ks-duration-input';
 
     @Input()
     get value(): number {
@@ -183,8 +192,13 @@ export class DurationInputComponent implements MatFormFieldControl<number>, OnDe
 
     @Output() changed: EventEmitter<number> = new EventEmitter<number>();
 
+    private _onChange: () => void = () => null;
 
-    constructor(fb: FormBuilder, private fm: FocusMonitor, private elRef: ElementRef<HTMLElement>) {
+    constructor(
+        @Optional() @Self() public ngControl: NgControl,
+        fb: FormBuilder,
+        private fm: FocusMonitor,
+        private elRef: ElementRef<HTMLElement>) {
         this.parts = fb.group({
             'years': null,
             'months': null,
@@ -198,11 +212,17 @@ export class DurationInputComponent implements MatFormFieldControl<number>, OnDe
             this.focused = !!origin;
             this.stateChanges.next();
         });
+
+        if (this.ngControl != null) {
+            this.ngControl.valueAccessor = this;
+        }
     }
 
-    private onChange(){
+    private onChange() {
         this.changed.emit(this.value);
+        this._onChange();
     }
+
 
     private secondsToDuration(seconds: number): Duration {
         const years = seconds / (365 * 24 * 60 * 60);
@@ -232,5 +252,20 @@ export class DurationInputComponent implements MatFormFieldControl<number>, OnDe
     ngOnDestroy() {
         this.stateChanges.complete();
         this.fm.stopMonitoring(this.elRef.nativeElement);
+    }
+
+    registerOnChange(fn: () => void): void {
+        this._onChange = fn;
+    }
+
+    registerOnTouched(fn: any): void {
+    }
+
+    setDisabledState(isDisabled: boolean): void {
+        this.disabled = isDisabled;
+    }
+
+    writeValue(seconds: number): void {
+        this.value = seconds;
     }
 }

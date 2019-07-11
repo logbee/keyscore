@@ -31,7 +31,18 @@ export class TextValue extends Value {
 }
 
 export class TimestampValue extends Value {
-    readonly jsonClass = "io.logbee.keyscore.model.data.TimestampValue"
+    readonly jsonClass = "io.logbee.keyscore.model.data.TimestampValue";
+
+    constructor(
+        readonly seconds: number,
+        readonly nanos: number
+    ) {
+        super();
+    }
+}
+
+export class DurationValue extends Value {
+    readonly jsonClass = "io.logbee.keyscore.model.data.DurationValue";
 
     constructor(
         readonly seconds: number,

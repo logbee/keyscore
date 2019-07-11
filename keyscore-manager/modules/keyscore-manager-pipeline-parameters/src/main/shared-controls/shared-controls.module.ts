@@ -4,6 +4,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MaterialModule} from "keyscore-manager-material";
 import {AutocompleteFilterComponent} from "./autocomplete-filter.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {DurationInputComponent} from "./duration-input.component";
 
 @NgModule({
     imports: [
@@ -13,8 +14,8 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
         ReactiveFormsModule,
         FormsModule
     ],
-    declarations: [AutocompleteFilterComponent],
-    exports: [AutocompleteFilterComponent]
+    declarations: [AutocompleteFilterComponent, DurationInputComponent],
+    exports: [AutocompleteFilterComponent, DurationInputComponent]
 })
 export class SharedControlsModule {
 }

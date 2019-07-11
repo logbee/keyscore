@@ -24,7 +24,7 @@ storiesOf('SharedControls/DurationInput', module)
         return {
             template: `
             <mat-form-field>
-                <ks-duration-input #input (changed)="changed($event)"></ks-duration-input>
+                <ks-duration-input (changed)="changed($event)"></ks-duration-input>
                 <mat-label>Duration</mat-label>
             </mat-form-field>
           `,
