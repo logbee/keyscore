@@ -15,7 +15,7 @@ import {AutocompleteInputComponent} from "../../autocomplete-input.component";
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field fxFlex="40">
                 <ks-autocomplete-input #fieldInput [placeholder]="'Field Name'"
-                                       [value]="parameter.value"
+                                       [value]="parameter.value?.name"
                                        [options]="autoCompleteDataList"
                                        (change)="onChange(fieldInput.value)">
                 </ks-autocomplete-input>

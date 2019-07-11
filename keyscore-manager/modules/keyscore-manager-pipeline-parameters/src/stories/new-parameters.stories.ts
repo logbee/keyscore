@@ -310,6 +310,15 @@ storiesOf('Parameters/FieldParameter', module)
         autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
         emitter: action('Value Change')
     }
+})).add("Text Field", () => ({
+    component: FieldParameterComponent,
+    props: {
+        descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
+            "Field", "", "message", FieldNameHint.AbsentField, null,FieldValueType.Text,true)
+        ,
+        parameter: new FieldParameter({id: "myFieldParameter"}, {name:"message",value:null}),
+        emitter: action('Value Change')
+    }
 }));
 
 

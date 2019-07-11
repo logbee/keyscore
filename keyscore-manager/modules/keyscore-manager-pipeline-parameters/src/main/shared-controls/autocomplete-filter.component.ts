@@ -78,7 +78,7 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
         return this.focused || !this.empty;
     }
 
-    @Output()change:EventEmitter<void> = new EventEmitter<void>();
+    @Output() change: EventEmitter<void> = new EventEmitter<void>();
 
     constructor(private fm: FocusMonitor, private elRef: ElementRef<HTMLElement>) {
         super();
@@ -97,6 +97,8 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
     }
 
     private filter(value: string): string[] {
+        if (!this.options) return [];
+
         const filterValue = value.toLowerCase();
 
         return this.options.filter(option => option.toLowerCase().includes(filterValue));
