@@ -186,6 +186,7 @@ configure ([
         resources {
             from("$projectDir/resources/images/") {
                 include '**/*.png'
+                include '**/*.svg'
                 into "resources/images"
             }
             from("$projectDir/resources/") {

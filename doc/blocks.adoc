@@ -78,6 +78,12 @@ called Descriptor API. The Descriptor API facilitates a block-developer to descr
 important to understand the importance of the Descriptor API and the resulting meta-model. The meta-model allows as an example
 the creation of an agnostic web-ui. Because of the meta-model, no changes have to be made to the web-ui when a new block
 is added to the system. Instead the forms, buttons etc. presented to the users are rendered according to the meta-model.
+<<descriptors-influence-ui>> illustrates how a block-developer influences the UI by using the Descriptor API to describe
+his/her block.
+
+.How the Descriptor API influence the user interface.
+[#descriptors-influence-ui]
+image::resources/images/descriptor-01.svg[Data Preview]
 
 === Protobuf ===
 To allow the development of blocks in different programing languages the Descriptor API is mostly build with
