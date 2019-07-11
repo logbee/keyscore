@@ -48,6 +48,7 @@ import {ValueControlsModule} from "../main/value-controls/value-controls.module"
 import {FieldParameterComponent} from "../main/parameters/field-parameter/field-parameter.component";
 import {FieldParameter, FieldParameterDescriptor} from "../main/parameters/field-parameter/field-parameter.model";
 import {ValueComponentRegistryService} from "../main/value-controls/services/value-component-registry.service";
+import {FieldParameterModule} from "../main/parameters/field-parameter/field-parameter.module";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -66,10 +67,10 @@ storiesOf('Parameters/ExpressionParameter', module)
         props: {
             descriptor: new ExpressionParameterDescriptor({id: "myexpression"},
                 "Field Pattern", "", "", true, [
-                new ExpressionParameterChoice("expression.regex", "RegEx", ""),
-                new ExpressionParameterChoice("expression.grok", "Grok", ""),
-                new ExpressionParameterChoice("expression.glob", "Glob", "")
-            ])
+                    new ExpressionParameterChoice("expression.regex", "RegEx", ""),
+                    new ExpressionParameterChoice("expression.grok", "Grok", ""),
+                    new ExpressionParameterChoice("expression.glob", "Glob", "")
+                ])
             ,
             parameter: new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"),
             emitter: action('Value Change')
@@ -113,8 +114,10 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
         descriptor: new TextParameterDescriptor({id: "myTextParameter"},
             "Path to File", "My text parameter",
             "Default Value",
-            {expression: "**/*.txt", expressionType: ExpressionType.Glob,
-                description: "Path has to point to a '.txt' file in the same directory or a subdirectory"}, true)
+            {
+                expression: "**/*.txt", expressionType: ExpressionType.Glob,
+                description: "Path has to point to a '.txt' file in the same directory or a subdirectory"
+            }, true)
         ,
         parameter: new TextParameter({id: "myTextParameter"}, "Initial Value"),
         emitter: action('Value Change')
@@ -222,18 +225,18 @@ storiesOf('Parameters/FieldNameParameter', module).addDecorator(
     component: FieldNameParameterComponent,
     props: {
         descriptor: new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
-            "My field name Parameter", "Fieldname", FieldNameHint.PresentField,null,true),
+            "My field name Parameter", "Fieldname", FieldNameHint.PresentField, null, true),
         parameter: new FieldNameParameter({id: "myFieldNameParameter"}, ""),
-        autoCompleteDataList:['message','timestamp','robo_time','logbee_time','logbee_id'],
+        autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time', 'logbee_id'],
         emitter: action('Value Change')
     }
 })).add("Absent Field Hints", () => ({
     component: FieldNameParameterComponent,
     props: {
         descriptor: new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
-            "My field name Parameter", "Fieldname", FieldNameHint.AbsentField,null,true),
+            "My field name Parameter", "Fieldname", FieldNameHint.AbsentField, null, true),
         parameter: new FieldNameParameter({id: "myFieldNameParameter"}, ""),
-        autoCompleteDataList:['message','timestamp','robo_time','logbee_time','logbee_id'],
+        autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time', 'logbee_id'],
         emitter: action('Value Change')
     }
 })).add("Any Field Hints with Validator", () => ({
@@ -241,10 +244,12 @@ storiesOf('Parameters/FieldNameParameter', module).addDecorator(
     props: {
         descriptor: new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
             "My field name Parameter", "Fieldname", FieldNameHint.AnyField,
-            {expression:".*_time$",
-                description:"Field Name has to end with '_time'",expressionType:ExpressionType.RegEx},true),
+            {
+                expression: ".*_time$",
+                description: "Field Name has to end with '_time'", expressionType: ExpressionType.RegEx
+            }, true),
         parameter: new FieldNameParameter({id: "myFieldNameParameter"}, ""),
-        autoCompleteDataList:['message','timestamp','robo_time','logbee_time','logbee_id'],
+        autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time', 'logbee_id'],
         emitter: action('Value Change')
     }
 }));
@@ -266,13 +271,13 @@ storiesOf('Parameters/FieldNamePatternParameter', module)
         props: {
             descriptor: new FieldNamePatternParameterDescriptor({id: "myFieldNamePatternParameter"},
                 "Field Name Pattern", "", "", FieldNameHint.PresentField, [
-                PatternTypeChoice.fromPatternType(PatternType.None),
-                PatternTypeChoice.fromPatternType(PatternType.RegEx),
-                PatternTypeChoice.fromPatternType(PatternType.Glob)
-            ],true)
+                    PatternTypeChoice.fromPatternType(PatternType.None),
+                    PatternTypeChoice.fromPatternType(PatternType.RegEx),
+                    PatternTypeChoice.fromPatternType(PatternType.Glob)
+                ], true)
             ,
             parameter: new FieldNamePatternParameter({id: "myFieldNamePatternParameter"}, "", null),
-            autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
+            autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time'],
             emitter: action('Value Change')
         }
     }));
@@ -288,39 +293,38 @@ storiesOf('Parameters/FieldParameter', module)
                 ValueControlsModule,
                 SharedControlsModule
             ],
-            providers: [StringValidatorService,ValueComponentRegistryService]
+            providers: [StringValidatorService, ValueComponentRegistryService]
         }))
     .add("Timestamp with Field Name Hints", () => ({
         component: FieldParameterComponent,
         props: {
             descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
-                "Field", "", "", FieldNameHint.AnyField, null,FieldValueType.Timestamp,true)
+                "Field", "", "", FieldNameHint.AnyField, null, FieldValueType.Timestamp, true)
             ,
             parameter: new FieldParameter({id: "myFieldParameter"}, null),
-            autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
+            autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time'],
             emitter: action('Value Change')
         }
     })).add("Boolean with Field Name Hints", () => ({
     component: FieldParameterComponent,
     props: {
         descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
-            "Field", "", "", FieldNameHint.AnyField, null,FieldValueType.Boolean,true)
+            "Field", "", "", FieldNameHint.AnyField, null, FieldValueType.Boolean, true)
         ,
         parameter: new FieldParameter({id: "myFieldParameter"}, null),
-        autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
+        autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time'],
         emitter: action('Value Change')
     }
 })).add("Text Field", () => ({
     component: FieldParameterComponent,
     props: {
         descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
-            "Field", "", "message", FieldNameHint.AbsentField, null,FieldValueType.Text,true)
+            "Field", "", "message", FieldNameHint.AbsentField, null, FieldValueType.Text, true)
         ,
-        parameter: new FieldParameter({id: "myFieldParameter"}, {name:"message",value:null}),
+        parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: null}),
         emitter: action('Value Change')
     }
 }));
-
 
 
 storiesOf('Parameters/ParameterForm', module).addDecorator(
@@ -333,7 +337,8 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             ExpressionParameterModule,
             TextParameterModule,
             NumberParameterModule,
-            BooleanParameterModule
+            BooleanParameterModule,
+            FieldParameterModule
         ],
         providers: [
             ParameterComponentFactoryService,
@@ -343,7 +348,7 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
     component: ParameterFormComponent,
     props: {
         parameters: {
-            refs: ['expressionParameter', 'textParameter', 'numberParameter', 'booleanParameter'],
+            refs: ['expressionParameter', 'textParameter', 'numberParameter', 'booleanParameter', 'fieldParameter'],
             parameters: {
                 'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
                     new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
@@ -356,15 +361,19 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
                     new TextParameter({id: 'textParameter'}, "initialValue"),
                     new TextParameterDescriptor({id: 'textParameter'}, "Text Parameter",
                         "", "", null, true)],
-                'numberParameter': [new NumberParameter({id: "myNumberParameter"}, 0),
-                    new NumberParameterDescriptor({id: "myNumberParameter"},
+                'numberParameter': [new NumberParameter({id: "numberParameter"}, 0),
+                    new NumberParameterDescriptor({id: "numberParameter"},
                         "Number Parameter", "My number parameter",
                         0,
                         {start: 0, end: 10, step: 2}, false)],
-                'booleanParameter': [new BooleanParameter({id: "myBooleanParameter"}, false),
-                    new BooleanParameterDescriptor({id: "myBooleanParameter"}, "Boolean Parameter",
-                        "My boolean Parameter", false, true)]
-            }
+                'booleanParameter': [new BooleanParameter({id: "booleanParameter"}, false),
+                    new BooleanParameterDescriptor({id: "booleanParameter"}, "Boolean Parameter",
+                        "My boolean Parameter", false, true)],
+                'fieldParameter': [new FieldParameter({id: "fieldParameter"}, null),
+                    new FieldParameterDescriptor({id: "fieldParameter"},
+                        "Field", "", "", FieldNameHint.AnyField, null, FieldValueType.Timestamp, true)]
+            },
+            autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time']
         },
         onValueChange: action('Value changed')
 

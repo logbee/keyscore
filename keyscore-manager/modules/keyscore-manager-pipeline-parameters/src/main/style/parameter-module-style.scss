@@ -5,7 +5,6 @@
   line-height: 1.2em;
   color: $warn;
   font-size: 75%;
-
 }
 
 .parameter-warn-with-hint {
@@ -17,6 +16,10 @@
 .parameter-wrapper {
   width: 100%;
   padding: 0;
+}
+
+.form-field-pb-20{
+  padding-bottom: 20px;
 }
 
 .mat-form-field {

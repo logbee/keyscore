@@ -9,7 +9,7 @@ import {ValueComponent} from "./value-component.interface";
     selector: 'ks-timestamp-value-input',
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-form-field fxFlex="50">
+            <mat-form-field fxFlex="60">
                 <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()"
                        [placeholder]="'Value'" step="1">
                 <mat-label>{{label}}</mat-label>
@@ -18,7 +18,7 @@ import {ValueComponent} from "./value-component.interface";
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-            <mat-form-field fxFlex>
+            <mat-form-field fxFlex="40">
                 <mat-label>Timezone</mat-label>
                 <mat-select [formControl]="selectControl" (selectionChange)="onChange()">
                     <mat-option *ngFor="let timezone of timeZones" [value]="timezone">{{timezone}}</mat-option>

@@ -13,7 +13,7 @@ import {AutocompleteInputComponent} from "../../autocomplete-input.component";
     selector: `parameter-field`,
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-form-field fxFlex="40">
+            <mat-form-field fxFlex="30">
                 <ks-autocomplete-input #fieldInput [placeholder]="'Field Name'"
                                        [value]="parameter.value?.name"
                                        [options]="autoCompleteDataList"
@@ -26,7 +26,7 @@ import {AutocompleteInputComponent} from "../../autocomplete-input.component";
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-            <div fxFlex>
+            <div fxFlex="70">
                 <ng-template value-host></ng-template>
             </div>
         </div>

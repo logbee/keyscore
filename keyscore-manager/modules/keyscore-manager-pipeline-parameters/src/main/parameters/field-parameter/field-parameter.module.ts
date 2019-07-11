@@ -7,13 +7,15 @@ import {FieldParameterComponent} from "./field-parameter.component";
 import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {FieldParameter, FieldParameterDescriptor, JSONCLASS_FIELD_DESCR} from "./field-parameter.model";
+import {ValueControlsModule} from "../../value-controls/value-controls.module";
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
         BrowserAnimationsModule,
-        SharedControlsModule
+        SharedControlsModule,
+        ValueControlsModule
     ],
     declarations: [FieldParameterComponent],
     exports: [FieldParameterComponent],
