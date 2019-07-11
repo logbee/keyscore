@@ -7,16 +7,19 @@ import {ValueDirective} from "../../value-controls/directives/value.directive";
 import {ValueComponentRegistryService} from "../../value-controls/services/value-component-registry.service";
 import {ValueComponent} from "../../value-controls/value-component.interface";
 import {Subscription} from "rxjs";
+import {AutocompleteInputComponent} from "../../autocomplete-input.component";
 
 @Component({
     selector: `parameter-field`,
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field fxFlex="40">
-                <input #fieldInput matInput type="text" [placeholder]="descriptor.defaultValue"
-                       (change)="onChange($event.target.value)"
-                       [value]="parameter.value">
-                <mat-label>{{descriptor.displayName}}</mat-label>
+                <ks-autocomplete-input #fieldInput [placeholder]="'Field Name'"
+                                       [value]="parameter.value"
+                                       [options]="autoCompleteDataList"
+                                       (change)="onChange(fieldInput.value)">
+                </ks-autocomplete-input>
+                <mat-label>Field Name</mat-label>
 
                 <button mat-button *ngIf="fieldInput.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="fieldInput.value='';onChange('')">
@@ -27,20 +30,19 @@ import {Subscription} from "rxjs";
                 <ng-template value-host></ng-template>
             </div>
         </div>
-        <p class="parameter-required" *ngIf="descriptor.mandatory && !fieldInput.value">{{descriptor.displayName}} is
+        <p class="parameter-warn" *ngIf="descriptor.mandatory && !fieldInput.value">Field Name is
             required!</p>
         <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && descriptor.nameValidator.description">
             {{descriptor.nameValidator.description}}</p>
         <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && !descriptor.nameValidator.description">Your Input
-            has to fulfill the following Pattern:
-            {{descriptor.nameValidator.expression}}</p>
+            has to fulfill the following Pattern: {{descriptor.nameValidator.expression}}</p>
     `,
 
 })
 export class FieldParameterComponent extends ParameterComponent<FieldParameterDescriptor, FieldParameter> {
 
     @ViewChild(ValueDirective) valueHost: ValueDirective;
-    @ViewChild('fieldInput') fieldInputRef: ElementRef;
+    @ViewChild('fieldInput') autoCompleteComponent: AutocompleteInputComponent;
 
     private valueComponentInstance: ComponentRef<ValueComponent>;
     private subs: Subscription[] = [];
@@ -55,7 +57,7 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
         this.loadValueComponent();
 
         this.subs.push(this.valueComponentInstance.instance.changed.subscribe(_ => {
-            this.onChange(this.fieldInputRef.nativeElement.value)
+            this.onChange(this.autoCompleteComponent.value)
         }))
     }
 

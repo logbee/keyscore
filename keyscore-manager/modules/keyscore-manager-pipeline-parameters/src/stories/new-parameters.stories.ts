@@ -285,11 +285,12 @@ storiesOf('Parameters/FieldParameter', module)
                 CommonModule,
                 MaterialModule,
                 BrowserAnimationsModule,
-                ValueControlsModule
+                ValueControlsModule,
+                SharedControlsModule
             ],
             providers: [StringValidatorService,ValueComponentRegistryService]
         }))
-    .add("default", () => ({
+    .add("Timestamp with Field Name Hints", () => ({
         component: FieldParameterComponent,
         props: {
             descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
@@ -299,7 +300,17 @@ storiesOf('Parameters/FieldParameter', module)
             autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
             emitter: action('Value Change')
         }
-    }));
+    })).add("Boolean with Field Name Hints", () => ({
+    component: FieldParameterComponent,
+    props: {
+        descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
+            "Field", "", "", FieldNameHint.AnyField, null,FieldValueType.Boolean,true)
+        ,
+        parameter: new FieldParameter({id: "myFieldParameter"}, null),
+        autoCompleteDataList:['message','timestamp','robo_time','logbee_time'],
+        emitter: action('Value Change')
+    }
+}));
 
 
 

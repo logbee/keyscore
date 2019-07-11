@@ -60,7 +60,7 @@ export class TimestampValueComponent implements ValueComponent {
 
     private _disabled = false;
 
-    @Input() label: string = 'Value';
+    @Input() label: string = 'Timestamp';
 
     @Output() changed: EventEmitter<TimestampValue> = new EventEmitter<TimestampValue>();
 
