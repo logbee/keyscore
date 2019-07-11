@@ -6,7 +6,7 @@ import scala.collection.mutable.ListBuffer
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
-
+import scala.language.existentials
 
 case class DirChanges(
   newlyCreatedDirs: Set[_ <: DirHandle],

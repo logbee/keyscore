@@ -6,9 +6,14 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
+import io.logbee.gradle.scalapb.ScalaPBPlugin
+
 apply plugin: 'scala'
+apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')
+
+evaluationDependsOn ':keyscore-commons'
 
 repositories {
     mavenCentral()
@@ -65,6 +70,10 @@ jar {
                                       "libs/" + it.getName()
                                     }.join(' ')
     ])
+}
+
+generateScalaPB {
+    dependsOn project(':keyscore-commons').tasks['jar']
 }
 
 distributions {

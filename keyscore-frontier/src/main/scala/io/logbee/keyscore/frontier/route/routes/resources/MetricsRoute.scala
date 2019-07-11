@@ -14,20 +14,15 @@ trait MetricsRoute extends RouteImplicits with AuthorizationHandler {
   def metricsRoute(metricsManager: ActorRef): Route = {
     pathPrefix("metrics") {
       pathPrefix(JavaUUID) { id =>
-        println(s"MetricsRoute: $id")
         post {
-          println("MetricsRoute GET")
           entity(as[MetricsQuery]) { mq =>
-            println(s"MetricsRoute: $mq")
             onSuccess(metricsManager ? RequestMetrics(id, mq)) {
               case MetricsResponseSuccess(_, metrics) =>
-                println(s"MetricsRoute: ${metrics}")
                 complete(StatusCodes.OK, metrics)
               case MetricsResponseFailure(_) =>
                 println(s"MetricsRoute: Failure")
                 complete(StatusCodes.NotFound, id)
-              case _ =>
-                println("MetricsRoute _")
+              case e =>
                 complete(StatusCodes.InternalServerError)
             }
           }

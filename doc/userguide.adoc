@@ -51,7 +51,7 @@ They provide a short description for the multiple actions.
 - Agents Table - This Table enlists all the registered agents. By pushing the delete Button you can remove the agent form the list.
   This will not delete the running instance of the agent in the kubernetes cluster.
 
-image:resources/images/agent-overview.png[Overview for the dashboard.]
+image:resources/images/userguide/agent-overview.png[Overview for the dashboard.]
 
 
 . Refresh - manual refresh button to reload the data about the agents.
@@ -65,7 +65,7 @@ image:resources/images/agent-overview.png[Overview for the dashboard.]
 
 - Dashboard - Providing information about the state of the running pipelines.
 
-image:resources/images/dashboard-overview.png[Overview for the dashboard.]
+image:resources/images/userguide/dashboard-overview.png[Overview for the dashboard.]
 
 
 === Resources ===
@@ -73,7 +73,7 @@ image:resources/images/dashboard-overview.png[Overview for the dashboard.]
 - Resources - Is a developer only feature which provides you with a list of all resources which are currently stored.
               This includes Configurations and Descriptors for each block.
 
-image:resources/images/resources-overview.png[Overview for the resources.]
+image:resources/images/userguide/resources-overview.png[Overview for the resources.]
 
 . Search - You cann search the table of  existing resources by the tables headers.
 . Details - When clicking on an entry the row will be expanded. The expanded row provides two different tabs [underline]#Descriptor# and [underline]#Configuration#.
@@ -88,7 +88,7 @@ This view presents all currently existing pipelines in the system, while display
 By clicking on a pipeline you will be redirected to the <<Pipeline-Editor>>.
 Further functionality wil be explained after this figure.
 
-image:resources/images/pipelines-overview.png[Overview for the pipelines.]
+image:resources/images/userguide/pipelines-overview.png[Overview for the pipelines.]
 
 . Refresh Timer - Here you can choose between a range of possibilities to reload the data automatically.
 . Create Pipeline - This button will bring you to the <<Pipeline-Editor>> where you can create a new pipeline.
@@ -103,7 +103,7 @@ Here you can create a new Pipeline or edit an existing one.
 Simply put the pieces together with drag and drop and configurate them by entering the presented fields.
 
 
-image:resources/images/pipely-overview.png[Overview for the pipelines.]
+image:resources/images/userguide/pipely-overview.png[Overview for the pipelines.]
 
 Generally there are three main components:
 
@@ -118,7 +118,7 @@ Generally there are three main components:
                  It provides you with detailed information about what kind of data is running through your block.
 
 
-image:resources/images/pipely-data-preview.png[Data Preview]
+image:resources/images/userguide/pipely-data-preview.png[Data Preview]
 
 The Data preview provides you with live data for the complete Pipeline or per block if you want.
 If nothing is selected the output of the last block will be displayed.

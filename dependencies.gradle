@@ -12,8 +12,10 @@ ext {
             "org.scala-lang:scala-library:$scalaVersion",
             "org.scala-lang:scala-reflect:$scalaVersion"
         ],
-//        slf4j: "org.slf4j:slf4j-log4j12:1.7.25",
-        akka_actor: "com.typesafe.akka:akka-actor_2.12:$akkaVersion",
+        akka_actor: [
+            "com.typesafe.akka:akka-actor_2.12:$akkaVersion",
+            "com.typesafe.akka:akka-actor-typed_2.12:$akkaVersion",
+        ],
         akka_slf4j: "com.typesafe.akka:akka-slf4j_2.12:$akkaVersion",
         akka_stream: "com.typesafe.akka:akka-stream_2.12:$akkaVersion",
         akka_stream_kafka: "com.typesafe.akka:akka-stream-kafka_2.12:1.0.2",
@@ -25,6 +27,7 @@ ext {
         ],
         akka_cluster: [
             "com.typesafe.akka:akka-cluster_2.12:$akkaVersion",
+            "com.typesafe.akka:akka-cluster-typed_2.12:$akkaVersion",
             "com.typesafe.akka:akka-cluster-tools_2.12:$akkaVersion"
         ],
         akka_http: [
@@ -36,16 +39,16 @@ ext {
         ],
         akka_http_cors: 'ch.megard:akka-http-cors_2.12:0.2.2',
         keycloak: [
-                "org.keycloak:keycloak-adapter-core:4.6.0.Final",
-                "org.keycloak:keycloak-core:4.6.0.Final",
-                "org.jboss.logging:jboss-logging:3.3.2.Final",
-                "org.apache.httpcomponents:httpclient:4.5.7"
+            "org.keycloak:keycloak-adapter-core:4.6.0.Final",
+            "org.keycloak:keycloak-core:4.6.0.Final",
+            "org.jboss.logging:jboss-logging:3.3.2.Final",
+            "org.apache.httpcomponents:httpclient:4.5.7"
         ],
         logback: 'ch.qos.logback:logback-classic:1.2.3',
         json4s: [
-                "org.json4s:json4s-native_2.12:$json4sVersion",
-                "org.json4s:json4s-ext_2.12:$json4sVersion",
-                "org.json4s:json4s-core_2.12:$json4sVersion"
+            "org.json4s:json4s-native_2.12:$json4sVersion",
+            "org.json4s:json4s-ext_2.12:$json4sVersion",
+            "org.json4s:json4s-core_2.12:$json4sVersion"
         ],
         protobuf_java: 'com.google.protobuf:protobuf-java:3.7.1',
         ehcache: 'org.ehcache:ehcache:3.7.0',
@@ -74,6 +77,9 @@ ext {
         ],
         smbj: [
         	"com.hierynomus:smbj:0.9.1",
+        ], 
+        math_expression_parser: [
+            "org.scijava:jep:2.4.2"
         ]
     ]
 }
