@@ -109,7 +109,7 @@ configure ([
         scalaCompileOptions.additionalParameters = [
             "-deprecation",
             "-feature",
-            "-Ywarn-unused-import"
+//            "-Ywarn-unused-import"
         ]
     }
     

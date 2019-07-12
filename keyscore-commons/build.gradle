@@ -1,7 +1,6 @@
 import io.logbee.gradle.scalapb.ScalaPBPlugin
 
 apply plugin: 'idea'
-apply plugin: 'scala'
 apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')

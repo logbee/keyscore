@@ -8,7 +8,6 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 import io.logbee.gradle.scalapb.ScalaPBPlugin
 
-apply plugin: 'scala'
 apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')

@@ -13,6 +13,7 @@ import org.scalatest.{FreeSpec, Matchers}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class RemoveFieldsLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {

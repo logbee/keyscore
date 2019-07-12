@@ -2,7 +2,7 @@
 group 'io.logbee.gradle'
 version = '0.1.0'
 
-ext.protobufVersion = '3.7.0'
+ext.protobufVersion = '3.8.0'
 ext.scalapbVersion = '0.9.0'
 
 sourceCompatibility = 1.8
@@ -15,7 +15,7 @@ repositories {
 dependencies {
     compile "com.github.os72:protoc-jar:$protobufVersion"
     compile "com.google.protobuf:protobuf-java:$protobufVersion"
-    compile "com.thesamet.scalapb:compilerplugin_2.12:$scalapbVersion"
-    compile "com.thesamet.scalapb:scalapb-runtime-grpc_2.12:$scalapbVersion"
-    compile "com.thesamet.scalapb:scalapb-runtime_2.12:$scalapbVersion"
+    compile "com.thesamet.scalapb:compilerplugin_2.13:$scalapbVersion"
+    compile "com.thesamet.scalapb:scalapb-runtime-grpc_2.13:$scalapbVersion"
+    compile "com.thesamet.scalapb:scalapb-runtime_2.13:$scalapbVersion"
 }

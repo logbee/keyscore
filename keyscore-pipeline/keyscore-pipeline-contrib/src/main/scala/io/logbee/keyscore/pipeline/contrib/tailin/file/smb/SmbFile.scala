@@ -1,19 +1,15 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 
 import java.nio.ByteBuffer
-import java.nio.file.FileSystems
-import java.nio.file.Paths
+import java.nio.file.{FileSystems, Paths}
 import java.util.EnumSet
+
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2CreateOptions
-import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess}
 import com.hierynomus.smbj
 import com.hierynomus.smbj.common.SmbPath
-import com.hierynomus.mssmb2.SMB2CreateOptions
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
-import scala.collection.Seq
 
 
 class SmbFile(val file: smbj.share.File) extends FileHandle {
@@ -44,9 +40,8 @@ class SmbFile(val file: smbj.share.File) extends FileHandle {
     
     filePath
   }
-  
-  
-  def listRotatedFiles(rotationPattern: String): Seq[SmbFile] = {
+
+  def listRotatedFiles(rotationPattern: String): Seq[FileHandle] = {
     rotationPattern match {
       case "" =>
         Seq()

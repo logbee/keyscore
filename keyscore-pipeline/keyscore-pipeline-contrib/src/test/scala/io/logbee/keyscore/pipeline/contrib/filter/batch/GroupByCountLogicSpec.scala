@@ -10,6 +10,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class GroupByCountLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {

@@ -293,7 +293,7 @@ abstract class AbstractGroupingLogic(parameters: LogicParameters, shape: FlowSha
       metrics.collect(queueMemory).set(getQueueSizeInByte)
     }
 
-    def datasets: Seq[Dataset] = _datasets
+    def datasets: Seq[Dataset] = _datasets.toSeq
 
     def expires: Long = created + timeWindowMillis
 

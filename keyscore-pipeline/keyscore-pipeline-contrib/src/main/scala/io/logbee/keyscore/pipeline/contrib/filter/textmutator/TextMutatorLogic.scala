@@ -194,7 +194,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
             result += TextMutatorDirectiveSequence(pattern, inplace = true, "", directives)
           case _ => result
         }
-      }
+      }.toSeq
   }
 
   override def onPush(): Unit = {

@@ -10,6 +10,8 @@ import org.scalatest.{FreeSpecLike, Matchers}
 
 import scala.concurrent.duration._
 
+import scala.language.postfixOps
+
 class DescriptorManagerSpec extends ProductionSystemWithMaterializerAndExecutionContext with FreeSpecLike with Matchers with ScalaFutures {
 
   implicit val timeout = Timeout(5 seconds)

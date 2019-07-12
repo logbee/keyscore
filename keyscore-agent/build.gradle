@@ -6,8 +6,6 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
-apply plugin: 'scala'
-
 apply from: rootProject.file('dependencies.gradle')
 
 repositories {
