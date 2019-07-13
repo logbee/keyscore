@@ -123,6 +123,10 @@ configure ([
         from scaladoc.destinationDir
     }
 
+    // TODO: Enable scaladoc tasks when https://github.com/gradle/gradle/issues/9855 has been fixed.
+    scaladoc.enabled = false
+    scaladocJar.enabled = false
+
     artifacts {
         archives sourcesJar
         archives scaladocJar
