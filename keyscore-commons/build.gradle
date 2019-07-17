@@ -7,10 +7,6 @@ apply from: rootProject.file('dependencies.gradle')
 
 evaluationDependsOn ':keyscore-model'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
 
     compile project(':keyscore-model')
@@ -27,25 +23,6 @@ dependencies {
     testCompile dependency.akka_testkit
     testCompile dependency.junit
     testCompile project(':keyscore-test-fixtures')
-}
-
-test {
-    testLogging {
-        events 'started', 'passed', 'skipped', 'failed'
-        exceptionFormat "full"
-    }
-}
-
-jar {
-    exclude('**/.keep')
-    manifest.attributes([
-        'Implementation-Title'         : project.name,
-        'Implementation-Version'       : version,
-        'Implementation-Revision'      : revision,
-        'Implementation-Revision-Date' : revisionDate,
-        'Implementation-Build-Date'    : buildDate,
-        'Implementation-Vendor'        : 'logbee.io'
-    ])
 }
 
 generateScalaPB {

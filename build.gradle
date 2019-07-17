@@ -110,6 +110,7 @@ configure ([
     project(':keyscore-agent:keyscore-agent-runtimes-jvm'),
     project(':keyscore-frontier'),
     project(':keyscore-commons'),
+    project(':keyscore-commons:keyscore-commons-serviceregistry'),
     project(':keyscore-model'),
     project(':keyscore-pipeline:keyscore-pipeline-api'),
     project(':keyscore-pipeline:keyscore-pipeline-commons'),
@@ -122,6 +123,10 @@ configure ([
     project.apply plugin: 'maven-publish'
     project.apply plugin: 'com.jfrog.bintray'
     project.apply plugin: 'distribution'
+
+    repositories {
+        mavenCentral()
+    }
 
     bintray {
         user = "$bintrayUser"
@@ -146,6 +151,18 @@ configure ([
             "-feature",
 //            "-Ywarn-unused-import"
         ]
+    }
+
+    jar {
+        exclude('**/.keep')
+        manifest.attributes([
+                'Implementation-Title'         : project.name,
+                'Implementation-Version'       : version,
+                'Implementation-Revision'      : revision,
+                'Implementation-Revision-Date' : revisionDate,
+                'Implementation-Build-Date'    : buildDate,
+                'Implementation-Vendor'        : 'logbee.io'
+        ])
     }
 
     test {

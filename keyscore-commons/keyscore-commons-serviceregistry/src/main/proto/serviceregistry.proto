@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+import "scalapb/scalapb.proto";
+
+option (scalapb.options) = {
+    package_name: "io.logbee.keyscore.commons.serviceregistry.internal.proto"
+    flat_package: true
+};
+
+message RegisterMessage {
+    string key = 1;
+    string service = 2 [(scalapb.field).no_box = true];
+    string replyTo = 3;
+}
+
+message RegisteredMessage {
+    string key = 1;
+    string service = 2 [(scalapb.field).no_box = true];
+    string replyTo = 3;
+}
+
+message UnregisterMessage {
+    string key = 1;
+    string service = 2 [(scalapb.field).no_box = true];
+    string replyTo = 3;
+}
+
+message UnregisteredMessage {
+    string key = 1;
+    string service = 2 [(scalapb.field).no_box = true];
+    string replyTo = 3;
+}
+
+message SubscribeMessage {
+    string key = 1;
+    string subscriber = 2 [(scalapb.field).no_box = true];
+}
+
+message SubscribedMessage {
+    string key = 1;
+    string replyTo = 2 [(scalapb.field).no_box = true];
+}
+
+message UnsubscribeMessage {
+    string key = 1;
+    string subscriber = 2 [(scalapb.field).no_box = true];
+}
+
+message UnsubscribedMessage {
+    string key = 1;
+    string replyTo = 2 [(scalapb.field).no_box = true];
+}
+
+message FindMessage {
+    string key = 1;
+    string repayTo = 2 [(scalapb.field).no_box = true];
+}
+
+message ListingMessage {
+    string key = 1;
+    repeated string services = 2;
+    string replyTo = 3 [(scalapb.field).no_box = true];
+}
