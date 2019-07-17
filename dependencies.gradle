@@ -30,7 +30,7 @@ ext {
         ],
     ]
 
-    akkaHttpVersion = '10.1.8'
+    akkaHttpVersion = '10.1.9'
     dependency += [
         akka_http: [
             "com.typesafe.akka:akka-http_2.13:$akkaHttpVersion",
