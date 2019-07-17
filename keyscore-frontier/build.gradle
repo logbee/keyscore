@@ -38,7 +38,6 @@ dependencies {
     compile dependency.akka_http_cors
     compile dependency.akka_persistence
     compile dependency.akka_cluster
-    compile dependency.akka_stream_kafka
     compile dependency.keycloak
 
     runtime dependency.logback
