@@ -88,7 +88,6 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
       sender ! GetDescriptorsResponse(descriptorToActorPaths.keys.toList)
 
     case AgentCapabilities(descriptors) =>
-      log.debug(s"Received AgentCapabilities with $descriptors")
       availableAgents.getOrElseUpdate(sender, descriptors)
       descriptors.foreach(descriptor => {
         descriptorToActorPaths.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
