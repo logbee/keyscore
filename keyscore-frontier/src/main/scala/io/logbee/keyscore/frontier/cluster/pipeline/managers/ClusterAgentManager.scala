@@ -142,6 +142,7 @@ class ClusterAgentManager extends Actor with ActorLogging {
       mediator ! Unsubscribe(AgentsTopic, self)
       cluster.unsubscribe(self)
 
+    case AgentCapabilities => // TODO: ClusterAgentManager is not interested in this kind of message.
   }
 
   def sleeping: Receive = {
