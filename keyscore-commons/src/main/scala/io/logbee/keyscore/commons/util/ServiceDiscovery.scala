@@ -1,5 +1,8 @@
 package io.logbee.keyscore.commons.util
 
+import java.util.UUID
+import java.util.UUID.randomUUID
+
 import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, Props}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.Publish
@@ -15,7 +18,7 @@ object ServiceDiscovery {
 
   def discover(services: Seq[Service], strict: Boolean = true, retries: Int = 3)(implicit context: ActorContext, timeout: FiniteDuration = 10 seconds): Future[Map[Service, ActorRef]] = {
     val promise = Promise[Map[Service, ActorRef]]
-    context.actorOf(Props(new ServiceDiscovery(services, strict, retries, promise)))
+    context.system.actorOf(Props(new ServiceDiscovery(services, strict, retries, promise)), s"service-discovery-${randomUUID()}")
     promise.future
   }
 
@@ -51,7 +54,7 @@ class ServiceDiscovery(services: Seq[Service], strict: Boolean = true, retries: 
 
     case HereIam(service, ref) =>
       val newMapping = mapping + (service -> ref)
-      log.debug(s"Discoverd: $service -> $ref (${newMapping.size}/${services.size})")
+      log.debug(s"Discovered: $service -> $ref (${newMapping.size}/${services.size})")
       if (newMapping.size < services.size) {
         become(discovering(newMapping, remainingRetries), discardOld = true)
       }
