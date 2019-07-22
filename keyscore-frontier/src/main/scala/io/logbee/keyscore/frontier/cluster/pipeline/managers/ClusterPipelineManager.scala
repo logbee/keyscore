@@ -74,7 +74,6 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
   var agentCapabilitiesManager: ActorRef = _
 
   override def preStart(): Unit = {
-    mediator ! Subscribe(AgentsTopic, self)
     mediator ! Subscribe(ClusterTopic, self)
     mediator ! Publish(ClusterTopic, ActorJoin(Roles.ClusterPipelineManager, self))
     log.info(" started.")
@@ -83,7 +82,6 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
 
   override def postStop(): Unit = {
     mediator ! Publish(ClusterTopic, ActorLeave(Roles.ClusterPipelineManager, self))
-    mediator ! Subscribe(AgentsTopic, self)
     mediator ! Unsubscribe(ClusterTopic, self)
     log.info(" stopped.")
   }
