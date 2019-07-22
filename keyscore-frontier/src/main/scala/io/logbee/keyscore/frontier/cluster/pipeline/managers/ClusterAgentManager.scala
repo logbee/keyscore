@@ -49,8 +49,8 @@ class ClusterAgentManager extends Actor with ActorLogging {
   val idToAgent: mutable.HashMap[Long, RemoteAgent] = mutable.HashMap.empty
   val agents: mutable.ListBuffer[Member] = mutable.ListBuffer.empty
 
-  val agentStatsManager = context.actorOf(AgentStatsManager())
-  val agentCapabilitiesManager = context.actorOf(AgentCapabilitiesManager())
+  val agentStatsManager = context.actorOf(AgentStatsManager(), "agent-stats-manager")
+  val agentCapabilitiesManager = context.actorOf(AgentCapabilitiesManager(), "agent-capabilities-manager")
 
   override def preStart(): Unit = {
     log.info(" started.")
@@ -74,9 +74,12 @@ class ClusterAgentManager extends Actor with ActorLogging {
 
       sender ! ClusterAgentManagerInitialized(isOperating)
       self ! ReInit
+
+    case AgentCapabilities(_) => // TODO: ClusterAgentManager is not interested in this kind of message.
   }
 
   def working: Receive = {
+
     case ReInit =>
       mediator ! Subscribe(AgentsTopic, self)
       mediator ! Subscribe(ClusterTopic, self)
@@ -142,7 +145,7 @@ class ClusterAgentManager extends Actor with ActorLogging {
       mediator ! Unsubscribe(AgentsTopic, self)
       cluster.unsubscribe(self)
 
-    case AgentCapabilities => // TODO: ClusterAgentManager is not interested in this kind of message.
+    case AgentCapabilities(_) => // TODO: ClusterAgentManager is not interested in this kind of message.
   }
 
   def sleeping: Receive = {
@@ -158,6 +161,7 @@ class ClusterAgentManager extends Actor with ActorLogging {
       mediator ! Unsubscribe(ClusterTopic, self)
       cluster.unsubscribe(self)
 
+    case AgentCapabilities(_) => // TODO: ClusterAgentManager is not interested in this kind of message.
   }
 
   private def addAgentMember(member: Member): Unit = {
@@ -185,7 +189,4 @@ class ClusterAgentManager extends Actor with ActorLogging {
     removeAgent(member)
     senderRef ! AgentRemovedFromCluster(agent.id)
   }
-
 }
-
-
