@@ -12,11 +12,11 @@ import akka.util.Timeout
 import com.sun.management.OperatingSystemMXBean
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
+import io.logbee.keyscore.agent.pipeline.stage.ManifestStageLogicProvider
+import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider.StageLogicProviderRequest
 import io.logbee.keyscore.agent.pipeline.{FilterManager, LocalPipelineManager}
 import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, MetricsTopic}
 import io.logbee.keyscore.commons.cluster._
-import io.logbee.keyscore.commons.extension.ExtensionLoader
-import io.logbee.keyscore.commons.extension.ExtensionLoader.LoadExtensions
 import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.util.StartUpWatch
 import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
@@ -84,11 +84,12 @@ object Agent {
   * If the Join was accepted, he publishes his `Capabilites` to the cluster. <br><br>
   * The Agent creates: <br>
   *   * [[io.logbee.keyscore.agent.pipeline.FilterManager]] <br>
-  *   * [[io.logbee.keyscore.agent.pipeline.LocalPipelineManager]] <br>
-  *   * [[io.logbee.keyscore.commons.extension.ExtensionLoader]] <br>
+  *   * [[io.logbee.keyscore.agent.pipeline.LocalPipelineManager]]
   */
 class Agent(id: UUID, name: String) extends Actor with ActorLogging {
+
   import Agent._
+  import akka.actor.typed.scaladsl.adapter._
 
   private implicit val ec: ExecutionContext = context.dispatcher
   private implicit val timeout: Timeout = 30 seconds
@@ -108,8 +109,12 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
   private val scheduler = context.system.scheduler
 
   //Necessary Actors for the whole keyscore-agent system
-  private val filterManager = context.actorOf(Props[FilterManager], "filter-manager")
-  private val extensionLoader = context.actorOf(Props[ExtensionLoader], "extension-loader")
+  private val stageLogicProviders: List[akka.actor.typed.ActorRef[StageLogicProviderRequest]] = List(
+    context.actorOf(ManifestStageLogicProvider(), "manifest-stage-logic-provider")
+  )
+
+  private val filterManager = context.actorOf(FilterManager(stageLogicProviders), "filter-manager")
+
   context.actorOf(LocalPipelineManager(filterManager), "LocalPipelineManager")
 
   override def preStart(): Unit = {
@@ -140,7 +145,6 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
       (startUpWatch ? StartUpComplete).onComplete {
         case Success(_) =>
           log.debug("Initializing Agent completed.")
-          extensionLoader ! LoadExtensions(config, Paths.ExtensionPath)
         case Failure(e) =>
           log.error(e, "Failed to initialize agent!")
           context.stop(self)

@@ -8,8 +8,8 @@ import io.logbee.keyscore.agent.pipeline.stage.ManifestStageLogicProvider.{EXTEN
 import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import io.logbee.keyscore.model.util.Using.using
-import io.logbee.keyscore.pipeline.api.LogicProviderFactory.createFilterLogicProvider
-import io.logbee.keyscore.pipeline.api.stage.FilterStage
+import io.logbee.keyscore.pipeline.api.LogicProviderFactory._
+import io.logbee.keyscore.pipeline.api.stage.{BranchStage, FilterStage, MergeStage, SinkStage, SourceStage}
 
 import scala.util.{Failure, Success, Try}
 import scala.jdk.CollectionConverters._
@@ -60,7 +60,7 @@ class ManifestStageLogicProvider(manifestFinder: ManifestFinder) extends Actor w
         })
         .toMap
 
-      replyTo ! Loaded(descriptors.values.map(_._1).toList, self)
+      replyTo ! LoadSuccess(descriptors.values.map(_._1).toList, self)
 
       become(loaded(descriptors))
   }
@@ -68,16 +68,32 @@ class ManifestStageLogicProvider(manifestFinder: ManifestFinder) extends Actor w
   private def loaded(descriptors: Map[DescriptorRef, (Descriptor, Class[_])]): Receive = {
 
     case CreateSourceStage(ref, parameters, replyTo) =>
-      replyTo ! SourceStageCreated(ref, null, self)
-
-    case CreateSinkStage(ref, parameters, replyTo) =>
-      replyTo ! SinkStageCreated(ref, null, self)
-
-    case CreateFilterStage(ref, parameters, replyTo) =>
+      log.debug(s"Creating SourceStage: ${ref.uuid}")
 
       descriptors.get(ref) match {
+        case Some((_, clazz)) =>
+          val stage  = new SourceStage(parameters, createSourceLogicProvider(clazz))
+          replyTo ! SourceStageCreated(ref, stage, self)
 
-        case Some((descriptor, clazz)) =>
+        case None => log.error(s"Failed to create SourceStage for: $ref")
+      }
+
+    case CreateSinkStage(ref, parameters, replyTo) =>
+      log.debug(s"Creating SinkStage: ${ref.uuid}")
+
+      descriptors.get(ref) match {
+        case Some((_, clazz)) =>
+          val stage = new SinkStage(parameters, createSinkLogicProvider(clazz))
+          replyTo ! SinkStageCreated(ref, stage, self)
+
+        case None => log.error(s"Failed to create SinkStage for: $ref")
+      }
+
+    case CreateFilterStage(ref, parameters, replyTo) =>
+      log.debug(s"Creating FilterStage: ${ref.uuid}")
+
+      descriptors.get(ref) match {
+        case Some((_, clazz)) =>
           val stage = new FilterStage(parameters, createFilterLogicProvider(clazz))
           replyTo ! FilterStageCreated(ref, stage, self)
 
@@ -85,10 +101,24 @@ class ManifestStageLogicProvider(manifestFinder: ManifestFinder) extends Actor w
       }
 
     case CreateMergeStage(ref, parameters, replyTo) =>
-      replyTo ! MergeStageCreated(ref, null, self)
+      log.debug(s"Creating MergeStage: ${ref.uuid}")
+
+      descriptors.get(ref) match {
+        case Some((_, clazz)) =>
+          val stage = new MergeStage(parameters, createMergeLogicProvider(clazz))
+          replyTo ! MergeStageCreated(ref, stage, self)
+        case None => log.error(s"Failed to create MergeStage for: $ref")
+      }
 
     case CreateBranchStage(ref, parameters, replyTo) =>
-      replyTo ! BranchStageCreated(ref, null, self)
+      log.debug(s"Creating BranchStage: ${ref.uuid}")
+
+      descriptors.get(ref) match {
+        case Some((_, clazz)) =>
+          val stage = new BranchStage(parameters, createBranchLogicProvider(clazz))
+          replyTo ! BranchStageCreated(ref, stage, self)
+        case None => log.error(s"Failed to create BranchStage for: $ref")
+      }
 
     case _ =>
   }

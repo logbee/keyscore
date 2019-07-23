@@ -5,6 +5,7 @@ import java.util.UUID
 import akka.stream.FlowShape
 import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
+import io.logbee.keyscore.agent.pipeline.examples.ExampleFilter
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter, ParameterSet}

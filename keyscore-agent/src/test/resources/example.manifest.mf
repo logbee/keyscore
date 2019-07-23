@@ -1,2 +1,6 @@
 Manifest-Version: 1.0
-keyscore-extensions:   io.logbee.keyscore.agent.pipeline.ExampleFilter
+keyscore-extensions:   io.logbee.keyscore.agent.pipeline.ExampleStages.ExampleFilter,
+                       io.logbee.keyscore.agent.pipeline.ExampleStages.ExampleSource,
+                       io.logbee.keyscore.agent.pipeline.ExampleStages.ExampleSink,
+                       io.logbee.keyscore.agent.pipeline.ExampleStages.ExampleMerge,
+                       io.logbee.keyscore.agent.pipeline.ExampleStages.ExampleBranch

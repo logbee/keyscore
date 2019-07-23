@@ -13,7 +13,7 @@ object StageLogicProvider {
 
   case class Load(replyTo: ActorRef[StageLogicProviderResponse]) extends StageLogicProviderRequest
 
-  case class Loaded(descriptors: List[Descriptor], replyTo: ActorRef[StageLogicProviderRequest]) extends StageLogicProviderResponse
+  case class LoadSuccess(descriptors: List[Descriptor], replyTo: ActorRef[StageLogicProviderRequest]) extends StageLogicProviderResponse
 
   case class CreateSourceStage(ref: DescriptorRef, parameters: LogicParameters, replyTo: ActorRef[StageLogicProviderResponse]) extends StageLogicProviderRequest
   case class SourceStageCreated(ref: DescriptorRef, stage: SourceStage, replyTo: ActorRef[StageLogicProviderRequest]) extends StageLogicProviderResponse
@@ -30,5 +30,5 @@ object StageLogicProvider {
   case class CreateMergeStage(ref: DescriptorRef, parameters: LogicParameters, replyTo: ActorRef[StageLogicProviderResponse]) extends StageLogicProviderRequest
   case class MergeStageCreated(ref: DescriptorRef, stage: MergeStage, replyTo: ActorRef[StageLogicProviderRequest]) extends StageLogicProviderResponse
 
-  case class UninitializedFailure() extends StageLogicProviderResponse
+  abstract class UninitializedFailure(message: String) extends StageLogicProviderResponse
 }

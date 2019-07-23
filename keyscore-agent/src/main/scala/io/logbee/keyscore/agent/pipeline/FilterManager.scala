@@ -1,25 +1,25 @@
 package io.logbee.keyscore.agent.pipeline
 
-import akka.actor
-import akka.actor.{Actor, ActorLogging, Props}
-import akka.stream.ActorMaterializer
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.scaladsl.Behaviors.receiveMessage
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, typed}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
-import io.logbee.keyscore.commons.extension.ExtensionLoader.RegisterExtension
-import io.logbee.keyscore.commons.extension.{FilterExtension, SinkExtension, SourceExtension}
+import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider
+import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider.{LoadSuccess, StageLogicProviderRequest, StageLogicProviderResponse}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion._
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import io.logbee.keyscore.model.pipeline.StageSupervisor
-import io.logbee.keyscore.pipeline.api.LogicProviderFactory._
 import io.logbee.keyscore.pipeline.api._
 import io.logbee.keyscore.pipeline.api.stage._
 
 import scala.collection.mutable
 
 object FilterManager {
-  def props()(implicit materializer: ActorMaterializer): Props = actor.Props(new FilterManager)
+
+  def apply(provider: List[typed.ActorRef[StageLogicProviderRequest]] = List.empty): Props = Props(new FilterManager(provider))
 
   case object RequestDescriptors
 
@@ -47,6 +47,7 @@ object FilterManager {
 
   case class MergeStageCreated(blueprintRef: BlueprintRef, stage: MergeStage) extends StageCreated
 
+  case class Registration(descriptor: Descriptor, provider: typed.ActorRef[StageLogicProviderRequest])
 }
 
 /**
@@ -54,103 +55,162 @@ object FilterManager {
   *
   * @todo Renaming?
   */
-class FilterManager extends Actor with ActorLogging {
+class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) extends Actor with ActorLogging {
 
-  private val eventBus = context.system.eventStream
+  import akka.actor.typed.scaladsl.adapter._
+
   private val filterLoader = new FilterLoader
 
   private val descriptors = mutable.HashMap.empty[DescriptorRef, Registration]
 
   override def preStart(): Unit = {
-    eventBus.subscribe(self, classOf[RegisterExtension])
+    providers.foreach(provider => provider ! StageLogicProvider.Load(self))
     log.info(" started.")
   }
 
   override def postStop(): Unit = {
     log.info(" stopped.")
-    eventBus.unsubscribe(self)
   }
 
   override def receive: Receive = {
 
-    case RegisterExtension(extensionType, extensionClass) =>
-      log.debug(s"Registering extension '$extensionClass' of type '$extensionType'.")
-
-      extensionType match {
-        case FilterExtension | SinkExtension | SourceExtension =>
-          val descriptor = filterLoader.loadDescriptors(extensionClass)
-          descriptors += (descriptor.ref -> Registration(descriptor, extensionClass))
-      }
+    case LoadSuccess(descriptors, provider) =>
+      descriptors.foreach(descriptor => {
+        this.descriptors.put(descriptor.ref, Registration(descriptor, provider))
+        log.debug("Loaded descriptor <{}> provided by: {}", descriptor.ref.uuid, provider)
+      })
 
     case RequestDescriptors =>
       log.debug("Sending Descriptors.")
       sender ! DescriptorsResponse(descriptors.values.map(_.descriptor).toList)
 
-    case CreateSinkStage(ref, supervisor, stageContext, descriptor, configuration) =>
-      log.debug(s"Creating SinkStage: ${descriptor.uuid}")
+    case CreateSinkStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
 
-      descriptors.get(descriptor) match {
-        case Some(registration) =>
-          val provider = createSinkLogicProvider(registration.logicClass)
-          val stage = new SinkStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
-          sender ! SinkStageCreated(ref, stage)
+      log.debug(s"Creating SinkStage: <{}>", blueprintRef.uuid)
+
+      descriptors.get(descriptorRef) match {
+
+        case Some(Registration(descriptor, provider)) =>
+
+          val replyTo = sender()
+
+          context.spawnAnonymous(Behaviors.setup[StageLogicProviderResponse] { context =>
+            provider ! StageLogicProvider.CreateSinkStage(descriptorRef, LogicParameters(blueprintRef, supervisor, stageContext, configuration), context.self)
+            logicProviderAdapter(descriptorRef, blueprintRef, replyTo)
+          })
+
         case _ =>
-          log.error(s"Could not create SinkStage: ${descriptor.uuid}")
+          log.error(s"Could not create SinkStage: ${descriptorRef.uuid}")
       }
 
-    case CreateSourceStage(ref, supervisor, stageContext, descriptor, configuration) =>
+    case CreateSourceStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
 
-      log.debug(s"Creating SourceStage: ${descriptor.uuid}")
+      log.debug(s"Creating SourceStage: ${descriptorRef.uuid}")
 
-      descriptors.get(descriptor) match {
-        case Some(registration) =>
-          val provider = createSourceLogicProvider(registration.logicClass)
-          val stage = new SourceStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
-          sender ! SourceStageCreated(ref, stage)
+      descriptors.get(descriptorRef) match {
+
+        case Some(Registration(descriptor, provider)) =>
+
+          val replyTo = sender()
+
+          context.spawnAnonymous(Behaviors.setup[StageLogicProviderResponse] { context =>
+            provider ! StageLogicProvider.CreateSourceStage(descriptorRef, LogicParameters(blueprintRef, supervisor, stageContext, configuration), context.self)
+            logicProviderAdapter(descriptorRef, blueprintRef, replyTo)
+          })
+
         case _ =>
-          log.error(s"Could not create SourceStage: ${descriptor.uuid}")
+          log.error(s"Could not create SourceStage: ${descriptorRef.uuid}")
       }
 
-    case CreateFilterStage(ref, supervisor, stageContext, descriptor, configuration) =>
+    case CreateFilterStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
 
-      log.debug(s"Creating FilterStage: ${descriptor.uuid}")
+      log.debug(s"Creating FilterStage: ${descriptorRef.uuid}")
 
-      descriptors.get(descriptor) match {
-        case Some(registration) =>
-          val provider = createFilterLogicProvider(registration.logicClass)
-          val stage = new FilterStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
-          sender ! FilterStageCreated(ref, stage)
+      descriptors.get(descriptorRef) match {
+
+        case Some(Registration(descriptor, provider)) =>
+
+          val replyTo = sender()
+
+          context.spawnAnonymous(Behaviors.setup[StageLogicProviderResponse] { context =>
+            provider ! StageLogicProvider.CreateFilterStage(descriptorRef, LogicParameters(blueprintRef, supervisor, stageContext, configuration), context.self)
+            logicProviderAdapter(descriptorRef, blueprintRef, replyTo)
+          })
+
         case _ =>
-          log.error(s"Could not create FilterStage: ${descriptor.uuid}")
+          log.error(s"Could not create FilterStage: ${descriptorRef.uuid}")
       }
 
-    case CreateBranchStage(ref, supervisor, stageContext, descriptor, configuration) =>
+    case CreateBranchStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
 
-      log.debug(s"Creating BranchStage: ${descriptor.uuid}")
+      log.debug(s"Creating BranchStage: ${descriptorRef.uuid}")
 
-      descriptors.get(descriptor) match {
-        case Some(registration) =>
-          val provider = createBranchLogicProvider(registration.logicClass)
-          val stage = new BranchStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
-          sender ! BranchStageCreated(ref, stage)
+      descriptors.get(descriptorRef) match {
+
+        case Some(Registration(descriptor, provider)) =>
+
+          val replyTo = sender()
+
+          context.spawnAnonymous(Behaviors.setup[StageLogicProviderResponse] { context =>
+            provider ! StageLogicProvider.CreateBranchStage(descriptorRef, LogicParameters(blueprintRef, supervisor, stageContext, configuration), context.self)
+            logicProviderAdapter(descriptorRef, blueprintRef, replyTo)
+          })
+
         case _ =>
-          log.error(s"Could not create BranchStage: ${descriptor.uuid}")
+          log.error(s"Could not create BranchStage: ${descriptorRef.uuid}")
       }
 
-    case CreateMergeStage(ref, supervisor, stageContext, descriptor, configuration) =>
+    case CreateMergeStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
 
-      log.debug(s"Creating MergeStage: ${descriptor.uuid}")
+      log.debug(s"Creating MergeStage: ${descriptorRef.uuid}")
 
-      descriptors.get(descriptor) match {
-        case Some(registration) =>
-          val provider = createMergeLogicProvider(registration.logicClass)
-          val stage = new MergeStage(LogicParameters(ref, supervisor, stageContext, configuration), provider)
-          sender ! MergeStageCreated(ref, stage)
+      descriptors.get(descriptorRef) match {
+
+        case Some(Registration(descriptor, provider)) =>
+
+          val replyTo = sender()
+
+          context.spawnAnonymous(Behaviors.setup[StageLogicProviderResponse] { context =>
+            provider ! StageLogicProvider.CreateMergeStage(descriptorRef, LogicParameters(blueprintRef, supervisor, stageContext, configuration), context.self)
+            logicProviderAdapter(descriptorRef, blueprintRef, replyTo)
+          })
+
         case _ =>
-          log.error(s"Could not create MergeStage: ${descriptor.uuid}")
+          log.error(s"Could not create MergeStage: ${descriptorRef.uuid}")
       }
 
     case Ready =>
       sender ! Ready
+  }
+
+  private def logicProviderAdapter(descriptorRef: DescriptorRef, blueprintRef: BlueprintRef, replyTo: ActorRef) = {
+
+    receiveMessage[StageLogicProviderResponse] {
+
+      case StageLogicProvider.SinkStageCreated(`descriptorRef`, stage, _) =>
+        replyTo tell(SinkStageCreated(blueprintRef, stage), self)
+        log.debug("Created SinkStage: <{}>", blueprintRef.uuid)
+        Behaviors.stopped
+
+      case StageLogicProvider.SourceStageCreated(`descriptorRef`, stage, _) =>
+        replyTo tell(SourceStageCreated(blueprintRef, stage), self)
+        log.debug("Created SourceStage: <{}>", blueprintRef.uuid)
+        Behaviors.stopped
+
+      case StageLogicProvider.FilterStageCreated(`descriptorRef`, stage, _) =>
+        replyTo tell(FilterStageCreated(blueprintRef, stage), self)
+        log.debug("Created FilterStage: <{}>", blueprintRef.uuid)
+        Behaviors.stopped
+
+      case StageLogicProvider.BranchStageCreated(`descriptorRef`, stage, _) =>
+        replyTo tell(BranchStageCreated(blueprintRef, stage), self)
+        log.debug("Created BranchStage: <{}>", blueprintRef.uuid)
+        Behaviors.stopped
+
+      case StageLogicProvider.MergeStageCreated(`descriptorRef`, stage, _) =>
+        replyTo tell(MergeStageCreated(blueprintRef, stage), self)
+        log.debug("Created MergeStage: <{}>", blueprintRef.uuid)
+        Behaviors.stopped
+    }
   }
 }

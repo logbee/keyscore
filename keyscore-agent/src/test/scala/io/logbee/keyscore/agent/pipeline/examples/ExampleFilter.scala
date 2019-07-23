@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline
+package io.logbee.keyscore.agent.pipeline.examples
 
 import akka.stream.FlowShape
 import io.logbee.keyscore.model.Described
