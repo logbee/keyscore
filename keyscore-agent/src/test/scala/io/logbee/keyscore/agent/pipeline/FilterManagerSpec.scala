@@ -6,12 +6,14 @@ import akka.actor.ActorRef
 import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.TestProbe
 import akka.util.Timeout
+import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorNotFound, StageCreationFailed}
 import io.logbee.keyscore.agent.pipeline.examples._
 import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider
 import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider.{Load, LoadSuccess, BranchStageCreated => _, FilterStageCreated => _, SinkStageCreated => _, SourceStageCreated => _}
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidToString
+import io.logbee.keyscore.model.descriptor.DescriptorRef
 import io.logbee.keyscore.model.pipeline.StageSupervisor._
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage._
@@ -46,10 +48,79 @@ class FilterManagerSpec extends FreeSpec with Matchers with Inside {
 
     "when initialized" - {
 
-      "should create a sink stage" in withFixture { fixture =>
+      "should tell about unknown descriptors" in withFixture { implicit fixture =>
         import fixture._
 
-        withInitializedFilterManager(fixture) { _ =>
+        withInitializedFilterManager { _ =>
+
+          val descriptorRef = DescriptorRef(randomUUID())
+
+          testee tell(FilterManager.CreateSinkStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+          sender.expectMsg(DescriptorNotFound(descriptorRef, blueprintRef))
+
+          testee tell(FilterManager.CreateSourceStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+          sender.expectMsg(DescriptorNotFound(descriptorRef, blueprintRef))
+
+          testee tell(FilterManager.CreateFilterStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+          sender.expectMsg(DescriptorNotFound(descriptorRef, blueprintRef))
+
+          testee tell(FilterManager.CreateMergeStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+          sender.expectMsg(DescriptorNotFound(descriptorRef, blueprintRef))
+
+          testee tell(FilterManager.CreateBranchStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+          sender.expectMsg(DescriptorNotFound(descriptorRef, blueprintRef))
+        }
+      }
+
+      "should tell about stage creation failures" in withFixture { implicit fixture =>
+        import fixture._
+
+        provider.expectMsg(Load(testee))
+
+        testee ! LoadSuccess(List(MalformedExampleFilter.describe), provider)
+
+        val descriptorRef = MalformedExampleFilter.describe.ref
+
+        testee tell(FilterManager.CreateSinkStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+        inside(provider.expectMsgType[StageLogicProvider.CreateSinkStage]) {
+          case StageLogicProvider.CreateSinkStage(`descriptorRef`, `parameters`, replyTo) =>
+            replyTo ! StageLogicProvider.StageCreationFailed(descriptorRef, blueprintRef, provider)
+        }
+        sender.expectMsg(StageCreationFailed(descriptorRef, blueprintRef))
+
+        testee tell(FilterManager.CreateSourceStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+        inside(provider.expectMsgType[StageLogicProvider.CreateSourceStage]) {
+          case StageLogicProvider.CreateSourceStage(`descriptorRef`, `parameters`, replyTo) =>
+            replyTo ! StageLogicProvider.StageCreationFailed(descriptorRef, blueprintRef, provider)
+        }
+        sender.expectMsg(StageCreationFailed(descriptorRef, blueprintRef))
+
+        testee tell(FilterManager.CreateFilterStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+        inside(provider.expectMsgType[StageLogicProvider.CreateFilterStage]) {
+          case StageLogicProvider.CreateFilterStage(`descriptorRef`, `parameters`, replyTo) =>
+            replyTo ! StageLogicProvider.StageCreationFailed(descriptorRef, blueprintRef, provider)
+        }
+        sender.expectMsg(StageCreationFailed(descriptorRef, blueprintRef))
+
+        testee tell(FilterManager.CreateBranchStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+        inside(provider.expectMsgType[StageLogicProvider.CreateBranchStage]) {
+          case StageLogicProvider.CreateBranchStage(`descriptorRef`, `parameters`, replyTo) =>
+            replyTo ! StageLogicProvider.StageCreationFailed(descriptorRef, blueprintRef, provider)
+        }
+        sender.expectMsg(StageCreationFailed(descriptorRef, blueprintRef))
+
+        testee tell(FilterManager.CreateMergeStage(blueprintRef, noop, ctx, descriptorRef, parameters.configuration), sender)
+        inside(provider.expectMsgType[StageLogicProvider.CreateMergeStage]) {
+          case StageLogicProvider.CreateMergeStage(`descriptorRef`, `parameters`, replyTo) =>
+            replyTo ! StageLogicProvider.StageCreationFailed(descriptorRef, blueprintRef, provider)
+        }
+        sender.expectMsg(StageCreationFailed(descriptorRef, blueprintRef))
+      }
+
+      "should create a sink stage" in withFixture { implicit fixture =>
+        import fixture._
+
+        withInitializedFilterManager { _ =>
 
           val descriptorRef = ExampleSink.describe.ref
           val stage = new SinkStage(parameters, null)
@@ -65,10 +136,10 @@ class FilterManagerSpec extends FreeSpec with Matchers with Inside {
         }
       }
 
-      "should create a source stage" in withFixture { fixture =>
+      "should create a source stage" in withFixture { implicit fixture =>
         import fixture._
 
-        withInitializedFilterManager(fixture) { _ =>
+        withInitializedFilterManager { _ =>
 
           val descriptorRef = ExampleSource.describe.ref
           val stage = new SourceStage(parameters, null)
@@ -84,10 +155,10 @@ class FilterManagerSpec extends FreeSpec with Matchers with Inside {
         }
       }
 
-      "should create a filter stage" in withFixture { fixture =>
+      "should create a filter stage" in withFixture { implicit fixture =>
         import fixture._
 
-        withInitializedFilterManager(fixture) { _ =>
+        withInitializedFilterManager { _ =>
 
           val descriptorRef = ExampleFilter.describe.ref
           val stage = new FilterStage(parameters, null)
@@ -104,10 +175,10 @@ class FilterManagerSpec extends FreeSpec with Matchers with Inside {
         }
       }
 
-      "should create a branch stage" in withFixture { fixture =>
+      "should create a branch stage" in withFixture { implicit fixture =>
         import fixture._
 
-        withInitializedFilterManager(fixture) { _ =>
+        withInitializedFilterManager { _ =>
 
           val descriptorRef = ExampleBranch.describe.ref
           val stage = new BranchStage(parameters, null)
@@ -123,10 +194,10 @@ class FilterManagerSpec extends FreeSpec with Matchers with Inside {
         }
       }
 
-      "should create a merge stage" in withFixture { fixture =>
+      "should create a merge stage" in withFixture { implicit fixture =>
         import fixture._
 
-        withInitializedFilterManager(fixture) { _ =>
+        withInitializedFilterManager { _ =>
 
           val descriptorRef = ExampleMerge.describe.ref
           val stage = new MergeStage(parameters, null)
@@ -169,7 +240,7 @@ class FilterManagerSpec extends FreeSpec with Matchers with Inside {
     val blueprintRef: BlueprintRef
   }
 
-  def withInitializedFilterManager(fixture: Fixture)(test: Any => Any): Any = {
+  def withInitializedFilterManager(test: Any => Any)(implicit fixture: Fixture): Any = {
 
     import fixture._
 

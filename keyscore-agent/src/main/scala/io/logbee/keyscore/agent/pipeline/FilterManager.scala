@@ -47,6 +47,10 @@ object FilterManager {
 
   case class MergeStageCreated(blueprintRef: BlueprintRef, stage: MergeStage) extends StageCreated
 
+  case class DescriptorNotFound(descriptorRef: DescriptorRef, blueprintRef: BlueprintRef)
+
+  case class StageCreationFailed(descriptorRef: DescriptorRef, blueprintRef: BlueprintRef)
+
   case class Registration(descriptor: Descriptor, provider: typed.ActorRef[StageLogicProviderRequest])
 }
 
@@ -100,7 +104,8 @@ class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) 
           })
 
         case _ =>
-          log.error(s"Could not create SinkStage: ${descriptorRef.uuid}")
+          log.warning(s"Descriptor <{}> for sinkStage <{}> not found.", blueprintRef.uuid, descriptorRef.uuid)
+          sender ! DescriptorNotFound(descriptorRef, blueprintRef)
       }
 
     case CreateSourceStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
@@ -119,7 +124,8 @@ class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) 
           })
 
         case _ =>
-          log.error(s"Could not create SourceStage: ${descriptorRef.uuid}")
+          log.warning(s"Descriptor <{}> for sourceStage <{}> not found.", blueprintRef.uuid, descriptorRef.uuid)
+          sender ! DescriptorNotFound(descriptorRef, blueprintRef)
       }
 
     case CreateFilterStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
@@ -138,7 +144,8 @@ class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) 
           })
 
         case _ =>
-          log.error(s"Could not create FilterStage: ${descriptorRef.uuid}")
+          log.warning(s"Descriptor <{}> for filterStage <{}> not found.", blueprintRef.uuid, descriptorRef.uuid)
+          sender ! DescriptorNotFound(descriptorRef, blueprintRef)
       }
 
     case CreateBranchStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
@@ -157,7 +164,8 @@ class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) 
           })
 
         case _ =>
-          log.error(s"Could not create BranchStage: ${descriptorRef.uuid}")
+          log.warning(s"Descriptor <{}> for stage <{}> not found.", blueprintRef.uuid, descriptorRef.uuid)
+          sender ! DescriptorNotFound(descriptorRef, blueprintRef)
       }
 
     case CreateMergeStage(blueprintRef, supervisor, stageContext, descriptorRef, configuration) =>
@@ -176,7 +184,8 @@ class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) 
           })
 
         case _ =>
-          log.error(s"Could not create MergeStage: ${descriptorRef.uuid}")
+          log.warning(s"Descriptor <{}> for stage <{}> not found.", blueprintRef.uuid, descriptorRef.uuid)
+          sender ! DescriptorNotFound(descriptorRef, blueprintRef)
       }
 
     case Ready =>
@@ -210,6 +219,16 @@ class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) 
       case StageLogicProvider.MergeStageCreated(`descriptorRef`, stage, _) =>
         replyTo tell(MergeStageCreated(blueprintRef, stage), self)
         log.debug("Created MergeStage: <{}>", blueprintRef.uuid)
+        Behaviors.stopped
+
+      case StageLogicProvider.DescriptorNotFound(`descriptorRef`, `blueprintRef`, _) =>
+        log.error("Failed to create stage: <{}>", blueprintRef.uuid)
+        replyTo tell(DescriptorNotFound(descriptorRef, blueprintRef), self)
+        Behaviors.stopped
+
+      case StageLogicProvider.StageCreationFailed(`descriptorRef`, `blueprintRef`, _) =>
+        log.error("Failed to create stage: <{}>", blueprintRef.uuid)
+        replyTo tell(StageCreationFailed(descriptorRef, blueprintRef), self)
         Behaviors.stopped
     }
   }

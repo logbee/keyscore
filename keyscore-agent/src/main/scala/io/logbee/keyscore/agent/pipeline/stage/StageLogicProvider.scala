@@ -1,6 +1,7 @@
 package io.logbee.keyscore.agent.pipeline.stage
 
 import akka.actor.typed.ActorRef
+import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage.{BranchStage, FilterStage, MergeStage, SinkStage, SourceStage}
@@ -30,5 +31,9 @@ object StageLogicProvider {
   case class CreateMergeStage(ref: DescriptorRef, parameters: LogicParameters, replyTo: ActorRef[StageLogicProviderResponse]) extends StageLogicProviderRequest
   case class MergeStageCreated(ref: DescriptorRef, stage: MergeStage, replyTo: ActorRef[StageLogicProviderRequest]) extends StageLogicProviderResponse
 
-  abstract class UninitializedFailure(message: String) extends StageLogicProviderResponse
+  case class UninitializedFailure(message: String) extends StageLogicProviderResponse
+
+  case class DescriptorNotFound(descriptorRef: DescriptorRef, blueprintRef: BlueprintRef, replyTo: ActorRef[StageLogicProviderRequest]) extends StageLogicProviderResponse
+
+  case class StageCreationFailed(descriptorRef: DescriptorRef, blueprintRef: BlueprintRef, replyTo: ActorRef[StageLogicProviderRequest]) extends StageLogicProviderResponse
 }
