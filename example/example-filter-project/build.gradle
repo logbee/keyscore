@@ -1,0 +1,16 @@
+apply plugin: 'scala'
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    compile "org.scala-lang:scala-library:2.13.0"
+    compile "io.logbee.keyscore:keyscore-pipeline-api:0.3.0-alpha.4"
+
+    testCompile "io.logbee.keyscore:keyscore-pipeline-testkit:0.3.0-alpha.4"
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.5.0"
+    testCompile "org.junit.platform:junit-platform-runner:1.5.0"
+}

@@ -1,0 +1,3 @@
+= Example Project =
+
+This example projects illustrates the details about implementing custom blocks (sources/filters/sinks) for KEYSCORE.
