@@ -15,7 +15,7 @@ comfortable. In the example, the seed-node host and port are passed as environme
 docker run --publish 3551:3551 \
            --env KEYSCORE_CLUSTER_SEED_NODE_HOST=localhost \
            --env KEYSCORE_CLUSTER_SEED_NODE_PORT=2551 \
-           quay.io/logbee/keyscore-agent:0.3.0-alpha.3
+           quay.io/logbee/keyscore-agent:0.3.0-alpha.4
 ----
 
 == Zip Distribution ==
