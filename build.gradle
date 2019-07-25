@@ -79,7 +79,8 @@ configure ([
     project(':keyscore-commons'),
     project(':keyscore-model'),
     project(':keyscore-pipeline:keyscore-pipeline-api'),
-    project(':keyscore-pipeline:keyscore-pipeline-contrib')
+    project(':keyscore-pipeline:keyscore-pipeline-contrib'),
+    project(':keyscore-pipeline:keyscore-pipeline-testkit')
 ]) {
 
     project.apply plugin: 'scala'

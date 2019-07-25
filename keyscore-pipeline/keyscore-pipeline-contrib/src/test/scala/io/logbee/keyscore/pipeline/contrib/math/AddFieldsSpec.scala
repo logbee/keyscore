@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.math
 import io.logbee.keyscore.model.configuration.{Configuration, FieldNameListParameter, ParameterSet}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.pipeline.contrib.math.AddFields.fieldListParameter
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
+import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory

@@ -58,6 +58,7 @@ test {
 }
 
 jar {
+    exclude('**/.keep')
     manifest.attributes([
         'Main-Class'              : mainClass,
         'Implementation-Title'    : project.name,

@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.test
+package io.logbee.keyscore.pipeline.testkit
 
 import java.util.UUID
 import java.util.UUID.randomUUID

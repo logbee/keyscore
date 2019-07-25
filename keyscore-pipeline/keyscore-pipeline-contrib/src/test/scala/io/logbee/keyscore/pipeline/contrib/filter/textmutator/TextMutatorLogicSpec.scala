@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.filter.textmutator
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data.{Field, _}
 import io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor.PatternType
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
+import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner

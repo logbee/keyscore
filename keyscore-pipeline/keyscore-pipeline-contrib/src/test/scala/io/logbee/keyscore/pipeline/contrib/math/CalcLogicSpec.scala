@@ -3,15 +3,14 @@ package io.logbee.keyscore.pipeline.contrib.math
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.pipeline.contrib.math.CalcLogic.expressionParameter
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
-
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 
 import scala.language.postfixOps
 

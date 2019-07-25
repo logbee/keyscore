@@ -63,6 +63,7 @@ test {
 }
 
 jar {
+    exclude('**/.keep')
     manifest.attributes([
         'Implementation-Title'  : project.name,
         'Implementation-Version': version,

@@ -1,7 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.elasticsearch
 
 import io.logbee.keyscore.model.configuration.{Configuration, NumberParameter, ParameterSet, TextParameter}
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForSink
+import io.logbee.keyscore.pipeline.testkit.TestStreamForSink
 import io.logbee.keyscore.test.fixtures.{ExampleData, TestSystemWithMaterializerAndExecutionContext}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}

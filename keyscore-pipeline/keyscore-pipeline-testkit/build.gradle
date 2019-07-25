@@ -10,21 +10,8 @@ dependencies {
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
 
     compile dependency.scala_lang
-    compile dependency.akka_actor
-    compile dependency.akka_stream
-    compile dependency.akka_slf4j
-    compile dependency.akka_http
-    compile dependency.akka_http_json
-    compile dependency.akka_stream_kafka
-    compile dependency.smbj
-
-    compile dependency.math_expression_parser
-
-    testCompile project(':keyscore-pipeline:keyscore-pipeline-testkit')
-    testCompile project(':keyscore-test-fixtures')
-
-    testCompile dependency.scala_test
-    testCompile dependency.akka_testkit
+    compile dependency.scala_test
+    compile dependency.akka_stream_testkit
 
     testCompile dependency.junit
 }
@@ -43,12 +30,12 @@ bintray {
             vcsTag = project.version
         }
     }
-    publications = ['keyscorePipelineContrib']
+    publications = ['keyscorePipelineTestkit']
 }
 
 publishing {
     publications {
-        keyscorePipelineContrib(MavenPublication) {
+        keyscorePipelineTestkit(MavenPublication) {
             groupId project.group
             artifactId project.name
             version project.version
@@ -72,7 +59,6 @@ test {
 jar {
     exclude('**/.keep')
     manifest {
-        from ("src/main/resources/META-INF/MANIFEST.MF")
         attributes([
             'Implementation-Title'  : project.name,
             'Implementation-Version': version,

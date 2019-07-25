@@ -45,6 +45,7 @@ ext {
             "com.typesafe.akka:akka-stream-testkit_2.13:$akkaVersion",
             "com.typesafe.akka:akka-http-testkit_2.13:$akkaHttpVersion",
         ],
+        akka_stream_testkit: "com.typesafe.akka:akka-stream-testkit_2.13:$akkaVersion",
     ]
 
     json4sVersion = '3.6.7'
