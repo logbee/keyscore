@@ -90,7 +90,7 @@ distributions {
 
 task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
-    from 'quay.io/logbee/openjdk-8-jdk-alpine'
+    from 'quay.io/logbee/openjdk-8-jre:8u222'
     instruction { "COPY build/install/ /opt/" }
     instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
 }
