@@ -33,7 +33,7 @@ ext.bintrayUserOrg = 'logbee'
 
 if (!isDockerRegistryUserConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.user is not set.")
 if (!isDockerRegistryPasswordConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.password is not set.")
-if (!isBintryUserConfigured()) logger.warn("No bintray user - bintray.user is not set.")
+if (!isBintrayUserConfigured()) logger.warn("No bintray user - bintray.user is not set.")
 if (!isBintrayKeyConfigured()) logger.warn("No bintray key - bintray.key is not set.")
 
 subprojects {
@@ -281,7 +281,7 @@ private def isDockerRegistryPasswordConfigured() {
     return ext.dockerRegistryPassword != null && !ext.dockerRegistryPassword.empty
 }
 
-private def isBintryUserConfigured() {
+private def isBintrayUserConfigured() {
     return ext.bintrayUser != null && !ext.bintrayUser.empty
 }
 
