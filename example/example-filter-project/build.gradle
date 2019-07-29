@@ -1,4 +1,32 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+    }
+}
+
 apply plugin: 'scala'
+apply plugin: 'maven-publish'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+ext.publicationRepositoryUrl = getBuildPropertyValue("publication.repository.url")
+ext.publicationRepositoryUser = getBuildPropertyValue("publication.repository.user")
+ext.publicationRepositoryPassword = getBuildPropertyValue("publication.repository.password")
+
+if (!isPublicationRepositoryUrlConfigured()) logger.warn("Publication tasks may fail due to missing repository url - set 'publication.repository.url'")
+if (!isPublicationRepositoryUserConfigured()) logger.warn("Publication tasks may fail due to missing repository user - set 'publication.repository.user'")
+if (!isPublicationRepositoryPasswordConfigured()) logger.warn("Publication tasks may fail due to missing repository password - set 'publication.repository.password'")
+
+ext.revision = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}()
 
 repositories {
     mavenLocal()
@@ -6,11 +34,69 @@ repositories {
 }
 
 dependencies {
-    compile "org.scala-lang:scala-library:2.13.0"
-    compile "io.logbee.keyscore:keyscore-pipeline-api:0.3.0-alpha.4"
+
+    compile "org.scijava:jep:2.4.2"
+
+    compileOnly "org.scala-lang:scala-library:2.13.0"
+    compileOnly "io.logbee.keyscore:keyscore-pipeline-api:0.3.0-alpha.4"
 
     testCompile "io.logbee.keyscore:keyscore-pipeline-testkit:0.3.0-alpha.4"
-
     testCompile "org.junit.jupiter:junit-jupiter-api:5.5.0"
     testCompile "org.junit.platform:junit-platform-runner:1.5.0"
+}
+
+jar {
+    manifest {
+        from ("src/main/resources/META-INF/MANIFEST.MF")
+        attributes([
+                'Implementation-Title' : project.name,
+                'Implementation-Version': version,
+                'Implementation-Revision' : revision,
+                'Implementation-Vendor' : vendor
+        ])
+    }
+}
+
+publishing {
+    publications {
+        main( MavenPublication ) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            artifact (shadowJar)
+        }
+    }
+    repositories {
+        maven {
+            url publicationRepositoryUrl
+            credentials {
+                username publicationRepositoryUser
+                password publicationRepositoryPassword
+            }
+        }
+    }
+}
+
+static def getBuildPropertyValue(String name) {
+    def env = System.getenv()
+    def envName = name.toUpperCase().replace('.', '_')
+
+    if (env.containsKey(envName)) {
+        return env.get(envName)
+    }
+    else {
+        return System.getProperty(name)
+    }
+}
+
+private def isPublicationRepositoryUrlConfigured() {
+    return ext.publicationRepositoryUrl != null && !ext.publicationRepositoryUrl.empty
+}
+
+private def isPublicationRepositoryUserConfigured() {
+    return ext.publicationRepositoryUser != null && !ext.publicationRepositoryUser.empty
+}
+
+private def isPublicationRepositoryPasswordConfigured() {
+    return ext.publicationRepositoryPassword != null && !ext.publicationRepositoryPassword.empty
 }
