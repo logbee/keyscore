@@ -1,5 +1,39 @@
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 SCRIPT=`readlink -f "$0"`
 KEYSCORE_HOME=`dirname "$SCRIPT"`
+KEYSCORE_EXTENSIONS_DIR="$KEYSCORE_HOME/extensions"
+KEYSCORE_CLASSPATH=""
+KEYSCORE_MAIN_CLASS=${KEYSCORE_MAIN_CLASS:-"io.logbee.keyscore.agent.app.AgentApplication"}
+KEYSCORE_JVM_HEAP_INITIAL_MEMORY=${KEYSCORE_JVM_HEAP_INITIAL_MEMORY:-"512m"}
+KEYSCORE_JVM_HEAP_MAX_MEMORY=${KEYSCORE_JVM_HEAP_INITIAL_MEMORY:-"3g"}
 
-exec java -jar "$KEYSCORE_HOME/keyscore-agent.jar" -server -XX:+UnlockExperimentalVMOptions -Xms512m -Xmx3g
+#
+# Compute classpath from libs.
+#
+KEYSCORE_CLASSPATH=$(realpath "$KEYSCORE_HOME/keyscore-agent.jar")
+if [ -d "libs/" ]; then
+  libs=$( ls "libs/" )
+  for lib in $libs ; do
+    KEYSCORE_CLASSPATH="$KEYSCORE_CLASSPATH:$(realpath libs/$lib)"
+  done
+fi
+
+#
+# Download and add extensions to classpath.
+#
+mkdir -p "$KEYSCORE_EXTENSIONS_DIR"
+
+IFS=',' read -ra URLS <<< "${KEYSCORE_EXTENSIONS_URLS}"
+for url in "${URLS[@]}"; do
+  FILENAME=$(awk -F '/' '{ print $NF }' <<< $url)
+  FILEPATH="$KEYSCORE_EXTENSIONS_DIR/$FILENAME"
+  curl --fail --silent --insecure -XGET "$url" --output $FILEPATH
+  if [ 0 -eq $? ]; then
+    KEYSCORE_CLASSPATH="$KEYSCORE_CLASSPATH:$FILEPATH"
+  fi
+done
+
+#
+# Run Agent.
+#
+exec java -classpath $KEYSCORE_CLASSPATH -server -XX:+UnlockExperimentalVMOptions -Xms$KEYSCORE_JVM_HEAP_INITIAL_MEMORY -Xmx$KEYSCORE_JVM_HEAP_MAX_MEMORY $KEYSCORE_MAIN_CLASS
