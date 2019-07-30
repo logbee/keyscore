@@ -24,17 +24,25 @@ apply plugin: 'idea'
 apply plugin: 'distribution'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
-ext.dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
-ext.dockerRegistryPassword = getBuildPropertyValue("logbee.quay.password")
-ext.dockerRegistryUrl = 'https://quay.io/'
-ext.bintrayUser = getBuildPropertyValue("bintray.user")
-ext.bintrayKey = getBuildPropertyValue("bintray.key")
-ext.bintrayUserOrg = 'logbee'
+ext {
+    dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
+    dockerRegistryPassword = getBuildPropertyValue("logbee.quay.password")
+    dockerRegistryUrl = 'https://quay.io/'
+    bintrayUser = getBuildPropertyValue("bintray.user")
+    bintrayKey = getBuildPropertyValue("bintray.key")
+    bintrayUserOrg = 'logbee'
+    publicationRepositoryUrl = getBuildPropertyValue("publication.repository.url")
+    publicationRepositoryUser = getBuildPropertyValue("publication.repository.user")
+    publicationRepositoryPassword = getBuildPropertyValue("publication.repository.password")
+}
 
 if (!isDockerRegistryUserConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.user is not set.")
 if (!isDockerRegistryPasswordConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.password is not set.")
 if (!isBintrayUserConfigured()) logger.warn("No bintray user - bintray.user is not set.")
 if (!isBintrayKeyConfigured()) logger.warn("No bintray key - bintray.key is not set.")
+if (!isPublicationRepositoryUrlConfigured()) logger.warn("Publication tasks may fail due to missing repository url - set 'publication.repository.url'")
+if (!isPublicationRepositoryUserConfigured()) logger.warn("Publication tasks may fail due to missing repository user - set 'publication.repository.user'")
+if (!isPublicationRepositoryPasswordConfigured()) logger.warn("Publication tasks may fail due to missing repository password - set 'publication.repository.password'")
 
 subprojects {
 
@@ -68,6 +76,20 @@ subprojects {
                 url = dockerRegistryUrl
                 username = "$dockerRegistryUser"
                 password = "$dockerRegistryPassword"
+            }
+        }
+    }
+
+    plugins.withType(MavenPublishPlugin) {
+        publishing {
+            repositories {
+                maven {
+                    url publicationRepositoryUrl
+                    credentials {
+                        username publicationRepositoryUser
+                        password publicationRepositoryPassword
+                    }
+                }
             }
         }
     }
@@ -287,6 +309,18 @@ private def isBintrayUserConfigured() {
 
 private def isBintrayKeyConfigured() {
     return ext.bintrayKey != null && !ext.bintrayKey.empty
+}
+
+private def isPublicationRepositoryUrlConfigured() {
+    return ext.publicationRepositoryUrl != null && !ext.publicationRepositoryUrl.empty
+}
+
+private def isPublicationRepositoryUserConfigured() {
+    return ext.publicationRepositoryUser != null && !ext.publicationRepositoryUser.empty
+}
+
+private def isPublicationRepositoryPasswordConfigured() {
+    return ext.publicationRepositoryPassword != null && !ext.publicationRepositoryPassword.empty
 }
 
 def static buildPomXml(project, root) {
