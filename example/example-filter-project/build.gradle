@@ -29,7 +29,6 @@ ext.revision = { ->
 }()
 
 repositories {
-    mavenLocal()
     jcenter()
 }
 
@@ -38,9 +37,14 @@ dependencies {
     compile "org.scijava:jep:2.4.2"
 
     compileOnly "org.scala-lang:scala-library:2.13.0"
+
     compileOnly "io.logbee.keyscore:keyscore-pipeline-api:0.3.0-alpha.5"
+    compileOnly "io.logbee.keyscore:keyscore-pipeline-commons:0.3.0-alpha.5"
 
     testCompile "io.logbee.keyscore:keyscore-pipeline-testkit:0.3.0-alpha.5"
+    testCompile "io.logbee.keyscore:keyscore-pipeline-commons:0.3.0-alpha.5"
+
+    testCompile "org.scalatest:scalatest_2.13:3.0.8"
     testCompile "org.junit.jupiter:junit-jupiter-api:5.5.0"
     testCompile "org.junit.platform:junit-platform-runner:1.5.0"
 }

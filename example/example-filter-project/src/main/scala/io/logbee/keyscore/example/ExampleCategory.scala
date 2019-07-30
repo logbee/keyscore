@@ -6,7 +6,7 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 object ExampleCategory {
 
-  val EXAMPLE = Category("example", TextRef("example.displayName"))
+  val EXAMPLE = Category("example", TextRef("example.category.displayName"))
 
   import Locale.{ENGLISH, GERMAN}
 

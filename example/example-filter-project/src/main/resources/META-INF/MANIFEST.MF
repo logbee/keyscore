@@ -1,2 +1,3 @@
 Manifest-Version: 1.0
-keyscore-extensions: io.logbee.keyscore.example.filter.AddFieldsLogic
+keyscore-extensions: io.logbee.keyscore.example.filter.ExampleLogic
+
