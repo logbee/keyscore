@@ -10,10 +10,7 @@ dependencies {
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
 
     compile dependency.scala_lang
-    compile dependency.scala_test
     compile dependency.akka_stream_testkit
-
-    testCompile dependency.junit
 }
 
 bintray {
