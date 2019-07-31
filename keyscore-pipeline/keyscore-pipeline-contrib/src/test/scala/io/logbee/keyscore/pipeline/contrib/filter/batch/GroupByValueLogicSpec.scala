@@ -3,13 +3,14 @@ package io.logbee.keyscore.pipeline.contrib.filter.batch
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
-import io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic._
+import io.logbee.keyscore.pipeline.commons.stage.AbstractGroupingLogic
+import io.logbee.keyscore.pipeline.commons.stage.AbstractGroupingLogic._
 import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
-import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps

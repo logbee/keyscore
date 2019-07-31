@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.api.util
+package io.logbee.keyscore.pipeline.commons.util
 
 import io.logbee.keyscore.model.data._
 

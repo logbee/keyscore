@@ -1,13 +1,13 @@
-package io.logbee.keyscore.pipeline.api.util
+package io.logbee.keyscore.pipeline.commons.util
 
 import io.logbee.keyscore.model.data.{Field, Record, TextField, TimestampValue}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
-import io.logbee.keyscore.pipeline.api.util.Characteristic.whereAll
-import io.logbee.keyscore.pipeline.api.util.DefaultDataIndex.FIELD_PRESENT
-import io.logbee.keyscore.pipeline.api.util.DefaultDataIndex.Record.{byField, byPresentField, withField}
+import io.logbee.keyscore.pipeline.commons.util.Characteristic.whereAll
+import io.logbee.keyscore.pipeline.commons.util.DefaultDataIndex.FIELD_PRESENT
+import io.logbee.keyscore.pipeline.commons.util.DefaultDataIndex.Record.{byField, byPresentField, withField}
 import org.junit.runner.RunWith
-import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class DefaultIndexSpec_Records extends FreeSpec with Matchers {

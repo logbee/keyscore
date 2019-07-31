@@ -9,6 +9,7 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
+import io.logbee.keyscore.pipeline.commons.CommonCategories
 
 import scala.Int.MaxValue
 

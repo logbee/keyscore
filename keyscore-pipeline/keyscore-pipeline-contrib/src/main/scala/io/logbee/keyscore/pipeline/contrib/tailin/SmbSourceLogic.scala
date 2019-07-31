@@ -1,58 +1,31 @@
 package io.logbee.keyscore.pipeline.contrib.tailin
 
 import java.io.File
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
+import java.nio.charset.{Charset, StandardCharsets}
 import java.util.EnumSet
 
-import scala.concurrent.duration.DurationInt
-
+import akka.stream.SourceShape
 import com.hierynomus.msdtyp.AccessMask
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2ShareAccess}
 import com.hierynomus.smbj.SMBClient
 import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.connection.Connection
 import com.hierynomus.smbj.share.DiskShare
-
-import akka.stream.SourceShape
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.data.Field
-import io.logbee.keyscore.model.data.Icon
-import io.logbee.keyscore.model.data.Label
-import io.logbee.keyscore.model.data.MetaData
-import io.logbee.keyscore.model.data.NumberValue
-import io.logbee.keyscore.model.data.Record
-import io.logbee.keyscore.model.data.TextValue
-import io.logbee.keyscore.model.descriptor.Category
-import io.logbee.keyscore.model.descriptor.Descriptor
-import io.logbee.keyscore.model.descriptor.ParameterInfo
-import io.logbee.keyscore.model.descriptor.SourceDescriptor
-import io.logbee.keyscore.model.descriptor.StringValidator
-import io.logbee.keyscore.model.descriptor.TextParameterDescriptor
-import io.logbee.keyscore.model.localization.Locale
-import io.logbee.keyscore.model.localization.Localization
-import io.logbee.keyscore.model.localization.TextRef
+import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.SourceLogic
-import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
+import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
+import io.logbee.keyscore.pipeline.commons.CommonCategories
+import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderManager
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
-import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
-import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.BaseDirWatcher
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.FileMatchPattern
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.WatcherProvider
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RAMPersistenceContext, ReadPersistence, ReadSchedule}
+import io.logbee.keyscore.pipeline.contrib.tailin.read._
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatcherProvider}
+
+import scala.concurrent.duration.DurationInt
 
 object SmbSourceLogic extends Described {
   

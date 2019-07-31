@@ -8,18 +8,8 @@ repositories {
 dependencies {
 
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
-    compile project(':keyscore-pipeline:keyscore-pipeline-commons')
 
     compile dependency.scala_lang
-    compile dependency.akka_actor
-    compile dependency.akka_stream
-    compile dependency.akka_slf4j
-    compile dependency.akka_http
-    compile dependency.akka_http_json
-    compile dependency.akka_stream_kafka
-    compile dependency.smbj
-
-    compile dependency.math_expression_parser
 
     testCompile project(':keyscore-pipeline:keyscore-pipeline-testkit')
     testCompile project(':keyscore-test-fixtures')
@@ -44,12 +34,12 @@ bintray {
             vcsTag = project.version
         }
     }
-    publications = ['keyscorePipelineContrib']
+    publications = ['keyscorePipelineCommons']
 }
 
 publishing {
     publications {
-        keyscorePipelineContrib(MavenPublication) {
+        keyscorePipelineCommons(MavenPublication) {
             groupId project.group
             artifactId project.name
             version project.version

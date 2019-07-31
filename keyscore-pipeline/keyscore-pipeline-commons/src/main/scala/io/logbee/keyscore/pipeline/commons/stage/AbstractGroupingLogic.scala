@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib.filter.batch
+package io.logbee.keyscore.pipeline.commons.stage
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
@@ -15,21 +15,21 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 object AbstractGroupingLogic {
 
   val pushedEntries = CounterMetricDescriptor(
-    name = "io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.pushed-entries",
+    name = "io.logbee.keyscore.pipeline.commons.stage.AbstractGroupingLogic.pushed-entries",
     displayName = TextRef("pushedEntriesName"),
     description = TextRef("pushedEntriesDesc"),
     importance = Medium
   )
 
   val queuedEntries = GaugeMetricDescriptor(
-    name = "io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.queued-entries",
+    name = "io.logbee.keyscore.pipeline.commons.stage.AbstractGroupingLogic.queued-entries",
     displayName = TextRef("queuedEntriesName"),
     description = TextRef("queuedEntriesDesc"),
     importance = High
   )
 
   val queueMemory = GaugeMetricDescriptor(
-    name = "io.logbee.keyscore.pipeline.contrib.filter.batch.AbstractGroupingLogic.queued-memory",
+    name = "io.logbee.keyscore.pipeline.commons.stage.AbstractGroupingLogic.queued-memory",
     displayName = TextRef("queuedMemoryName"),
     description = TextRef("queuedMemoryDesc"),
     importance = High

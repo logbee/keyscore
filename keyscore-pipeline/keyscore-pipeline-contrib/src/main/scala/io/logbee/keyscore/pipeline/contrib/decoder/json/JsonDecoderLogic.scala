@@ -10,7 +10,7 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, DECODING, JSON}
+import io.logbee.keyscore.pipeline.commons.CommonCategories.{CATEGORY_LOCALIZATION, DECODING, JSON}
 import org.json4s.JsonAST._
 import org.json4s.native.JsonParser._
 

@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 
 import scala.concurrent.duration.DurationInt
-
 import akka.stream.SourceShape
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
@@ -34,8 +33,8 @@ import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.SourceLogic
-import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
+import io.logbee.keyscore.pipeline.commons.CommonCategories
+import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalDir
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext

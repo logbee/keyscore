@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.api.util
+package io.logbee.keyscore.pipeline.commons.util
 
 case class Name[+V](name: String)
 

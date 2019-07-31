@@ -1,4 +1,4 @@
-package io.logbee.keyscore.pipeline.contrib
+package io.logbee.keyscore.pipeline.commons
 
 import io.logbee.keyscore.model.descriptor.Category
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef, TranslationMapping}
