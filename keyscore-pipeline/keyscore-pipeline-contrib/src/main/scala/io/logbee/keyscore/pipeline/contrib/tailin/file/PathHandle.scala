@@ -7,5 +7,5 @@ trait PathHandle {
    */
   def absolutePath: String
   
-  def tearDown()
+  def tearDown(): Unit
 }

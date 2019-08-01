@@ -62,7 +62,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     val context = StageContext(system, executionContext)
 
     val configuration = Configuration(
-      TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir + "/tailin.csv"),
+      TextParameter(  TailinSourceLogic.filePattern.ref,     s"$watchDir/tailin.csv"),
       ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.LINE.toString),
       ChoiceParameter(TailinSourceLogic.encoding.ref,        StandardCharsets.UTF_8.toString),
       TextParameter(  TailinSourceLogic.rotationPattern.ref, "tailin.csv.[1-5]"),
@@ -129,7 +129,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
           val context = StageContext(system, executionContext)
 
           val configuration = Configuration(
-            TextParameter(  TailinSourceLogic.filePattern.ref,     watchDir + "/" + testSetup.filePattern),
+            TextParameter(  TailinSourceLogic.filePattern.ref,     s"$watchDir/${testSetup.filePattern}"),
             ChoiceParameter(TailinSourceLogic.readMode.ref,        testSetup.readMode.toString),
             ChoiceParameter(TailinSourceLogic.encoding.ref,        testSetup.encoding.toString),
             TextParameter(  TailinSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
@@ -285,7 +285,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       Thread.sleep(1000) //TODO nothing gets pushed, because nothing is written outside of the shared-lastModified-second
       TestUtil.writeStringToFile(logFile, "Hello", StandardOpenOption.APPEND)
       
-      concatenatedString.lines.length shouldEqual numberOfLines
+      concatenatedString.linesIterator.length shouldEqual numberOfLines
     }
   }
 }

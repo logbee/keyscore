@@ -232,7 +232,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
   
   
   
-  override def onTimer(timerKey: Any) {
+  override def onTimer(timerKey: Any): Unit = {
     dirWatcher.processChanges()
     
     if (!sendBuffer.isEmpty) {
@@ -244,7 +244,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
   }
   
   
-  private def doPush() {
+  private def doPush(): Unit = {
     val fileReadDataOpt = sendBuffer.getNextElement
     
     fileReadDataOpt match {

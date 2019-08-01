@@ -245,7 +245,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   
   
 
-  override def onTimer(timerKey: Any) {
+  override def onTimer(timerKey: Any): Unit = {
     dirWatcher.processChanges()
     
     if (!sendBuffer.isEmpty) {
@@ -257,7 +257,7 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
   
   
-  private def doPush() {
+  private def doPush(): Unit = {
     
     val fileReadDataOpt = sendBuffer.getNextElement
     
