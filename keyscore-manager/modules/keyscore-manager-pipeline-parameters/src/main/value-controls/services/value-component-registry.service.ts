@@ -3,6 +3,7 @@ import {FieldValueType} from "keyscore-manager-models";
 import {BooleanValueComponent} from "../boolean-value.component";
 import {TextValueComponent} from "../text-value.component";
 import {TimestampValueComponent} from "../timestamp-value.component";
+import {DurationValueComponent} from "../duration-value.component";
 
 @Injectable({
     providedIn: 'root'
@@ -26,9 +27,11 @@ export class ValueComponentRegistryService {
     }
 
     private initRegistry() {
+        this.registry.set(FieldValueType.Unknown, TextValueComponent);
         this.registry.set(FieldValueType.Boolean, BooleanValueComponent);
         this.registry.set(FieldValueType.Text, TextValueComponent);
         this.registry.set(FieldValueType.Timestamp, TimestampValueComponent);
+        this.registry.set(FieldValueType.Duration, DurationValueComponent);
     }
 
 

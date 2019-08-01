@@ -268,4 +268,8 @@ export class DurationInputComponent implements MatFormFieldControl<number>, OnDe
     writeValue(seconds: number): void {
         this.value = seconds;
     }
+
+    focus(){
+        this.elRef.nativeElement.querySelector('input').focus();
+    }
 }

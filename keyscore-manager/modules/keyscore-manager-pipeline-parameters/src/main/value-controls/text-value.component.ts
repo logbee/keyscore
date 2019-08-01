@@ -12,7 +12,7 @@ import {ValueComponent} from "./value-component.interface";
                    [placeholder]="'Value'">
             <mat-label>{{label}}</mat-label>
             <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="inputControl.setValue('');onChange( )">
+                    (click)="inputControl.setValue('');inputField.focus();onChange( )">
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>

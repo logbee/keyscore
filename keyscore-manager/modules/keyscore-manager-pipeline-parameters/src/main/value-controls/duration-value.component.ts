@@ -10,8 +10,18 @@ import {DurationInputComponent} from "../shared-controls/duration-input.componen
         <mat-form-field>
             <ks-duration-input #durationInput (changed)="onChange($event)"></ks-duration-input>
             <mat-label>Duration</mat-label>
+            <button mat-button *ngIf="durationInput.value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clearInput()">
+                <mat-icon>close</mat-icon>
+            </button>
         </mat-form-field>
-    `
+    `,
+    styles:[`
+        ::ng-deep ks-duration-value-input .mat-form-field-suffix{
+            align-self: flex-end !important;
+            margin-bottom:12px !important;
+        }
+    `]
 })
 export class DurationValueComponent implements ValueComponent {
 
@@ -51,6 +61,12 @@ export class DurationValueComponent implements ValueComponent {
     onChange(seconds: number) {
         this._value = seconds;
         this.changed.emit(this.value);
+    }
+
+    private clearInput(){
+        this.value=new DurationValue(0,0);
+        this.durationInput.focus();
+        this.onChange(0);
     }
 
 
