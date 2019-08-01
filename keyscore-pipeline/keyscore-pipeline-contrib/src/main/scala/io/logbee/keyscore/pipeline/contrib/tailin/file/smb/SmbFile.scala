@@ -4,8 +4,6 @@ import java.nio.ByteBuffer
 import java.nio.file.{ FileSystems, Paths }
 import java.util.EnumSet
 
-import scala.collection.Seq
-
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.msfscc.FileAttributes
 import com.hierynomus.mssmb2.{ SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess }
@@ -54,7 +52,7 @@ class SmbFile(path: String, share: DiskShare) extends FileHandle {
   }
   
   
-  override def listRotatedFiles(rotationPattern: String): Seq[FileHandle] = {
+  override def listRotatedFiles(rotationPattern: String): Seq[SmbFile] = {
     rotationPattern match {
       case "" | null =>
         Seq.empty

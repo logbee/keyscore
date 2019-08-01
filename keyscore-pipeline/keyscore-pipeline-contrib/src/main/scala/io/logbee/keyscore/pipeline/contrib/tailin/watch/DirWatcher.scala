@@ -21,8 +21,6 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   private val subDirWatchers = mutable.Map.empty[DirHandle, BaseDirWatcher]
   private val subFileEventHandlers = mutable.Map.empty[FileHandle, FileEventHandler]
   
-  private def subPathHandlers: mutable.Map[PathHandle, _ <: PathWatcher] = subDirWatchers ++ subFileEventHandlers
-  
   
   
   
@@ -35,9 +33,10 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   
   
   private def doForEachPathHandler(paths: Set[_ <: PathHandle], func: PathWatcher => Unit): Unit = {
-    paths.foreach { path =>
-      subPathHandlers.get(path).foreach { pathHandler =>
-        func(pathHandler)
+    paths.foreach {
+      _ match {
+        case dir: DirHandle => subDirWatchers.get(dir).foreach(func(_))
+        case file: FileHandle => subFileEventHandlers.get(file).foreach(func(_))
       }
     }
   }
@@ -116,10 +115,13 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   override def tearDown(): Unit = {
     
     //call tearDown on all watchers attached to this
-    subPathHandlers.foreach {
-      case (_, subPathWatcher) =>
-        subPathWatcher.tearDown()
+    subDirWatchers.foreach {
+      case (_, subDirWatcher) => subDirWatcher.tearDown()
     }
+    subFileEventHandlers.foreach {
+      case (_, subFileEventHandlers) => subFileEventHandlers.tearDown()
+    }
+    
     
     watchDir.tearDown()
   }

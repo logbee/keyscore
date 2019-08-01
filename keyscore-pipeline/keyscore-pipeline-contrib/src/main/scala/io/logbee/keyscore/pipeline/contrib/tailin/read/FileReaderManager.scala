@@ -14,7 +14,7 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
     var fileReaderOpt = fileReaders.get(fileToRead)
     
     var fileReader: FileReader = null
-    if (fileReaderOpt == Some) {
+    if (fileReaderOpt.isDefined) {
       fileReader = fileReaderOpt.get
     }
     else { //create a new fileReader, if there's not yet one in the map
