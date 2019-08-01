@@ -324,6 +324,15 @@ storiesOf('Parameters/FieldParameter', module)
         parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: null}),
         emitter: action('Value Change')
     }
+})).add("Number Field", () => ({
+    component: FieldParameterComponent,
+    props: {
+        descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
+            "Field", "", "message", FieldNameHint.AbsentField, null, FieldValueType.Number, true)
+        ,
+        parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: null}),
+        emitter: action('Value Change')
+    }
 }));
 
 

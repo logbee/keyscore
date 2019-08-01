@@ -21,6 +21,8 @@ import {DecimalParameterModule} from "./parameters/decimal-parameter/decimal-par
 import {FieldNamePatternParameterModule} from "./parameters/field-name-pattern-parameter/field-name-pattern-parameter.module";
 import {FieldNameParameterModule} from "./parameters/field-name-parameter/field-name-parameter.module";
 import {BooleanParameterModule} from "./parameters/boolean-parameter/boolean-parameter.module";
+import {MatIconRegistry} from "@angular/material";
+import {DomSanitizer} from "@angular/platform-browser";
 
 
 @NgModule({

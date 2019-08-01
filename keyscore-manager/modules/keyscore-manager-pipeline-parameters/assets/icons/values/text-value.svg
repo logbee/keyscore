@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  version="1.1" id="Ebene_1" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;"
+	 viewBox="0 0 67.229 77.75" overflow="visible" enable-background="new 0 0 67.229 77.75" xml:space="preserve">
+<g>
+	<polygon fill="#3F3F3F" points="26.952,76.882 26.957,2.376 39.281,2.376 39.281,76.882 	"/>
+	<rect x="16.448" y="70.25" fill="#3F3F3F" width="33.386" height="7.5"/>
+	<polyline fill="none" stroke="#3F3F3F" stroke-width="9" points="4.5,13.271 4.5,4.5 62.729,4.5 62.729,13.147 	"/>
+</g>
+</svg>

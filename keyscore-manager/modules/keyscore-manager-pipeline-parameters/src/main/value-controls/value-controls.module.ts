@@ -9,6 +9,9 @@ import {TimestampValueComponent} from "./timestamp-value.component";
 import {ValueDirective} from "./directives/value.directive";
 import {DurationValueComponent} from "./duration-value.component";
 import {SharedControlsModule} from "../shared-controls/shared-controls.module";
+import {NumberValueComponent} from "./number-value.component";
+import {MatIconRegistry} from "@angular/material";
+import {DomSanitizer} from "@angular/platform-browser";
 
 @NgModule({
     imports: [
@@ -24,21 +27,39 @@ import {SharedControlsModule} from "../shared-controls/shared-controls.module";
         BooleanValueComponent,
         TextValueComponent,
         TimestampValueComponent,
-        DurationValueComponent
+        DurationValueComponent,
+        NumberValueComponent,
     ],
     exports: [
         ValueDirective,
         BooleanValueComponent,
         TextValueComponent,
         TimestampValueComponent,
-        DurationValueComponent
+        DurationValueComponent,
+        NumberValueComponent
     ],
-    entryComponents:[
+    entryComponents: [
         BooleanValueComponent,
         TextValueComponent,
         TimestampValueComponent,
-        DurationValueComponent
+        DurationValueComponent,
+        NumberValueComponent
     ]
 })
 export class ValueControlsModule {
+
+    constructor(private matIconRegistry: MatIconRegistry,
+                private domSanitizer: DomSanitizer) {
+        this.addCustomIcons();
+    }
+
+    private addCustomIcons() {
+        this.matIconRegistry.addSvgIcon('text-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/text-value.svg"));
+        this.matIconRegistry.addSvgIcon('boolean-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/boolean-value.svg"));
+        this.matIconRegistry.addSvgIcon('decimal-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/decimal-value.svg"));
+        this.matIconRegistry.addSvgIcon('duration-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/duration-value.svg"));
+        this.matIconRegistry.addSvgIconLiteral('number-icon', this.domSanitizer.bypassSecurityTrustHtml(require("raw-loader!../../../assets/icons/values/number-value.svg")));//
+        this.matIconRegistry.addSvgIcon('timestamp-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/timestamp-value.svg"));
+
+    }
 }

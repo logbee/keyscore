@@ -4,6 +4,7 @@ import {BooleanValueComponent} from "../boolean-value.component";
 import {TextValueComponent} from "../text-value.component";
 import {TimestampValueComponent} from "../timestamp-value.component";
 import {DurationValueComponent} from "../duration-value.component";
+import {NumberValueComponent} from "../number-value.component";
 
 @Injectable({
     providedIn: 'root'
@@ -32,6 +33,8 @@ export class ValueComponentRegistryService {
         this.registry.set(FieldValueType.Text, TextValueComponent);
         this.registry.set(FieldValueType.Timestamp, TimestampValueComponent);
         this.registry.set(FieldValueType.Duration, DurationValueComponent);
+        this.registry.set(FieldValueType.Number, NumberValueComponent);
+
     }
 
 

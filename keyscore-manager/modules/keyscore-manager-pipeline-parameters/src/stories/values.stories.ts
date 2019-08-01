@@ -10,6 +10,9 @@ import {TimestampValue} from "../main/models/value.model";
 import {TimestampValueComponent} from "../main/value-controls/timestamp-value.component";
 import {DurationValueComponent} from "../main/value-controls/duration-value.component";
 import {SharedControlsModule} from "../main/shared-controls/shared-controls.module";
+import {NumberValueComponent} from "../main/value-controls/number-value.component";
+import {ApplicationModule} from "@angular/core";
+import {ValueControlsModule} from "../main/value-controls/value-controls.module";
 
 storiesOf('Values/BooleanValue', module)
     .addDecorator(
@@ -97,6 +100,27 @@ storiesOf('Values/DurationValue', module).addDecorator(
     }))
     .add("default", () => ({
         component: DurationValueComponent,
+        props: {
+            changed: action('Value Change')
+        }
+
+    }));
+
+storiesOf('Values/NumberValue', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            ApplicationModule,
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule,
+            ReactiveFormsModule,
+            SharedControlsModule,
+        ],
+        providers: []
+    }))
+    .add("default", () => ({
+        component: NumberValueComponent,
         props: {
             changed: action('Value Change')
         }

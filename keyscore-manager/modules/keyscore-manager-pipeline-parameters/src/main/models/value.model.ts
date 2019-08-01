@@ -30,6 +30,26 @@ export class TextValue extends Value {
     }
 }
 
+export class NumberValue extends Value {
+    readonly jsonClass = "io.logbee.keyscore.model.data.NumberValue";
+
+    constructor(
+        readonly value: number
+    ) {
+        super();
+    }
+}
+
+export class DecimalValue extends Value {
+    readonly jsonClass = "io.logbee.keyscore.model.data.DecimalValue";
+
+    constructor(
+        readonly value: number
+    ) {
+        super();
+    }
+}
+
 export class TimestampValue extends Value {
     readonly jsonClass = "io.logbee.keyscore.model.data.TimestampValue";
 
