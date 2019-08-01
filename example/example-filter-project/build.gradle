@@ -7,9 +7,11 @@ buildscript {
     }
 }
 
+// tag::scala-example-project-build-gradle-plugins[]
 apply plugin: 'scala'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
+// end::scala-example-project-build-gradle-plugins[]
 
 ext.publicationRepositoryUrl = getBuildPropertyValue("publication.repository.url")
 ext.publicationRepositoryUser = getBuildPropertyValue("publication.repository.user")
@@ -28,13 +30,14 @@ ext.revision = { ->
     return stdout.toString().trim()
 }()
 
+// tag::scala-example-project-build-gradle-repositories[]
 repositories {
     jcenter()
 }
+// end::scala-example-project-build-gradle-repositories[]
 
+// tag::scala-example-project-build-gradle-dependencies[]
 dependencies {
-
-    compile "org.scijava:jep:2.4.2"
 
     compileOnly "org.scala-lang:scala-library:2.13.0"
 
@@ -48,7 +51,9 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:5.5.0"
     testCompile "org.junit.platform:junit-platform-runner:1.5.0"
 }
+// end::scala-example-project-build-gradle-dependencies[]
 
+// tag::scala-example-project-build-gradle-jar[]
 jar {
     manifest {
         from ("src/main/resources/META-INF/MANIFEST.MF")
@@ -60,7 +65,9 @@ jar {
         ])
     }
 }
+// end::scala-example-project-build-gradle-jar[]
 
+// tag::scala-example-project-build-gradle-publishing[]
 publishing {
     publications {
         main( MavenPublication ) {
@@ -80,6 +87,7 @@ publishing {
         }
     }
 }
+// end::scala-example-project-build-gradle-publishing[]
 
 static def getBuildPropertyValue(String name) {
     def env = System.getenv()

@@ -1,0 +1,5 @@
+:example_project_dir: ../example/example-filter-project/
+
+= Scala Block Development =
+
+include::{example_project_dir}/README.adoc[leveloffset=1,tags=scala-example-project]
