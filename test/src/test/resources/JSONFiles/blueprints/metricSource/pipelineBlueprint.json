@@ -1,0 +1,35 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.blueprint.PipelineBlueprint",
+  "ref":{
+    "uuid":"c23a40a9-b350-4e5d-86f4-a2e6fe85a648"
+  },
+  "blueprints":[
+    {
+      "uuid":"0d88c536-0a16-4f42-8975-029d84618f44"
+    },
+    {
+      "uuid":"2b3bd90b-fac3-4d90-9197-1e67a600451b"
+    }
+  ],
+  "metadata":{
+    "jsonClass":"io.logbee.keyscore.model.data.MetaData",
+    "labels":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
+        "name":"pipeline.name",
+        "value":{
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"MetricsSource Pipeline"
+        }
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.data.Label",
+        "name":"pipeline.description",
+        "value":{
+          "jsonClass":"io.logbee.keyscore.model.data.TextValue",
+          "value":"For testing the MetricSource."
+        }
+      }
+    ]
+  }
+}

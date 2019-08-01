@@ -76,6 +76,8 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
           log.error(exception, "Couldn't retrieve services.")
         // TODO: Handle discover errors!
       }
+
+    case _ =>
   }
 
   private def running: Receive = {
@@ -108,6 +110,8 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
       sender ! AgentsForPipelineResponse(possibleAgents)
 
     case WhoIs(_) => // Nothing to do.
+
+    case _ =>
   }
 
   def checkIfCapabilitiesMatchRequirements(descriptorRefs: List[DescriptorRef], agent: (ActorRef, Seq[Descriptor])): Boolean = {

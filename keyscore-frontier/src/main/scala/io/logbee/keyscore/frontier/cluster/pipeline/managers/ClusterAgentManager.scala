@@ -76,6 +76,8 @@ class ClusterAgentManager extends Actor with ActorLogging {
       self ! ReInit
 
     case AgentCapabilities(_) => // TODO: ClusterAgentManager is not interested in this kind of message.
+
+    case _ =>
   }
 
   def working: Receive = {
@@ -146,6 +148,8 @@ class ClusterAgentManager extends Actor with ActorLogging {
       cluster.unsubscribe(self)
 
     case AgentCapabilities(_) => // TODO: ClusterAgentManager is not interested in this kind of message.
+
+    case _ =>
   }
 
   def sleeping: Receive = {

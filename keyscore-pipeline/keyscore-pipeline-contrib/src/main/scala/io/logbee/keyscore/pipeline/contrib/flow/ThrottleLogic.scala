@@ -1,6 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.flow
 
-import java.lang.System.{currentTimeMillis, nanoTime}
+import java.lang.System.currentTimeMillis
 
 import akka.stream.FlowShape
 import akka.stream.stage.StageLogging
