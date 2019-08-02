@@ -28,11 +28,11 @@ The listing below illustrates the structure of this project. God news, it is the
 https://docs.gradle.org/current/userguide/organizing_gradle_projects.html[gradle/maven project layout], so if you are
 already familiar with gradle projects you can skip this section, setup the project on your own and start coding.
 
-[[example-filter-project-source-tree]]
-.The directory structure of the example-filter-project.
+[[example-scala-project-source-tree]]
+.The directory structure of the example-scala-project.
 [source]
 ----
-example-filter-project/
+example-scala-project/
 ├── README.adoc
 ├── build.gradle <1>
 ├── settings.gradle
@@ -68,7 +68,7 @@ example-filter-project/
 ----
 
 The most important file for gradle is the `build.gradle` script (1). This file contains all configuration to build the
-project with gradle. Read the <<example-filter-project-gradle>> section for more details about the `build.gradle`.
+project with gradle. Read the <<example-scala-project-gradle>> section for more details about the `build.gradle`.
 
 All your sources go into the `src` directory (2). The source directory is split into two source-sets. The `main` (3) and
 the `test` (11) source-set. This separates the production code `ExampleLogic.scala` (10) from the test code
@@ -78,7 +78,7 @@ These source-sets are also split for the different types of files. In the listin
 `resources` (4) and a `scala` directory (9). Files in the `resources` directory are arbitrary files which can be directly
 put into the resulting artifact. Examples are the `ExampleLogic_de.properties` (5), the `ExampleLogic.properties` (6)
 files which are required for localization but also the ExampleLogic.svg (7) files which is the icon display in the web-ui.
-A very important resource is the `MANIFEST.MF` file. Read more about it in the <<example-filter-project-jar-manifest>>
+A very important resource is the `MANIFEST.MF` file. Read more about it in the <<example-scala-project-jar-manifest>>
 section.
 
 On the other hand, files in the `scala` directory (e.g. `ExampleLogic.scala`) have to be compiled by the scala compiler
@@ -95,11 +95,11 @@ The sources and resources are separated into different source-sets. This separat
 for the resulting artifact. The listing below shows how the separation is resolve and everything in the same package is
 put into the same directory.
 
-[[example-filter-project-artifact-tree]]
+[[example-scala-project-artifact-tree]]
 .Structure of the resulting artifact.
 [source]
 ----
-example-filter-project.jar
+example-scala-project.jar
 ├── io
 │   └── logbee
 │       └── keyscore
@@ -113,14 +113,14 @@ example-filter-project.jar
     └── MANIFEST.MF
 ----
 
-[[example-filter-project-jar-manifest]]
+[[example-scala-project-jar-manifest]]
 ==== Manifest ====
 
 As mentioned earlier the https://en.wikipedia.org/wiki/JAR_(file_format)#Manifest[JAR Manifest] is a very important file
 because it contains meta-information as key-value-pairs about the content of the jar-archive. To successfully load your
 logic you have to add it to the manifest as shown in the listing below:
 
-[[example-filter-project-manfiest]]
+[[example-scala-project-manfiest]]
 [source]
 .META-INF/MANIFEST.MF
 ----
@@ -135,10 +135,10 @@ keyscore-extensions: io.logbee.keyscore.example.filter.MyAwesomeLogic,
                      io.logbee.keyscore.example.filter.ExampleLogic
 ----
 
-[[example-filter-project-localization]]
+[[example-scala-project-localization]]
 ==== Localization ====
 
-[[example-filter-project-gradle]]
+[[example-scala-project-gradle]]
 === Build, Test and Publish ===
 
 The purpose of https://gradle.org/[Gradle] is to build, test and publish your software. To say gradle what is should do
@@ -161,8 +161,8 @@ It is worth it
 The following sections explain the details about the different configuration aspects required to build, test and publish
 this project but the most holds for any java/scala project.
 
-You can skip the following sections if your are only interested in how to run the relevant Gradle tasks, jump to
-<<scala-example-project-gradle-tasks>>.
+You can jump to jump to <<scala-example-project-gradle-tasks>> if your are only interested in how to run the relevant
+Gradle tasks.
 
 ===== Plugins =====
 
@@ -243,10 +243,11 @@ Gradle tasks can be executed from the CLI. To compile the sources, run the tests
 $ gradle build
 ----
 
-After an successful build you can publish your artifact to an maven repository by running the following tasks:
+After an successful build you can publish your artifact to an maven repository by running the following task:
 
 [source,bash]
 ----
 $ gradle publish
 ----
+
 // end::scala-example-project[]

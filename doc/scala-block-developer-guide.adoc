@@ -1,5 +1,5 @@
 :xrefstyle: short
-:example_project_dir: ../example/example-filter-project/
+:example_project_dir: ../examples/example-scala-project/
 
 = Scala Block Development =
 
