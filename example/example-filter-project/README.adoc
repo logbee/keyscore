@@ -1,13 +1,13 @@
 :xrefstyle: short
-
 = Example Project =
 
 This example projects illustrates a project setup to implement custom blocks (sources/filters/sinks).
 
-// tag::scala-example-project[]
 == General Setup ==
 
 The following section describes the general setup for java/scala projects with gradle as build tool.
+
+// tag::scala-example-project[]
 
 === Prerequisites ===
 
@@ -67,7 +67,7 @@ example-filter-project/
                                 └── ExampleLogicSpec.scala <14>
 ----
 
-The most important file for gradle is the `build.gradle` file (1). This file contains all configuration to build the
+The most important file for gradle is the `build.gradle` script (1). This file contains all configuration to build the
 project with gradle. Read the <<example-filter-project-gradle>> section for more details about the `build.gradle`.
 
 All your sources go into the `src` directory (2). The source directory is split into two source-sets. The `main` (3) and
@@ -88,12 +88,12 @@ and only the output the compilation should be put into the resulting artifact.
 
 To structure the source code java and scala provide https://en.wikipedia.org/wiki/Java_package[packages]. Packages organize
 the classes into unique namespaces. As an example the full name of the logic is `io.logbee.keyscore.example.ExampleLogic.scala`
-Packages are simply realized by creating a directory-hierarchy within a source-set. Listing <<example-filter-project-source-tree>>
-illustrates such a hierarchy (9) -> (10).
+Packages are simply realized by creating a directory-hierarchy within a source-set. The listing above illustrates such a
+hierarchy (9) -> (10).
 
 The sources and resources are separated into different source-sets. This separation only applies for the source-tree not
-for the resulting artifact. Listing <<example-filter-project-artifact-tree>> shows how the separation is resolve and
-everything in the same package is put into the same directory.
+for the resulting artifact. The listing below shows how the separation is resolve and everything in the same package is
+put into the same directory.
 
 [[example-filter-project-artifact-tree]]
 .Structure of the resulting artifact.
@@ -141,8 +141,8 @@ keyscore-extensions: io.logbee.keyscore.example.filter.MyAwesomeLogic,
 [[example-filter-project-gradle]]
 === Build, Test and Publish ===
 
-The purpose of https://gradle.org/[Gradle] is to build, test and publish your software. To say gradle what to you have
-the to write a `build.gradle` file. This file has to provide the following information:
+The purpose of https://gradle.org/[Gradle] is to build, test and publish your software. To say gradle what is should do
+for you, you have to write a `build.gradle` script. This file has to provide the following information:
 
 . What kind of software do you want to build.
 . On which dependencies does your project rely on and from where can gradle get them.
@@ -158,13 +158,25 @@ It is worth it
 ====
 
 ==== Configure ====
+The following sections explain the details about the different configuration aspects required to build, test and publish
+this project but the most holds for any java/scala project.
+
+You can skip the following sections if your are only interested in how to run the relevant Gradle tasks, jump to
+<<scala-example-project-gradle-tasks>>.
 
 ===== Plugins =====
+
+Gradle at its core provides only basic functionality. The strength of Gradle comes from the plugins you can add. There
+are a lot of plugins hosten on the https://plugins.gradle.org/[Gradle Plugin Portal].
 
 [source,groovy]
 ----
 include::build.gradle[tags=scala-example-project-build-gradle-plugins]
 ----
+
+The listing above shows how plugins can be applied to the build script. The first plugin adds the possibility to compile
+scala sources. The second plugin is required to publish the generated archive at the end of the build. The last plugin is
+used to create a <<Archiving, fat-jar>>.
 
 ===== Repositories =====
 
@@ -175,17 +187,44 @@ include::build.gradle[tags=scala-example-project-build-gradle-repositories]
 
 ===== Dependencies =====
 
+A very important aspect is dependency management. The listing below illustrates how to declare dependencies in the
+`dependencies` section of the `build.gradle` script.
+
 [source,groovy]
 ----
 include::build.gradle[tags=scala-example-project-build-gradle-dependencies]
 ----
 
+Every dependency applies to a specific scope. Some dependencies are required for compilation whereas others are only need
+to be available at runtime. Gradle represents the scope of a dependency with the help of a configuration. By applying the
+scala plugin to the build script, the following configurations become available:
+
+* `compile`: Dependencies added to this configuration are in the scope for compilation *and* runtime.
+* `compileOnly`: Dependencies added to this configuration are *only* in the scope for compilation. This is helpful if the
+                 dependency is provided later in the target environment.
+* `runtime`: Dependencies added to this configuration are *only* in the scope for runtime.
+* `testCompile`: Dependencies added to this configuration are only available for the compilation and runtime of the test
+                 source-set and are not in the scope of the production code.
+* `testRuntime`: Dependencies added to this configuration are only available for the runtime of the test source-set and
+                 are not in the scope of the production code.
+
 ===== Archiving =====
 
+Gradle can generate an archive (jar) containing all compiled sources and resources. Normally, only the artifacts of the
+actual project get into the generated archive. But this makes it hard to ship dependencies. Therefore we build a 'fat-jar'.
+A fat-jar contains the compiled sources and resources of the actual project *plus* all the `compile` dependencies. We
+use the gradle https://github.com/johnrengelman/shadow[shadow-plugin] to generate such a fat-jar.
+
+[#scala-example-project-build-gradle-jar]
+.Jar configuration section.
 [source,groovy]
 ----
 include::build.gradle[tags=scala-example-project-build-gradle-jar]
 ----
+
+The manifest generated by Gradle can be adjusted in the `jar` configuration section of the `build.gradle`. The listing
+above depicts how some attributes can be set but the import part is `from` clause (1) which defines that the generated `MANIFEST.MF`
+should inherit everything from `src/main/resources/META-INF/MANIFEST.MF`.
 
 ===== Publishing =====
 
@@ -194,6 +233,20 @@ include::build.gradle[tags=scala-example-project-build-gradle-jar]
 include::build.gradle[tags=scala-example-project-build-gradle-publishing]
 ----
 
+[[scala-example-project-gradle-tasks]]
 ==== Tasks ====
 
+Gradle tasks can be executed from the CLI. To compile the sources, run the tests and generate a <<Archiving, fat-jar>> run:
+
+[source,bash]
+----
+$ gradle build
+----
+
+After an successful build you can publish your artifact to an maven repository by running the following tasks:
+
+[source,bash]
+----
+$ gradle publish
+----
 // end::scala-example-project[]
