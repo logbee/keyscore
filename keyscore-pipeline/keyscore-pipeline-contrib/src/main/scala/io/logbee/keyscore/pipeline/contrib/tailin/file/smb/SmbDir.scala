@@ -3,7 +3,6 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 import java.util.EnumSet
 
 import scala.collection.JavaConverters
-
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.mserref.NtStatus
 import com.hierynomus.msfscc.FileAttributes
@@ -15,10 +14,11 @@ import com.hierynomus.mssmb2.SMBApiException
 import com.hierynomus.smbj.common.SmbPath
 import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.DiskShare
-
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
+
+import scala.jdk.javaapi.CollectionConverters
 
 
 class SmbDir(path: String, share: DiskShare) extends DirHandle {
@@ -54,7 +54,7 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
   
   override def listDirsAndFiles: (Set[SmbDir], Set[SmbFile]) = {
     
-    val subPaths = JavaConverters.asScalaBuffer(dir.list).toSet
+    val subPaths = CollectionConverters.asScala(dir.list).toSet
                      .filterNot(subPath => subPath.getFileName.endsWith("\\.")
                                         || subPath.getFileName.equals(".")
                                         || subPath.getFileName.endsWith("\\..")
