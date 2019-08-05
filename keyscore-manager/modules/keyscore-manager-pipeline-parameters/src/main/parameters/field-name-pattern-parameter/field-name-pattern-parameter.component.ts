@@ -19,7 +19,7 @@ import {FieldNameHint} from "keyscore-manager-models";
                 </ks-autocomplete-input>
                 <mat-label>{{descriptor.displayName}}</mat-label>
                 <button mat-button *ngIf="fieldName.value" matSuffix mat-icon-button aria-label="Clear"
-                        (click)="fieldName.value='';onChange('',patternType.value)">
+                        (click)="fieldName.value='';onChange('',patternType.value);fieldName.focus($event)">
                     <mat-icon>close</mat-icon>
                 </button>
                 <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField">You should choose a {{descriptor.hint}}</mat-hint>

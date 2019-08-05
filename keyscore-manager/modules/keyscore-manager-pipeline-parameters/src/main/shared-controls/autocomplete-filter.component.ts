@@ -1,15 +1,25 @@
-import {Component, ElementRef, EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output} from "@angular/core";
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostBinding,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    ViewChild
+} from "@angular/core";
 import {FormControl, NgControl} from "@angular/forms";
 import {Observable, Subject} from "rxjs";
 import {map, startWith} from "rxjs/operators";
-import {MatFormFieldControl} from "@angular/material";
+import {MatAutocompleteTrigger, MatFormFieldControl} from "@angular/material";
 import {FocusMonitor} from "@angular/cdk/a11y";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 
 @Component({
     selector: 'ks-autocomplete-input',
     template: `
-        <input #inputField matInput type="text" [formControl]="inputControl"
+        <input #inputField #trigger="matAutocompleteTrigger" matInput type="text" [formControl]="inputControl"
                [matAutocomplete]="auto">
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onChange()">
             <mat-option *ngFor="let item of (filteredOptions | async)" [value]="item">{{item}}
@@ -80,6 +90,9 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
 
     @Output() change: EventEmitter<void> = new EventEmitter<void>();
 
+    @ViewChild('inputField') inputElemRef: ElementRef;
+    @ViewChild(MatAutocompleteTrigger) autocompleteTrigger: MatAutocompleteTrigger;
+
     constructor(private fm: FocusMonitor, private elRef: ElementRef<HTMLElement>) {
         super();
         fm.monitor(elRef.nativeElement, true).subscribe(origin => {
@@ -94,6 +107,14 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
                 startWith(''),
                 map(value => this.filter(value))
             );
+    }
+
+    focus(event: Event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        this.inputElemRef.nativeElement.focus();
+        this.autocompleteTrigger.openPanel();
     }
 
     private filter(value: string): string[] {

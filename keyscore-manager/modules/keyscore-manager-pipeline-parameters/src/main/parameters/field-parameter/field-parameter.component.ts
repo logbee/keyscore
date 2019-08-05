@@ -22,7 +22,7 @@ import {AutocompleteInputComponent} from "../../autocomplete-input.component";
                 <mat-label>Field Name</mat-label>
 
                 <button mat-button *ngIf="fieldInput.value" matSuffix mat-icon-button aria-label="Clear"
-                        (click)="fieldInput.value='';onChange('')">
+                        (click)="fieldInput.value='';onChange('');fieldInput.focus($event)">
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>

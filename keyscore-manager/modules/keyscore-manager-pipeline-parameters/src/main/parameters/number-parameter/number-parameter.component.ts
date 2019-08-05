@@ -12,7 +12,7 @@ import {NumberParameter, NumberParameterDescriptor} from "./number-parameter.mod
                    (change)="onChange($event.target.value)">
             <mat-label>{{descriptor.displayName}}</mat-label>
             <button mat-button *ngIf="numberInput.value" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="numberInput.value='';onChange(null)">
+                    (click)="numberInput.value='';onChange('')">
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>

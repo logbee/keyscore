@@ -14,7 +14,7 @@ import {FieldNameHint} from "keyscore-manager-models";
             </ks-autocomplete-input>
             <mat-label>{{descriptor.displayName}}</mat-label>
             <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="inputField.value='';onChange('');">
+                    (click)="inputField.value='';onChange('');inputField.focus($event)">
                 <mat-icon>close</mat-icon>
             </button>
             <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField">You should choose a
