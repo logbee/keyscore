@@ -1,5 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib
 
+import java.util.{Timer, TimerTask}
+
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.SourceShape
@@ -22,6 +24,7 @@ import org.json4s.{Formats, Serialization}
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{Future, Promise}
+import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 object MetricSourceLogic extends Described {
@@ -190,20 +193,35 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
         parseAsync.invoke(id, response)
       case Failure(cause) =>
         log.error(s"Couldn't retrieve metrics: $cause")
+
+      case e => log.error(s"What's wrong: $e")
     })
   }
 
   private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
-
-    response.entity match {
-      case strict: HttpEntity.Strict =>
-        val body = strict.data.utf8String
-        strict.discardBytes()
-        org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
-      case unknown =>
-        unknown.discardBytes()
-        Seq()
+    if (response.status == StatusCodes.OK)
+    {
+      response.entity match {
+        case strict: HttpEntity.Strict =>
+          val body = strict.data.utf8String
+          strict.discardBytes()
+          org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
+        case unknown =>
+          unknown.discardBytes()
+          Seq()
+      }
+    } else {
+      log.warning(s"Failure: Response status is [${response.status}]")
+      scheduleScrape(10000)
+      Seq()
     }
+  }
+
+  private def scheduleScrape(ms: Int): Unit = {
+    log.info(s"Scheduled scrape in $ms ms")
+    val timer = new Timer
+    val task = new TimerTask () { def run(): Unit = scrapeMetrics()}
+    timer.schedule(task, ms)
   }
 
   private def getEarliest(mcs: Seq[MetricsCollection]): String = {
