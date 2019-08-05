@@ -25,6 +25,7 @@ mkdir -p "$KEYSCORE_EXTENSIONS_DIR"
 
 IFS=',' read -ra URLS <<< "${KEYSCORE_EXTENSIONS_URLS}"
 for url in "${URLS[@]}"; do
+  url=$(sed 's/[ \t]\?,[ \t]\?/,/g; s/^[ \t]\+//g; s/[ \t]\+$//g' <<< $url)
   FILENAME=$(awk -F '/' '{ print $NF }' <<< $url)
   FILEPATH="$KEYSCORE_EXTENSIONS_DIR/$FILENAME"
   curl --fail --silent --insecure -XGET "$url" --output $FILEPATH
