@@ -1,5 +1,15 @@
 @import "~keyscore-manager-material/src/main/style/variables";
 
+.slider-label {
+  font-size: 0.75em;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.ks-slider{
+  width:100% !important;
+  margin-left:0 !important;
+}
+
 .parameter-warn {
   margin-top: -10px;
   line-height: 1.2em;
@@ -18,7 +28,7 @@
   padding: 0;
 }
 
-.form-field-pb-20{
+.form-field-pb-20 {
   padding-bottom: 20px;
 }
 

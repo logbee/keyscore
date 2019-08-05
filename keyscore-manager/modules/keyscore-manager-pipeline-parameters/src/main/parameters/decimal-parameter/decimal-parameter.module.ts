@@ -6,12 +6,14 @@ import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {DecimalParameterComponent} from "./decimal-parameter.component";
 import {DecimalParameter, DecimalParameterDescriptor, JSONCLASS_DECIMAL_DESCR} from "./decimal-parameter.model";
+import {SharedControlsModule} from "../../shared-controls/shared-controls.module";
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        SharedControlsModule
     ],
     declarations: [
         DecimalParameterComponent

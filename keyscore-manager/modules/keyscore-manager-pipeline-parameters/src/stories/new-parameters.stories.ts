@@ -131,7 +131,8 @@ storiesOf('Parameters/NumberParameter', module).addDecorator(
         imports: [
             CommonModule,
             MaterialModule,
-            BrowserAnimationsModule
+            BrowserAnimationsModule,
+            SharedControlsModule
         ],
         providers: []
     })).add("Without Range", () => ({
@@ -164,7 +165,8 @@ storiesOf('Parameters/DecimalParameter', module).addDecorator(
         imports: [
             CommonModule,
             MaterialModule,
-            BrowserAnimationsModule
+            BrowserAnimationsModule,
+            SharedControlsModule
         ],
         providers: []
     })).add("Without Range", () => ({

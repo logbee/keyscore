@@ -35,14 +35,18 @@ export enum FieldValueType {
     Duration = 6
 }
 
-
-export interface NumberRange {
+export interface Range{
+    step:number;
+    start:number;
+    end:number;
+}
+export interface NumberRange extends Range {
     step: number;
     start: number;
     end: number;
 }
 
-export interface DecimalRange{
+export interface DecimalRange extends Range{
     step: number;
     start: number;
     end: number;

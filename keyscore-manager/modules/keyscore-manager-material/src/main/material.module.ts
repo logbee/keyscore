@@ -18,7 +18,7 @@ import {
     MatProgressBarModule,
     MatRippleModule,
     MatSelectModule,
-    MatSidenavModule,
+    MatSidenavModule, MatSliderModule,
     MatSlideToggleModule,
     MatSnackBarModule,
     MatSortModule,
@@ -59,7 +59,8 @@ import {HttpClientModule} from "@angular/common/http";
         MatTabsModule,
         MatSnackBarModule,
         MatProgressBarModule,
-        MatExpansionModule
+        MatExpansionModule,
+        MatSliderModule
     ],
     exports: [
         MatButtonModule,
@@ -88,7 +89,8 @@ import {HttpClientModule} from "@angular/common/http";
         MatTabsModule,
         MatSnackBarModule,
         MatProgressBarModule,
-        MatExpansionModule
+        MatExpansionModule,
+        MatSliderModule
 
     ]
 })

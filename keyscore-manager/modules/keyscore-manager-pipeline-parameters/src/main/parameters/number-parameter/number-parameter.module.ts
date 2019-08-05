@@ -6,12 +6,14 @@ import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {NumberParameterComponent} from "./number-parameter.component";
 import {JSONCLASS_NUMBER_DESCR, NumberParameter, NumberParameterDescriptor} from "./number-parameter.model";
+import {SharedControlsModule} from "../../shared-controls/shared-controls.module";
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        SharedControlsModule
     ],
     declarations: [
         NumberParameterComponent
