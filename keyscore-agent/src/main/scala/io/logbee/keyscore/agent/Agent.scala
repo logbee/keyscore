@@ -189,6 +189,8 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
       val collection = computeMetrics()
       val map = Map(id.toString -> collection)
       manager ! ScrapeMetricsSuccess(map)
+
+    case _ =>
   }
 
   private def computeMetrics(): MetricsCollection = {
