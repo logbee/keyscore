@@ -50,6 +50,11 @@ import {FieldParameter, FieldParameterDescriptor} from "../main/parameters/field
 import {ValueComponentRegistryService} from "../main/value-controls/services/value-component-registry.service";
 import {FieldParameterModule} from "../main/parameters/field-parameter/field-parameter.module";
 import {TextValue} from "../main/models/value.model";
+import {TextListParameterComponent} from "../main/parameters/text-list-parameter/text-list-parameter.component";
+import {
+    TextListParameter,
+    TextListParameterDescriptor
+} from "../main/parameters/text-list-parameter/text-list-parameter.model";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -324,7 +329,10 @@ storiesOf('Parameters/FieldParameter', module)
         descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
             "Field", "", "message", FieldNameHint.AbsentField, null, FieldValueType.Text, true)
         ,
-        parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: new TextValue("initial value")}),
+        parameter: new FieldParameter({id: "myFieldParameter"}, {
+            name: "message",
+            value: new TextValue("initial value")
+        }),
         emitter: action('Value Change')
     }
 })).add("Number Field", () => ({
@@ -352,6 +360,29 @@ storiesOf('Parameters/FieldParameter', module)
             "Field", "", "message", FieldNameHint.AbsentField, null, FieldValueType.Duration, true)
         ,
         parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: null}),
+        emitter: action('Value Change')
+    }
+}));
+
+storiesOf('Parameters/TextListParameter', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule,
+            TextParameterModule
+        ],
+        providers:[
+
+        ]
+    })).add("default", () => ({
+    component: TextListParameterComponent,
+    props: {
+        descriptor: new TextListParameterDescriptor({id: "textList"}, "TextListParameter",
+            "", new TextParameterDescriptor({id: "myTextParameter"}, "textParam",
+                "", "default", null, true), 0, 5),
+        parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
         emitter: action('Value Change')
     }
 }));

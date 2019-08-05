@@ -10,6 +10,7 @@ import {
     TextParameterDescriptor
 } from "./text-parameter.model";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
+import {StringValidatorService} from "../../service/string-validator.service";
 
 @NgModule({
     imports: [
@@ -18,8 +19,9 @@ import {ParameterComponentFactoryService} from "../../service/parameter-componen
         MaterialModule
     ],
     declarations: [TextParameterComponent],
-    entryComponents:[TextParameterComponent],
-    exports: [TextParameterComponent]
+    entryComponents: [TextParameterComponent],
+    exports: [TextParameterComponent],
+    providers: [StringValidatorService]
 
 })
 export class TextParameterModule {

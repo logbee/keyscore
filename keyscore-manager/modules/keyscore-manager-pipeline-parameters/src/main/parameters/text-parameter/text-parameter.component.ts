@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {TextParameter, TextParameterDescriptor} from "./text-parameter.model";
 import {StringValidatorService} from "../../service/string-validator.service";
@@ -7,13 +7,13 @@ import {StringValidatorService} from "../../service/string-validator.service";
     selector: `parameter-text`,
     template: `
         <mat-form-field>
-            <input #textInput matInput type="text" [placeholder]="descriptor.defaultValue"
+            <input #textInput matInput type="text"
                    (change)="onChange($event.target.value)"
                    [value]="parameter.value">
-            <mat-label>{{descriptor.displayName}}</mat-label>
+            <mat-label *ngIf="showLabel">{{descriptor.displayName}}</mat-label>
 
             <button mat-button *ngIf="textInput.value" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="textInput.value='';onChange('')">
+                    (click)="clear()">
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
@@ -28,11 +28,18 @@ import {StringValidatorService} from "../../service/string-validator.service";
 
 })
 export class TextParameterComponent extends ParameterComponent<TextParameterDescriptor, TextParameter> {
+    @Input() showLabel: boolean = true;
+
+    @ViewChild('textInput') textInputRef:ElementRef;
 
     constructor(private stringValidator: StringValidatorService) {
         super();
     }
 
+    public clear(){
+        this.textInputRef.nativeElement.value="";
+        this.onChange('');
+    }
 
     private onChange(value: string): void {
         const parameter = new TextParameter(this.descriptor.ref, value);
@@ -45,7 +52,6 @@ export class TextParameterComponent extends ParameterComponent<TextParameterDesc
             return true;
         }
         return this.stringValidator.validate(value, this.descriptor.validator);
-
-
     }
+
 }
