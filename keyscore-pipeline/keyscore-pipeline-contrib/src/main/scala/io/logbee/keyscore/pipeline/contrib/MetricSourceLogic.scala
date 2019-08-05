@@ -1,11 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib
 
-import java.net.URL
-
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
-import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
-import akka.stream.{OverflowStrategy, SourceShape}
+import akka.stream.SourceShape
 import io.logbee.keyscore.commons.metrics.MetricsQuery
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
@@ -24,7 +21,7 @@ import org.json4s.{Formats, Serialization}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.Promise
+import scala.concurrent.{Future, Promise}
 import scala.util.{Failure, Success}
 
 object MetricSourceLogic extends Described {
@@ -56,8 +53,8 @@ object MetricSourceLogic extends Described {
     ParameterInfo(
       TextRef("limit"),
       TextRef("limitDescription")),
-    defaultValue = 100,
-    range = NumberRange(step = 1, end = Long.MaxValue),
+    defaultValue = 10,
+    range = NumberRange(step = 1, end = 10),
     mandatory = true
   )
 
@@ -120,17 +117,15 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private var earliest = MetricSourceLogic.earliestParameter.defaultValue
   private var latest = MetricSourceLogic.latestParameter.defaultValue
 
-  private var queue:  SourceQueueWithComplete[(HttpRequest, Promise[HttpResponse])] = _
-
   private val metricCollections: ListBuffer[(String, MetricsCollection)] = ListBuffer.empty[(String, MetricsCollection)]
 
   private val idToEarliest = mutable.HashMap.empty[String, String]
 
   private val parseAsync = getAsyncCallback[(String, HttpResponse)]({ case (id, response) =>
     val mcs = parseHttpResponse(response)
-    mcs.foreach { mc => metricCollections.append((id, mc)) }
 
     if(mcs.nonEmpty) {
+      mcs.foreach { mc => metricCollections.append((id, mc)) }
       idToEarliest.update(id, getEarliest(mcs))
       tryPush()
     }
@@ -143,18 +138,8 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   override def configure(configuration: Configuration): Unit = {
     setDefaults(configuration)
-
-    val poolUrl = new URL(url)
-    val pool = Http().cachedHostConnectionPool[Promise[HttpResponse]](host = poolUrl.getHost, port = poolUrl.getPort)
-
-    queue = Source.queue[(HttpRequest, Promise[HttpResponse])](1, OverflowStrategy.dropNew)
-      .via(pool)
-      .toMat(Sink.foreach({
-        case (Success(response), promise) => promise.success(response)
-        case (Failure(throwable), promise) => promise.failure(throwable)
-      }))(Keep.left)
-      .run()
   }
+
   override def onPull(): Unit = {
     if(metricCollections.nonEmpty) tryPush()
     else scrapeMetrics()
@@ -166,6 +151,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     limit = configuration.getValueOrDefault(limitParameter, limit)
     earliest = configuration.getValueOrDefault(earliestParameter, earliest)
     latest = configuration.getValueOrDefault(latestParameter, latest)
+
   }
 
   private def tryPush(): Unit = {
@@ -189,24 +175,35 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       val mq = MetricsQuery(limit, newest, latest, format)
 
       val uri = Uri(s"$url/metrics/$id")
-      (id, HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq))), Promise[HttpResponse])
+      (id, Http().singleRequest(HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq)))))
 
     })
       .foreach({
-        case (id, request, promise) =>
-          queue.offer((request, promise)).flatMap(_ => promise.future).onComplete({
-            case Success(response) =>
-              parseAsync.invoke(id, response)
-            case Failure(cause) =>
-              log.error(s"Couldn't retrieve metrics: $cause")
-          })
+        case (id, future) =>
+          completeResponse(id, future)
       })
   }
 
-  private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
-    val body = response.entity.asInstanceOf[HttpEntity.Strict].data.utf8String
+  private def completeResponse(id: String, future: Future[HttpResponse]): Unit = {
+    future.onComplete({
+      case Success(response) =>
+        parseAsync.invoke(id, response)
+      case Failure(cause) =>
+        log.error(s"Couldn't retrieve metrics: $cause")
+    })
+  }
 
-    org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
+  private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
+
+    response.entity match {
+      case strict: HttpEntity.Strict =>
+        val body = strict.data.utf8String
+        strict.discardBytes()
+        org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
+      case unknown =>
+        unknown.discardBytes()
+        Seq()
+    }
   }
 
   private def getEarliest(mcs: Seq[MetricsCollection]): String = {
