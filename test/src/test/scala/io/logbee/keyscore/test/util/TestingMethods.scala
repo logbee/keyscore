@@ -216,6 +216,26 @@ object TestingMethods {
     false
   }
 
+  private[test] def scrapeMetricsForFailure(id: String, mq: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Boolean = {
+    logger.debug(s"Query metrics for <$id> with $mq")
+
+    var metrics = Seq(MetricsCollection())
+
+    runner.http(action => action.client(client)
+      .send()
+      .post(s"/metrics/$id")
+      .contentType("application/json")
+      .payload(mq)
+    )
+
+    runner.http(action => action.client(client)
+      .receive()
+      .response(HttpStatus.INTERNAL_SERVER_ERROR)
+    )
+
+    true
+  }
+
   private[test] def scrapeMetrics(id: String, mq: String)(implicit runner: TestRunner, client: HttpClient, logger: Logger): Seq[MetricsCollection] = {
     logger.debug(s"Query metrics for <$id> with $mq")
 
