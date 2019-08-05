@@ -37,7 +37,7 @@ object ConstantSourceLogic extends Described {
   )
 
   override def describe =  Descriptor(
-    ref = "6a9671d9-93a9-4fe4-b779-b4e1af9a9e6",
+    ref = "b789e90d-09c9-409f-9010-17cfb5c15019",
     describes = SourceDescriptor(
       name = classOf[ConstantSourceLogic].getName,
       displayName = TextRef("displayName"),
