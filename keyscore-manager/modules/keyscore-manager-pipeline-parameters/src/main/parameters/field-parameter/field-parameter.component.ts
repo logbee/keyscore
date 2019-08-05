@@ -78,6 +78,9 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.valueRegistry.getValueComponent(this.descriptor.fieldValueType));
         this.valueHost.viewContainerRef.clear();
         this.valueComponentInstance = this.valueHost.viewContainerRef.createComponent(componentFactory);
+        if(this.parameter.value && this.parameter.value.value){
+            this.valueComponentInstance.instance.value = this.parameter.value.value;
+        }
     }
 
     onDestroy() {

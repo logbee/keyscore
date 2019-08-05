@@ -49,6 +49,7 @@ import {FieldParameterComponent} from "../main/parameters/field-parameter/field-
 import {FieldParameter, FieldParameterDescriptor} from "../main/parameters/field-parameter/field-parameter.model";
 import {ValueComponentRegistryService} from "../main/value-controls/services/value-component-registry.service";
 import {FieldParameterModule} from "../main/parameters/field-parameter/field-parameter.module";
+import {TextValue} from "../main/models/value.model";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -315,13 +316,13 @@ storiesOf('Parameters/FieldParameter', module)
         autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time'],
         emitter: action('Value Change')
     }
-})).add("Text Field", () => ({
+})).add("Text Field with initial value", () => ({
     component: FieldParameterComponent,
     props: {
         descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
             "Field", "", "message", FieldNameHint.AbsentField, null, FieldValueType.Text, true)
         ,
-        parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: null}),
+        parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: new TextValue("initial value")}),
         emitter: action('Value Change')
     }
 })).add("Number Field", () => ({
@@ -329,6 +330,24 @@ storiesOf('Parameters/FieldParameter', module)
     props: {
         descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
             "Field", "", "message", FieldNameHint.AbsentField, null, FieldValueType.Number, true)
+        ,
+        parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: null}),
+        emitter: action('Value Change')
+    }
+})).add("Decimal Field", () => ({
+    component: FieldParameterComponent,
+    props: {
+        descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
+            "Field", "", "message", FieldNameHint.AbsentField, null, FieldValueType.Decimal, true)
+        ,
+        parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: null}),
+        emitter: action('Value Change')
+    }
+})).add("Duration Field", () => ({
+    component: FieldParameterComponent,
+    props: {
+        descriptor: new FieldParameterDescriptor({id: "myFieldParameter"},
+            "Field", "", "message", FieldNameHint.AbsentField, null, FieldValueType.Duration, true)
         ,
         parameter: new FieldParameter({id: "myFieldParameter"}, {name: "message", value: null}),
         emitter: action('Value Change')

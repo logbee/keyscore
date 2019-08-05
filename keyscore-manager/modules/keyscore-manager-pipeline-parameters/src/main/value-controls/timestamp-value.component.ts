@@ -13,6 +13,7 @@ import {ValueComponent} from "./value-component.interface";
                 <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()"
                        [placeholder]="'Value'" step="1">
                 <mat-label>{{label}}</mat-label>
+                <mat-icon matSuffix [inline]="true" svgIcon="timestamp-icon"></mat-icon>
                 <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="inputControl.setValue('');onChange( )">
                     <mat-icon>close</mat-icon>

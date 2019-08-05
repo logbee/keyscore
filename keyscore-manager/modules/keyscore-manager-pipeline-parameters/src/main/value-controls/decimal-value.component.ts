@@ -1,17 +1,17 @@
 import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
-import {FormControl} from "@angular/forms";
-import {coerceBooleanProperty} from "@angular/cdk/coercion";
-import {TextValue} from "../models/value.model";
 import {ValueComponent} from "./value-component.interface";
+import {FormControl} from "@angular/forms";
+import {DecimalValue} from "../models/value.model";
+import {coerceBooleanProperty} from "@angular/cdk/coercion";
 
 @Component({
-    selector: 'ks-text-value-input',
+    selector: 'ks-decimal-value-input',
     template: `
         <mat-form-field>
-            <input #inputField matInput type="text" [formControl]="inputControl" (change)="onChange()"
+            <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()"
                    [placeholder]="'Value'">
             <mat-label>{{label}}</mat-label>
-            <mat-icon matSuffix [inline]="true" svgIcon="text-icon"></mat-icon>
+            <mat-icon matSuffix [inline]="true" svgIcon="decimal-icon"></mat-icon>
             <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputControl.setValue('');inputField.focus();onChange( )">
                 <mat-icon>close</mat-icon>
@@ -19,19 +19,19 @@ import {ValueComponent} from "./value-component.interface";
         </mat-form-field>
     `
 })
-export class TextValueComponent implements ValueComponent{
+export class DecimalValueComponent implements ValueComponent{
 
     static nextId = 0;
 
-    @HostBinding() id = `ks-text-value-input-${TextValueComponent.nextId++}`;
+    @HostBinding() id = `ks-text-value-input-${DecimalValueComponent.nextId++}`;
     inputControl = new FormControl();
 
     @Input()
-    get value(): TextValue {
-        return new TextValue(this.inputControl.value);
+    get value(): DecimalValue {
+        return new DecimalValue(this.inputControl.value);
     }
 
-    set value(val: TextValue) {
+    set value(val: DecimalValue) {
         this.inputControl.setValue(val.value);
     }
 
@@ -49,7 +49,7 @@ export class TextValueComponent implements ValueComponent{
 
     @Input() label: string = 'Value';
 
-    @Output() changed: EventEmitter<TextValue> = new EventEmitter<TextValue>();
+    @Output() changed: EventEmitter<DecimalValue> = new EventEmitter();
 
     onChange() {
         this.changed.emit(this.value);

@@ -12,6 +12,16 @@ import {SharedControlsModule} from "../shared-controls/shared-controls.module";
 import {NumberValueComponent} from "./number-value.component";
 import {MatIconRegistry} from "@angular/material";
 import {DomSanitizer} from "@angular/platform-browser";
+import {DecimalValueComponent} from "./decimal-value.component";
+//svg icons
+import {
+    boolean_icon,
+    decimal_icon,
+    duration_icon,
+    number_icon,
+    text_icon, timestamp_icon
+} from "../../../assets/icons/values/value-icons";
+
 
 @NgModule({
     imports: [
@@ -29,6 +39,8 @@ import {DomSanitizer} from "@angular/platform-browser";
         TimestampValueComponent,
         DurationValueComponent,
         NumberValueComponent,
+        DecimalValueComponent
+
     ],
     exports: [
         ValueDirective,
@@ -36,14 +48,17 @@ import {DomSanitizer} from "@angular/platform-browser";
         TextValueComponent,
         TimestampValueComponent,
         DurationValueComponent,
-        NumberValueComponent
+        NumberValueComponent,
+        DecimalValueComponent
     ],
     entryComponents: [
         BooleanValueComponent,
         TextValueComponent,
         TimestampValueComponent,
         DurationValueComponent,
-        NumberValueComponent
+        NumberValueComponent,
+        DecimalValueComponent
+
     ]
 })
 export class ValueControlsModule {
@@ -54,12 +69,12 @@ export class ValueControlsModule {
     }
 
     private addCustomIcons() {
-        this.matIconRegistry.addSvgIcon('text-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/text-value.svg"));
-        this.matIconRegistry.addSvgIcon('boolean-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/boolean-value.svg"));
-        this.matIconRegistry.addSvgIcon('decimal-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/decimal-value.svg"));
-        this.matIconRegistry.addSvgIcon('duration-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/duration-value.svg"));
-        this.matIconRegistry.addSvgIconLiteral('number-icon', this.domSanitizer.bypassSecurityTrustHtml(require("raw-loader!../../../assets/icons/values/number-value.svg")));//
-        this.matIconRegistry.addSvgIcon('timestamp-icon', this.domSanitizer.bypassSecurityTrustResourceUrl("../../assets/icons/values/timestamp-value.svg"));
+        this.matIconRegistry.addSvgIconLiteral('text-icon', this.domSanitizer.bypassSecurityTrustHtml(text_icon));
+        this.matIconRegistry.addSvgIconLiteral('boolean-icon', this.domSanitizer.bypassSecurityTrustHtml(boolean_icon));
+        this.matIconRegistry.addSvgIconLiteral('decimal-icon', this.domSanitizer.bypassSecurityTrustHtml(decimal_icon));
+        this.matIconRegistry.addSvgIconLiteral('duration-icon', this.domSanitizer.bypassSecurityTrustHtml(duration_icon));
+        this.matIconRegistry.addSvgIconLiteral('number-icon', this.domSanitizer.bypassSecurityTrustHtml(number_icon));
+        this.matIconRegistry.addSvgIconLiteral('timestamp-icon', this.domSanitizer.bypassSecurityTrustHtml(timestamp_icon));
 
     }
 }
