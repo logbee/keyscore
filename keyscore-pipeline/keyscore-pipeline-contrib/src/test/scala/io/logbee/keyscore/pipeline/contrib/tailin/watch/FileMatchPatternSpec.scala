@@ -1,13 +1,16 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
+import java.io.File
+import java.nio.ByteBuffer
 import java.nio.file.{Files, Path}
 
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.{LocalDir, LocalFile}
 import java.nio.file.Paths
+
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import org.scalamock.scalatest.MockFactory
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
@@ -139,10 +142,16 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
           val matchPattern = new FileMatchPattern(patternString)
           
           val fileName = test._2
-          val file = mock[FileHandle]
-          (file.absolutePath _)
-            .expects()
-            .returns(fileName)
+          val file = new FileHandle { //basically a mock object which provides absolutePath (which is a val)
+            override val absolutePath: String = fileName
+            
+            override val name: String = "name"
+            override def listRotatedFiles(rotationPattern: String): Seq[_ <: FileHandle] = ???
+            override def length: Long = ???
+            override def lastModified: Long = ???
+            override def read(buffer: ByteBuffer, offset: Long): Int = ???
+            override def tearDown(): Unit = ???
+          }
           
           matchPattern.matches(file) shouldBe true
         }
@@ -158,11 +167,8 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
         
         val dirPath = "/path/to/"
         
-        val dir = mock[DirHandle]
-        (dir.absolutePath _)
-          .expects()
-          .returns(dirPath)
-          
+        val dir = new LocalDir(Paths.get(dirPath))
+
         matchPattern.isSuperDir(dir) shouldBe true
       }
     }

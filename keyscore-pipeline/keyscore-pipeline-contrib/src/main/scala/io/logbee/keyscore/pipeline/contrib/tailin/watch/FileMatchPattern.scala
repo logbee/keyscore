@@ -6,6 +6,7 @@ import java.nio.file.Paths
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
+import org.slf4j.LoggerFactory
 
 
 object FileMatchPattern {
@@ -59,13 +60,15 @@ object FileMatchPattern {
    */
   private def getUnixLikePath(fullFilePattern: String): String = { //TODO try to make Java do this conversion by throwing it into a Path or something (this current naive approach fails for example for \-escaped spaces and such in UNIX-like paths
     fullFilePattern
-      .replace("\\\\", "/") //replace "\\" at the start of SMB-paths with just a /
+      .replace("\\\\", "/").replace("//", "/") //replace "\\" at the start of SMB-paths with just a /
       .replace('\\', '/') //replace '\' as in Windows-like paths with '/'
   }
 }
 
 
 class FileMatchPattern(fullFilePattern: String) {
+  
+  private lazy val log = LoggerFactory.getLogger(classOf[FileMatchPattern])
   
   val filePattern = {
     if (fullFilePattern.endsWith(File.separator)) {
@@ -82,35 +85,43 @@ class FileMatchPattern(fullFilePattern: String) {
   
   def matches(file: FileHandle): Boolean = {
     val path = Paths.get(FileMatchPattern.getUnixLikePath(file.absolutePath))
-    fileMatcher.matches(path)
+    val matches = fileMatcher.matches(path)
+    log.debug("Matching '{}' against '{}' and it matches{}.", path, FileMatchPattern.getUnixLikePath(filePattern), if (matches) "" else " not")
+    matches
   }
   
   
   def isSuperDir(dir: DirHandle): Boolean = {
-    
-    var tmpPattern = filePattern
-    while (tmpPattern.endsWith("/")) { //remove trailing slashes, as PathMatcher doesn't work with a slash at the end
-      tmpPattern = tmpPattern.substring(0, tmpPattern.length - 1)
-    }
-    
-    
-    var sections = tmpPattern.split('/').filterNot(_.isEmpty)
-    if (sections.last.contains("**") == false) {
-      sections = sections.dropRight(1) //drop the file-part (unnecessary to check and causes problems when it's "*")
-    }
-    
-    val dirPath = Paths.get(dir.absolutePath)
-    for (i <- 0 to sections.length) {
-      val dirPattern = sections.foldLeft("")((a: String, b: String) => a + "/" + b)
-      
-      val matcher = FileSystems.getDefault.getPathMatcher("glob:" + FileMatchPattern.getUnixLikePath(dirPattern))
-      if (matcher.matches(dirPath)) {
-        return true
+
+    val matches = {
+      var tmpPattern = filePattern
+      while (tmpPattern.endsWith("/")) { //remove trailing slashes, as PathMatcher doesn't work with a slash at the end
+        tmpPattern = tmpPattern.substring(0, tmpPattern.length - 1)
       }
-      
-      sections = sections.dropRight(1)
+
+
+      var sections = tmpPattern.split('/').filterNot(_.isEmpty)
+      if (sections.last.contains("**") == false) {
+        sections = sections.dropRight(1) //drop the file-part (unnecessary to check and causes problems when it's "*")
+      }
+
+      val dirPath = Paths.get(FileMatchPattern.getUnixLikePath(dir.absolutePath))
+      for (i <- 0 to sections.length) {
+        val dirPattern = sections.foldLeft("")((a: String, b: String) => a + "/" + b)
+
+        val matcher = FileSystems.getDefault.getPathMatcher("glob:" + FileMatchPattern.getUnixLikePath(dirPattern))
+        if (matcher.matches(dirPath)) {
+          return true
+        }
+
+        sections = sections.dropRight(1)
+      }
+
+      false
     }
     
-    false
+    log.debug("Checking if '{}' is a potential super-dir for files matched by '{}' and it is{}.", FileMatchPattern.getUnixLikePath(dir.absolutePath), FileMatchPattern.getUnixLikePath(filePattern), if (matches) "" else " not")
+    
+    matches
   }
 }

@@ -24,7 +24,7 @@ class LocalDir(dir: Path) extends DirHandle {
   }
   
   
-  def absolutePath: String = {
+  override val absolutePath: String = {
     dir.toAbsolutePath.toString
   }
   

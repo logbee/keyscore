@@ -24,10 +24,10 @@ object RotationHelper {
     val files = if (rotatedFiles contains baseFile)
                    rotatedFiles
                 else
-                   (rotatedFiles :+ baseFile)
+                   rotatedFiles :+ baseFile
     
     
-    val filesWithCorrectLastModified = files.filter(file => file.lastModified >= previousReadRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
+    val filesWithCorrectLastModified = files.filter(_.lastModified >= previousReadRecord.previousReadTimestamp) // '>=' to include the last-read file, in case it hasn't been written to anymore. This simplifies dealing with the case where such a last-read identical file has been rotated away, as we then want to start the newly created file from the beginning, not the previousReadPosition
     
     val sortedFilesWithCorrectLastModified = filesWithCorrectLastModified.sortBy(file => (file.lastModified, file.name))(Ordering.Tuple2(Ordering.Long, Ordering.String.reverse)) //if lastModified-timestamps are equivalent for two files, assume that e.g. .2 was written to before .1
     //TODO sorting alphabetically is probably not enough, as .2 will come before .10
@@ -38,9 +38,6 @@ object RotationHelper {
     //deal with files that share their lastModified-timestamp
     val filesWithSharedLastModified = sortedFilesWithCorrectLastModified.filter(_.lastModified == previousReadRecord.previousReadTimestamp)
     
-    filesToRead = filesToRead.drop(filesWithSharedLastModified.size - previousReadRecord.newerFilesWithSharedLastModified - 1)
-    
-    
-    filesToRead
+    filesToRead.drop(filesWithSharedLastModified.size - previousReadRecord.newerFilesWithSharedLastModified - 1)
   }
 }

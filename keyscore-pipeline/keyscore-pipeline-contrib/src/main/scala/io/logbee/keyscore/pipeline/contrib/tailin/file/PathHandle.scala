@@ -5,7 +5,7 @@ trait PathHandle {
   /**
    * Usually used as unique identifier.
    */
-  def absolutePath: String
+  val absolutePath: String
   
   def tearDown(): Unit
 }

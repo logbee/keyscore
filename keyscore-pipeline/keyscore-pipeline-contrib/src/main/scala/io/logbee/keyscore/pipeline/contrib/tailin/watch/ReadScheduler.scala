@@ -10,7 +10,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 
 class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileEventHandler {
   
-  var previouslyScheduled = readPersistence.getCompletedRead(baseFile)
+  private var previouslyScheduled = readPersistence.getCompletedRead(baseFile)
   
   
   def processChanges(): Unit = {
@@ -23,9 +23,9 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
     var filesToSchedule = filesToRead
     //baseFile can still be written to, meaning its lastModified-timestamp could change at any point in the future
     //therefore, if files share their lastModified-timestamp with the baseFile,
-    //the 'newest' (lowest rotation-index in file-name) file with this shared lastModified-timestamp could still change.
+    //the 'newest' file (lowest or no rotation-index in file-name) with this shared lastModified-timestamp could still change.
     //We rely on this to not change anymore to be able to differentiate them (via another index - the number of newerFilesWithSharedLastModified).
-    if (filesToRead.filter(_.lastModified == baseFile.lastModified).size > 1) {
+    if (filesToRead.count(_.lastModified == baseFile.lastModified) > 1) {
       filesToSchedule = filesToSchedule.filter(_.lastModified != baseFile.lastModified)
     }
     
@@ -50,25 +50,19 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
       case (lastModified, fileToScheduleGroup) =>
         var newerFilesWithSharedLastModified = fileToScheduleGroup.length
         
-        fileToScheduleGroup
-          .foreach { fileToSchedule =>
-            newerFilesWithSharedLastModified -= 1
+        fileToScheduleGroup.foreach { fileToSchedule =>
+          newerFilesWithSharedLastModified -= 1
+          
+          val endPos = fileToSchedule.length
+          if (startPos != endPos || lastModified != previouslyScheduled.previousReadTimestamp) { //else assume this is the same file that we previously read from -> theoretically it is possible for this to be wrong, when in the same second (or whatever the filesystem's time resolution is) a file with the same length is created
+            if (startPos > endPos) startPos = 0 //assume that the file got truncated and start reading from the beginning again
             
-            val endPos = fileToSchedule.length
-            if (startPos != endPos) {
-//            if (startPos < endPos) {
-              val lastModified = fileToSchedule.lastModified
-              readSchedule.enqueue(ReadScheduleItem(baseFile, startPos, endPos, lastModified, newerFilesWithSharedLastModified))
-              
-              previouslyScheduled = FileReadRecord(endPos, lastModified, newerFilesWithSharedLastModified)
-            }
-        //      else { // >= the file got truncated //TODO the TailinSourceLogicSpec for some reason causes files with file-length 0 to be pushed into here?
-        //        //assume that log rotation happened
-        //        println("fileToRead: " + fileToRead + ", startPos: " + startPos + ", endPos: " + endPos);
-        //        ??? //TODO maybe deal with this somehow
-        //      }
+            readSchedule.enqueue(ReadScheduleItem(baseFile, startPos, endPos, lastModified, newerFilesWithSharedLastModified))
             
-            startPos = 0 //if there's multiple files, read the next files from the start
+            previouslyScheduled = FileReadRecord(endPos, lastModified, newerFilesWithSharedLastModified)
+          }
+          
+          startPos = 0 //if there's multiple files, read the next files from the start
         }
     }
   }
@@ -83,3 +77,6 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
     baseFile.tearDown()
   }
 }
+
+
+

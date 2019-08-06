@@ -15,11 +15,11 @@ object LocalFile {
 
 class LocalFile(val file: java.io.File) extends FileHandle {
   
-  def name: String = {
+  override val name: String = {
     file.getName
   }
   
-  def absolutePath: String = {
+  override val absolutePath: String = {
     file.getAbsolutePath
   }
   

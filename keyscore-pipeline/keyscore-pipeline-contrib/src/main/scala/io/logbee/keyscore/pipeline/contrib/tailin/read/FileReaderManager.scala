@@ -28,10 +28,7 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
   
   def getNextString(callback: FileReadData => Unit) = {
     
-    //dequeue the next schedule entry
-    val readScheduleItemOpt = readSchedule.dequeue()
-    
-    readScheduleItemOpt match {
+    readSchedule.dequeue() match {
       case None => //if no reads scheduled
         //do nothing, rescheduling is triggered by caller
         

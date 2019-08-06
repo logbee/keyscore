@@ -2,7 +2,6 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 
 import java.util.EnumSet
 
-import scala.collection.JavaConverters
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.mserref.NtStatus
 import com.hierynomus.msfscc.FileAttributes
@@ -17,34 +16,50 @@ import com.hierynomus.smbj.share.DiskShare
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
+import org.slf4j.LoggerFactory
 
 import scala.jdk.javaapi.CollectionConverters
 
 
 class SmbDir(path: String, share: DiskShare) extends DirHandle {
-  
-  
-  private lazy val dir: Directory = share.openDirectory(
-    path,
-    EnumSet.of(AccessMask.GENERIC_READ),
-    EnumSet.of(FileAttributes.FILE_ATTRIBUTE_DIRECTORY),
-    SMB2ShareAccess.ALL,
-    SMB2CreateDisposition.FILE_OPEN,
-    EnumSet.noneOf(classOf[SMB2CreateOptions])
-  )
-  
-  
-  private var (previousSubDirs, previousSubFiles) = listDirsAndFiles
-  
-  
-  override def absolutePath = dir.getFileName
-  
-  
+
+  private lazy val log = LoggerFactory.getLogger(classOf[SmbDir])
+
+
+  private def withDir[T](func: Directory => T): T = {
+    var dir: Directory = null
+
+    try {
+      dir = share.openDirectory(
+        path,
+        EnumSet.of(AccessMask.GENERIC_READ),
+        EnumSet.of(FileAttributes.FILE_ATTRIBUTE_DIRECTORY),
+        SMB2ShareAccess.ALL,
+        SMB2CreateDisposition.FILE_OPEN,
+        EnumSet.noneOf(classOf[SMB2CreateOptions])
+      )
+
+      func(dir)
+    }
+    finally {
+      if (dir != null)
+        dir.close()
+    }
+  }
+
+
+  override val absolutePath: String = withDir(_.getFileName)
+
   /**
    * \\hostname\share\path\to\ -> path\to\
    */
-  private def pathWithinShare: String = SmbPath.parse(absolutePath).getPath
+  private val pathWithinShare: String = SmbPath.parse(absolutePath).getPath
+
+
+  private var (previousSubDirs, previousSubFiles) = (Set[SmbDir](), Set[SmbFile]())
   
+
+
   
   private def isDirectory(fileIdBothDirectoryInformation: FileIdBothDirectoryInformation): Boolean = {
     import com.hierynomus.msfscc.FileAttributes._
@@ -53,64 +68,72 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
   
   
   override def listDirsAndFiles: (Set[SmbDir], Set[SmbFile]) = {
-    
-    val subPaths = CollectionConverters.asScala(dir.list).toSet
-                     .filterNot(subPath => subPath.getFileName.endsWith("\\.")
-                                        || subPath.getFileName.equals(".")
-                                        || subPath.getFileName.endsWith("\\..")
-                                        || subPath.getFileName.equals("..")
-                                )
-    
-    
-    var dirs: Set[SmbDir] = Set.empty
-    var files: Set[SmbFile] = Set.empty
-    
-    subPaths.foreach { subPath =>
+    withDir(dir => {
+
+      val subPaths = CollectionConverters.asScala(dir.list).toSet
+        .filterNot(subPath =>
+             subPath.getFileName.endsWith("\\.")
+          || subPath.getFileName.equals(".")
+          || subPath.getFileName.endsWith("\\..")
+          || subPath.getFileName.equals("..")
+        )
       
-      try {
-        if (isDirectory(subPath)) {
-          dirs = dirs + new SmbDir(pathWithinShare + subPath.getFileName + "\\", share)
-        } else {
-          files = files + new SmbFile(pathWithinShare + subPath.getFileName, share)
+      var dirs: Set[SmbDir] = Set.empty
+      var files: Set[SmbFile] = Set.empty
+      
+      subPaths.foreach { subPath =>
+        try {
+          if (isDirectory(subPath)) {
+            dirs = dirs + new SmbDir(pathWithinShare + subPath.getFileName + "\\", share)
+          } else {
+            files = files + new SmbFile(pathWithinShare + subPath.getFileName, share)
+          }
+        }
+        catch {
+          case smbException: SMBApiException =>
+            if (smbException.getStatus == NtStatus.STATUS_DELETE_PENDING) {
+              //this file/dir is being deleted, so don't add it to the listing
+              log.debug("Listed dir which is pending to be deleted.")
+            }
+            else if (smbException.getStatus == NtStatus.STATUS_OBJECT_NAME_NOT_FOUND) {
+              //this file/dir is already deleted, so don't add it to the listing
+              log.debug("Listed dir which has already been deleted.")
+            }
+            else {
+              log.error("Uncaught SMBApiException while listing files and dirs: " + smbException.getMessage)
+              throw smbException
+            }
+            
+          case otherException: Throwable =>
+            log.error("Uncaught exception while listing files and dirs: " + otherException.getMessage)
+            throw otherException
         }
       }
-      catch {
-        case smbException: SMBApiException =>
-          if (smbException.getStatus == NtStatus.STATUS_DELETE_PENDING) {
-            //this file/dir is being deleted, so don't add it to the listing
-          }
-          else {
-            throw smbException
-          }
-      }
-    }
-    
-    (dirs, files)
+      
+      (dirs, files)
+    })
   }
   
   
   
   
-  def getChanges: DirChanges = {
+  override def getChanges: DirChanges = {
     
     val (currentSubDirs, currentSubFiles) = listDirsAndFiles
-    
     
     //determine dir-changes
     var deletedPaths: Set[PathHandle] = previousSubDirs.toSeq.diff(currentSubDirs.toSeq).toSet
     val dirsContinuingToExist = previousSubDirs.intersect(currentSubDirs)
     val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
-    
+
     previousSubDirs = currentSubDirs
-    
-    
+
     //determine file-changes
     deletedPaths = deletedPaths ++ previousSubFiles.diff(currentSubFiles)
     val filesContinuingToExist = previousSubFiles.intersect(currentSubFiles)
     val newlyCreatedFiles = currentSubFiles.diff(previousSubFiles)
-    
+
     previousSubFiles = currentSubFiles
-    
     
     DirChanges(newlyCreatedDirs,
                newlyCreatedFiles,
@@ -121,11 +144,7 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
   }
   
   
-  def tearDown() = {
-    if (dir != null) {
-      dir.close()
-    }
-  }
+  override def tearDown() = {} //TODO remove?
   
   
   def canEqual(other: Any): Boolean = other.isInstanceOf[SmbDir]

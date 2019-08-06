@@ -8,37 +8,26 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 class ReadPersistence(completedPersistence: PersistenceContext, committedPersistence: PersistenceContext) {
   
+  
   def getCompletedRead(baseFile: FileHandle): FileReadRecord = {
     
-    var nextRead = FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0)
-    
-    val readPersistenceContextEntryOpt = completedPersistence.load[FileReadRecord](baseFile.absolutePath)
-    if (readPersistenceContextEntryOpt != None) {
-      val readPersistenceContextEntry = readPersistenceContextEntryOpt.get
-      
-      nextRead = FileReadRecord(previousReadPosition=readPersistenceContextEntry.previousReadPosition,
-                                previousReadTimestamp=readPersistenceContextEntry.previousReadTimestamp,
-                                newerFilesWithSharedLastModified=readPersistenceContextEntry.newerFilesWithSharedLastModified)
-    }
-    else { //if no completed, uncommitted reads have been persisted
-      val commitPersistenceContextEntryOpt = committedPersistence.load[FileReadRecord](baseFile.absolutePath)
-      if (commitPersistenceContextEntryOpt != None) {
-        val commitPersistenceContextEntry = commitPersistenceContextEntryOpt.get
+    completedPersistence.load[FileReadRecord](baseFile.absolutePath) match {
+      case Some(readPersistenceContextEntry) => readPersistenceContextEntry
         
-        nextRead = FileReadRecord(previousReadPosition=commitPersistenceContextEntry.previousReadPosition,
-                                  previousReadTimestamp=commitPersistenceContextEntry.previousReadTimestamp,
-                                  newerFilesWithSharedLastModified=commitPersistenceContextEntry.newerFilesWithSharedLastModified)
-      }
+      case None => //if no completed, uncommitted reads have been persisted
+        committedPersistence.load[FileReadRecord](baseFile.absolutePath) match {
+          case Some(commitPersistenceContextEntry) => commitPersistenceContextEntry
+            
+          case None => //if nothing is found in neither the completed nor the committed entries
+            FileReadRecord(previousReadPosition=0, previousReadTimestamp=0, newerFilesWithSharedLastModified=0)
+        }
     }
-    
-    nextRead
   }
   
   
-  def completeRead(baseFile: FileHandle, fileReadRecord: FileReadRecord) = {
+  def completeRead(baseFile: FileHandle, fileReadRecord: FileReadRecord): Unit = {
     
-    val readPersistenceEntryOpt = completedPersistence.load[FileReadRecord](baseFile.absolutePath)(typeTag[FileReadRecord])
-    readPersistenceEntryOpt match {
+    completedPersistence.load[FileReadRecord](baseFile.absolutePath)(typeTag[FileReadRecord]) match {
       case Some(readPersistenceEntry) =>
         if (readPersistenceEntry.previousReadTimestamp < fileReadRecord.previousReadTimestamp) {
           completedPersistence.store(baseFile.absolutePath, fileReadRecord)
@@ -50,11 +39,10 @@ class ReadPersistence(completedPersistence: PersistenceContext, committedPersist
   }
   
   
-  def commitRead(baseFile: FileHandle, fileReadRecord: FileReadRecord) = {
+  def commitRead(baseFile: FileHandle, fileReadRecord: FileReadRecord): Unit = {
     
     { //check if the timestamp to commit is for some reason newer than the timestamp of the last completed read
-      val readPersistenceEntryOpt = completedPersistence.load[FileReadRecord](baseFile.absolutePath)(typeTag[FileReadRecord])
-      readPersistenceEntryOpt match {
+      completedPersistence.load[FileReadRecord](baseFile.absolutePath)(typeTag[FileReadRecord]) match {
         case Some(readPersistenceEntry) =>
           if (readPersistenceEntry.previousReadTimestamp < fileReadRecord.previousReadTimestamp) {
             completedPersistence.store(baseFile.absolutePath, fileReadRecord)
@@ -67,8 +55,7 @@ class ReadPersistence(completedPersistence: PersistenceContext, committedPersist
     
     
     //make sure the entry to commit is actually newer than the entry we currently have committed
-    val commitPersistenceEntryOpt = committedPersistence.load[FileReadRecord](baseFile.absolutePath)(typeTag[FileReadRecord])
-    commitPersistenceEntryOpt match {
+    committedPersistence.load[FileReadRecord](baseFile.absolutePath)(typeTag[FileReadRecord]) match {
       case Some(commitPersistenceEntry) =>
         if (commitPersistenceEntry.previousReadTimestamp < fileReadRecord.previousReadTimestamp) {
           committedPersistence.store(baseFile.absolutePath, fileReadRecord)
