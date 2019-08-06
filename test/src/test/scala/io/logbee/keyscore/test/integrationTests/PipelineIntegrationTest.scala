@@ -114,9 +114,9 @@ class PipelineIntegrationTest extends Matchers {
     //Wait until all Dataset are pushed to the Elastic index
     pollElasticElements(topic = "test", expect = 2)(runner, elasticClient, logger) shouldBe true
 
-    scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read").get.value shouldBe 2L
+    scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[NumberGaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read").get.value shouldBe 2L
     scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[NumberGaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read").get.value should be > 595L
-    scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written").get.value shouldBe 2L
+    scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[NumberGaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written").get.value shouldBe 2L
     scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[NumberGaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.bytes-written").get.value should be > 800L
 
     //Cleanup

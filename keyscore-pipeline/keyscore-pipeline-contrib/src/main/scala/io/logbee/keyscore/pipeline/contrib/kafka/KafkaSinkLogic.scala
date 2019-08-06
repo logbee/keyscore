@@ -104,7 +104,7 @@ object KafkaSinkLogic extends Described {
     ) ++ CATEGORY_LOCALIZATION
   )
 
-  val datasetsWritten = CounterMetricDescriptor(
+  val datasetsWritten = NumberGaugeMetricDescriptor(
     name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written",
     displayName = TextRef("datasetsWrittenName"),
     description = TextRef("datasetsWrittenDesc"),
