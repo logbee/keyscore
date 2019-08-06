@@ -44,11 +44,11 @@ class ThrottleLogicSpec extends FreeSpec with Matchers with ScalaFutures with Te
 
           timestamp = currentTimeMillis()
           sink.expectNext(2 second, sample1)
-          (currentTimeMillis() - timestamp) should be (500L +- 50)
+          (currentTimeMillis() - timestamp) should be (500L +- 100)
 
           timestamp = currentTimeMillis()
           sink.expectNext(2 second, sample2)
-          (currentTimeMillis() - timestamp) should be (500L +- 50)
+          (currentTimeMillis() - timestamp) should be (500L +- 100)
 
           Thread.sleep(1000)
           source.sendNext(sample3)
@@ -56,11 +56,11 @@ class ThrottleLogicSpec extends FreeSpec with Matchers with ScalaFutures with Te
 
           timestamp = currentTimeMillis()
           sink.expectNext(2 second, sample3)
-          (currentTimeMillis() - timestamp) should be (0L +- 50)
+          (currentTimeMillis() - timestamp) should be (0L +- 100)
 
           timestamp = currentTimeMillis()
           sink.expectNext(2 second, sample4)
-          (currentTimeMillis() - timestamp) should be (500L +- 50)
+          (currentTimeMillis() - timestamp) should be (500L +- 100)
         }
       }
     }
