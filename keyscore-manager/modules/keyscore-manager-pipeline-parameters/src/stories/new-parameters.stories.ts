@@ -56,6 +56,10 @@ import {
     TextListParameterDescriptor
 } from "../main/parameters/text-list-parameter/text-list-parameter.model";
 import {DragDropModule} from "@angular/cdk/drag-drop";
+import {TextListParameterModule} from "../main/parameters/text-list-parameter/text-list-parameter.module";
+import {TestTextListComponent} from "../main/shared-controls/test-list.component";
+import {ParameterListComponent} from "../main/shared-controls/parameter-list.component";
+import {ParameterListItemDirective} from "../main/shared-controls/parameter-list-item.directive";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -375,15 +379,35 @@ storiesOf('Parameters/TextListParameter', module).addDecorator(
             TextParameterModule,
             DragDropModule
         ],
-        providers:[
-
-        ]
+        providers: []
     })).add("default", () => ({
     component: TextListParameterComponent,
     props: {
         descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
             "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",
                 "Represents a single message of a list", "default", null, false), 1, 5),
+        parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
+        emitter: action('Value Change')
+    }
+}));
+
+storiesOf('Parameters/TestListParameter', module).addDecorator(
+    moduleMetadata({
+        declarations: [ParameterListComponent,ParameterListItemDirective],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule,
+            TextParameterModule,
+            DragDropModule,
+        ],
+        providers: []
+    })).add("default", () => ({
+    component: TestTextListComponent,
+    props: {
+        descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
+            "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",
+                "Represents a single message of a list", "default", null, false), 2, 5),
         parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
         emitter: action('Value Change')
     }
@@ -401,7 +425,8 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             TextParameterModule,
             NumberParameterModule,
             BooleanParameterModule,
-            FieldParameterModule
+            FieldParameterModule,
+            TextListParameterModule
         ],
         providers: [
             ParameterComponentFactoryService,
@@ -411,7 +436,7 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
     component: ParameterFormComponent,
     props: {
         parameters: {
-            refs: ['expressionParameter', 'textParameter', 'numberParameter', 'booleanParameter', 'fieldParameter'],
+            refs: ['expressionParameter', 'textParameter', 'numberParameter', 'booleanParameter', 'fieldParameter', 'textListParameter'],
             parameters: {
                 'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
                     new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
@@ -434,7 +459,14 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
                         "My boolean Parameter", false, true)],
                 'fieldParameter': [new FieldParameter({id: "fieldParameter"}, null),
                     new FieldParameterDescriptor({id: "fieldParameter"},
-                        "Field", "", "", FieldNameHint.AnyField, null, FieldValueType.Timestamp, true)]
+                        "Field", "", "", FieldNameHint.AnyField, null,
+                        FieldValueType.Timestamp, true)],
+                'textListParameter': [
+                    new TextListParameter({id: 'textListParameter'}, ['init1', 'init2']),
+                    new TextListParameterDescriptor({id: 'textListParameter'}, 'Text List',
+                        'A text list', new TextParameterDescriptor({id: 'textParameterInList'},
+                            'message', '', 'default', null, false), 2, 6)
+                ]
             },
             autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time']
         },
