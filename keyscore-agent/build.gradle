@@ -37,6 +37,7 @@ dependencies {
     compile dependency.akka_http_json
     compile dependency.akka_cluster
 
+    runtime project(':keyscore-pipeline:keyscore-pipeline-commons')
     runtime project(':keyscore-pipeline:keyscore-pipeline-contrib')
 
     runtime dependency.logback

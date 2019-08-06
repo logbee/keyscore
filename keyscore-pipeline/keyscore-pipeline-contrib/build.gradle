@@ -8,7 +8,7 @@ repositories {
 dependencies {
 
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
-    compile project(':keyscore-pipeline:keyscore-pipeline-commons')
+    compileOnly project(':keyscore-pipeline:keyscore-pipeline-commons')
 
     compile dependency.scala_lang
     compile dependency.akka_actor
