@@ -10,8 +10,19 @@
   margin-left:0 !important;
 }
 
+.ks-expansion-panel-title{
+  margin-left: 10px;
+  color:rgba(0,0,0,0.6);
+}
+
 .parameter-warn {
   margin-top: -10px;
+  line-height: 1.2em;
+  color: $warn;
+  font-size: 75%;
+}
+
+.parameter-list-warn{
   line-height: 1.2em;
   color: $warn;
   font-size: 75%;
@@ -68,12 +79,29 @@
   padding-bottom: 20px;
 }
 
+.parameter-list-item{
+  display:flex;
+}
+
+.drag-handle {
+  color: #ccc;
+  cursor: move;
+  /*width: 20px;
+  height: 20px;*/
+  margin-right: 10px;
+}
+
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 4px;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
   0 8px 10px 1px rgba(0, 0, 0, 0.14),
   0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  padding:10px;
+}
+
+.cdk-drag-preview parameter-text{
+  align-self: center;
 }
 
 .cdk-drag-placeholder {

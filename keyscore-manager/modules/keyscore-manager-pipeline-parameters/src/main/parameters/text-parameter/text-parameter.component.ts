@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, ViewChild} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {TextParameter, TextParameterDescriptor} from "./text-parameter.model";
 import {StringValidatorService} from "../../service/string-validator.service";
@@ -8,7 +8,8 @@ import {StringValidatorService} from "../../service/string-validator.service";
     template: `
         <mat-form-field>
             <input #textInput matInput type="text"
-                   (change)="onChange($event.target.value)"
+                   (change)="onChange()"
+                   (keyup.enter)="onEnter($event)"
                    [value]="parameter.value">
             <mat-label *ngIf="showLabel">{{descriptor.displayName}}</mat-label>
 
@@ -29,8 +30,14 @@ import {StringValidatorService} from "../../service/string-validator.service";
 })
 export class TextParameterComponent extends ParameterComponent<TextParameterDescriptor, TextParameter> {
     @Input() showLabel: boolean = true;
+    @Input()
+    get value():TextParameter{
+        return new TextParameter(this.descriptor.ref,this.textInputRef.nativeElement.value);
+    }
+    @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter();
 
     @ViewChild('textInput') textInputRef:ElementRef;
+
 
     constructor(private stringValidator: StringValidatorService) {
         super();
@@ -38,13 +45,15 @@ export class TextParameterComponent extends ParameterComponent<TextParameterDesc
 
     public clear(){
         this.textInputRef.nativeElement.value="";
-        this.onChange('');
+        this.onChange();
     }
 
-    private onChange(value: string): void {
-        const parameter = new TextParameter(this.descriptor.ref, value);
-        console.log("changed: ", parameter);
-        this.emit(parameter);
+    private onChange(): void {
+        this.emit(this.value);
+    }
+
+    private onEnter(event:Event): void{
+        this.keyUpEnter.emit(event);
     }
 
     private isValid(value: string): boolean {

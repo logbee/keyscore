@@ -1,43 +1,65 @@
-import {Component, ElementRef, ViewChild} from "@angular/core";
+import {Component, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {TextListParameter, TextListParameterDescriptor} from "./text-list-parameter.model";
 import {TextParameter} from "../text-parameter/text-parameter.model";
-import {animate, animateChild, query, stagger, style, transition, trigger} from "@angular/animations";
+import {animate, keyframes, style, transition, trigger} from "@angular/animations";
 import {TextParameterComponent} from "../text-parameter/text-parameter.component";
+import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 
 @Component({
     selector: 'parameter-text-list',
     template: `
         <div fxLayout="row-reverse">
-            <button mat-button mat-icon-button (click)="add(newInput.value)" fxFlexAlign="center">
-                <mat-icon color="accent">add</mat-icon>
+            <button mat-button mat-icon-button (click)="add(newInput.value.value)" fxFlexAlign="center">
+                <mat-icon color="accent">add_circle_outline</mat-icon>
             </button>
             <parameter-text #newInput fxFlex
                             [descriptor]="descriptor"
-                            [parameter]="_newParameter" (parameter)="add($event.value)">
+                            [parameter]="_newParameter"
+                            (keyUpEnter)="add(newInput.value.value)">
             </parameter-text>
         </div>
-        <div @items *ngFor="let param of _mockParams;let i=index" fxLayout="row-reverse">
-            <button mat-button mat-icon-button (click)="remove(i)" fxFlexAlign="center">
-                <mat-icon color="warn">delete</mat-icon>
-            </button>
-            <parameter-text fxFlex [showLabel]="false"
-                            [descriptor]="descriptor.descriptor"
-                            [parameter]="param" (parameter)="onChange($event,i)">
-            </parameter-text>
-        </div>
-
+        <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header [collapsedHeight]="'*'"
+                                        [expandedHeight]="'*'" class="sequence-header" fxLayout="row"
+                                        fxLayoutAlign="space-between center">
+                <mat-panel-title><span class="ks-expansion-panel-title">Added Elements</span>
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div cdkDropList (cdkDropListDropped)="drop($event)" class="parameter-list">
+                <div *ngFor="let param of _mockParams;let i=index" cdkDrag class="parameter-list-item"
+                     fxLayout="row-reverse">
+                    <button mat-button mat-icon-button (click)="remove(i)" fxFlexAlign="center">
+                        <mat-icon color="warn">delete</mat-icon>
+                    </button>
+                    <parameter-text fxFlex [showLabel]="false"
+                                    [descriptor]="descriptor.descriptor"
+                                    [parameter]="param" (parameter)="onChange($event,i)">
+                    </parameter-text>
+                    <div class="drag-handle" cdkDragHandle fxFlexAlign="center">
+                        <mat-icon>drag_handle</mat-icon>
+                    </div>
+                </div>
+            </div>
+        </mat-expansion-panel>
+        <p class="parameter-list-warn" *ngIf="descriptor.mandatory && !_mockParams.length">{{descriptor.displayName}} is
+            required!</p>
+        <p class="parameter-list-warn" *ngIf="_mockParams.length < descriptor.min">{{descriptor.displayName}}
+            needs at least {{descriptor.min}} {{descriptor.min > 1 ? 'elements' : 'element'}}.</p>
+        <p @max-warn class="parameter-list-warn" *ngIf="maxElementsReached">
+            You reached the maximum number of elements. {{descriptor.displayName}}
+            allows a maximum of {{descriptor.max}} elements.</p>
     `,
-    animations: [
-        trigger('items', [
+    animations:[
+        trigger('max-warn',[
             transition(':enter', [
-                style({transform: 'scale(0.5)', opacity: 0}),  // initial
-                animate('1s cubic-bezier(.8, -0.6, 0.2, 1.5)',
-                    style({transform: 'scale(1)', opacity: 1}))  // final
+                style({ transform: 'scale(0.5)', opacity: 0 }),
+                animate('1s cubic-bezier(.8, -0.6, 0.2, 1.2)',
+                    style({ transform: 'scale(1)', opacity: 1 }))
             ]),
             transition(':leave', [
-                style({transform: 'scale(1)', opacity: 1, height: '*'}),
-                animate('1s cubic-bezier(.8, -0.6, 0.2, 1.5)',
+                style({ transform: 'scale(1)', opacity: 1, height: '*' }),
+                animate('1s cubic-bezier(.8, 0, 0.5, 1.2)',
                     style({
                         transform: 'scale(0.5)', opacity: 0,
                         height: '0px', margin: '0px'
@@ -55,12 +77,14 @@ export class TextListParameterComponent extends ParameterComponent<TextListParam
     private _newParameter = new TextParameter({id: "new"}, "");
     private _mockParams: TextParameter[] = [];
 
+    private maxElementsReached: boolean = false;
+
     get value() {
         return this._mockParams.map(param => param.value);
     }
 
     onInit() {
-        this.parameter.value.forEach((val, index) => {
+        this.parameter.value.forEach(val => {
             this._mockParams.push(new TextParameter({id: this.generateId()}, val))
         });
         console.log("mock Params: ", this._mockParams);
@@ -79,12 +103,24 @@ export class TextListParameterComponent extends ParameterComponent<TextListParam
     }
 
     add(value: string) {
-        this._mockParams.splice(0, 0, new TextParameter({id: this.generateId()}, value));
-        //this.newInputRef.clear();
+        if (this._mockParams.length === this.descriptor.max) {
+            this.maxElementsReached = true;
+            setTimeout(() => this.maxElementsReached = false, 5000);
+            return;
+        }
+        this._mockParams.push(new TextParameter({id: this.generateId()}, value));
+        this.newInputRef.clear();
+        this.emitter.emit(new TextListParameter(this.descriptor.ref, this.value));
+    }
+
+    private drop(event: CdkDragDrop<TextParameter[]>) {
+        moveItemInArray(this._mockParams, event.previousIndex, event.currentIndex);
+        this.emitter.emit(new TextListParameter(this.descriptor.ref, this.value));
     }
 
     private generateId(): string {
         return `text-${TextListParameterComponent.refGenerator++}`;
     }
+
 
 }

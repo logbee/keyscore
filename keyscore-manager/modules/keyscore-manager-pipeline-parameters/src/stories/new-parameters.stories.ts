@@ -55,6 +55,7 @@ import {
     TextListParameter,
     TextListParameterDescriptor
 } from "../main/parameters/text-list-parameter/text-list-parameter.model";
+import {DragDropModule} from "@angular/cdk/drag-drop";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -371,7 +372,8 @@ storiesOf('Parameters/TextListParameter', module).addDecorator(
             CommonModule,
             MaterialModule,
             BrowserAnimationsModule,
-            TextParameterModule
+            TextParameterModule,
+            DragDropModule
         ],
         providers:[
 
@@ -379,9 +381,9 @@ storiesOf('Parameters/TextListParameter', module).addDecorator(
     })).add("default", () => ({
     component: TextListParameterComponent,
     props: {
-        descriptor: new TextListParameterDescriptor({id: "textList"}, "TextListParameter",
-            "", new TextParameterDescriptor({id: "myTextParameter"}, "textParam",
-                "", "default", null, true), 0, 5),
+        descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
+            "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",
+                "Represents a single message of a list", "default", null, false), 1, 5),
         parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
         emitter: action('Value Change')
     }
