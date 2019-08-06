@@ -11,8 +11,9 @@ option (scalapb.options) = {
 
 message MetricDescriptor {
     oneof sealed_value {
-        CounterMetricDescriptor counter = 1;
-        GaugeMetricDescriptor gauge = 2;
+        CounterMetricDescriptor counterDescriptor = 1;
+        NumberGaugeMetricDescriptor numberGaugeDescriptor = 2;
+        DecimalGaugeMetricDescriptor decimalGaugeDescriptor = 3;
     }
 }
 
@@ -26,7 +27,7 @@ message CounterMetricDescriptor {
 // end::CounterMetricDescriptor[]
 
 // tag::GaugeMetricDescriptor[]
-message GaugeMetricDescriptor {
+message NumberGaugeMetricDescriptor {
     string name = 1;
     TextRef displayName = 2 [(scalapb.field).no_box = true];
     TextRef description = 3 [(scalapb.field).no_box = true];
@@ -34,11 +35,22 @@ message GaugeMetricDescriptor {
 }
 // end::GaugeMetricDescriptor[]
 
+// tag::DecimalGaugeMetricDescriptor[]
+message DecimalGaugeMetricDescriptor {
+    string name = 1;
+    TextRef displayName = 2 [(scalapb.field).no_box = true];
+    TextRef description = 3 [(scalapb.field).no_box = true];
+    Importance importance = 4;
+}
+// end::DecimalGaugeMetricDescriptor[]
+
 message Metric {
     option (scalapb.message).extends = "io.logbee.keyscore.model.metrics.BaseMetric";
+//    option (scalapb.message).sealed_oneof_extends = "io.logbee.keyscore.model.metrics.BaseMetric";
     oneof sealed_value {
         CounterMetric counter = 1;
-        GaugeMetric gauge = 2;
+        NumberGaugeMetric numberGauge = 2;
+        DecimalGaugeMetric decimalGauge = 3;
     }
 }
 
@@ -47,12 +59,23 @@ message CounterMetric {
     string name = 1;
     repeated Label labels = 2 [(scalapb.field).collection_type="collection.immutable.Set"];
     TimestampValue timestamp = 3;
-    double value = 4;
+    sint64 value = 4;
 }
 // end::CounterMetric[]
 
 // tag::GaugeMetricDescriptor[]
-message GaugeMetric {
+message NumberGaugeMetric {
+    string name = 1;
+    repeated Label labels = 2 [(scalapb.field).collection_type="collection.immutable.Set"];
+    TimestampValue timestamp = 3;
+    sint64 value = 4;
+    sint64 min = 5;
+    sint64 max = 6;
+}
+// end::GaugeMetricDescriptor[]
+
+// tag::DecimalGaugeMetric[]
+message DecimalGaugeMetric {
     string name = 1;
     repeated Label labels = 2 [(scalapb.field).collection_type="collection.immutable.Set"];
     TimestampValue timestamp = 3;
@@ -60,7 +83,7 @@ message GaugeMetric {
     double min = 5;
     double max = 6;
 }
-// end::GaugeMetricDescriptor[]
+// end::DecimalGaugeMetric[]
 
 // tag::MetricsCollection[]
 message MetricsCollection {

@@ -12,9 +12,9 @@ trait BaseMetricsCollection {
     metrics.filter(_.isInstanceOf[CounterMetric]).map(_.asInstanceOf[CounterMetric]).find(cm => cm.name == metricName)
   }
 
-  def find(descriptor: GaugeMetricDescriptor): Option[GaugeMetric] = {
+  def find(descriptor: NumberGaugeMetricDescriptor): Option[NumberGaugeMetric] = {
     val metricName: String = descriptor.name
-    metrics.filter(_.isInstanceOf[GaugeMetric]).map(_.asInstanceOf[GaugeMetric]).find(cm => cm.name == metricName)
+    metrics.filter(_.isInstanceOf[NumberGaugeMetric]).map(_.asInstanceOf[NumberGaugeMetric]).find(cm => cm.name == metricName)
   }
 
   def find[T <: Metric](name: String, labels: Set[Label] = Set.empty)(implicit classTag: ClassTag[T]): Option[T] = {

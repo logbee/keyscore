@@ -1,4 +1,5 @@
 package io.logbee.keyscore.pipeline.api.metrics
+
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.model.data.{Label, TimestampValue}
 import io.logbee.keyscore.model.metrics._
@@ -35,11 +36,11 @@ class DefaultMetricsCollector() extends MetricsCollector {
         .asInstanceOf[CounterMetric]
   }
 
-  override def collect(descriptor: GaugeMetricDescriptor): GaugeMetricCollector = new GaugeMetricCollector {
+  override def collect(descriptor: NumberGaugeMetricDescriptor): NumberGaugeMetricCollector = new NumberGaugeMetricCollector {
 
     private val name: String = descriptor.name
 
-    override def set(value: Double): GaugeMetricCollector = {
+    override def set(value: Long): NumberGaugeMetricCollector = {
       metrics.update(name, getOrCreate().update(
         _.value := value,
         _.timestamp := now
@@ -47,7 +48,7 @@ class DefaultMetricsCollector() extends MetricsCollector {
       this
     }
 
-    override def increment(amount: Double = 1.0): GaugeMetricCollector = {
+    override def increment(amount: Long = 1L): NumberGaugeMetricCollector = {
       val metric = getOrCreate()
       metrics.update(name, metric.update(
         _.value := metric.value + amount,
@@ -56,7 +57,7 @@ class DefaultMetricsCollector() extends MetricsCollector {
       this
     }
 
-    override def decrement(amount: Double = 1.0): GaugeMetricCollector = {
+    override def decrement(amount: Long = 1L): NumberGaugeMetricCollector = {
       val metric = getOrCreate()
       metrics.update(name, metric.update(
         _.value := metric.value - amount,
@@ -65,7 +66,7 @@ class DefaultMetricsCollector() extends MetricsCollector {
       this
     }
 
-    override def min(value: Double): GaugeMetricCollector = {
+    override def min(value: Long): NumberGaugeMetricCollector = {
       metrics.update(name, getOrCreate().update(
         _.min := value,
         _.timestamp := now
@@ -73,7 +74,7 @@ class DefaultMetricsCollector() extends MetricsCollector {
       this
     }
 
-    override def max(value: Double): GaugeMetricCollector = {
+    override def max(value: Long): NumberGaugeMetricCollector = {
       metrics.update(name, getOrCreate().update(
         _.max := value,
         _.timestamp := now
@@ -81,17 +82,79 @@ class DefaultMetricsCollector() extends MetricsCollector {
       this
     }
 
-    private def getOrCreate(): GaugeMetric =
-      metrics.getOrElse(name, GaugeMetric(name))
-      .asInstanceOf[GaugeMetric]
+    private def getOrCreate(): NumberGaugeMetric =
+      metrics.getOrElse(name, NumberGaugeMetric(name))
+      .asInstanceOf[NumberGaugeMetric]
+  }
+
+  override def collect(descriptor: DecimalGaugeMetricDescriptor): DecimalGaugeMetricCollector = new DecimalGaugeMetricCollector {
+
+    private val name: String = descriptor.name
+
+    override def set(value: Double): DecimalGaugeMetricCollector = {
+      metrics.update(name, getOrCreate().update(
+        _.value := value,
+        _.timestamp := now
+      ))
+      this
+    }
+
+    override def increment(amount: Double = 1.0): DecimalGaugeMetricCollector = {
+      val metric = getOrCreate()
+      metrics.update(name, metric.update(
+        _.value := metric.value + amount,
+        _.timestamp := now
+      ))
+      this
+    }
+
+    override def decrement(amount: Double = 1.0): DecimalGaugeMetricCollector = {
+      val metric = getOrCreate()
+      metrics.update(name, metric.update(
+        _.value := metric.value - amount,
+        _.timestamp := now
+      ))
+      this
+    }
+
+    override def min(value: Double): DecimalGaugeMetricCollector = {
+      metrics.update(name, getOrCreate().update(
+        _.min := value,
+        _.timestamp := now
+      ))
+      this
+    }
+
+    override def max(value: Double): DecimalGaugeMetricCollector = {
+      metrics.update(name, getOrCreate().update(
+        _.max := value,
+        _.timestamp := now
+      ))
+      this
+    }
+
+    private def getOrCreate(): DecimalGaugeMetric =
+      metrics.getOrElse(name, DecimalGaugeMetric(name))
+        .asInstanceOf[DecimalGaugeMetric]
   }
 
   def get: MetricsCollection = MetricsCollection(metrics.values.toList)
 
+  def scrape: MetricsCollection = {
+    val result = MetricsCollection(metrics.values.toList)
+    metrics.foreach {
+      case (name, metric : NumberGaugeMetric) => metrics.update(name, metric.withValue(0))
+      case (name, metric : DecimalGaugeMetric) => metrics.update(name, metric.withValue(0))
+      case _ =>
+    }
+    result
+  }
+
   def getWithLabels(labels: Set[Label]): MetricsCollection = {
     MetricsCollection(metrics.values.map {
-      case metric @ CounterMetric(_, _, _, _) => metric.update(_.labels :++= labels)
-      case metric @ GaugeMetric(_, _, _, _, _, _) => metric.update(_.labels :++= labels)
+      case metric : CounterMetric => metric.update(_.labels :++= labels)
+      case metric : NumberGaugeMetric => metric.update(_.labels :++= labels)
+      case metric : DecimalGaugeMetric => metric.update(_.labels :++= labels)
     }.toList)
   }
 

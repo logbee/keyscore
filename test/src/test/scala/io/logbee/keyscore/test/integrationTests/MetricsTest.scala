@@ -10,7 +10,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.metrics.GaugeMetric
+import io.logbee.keyscore.model.metrics.NumberGaugeMetric
 import io.logbee.keyscore.model.pipeline.{Dismantled, FilterStatus, Paused, Running}
 import io.logbee.keyscore.test.integrationTests.behaviors._
 import io.logbee.keyscore.test.util.JsonData._
@@ -118,10 +118,10 @@ class MetricsTest extends Matchers {
 
     Thread.sleep(3000)
 
-    val firstOut = scrapeMetrics(decoderID, write(standardTimestamp)).head.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
-    val lastOut = scrapeMetrics(encoderID, write(standardTimestamp)).head.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val firstOut = scrapeMetrics(decoderID, write(standardTimestamp)).head.find[NumberGaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val lastOut = scrapeMetrics(encoderID, write(standardTimestamp)).head.find[NumberGaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
 
-    lastOut should be > 0.0
+    lastOut should be > 0L
 
     firstOut should be < lastOut
 

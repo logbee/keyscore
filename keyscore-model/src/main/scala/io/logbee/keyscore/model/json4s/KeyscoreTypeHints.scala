@@ -33,7 +33,7 @@ object KeyscoreTypeHints {
     classOf[MetricDescriptor],
     classOf[Metric],
     classOf[MetricsCollection],
-    classOf[GaugeMetric],
+    classOf[NumberGaugeMetric],
     classOf[CounterMetric],
     classOf[Importance],
     classOf[FilterStatus],

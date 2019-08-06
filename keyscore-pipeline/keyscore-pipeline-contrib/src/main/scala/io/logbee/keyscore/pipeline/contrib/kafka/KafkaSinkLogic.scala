@@ -12,7 +12,7 @@ import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
-import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor}
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, NumberGaugeMetricDescriptor}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
 import io.logbee.keyscore.pipeline.commons.CommonCategories
@@ -111,7 +111,7 @@ object KafkaSinkLogic extends Described {
     importance = High
   )
 
-  val bytesWritten = GaugeMetricDescriptor(
+  val bytesWritten = NumberGaugeMetricDescriptor(
     name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.bytes-written",
     displayName = TextRef("bytesWrittenName"),
     description = TextRef("bytesWrittenDesc"),

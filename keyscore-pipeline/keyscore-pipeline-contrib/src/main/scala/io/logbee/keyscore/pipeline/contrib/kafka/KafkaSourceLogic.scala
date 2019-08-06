@@ -12,7 +12,7 @@ import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
-import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor}
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, NumberGaugeMetricDescriptor}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.commons.CommonCategories
@@ -123,14 +123,14 @@ object KafkaSourceLogic extends Described {
     ) ++ CATEGORY_LOCALIZATION
   )
 
-  val datasetsRead = CounterMetricDescriptor(
+  val datasetsRead = NumberGaugeMetricDescriptor(
     name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read",
     displayName = TextRef("datasetsReadName"),
     description = TextRef("datasetsReadDesc"),
     importance = High
   )
 
-  val bytesRead = GaugeMetricDescriptor(
+  val bytesRead = NumberGaugeMetricDescriptor(
     name = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read",
     displayName = TextRef("bytesReadName"),
     description = TextRef("bytesReadDesc"),
@@ -226,5 +226,4 @@ class KafkaSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset])
       queue.cancel()
     }
   }
-
 }

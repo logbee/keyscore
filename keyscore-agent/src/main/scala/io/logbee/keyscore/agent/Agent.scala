@@ -22,7 +22,7 @@ import io.logbee.keyscore.commons.util.StartUpWatch
 import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
 import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.localization.TextRef
-import io.logbee.keyscore.model.metrics.{GaugeMetricDescriptor, MetricsCollection}
+import io.logbee.keyscore.model.metrics.{DecimalGaugeMetricDescriptor, MetricsCollection, NumberGaugeMetricDescriptor}
 import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
 
 import scala.concurrent.ExecutionContext
@@ -39,35 +39,35 @@ object Agent {
 
   private case object ClusterAgentManagerDied
 
-  val processUsedMemoryMetric = GaugeMetricDescriptor(
+  val processUsedMemoryMetric = NumberGaugeMetricDescriptor(
     name = "process_used_memory",
     displayName = TextRef("processUsedMemoryName"),
     description = TextRef("processUsedMemoryDesc"),
     importance = High
   )
 
-  val systemUsedMemoryMetric = GaugeMetricDescriptor(
+  val systemUsedMemoryMetric = NumberGaugeMetricDescriptor(
     name = "system_used_memory",
     displayName = TextRef("systemUsedMemoryName"),
     description = TextRef("systemUsedMemoryDesc"),
     importance = High
   )
 
-  val freeMemoryMetric = GaugeMetricDescriptor(
+  val freeMemoryMetric = NumberGaugeMetricDescriptor(
     name = "free_memory",
     displayName = TextRef("freeMemoryName"),
     description = TextRef("freeMemoryDesc"),
     importance = High
   )
 
-  val processCpuLoadMetric = GaugeMetricDescriptor(
+  val processCpuLoadMetric = DecimalGaugeMetricDescriptor(
     name = "process_cpu_load",
     displayName = TextRef("processCpuLoadName"),
     description = TextRef("processCpuLoadDesc"),
     importance = High,
   )
 
-  val systemCpuLoadMetric = GaugeMetricDescriptor(
+  val systemCpuLoadMetric = DecimalGaugeMetricDescriptor(
     name = "system_cpu_load",
     displayName = TextRef("systemCpuLoadName"),
     description = TextRef("systemCpuLoadDesc"),

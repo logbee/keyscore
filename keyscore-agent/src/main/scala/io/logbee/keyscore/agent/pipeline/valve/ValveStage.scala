@@ -17,7 +17,7 @@ import io.logbee.keyscore.agent.util.{MovingMedian, RingBuffer}
 import io.logbee.keyscore.model.data.Importance.{Lower, Medium}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.localization.TextRef
-import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor, MetricsCollection}
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, NumberGaugeMetricDescriptor, MetricsCollection}
 import io.logbee.keyscore.pipeline.api.metrics.DefaultMetricsCollector
 
 import scala.collection.mutable
@@ -46,14 +46,14 @@ object ValveStage {
     importance = Lower
   )
 
-  val _throughputTime = GaugeMetricDescriptor(
+  val _throughputTime = NumberGaugeMetricDescriptor(
     name = "io.logbee.keyscore.agent.pipeline.valve.ValveStage.throughput-time",
     displayName = TextRef("throughputTimeName"),
     description = TextRef("throughputTimeDesc"),
     importance = Medium
   )
 
-  val _totalThroughputTime = GaugeMetricDescriptor(
+  val _totalThroughputTime = NumberGaugeMetricDescriptor(
     name = "io.logbee.keyscore.agent.pipeline.valve.ValveStage.total-throughput-time",
     displayName = TextRef("totalThroughputTimeName"),
     description = TextRef("totalThroughputTimeDesc"),

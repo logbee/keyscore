@@ -11,7 +11,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveStage
 import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter, ParameterSet}
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data.{Dataset, Label, Record, TextValue}
-import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric}
+import io.logbee.keyscore.model.metrics.{CounterMetric, NumberGaugeMetric}
 import io.logbee.keyscore.model.pipeline.{Running, StageSupervisor}
 import io.logbee.keyscore.model.{After, Before}
 import io.logbee.keyscore.pipeline.api.LogicParameters
@@ -78,7 +78,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
         whenReady(controller.state()) { state =>
 
           whenReady(controller.scrape()) { collection =>
-            val metrics = collection.findMetrics[GaugeMetric]("io.logbee.keyscore.agent.pipeline.valve.ValveStage.total-throughput-time")
+            val metrics = collection.findMetrics[NumberGaugeMetric]("io.logbee.keyscore.agent.pipeline.valve.ValveStage.total-throughput-time")
             val times = metrics.map(_.value)
             times should contain(state.totalThroughputTime)
           }
@@ -108,7 +108,7 @@ class PipelineControllerSpec extends WordSpec with Matchers with ScalaFutures wi
 
         whenReady(controller.scrape()) { collection =>
           collection.metrics shouldNot be(empty)
-          val in = collection.findMetrics[GaugeMetric]("io.logbee.keyscore.agent.pipeline.valve.ValveStage.throughput-time", Set(inLabel))
+          val in = collection.findMetrics[NumberGaugeMetric]("io.logbee.keyscore.agent.pipeline.valve.ValveStage.throughput-time", Set(inLabel))
           in.size should be(1)
           val out = collection.findMetrics[CounterMetric]("io.logbee.keyscore.agent.pipeline.valve.ValveStage.pushed-datasets", Set(outLabel))
           out.size should be(1)

@@ -2,8 +2,10 @@ package io.logbee.keyscore.model.metrics
 
 
 sealed trait MetricTyp
-case object GaugeMetricTyp extends MetricTyp
+
 case object CounterMetricTyp extends MetricTyp
+case object NumberGaugeMetricTyp extends MetricTyp
+case object DecimalGaugeMetricTyp extends MetricTyp
 case object UnknownMetricTyp extends MetricTyp
 
 object MetricAttributes {
@@ -15,6 +17,6 @@ object MetricAttributes {
   val METRIC_NAME: String = "metric.name"
   val METRIC_VALUE: String = "metric.value"
   val METRIC_TIMESTAMP: String = "metric.timestamp"
-  val METRIC_MAX: String = "metric.min"
-  val METRIC_MIN: String = "metric.max"
+  val METRIC_MIN: String = "metric.min"
+  val METRIC_MAX: String = "metric.max"
 }

@@ -6,7 +6,7 @@ import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
 import io.logbee.keyscore.model.data.Importance.{High, Medium}
 import io.logbee.keyscore.model.localization.TextRef
-import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, GaugeMetricDescriptor}
+import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, NumberGaugeMetricDescriptor}
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 
 import scala.collection.mutable
@@ -21,14 +21,14 @@ object AbstractGroupingLogic {
     importance = Medium
   )
 
-  val queuedEntries = GaugeMetricDescriptor(
+  val queuedEntries = NumberGaugeMetricDescriptor(
     name = "io.logbee.keyscore.pipeline.commons.stage.AbstractGroupingLogic.queued-entries",
     displayName = TextRef("queuedEntriesName"),
     description = TextRef("queuedEntriesDesc"),
     importance = High
   )
 
-  val queueMemory = GaugeMetricDescriptor(
+  val queueMemory = NumberGaugeMetricDescriptor(
     name = "io.logbee.keyscore.pipeline.commons.stage.AbstractGroupingLogic.queued-memory",
     displayName = TextRef("queuedMemoryName"),
     description = TextRef("queuedMemoryDesc"),

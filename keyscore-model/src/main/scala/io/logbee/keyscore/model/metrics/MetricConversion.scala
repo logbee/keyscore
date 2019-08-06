@@ -13,22 +13,30 @@ object MetricConversion {
 
   def metricToRecord(metric: Metric, id: String): Record = {
 
-    val typ = metric.asMessage.typ
-
     val idField = Field(MetricAttributes.METRIC_ID, TextValue(id))
-    val typField = Field(MetricAttributes.METRIC_TYP, TextValue(typ.toString))
+    val typField = Field(MetricAttributes.METRIC_TYP, TextValue(metric.asMessage.typ.toString))
     val nameField = Field(MetricAttributes.METRIC_NAME, TextValue(metric.asMessage.name))
-    val valueField = Field(MetricAttributes.METRIC_VALUE, DecimalValue(metric.asMessage.value))
     val timestamp = Field(MetricAttributes.METRIC_TIMESTAMP, TimestampValue(metric.asMessage.timestamp))
+
+    val metricValues = metric match {
+      case CounterMetric(_, _, _, value) => List(Field(MetricAttributes.METRIC_VALUE, NumberValue(value)))
+      case NumberGaugeMetric(_, _, _, value, min, max) =>
+        List(
+          Field(MetricAttributes.METRIC_VALUE, NumberValue(value)),
+          Field(MetricAttributes.METRIC_MIN, NumberValue(min)),
+          Field(MetricAttributes.METRIC_MAX, NumberValue(max))
+        )
+      case DecimalGaugeMetric(_, _, _, value, min, max) =>
+        List(
+          Field(MetricAttributes.METRIC_VALUE, DecimalValue(value)),
+          Field(MetricAttributes.METRIC_MIN, DecimalValue(min)),
+          Field(MetricAttributes.METRIC_MAX, DecimalValue(max))
+        )
+    }
 
     val labels: List[Field] = metric.asMessage.labels.map(labelToField).toList
 
-    val gaugeFields: List[Field] = List((MetricAttributes.METRIC_MIN, metric.asMessage.min), (MetricAttributes.METRIC_MAX, metric.asMessage.max)).collect {
-      case (name, v: Some[Double]) => Field(name, DecimalValue(v.value))
-    }
-
-    Record(List(idField, typField, nameField, valueField, timestamp) ++ gaugeFields ++ labels)
-
+    Record(List(idField, typField, nameField, timestamp) ++ metricValues ++ labels)
   }
 
   def convertMetricCollectionToDataset(id: String, mc: MetricsCollection): Dataset = {

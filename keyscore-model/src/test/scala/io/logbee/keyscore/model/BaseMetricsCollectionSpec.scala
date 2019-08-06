@@ -16,18 +16,18 @@ class BaseMetricsCollectionSpec extends FreeSpec with Matchers {
 
     val otherName = "_"
     val otherDesc = CounterMetricDescriptor(otherName)
-    val other = CounterMetric(otherName, Set(), timestamp = None, 0.1)
+    val other = CounterMetric(otherName, Set(), timestamp = None, 1)
     val falseDesc = CounterMetricDescriptor("__")
 
     val counterName ="_counter"
     val counterMetricDesc = CounterMetricDescriptor(counterName)
-    val counterMetric = CounterMetric(counterName, Set(inLabel), timestamp = None, 1.0)
+    val counterMetric = CounterMetric(counterName, Set(inLabel), timestamp = None, 1)
 
     val gaugeName = "_gauge"
-    val gaugeMetricDesc = GaugeMetricDescriptor(gaugeName)
+    val gaugeMetricDesc = NumberGaugeMetricDescriptor(gaugeName)
 
-    val gaugeMetric = GaugeMetric(gaugeName, Set(inLabel), timestamp = None, 2.0, 0.0, 42.0)
-    val gaugeMetric2 = GaugeMetric(gaugeName, Set(outLabel), timestamp = None, 2.1, 0.0, 42.0)
+    val gaugeMetric = NumberGaugeMetric(gaugeName, Set(inLabel), timestamp = None, 2)
+    val gaugeMetric2 = NumberGaugeMetric(gaugeName, Set(outLabel), timestamp = None, 21)
 
     val metrics = List(counterMetric,gaugeMetric,gaugeMetric2)
     val otherMetrics = List(other)
@@ -37,14 +37,14 @@ class BaseMetricsCollectionSpec extends FreeSpec with Matchers {
     "should return the correct CounterMetric for the find operator" in {
       val cm = collection.find(counterMetricDesc)
       cm shouldNot be (empty)
-      cm.get.value should equal (1.0)
+      cm.get.value should equal (1)
     }
 
     "should return the first GaugeMetric of 2 with identical names" in {
       val gm = collection.find(gaugeMetricDesc)
       gm shouldNot be (empty)
-      gm.get.value shouldNot be (2.1)
-      gm.get.value should be (2.0)
+      gm.get.value shouldNot be (21)
+      gm.get.value should be (2)
     }
 
     "should return None for a metric that is not in the collection" in {
@@ -56,35 +56,34 @@ class BaseMetricsCollectionSpec extends FreeSpec with Matchers {
       val nc = collection ++ otherCollection
       val om = nc.find(otherDesc)
       nc.metrics.size should be (4)
-      om.get.value should be (0.1)
+      om.get.value should be (1)
     }
 
     "should return the correct Metric with the general find approach" in {
       val cm = collection.find[CounterMetric](counterName)
       cm shouldNot be (empty)
-      cm.get.value should be (1.0)
+      cm.get.value should be (1)
 
-      val in = collection.find[GaugeMetric](gaugeName, Set(inLabel))
+      val in = collection.find[NumberGaugeMetric](gaugeName, Set(inLabel))
       in shouldNot be (empty)
-      in.get.value should be (2.0)
+      in.get.value should be (2)
     }
 
     "should return all metrics with the same name" in {
-      val col = collection.findMetrics[GaugeMetric](gaugeName)
+      val col = collection.findMetrics[NumberGaugeMetric](gaugeName)
       col.size should be (2)
-      col.head.value should be (2.0)
-      col.last.value should be (2.1)
+      col.head.value should be (2)
+      col.last.value should be (21)
 
-      val in = collection.findMetrics[GaugeMetric](gaugeName, Set(outLabel))
+      val in = collection.findMetrics[NumberGaugeMetric](gaugeName, Set(outLabel))
       in.size should be (1)
-      in.head.value should be (2.1)
+      in.head.value should be (21)
     }
 
     "should return all metrics with the same labels" in {
-      val in = collection.findMetricsWithLabels[GaugeMetric](Set(inLabel))
+      val in = collection.findMetricsWithLabels[NumberGaugeMetric](Set(inLabel))
       in.size should be (1)
-      in.head.value should be (2.0)
+      in.head.value should be (2)
     }
   }
-
 }
