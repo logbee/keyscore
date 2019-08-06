@@ -31,7 +31,7 @@ import {PipelineDataSource} from "../data-source/pipeline-data-source";
                 [isLoading]="isLoading$|async"
                 (onAdd)="createPipeline(true)"
                 (onUpdateRefreshTime)="updateRefreshTime($event)"
-                (onManualRelad)="reload()">
+                (onManualReload)="reload()">
         </header-bar>
 
         <div fxLayout="column" fxLayoutGap="15px" class="table-wrapper">

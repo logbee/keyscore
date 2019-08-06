@@ -30,6 +30,7 @@ export class PipelineService {
     }
 
     stopPipeline(id:string):Observable<any>{
+        console.log("[PipelineService] Stopping pipeline with id:" + id);
         return this.httpClient.delete(`${PipelineService.BASE_URL}/${id}`);
     }
 

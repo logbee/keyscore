@@ -31,9 +31,9 @@ export const RUN_PIPELINE = "[Pipeline] RunPipeline";
 export const RUN_PIPELINE_SUCCESS = "[Pipeline] RunPipelineSuccess";
 export const RUN_PIPELINE_FAILURE = "[Pipeline] RunPipelineFailure";
 
-export const DELETE_PIPELINE = "[Pipeline] DeletePipeline";
-export const DELETE_PIPELINE_SUCCESS = "[Pipeline] DeletePipelineSuccess";
-export const DELETE_PIPELINE_FAILURE = "[Pipeline] DeletePipelineFailure";
+export const STOP_PIPELINE = "[Pipeline] StopPipeline";
+export const STOP_PIPELINE_SUCCESS = "[Pipeline] StopPipelineSuccess";
+export const STOP_PIPELINE_FAILURE = "[Pipeline] StopPipelineFailure";
 
 export const LOAD_ALL_PIPELINE_INSTANCES = "[Pipeline] LoadAllPipelines";
 export const LOAD_ALL_PIPELINE_INSTANCES_SUCCESS = "[Pipeline] LoadAllPipelinesSuccess";
@@ -69,7 +69,9 @@ export type PipelineActions =
     | RunPipelineAction
     | RunPipelineSuccessAction
     | RunPipelineFailureAction
-    | DeletePipelineAction
+    | StopPipelineAction
+    | StopPipelineSuccessAction
+    | StopPipelineFailureAction
     | LoadAllPipelineInstancesAction
     | LoadAllPipelineInstancesSuccessAction
     | LoadAllPipelineInstancesFailureAction
@@ -81,8 +83,6 @@ export type PipelineActions =
     | LoadFilterDescriptorsFailureAction
     | ResolveFilterDescriptorSuccessAction
     | LoadFilterDescriptorsAction
-    | DeletePipelineSuccessAction
-    | DeletePipelineFailureAction
     | TriggerFilterResetAction
     | ConfigurationsForBlueprintId;
 
@@ -230,24 +230,24 @@ export class UpdatePipelinePollingAction implements Action {
     }
 }
 
-export class DeletePipelineAction implements Action {
-    public readonly type = DELETE_PIPELINE;
+export class StopPipelineAction implements Action {
+    public readonly type = STOP_PIPELINE;
 
     constructor(readonly id: string) {
 
     }
 }
 
-export class DeletePipelineSuccessAction implements Action {
-    public readonly type = DELETE_PIPELINE_SUCCESS;
+export class StopPipelineSuccessAction implements Action {
+    public readonly type = STOP_PIPELINE_SUCCESS;
 
     constructor(readonly id: string) {
 
     }
 }
 
-export class DeletePipelineFailureAction implements Action {
-    public readonly type = DELETE_PIPELINE_FAILURE;
+export class StopPipelineFailureAction implements Action {
+    public readonly type = STOP_PIPELINE_FAILURE;
 
     constructor(readonly cause: any, readonly id: string) {
 
