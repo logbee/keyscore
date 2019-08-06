@@ -15,6 +15,8 @@ import org.scalatest.{FreeSpecLike, Inside, Matchers, OptionValues}
 
 import scala.concurrent.duration._
 
+import scala.language.postfixOps
+
 
 @RunWith(classOf[JUnitRunner])
 class ConfigurationManagerSpec extends ProductionSystemWithMaterializerAndExecutionContext

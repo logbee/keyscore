@@ -22,14 +22,14 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
   
   private var json: JValue = null
   
-  private def ensureJsonIsLoaded() = {
+  private def ensureJsonIsLoaded(): Unit = {
     if (json == null) {
       json = parse(Source.fromFile(persistenceFile).mkString)
     }
   }
 
   
-  def store(key: String, value: Any) = {
+  def store(key: String, value: Any): Unit = {
     
     ensureJsonIsLoaded()
     
@@ -76,7 +76,7 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
   
   
   
-  private def writeJsonToFile(json: JValue, file: File) {
+  private def writeJsonToFile(json: JValue, file: File): Unit = {
     
     if (json == null) {
       throw new IllegalStateException("Couldn't write JSON to file, because it was not loaded.")

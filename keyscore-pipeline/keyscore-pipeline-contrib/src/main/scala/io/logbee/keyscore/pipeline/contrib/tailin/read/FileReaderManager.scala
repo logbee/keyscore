@@ -14,7 +14,7 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
     var fileReaderOpt = fileReaders.get(fileToRead)
     
     var fileReader: FileReader = null
-    if (fileReaderOpt == Some) {
+    if (fileReaderOpt.isDefined) {
       fileReader = fileReaderOpt.get
     }
     else { //create a new fileReader, if there's not yet one in the map
@@ -28,10 +28,7 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
   
   def getNextString(callback: FileReadData => Unit) = {
     
-    //dequeue the next schedule entry
-    val readScheduleItemOpt = readSchedule.dequeue()
-    
-    readScheduleItemOpt match {
+    readSchedule.dequeue() match {
       case None => //if no reads scheduled
         //do nothing, rescheduling is triggered by caller
         

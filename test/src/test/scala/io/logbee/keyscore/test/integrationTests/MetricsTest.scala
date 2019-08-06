@@ -10,7 +10,7 @@ import io.logbee.keyscore.agent.pipeline.valve.ValveStage._
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.metrics.GaugeMetric
+import io.logbee.keyscore.model.metrics.NumberGaugeMetric
 import io.logbee.keyscore.model.pipeline.{Dismantled, FilterStatus, Paused, Running}
 import io.logbee.keyscore.test.integrationTests.behaviors._
 import io.logbee.keyscore.test.util.JsonData._
@@ -72,7 +72,7 @@ class MetricsTest extends Matchers {
     pollPipelineHealthState() should be(true)
 
     logger.debug(s"At the beginning no datasets should be inserted or extracted.")
-    scrapeMetrics(addFieldsID, write(standardTimestamp)) shouldBe Seq()
+    scrapeMetricsForFailure(addFieldsID, write(standardTimestamp)) shouldBe true
     logger.debug(s"Now 3 datasets should be inserted.")
     applyBehavior(new InsertDatasets(addFieldsID, write(List(d1, d2, d3))))
 
@@ -118,10 +118,10 @@ class MetricsTest extends Matchers {
 
     Thread.sleep(3000)
 
-    val firstOut = scrapeMetrics(decoderID, write(standardTimestamp)).head.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
-    val lastOut = scrapeMetrics(encoderID, write(standardTimestamp)).head.find[GaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val firstOut = scrapeMetrics(decoderID, write(standardTimestamp)).head.find[NumberGaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
+    val lastOut = scrapeMetrics(encoderID, write(standardTimestamp)).head.find[NumberGaugeMetric](_totalThroughputTime.name, Set(Label("port", TextValue("out")))).get.value
 
-    lastOut should be > 0.0
+    lastOut should be > 0L
 
     firstOut should be < lastOut
 

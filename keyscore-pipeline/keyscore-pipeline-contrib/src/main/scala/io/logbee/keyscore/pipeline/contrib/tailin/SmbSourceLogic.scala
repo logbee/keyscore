@@ -1,58 +1,33 @@
 package io.logbee.keyscore.pipeline.contrib.tailin
 
 import java.io.File
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
-import java.util.EnumSet
+import java.nio.charset.{Charset, StandardCharsets}
+import java.time.Duration
 
-import scala.concurrent.duration.DurationInt
-
-import com.hierynomus.msdtyp.AccessMask
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2ShareAccess
+import akka.stream.SourceShape
+import com.hierynomus.mserref.NtStatus
+import com.hierynomus.mssmb2.SMBApiException
 import com.hierynomus.smbj.SMBClient
 import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.connection.Connection
+import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
-
-import akka.stream.SourceShape
+import com.typesafe.config.Config
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.data.Field
-import io.logbee.keyscore.model.data.Icon
-import io.logbee.keyscore.model.data.Label
-import io.logbee.keyscore.model.data.MetaData
-import io.logbee.keyscore.model.data.NumberValue
-import io.logbee.keyscore.model.data.Record
-import io.logbee.keyscore.model.data.TextValue
-import io.logbee.keyscore.model.descriptor.Category
-import io.logbee.keyscore.model.descriptor.Descriptor
-import io.logbee.keyscore.model.descriptor.ParameterInfo
-import io.logbee.keyscore.model.descriptor.SourceDescriptor
-import io.logbee.keyscore.model.descriptor.StringValidator
-import io.logbee.keyscore.model.descriptor.TextParameterDescriptor
-import io.logbee.keyscore.model.localization.Locale
-import io.logbee.keyscore.model.localization.Localization
-import io.logbee.keyscore.model.localization.TextRef
+import io.logbee.keyscore.model.data._
+import io.logbee.keyscore.model.descriptor._
+import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
-import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.SourceLogic
-import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
+import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
+import io.logbee.keyscore.pipeline.commons.CommonCategories
+import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderManager
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReaderProvider
-import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
-import io.logbee.keyscore.pipeline.contrib.tailin.read.SendBuffer
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.BaseDirWatcher
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.FileMatchPattern
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.WatcherProvider
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RAMPersistenceContext, ReadPersistence, ReadSchedule}
+import io.logbee.keyscore.pipeline.contrib.tailin.read._
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatchDirNotFoundException, WatcherProvider}
+
+import scala.concurrent.duration.FiniteDuration
 
 object SmbSourceLogic extends Described {
   
@@ -152,9 +127,28 @@ object SmbSourceLogic extends Described {
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
+  
+  
+  object Configuration {
+    import scala.language.implicitConversions
+    private implicit def convertDuration(duration: Duration): FiniteDuration = scala.concurrent.duration.Duration.fromNanos(duration.toNanos)
+    
+    def apply(config: Config): Configuration = {
+      val sub = config.getConfig("keyscore.smb-source")
+      new Configuration(
+        pollInterval = sub.getDuration("poll-interval"),
+        connectRetryInterval = sub.getDuration("connect-retry-interval"),
+        baseDirNotFoundRetryInterval = sub.getDuration("base-dir-not-found-retry-interval"),
+        readBufferSize = sub.getMemorySize("read-buffer-size").toBytes.toInt,
+      )
+    }
+  }
+  case class Configuration(pollInterval: FiniteDuration, connectRetryInterval: FiniteDuration, baseDirNotFoundRetryInterval: FiniteDuration, readBufferSize: Int)
 }
 
 class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
+  
+  private val configuration = SmbSourceLogic.Configuration(system.settings.config)
   
   private var hostName = SmbSourceLogic.hostName.defaultValue
   private var shareName = SmbSourceLogic.shareName.defaultValue
@@ -184,6 +178,16 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
   var sendBuffer: SendBuffer = null
   var readPersistence: ReadPersistence = null
   
+  var baseDirString: String = null
+  var smbFilePatternString: String = null
+
+  val bufferSize = configuration.readBufferSize
+
+
+  var readSchedulerProvider: WatcherProvider = null
+  var baseDir: SmbDir = null
+
+
   def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
@@ -204,86 +208,83 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
     persistenceFile = configuration.getValueOrDefault(TailinSourceLogic.persistenceFile, persistenceFile)
     
     
+    
     var filePatternWithoutLeadingSlashes = filePattern
     while (filePatternWithoutLeadingSlashes.startsWith("/") || filePatternWithoutLeadingSlashes.startsWith("\\")) {
       filePatternWithoutLeadingSlashes = filePatternWithoutLeadingSlashes.substring(1)
     }
     
-    var baseDir = FileMatchPattern.extractInvariableDir(filePatternWithoutLeadingSlashes) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
-    baseDir match {
-      case None =>
-        log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
-        return
-      case Some(baseDir: String) =>
-        
-        val _persistenceFile = new File(persistenceFile)
-        _persistenceFile.createNewFile()
-        
-        for (i <- 1 to 50) {
-          if (_persistenceFile.exists == false) {
-            Thread.sleep(100)
-          }
-        }
-        
-        
-        readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
-                                              committedPersistence = new FilePersistenceContext(_persistenceFile))
-        
-        val bufferSize = 1024
-        
-        val readSchedule = new ReadSchedule()
-        val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
-        
-        val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
-        sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
-        
-        val readSchedulerProvider = new WatcherProvider(readSchedule, rotationPattern, readPersistence)
-        
-        
-        val client = new SMBClient()
-        connection = client.connect(hostName)
-        val authContext = new AuthenticationContext(loginName, password.toCharArray, domainName)
-        val session = connection.authenticate(authContext)
-        
-        // Connect to Share
-        share = session.connectShare(shareName).asInstanceOf[DiskShare]
-        
-        val dir = share.openDirectory(
-            baseDir,
-            EnumSet.of(AccessMask.GENERIC_READ),
-            null,
-            SMB2ShareAccess.ALL,
-            SMB2CreateDisposition.FILE_OPEN,
-            null
-          )
-        
-        
-        val smbFilePatternString = "\\\\" + hostName + "\\" + shareName + "\\" + filePatternWithoutLeadingSlashes
-        dirWatcher = readSchedulerProvider.createDirWatcher(new SmbDir(dir), new FileMatchPattern(smbFilePatternString))
-    }
-  }
-  
-  
-  
-  
-  override def onTimer(timerKey: Any) {
-    dirWatcher.processChanges()
+    smbFilePatternString = "\\\\" + hostName + "\\" + shareName + "\\" + filePatternWithoutLeadingSlashes
     
-    if (!sendBuffer.isEmpty) {
-      doPush()
+    //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
+    FileMatchPattern.extractInvariableDir(filePatternWithoutLeadingSlashes) match {
+      case None =>
+        log.error("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
+        fail(out, new IllegalArgumentException("Could not parse the specified file pattern or could not find suitable parent directory to observe."))
+        return
+        
+      case Some(baseDirString) =>
+        this.baseDirString = baseDirString
+        log.debug("Selecting '{}' as base directory to start the first DirWatcher in.", baseDirString)
     }
-    else {
-      scheduleOnce(timerKey = "poll", 1.second)
+    
+    
+    val _persistenceFile = new File(persistenceFile)
+    _persistenceFile.createNewFile()
+    
+    for (i <- 1 to 50) {
+      if (_persistenceFile.exists == false) {
+        Thread.sleep(100)
+      }
+    }
+    
+    
+    readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
+                                          committedPersistence = new FilePersistenceContext(_persistenceFile))
+    
+    val readSchedule = new ReadSchedule()
+    val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
+    
+    val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
+    sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
+    
+    readSchedulerProvider = new WatcherProvider(readSchedule, rotationPattern, readPersistence)
+  }
+  
+  
+  
+  override def postStop(): Unit = {
+    
+    if (dirWatcher != null) {
+      dirWatcher.tearDown()
+    }
+    
+    if (share != null) {
+      share.close()
+    }
+    
+    if (connection != null) {
+      connection.close()
     }
   }
   
   
-  private def doPush() {
+  case class Poll()
+  
+  override def onTimer(timerKey: Any): Unit = {
+    
+    timerKey match {
+      case Poll() => onPull()
+    }
+  }
+  
+  
+  private def doPush(): Unit = {
     val fileReadDataOpt = sendBuffer.getNextElement
     
     fileReadDataOpt match {
       case None =>
-        scheduleOnce(timerKey = "poll", 1.second)
+        scheduleOnce(timerKey = Poll(), configuration.pollInterval)
       case Some(fileReadData) =>
       
       
@@ -310,34 +311,121 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
   
   def onPull(): Unit = {
     
+    if (connection == null || connection.isConnected == false) {
+      setupConnection()
+      return
+    }
+    
+    
+    if (share == null || share.isConnected == false) {
+      setupShare()
+      return
+    }
+    
+    
+    if (baseDir == null) {
+      setupSmbBaseDir()
+      return
+    }
+    
+    
+    if (dirWatcher == null) {
+      setupDirWatcher()
+      return
+    }
+    
+    
+    
+    
     if (!sendBuffer.isEmpty) {
       doPush()
     }
     else {
-      dirWatcher.processChanges()
-      
-      if (!sendBuffer.isEmpty) {
-        doPush()
+      try {
+        dirWatcher.processChanges()
       }
-      else {
-        scheduleOnce(timerKey = "poll", 1.second)
+      catch {
+        case ex: WatchDirNotFoundException =>
+          setupSmbBaseDir()
+          return
       }
+      scheduleOnce(timerKey = Poll(), configuration.pollInterval)
     }
   }
   
   
-  override def postStop(): Unit = {
-    
-    if (dirWatcher != null) {
-      dirWatcher.tearDown()
+  private def setupConnection(): Unit = {
+    val client = new SMBClient()
+    try {
+      connection = client.connect(hostName)
+    }
+    catch {
+      case ex: Throwable =>
+        log.error("Could not connect: '{}'. Retrying in {}.", ex, configuration.connectRetryInterval)
+        scheduleOnce(Poll(), configuration.connectRetryInterval)
+        return
     }
     
-    if (share != null) {
-      share.close()
+    onPull()
+  }
+  
+  
+  private def setupShare(): Unit = {
+    val authContext = new AuthenticationContext(loginName, password.toCharArray, domainName)
+    
+    var session: Session = null
+    try {
+      session = connection.authenticate(authContext)
+    }
+    catch {
+      case ex: SMBApiException =>
+        if (ex.getStatus == NtStatus.STATUS_LOGON_FAILURE) {
+          log.error("Could not authenticate for user '{}'.", loginName)
+          fail(out, ex)
+          return
+        }
     }
     
-    if (connection != null) {
-      connection.close()
+    try {
+      share = session.connectShare(shareName).asInstanceOf[DiskShare]
     }
+    catch {
+      case ex: SMBApiException =>
+        if (ex.getStatus == NtStatus.STATUS_BAD_NETWORK_NAME) {
+          log.error("Could not find share with name '{}'", shareName)
+          fail(out, ex)
+          return
+        }
+    }
+    
+    onPull()
+  }
+  
+  
+  private def setupSmbBaseDir(): Unit = {
+    
+    try {
+      baseDir = new SmbDir(baseDirString, share)
+    }
+    catch {
+      case ex: SMBApiException =>
+        if (ex.getStatus == NtStatus.STATUS_OBJECT_NAME_NOT_FOUND) {
+          log.error(s"The determined base directory '{}' does not exist. Retrying in {}.", baseDirString, configuration.baseDirNotFoundRetryInterval)
+          scheduleOnce(Poll(), configuration.baseDirNotFoundRetryInterval)
+          return
+        }
+        else throw ex
+    }
+    
+    
+    onPull()
+  }
+  
+  
+  private def setupDirWatcher(): Unit = {
+    
+    dirWatcher = readSchedulerProvider.createDirWatcher(baseDir, new FileMatchPattern(smbFilePatternString))
+    
+    onPull()
   }
 }

@@ -10,25 +10,21 @@ sudo groupadd docker
 sudo gpasswd -a $USER docker
 newgrp docker
 ```
-Now you can user docker as non-root user.
+Now you should be able to user docker as non-root user.
 // end::gradledocker[]
 
 == Docker behind a proxy ==
 
-=== OS using SysVinit ===
+To run docker behind a proxy you have to configure the proxy settings at two locations.
 
-. Edit `/etc/default/docker` and add proxy configuration:
-+
-```
-...
-export http_proxy="http://web-proxy.corp.xxxxxx.com:8080/"
-export https_proxy="https://web-proxy.corp.xxxxxx.com:8080/"
-...
-```
+1. To work with a docker registry through a proxy, you have to configure the <<docker-daemon-proxy-config>>.
 
-. Restart Docker: `service docker restart`
+2. To pass proxy information to containers, you have to configure the <<docker-client-proxy-config>>.
 
-=== OS using Systemd ===
+[[docker-daemon-proxy-config]]
+=== Docker Daemon ===
+
+==== OS using Systemd ====
 
 . Create a systemd drop-in directory:
 +
@@ -47,6 +43,40 @@ Environment="NO_PROXY=localhost,127.0.0.1,localaddress,.localdomain.com"
 
 . Flush changes: `systemctl daemon-reload`
 . Restart Docker: `systemctl restart docker`
+
+==== OS using SysVinit ====
+
+. Edit `/etc/default/docker` and add proxy configuration:
++
+```
+...
+export http_proxy="http://web-proxy.corp.xxxxxx.com:8080/"
+export https_proxy="https://web-proxy.corp.xxxxxx.com:8080/"
+...
+```
+
+. Restart Docker: `service docker restart`
+
+[[docker-client-proxy-config]]
+=== Docker Client ===
+Since Docker 17.07 and higher you can configure the docker client to pass proxy information to containers automatically.
+
+Create or edit the file `~/.docker/config.json` in your home directory and add the following JSON.
+```
+{
+ "proxies":
+ {
+   "default":
+   {
+     "httpProxy": "http://web-proxy.corp.xxxxxx.com:8080",
+     "httpsProxy": "http://web-proxy.corp.xxxxxx.com:8080",
+     "noProxy": "*.test.example.com,.example2.com"
+   }
+ }
+}
+```
+Substitute the address and port of the proxy server. You can exclude hosts or ranges by setting `noProxy` key to one or
+more comma-separated IP addresses or hosts.
 
 == Build Docker images ==
 // tag::docker-tiny-note[]

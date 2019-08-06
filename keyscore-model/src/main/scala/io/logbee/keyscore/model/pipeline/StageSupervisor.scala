@@ -8,6 +8,6 @@ object StageSupervisor {
 }
 
 trait StageSupervisor {
-  def complete()
-  def fail(ex: Throwable)
+  def complete(): Unit
+  def fail(ex: Throwable) : Unit
 }

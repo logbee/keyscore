@@ -15,7 +15,7 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.directive.FieldDirective
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.{CATEGORY_LOCALIZATION, FIELDS}
+import io.logbee.keyscore.pipeline.commons.CommonCategories.{CATEGORY_LOCALIZATION, FIELDS}
 import io.logbee.keyscore.pipeline.contrib.filter.textmutator.TextMutatorLogic.{findAndReplaceDirective, toTimestampDirective, trimDirective}
 
 import scala.Int.MaxValue
@@ -194,7 +194,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
             result += TextMutatorDirectiveSequence(pattern, inplace = true, "", directives)
           case _ => result
         }
-      }
+      }.toSeq
   }
 
   override def onPush(): Unit = {

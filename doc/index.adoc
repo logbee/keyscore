@@ -4,6 +4,8 @@ include::userguide.adoc[leveloffset=1]
 
 include::blocks.adoc[leveloffset=1]
 
+include::scala-block-developer-guide.adoc[leveloffset=1]
+
 include::deployment.adoc[leveloffset=1]
 
 include::developer-setup.adoc[leveloffset=1]

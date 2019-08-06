@@ -65,7 +65,7 @@ class SpecWithRotateFiles extends SpecWithTempDir {
     val previousReadTimestamp = logFile4_ModifiedBeforePreviousReadTimestamp.lastModified + 1
     
     
-    def rotate() {
+    def rotate(): Unit = {
         logFile3_ModifiedAfterPreviousReadTimestamp.renameTo(logFile4_ModifiedBeforePreviousReadTimestamp)
         logFile2.renameTo(logFile3_ModifiedAfterPreviousReadTimestamp)
         logFile1.renameTo(logFile2)

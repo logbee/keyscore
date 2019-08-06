@@ -1,0 +1,19 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"03f3364b-415b-4b81-9c3e-1bb252131742",
+    "revision":"",
+    "ancestor":""
+  },
+  "parameterSet":{
+    "parameters":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
+        "ref":{
+          "id":"drain.interval"
+        },
+        "value":0
+      }
+    ]
+  }
+}

@@ -14,10 +14,6 @@ import {
     CheckIsPipelineRunning,
     ConfigurationsForBlueprintId,
     CreatedPipelineAction,
-    DELETE_PIPELINE,
-    DeletePipelineAction,
-    DeletePipelineFailureAction,
-    DeletePipelineSuccessAction,
     EDIT_PIPELINE,
     EditPipelineAction,
     EditPipelineFailureAction,
@@ -43,7 +39,7 @@ import {
     RUN_PIPELINE_SUCCESS,
     RunPipelineAction,
     RunPipelineFailureAction,
-    RunPipelineSuccessAction,
+    RunPipelineSuccessAction, STOP_PIPELINE, StopPipelineAction, StopPipelineFailureAction, StopPipelineSuccessAction,
     TRIGGER_FILTER_RESET,
     TriggerFilterResetAction,
     TriggerFilterResetFailure,
@@ -248,17 +244,15 @@ export class PipelinesEffects {
     );
 
 
-    @Effect() public deletePipeline$: Observable<Action> = this.actions$.pipe(
-        ofType(DELETE_PIPELINE),
-        combineLatest(this.store.select(selectAppConfig)),
-        mergeMap(([action, config]) => {
-            const pipelineUrl: string = config.getString("keyscore.frontier.base-url") + "/pipeline/initialConfiguration/";
-            const pipelineId: string = (action as DeletePipelineAction).id;
-            return this.http.delete(pipelineUrl + pipelineId).pipe(
-                map((data) => new DeletePipelineSuccessAction(pipelineId)),
-                catchError((cause: any) => of(new DeletePipelineFailureAction(cause, pipelineId)))
-            );
-        })
+    @Effect() public stopPipeline: Observable<Action> = this.actions$.pipe(
+        ofType(STOP_PIPELINE),
+        map(action => (action as StopPipelineAction).id),
+        switchMap((id) =>
+            this.pipelineService.stopPipeline(id).pipe(
+                map(data => new StopPipelineSuccessAction(id),
+                catchError(cause => of(new StopPipelineFailureAction(cause, id)))
+            ))
+        )
     );
 
     @Effect() public loadPipelineInstances$: Observable<Action> = this.actions$.pipe(
@@ -319,18 +313,6 @@ export class PipelinesEffects {
             );
         })
     );
-
-    // @Effect() ResetFilterStatusAction$: Observable<Action> = this.actions$.pipe(
-    //     ofType(CONFIGS_FOR_BLUEPRINT),
-    //     map((action) => (action as ConfigurationsForBlueprintId)),
-    //     mergeMap(action =>  {
-    //
-    //        return this.filterControllerService.pauseFilter(action.blueprints$[0].uuid, false).pipe(
-    //            map((result) => new DeletePipelineSuccessAction("!"),
-    //                catchError(_ => of({stageType: "NOOP"})))
-    //        )
-    //     })
-    // );
 
     constructor(private store: Store<AppState>,
                 private actions$: Actions,

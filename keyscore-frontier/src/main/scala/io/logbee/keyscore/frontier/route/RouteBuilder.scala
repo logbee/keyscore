@@ -53,11 +53,10 @@ class RouteBuilder(clusterAgentManagerRef: ActorRef) extends Actor with ActorLog
   implicit val executionContext = system.dispatcher
   implicit val materializer = ActorMaterializer()
 
-  private val corsSettings = CorsSettings.defaultSettings.copy(
-    allowedMethods = scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS),
-    allowedOrigins = HttpOriginRange.*,
-    allowedHeaders = HttpHeaderRange.*
-  )
+  private val corsSettings: CorsSettings = CorsSettings.defaultSettings
+    .withAllowedMethods(scala.collection.immutable.Seq(PUT, GET, POST, DELETE, HEAD, OPTIONS))
+    .withAllowedHeaders(HttpHeaderRange.*)
+//    .withAllowedOrigins(HttpOriginRange.*)
 
   val settings = cors(corsSettings)
 

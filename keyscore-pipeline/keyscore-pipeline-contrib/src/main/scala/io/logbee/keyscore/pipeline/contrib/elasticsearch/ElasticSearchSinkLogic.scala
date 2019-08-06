@@ -15,8 +15,8 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.Hashing._
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SinkLogic}
-import io.logbee.keyscore.pipeline.contrib.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
+import io.logbee.keyscore.pipeline.commons.CommonCategories
+import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic.{hostParameter, indexParameter, portParameter}
 import org.json4s.{Formats, NoTypeHints}
 import org.json4s.ext.JavaTypesSerializers

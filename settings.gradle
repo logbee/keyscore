@@ -5,7 +5,9 @@ include 'keyscore-model'
 
 include 'keyscore-pipeline'
 include 'keyscore-pipeline:keyscore-pipeline-api'
+include 'keyscore-pipeline:keyscore-pipeline-commons'
 include 'keyscore-pipeline:keyscore-pipeline-contrib'
+include 'keyscore-pipeline:keyscore-pipeline-testkit'
 
 include 'keyscore-test-fixtures'
 

@@ -8,6 +8,7 @@ repositories {
 dependencies {
 
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
+    compileOnly project(':keyscore-pipeline:keyscore-pipeline-commons')
 
     compile dependency.scala_lang
     compile dependency.akka_actor
@@ -20,6 +21,7 @@ dependencies {
 
     compile dependency.math_expression_parser
 
+    testCompile project(':keyscore-pipeline:keyscore-pipeline-testkit')
     testCompile project(':keyscore-test-fixtures')
 
     testCompile dependency.scala_test
@@ -53,7 +55,7 @@ publishing {
             version project.version
             from components.java
             artifact sourcesJar
-            artifact scaladocJar
+            //artifact scaladocJar //TODO: disabled due to https://github.com/gradle/gradle/issues/9855
             pom.withXml {
                 buildPomXml(project, asNode())
             }
@@ -69,10 +71,20 @@ test {
 }
 
 jar {
-    manifest.attributes([
-        'Implementation-Title'  : project.name,
-        'Implementation-Version': version,
-        'Implementation-Revision' : revision,
-        'Implementation-Vendor'   : 'logbee.io'
-    ])
+    exclude('**/.keep')
+    manifest {
+        from ("src/main/resources/META-INF/MANIFEST.MF")
+        attributes([
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': version,
+            'Implementation-Revision' : revision,
+            'Implementation-Vendor'   : 'logbee.io'
+        ])
+    }
+    from (rootProject.projectDir) {
+        include 'LICENSE'
+    }
+    into("META-INF/maven/$project.group/$project.name") {
+        from generatePomXml
+    }
 }

@@ -6,8 +6,6 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
-apply plugin: 'scala'
-
 apply from: rootProject.file('dependencies.gradle')
 
 repositories {
@@ -39,6 +37,7 @@ dependencies {
     compile dependency.akka_http_json
     compile dependency.akka_cluster
 
+    runtime project(':keyscore-pipeline:keyscore-pipeline-commons')
     runtime project(':keyscore-pipeline:keyscore-pipeline-contrib')
 
     runtime dependency.logback
@@ -64,6 +63,7 @@ test {
 }
 
 jar {
+    exclude('**/.keep')
     manifest.attributes([
         'Main-Class'              : mainClass,
         'Implementation-Title'    : project.name,
@@ -91,7 +91,7 @@ distributions {
 
 task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
-    from 'quay.io/logbee/openjdk-8-jdk-alpine'
+    from 'quay.io/logbee/openjdk-8-jre:8u222'
     instruction { "COPY build/install/ /opt/" }
     instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
 }

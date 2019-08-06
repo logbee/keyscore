@@ -1,0 +1,72 @@
+apply plugin: 'scala'
+apply from: rootProject.file('dependencies.gradle')
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile project(':keyscore-pipeline:keyscore-pipeline-api')
+
+    compile dependency.scala_lang
+    compile dependency.akka_stream_testkit
+}
+
+bintray {
+    pkg {
+        repo = 'maven'
+        name = project.name
+        userOrg = project.bintrayUserOrg
+        licenses = ['Apache-2.0']
+        vcsUrl = project.scmUrl
+        version {
+            name = project.name
+            desc = project.description
+            released  = new Date()
+            vcsTag = project.version
+        }
+    }
+    publications = ['keyscorePipelineTestkit']
+}
+
+publishing {
+    publications {
+        keyscorePipelineTestkit(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+            artifact sourcesJar
+            //artifact scaladocJar //TODO: disabled due to https://github.com/gradle/gradle/issues/9855
+            pom.withXml {
+                buildPomXml(project, asNode())
+            }
+        }
+    }
+}
+
+test {
+    testLogging {
+        events 'started', 'passed', 'skipped', 'failed'
+        exceptionFormat "full"
+    }
+}
+
+jar {
+    exclude('**/.keep')
+    manifest {
+        attributes([
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': version,
+            'Implementation-Revision' : revision,
+            'Implementation-Vendor'   : 'logbee.io'
+        ])
+    }
+    from (rootProject.projectDir) {
+        include 'LICENSE'
+    }
+    into("META-INF/maven/$project.group/$project.name") {
+        from generatePomXml
+    }
+}

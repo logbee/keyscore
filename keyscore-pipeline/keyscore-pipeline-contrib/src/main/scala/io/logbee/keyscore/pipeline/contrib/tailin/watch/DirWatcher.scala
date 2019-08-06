@@ -1,11 +1,14 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
+import com.hierynomus.mserref.NtStatus
+import com.hierynomus.mssmb2.SMBApiException
 
+import scala.collection.mutable
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
+import org.slf4j.LoggerFactory
+
 import scala.language.existentials
 
 case class DirChanges(
@@ -16,15 +19,19 @@ case class DirChanges(
   potentiallyModifiedFiles: Set[_ <: FileHandle],
 )
 
+object WatchDirNotFoundException {
+  def unapply(watchDirNotFoundException: WatchDirNotFoundException): Option[DirHandle] = Some(watchDirNotFoundException.watchDir)
+}
+class WatchDirNotFoundException(val watchDir: DirHandle) extends Exception
+
 
 class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherProvider: WatcherProvider) extends BaseDirWatcher {
   
-  private val subDirWatchers = mutable.Map.empty[DirHandle, ListBuffer[BaseDirWatcher]]
-  private val subFileEventHandlers = mutable.Map.empty[FileHandle, ListBuffer[FileEventHandler]]
+  private lazy val log = LoggerFactory.getLogger(classOf[DirWatcher])
+  log.debug("Initializing DirWatcher for watchDir '{}'", watchDir.absolutePath)
   
-  private def subPathHandlers: mutable.Map[PathHandle, ListBuffer[PathWatcher]] =
-      subDirWatchers.asInstanceOf[mutable.Map[PathHandle, ListBuffer[PathWatcher]]] ++
-      subFileEventHandlers.asInstanceOf[mutable.Map[PathHandle, ListBuffer[PathWatcher]]]
+  private val subDirWatchers = mutable.Map.empty[DirHandle, BaseDirWatcher]
+  private val subFileEventHandlers = mutable.Map.empty[FileHandle, FileEventHandler]
   
   
   
@@ -38,41 +45,64 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   
   
   private def doForEachPathHandler(paths: Set[_ <: PathHandle], func: PathWatcher => Unit): Unit = {
-    paths.foreach { path =>
-      subPathHandlers.get(path).foreach { pathHandler =>
-        pathHandler.foreach { pathHandler =>
-          func(pathHandler)
-        }
+    paths.foreach {
+      _ match {
+        case dir: DirHandle => subDirWatchers.get(dir).foreach(func(_))
+        case file: FileHandle => subFileEventHandlers.get(file).foreach(func(_))
       }
     }
   }
   
   
   
+  @throws(classOf[WatchDirNotFoundException])
   def processChanges(): Unit = {
     
-    val changes = watchDir.getChanges
+    var changes: DirChanges = null
+    
+    try {
+      changes = watchDir.getChanges
+    }
+    catch {
+      case ex: SMBApiException =>
+        ex.getStatus match {
+          case NtStatus.STATUS_OBJECT_NAME_NOT_FOUND =>
+            log.error(ex.getMessage)
+            throw new WatchDirNotFoundException(watchDir)
+
+          case _ =>
+            throw ex
+        }
+    }
     
     
-    doForEachPathHandler(changes.potentiallyModifiedDirs, _.processChanges())
     
+    try {
+      doForEachPathHandler(changes.potentiallyModifiedDirs, _.processChanges())
+    }
+    catch {
+      case WatchDirNotFoundException(subDir) =>
+        subDirWatchers.remove(subDir).foreach(_.pathDeleted())
+        subDir.tearDown()
+    }
     
-    doForEachPathHandler(changes.deletedPaths, _.pathDeleted())
     
     changes.deletedPaths.foreach {
       _ match {
         case dir: DirHandle => {
-          subDirWatchers.remove(dir)
+          subDirWatchers.remove(dir).foreach(_.pathDeleted())
+          dir.tearDown()
         }
         case file: FileHandle => {
-          subFileEventHandlers.remove(file)
+          subFileEventHandlers.remove(file).foreach(_.pathDeleted())
+          file.tearDown()
         }
       }
     }
     
     
-    changes.newlyCreatedDirs.foreach {addSubDirWatcher(_)}
-    changes.newlyCreatedFiles.foreach {addSubFileEventHandler(_)}
+    changes.newlyCreatedDirs.foreach(addSubDirWatcher(_))
+    changes.newlyCreatedFiles.foreach(addSubFileEventHandler(_))
     
     
     doForEachPathHandler(changes.potentiallyModifiedFiles, _.processChanges())
@@ -91,10 +121,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
       
       subDirWatcher.processChanges()
       
-      val list = subDirWatchers.getOrElse(subDir, mutable.ListBuffer.empty)
-      
-      subDirWatchers.put(subDir, list)
-      list += subDirWatcher
+      subDirWatchers.put(subDir, subDirWatcher)
     }
   }
   
@@ -107,10 +134,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
       
       fileEventHandler.processChanges()
       
-      val list = subFileEventHandlers.getOrElse(file, mutable.ListBuffer.empty)
-      
-      subFileEventHandlers.put(file, list)
-      list += fileEventHandler
+      subFileEventHandlers.put(file, fileEventHandler)
     }
   }
   
@@ -125,13 +149,13 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   override def tearDown(): Unit = {
     
     //call tearDown on all watchers attached to this
-    subPathHandlers.foreach {
-      case (_, subPathWatchers) =>
-        subPathWatchers.foreach {
-          case subPathWatcher =>
-            subPathWatcher.tearDown()
-        }
+    subDirWatchers.foreach {
+      case (_, subDirWatcher) => subDirWatcher.tearDown()
     }
+    subFileEventHandlers.foreach {
+      case (_, subFileEventHandlers) => subFileEventHandlers.tearDown()
+    }
+    
     
     watchDir.tearDown()
   }

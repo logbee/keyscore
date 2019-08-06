@@ -43,6 +43,13 @@ object LogicProviderFactory {
   }
 
   private def getLogicConstructor(logicClass: Class[_]): Constructor[_] = {
-    logicClass.getConstructors()(0)
+
+    val constructor = logicClass.getConstructors()(0)
+
+    if (constructor.getParameterCount != 2) {
+      throw MalFormedLogicException(s"Malformed constructor signature: ${constructor.getParameterTypes.mkString("(", ",", ")")}")
+    }
+
+    constructor
   }
 }

@@ -4,7 +4,7 @@ import io.logbee.keyscore.model.configuration.{Configuration, TextListParameter}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
 import io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsLogic.fieldsToRemoveParameter
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
+import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -13,6 +13,7 @@ import org.scalatest.{FreeSpec, Matchers}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class RemoveFieldsLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {

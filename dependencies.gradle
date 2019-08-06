@@ -1,66 +1,102 @@
 ext {
-    scalaVersion = '2.12.8'
-    akkaVersion = '2.5.22'
-    akkaHttpVersion = '10.1.8'
-    citrusVersion = '2.8.0'
-    json4sVersion = '3.6.5'
-    junitJupiterVersion = '5.4.2'
-    junitPlatformVersion = '1.4.2'
 
+    scalaLangVersion = '2.13.0'
     dependency = [
         scala_lang: [
-            "org.scala-lang:scala-library:$scalaVersion",
-            "org.scala-lang:scala-reflect:$scalaVersion"
+            "org.scala-lang:scala-library:$scalaLangVersion",
+            "org.scala-lang:scala-reflect:$scalaLangVersion"
         ],
+    ]
+
+    akkaVersion = '2.5.23'
+    dependency += [
         akka_actor: [
-            "com.typesafe.akka:akka-actor_2.12:$akkaVersion",
-            "com.typesafe.akka:akka-actor-typed_2.12:$akkaVersion",
+            "com.typesafe.akka:akka-actor_2.13:$akkaVersion",
+            "com.typesafe.akka:akka-actor-typed_2.13:$akkaVersion",
         ],
-        akka_slf4j: "com.typesafe.akka:akka-slf4j_2.12:$akkaVersion",
-        akka_stream: "com.typesafe.akka:akka-stream_2.12:$akkaVersion",
-        akka_stream_kafka: "com.typesafe.akka:akka-stream-kafka_2.12:1.0.2",
+        akka_slf4j: "com.typesafe.akka:akka-slf4j_2.13:$akkaVersion",
+        akka_stream: "com.typesafe.akka:akka-stream_2.13:$akkaVersion",
+        akka_stream_kafka: "com.typesafe.akka:akka-stream-kafka_2.13:1.0.4",
         akka_persistence: [
-            "com.typesafe.akka:akka-persistence_2.12:$akkaVersion",
-            "com.typesafe.akka:akka-persistence-query_2.12:$akkaVersion",
-            "com.typesafe.akka:akka-persistence-cassandra_2.12:0.96",
-            "com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1"
+            "com.typesafe.akka:akka-persistence_2.13:$akkaVersion",
+            "com.typesafe.akka:akka-persistence-query_2.13:$akkaVersion",
+            "com.typesafe.akka:akka-persistence-cassandra_2.13:0.98",
+            "com.github.dnvriend:akka-persistence-inmemory_2.13:2.5.15.2"
         ],
         akka_cluster: [
-            "com.typesafe.akka:akka-cluster_2.12:$akkaVersion",
-            "com.typesafe.akka:akka-cluster-typed_2.12:$akkaVersion",
-            "com.typesafe.akka:akka-cluster-tools_2.12:$akkaVersion"
+            "com.typesafe.akka:akka-cluster_2.13:$akkaVersion",
+            "com.typesafe.akka:akka-cluster-typed_2.13:$akkaVersion",
+            "com.typesafe.akka:akka-cluster-tools_2.13:$akkaVersion"
         ],
+    ]
+
+    akkaHttpVersion = '10.1.9'
+    dependency += [
         akka_http: [
-            "com.typesafe.akka:akka-http_2.12:$akkaHttpVersion",
-            "com.typesafe.akka:akka-http-spray-json_2.12:$akkaHttpVersion",
+            "com.typesafe.akka:akka-http_2.13:$akkaHttpVersion",
+            "com.typesafe.akka:akka-http-spray-json_2.13:$akkaHttpVersion",
         ],
         akka_http_json: [
-            'de.heikoseeberger:akka-http-json4s_2.12:1.25.2',
+            "de.heikoseeberger:akka-http-json4s_2.13:1.27.0",
         ],
-        akka_http_cors: 'ch.megard:akka-http-cors_2.12:0.2.2',
+        akka_http_cors: "ch.megard:akka-http-cors_2.13:0.4.1",
+        akka_testkit: [
+            "com.typesafe.akka:akka-testkit_2.13:$akkaVersion",
+            "com.typesafe.akka:akka-stream-testkit_2.13:$akkaVersion",
+            "com.typesafe.akka:akka-http-testkit_2.13:$akkaHttpVersion",
+        ],
+        akka_stream_testkit: "com.typesafe.akka:akka-stream-testkit_2.13:$akkaVersion",
+    ]
+
+    json4sVersion = '3.6.7'
+    dependency += [
+        json4s: [
+            "org.json4s:json4s-native_2.13:$json4sVersion",
+            "org.json4s:json4s-ext_2.13:$json4sVersion",
+            "org.json4s:json4s-core_2.13:$json4sVersion"
+        ],
+    ]
+
+    keycloakVersion = '4.6.0.Final'
+    dependency += [
         keycloak: [
-            "org.keycloak:keycloak-adapter-core:4.6.0.Final",
-            "org.keycloak:keycloak-core:4.6.0.Final",
+            "org.keycloak:keycloak-adapter-core:$keycloakVersion",
+            "org.keycloak:keycloak-core:$keycloakVersion",
             "org.jboss.logging:jboss-logging:3.3.2.Final",
             "org.apache.httpcomponents:httpclient:4.5.7"
         ],
+    ]
+
+    protobufVersion = '3.8.0'
+    dependency += [
+        protobuf_java: [
+            "com.google.protobuf:protobuf-java:$protobufVersion",
+            "com.google.protobuf:protobuf-java-util:$protobufVersion"
+        ],
+    ]
+
+    dependency += [
+        scalapb_runtime: "com.thesamet.scalapb:scalapb-runtime_2.13:0.9.0",
+        ehcache: 'org.ehcache:ehcache:3.7.1',
         logback: 'ch.qos.logback:logback-classic:1.2.3',
-        json4s: [
-            "org.json4s:json4s-native_2.12:$json4sVersion",
-            "org.json4s:json4s-ext_2.12:$json4sVersion",
-            "org.json4s:json4s-core_2.12:$json4sVersion"
+        smbj: [
+            "com.hierynomus:smbj:0.9.1",
         ],
-        protobuf_java: 'com.google.protobuf:protobuf-java:3.7.1',
-        ehcache: 'org.ehcache:ehcache:3.7.0',
+        math_expression_parser: [
+            "org.scijava:jep:2.4.2"
+        ]
+    ]
+
+    dependency += [
         scala_test: [
-            'org.scalatest:scalatest_2.12:3.0.7',
-            'org.scalamock:scalamock_2.12:4.2.0'
+            "org.scalatest:scalatest_2.13:3.0.8",
+            "org.scalamock:scalamock_2.13:4.3.0"
         ],
-        akka_testkit: [
-            "com.typesafe.akka:akka-testkit_2.12:$akkaVersion",
-            "com.typesafe.akka:akka-stream-testkit_2.12:$akkaVersion",
-            "com.typesafe.akka:akka-http-testkit_2.12:$akkaHttpVersion",
-        ],
+    ]
+
+    junitJupiterVersion = '5.5.0'
+    junitPlatformVersion = '1.5.0'
+    dependency += [
         junit: [
             "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion",
             "org.junit.platform:junit-platform-runner:$junitPlatformVersion",
@@ -70,16 +106,14 @@ ext {
             "org.junit.platform:junit-platform-launcher:$junitPlatformVersion",
             "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion",
         ],
+    ]
+
+    citrusVersion = '2.8.0'
+    dependency += [
         citrus: [
             "com.consol.citrus:citrus-core:$citrusVersion",
             "com.consol.citrus:citrus-http:$citrusVersion",
             "com.consol.citrus:citrus-java-dsl:$citrusVersion"
-        ],
-        smbj: [
-        	"com.hierynomus:smbj:0.9.1",
-        ], 
-        math_expression_parser: [
-            "org.scijava:jep:2.4.2"
         ]
     ]
 }

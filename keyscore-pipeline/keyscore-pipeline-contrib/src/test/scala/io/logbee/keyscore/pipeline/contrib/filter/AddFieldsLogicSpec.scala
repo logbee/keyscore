@@ -3,21 +3,20 @@ package io.logbee.keyscore.pipeline.contrib.filter
 import io.logbee.keyscore.model.configuration.{Configuration, FieldListParameter, ParameterSet}
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic.fieldListParameter
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
+import io.logbee.keyscore.pipeline.testkit.{TestActorSystem, TestStreamForFilter}
 import io.logbee.keyscore.test.fixtures.ExampleData.dataset1
-import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class AddFieldsLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with TestSystemWithMaterializerAndExecutionContext {
+class AddFieldsLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFactory with TestActorSystem {
 
   val modified1 = Dataset(records = Record(
     Field("message", TextValue("The weather is cloudy with a current temperature of: -11.5 C")),

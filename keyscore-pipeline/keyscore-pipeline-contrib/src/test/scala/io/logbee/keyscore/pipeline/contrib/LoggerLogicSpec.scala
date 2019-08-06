@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib
 import akka.actor.ActorSystem
 import akka.testkit.EventFilter
 import com.typesafe.config.ConfigFactory
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
+import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.ExampleData.{dataset1, messageTextField1}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith

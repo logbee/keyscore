@@ -37,7 +37,7 @@ class DescriptorManager extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case StoreDescriptorRequest(descriptor) =>
-      log.debug(s"Received StoreDescriptorRequest for $descriptor")
+      log.debug(s"Received StoreDescriptorRequest for ${descriptor.ref}")
       descriptors.put(descriptor.ref, descriptor)
       sender ! StoreDescriptorResponse
 
@@ -60,13 +60,13 @@ class DescriptorManager extends Actor with ActorLogging {
       sender ! GetDescriptorResponse(descriptors.get(ref))
 
     case UpdateDescriptorRequest(descriptor) =>
-      log.debug(s"Received UpdateDescriptorRequest for $descriptor")
+      log.debug(s"Received UpdateDescriptorRequest for ${descriptor.ref}")
       if (descriptors.contains(descriptor.ref)) {
         log.debug(s"Updated Descriptor for $descriptor")
         descriptors.put(descriptor.ref, descriptor)
         sender ! UpdateDescriptorSuccessResponse
       } else {
-        log.debug(s"Couldn't update Descriptor for $descriptor")
+        log.debug(s"Couldn't update Descriptor for ${descriptor.ref}")
         sender ! UpdateDescriptorFailureResponse
       }
 

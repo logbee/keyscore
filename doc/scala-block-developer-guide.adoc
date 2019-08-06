@@ -1,0 +1,6 @@
+:xrefstyle: short
+:example_project_dir: ../examples/example-scala-project/
+
+= Scala Block Development =
+
+include::{example_project_dir}/README.adoc[leveloffset=-1,tags=scala-example-project]

@@ -1,18 +1,27 @@
 import {
     CREATE_PIPELINE,
     CREATED_PIPELINE,
-    DELETE_PIPELINE_FAILURE,
-    DELETE_PIPELINE_SUCCESS,
     EDIT_PIPELINE_SUCCESS,
     LOAD_ALL_PIPELINE_INSTANCES_SUCCESS,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
     LOAD_PIPELINEBLUEPRINTS_SUCCESS,
     PipelineActions,
     RESOLVE_FILTER_DESCRIPTORS_SUCCESS,
+    STOP_PIPELINE, STOP_PIPELINE_FAILURE,
+    STOP_PIPELINE_SUCCESS,
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "../actions/pipelines.actions";
-import {ResolvedFilterDescriptor,Descriptor, EditingPipelineModel, generateEmptyEditingPipelineModel, ResolvedCategory, Health, TextValue, Label} from "keyscore-manager-models";
+import {
+    Descriptor,
+    EditingPipelineModel,
+    generateEmptyEditingPipelineModel,
+    Health,
+    Label,
+    ResolvedCategory,
+    ResolvedFilterDescriptor,
+    TextValue
+} from "keyscore-manager-models";
 import {PipelineTableModel} from "../PipelineTableModel";
 import * as _ from 'lodash';
 
@@ -107,10 +116,10 @@ export function PipelinesReducer(state: PipelinesState = initialState, action: P
                 ...state,
                 pipelineList: pipelineListCopy
             };
-        case DELETE_PIPELINE_SUCCESS:
+        case STOP_PIPELINE_SUCCESS:
             let pipelineList = _.cloneDeep(state.pipelineList).filter((pipeline) => action.id !== pipeline.uuid);
             return {...state, pipelineList: pipelineList};
-        case DELETE_PIPELINE_FAILURE:
+        case STOP_PIPELINE_FAILURE:
             if (action.cause.status === 404) {
                 let pipelineList = _.cloneDeep(state.pipelineList).filter((pipeline) => action.id !== pipeline.uuid);
                 return {...state, pipelineList: pipelineList};

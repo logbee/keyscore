@@ -24,17 +24,25 @@ apply plugin: 'idea'
 apply plugin: 'distribution'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
-ext.dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
-ext.dockerRegistryPassword = getBuildPropertyValue("logbee.quay.password")
-ext.dockerRegistryUrl = 'https://quay.io/'
-ext.bintrayUser = getBuildPropertyValue("bintray.user")
-ext.bintrayKey = getBuildPropertyValue("bintray.key")
-ext.bintrayUserOrg = 'logbee'
+ext {
+    dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
+    dockerRegistryPassword = getBuildPropertyValue("logbee.quay.password")
+    dockerRegistryUrl = 'https://quay.io/'
+    bintrayUser = getBuildPropertyValue("bintray.user")
+    bintrayKey = getBuildPropertyValue("bintray.key")
+    bintrayUserOrg = 'logbee'
+    publicationRepositoryUrl = getBuildPropertyValue("publication.repository.url")
+    publicationRepositoryUser = getBuildPropertyValue("publication.repository.user")
+    publicationRepositoryPassword = getBuildPropertyValue("publication.repository.password")
+}
 
 if (!isDockerRegistryUserConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.user is not set.")
 if (!isDockerRegistryPasswordConfigured()) logger.warn("No registry credentials for: $dockerRegistryUrl - logbee.quay.password is not set.")
-if (!isBintryUserConfigured()) logger.warn("No bintray user - bintray.user is not set.")
+if (!isBintrayUserConfigured()) logger.warn("No bintray user - bintray.user is not set.")
 if (!isBintrayKeyConfigured()) logger.warn("No bintray key - bintray.key is not set.")
+if (!isPublicationRepositoryUrlConfigured()) logger.warn("Publication tasks may fail due to missing repository url - set 'publication.repository.url'")
+if (!isPublicationRepositoryUserConfigured()) logger.warn("Publication tasks may fail due to missing repository user - set 'publication.repository.user'")
+if (!isPublicationRepositoryPasswordConfigured()) logger.warn("Publication tasks may fail due to missing repository password - set 'publication.repository.password'")
 
 subprojects {
 
@@ -71,6 +79,20 @@ subprojects {
             }
         }
     }
+
+    plugins.withType(MavenPublishPlugin) {
+        publishing {
+            repositories {
+                maven {
+                    url publicationRepositoryUrl
+                    credentials {
+                        username publicationRepositoryUser
+                        password publicationRepositoryPassword
+                    }
+                }
+            }
+        }
+    }
 }
 
 configure ([
@@ -79,7 +101,9 @@ configure ([
     project(':keyscore-commons'),
     project(':keyscore-model'),
     project(':keyscore-pipeline:keyscore-pipeline-api'),
-    project(':keyscore-pipeline:keyscore-pipeline-contrib')
+    project(':keyscore-pipeline:keyscore-pipeline-commons'),
+    project(':keyscore-pipeline:keyscore-pipeline-contrib'),
+    project(':keyscore-pipeline:keyscore-pipeline-testkit')
 ]) {
 
     project.apply plugin: 'scala'
@@ -109,7 +133,7 @@ configure ([
         scalaCompileOptions.additionalParameters = [
             "-deprecation",
             "-feature",
-            "-Ywarn-unused-import"
+//            "-Ywarn-unused-import"
         ]
     }
     
@@ -122,6 +146,10 @@ configure ([
         classifier = 'scaladoc'
         from scaladoc.destinationDir
     }
+
+    // TODO: Enable scaladoc tasks when https://github.com/gradle/gradle/issues/9855 has been fixed.
+    scaladoc.enabled = false
+    scaladocJar.enabled = false
 
     artifacts {
         archives sourcesJar
@@ -276,12 +304,24 @@ private def isDockerRegistryPasswordConfigured() {
     return ext.dockerRegistryPassword != null && !ext.dockerRegistryPassword.empty
 }
 
-private def isBintryUserConfigured() {
+private def isBintrayUserConfigured() {
     return ext.bintrayUser != null && !ext.bintrayUser.empty
 }
 
 private def isBintrayKeyConfigured() {
     return ext.bintrayKey != null && !ext.bintrayKey.empty
+}
+
+private def isPublicationRepositoryUrlConfigured() {
+    return ext.publicationRepositoryUrl != null && !ext.publicationRepositoryUrl.empty
+}
+
+private def isPublicationRepositoryUserConfigured() {
+    return ext.publicationRepositoryUser != null && !ext.publicationRepositoryUser.empty
+}
+
+private def isPublicationRepositoryPasswordConfigured() {
+    return ext.publicationRepositoryPassword != null && !ext.publicationRepositoryPassword.empty
 }
 
 def static buildPomXml(project, root) {

@@ -3,9 +3,9 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file
 import java.nio.ByteBuffer
 
 trait FileHandle extends PathHandle {
-  def name: String
+  val name: String
   
-  def listRotatedFiles(rotationPattern: String): Seq[FileHandle]
+  def listRotatedFiles(rotationPattern: String): Seq[_ <: FileHandle]
   
   def length: Long
   

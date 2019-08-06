@@ -10,7 +10,7 @@ import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.data.Health
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric}
+import io.logbee.keyscore.model.metrics.{CounterMetric, NumberGaugeMetric}
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1, datasetMulti2}
 import io.logbee.keyscore.test.integrationTests.behaviors._
@@ -114,10 +114,10 @@ class PipelineIntegrationTest extends Matchers {
     //Wait until all Dataset are pushed to the Elastic index
     pollElasticElements(topic = "test", expect = 2)(runner, elasticClient, logger) shouldBe true
 
-    scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read").get.value shouldBe 2.0
-    scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[GaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read").get.value should be > 595.0
-    scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[CounterMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written").get.value shouldBe 2.0
-    scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[GaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.bytes-written").get.value should be > 800.0
+    scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[NumberGaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.datasets-read").get.value shouldBe 2L
+    scrapeMetrics(k2eSourceId, write(standardTimestamp)).last.find[NumberGaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic.bytes-read").get.value should be > 595L
+    scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[NumberGaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.datasets-written").get.value shouldBe 2L
+    scrapeMetrics(k2kSinkId, write(standardTimestamp)).last.find[NumberGaugeMetric]("io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic.bytes-written").get.value should be > 800L
 
     //Cleanup
     cleanIntegrationTest

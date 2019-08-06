@@ -1,0 +1,49 @@
+{
+  "jsonClass":"io.logbee.keyscore.model.configuration.Configuration",
+  "ref":{
+    "uuid":"9001fb36-dc17-4042-83e2-adfb49c0bf10",
+    "revision":"",
+    "ancestor":""
+  },
+  "parameterSet":{
+    "parameters":[
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+        "ref":{
+          "id":"metric.source.server"
+        },
+        "value":"http://localhost:4711"
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextListParameter",
+        "ref":{
+          "id":"metric.source.ids"
+        },
+        "value":[
+          ""
+        ]
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.NumberParameter",
+        "ref":{
+          "id":"metric.source.limit"
+        },
+        "value":100
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+        "ref":{
+          "id":"metric.source.earliest"
+        },
+        "value":"01.01.2000 00:00:00"
+      },
+      {
+        "jsonClass":"io.logbee.keyscore.model.configuration.TextParameter",
+        "ref":{
+          "id":"metric.source.latest"
+        },
+        "value":"31.12.9999 23:59:59"
+      }
+    ]
+  }
+}

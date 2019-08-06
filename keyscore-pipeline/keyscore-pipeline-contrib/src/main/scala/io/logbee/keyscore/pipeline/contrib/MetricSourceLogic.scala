@@ -1,11 +1,10 @@
 package io.logbee.keyscore.pipeline.contrib
 
-import java.net.URL
+import java.util.{Timer, TimerTask}
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
-import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
-import akka.stream.{OverflowStrategy, SourceShape}
+import akka.stream.SourceShape
 import io.logbee.keyscore.commons.metrics.MetricsQuery
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
@@ -16,14 +15,16 @@ import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.metrics.{MetricConversion, MetricsCollection}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
-import io.logbee.keyscore.pipeline.contrib.CommonCategories.CATEGORY_LOCALIZATION
+import io.logbee.keyscore.pipeline.commons.CommonCategories
+import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.write
 import org.json4s.{Formats, Serialization}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.Promise
+import scala.concurrent.{Future, Promise}
+import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 object MetricSourceLogic extends Described {
@@ -55,8 +56,8 @@ object MetricSourceLogic extends Described {
     ParameterInfo(
       TextRef("limit"),
       TextRef("limitDescription")),
-    defaultValue = 100,
-    range = NumberRange(step = 1, end = Long.MaxValue),
+    defaultValue = 10,
+    range = NumberRange(step = 1, end = 10),
     mandatory = true
   )
 
@@ -113,13 +114,13 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   private val format = "dd.MM.yyyy HH:mm:ss"
 
+  private var canSchedule: Boolean = true
+
   private var url = MetricSourceLogic.urlParameter.defaultValue
   private var ids = Seq.empty[String]
   private var limit = MetricSourceLogic.limitParameter.defaultValue
   private var earliest = MetricSourceLogic.earliestParameter.defaultValue
   private var latest = MetricSourceLogic.latestParameter.defaultValue
-
-  private var queue:  SourceQueueWithComplete[(HttpRequest, Promise[HttpResponse])] = _
 
   private val metricCollections: ListBuffer[(String, MetricsCollection)] = ListBuffer.empty[(String, MetricsCollection)]
 
@@ -127,11 +128,14 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   private val parseAsync = getAsyncCallback[(String, HttpResponse)]({ case (id, response) =>
     val mcs = parseHttpResponse(response)
-    mcs.foreach { mc => metricCollections.append((id, mc)) }
 
     if(mcs.nonEmpty) {
+      mcs.foreach { mc => metricCollections.append((id, mc)) }
       idToEarliest.update(id, getEarliest(mcs))
       tryPush()
+    } else {
+//      log.debug("MCS was empty")
+      scheduleScrape(10000)
     }
   })
 
@@ -142,21 +146,6 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   override def configure(configuration: Configuration): Unit = {
     setDefaults(configuration)
-
-    val poolUrl = new URL(url)
-    val pool = Http().cachedHostConnectionPool[Promise[HttpResponse]](host = poolUrl.getHost, port = poolUrl.getPort)
-
-    queue = Source.queue[(HttpRequest, Promise[HttpResponse])](1, OverflowStrategy.dropNew)
-      .via(pool)
-      .toMat(Sink.foreach({
-        case (Success(response), promise) => promise.success(response)
-        case (Failure(throwable), promise) => promise.failure(throwable)
-      }))(Keep.left)
-      .run()
-  }
-  override def onPull(): Unit = {
-    if(metricCollections.nonEmpty) tryPush()
-    else scrapeMetrics()
   }
 
   private def setDefaults(configuration: Configuration): Unit = {
@@ -165,6 +154,11 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     limit = configuration.getValueOrDefault(limitParameter, limit)
     earliest = configuration.getValueOrDefault(earliestParameter, earliest)
     latest = configuration.getValueOrDefault(latestParameter, latest)
+  }
+
+  override def onPull(): Unit = {
+    if(metricCollections.nonEmpty) tryPush()
+    else scrapeMetrics()
   }
 
   private def tryPush(): Unit = {
@@ -179,6 +173,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   private def scrapeMetrics(): Unit = {
+    canSchedule = true
 
     ids
       .map(_.trim)
@@ -188,24 +183,54 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       val mq = MetricsQuery(limit, newest, latest, format)
 
       val uri = Uri(s"$url/metrics/$id")
-      (id, HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq))), Promise[HttpResponse])
+      (id, Http().singleRequest(HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq)))))
 
     })
       .foreach({
-        case (id, request, promise) =>
-          queue.offer((request, promise)).flatMap(_ => promise.future).onComplete({
-            case Success(response) =>
-              parseAsync.invoke(id, response)
-            case Failure(cause) =>
-              log.error(s"Couldn't retrieve metrics: $cause")
-          })
+        case (id, future) =>
+          completeResponse(id, future)
       })
   }
 
-  private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
-    val body = response.entity.asInstanceOf[HttpEntity.Strict].data.utf8String
+  private def completeResponse(id: String, future: Future[HttpResponse]): Unit = {
+    future.onComplete({
+      case Success(response) =>
+        parseAsync.invoke(id, response)
+      case Failure(cause) =>
+//        log.debug(s"Couldn't retrieve metrics: $cause")
+      case e =>
+//        log.debug(s"What's wrong: $e")
+    })
+  }
 
-    org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
+  private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
+    if (response.status == StatusCodes.OK)
+    {
+      response.entity match {
+        case strict: HttpEntity.Strict =>
+          val body = strict.data.utf8String
+          strict.discardBytes()
+          org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
+        case unknown =>
+          unknown.discardBytes()
+          Seq()
+      }
+    } else {
+//      log.debug(s"Failure: Response status is [${response.status}]")
+      scheduleScrape(10000)
+      Seq()
+    }
+  }
+
+  private def scheduleScrape(ms: Int): Unit = {
+    if(canSchedule){
+      canSchedule = false
+//      log.debug(s"Scheduled <scrapeMetrics> in $ms ms")
+      val timer = new Timer
+      val task = new TimerTask () { def run(): Unit = scrapeMetrics()}
+      timer.schedule(task, ms)
+    }
+
   }
 
   private def getEarliest(mcs: Seq[MetricsCollection]): String = {

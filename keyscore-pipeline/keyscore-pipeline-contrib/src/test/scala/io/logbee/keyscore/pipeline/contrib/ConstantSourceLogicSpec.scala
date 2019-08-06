@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib
 
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data.{Field, TextValue}
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForSource
+import io.logbee.keyscore.pipeline.testkit.TestStreamForSource
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures

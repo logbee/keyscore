@@ -1,5 +1,55 @@
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 SCRIPT=`readlink -f "$0"`
 KEYSCORE_HOME=`dirname "$SCRIPT"`
+KEYSCORE_EXTENSIONS_DIR="$KEYSCORE_HOME/extensions"
+KEYSCORE_CLASSPATH=""
+KEYSCORE_MAIN_CLASS=${KEYSCORE_MAIN_CLASS:-"io.logbee.keyscore.agent.app.AgentApplication"}
+KEYSCORE_JVM_HEAP_INITIAL_MEMORY=${KEYSCORE_JVM_HEAP_INITIAL_MEMORY:-"512m"}
+KEYSCORE_JVM_HEAP_MAX_MEMORY=${KEYSCORE_JVM_HEAP_MAX_MEMORY:-"3g"}
+KEYSCORE_JVM_JMX_REMOTE_ENABLED=${KEYSCORE_JVM_JMX_REMOTE_ENABLED:-"false"}
+KEYSCORE_JVM_JMX_REMOTE_BIND_HOST=${KEYSCORE_JVM_JMX_REMOTE_BIND_HOST:-"0.0.0.0"}
+KEYSCORE_JVM_JMX_REMOTE_PORT=${KEYSCORE_JVM_JMX_REMOTE_PORT:-"9010"}
+KEYSCORE_JVM_JMX_REMOTE_RMI_PORT=${KEYSCORE_JVM_JMX_REMOTE_RMI_PORT:-"9010"}
 
-exec java -jar "$KEYSCORE_HOME/keyscore-agent.jar" -server -XX:+UnlockExperimentalVMOptions -Xms512m -Xmx3g
+#
+# Compute classpath from libs.
+#
+KEYSCORE_CLASSPATH=$(realpath "$KEYSCORE_HOME/keyscore-agent.jar")
+if [ -d "libs/" ]; then
+  libs=$( ls "libs/" )
+  for lib in $libs ; do
+    KEYSCORE_CLASSPATH="$KEYSCORE_CLASSPATH:$(realpath libs/$lib)"
+  done
+fi
+
+#
+# Download and add extensions to classpath.
+#
+mkdir -p "$KEYSCORE_EXTENSIONS_DIR"
+
+IFS=',' read -ra URLS <<< "${KEYSCORE_EXTENSIONS_URLS}"
+for url in "${URLS[@]}"; do
+  url=$(sed 's/[ \t]\?,[ \t]\?/,/g; s/^[ \t]\+//g; s/[ \t]\+$//g' <<< $url)
+  FILENAME=$(awk -F '/' '{ print $NF }' <<< $url)
+  FILEPATH="$KEYSCORE_EXTENSIONS_DIR/$FILENAME"
+  curl --fail --silent --insecure -XGET "$url" --output $FILEPATH
+  if [ 0 -eq $? ]; then
+    KEYSCORE_CLASSPATH="$KEYSCORE_CLASSPATH:$FILEPATH"
+  fi
+done
+
+#
+# JMX Config
+#
+KEYSCORE_JVM_JMX=""
+if [[ $KEYSCORE_JVM_JMX_REMOTE_ENABLED == "true" ]]; then
+    KEYSCORE_JVM_JMX="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$KEYSCORE_JVM_JMX_REMOTE_PORT -Dcom.sun.management.jmxremote.rmi.port=$KEYSCORE_JVM_JMX_REMOTE_RMI_PORT -Djava.rmi.server.hostname=$KEYSCORE_JVM_JMX_REMOTE_BIND_HOST -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+fi
+
+#
+# Run Agent.
+#
+CMD="java -classpath $KEYSCORE_CLASSPATH -server -XX:+UnlockExperimentalVMOptions -Xms$KEYSCORE_JVM_HEAP_INITIAL_MEMORY -Xmx$KEYSCORE_JVM_HEAP_MAX_MEMORY $KEYSCORE_JVM_JMX $KEYSCORE_MAIN_CLASS"
+
+printf "exec: $CMD\n"
+exec $CMD

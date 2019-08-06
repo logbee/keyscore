@@ -8,7 +8,6 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 import io.logbee.gradle.scalapb.ScalaPBPlugin
 
-apply plugin: 'scala'
 apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')
@@ -39,7 +38,6 @@ dependencies {
     compile dependency.akka_http_cors
     compile dependency.akka_persistence
     compile dependency.akka_cluster
-    compile dependency.akka_stream_kafka
     compile dependency.keycloak
 
     runtime dependency.logback
@@ -60,6 +58,7 @@ test {
 }
 
 jar {
+    exclude('**/.keep')
     manifest.attributes([
         'Main-Class'              : mainClass,
         'Implementation-Title'    : project.name,
@@ -92,7 +91,7 @@ distributions {
 
 task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
-    from 'quay.io/logbee/openjdk-8-jdk-alpine'
+    from 'quay.io/logbee/openjdk-8-jre:8u222'
     instruction { "COPY build/install/ /opt/" }
     instruction { "CMD /opt/keyscore-frontier/keyscore-frontier" }
     instruction { 'EXPOSE 4711' }

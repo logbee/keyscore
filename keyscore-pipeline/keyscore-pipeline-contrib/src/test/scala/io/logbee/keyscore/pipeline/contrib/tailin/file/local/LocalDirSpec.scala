@@ -20,7 +20,7 @@ class LocalDirSpec extends SpecWithTempDir with Matchers {
       
       "when a directory gets created" in
       new LocalDirSetup {
-        val subDir = Paths.get(watchDir + "/testDir/")
+        val subDir = Paths.get(s"$watchDir/testDir/")
         subDir.toFile.mkdir()
         TestUtil.waitForFileToExist(subDir.toFile)
         
@@ -38,7 +38,7 @@ class LocalDirSpec extends SpecWithTempDir with Matchers {
       
       "when a directory gets deleted" in
       new LocalDirSetup {
-        val subDir = Paths.get(watchDir + "/testDir")
+        val subDir = Paths.get(s"$watchDir/testDir")
         subDir.toFile.mkdir()
         TestUtil.waitForFileToExist(subDir.toFile)
         
@@ -72,7 +72,7 @@ class LocalDirSpec extends SpecWithTempDir with Matchers {
       
       "when a directory was potentially modified" in
       new LocalDirSetup {
-        val subDir = Paths.get(watchDir + "/testDir")
+        val subDir = Paths.get(s"$watchDir/testDir")
         subDir.toFile.mkdir()
         TestUtil.waitForFileToExist(subDir.toFile)
         

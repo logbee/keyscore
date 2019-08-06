@@ -59,7 +59,7 @@ object TestUtil {
   }
 
 
-  def recursivelyDelete(dir: Path) {
+  def recursivelyDelete(dir: Path): Unit = {
     Files.walkFileTree(dir, new SimpleFileVisitor[Path]() {
       override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
         Files.delete(file)
@@ -79,7 +79,7 @@ object TestUtil {
   }
   
   
-  def writeStringToFile(file: File, string: String, writeMode: OpenOption = StandardOpenOption.APPEND, encoding: Charset = StandardCharsets.UTF_8) {
+  def writeStringToFile(file: File, string: String, writeMode: OpenOption = StandardOpenOption.APPEND, encoding: Charset = StandardCharsets.UTF_8): Unit = {
 
     var fileWriter: java.io.BufferedWriter = null
     try {
@@ -138,7 +138,7 @@ object TestUtil {
     def randomString = strings(randomIndex)
     
     for (i <- 1 to numberOfLines) {
-      testFileLogger.info(i +":"+ logMessage + randomString + "| ")
+      testFileLogger.info(s"$i:$logMessage$randomString| ")
     }
   }
 }

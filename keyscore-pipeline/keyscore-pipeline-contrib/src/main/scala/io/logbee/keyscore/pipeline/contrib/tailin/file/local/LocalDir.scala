@@ -1,17 +1,13 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 
-import java.nio.file.ClosedWatchServiceException
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardWatchEventKinds
-import java.nio.file.WatchKey
-import java.nio.file.WatchService
+import java.nio.file.{ClosedWatchServiceException, FileSystems, Files, Path, StandardWatchEventKinds, WatchEvent, WatchKey, WatchService}
 
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
+
+import scala.jdk.javaapi.CollectionConverters
 
 class LocalDir(dir: Path) extends DirHandle {
   
@@ -28,7 +24,7 @@ class LocalDir(dir: Path) extends DirHandle {
   }
   
   
-  def absolutePath: String = {
+  override val absolutePath: String = {
     dir.toAbsolutePath.toString
   }
   
@@ -92,9 +88,9 @@ class LocalDir(dir: Path) extends DirHandle {
         }
     }
     
-    import scala.collection.JavaConverters.asScalaBufferConverter
+    import scala.jdk.javaapi.CollectionConverters.asScala
     
-    key.foreach(key => key.pollEvents.asScala.foreach { event =>
+    key.foreach(key => CollectionConverters.asScala(key.pollEvents).toSet.foreach { event: WatchEvent[_] =>
       
       val path: Path = dir.resolve(event.context.asInstanceOf[Path])
       
@@ -136,8 +132,11 @@ class LocalDir(dir: Path) extends DirHandle {
   
   
   def tearDown(): Unit = {
-    watchKey.cancel()
-    watchService.close()
+    if (watchKey != null)
+      watchKey.cancel()
+
+    if (watchService != null)
+      watchService.close()
   }
   
   

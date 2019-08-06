@@ -96,6 +96,8 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
         context.become(sleeping)
       }
 
+    case _ =>
+
   }
 
   private def running(): Receive = {
@@ -119,6 +121,8 @@ class Frontier extends Actor with ActorLogging with Json4sSupport {
 
     case GetFrontierState =>
       sender ! GetFrontierStateResponse(true)
+
+    case _ =>
 
   }
 

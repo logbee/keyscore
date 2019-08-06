@@ -26,7 +26,7 @@ class CharBufferUtilSpec extends FreeSpec with Matchers {
   
   
 
-  def readBufferFromFile(file: File, charset: Charset, expectedValue: String) {
+  def readBufferFromFile(file: File, charset: Charset, expectedValue: String): Unit = {
 
     val fileLength = file.length.asInstanceOf[Int]
     val byteBuffer: ByteBuffer = ByteBuffer.allocate(fileLength)

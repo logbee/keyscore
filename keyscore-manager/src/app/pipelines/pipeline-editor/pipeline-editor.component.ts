@@ -4,9 +4,8 @@ import {select, Store} from "@ngrx/store";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {
-    DeletePipelineAction,
     LoadFilterDescriptorsAction,
-    ResetPipelineAction,
+    ResetPipelineAction, StopPipelineAction,
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
 import {share, takeUntil} from "rxjs/internal/operators";
@@ -36,10 +35,12 @@ import {DraggableModel} from "./pipely/models/draggable.model";
                         [isLoading]="isLoading$|async"
                         (onSave)="savePipelineSource$.next()"
                         (onRun)="runPipelineSource$.next()"
+                        (onDelete)="stopPipeline(storeEditingPipeline)"
                         (onInspect)="inspectToggle($event)"
             ></header-bar>
 
-            <pipely-workspace [runTrigger$]="runPipeline$" [saveTrigger$]="savePipeline$"
+            <pipely-workspace [runTrigger$]="runPipeline$"
+                              [saveTrigger$]="savePipeline$"
                               [inspectTrigger$]="runInspect$"
                               [pipeline]="(pipeline$ | async)"
                               [blockDescriptors]="blockDescriptorSource$|async"
@@ -126,8 +127,9 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.alive.next();
     }
 
-    public deletePipeline(pipeline: EditingPipelineModel) {
-        this.store.dispatch(new DeletePipelineAction(pipeline.pipelineBlueprint.ref.uuid));
+    public stopPipeline(pipeline: EditingPipelineModel) {
+        console.log("Trying to stop pipeline with id" + JSON.stringify(pipeline.pipelineBlueprint.ref.uuid));
+        this.store.dispatch(new StopPipelineAction(pipeline.pipelineBlueprint.ref.uuid));
         this.location.back();
     }
 
@@ -153,4 +155,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         return draggable.blockDescriptor.nextConnection === undefined;
     }
 
+    public doSomething() {
+
+    }
 }

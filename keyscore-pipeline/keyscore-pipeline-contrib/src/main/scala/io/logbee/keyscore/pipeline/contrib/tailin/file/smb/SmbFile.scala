@@ -1,57 +1,78 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 
 import java.nio.ByteBuffer
-import java.nio.file.FileSystems
-import java.nio.file.Paths
+import java.nio.file.{FileSystems, Paths}
 import java.util.EnumSet
+
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2CreateOptions
-import com.hierynomus.mssmb2.SMB2ShareAccess
-import com.hierynomus.smbj
+import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess}
 import com.hierynomus.smbj.common.SmbPath
-import com.hierynomus.mssmb2.SMB2CreateOptions
+import com.hierynomus.smbj.share.DiskShare
+import com.hierynomus.smbj.share.File
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
-import scala.collection.Seq
+import org.slf4j.LoggerFactory
 
 
-class SmbFile(val file: smbj.share.File) extends FileHandle {
-  
-  private val share = file.getDiskShare
-  
-  def name: String = {
-    SmbPath.parse(absolutePath).getPath
+class SmbFile(path: String, share: DiskShare) extends FileHandle {
+
+  private lazy val log = LoggerFactory.getLogger(classOf[SmbFile])
+
+  private def withFile[T](func: File => T): T = {
+
+    var file: File = null
+
+    try {
+      file = share.openFile(
+        path,
+        EnumSet.of(AccessMask.GENERIC_READ),
+        EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
+        SMB2ShareAccess.ALL,
+        SMB2CreateDisposition.FILE_OPEN,
+        EnumSet.noneOf(classOf[SMB2CreateOptions])
+      )
+
+      func(file)
+    }
+    catch {
+      case exception: Throwable =>
+        log.debug("Uncaught exception in SmbFile when trying to connect: " + exception.getMessage)
+        throw exception
+    }
+    finally {
+      if (file != null)
+        file.close()
+    }
   }
-  
-  
-  def absolutePath: String = {
-    file.getFileName
-  }
-  
+
+
+  override val absolutePath: String = withFile(_.getFileName)
+
+
+  override val name: String = SmbPath.parse(absolutePath).getPath
+
   
   private def parentPath: String = {
     
-    var filePath = SmbPath.parse(file.getFileName).getPath
+    var parentPath = absolutePath
     
-    val fileNameStart = filePath.lastIndexOf("\\")
+    val fileNameStart = parentPath.lastIndexOf("\\")
     if (fileNameStart != -1) {
-      filePath = filePath.substring(0, fileNameStart) //cut off file-name from the end
+      parentPath = parentPath.substring(0, fileNameStart) //cut off file-name from the end
     }
     else {
-      filePath = ""
+      parentPath = ""
     }
     
-    filePath
+    parentPath
   }
   
   
-  def listRotatedFiles(rotationPattern: String): Seq[SmbFile] = {
+  override def listRotatedFiles(rotationPattern: String): Seq[SmbFile] = {
     rotationPattern match {
-      case "" =>
-        Seq()
-      case null =>
-        Seq()
+      case "" | null =>
+        Seq.empty
+      
       case rotationPattern =>
         val rotationDir = Paths.get(parentPath).resolve(rotationPattern).getParent.toString //if the rotationPattern contains a relative path, resolve that
         
@@ -68,36 +89,23 @@ class SmbFile(val file: smbj.share.File) extends FileHandle {
         val rotatedFileNamesInSameDir = fileNames.filter(fileName => rotateMatcher.matches(Paths.get(rotationDir + "/" + fileName)))
         
         
-        val rotatedFilesInSameDir = rotatedFileNamesInSameDir.map {
-          fileName =>
-            share.openFile(
-              rotationDir + "/" + fileName,
-              EnumSet.of(AccessMask.GENERIC_ALL),
-              EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
-              SMB2ShareAccess.ALL,
-              SMB2CreateDisposition.FILE_OPEN,
-              EnumSet.noneOf(classOf[SMB2CreateOptions])
-            )
+        rotatedFileNamesInSameDir.map {
+          fileName => new SmbFile(rotationDir + "/" + fileName, share)
         }
-        
-        rotatedFilesInSameDir.map(new SmbFile(_)) //wrap in SmbFile
     }
   }
   
   
-  def length: Long = {
-    file.getFileInformation.getStandardInformation.getEndOfFile
-  }
-  
-  
-  def lastModified: Long = {
-    file.getFileInformation.getBasicInformation.getLastWriteTime.toEpochMillis
-  }
-  
-  
-  def read(buffer: ByteBuffer, offset: Long): Int = {
-    file.read(buffer.array, offset)
-  }
+  override def length: Long = withFile(_.getFileInformation.getStandardInformation.getEndOfFile)
+
+
+  override def lastModified: Long = withFile(_.getFileInformation.getBasicInformation.getLastWriteTime.toEpochMillis)
+
+
+  override def read(buffer: ByteBuffer, offset: Long): Int = withFile(_.read(buffer.array, offset))
+
+
+  override def tearDown(): Unit = {} //TODO remove?
 
 
 
@@ -114,13 +122,5 @@ class SmbFile(val file: smbj.share.File) extends FileHandle {
   override def hashCode(): Int = {
     val state = Seq(/*share, */absolutePath)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
-  
-
-  
-  def tearDown() = {
-    if (file != null) {
-      file.close()
-    }
   }
 }

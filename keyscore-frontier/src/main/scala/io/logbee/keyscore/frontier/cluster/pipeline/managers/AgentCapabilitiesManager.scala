@@ -77,9 +77,11 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
         // TODO: Handle discover errors!
       }
 
+    case _ =>
   }
 
   private def running: Receive = {
+
     case WhoIs(AgentCapabilitiesService) =>
       sender ! HereIam(AgentCapabilitiesService, self)
 
@@ -88,7 +90,6 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
       sender ! GetDescriptorsResponse(descriptorToActorPaths.keys.toList)
 
     case AgentCapabilities(descriptors) =>
-      log.debug(s"Received AgentCapabilities with $descriptors")
       availableAgents.getOrElseUpdate(sender, descriptors)
       descriptors.foreach(descriptor => {
         descriptorToActorPaths.getOrElseUpdate(descriptor, mutable.Set.empty) += sender.path
@@ -108,6 +109,9 @@ class AgentCapabilitiesManager extends Actor with ActorLogging {
       val possibleAgents = createListOfPossibleAgents(descriptorRefs)
       sender ! AgentsForPipelineResponse(possibleAgents)
 
+    case WhoIs(_) => // Nothing to do.
+
+    case _ =>
   }
 
   def checkIfCapabilitiesMatchRequirements(descriptorRefs: List[DescriptorRef], agent: (ActorRef, Seq[Descriptor])): Boolean = {

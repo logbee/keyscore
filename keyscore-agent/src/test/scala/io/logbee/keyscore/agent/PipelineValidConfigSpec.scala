@@ -2,9 +2,11 @@ package io.logbee.keyscore.agent
 
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration._
-import io.logbee.keyscore.model.data.{Label, MetaData, TextValue, Field, NumberValue}
+import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import io.logbee.keyscore.pipeline.contrib.DiscardSinkLogic._
+import io.logbee.keyscore.pipeline.contrib.MetricSourceLogic._
 import io.logbee.keyscore.pipeline.contrib.decoder.json.JsonDecoderLogic
 import io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic
 import io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoderLogic
@@ -12,6 +14,7 @@ import io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoderLogic._
 import io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic.fieldListParameter
 import io.logbee.keyscore.pipeline.contrib.filter.{AddFieldsLogic, RemoveFieldsLogic, RetainFieldsLogic}
 import io.logbee.keyscore.pipeline.contrib.kafka.{KafkaSinkLogic, KafkaSourceLogic}
+import io.logbee.keyscore.pipeline.contrib.{DiscardSinkLogic, MetricSourceLogic}
 import io.logbee.keyscore.test.fixtures.ProductionSystemWithMaterializerAndExecutionContext
 import org.json4s.native.Serialization.writePretty
 import org.scalamock.scalatest.MockFactory
@@ -272,7 +275,45 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
         Label("pipeline.description", TextValue("For checking metrics."))
       )
     )
+  }
 
+  trait MetricSource {
+
+    //1.1 MetricSource Config
+    val metricSourceConfigRef = ConfigurationRef("9001fb36-dc17-4042-83e2-adfb49c0bf10")
+    val metricSourceConfig = Configuration(metricSourceConfigRef,
+      parameterSet = ParameterSet(Seq(
+        TextParameter(urlParameter.ref, "http://localhost:4711"),
+        TextListParameter(idsParameter.ref, Seq("")),
+        NumberParameter(limitParameter.ref, 100),
+        TextParameter(earliestParameter.ref, "01.01.2000 00:00:00"),
+        TextParameter(latestParameter.ref, "31.12.9999 23:59:59"),
+      ))
+    )
+
+    //1.2 DiscardSink Config
+    val discardSinkConfigRef = ConfigurationRef("03f3364b-415b-4b81-9c3e-1bb252131742")
+    val discardSinkConfig = Configuration(discardSinkConfigRef,
+      parameterSet = ParameterSet(Seq(
+        NumberParameter(intervalParameter.ref, 0)
+      ))
+    )
+
+    //2.1 MetricSource Blueprint
+    val metricSourceBlueprint = SourceBlueprint(BlueprintRef("0d88c536-0a16-4f42-8975-029d84618f44"), MetricSourceLogic.describe.ref, metricSourceConfigRef)
+
+    //2.2 DiscardSink Blueprint
+    val discardSinkBlueprint = SinkBlueprint(BlueprintRef("2b3bd90b-fac3-4d90-9197-1e67a600451b"), DiscardSinkLogic.describe.ref, discardSinkConfigRef)
+
+    //2.3 Pipeline Blueprint
+    val pipelineBlueprint = PipelineBlueprint(BlueprintRef("c23a40a9-b350-4e5d-86f4-a2e6fe85a648"), Seq(
+      metricSourceBlueprint.ref,
+      discardSinkBlueprint.ref),
+      metadata = MetaData(
+        Label("pipeline.name", TextValue("MetricsSource Pipeline")),
+        Label("pipeline.description", TextValue("For testing the MetricSource."))
+      )
+    )
 
   }
 
@@ -365,6 +406,15 @@ class PipelineValidConfigSpec extends ProductionSystemWithMaterializerAndExecuti
       println(writePretty(sinkConfig))
     }
 
+    "Generate json files for MetricSource" in new MetricSource {
+      println(writePretty(metricSourceBlueprint))
+      println(writePretty(discardSinkBlueprint))
+
+      println(writePretty(pipelineBlueprint))
+
+      println(writePretty(metricSourceConfig))
+      println(writePretty(discardSinkConfig))
+    }
   }
 }
 

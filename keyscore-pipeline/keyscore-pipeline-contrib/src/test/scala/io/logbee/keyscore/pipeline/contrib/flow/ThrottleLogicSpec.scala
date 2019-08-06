@@ -5,7 +5,7 @@ import java.lang.System.currentTimeMillis
 import io.logbee.keyscore.model.configuration.{ChoiceParameter, Configuration, NumberParameter}
 import io.logbee.keyscore.model.data.{Dataset, Field, Record, TextValue}
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
+import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
@@ -44,11 +44,11 @@ class ThrottleLogicSpec extends FreeSpec with Matchers with ScalaFutures with Te
 
           timestamp = currentTimeMillis()
           sink.expectNext(2 second, sample1)
-          (currentTimeMillis() - timestamp) should be (500L +- 50)
+          (currentTimeMillis() - timestamp) should be (500L +- 100)
 
           timestamp = currentTimeMillis()
           sink.expectNext(2 second, sample2)
-          (currentTimeMillis() - timestamp) should be (500L +- 50)
+          (currentTimeMillis() - timestamp) should be (500L +- 100)
 
           Thread.sleep(1000)
           source.sendNext(sample3)
@@ -56,11 +56,11 @@ class ThrottleLogicSpec extends FreeSpec with Matchers with ScalaFutures with Te
 
           timestamp = currentTimeMillis()
           sink.expectNext(2 second, sample3)
-          (currentTimeMillis() - timestamp) should be (0L +- 50)
+          (currentTimeMillis() - timestamp) should be (0L +- 100)
 
           timestamp = currentTimeMillis()
           sink.expectNext(2 second, sample4)
-          (currentTimeMillis() - timestamp) should be (500L +- 50)
+          (currentTimeMillis() - timestamp) should be (500L +- 100)
         }
       }
     }

@@ -79,10 +79,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   
   
   
-  def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem) = { //TODO consider less data than a readScheduleItem or a different data structure -> we need the specific file, not the base file and only the startPos and endPos
-    
-    assert(readScheduleItem.startPos <= readScheduleItem.endPos) //TODO
-    assert(readScheduleItem.endPos <= fileToRead.length) //TODO
+  def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem): Unit = { //TODO consider less data than a readScheduleItem or a different data structure -> we need the specific file, not the base file and only the startPos and endPos
     
     val readEndPos = BytePos(readScheduleItem.endPos)
     
@@ -134,7 +131,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   
   
   
-  private def processBufferContents(charBuffer: CharBuffer, callback: FileReadData => Unit, bufferStartPositionInFile: BytePos, readEndPosition: BytePos, callbackWriteTimestamp: Long, newerFilesWithSharedLastModified: Int) = {
+  private def processBufferContents(charBuffer: CharBuffer, callback: FileReadData => Unit, bufferStartPositionInFile: BytePos, readEndPosition: BytePos, callbackWriteTimestamp: Long, newerFilesWithSharedLastModified: Int): Unit = {
     var byteCompletedPositionWithinBuffer = BytePos(0)
     
     
@@ -195,7 +192,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   }
   
   
-  private def doCallback(callback: FileReadData => Unit, string: String, readEndPos: BytePos, writeTimestamp: Long, newerFilesWithSharedLastModified: Int) = {
+  private def doCallback(callback: FileReadData => Unit, string: String, readEndPos: BytePos, writeTimestamp: Long, newerFilesWithSharedLastModified: Int): Unit = {
     
     val fileReadData = FileReadData(string=leftOverFromPreviousBuffer + string,
                                     baseFile=null,
@@ -210,12 +207,12 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   }
   
   
-  def pathDeleted() {
+  def pathDeleted(): Unit = {
     tearDown()
   }
   
   
-  def tearDown() = {
+  def tearDown(): Unit = {
     fileToRead.tearDown()
   }
 }

@@ -1,9 +1,7 @@
 import io.logbee.gradle.scalapb.ScalaPBPlugin
 
 apply plugin: 'idea'
-apply plugin: 'scala'
 apply plugin: 'java'
-
 apply plugin: ScalaPBPlugin
 
 apply from: rootProject.file('dependencies.gradle')
@@ -16,8 +14,8 @@ dependencies {
 
     compile dependency.scala_lang
     compile dependency.json4s
-    compile "com.google.protobuf:protobuf-java-util:3.5.1"
-    compile "com.thesamet.scalapb:scalapb-runtime_2.12:0.9.0"
+    compile dependency.protobuf_java
+    compile dependency.scalapb_runtime
 
     testCompile dependency.scala_test
     testCompile dependency.junit
@@ -48,7 +46,7 @@ publishing {
             version project.version
             from components.java
             artifact sourcesJar
-            artifact scaladocJar
+            //artifact scaladocJar //TODO: disabled due to https://github.com/gradle/gradle/issues/9855
             pom.withXml {
                 buildPomXml(project, asNode())
             }
@@ -64,6 +62,7 @@ test {
 }
 
 jar {
+    exclude('**/.keep')
     manifest.attributes ([
         'Implementation-Title': project.name,
         'Implementation-Version': version,

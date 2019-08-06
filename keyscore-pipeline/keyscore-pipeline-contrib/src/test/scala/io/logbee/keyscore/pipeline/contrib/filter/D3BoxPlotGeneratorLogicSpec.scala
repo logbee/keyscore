@@ -5,15 +5,15 @@ import java.io.{File, PrintWriter}
 import io.logbee.keyscore.model.configuration.{Configuration, TextParameter}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.pipeline.contrib.filter.D3BoxPlotGeneratorLogic.{groupIdentifierParameter, itemIdentifierParameter}
-import io.logbee.keyscore.pipeline.contrib.test.TestStreamForFilter
-import io.logbee.keyscore.test.fixtures.{ExampleData, TestSystemWithMaterializerAndExecutionContext}
+import io.logbee.keyscore.pipeline.testkit.{TestActorSystem, TestStreamForFilter}
+import io.logbee.keyscore.test.fixtures.ExampleData
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class D3BoxPlotGeneratorLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class D3BoxPlotGeneratorLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestActorSystem {
 
   val d1 = Dataset(
     Record(

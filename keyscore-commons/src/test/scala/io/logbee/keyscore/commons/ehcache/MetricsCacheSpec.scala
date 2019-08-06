@@ -7,7 +7,7 @@ import com.google.protobuf.timestamp.Timestamp
 import com.google.protobuf.util.Timestamps
 import io.logbee.keyscore.commons.ehcache.MetricsCache.Configuration
 import io.logbee.keyscore.model.data.TimestampValue
-import io.logbee.keyscore.model.metrics.{CounterMetric, GaugeMetric, MetricsCollection}
+import io.logbee.keyscore.model.metrics.{CounterMetric, NumberGaugeMetric, MetricsCollection}
 import org.junit.runner.RunWith
 import org.scalatest.{FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
@@ -26,21 +26,21 @@ class MetricsCacheSpec extends FreeSpec with Matchers {
   val id12: UUID = UUID.fromString("6281dbd5-a8b2-4e89-bfbf-c60bcc36c068")
   val id13: UUID = UUID.fromString("eb800877-2f90-49dc-97aa-f0c22e2b003e")
     
-  val m01 = MetricsCollection(List(CounterMetric("cm1", value = 1.1, timestamp = Some(now))))
-  val m02 = MetricsCollection(List(CounterMetric("cm2", value = 1.2, timestamp = Some(now))))
+  val m01 = MetricsCollection(List(CounterMetric("cm1", value = 11, timestamp = Some(now))))
+  val m02 = MetricsCollection(List(CounterMetric("cm2", value = 12, timestamp = Some(now))))
 
-  val m03 = MetricsCollection(List(CounterMetric("cm3", value = 1.3, timestamp = Some(TimestampValue(9,25)))))
-  val m04 = MetricsCollection(List(CounterMetric("cm4", value = 1.4, timestamp = Some(TimestampValue(11,27)))))
-  val m05 = MetricsCollection(List(CounterMetric("cm5", value = 1.5, timestamp = Some(TimestampValue(11,42)))))
-  val m06 = MetricsCollection(List(CounterMetric("cm6", value = 1.6, timestamp = Some(TimestampValue(12,73)))))
+  val m03 = MetricsCollection(List(CounterMetric("cm3", value = 13, timestamp = Some(TimestampValue(9,25)))))
+  val m04 = MetricsCollection(List(CounterMetric("cm4", value = 14, timestamp = Some(TimestampValue(11,27)))))
+  val m05 = MetricsCollection(List(CounterMetric("cm5", value = 15, timestamp = Some(TimestampValue(11,42)))))
+  val m06 = MetricsCollection(List(CounterMetric("cm6", value = 16, timestamp = Some(TimestampValue(12,73)))))
 
-  val m07 = MetricsCollection(List(CounterMetric("cm7", value = 1.7, timestamp = Some(now))))
-  val m08 = MetricsCollection(List(CounterMetric("cm8", value = 1.8, timestamp = Some(now))))
-  val m09 = MetricsCollection(List(CounterMetric("cm9", value = 1.9, timestamp = Some(now))))
-  val m10 = MetricsCollection(List(CounterMetric("cm0", value = 1.0, timestamp = Some(now))))
-  val m11 = MetricsCollection(List(GaugeMetric("gm1", value = 2.1, timestamp = Some(now))))
-  val m12 = MetricsCollection(List(GaugeMetric("gm2", value = 2.2, timestamp = Some(now))))
-  val m13 = MetricsCollection(List(GaugeMetric("gm3", value = 2.3, timestamp = Some(now))))
+  val m07 = MetricsCollection(List(CounterMetric("cm7", value = 17, timestamp = Some(now))))
+  val m08 = MetricsCollection(List(CounterMetric("cm8", value = 18, timestamp = Some(now))))
+  val m09 = MetricsCollection(List(CounterMetric("cm9", value = 19, timestamp = Some(now))))
+  val m10 = MetricsCollection(List(CounterMetric("cm0", value = 10, timestamp = Some(now))))
+  val m11 = MetricsCollection(List(NumberGaugeMetric("gm1", value = 21, timestamp = Some(now))))
+  val m12 = MetricsCollection(List(NumberGaugeMetric("gm2", value = 22, timestamp = Some(now))))
+  val m13 = MetricsCollection(List(NumberGaugeMetric("gm3", value = 23, timestamp = Some(now))))
 
   "A Metrics Cache" - {
 
