@@ -114,6 +114,8 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   private val format = "dd.MM.yyyy HH:mm:ss"
 
+  private var canSchedule: Boolean = true
+
   private var url = MetricSourceLogic.urlParameter.defaultValue
   private var ids = Seq.empty[String]
   private var limit = MetricSourceLogic.limitParameter.defaultValue
@@ -131,6 +133,9 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       mcs.foreach { mc => metricCollections.append((id, mc)) }
       idToEarliest.update(id, getEarliest(mcs))
       tryPush()
+    } else {
+//      log.debug("MCS was empty")
+      scheduleScrape(10000)
     }
   })
 
@@ -143,18 +148,17 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     setDefaults(configuration)
   }
 
-  override def onPull(): Unit = {
-    if(metricCollections.nonEmpty) tryPush()
-    else scrapeMetrics()
-  }
-
   private def setDefaults(configuration: Configuration): Unit = {
     url = configuration.getValueOrDefault(urlParameter, url)
     ids = configuration.getValueOrDefault(idsParameter, ids)
     limit = configuration.getValueOrDefault(limitParameter, limit)
     earliest = configuration.getValueOrDefault(earliestParameter, earliest)
     latest = configuration.getValueOrDefault(latestParameter, latest)
+  }
 
+  override def onPull(): Unit = {
+    if(metricCollections.nonEmpty) tryPush()
+    else scrapeMetrics()
   }
 
   private def tryPush(): Unit = {
@@ -169,6 +173,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   private def scrapeMetrics(): Unit = {
+    canSchedule = true
 
     ids
       .map(_.trim)
@@ -192,9 +197,9 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       case Success(response) =>
         parseAsync.invoke(id, response)
       case Failure(cause) =>
-        log.error(s"Couldn't retrieve metrics: $cause")
-
-      case e => log.error(s"What's wrong: $e")
+//        log.debug(s"Couldn't retrieve metrics: $cause")
+      case e =>
+//        log.debug(s"What's wrong: $e")
     })
   }
 
@@ -211,17 +216,21 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
           Seq()
       }
     } else {
-      log.warning(s"Failure: Response status is [${response.status}]")
+//      log.debug(s"Failure: Response status is [${response.status}]")
       scheduleScrape(10000)
       Seq()
     }
   }
 
   private def scheduleScrape(ms: Int): Unit = {
-    log.info(s"Scheduled scrape in $ms ms")
-    val timer = new Timer
-    val task = new TimerTask () { def run(): Unit = scrapeMetrics()}
-    timer.schedule(task, ms)
+    if(canSchedule){
+      canSchedule = false
+//      log.debug(s"Scheduled <scrapeMetrics> in $ms ms")
+      val timer = new Timer
+      val task = new TimerTask () { def run(): Unit = scrapeMetrics()}
+      timer.schedule(task, ms)
+    }
+
   }
 
   private def getEarliest(mcs: Seq[MetricsCollection]): String = {

@@ -20,10 +20,8 @@ trait MetricsRoute extends RouteImplicits with AuthorizationHandler {
               case MetricsResponseSuccess(_, metrics) =>
                 complete(StatusCodes.OK, metrics)
               case MetricsResponseFailure(_) =>
-                println(s"[MetricsRoute]: Failure")
                 complete(StatusCodes.NotFound, id)
               case e =>
-                println(s"[MetricsRoute]: Error: $e")
                 complete(StatusCodes.InternalServerError)
             }
           }
