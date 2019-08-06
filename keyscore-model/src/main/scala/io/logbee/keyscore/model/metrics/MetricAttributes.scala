@@ -1,12 +1,12 @@
 package io.logbee.keyscore.model.metrics
 
 
-sealed trait MetricTyp
+sealed trait MetricType
 
-case object CounterMetricTyp extends MetricTyp
-case object NumberGaugeMetricTyp extends MetricTyp
-case object DecimalGaugeMetricTyp extends MetricTyp
-case object UnknownMetricTyp extends MetricTyp
+case object CounterMetricType extends MetricType
+case object NumberGaugeMetricType extends MetricType
+case object DecimalGaugeMetricType extends MetricType
+case object UnknownMetricType extends MetricType
 
 object MetricAttributes {
   /**

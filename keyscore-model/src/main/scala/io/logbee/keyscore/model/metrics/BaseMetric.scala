@@ -31,12 +31,12 @@ trait BaseMetric { this: MetricMessage =>
     }
   }
 
-  def typ: MetricTyp = {
+  def typ: MetricType = {
     sealedValue.value match {
-      case CounterMetric(_, _, _, _) => CounterMetricTyp
-      case NumberGaugeMetric(_, _, _, _, _, _) => NumberGaugeMetricTyp
-      case DecimalGaugeMetric(_, _, _, _, _, _) => DecimalGaugeMetricTyp
-      case _  => UnknownMetricTyp
+      case CounterMetric(_, _, _, _) => CounterMetricType
+      case NumberGaugeMetric(_, _, _, _, _, _) => NumberGaugeMetricType
+      case DecimalGaugeMetric(_, _, _, _, _, _) => DecimalGaugeMetricType
+      case _  => UnknownMetricType
     }
   }
 }

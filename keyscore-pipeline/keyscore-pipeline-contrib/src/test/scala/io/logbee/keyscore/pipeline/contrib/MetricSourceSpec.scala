@@ -27,7 +27,7 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
 
       cmr shouldBe Record(List(
         Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
-        Field("metric.type", TextValue(CounterMetricTyp.toString)),
+        Field("metric.type", TextValue(CounterMetricType.toString)),
         Field("metric.name", TextValue("cm3")),
         Field("metric.timestamp", TimestampValue(9, 25)),
         Field("metric.value", NumberValue(13)),
@@ -36,7 +36,7 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
 
       gmr shouldBe Record(List(
         Field("metric.id",TextValue(addFieldsIdFromMetricsTest)),
-        Field("metric.type", TextValue(NumberGaugeMetricTyp.toString)),
+        Field("metric.type", TextValue(NumberGaugeMetricType.toString)),
         Field("metric.name", TextValue("gm4")),
         Field("metric.timestamp", TimestampValue(11, 27)),
         Field("metric.value", NumberValue(14)),
@@ -50,7 +50,7 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
       val dataset = Dataset(metadata = MetaData(), List(
         Record(List(
           Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
-          Field("metric.type", TextValue(CounterMetricTyp.toString)),
+          Field("metric.type", TextValue(CounterMetricType.toString)),
           Field("metric.name", TextValue("cm3")),
           Field("metric.timestamp", TimestampValue(9,25)),
           Field("metric.value", NumberValue(13)),
@@ -58,7 +58,7 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
           Field("x", TextValue("x")))),
         Record(List(
           Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
-          Field("metric.type", TextValue(NumberGaugeMetricTyp.toString)),
+          Field("metric.type", TextValue(NumberGaugeMetricType.toString)),
           Field("metric.name", TextValue("gm4")),
           Field("metric.timestamp", TimestampValue(11,27)),
           Field("metric.value", NumberValue(14)),
