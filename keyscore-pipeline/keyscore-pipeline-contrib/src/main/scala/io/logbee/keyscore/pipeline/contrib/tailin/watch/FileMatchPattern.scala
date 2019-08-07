@@ -67,11 +67,12 @@ object FileMatchPattern {
 
 
 class FileMatchPattern(fullFilePattern: String) {
+  import FileMatchPattern.getUnixLikePath
   
   private lazy val log = LoggerFactory.getLogger(classOf[FileMatchPattern])
   
   val filePattern = {
-    if (fullFilePattern.endsWith(File.separator)) {
+    if (getUnixLikePath(fullFilePattern).endsWith("/")) {
       //if the user specifies a directory, assume that they want all files in the directory
       //can't do this by just checking, if the specified path is a directory, because the same path could in the future lead to a file
       fullFilePattern + "*"
@@ -81,12 +82,12 @@ class FileMatchPattern(fullFilePattern: String) {
   }
   
   
-  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + FileMatchPattern.getUnixLikePath(filePattern))
+  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + getUnixLikePath(filePattern))
   
   def matches(file: FileHandle): Boolean = {
-    val path = Paths.get(FileMatchPattern.getUnixLikePath(file.absolutePath))
+    val path = Paths.get(getUnixLikePath(file.absolutePath))
     val matches = fileMatcher.matches(path)
-    log.debug("Matching '{}' against '{}' and it matches{}.", path, FileMatchPattern.getUnixLikePath(filePattern), if (matches) "" else " not")
+    log.debug("Matching '{}' against '{}' and it matches{}.", path, getUnixLikePath(filePattern), if (matches) "" else " not")
     matches
   }
   
@@ -105,11 +106,11 @@ class FileMatchPattern(fullFilePattern: String) {
         sections = sections.dropRight(1) //drop the file-part (unnecessary to check and causes problems when it's "*")
       }
 
-      val dirPath = Paths.get(FileMatchPattern.getUnixLikePath(dir.absolutePath))
+      val dirPath = Paths.get(getUnixLikePath(dir.absolutePath))
       for (i <- 0 to sections.length) {
         val dirPattern = sections.foldLeft("")((a: String, b: String) => a + "/" + b)
 
-        val matcher = FileSystems.getDefault.getPathMatcher("glob:" + FileMatchPattern.getUnixLikePath(dirPattern))
+        val matcher = FileSystems.getDefault.getPathMatcher("glob:" + getUnixLikePath(dirPattern))
         if (matcher.matches(dirPath)) {
           return true
         }
@@ -120,7 +121,7 @@ class FileMatchPattern(fullFilePattern: String) {
       false
     }
     
-    log.debug("Checking if '{}' is a potential super-dir for files matched by '{}' and it is{}.", FileMatchPattern.getUnixLikePath(dir.absolutePath), FileMatchPattern.getUnixLikePath(filePattern), if (matches) "" else " not")
+    log.debug("Checking if '{}' is a potential super-dir for files matched by '{}' and it is{}.", getUnixLikePath(dir.absolutePath), getUnixLikePath(filePattern), if (matches) "" else " not")
     
     matches
   }

@@ -15,12 +15,12 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
   "An SmbFile should" - {
     val charset = StandardCharsets.UTF_8
     
-    "return correct metadata" in withShare { share =>
+    "return correct metadata" in withShare { implicit share =>
       
       val fileName = "smbTestFile.txt"
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile(share, fileName, content, {
+      withSmbFile(fileName, content, {
         smbFile =>
           smbFile.name shouldBe fileName
           smbFile.absolutePath shouldBe "\\\\" + hostName + "\\" + shareName + "\\" + fileName
@@ -38,18 +38,20 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
     
     
     
-    "list its rotated files" in withShare { share => //TEST
+    "list its rotated files" ignore withShare { implicit share => //TODO
       
-      val dir = "testDir/" //TODO we don't function when we're at the root /  -> do we function in LocalFile?
+      val dir = "testDir" //TODO we don't function when we're at the root /  -> do we function in LocalFile?
       val fileName = "smbTestFile.txt"
       
-      withSmbFile(share, dir + fileName, charset.encode("base file"), { smbFile =>
-        withSmbFile(share, dir + fileName + ".1", charset.encode("rotated file 1"), { rotFile1 =>
-          withSmbFile(share, dir + fileName + ".2", charset.encode("rotated file 22"), { rotFile2 =>
-            
-            val rotationPattern = fileName + ".[1-5]"
-            
-            smbFile.listRotatedFiles(rotationPattern) should contain allOf(rotFile1, rotFile2)
+      withSmbDir(dir, { _ =>
+        withSmbFile(dir + "\\" + fileName, charset.encode("base file"), { smbFile =>
+          withSmbFile(dir + "\\" + fileName + ".1", charset.encode("rotated file 1"), { rotFile1 =>
+            withSmbFile(dir + "\\" + fileName + ".2", charset.encode("rotated file 22"), { rotFile2 =>
+              
+              val rotationPattern = fileName + ".[1-5]"
+              
+              smbFile.listRotatedFiles(rotationPattern) should contain allOf(rotFile1, rotFile2)
+            })
           })
         })
       })
@@ -57,11 +59,11 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
     
     
     
-    "read its content into a buffer" in withShare { share =>
+    "read its content into a buffer" in withShare { implicit share =>
       
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile(share, "smbTestFile.txt", content, {
+      withSmbFile("smbTestFile.txt", content, {
         smbFile =>
           val buffer = ByteBuffer.allocate(content.limit)
           
@@ -72,11 +74,11 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
     }
     
     
-    "read its content from an offset into a buffer" in withShare { share =>
+    "read its content from an offset into a buffer" in withShare { implicit share =>
       
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile(share, "smbTestFile.txt", content, {
+      withSmbFile("smbTestFile.txt", content, {
         smbFile =>
           val fileLength = content.limit
           val offset = fileLength / 2

@@ -25,12 +25,13 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
 class Manual_SpecWithSmbShare extends FreeSpec {
   val client = new SMBClient()
   
-  val hostName = scala.io.StdIn.readLine("Host name: ")
-  val userName = scala.io.StdIn.readLine("User name: ")
-  val password = scala.io.StdIn.readLine("Password: ")
-  println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") //hide password from view
-  val domain = scala.io.StdIn.readLine("Domain: ")
-  val shareName = scala.io.StdIn.readLine("Share name: ")
+  def env(name: String) = System.getenv("KEYSCORE_MANUAL_SMB_SPEC_" + name)
+  
+  val hostName =  env("HOST_NAME")
+  val userName =  env("USER_NAME")
+  val password =  env("PASSWORD")
+  val domain =    env("DOMAIN")
+  val shareName = env("SHARE_NAME")
   
   
   
@@ -61,7 +62,7 @@ class Manual_SpecWithSmbShare extends FreeSpec {
   
   
   
-  private def createFile(share: DiskShare, fileName: String, content: ByteBuffer): SmbFile = {
+  private def createFile(fileName: String, content: ByteBuffer)(implicit share: DiskShare): SmbFile = {
     
     val writeBuffer = content
     
@@ -77,28 +78,28 @@ class Manual_SpecWithSmbShare extends FreeSpec {
                           SMB2CreateDisposition.FILE_CREATE,
                           EnumSet.noneOf(classOf[SMB2CreateOptions])
                         )
-    
     actualSmbFile.write(writeArray, 0)
+    actualSmbFile.close() //close the connection again (SmbFile opens its own connection)
     
     new SmbFile(fileName, share)
   }
   
   
   
-  def withSmbFile(share: DiskShare, fileName: String, content: ByteBuffer, testCode: SmbFile => Any) = {
+  def withSmbFile(fileName: String, content: ByteBuffer, testCode: SmbFile => Any)(implicit share: DiskShare) = {
     
     var smbFile: SmbFile = null
     
     try {
-      smbFile = createFile(share, fileName, content)
+      smbFile = createFile(fileName, content)
       
       testCode(smbFile)
     }
     finally {
-      println("rmFile: " + fileName)
-      
       if (smbFile != null)
         smbFile.tearDown()
+      
+      share.rm(fileName)
     }
   }
   
@@ -106,9 +107,9 @@ class Manual_SpecWithSmbShare extends FreeSpec {
   
   
   
-  private def createDir(share: DiskShare, dirName: String): Directory = {
+  private def createDir(dirName: String)(implicit share: DiskShare): SmbDir = {
     
-    share.openDirectory(
+    val actualSmbDirectory = share.openDirectory(
       dirName,
       EnumSet.of(AccessMask.GENERIC_ALL),
       EnumSet.of(FileAttributes.FILE_ATTRIBUTE_NORMAL),
@@ -116,26 +117,26 @@ class Manual_SpecWithSmbShare extends FreeSpec {
       SMB2CreateDisposition.FILE_CREATE,
       EnumSet.noneOf(classOf[SMB2CreateOptions])
     )
+    actualSmbDirectory.close() //close the connection again (SmbDir opens its own connection)
+    
+    new SmbDir(dirName, share)
   }
   
   
   
-  def withSmbDir(share: DiskShare, dirName: String, testCode: SmbDir => Any) = {
+  def withSmbDir(dirName: String, testCode: SmbDir => Any)(implicit share: DiskShare) = {
     
-    var smbDir: Directory = null
+    var smbDir: SmbDir = null
     try {
-      createDir(share, dirName)
+      smbDir = createDir(dirName)
       
-      testCode(new SmbDir(dirName, share))
+      testCode(smbDir)
     }
-    finally { //TODO calling rmdir will interrupt file-deletion, because non-empty dir being deleted, therefore cause nothing to be deleted
-      println("rmDir: " + dirName)
+    finally {
+      if (smbDir != null)
+        smbDir.tearDown()
       
-      if (smbDir != null) {
-        smbDir.close() //FIXME closing this should theoretically remove it (but this doesn't work), unless it's only upon closing the share
-      }
-      
-//      share.rmdir(dirName, true)
+      share.rmdir(dirName, true)
     }
   }
 }

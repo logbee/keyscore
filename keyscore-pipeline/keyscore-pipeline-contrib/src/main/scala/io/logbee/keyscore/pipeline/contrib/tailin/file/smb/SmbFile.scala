@@ -74,7 +74,8 @@ class SmbFile(path: String, share: DiskShare) extends FileHandle {
         Seq.empty
       
       case rotationPattern =>
-        val rotationDir = Paths.get(parentPath).resolve(rotationPattern).getParent.toString //if the rotationPattern contains a relative path, resolve that
+        var rotationDir = Paths.get(parentPath).resolve(rotationPattern).getParent.toString //if the rotationPattern contains a relative path, resolve that
+        rotationDir = rotationDir.substring(rotationDir.lastIndexOf("\\") + 1) //extract the dir name from the absolute path
         
         val dirListing = share.list(rotationDir)
         
@@ -115,12 +116,16 @@ class SmbFile(path: String, share: DiskShare) extends FileHandle {
     case that: SmbFile =>
       (that canEqual this) &&
 //        share == that.share &&
-        absolutePath == that.absolutePath
+        this.absolutePath.equals(that.absolutePath)
     case _ => false
   }
 
   override def hashCode(): Int = {
     val state = Seq(/*share, */absolutePath)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+  
+  override def toString: String = {
+    absolutePath
   }
 }
