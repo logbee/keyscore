@@ -213,6 +213,7 @@ export class PipelinesEffects {
         map(action => (action as RunPipelineAction).blueprintRef),
         switchMap((blueprintRef) => {
             return this.pipelineService.runPipeline(blueprintRef).pipe(
+                tap(data=>console.log("SUCCESS RUN",data),error=>console.log("ERROR RUN",error)),
                 map(data => new CheckIsPipelineRunning(blueprintRef, 100)),
                 catchError(cause => of(new RunPipelineFailureAction(cause, blueprintRef)))
             )
@@ -250,11 +251,11 @@ export class PipelinesEffects {
         map(action => (action as StopPipelineAction).id),
         concatMap((id) =>
             this.pipelineService.stopPipeline(id).pipe(
-                map(data => new StopPipelineSuccessAction(id),
+                tap(data => console.log("STOP EFFECT DATA:",data),error=>console.log("STOP EFFECT ERROR: ",error)),
+                map(data => new StopPipelineSuccessAction(id)),
                 catchError(cause => of(new StopPipelineFailureAction(cause, id)))
             ))
-        )
-    );
+        );
 
     @Effect() public loadPipelineInstances$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_PIPELINEBLUEPRINTS_SUCCESS),

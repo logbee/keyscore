@@ -12,7 +12,7 @@ import "./style/headerbar.style.scss"
                     <div class="danger-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
                          fxLayoutGap="10px">
                         <button mat-stroked-button class="mat-error-stroked-button" *ngIf="this.showDelete"
-                                (click)="remove()" matTooltip="{{'HEADER_BAR.DELETE' | translate}}" matTooltipPosition="below">
+                                (click)="remove()" matTooltip="{{'HEADER_BAR.STOP' | translate}}" matTooltipPosition="below">
                             <mat-icon>stop</mat-icon>
                         </button>
                     </div>
