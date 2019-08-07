@@ -13,6 +13,7 @@ import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
+import io.logbee.keyscore.pipeline.commons.CommonCategories
 
 import scala.collection.mutable
 
@@ -21,8 +22,8 @@ object FingerprintLogic extends Described {
   val fieldNameParameter = FieldNameParameterDescriptor(
     ref = "fingerprint.fieldName",
     info = ParameterInfo(
-      displayName = TextRef("fieldName"),
-      description = TextRef("fieldNameDescription")
+      displayName = TextRef("fingerprint.fieldName.displayName"),
+      description = TextRef("fingerprint.fieldName.description")
     ),
     validator = StringValidator(
       expression = ".*",
@@ -55,9 +56,9 @@ object FingerprintLogic extends Described {
     ref = "ed3ab993-1eca-4651-857d-fd4f72355251",
     describes = FilterDescriptor(
       name = classOf[FingerprintLogic].getName,
-      displayName = TextRef("displayName"),
-      description = TextRef("description"),
-      categories = Seq(Category("fingerprint", TextRef("category.fingerprint.displayName"))),
+      displayName = TextRef("fingerprint.displayName"),
+      description = TextRef("fingerprint.description"),
+      categories = Seq(CommonCategories.MISCELLANEOUS, CommonCategories.AUGMENT),
       parameters = Seq(
         fieldNameParameter,
         recomputeParameter,
@@ -68,7 +69,7 @@ object FingerprintLogic extends Described {
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Fingerprint",
       Locale.ENGLISH, Locale.GERMAN
-    )
+    ) ++ CommonCategories.CATEGORY_LOCALIZATION
   )
 }
 
