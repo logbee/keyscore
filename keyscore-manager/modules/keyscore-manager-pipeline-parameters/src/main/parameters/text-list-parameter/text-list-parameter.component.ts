@@ -83,7 +83,7 @@ export class TextListParameterComponent extends ParameterComponent<TextListParam
 
     private maxElementsReached: boolean = false;
 
-    get value() {
+    get values() {
         return this._valueParams.map(param => param.value);
     }
 
@@ -97,13 +97,13 @@ export class TextListParameterComponent extends ParameterComponent<TextListParam
     onChange(textParameter: TextParameter, index: number) {
         if (index >= 0) {
             this._valueParams.splice(index, 1, new TextParameter({id: textParameter.ref.id}, textParameter.value));
-            this.emitter.emit(new TextListParameter(this.descriptor.ref, this.value));
+            this.emitter.emit(new TextListParameter(this.descriptor.ref, this.values));
         }
     }
 
     remove(index: number) {
         this._valueParams.splice(index, 1);
-        this.emitter.emit(new TextListParameter(this.descriptor.ref, this.value));
+        this.emitter.emit(new TextListParameter(this.descriptor.ref, this.values));
     }
 
     add(value: string) {
@@ -114,12 +114,12 @@ export class TextListParameterComponent extends ParameterComponent<TextListParam
         }
         this._valueParams.push(new TextParameter({id: this.generateId()}, value));
         this.newInputRef.clear();
-        this.emitter.emit(new TextListParameter(this.descriptor.ref, this.value));
+        this.emitter.emit(new TextListParameter(this.descriptor.ref, this.values));
     }
 
     private drop(event: CdkDragDrop<TextParameter[]>) {
         moveItemInArray(this._valueParams, event.previousIndex, event.currentIndex);
-        this.emitter.emit(new TextListParameter(this.descriptor.ref, this.value));
+        this.emitter.emit(new TextListParameter(this.descriptor.ref, this.values));
     }
 
     private generateId(): string {

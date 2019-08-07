@@ -60,6 +60,7 @@ import {TextListParameterModule} from "../main/parameters/text-list-parameter/te
 import {TestTextListComponent} from "../main/shared-controls/test-list.component";
 import {ParameterListComponent} from "../main/shared-controls/parameter-list.component";
 import {ParameterListItemDirective} from "../main/shared-controls/parameter-list-item.directive";
+import {ParameterFactoryService} from "../main/service/parameter-factory.service";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -393,7 +394,7 @@ storiesOf('Parameters/TextListParameter', module).addDecorator(
 
 storiesOf('Parameters/TestListParameter', module).addDecorator(
     moduleMetadata({
-        declarations: [ParameterListComponent,ParameterListItemDirective],
+        declarations: [],
         imports: [
             CommonModule,
             MaterialModule,
@@ -401,9 +402,9 @@ storiesOf('Parameters/TestListParameter', module).addDecorator(
             TextParameterModule,
             DragDropModule,
         ],
-        providers: []
+        providers: [ParameterComponentFactoryService, ParameterFactoryService]
     })).add("default", () => ({
-    component: TestTextListComponent,
+    component: ParameterListComponent,
     props: {
         descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
             "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",

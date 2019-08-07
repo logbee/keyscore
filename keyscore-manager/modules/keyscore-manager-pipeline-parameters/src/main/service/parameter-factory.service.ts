@@ -12,11 +12,14 @@ import {ParameterDescriptor, Parameter as newParameter,} from "../parameters/par
 })
 export class ParameterFactoryService {
 
-    private factories: Map<string, (descriptor: ParameterDescriptor) => newParameter> = new Map();
+    private factories: Map<string, (descriptor: ParameterDescriptor,value?:any) => newParameter> = new Map();
 
-    public newParameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor): newParameter {
+    public newParameterDescriptorToParameter(parameterDescriptor: ParameterDescriptor,value?:any): newParameter {
         const factory = this.factories.get(parameterDescriptor.jsonClass);
         if (factory) {
+            if(value){
+                return factory(parameterDescriptor,value);
+            }
             return factory(parameterDescriptor);
         }
         throw Error(`No factory found for ${parameterDescriptor.jsonClass}.

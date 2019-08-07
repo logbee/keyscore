@@ -15,6 +15,9 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
     @Output('parameter')
     public emitter = new EventEmitter<P>();
 
+    get value(): P {
+        return this.parameter;
+    }
 
     ngOnInit(): void {
         this.onInit();
@@ -28,8 +31,10 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
         this.emitter.emit(parameter)
     }
 
-    protected onInit(): void {}
+    protected onInit(): void {
+    }
 
-    protected onDestroy(): void {}
+    protected onDestroy(): void {
+    }
 
 }
