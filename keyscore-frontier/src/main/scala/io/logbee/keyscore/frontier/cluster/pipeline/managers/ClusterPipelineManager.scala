@@ -38,6 +38,14 @@ object ClusterPipelineManager {
 
   case object DeleteAllPipelines
 
+  case class StopPipeline(id: String)
+
+  case class StopPipelineFailure(id: String)
+
+  case class StopPipelineSuccess(id: String)
+
+  case class  StopAllPipelines()
+
   case object InitCPM
 
   def apply(clusterAgentManager: ActorRef): Props = {

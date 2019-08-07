@@ -8,7 +8,8 @@ import akka.pattern.ask
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetAllPipelineBlueprintsRequest, GetAllPipelineBlueprintsResponse}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.auth.AuthorizationHandler
-import io.logbee.keyscore.frontier.cluster.pipeline.managers.{CreatePipeline, DeployPipelineSuccess, RequestExistingPipelines, StopAllPipelines, StopPipeline, StopPipelineFailure, StopPipelineSuccess}
+import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager._
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
 import io.logbee.keyscore.frontier.route.RouteImplicits
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
 
@@ -53,7 +54,9 @@ trait PipelineRoute extends RouteImplicits with AuthorizationHandler {
           put {
             entity(as[BlueprintRef]) { blueprintRef =>
               onSuccess(clusterPipelineManager ?  CreatePipeline(blueprintRef)) {
-                case DeployPipelineSuccess => complete(StatusCodes.Created)
+                case NoAvailableAgents => complete(StatusCodes.NoContent)
+                case BlueprintResolveFailure => complete(StatusCodes.Conflict)
+                case PipelineDeployed => complete(StatusCodes.Created)
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
