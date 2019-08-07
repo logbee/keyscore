@@ -2,25 +2,30 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "lib": [
       "es2017",
+      "dom",
       "es2016",
-      "es6",
       "es5",
-      "dom"
+      "es6"
     ],
-    "declaration": true,
-    "moduleResolution": "node",
-    "outDir": "./build",
-    "strict": false,
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
+    "strict": false,
     "strictFunctionTypes": false,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "pretty": true,
+    "resolveJsonModule": true
   },
   "include": [
     "src/**/*",
     "index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "build"
   ]
 }
