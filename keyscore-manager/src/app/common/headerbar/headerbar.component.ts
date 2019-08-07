@@ -13,7 +13,7 @@ import "./style/headerbar.style.scss"
                          fxLayoutGap="10px">
                         <button mat-stroked-button class="mat-error-stroked-button" *ngIf="this.showDelete"
                                 (click)="remove()" matTooltip="{{'HEADER_BAR.DELETE' | translate}}" matTooltipPosition="below">
-                            <mat-icon>delete</mat-icon>
+                            <mat-icon>stop</mat-icon>
                         </button>
                     </div>
                     <div class="default-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"

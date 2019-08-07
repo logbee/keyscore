@@ -246,8 +246,9 @@ export class PipelinesEffects {
 
     @Effect() public stopPipeline: Observable<Action> = this.actions$.pipe(
         ofType(STOP_PIPELINE),
+        tap(_=> console.log('[STOP] stop pipeline effect')),
         map(action => (action as StopPipelineAction).id),
-        switchMap((id) =>
+        concatMap((id) =>
             this.pipelineService.stopPipeline(id).pipe(
                 map(data => new StopPipelineSuccessAction(id),
                 catchError(cause => of(new StopPipelineFailureAction(cause, id)))

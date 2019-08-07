@@ -31,7 +31,7 @@ export class PipelineService {
 
     stopPipeline(id:string):Observable<any>{
         console.log("[PipelineService] Stopping pipeline with id:" + id);
-        return this.httpClient.delete(`${PipelineService.BASE_URL}/${id}`);
+        return this.httpClient.put(`${PipelineService.BASE_URL}/blueprint/${id}`,{}, {responseType: 'text'});
     }
 
     loadAllInstances():Observable<any>{
@@ -41,7 +41,4 @@ export class PipelineService {
     loadInstance(id:string):Observable<any>{
         return this.httpClient.get(`${PipelineService.BASE_URL}/instance/${id}`);
     }
-
-
-
 }
