@@ -50,16 +50,13 @@ import {FieldParameter, FieldParameterDescriptor} from "../main/parameters/field
 import {ValueComponentRegistryService} from "../main/value-controls/services/value-component-registry.service";
 import {FieldParameterModule} from "../main/parameters/field-parameter/field-parameter.module";
 import {TextValue} from "../main/models/value.model";
-import {TextListParameterComponent} from "../main/parameters/text-list-parameter/text-list-parameter.component";
 import {
     TextListParameter,
     TextListParameterDescriptor
-} from "../main/parameters/text-list-parameter/text-list-parameter.model";
+} from "../main/parameters/list-parameter/models/text-list-parameter.model";
 import {DragDropModule} from "@angular/cdk/drag-drop";
-import {TextListParameterModule} from "../main/parameters/text-list-parameter/text-list-parameter.module";
-import {TestTextListComponent} from "../main/shared-controls/test-list.component";
-import {ParameterListComponent} from "../main/shared-controls/parameter-list.component";
-import {ParameterListItemDirective} from "../main/shared-controls/parameter-list-item.directive";
+import {ListParameterModule} from "../main/parameters/list-parameter/list-parameter.module";
+import {ListParameterComponent} from "../main/parameters/list-parameter/list-parameter.component";
 import {ParameterFactoryService} from "../main/service/parameter-factory.service";
 
 storiesOf('Parameters/ExpressionParameter', module)
@@ -370,49 +367,29 @@ storiesOf('Parameters/FieldParameter', module)
     }
 }));
 
-storiesOf('Parameters/TextListParameter', module).addDecorator(
-    moduleMetadata({
-        declarations: [],
-        imports: [
-            CommonModule,
-            MaterialModule,
-            BrowserAnimationsModule,
-            TextParameterModule,
-            DragDropModule
-        ],
-        providers: []
-    })).add("default", () => ({
-    component: TextListParameterComponent,
-    props: {
-        descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
-            "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",
-                "Represents a single message of a list", "default", null, false), 1, 5),
-        parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
-        emitter: action('Value Change')
-    }
-}));
 
-storiesOf('Parameters/TestListParameter', module).addDecorator(
+storiesOf('Parameters/ListParameter', module).addDecorator(
     moduleMetadata({
         declarations: [],
         imports: [
             CommonModule,
             MaterialModule,
             BrowserAnimationsModule,
-            TextParameterModule,
-            DragDropModule,
+            ListParameterModule
         ],
         providers: [ParameterComponentFactoryService, ParameterFactoryService]
-    })).add("default", () => ({
-    component: ParameterListComponent,
-    props: {
-        descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
-            "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",
-                "Represents a single message of a list", "default", null, false), 2, 5),
-        parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
-        emitter: action('Value Change')
-    }
-}));
+    })).add("Text", () => {
+        return {
+            template:`<parameter-list [descriptor]="descriptor" [parameter]="parameter" (parameter)="emitter($event)"></parameter-list>` ,
+            props: {
+                descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
+                    "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",
+                        "Represents a single message of a list", "default", null, false), 2, 5),
+                parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
+                emitter: action('Value Change')
+            }
+        }
+});
 
 
 storiesOf('Parameters/ParameterForm', module).addDecorator(
@@ -427,7 +404,7 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             NumberParameterModule,
             BooleanParameterModule,
             FieldParameterModule,
-            TextListParameterModule
+            ListParameterModule
         ],
         providers: [
             ParameterComponentFactoryService,

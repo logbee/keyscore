@@ -5,9 +5,9 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {DragDropModule} from "@angular/cdk/drag-drop";
-import {TextListParameterComponent} from "./text-list-parameter.component";
-import {JSONCLASS_TEXTLIST_DESCR, TextListParameter, TextListParameterDescriptor} from "./text-list-parameter.model";
+import {JSONCLASS_TEXTLIST_DESCR, TextListParameter, TextListParameterDescriptor} from "./models/text-list-parameter.model";
 import {TextParameterModule} from "../text-parameter/text-parameter.module";
+import {ListParameterComponent} from "./list-parameter.component";
 
 @NgModule({
     imports: [
@@ -17,19 +17,19 @@ import {TextParameterModule} from "../text-parameter/text-parameter.module";
         DragDropModule,
         TextParameterModule
     ],
-    declarations: [TextListParameterComponent],
-    exports: [TextListParameterComponent],
-    entryComponents: [TextListParameterComponent]
+    declarations: [ListParameterComponent],
+    exports: [ListParameterComponent],
+    entryComponents: [ListParameterComponent]
 })
-export class TextListParameterModule {
+export class ListParameterModule {
 
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
-        this.factory.register(JSONCLASS_TEXTLIST_DESCR, (descriptor: TextListParameterDescriptor) => {
-            return new TextListParameter(descriptor.ref, []);
+        this.factory.register(JSONCLASS_TEXTLIST_DESCR, (descriptor: TextListParameterDescriptor,value:string[]=[]) => {
+            return new TextListParameter(descriptor.ref, value);
         });
 
         this.componentFactory.register(JSONCLASS_TEXTLIST_DESCR, (containerRef: ViewContainerRef) => {
-            const compFactory = this.resolver.resolveComponentFactory(TextListParameterComponent);
+            const compFactory = this.resolver.resolveComponentFactory(ListParameterComponent);
             return containerRef.createComponent(compFactory);
         });
     }

@@ -11,7 +11,7 @@ import {StringValidatorService} from "../../service/string-validator.service";
                    (change)="onChange()"
                    (keyup.enter)="onEnter($event)"
                    [value]="parameter.value">
-            <mat-label *ngIf="showLabel">{{descriptor.displayName}}</mat-label>
+            <mat-label *ngIf="showLabel">{{label || descriptor.displayName}}</mat-label>
 
             <button mat-button *ngIf="textInput.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="clear()">
@@ -34,7 +34,6 @@ export class TextParameterComponent extends ParameterComponent<TextParameterDesc
     get value():TextParameter{
         return new TextParameter(this.descriptor.ref,this.textInputRef.nativeElement.value);
     }
-    @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter();
 
     @ViewChild('textInput') textInputRef:ElementRef;
 
@@ -53,7 +52,7 @@ export class TextParameterComponent extends ParameterComponent<TextParameterDesc
     }
 
     private onEnter(event:Event): void{
-        this.keyUpEnter.emit(event);
+        this.keyUpEnterEvent.emit(event);
     }
 
     private isValid(value: string): boolean {

@@ -90,7 +90,7 @@ task npmInstallAll(type: NodeTask,dependsOn:npmInstall) {
     subprojects.each { dependsOn("${it.name}:npmInstall") }
 }
 
-task storybook(type: NpmTask, dependsOn: npmInstall) {
+task storybook(type: NpmTask) {
     args = ['run', 'storybook']
 }
 

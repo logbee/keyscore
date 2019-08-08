@@ -11,14 +11,14 @@ import {
     ViewChild, ViewChildren, ViewContainerRef
 } from "@angular/core";
 import {animate, style, transition, trigger} from "@angular/animations";
-import {ParameterComponent} from "../parameters/ParameterComponent";
-import {Parameter, ParameterDescriptor} from "../parameters/parameter.model";
+import {ParameterComponent} from "../ParameterComponent";
+import {Parameter, ParameterDescriptor} from "../parameter.model";
 import {Subscription} from "rxjs";
-import {ListParameter, ListParameterDescriptor} from "../parameters/text-list-parameter/text-list-parameter.model";
-import {CdkDragDrop} from "@angular/cdk/drag-drop";
-import {ParameterListItemDirective} from "./parameter-list-item.directive";
-import {ParameterComponentFactoryService} from "../service/parameter-component-factory.service";
-import {ParameterFactoryService} from "../service/parameter-factory.service";
+import {ListParameter, ListParameterDescriptor} from "./models/list-parameter.model";
+import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
+import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
+import {ParameterFactoryService} from "../../service/parameter-factory.service";
+import {tap} from "rxjs/operators";
 
 
 @Component({
@@ -26,7 +26,8 @@ import {ParameterFactoryService} from "../service/parameter-factory.service";
     template: `
         <div class="parameter-list-host">
             <div fxLayout="row-reverse" class="parameter-list-header">
-                <button mat-button mat-icon-button (click)="add(_addParameterComponentRef.instance.value.value)" fxFlexAlign="center">
+                <button mat-button mat-icon-button (click)="add(_addParameterComponentRef.instance.value.value)"
+                        fxFlexAlign="center">
                     <mat-icon color="accent">add_circle_outline</mat-icon>
                 </button>
                 <ng-template #addParameterInputContainer>
@@ -60,7 +61,7 @@ import {ParameterFactoryService} from "../service/parameter-factory.service";
                 required!</p>
             <p class="parameter-list-warn" *ngIf="_valueParameter.length < descriptor.min">{{descriptor.displayName}}
                 needs at least {{descriptor.min}} {{descriptor.min > 1 ? 'elements' : 'element'}}.</p>
-            <p @max-warn class="parameter-list-warn" *ngIf="maxElementsReached">
+            <p @max-warn class="parameter-list-warn" *ngIf="_maxElementsReached">
                 You reached the maximum number of elements. {{descriptor.displayName}}
                 allows a maximum of {{descriptor.max}} elements.</p>
         </div>
@@ -83,22 +84,24 @@ import {ParameterFactoryService} from "../service/parameter-factory.service";
         ])
     ]
 })
-export class ParameterListComponent extends ParameterComponent<ListParameterDescriptor, ListParameter> implements AfterViewInit {
+export class ListParameterComponent extends ParameterComponent<ListParameterDescriptor, ListParameter> implements AfterViewInit {
 
     @ViewChild('addParameterInputContainer', {read: ViewContainerRef}) addParameterContainer: ViewContainerRef;
     @ViewChildren('listItemInputContainer', {read: ViewContainerRef}) listItemContainers: QueryList<ViewContainerRef>;
+
+    get values() {
+        return this._valueParameter.map(param => param.value);
+    }
 
     private _addParameterComponentRef: ComponentRef<ParameterComponent<ParameterDescriptor, Parameter>>;
 
     private _valueParameter: Parameter[] = [];
 
-    private maxElementsReached: boolean = false;
+    private _maxElementsReached: boolean = false;
 
-    private subs: Subscription[] = [];
+    private _subs$$: Subscription[] = [];
+    private _listItemChangeSubs$$: Subscription[] = [];
 
-    get values() {
-        return this._valueParameter.map(param => param.value);
-    }
 
     constructor(
         private parameterComponentFactory: ParameterComponentFactoryService,
@@ -108,67 +111,106 @@ export class ParameterListComponent extends ParameterComponent<ListParameterDesc
     }
 
     onInit() {
-        this.buildValueParameters();
-
+        this.initValueParameters();
     }
 
-    ngAfterViewInit(){
+    ngAfterViewInit() {
+        this._subs$$.push(this.listItemContainers.changes.subscribe(containers => this.updateList(containers)));
+
         this.createAddParameterComponent();
-        this.listItemContainers.forEach((containerRef,index) => {
-            this.createListItem(this._valueParameter[index],containerRef);
-        })
-
+        this.updateList(this.listItemContainers);
     }
 
-    onChange(value: any, index: number) {
-
+    itemChanged(value: Parameter, index: number) {
+        console.log("CHANGED ITEM: ",this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, value.value));
+        this._valueParameter.splice(index, 1,
+            this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, value.value));
+        this.emitChanges();
     }
 
     remove(index: number) {
-        this._valueParameter.splice(index,1);
+        this._valueParameter.splice(index, 1);
+        this.emitChanges();
     }
 
     add(value: any) {
-        console.log("Value Params", this._valueParameter);
-        if (this._valueParameter.length === this.descriptor.max) {
-            if (!this.maxElementsReached) {
-                this.maxElementsReached = true;
-                setTimeout(() => this.maxElementsReached = false, 5000);
+        if (this._valueParameter.length >= this.descriptor.max) {
+            if (!this._maxElementsReached) {
+                this._maxElementsReached = true;
+                setTimeout(() => this._maxElementsReached = false, 5000);
             }
             return;
         }
-        this._valueParameter.push(this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor,value))
-        //this.newInputRef.clear();
+        this._valueParameter.push(this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, value));
+        this._addParameterComponentRef.instance.clear();
+        this.emitChanges();
 
     }
 
     private drop(event: CdkDragDrop<Parameter[]>) {
-
+        moveItemInArray(this._valueParameter, event.previousIndex, event.currentIndex);
+        this.emitChanges();
     }
 
-    onDestroy() {
-        this.subs.forEach(sub => sub.unsubscribe());
-    }
 
     private createAddParameterComponent() {
-        this._addParameterComponentRef = this.parameterComponentFactory.createParameterComponent(this.descriptor.descriptor.jsonClass, this.addParameterContainer);
-        this._addParameterComponentRef.instance.parameter = this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor);
+        this._addParameterComponentRef = this.parameterComponentFactory.createParameterComponent(
+            this.descriptor.descriptor.jsonClass,
+            this.addParameterContainer
+        );
+
+        this._addParameterComponentRef.instance.parameter =
+            this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor);
+
         this._addParameterComponentRef.instance.descriptor = this.descriptor.descriptor;
         this._addParameterComponentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
+        this._addParameterComponentRef.instance.label = this.descriptor.displayName;
+
+        this._subs$$.push(this._addParameterComponentRef.instance.keyUpEnterEvent.subscribe(event =>
+            this.add(this._addParameterComponentRef.instance.value.value)));
     }
 
-    private createListItem(parameter: Parameter,container:ViewContainerRef) {
-        const componentRef = this.parameterComponentFactory.createParameterComponent(this.descriptor.descriptor.jsonClass, container);
+    private updateList(containers: QueryList<ViewContainerRef>) {
+        console.log("CHANGED", containers);
+        this.unsubscribeListItems();
+        containers.forEach((containerRef, index) => {
+            this.createListItem(this._valueParameter[index], containerRef, index);
+        })
+    }
+
+    private createListItem(parameter: Parameter, container: ViewContainerRef, index: number) {
+        container.clear();
+
+        const componentRef =
+            this.parameterComponentFactory.createParameterComponent(this.descriptor.descriptor.jsonClass, container);
         componentRef.instance.parameter = parameter;
         componentRef.instance.descriptor = this.descriptor.descriptor;
         componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
+        componentRef.instance.showLabel = false;
+
+        this._listItemChangeSubs$$.push(componentRef.instance.emitter.subscribe(parameter =>
+            this.itemChanged(parameter, index)));
+
+        componentRef.changeDetectorRef.detectChanges();
     }
 
-    private buildValueParameters() {
+    private initValueParameters() {
         this._valueParameter = [];
         this.parameter.value.forEach(val => {
             this._valueParameter.push(this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, val))
         })
     }
 
+    private emitChanges() {
+        this.emit(this.parameterFactory.newParameterDescriptorToParameter(this.descriptor, this.values));
+    }
+
+    private unsubscribeListItems() {
+        this._listItemChangeSubs$$.forEach(sub => sub.unsubscribe());
+    }
+
+    onDestroy() {
+        this.unsubscribeListItems();
+        this._subs$$.forEach(sub => sub.unsubscribe());
+    }
 }
