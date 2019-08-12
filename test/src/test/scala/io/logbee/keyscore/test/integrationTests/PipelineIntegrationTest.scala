@@ -10,7 +10,7 @@ import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.data.Health
 import io.logbee.keyscore.model.data.Health.Green
 import io.logbee.keyscore.model.json4s.KeyscoreFormats
-import io.logbee.keyscore.model.metrics.{CounterMetric, NumberGaugeMetric}
+import io.logbee.keyscore.model.metrics.NumberGaugeMetric
 import io.logbee.keyscore.model.pipeline._
 import io.logbee.keyscore.test.fixtures.ExampleData.{datasetMulti1, datasetMulti2}
 import io.logbee.keyscore.test.integrationTests.behaviors._
@@ -103,7 +103,6 @@ class PipelineIntegrationTest extends Matchers {
     checkFilterState(k2kFilterId, Green, Running)
 
     Thread.sleep(2000)
-    checkExtractedDatasets(k2eFilterId, 10, 0)
 
     //Test the Valves of the second Pipeline Filter
     applyBehavior(new InsertDatasets(k2kFilterId, datasetsSerialized))
