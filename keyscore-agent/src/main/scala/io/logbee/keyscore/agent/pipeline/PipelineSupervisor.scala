@@ -3,30 +3,29 @@ package io.logbee.keyscore.agent.pipeline
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, UnhandledMessage}
-import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Keep, Source}
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Keep, Source}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
 import io.logbee.keyscore.agent.pipeline.PipelineSupervisor._
 import io.logbee.keyscore.agent.pipeline.controller.Controller
 import io.logbee.keyscore.agent.pipeline.controller.Controller.{filterController, sourceController}
 import io.logbee.keyscore.agent.pipeline.valve.ValveStage
+import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
 import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsFailure, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.blueprint.PipelineBlueprint
 import io.logbee.keyscore.model.data.Health.{Green, Red, Yellow}
+import io.logbee.keyscore.model.pipeline.StageSupervisor
+import io.logbee.keyscore.model.util.ToFiniteDuration.asFiniteDuration
 import io.logbee.keyscore.pipeline.api.stage.StageContext
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
-import io.logbee.keyscore.commons.cluster.Topics.MetricsTopic
-import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsFailure, ScrapeMetricsSuccess}
-import io.logbee.keyscore.model.pipeline.StageSupervisor
-import io.logbee.keyscore.model.util.ToFiniteDuration.asFiniteDuration
 
 object PipelineSupervisor {
 

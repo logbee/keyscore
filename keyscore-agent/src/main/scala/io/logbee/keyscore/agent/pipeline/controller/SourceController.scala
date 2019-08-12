@@ -67,7 +67,7 @@ private class SourceController(val source: SourceProxy, val outValve: ValveProxy
 
   override def scrape(): Future[MetricsCollection] = {
     for {
-      sourceMetrics <- source.scrape()
+      sourceMetrics <- source.scrape(Set(Label("port", TextValue("source"))))
       outValveMetrics <- outValve.scrape(Set(Label("port", TextValue("out"))))
     } yield sourceMetrics ++ outValveMetrics
   }
