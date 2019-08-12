@@ -22,7 +22,8 @@ trait MetricsRoute extends RouteImplicits with AuthorizationHandler {
               case MetricsResponseFailure(_) =>
                 complete(StatusCodes.NotFound, id)
               case e =>
-                complete(StatusCodes.InternalServerError)
+                println(s"MetricsQuery went wrong: $e")
+                complete(StatusCodes.InternalServerError, e)
             }
           }
         }

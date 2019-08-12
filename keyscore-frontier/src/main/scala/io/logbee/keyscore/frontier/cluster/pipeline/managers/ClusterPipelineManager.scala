@@ -44,7 +44,7 @@ object ClusterPipelineManager {
 
   case class StopPipelineSuccess(id: String)
 
-  case class  StopAllPipelines()
+  case object StopAllPipelines
 
   case object InitCPM
 
@@ -126,7 +126,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
           log.error(s"Failed to query the available agents to delete pipeline with id <$id>!")
       }
 
-    case DeleteAllPipelines => forwardToLocalPipelineManagerOfAvailableAgents(sender, DeleteAllPipelinesOrder)
+    case StopAllPipelines => forwardToLocalPipelineManagerOfAvailableAgents(sender, DeleteAllPipelinesOrder)
 
     case message: PauseFilter => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 
