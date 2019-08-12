@@ -143,8 +143,8 @@ class DefaultMetricsCollector() extends MetricsCollector {
   def scrape: MetricsCollection = {
     val result = MetricsCollection(metrics.values.toList)
     metrics.foreach {
-      case (name, metric : NumberGaugeMetric) => metrics.update(name, metric.withValue(0))
-      case (name, metric : DecimalGaugeMetric) => metrics.update(name, metric.withValue(0))
+      case (name, metric : NumberGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now))
+      case (name, metric : DecimalGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now))
       case _ =>
     }
     result
