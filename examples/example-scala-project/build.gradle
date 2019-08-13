@@ -122,17 +122,17 @@ task createContainerNetwork(type: DockerCreateNetwork) {
 
 task pullFrontierImage(type: DockerPullImage) {
     repository = "quay.io/logbee/keyscore-frontier"
-    tag = keyscoreVersion
+    tag = "development"
 }
 
 task pullAgentImage(type: DockerPullImage) {
     repository = "quay.io/logbee/keyscore-agent"
-    tag = keyscoreVersion
+    tag = "development"
 }
 
 task pullManagerImage(type: DockerPullImage) {
     repository = "quay.io/logbee/keyscore-manager"
-    tag = keyscoreVersion
+    tag = "development"
 }
 
 task createFrontierContainer(type: DockerCreateContainer) {
