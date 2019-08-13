@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline
+package io.logbee.keyscore.agent.runtimes.jvm
 
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.descriptor.Descriptor

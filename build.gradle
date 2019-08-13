@@ -97,6 +97,7 @@ subprojects {
 
 configure ([
     project(':keyscore-agent'),
+    project(':keyscore-agent:keyscore-agent-runtimes'),
     project(':keyscore-frontier'),
     project(':keyscore-commons'),
     project(':keyscore-model'),
@@ -136,7 +137,14 @@ configure ([
 //            "-Ywarn-unused-import"
         ]
     }
-    
+
+    test {
+        testLogging {
+            events 'started', 'passed', 'skipped', 'failed'
+            exceptionFormat "full"
+        }
+    }
+
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource

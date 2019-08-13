@@ -24,17 +24,17 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
       "is created, should create a DirWatcher for that sub-directory" ignore //TODO
       new DirWatcherParams {
         
-        withShare { share =>
+        withShare { implicit share =>
           
           val dirPath = "testDir\\"
-          withSmbDir(share, dirPath, { dir =>
+          withSmbDir(dirPath, { dir =>
             
             matchPattern = new FileMatchPattern(fullFilePattern = "\\\\" + hostName + "\\" + shareName + "\\" + dirPath + "*\\test.txt")
             val dirWatcher = new DirWatcher(dir, matchPattern, provider)
             
             
             val subDirPath = dirPath + "subDir"
-            withSmbDir(share, subDirPath, { subDir =>
+            withSmbDir(subDirPath, { subDir =>
               
               val subDirWatcher = mock[BaseDirWatcher]
               
@@ -67,10 +67,10 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
         "" in //TODO
         new DirWatcherParams {
           
-          withShare { share =>
+          withShare { implicit share =>
             
             val dirPath = "testDir\\"
-            withSmbDir(share, dirPath, { dir =>
+            withSmbDir(dirPath, { dir =>
               println("matchPattern: " + dir.absolutePath + "test.txt")
               matchPattern = new FileMatchPattern(dir.absolutePath + "test.txt") //FIXME correct this filePattern
               val dirWatcher = new DirWatcher(dir, matchPattern, provider)
@@ -78,7 +78,7 @@ class Manual_SmbDirWatcherSpec extends Manual_SpecWithSmbShare with MockFactory 
               
               val filePath = dirPath + "test.txt"
               val content = charset.encode("base file")
-              withSmbFile(share, filePath, content, { file =>
+              withSmbFile(filePath, content, { file =>
                 
                 val fileEventHandler = mock[FileEventHandler]
                 

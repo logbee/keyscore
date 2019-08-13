@@ -86,7 +86,7 @@ private class FilterController(val inValve: ValveProxy, val filter: FilterProxy,
     for {
       inValveMetrics <- inValve.scrape(Set(Label("port", TextValue("in"))))
       outValveMetrics <- outValve.scrape(Set(Label("port", TextValue("out"))))
-      filterMetrics <- filter.scrape()
+      filterMetrics <- filter.scrape(Set(Label("port", TextValue("filter"))))
     } yield inValveMetrics ++ filterMetrics ++ outValveMetrics
   }
 

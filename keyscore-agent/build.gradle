@@ -26,6 +26,7 @@ dependencies {
     compile project(':keyscore-commons')
     compile project(':keyscore-model')
 
+    compile project(':keyscore-agent:keyscore-agent-runtimes')
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
 
     compile dependency.scala_lang

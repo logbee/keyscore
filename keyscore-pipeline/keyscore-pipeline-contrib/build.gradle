@@ -23,6 +23,7 @@ dependencies {
 
     testCompile project(':keyscore-pipeline:keyscore-pipeline-testkit')
     testCompile project(':keyscore-test-fixtures')
+    testCompile project(':keyscore-pipeline:keyscore-pipeline-commons')
 
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit

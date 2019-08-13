@@ -91,17 +91,18 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
         }
         catch {
           case smbException: SMBApiException =>
-            if (smbException.getStatus == NtStatus.STATUS_DELETE_PENDING) {
-              //this file/dir is being deleted, so don't add it to the listing
-              log.debug("Listed dir which is pending to be deleted.")
-            }
-            else if (smbException.getStatus == NtStatus.STATUS_OBJECT_NAME_NOT_FOUND) {
-              //this file/dir is already deleted, so don't add it to the listing
-              log.debug("Listed dir which has already been deleted.")
-            }
-            else {
-              log.error("Uncaught SMBApiException while listing files and dirs: " + smbException.getMessage)
-              throw smbException
+            smbException.getStatus match {
+              case NtStatus.STATUS_DELETE_PENDING =>
+                //this file/dir is being deleted, so don't add it to the listing
+                log.debug("Listed dir which is pending to be deleted.")
+                
+              case NtStatus.STATUS_OBJECT_NAME_NOT_FOUND =>
+                //this file/dir is already deleted, so don't add it to the listing
+                log.debug("Listed dir which does not exist.")
+                
+              case _ =>
+                log.error("Uncaught SMBApiException while listing files and dirs: " + smbException.getMessage)
+                throw smbException
             }
             
           case otherException: Throwable =>
@@ -152,7 +153,7 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
   override def equals(other: Any): Boolean = other match {
     case that: SmbDir =>
       (that canEqual this) &&
-        this.absolutePath == that.absolutePath// &&
+        this.absolutePath.equals(that.absolutePath)// &&
 //        this.share.getSmbPath.equals(that.share.getSmbPath)
     case _ => false
   }
@@ -160,5 +161,9 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
   override def hashCode(): Int = {
     val state = Seq(this.absolutePath/*, this.share*/)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+  
+  override def toString: String = {
+    absolutePath
   }
 }

@@ -139,6 +139,7 @@
   },
   "HEADER_BAR": {
     "DELETE": "Delete the current Pipeline.",
+    "STOP": "Stops the current Pipeline.",
     "SAVE": "Save the current Pipeline.",
     "RUN": "Runs or reruns the current Pipeline. This will also save the pipeline.",
     "MANUEL_RELOAD": "Reload the current Data.",

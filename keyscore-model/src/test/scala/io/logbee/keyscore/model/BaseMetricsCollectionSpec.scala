@@ -16,18 +16,18 @@ class BaseMetricsCollectionSpec extends FreeSpec with Matchers {
 
     val otherName = "_"
     val otherDesc = CounterMetricDescriptor(otherName)
-    val other = CounterMetric(otherName, Set(), timestamp = None, 1)
+    val other = CounterMetric(otherName, Set(), timestamp = None, value = 1)
     val falseDesc = CounterMetricDescriptor("__")
 
     val counterName ="_counter"
     val counterMetricDesc = CounterMetricDescriptor(counterName)
-    val counterMetric = CounterMetric(counterName, Set(inLabel), timestamp = None, 1)
+    val counterMetric = CounterMetric(counterName, Set(inLabel), timestamp = None, value = 1)
 
     val gaugeName = "_gauge"
     val gaugeMetricDesc = NumberGaugeMetricDescriptor(gaugeName)
 
-    val gaugeMetric = NumberGaugeMetric(gaugeName, Set(inLabel), timestamp = None, 2)
-    val gaugeMetric2 = NumberGaugeMetric(gaugeName, Set(outLabel), timestamp = None, 21)
+    val gaugeMetric = NumberGaugeMetric(gaugeName, Set(inLabel), timestamp = None, value = 2)
+    val gaugeMetric2 = NumberGaugeMetric(gaugeName, Set(outLabel), timestamp = None, value = 21)
 
     val metrics = List(counterMetric,gaugeMetric,gaugeMetric2)
     val otherMetrics = List(other)

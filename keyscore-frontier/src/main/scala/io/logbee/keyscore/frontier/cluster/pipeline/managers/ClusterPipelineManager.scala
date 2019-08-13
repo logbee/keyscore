@@ -38,6 +38,14 @@ object ClusterPipelineManager {
 
   case object DeleteAllPipelines
 
+  case class StopPipeline(id: String)
+
+  case class StopPipelineFailure(id: String)
+
+  case class StopPipelineSuccess(id: String)
+
+  case object StopAllPipelines
+
   case object InitCPM
 
   def apply(clusterAgentManager: ActorRef): Props = {
@@ -118,7 +126,7 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
           log.error(s"Failed to query the available agents to delete pipeline with id <$id>!")
       }
 
-    case DeleteAllPipelines => forwardToLocalPipelineManagerOfAvailableAgents(sender, DeleteAllPipelinesOrder)
+    case StopAllPipelines => forwardToLocalPipelineManagerOfAvailableAgents(sender, DeleteAllPipelinesOrder)
 
     case message: PauseFilter => forwardToLocalPipelineManagerOfAvailableAgents(sender, message)
 

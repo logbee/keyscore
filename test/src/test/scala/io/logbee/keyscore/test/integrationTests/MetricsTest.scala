@@ -71,8 +71,6 @@ class MetricsTest extends Matchers {
     logger.debug(s"LOOKING_UP HealthState of the Metrics Pipeline")
     pollPipelineHealthState() should be(true)
 
-    logger.debug(s"At the beginning no datasets should be inserted or extracted.")
-    scrapeMetricsForFailure(addFieldsID, write(standardTimestamp)) shouldBe true
     logger.debug(s"Now 3 datasets should be inserted.")
     applyBehavior(new InsertDatasets(addFieldsID, write(List(d1, d2, d3))))
 

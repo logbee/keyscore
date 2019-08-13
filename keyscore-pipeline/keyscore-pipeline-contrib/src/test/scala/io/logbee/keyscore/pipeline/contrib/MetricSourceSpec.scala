@@ -26,21 +26,23 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
       val gmr = metricToRecord(gm, addFieldsIdFromMetricsTest)
 
       cmr shouldBe Record(List(
-        Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
+        Field("filter.id", TextValue(addFieldsIdFromMetricsTest)),
         Field("metric.type", TextValue(CounterMetricType.toString)),
         Field("metric.name", TextValue("cm3")),
         Field("metric.timestamp", TimestampValue(9, 25)),
+        Field("metric.timedelta", NumberValue()),
         Field("metric.value", NumberValue(13)),
         Field("test", DecimalValue(42.0)),
         Field("x", TextValue("x"))))
 
       gmr shouldBe Record(List(
-        Field("metric.id",TextValue(addFieldsIdFromMetricsTest)),
+        Field("filter.id",TextValue(addFieldsIdFromMetricsTest)),
         Field("metric.type", TextValue(NumberGaugeMetricType.toString)),
         Field("metric.name", TextValue("gm4")),
         Field("metric.timestamp", TimestampValue(11, 27)),
+        Field("metric.timedelta", NumberValue()),
         Field("metric.value", NumberValue(14)),
-        Field("metric.min", NumberValue(0)),
+        Field("metric.min", NumberValue()),
         Field("metric.max", NumberValue(42)),
         Field("test2", DecimalValue(242.0)),
         Field("y", TextValue("y"))))
@@ -49,20 +51,22 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
     "convert MetricCollection to Dataset" in {
       val dataset = Dataset(metadata = MetaData(), List(
         Record(List(
-          Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
+          Field("filter.id", TextValue(addFieldsIdFromMetricsTest)),
           Field("metric.type", TextValue(CounterMetricType.toString)),
           Field("metric.name", TextValue("cm3")),
           Field("metric.timestamp", TimestampValue(9,25)),
+          Field("metric.timedelta", NumberValue()),
           Field("metric.value", NumberValue(13)),
           Field("test", DecimalValue(42.0)),
           Field("x", TextValue("x")))),
         Record(List(
-          Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
+          Field("filter.id", TextValue(addFieldsIdFromMetricsTest)),
           Field("metric.type", TextValue(NumberGaugeMetricType.toString)),
           Field("metric.name", TextValue("gm4")),
           Field("metric.timestamp", TimestampValue(11,27)),
+          Field("metric.timedelta", NumberValue()),
           Field("metric.value", NumberValue(14)),
-          Field("metric.min", NumberValue(0)),
+          Field("metric.min", NumberValue()),
           Field("metric.max", NumberValue(42)),
           Field("test2", DecimalValue(242.0)),
           Field("y", TextValue("y"))))))

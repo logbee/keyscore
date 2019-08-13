@@ -9,6 +9,7 @@ import scala.collection.mutable
 class DefaultMetricsCollector() extends MetricsCollector {
 
   private val metrics = mutable.HashMap.empty[String, Metric]
+  private var lastScape = System.currentTimeMillis()
 
   override def collect(descriptor: CounterMetricDescriptor): CounterMetricCollector = new CounterMetricCollector {
 
@@ -141,10 +142,15 @@ class DefaultMetricsCollector() extends MetricsCollector {
   def get: MetricsCollection = MetricsCollection(metrics.values.toList)
 
   def scrape: MetricsCollection = {
+
     val result = MetricsCollection(metrics.values.toList)
+    val current = System.currentTimeMillis()
+    val delta =  current - lastScape
+    lastScape = current
+
     metrics.foreach {
-      case (name, metric : NumberGaugeMetric) => metrics.update(name, metric.withValue(0))
-      case (name, metric : DecimalGaugeMetric) => metrics.update(name, metric.withValue(0))
+      case (name, metric : NumberGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
+      case (name, metric : DecimalGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
       case _ =>
     }
     result

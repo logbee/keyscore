@@ -4,8 +4,8 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.Behaviors.receiveMessage
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, typed}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
-import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider
-import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider.{LoadSuccess, StageLogicProviderRequest, StageLogicProviderResponse}
+import io.logbee.keyscore.agent.runtimes.StageLogicProvider
+import io.logbee.keyscore.agent.runtimes.StageLogicProvider.{LoadSuccess, StageLogicProviderRequest, StageLogicProviderResponse}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
@@ -62,8 +62,6 @@ object FilterManager {
 class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) extends Actor with ActorLogging {
 
   import akka.actor.typed.scaladsl.adapter._
-
-  private val filterLoader = new FilterLoader
 
   private val descriptors = mutable.HashMap.empty[DescriptorRef, Registration]
 

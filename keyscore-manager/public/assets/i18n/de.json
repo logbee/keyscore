@@ -136,6 +136,7 @@
   },
   "HEADER_BAR": {
     "DELETE": "Löscht die aktuell ausgewählte Pipeline.",
+    "STOP": "Stoppt die aktuell ausgewählte Pipeline.",
     "SAVE": "Speichert die aktuell ausgewählte Pipeline.",
     "RUN": "Start/Neustart der aktuell ausgewählten Pipeline. Dies speichert auch die Pipeline.",
     "MANUEL_RELOAD": "Aktualisiere die angezeigten Daten.",

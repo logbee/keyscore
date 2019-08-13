@@ -8,7 +8,7 @@ import {
     ResetPipelineAction, StopPipelineAction,
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
-import {share, takeUntil} from "rxjs/internal/operators";
+import {filter, share, take, takeUntil} from "rxjs/internal/operators";
 import {EditingPipelineModel, InternalPipelineConfiguration, ResolvedFilterDescriptor} from "keyscore-manager-models";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
@@ -130,7 +130,8 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public stopPipeline(pipeline: EditingPipelineModel) {
         console.log("Trying to stop pipeline with id" + JSON.stringify(pipeline.pipelineBlueprint.ref.uuid));
         this.store.dispatch(new StopPipelineAction(pipeline.pipelineBlueprint.ref.uuid));
-        this.location.back();
+        this.showBigLoadingViewOnLoading = false;
+
     }
 
     public updatePipeline(pipeline: EditingPipelineModel) {

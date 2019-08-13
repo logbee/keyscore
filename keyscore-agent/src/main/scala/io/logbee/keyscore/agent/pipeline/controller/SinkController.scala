@@ -69,7 +69,7 @@ private class SinkController(val inValve: ValveProxy, val sink: SinkProxy)(impli
   override def scrape(): Future[MetricsCollection] = {
     for {
       inValveMetrics <- inValve.scrape(Set(Label("port", TextValue("in"))))
-      sinkMetrics <- sink.scrape()
+      sinkMetrics <- sink.scrape(Set(Label("port", TextValue("sink"))))
     } yield inValveMetrics ++ sinkMetrics
   }
 

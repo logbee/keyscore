@@ -17,6 +17,11 @@ trait BaseMetricsCollection {
     metrics.filter(_.isInstanceOf[NumberGaugeMetric]).map(_.asInstanceOf[NumberGaugeMetric]).find(cm => cm.name == metricName)
   }
 
+  def find(descriptor: DecimalGaugeMetricDescriptor): Option[DecimalGaugeMetric] = {
+    val metricName: String = descriptor.name
+    metrics.filter(_.isInstanceOf[DecimalGaugeMetric]).map(_.asInstanceOf[DecimalGaugeMetric]).find(cm => cm.name == metricName)
+  }
+
   def find[T <: Metric](name: String, labels: Set[Label] = Set.empty)(implicit classTag: ClassTag[T]): Option[T] = {
     metrics.find(metric => {
       classTag.runtimeClass.equals(metric.getClass) && name.equals(metric.asMessage.name) && labels.forall(metric.asMessage.labels.contains)

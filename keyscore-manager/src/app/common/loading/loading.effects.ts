@@ -30,6 +30,11 @@ import {
     RunPipelineAction,
     RunPipelineFailureAction,
     RunPipelineSuccessAction,
+    STOP_PIPELINE,
+    STOP_PIPELINE_FAILURE, STOP_PIPELINE_SUCCESS,
+    StopPipelineAction,
+    StopPipelineFailureAction,
+    StopPipelineSuccessAction,
     UpdatePipelinePollingAction
 } from "../../pipelines/actions/pipelines.actions";
 import {
@@ -55,7 +60,8 @@ type showSpinnerTypes =
     | LoadAgentsAction
     | RunPipelineAction
     | LoadPipelineBlueprints
-    | LoadFilterDescriptorsAction;
+    | LoadFilterDescriptorsAction
+    | StopPipelineAction;
 
 
 const showSpinnerActions = [
@@ -64,7 +70,8 @@ const showSpinnerActions = [
     LOAD_ALL_PIPELINE_INSTANCES,
     LOAD_AGENTS,
     RUN_PIPELINE,
-    LOAD_FILTER_DESCRIPTORS
+    LOAD_FILTER_DESCRIPTORS,
+    STOP_PIPELINE
 ];
 
 type hideSpinnerTypes =
@@ -76,7 +83,9 @@ type hideSpinnerTypes =
     | RunPipelineFailureAction
     | LoadAgentsSuccessAction
     | LoadFilterDescriptorsSuccessAction
-    | LoadFilterDescriptorsFailureAction;
+    | LoadFilterDescriptorsFailureAction
+    | StopPipelineFailureAction
+    | StopPipelineSuccessAction;
 
 const hideSpinnerActions = [
     LOAD_ALL_PIPELINE_INSTANCES_SUCCESS,
@@ -89,7 +98,9 @@ const hideSpinnerActions = [
     RUN_PIPELINE_SUCCESS,
     RUN_PIPELINE_FAILURE,
     LOAD_FILTER_DESCRIPTORS_SUCCESS,
-    LOAD_FILTER_DESCRIPTORS_FAILURE
+    LOAD_FILTER_DESCRIPTORS_FAILURE,
+    STOP_PIPELINE_FAILURE,
+    STOP_PIPELINE_SUCCESS
 ];
 
 @Injectable()
