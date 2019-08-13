@@ -1,7 +1,7 @@
 package io.logbee.keyscore.test
 
 import akka.actor.{ActorRef, ActorSystem, Props}
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -9,10 +9,10 @@ import scala.language.postfixOps
 
 package object fixtures {
 
-  def withActorSystem(test: ActorSystem => Any): Any = {
+  def withActorSystem(test: ActorSystem => Any)(implicit config: Config = ConfigFactory.load()): Any = {
 
-    val config = ConfigFactory.load()
-    val system = ActorSystem("test-system", config.getConfig("test"))
+    val resolvedConfig = if (config.hasPath("test")) config.getConfig("test") else config
+    val system = ActorSystem("test-system", resolvedConfig)
 
     try {
       test(system)

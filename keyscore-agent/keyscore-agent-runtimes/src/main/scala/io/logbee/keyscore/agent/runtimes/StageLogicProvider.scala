@@ -1,10 +1,10 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.agent.runtimes
 
 import akka.actor.typed.ActorRef
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.{BranchStage, FilterStage, MergeStage, SinkStage, SourceStage}
+import io.logbee.keyscore.pipeline.api.stage._
 
 object StageLogicProvider {
 

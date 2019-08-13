@@ -1,20 +1,19 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.agent.runtimes.jvm
 
 import java.util.jar.Manifest
 
 import akka.actor.{Actor, ActorLogging, Props}
-import io.logbee.keyscore.agent.pipeline.FilterLoader
-import io.logbee.keyscore.agent.pipeline.stage.ManifestStageLogicProvider.{EXTENSION_ATTRIBUTE, ManifestFinder}
-import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider._
+import io.logbee.keyscore.agent.runtimes.StageLogicProvider._
+import io.logbee.keyscore.agent.runtimes.jvm.ManifestStageLogicProvider.ManifestFinder
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidToString
 import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
 import io.logbee.keyscore.model.util.Using.using
 import io.logbee.keyscore.pipeline.api.LogicProviderFactory._
-import io.logbee.keyscore.pipeline.api.stage.{BranchStage, FilterStage, MergeStage, SinkStage, SourceStage}
+import io.logbee.keyscore.pipeline.api.stage._
 
-import scala.util.{Failure, Success, Try}
 import scala.jdk.CollectionConverters._
+import scala.util.{Failure, Success, Try}
 
 object ManifestStageLogicProvider {
 
@@ -37,15 +36,15 @@ class ManifestStageLogicProvider(manifestFinder: ManifestFinder) extends Actor w
 
   import akka.actor.typed.scaladsl.adapter._
   import context.become
-  val filterLoader = new FilterLoader()
 
+  val filterLoader = new FilterLoader()
 
   override def receive: Receive = {
 
     case Load(replyTo) =>
 
       val descriptors = manifestFinder.find()
-        .flatMap(manifest => Option(manifest.getMainAttributes.getValue(EXTENSION_ATTRIBUTE)))
+        .flatMap(manifest => Option(manifest.getMainAttributes.getValue(ManifestStageLogicProvider.EXTENSION_ATTRIBUTE)))
         .flatMap(_.split(","))
         .map(_.trim())
         .flatMap(classname => Try(getClass.getClassLoader.loadClass(classname)) match {

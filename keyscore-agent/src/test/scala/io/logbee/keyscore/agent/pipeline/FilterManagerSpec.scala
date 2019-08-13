@@ -8,8 +8,8 @@ import akka.testkit.TestProbe
 import akka.util.Timeout
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorNotFound, StageCreationFailed}
 import io.logbee.keyscore.agent.pipeline.examples._
-import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider
-import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider.{Load, LoadSuccess, BranchStageCreated => _, FilterStageCreated => _, SinkStageCreated => _, SourceStageCreated => _}
+import io.logbee.keyscore.agent.runtimes.StageLogicProvider
+import io.logbee.keyscore.agent.runtimes.StageLogicProvider.{Load, LoadSuccess}
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidToString

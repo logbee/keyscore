@@ -1,4 +1,4 @@
-package io.logbee.keyscore.agent.pipeline.stage
+package io.logbee.keyscore.agent.runtimes.jvm
 
 import java.util.UUID
 import java.util.UUID.randomUUID
@@ -6,8 +6,8 @@ import java.util.UUID.randomUUID
 import akka.actor.ActorSystem
 import akka.actor.typed.ActorRef
 import akka.testkit.TestProbe
-import io.logbee.keyscore.agent.pipeline.examples._
-import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider._
+import io.logbee.keyscore.agent.runtimes.StageLogicProvider._
+import io.logbee.keyscore.agent.runtimes.examples.{ExampleBranch, ExampleFilter, ExampleMerge, ExampleSink, ExampleSource, MalformedExampleFilter}
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion.uuidToString
@@ -16,7 +16,8 @@ import io.logbee.keyscore.model.pipeline.StageSupervisor.noop
 import io.logbee.keyscore.model.util.Using.using
 import io.logbee.keyscore.pipeline.api.LogicParameters
 import io.logbee.keyscore.pipeline.api.stage._
-import io.logbee.keyscore.test.fixtures.ToActorRef.Probe2TypedActorRef
+import io.logbee.keyscore.test.fixtures.ToActorRef._
+import io.logbee.keyscore.test.fixtures._
 import org.junit.runner.RunWith
 import org.scalatest.{FreeSpec, Inside, Matchers}
 import org.scalatestplus.junit.JUnitRunner
@@ -27,7 +28,6 @@ import scala.language.postfixOps
 class ManifestStageLogicProviderSpec extends FreeSpec with Matchers with Inside {
 
   import akka.actor.typed.scaladsl.adapter._
-  import io.logbee.keyscore.test.fixtures._
 
   "A ManifestStageLogicProvider" - {
 

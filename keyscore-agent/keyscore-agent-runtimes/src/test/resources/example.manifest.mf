@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+keyscore-extensions:   io.logbee.keyscore.agent.runtimes.examples.ExampleFilter,
+                       io.logbee.keyscore.agent.runtimes.examples.ExampleSource,
+                       io.logbee.keyscore.agent.runtimes.examples.ExampleSink,
+                       io.logbee.keyscore.agent.runtimes.examples.ExampleMerge,
+                       io.logbee.keyscore.agent.runtimes.examples.ExampleBranch

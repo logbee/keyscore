@@ -12,9 +12,9 @@ import akka.util.Timeout
 import com.sun.management.OperatingSystemMXBean
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
-import io.logbee.keyscore.agent.pipeline.stage.ManifestStageLogicProvider
-import io.logbee.keyscore.agent.pipeline.stage.StageLogicProvider.StageLogicProviderRequest
+import io.logbee.keyscore.agent.runtimes.StageLogicProvider.StageLogicProviderRequest
 import io.logbee.keyscore.agent.pipeline.{FilterManager, LocalPipelineManager}
+import io.logbee.keyscore.agent.runtimes.jvm.ManifestStageLogicProvider
 import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, MetricsTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsSuccess}
