@@ -59,7 +59,8 @@ message CounterMetric {
     string name = 1;
     repeated Label labels = 2 [(scalapb.field).collection_type="collection.immutable.Set"];
     TimestampValue timestamp = 3;
-    sint64 value = 4;
+    int64 timedelta = 4;
+    sint64 value = 5;
 }
 // end::CounterMetric[]
 
@@ -68,9 +69,10 @@ message NumberGaugeMetric {
     string name = 1;
     repeated Label labels = 2 [(scalapb.field).collection_type="collection.immutable.Set"];
     TimestampValue timestamp = 3;
-    sint64 value = 4;
-    sint64 min = 5;
-    sint64 max = 6;
+    int64 timedelta = 4;
+    sint64 value = 5;
+    sint64 min = 6;
+    sint64 max = 7;
 }
 // end::GaugeMetricDescriptor[]
 
@@ -79,9 +81,10 @@ message DecimalGaugeMetric {
     string name = 1;
     repeated Label labels = 2 [(scalapb.field).collection_type="collection.immutable.Set"];
     TimestampValue timestamp = 3;
-    double value = 4;
-    double min = 5;
-    double max = 6;
+    int64 timedelta = 4;
+    double value = 5;
+    double min = 6;
+    double max = 7;
 }
 // end::DecimalGaugeMetric[]
 
