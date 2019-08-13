@@ -3,7 +3,7 @@ package io.logbee.keyscore.agent
 import java.lang.management.ManagementFactory
 import java.util.UUID
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, Props, typed}
 import akka.cluster.Cluster
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
@@ -12,8 +12,8 @@ import akka.util.Timeout
 import com.sun.management.OperatingSystemMXBean
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
-import io.logbee.keyscore.agent.runtimes.StageLogicProvider.StageLogicProviderRequest
 import io.logbee.keyscore.agent.pipeline.{FilterManager, LocalPipelineManager}
+import io.logbee.keyscore.agent.runtimes.api.StageLogicProvider.StageLogicProviderRequest
 import io.logbee.keyscore.agent.runtimes.jvm.ManifestStageLogicProvider
 import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, MetricsTopic}
 import io.logbee.keyscore.commons.cluster._
@@ -109,7 +109,7 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
   private val scheduler = context.system.scheduler
 
   //Necessary Actors for the whole keyscore-agent system
-  private val stageLogicProviders: List[akka.actor.typed.ActorRef[StageLogicProviderRequest]] = List(
+  private val stageLogicProviders: List[typed.ActorRef[StageLogicProviderRequest]] = List(
     context.actorOf(ManifestStageLogicProvider(), "manifest-stage-logic-provider")
   )
 

@@ -97,7 +97,8 @@ subprojects {
 
 configure ([
     project(':keyscore-agent'),
-    project(':keyscore-agent:keyscore-agent-runtimes'),
+    project(':keyscore-agent:keyscore-agent-runtimes-api'),
+    project(':keyscore-agent:keyscore-agent-runtimes-jvm'),
     project(':keyscore-frontier'),
     project(':keyscore-commons'),
     project(':keyscore-model'),

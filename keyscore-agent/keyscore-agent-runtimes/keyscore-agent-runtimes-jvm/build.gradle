@@ -1,0 +1,24 @@
+apply from: rootProject.file('dependencies.gradle')
+
+dependencies {
+
+    compile project(':keyscore-agent:keyscore-agent-runtimes-api')
+
+    compile dependency.scala_lang
+    compile dependency.akka_actor
+
+    testCompile project(':keyscore-test-fixtures')
+
+    testCompile dependency.scala_test
+    testCompile dependency.akka_testkit
+    testCompile dependency.junit
+}
+
+jar {
+    exclude('**/.keep')
+    manifest.attributes([
+        'Implementation-Title'    : project.name,
+        'Implementation-Version'  : version,
+        'Implementation-Revision' : revision
+    ])
+}

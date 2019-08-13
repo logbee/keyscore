@@ -4,8 +4,8 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.Behaviors.receiveMessage
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, typed}
 import io.logbee.keyscore.agent.pipeline.FilterManager._
-import io.logbee.keyscore.agent.runtimes.StageLogicProvider
-import io.logbee.keyscore.agent.runtimes.StageLogicProvider.{LoadSuccess, StageLogicProviderRequest, StageLogicProviderResponse}
+import io.logbee.keyscore.agent.runtimes.api.StageLogicProvider
+import io.logbee.keyscore.agent.runtimes.api.StageLogicProvider.{LoadSuccess, StageLogicProviderRequest, StageLogicProviderResponse}
 import io.logbee.keyscore.commons.util.StartUpWatch.Ready
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
