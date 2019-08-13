@@ -149,7 +149,6 @@ class DefaultMetricsCollector() extends MetricsCollector {
     lastScape = current
 
     metrics.foreach {
-      case (name, metric : CounterMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
       case (name, metric : NumberGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
       case (name, metric : DecimalGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
       case _ =>
