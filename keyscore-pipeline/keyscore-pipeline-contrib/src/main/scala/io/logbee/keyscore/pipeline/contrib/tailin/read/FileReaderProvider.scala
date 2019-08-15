@@ -5,9 +5,9 @@ import java.nio.charset.Charset
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 
-class FileReaderProvider(rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode)  {
+class FileReaderProvider(rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode, fileCompleteActions: Seq[FileHandle => Unit])  {
   
   def create(file: FileHandle): FileReader = {
-    new FileReader(file, rotationPattern, byteBufferSize, charset, readMode)
+    new FileReader(file, rotationPattern, byteBufferSize, charset, readMode, fileCompleteActions)
   }
 }

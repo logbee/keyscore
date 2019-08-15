@@ -4,20 +4,11 @@ import com.hierynomus.mserref.NtStatus
 import com.hierynomus.mssmb2.SMBApiException
 
 import scala.collection.mutable
-import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChanges, DirHandle, FileHandle, PathHandle}
 import org.slf4j.LoggerFactory
 
 import scala.language.existentials
 
-case class DirChanges(
-  newlyCreatedDirs: Set[_ <: DirHandle],
-  newlyCreatedFiles: Set[_ <: FileHandle],
-  deletedPaths: Set[_ <: PathHandle],
-  potentiallyModifiedDirs: Set[_ <: DirHandle],
-  potentiallyModifiedFiles: Set[_ <: FileHandle],
-)
 
 object WatchDirNotFoundException {
   def unapply(watchDirNotFoundException: WatchDirNotFoundException): Option[DirHandle] = Some(watchDirNotFoundException.watchDir)
@@ -28,19 +19,16 @@ class WatchDirNotFoundException(val watchDir: DirHandle) extends Exception
 class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherProvider: WatcherProvider) extends BaseDirWatcher {
   
   private lazy val log = LoggerFactory.getLogger(classOf[DirWatcher])
-  log.debug("Initializing DirWatcher for watchDir '{}'", watchDir.absolutePath)
+  log.debug("Initializing DirWatcher for directory '{}'", watchDir.absolutePath)
   
   private val subDirWatchers = mutable.Map.empty[DirHandle, BaseDirWatcher]
   private val subFileEventHandlers = mutable.Map.empty[FileHandle, FileEventHandler]
-  
-  
   
   
   //recursive setup
   val (initialSubDirs, initialSubFiles) = watchDir.listDirsAndFiles
   initialSubDirs.foreach(addSubDirWatcher(_))
   initialSubFiles.foreach(addSubFileEventHandler(_))
-  
   
   
   
@@ -55,27 +43,13 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   
   
   
+  
+  val dirChangeListener = watchDir.getDirChangeListener()
+  
   @throws(classOf[WatchDirNotFoundException])
   def processChanges(): Unit = {
     
-    var changes: DirChanges = null
-    
-    try {
-      changes = watchDir.getChanges
-    }
-    catch {
-      case ex: SMBApiException =>
-        ex.getStatus match {
-          case NtStatus.STATUS_OBJECT_NAME_NOT_FOUND =>
-            log.error(ex.getMessage)
-            throw new WatchDirNotFoundException(watchDir)
-
-          case _ =>
-            throw ex
-        }
-    }
-    
-    
+    val changes = dirChangeListener.getChanges
     
     try {
       doForEachPathHandler(changes.potentiallyModifiedDirs, _.processChanges())
@@ -157,6 +131,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
     }
     
     
+    dirChangeListener.tearDown()
     watchDir.tearDown()
   }
 }

@@ -7,6 +7,7 @@ import java.nio.file.Paths
 
 import scala.concurrent.duration.DurationInt
 import akka.stream.SourceShape
+import com.typesafe.config.Config
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.Dataset
@@ -17,16 +18,7 @@ import io.logbee.keyscore.model.data.MetaData
 import io.logbee.keyscore.model.data.NumberValue
 import io.logbee.keyscore.model.data.Record
 import io.logbee.keyscore.model.data.TextValue
-import io.logbee.keyscore.model.descriptor.Category
-import io.logbee.keyscore.model.descriptor.Choice
-import io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor
-import io.logbee.keyscore.model.descriptor.Descriptor
-import io.logbee.keyscore.model.descriptor.FieldNameHint
-import io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor
-import io.logbee.keyscore.model.descriptor.ParameterInfo
-import io.logbee.keyscore.model.descriptor.SourceDescriptor
-import io.logbee.keyscore.model.descriptor.StringValidator
-import io.logbee.keyscore.model.descriptor.TextParameterDescriptor
+import io.logbee.keyscore.model.descriptor.{BooleanParameterDescriptor, Category, Choice, ChoiceParameterDescriptor, Descriptor, FieldNameHint, FieldNameParameterDescriptor, ParameterInfo, SourceDescriptor, StringValidator, TextParameterDescriptor}
 import io.logbee.keyscore.model.localization.Locale
 import io.logbee.keyscore.model.localization.Localization
 import io.logbee.keyscore.model.localization.TextRef
@@ -36,6 +28,7 @@ import io.logbee.keyscore.pipeline.api.SourceLogic
 import io.logbee.keyscore.pipeline.commons.CommonCategories
 import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalDir
+import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.RAMPersistenceContext
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
@@ -87,6 +80,17 @@ object TailinSourceLogic extends Described {
     ),
   )
   
+  val fieldName = FieldNameParameterDescriptor(
+    ref = "tailin.fieldName",
+    info = ParameterInfo(
+      displayName = TextRef("fieldName.displayName"),
+      description = TextRef("fieldName.description")
+    ),
+    defaultValue = "message",
+    hint = FieldNameHint.PresentField,
+    mandatory = true
+  )
+  
   val encoding = ChoiceParameterDescriptor(
     ref = "tailin.encoding",
     info = ParameterInfo(
@@ -133,23 +137,79 @@ object TailinSourceLogic extends Described {
   )
   
   
-  val fieldName = FieldNameParameterDescriptor(
-    ref = "tailin.fieldName",
+  
+  object OnComplete extends Enumeration {
+    type OnComplete = Value
+    val None, Delete, Rename = Value
+  }
+  
+  val onComplete = ChoiceParameterDescriptor(
+    ref = "tailin.onComplete",
     info = ParameterInfo(
-      displayName = TextRef("fieldName.displayName"),
-      description = TextRef("fieldName.description")
+      displayName = TextRef("onComplete.displayName"),
+      description = TextRef("onComplete.description"),
     ),
-    defaultValue = "message",
-    hint = FieldNameHint.PresentField,
-    mandatory = true
+    min = 1,
+    max = 1,
+    choices = Seq(
+      Choice(
+        name = OnComplete.None.toString,
+        displayName = TextRef("onComplete.none.displayName"),
+        description = TextRef("onComplete.none.description"),
+      ),
+      Choice(
+        name = OnComplete.Delete.toString,
+        displayName = TextRef("onComplete.delete.displayName"),
+        description = TextRef("onComplete.delete.description"),
+      ),
+      Choice(
+        name = OnComplete.Rename.toString,
+        displayName = TextRef("onComplete.rename.displayName"),
+        description = TextRef("onComplete.rename.description"),
+      ),
+    ),
   )
   
   
-  
-  //not exposed in UI
-  val persistenceFile = TextParameterDescriptor(
-    defaultValue = ".keyscoreFileTailinPersistence",
+  val renameOnComplete_string = TextParameterDescriptor(
+    ref = "tailin.onComplete.rename.string",
+    info = ParameterInfo(
+      displayName = TextRef("onComplete.rename.string.displayName"),
+      description = TextRef("onComplete.rename.string.description")
+    ),
+    validator = StringValidator(
+      expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
+    ),
+    defaultValue = "",
     mandatory = false
+  )
+  
+  
+  object RenameAppend extends Enumeration {
+    type RenameAppend = Value
+    val Before, After = Value
+  }
+  
+  val renameOnComplete_append = ChoiceParameterDescriptor(
+    ref = "tailin.onComplete.rename.append",
+    info = ParameterInfo(
+      displayName = TextRef("onComplete.rename.append.displayName"),
+      description = TextRef("onComplete.rename.append.description")
+    ),
+    min = 1,
+    max = 1,
+    choices = Seq(
+      Choice(
+        name = RenameAppend.Before.toString,
+        displayName = TextRef("onComplete.rename.append.before.displayName"),
+        description = TextRef("onComplete.rename.append.before.description")
+      ),
+      Choice(
+        name = RenameAppend.After.toString,
+        displayName = TextRef("onComplete.rename.append.after.displayName"),
+        description = TextRef("onComplete.rename.append.after.description")
+      ),
+    ),
   )
   
   
@@ -164,9 +224,12 @@ object TailinSourceLogic extends Described {
       parameters = Seq(
         filePattern,
         readMode,
+        fieldName,
         encoding,
         rotationPattern,
-        fieldName,
+        onComplete,
+        renameOnComplete_string,
+        renameOnComplete_append,
       ),
       icon = Icon.fromClass(classOf[TailinSourceLogic])
     ),
@@ -175,49 +238,69 @@ object TailinSourceLogic extends Described {
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
+  
+  
+  object Configuration {
+    def apply(config: Config): Configuration = {
+      val sub = config.getConfig("keyscore.local-file-source")
+      new Configuration(
+        persistenceFile = sub.getString("persistence-file"),
+        readBufferSize = sub.getMemorySize("read-buffer-size").toBytes.toInt,
+      )
+    }
+  }
+  case class Configuration(persistenceFile: String, readBufferSize: Int)
 }
 
 
 class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
-
+  
+  private val config = TailinSourceLogic.Configuration(system.settings.config)
+  
   private var filePattern = TailinSourceLogic.filePattern.defaultValue
   private var readMode = ReadMode.LINE.toString
+  private var fieldName = TailinSourceLogic.fieldName.defaultValue
   private var encoding = StandardCharsets.UTF_8.toString
   private var rotationPattern = TailinSourceLogic.rotationPattern.defaultValue
-  private var fieldName = TailinSourceLogic.fieldName.defaultValue
+  private var onComplete = TailinSourceLogic.OnComplete.None.toString
+  private var renameOnComplete_string = TailinSourceLogic.renameOnComplete_string.defaultValue
+  private var renameOnComplete_append = TailinSourceLogic.RenameAppend.After.toString
   
-  //not exposed in UI
-  private var persistenceFile = TailinSourceLogic.persistenceFile.defaultValue
+  
+  private val persistenceFile = config.persistenceFile
   
   
   var dirWatcher: BaseDirWatcher = _
   
   var sendBuffer: SendBuffer = null
   var readPersistence: ReadPersistence = null
-
+  
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
-
+  
   override def configure(configuration: Configuration): Unit = {
     filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
     readMode = configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode)
+    fieldName = configuration.getValueOrDefault(TailinSourceLogic.fieldName, fieldName)
     encoding = configuration.getValueOrDefault(TailinSourceLogic.encoding, encoding)
     rotationPattern = configuration.getValueOrDefault(TailinSourceLogic.rotationPattern, rotationPattern)
-    fieldName = configuration.getValueOrDefault(TailinSourceLogic.fieldName, fieldName)
-    persistenceFile = configuration.getValueOrDefault(TailinSourceLogic.persistenceFile, persistenceFile)
+    onComplete = configuration.getValueOrDefault(TailinSourceLogic.onComplete, onComplete)
+    renameOnComplete_string = configuration.getValueOrDefault(TailinSourceLogic.renameOnComplete_string, renameOnComplete_string)
+    renameOnComplete_append = configuration.getValueOrDefault(TailinSourceLogic.renameOnComplete_append, renameOnComplete_append)
     
     
-    
-    var invariableString = FileMatchPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
+    val invariableString = FileMatchPattern.extractInvariableDir(filePattern) //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
     if (invariableString.isEmpty
         || Paths.get(invariableString.get).toFile.isDirectory == false) {
-        log.warning("Could not parse the specified file pattern or could not find suitable parent directory to observe.")
+        val message = "Could not parse the specified file pattern or could not find suitable parent directory to observe."
+        log.error(message)
+        fail(out, new IllegalArgumentException(message))
         return
     }
     
     val baseDir = Paths.get(invariableString.get)
-        
+    
     val _persistenceFile = new File(persistenceFile)
     _persistenceFile.createNewFile()
     
@@ -231,20 +314,56 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
                                           committedPersistence = new FilePersistenceContext(_persistenceFile))
     
-    val bufferSize = 1024
+    val bufferSize = config.readBufferSize
+    
+    
+    var exclusionPattern = ""
+    
+    import TailinSourceLogic.OnComplete
+    import TailinSourceLogic.RenameAppend
+    val fileCompleteActions: Seq[FileHandle => Unit] =
+      OnComplete.withName(onComplete) match {
+        case OnComplete.None => Seq.empty
+        case OnComplete.Delete => Seq(_.delete())
+        case OnComplete.Rename =>
+          
+          if (renameOnComplete_append.isEmpty) {
+            val message = "When 'Rename' is selected as Post Read File Action, you need to specify whether the string should be appended before or after the file name."
+            log.error(message)
+            fail(out, new IllegalArgumentException(message))
+            return
+          }
+          
+          (RenameAppend.withName(renameOnComplete_append), renameOnComplete_string) match {
+            case (_, "") | (_, null) => Seq.empty
+            case (RenameAppend.Before, string) => {
+              exclusionPattern = "**/" + string + "*"
+              
+              Seq(file => file.move(file.parent + string + file.name))
+            }
+            case (RenameAppend.After, string) => {
+              exclusionPattern = "**/*" + string
+              
+              Seq(file => file.move(file.parent + file.name + string))
+            }
+            case (_, _) => Seq.empty
+          }
+    }
+    
+    val matchPattern = new FileMatchPattern(filePattern, exclusionPattern)
     
     val readSchedule = new ReadSchedule()
-    val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode))
+    val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode), fileCompleteActions)
     
     val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
     sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
     
     val readSchedulerProvider = new WatcherProvider(readSchedule, rotationPattern, readPersistence)
-    dirWatcher = readSchedulerProvider.createDirWatcher(new LocalDir(baseDir), new FileMatchPattern(filePattern))
+    dirWatcher = readSchedulerProvider.createDirWatcher(new LocalDir(baseDir), matchPattern)
   }
   
   
-
+  
   override def onTimer(timerKey: Any): Unit = {
     dirWatcher.processChanges()
     
@@ -268,20 +387,17 @@ class TailinSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       
       
       val outData = Dataset(
-        metadata = MetaData(
-          Label("io.logbee.keyscore.pipeline.contrib.tailin.source.BASE_FILE", TextValue(fileReadData.baseFile.absolutePath)),
-          Label("io.logbee.keyscore.pipeline.contrib.tailin.source.WRITE_TIMESTAMP", NumberValue(fileReadData.writeTimestamp)),
-        ),
         records = List(Record(
-          fields = List(Field(
-            fieldName,
-            TextValue(fileReadData.string)
-          ))
+          fields = List(
+            Field(fieldName, TextValue(fileReadData.string)),
+            Field("local.file.path", TextValue(fileReadData.baseFile.absolutePath)),
+            Field("local.file.writeTimestamp", NumberValue(fileReadData.writeTimestamp)),
+          )
         ))
       )
-  
+      
       log.info(s"Created Datasets: $outData")
-  
+      
       push(out, outData)
       readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp, fileReadData.newerFilesWithSharedLastModified))
     }

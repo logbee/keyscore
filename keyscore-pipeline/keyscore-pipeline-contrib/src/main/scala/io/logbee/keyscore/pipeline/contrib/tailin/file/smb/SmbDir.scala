@@ -13,9 +13,7 @@ import com.hierynomus.mssmb2.SMBApiException
 import com.hierynomus.smbj.common.SmbPath
 import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.DiskShare
-import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle}
 import org.slf4j.LoggerFactory
 
 import scala.jdk.javaapi.CollectionConverters
@@ -32,7 +30,7 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
     try {
       dir = share.openDirectory(
         path,
-        EnumSet.of(AccessMask.GENERIC_READ),
+        EnumSet.of(AccessMask.GENERIC_ALL),
         EnumSet.of(FileAttributes.FILE_ATTRIBUTE_DIRECTORY),
         SMB2ShareAccess.ALL,
         SMB2CreateDisposition.FILE_OPEN,
@@ -46,20 +44,17 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
         dir.close()
     }
   }
-
-
+  
+  
   override val absolutePath: String = withDir(_.getFileName)
-
+  
   /**
    * \\hostname\share\path\to\ -> path\to\
    */
   private val pathWithinShare: String = SmbPath.parse(absolutePath).getPath
-
-
-  private var (previousSubDirs, previousSubFiles) = (Set[SmbDir](), Set[SmbFile]())
   
-
-
+  
+  
   
   private def isDirectory(fileIdBothDirectoryInformation: FileIdBothDirectoryInformation): Boolean = {
     import com.hierynomus.msfscc.FileAttributes._
@@ -114,38 +109,12 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
       (dirs, files)
     })
   }
-  
-  
-  
-  
-  override def getChanges: DirChanges = {
-    
-    val (currentSubDirs, currentSubFiles) = listDirsAndFiles
-    
-    //determine dir-changes
-    var deletedPaths: Set[PathHandle] = previousSubDirs.toSeq.diff(currentSubDirs.toSeq).toSet
-    val dirsContinuingToExist = previousSubDirs.intersect(currentSubDirs)
-    val newlyCreatedDirs = currentSubDirs.diff(previousSubDirs)
 
-    previousSubDirs = currentSubDirs
 
-    //determine file-changes
-    deletedPaths = deletedPaths ++ previousSubFiles.diff(currentSubFiles)
-    val filesContinuingToExist = previousSubFiles.intersect(currentSubFiles)
-    val newlyCreatedFiles = currentSubFiles.diff(previousSubFiles)
-
-    previousSubFiles = currentSubFiles
-    
-    DirChanges(newlyCreatedDirs,
-               newlyCreatedFiles,
-               deletedPaths,
-               dirsContinuingToExist,
-               filesContinuingToExist,
-              )
-  }
+  override def getDirChangeListener(): DirChangeListener = new SmbDirChangeListener(this)
   
   
-  override def tearDown() = {} //TODO remove?
+  override def tearDown(): Unit = {}
   
   
   def canEqual(other: Any): Boolean = other.isInstanceOf[SmbDir]
