@@ -58,8 +58,10 @@ import {PipelineConfiguratorService} from "./services/pipeline-configurator.serv
 
                 <configurator class="mat-elevation-z8" fxFlex=""
                               [pipelineMetaData]="pipelineMetaData"
-                              [selectedBlock]="{configuration:(selectedDraggable$|async)?.getDraggableModel().configuration,
-                              descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
+                              [selectedBlock]="{
+                                uuid:(selectedDraggable$|async)?.getDraggableModel().blueprintRef.uuid,
+                                configuration:(selectedDraggable$|async)?.getDraggableModel().configuration,
+                                descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
                               (onSave)="saveConfiguration($event)"
                               (onSavePipelineMetaData)="savePipelineMetaData($event)">
                 </configurator>
