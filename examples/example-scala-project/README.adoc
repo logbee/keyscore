@@ -250,4 +250,18 @@ After an successful build you can publish your artifact to an maven repository b
 $ gradle publish
 ----
 
+To test your code in the keyscore ecosystem, run the following task:
+
+[source,bash]
+----
+$ gradle runContainers
+----
+
+When you finished testing - or before running a new version of your code - you have to run the following task:
+
+[source,bash]
+----
+$ gradle stopContainers
+----
+
 // end::scala-example-project[]
