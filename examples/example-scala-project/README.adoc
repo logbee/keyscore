@@ -254,7 +254,7 @@ To test your code in the keyscore ecosystem, run the following task:
 
 [source,bash]
 ----
-$ gradle runContainers
+$ gradle startContainers
 ----
 
 When you finished testing - or before running a new version of your code - you have to run the following task:
