@@ -1,7 +1,5 @@
 package io.logbee.keyscore.pipeline.contrib
 
-import java.util.{Timer, TimerTask}
-
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.SourceShape
@@ -24,9 +22,9 @@ import org.json4s.{Formats, Serialization}
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 import scala.language.postfixOps
+import scala.util.{Failure, Success}
 
 object MetricSourceLogic extends Described {
 
@@ -140,7 +138,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
     scrapeMetrics()
-    system.scheduler.schedule(30 seconds, 5 seconds)(checkLastTimePushed())
+    system.scheduler.schedule(20 seconds, 5 seconds)(checkLastTimePushed())
   }
 
   override def configure(configuration: Configuration): Unit = {
@@ -156,7 +154,6 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   override def onPull(): Unit = {
-    log.debug("onPull")
     if (metricCollections.nonEmpty) {
       tryPush()
     }
@@ -166,16 +163,17 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   private def tryPush(): Unit = {
-    if (!isAvailable(out) && metricCollections.nonEmpty) {
+    if (!isAvailable(out)) {
       return
     } else if (metricCollections.isEmpty) {
       return
     }
 
     val metric = metricCollections.head
+    metricCollections -= metric
 
     push(out, MetricConversion.convertMetricCollectionToDataset(metric._1, metric._2))
-    metricCollections -= metric
+
     lastTimePushed = System.currentTimeMillis()
   }
 
@@ -202,9 +200,9 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       case Success(response) =>
         parseAsync.invoke(id, response)
       case Failure(cause) =>
-        log.debug(s"Couldn't retrieve metrics: $cause")
+//        log.debug(s"Couldn't retrieve metrics: $cause")
       case e =>
-        log.debug(s"What's wrong: $e")
+//        log.debug(s"What's wrong: $e")
     })
   }
 
@@ -220,24 +218,16 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
           Seq()
       }
     } else {
-      log.debug(s"Failure: Response status is [${response.status}]")
+//      log.debug(s"Failure: Response status is [${response.status}]")
       Seq()
     }
-  }
-
-  private def schedule(f: () => Unit, ms: Int): Unit = {
-    val timer = new Timer
-    val task = new TimerTask() {
-      def run(): Unit = f()
-    }
-    timer.schedule(task, ms)
   }
 
   private def checkLastTimePushed(): Unit = {
     val now = System.currentTimeMillis()
     val dif = now - lastTimePushed
     if (dif > 10000) {
-      log.info(s"Last time a dataset was pushed out was to long ago:  $dif ms")
+      log.debug(s"Last time a dataset was pushed was to long ago: $dif ms -> calling onPull()")
       onPull()
     }
   }
