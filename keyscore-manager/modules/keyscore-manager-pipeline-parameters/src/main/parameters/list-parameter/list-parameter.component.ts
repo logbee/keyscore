@@ -122,7 +122,6 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
     }
 
     itemChanged(value: Parameter, index: number) {
-        console.log("CHANGED ITEM: ",this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, value.value));
         this._valueParameter.splice(index, 1,
             this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, value.value));
         this.emitChanges();
@@ -171,7 +170,6 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
     }
 
     private updateList(containers: QueryList<ViewContainerRef>) {
-        console.log("CHANGED", containers);
         this.unsubscribeListItems();
         containers.forEach((containerRef, index) => {
             this.createListItem(this._valueParameter[index], containerRef, index);
@@ -187,6 +185,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
         componentRef.instance.descriptor = this.descriptor.descriptor;
         componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
         componentRef.instance.showLabel = false;
+        console.log("CREATE LIST ITEM: ",componentRef.instance);
 
         this._listItemChangeSubs$$.push(componentRef.instance.emitter.subscribe(parameter =>
             this.itemChanged(parameter, index)));

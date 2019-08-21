@@ -1,20 +1,22 @@
-import {Component} from "@angular/core";
+import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {FieldNameParameter, FieldNameParameterDescriptor} from "./field-name-parameter.model";
 import {StringValidatorService} from "../../service/string-validator.service";
 import {FieldNameHint} from "keyscore-manager-models";
+import {TextParameter} from "../text-parameter/text-parameter.model";
+import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
 
 @Component({
     selector: 'parameter-fieldname',
     template: `
         <mat-form-field>
             <ks-autocomplete-input #inputField [value]="parameter.value"
-                                   [placeholder]="'Field Name'" [options]="autoCompleteDataList"
-                                   (change)="onChange(inputField.value)">
+                                   [options]="autoCompleteDataList"
+                                   (change)="onChange()" (keyUpEnterEvent)="onEnter($event)">
             </ks-autocomplete-input>
-            <mat-label>{{descriptor.displayName}}</mat-label>
+            <mat-label *ngIf="showLabel">{{label || descriptor.displayName}}</mat-label>
             <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="inputField.value='';onChange('');inputField.focus($event)">
+                    (click)="clear()">
                 <mat-icon>close</mat-icon>
             </button>
             <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField">You should choose a
@@ -33,7 +35,14 @@ import {FieldNameHint} from "keyscore-manager-models";
     `
 })
 export class FieldNameParameterComponent extends ParameterComponent<FieldNameParameterDescriptor, FieldNameParameter> {
+    @Input() showLabel: boolean = true;
 
+    @Input()
+    get value(): FieldNameParameter {
+        return new FieldNameParameter(this.descriptor.ref, this.inputFieldRef.value);
+    }
+
+    @ViewChild('inputField') inputFieldRef: AutocompleteFilterComponent;
     public fieldNameHint: typeof FieldNameHint = FieldNameHint;
 
     constructor(private stringValidator: StringValidatorService) {
@@ -44,12 +53,19 @@ export class FieldNameParameterComponent extends ParameterComponent<FieldNamePar
         if (this.descriptor.hint === FieldNameHint.AbsentField) {
             this.autoCompleteDataList = [];
         }
+        console.log(`FieldnameParameter value: ${this.value.value} showLable: ${this.showLabel}`)
     }
 
-    private onChange(value: string): void {
-        const parameter = new FieldNameParameter(this.descriptor.ref, value);
-        console.log("changed: ", parameter);
-        this.emit(parameter);
+    public clear(){
+        this.inputFieldRef.clear();
+    }
+
+    private onChange(): void {
+        this.emit(this.value);
+    }
+
+    private onEnter(event: Event) {
+        this.keyUpEnterEvent.emit(event);
     }
 
     private isValid(value: string) {

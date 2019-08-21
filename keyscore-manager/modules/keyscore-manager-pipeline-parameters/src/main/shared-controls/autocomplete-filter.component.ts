@@ -20,7 +20,7 @@ import {coerceBooleanProperty} from "@angular/cdk/coercion";
     selector: 'ks-autocomplete-input',
     template: `
         <input #inputField #trigger="matAutocompleteTrigger" matInput type="text" [formControl]="inputControl"
-               [matAutocomplete]="auto">
+               [matAutocomplete]="auto" (keyup.enter)="onEnter($event)">
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onChange()">
             <mat-option *ngFor="let item of (filteredOptions | async)" [value]="item">{{item}}
             </mat-option>
@@ -48,7 +48,6 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
 
     set value(val: string) {
         this.inputControl.setValue(val);
-        console.log("SET VALUE");
         this.stateChanges.next();
     }
 
@@ -89,6 +88,7 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
     }
 
     @Output() change: EventEmitter<void> = new EventEmitter<void>();
+    @Output() keyUpEnterEvent: EventEmitter<Event> = new EventEmitter();
 
     @ViewChild('inputField') inputElemRef: ElementRef;
     @ViewChild(MatAutocompleteTrigger) autocompleteTrigger: MatAutocompleteTrigger;
@@ -115,6 +115,16 @@ export class AutocompleteFilterComponent extends MatFormFieldControl<string> imp
         }
         this.inputElemRef.nativeElement.focus();
         this.autocompleteTrigger.openPanel();
+    }
+
+    public clear() {
+        this.value = '';
+        this.onChange();
+        this.focus(null);
+    }
+
+    private onEnter(event: Event) {
+        this.keyUpEnterEvent.emit(event);
     }
 
     private filter(value: string): string[] {

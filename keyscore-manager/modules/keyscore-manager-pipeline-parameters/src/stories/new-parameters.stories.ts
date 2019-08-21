@@ -58,6 +58,10 @@ import {DragDropModule} from "@angular/cdk/drag-drop";
 import {ListParameterModule} from "../main/parameters/list-parameter/list-parameter.module";
 import {ListParameterComponent} from "../main/parameters/list-parameter/list-parameter.component";
 import {ParameterFactoryService} from "../main/service/parameter-factory.service";
+import {
+    FieldNameListParameter,
+    FieldNameListParameterDescriptor
+} from "../main/parameters/list-parameter/models/field-name-list-parameter.model";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -389,6 +393,18 @@ storiesOf('Parameters/ListParameter', module).addDecorator(
                 emitter: action('Value Change')
             }
         }
+}).add("FieldName", () => {
+    return {
+        template:`<parameter-list [descriptor]="descriptor" [parameter]="parameter" (parameter)="emitter($event)"></parameter-list>` ,
+        props: {
+            descriptor: new FieldNameListParameterDescriptor({id: "fieldNameList"}, "FieldName List Parameter",
+                "List of messages to add", new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
+                    "My field name Parameter", "Fieldname", FieldNameHint.PresentField, null, false), 2, 5),
+            parameter: new FieldNameListParameter({id: "myFieldNameParameter"}, ["message","robo_time"]),
+            autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time', 'logbee_id'],
+            emitter: action('Value Change')
+        }
+    }
 });
 
 

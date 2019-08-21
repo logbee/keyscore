@@ -26,8 +26,8 @@ import {SharedControlsModule} from "../../shared-controls/shared-controls.module
 })
 export class FieldNameParameterModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
-        this.factory.register(JSONCLASS_FIELDNAME_DESCR, (descriptor: FieldNameParameterDescriptor) => {
-            return new FieldNameParameter(descriptor.ref, descriptor.defaultValue || "");
+        this.factory.register(JSONCLASS_FIELDNAME_DESCR, (descriptor: FieldNameParameterDescriptor, value?:string) => {
+            return new FieldNameParameter(descriptor.ref, value === null ? descriptor.defaultValue : (value === undefined ? '' : value));
         });
         this.componentFactory.register(JSONCLASS_FIELDNAME_DESCR, (containerRef: ViewContainerRef) => {
             const compFactory = this.resolver.resolveComponentFactory(FieldNameParameterComponent);
