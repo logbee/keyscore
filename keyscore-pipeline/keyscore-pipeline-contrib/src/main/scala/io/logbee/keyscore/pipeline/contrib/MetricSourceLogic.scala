@@ -1,5 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib
 
+import java.util.UUID
+
+import akka.actor.Cancellable
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.SourceShape
@@ -114,6 +117,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private val format = "dd.MM.yyyy HH:mm:ss"
 
   private var lastTimePushed = System.currentTimeMillis()
+  private var cancellable: Cancellable = _
 
   private var url = MetricSourceLogic.urlParameter.defaultValue
   private var ids = Seq.empty[String]
@@ -138,11 +142,15 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
     scrapeMetrics()
-    system.scheduler.schedule(20 seconds, 5 seconds)(checkLastTimePushed())
+    cancellable = system.scheduler.schedule(20 seconds, 5 seconds)(checkLastTimePushed())
   }
 
   override def configure(configuration: Configuration): Unit = {
     setDefaults(configuration)
+  }
+
+  override def postStop(): Unit = {
+    cancellable.cancel()
   }
 
   private def setDefaults(configuration: Configuration): Unit = {
@@ -227,7 +235,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     val now = System.currentTimeMillis()
     val dif = now - lastTimePushed
     if (dif > 10000) {
-      log.debug(s"Last time a dataset was pushed was to long ago: $dif ms -> calling onPull()")
+      log.debug(s"Last dataset was pushed ${dif}ms ago.")
       onPull()
     }
   }
