@@ -75,6 +75,7 @@ jar {
             'Implementation-Vendor' : vendor
         ])
     }
+    enabled = false
     dependsOn(shadowJar)
 }
 // end::scala-example-project-build-gradle-jar[]
@@ -247,7 +248,7 @@ task removeManagerContainer(type: DockerRemoveContainer) {
     }
 }
 
-task runContainers(){
+task startContainers(){
     dependsOn = [
             'startFrontierContainer',
             'startAgentContainer',
