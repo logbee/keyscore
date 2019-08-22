@@ -3,12 +3,15 @@ apply from: rootProject.file('dependencies.gradle')
 
 repositories {
     mavenCentral()
+    maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
 }
 
 dependencies {
 
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
     compileOnly project(':keyscore-pipeline:keyscore-pipeline-commons')
+
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1'
 
     compile dependency.scala_lang
     compile dependency.akka_actor
