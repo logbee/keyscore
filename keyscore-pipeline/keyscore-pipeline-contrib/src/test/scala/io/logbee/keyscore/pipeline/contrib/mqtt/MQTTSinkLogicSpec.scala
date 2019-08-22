@@ -15,7 +15,7 @@ class MQTTSinkLogicSpec extends WordSpec with Matchers with ScalaFutures with Te
 
   implicit val defaultPatience = PatienceConfig(timeout = Span(20, Seconds), interval = Span(5, Seconds))
 
-  "A ElasticSearchSink" should {
+  "A MQTTSinkLogic" should {
 
     val configuration = Configuration(
       parameterSet = ParameterSet(Seq(
