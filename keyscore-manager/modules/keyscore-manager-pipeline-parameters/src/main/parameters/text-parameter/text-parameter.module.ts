@@ -27,8 +27,6 @@ import {StringValidatorService} from "../../service/string-validator.service";
 export class TextParameterModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
         this.factory.register(JSONCLASS_TEXT_DESCR, (descriptor: TextParameterDescriptor, value?: string) => {
-            console.log("DESCRIPTOR:", descriptor);
-            console.log("VALUE", value);
             return new TextParameter(descriptor.ref, value === null ? descriptor.defaultValue : (value === undefined ? '' : value));
         });
         this.componentFactory.register(JSONCLASS_TEXT_DESCR, (containerRef: ViewContainerRef) => {

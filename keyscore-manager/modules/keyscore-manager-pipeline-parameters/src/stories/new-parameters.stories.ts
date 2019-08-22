@@ -66,6 +66,9 @@ import {
     FieldListParameter,
     FieldListParameterDescriptor
 } from "../main/parameters/list-parameter/models/field-list-parameter.model";
+import {ChoiceParameterComponent} from "../main/parameters/choice-parameter/choice-parameter.component";
+import {ChoiceParameter, ChoiceParameterDescriptor} from "../main/parameters/choice-parameter/choice-parameter.model";
+import {ReactiveFormsModule} from "@angular/forms";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -387,31 +390,31 @@ storiesOf('Parameters/ListParameter', module).addDecorator(
         ],
         providers: [ParameterComponentFactoryService, ParameterFactoryService]
     })).add("Text", () => {
-        return {
-            template:`<parameter-list [descriptor]="descriptor" [parameter]="parameter" (parameter)="emitter($event)"></parameter-list>` ,
-            props: {
-                descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
-                    "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",
-                        "Represents a single message of a list", "default", null, false), 2, 5),
-                parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
-                emitter: action('Value Change')
-            }
+    return {
+        template: `<parameter-list [descriptor]="descriptor" [parameter]="parameter" (parameter)="emitter($event)"></parameter-list>`,
+        props: {
+            descriptor: new TextListParameterDescriptor({id: "textList"}, "Text List Parameter",
+                "List of messages to add", new TextParameterDescriptor({id: "myTextParameter"}, "Message",
+                    "Represents a single message of a list", "default", null, false), 2, 5),
+            parameter: new TextListParameter({id: "textList"}, ['test', 'test1', 'test2']),
+            emitter: action('Value Change')
         }
+    }
 }).add("FieldName", () => {
     return {
-        template:`<parameter-list [descriptor]="descriptor" [parameter]="parameter" [autoCompleteDataList]="autoCompleteDataList" (parameter)="emitter($event)"></parameter-list>` ,
+        template: `<parameter-list [descriptor]="descriptor" [parameter]="parameter" [autoCompleteDataList]="autoCompleteDataList" (parameter)="emitter($event)"></parameter-list>`,
         props: {
             descriptor: new FieldNameListParameterDescriptor({id: "fieldNameList"}, "FieldName List Parameter",
                 "List of messages to add", new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
                     "My field name Parameter", "Fieldname", FieldNameHint.PresentField, null, false), 2, 5),
-            parameter: new FieldNameListParameter({id: "myFieldNameParameter"}, ["message","robo_time"]),
+            parameter: new FieldNameListParameter({id: "myFieldNameParameter"}, ["message", "robo_time"]),
             autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time', 'logbee_id'],
             emitter: action('Value Change')
         }
     }
 }).add("Field", () => {
     return {
-        template:`<parameter-list [descriptor]="descriptor" [parameter]="parameter" [autoCompleteDataList]="autoCompleteDataList" (parameter)="emitter($event)"></parameter-list>` ,
+        template: `<parameter-list [descriptor]="descriptor" [parameter]="parameter" [autoCompleteDataList]="autoCompleteDataList" (parameter)="emitter($event)"></parameter-list>`,
         props: {
             descriptor: new FieldListParameterDescriptor({id: "fieldList"}, "Field List Parameter",
                 "List of messages to add", new FieldParameterDescriptor({id: "myFieldParameter"},
@@ -422,6 +425,50 @@ storiesOf('Parameters/ListParameter', module).addDecorator(
         }
     }
 });
+
+storiesOf('Parameters/ChoiceParameter', module)
+    .addDecorator(
+        moduleMetadata({
+            declarations: [],
+            imports: [
+                CommonModule,
+                MaterialModule,
+                BrowserAnimationsModule,
+                ReactiveFormsModule
+            ],
+            providers: []
+        }))
+    .add("Single Choice", () => ({
+        component: ChoiceParameterComponent,
+        props: {
+            descriptor: new ChoiceParameterDescriptor({id: 'choiceParameter'}, "Choice Parameter",
+                "Some Choices here", 1, 1, [
+                    {name: 'choice1', displayName: 'Choice 1', description: ''},
+                    {name: 'choice2', displayName: 'Choice 2', description: 'This one has a description'},
+                    {name:'choice3',displayName:'Choice 1',description:''}
+                ])
+            ,
+            parameter: new ChoiceParameter({id: "choiceParameter"}, ""),
+            emitter: action('Value Change')
+        }
+    })).add("Multiple Choices", () => ({
+    component: ChoiceParameterComponent,
+    props: {
+        descriptor: new ChoiceParameterDescriptor({id: 'choiceParameter'}, "Choice Parameter",
+            "Some Choices here", 2, 3, [
+                {name: 'choice1', displayName: 'Choice 1', description: ''},
+                {name: 'choice2', displayName: 'Choice 2', description: 'This one has a description'},
+                {name:'choice3',displayName:'Choice 3',description:''},
+                {name:'choice4',displayName:'Choice 4',description:''},
+                {name:'choice5',displayName:'Choice 5',description:''},
+                {name:'choice6',displayName:'Choice mit ganaaaaaaanz langem text',description:''},
+
+            ])
+        ,
+        parameter: new ChoiceParameter({id: "choiceParameter"}, ""),
+        emitter: action('Value Change')
+    }
+}));
 
 
 storiesOf('Parameters/ParameterForm', module).addDecorator(
