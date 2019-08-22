@@ -17,7 +17,6 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "faker": "4.1.0",
     "keyscore-manager-models": "file:../keyscore-manager-models"
   },
   "devDependencies": {

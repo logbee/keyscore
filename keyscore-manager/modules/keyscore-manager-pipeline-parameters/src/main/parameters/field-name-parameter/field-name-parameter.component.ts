@@ -19,7 +19,7 @@ import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-fi
                     (click)="clear()">
                 <mat-icon>close</mat-icon>
             </button>
-            <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField">You should choose a
+            <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField && showLabel">You should choose a
                 {{descriptor.hint}}
             </mat-hint>
         </mat-form-field>
@@ -37,13 +37,12 @@ import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-fi
 export class FieldNameParameterComponent extends ParameterComponent<FieldNameParameterDescriptor, FieldNameParameter> {
     @Input() showLabel: boolean = true;
 
-    @Input()
+    @ViewChild('inputField') inputFieldRef: AutocompleteFilterComponent;
+    public fieldNameHint: typeof FieldNameHint = FieldNameHint;
+
     get value(): FieldNameParameter {
         return new FieldNameParameter(this.descriptor.ref, this.inputFieldRef.value);
     }
-
-    @ViewChild('inputField') inputFieldRef: AutocompleteFilterComponent;
-    public fieldNameHint: typeof FieldNameHint = FieldNameHint;
 
     constructor(private stringValidator: StringValidatorService) {
         super();
@@ -53,10 +52,9 @@ export class FieldNameParameterComponent extends ParameterComponent<FieldNamePar
         if (this.descriptor.hint === FieldNameHint.AbsentField) {
             this.autoCompleteDataList = [];
         }
-        console.log(`FieldnameParameter value: ${this.value.value} showLable: ${this.showLabel}`)
     }
 
-    public clear(){
+    public clear() {
         this.inputFieldRef.clear();
     }
 

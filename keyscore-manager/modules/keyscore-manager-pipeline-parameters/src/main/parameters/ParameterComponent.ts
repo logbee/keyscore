@@ -3,11 +3,11 @@ import {Observable, Subscription} from "rxjs";
 
 export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 
-    @Input('descriptor') public descriptor: D;
+    @Input() public descriptor: D;
 
-    @Input('parameter') public parameter: P;
+    @Input() public parameter: P;
 
-    @Input('autoCompleteDataList') public autoCompleteDataList: string[];
+    @Input() public autoCompleteDataList: string[];
 
     @Input() public label:string;
 

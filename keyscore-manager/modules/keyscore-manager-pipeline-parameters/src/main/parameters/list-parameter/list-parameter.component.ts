@@ -185,7 +185,6 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
         componentRef.instance.descriptor = this.descriptor.descriptor;
         componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
         componentRef.instance.showLabel = false;
-        console.log("CREATE LIST ITEM: ",componentRef.instance);
 
         this._listItemChangeSubs$$.push(componentRef.instance.emitter.subscribe(parameter =>
             this.itemChanged(parameter, index)));
