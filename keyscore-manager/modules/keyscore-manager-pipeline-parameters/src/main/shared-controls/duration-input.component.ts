@@ -34,41 +34,41 @@ class Duration {
             <div fxLayout="column" fxLayoutGap="5px">
                 <span fxFlexAlign="center" class="input-header">Years</span>
                 <div fxLayout="row">
-                    <input type="number" min="0" formControlName="years" (change)="onChange()">
+                    <input type="number" min="0" formControlName="years" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
                     <span fxLayoutAlign="center">:</span>
                 </div>
             </div>
             <div fxLayout="column" fxLayoutGap="5px">
                 <span fxFlexAlign="center" class="input-header">Months</span>
                 <div fxLayout="row">
-                    <input type="number" min="0" formControlName="months" (change)="onChange()">
+                    <input type="number" min="0" formControlName="months" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
                     <span fxLayoutAlign="center">:</span>
                 </div>
             </div>
             <div fxLayout="column" fxLayoutGap="5px">
                 <span fxFlexAlign="center" class="input-header">Days</span>
                 <div fxLayout="row">
-                    <input type="number" min="0" formControlName="days" (change)="onChange()">
+                    <input type="number" min="0" formControlName="days" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
                     <span fxLayoutAlign="center">:</span>
                 </div>
             </div>
             <div fxLayout="column" fxLayoutGap="5px">
                 <span fxFlexAlign="center" class="input-header">H</span>
                 <div fxLayout="row">
-                    <input type="number" min="0" formControlName="hours" (change)="onChange()">
+                    <input type="number" min="0" formControlName="hours" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
                     <span fxLayoutAlign="center">:</span>
                 </div>
             </div>
             <div fxLayout="column" fxLayoutGap="5px">
                 <span fxFlexAlign="center" class="input-header">Min</span>
                 <div fxLayout="row">
-                    <input type="number" min="0" formControlName="minutes" (change)="onChange()">
+                    <input type="number" min="0" formControlName="minutes" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
                     <span fxLayoutAlign="center">:</span>
                 </div>
             </div>
             <div fxLayout="column" fxLayoutGap="5px">
                 <span fxFlexAlign="center" class="input-header">Sec</span>
-                <input type="number" min="0" formControlName="seconds" (change)="onChange()">
+                <input type="number" min="0" formControlName="seconds" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
             </div>
         </div>
     `,
@@ -191,6 +191,7 @@ export class DurationInputComponent implements MatFormFieldControl<number>, OnDe
     }
 
     @Output() changed: EventEmitter<number> = new EventEmitter<number>();
+    @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter<Event>();
 
     private _onChange: () => void = () => null;
 

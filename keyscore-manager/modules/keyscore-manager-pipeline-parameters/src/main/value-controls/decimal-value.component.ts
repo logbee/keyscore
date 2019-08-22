@@ -8,13 +8,13 @@ import {coerceBooleanProperty} from "@angular/cdk/coercion";
     selector: 'ks-decimal-value-input',
     template: `
         <mat-form-field>
-            <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()">
+            <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
             <mat-label *ngIf="showLabel">{{label}}</mat-label>
-            <mat-icon matSuffix [inline]="true" svgIcon="decimal-icon"></mat-icon>
             <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputControl.setValue('');inputField.focus();onChange( )">
                 <mat-icon>close</mat-icon>
             </button>
+            <mat-icon matSuffix [inline]="true" svgIcon="decimal-icon"></mat-icon>
         </mat-form-field>
     `
 })
@@ -50,6 +50,8 @@ export class DecimalValueComponent implements ValueComponent{
     @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<DecimalValue> = new EventEmitter();
+    @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter<Event>();
+
 
     onChange() {
         this.changed.emit(this.value);

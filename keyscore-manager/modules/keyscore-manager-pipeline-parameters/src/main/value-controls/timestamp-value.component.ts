@@ -10,14 +10,14 @@ import {ValueComponent} from "./value-component.interface";
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field fxFlex="60">
-                <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()"
+                <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)"
                        step="1">
                 <mat-label *ngIf="showLabel">{{label}}</mat-label>
-                <mat-icon matSuffix [inline]="true" svgIcon="timestamp-icon"></mat-icon>
                 <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="inputControl.setValue('');onChange( )">
                     <mat-icon>close</mat-icon>
                 </button>
+                <mat-icon matSuffix [inline]="true" svgIcon="timestamp-icon"></mat-icon>
             </mat-form-field>
             <mat-form-field fxFlex="40">
                 <mat-label *ngIf="showLabel">Timezone</mat-label>
@@ -65,6 +65,7 @@ export class TimestampValueComponent implements ValueComponent {
     @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<TimestampValue> = new EventEmitter<TimestampValue>();
+    @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter<Event>();
 
     private timeZones: string[] = moment.tz.names();
 

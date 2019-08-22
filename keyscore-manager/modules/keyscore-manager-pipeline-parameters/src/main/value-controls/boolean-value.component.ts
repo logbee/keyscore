@@ -44,6 +44,8 @@ export class BooleanValueComponent implements ValueComponent {
     @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<BooleanValue> = new EventEmitter<BooleanValue>();
+    @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter<Event>();
+
 
     private _disabled = false;
 

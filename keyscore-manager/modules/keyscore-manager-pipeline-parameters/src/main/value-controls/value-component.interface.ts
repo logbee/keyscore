@@ -6,5 +6,6 @@ export interface ValueComponent{
     disabled:boolean;
     label:string;
     showLabel:boolean;
+    keyUpEnter:EventEmitter<Event>;
     changed:EventEmitter<Value>;
 }
