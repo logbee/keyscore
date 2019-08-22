@@ -14,6 +14,13 @@ import {
     JSONCLASS_FIELDNAMELIST_DESCR
 } from "./models/field-name-list-parameter.model";
 import {FieldNameParameterModule} from "../field-name-parameter/field-name-parameter.module";
+import {
+    FieldListParameter,
+    FieldListParameterDescriptor,
+    JSONCLASS_FIELDLIST_DESCR
+} from "./models/field-list-parameter.model";
+import {Field} from "../../models/value.model";
+import {FieldParameterModule} from "../field-parameter/field-parameter.module";
 
 @NgModule({
     imports: [
@@ -22,7 +29,8 @@ import {FieldNameParameterModule} from "../field-name-parameter/field-name-param
         BrowserAnimationsModule,
         DragDropModule,
         TextParameterModule,
-        FieldNameParameterModule
+        FieldNameParameterModule,
+        FieldParameterModule
     ],
     declarations: [ListParameterComponent],
     exports: [ListParameterComponent],
@@ -46,6 +54,15 @@ export class ListParameterModule {
         });
 
         this.componentFactory.register(JSONCLASS_FIELDNAMELIST_DESCR, (containerRef: ViewContainerRef) => {
+            const compFactory = this.resolver.resolveComponentFactory(ListParameterComponent);
+            return containerRef.createComponent(compFactory);
+        });
+        //FieldList
+        this.factory.register(JSONCLASS_FIELDLIST_DESCR, (descriptor: FieldListParameterDescriptor,value:Field[]=[]) => {
+            return new FieldListParameter(descriptor.ref, value);
+        });
+
+        this.componentFactory.register(JSONCLASS_FIELDLIST_DESCR, (containerRef: ViewContainerRef) => {
             const compFactory = this.resolver.resolveComponentFactory(ListParameterComponent);
             return containerRef.createComponent(compFactory);
         });

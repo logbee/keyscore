@@ -1,5 +1,4 @@
 import {ListParameter, ListParameterDescriptor} from "./list-parameter.model";
-import {TextParameterDescriptor} from "../../text-parameter/text-parameter.model";
 import {ParameterRef} from "keyscore-manager-models";
 import {FieldNameParameterDescriptor} from "../../field-name-parameter/field-name-parameter.model";
 

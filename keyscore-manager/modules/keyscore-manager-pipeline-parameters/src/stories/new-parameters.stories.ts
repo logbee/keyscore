@@ -62,6 +62,10 @@ import {
     FieldNameListParameter,
     FieldNameListParameterDescriptor
 } from "../main/parameters/list-parameter/models/field-name-list-parameter.model";
+import {
+    FieldListParameter,
+    FieldListParameterDescriptor
+} from "../main/parameters/list-parameter/models/field-list-parameter.model";
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -401,6 +405,18 @@ storiesOf('Parameters/ListParameter', module).addDecorator(
                 "List of messages to add", new FieldNameParameterDescriptor({id: "myFieldNameParameter"}, "Field Name Parameter",
                     "My field name Parameter", "Fieldname", FieldNameHint.PresentField, null, false), 2, 5),
             parameter: new FieldNameListParameter({id: "myFieldNameParameter"}, ["message","robo_time"]),
+            autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time', 'logbee_id'],
+            emitter: action('Value Change')
+        }
+    }
+}).add("Field", () => {
+    return {
+        template:`<parameter-list [descriptor]="descriptor" [parameter]="parameter" [autoCompleteDataList]="autoCompleteDataList" (parameter)="emitter($event)"></parameter-list>` ,
+        props: {
+            descriptor: new FieldListParameterDescriptor({id: "fieldList"}, "Field List Parameter",
+                "List of messages to add", new FieldParameterDescriptor({id: "myFieldParameter"},
+                    "Field", "", "", FieldNameHint.AnyField, null, FieldValueType.Timestamp, false), 2, 5),
+            parameter: new FieldListParameter({id: "fieldList"}, []),
             autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time', 'logbee_id'],
             emitter: action('Value Change')
         }

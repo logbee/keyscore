@@ -1,4 +1,4 @@
-import {Component, ComponentFactoryResolver, ComponentRef, ElementRef, Type, ViewChild} from "@angular/core";
+import {Component, ComponentFactoryResolver, ComponentRef, ElementRef, Input, Type, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {StringValidatorService} from "../../service/string-validator.service";
 import {FieldParameter, FieldParameterDescriptor} from "./field-parameter.model";
@@ -8,21 +8,23 @@ import {ValueComponentRegistryService} from "../../value-controls/services/value
 import {ValueComponent} from "../../value-controls/value-component.interface";
 import {Subscription} from "rxjs";
 import {AutocompleteInputComponent} from "../../autocomplete-input.component";
+import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
 
 @Component({
     selector: `parameter-field`,
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field fxFlex="30">
-                <ks-autocomplete-input #fieldInput [placeholder]="'Field Name'"
+                <ks-autocomplete-input #fieldInput
                                        [value]="parameter.value?.name"
                                        [options]="autoCompleteDataList"
-                                       (change)="onChange(fieldInput.value)">
+                                       (change)="onChange()"
+                                       (keyUpEnterEvent)="onEnter($event)">
                 </ks-autocomplete-input>
-                <mat-label>Field Name</mat-label>
+                <mat-label *ngIf="showLabel">Field Name</mat-label>
 
                 <button mat-button *ngIf="fieldInput.value" matSuffix mat-icon-button aria-label="Clear"
-                        (click)="fieldInput.value='';onChange('');fieldInput.focus($event)">
+                        (click)="clear()">
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
@@ -40,9 +42,13 @@ import {AutocompleteInputComponent} from "../../autocomplete-input.component";
 
 })
 export class FieldParameterComponent extends ParameterComponent<FieldParameterDescriptor, FieldParameter> {
-
+    @Input() showLabel: boolean = true;
     @ViewChild(ValueDirective) valueHost: ValueDirective;
-    @ViewChild('fieldInput') autoCompleteComponent: AutocompleteInputComponent;
+    @ViewChild('fieldInput') autoCompleteComponent: AutocompleteFilterComponent;
+
+    get value() {
+        return new FieldParameter(this.descriptor.ref, new Field(this.autoCompleteComponent.value, this.valueComponentInstance.instance.value));
+    }
 
     private valueComponentInstance: ComponentRef<ValueComponent>;
     private subs: Subscription[] = [];
@@ -57,14 +63,26 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
         this.loadValueComponent();
 
         this.subs.push(this.valueComponentInstance.instance.changed.subscribe(_ => {
-            this.onChange(this.autoCompleteComponent.value)
-        }))
+            this.onChange()
+        }));
+
+        this.subs.push(this.valueComponentInstance.instance.keyUpEnter.subscribe(event =>
+            this.onEnter(event)
+        ));
     }
 
-    private onChange(fieldName: string): void {
-        const parameter = new FieldParameter(this.descriptor.ref, new Field(fieldName, this.valueComponentInstance.instance.value));
-        console.log("changed: ", parameter);
-        this.emit(parameter);
+    public clear() {
+        this.autoCompleteComponent.value = '';
+        this.autoCompleteComponent.focus(null);
+        this.onChange();
+    }
+
+    private onEnter(event: Event) {
+        this.keyUpEnterEvent.emit(event);
+    }
+
+    private onChange(): void {
+        this.emit(this.value);
     }
 
     private isValid(value: string): boolean {
@@ -78,9 +96,10 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.valueRegistry.getValueComponent(this.descriptor.fieldValueType));
         this.valueHost.viewContainerRef.clear();
         this.valueComponentInstance = this.valueHost.viewContainerRef.createComponent(componentFactory);
-        if(this.parameter.value && this.parameter.value.value){
+        if (this.parameter.value && this.parameter.value.value) {
             this.valueComponentInstance.instance.value = this.parameter.value.value;
         }
+        this.valueComponentInstance.instance.showLabel = this.showLabel;
     }
 
     onDestroy() {

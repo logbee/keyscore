@@ -8,6 +8,7 @@ import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {FieldParameter, FieldParameterDescriptor, JSONCLASS_FIELD_DESCR} from "./field-parameter.model";
 import {ValueControlsModule} from "../../value-controls/value-controls.module";
+import {Field} from "../../models/value.model";
 
 @NgModule({
     imports: [
@@ -24,8 +25,8 @@ import {ValueControlsModule} from "../../value-controls/value-controls.module";
 export class FieldParameterModule {
 
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
-        this.factory.register(JSONCLASS_FIELD_DESCR, (descriptor: FieldParameterDescriptor) => {
-            return new FieldParameter(descriptor.ref, {name: descriptor.defaultName || "", value: null});
+        this.factory.register(JSONCLASS_FIELD_DESCR, (descriptor: FieldParameterDescriptor,value:Field=new Field(descriptor.defaultName,null)) => {
+            return new FieldParameter(descriptor.ref, value);
         });
 
         this.componentFactory.register(JSONCLASS_FIELD_DESCR, (containerRef: ViewContainerRef) => {
