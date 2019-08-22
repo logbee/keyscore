@@ -8,9 +8,8 @@ import {ValueComponent} from "./value-component.interface";
     selector: 'ks-text-value-input',
     template: `
         <mat-form-field>
-            <input #inputField matInput type="text" [formControl]="inputControl" (change)="onChange()"
-                   [placeholder]="'Value'">
-            <mat-label>{{label}}</mat-label>
+            <input #inputField matInput type="text" [formControl]="inputControl" (change)="onChange()">
+            <mat-label *ngIf="showLabel">{{label}}</mat-label>
             <mat-icon matSuffix [inline]="true" svgIcon="text-icon"></mat-icon>
             <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputControl.setValue('');inputField.focus();onChange( )">
@@ -48,6 +47,7 @@ export class TextValueComponent implements ValueComponent{
     private _disabled = false;
 
     @Input() label: string = 'Value';
+    @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<TextValue> = new EventEmitter<TextValue>();
 

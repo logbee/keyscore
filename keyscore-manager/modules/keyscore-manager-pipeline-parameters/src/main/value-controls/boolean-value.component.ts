@@ -9,7 +9,7 @@ import {ValueComponent} from "./value-component.interface";
     template: `
         <div fxLayout="row" fxFill fxLayoutAlign="start center">
             <mat-slide-toggle  [formControl]="slideControl" (change)="onChange()">
-                {{label}}
+                <span *ngIf="showLabel">{{label}}</span>
             </mat-slide-toggle>
         </div>`
 })
@@ -41,6 +41,7 @@ export class BooleanValueComponent implements ValueComponent {
     }
 
     @Input() label: string = 'Value';
+    @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<BooleanValue> = new EventEmitter<BooleanValue>();
 

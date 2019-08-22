@@ -8,9 +8,8 @@ import {coerceBooleanProperty} from "@angular/cdk/coercion";
     selector: 'ks-number-value-input',
     template: `
         <mat-form-field>
-            <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()"
-                   [placeholder]="'Value'">
-            <mat-label>{{label}}</mat-label>
+            <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()">
+            <mat-label *ngIf="showLabel">{{label}}</mat-label>
             <mat-icon matSuffix [inline]="true" svgIcon="number-icon"></mat-icon>
             <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputControl.setValue('');inputField.focus();onChange( )">
@@ -48,6 +47,7 @@ export class NumberValueComponent<T> implements ValueComponent{
     private _disabled = false;
 
     @Input() label: string = 'Value';
+    @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<NumberValue> = new EventEmitter<NumberValue>();
 

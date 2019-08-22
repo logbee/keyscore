@@ -11,8 +11,8 @@ import {ValueComponent} from "./value-component.interface";
         <div fxLayout="row" fxLayoutGap="15px">
             <mat-form-field fxFlex="60">
                 <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()"
-                       [placeholder]="'Value'" step="1">
-                <mat-label>{{label}}</mat-label>
+                       step="1">
+                <mat-label *ngIf="showLabel">{{label}}</mat-label>
                 <mat-icon matSuffix [inline]="true" svgIcon="timestamp-icon"></mat-icon>
                 <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="inputControl.setValue('');onChange( )">
@@ -20,7 +20,7 @@ import {ValueComponent} from "./value-component.interface";
                 </button>
             </mat-form-field>
             <mat-form-field fxFlex="40">
-                <mat-label>Timezone</mat-label>
+                <mat-label *ngIf="showLabel">Timezone</mat-label>
                 <mat-select [formControl]="selectControl" (selectionChange)="onChange()">
                     <mat-option *ngFor="let timezone of timeZones" [value]="timezone">{{timezone}}</mat-option>
                 </mat-select>
@@ -62,6 +62,7 @@ export class TimestampValueComponent implements ValueComponent {
     private _disabled = false;
 
     @Input() label: string = 'Timestamp';
+    @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<TimestampValue> = new EventEmitter<TimestampValue>();
 

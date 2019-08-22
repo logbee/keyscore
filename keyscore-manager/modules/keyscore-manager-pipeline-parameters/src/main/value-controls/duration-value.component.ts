@@ -9,7 +9,7 @@ import {DurationInputComponent} from "../shared-controls/duration-input.componen
     template: `
         <mat-form-field>
             <ks-duration-input #durationInput (changed)="onChange($event)"></ks-duration-input>
-            <mat-label>Duration</mat-label>
+            <mat-label *ngIf="showLabel">{{label}}</mat-label>
             <mat-icon matSuffix [inline]="true" svgIcon="duration-icon"></mat-icon>
             <button mat-button *ngIf="durationInput.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="clearInput()">
@@ -59,7 +59,8 @@ export class DurationValueComponent implements ValueComponent {
 
     private _disabled = false;
 
-    @Input() label: string = 'Value';
+    @Input() label: string = 'Duration';
+    @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<DurationValue> = new EventEmitter<DurationValue>();
 
