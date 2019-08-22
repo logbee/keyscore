@@ -33,7 +33,7 @@ import {tap} from "rxjs/operators";
                 <ng-template #addParameterInputContainer>
                 </ng-template>
             </div>
-            <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel [(expanded)]="_panelExpanded">
                 <mat-expansion-panel-header [collapsedHeight]="'*'"
                                             [expandedHeight]="'*'" class="sequence-header" fxLayout="row"
                                             fxLayoutAlign="space-between center">
@@ -102,6 +102,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
     private _subs$$: Subscription[] = [];
     private _listItemChangeSubs$$: Subscription[] = [];
 
+    private _panelExpanded:boolean = true;
 
     constructor(
         private parameterComponentFactory: ParameterComponentFactoryService,
@@ -133,6 +134,8 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
     }
 
     add(value: any) {
+        this._panelExpanded = true;
+
         if (this._valueParameter.length >= this.descriptor.max) {
             if (!this._maxElementsReached) {
                 this._maxElementsReached = true;
