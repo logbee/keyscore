@@ -35,12 +35,14 @@ import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
 import java.nio.file.StandardOpenOption
 
+import akka.util.Timeout
 import io.logbee.keyscore.model.pipeline.StageSupervisor
 
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext with ParallelTestExecution {
   
-  val timeout = 15.seconds
+  implicit val whenReadyTimeout = Timeout(5.seconds)
+  val expectNextTimeout = 15.seconds
   
   var watchDir: Path = _
 
@@ -149,7 +151,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
             TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
             
             sink.request(1)
-            var result = sink.expectNext(timeout)
+            var result = sink.expectNext(expectNextTimeout)
             result.records.head.fields should have size 3
             result.records.head.fields.head.value shouldEqual TextValue(testSetup.expectedData.head)
           }
@@ -210,7 +212,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
               
               Thread.sleep(1500) //wait for processEvents to trigger once
               
-              val datasetText = sink.expectNext(timeout)
+              val datasetText = sink.expectNext(expectNextTimeout)
               
               datasetText.records.head.fields.head.value shouldEqual TextValue(expectedText)
             }
@@ -229,7 +231,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
             val text = testSetup.files.head.lines.head
             TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
             
-            val datasetText = sink.expectNext(timeout)
+            val datasetText = sink.expectNext(expectNextTimeout)
             
             datasetText.records.head.fields.head.value shouldEqual TextValue(testSetup.expectedData.head)
           }
@@ -262,7 +264,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         
         sink.request(1)
         
-        val datasetText = sink.expectNext(timeout)
+        val datasetText = sink.expectNext(expectNextTimeout)
         
         datasetText.records.head.fields.head.value shouldEqual TextValue("222")
       }
@@ -281,7 +283,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         for (i <- 1 to numberOfLines) {
           sink.request(1)
           
-          val datasetText = sink.expectNext(timeout)
+          val datasetText = sink.expectNext(expectNextTimeout)
           
           concatenatedString += datasetText.records.head.fields.head.value.asInstanceOf[TextValue].value + "\n"
         }
