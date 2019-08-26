@@ -92,7 +92,7 @@ class MQTTSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) exte
     }
     catch {
       case me: MqttException => log.error(s"Caught MQTT exception: $me")
-      case e => log.error(s"Caught exception: $e")
+      case e: Throwable => log.error(s"Caught exception: $e")
     }
   }
 
@@ -107,7 +107,7 @@ class MQTTSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) exte
             }
             catch {
               case me: MqttException => log.warning(s"Caught MQTT exception: $me")
-              case e => log.warning(s"Caught exception: $e")
+              case e: Throwable => log.warning(s"Caught exception: $e")
             }
           case _ =>
             log.debug(s"Couldn't find field with name $fieldName")
@@ -115,5 +115,4 @@ class MQTTSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) exte
       })
     pull(in)
   }
-
 }

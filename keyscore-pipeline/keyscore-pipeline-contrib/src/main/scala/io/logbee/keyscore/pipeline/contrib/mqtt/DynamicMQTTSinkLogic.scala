@@ -125,12 +125,12 @@ class DynamicMQTTSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset
       }
       catch {
         case me: MqttException => log.warning(s"Caught MQTT exception: $me | Broker: ${broker.value} | Topic: ${topic.value}")
-        case e => log.warning(s"Caught exception: $e | Broker: ${broker.value} | Topic: ${topic.value}")
+        case e: Throwable => log.warning(s"Caught exception: $e | Broker: ${broker.value} | Topic: ${topic.value}")
       }
     }
     catch {
       case me: MqttException => log.warning(s"Caught MQTT exception: $me | Broker: ${broker.value} | Topic: ${topic.value}")
-      case e => log.error(s"Caught exception: $e | Broker: ${broker.value} | Topic: ${topic.value}")
+      case e: Throwable => log.error(s"Caught exception: $e | Broker: ${broker.value} | Topic: ${topic.value}")
     }
   }
 }
