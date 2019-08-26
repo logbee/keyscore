@@ -4,8 +4,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
 import org.scalatest.Matchers
 import java.nio.charset.StandardCharsets
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.PathHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.watch.DirChanges
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChanges, PathHandle}
 
 class Manual_SmbDirSpec extends Manual_SpecWithSmbShare with Matchers {
   
@@ -35,34 +34,6 @@ class Manual_SmbDirSpec extends Manual_SpecWithSmbShare with Matchers {
           val fileName = "testFile"
           withSmbFile(dirName + fileName, charset.encode("test file"), { smbFile =>
             smbDir.listDirsAndFiles shouldEqual (Set(), Set(smbFile))
-          })
-        })
-      }
-    }
-    
-    "list the changes happening in it" - {
-      "when no changes have happened" in withShare { implicit share =>
-        withSmbDir(dirName, { dir =>
-          dir.getChanges shouldEqual emptyDirChanges
-        })
-      }
-      
-      "when a dir got created" in withShare { implicit share =>
-        withSmbDir(dirName, { dir =>
-          val dir2Name = "testDir2\\"
-          
-          withSmbDir(dirName + dir2Name, { smbDir =>
-            dir.getChanges shouldEqual emptyDirChanges.copy(newlyCreatedDirs = Set(smbDir))
-          })
-        })
-      }
-      
-      "when a file got created" in withShare { implicit share =>
-        withSmbDir(dirName, { dir =>
-          val fileName = "testFile"
-          
-          withSmbFile(dirName + fileName, charset.encode("test file"), { smbFile =>
-            dir.getChanges shouldEqual emptyDirChanges.copy(newlyCreatedFiles = Set(smbFile))
           })
         })
       }

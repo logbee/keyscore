@@ -5,6 +5,8 @@ import java.nio.ByteBuffer
 trait FileHandle extends PathHandle {
   val name: String
   
+  val parent: String
+  
   def listRotatedFiles(rotationPattern: String): Seq[_ <: FileHandle]
   
   def length: Long
@@ -12,4 +14,8 @@ trait FileHandle extends PathHandle {
   def lastModified: Long
   
   def read(buffer: ByteBuffer, offset: Long): Int
+  
+  def delete(): Unit
+  
+  def move(newPath: String): Unit
 }

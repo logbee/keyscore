@@ -1,5 +1,9 @@
 include 'keyscore-agent'
-include 'keyscore-agent:keyscore-agent-runtimes'
+include 'keyscore-agent:keyscore-agent-runtimes-api'
+project(':keyscore-agent:keyscore-agent-runtimes-api').projectDir = new File(project(':keyscore-agent').projectDir, "keyscore-agent-runtimes/keyscore-agent-runtimes-api")
+include 'keyscore-agent:keyscore-agent-runtimes-jvm'
+project(':keyscore-agent:keyscore-agent-runtimes-jvm').projectDir = new File(project(':keyscore-agent').projectDir, "keyscore-agent-runtimes/keyscore-agent-runtimes-jvm")
+
 include 'keyscore-commons'
 include 'keyscore-frontier'
 include 'keyscore-model'

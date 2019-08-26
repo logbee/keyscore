@@ -5,6 +5,7 @@
         </encoder>
     </appender>
     <logger name="akka.actor.TimerScheduler" level="info" />
+    <logger name="akka.actor.Scheduler" level="info" />
     <logger name="akka.cluster.ddata.Replicator" level="info" />
     <logger name="akka.http" level="info" />
     <logger name="akka.kafka" level="info" />

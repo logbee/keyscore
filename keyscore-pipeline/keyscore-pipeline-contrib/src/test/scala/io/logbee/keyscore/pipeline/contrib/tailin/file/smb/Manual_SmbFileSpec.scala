@@ -3,9 +3,8 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file.smb
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
-import org.scalactic.source.Position.apply
+import com.hierynomus.mssmb2.SMBApiException
 import org.scalatest.Matchers
-
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
 
 
@@ -23,13 +22,13 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
       withSmbFile(fileName, content, {
         smbFile =>
           smbFile.name shouldBe fileName
-          smbFile.absolutePath shouldBe "\\\\" + hostName + "\\" + shareName + "\\" + fileName
-          
+          smbFile.absolutePath shouldBe s"\\\\$hostName\\$shareName\\$fileName"
+          smbFile.parent shouldBe s"\\\\$hostName\\$shareName\\"
           
           //the lastModified-time should be roughly around the current time (the server's system time may be different or it may take a moment to create the file)
           val currentTime = System.currentTimeMillis
-          assert(smbFile.lastModified >= currentTime - 60 * 1000)
-          assert(smbFile.lastModified <= currentTime + 60 * 1000)
+          assert(smbFile.lastModified >= currentTime - 5 * 60 * 1000)
+          assert(smbFile.lastModified <= currentTime + 5 * 60 * 1000)
           
           
           smbFile.length shouldBe content.limit
@@ -90,6 +89,20 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
           buffer.array shouldBe content.array
                                   .drop(offset)
                                   .dropRight(content.capacity - content.limit) //the resulting array has 0s from the buffer's limit to the end, which we drop here
+      })
+    }
+    
+    
+    "delete itself" in withShare { implicit share =>
+      
+      val content = charset.encode("Hellö Wörld")
+      
+      withSmbFile("smbTestFile.txt", content, { smbFile =>
+        smbFile.delete()
+        
+        assertThrows[SMBApiException] {
+          smbFile.lastModified
+        }
       })
     }
   }

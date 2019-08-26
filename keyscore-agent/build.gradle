@@ -26,8 +26,10 @@ dependencies {
     compile project(':keyscore-commons')
     compile project(':keyscore-model')
 
-    compile project(':keyscore-agent:keyscore-agent-runtimes')
     compile project(':keyscore-pipeline:keyscore-pipeline-api')
+
+    compile project(':keyscore-agent:keyscore-agent-runtimes-api')
+    compile project(':keyscore-agent:keyscore-agent-runtimes-jvm')
 
     compile dependency.scala_lang
     compile dependency.akka_actor

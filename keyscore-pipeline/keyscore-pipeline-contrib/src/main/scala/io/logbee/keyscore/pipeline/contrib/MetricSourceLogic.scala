@@ -1,7 +1,8 @@
 package io.logbee.keyscore.pipeline.contrib
 
-import java.util.{Timer, TimerTask}
+import java.util.UUID
 
+import akka.actor.Cancellable
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.SourceShape
@@ -23,8 +24,9 @@ import org.json4s.{Formats, Serialization}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 object MetricSourceLogic extends Described {
@@ -114,7 +116,8 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   private val format = "dd.MM.yyyy HH:mm:ss"
 
-  private var canSchedule: Boolean = true
+  private var lastTimePushed = System.currentTimeMillis()
+  private var cancellable: Cancellable = _
 
   private var url = MetricSourceLogic.urlParameter.defaultValue
   private var ids = Seq.empty[String]
@@ -129,23 +132,25 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private val parseAsync = getAsyncCallback[(String, HttpResponse)]({ case (id, response) =>
     val mcs = parseHttpResponse(response)
 
-    if(mcs.nonEmpty) {
+    if (mcs.nonEmpty) {
       mcs.foreach { mc => metricCollections.append((id, mc)) }
       idToEarliest.update(id, getEarliest(mcs))
       tryPush()
-    } else {
-//      log.debug("MCS was empty")
-      scheduleScrape(10000)
     }
   })
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
     scrapeMetrics()
+    cancellable = system.scheduler.schedule(20 seconds, 5 seconds)(checkLastTimePushed())
   }
 
   override def configure(configuration: Configuration): Unit = {
     setDefaults(configuration)
+  }
+
+  override def postStop(): Unit = {
+    cancellable.cancel()
   }
 
   private def setDefaults(configuration: Configuration): Unit = {
@@ -157,35 +162,41 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   override def onPull(): Unit = {
-    if(metricCollections.nonEmpty) tryPush()
-    else scrapeMetrics()
+    if (metricCollections.nonEmpty) {
+      tryPush()
+    }
+    else {
+      scrapeMetrics()
+    }
   }
 
   private def tryPush(): Unit = {
-
-    if (!isAvailable(out) || metricCollections.isEmpty) return
+    if (!isAvailable(out)) {
+      return
+    } else if (metricCollections.isEmpty) {
+      return
+    }
 
     val metric = metricCollections.head
+    metricCollections -= metric
 
     push(out, MetricConversion.convertMetricCollectionToDataset(metric._1, metric._2))
 
-    metricCollections -= metric
+    lastTimePushed = System.currentTimeMillis()
   }
 
   private def scrapeMetrics(): Unit = {
-    canSchedule = true
-
     ids
       .map(_.trim)
       .map(id => {
 
-      val newest = idToEarliest.getOrElse(id, earliest)
-      val mq = MetricsQuery(limit, newest, latest, format)
+        val newest = idToEarliest.getOrElse(id, earliest)
+        val mq = MetricsQuery(limit, newest, latest, format)
 
-      val uri = Uri(s"$url/metrics/$id")
-      (id, Http().singleRequest(HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq)))))
+        val uri = Uri(s"$url/metrics/$id")
+        (id, Http().singleRequest(HttpRequest(HttpMethods.POST, uri, entity = HttpEntity(ContentTypes.`application/json`, write(mq)))))
 
-    })
+      })
       .foreach({
         case (id, future) =>
           completeResponse(id, future)
@@ -204,8 +215,7 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   }
 
   private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
-    if (response.status == StatusCodes.OK)
-    {
+    if (response.status == StatusCodes.OK) {
       response.entity match {
         case strict: HttpEntity.Strict =>
           val body = strict.data.utf8String
@@ -217,20 +227,17 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       }
     } else {
 //      log.debug(s"Failure: Response status is [${response.status}]")
-      scheduleScrape(10000)
       Seq()
     }
   }
 
-  private def scheduleScrape(ms: Int): Unit = {
-    if(canSchedule){
-      canSchedule = false
-//      log.debug(s"Scheduled <scrapeMetrics> in $ms ms")
-      val timer = new Timer
-      val task = new TimerTask () { def run(): Unit = scrapeMetrics()}
-      timer.schedule(task, ms)
+  private def checkLastTimePushed(): Unit = {
+    val now = System.currentTimeMillis()
+    val dif = now - lastTimePushed
+    if (dif > 10000) {
+      log.debug(s"Last dataset was pushed ${dif}ms ago.")
+      onPull()
     }
-
   }
 
   private def getEarliest(mcs: Seq[MetricsCollection]): String = {

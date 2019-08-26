@@ -14,6 +14,7 @@ keyscore-extensions:    io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLog
                         io.logbee.keyscore.pipeline.contrib.filter.DropRecordsLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.RetainRecordsLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.FingerprintLogic,
+                        io.logbee.keyscore.pipeline.contrib.filter.RenameFieldsLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.RenameFieldFromValueLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.batch.GroupByCountLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.batch.GroupByValueLogic,

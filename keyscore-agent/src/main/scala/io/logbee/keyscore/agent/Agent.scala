@@ -3,7 +3,8 @@ package io.logbee.keyscore.agent
 import java.lang.management.ManagementFactory
 import java.util.UUID
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.{Actor, ActorLogging, Props, typed}
 import akka.cluster.Cluster
 import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
@@ -12,14 +13,14 @@ import akka.util.Timeout
 import com.sun.management.OperatingSystemMXBean
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.agent.pipeline.FilterManager.{DescriptorsResponse, RequestDescriptors}
-import io.logbee.keyscore.agent.runtimes.StageLogicProvider.StageLogicProviderRequest
 import io.logbee.keyscore.agent.pipeline.{FilterManager, LocalPipelineManager}
+import io.logbee.keyscore.agent.runtimes.api.StageLogicProvider.StageLogicProviderRequest
 import io.logbee.keyscore.agent.runtimes.jvm.ManifestStageLogicProvider
 import io.logbee.keyscore.commons.cluster.Topics.{AgentsTopic, ClusterTopic, MetricsTopic}
 import io.logbee.keyscore.commons.cluster._
 import io.logbee.keyscore.commons.metrics.{ScrapeMetrics, ScrapeMetricsSuccess}
 import io.logbee.keyscore.commons.util.StartUpWatch
-import io.logbee.keyscore.commons.util.StartUpWatch.StartUpComplete
+import io.logbee.keyscore.commons.util.StartUpWatch.{StartUpComplete, StartUpFailed}
 import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.localization.TextRef
 import io.logbee.keyscore.model.metrics.{DecimalGaugeMetricDescriptor, MetricsCollection, NumberGaugeMetricDescriptor}
@@ -109,7 +110,7 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
   private val scheduler = context.system.scheduler
 
   //Necessary Actors for the whole keyscore-agent system
-  private val stageLogicProviders: List[akka.actor.typed.ActorRef[StageLogicProviderRequest]] = List(
+  private val stageLogicProviders: List[typed.ActorRef[StageLogicProviderRequest]] = List(
     context.actorOf(ManifestStageLogicProvider(), "manifest-stage-logic-provider")
   )
 
@@ -141,14 +142,20 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
   override def receive: Receive = {
     case Initialize =>
       log.debug("Initializing Agent with FilterManager ...")
-      val startUpWatch = context.actorOf(StartUpWatch(filterManager))
-      (startUpWatch ? StartUpComplete).onComplete {
-        case Success(_) =>
-          log.debug("Initializing Agent completed.")
-        case Failure(e) =>
-          log.error(e, "Failed to initialize agent!")
-          context.stop(self)
-      }
+      val agent = self
+      context.spawnAnonymous(Behaviors.setup[AnyRef] { context =>
+        val startUpWatch = context.actorOf(StartUpWatch(filterManager))
+        startUpWatch ! StartUpComplete
+        Behaviors.receiveMessage {
+          case StartUpComplete =>
+            log.debug("Initializing Agent completed.")
+            Behaviors.stopped
+          case StartUpFailed =>
+            log.error("Failed to initialize agent!")
+            context.stop(agent)
+            Behaviors.stopped
+        }
+      })
 
     case SendJoin =>
       val agentJoin = AgentJoin(id, name)

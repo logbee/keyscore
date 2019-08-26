@@ -44,6 +44,8 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
           
           localFile.absolutePath shouldBe watchDir.resolve(fileName).toString
           
+          localFile.parent shouldBe watchDir.toString + "/"
+          
           val currentTime = System.currentTimeMillis
           assert(localFile.lastModified >= currentTime - 3 * 1000)
           assert(localFile.lastModified <= currentTime)
@@ -100,6 +102,20 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
           buffer.array shouldBe content.array
                                   .drop(offset)
                                   .dropRight(content.capacity - content.limit) //the resulting array has 0s from the buffer's limit to the end, which we drop here
+      })
+    }
+
+
+    "should delete itself" in {
+
+      val content = charset.encode("fileContent")
+
+      withLocalFile("localFile.txt", content, { localFile =>
+        localFile.lastModified should not equal 0
+
+        localFile.delete()
+
+        localFile.lastModified shouldEqual 0
       })
     }
   }

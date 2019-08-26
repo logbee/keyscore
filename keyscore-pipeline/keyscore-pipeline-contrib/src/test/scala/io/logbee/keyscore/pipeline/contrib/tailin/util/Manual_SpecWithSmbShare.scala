@@ -4,17 +4,14 @@ import java.nio.ByteBuffer
 import java.util.EnumSet
 
 import org.scalatest.FreeSpec
-
 import com.hierynomus.msdtyp.AccessMask
+import com.hierynomus.mserref.NtStatus
 import com.hierynomus.msfscc.FileAttributes
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2CreateOptions
-import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess, SMBApiException}
 import com.hierynomus.smbj.SMBClient
 import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.DiskShare
-
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbFile
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
 
@@ -99,7 +96,12 @@ class Manual_SpecWithSmbShare extends FreeSpec {
       if (smbFile != null)
         smbFile.tearDown()
       
-      share.rm(fileName)
+      try {
+        share.rm(fileName)
+      }
+      catch {
+        case ex: SMBApiException if ex.getStatus == NtStatus.STATUS_OBJECT_NAME_NOT_FOUND => //already deleted -> ignore
+      }
     }
   }
   
@@ -107,7 +109,7 @@ class Manual_SpecWithSmbShare extends FreeSpec {
   
   
   
-  private def createDir(dirName: String)(implicit share: DiskShare): SmbDir = {
+  protected def createDir(dirName: String)(implicit share: DiskShare): SmbDir = {
     
     val actualSmbDirectory = share.openDirectory(
       dirName,

@@ -35,11 +35,15 @@ import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
 import java.nio.file.StandardOpenOption
 
+import akka.util.Timeout
 import io.logbee.keyscore.model.pipeline.StageSupervisor
 
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext with ParallelTestExecution {
-
+  
+  implicit val whenReadyTimeout = Timeout(5.seconds)
+  val expectNextTimeout = 15.seconds
+  
   var watchDir: Path = _
 
   val persistenceFile = new File(".testKeyscorePersistenceFile")
@@ -67,8 +71,6 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       ChoiceParameter(TailinSourceLogic.encoding.ref,        StandardCharsets.UTF_8.toString),
       TextParameter(  TailinSourceLogic.rotationPattern.ref, "tailin.csv.[1-5]"),
       TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
-
-      TextParameter(  TailinSourceLogic.persistenceFile.ref, persistenceFile.getAbsolutePath),
     )
 
     val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
@@ -134,7 +136,6 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
             ChoiceParameter(TailinSourceLogic.encoding.ref,        testSetup.encoding.toString),
             TextParameter(  TailinSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
             TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
-            TextParameter(  TailinSourceLogic.persistenceFile.ref, persistenceFile.getAbsolutePath),
           )
 
           val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
@@ -143,16 +144,17 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         }
 
         "should push one available string for one available pull" in new DefaultTailinSourceValues {
-
-          val file = TestUtil.createFile(watchDir, testSetup.files.head.path)
-          
-          val text = testSetup.files.head.lines.head
-          TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
-          
-          sink.request(1)
-          var result = sink.expectNext()
-          result.records.head.fields should have size 1
-          result.records.head.fields.head.value shouldEqual TextValue(testSetup.expectedData.head)
+          whenReady(sourceFuture) { _ =>
+            val file = TestUtil.createFile(watchDir, testSetup.files.head.path)
+            
+            val text = testSetup.files.head.lines.head
+            TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
+            
+            sink.request(1)
+            var result = sink.expectNext(expectNextTimeout)
+            result.records.head.fields should have size 3
+            result.records.head.fields.head.value shouldEqual TextValue(testSetup.expectedData.head)
+          }
         }
 
         "should push multiple available strings" - {
@@ -163,129 +165,134 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
              else
                "when pulls are made as it reads the data"
             ) in new DefaultTailinSourceValues {
-              
-              val file = TestUtil.createFile(watchDir, "tailin.csv")
-              
-              val texts = testSetup.files.head.lines
-              
-              texts.foreach { text =>
-                TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
+              whenReady(sourceFuture) { _ =>
+                val file = TestUtil.createFile(watchDir, "tailin.csv")
                 
-                if (waitFor_DirWatcher_processEvents) {
-                  Thread.sleep(1500)
+                val texts = testSetup.files.head.lines
+                
+                texts.foreach { text =>
+                  TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
+                  
+                  if (waitFor_DirWatcher_processEvents) {
+                    Thread.sleep(1500)
+                  }
                 }
-              }
-
-              var concatenatedExpectedData = testSetup.expectedData.fold("")((string1, string2) => string1 + string2)
-
-              sink.request(texts.size)
-
-              var concatenatedReturnedData = ""
-
-              for (i <- 1 to texts.size) {
-                val datasets: Seq[Dataset] = sink.receiveWithin(max=3.seconds, messages=texts.size)
-
-                datasets.foreach { dataset =>
-                  concatenatedReturnedData += dataset.records.head.fields.head.value.asInstanceOf[TextValue].value
+  
+                var concatenatedExpectedData = testSetup.expectedData.fold("")((string1, string2) => string1 + string2)
+  
+                sink.request(texts.size)
+  
+                var concatenatedReturnedData = ""
+  
+                for (i <- 1 to texts.size) {
+                  val datasets: Seq[Dataset] = sink.receiveWithin(max=3.seconds, messages=texts.size)
+  
+                  datasets.foreach { dataset =>
+                    concatenatedReturnedData += dataset.records.head.fields.head.value.asInstanceOf[TextValue].value
+                  }
                 }
+  
+                concatenatedReturnedData shouldEqual concatenatedExpectedData
               }
-
-              concatenatedReturnedData shouldEqual concatenatedExpectedData
             }
           }
         }
 
         "should push multiple strings that become available in a delayed manner for multiple delayed pulls" in
         new DefaultTailinSourceValues {
-          
-          val file = TestUtil.createFile(watchDir, "tailin.csv")
-          
-          val texts = testSetup.files.head.lines
-          
-          texts.zip(testSetup.expectedData).foreach { case (text, expectedText) =>
-            TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
+          whenReady(sourceFuture) { _ =>
+            val file = TestUtil.createFile(watchDir, "tailin.csv")
             
-            sink.request(1)
+            val texts = testSetup.files.head.lines
             
-            Thread.sleep(1500) //wait for processEvents to trigger once
-            
-            val datasetText = sink.expectNext()
-            
-            datasetText.records.head.fields.head.value shouldEqual TextValue(expectedText)
+            texts.zip(testSetup.expectedData).foreach { case (text, expectedText) =>
+              TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
+              
+              sink.request(1)
+              
+              Thread.sleep(1500) //wait for processEvents to trigger once
+              
+              val datasetText = sink.expectNext(expectNextTimeout)
+              
+              datasetText.records.head.fields.head.value shouldEqual TextValue(expectedText)
+            }
           }
         }
 
         "should wait for strings to become available, if no strings are available when it gets pulled" in
         new DefaultTailinSourceValues {
-          
-          val file = TestUtil.createFile(watchDir, "tailin.csv")
-          
-          sink.request(1)
-          
-          Thread.sleep(3000)
-          
-          val text = testSetup.files.head.lines.head
-          TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
-          
-          val datasetText = sink.expectNext()
-          
-          datasetText.records.head.fields.head.value shouldEqual TextValue(testSetup.expectedData.head)
+          whenReady(sourceFuture) { _ =>
+            val file = TestUtil.createFile(watchDir, "tailin.csv")
+            
+            sink.request(1)
+            
+            Thread.sleep(3000)
+            
+            val text = testSetup.files.head.lines.head
+            TestUtil.writeStringToFile(file, text + "\n", encoding=testSetup.encoding)
+            
+            val datasetText = sink.expectNext(expectNextTimeout)
+            
+            datasetText.records.head.fields.head.value shouldEqual TextValue(testSetup.expectedData.head)
+          }
         }
       }
     }
 
     "should push multiple logfiles with the same lastModified-timestamp in the correct order" ignore //TEST
     new DefaultSource {
-
-      val baseFile = TestUtil.createFile(watchDir, "file", "0")
-      val rotatePattern = baseFile.name + ".[1-5]"
-      
-      val file1Name = baseFile.name + ".1"
-      val file2Name = baseFile.name + ".2"
-      val file1 = TestUtil.createFile(watchDir, file1Name, "11")
-      val file2 = TestUtil.createFile(watchDir, file2Name, "222")
-      
-      val sharedLastModified = 1234567890
-      
-      baseFile.setLastModified(sharedLastModified)
-      file1.setLastModified(sharedLastModified)
-      file2.setLastModified(sharedLastModified)
-      
-      sink.request(1)
-      
-      sink.expectNoMessage(3.seconds)
-      
-      TestUtil.writeStringToFile(baseFile, "0", StandardOpenOption.APPEND, StandardCharsets.UTF_8) //this should trigger things to be read out, as we don't read out files which share their lastModified-timestamp with the baseFile
-      
-      sink.request(1)
-      
-      val datasetText = sink.expectNext()
-      
-      datasetText.records.head.fields.head.value shouldEqual TextValue("222")
+      whenReady(sourceFuture) { _ =>
+        val baseFile = TestUtil.createFile(watchDir, "file", "0")
+        val rotatePattern = baseFile.name + ".[1-5]"
+        
+        val file1Name = baseFile.name + ".1"
+        val file2Name = baseFile.name + ".2"
+        val file1 = TestUtil.createFile(watchDir, file1Name, "11")
+        val file2 = TestUtil.createFile(watchDir, file2Name, "222")
+        
+        val sharedLastModified = 1234567890
+        
+        baseFile.setLastModified(sharedLastModified)
+        file1.setLastModified(sharedLastModified)
+        file2.setLastModified(sharedLastModified)
+        
+        sink.request(1)
+        
+        sink.expectNoMessage(5.seconds)
+        
+        TestUtil.writeStringToFile(baseFile, "0", StandardOpenOption.APPEND, StandardCharsets.UTF_8) //this should trigger things to be read out, as we don't read out files which share their lastModified-timestamp with the baseFile
+        
+        sink.request(1)
+        
+        val datasetText = sink.expectNext(expectNextTimeout)
+        
+        datasetText.records.head.fields.head.value shouldEqual TextValue("222")
+      }
     }
 
     "should push realistic log data with rotation" ignore //TEST doesn't work yet, which is presumably a fault of the test, not the code
     new DefaultSource {
-
-      val logFile = TestUtil.createFile(watchDir, "tailin.csv")
-      val numberOfLines = 1000
-      val slf4j_rotatePattern = logFile.name + ".%i"
-      
-      TestUtil.writeLogToFileWithRotation(logFile, numberOfLines, slf4j_rotatePattern)
-      
-      var concatenatedString = ""
-      for (i <- 1 to numberOfLines) {
-        sink.request(1)
+      whenReady(sourceFuture) { _ =>
+        val logFile = TestUtil.createFile(watchDir, "tailin.csv")
+        val numberOfLines = 1000
+        val slf4j_rotatePattern = logFile.name + ".%i"
         
-        val datasetText = sink.expectNext(10.seconds)
+        TestUtil.writeLogToFileWithRotation(logFile, numberOfLines, slf4j_rotatePattern)
         
-        concatenatedString += datasetText.records.head.fields.head.value.asInstanceOf[TextValue].value + "\n"
+        var concatenatedString = ""
+        for (i <- 1 to numberOfLines) {
+          sink.request(1)
+          
+          val datasetText = sink.expectNext(expectNextTimeout)
+          
+          concatenatedString += datasetText.records.head.fields.head.value.asInstanceOf[TextValue].value + "\n"
+        }
+        
+        Thread.sleep(1000) //TODO nothing gets pushed, because nothing is written outside of the shared-lastModified-second
+        TestUtil.writeStringToFile(logFile, "Hello", StandardOpenOption.APPEND)
+        
+        concatenatedString.linesIterator.length shouldEqual numberOfLines
       }
-      
-      Thread.sleep(1000) //TODO nothing gets pushed, because nothing is written outside of the shared-lastModified-second
-      TestUtil.writeStringToFile(logFile, "Hello", StandardOpenOption.APPEND)
-      
-      concatenatedString.linesIterator.length shouldEqual numberOfLines
     }
   }
 }

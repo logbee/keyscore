@@ -1,10 +1,9 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
-import org.scalatest.FreeSpec
 import org.scalatest.Matchers
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 @RunWith(classOf[JUnitRunner])

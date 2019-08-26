@@ -1,9 +1,19 @@
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
+import com.bmuschko.gradle.docker.tasks.network.DockerInspectNetwork
+import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
+
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:3.3.2'
     }
 }
 
@@ -11,6 +21,7 @@ buildscript {
 apply plugin: 'scala'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.bmuschko.docker-remote-api'
 // end::scala-example-project-build-gradle-plugins[]
 
 ext.publicationRepositoryUrl = getBuildPropertyValue("publication.repository.url")
@@ -41,11 +52,11 @@ dependencies {
 
     compileOnly "org.scala-lang:scala-library:2.13.0"
 
-    compileOnly "io.logbee.keyscore:keyscore-pipeline-api:0.3.0-alpha.5"
-    compileOnly "io.logbee.keyscore:keyscore-pipeline-commons:0.3.0-alpha.5"
+    compileOnly "io.logbee.keyscore:keyscore-pipeline-api:$keyscoreVersion"
+    compileOnly "io.logbee.keyscore:keyscore-pipeline-commons:$keyscoreVersion"
 
-    testCompile "io.logbee.keyscore:keyscore-pipeline-testkit:0.3.0-alpha.5"
-    testCompile "io.logbee.keyscore:keyscore-pipeline-commons:0.3.0-alpha.5"
+    testCompile "io.logbee.keyscore:keyscore-pipeline-testkit:$keyscoreVersion"
+    testCompile "io.logbee.keyscore:keyscore-pipeline-commons:$keyscoreVersion"
 
     testCompile "org.scalatest:scalatest_2.13:3.0.8"
     testCompile "org.junit.jupiter:junit-jupiter-api:5.5.0"
@@ -64,6 +75,7 @@ jar {
             'Implementation-Vendor' : vendor
         ])
     }
+    enabled = false
     dependsOn(shadowJar)
 }
 // end::scala-example-project-build-gradle-jar[]
@@ -89,6 +101,176 @@ publishing {
     }
 }
 // end::scala-example-project-build-gradle-publishing[]
+
+task setupDockerNetwork(type: DockerInspectNetwork) {
+    finalizedBy 'createContainerNetwork'
+    networkId = project.properties['containerNetwork']
+    setupDockerNetwork.ext.createNetwork = false
+    onError { exception ->
+        if (exception.message.contains('not found')) {
+            println("Network " + project.properties['containerNetwork'] + " not found")
+            setupDockerNetwork.ext.createNetwork = true
+        } else throw exception
+    }
+}
+
+task createContainerNetwork(type: DockerCreateNetwork) {
+    onlyIf {
+        setupDockerNetwork.createNetwork
+    }
+    networkId = project.properties['containerNetwork']
+}
+
+task pullFrontierImage(type: DockerPullImage) {
+    repository = "quay.io/logbee/keyscore-frontier"
+    tag = "development"
+}
+
+task pullAgentImage(type: DockerPullImage) {
+    repository = "quay.io/logbee/keyscore-agent"
+    tag = "development"
+}
+
+task pullManagerImage(type: DockerPullImage) {
+    repository = "quay.io/logbee/keyscore-manager"
+    tag = "development"
+}
+
+task createFrontierContainer(type: DockerCreateContainer) {
+    dependsOn ['pullFrontierImage']
+    containerName = "keyscore-frontier"
+    targetImageId { pullFrontierImage.getImageId() }
+    portBindings = ['2551:2551', '4711:4711']
+    hostName = "keyscore-frontier"
+    env = [
+            'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
+            'KEYSCORE_CLUSTER_SEED_NODE_HOST_2=keyscore-frontier-sleeping',
+            'KEYSCORE_REMOTE_HOST=keyscore-frontier',
+            'KEYSCORE_REMOTE_PORT=2551',
+            'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0',
+            'KEYSCORE_OPERATING_MODE=true'
+    ]
+    network = project.findProperty('containerNetwork') ?: 'host'
+}
+
+task createAgentContainer(type: DockerCreateContainer) {
+    dependsOn ['pullAgentImage']
+    containerName = "keyscore-agent"
+    targetImageId { pullAgentImage.getImageId() }
+    portBindings = ['3551:3551']
+    hostName = "keyscore-agent"
+    env = [
+            'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
+            'KEYSCORE_REMOTE_HOST=keyscore-agent',
+            'KEYSCORE_REMOTE_PORT=0',
+            'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
+    ]
+    binds = ["$buildDir/libs" : '/opt/keyscore-agent/extensions', "$rootDir/data" : '/opt/keyscore-agent/data']
+    network = project.findProperty('containerNetwork') ?: 'host'
+}
+
+task createManagerContainer(type: DockerCreateContainer) {
+    dependsOn ['pullManagerImage']
+    containerName = "keyscore-manager"
+    targetImageId { pullManagerImage.getImageId() }
+    portBindings = ['8080:80']
+}
+
+task startFrontierContainer(type: DockerStartContainer) {
+    dependsOn = ['createFrontierContainer', ':setupDockerNetwork']
+    targetContainerId { createFrontierContainer.containerName }
+}
+
+task startAgentContainer(type: DockerStartContainer) {
+    dependsOn = ['createAgentContainer', ':setupDockerNetwork']
+    targetContainerId { createAgentContainer.containerName }
+}
+
+task startManagerContainer(type: DockerStartContainer) {
+    dependsOn = ['createManagerContainer', ':setupDockerNetwork']
+    targetContainerId { createManagerContainer.containerName }
+}
+
+task stopFrontierContainer(type: DockerStopContainer) {
+    targetContainerId { createFrontierContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createFrontierContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+}
+
+task stopAgentContainer(type: DockerStopContainer) {
+    targetContainerId { createAgentContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createAgentContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+}
+
+task stopManagerContainer(type: DockerStopContainer) {
+    targetContainerId { createManagerContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createManagerContainer.containerName + " has already been stopped")
+        } else throw exception
+    }
+}
+
+task removeFrontierContainer(type: DockerRemoveContainer) {
+    dependsOn stopFrontierContainer
+    targetContainerId { createFrontierContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createFrontierContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}
+
+task removeAgentContainer(type: DockerRemoveContainer) {
+    dependsOn stopAgentContainer
+    targetContainerId { createAgentContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createAgentContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}
+
+task removeManagerContainer(type: DockerRemoveContainer) {
+    dependsOn stopManagerContainer
+    targetContainerId { createManagerContainer.containerName }
+    onError { exception ->
+        if (exception.class.simpleName.matches('^(NotModified|NotFound)Exception$')) {
+            println("Container " + createManagerContainer.containerName + " has already been removed")
+        } else throw exception
+    }
+}
+
+task startContainers(){
+    dependsOn = [
+            'startFrontierContainer',
+            'startAgentContainer',
+            'startManagerContainer'
+    ]
+    doLast {
+        sleep(10000)
+    }
+}
+
+task removeContainerNetwork(type: DockerRemoveNetwork) {
+    networkId = project.properties['containerNetwork']
+}
+
+task stopContainers() {
+    dependsOn = [
+            'removeFrontierContainer',
+            'removeAgentContainer',
+            'removeManagerContainer'
+    ]
+    finalizedBy removeContainerNetwork
+}
 
 static def getBuildPropertyValue(String name) {
     def env = System.getenv()

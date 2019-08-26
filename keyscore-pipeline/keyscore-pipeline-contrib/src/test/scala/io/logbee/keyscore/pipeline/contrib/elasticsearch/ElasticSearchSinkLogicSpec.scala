@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 //@RunWith(classOf[JUnitRunner])
-class ElasticSearchSinkLogicSpec  extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class ElasticSearchSinkLogicSpec extends WordSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   implicit val defaultPatience = PatienceConfig(timeout = Span(20, Seconds), interval = Span(5, Seconds))
 
@@ -20,13 +20,13 @@ class ElasticSearchSinkLogicSpec  extends WordSpec with Matchers with ScalaFutur
 
     val configuration = Configuration(
       parameterSet = ParameterSet(Seq(
-        TextParameter("host","localhost"),
+        TextParameter("host", "localhost"),
         NumberParameter("port", 9200),
-        TextParameter("index","test")
+        TextParameter("index", "test")
       )
       ))
 
-    "do some thing" in new TestStreamForSink[ElasticSearchSinkLogic](configuration){
+    "do some thing" in new TestStreamForSink[ElasticSearchSinkLogic](configuration) {
 
       Await.ready(sinkFuture, 20 seconds)
 

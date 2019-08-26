@@ -58,36 +58,51 @@ object FileMatchPattern {
    * 
    * This is useful for the Java PathMatcher API that can't work for example with SMB-paths.
    */
-  private def getUnixLikePath(fullFilePattern: String): String = { //TODO try to make Java do this conversion by throwing it into a Path or something (this current naive approach fails for example for \-escaped spaces and such in UNIX-like paths
-    fullFilePattern
+  private def getUnixLikePath(fullFilePattern: String): String = {
+    if (fullFilePattern.isEmpty) return fullFilePattern
+    
+    var _fullFilePattern = fullFilePattern
       .replace("\\\\", "/").replace("//", "/") //replace "\\" at the start of SMB-paths with just a /
       .replace('\\', '/') //replace '\' as in Windows-like paths with '/'
+    
+    if (_fullFilePattern.matches("[A-Z]:.*")) {
+      _fullFilePattern = _fullFilePattern.substring(2) //cut off "C:" or similar from Windows paths
+    }
+    
+    _fullFilePattern
   }
 }
 
 
-class FileMatchPattern(fullFilePattern: String) {
+class FileMatchPattern(fullFilePattern: String, exclusionPattern: String = "") {
   import FileMatchPattern.getUnixLikePath
   
   private lazy val log = LoggerFactory.getLogger(classOf[FileMatchPattern])
   
   val filePattern = {
-    if (getUnixLikePath(fullFilePattern).endsWith("/")) {
-      //if the user specifies a directory, assume that they want all files in the directory
-      //can't do this by just checking, if the specified path is a directory, because the same path could in the future lead to a file
-      fullFilePattern + "*"
-    } else {
-      fullFilePattern
-    }
+    getUnixLikePath(
+      if (getUnixLikePath(fullFilePattern).endsWith("/")) {
+        //if the user specifies a directory, assume that they want all files in the directory
+        //can't do this by just checking, if the specified path is a directory, because the same path could in the future lead to a file
+        fullFilePattern + "*"
+      } else {
+        fullFilePattern
+      }
+    )
   }
   
   
-  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + getUnixLikePath(filePattern))
+  private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + filePattern)
+  private val exclusionMatcher = FileSystems.getDefault.getPathMatcher("glob:" + getUnixLikePath(exclusionPattern))
   
   def matches(file: FileHandle): Boolean = {
     val path = Paths.get(getUnixLikePath(file.absolutePath))
     val matches = fileMatcher.matches(path)
-    log.debug("Matching '{}' against '{}' and it matches{}.", path, getUnixLikePath(filePattern), if (matches) "" else " not")
+    if (exclusionMatcher.matches(path))
+      return false
+    
+    log.debug("Matching '{}' against '{}' and it matches{}.", path, filePattern, if (matches) "" else " not")
+    
     matches
   }
   
@@ -105,11 +120,11 @@ class FileMatchPattern(fullFilePattern: String) {
       if (sections.last.contains("**") == false) {
         sections = sections.dropRight(1) //drop the file-part (unnecessary to check and causes problems when it's "*")
       }
-
+      
       val dirPath = Paths.get(getUnixLikePath(dir.absolutePath))
       for (i <- 0 to sections.length) {
         val dirPattern = sections.foldLeft("")((a: String, b: String) => a + "/" + b)
-
+        
         val matcher = FileSystems.getDefault.getPathMatcher("glob:" + getUnixLikePath(dirPattern))
         if (matcher.matches(dirPath)) {
           return true

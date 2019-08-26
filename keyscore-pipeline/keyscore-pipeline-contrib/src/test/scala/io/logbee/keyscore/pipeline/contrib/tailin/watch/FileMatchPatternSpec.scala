@@ -1,23 +1,18 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import java.io.File
 import java.nio.ByteBuffer
-import java.nio.file.{Files, Path}
 
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.file.local.{LocalDir, LocalFile}
-import java.nio.file.Paths
-
-import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle, FileHandle}
 import org.scalamock.scalatest.MockFactory
-import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
-import java.nio.file.FileSystems
 
 @RunWith(classOf[JUnitRunner])
 class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll with MockFactory {
+  
+  
+  
   
   "A FileMatchPattern" - {
     
@@ -141,17 +136,7 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
           val patternString = test._1
           val matchPattern = new FileMatchPattern(patternString)
           
-          val fileName = test._2
-          val file = new FileHandle { //basically a mock object which provides absolutePath (which is a val)
-            override val absolutePath: String = fileName
-            
-            override val name: String = "name"
-            override def listRotatedFiles(rotationPattern: String): Seq[_ <: FileHandle] = ???
-            override def length: Long = ???
-            override def lastModified: Long = ???
-            override def read(buffer: ByteBuffer, offset: Long): Int = ???
-            override def tearDown(): Unit = ???
-          }
+          val file = fileHandleReturningAbsolutePath(test._2)
           
           matchPattern.matches(file) shouldBe true
         }
@@ -159,18 +144,76 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
     }
     
     
-    "should determine that a given directory is on the correct path (is a super-directory of matching files)" - {
-      "" in {
-        
-        val patternString = "/path/to/test/log.txt"
-        val matchPattern = new FileMatchPattern(patternString)
-        
-        val dirPath = "/path/to/"
-        
-        val dir = new LocalDir(Paths.get(dirPath))
+    case class SuperPathSetup(dirPath: String, patternString: String)
+    val superPathSetups = Seq[SuperPathSetup](
+                              SuperPathSetup("/path/to",
+                                             "/path/to/test/log.txt"),
+                              SuperPathSetup("/path/to//",
+                                             "/path/to/test/log.txt"),
+                              SuperPathSetup("C:\\path\\to",
+                                             "C:\\path\\to\\test\\log.txt"),
+                              SuperPathSetup("\\\\hostname\\share\\path\\to",
+                                             "\\\\hostname\\share\\path\\to\\test\\log.txt"),
+                     )
+    
+    superPathSetups.foreach { testSetup =>
+      s"should determine that '${testSetup.dirPath}' is a super-directory of '${testSetup.patternString}'" in {
+        val matchPattern = new FileMatchPattern(testSetup.patternString)
+
+        val dir = dirHandleReturningAbsolutePath(testSetup.dirPath)
 
         matchPattern.isSuperDir(dir) shouldBe true
       }
+    }
+    
+    "should not match files that match its exclusion pattern" in {
+      val patternString = "/path/to/test/log*"
+      val exclusionPatternString = "/path/to/test/log*_uploaded"
+      
+      val matchPattern = new FileMatchPattern(patternString, exclusionPatternString)
+      
+      //these are essentially mocked objects, providing absolutePath
+      val fileMatchesInclusionOnly = fileHandleReturningAbsolutePath("/path/to/test/log.txt")
+      val fileMatchesInclusionAndExclusion = fileHandleReturningAbsolutePath("/path/to/test/log.txt_uploaded")
+      
+      matchPattern.matches(fileMatchesInclusionOnly) shouldBe true
+      matchPattern.matches(fileMatchesInclusionAndExclusion) shouldBe false
+    }
+  }
+
+
+  /**
+    * Basically a mock object which provides the given absolutePath.
+    * (absolutePath is a val, so cannot be mocked.)
+    */
+  private def fileHandleReturningAbsolutePath(_absolutePath: String): FileHandle = {
+    new FileHandle() {
+      override val absolutePath: String = _absolutePath
+      
+      override val name: String = "name"
+      override val parent: String = "parent"
+      override def listRotatedFiles(rotationPattern: String): Seq[_ <: FileHandle] = ???
+      override def length: Long = ???
+      override def lastModified: Long = ???
+      override def read(buffer: ByteBuffer, offset: Long): Int = ???
+      override def delete(): Unit = ???
+      override def move(newPath: String): Unit = ???
+      override def tearDown(): Unit = ???
+    }
+  }
+  
+  
+  /**
+    * Basically a mock object which provides the given absolutePath.
+    * (absolutePath is a val, so cannot be mocked.)
+    */
+  private def dirHandleReturningAbsolutePath(_absolutePath: String): DirHandle = {
+    new DirHandle() {
+      override val absolutePath: String = _absolutePath
+      
+      override def listDirsAndFiles: (Set[_ <: DirHandle], Set[_ <: FileHandle]) = ???
+      override def getDirChangeListener(): DirChangeListener = ???
+      override def tearDown(): Unit = ???
     }
   }
 }

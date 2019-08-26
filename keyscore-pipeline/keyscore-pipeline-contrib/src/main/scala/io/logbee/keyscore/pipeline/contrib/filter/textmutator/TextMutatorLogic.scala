@@ -215,7 +215,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
                   fields += mutated.withName(fieldName)
                 }
                 else {
-                  fields += (field, mutated.withName(sequence.mutatedFieldName))
+                  fields ++= Seq(field, mutated.withName(sequence.mutatedFieldName))
                 }
 
               case (fields, field) => fields += field

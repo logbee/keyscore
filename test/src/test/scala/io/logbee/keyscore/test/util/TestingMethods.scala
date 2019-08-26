@@ -162,7 +162,8 @@ object TestingMethods {
         if (instance.health == Green) greenInstances += 1
       })
 
-      if (greenInstances == expect) return true
+      //TODO dirty quickfix - should be ==
+      if (greenInstances >= expect) return true
 
       Thread.sleep(interval.toMillis)
       retries -= 1

@@ -26,7 +26,7 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
       val gmr = metricToRecord(gm, addFieldsIdFromMetricsTest)
 
       cmr shouldBe Record(List(
-        Field("filter.id", TextValue(addFieldsIdFromMetricsTest)),
+        Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
         Field("metric.type", TextValue(CounterMetricType.toString)),
         Field("metric.name", TextValue("cm3")),
         Field("metric.timestamp", TimestampValue(9, 25)),
@@ -36,7 +36,7 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
         Field("x", TextValue("x"))))
 
       gmr shouldBe Record(List(
-        Field("filter.id",TextValue(addFieldsIdFromMetricsTest)),
+        Field("metric.id",TextValue(addFieldsIdFromMetricsTest)),
         Field("metric.type", TextValue(NumberGaugeMetricType.toString)),
         Field("metric.name", TextValue("gm4")),
         Field("metric.timestamp", TimestampValue(11, 27)),
@@ -51,7 +51,7 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
     "convert MetricCollection to Dataset" in {
       val dataset = Dataset(metadata = MetaData(), List(
         Record(List(
-          Field("filter.id", TextValue(addFieldsIdFromMetricsTest)),
+          Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
           Field("metric.type", TextValue(CounterMetricType.toString)),
           Field("metric.name", TextValue("cm3")),
           Field("metric.timestamp", TimestampValue(9,25)),
@@ -60,7 +60,7 @@ class MetricSourceSpec extends WordSpec with Matchers with ScalaFutures with Tes
           Field("test", DecimalValue(42.0)),
           Field("x", TextValue("x")))),
         Record(List(
-          Field("filter.id", TextValue(addFieldsIdFromMetricsTest)),
+          Field("metric.id", TextValue(addFieldsIdFromMetricsTest)),
           Field("metric.type", TextValue(NumberGaugeMetricType.toString)),
           Field("metric.name", TextValue("gm4")),
           Field("metric.timestamp", TimestampValue(11,27)),

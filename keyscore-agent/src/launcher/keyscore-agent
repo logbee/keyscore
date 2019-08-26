@@ -14,6 +14,7 @@ KEYSCORE_JVM_JMX_REMOTE_RMI_PORT=${KEYSCORE_JVM_JMX_REMOTE_RMI_PORT:-"9010"}
 #
 # Compute classpath from libs.
 #
+
 KEYSCORE_CLASSPATH=$(realpath "$KEYSCORE_HOME/keyscore-agent.jar")
 if [ -d "libs/" ]; then
   libs=$( ls "libs/" )
@@ -26,6 +27,11 @@ fi
 # Download and add extensions to classpath.
 #
 mkdir -p "$KEYSCORE_EXTENSIONS_DIR"
+
+for file in "$KEYSCORE_EXTENSIONS_DIR"/*.jar; do
+  FILEPATH="$file"
+  KEYSCORE_CLASSPATH="$KEYSCORE_CLASSPATH:$FILEPATH"
+done
 
 IFS=',' read -ra URLS <<< "${KEYSCORE_EXTENSIONS_URLS}"
 for url in "${URLS[@]}"; do

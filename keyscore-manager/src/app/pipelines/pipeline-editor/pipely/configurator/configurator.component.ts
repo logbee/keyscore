@@ -44,7 +44,10 @@ import * as _ from "lodash";
                         </form>
                     </div>
                     <ng-template #filterNameDescription>
-                        <h3>{{selectedBlock$.getValue().descriptor.displayName}}</h3>
+                        <h3>
+                            <p style="margin-bottom: 5px">{{selectedBlock$.getValue().descriptor.displayName}}</p>
+                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">{{selectedBlock$.getValue().uuid}}</p>
+                        </h3>
                         <p>{{selectedBlock$.getValue().descriptor.description}}</p>
                         <mat-divider></mat-divider>
                     </ng-template>
@@ -74,8 +77,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
 
-    @Input('selectedBlock') set selectedBlock(block: { configuration: Configuration, descriptor: BlockDescriptor }) {
-        if (block.configuration && block.descriptor) {
+    @Input('selectedBlock') set selectedBlock(block: { uuid: string, configuration: Configuration, descriptor: BlockDescriptor }) {
+        if (block.uuid && block.configuration && block.descriptor) {
             this.selectedBlock$.next(block);
         } else {
             this.selectedBlock$.next(this.initBlock);
@@ -94,6 +97,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
     private initBlock = {
+        uuid: "00000000-0000-0000-0000-000000000000",
         configuration: {ref: {uuid: "init"}, parent: null, parameterSet: {jsonClass:ParameterJsonClass.ParameterSet,parameters:[]}},
         descriptor: {
             ref: null,
@@ -107,6 +111,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     };
 
     private selectedBlock$ = new BehaviorSubject<{
+        uuid: string,
         configuration: Configuration,
         descriptor: BlockDescriptor
     }>(this.initBlock);

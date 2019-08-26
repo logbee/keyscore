@@ -10,6 +10,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.CharBufferUtil
+import org.slf4j.LoggerFactory
 
 
 object ReadMode extends Enumeration {
@@ -60,10 +61,12 @@ object FileReader {
 /**
  * @param rotationPattern Glob-pattern for the file-name of rotated files. If an empty string or null is passed, no rotated files are matched.
  */
-class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode) {
+class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode, fileCompleteActions: Seq[FileHandle => Unit]) {
   
   import FileReader.BytePos
   import FileReader.CharPos
+  
+  private lazy val log = LoggerFactory.getLogger(classOf[FileReader])
   
   
   private val decoder = charset.newDecoder
@@ -79,7 +82,9 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   
   
   
-  def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem): Unit = { //TODO consider less data than a readScheduleItem or a different data structure -> we need the specific file, not the base file and only the startPos and endPos
+  def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem): Unit = {
+    
+    log.debug("Reading from file '{}'.", fileToRead)
     
     val readEndPos = BytePos(readScheduleItem.endPos)
     
@@ -88,8 +93,8 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
     
     while (bufferStartPos < readEndPos) {
       
-      //we're reading and persisting byte positions, because the variable byte-length of encoded chars means
-      //that we can't resume reading at the same position without decoding every single char in the whole char sequence (file) before it
+      //we're reading and persisting byte-positions, because the variable byte-length of encoded chars means that we
+      //can't resume at the saved char-position without decoding every single char before it (to find out its byte-length)
       
       byteBuffer.clear()
       val newBufferLimit = (readEndPos - bufferStartPos).value.asInstanceOf[Int]
@@ -98,7 +103,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
         
       var bytesRead = BytePos(fileToRead.read(byteBuffer, bufferStartPos.value))
       
-      if (bytesRead.value == -1 || bytesRead.value == 0) {
+      if (bytesRead.value < 1) {
         throw new IllegalStateException("There were no bytes to read.")
       }
       
@@ -132,7 +137,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   
   
   private def processBufferContents(charBuffer: CharBuffer, callback: FileReadData => Unit, bufferStartPositionInFile: BytePos, readEndPosition: BytePos, callbackWriteTimestamp: Long, newerFilesWithSharedLastModified: Int): Unit = {
-    var byteCompletedPositionWithinBuffer = BytePos(0)
+    var completedBytePositionWithinBuffer = BytePos(0)
     
     
     readMode match {
@@ -142,53 +147,55 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
       }
       case ReadMode.LINE => {
         
-        var charCompletedPositionWithinBuffer = CharPos(0)
+        var completedCharPositionWithinBuffer = CharPos(0)
         
         while (charBuffer.position < charBuffer.limit) {
           //check for the occurrence of \n or \r, as we do linewise reading
-          val char = charBuffer.get().toChar //sets pos to pos+1
+          val char = charBuffer.get() //sets pos to pos+1
           
           if (char == '\n' || char == '\r') {
             
             charBuffer.position(charBuffer.position - 1)
             
-            val firstNewlineCharPosWithinBuffer = CharPos(charBuffer.position)
+            val firstNewlineWithinBuffer = CharPos(charBuffer.position)
             
-            val charPosEndOfNewlines = CharBufferUtil.getStartOfNextLine(charBuffer, firstNewlineCharPosWithinBuffer)
-            val stringWithNewlines = CharBufferUtil.getBufferSectionAsString(charBuffer, charCompletedPositionWithinBuffer, charPosEndOfNewlines - charCompletedPositionWithinBuffer)
-            val string = stringWithNewlines.substring(0, (firstNewlineCharPosWithinBuffer - charCompletedPositionWithinBuffer).value)
+            val endOfNewlines: CharPos = CharBufferUtil.getStartOfNextLine(charBuffer, firstNewlineWithinBuffer)
+            val stringWithNewlines = CharBufferUtil.getBufferSectionAsString(charBuffer, completedCharPositionWithinBuffer, endOfNewlines - completedCharPositionWithinBuffer)
+            val string = stringWithNewlines.substring(0, (firstNewlineWithinBuffer - completedCharPositionWithinBuffer).value)
             
-            charCompletedPositionWithinBuffer += CharPos(stringWithNewlines.length)
-            byteCompletedPositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
+            completedCharPositionWithinBuffer += CharPos(stringWithNewlines.length)
+            completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
             
             
-            doCallback(callback, string, bufferStartPositionInFile + byteCompletedPositionWithinBuffer, callbackWriteTimestamp, newerFilesWithSharedLastModified)
+            doCallback(callback, string, bufferStartPositionInFile + completedBytePositionWithinBuffer, callbackWriteTimestamp, newerFilesWithSharedLastModified)
             
-            charBuffer.position(charPosEndOfNewlines.value)
+            charBuffer.position(endOfNewlines.value)
           }
         }
         
         //if end of buffer reached without finding another newline
-        charBuffer.position(charCompletedPositionWithinBuffer.value) //reset to the previous written position, so that the rest of the buffer can be read out
+        charBuffer.position(completedCharPositionWithinBuffer.value) //reset to the previous written position, so that the rest of the buffer can be read out
       }
     }
-    
     
     //read out rest of buffer
     val remainingNumberOfCharsInBuffer = CharPos(charBuffer.limit - charBuffer.position)
     
     if (remainingNumberOfCharsInBuffer.value > 0) {
       val string = CharBufferUtil.getBufferSectionAsString(charBuffer, CharPos(charBuffer.position), remainingNumberOfCharsInBuffer)
-      byteCompletedPositionWithinBuffer += BytePos(charset.encode(string).limit)
+      completedBytePositionWithinBuffer += BytePos(charset.encode(string).limit)
       
-      
-      if (bufferStartPositionInFile + byteCompletedPositionWithinBuffer == readEndPosition) { //completed reading
+      if (bufferStartPositionInFile + completedBytePositionWithinBuffer == readEndPosition) { //completed reading
         doCallback(callback, string, readEndPosition, callbackWriteTimestamp, newerFilesWithSharedLastModified)
       }
       else { //not yet completed reading, i.e. another buffer is going to get filled and will continue where this one ended
         leftOverFromPreviousBuffer += string //store the remaining bytes, to be written later
       }
     }
+    
+    
+    if (bufferStartPositionInFile + completedBytePositionWithinBuffer == BytePos(fileToRead.length))
+      fileCompleteActions.foreach(action => action(fileToRead))
   }
   
   
@@ -207,12 +214,8 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   }
   
   
-  def pathDeleted(): Unit = {
-    tearDown()
-  }
+  def pathDeleted(): Unit = tearDown()
   
   
-  def tearDown(): Unit = {
-    fileToRead.tearDown()
-  }
+  def tearDown(): Unit = fileToRead.tearDown()
 }
