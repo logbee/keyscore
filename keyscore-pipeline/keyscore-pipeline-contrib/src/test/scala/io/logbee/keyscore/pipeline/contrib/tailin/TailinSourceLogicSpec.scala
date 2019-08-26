@@ -1,49 +1,38 @@
 package io.logbee.keyscore.pipeline.contrib.tailin
 
 import java.io.File
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.file.{Files, Path, StandardOpenOption}
 import java.util.UUID
 
-import scala.concurrent.duration.DurationInt
-import org.scalatest.BeforeAndAfter
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FreeSpec
-import org.scalatest.Matchers
-import org.scalatest.ParallelTestExecution
-import org.scalatest.concurrent.ScalaFutures
 import akka.stream.SourceShape
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import akka.testkit.TestKit
-import io.logbee.keyscore.model.configuration.ChoiceParameter
-import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.configuration.TextParameter
-import io.logbee.keyscore.model.data.Dataset
-import io.logbee.keyscore.model.data.TextValue
+import io.logbee.keyscore.model.configuration.{ChoiceParameter, Configuration, TextParameter}
+import io.logbee.keyscore.model.data.{Dataset, TextValue}
+import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.LogicParameters
-import io.logbee.keyscore.pipeline.api.stage.SourceStage
-import io.logbee.keyscore.pipeline.api.stage.StageContext
+import io.logbee.keyscore.pipeline.api.stage.{SourceStage, StageContext}
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.read.ReadMode.ReadMode
 import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
+import org.scalatest._
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.junit.JUnitRunner
-import java.nio.file.StandardOpenOption
 
-import akka.util.Timeout
-import io.logbee.keyscore.model.pipeline.StageSupervisor
+import scala.concurrent.duration.DurationInt
+import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
 class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext with ParallelTestExecution {
-  
-  implicit val whenReadyTimeout = Timeout(5.seconds)
-  val expectNextTimeout = 15.seconds
-  
+
+  implicit val defaultPatience = PatienceConfig(timeout = Span(2, Seconds), interval = Span(500, Millis))
+  val expectNextTimeout = 15 seconds
+
   var watchDir: Path = _
 
   val persistenceFile = new File(".testKeyscorePersistenceFile")
