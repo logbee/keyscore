@@ -4,7 +4,7 @@ import java.util.jar.Attributes
 
 import io.logbee.keyscore.model.util.Using.using
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 object AppInfo {
