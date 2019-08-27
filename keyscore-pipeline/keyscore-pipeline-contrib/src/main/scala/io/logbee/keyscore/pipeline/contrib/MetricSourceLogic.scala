@@ -130,12 +130,14 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
   private val idToEarliest = mutable.HashMap.empty[String, String]
 
   private val parseAsync = getAsyncCallback[(String, HttpResponse)]({ case (id, response) =>
-    val mcs = parseHttpResponse(response)
-
-    if (mcs.nonEmpty) {
-      mcs.foreach { mc => metricCollections.append((id, mc)) }
-      idToEarliest.update(id, getEarliest(mcs))
-      tryPush()
+    parseHttpResponse(response) match {
+      case Some(mcs) =>
+        if (mcs.nonEmpty) {
+          mcs.foreach { mc => metricCollections.append((id, mc)) }
+          idToEarliest.update(id, getEarliest(mcs))
+          tryPush()
+        }
+      case _ =>
     }
   })
 
@@ -214,20 +216,30 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
     })
   }
 
-  private def parseHttpResponse(response: HttpResponse): Seq[MetricsCollection] = {
+  private def parseHttpResponse(response: HttpResponse): Option[Seq[MetricsCollection]] = {
     if (response.status == StatusCodes.OK) {
       response.entity match {
         case strict: HttpEntity.Strict =>
           val body = strict.data.utf8String
           strict.discardBytes()
-          org.json4s.native.Serialization.read[Seq[MetricsCollection]](body)
+          readBody(body)
         case unknown =>
           unknown.discardBytes()
-          Seq()
+          None
       }
     } else {
-//      log.debug(s"Failure: Response status is [${response.status}]")
-      Seq()
+      response.entity.discardBytes()
+      None
+    }
+  }
+
+  private def readBody(body: String): Option[Seq[MetricsCollection]] = {
+    //Dirty Quickfix for false data coming from the server~
+    if(body.contains("{\"_1\":{\"intValue\":500,\"reason\"") || body.contains("{\"_1\":{\"intValue\":404,\"reason\"")){
+//      log.debug(s"Server Error : $body")
+      None
+    } else {
+      Some(org.json4s.native.Serialization.read[Seq[MetricsCollection]](body))
     }
   }
 
