@@ -227,9 +227,11 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
           readBody(body)
         case unknown =>
           unknown.discardBytes()
+          log.debug("Unknown HttpEntity")
           None
       }
     } else {
+      log.debug(s"Response status: ${response.status}")
       response.entity.discardBytes()
       None
     }
