@@ -141,27 +141,38 @@ class DefaultMetricsCollector() extends MetricsCollector {
 
   def get: MetricsCollection = MetricsCollection(metrics.values.toList)
 
-  def scrape: MetricsCollection = {
-
-    val result = MetricsCollection(metrics.values.toList)
+  private def calcDelta: Long = {
     val current = System.currentTimeMillis()
-    val delta =  current - lastScape
+    val delta = current - lastScape
     lastScape = current
+    delta
+  }
+
+  private def updateMetrics(): Unit = {
+    val delta = calcDelta
 
     metrics.foreach {
-      case (name, metric : NumberGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
-      case (name, metric : DecimalGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
+      case (name, metric: NumberGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
+      case (name, metric: DecimalGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
       case _ =>
     }
+  }
+
+  def scrape: MetricsCollection = {
+    val result = MetricsCollection(metrics.values.toList)
+    updateMetrics()
     result
   }
 
-  def getWithLabels(labels: Set[Label]): MetricsCollection = {
-    MetricsCollection(metrics.values.map {
+  def scrapeWithLabels(labels: Set[Label]): MetricsCollection = {
+    val result = MetricsCollection(metrics.values.map {
       case metric : CounterMetric => metric.update(_.labels :++= labels)
       case metric : NumberGaugeMetric => metric.update(_.labels :++= labels)
       case metric : DecimalGaugeMetric => metric.update(_.labels :++= labels)
     }.toList)
+
+    updateMetrics()
+    result
   }
 
   private def now: TimestampValue = {

@@ -221,6 +221,6 @@ class Agent(id: UUID, name: String) extends Actor with ActorLogging {
     metrics.collect(processCpuLoadMetric).set(osBean.getProcessCpuLoad).min(0).max(1)
     metrics.collect(systemCpuLoadMetric).set(osBean.getSystemCpuLoad).min(0).max(1)
 
-    metrics.get
+    metrics.scrape
   }
 }
