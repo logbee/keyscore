@@ -139,8 +139,6 @@ class DefaultMetricsCollector() extends MetricsCollector {
         .asInstanceOf[DecimalGaugeMetric]
   }
 
-  def get: MetricsCollection = MetricsCollection(metrics.values.toList)
-
   private def calcDelta: Long = {
     val current = System.currentTimeMillis()
     val delta = current - lastScape
@@ -158,13 +156,7 @@ class DefaultMetricsCollector() extends MetricsCollector {
     }
   }
 
-  def scrape: MetricsCollection = {
-    val result = MetricsCollection(metrics.values.toList)
-    updateMetrics()
-    result
-  }
-
-  def scrapeWithLabels(labels: Set[Label]): MetricsCollection = {
+  def scrape(labels: Set[Label] = Set.empty): MetricsCollection = {
     val result = MetricsCollection(metrics.values.map {
       case metric : CounterMetric => metric.update(_.labels :++= labels)
       case metric : NumberGaugeMetric => metric.update(_.labels :++= labels)
