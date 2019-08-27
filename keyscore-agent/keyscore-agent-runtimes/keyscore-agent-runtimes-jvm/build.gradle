@@ -19,6 +19,8 @@ jar {
     manifest.attributes([
         'Implementation-Title'    : project.name,
         'Implementation-Version'  : version,
-        'Implementation-Revision' : revision
+        'Implementation-Revision' : revision,
+        'Implementation-Build-Date' : buildDate,
+        'Implementation-Vendor'   : 'logbee.io',
     ])
 }

@@ -12,7 +12,7 @@ object AppInfo {
   def fromMainClass[T](implicit classTag: ClassTag[T]): AppInfo = {
 
     val mainClass = classTag.runtimeClass
-    var appInfo: AppInfo = AppInfo("<unknown>", "<unknown>", "<unknown>", "<unknown>")
+    var appInfo: AppInfo = AppInfo("<unknown>", "<unknown>", "<unknown>", "<unknown>", "<unknown>")
 
     try {
       val manifest: Option[java.util.jar.Manifest] = mainClass.getClassLoader.getResources("META-INF/MANIFEST.MF").asScala
@@ -25,11 +25,13 @@ object AppInfo {
         val implementationVendor = attributes.getValue(Attributes.Name.IMPLEMENTATION_VENDOR)
         val implementationVersion = attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION)
         val implementationRevision = attributes.getValue("Implementation-Revision")
+        val implementationBuildDate = attributes.getValue("Implementation-Build-Date")
 
         appInfo = AppInfo(
           if (implementationTitle == null) "<unknown>" else implementationTitle,
           if (implementationVersion == null) "<unknown>" else implementationVersion,
           if (implementationRevision == null) "<unknown>" else implementationRevision,
+          if (implementationBuildDate == null) "<unknown>" else implementationBuildDate,
           if (implementationVendor == null) "<unknown>" else implementationVendor
         )
       })
@@ -43,12 +45,13 @@ object AppInfo {
 
   def printAppInfo[T](implicit classTag: ClassTag[T]): Unit = {
     val appInfo = fromMainClass[T]
-    println(s" Name:     ${appInfo.name}")
-    println(s" Version:  ${appInfo.version}")
-    println(s" Revision: ${appInfo.revision}")
-    println(s" Vendor:   ${appInfo.vendor}")
+    println(s" Name:       ${appInfo.name}")
+    println(s" Version:    ${appInfo.version}")
+    println(s" Revision:   ${appInfo.revision}")
+    println(s" Build-Date: ${appInfo.buildDate}")
+    println(s" Vendor:     ${appInfo.vendor}")
     println()
   }
 }
 
-case class AppInfo(name: String, version: String, revision: String, vendor: String)
+case class AppInfo(name: String, version: String, revision: String, buildDate: String, vendor: String)

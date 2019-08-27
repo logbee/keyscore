@@ -80,9 +80,10 @@ jar {
         from ("src/main/resources/META-INF/MANIFEST.MF")
         attributes([
             'Implementation-Title'  : project.name,
-            'Implementation-Version': version,
+            'Implementation-Version' : version,
             'Implementation-Revision' : revision,
-            'Implementation-Vendor'   : 'logbee.io'
+            'Implementation-Build-Date' : buildDate,
+            'Implementation-Vendor' : 'logbee.io'
         ])
     }
     from (rootProject.projectDir) {
