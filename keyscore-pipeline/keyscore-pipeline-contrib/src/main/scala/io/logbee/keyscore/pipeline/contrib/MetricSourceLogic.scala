@@ -174,8 +174,10 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
 
   private def tryPush(): Unit = {
     if (!isAvailable(out)) {
+      log.debug("TryPush: Out is not available")
       return
     } else if (metricCollections.isEmpty) {
+      log.debug("TryPush: MCS is empty")
       return
     }
 
@@ -210,9 +212,9 @@ class MetricSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]
       case Success(response) =>
         parseAsync.invoke(id, response)
       case Failure(cause) =>
-//        log.debug(s"Couldn't retrieve metrics: $cause")
+        log.debug(s"Couldn't complete metrics: $cause")
       case e =>
-//        log.debug(s"What's wrong: $e")
+        log.debug(s"Couldn't complete: $e")
     })
   }
 
