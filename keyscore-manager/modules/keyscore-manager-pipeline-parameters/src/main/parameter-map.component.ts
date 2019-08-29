@@ -1,6 +1,6 @@
 import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {Field,TextValue,ValueJsonClass,Parameter,ResolvedParameterDescriptor,Dataset} from "keyscore-manager-models";
+import {Field,TextValue,ValueJsonClass,Parameter,ResolvedParameterDescriptor,Dataset} from "@keyscore-manager-models";
 import {BehaviorSubject} from "rxjs";
 import {AutocompleteInputComponent} from "./autocomplete-input.component";
 import * as _ from 'lodash';

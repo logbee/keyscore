@@ -1,6 +1,6 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";

@@ -1,13 +1,13 @@
 import * as faker from 'faker/locale/en_US';
 import {Connection} from "./connection.model";
-import {ResolvedParameterDescriptor} from "keyscore-manager-models";
+import {ResolvedParameterDescriptor} from "@keyscore-manager-models";
 import {
     generateResolvedParameterDescriptors,
     generateWordList
-} from "keyscore-manager-test-fixtures";
-import {Ref} from "keyscore-manager-models";
-import {Category, ResolvedCategory} from "keyscore-manager-models";
-import {Icon} from "keyscore-manager-models";
+} from "@keyscore-manager-test-fixtures";
+import {Ref} from "@keyscore-manager-models";
+import {Category, ResolvedCategory} from "@keyscore-manager-models";
+import {Icon} from "@keyscore-manager-models";
 
 export interface BlockDescriptor {
     ref: Ref;

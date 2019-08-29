@@ -21,7 +21,7 @@ import {
     ResolvedCategory,
     ResolvedFilterDescriptor,
     TextValue
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import {PipelineTableModel} from "../PipelineTableModel";
 import * as _ from 'lodash';
 

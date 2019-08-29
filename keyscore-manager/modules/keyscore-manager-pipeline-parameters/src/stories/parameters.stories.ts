@@ -7,7 +7,7 @@ import {
     ParameterJsonClass,
     ValueJsonClass,
     ParameterGroup
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import {moduleMetadata, storiesOf} from "@storybook/angular";
 import {AutocompleteInputComponent,} from "../main/autocomplete-input.component";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
@@ -17,9 +17,9 @@ import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import {PropagationStopModule} from "ngx-propagation-stop";
 import {HttpClient} from "@angular/common/http";
-import {generateInfo, generateResolvedParameterDescriptor} from "keyscore-manager-test-fixtures";
+import {generateInfo, generateResolvedParameterDescriptor} from "@keyscore-manager-test-fixtures";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {ParameterMap} from "../main/parameter-map.component";
 import {ParameterListComponent} from "../main/parameter-list.component";
 import {ParameterComponent} from "../main/parameter.component";

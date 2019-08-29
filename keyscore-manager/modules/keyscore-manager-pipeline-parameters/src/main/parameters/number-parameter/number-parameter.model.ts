@@ -1,5 +1,5 @@
 import {Parameter, ParameterDescriptor} from "../parameter.model";
-import {ParameterRef, NumberRange} from "keyscore-manager-models";
+import {ParameterRef, NumberRange} from "@keyscore-manager-models";
 
 export const JSONCLASS_NUMBER_PARAM = "io.logbee.keyscore.model.configuration.NumberParameter";
 export const JSONCLASS_NUMBER_DESCR = "io.logbee.keyscore.model.descriptor.NumberParameterDescriptor";

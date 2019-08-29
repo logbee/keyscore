@@ -1,5 +1,5 @@
 import {Parameter, ParameterDescriptor} from "../parameter.model";
-import {ParameterRef, FieldNameHint, ResolvedStringValidator} from "keyscore-manager-models";
+import {ParameterRef, FieldNameHint, ResolvedStringValidator} from "@keyscore-manager-models";
 
 export const JSONCLASS_FIELDNAME_PARAM = "io.logbee.keyscore.model.configuration.FieldNameParameter";
 export const JSONCLASS_FIELDNAME_DESCR = "io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor";

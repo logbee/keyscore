@@ -1,7 +1,7 @@
 import {moduleMetadata, storiesOf} from "@storybook/angular";
 import {action} from '@storybook/addon-actions';
 import {ExpressionParameterComponent} from "../main/parameters/expression-parameter/expression-parameter.component";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {
@@ -11,7 +11,7 @@ import {
 } from "../main/parameters/expression-parameter/expression-parameter.model";
 import {TextParameterComponent} from "../main/parameters/text-parameter/text-parameter.component";
 import {TextParameter, TextParameterDescriptor} from "../main/parameters/text-parameter/text-parameter.model";
-import {ExpressionType, FieldNameHint, FieldValueType} from "keyscore-manager-models";
+import {ExpressionType, FieldNameHint, FieldValueType} from "@keyscore-manager-models";
 import {ExpressionParameterModule} from "../main/parameters/expression-parameter/expression-parameter.module";
 import {TextParameterModule} from "../main/parameters/text-parameter/text-parameter.module";
 import {ParameterComponentFactoryService} from "../main/service/parameter-component-factory.service";

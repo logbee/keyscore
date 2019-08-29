@@ -6,7 +6,7 @@ import {RefreshTimeComponent} from "../../../app/common/refresh-button/refresh.c
 import {RouterTestingModule} from "@angular/router/testing";
 import {Store} from "@ngrx/store";
 import {HeaderBarModule} from "../../../app/common/headerbar/headerbar.module";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {LoadingModule} from "../../../app/common/loading/loading.module";
 import {HealthModule} from "../../../app/common/health/health.module";

@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {Health} from "keyscore-manager-models";
+import {Health} from "@keyscore-manager-models";
 
 @Component({
     selector: "resource-health",

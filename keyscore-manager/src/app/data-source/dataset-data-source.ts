@@ -11,7 +11,7 @@ import {
     TimestampValue,
     Value,
     ValueJsonClass
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
     readonly numberOfDataset: number = 0;

@@ -15,7 +15,7 @@ import {getPipelineList} from "./index";
 import {MatPaginator, MatSort} from "@angular/material";
 import "../style/global-table-styles.css";
 import "../style/style.scss";
-import {Ref} from "keyscore-manager-models";
+import {Ref} from "@keyscore-manager-models";
 import {PipelinesState} from "./reducers/pipelines.reducer";
 import {DataSourceFactory} from "../data-source/data-source-factory";
 import {PipelineDataSource} from "../data-source/pipeline-data-source";

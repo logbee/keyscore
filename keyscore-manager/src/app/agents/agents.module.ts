@@ -10,7 +10,7 @@ import {AgentsEffects} from "./agents.effects";
 import {AgentsReducer} from "./agents.reducer";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {AppAuthGuard} from "../app.authguard";
 
 export const routes: Routes = [

@@ -18,7 +18,7 @@ import {
     ResolvedStringValidator,
     StringValidator,
     TextParameterDescriptor
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 
 @Injectable()
 export class DescriptorResolverService {

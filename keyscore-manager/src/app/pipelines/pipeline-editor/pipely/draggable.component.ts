@@ -19,7 +19,7 @@ import {Rectangle} from "./models/rectangle";
 import {DropzoneFactory} from "./dropzone/dropzone-factory";
 import {DraggableFactory} from "./draggable/draggable-factory";
 import {takeUntil} from "rxjs/internal/operators";
-import {IconEncoding, IconFormat} from "keyscore-manager-models";
+import {IconEncoding, IconFormat} from "@keyscore-manager-models";
 import {Store} from "@ngrx/store";
 import {Go} from "../../../router/router.actions";
 import {ConnectorComponent} from "./connectors/connector.component";

@@ -32,7 +32,7 @@ import {
     SinkBlueprint,
     Configuration,
     TextValue
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import "./style/pipely-style.scss";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
 

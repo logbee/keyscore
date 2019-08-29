@@ -5,7 +5,7 @@ import {
     Descriptor,
     ResolvedFilterDescriptor,
     ResourceInstanceState
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 
 export const LOAD_ALL_BLUEPRINTS = "[Resources]GetAllBluePrintsAction";
 export const LOAD_ALL_BLUEPRINTS_SUCCESS = "[Resources]LoadAllBlueprintsSuccess";

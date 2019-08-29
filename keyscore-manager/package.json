@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "build": "tsc"
   },
   "dependencies": {
     "@angular/common": "7.2.15",
@@ -44,9 +45,10 @@
     "bootstrap": "4.1.3",
     "babel-polyfill": "6.26.0",
     "keycloak-angular": "6.0.0",
-    "keyscore-manager-models": "file:modules/keyscore-manager-models",
-    "keyscore-manager-material": "file:modules/keyscore-manager-material",
-    "keyscore-manager-pipeline-parameters": "file:modules/keyscore-manager-pipeline-parameters"
+    "ngx-propagation-stop": "1.0.6",
+    "minimatch": "3.0.4",
+    "moment-timezone": "^0.5.26",
+    "faker": "4.1.0"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",
@@ -62,6 +64,8 @@
     "@types/systemjs": "0.20.6",
     "@types/uuid": "3.4.3",
     "ajv": "6.5.3",
+    "angular2-template-loader": "^0.6.2",
+    "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "8.0.5",
     "css-loader": "1.0.0",
     "file-loader": "2.0.0",
@@ -81,6 +85,7 @@
     "svg-inline-loader": "^0.8.0",
     "ts-jest": "23.1.4",
     "ts-loader": "5.1.1",
+    "tsconfig-paths-webpack-plugin": "^3.2.0",
     "tslint": "5.11.0",
     "tslint-loader": "3.6.0",
     "typescript": "3.2.1",

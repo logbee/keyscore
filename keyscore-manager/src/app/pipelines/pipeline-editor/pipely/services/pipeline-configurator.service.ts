@@ -10,7 +10,7 @@ import {
     Ref,
     SinkBlueprint,
     SourceBlueprint
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import * as _ from 'lodash';
 
 

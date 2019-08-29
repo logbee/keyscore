@@ -8,7 +8,7 @@ import {
     Descriptor,
     EditingPipelineModel,
     Ref
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 
 
 export const CREATE_PIPELINE = "[Pipeline] CreatePipeline";

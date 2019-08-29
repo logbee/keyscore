@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ExpressionType, ResolvedStringValidator} from "keyscore-manager-models";
+import {ExpressionType, ResolvedStringValidator} from "@keyscore-manager-models";
 import * as GlobMatch from "minimatch";
 
 @Injectable()

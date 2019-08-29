@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import "../../style/parameter-module-style.scss";
 import {ExpressionParameter, ExpressionParameterDescriptor,} from "./expression-parameter.model";
 import {ParameterComponent} from "../ParameterComponent";
-import {ParameterRef} from "keyscore-manager-models";
+import {ParameterRef} from "@keyscore-manager-models";
 
 @Component({
     selector: `parameter-expression`,

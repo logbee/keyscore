@@ -3,7 +3,7 @@ import {action} from '@storybook/addon-actions';
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BooleanValueComponent} from "../main/value-controls/boolean-value.component";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {ReactiveFormsModule} from "@angular/forms";
 import {TextValueComponent} from "../main/value-controls/text-value.component";
 import {TimestampValue} from "../main/models/value.model";

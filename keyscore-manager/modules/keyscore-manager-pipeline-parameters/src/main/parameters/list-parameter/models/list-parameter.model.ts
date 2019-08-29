@@ -1,5 +1,5 @@
 import {Parameter, ParameterDescriptor} from "../../parameter.model";
-import {ParameterRef} from "keyscore-manager-models";
+import {ParameterRef} from "@keyscore-manager-models";
 
 
 export abstract class ListParameterDescriptor extends ParameterDescriptor {

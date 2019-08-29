@@ -2,8 +2,8 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angula
 import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
-import {Parameter, ParameterJsonClass,ResolvedParameterDescriptor,Dataset,Configuration} from "keyscore-manager-models";
-import {ParameterControlService} from "keyscore-manager-pipeline-parameters";
+import {Parameter, ParameterJsonClass,ResolvedParameterDescriptor,Dataset,Configuration} from "@keyscore-manager-models";
+import {ParameterControlService} from "@keyscore-manager-pipeline-parameters";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";

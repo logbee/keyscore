@@ -1,4 +1,4 @@
-import {ParameterRef} from "keyscore-manager-models";
+import {ParameterRef} from "@keyscore-manager-models";
 import {Parameter, ParameterDescriptor} from "../parameter.model";
 
 export const JSONCLASS_EXPRESSION_PARAM = "io.logbee.keyscore.model.configuration.ExpressionParameter";

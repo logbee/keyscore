@@ -6,7 +6,7 @@ import {
     ResourcesActions
 } from "./resources.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Blueprint, ResolvedFilterDescriptor, Configuration, StateObject, ResourceTableModel} from "keyscore-manager-models";
+import {Blueprint, ResolvedFilterDescriptor, Configuration, StateObject, ResourceTableModel} from "@keyscore-manager-models";
 import * as _ from "lodash";
 
 export class ResourceViewerState {

@@ -5,7 +5,7 @@ import "../style/global-table-styles.css";
 import {MatPaginator, MatSort} from "@angular/material";
 import {ResourcesDataSource} from "../data-source/resources-data-source";
 import {animate, state, style, transition, trigger} from "@angular/animations";
-import {ResourceTableModel} from "keyscore-manager-models";
+import {ResourceTableModel} from "@keyscore-manager-models";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs/index";
 import {selectTableModels} from "./resources.reducer";
 

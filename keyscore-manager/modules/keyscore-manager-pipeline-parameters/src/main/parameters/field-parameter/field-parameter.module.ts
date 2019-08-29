@@ -1,6 +1,6 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {SharedControlsModule} from "../../shared-controls/shared-controls.module";
 import {FieldParameterComponent} from "./field-parameter.component";

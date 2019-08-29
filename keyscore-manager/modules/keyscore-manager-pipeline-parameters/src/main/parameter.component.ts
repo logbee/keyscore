@@ -7,7 +7,7 @@ import {
     ParameterGroup,
     ParameterGroupDescriptor,
     ResolvedParameterDescriptor
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import "./style/parameter-module-style.scss";
 import {BehaviorSubject} from "rxjs/index";
 

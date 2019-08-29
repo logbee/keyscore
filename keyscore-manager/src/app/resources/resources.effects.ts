@@ -27,7 +27,7 @@ import {
     Descriptor,
     ResolvedFilterDescriptor,
     ResourceInstanceState
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import {AppState} from "../app.component";
 import {FilterControllerService} from "../services/rest-api/FilterController.service";
 import {StringTMap} from "../common/object-maps";

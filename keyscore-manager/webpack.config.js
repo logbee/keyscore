@@ -1,35 +1,25 @@
 const path = require('path');
 const webpack = require("webpack");
 const helpers = require('./helpers');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 let modules = [
     './modules/keyscore-manager-material/index.ts',
     './modules/keyscore-manager-models/index.ts',
     './modules/keyscore-manager-pipeline-parameters/index.ts',
     './modules/keyscore-manager-test-fixtures/index.ts'
-]
+];
 
 module.exports = {
     entry: {
         app: ['babel-polyfill', './src/main.ts',...modules]
     },
-    mode: 'development',
-    devtool: 'source-map', // Slows down the build
+    mode: 'development', //devtool: 'source-map', // Slows down the build
     module: {
         rules: [
             {
-                test: /\.ts$/,
-                enforce: 'pre',
-                use: [
-                    {
-                        loader: 'tslint-loader',
-                        options: {/* Loader options go here */}
-                    }
-                ]
-            },
-            {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
+                use: ['awesome-typescript-loader','angular2-template-loader?keepUrl=true'],
                 exclude: /node_modules/
             },
             {
@@ -55,7 +45,10 @@ module.exports = {
                         loader: 'css-loader'
                     },
                     {
-                        loader: 'sass-loader'
+                        loader: 'sass-loader',
+                        options:{
+                            includePaths:['./modules']
+                        }
                     }
                 ]
             },
@@ -80,7 +73,8 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: [".tsx", ".ts", ".js"]
+        extensions: [".tsx", ".ts", ".js"],
+            plugins: [new TsconfigPathsPlugin({configFile:"./tsconfig.json"})]
     },
     output: {
         filename: 'keyscore.bundle.js',

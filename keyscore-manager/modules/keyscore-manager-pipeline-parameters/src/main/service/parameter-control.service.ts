@@ -6,7 +6,7 @@ import {
     SingleResolvedParameterDescriptor,
     ParameterGroupDescriptor,
     ParameterGroup
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import {Injectable} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import * as _ from "lodash";

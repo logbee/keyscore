@@ -2,7 +2,7 @@ import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {FieldNameParameter, FieldNameParameterDescriptor} from "./field-name-parameter.model";
 import {StringValidatorService} from "../../service/string-validator.service";
-import {FieldNameHint} from "keyscore-manager-models";
+import {FieldNameHint} from "@keyscore-manager-models";
 import {TextParameter} from "../text-parameter/text-parameter.model";
 import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
 

@@ -1,6 +1,6 @@
 import {ParameterComponent} from "../ParameterComponent";
 import {Component} from "@angular/core";
-import {ParameterRef} from "keyscore-manager-models";
+import {ParameterRef} from "@keyscore-manager-models";
 import {NumberParameter, NumberParameterDescriptor} from "./number-parameter.model";
 
 @Component({

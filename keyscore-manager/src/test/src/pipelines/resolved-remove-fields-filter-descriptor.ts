@@ -1,7 +1,7 @@
 import {
     FilterDescriptorJsonClass, ResolvedFilterDescriptor, FieldNameHint,
     ParameterDescriptorJsonClass
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 
 
 export const removeFieldFilterDescriptorJson = `{

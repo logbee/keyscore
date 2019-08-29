@@ -5,7 +5,7 @@ import {PreviewState} from "./reducers/preview.reducer";
 import {PipelinesState} from "./reducers/pipelines.reducer";
 import {PipelinesEffects} from "./effects/pipelines.effects";
 import {PreviewEffects} from "./effects/preview.effects";
-import {DatasetTableModel} from "keyscore-manager-models";
+import {DatasetTableModel} from "@keyscore-manager-models";
 
 export const effects = [
     PipelinesEffects,

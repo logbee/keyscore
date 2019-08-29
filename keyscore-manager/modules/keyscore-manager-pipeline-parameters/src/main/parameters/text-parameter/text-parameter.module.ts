@@ -3,7 +3,7 @@ import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {TextParameterComponent} from "./text-parameter.component";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {
     JSONCLASS_TEXT_DESCR,
     TextParameter,

@@ -1,6 +1,6 @@
 import {BehaviorSubject} from "rxjs/index";
 import {MatTableDataSource} from "@angular/material";
-import {ResourceTableModel} from "keyscore-manager-models";
+import {ResourceTableModel} from "@keyscore-manager-models";
 
 
 export class ResourcesDataSource extends MatTableDataSource<ResourceTableModel> {

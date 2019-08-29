@@ -58,7 +58,7 @@ import {
     Configuration,
     Descriptor,
     Health
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import {DescriptorResolverService} from "../../services/descriptor-resolver.service";
 import {StringTMap} from "../../common/object-maps";
 import {SnackbarOpen} from "../../common/snackbar/snackbar.actions";

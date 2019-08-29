@@ -9,7 +9,7 @@ import {
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
 import {filter, share, take, takeUntil} from "rxjs/internal/operators";
-import {EditingPipelineModel, InternalPipelineConfiguration, ResolvedFilterDescriptor} from "keyscore-manager-models";
+import {EditingPipelineModel, InternalPipelineConfiguration, ResolvedFilterDescriptor} from "@keyscore-manager-models";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";

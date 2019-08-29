@@ -1,5 +1,5 @@
 import {Parameter, ParameterDescriptor} from "../parameter.model";
-import {ParameterRef} from "keyscore-manager-models";
+import {ParameterRef} from "@keyscore-manager-models";
 
 export const JSONCLASS_BOOLEAN_PARAM = "io.logbee.keyscore.model.configuration.BooleanParameter";
 export const JSONCLASS_BOOLEAN_DESCR = "io.logbee.keyscore.model.descriptor.BooleanParameterDescriptor";

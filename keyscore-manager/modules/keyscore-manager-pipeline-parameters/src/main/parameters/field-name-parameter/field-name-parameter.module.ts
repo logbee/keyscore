@@ -2,7 +2,7 @@ import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/cor
 import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {FieldNameParameterComponent} from "./field-name-parameter.component";
 import {

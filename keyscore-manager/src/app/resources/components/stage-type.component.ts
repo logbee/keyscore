@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {BlueprintJsonClass} from "keyscore-manager-models";
+import {BlueprintJsonClass} from "@keyscore-manager-models";
 
 @Component({
     selector: "stage-type",

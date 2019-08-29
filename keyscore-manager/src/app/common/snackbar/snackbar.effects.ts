@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {MatSnackBar} from "keyscore-manager-material";
+import {MatSnackBar} from "@keyscore-manager-material";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Observable} from "rxjs";
 import {SNACKBAR_CLOSE, SNACKBAR_OPEN, SnackbarClose, SnackbarOpen} from "./snackbar.actions";

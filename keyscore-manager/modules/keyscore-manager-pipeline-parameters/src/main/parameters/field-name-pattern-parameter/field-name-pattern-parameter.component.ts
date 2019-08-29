@@ -5,7 +5,7 @@ import {
     FieldNamePatternParameterDescriptor,
     PatternType
 } from "./field-name-pattern-parameter.model";
-import {FieldNameHint} from "keyscore-manager-models";
+import {FieldNameHint} from "@keyscore-manager-models";
 
 @Component({
     selector: 'parameter-field-name-pattern',

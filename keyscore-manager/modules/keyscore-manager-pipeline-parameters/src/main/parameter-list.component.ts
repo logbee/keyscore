@@ -1,6 +1,6 @@
 import {Component, forwardRef, Input, OnInit, ViewChild} from "@angular/core";
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {Parameter,ResolvedParameterDescriptor,DatasetTableModel,Dataset} from "keyscore-manager-models";
+import {Parameter,ResolvedParameterDescriptor,DatasetTableModel,Dataset} from "@keyscore-manager-models";
 import {BehaviorSubject, Observable} from "rxjs";
 import {AutocompleteInputComponent} from "./autocomplete-input.component";
 

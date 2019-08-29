@@ -3,7 +3,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {HeaderBarComponent} from "./headerbar.component";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {RefreshTimeModule} from "../refresh-button/refresh-time.module";
 
 @NgModule({

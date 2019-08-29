@@ -15,7 +15,7 @@ import {
     ExtractFromSelectedBlock, ExtractFromSelectedBlockFailure,
     ExtractFromSelectedBlockSuccess
 } from "../actions/preview.actions";
-import {Dataset} from "keyscore-manager-models";
+import {Dataset} from "@keyscore-manager-models";
 
 @Injectable()
 export class PreviewEffects {

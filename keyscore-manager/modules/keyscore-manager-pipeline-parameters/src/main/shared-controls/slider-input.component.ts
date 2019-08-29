@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output, ViewChild} from "@angular/core";
-import {Range} from "keyscore-manager-models";
+import {Range} from "@keyscore-manager-models";
 import {MatSlider} from "@angular/material";
 import {FormControl} from "@angular/forms";
 

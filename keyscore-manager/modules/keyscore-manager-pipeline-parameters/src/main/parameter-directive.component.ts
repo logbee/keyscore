@@ -11,7 +11,7 @@ import {
     ParameterJsonClass,
     ResolvedFieldDirectiveDescriptor,
     ResolvedParameterDescriptor
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import {BehaviorSubject} from "rxjs/index";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterControlService} from "./service/parameter-control.service";

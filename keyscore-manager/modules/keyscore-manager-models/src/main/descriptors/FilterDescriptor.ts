@@ -6,6 +6,7 @@ import {Icon} from "./Icon";
 import {Category, ResolvedCategory} from "./Category";
 import {Ref} from "../common/Ref";
 
+
 export interface FilterDescriptor{
     name:string;
     jsonClass:FilterDescriptorJsonClass;

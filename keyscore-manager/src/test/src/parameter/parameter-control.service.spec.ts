@@ -1,10 +1,10 @@
 import {
     ParameterDescriptorJsonClass,
     ResolvedParameterDescriptor
-} from "keyscore-manager-models";
-import {Parameter, ParameterJsonClass} from "keyscore-manager-models";
-import {generateParameter, generateResolvedParameterDescriptor} from "keyscore-manager-test-fixtures";
-import {ParameterControlService} from "keyscore-manager-pipeline-parameters";
+} from "@keyscore-manager-models";
+import {Parameter, ParameterJsonClass} from "@keyscore-manager-models";
+import {generateParameter, generateResolvedParameterDescriptor} from "@keyscore-manager-test-fixtures";
+import {ParameterControlService} from "@keyscore-manager-pipeline-parameters";
 import * as _ from 'lodash'
 describe('Service: ParameterControlService',()=> {
     let service:ParameterControlService = new ParameterControlService();

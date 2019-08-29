@@ -37,7 +37,7 @@ import {
     Value,
     ValueJsonClass,
     PatternType
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 
 export const generatePipeline = (): PipelineInstance => {
     return {

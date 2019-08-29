@@ -1,5 +1,5 @@
 import {Parameter, ParameterDescriptor} from "../parameter.model";
-import {ParameterRef, ResolvedChoice} from "keyscore-manager-models";
+import {ParameterRef, ResolvedChoice} from "@keyscore-manager-models";
 
 
 export const JSONCLASS_CHOICE_PARAM = "io.logbee.keyscore.model.configuration.ChoiceParameter";

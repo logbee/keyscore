@@ -19,7 +19,7 @@ import {
     RemoveCurrentAgentAction
 } from "./agents.actions";
 import {Go} from "../router/router.actions";
-import {Agent} from "keyscore-manager-models";
+import {Agent} from "@keyscore-manager-models";
 import {AgentService} from "../services/rest-api/AgentService";
 
 @Injectable()

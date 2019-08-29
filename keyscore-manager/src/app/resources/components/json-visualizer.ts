@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {Configuration, ResolvedFilterDescriptor} from "keyscore-manager-models";
+import {Configuration, ResolvedFilterDescriptor} from "@keyscore-manager-models";
 import {Store} from "@ngrx/store";
 
 @Component({

@@ -4,7 +4,7 @@ import {
     ParameterGroupDescriptor,
     ParameterJsonClass,
     ResolvedParameterDescriptor
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import {ParameterDescriptor, Parameter as newParameter,} from "../parameters/parameter.model";
 
 @Injectable({

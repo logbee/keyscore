@@ -1,7 +1,7 @@
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MaterialModule} from "keyscore-manager-material";
+import {MaterialModule} from "@keyscore-manager-material";
 import {AutocompleteFilterComponent} from "./autocomplete-filter.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DurationInputComponent} from "./duration-input.component";

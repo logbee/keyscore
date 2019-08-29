@@ -13,7 +13,7 @@ import {
     TimestampValue,
     Value,
     ValueJsonClass
-} from "keyscore-manager-models";
+} from "@keyscore-manager-models";
 import {getInputDatsetModels, getOutputDatasetModels} from "../index";
 import "../datatable/data-preview-table.css";
 

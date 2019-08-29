@@ -1,5 +1,5 @@
 import {Injectable, Type} from "@angular/core";
-import {FieldValueType} from "keyscore-manager-models";
+import {FieldValueType} from "@keyscore-manager-models";
 import {BooleanValueComponent} from "../boolean-value.component";
 import {TextValueComponent} from "../text-value.component";
 import {TimestampValueComponent} from "../timestamp-value.component";

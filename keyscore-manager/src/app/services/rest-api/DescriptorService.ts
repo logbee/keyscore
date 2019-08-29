@@ -6,7 +6,7 @@ import {AppConfig, selectAppConfig} from "../../app.config";
 import {Observable} from "rxjs/index";
 import {BlueprintService} from "./BlueprintService";
 import {StringTMap} from "../../common/object-maps";
-import {Descriptor} from "keyscore-manager-models";
+import {Descriptor} from "@keyscore-manager-models";
 
 @Injectable({
     providedIn: 'root'
