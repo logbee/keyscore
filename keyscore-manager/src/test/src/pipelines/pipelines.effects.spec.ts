@@ -1,4 +1,4 @@
-import {empty, Observable} from "rxjs/index";
+import {empty, Observable} from "rxjs";
 import {Actions} from "@ngrx/effects";
 import {PipelinesEffects} from "../../../app/pipelines/effects/pipelines.effects";
 import {TestBed} from "@angular/core/testing";
@@ -27,7 +27,7 @@ import {
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction
 } from "../../../app/pipelines/actions/pipelines.actions";
-import {cold, hot} from "jasmine-marbles";
+import {cold, hot} from "jest-marbles";
 import {
     removeFieldFilterDescriptorJson,
     resolvedRemoveFieldsFilterDE

@@ -19,7 +19,7 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: ['awesome-typescript-loader','angular2-template-loader?keepUrl=true'],
+                use: ['awesome-typescript-loader','angular2-template-loader','angular-router-loader'],
                 exclude: /node_modules/
             },
             {
@@ -36,21 +36,22 @@ module.exports = {
                 }]
             },
             {
-                test: /\.scss$/,
+                test: /\.(scss|sass)$/,
                 use: [
-                    {
-                        loader: 'style-loader'
-                    },
-                    {
-                        loader: 'css-loader'
-                    },
-                    {
-                        loader: 'sass-loader',
-                        options:{
-                            includePaths:['./modules']
-                        }
-                    }
-                ]
+                    { loader: 'style-loader', options: { sourceMap: true } },
+                    { loader: 'css-loader', options: { sourceMap: true } },
+                    { loader: 'sass-loader', options: { sourceMap: true } }
+                ],
+                include: helpers.root('src', 'assets')
+            },
+            {
+                test: /\.(scss|sass)$/,
+                use: [
+                    'to-string-loader',
+                    { loader: 'css-loader', options: { sourceMap: true } },
+                    { loader: 'sass-loader', options: { sourceMap: true } }
+                ],
+                include: [helpers.root('src', 'app'),helpers.root('modules')]
             },
             {
                 test: /\.css$/,

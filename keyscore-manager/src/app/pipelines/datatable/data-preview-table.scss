@@ -19,7 +19,7 @@ td.mat-cell.text-padding {
     max-width: 15%;
 }
 
-mat-form-field {
+mat-form-field::ng-deep {
     margin-left: 15px;
 }
 

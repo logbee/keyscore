@@ -1,7 +1,5 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import "../style/style.scss";
-import "../style/global-table-styles.css";
 import {MatPaginator, MatSort} from "@angular/material";
 import {ResourcesDataSource} from "../data-source/resources-data-source";
 import {animate, state, style, transition, trigger} from "@angular/animations";

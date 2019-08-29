@@ -15,7 +15,6 @@ import {
     ValueJsonClass
 } from "@keyscore-manager-models";
 import {getInputDatsetModels, getOutputDatasetModels} from "../index";
-import "../datatable/data-preview-table.css";
 
 @Component({
     selector: "data-table",
@@ -83,7 +82,8 @@ import "../datatable/data-preview-table.css";
                 <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
         </div>
-    `
+    `,
+    styleUrls:['data-preview-table.scss']
 })
 
 export class DatatableComponent implements OnInit {

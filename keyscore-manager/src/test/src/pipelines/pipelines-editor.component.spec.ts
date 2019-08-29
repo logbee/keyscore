@@ -13,12 +13,12 @@ import {HealthModule} from "../../../app/common/health/health.module";
 import {PipelyModule} from "../../../app/pipelines/pipeline-editor/pipely/pipely.module";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpLoaderFactory} from "../../../app/app.module";
-import {generateEditingPipelineModel} from "../../../../modules/keyscore-manager-test-fixtures/src/main/data-generators";
-import {hot} from "jasmine-marbles";
+import {generateEditingPipelineModel} from "@keyscore-manager-test-fixtures";
+import {hot} from "jest-marbles";
 
 import {LoadFilterDescriptorsAction, UpdatePipelineAction} from "../../../app/pipelines/actions/pipelines.actions";
 import {PipelyKeyscoreAdapter} from "../../../app/services/pipely-keyscore-adapter.service";
-import {generateEmptyEditingPipelineModel} from "../../../../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
+import {generateEmptyEditingPipelineModel} from "@keyscore-manager-models";
 
 
 describe('PipelineEditorComponent', () => {

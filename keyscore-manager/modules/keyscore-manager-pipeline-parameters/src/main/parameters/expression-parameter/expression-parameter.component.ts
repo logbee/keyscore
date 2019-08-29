@@ -30,7 +30,8 @@ import {ParameterRef} from "@keyscore-manager-models";
         <p class="parameter-warn" *ngIf="descriptor.mandatory && !expressionType.value ">Pattern Type is
             required!</p>
         
-    `
+    `,
+    styleUrls:['../../style/parameter-module-style.scss']
 })
 export class ExpressionParameterComponent extends ParameterComponent<ExpressionParameterDescriptor, ExpressionParameter> {
 

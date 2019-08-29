@@ -11,6 +11,7 @@ import {Health} from "@keyscore-manager-models";
             <div class="health-light-Unknown {{health}}"></div>
         </div>
     `,
+    styleUrls:['./health.component.scss']
 
 })
 

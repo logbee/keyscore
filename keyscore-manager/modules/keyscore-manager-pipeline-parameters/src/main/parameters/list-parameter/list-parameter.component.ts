@@ -66,6 +66,7 @@ import {tap} from "rxjs/operators";
                 allows a maximum of {{descriptor.max}} elements.</p>
         </div>
     `,
+    styleUrls:['./list-parameter.component.scss'],
     animations: [
         trigger('max-warn', [
             transition(':enter', [

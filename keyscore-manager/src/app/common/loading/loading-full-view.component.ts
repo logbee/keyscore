@@ -1,5 +1,4 @@
 import {Component} from "@angular/core";
-import "./style/loading.style.scss"
 
 @Component({
     selector: "loading-full-view",
@@ -19,6 +18,7 @@ import "./style/loading.style.scss"
             </div>
         </div>
     `,
+    styleUrls:['./style/loading.style.scss']
 })
 
 export class LoadingFullViewComponent {

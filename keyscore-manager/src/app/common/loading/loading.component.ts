@@ -10,7 +10,8 @@ import {Component} from "@angular/core";
             <div class="rect4"></div>
             <div class="rect5"></div>
         </div>
-    `
+    `,
+    styleUrls:['./style/loading.style.scss']
 })
 
 export class LoadingComponent {

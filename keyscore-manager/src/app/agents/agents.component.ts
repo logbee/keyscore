@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
-import "../style/global-table-styles.css";
 import {LoadAgentsAction, RemoveCurrentAgentAction} from "./agents.actions";
 import {MatPaginator, MatSort, MatTable} from "@angular/material";
 import {TranslateService} from "@ngx-translate/core";

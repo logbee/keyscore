@@ -33,26 +33,6 @@ npmInstall {
     args = ['--verbose', '--loglevel', 'verbose']
 }
 
-subprojects {
-    project.apply plugin: 'com.github.node-gradle.node'
-
-    node {
-        version = nodeVersion
-        download = true
-    }
-
-    npmInstall {
-        args = ['--verbose', '--loglevel', 'verbose']
-    }
-
-    task clean(type: Delete) {
-        delete 'build'
-    }
-
-    task cleanAll(type: Delete, dependsOn: clean) {
-        delete 'node_modules', 'package-lock.json'
-    }
-}
 
 task webpack(type: NodeTask, dependsOn: npmInstall) {
     script = file('node_modules/.bin/webpack')
@@ -82,12 +62,7 @@ distributions {
 }
 
 task serve(type: NodeTask, dependsOn: npmInstall) {
-    subprojects.each { dependsOn("${it.name}:npmInstall") }
     script = file('node_modules/.bin/webpack-dev-server')
-}
-
-task npmInstallAll(type: NodeTask,dependsOn:npmInstall) {
-    subprojects.each { dependsOn("${it.name}:npmInstall") }
 }
 
 task storybook(type: NpmTask) {

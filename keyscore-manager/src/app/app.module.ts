@@ -31,6 +31,11 @@ import {DataSourceFactory} from "./data-source/data-source-factory";
 import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
 import {AppAuthGuard} from "./app.authguard";
 
+import "../assets/styles.scss";
+import "../assets/global-table-styles.scss";
+import "../assets/pipely-style.scss";
+
+
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
     {path: "dashboard", component: DashboardComponent, canActivate:[AppAuthGuard]},

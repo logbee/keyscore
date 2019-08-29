@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
-import "./style/headerbar.style.scss"
 
 @Component({
     selector: "header-bar",
@@ -46,7 +45,8 @@ import "./style/headerbar.style.scss"
                                   color="accent"></mat-progress-bar>
             </div>
         </div>
-    `
+    `,
+    styleUrls:['./headerbar.style.scss']
 })
 export class HeaderBarComponent {
     @Input() public title: string;
