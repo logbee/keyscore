@@ -52,11 +52,19 @@ subprojects {
     ext.scmUrl = 'https://github.com/logbee/keyscore/'
     ext.scmConnection = 'git@github.com:logbee/keyscore.git'
     ext.scmDevConnection = 'git@github.com:logbee/keyscore.git'
-    ext.buildDate = new Date().format('yyyy-MM-dd HH:mm:ss')
+    ext.buildDate = new Date().format('yyyy-MM-dd HH:mm:ss ZZZZ')
     ext.revision = { ->
         def stdout = new ByteArrayOutputStream()
         exec {
             commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }()
+    ext.revisionDate = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'show', '-s', '--format=%ci', 'HEAD'
             standardOutput = stdout
         }
         return stdout.toString().trim()
