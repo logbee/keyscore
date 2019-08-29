@@ -8,7 +8,7 @@ import {
     ExpressionParameter,
     ExpressionParameterDescriptor,
     JSONCLASS_EXPRESSION_DESCR
-} from "./expression-parameter.model";
+} from "../../../../../keyscore-manager-models/src/main/parameters/expression-parameter.model";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 
 @NgModule({

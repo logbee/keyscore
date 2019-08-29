@@ -1,7 +1,7 @@
 import {ParameterComponent} from "../ParameterComponent";
 import {Component} from "@angular/core";
 import {ParameterRef} from "@keyscore-manager-models";
-import {NumberParameter, NumberParameterDescriptor} from "./number-parameter.model";
+import {NumberParameter, NumberParameterDescriptor} from "@keyscore-manager-models";
 
 @Component({
     selector: `parameter-number`,
@@ -32,7 +32,9 @@ import {NumberParameter, NumberParameterDescriptor} from "./number-parameter.mod
                        [value]="parameter.value" (changed)="onChange($event)"></ks-slider>
         </ng-template>
 
-    `
+    `,
+    styleUrls:['../../style/parameter-module-style.scss']
+
 })
 export class NumberParameterComponent extends ParameterComponent<NumberParameterDescriptor, NumberParameter> {
     private ref: ParameterRef;

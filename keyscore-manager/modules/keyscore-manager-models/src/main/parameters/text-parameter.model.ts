@@ -1,5 +1,5 @@
 import {ParameterRef, ResolvedParameterInfo, ResolvedStringValidator} from "@keyscore-manager-models";
-import {Parameter, ParameterDescriptor} from "../parameter.model";
+import {Parameter, ParameterDescriptor} from "./parameter.model";
 
 export const JSONCLASS_TEXT_PARAM = "io.logbee.keyscore.model.configuration.TextParameter";
 export const JSONCLASS_TEXT_DESCR="io.logbee.keyscore.model.descriptor.TextParameterDescriptor";

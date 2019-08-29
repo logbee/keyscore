@@ -5,7 +5,7 @@ import {
     ParameterJsonClass,
     ResolvedParameterDescriptor
 } from "@keyscore-manager-models";
-import {ParameterDescriptor, Parameter as newParameter,} from "../parameters/parameter.model";
+import {ParameterDescriptor, Parameter as newParameter,} from "../../../../keyscore-manager-models/src/main/parameters/parameter.model";
 
 @Injectable({
     providedIn: 'root'

@@ -5,7 +5,7 @@ import {MaterialModule} from "@keyscore-manager-material";
 import {ChoiceParameterComponent} from "./choice-parameter.component";
 import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {ChoiceParameter, ChoiceParameterDescriptor, JSONCLASS_CHOICE_DESCR} from "./choice-parameter.model";
+import {ChoiceParameter, ChoiceParameterDescriptor, JSONCLASS_CHOICE_DESCR} from "../../../../../keyscore-manager-models/src/main/parameters/choice-parameter.model";
 import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({

@@ -9,7 +9,7 @@ import {
     FieldNameParameter,
     FieldNameParameterDescriptor,
     JSONCLASS_FIELDNAME_DESCR
-} from "./field-name-parameter.model";
+} from "../../../../../keyscore-manager-models/src/main/parameters/field-name-parameter.model";
 import {SharedControlsModule} from "../../shared-controls/shared-controls.module";
 
 @NgModule({

@@ -1,6 +1,9 @@
-import {ListParameter, ListParameterDescriptor} from "./list-parameter.model";
-import {ParameterRef} from "@keyscore-manager-models";
-import {FieldNameParameterDescriptor} from "../../field-name-parameter/field-name-parameter.model";
+import {
+    ParameterRef,
+    ListParameter,
+    ListParameterDescriptor,
+    FieldNameParameterDescriptor
+} from "@keyscore-manager-models";
 
 
 export const JSONCLASS_FIELDNAMELIST_PARAM = "io.logbee.keyscore.model.configuration.FieldNameListParameter";

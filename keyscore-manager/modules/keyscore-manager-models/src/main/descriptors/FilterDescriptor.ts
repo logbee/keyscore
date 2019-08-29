@@ -1,4 +1,4 @@
-import {ParameterDescriptor, ResolvedParameterDescriptor} from "../parameters/ParameterDescriptor";
+import {ParameterFieldsModels, ResolvedParameterDescriptor} from "../parameters/parameter-fields.model";
 import {TextRef} from "../common/Localization";
 import {InputDescriptor} from "./InputDescriptor";
 import {OutputDescriptor} from "./OutputDescriptor";
@@ -13,7 +13,7 @@ export interface FilterDescriptor{
     displayName:TextRef;
     description:TextRef;
     categories:Category[];
-    parameters:ParameterDescriptor[];
+    parameters:ParameterFieldsModels[];
     in?:InputDescriptor;
     out?:OutputDescriptor;
     icon?:Icon;

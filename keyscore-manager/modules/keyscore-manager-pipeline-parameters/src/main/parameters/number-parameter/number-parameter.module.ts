@@ -5,7 +5,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {NumberParameterComponent} from "./number-parameter.component";
-import {JSONCLASS_NUMBER_DESCR, NumberParameter, NumberParameterDescriptor} from "./number-parameter.model";
+import {JSONCLASS_NUMBER_DESCR, NumberParameter, NumberParameterDescriptor} from "../../../../../keyscore-manager-models/src/main/parameters/number-parameter.model";
 import {SharedControlsModule} from "../../shared-controls/shared-controls.module";
 
 @NgModule({

@@ -8,52 +8,52 @@ import {
     ExpressionParameter,
     ExpressionParameterChoice,
     ExpressionParameterDescriptor,
-} from "../main/parameters/expression-parameter/expression-parameter.model";
+} from "../../../keyscore-manager-models/src/main/parameters/expression-parameter.model";
 import {TextParameterComponent} from "../main/parameters/text-parameter/text-parameter.component";
-import {TextParameter, TextParameterDescriptor} from "../main/parameters/text-parameter/text-parameter.model";
+import {TextParameter, TextParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {ExpressionType, FieldNameHint, FieldValueType} from "@keyscore-manager-models";
 import {ExpressionParameterModule} from "../main/parameters/expression-parameter/expression-parameter.module";
 import {TextParameterModule} from "../main/parameters/text-parameter/text-parameter.module";
 import {ParameterComponentFactoryService} from "../main/service/parameter-component-factory.service";
 import {ParameterFormComponent} from "../main/parameter-form.component";
 import {NumberParameterComponent} from "../main/parameters/number-parameter/number-parameter.component";
-import {NumberParameter, NumberParameterDescriptor} from "../main/parameters/number-parameter/number-parameter.model";
+import {NumberParameter, NumberParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/number-parameter.model";
 import {StringValidatorService} from "../main/service/string-validator.service";
 import {
     DecimalParameter,
     DecimalParameterDescriptor
-} from "../main/parameters/decimal-parameter/decimal-parameter.model";
+} from "../../../keyscore-manager-models/src/main/parameters/decimal-parameter.model";
 import {DecimalParameterComponent} from "../main/parameters/decimal-parameter/decimal-parameter.component";
 import {NumberParameterModule} from "../main/parameters/number-parameter/number-parameter.module";
 import {BooleanParameterComponent} from "../main/parameters/boolean-parameter/boolean-parameter.component";
 import {
     BooleanParameter,
     BooleanParameterDescriptor
-} from "../main/parameters/boolean-parameter/boolean-parameter.model";
+} from "../../../keyscore-manager-models/src/main/parameters/boolean-parameter.model";
 import {BooleanParameterModule} from "../main/parameters/boolean-parameter/boolean-parameter.module";
 import {FieldNameParameterComponent} from "../main/parameters/field-name-parameter/field-name-parameter.component";
 import {
     FieldNameParameter,
     FieldNameParameterDescriptor
-} from "../main/parameters/field-name-parameter/field-name-parameter.model";
+} from "../../../keyscore-manager-models/src/main/parameters/field-name-parameter.model";
 import {FieldNamePatternParameterComponent} from "../main/parameters/field-name-pattern-parameter/field-name-pattern-parameter.component";
 import {
     FieldNamePatternParameter,
     FieldNamePatternParameterDescriptor,
     PatternType,
     PatternTypeChoice
-} from "../main/parameters/field-name-pattern-parameter/field-name-pattern-parameter.model";
+} from "../../../keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
 import {SharedControlsModule} from "../main/shared-controls/shared-controls.module";
 import {ValueControlsModule} from "../main/value-controls/value-controls.module";
 import {FieldParameterComponent} from "../main/parameters/field-parameter/field-parameter.component";
-import {FieldParameter, FieldParameterDescriptor} from "../main/parameters/field-parameter/field-parameter.model";
+import {FieldParameter, FieldParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/field-parameter.model";
 import {ValueComponentRegistryService} from "../main/value-controls/services/value-component-registry.service";
 import {FieldParameterModule} from "../main/parameters/field-parameter/field-parameter.module";
 import {TextValue} from "../main/models/value.model";
 import {
     TextListParameter,
     TextListParameterDescriptor
-} from "../main/parameters/list-parameter/models/text-list-parameter.model";
+} from "../../../keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import {ListParameterModule} from "../main/parameters/list-parameter/list-parameter.module";
 import {ListParameterComponent} from "../main/parameters/list-parameter/list-parameter.component";
@@ -61,13 +61,13 @@ import {ParameterFactoryService} from "../main/service/parameter-factory.service
 import {
     FieldNameListParameter,
     FieldNameListParameterDescriptor
-} from "../main/parameters/list-parameter/models/field-name-list-parameter.model";
+} from "../../../keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
 import {
     FieldListParameter,
     FieldListParameterDescriptor
-} from "../main/parameters/list-parameter/models/field-list-parameter.model";
+} from "../../../keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
 import {ChoiceParameterComponent} from "../main/parameters/choice-parameter/choice-parameter.component";
-import {ChoiceParameter, ChoiceParameterDescriptor} from "../main/parameters/choice-parameter/choice-parameter.model";
+import {ChoiceParameter, ChoiceParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/choice-parameter.model";
 import {ReactiveFormsModule} from "@angular/forms";
 
 storiesOf('Parameters/ExpressionParameter', module)

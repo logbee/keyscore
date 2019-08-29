@@ -1,6 +1,9 @@
-import {Value} from "./Value";
+import {Value} from "@keyscore-manager-models";
 
-export interface Field {
-    name: string;
-    value: Value;
+export class Field {
+    constructor(
+        readonly name: string,
+        readonly value: Value
+    ) {
+    }
 }

@@ -1,5 +1,5 @@
 import {ParameterRef, Ref} from "../common";
-import {PatternType} from "./ParameterDescriptor";
+import {PatternType} from "./parameter-fields.model";
 
 export type Parameter =
     | DefaultParameter

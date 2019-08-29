@@ -1,5 +1,4 @@
 import {EventEmitter, HostBinding, Input, OnDestroy, OnInit, Output} from "@angular/core";
-import {Observable, Subscription} from "rxjs";
 
 export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
 

@@ -1,5 +1,6 @@
-import {Parameter, ParameterDescriptor} from "../parameter.model";
-import {ParameterRef, ResolvedChoice} from "@keyscore-manager-models";
+import {Parameter, ParameterDescriptor} from "./parameter.model";
+import {Choice} from "./parameter-fields.model";
+import {ParameterRef} from "@keyscore-manager-models";
 
 
 export const JSONCLASS_CHOICE_PARAM = "io.logbee.keyscore.model.configuration.ChoiceParameter";
@@ -14,7 +15,7 @@ export class ChoiceParameterDescriptor extends ParameterDescriptor {
         readonly description: string,
         readonly min: number,
         readonly max: number,
-        readonly choices: ResolvedChoice[]
+        readonly choices: Choice[]
     ) {
         super(ref, displayName, description)
     }

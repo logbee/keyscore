@@ -12,9 +12,9 @@ import {
 } from "@angular/core";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ParameterComponent} from "../ParameterComponent";
-import {Parameter, ParameterDescriptor} from "../parameter.model";
+import {Parameter, ParameterDescriptor} from "../../../../../keyscore-manager-models/src/main/parameters/parameter.model";
 import {Subscription} from "rxjs";
-import {ListParameter, ListParameterDescriptor} from "./models/list-parameter.model";
+import {ListParameter, ListParameterDescriptor} from "../../../../../keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {ParameterFactoryService} from "../../service/parameter-factory.service";

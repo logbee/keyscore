@@ -1,13 +1,11 @@
-import {Component, ComponentFactoryResolver, ComponentRef, ElementRef, Input, Type, ViewChild} from "@angular/core";
+import {Component, ComponentFactoryResolver, ComponentRef, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {StringValidatorService} from "../../service/string-validator.service";
-import {FieldParameter, FieldParameterDescriptor} from "./field-parameter.model";
-import {Field, Value} from "../../models/value.model";
+import {Field, FieldParameter, FieldParameterDescriptor} from "@keyscore-manager-models";
 import {ValueDirective} from "../../value-controls/directives/value.directive";
 import {ValueComponentRegistryService} from "../../value-controls/services/value-component-registry.service";
 import {ValueComponent} from "../../value-controls/value-component.interface";
 import {Subscription} from "rxjs";
-import {AutocompleteInputComponent} from "../../autocomplete-input.component";
 import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
 
 @Component({
@@ -39,6 +37,8 @@ import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-fi
         <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && !descriptor.nameValidator.description">Your Input
             has to fulfill the following Pattern: {{descriptor.nameValidator.expression}}</p>
     `,
+    styleUrls:['../../style/parameter-module-style.scss']
+
 
 })
 export class FieldParameterComponent extends ParameterComponent<FieldParameterDescriptor, FieldParameter> {

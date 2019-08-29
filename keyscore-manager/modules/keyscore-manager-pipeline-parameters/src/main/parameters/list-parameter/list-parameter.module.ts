@@ -5,20 +5,20 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ParameterFactoryService} from "../../service/parameter-factory.service";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {DragDropModule} from "@angular/cdk/drag-drop";
-import {JSONCLASS_TEXTLIST_DESCR, TextListParameter, TextListParameterDescriptor} from "./models/text-list-parameter.model";
+import {JSONCLASS_TEXTLIST_DESCR, TextListParameter, TextListParameterDescriptor} from "../../../../../keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
 import {TextParameterModule} from "../text-parameter/text-parameter.module";
 import {ListParameterComponent} from "./list-parameter.component";
 import {
     FieldNameListParameter,
     FieldNameListParameterDescriptor,
     JSONCLASS_FIELDNAMELIST_DESCR
-} from "./models/field-name-list-parameter.model";
+} from "../../../../../keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
 import {FieldNameParameterModule} from "../field-name-parameter/field-name-parameter.module";
 import {
     FieldListParameter,
     FieldListParameterDescriptor,
     JSONCLASS_FIELDLIST_DESCR
-} from "./models/field-list-parameter.model";
+} from "../../../../../keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
 import {Field} from "../../models/value.model";
 import {FieldParameterModule} from "../field-parameter/field-parameter.module";
 

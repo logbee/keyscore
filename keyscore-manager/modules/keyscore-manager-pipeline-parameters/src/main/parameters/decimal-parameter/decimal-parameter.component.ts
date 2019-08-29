@@ -1,7 +1,7 @@
 import {ParameterComponent} from "../ParameterComponent";
 import {Component} from "@angular/core";
 import {ParameterRef} from "@keyscore-manager-models";
-import {DecimalParameter, DecimalParameterDescriptor} from "./decimal-parameter.model";
+import {DecimalParameter, DecimalParameterDescriptor} from "@keyscore-manager-models";
 
 @Component({
     selector: ``,
@@ -26,7 +26,8 @@ import {DecimalParameter, DecimalParameterDescriptor} from "./decimal-parameter.
             <ks-slider [label]="descriptor.displayName" [range]="descriptor.range"
                        [value]="parameter.value" (changed)="onChange($event.toString())"></ks-slider>
         </ng-template>
-    `
+    `,
+    styleUrls:['../../style/parameter-module-style.scss']
 })
 export class DecimalParameterComponent extends ParameterComponent <DecimalParameterDescriptor, DecimalParameter> {
     private ref: ParameterRef;

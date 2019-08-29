@@ -1,6 +1,6 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {TextParameter, TextParameterDescriptor} from "./text-parameter.model";
+import {TextParameter, TextParameterDescriptor} from "@keyscore-manager-models";
 import {StringValidatorService} from "../../service/string-validator.service";
 
 @Component({
@@ -26,6 +26,8 @@ import {StringValidatorService} from "../../service/string-validator.service";
             to fulfill the following Pattern:
             {{descriptor.validator.expression}}</p>
     `,
+    styleUrls:['../../style/parameter-module-style.scss']
+
 
 })
 export class TextParameterComponent extends ParameterComponent<TextParameterDescriptor, TextParameter> {

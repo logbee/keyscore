@@ -1,5 +1,6 @@
-import {Parameter, ParameterDescriptor} from "../parameter.model";
-import {ParameterRef, FieldNameHint, ResolvedStringValidator} from "@keyscore-manager-models";
+import {Parameter, ParameterDescriptor} from "./parameter.model";
+import {ParameterRef} from "@keyscore-manager-models";
+import {FieldNameHint, StringValidator} from "./parameter-fields.model";
 
 export const JSONCLASS_FIELDNAME_PARAM = "io.logbee.keyscore.model.configuration.FieldNameParameter";
 export const JSONCLASS_FIELDNAME_DESCR = "io.logbee.keyscore.model.descriptor.FieldNameParameterDescriptor";
@@ -13,7 +14,7 @@ export class FieldNameParameterDescriptor extends ParameterDescriptor {
         readonly description: string,
         readonly defaultValue: string,
         readonly hint: FieldNameHint,
-        readonly validator: ResolvedStringValidator,
+        readonly validator: StringValidator,
         readonly mandatory: boolean
     ) {
         super(ref, displayName, description);

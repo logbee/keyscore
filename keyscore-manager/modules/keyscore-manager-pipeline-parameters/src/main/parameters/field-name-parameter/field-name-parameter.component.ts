@@ -1,9 +1,9 @@
 import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {FieldNameParameter, FieldNameParameterDescriptor} from "./field-name-parameter.model";
+import {FieldNameParameter, FieldNameParameterDescriptor} from "@keyscore-manager-models";
 import {StringValidatorService} from "../../service/string-validator.service";
 import {FieldNameHint} from "@keyscore-manager-models";
-import {TextParameter} from "../text-parameter/text-parameter.model";
+import {TextParameter} from "../../../../../keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
 
 @Component({
@@ -32,7 +32,8 @@ import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-fi
         <p class="parameter-warn-with-hint" *ngIf="!isValid(inputField.value) && !descriptor.validator.description">
             Your Input has to fulfill the following Pattern: {{descriptor.validator.expression}}</p>
 
-    `
+    `,
+    styleUrls:['../../style/parameter-module-style.scss']
 })
 export class FieldNameParameterComponent extends ParameterComponent<FieldNameParameterDescriptor, FieldNameParameter> {
     @Input() showLabel: boolean = true;

@@ -1,12 +1,9 @@
-import {Parameter, ParameterDescriptor} from "../parameter.model";
-import {FieldNameHint, ParameterRef} from "@keyscore-manager-models";
+import {Parameter, ParameterDescriptor} from "./parameter.model";
+import {FieldNameHint, ParameterRef, PatternType} from "@keyscore-manager-models";
 
 export const JSONCLASS_FIELDNAMEPATTERN_PARAM = "io.logbee.keyscore.model.configuration.FieldNamePatternParameter";
 export const JSONCLASS_FIELDNAMEPATTERN_DESCR = "io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor";
 
-export enum PatternType {
-    None, RegEx, Glob
-}
 
 export class PatternTypeChoice {
 

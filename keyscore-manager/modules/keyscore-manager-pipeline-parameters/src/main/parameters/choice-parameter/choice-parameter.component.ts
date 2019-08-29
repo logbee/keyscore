@@ -1,6 +1,6 @@
 import {Component, ElementRef, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {ChoiceParameter, ChoiceParameterDescriptor} from "./choice-parameter.model";
+import {ChoiceParameter, ChoiceParameterDescriptor} from "@keyscore-manager-models";
 import {FormControl} from "@angular/forms";
 import {Subscription} from "rxjs";
 import {animate, style, transition, trigger} from "@angular/animations";
@@ -28,6 +28,7 @@ import * as _ from 'lodash'
         <p class="parameter-warn" *ngIf=" descriptor.min > 1 && _selectFormControl.value.length < descriptor.min">
             {{descriptor.displayName}} expects at least {{descriptor.min}} selections.</p>
     `,
+    styleUrls:['../../style/parameter-module-style.scss'],
     animations: [
         trigger('max-warn', [
             transition(':enter', [

@@ -1,4 +1,4 @@
-import {Parameter, ParameterDescriptor} from "../../parameter.model";
+import {Parameter, ParameterDescriptor} from "../parameter.model";
 import {ParameterRef} from "@keyscore-manager-models";
 
 

@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {BooleanParameter, BooleanParameterDescriptor} from "./boolean-parameter.model";
+import {BooleanParameter, BooleanParameterDescriptor} from "@keyscore-manager-models";
 
 @Component({
     selector: 'parameter-boolean',

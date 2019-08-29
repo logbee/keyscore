@@ -3,9 +3,9 @@ import {ParameterComponent} from "../ParameterComponent";
 import {
     FieldNamePatternParameter,
     FieldNamePatternParameterDescriptor,
-    PatternType
-} from "./field-name-pattern-parameter.model";
-import {FieldNameHint} from "@keyscore-manager-models";
+    PatternType,
+    FieldNameHint
+} from "@keyscore-manager-models";
 
 @Component({
     selector: 'parameter-field-name-pattern',
@@ -34,7 +34,9 @@ import {FieldNameHint} from "@keyscore-manager-models";
             </mat-form-field>
         </div>
         <p class="parameter-warn-with-hint" *ngIf="descriptor.mandatory && (!fieldName.value || !patternType.value)">
-            {{descriptor.displayName}} is required!</p>`
+            {{descriptor.displayName}} is required!</p>`,
+    styleUrls:['../../style/parameter-module-style.scss']
+
 })
 export class FieldNamePatternParameterComponent extends ParameterComponent<FieldNamePatternParameterDescriptor, FieldNamePatternParameter> {
     public fieldNameHint: typeof FieldNameHint = FieldNameHint;

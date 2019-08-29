@@ -8,7 +8,7 @@ import {
     JSONCLASS_TEXT_DESCR,
     TextParameter,
     TextParameterDescriptor
-} from "./text-parameter.model";
+} from "../../../../../keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {StringValidatorService} from "../../service/string-validator.service";
 
