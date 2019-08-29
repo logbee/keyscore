@@ -29,12 +29,12 @@ object AppInfo {
         val implementationBuildDate = attributes.getValue("Implementation-Build-Date")
 
         appInfo = AppInfo(
-          if (implementationTitle == null) "<unknown>" else implementationTitle,
-          if (implementationVersion == null) "<unknown>" else implementationVersion,
-          if (implementationRevision == null) "<unknown>" else implementationRevision,
-          if (implementationRevisionDate == null) "<unknown>" else implementationRevisionDate,
-          if (implementationBuildDate == null) "<unknown>" else implementationBuildDate,
-          if (implementationVendor == null) "<unknown>" else implementationVendor
+          name = if (implementationTitle == null) "<unknown>" else implementationTitle,
+          version = if (implementationVersion == null) "<unknown>" else implementationVersion,
+          revision = if (implementationRevision == null) "<unknown>" else implementationRevision,
+          revisionDate = if (implementationRevisionDate == null) "<unknown>" else implementationRevisionDate,
+          buildDate = if (implementationBuildDate == null) "<unknown>" else implementationBuildDate,
+          vendor = if (implementationVendor == null) "<unknown>" else implementationVendor
         )
       })
     }
@@ -50,7 +50,7 @@ object AppInfo {
     println(s" Name:          ${appInfo.name}")
     println(s" Version:       ${appInfo.version}")
     println(s" Revision:      ${appInfo.revision}")
-    println(s" Revision-Date: ${appInfo.revision}")
+    println(s" Revision-Date: ${appInfo.revisionDate}")
     println(s" Build-Date:    ${appInfo.buildDate}")
     println(s" Vendor:        ${appInfo.vendor}")
     println()
