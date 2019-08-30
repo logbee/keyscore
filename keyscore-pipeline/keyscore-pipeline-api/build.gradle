@@ -1,9 +1,4 @@
-apply plugin: 'scala'
 apply from: rootProject.file('dependencies.gradle')
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
 
@@ -52,30 +47,5 @@ publishing {
                 buildPomXml(project, asNode())
             }
         }
-    }
-}
-
-test {
-    testLogging {
-        events 'started', 'passed', 'skipped', 'failed'
-        exceptionFormat "full"
-    }
-}
-
-jar {
-    exclude('**/.keep')
-    manifest.attributes([
-        'Implementation-Title'         : project.name,
-        'Implementation-Version'       : version,
-        'Implementation-Revision'      : revision,
-        'Implementation-Revision-Date' : revisionDate,
-        'Implementation-Build-Date'    : buildDate,
-        'Implementation-Vendor'        : 'logbee.io'
-    ])
-    from (rootProject.projectDir) {
-        include 'LICENSE'
-    }
-    into("META-INF/maven/$project.group/$project.name") {
-        from generatePomXml
     }
 }

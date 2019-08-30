@@ -14,10 +14,6 @@ apply from: rootProject.file('dependencies.gradle')
 
 evaluationDependsOn ':keyscore-commons'
 
-repositories {
-    mavenCentral()
-}
-
 project.ext {
     distributionDir = "$buildDir/distribution"
     dockerImageName = "$dockerImageHost/$dockerImageNamespace/${project.name}"
@@ -48,13 +44,6 @@ dependencies {
     testCompile dependency.akka_testkit
 
     testCompile dependency.junit
-}
-
-test {
-    testLogging {
-        events 'started', 'passed', 'skipped', 'failed'
-        exceptionFormat "full"
-    }
 }
 
 jar {

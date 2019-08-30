@@ -115,7 +115,8 @@ configure ([
     project(':keyscore-pipeline:keyscore-pipeline-api'),
     project(':keyscore-pipeline:keyscore-pipeline-commons'),
     project(':keyscore-pipeline:keyscore-pipeline-contrib'),
-    project(':keyscore-pipeline:keyscore-pipeline-testkit')
+    project(':keyscore-pipeline:keyscore-pipeline-testkit'),
+    project(':keyscore-test-fixtures'),
 ]) {
 
     project.apply plugin: 'scala'
@@ -156,13 +157,19 @@ configure ([
     jar {
         exclude('**/.keep')
         manifest.attributes([
-                'Implementation-Title'         : project.name,
-                'Implementation-Version'       : version,
-                'Implementation-Revision'      : revision,
-                'Implementation-Revision-Date' : revisionDate,
-                'Implementation-Build-Date'    : buildDate,
-                'Implementation-Vendor'        : 'logbee.io'
+            'Implementation-Title'         : project.name,
+            'Implementation-Version'       : version,
+            'Implementation-Revision'      : revision,
+            'Implementation-Revision-Date' : revisionDate,
+            'Implementation-Build-Date'    : buildDate,
+            'Implementation-Vendor'        : 'logbee.io'
         ])
+        from (rootProject.projectDir) {
+            include 'LICENSE'
+        }
+        into("META-INF/maven/$project.group/$project.name") {
+            from generatePomXml
+        }
     }
 
     test {
