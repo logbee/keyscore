@@ -58,8 +58,9 @@ class MetricsTest extends Matchers {
   val removeID = "34402c9c-09bb-4fc8-be8f-70a513ed6d66"
   val encoderID = "4f7ed3f3-b6b3-489c-ade6-f7cd09fb0197"
 
-  @Test
-  @CitrusTest
+  // TODO: MetricsTest has been disabled until further investigations are done.
+  //  @Test
+  //  @CitrusTest
   def runMetricsTest(implicit @CitrusResource runner: TestRunner): Unit = {
     import runner.applyBehavior
 
