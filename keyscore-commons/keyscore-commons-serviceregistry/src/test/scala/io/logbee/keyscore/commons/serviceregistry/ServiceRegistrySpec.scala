@@ -76,15 +76,17 @@ class ServiceRegistrySpec extends FreeSpec with Matchers with ActorSystems with 
 
           registrar ! Register(key, service1)
 
-          registrar ! Find(key, sender)
-
-          sender.expectMessage(Listing(key, Set(service1.ref), registrar))
+          sender.awaitAssert {
+            registrar ! Find(key, sender)
+            sender.expectMessage(Listing(key, Set(service1.ref), registrar))
+          }
 
           registrar ! Register(key, service2)
 
-          registrar ! Find(key, sender)
-
-          sender.expectMessage(Listing(key, Set(service1.ref, service2.ref), registrar))
+          sender.awaitAssert {
+            registrar ! Find(key, sender)
+            sender.expectMessage(Listing(key, Set(service1.ref, service2.ref), registrar))
+          }
         }
       }
     }
@@ -98,8 +100,9 @@ class ServiceRegistrySpec extends FreeSpec with Matchers with ActorSystems with 
   override protected def clusterConfig: Config = ConfigFactory.parseString(
     """
       akka {
+        loglevel = "DEBUG"
         actor {
-          loglevel = "DEBUG"
+          allow-java-serialization = off
           provider = "cluster"
           debug {
             unhandled = on
