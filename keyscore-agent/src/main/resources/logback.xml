@@ -1,7 +1,7 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>[%date{yyyy-MM-dd } %X{akkaTimestamp}] [%-5level] %X{akkaSource} %logger - %message%n</pattern>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="io.logbee.keyscore.commons.util.KeyscoreLoggingLayout" />
         </encoder>
     </appender>
     <logger name="akka.actor.TimerScheduler" level="info" />
