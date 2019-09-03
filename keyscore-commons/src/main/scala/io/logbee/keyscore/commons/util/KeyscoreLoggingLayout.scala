@@ -61,7 +61,7 @@ class KeyscoreLoggingLayout extends LayoutBase[ILoggingEvent] {
           val newResult = result + throwable.getStackTraceElementProxyArray.foldLeft(s"${throwable.getClassName}: ${throwable.getMessage}") {
             case (result, StackTraceElement(className, methodName, fileName, lineNumber)) =>
               val resolvedLineNumber = lineNumber.map(line => s":$line").getOrElse("")
-              s"$result\n\t\tat $className.$methodName($fileName$resolvedLineNumber)"
+              s"$result\n    at $className.$methodName($fileName$resolvedLineNumber)"
           }
           if (throwable.getCause != null) formatThrowable(throwable.getCause, s"$newResult\ncaused by: ") else newResult
         }
