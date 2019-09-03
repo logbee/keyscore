@@ -139,6 +139,11 @@ class DefaultMetricsCollector() extends MetricsCollector {
         .asInstanceOf[DecimalGaugeMetric]
   }
 
+  private def now: TimestampValue = {
+    val now = Timestamps.fromMillis(System.currentTimeMillis())
+    TimestampValue(now.getSeconds, now.getNanos)
+  }
+
   private def calcDelta: Long = {
     val current = System.currentTimeMillis()
     val delta = current - lastScape
@@ -150,6 +155,7 @@ class DefaultMetricsCollector() extends MetricsCollector {
     val delta = calcDelta
 
     metrics.foreach {
+      case (name, metric: CounterMetric) => metrics.update(name, metric.withTimestamp(__v = now).withTimedelta(__v = delta))
       case (name, metric: NumberGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
       case (name, metric: DecimalGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
       case _ =>
@@ -165,10 +171,5 @@ class DefaultMetricsCollector() extends MetricsCollector {
 
     updateMetrics()
     result
-  }
-
-  private def now: TimestampValue = {
-    val now = Timestamps.fromMillis(System.currentTimeMillis())
-    TimestampValue(now.getSeconds, now.getNanos)
   }
 }

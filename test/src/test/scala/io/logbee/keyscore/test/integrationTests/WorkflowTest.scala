@@ -49,6 +49,7 @@ class WorkflowTest extends Matchers {
     import runner.applyBehavior
 
     logger.debug(s"STARTING WorkflowTest")
+    cleanUp
 
     logger.debug(s"CREATING Workflow Pipeline")
     createWorkflowPipeline(runner, client, logger)
