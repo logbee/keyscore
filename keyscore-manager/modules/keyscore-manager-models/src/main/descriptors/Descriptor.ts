@@ -1,12 +1,12 @@
 import {Ref} from "../common/Ref";
-import {FilterDescriptor} from "./FilterDescriptor";
+import {FilterDescriptorWithLocales} from "./FilterDescriptor";
 import {Localization} from "../common/Localization";
 import {MetaData} from "../common/MetaData";
 
 export interface Descriptor {
     jsonClass:string;
     ref:Ref;
-    describes:FilterDescriptor;
+    describes:FilterDescriptorWithLocales;
     metadata:MetaData;
     localization:Localization;
 }

@@ -1,11 +1,11 @@
 import {TextRef} from "../common/Localization";
 
-export interface Category{
+export interface CategoryWithLocales{
     name:string;
     displayName:TextRef;
 }
 
-export interface ResolvedCategory{
+export interface Category{
     name:string;
     displayName:string;
 }

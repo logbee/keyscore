@@ -52,7 +52,7 @@ import {
 } from "../actions/pipelines.actions";
 import {
     PipelineInstance,
-    ResolvedFilterDescriptor,
+    FilterDescriptor,
     Blueprint,
     PipelineBlueprint,
     Configuration,
@@ -153,7 +153,7 @@ export class PipelinesEffects {
         ofType(LOAD_FILTER_DESCRIPTORS_SUCCESS),
         map(action => (action as LoadFilterDescriptorsSuccessAction).descriptors),
         map(descriptors => {
-            let resolvedDescriptors: ResolvedFilterDescriptor[] = descriptors.map(descriptor =>
+            let resolvedDescriptors: FilterDescriptor[] = descriptors.map(descriptor =>
                 this.descriptorResolver.resolveDescriptor(descriptor)
             );
             return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);

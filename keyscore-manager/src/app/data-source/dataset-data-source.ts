@@ -3,14 +3,9 @@ import {BehaviorSubject} from "rxjs/index";
 import {
     DatasetTableModel,
     DatasetTableRowModel,
-    BooleanValue,
-    DecimalValue,
-    DurationValue,
-    NumberValue,
-    TextValue,
-    TimestampValue,
-    Value,
-    ValueJsonClass
+    ValueJsonClass,
+    Value
+
 } from "@keyscore-manager-models";
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
@@ -70,25 +65,24 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
             this.checkFilterMatch(output, searchString.toUpperCase() ||
             this.checkFilterMatch(output, searchString.toLowerCase()))
     }
-    private accessFieldValues(valueObject: Value): string {
-        switch (valueObject.jsonClass) {
-            case ValueJsonClass.BooleanValue: {
-                return (valueObject as BooleanValue).value.toString();
-            }
-            case ValueJsonClass.TextValue: {
-                return (valueObject as TextValue).value;
-            }
-            case ValueJsonClass.NumberValue: {
-                return (valueObject as NumberValue).value.toString();
-            }
-            case ValueJsonClass.DurationValue: {
-                return (valueObject as DurationValue).nanos + (valueObject as DurationValue).seconds;
-            }
-            case ValueJsonClass.TimestampValue: {
-                return (valueObject as TimestampValue).nanos + (valueObject as TimestampValue).seconds;
-            }
-            case ValueJsonClass.DecimalValue: {
-                return (valueObject as DecimalValue).value.toString();
+    private accessFieldValues(valueObject: Value): any {
+        if (!valueObject) {
+            return "No extracted datasets yet!"
+        } else {
+            switch (valueObject.jsonClass) {
+                case ValueJsonClass.BooleanValue:
+                case ValueJsonClass.DecimalValue:
+                case ValueJsonClass.NumberValue:
+                case ValueJsonClass.TextValue: {
+                    return valueObject.value.toString();
+                }
+                case ValueJsonClass.TimestampValue:
+                case ValueJsonClass.DurationValue: {
+                    return valueObject.seconds.toString();
+                }
+                default: {
+                    return "Unknown Type";
+                }
             }
         }
     }

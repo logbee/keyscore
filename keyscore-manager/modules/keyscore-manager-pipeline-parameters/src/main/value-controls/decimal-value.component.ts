@@ -1,7 +1,7 @@
 import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
 import {ValueComponent} from "./value-component.interface";
 import {FormControl} from "@angular/forms";
-import {DecimalValue} from "../models/value.model";
+import {DecimalValue} from "@keyscore-manager-models";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 
 @Component({

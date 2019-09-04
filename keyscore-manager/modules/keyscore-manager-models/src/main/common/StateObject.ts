@@ -1,12 +1,9 @@
-import {ResourceInstanceState} from "../filter-model/ResourceInstanceState";
+import {ResourceInstanceState} from "@keyscore-manager-models";
 
 export class StateObject {
 
-     resourceId: string;
-     resourceInstance: ResourceInstanceState;
-
-    constructor(resourceId: string, resourceInstance: ResourceInstanceState) {
-        this.resourceId = resourceId;
-        this.resourceInstance = resourceInstance;
+    constructor(
+        public resourceId: string,
+        public resourceInstance: ResourceInstanceState) {
     }
 }

@@ -3,9 +3,9 @@ import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MaterialModule} from "@keyscore-manager-material";
 import {BooleanParameterComponent} from "./boolean-parameter.component";
-import {ParameterFactoryService} from "../../service/parameter-factory.service";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {BooleanParameter, BooleanParameterDescriptor, JSONCLASS_BOOLEAN_DESCR} from "../../../../../keyscore-manager-models/src/main/parameters/boolean-parameter.model";
+import {BooleanParameter, BooleanParameterDescriptor, JSONCLASS_BOOLEAN_DESCR} from "@keyscore-manager-models";
 
 @NgModule({
     imports: [

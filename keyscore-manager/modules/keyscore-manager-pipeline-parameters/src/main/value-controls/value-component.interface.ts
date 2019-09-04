@@ -1,5 +1,5 @@
 import {EventEmitter} from "@angular/core";
-import {Value} from "../models/value.model";
+import {Value} from "@keyscore-manager-models";
 
 export interface ValueComponent{
     value:Value;

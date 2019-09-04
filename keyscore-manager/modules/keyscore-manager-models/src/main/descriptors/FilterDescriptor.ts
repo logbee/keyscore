@@ -1,19 +1,22 @@
-import {ParameterFieldsModels, ResolvedParameterDescriptor} from "../parameters/parameter-fields.model";
+import {
+    ParameterDescriptorWithLocales,
+    ParameterDescriptor
+} from "@keyscore-manager-models";
 import {TextRef} from "../common/Localization";
 import {InputDescriptor} from "./InputDescriptor";
 import {OutputDescriptor} from "./OutputDescriptor";
 import {Icon} from "./Icon";
-import {Category, ResolvedCategory} from "./Category";
+import {Category, CategoryWithLocales} from "./Category";
 import {Ref} from "../common/Ref";
 
 
-export interface FilterDescriptor{
+export interface FilterDescriptorWithLocales{
     name:string;
     jsonClass:FilterDescriptorJsonClass;
     displayName:TextRef;
     description:TextRef;
-    categories:Category[];
-    parameters:ParameterFieldsModels[];
+    categories:CategoryWithLocales[];
+    parameters:ParameterDescriptorWithLocales[];
     in?:InputDescriptor;
     out?:OutputDescriptor;
     icon?:Icon;
@@ -25,14 +28,14 @@ export enum FilterDescriptorJsonClass{
     SourceDescriptor ="io.logbee.keyscore.model.descriptor.SourceDescriptor"
 }
 
-export interface ResolvedFilterDescriptor{
+export interface FilterDescriptor{
+    jsonClass:FilterDescriptorJsonClass;
     descriptorRef:Ref;
     name:string;
-    jsonClass:FilterDescriptorJsonClass;
     displayName:string;
     description:string;
-    categories:ResolvedCategory[];
-    parameters:ResolvedParameterDescriptor[];
+    categories:Category[];
+    parameters:ParameterDescriptor[];
     in?:InputDescriptor;
     out?:OutputDescriptor;
     icon?:Icon;

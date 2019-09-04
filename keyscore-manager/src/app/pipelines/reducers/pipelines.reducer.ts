@@ -18,8 +18,8 @@ import {
     generateEmptyEditingPipelineModel,
     Health,
     Label,
-    ResolvedCategory,
-    ResolvedFilterDescriptor,
+    Category,
+    FilterDescriptor,
     TextValue
 } from "@keyscore-manager-models";
 import {PipelineTableModel} from "../PipelineTableModel";
@@ -29,8 +29,8 @@ export class PipelinesState {
     public editingPipeline: EditingPipelineModel;
     public isPipelineCreation: boolean;
     public descriptors: Descriptor[];
-    public filterDescriptors: ResolvedFilterDescriptor[];
-    public filterCategories: ResolvedCategory[];
+    public filterDescriptors: FilterDescriptor[];
+    public filterCategories: Category[];
     public pipelineInstancePolling: boolean;
     public pipelineList: PipelineTableModel[];
 }

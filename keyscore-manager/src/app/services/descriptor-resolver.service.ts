@@ -3,21 +3,22 @@ import {TranslateService} from "@ngx-translate/core";
 import {
     Choice,
     Descriptor,
-    FieldDirectiveDescriptor,
     FieldNameParameterDescriptor,
     FieldParameterDescriptor,
     FilterDescriptor,
     ParameterDescriptor,
-    ParameterDescriptorJsonClass,
     ParameterInfo,
-    ResolvedChoice,
-    ResolvedFieldDirectiveDescriptor,
-    ResolvedFilterDescriptor,
-    ResolvedParameterDescriptor,
-    ResolvedParameterInfo,
-    ResolvedStringValidator,
+    ChoiceWithLocales,
+    FilterDescriptorWithLocales,
+    ParameterDescriptorWithLocales,
+    ParameterInfoWithLocales,
+    StringValidatorWithLocales,
     StringValidator,
-    TextParameterDescriptor
+    TextParameterDescriptor,
+    ParameterDescriptorJsonClass,
+    ExpressionParameter,
+    ExpressionParameterDescriptor,
+    ExpressionParameterChoice, NumberParameterDescriptor, DecimalParameterDescriptor
 } from "@keyscore-manager-models";
 
 @Injectable()
@@ -26,17 +27,17 @@ export class DescriptorResolverService {
     constructor(private translateService: TranslateService) {
     }
 
-    resolveDescriptor(descriptor: Descriptor): ResolvedFilterDescriptor {
-        const filterDescriptor: FilterDescriptor = descriptor.describes;
+    resolveDescriptor(descriptor: Descriptor): FilterDescriptor {
+        const filterDescriptor: FilterDescriptorWithLocales = descriptor.describes;
         const possibleLanguages = descriptor.localization.locales.map(locale => locale.language);
         const lang = this.translateService.currentLang;
         const currentLang = possibleLanguages.includes(lang) ? lang :
             possibleLanguages.includes('en') ? 'en' : possibleLanguages[0];
         const settings = {descriptor: descriptor, language: currentLang};
         const displayName = filterDescriptor.displayName ?
-            this.getTranslation(settings, filterDescriptor.displayName.id) : "N/A";
+            this.getTranslation(settings, filterDescriptor.displayName.id) : "";
         const description = filterDescriptor.description ?
-            this.getTranslation(settings, filterDescriptor.description.id) : "N/A";
+            this.getTranslation(settings, filterDescriptor.description.id) : "";
         const categories = filterDescriptor.categories.map(category => {
             return {
                 name: category.name,
@@ -69,59 +70,38 @@ export class DescriptorResolverService {
     }
 
 
-    private resolveParameterDescriptor(settings: { descriptor: Descriptor, language: string }, parameterDescriptor: ParameterDescriptor): ResolvedParameterDescriptor {
-        let initialize = {
+    private resolveParameterDescriptor(settings: { descriptor: Descriptor, language: string }, parameterDescriptor: ParameterDescriptorWithLocales): ParameterDescriptor {
+        let base = {
             ref: parameterDescriptor.ref,
             info: this.resolveInfo(settings, parameterDescriptor.info),
             jsonClass: parameterDescriptor.jsonClass,
         };
         switch (parameterDescriptor.jsonClass) {
-            case ParameterDescriptorJsonClass.TextParameterDescriptor:
-                return {
-                    ...initialize,
-                    defaultValue: parameterDescriptor.defaultValue,
-                    validator: this.resolveValidator(settings, parameterDescriptor.validator),
-                    mandatory: parameterDescriptor.mandatory
-                };
-            case ParameterDescriptorJsonClass.ExpressionParameterDescriptor:
-                return {
-                    ...initialize,
-                    defaultValue: parameterDescriptor.defaultValue,
-                    expressionType: parameterDescriptor.expressionType,
-                    mandatory: parameterDescriptor.mandatory
-                };
+            case ParameterDescriptorJsonClass.TextParameterDescriptor: {
+                return new TextParameterDescriptor(
+                    base.ref,
+                    base.info.displayName,
+                    base.info.description,
+                    parameterDescriptor.defaultValue,
+                    this.resolveValidator(settings, parameterDescriptor.validator),
+                    parameterDescriptor.mandatory);
+            }
+            case ParameterDescriptorJsonClass.ExpressionParameterDescriptor:{
+                const choices = parameterDescriptor.choices.map(choice => this.resolveChoice(settings, choice)).map(choice => new ExpressionParameterChoice(choice.name, choice.displayName, choice.description));
+                return new ExpressionParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.mandatory, choices);
+            }
             case ParameterDescriptorJsonClass.NumberParameterDescriptor:
-                return {
-                    ...initialize,
-                    defaultValue: parameterDescriptor.defaultValue,
-                    range: parameterDescriptor.range,
-                    mandatory: parameterDescriptor.mandatory
-                };
+                return new NumberParameterDescriptor(base.ref,base.info.displayName,base.info.description,parameterDescriptor.defaultValue,parameterDescriptor.range,parameterDescriptor.mandatory);
             case ParameterDescriptorJsonClass.DecimalParameterDescriptor:
-                return {
-                    ...initialize,
-                    defaultValue: parameterDescriptor.defaultValue,
-                    range: parameterDescriptor.range,
-                    decimals: parameterDescriptor.decimals,
-                    mandatory: parameterDescriptor.mandatory
-                };
-            case ParameterDescriptorJsonClass.FieldNameParameterDescriptor:
-                return {
-                    ...initialize,
-                    defaultValue: parameterDescriptor.defaultValue,
-                    hint: parameterDescriptor.hint,
-                    validator: this.resolveValidator(settings, parameterDescriptor.validator),
-                    mandatory: parameterDescriptor.mandatory
-                };
-            case ParameterDescriptorJsonClass.FieldParameterDescriptor:
-                return {
-                    ...initialize,
-                    defaultValue: parameterDescriptor.defaultValue,
-                    hint: parameterDescriptor.hint,
-                    nameValidator: this.resolveValidator(settings, parameterDescriptor.nameValidator),
-                    fieldValueType: parameterDescriptor.fieldValueType,
-                    mandatory: parameterDescriptor.mandatory
-                };
+                return new DecimalParameterDescriptor(base.ref,base.info.displayName,base.info.description,parameterDescriptor.defaultValue,parameterDescriptor.range,parameterDescriptor.decimals,parameterDescriptor.mandatory);
+            case ParameterDescriptorJsonClass.FieldNameParameterDescriptor: {
+                const validator = this.resolveValidator(settings, parameterDescriptor.validator);
+                return new FieldNameParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.hint, validator, parameterDescriptor.mandatory);
+            }
+            case ParameterDescriptorJsonClass.FieldParameterDescriptor: {
+                const validator = this.resolveValidator(settings, parameterDescriptor.validator);
+                return new FieldParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.hint, validator,parameterDescriptor.fieldValueType,parameterDescriptor.mandatory);
+            }
             case ParameterDescriptorJsonClass.TextListParameterDescriptor:
                 return {
                     ...initialize,
@@ -160,29 +140,15 @@ export class DescriptorResolverService {
                     mandatory: parameterDescriptor.mandatory,
                     defaultValue: parameterDescriptor.defaultValue
                 };
-            case ParameterDescriptorJsonClass.FieldDirectiveSequenceParameterDescriptor:
-                return {
-                    ...initialize,
-                    fieldTypes: parameterDescriptor.fieldTypes,
-                    parameters: parameterDescriptor.parameters.map(parameter => this.resolveParameterDescriptor(settings, parameter)),
-                    directives: parameterDescriptor.directives.map(directive => this.resolveDirectiveDescriptor(settings, directive)),
-                    minSequences: parameterDescriptor.minSequences,
-                    maxSequences: parameterDescriptor.maxSequences
-                };
             case ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor:
-                return{
+                return {
                     ...initialize,
                     defaultValue: parameterDescriptor.defaultValue,
                     hint: parameterDescriptor.hint,
-                    supports:parameterDescriptor.supports,
-                    mandatory:parameterDescriptor.mandatory
+                    supports: parameterDescriptor.supports,
+                    mandatory: parameterDescriptor.mandatory
                 };
-            case ParameterDescriptorJsonClass.ParameterGroupDescriptor:
-                return{
-                    ...initialize,
-                    condition:parameterDescriptor.condition,
-                    parameters: parameterDescriptor.parameters.map(parameter => this.resolveParameterDescriptor(settings,parameter))
-                };
+
             default:
                 return null;
 
@@ -191,38 +157,38 @@ export class DescriptorResolverService {
 
     }
 
-    private resolveInfo(settings: { descriptor: Descriptor, language: string }, info: ParameterInfo): ResolvedParameterInfo {
+    private resolveInfo(settings: { descriptor: Descriptor, language: string }, info: ParameterInfoWithLocales): ParameterInfo {
         return info ? {
             displayName: info.displayName ? this.getTranslation(settings, info.displayName.id) : "",
             description: info.description ? this.getTranslation(settings, info.description.id) : ""
         } : {displayName: "", description: ""};
     }
 
-    private resolveDirectiveDescriptor(settings: { descriptor: Descriptor, language: string }, directive: FieldDirectiveDescriptor): ResolvedFieldDirectiveDescriptor {
+    /*private resolveDirectiveDescriptor(settings: { descriptor: Descriptor, language: string }, directive: FieldDirectiveDescriptorWithLocales): FieldDirectiveDescriptor {
         return directive ? {
             ...directive,
             info: this.resolveInfo(settings, directive.info),
             parameters: directive.parameters.map(parameter => this.resolveParameterDescriptor(settings, parameter))
         } : null;
-    }
+    }*/
 
-    private resolveChoice(settings: { descriptor: Descriptor, language: string }, choice: Choice): ResolvedChoice {
+    private resolveChoice(settings: { descriptor: Descriptor, language: string }, choice: ChoiceWithLocales): Choice {
         return choice ? {
             ...choice,
-            displayName: choice.displayName ? this.getTranslation(settings, choice.displayName.id) : "N/A",
-            description: choice.description ? this.getTranslation(settings, choice.description.id) : "N/A"
+            displayName: choice.displayName ? this.getTranslation(settings, choice.displayName.id) : "",
+            description: choice.description ? this.getTranslation(settings, choice.description.id) : ""
         } : null;
     }
 
-    private resolveValidator(settings: { descriptor: Descriptor, language: string }, validator: StringValidator): ResolvedStringValidator {
+    private resolveValidator(settings: { descriptor: Descriptor, language: string }, validator: StringValidatorWithLocales): StringValidator {
         return validator ? {
             ...validator,
-            description: validator.description ? this.getTranslation(settings, validator.description.id) : "N/A"
+            description: validator.description ? this.getTranslation(settings, validator.description.id) : ""
         } : null;
     }
 
     private getTranslation(settings: { descriptor: Descriptor, language: string }, key: string) {
         return settings.descriptor.localization.mapping[key] ?
-            settings.descriptor.localization.mapping[key].translations[settings.language] : "N/A";
+            settings.descriptor.localization.mapping[key].translations[settings.language] : "";
     }
 }

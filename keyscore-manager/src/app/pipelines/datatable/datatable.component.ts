@@ -3,17 +3,7 @@ import {BehaviorSubject, combineLatest, Observable} from "rxjs";
 import {select, Store} from "@ngrx/store";
 import {DatasetDataSource} from "../../data-source/dataset-data-source";
 import {MatPaginator, MatSort} from "@angular/material";
-import {
-    DatasetTableModel,
-    BooleanValue,
-    DecimalValue,
-    DurationValue,
-    NumberValue,
-    TextValue,
-    TimestampValue,
-    Value,
-    ValueJsonClass
-} from "@keyscore-manager-models";
+import {DatasetTableModel, DurationValue, TimestampValue, Value, ValueJsonClass} from "@keyscore-manager-models";
 import {getInputDatsetModels, getOutputDatasetModels} from "../index";
 
 @Component({
@@ -160,24 +150,15 @@ export class DatatableComponent implements OnInit {
             return "No extractedDatsets yet!"
         } else {
             switch (valueObject.jsonClass) {
-                case ValueJsonClass.BooleanValue: {
-                    return (valueObject as BooleanValue).value.toString();
-                }
+                case ValueJsonClass.BooleanValue:
+                case ValueJsonClass.DecimalValue:
+                case ValueJsonClass.NumberValue:
                 case ValueJsonClass.TextValue: {
-                    return (valueObject as TextValue).value;
+                    return valueObject.value.toString();
                 }
-                case ValueJsonClass.NumberValue: {
-                    return (valueObject as NumberValue).value.toString();
-                }
+                case ValueJsonClass.TimestampValue:
                 case ValueJsonClass.DurationValue: {
-                    return (valueObject as DurationValue).seconds.toString();
-
-                }
-                case ValueJsonClass.TimestampValue: {
-                    return (valueObject as TimestampValue).seconds.toString();
-                }
-                case ValueJsonClass.DecimalValue: {
-                    return (valueObject as DecimalValue).value.toString();
+                    return valueObject.seconds.toString();
                 }
                 default: {
                     return "Unknown Type";

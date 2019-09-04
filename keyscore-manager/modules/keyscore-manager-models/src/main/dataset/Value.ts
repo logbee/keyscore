@@ -1,65 +1,81 @@
-export abstract class Value {
+export interface ValueI {
     readonly jsonClass: string;
 }
 
-export class BooleanValue extends Value {
-    readonly jsonClass = "io.logbee.keyscore.model.data.BooleanValue";
+export enum ValueJsonClass {
+    BooleanValue = "io.logbee.keyscore.model.data.BooleanValue",
+    TextValue = "io.logbee.keyscore.model.data.TextValue",
+    NumberValue = "io.logbee.keyscore.model.data.NumberValue",
+    DecimalValue = "io.logbee.keyscore.model.data.DecimalValue",
+    TimestampValue = "io.logbee.keyscore.model.data.TimestampValue",
+    DurationValue = "io.logbee.keyscore.model.data.DurationValue"
+
+}
+
+
+export class BooleanValue implements ValueI {
+    readonly jsonClass = ValueJsonClass.BooleanValue;
 
     constructor(
         readonly value: boolean
     ) {
-        super();
     }
 }
 
-export class TextValue extends Value {
-    readonly jsonClass = "io.logbee.keyscore.model.data.TextValue";
+
+export class TextValue implements ValueI {
+    readonly jsonClass = ValueJsonClass.TextValue;
 
     constructor(
         readonly value: string
     ) {
-        super();
     }
 }
 
-export class NumberValue extends Value {
-    readonly jsonClass = "io.logbee.keyscore.model.data.NumberValue";
+export class NumberValue implements ValueI {
+    readonly jsonClass = ValueJsonClass.NumberValue;
 
     constructor(
         readonly value: number
     ) {
-        super();
     }
 }
 
-export class DecimalValue extends Value {
-    readonly jsonClass = "io.logbee.keyscore.model.data.DecimalValue";
+
+export class DecimalValue implements ValueI {
+    readonly jsonClass = ValueJsonClass.DecimalValue;
 
     constructor(
         readonly value: number
     ) {
-        super();
     }
 }
 
-export class TimestampValue extends Value {
-    readonly jsonClass = "io.logbee.keyscore.model.data.TimestampValue";
+
+export class TimestampValue implements ValueI {
+    readonly jsonClass = ValueJsonClass.TimestampValue;
 
     constructor(
         readonly seconds: number,
         readonly nanos: number
     ) {
-        super();
     }
 }
 
-export class DurationValue extends Value {
-    readonly jsonClass = "io.logbee.keyscore.model.data.DurationValue";
+
+export class DurationValue implements ValueI {
+    readonly jsonClass = ValueJsonClass.DurationValue;
 
     constructor(
         readonly seconds: number,
         readonly nanos: number
     ) {
-        super();
     }
 }
+
+export type Value = BooleanValue
+    | TextValue
+    | NumberValue
+    | DecimalValue
+    | TimestampValue
+    | DurationValue;

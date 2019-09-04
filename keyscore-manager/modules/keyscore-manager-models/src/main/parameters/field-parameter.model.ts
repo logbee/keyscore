@@ -3,9 +3,9 @@ import {
     ParameterRef,
     FieldNameHint,
     FieldValueType,
-    StringValidator
+    StringValidator,
+    Field
 } from "@keyscore-manager-models";
-import {Field} from "../../../../keyscore-manager-pipeline-parameters/src/main/models/value.model";
 
 export const JSONCLASS_FIELD_PARAM = "io.logbee.keyscore.model.configuration.FieldParameter";
 export const JSONCLASS_FIELD_DESCR = "io.logbee.keyscore.model.descriptor.FieldParameterDescriptor";

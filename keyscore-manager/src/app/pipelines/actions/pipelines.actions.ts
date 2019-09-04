@@ -1,7 +1,7 @@
 import {Action} from "@ngrx/store";
 import {
     PipelineInstance,
-    ResolvedFilterDescriptor,
+    FilterDescriptor,
     Blueprint,
     PipelineBlueprint,
     Configuration,
@@ -276,7 +276,7 @@ export class LoadFilterDescriptorsFailureAction implements Action {
 export class ResolveFilterDescriptorSuccessAction implements Action {
     public readonly type = RESOLVE_FILTER_DESCRIPTORS_SUCCESS;
 
-    constructor(readonly resolvedDescriptors: ResolvedFilterDescriptor[]) {
+    constructor(readonly resolvedDescriptors: FilterDescriptor[]) {
 
     }
 }

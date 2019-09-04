@@ -1,7 +1,7 @@
 import {Component, EventEmitter, HostBinding, Input, OnInit, Output} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
-import {TimestampValue} from "../models/value.model";
+import {TimestampValue} from "@keyscore-manager-models";
 import * as moment from "moment-timezone";
 import {ValueComponent} from "./value-component.interface";
 

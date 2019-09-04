@@ -6,7 +6,7 @@ import {
     generateWordList
 } from "@keyscore-manager-test-fixtures";
 import {Ref} from "@keyscore-manager-models";
-import {Category, ResolvedCategory} from "@keyscore-manager-models";
+import {Category, Category} from "@keyscore-manager-models";
 import {Icon} from "@keyscore-manager-models";
 
 export interface BlockDescriptor {
@@ -16,12 +16,12 @@ export interface BlockDescriptor {
     previousConnection: Connection;
     nextConnection: Connection;
     parameters: ResolvedParameterDescriptor[];
-    categories: ResolvedCategory[];
+    categories: Category[];
     icon?: Icon;
 }
 
 
-export const generateBlockDescriptor = (categories: ResolvedCategory[] = null): BlockDescriptor => {
+export const generateBlockDescriptor = (categories: Category[] = null): BlockDescriptor => {
     const defaultCategories = [
         {displayName: 'Sink', name: "sink"},
         {displayName: 'Source', name: 'source'},

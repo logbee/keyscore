@@ -1,7 +1,7 @@
 import {Blueprint, PipelineBlueprint} from "../blueprints/Blueprint";
 import {Configuration} from "../common/Configuration";
 import {generateRef, Ref} from "../common/Ref";
-import {ValueJsonClass} from "../dataset/Value";
+import {TextValue} from "@keyscore-manager-models";
 
 export interface EditingPipelineModel{
     pipelineBlueprint:PipelineBlueprint;
@@ -17,16 +17,10 @@ export const generateEmptyEditingPipelineModel = (ref:Ref = generateRef()):Editi
             metadata: {
                 labels: [{
                     name: "pipeline.name",
-                    value: {
-                        jsonClass: ValueJsonClass.TextValue,
-                        value: "New Pipeline"
-                    }
+                    value: new TextValue('New Pipeline')
                 }, {
                     name: "pipeline.description",
-                    value: {
-                        jsonClass: ValueJsonClass.TextValue,
-                        value: "Your new Pipeline"
-                    }
+                    value: new TextValue('Your new Pipeline')
                 }
                 ]
             }

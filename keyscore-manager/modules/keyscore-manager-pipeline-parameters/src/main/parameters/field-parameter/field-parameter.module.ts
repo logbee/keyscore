@@ -4,11 +4,10 @@ import {MaterialModule} from "@keyscore-manager-material";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {SharedControlsModule} from "../../shared-controls/shared-controls.module";
 import {FieldParameterComponent} from "./field-parameter.component";
-import {ParameterFactoryService} from "../../service/parameter-factory.service";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {FieldParameter, FieldParameterDescriptor, JSONCLASS_FIELD_DESCR} from "../../../../../keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {FieldParameter, FieldParameterDescriptor, JSONCLASS_FIELD_DESCR,Field} from "@keyscore-manager-models";
 import {ValueControlsModule} from "../../value-controls/value-controls.module";
-import {Field} from "../../models/value.model";
 
 @NgModule({
     imports: [

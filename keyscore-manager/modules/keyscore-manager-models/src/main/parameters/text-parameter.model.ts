@@ -1,4 +1,4 @@
-import {ParameterRef, ResolvedParameterInfo, ResolvedStringValidator} from "@keyscore-manager-models";
+import {ParameterRef, StringValidator} from "@keyscore-manager-models";
 import {Parameter, ParameterDescriptor} from "./parameter.model";
 
 export const JSONCLASS_TEXT_PARAM = "io.logbee.keyscore.model.configuration.TextParameter";
@@ -12,7 +12,7 @@ export class TextParameterDescriptor extends ParameterDescriptor {
         readonly displayName: string,
         readonly description: string,
         readonly defaultValue: string,
-        readonly validator: ResolvedStringValidator,
+        readonly validator: StringValidator,
         readonly mandatory: boolean
     ) {
         super(ref, displayName, description);

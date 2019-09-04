@@ -1,5 +1,5 @@
-import {Parameter, ParameterSet} from "../parameters/Parameter";
 import {Ref} from "./Ref";
+import {Parameter} from "@keyscore-manager-models";
 
 export interface Configuration {
     ref: Ref;
@@ -17,4 +17,8 @@ export interface FieldDirectiveSequenceConfiguration {
     id: string;
     parameters:ParameterSet;
     directives: DirectiveConfiguration[];
+}
+
+export interface ParameterSet{
+    parameters:Parameter[];
 }
