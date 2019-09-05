@@ -5,9 +5,8 @@ import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {Action, select, Store} from "@ngrx/store";
 import {forkJoin, Observable, of} from "rxjs";
 import {concat, concatMap, delay, skip, tap, withLatestFrom} from "rxjs/internal/operators";
-import {catchError, combineLatest, map, mergeMap, switchMap} from "rxjs/operators";
+import {catchError, map, mergeMap, switchMap} from "rxjs/operators";
 import {AppState} from "../../app.component";
-import {selectAppConfig} from "../../app.config";
 import {selectRefreshTime} from "../../common/loading/loading.reducer";
 import {
     CHECK_IS_PIPELINE_RUNNING,
@@ -39,7 +38,11 @@ import {
     RUN_PIPELINE_SUCCESS,
     RunPipelineAction,
     RunPipelineFailureAction,
-    RunPipelineSuccessAction, STOP_PIPELINE, StopPipelineAction, StopPipelineFailureAction, StopPipelineSuccessAction,
+    RunPipelineSuccessAction,
+    STOP_PIPELINE,
+    StopPipelineAction,
+    StopPipelineFailureAction,
+    StopPipelineSuccessAction,
     TRIGGER_FILTER_RESET,
     TriggerFilterResetAction,
     TriggerFilterResetFailure,
@@ -51,23 +54,25 @@ import {
     UpdatePipelineSuccessAction,
 } from "../actions/pipelines.actions";
 import {
-    PipelineInstance,
-    FilterDescriptor,
     Blueprint,
-    PipelineBlueprint,
     Configuration,
     Descriptor,
-    Health
+    FilterDescriptor,
+    Health,
+    PipelineBlueprint,
+    PipelineInstance
 } from "@keyscore-manager-models";
 import {DescriptorResolverService} from "../../services/descriptor-resolver.service";
 import {StringTMap} from "../../common/object-maps";
 import {SnackbarOpen} from "../../common/snackbar/snackbar.actions";
-import {ConfigurationService} from "../../services/rest-api/ConfigurationService";
-import {DescriptorService} from "../../services/rest-api/DescriptorService";
-import {PipelineService} from "../../services/rest-api/PipelineService";
-import {FilterControllerService} from "../../services/rest-api/FilterController.service";
+import {
+    BlueprintService,
+    ConfigurationService,
+    DescriptorService, DeserializerService,
+    FilterControllerService,
+    PipelineService
+} from "@keyscore-manager-rest-api";
 import {getPipelinePolling, selectIsCreating} from "../index";
-import {BlueprintService} from "../../services/rest-api/BlueprintService";
 
 @Injectable()
 export class PipelinesEffects {
@@ -143,7 +148,7 @@ export class PipelinesEffects {
         ofType(LOAD_FILTER_DESCRIPTORS),
         switchMap((action) =>
             this.descriptorService.getAllDescriptors().pipe(
-                map((descriptorsMap: StringTMap<Descriptor>) => new LoadFilterDescriptorsSuccessAction(Object.values(descriptorsMap))),
+                map((descriptors: Descriptor[]) => new LoadFilterDescriptorsSuccessAction(descriptors)),
                 catchError((cause) => of(new LoadFilterDescriptorsFailureAction(cause)))
             )
         )
@@ -154,7 +159,7 @@ export class PipelinesEffects {
         map(action => (action as LoadFilterDescriptorsSuccessAction).descriptors),
         map(descriptors => {
             let resolvedDescriptors: FilterDescriptor[] = descriptors.map(descriptor =>
-                this.descriptorResolver.resolveDescriptor(descriptor)
+                this.deserializer.deserializeDescriptor(descriptor)
             );
             return new ResolveFilterDescriptorSuccessAction(resolvedDescriptors);
         })
@@ -213,7 +218,7 @@ export class PipelinesEffects {
         map(action => (action as RunPipelineAction).blueprintRef),
         switchMap((blueprintRef) => {
             return this.pipelineService.runPipeline(blueprintRef).pipe(
-                tap(data=>console.log("SUCCESS RUN",data),error=>console.log("ERROR RUN",error)),
+                tap(data => console.log("SUCCESS RUN", data), error => console.log("ERROR RUN", error)),
                 map(data => new CheckIsPipelineRunning(blueprintRef, 100)),
                 catchError(cause => of(new RunPipelineFailureAction(cause, blueprintRef)))
             )
@@ -247,15 +252,15 @@ export class PipelinesEffects {
 
     @Effect() public stopPipeline: Observable<Action> = this.actions$.pipe(
         ofType(STOP_PIPELINE),
-        tap(_=> console.log('[STOP] stop pipeline effect')),
+        tap(_ => console.log('[STOP] stop pipeline effect')),
         map(action => (action as StopPipelineAction).id),
         concatMap((id) =>
             this.pipelineService.stopPipeline(id).pipe(
-                tap(data => console.log("STOP EFFECT DATA:",data),error=>console.log("STOP EFFECT ERROR: ",error)),
+                tap(data => console.log("STOP EFFECT DATA:", data), error => console.log("STOP EFFECT ERROR: ", error)),
                 map(data => new StopPipelineSuccessAction(id)),
                 catchError(cause => of(new StopPipelineFailureAction(cause, id)))
             ))
-        );
+    );
 
     @Effect() public loadPipelineInstances$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_PIPELINEBLUEPRINTS_SUCCESS),
@@ -322,7 +327,7 @@ export class PipelinesEffects {
                 private blueprintService: BlueprintService,
                 private configurationService: ConfigurationService,
                 private descriptorService: DescriptorService,
-                private descriptorResolver: DescriptorResolverService,
+                private deserializer: DeserializerService,
                 private filterControllerService: FilterControllerService,
                 private pipelineService: PipelineService) {
     }

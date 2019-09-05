@@ -16,24 +16,40 @@ import {
     StringValidator,
     TextParameterDescriptor,
     ParameterDescriptorJsonClass,
-    ExpressionParameter,
     ExpressionParameterDescriptor,
-    ExpressionParameterChoice, NumberParameterDescriptor, DecimalParameterDescriptor
+    ExpressionParameterChoice,
+    NumberParameterDescriptor,
+    DecimalParameterDescriptor,
+    TextListParameterDescriptor,
+    FieldNameListParameterDescriptor,
+    FieldListParameterDescriptor,
+    ChoiceParameterDescriptor,
+    BooleanParameterDescriptor,
+    FieldNamePatternParameterDescriptor,
+    PatternTypeChoice,
+    Locale,
+    TranslationMapping
 } from "@keyscore-manager-models";
 
-@Injectable()
-export class DescriptorResolverService {
-
+@Injectable({providedIn: 'root'})
+export class DeserializerService {
     constructor(private translateService: TranslateService) {
     }
 
-    resolveDescriptor(descriptor: Descriptor): FilterDescriptor {
-        const filterDescriptor: FilterDescriptorWithLocales = descriptor.describes;
-        const possibleLanguages = descriptor.localization.locales.map(locale => locale.language);
+    private selectLanguage(languages: string[]) {
+
         const lang = this.translateService.currentLang;
-        const currentLang = possibleLanguages.includes(lang) ? lang :
-            possibleLanguages.includes('en') ? 'en' : possibleLanguages[0];
+
+        return languages.includes(lang) ? lang :
+            languages.includes('en') ? 'en' : languages[0];
+    }
+
+    deserializeDescriptor(descriptor: Descriptor): FilterDescriptor {
+        const filterDescriptor: FilterDescriptorWithLocales = descriptor.describes;
+
+        const currentLang = this.selectLanguage(descriptor.localization.locales.map(loc => loc.language));
         const settings = {descriptor: descriptor, language: currentLang};
+
         const displayName = filterDescriptor.displayName ?
             this.getTranslation(settings, filterDescriptor.displayName.id) : "";
         const description = filterDescriptor.description ?
@@ -86,69 +102,63 @@ export class DescriptorResolverService {
                     this.resolveValidator(settings, parameterDescriptor.validator),
                     parameterDescriptor.mandatory);
             }
-            case ParameterDescriptorJsonClass.ExpressionParameterDescriptor:{
+            case ParameterDescriptorJsonClass.ExpressionParameterDescriptor: {
                 const choices = parameterDescriptor.choices.map(choice => this.resolveChoice(settings, choice)).map(choice => new ExpressionParameterChoice(choice.name, choice.displayName, choice.description));
                 return new ExpressionParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.mandatory, choices);
             }
             case ParameterDescriptorJsonClass.NumberParameterDescriptor:
-                return new NumberParameterDescriptor(base.ref,base.info.displayName,base.info.description,parameterDescriptor.defaultValue,parameterDescriptor.range,parameterDescriptor.mandatory);
+                return new NumberParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    parameterDescriptor.defaultValue, parameterDescriptor.range, parameterDescriptor.mandatory);
             case ParameterDescriptorJsonClass.DecimalParameterDescriptor:
-                return new DecimalParameterDescriptor(base.ref,base.info.displayName,base.info.description,parameterDescriptor.defaultValue,parameterDescriptor.range,parameterDescriptor.decimals,parameterDescriptor.mandatory);
+                return new DecimalParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    parameterDescriptor.defaultValue, parameterDescriptor.range, parameterDescriptor.decimals,
+                    parameterDescriptor.mandatory);
             case ParameterDescriptorJsonClass.FieldNameParameterDescriptor: {
                 const validator = this.resolveValidator(settings, parameterDescriptor.validator);
-                return new FieldNameParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.hint, validator, parameterDescriptor.mandatory);
+
+                return new FieldNameParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    parameterDescriptor.defaultValue, parameterDescriptor.hint, validator, parameterDescriptor.mandatory);
             }
             case ParameterDescriptorJsonClass.FieldParameterDescriptor: {
                 const validator = this.resolveValidator(settings, parameterDescriptor.validator);
-                return new FieldParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.hint, validator,parameterDescriptor.fieldValueType,parameterDescriptor.mandatory);
+
+                return new FieldParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    parameterDescriptor.defaultValue, parameterDescriptor.hint, validator,
+                    parameterDescriptor.fieldValueType, parameterDescriptor.mandatory);
             }
-            case ParameterDescriptorJsonClass.TextListParameterDescriptor:
-                return {
-                    ...initialize,
-                    descriptor: parameterDescriptor.descriptor ?
-                        this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as TextParameterDescriptor : null,
-                    min: parameterDescriptor.min,
-                    max: parameterDescriptor.max,
+            case ParameterDescriptorJsonClass.TextListParameterDescriptor: {
+                const textDescriptor: TextParameterDescriptor =
+                    this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as TextParameterDescriptor;
 
-                };
-            case ParameterDescriptorJsonClass.FieldNameListParameterDescriptor:
-                return {
-                    ...initialize,
-                    descriptor: parameterDescriptor.descriptor ? this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as FieldNameParameterDescriptor : null,
-                    min: parameterDescriptor.min,
-                    max: parameterDescriptor.max,
+                return new TextListParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    textDescriptor, parameterDescriptor.min, parameterDescriptor.max);
+            }
+            case ParameterDescriptorJsonClass.FieldNameListParameterDescriptor: {
+                const fieldNameDescriptor =
+                    this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as FieldNameParameterDescriptor;
 
-                };
-            case ParameterDescriptorJsonClass.FieldListParameterDescriptor:
-                return {
-                    ...initialize,
-                    descriptor: parameterDescriptor.descriptor ? this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as FieldParameterDescriptor : null,
-                    min: parameterDescriptor.min,
-                    max: parameterDescriptor.max,
+                return new FieldNameListParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    fieldNameDescriptor, parameterDescriptor.min, parameterDescriptor.max);
+            }
+            case ParameterDescriptorJsonClass.FieldListParameterDescriptor: {
+                const fieldDescriptor = this.resolveParameterDescriptor(settings, parameterDescriptor.descriptor) as FieldParameterDescriptor;
 
-                };
-            case ParameterDescriptorJsonClass.ChoiceParameterDescriptor:
-                return {
-                    ...initialize,
-                    min: parameterDescriptor.min,
-                    max: parameterDescriptor.max,
-                    choices: parameterDescriptor.choices.map(choice => this.resolveChoice(settings, choice))
-                };
+                return new FieldListParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    fieldDescriptor, parameterDescriptor.min, parameterDescriptor.max);
+
+            }
+            case ParameterDescriptorJsonClass.ChoiceParameterDescriptor: {
+                const choices: Choice[] = parameterDescriptor.choices.map(choice => this.resolveChoice(settings, choice));
+
+                return new ChoiceParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    parameterDescriptor.min, parameterDescriptor.max, choices);
+            }
             case ParameterDescriptorJsonClass.BooleanParameterDescriptor:
-                return {
-                    ...initialize,
-                    mandatory: parameterDescriptor.mandatory,
-                    defaultValue: parameterDescriptor.defaultValue
-                };
+                return new BooleanParameterDescriptor(base.ref, base.info.displayName, base.info.description,
+                    parameterDescriptor.defaultValue, parameterDescriptor.mandatory);
             case ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor:
-                return {
-                    ...initialize,
-                    defaultValue: parameterDescriptor.defaultValue,
-                    hint: parameterDescriptor.hint,
-                    supports: parameterDescriptor.supports,
-                    mandatory: parameterDescriptor.mandatory
-                };
-
+                const supports = parameterDescriptor.supports.map(pattern => PatternTypeChoice.fromPatternType(pattern));
+                return new FieldNamePatternParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.hint, supports, parameterDescriptor.mandatory);
             default:
                 return null;
 
@@ -188,7 +198,18 @@ export class DescriptorResolverService {
     }
 
     private getTranslation(settings: { descriptor: Descriptor, language: string }, key: string) {
-        return settings.descriptor.localization.mapping[key] ?
-            settings.descriptor.localization.mapping[key].translations[settings.language] : "";
+        let mapping: TranslationMapping = settings.descriptor.localization.mapping[key] ?
+            settings.descriptor.localization.mapping[key] : undefined;
+
+        if (mapping === undefined) return "";
+
+        const possibleLanguages = Array.from(mapping.translations.keys());
+        const language = possibleLanguages.includes(settings.language) ?
+            settings.language : this.selectLanguage(possibleLanguages);
+
+
+        return settings.descriptor.localization.mapping[key].translations[language];
+
+
     }
 }

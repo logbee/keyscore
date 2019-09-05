@@ -29,12 +29,12 @@ import {
     ResourceInstanceState
 } from "@keyscore-manager-models";
 import {AppState} from "../app.component";
-import {FilterControllerService} from "../services/rest-api/FilterController.service";
+import {FilterControllerService} from "../../../modules/keyscore-manager-rest-api/src/main/FilterController.service";
 import {StringTMap} from "../common/object-maps";
 import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {BlueprintService} from "../services/rest-api/BlueprintService";
-import {ConfigurationService} from "../services/rest-api/ConfigurationService";
-import {DescriptorService} from "../services/rest-api/DescriptorService";
+import {BlueprintService} from "../../../modules/keyscore-manager-rest-api/src/main/BlueprintService";
+import {ConfigurationService} from "../../../modules/keyscore-manager-rest-api/src/main/ConfigurationService";
+import {DescriptorService} from "../../../modules/keyscore-manager-rest-api/src/main/DescriptorService";
 
 @Injectable()
 export class ResourcesEffects {

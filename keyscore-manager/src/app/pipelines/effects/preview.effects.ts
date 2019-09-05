@@ -2,12 +2,12 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../app.component";
-import {FilterControllerService} from "../../services/rest-api/FilterController.service";
-import {ConfigurationService} from "../../services/rest-api/ConfigurationService";
-import {DescriptorService} from "../../services/rest-api/DescriptorService";
+import {FilterControllerService} from "../../../../modules/keyscore-manager-rest-api/src/main/FilterController.service";
+import {ConfigurationService} from "../../../../modules/keyscore-manager-rest-api/src/main/ConfigurationService";
+import {DescriptorService} from "../../../../modules/keyscore-manager-rest-api/src/main/DescriptorService";
 import {DescriptorResolverService} from "../../services/descriptor-resolver.service";
-import {PipelineService} from "../../services/rest-api/PipelineService";
-import {BlueprintService} from "../../services/rest-api/BlueprintService";
+import {PipelineService} from "../../../../modules/keyscore-manager-rest-api/src/main/PipelineService";
+import {BlueprintService} from "../../../../modules/keyscore-manager-rest-api/src/main/BlueprintService";
 import {forkJoin, Observable, of} from "rxjs";
 import {catchError, concatMap, map, mergeMap, switchMap} from "rxjs/operators";
 import {

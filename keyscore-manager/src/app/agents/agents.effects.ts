@@ -20,7 +20,7 @@ import {
 } from "./agents.actions";
 import {Go} from "../router/router.actions";
 import {Agent} from "@keyscore-manager-models";
-import {AgentService} from "../services/rest-api/AgentService";
+import {AgentService} from "../../../modules/keyscore-manager-rest-api/src/main/AgentService";
 
 @Injectable()
 export class AgentsEffects {

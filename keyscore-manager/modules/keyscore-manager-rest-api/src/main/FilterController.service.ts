@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {AppState} from "../../app.component";
-import {AppConfig, selectAppConfig} from "../../app.config";
+import {AppState} from "../../../../src/app/app.component";
+import {AppConfig, selectAppConfig} from "../../../../src/app/app.config";
 import {select, Store} from "@ngrx/store";
 import {Observable} from "rxjs/index";
 import {Configuration, Dataset, ResourceInstanceState} from "@keyscore-manager-models";

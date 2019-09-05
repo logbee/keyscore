@@ -2,10 +2,12 @@
   "compilerOptions": {
     "baseUrl":"./src",
     "paths":{
+      "@/*":["./*"],
       "@keyscore-manager-models":["../modules/keyscore-manager-models/index.ts"],
       "@keyscore-manager-material":["../modules/keyscore-manager-material/index.ts"],
       "@keyscore-manager-pipeline-parameters":["../modules/keyscore-manager-pipeline-parameters/index.ts"],
-      "@keyscore-manager-test-fixtures":["../modules/keyscore-manager-test-fixtures/index.ts"]
+      "@keyscore-manager-test-fixtures":["../modules/keyscore-manager-test-fixtures/index.ts"],
+      "@keyscore-manager-rest-api":["../modules/keyscore-manager-rest-api/index.ts"]
     },
     "target": "es2017",
     "module": "commonjs",

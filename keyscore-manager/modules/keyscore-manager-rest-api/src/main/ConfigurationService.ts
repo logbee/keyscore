@@ -1,8 +1,8 @@
 import {Injectable} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {AppState} from "../../app.component";
+import {AppState} from "../../../../src/app/app.component";
 import {HttpClient} from "@angular/common/http";
-import {AppConfig, selectAppConfig} from "../../app.config";
+import {AppConfig, selectAppConfig} from "../../../../src/app/app.config";
 import {Configuration} from "@keyscore-manager-models";
 import {Observable} from "rxjs/index";
 
