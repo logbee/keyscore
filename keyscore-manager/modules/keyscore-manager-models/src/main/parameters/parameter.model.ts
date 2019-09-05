@@ -17,10 +17,10 @@ export abstract class Parameter {
     constructor(
         readonly ref: ParameterRef,
         readonly value: any
-    ){}
+    ) {
+    }
 }
 
-export interface ParameterMap{
-    refs:string[];
-    parameters:{[ref:string]:[Parameter,ParameterDescriptor]}
+export interface ParameterMap {
+    parameters: { [ref: string]: [Parameter, ParameterDescriptor] }
 }

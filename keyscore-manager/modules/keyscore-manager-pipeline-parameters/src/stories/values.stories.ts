@@ -6,13 +6,11 @@ import {BooleanValueComponent} from "../main/value-controls/boolean-value.compon
 import {MaterialModule} from "@keyscore-manager-material";
 import {ReactiveFormsModule} from "@angular/forms";
 import {TextValueComponent} from "../main/value-controls/text-value.component";
-import {TimestampValue} from "../main/models/value.model";
 import {TimestampValueComponent} from "../main/value-controls/timestamp-value.component";
 import {DurationValueComponent} from "../main/value-controls/duration-value.component";
 import {SharedControlsModule} from "../main/shared-controls/shared-controls.module";
 import {NumberValueComponent} from "../main/value-controls/number-value.component";
 import {ApplicationModule} from "@angular/core";
-import {ValueControlsModule} from "../main/value-controls/value-controls.module";
 
 storiesOf('Values/BooleanValue', module)
     .addDecorator(

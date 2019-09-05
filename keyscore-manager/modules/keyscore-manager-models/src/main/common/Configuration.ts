@@ -19,6 +19,8 @@ export interface FieldDirectiveSequenceConfiguration {
     directives: DirectiveConfiguration[];
 }
 
+export const JSONCLASS_PARAMETERSET = "io.logbee.keyscore.model.configuration.ParameterSet";
+
 export interface ParameterSet{
     parameters:Parameter[];
 }

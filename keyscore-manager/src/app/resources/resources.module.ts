@@ -15,7 +15,6 @@ import {StageType} from "./components/stage-type.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
 import {JsonVisualizer} from "./components/json-visualizer";
-import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {AppAuthGuard} from "../app.authguard";
 
 export const routes: Routes = [
@@ -46,7 +45,6 @@ export const routesWithoutAuth: Routes = [
         JsonVisualizer
     ],
     providers: [
-        DescriptorResolverService
     ]
 })
 

@@ -14,7 +14,6 @@ import {HealthModule} from "../common/health/health.module";
 import {ErrorModule} from "../common/error/error.module";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
 import {MaterialModule} from "@keyscore-manager-material";
-import {DescriptorResolverService} from "../services/descriptor-resolver.service";
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
 import {effects, reducers} from "./index";
 import {DatatableModule} from "./datatable/datatable.module";
@@ -55,7 +54,6 @@ export const routesWithoutAuth: Routes = [
     ],
     providers: [
         AppAuthGuard,
-        DescriptorResolverService,
         PipelyKeyscoreAdapter
     ]
 })

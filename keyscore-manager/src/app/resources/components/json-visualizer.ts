@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {Configuration, ResolvedFilterDescriptor} from "@keyscore-manager-models";
+import {Configuration, FilterDescriptor} from "@keyscore-manager-models";
 import {Store} from "@ngrx/store";
 
 @Component({
@@ -29,7 +29,7 @@ import {Store} from "@ngrx/store";
 })
 
 export class JsonVisualizer {
-    @Input() private descriptor: ResolvedFilterDescriptor;
+    @Input() private descriptor: FilterDescriptor;
     @Input()private configuration: Configuration;
 
     constructor(private store: Store<any>) {

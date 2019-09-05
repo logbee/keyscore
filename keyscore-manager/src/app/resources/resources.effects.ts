@@ -1,9 +1,9 @@
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
-import {Observable, of} from "rxjs/index";
+import {Observable, of} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import {ROUTER_NAVIGATION,RouterNavigationAction} from "@ngrx/router-store";
+import {ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {mergeMap} from "rxjs/internal/operators";
 import {catchError, map, switchMap} from "rxjs/operators";
 import {
@@ -25,16 +25,18 @@ import {
     Blueprint,
     Configuration,
     Descriptor,
-    ResolvedFilterDescriptor,
+    FilterDescriptor,
     ResourceInstanceState
 } from "@keyscore-manager-models";
 import {AppState} from "../app.component";
-import {FilterControllerService} from "../../../modules/keyscore-manager-rest-api/src/main/FilterController.service";
-import {StringTMap} from "../common/object-maps";
-import {DescriptorResolverService} from "../services/descriptor-resolver.service";
-import {BlueprintService} from "../../../modules/keyscore-manager-rest-api/src/main/BlueprintService";
-import {ConfigurationService} from "../../../modules/keyscore-manager-rest-api/src/main/ConfigurationService";
-import {DescriptorService} from "../../../modules/keyscore-manager-rest-api/src/main/DescriptorService";
+import {
+    BlueprintService,
+    ConfigurationService,
+    DescriptorService,
+    DeserializerService,
+    FilterControllerService
+} from "@keyscore-manager-rest-api";
+
 
 @Injectable()
 export class ResourcesEffects {
@@ -50,7 +52,7 @@ export class ResourcesEffects {
                     catchError((cause: any) => of(new LoadAllBlueprintsActionFailure(cause)))
                 )
             }
-            return of({type:'NOOP'});
+            return of({type: 'NOOP'});
         })
     );
 
@@ -58,7 +60,7 @@ export class ResourcesEffects {
         ofType(LOAD_ALL_BLUEPRINTS_SUCCESS),
         switchMap((_) =>
             this.descriptorService.getAllDescriptors().pipe(
-                map((descriptorsMap: StringTMap<Descriptor>) => new LoadAllDescriptorsForBlueprintSuccessAction(Object.values(descriptorsMap))),
+                map((descriptors: Descriptor[]) => new LoadAllDescriptorsForBlueprintSuccessAction(descriptors)),
                 catchError((cause) => of(new LoadAllDescriptorsForBlueprintFailureAction(cause)))
             )
         )
@@ -78,8 +80,8 @@ export class ResourcesEffects {
         ofType(LOAD_ALL_DESCRIPTORS_FOR_BLUEPRINT_SUCCESS),
         map(action => (action as LoadAllDescriptorsForBlueprintSuccessAction).descriptors),
         map(descriptors => {
-            let resolvedDescriptors: ResolvedFilterDescriptor[] = descriptors.map(descriptor =>
-                this.descriptorResolver.resolveDescriptor(descriptor)
+            let resolvedDescriptors: FilterDescriptor[] = descriptors.map(descriptor =>
+                this.deserializerService.deserializeDescriptor(descriptor)
             );
             return new ResolvedAllDescriptorsSuccessAction(resolvedDescriptors);
         })
@@ -100,10 +102,10 @@ export class ResourcesEffects {
                 private httpClient: HttpClient,
                 private actions$: Actions,
                 private filterService: FilterControllerService,
-                private descriptorResolver: DescriptorResolverService,
+                private descriptorService: DescriptorService,
                 private configurationService: ConfigurationService,
                 private blueprintService: BlueprintService,
-                private descriptorService: DescriptorService,
+                private deserializerService: DeserializerService,
                 private filterControllerService: FilterControllerService) {
     }
 

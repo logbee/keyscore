@@ -4,71 +4,68 @@ import {ExpressionParameterComponent} from "../main/parameters/expression-parame
 import {MaterialModule} from "@keyscore-manager-material";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {TextParameterComponent} from "../main/parameters/text-parameter/text-parameter.component";
 import {
+    BooleanParameter,
+    BooleanParameterDescriptor,
+    ChoiceParameter,
+    ChoiceParameterDescriptor,
+    DecimalParameter,
+    DecimalParameterDescriptor,
     ExpressionParameter,
     ExpressionParameterChoice,
     ExpressionParameterDescriptor,
-} from "../../../keyscore-manager-models/src/main/parameters/expression-parameter.model";
-import {TextParameterComponent} from "../main/parameters/text-parameter/text-parameter.component";
-import {TextParameter, TextParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/text-parameter.model";
-import {ExpressionType, FieldNameHint, FieldValueType} from "@keyscore-manager-models";
+    ExpressionType,
+    FieldListParameter,
+    FieldListParameterDescriptor,
+    FieldNameHint,
+    FieldNameListParameter,
+    FieldNameListParameterDescriptor,
+    FieldNameParameter,
+    FieldNameParameterDescriptor,
+    FieldNamePatternParameter,
+    FieldNamePatternParameterDescriptor,
+    FieldParameter,
+    FieldParameterDescriptor,
+    FieldValueType,
+    NumberParameter,
+    NumberParameterDescriptor,
+    PatternType,
+    PatternTypeChoice,
+    TextListParameter,
+    TextListParameterDescriptor,
+    TextParameter,
+    TextParameterDescriptor,
+    TextValue
+} from "@keyscore-manager-models";
 import {ExpressionParameterModule} from "../main/parameters/expression-parameter/expression-parameter.module";
 import {TextParameterModule} from "../main/parameters/text-parameter/text-parameter.module";
 import {ParameterComponentFactoryService} from "../main/service/parameter-component-factory.service";
 import {ParameterFormComponent} from "../main/parameter-form.component";
 import {NumberParameterComponent} from "../main/parameters/number-parameter/number-parameter.component";
-import {NumberParameter, NumberParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/number-parameter.model";
 import {StringValidatorService} from "../main/service/string-validator.service";
-import {
-    DecimalParameter,
-    DecimalParameterDescriptor
-} from "../../../keyscore-manager-models/src/main/parameters/decimal-parameter.model";
+
 import {DecimalParameterComponent} from "../main/parameters/decimal-parameter/decimal-parameter.component";
 import {NumberParameterModule} from "../main/parameters/number-parameter/number-parameter.module";
 import {BooleanParameterComponent} from "../main/parameters/boolean-parameter/boolean-parameter.component";
-import {
-    BooleanParameter,
-    BooleanParameterDescriptor
-} from "../../../keyscore-manager-models/src/main/parameters/boolean-parameter.model";
+
 import {BooleanParameterModule} from "../main/parameters/boolean-parameter/boolean-parameter.module";
 import {FieldNameParameterComponent} from "../main/parameters/field-name-parameter/field-name-parameter.component";
-import {
-    FieldNameParameter,
-    FieldNameParameterDescriptor
-} from "../../../keyscore-manager-models/src/main/parameters/field-name-parameter.model";
+
 import {FieldNamePatternParameterComponent} from "../main/parameters/field-name-pattern-parameter/field-name-pattern-parameter.component";
-import {
-    FieldNamePatternParameter,
-    FieldNamePatternParameterDescriptor,
-    PatternType,
-    PatternTypeChoice
-} from "../../../keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
 import {SharedControlsModule} from "../main/shared-controls/shared-controls.module";
 import {ValueControlsModule} from "../main/value-controls/value-controls.module";
 import {FieldParameterComponent} from "../main/parameters/field-parameter/field-parameter.component";
-import {FieldParameter, FieldParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/field-parameter.model";
+
 import {ValueComponentRegistryService} from "../main/value-controls/services/value-component-registry.service";
 import {FieldParameterModule} from "../main/parameters/field-parameter/field-parameter.module";
-import {TextValue} from "../main/models/value.model";
-import {
-    TextListParameter,
-    TextListParameterDescriptor
-} from "../../../keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
-import {DragDropModule} from "@angular/cdk/drag-drop";
+
 import {ListParameterModule} from "../main/parameters/list-parameter/list-parameter.module";
-import {ListParameterComponent} from "../main/parameters/list-parameter/list-parameter.component";
-import {ParameterFactoryService} from "../main/service/parameter-factory.service";
-import {
-    FieldNameListParameter,
-    FieldNameListParameterDescriptor
-} from "../../../keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
-import {
-    FieldListParameter,
-    FieldListParameterDescriptor
-} from "../../../keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
+
 import {ChoiceParameterComponent} from "../main/parameters/choice-parameter/choice-parameter.component";
-import {ChoiceParameter, ChoiceParameterDescriptor} from "../../../keyscore-manager-models/src/main/parameters/choice-parameter.model";
 import {ReactiveFormsModule} from "@angular/forms";
+
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -445,7 +442,7 @@ storiesOf('Parameters/ChoiceParameter', module)
                 "Some Choices here", 1, 1, [
                     {name: 'choice1', displayName: 'Choice 1', description: ''},
                     {name: 'choice2', displayName: 'Choice 2', description: 'This one has a description'},
-                    {name:'choice3',displayName:'Choice 1',description:''}
+                    {name: 'choice3', displayName: 'Choice 1', description: ''}
                 ])
             ,
             parameter: new ChoiceParameter({id: "choiceParameter"}, ""),
@@ -458,10 +455,10 @@ storiesOf('Parameters/ChoiceParameter', module)
             "Some Choices here", 2, 3, [
                 {name: 'choice1', displayName: 'Choice 1', description: ''},
                 {name: 'choice2', displayName: 'Choice 2', description: 'This one has a description'},
-                {name:'choice3',displayName:'Choice 3',description:''},
-                {name:'choice4',displayName:'Choice 4',description:''},
-                {name:'choice5',displayName:'Choice 5',description:''},
-                {name:'choice6',displayName:'Choice mit ganaaaaaaanz langem text',description:''},
+                {name: 'choice3', displayName: 'Choice 3', description: ''},
+                {name: 'choice4', displayName: 'Choice 4', description: ''},
+                {name: 'choice5', displayName: 'Choice 5', description: ''},
+                {name: 'choice6', displayName: 'Choice mit ganaaaaaaanz langem text', description: ''},
 
             ])
         ,

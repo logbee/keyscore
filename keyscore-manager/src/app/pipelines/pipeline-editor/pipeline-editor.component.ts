@@ -9,7 +9,7 @@ import {
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
 import {filter, share, take, takeUntil} from "rxjs/internal/operators";
-import {EditingPipelineModel, InternalPipelineConfiguration, ResolvedFilterDescriptor} from "@keyscore-manager-models";
+import {EditingPipelineModel, InternalPipelineConfiguration, FilterDescriptor} from "@keyscore-manager-models";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
@@ -54,7 +54,7 @@ import {DraggableModel} from "./pipely/models/draggable.model";
 })
 export class PipelineEditorComponent implements OnInit, OnDestroy {
     public pipeline$: Observable<EditingPipelineModel>;
-    public filterDescriptors$: Observable<ResolvedFilterDescriptor[]>;
+    public filterDescriptors$: Observable<FilterDescriptor[]>;
     public isLoading$: Observable<boolean>;
 
     private alive: Subject<void> = new Subject();

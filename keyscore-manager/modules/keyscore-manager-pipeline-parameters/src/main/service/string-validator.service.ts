@@ -1,11 +1,11 @@
 import {Injectable} from "@angular/core";
-import {ExpressionType, ResolvedStringValidator} from "@keyscore-manager-models";
+import {ExpressionType, StringValidator} from "@keyscore-manager-models";
 import * as GlobMatch from "minimatch";
 
 @Injectable()
 export class StringValidatorService {
 
-    public validate(value: string, validator: ResolvedStringValidator): boolean {
+    public validate(value: string, validator: StringValidator): boolean {
         if (!validator) {
             return true;
         }

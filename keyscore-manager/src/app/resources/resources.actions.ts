@@ -3,7 +3,7 @@ import {
     Blueprint,
     Configuration,
     Descriptor,
-    ResolvedFilterDescriptor,
+    FilterDescriptor,
     ResourceInstanceState
 } from "@keyscore-manager-models";
 
@@ -81,7 +81,7 @@ export class LoadAllDescriptorsForBlueprintFailureAction implements Action {
 export class ResolvedAllDescriptorsSuccessAction implements Action {
     public readonly type = RESOLVED_ALL_DESCRIPTORS_SUCCESS;
 
-    constructor(readonly resolvedDescriptors: ResolvedFilterDescriptor[]) {
+    constructor(readonly resolvedDescriptors: FilterDescriptor[]) {
 
     }
 }

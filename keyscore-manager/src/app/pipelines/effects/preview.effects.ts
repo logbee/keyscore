@@ -2,17 +2,13 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../app.component";
-import {FilterControllerService} from "../../../../modules/keyscore-manager-rest-api/src/main/FilterController.service";
-import {ConfigurationService} from "../../../../modules/keyscore-manager-rest-api/src/main/ConfigurationService";
-import {DescriptorService} from "../../../../modules/keyscore-manager-rest-api/src/main/DescriptorService";
-import {DescriptorResolverService} from "../../services/descriptor-resolver.service";
-import {PipelineService} from "../../../../modules/keyscore-manager-rest-api/src/main/PipelineService";
-import {BlueprintService} from "../../../../modules/keyscore-manager-rest-api/src/main/BlueprintService";
-import {forkJoin, Observable, of} from "rxjs";
-import {catchError, concatMap, map, mergeMap, switchMap} from "rxjs/operators";
+import {FilterControllerService} from "@keyscore-manager-rest-api";
+import {Observable, of} from "rxjs";
+import {catchError, map, mergeMap} from "rxjs/operators";
 import {
     EXTRACT_FROM_SELECTED_BLOCK,
-    ExtractFromSelectedBlock, ExtractFromSelectedBlockFailure,
+    ExtractFromSelectedBlock,
+    ExtractFromSelectedBlockFailure,
     ExtractFromSelectedBlockSuccess
 } from "../actions/preview.actions";
 import {Dataset} from "@keyscore-manager-models";
@@ -32,12 +28,7 @@ export class PreviewEffects {
     );
     constructor(private store: Store<AppState>,
                 private actions$: Actions,
-                private filterControllerService: FilterControllerService,
-                private configurationService: ConfigurationService,
-                private descriptorService: DescriptorService,
-                private descriptorResolver: DescriptorResolverService,
-                private pipelineService: PipelineService,
-                private blueprintService: BlueprintService) {
+                private filterControllerService: FilterControllerService) {
     }
 
 }

@@ -2,7 +2,6 @@ import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {ParameterControlService} from "./service/parameter-control.service";
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {PropagationStopModule} from "ngx-propagation-stop";
 import {ParameterFactoryService} from "./service/parameter-factory.service";
@@ -49,7 +48,6 @@ import {ChoiceParameterModule} from "./parameters/choice-parameter/choice-parame
         ParameterFormComponent
     ],
     providers: [
-        ParameterControlService,
         ParameterFactoryService,
         StringValidatorService
     ]

@@ -62,8 +62,6 @@ import {
     PipelineBlueprint,
     PipelineInstance
 } from "@keyscore-manager-models";
-import {DescriptorResolverService} from "../../services/descriptor-resolver.service";
-import {StringTMap} from "../../common/object-maps";
 import {SnackbarOpen} from "../../common/snackbar/snackbar.actions";
 import {
     BlueprintService,

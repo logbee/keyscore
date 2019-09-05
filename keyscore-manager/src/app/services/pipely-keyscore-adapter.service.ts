@@ -1,10 +1,10 @@
 import {Injectable} from "@angular/core";
 import {BlockDescriptor} from "../pipelines/pipeline-editor/pipely/models/block-descriptor.model";
-import {FilterDescriptorJsonClass, ResolvedFilterDescriptor} from "@keyscore-manager-models";
+import {FilterDescriptorJsonClass, FilterDescriptor} from "@keyscore-manager-models";
 
 @Injectable()
 export class PipelyKeyscoreAdapter {
-    resolvedParameterDescriptorToBlockDescriptor(descriptor:ResolvedFilterDescriptor):BlockDescriptor{
+    resolvedParameterDescriptorToBlockDescriptor(descriptor:FilterDescriptor):BlockDescriptor{
         let previousConnection = {
             connectableTypes: descriptor.jsonClass === FilterDescriptorJsonClass.SourceDescriptor ? [] : ['default-out'],
             connectionType: descriptor.jsonClass === FilterDescriptorJsonClass.SourceDescriptor ? 'no-connection-in' : 'default-in'

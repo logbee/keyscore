@@ -3,7 +3,7 @@ import {BlockDescriptor} from "../models/block-descriptor.model";
 import {Dropzone, Workspace} from "../models/contract";
 import {DraggableFactory} from "../draggable/draggable-factory";
 import {DropzoneFactory} from "../dropzone/dropzone-factory";
-import {generateRef, ParameterJsonClass, Parameter} from "@keyscore-manager-models";
+import {generateRef,JSONCLASS_PARAMETERSET} from "@keyscore-manager-models";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 
 
@@ -48,7 +48,7 @@ export class PuzzleCategoryComponent implements OnInit {
                 ref: generateRef(),
                 parent: null,
                 parameterSet: {
-                    jsonClass: ParameterJsonClass.ParameterSet,
+                    jsonClass: JSONCLASS_PARAMETERSET,
                     parameters: parameters
                 }
             };

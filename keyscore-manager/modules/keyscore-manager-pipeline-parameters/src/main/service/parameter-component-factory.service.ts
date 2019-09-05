@@ -1,6 +1,6 @@
 import {ComponentFactory, ComponentRef, Injectable, ViewContainerRef} from "@angular/core";
 import {ParameterComponent} from "../parameters/ParameterComponent";
-import {Parameter, ParameterDescriptor} from "../../../../keyscore-manager-models/src/main/parameters/parameter.model";
+import {Parameter, ParameterDescriptor} from "@keyscore-manager-models";
 
 @Injectable({
     providedIn: 'root'

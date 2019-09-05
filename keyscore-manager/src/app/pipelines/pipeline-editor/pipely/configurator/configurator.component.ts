@@ -2,8 +2,7 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angula
 import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
-import {Parameter, ParameterJsonClass,ResolvedParameterDescriptor,Dataset,Configuration} from "@keyscore-manager-models";
-import {ParameterControlService} from "@keyscore-manager-pipeline-parameters";
+import {Parameter, ParameterDescriptor, Dataset, Configuration, ParameterMap} from "@keyscore-manager-models";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
@@ -15,8 +14,7 @@ import * as _ from "lodash";
         <div fxFill fxLayout="column" class="configurator-wrapper">
             <div fxLayout="row">
                 <div fxFlex="95%" fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                    <div
-                            *ngIf="selectedBlock$.getValue().configuration.ref.uuid === 'init';else filterNameDescription">
+                    <div *ngIf="!(config$|async)">
                         <form [formGroup]="pipelineForm">
                             <mat-form-field>
                                 <input matInput type="text" placeholder="Pipeline Name"
@@ -43,14 +41,14 @@ import * as _ from "lodash";
                             </mat-form-field>
                         </form>
                     </div>
-                    <ng-template #filterNameDescription>
+                    <div *ngIf="(config$|async) as config">
                         <h3>
-                            <p style="margin-bottom: 5px">{{selectedBlock$.getValue().descriptor.displayName}}</p>
-                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">{{selectedBlock$.getValue().uuid}}</p>
+                            <p style="margin-bottom: 5px">{{config.descriptor.displayName}}</p>
+                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">{{config.uuid}}</p>
                         </h3>
-                        <p>{{selectedBlock$.getValue().descriptor.description}}</p>
+                        <p>{{config.descriptor.description}}</p>
                         <mat-divider></mat-divider>
-                    </ng-template>
+                    </div>
                 </div>
                 <button matTooltip="{{'CONFIGURATOR.HIDE' | translate}}" *ngIf="collapsibleButton" mat-mini-fab
                         color="primary"
@@ -60,13 +58,8 @@ import * as _ from "lodash";
             </div>
             <div fxLayout="column" fxLayoutWrap fxLayoutGap="10px" fxLayoutAlign="center">
                 <div class="configurator-body">
-                    <form *ngIf="form" [formGroup]="form">
-                        <app-parameter *ngFor="let parameter of getKeys(parameterMapping)" [parameter]="parameter"
-                                       [parameterDescriptor]="parameterMapping.get(parameter)"
-                                       [form]="form"
-                                       [datasets]="datasets$ | async">
-                        </app-parameter>
-                    </form>
+                    <parameter-form [parameters]="parameterMap" [autoCompleteDataList]="autoCompleteOptions"
+                                    (onValueChange)="saveConfiguration($event)"></parameter-form>
                 </div>
             </div>
         </div>
@@ -77,17 +70,24 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
 
-    @Input('selectedBlock') set selectedBlock(block: { uuid: string, configuration: Configuration, descriptor: BlockDescriptor }) {
-        if (block.uuid && block.configuration && block.descriptor) {
-            this.selectedBlock$.next(block);
+    @Input('config') set config(val: { conf: Configuration, descriptor: BlockDescriptor }) {
+        if (val) {
+            this._config = val.conf;
+            this.config$.next(val);
         } else {
-            this.selectedBlock$.next(this.initBlock);
+            this.config$.next(undefined);
+            this._config = undefined;
         }
     }
 
     @Input('datasets') set datasets(data: Dataset[]) {
-        this.datasets$.next(data);
+        this.autoCompleteOptions = Array.from(
+            new Set([].concat.apply(data.map(data =>
+                data.records.map(rec =>
+                    rec.fields.map(field => field.name))))));
     }
+
+    private autoCompleteOptions: string[];
 
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
@@ -96,63 +96,28 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string }> = new EventEmitter();
     @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
-    private initBlock = {
-        uuid: "00000000-0000-0000-0000-000000000000",
-        configuration: {ref: {uuid: "init"}, parent: null, parameterSet: {jsonClass:ParameterJsonClass.ParameterSet,parameters:[]}},
-        descriptor: {
-            ref: null,
-            displayName: "",
-            description: "",
-            previousConnection: null,
-            nextConnection: null,
-            parameters: [],
-            categories: []
-        }
-    };
 
-    private selectedBlock$ = new BehaviorSubject<{
-        uuid: string,
-        configuration: Configuration,
-        descriptor: BlockDescriptor
-    }>(this.initBlock);
-
-    private datasets$ = new BehaviorSubject<Dataset[]>([]);
+    private config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor }>(undefined);
+    private _config: Configuration;
 
     isVisible: boolean = true;
-    isAlive: Subject<void> = new Subject();
     form: FormGroup;
     pipelineForm: FormGroup;
-    parameterMapping: Map<Parameter, ResolvedParameterDescriptor> = new Map();
+    parameterMap: ParameterMap = {parameters: {}};
+
+    unsubscribe$: Subject<void> = new Subject();
 
     private lastID: string = "";
-    private lastValues = null;
-    private formSubscription: Subscription;
 
-    constructor(private parameterService: ParameterControlService) {
+
+    constructor() {
     }
 
     public ngOnInit(): void {
 
-        this.selectedBlock$.pipe(takeUntil(this.isAlive), filter(block => block.configuration.ref.uuid !== this.lastID)).subscribe(selectedBlock => {
-            if(this.formSubscription){
-                this.formSubscription.unsubscribe();
-            }
-            this.lastID = selectedBlock.configuration.ref.uuid;
-
-            this.parameterMapping =
-                new Map(_.zip(selectedBlock.configuration.parameterSet.parameters,
-                    selectedBlock.descriptor.parameters));
-            if (this.form) {
-                this.form.reset();
-            }
-            this.form = this.parameterService.toFormGroup(this.parameterMapping);
-
-            this.formSubscription = this.form.valueChanges.subscribe(values => {
-                if (!this.isAllNullOrEmpty(values) && !_.isEqual(this.lastValues, values) ) {
-                    this.lastValues = values;
-                    this.saveConfiguration();
-                }
-            });
+        this.config$.pipe(filter(config => config.conf.ref.uuid !== this.lastID), takeUntil(this.unsubscribe$)).subscribe(config => {
+            this.lastID = config.conf.ref.uuid;
+            this.createParameterMap(config);
         });
 
 
@@ -166,16 +131,15 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         });
     }
 
-    private isAllNullOrEmpty(obj: Object): boolean {
-        const values = Object.values(obj);
-        for (let prop of values) {
-            if (prop) return false;
-        }
-        return true;
+    private createParameterMap(config: { conf: Configuration, descriptor: BlockDescriptor }) {
+        const parameterTuples: [Parameter, ParameterDescriptor][] =
+            _.zip(config.conf.parameterSet.parameters, config.descriptor.parameters);
+        parameterTuples.forEach(([parameter, descriptor]) =>
+            this.parameterMap.parameters[descriptor.ref.id] = [parameter, descriptor]);
     }
 
     reset() {
-        this.selectedBlock$.getValue().configuration.parameterSet.parameters.forEach(parameter => {
+        this.config$.getValue().conf.parameterSet.parameters.forEach(parameter => {
                 this.form.controls[parameter.ref.id].setValue(parameter.value);
             }
         );
@@ -187,29 +151,19 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         this.onShowConfigurator.emit(this.isVisible);
     }
 
-    revert() {
-        this.reset();
-        this.onRevert.emit()
-    }
 
-    saveConfiguration() {
-        let configuration: Configuration = _.cloneDeep(this.selectedBlock$.getValue().configuration);
-        if (configuration.ref.uuid !== 'init') {
-            configuration.parameterSet.parameters.forEach((parameter) => {
-                if (this.form.controls[parameter.ref.id]) {
-                    parameter.value = this.form.controls[parameter.ref.id].value;
-                }
-            });
+    saveConfiguration(parameter: Parameter) {
+        let configuration: Configuration = _.cloneDeep(this._config);
+        let paramIndex = configuration.parameterSet.parameters.findIndex(param => param.ref.id === parameter.ref.id);
+        if (paramIndex > -1) {
+            configuration.parameterSet.parameters.splice(paramIndex, 1, parameter)
             this.onSave.emit(configuration);
         }
-    }
 
-
-    getKeys(map: Map<any, any>): any[] {
-        return Array.from(map.keys());
     }
 
     ngOnDestroy(): void {
-        this.isAlive.next();
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 }

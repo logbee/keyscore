@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, Output, ViewChild} from "@angular/core";
-import {Range} from "@keyscore-manager-models";
+import {NumberRange} from "@keyscore-manager-models";
 import {MatSlider} from "@angular/material";
-import {FormControl} from "@angular/forms";
 
 @Component({
     selector: `ks-slider`,
@@ -20,7 +19,7 @@ import {FormControl} from "@angular/forms";
     `
 })
 export class SliderInputComponent {
-    @Input() range: Range;
+    @Input() range: NumberRange;
     @Input() label: string;
     @Input() disabled:boolean = false;
     @Input()

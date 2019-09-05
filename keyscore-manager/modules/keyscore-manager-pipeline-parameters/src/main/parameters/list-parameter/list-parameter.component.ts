@@ -1,24 +1,25 @@
 import {
-    AfterContentInit, AfterViewInit,
-    Component, ComponentRef,
-    ContentChild, ContentChildren, ElementRef,
-    EventEmitter,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output, QueryList,
-    TemplateRef,
-    ViewChild, ViewChildren, ViewContainerRef
+    AfterViewInit,
+    Component,
+    ComponentRef,
+    QueryList,
+    ViewChild,
+    ViewChildren,
+    ViewContainerRef
 } from "@angular/core";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ParameterComponent} from "../ParameterComponent";
-import {Parameter, ParameterDescriptor} from "../../../../../keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    ListParameter,
+    ListParameterDescriptor
+} from "@keyscore-manager-models";
 import {Subscription} from "rxjs";
-import {ListParameter, ListParameterDescriptor} from "../../../../../keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
+
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {ParameterFactoryService} from "../../service/parameter-factory.service";
-import {tap} from "rxjs/operators";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 
 
 @Component({
@@ -125,7 +126,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
 
     itemChanged(value: Parameter, index: number) {
         this._valueParameter.splice(index, 1,
-            this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, value.value));
+            this.parameterFactory.parameterDescriptorToParameter(this.descriptor.descriptor, value.value));
         this.emitChanges();
     }
 
@@ -144,7 +145,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
             }
             return;
         }
-        this._valueParameter.push(this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, value));
+        this._valueParameter.push(this.parameterFactory.parameterDescriptorToParameter(this.descriptor.descriptor, value));
         this._addParameterComponentRef.instance.clear();
         this.emitChanges();
 
@@ -163,7 +164,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
         );
 
         this._addParameterComponentRef.instance.parameter =
-            this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor);
+            this.parameterFactory.parameterDescriptorToParameter(this.descriptor.descriptor);
 
         this._addParameterComponentRef.instance.descriptor = this.descriptor.descriptor;
         this._addParameterComponentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
@@ -199,12 +200,12 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
     private initValueParameters() {
         this._valueParameter = [];
         this.parameter.value.forEach(val => {
-            this._valueParameter.push(this.parameterFactory.newParameterDescriptorToParameter(this.descriptor.descriptor, val))
+            this._valueParameter.push(this.parameterFactory.parameterDescriptorToParameter(this.descriptor.descriptor, val))
         })
     }
 
     private emitChanges() {
-        this.emit(this.parameterFactory.newParameterDescriptorToParameter(this.descriptor, this.values));
+        this.emit(this.parameterFactory.parameterDescriptorToParameter(this.descriptor, this.values));
     }
 
     private unsubscribeListItems() {

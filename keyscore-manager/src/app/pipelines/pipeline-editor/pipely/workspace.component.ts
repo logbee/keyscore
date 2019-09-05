@@ -301,8 +301,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     }
 
     private savePipelineMetaData(metaData: { name: string, description: string }) {
-        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value = metaData.name;
-        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value = metaData.description;
+        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue) = new TextValue(metaData.name);
+        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue) = new TextValue(metaData.description);
     }
 
     addDropzone(dropzone: Dropzone) {

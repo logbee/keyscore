@@ -1,3 +1,4 @@
+/*
 import {Component, forwardRef, Input, OnInit} from "@angular/core";
 import {ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {
@@ -8,9 +9,8 @@ import {
     FieldNameHint,
     generateRef,
     Parameter,
-    ParameterJsonClass,
-    ResolvedFieldDirectiveDescriptor,
-    ResolvedParameterDescriptor
+    FieldDirectiveDescriptor,
+    ParameterDescriptor
 } from "@keyscore-manager-models";
 import {BehaviorSubject} from "rxjs/index";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
@@ -307,3 +307,4 @@ export class ParameterDirectiveComponent implements ControlValueAccessor, OnInit
         return Array.from(map.keys());
     }
 }
+*/
