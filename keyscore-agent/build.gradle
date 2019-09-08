@@ -60,13 +60,6 @@ dependencies {
     testOutput sourceSets.test.output
 }
 
-test {
-    testLogging {
-        events 'started', 'passed', 'skipped', 'failed'
-        exceptionFormat "full"
-    }
-}
-
 jar {
     exclude('**/.keep')
     manifest.attributes([
