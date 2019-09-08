@@ -52,10 +52,19 @@ subprojects {
     ext.scmUrl = 'https://github.com/logbee/keyscore/'
     ext.scmConnection = 'git@github.com:logbee/keyscore.git'
     ext.scmDevConnection = 'git@github.com:logbee/keyscore.git'
+    ext.buildDate = new Date().format('yyyy-MM-dd HH:mm:ss ZZZZ')
     ext.revision = { ->
         def stdout = new ByteArrayOutputStream()
         exec {
             commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }()
+    ext.revisionDate = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'show', '-s', '--format=%ci', 'HEAD'
             standardOutput = stdout
         }
         return stdout.toString().trim()
@@ -101,11 +110,13 @@ configure ([
     project(':keyscore-agent:keyscore-agent-runtimes-jvm'),
     project(':keyscore-frontier'),
     project(':keyscore-commons'),
+    project(':keyscore-commons:keyscore-commons-serviceregistry'),
     project(':keyscore-model'),
     project(':keyscore-pipeline:keyscore-pipeline-api'),
     project(':keyscore-pipeline:keyscore-pipeline-commons'),
     project(':keyscore-pipeline:keyscore-pipeline-contrib'),
-    project(':keyscore-pipeline:keyscore-pipeline-testkit')
+    project(':keyscore-pipeline:keyscore-pipeline-testkit'),
+    project(':keyscore-test-fixtures'),
 ]) {
 
     project.apply plugin: 'scala'
@@ -113,6 +124,10 @@ configure ([
     project.apply plugin: 'maven-publish'
     project.apply plugin: 'com.jfrog.bintray'
     project.apply plugin: 'distribution'
+
+    repositories {
+        mavenCentral()
+    }
 
     bintray {
         user = "$bintrayUser"
@@ -137,6 +152,24 @@ configure ([
             "-feature",
 //            "-Ywarn-unused-import"
         ]
+    }
+
+    jar {
+        exclude('**/.keep')
+        manifest.attributes([
+            'Implementation-Title'         : project.name,
+            'Implementation-Version'       : version,
+            'Implementation-Revision'      : revision,
+            'Implementation-Revision-Date' : revisionDate,
+            'Implementation-Build-Date'    : buildDate,
+            'Implementation-Vendor'        : 'logbee.io'
+        ])
+        from (rootProject.projectDir) {
+            include 'LICENSE'
+        }
+        into("META-INF/maven/$project.group/$project.name") {
+            from generatePomXml
+        }
     }
 
     test {

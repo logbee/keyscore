@@ -69,10 +69,12 @@ jar {
     manifest {
         from ("src/main/resources/META-INF/MANIFEST.MF") // <1>
         attributes([
-            'Implementation-Title' : project.name,
-            'Implementation-Version': version,
-            'Implementation-Revision' : revision,
-            'Implementation-Vendor' : vendor
+            'Implementation-Title'         : project.name,
+            'Implementation-Version'       : version,
+            'Implementation-Revision'      : revision,
+            'Implementation-Revision-Date' : revisionDate,
+            'Implementation-Build-Date'    : buildDate,
+            'Implementation-Vendor'        : vendor
         ])
     }
     enabled = false

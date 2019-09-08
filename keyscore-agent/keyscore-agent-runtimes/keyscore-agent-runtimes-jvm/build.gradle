@@ -13,12 +13,3 @@ dependencies {
     testCompile dependency.akka_testkit
     testCompile dependency.junit
 }
-
-jar {
-    exclude('**/.keep')
-    manifest.attributes([
-        'Implementation-Title'    : project.name,
-        'Implementation-Version'  : version,
-        'Implementation-Revision' : revision
-    ])
-}

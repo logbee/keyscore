@@ -38,5 +38,5 @@ abstract class AbstractLogic[P <: LogicProxy](val parameters: LogicParameters, s
 
   def state(): FilterState
 
-  def scrape(): MetricsCollection = metrics.scrape
+  def scrape(): MetricsCollection = metrics.scrape()
 }

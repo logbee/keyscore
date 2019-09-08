@@ -139,33 +139,37 @@ class DefaultMetricsCollector() extends MetricsCollector {
         .asInstanceOf[DecimalGaugeMetric]
   }
 
-  def get: MetricsCollection = MetricsCollection(metrics.values.toList)
-
-  def scrape: MetricsCollection = {
-
-    val result = MetricsCollection(metrics.values.toList)
-    val current = System.currentTimeMillis()
-    val delta =  current - lastScape
-    lastScape = current
-
-    metrics.foreach {
-      case (name, metric : NumberGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
-      case (name, metric : DecimalGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
-      case _ =>
-    }
-    result
+  private def now: TimestampValue = {
+    val now = Timestamps.fromMillis(System.currentTimeMillis())
+    TimestampValue(now.getSeconds, now.getNanos)
   }
 
-  def getWithLabels(labels: Set[Label]): MetricsCollection = {
-    MetricsCollection(metrics.values.map {
+  private def calcDelta: Long = {
+    val current = System.currentTimeMillis()
+    val delta = current - lastScape
+    lastScape = current
+    delta
+  }
+
+  private def updateMetrics(): Unit = {
+    val delta = calcDelta
+
+    metrics.foreach {
+      case (name, metric: CounterMetric) => metrics.update(name, metric.withTimestamp(__v = now).withTimedelta(__v = delta))
+      case (name, metric: NumberGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
+      case (name, metric: DecimalGaugeMetric) => metrics.update(name, metric.withValue(0).withTimestamp(__v = now).withTimedelta(__v = delta))
+      case _ =>
+    }
+  }
+
+  def scrape(labels: Set[Label] = Set.empty): MetricsCollection = {
+    val result = MetricsCollection(metrics.values.map {
       case metric : CounterMetric => metric.update(_.labels :++= labels)
       case metric : NumberGaugeMetric => metric.update(_.labels :++= labels)
       case metric : DecimalGaugeMetric => metric.update(_.labels :++= labels)
     }.toList)
-  }
 
-  private def now: TimestampValue = {
-    val now = Timestamps.fromMillis(System.currentTimeMillis())
-    TimestampValue(now.getSeconds, now.getNanos)
+    updateMetrics()
+    result
   }
 }

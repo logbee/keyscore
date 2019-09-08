@@ -1,13 +1,13 @@
 package io.logbee.keyscore.pipeline.api.metrics
 
+import io.logbee.keyscore.model.data.Label
 import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, DecimalGaugeMetricDescriptor, MetricsCollection, NumberGaugeMetricDescriptor}
 
 trait MetricsCollector {
   def collect(descriptor: CounterMetricDescriptor): CounterMetricCollector
   def collect(descriptor: NumberGaugeMetricDescriptor): NumberGaugeMetricCollector
   def collect(descriptor: DecimalGaugeMetricDescriptor): DecimalGaugeMetricCollector
-  def get: MetricsCollection
-  def scrape: MetricsCollection
+  def scrape(labels: Set[Label] = Set.empty): MetricsCollection
 }
 
 trait CounterMetricCollector {

@@ -4,7 +4,7 @@ import java.util.jar.Attributes
 
 import io.logbee.keyscore.model.util.Using.using
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 object AppInfo {
@@ -12,7 +12,7 @@ object AppInfo {
   def fromMainClass[T](implicit classTag: ClassTag[T]): AppInfo = {
 
     val mainClass = classTag.runtimeClass
-    var appInfo: AppInfo = AppInfo("<unknown>", "<unknown>", "<unknown>", "<unknown>")
+    var appInfo: AppInfo = AppInfo("<unknown>", "<unknown>", "<unknown>", "<unknown>", "<unknown>", "<unknown>")
 
     try {
       val manifest: Option[java.util.jar.Manifest] = mainClass.getClassLoader.getResources("META-INF/MANIFEST.MF").asScala
@@ -25,12 +25,16 @@ object AppInfo {
         val implementationVendor = attributes.getValue(Attributes.Name.IMPLEMENTATION_VENDOR)
         val implementationVersion = attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION)
         val implementationRevision = attributes.getValue("Implementation-Revision")
+        val implementationRevisionDate = attributes.getValue("Implementation-Revision-Date")
+        val implementationBuildDate = attributes.getValue("Implementation-Build-Date")
 
         appInfo = AppInfo(
-          if (implementationTitle == null) "<unknown>" else implementationTitle,
-          if (implementationVersion == null) "<unknown>" else implementationVersion,
-          if (implementationRevision == null) "<unknown>" else implementationRevision,
-          if (implementationVendor == null) "<unknown>" else implementationVendor
+          name = if (implementationTitle == null) "<unknown>" else implementationTitle,
+          version = if (implementationVersion == null) "<unknown>" else implementationVersion,
+          revision = if (implementationRevision == null) "<unknown>" else implementationRevision,
+          revisionDate = if (implementationRevisionDate == null) "<unknown>" else implementationRevisionDate,
+          buildDate = if (implementationBuildDate == null) "<unknown>" else implementationBuildDate,
+          vendor = if (implementationVendor == null) "<unknown>" else implementationVendor
         )
       })
     }
@@ -43,12 +47,14 @@ object AppInfo {
 
   def printAppInfo[T](implicit classTag: ClassTag[T]): Unit = {
     val appInfo = fromMainClass[T]
-    println(s" Name:     ${appInfo.name}")
-    println(s" Version:  ${appInfo.version}")
-    println(s" Revision: ${appInfo.revision}")
-    println(s" Vendor:   ${appInfo.vendor}")
+    println(s" Name:          ${appInfo.name}")
+    println(s" Version:       ${appInfo.version}")
+    println(s" Revision:      ${appInfo.revision}")
+    println(s" Revision-Date: ${appInfo.revisionDate}")
+    println(s" Build-Date:    ${appInfo.buildDate}")
+    println(s" Vendor:        ${appInfo.vendor}")
     println()
   }
 }
 
-case class AppInfo(name: String, version: String, revision: String, vendor: String)
+case class AppInfo(name: String, version: String, revision: String, revisionDate: String, buildDate: String, vendor: String)

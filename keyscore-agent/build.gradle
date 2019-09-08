@@ -49,6 +49,8 @@ dependencies {
     testCompile project(':keyscore-pipeline:keyscore-pipeline-contrib')
     testCompile project(':keyscore-frontier')
 
+    testCompile "com.dimafeng:testcontainers-scala_2.13:0.30.0"
+
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit
 
@@ -58,23 +60,17 @@ dependencies {
     testOutput sourceSets.test.output
 }
 
-test {
-    testLogging {
-        events 'started', 'passed', 'skipped', 'failed'
-        exceptionFormat "full"
-    }
-}
-
 jar {
     exclude('**/.keep')
     manifest.attributes([
-        'Main-Class'              : mainClass,
-        'Implementation-Title'    : project.name,
-        'Implementation-Version'  : version,
-        'Implementation-Revision' : revision,
-        'Class-Path'              : (configurations.runtime + configurations.compile).collect {
-                                      "libs/" + it.getName() 
-                                    }.join(' ')
+        'Main-Class'                   : mainClass,
+        'Implementation-Title'         : project.name,
+        'Implementation-Version'       : version,
+        'Implementation-Revision'      : revision,
+        'Implementation-Revision-Date' : revisionDate,
+        'Implementation-Build-Date'    : buildDate,
+        'Implementation-Vendor'        : 'logbee.io',
+        'Class-Path'                   : (configurations.runtime + configurations.compile).collect { "libs/" + it.getName() }.join(' ')
     ])
 }
 

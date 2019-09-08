@@ -6,10 +6,13 @@ import io.logbee.keyscore.commons.util.StartUpWatch.{Ready, StartUpComplete, Sta
 import io.logbee.keyscore.model.util.ToFiniteDuration.asFiniteDuration
 import io.logbee.keyscore.test.fixtures.ConfigurableActorSystem
 import io.logbee.keyscore.test.fixtures.ToActorRef._
+import org.junit.runner.RunWith
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.duration._
 
+@RunWith(classOf[JUnitRunner])
 class StartUpWatchSpec extends FreeSpec with Matchers with ConfigurableActorSystem {
   override implicit val config: Config = ConfigFactory.parseString(
     """|
