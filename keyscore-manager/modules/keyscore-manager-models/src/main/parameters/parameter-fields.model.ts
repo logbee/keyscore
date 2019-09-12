@@ -14,10 +14,10 @@ export interface StringValidator {
 }
 
 export enum ExpressionType {
-    RegEx = 0,
-    Grok = 2,
-    Glob = 3,
-    JSONPath = 4
+    RegEx = "RegEx",
+    Grok = "Grok",
+    Glob = "Glob",
+    JSONPath = "JSONPath"
 }
 
 export enum FieldNameHint {
@@ -27,13 +27,13 @@ export enum FieldNameHint {
 }
 
 export enum FieldValueType {
-    Unknown = 0,
-    Boolean = 1,
-    Number = 2,
-    Decimal = 3,
-    Text = 4,
-    Timestamp = 5,
-    Duration = 6
+    Unknown = "Unknown",
+    Boolean = "Boolean",
+    Number = "Number",
+    Decimal = "Decimal",
+    Text = "Text",
+    Timestamp = "Timestamp",
+    Duration = "Duration"
 }
 
 export interface NumberRange {
@@ -80,7 +80,7 @@ export interface ParameterDescriptorWithLocales {
 
 
 export enum PatternType {
-    None = 0, RegEx = 1, Glob = 2
+    None = "None", RegEx = "RegEx", Glob = "Glob"
 }
 
 

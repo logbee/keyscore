@@ -51,11 +51,12 @@ import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/V
                     </div>
                 </div>
 
-                <configurator class="mat-elevation-z8" fxFlex=""
+                <configurator  fxFlex=""
                               [pipelineMetaData]="pipelineMetaData"
                               [config]="{
                                 conf:(selectedDraggable$|async)?.getDraggableModel().configuration,
-                                descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor}"
+                                descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor,
+                                uuid:(selectedDraggable$|async)?.getDraggableModel().blueprintRef.uuid}"
                               (onSave)="saveConfiguration($event)"
                               (onSavePipelineMetaData)="savePipelineMetaData($event)">
                 </configurator>

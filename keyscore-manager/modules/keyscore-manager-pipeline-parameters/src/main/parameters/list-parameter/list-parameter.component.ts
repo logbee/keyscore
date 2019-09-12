@@ -63,7 +63,7 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
                 allows a maximum of {{descriptor.max}} elements.</p>
         </div>
     `,
-    styleUrls: ['./list-parameter.component.scss'],
+    styleUrls: ['./list-parameter.component.scss','../../style/parameter-module-style.scss'],
     animations: [
         trigger('max-warn', [
             transition(':enter', [
@@ -135,7 +135,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
     add(value: any) {
         this._panelExpanded = true;
 
-        if (this._valueParameter.length >= this.descriptor.max) {
+        if (this.descriptor.max > 0 && this._valueParameter.length >= this.descriptor.max) {
             if (!this._maxElementsReached) {
                 this._maxElementsReached = true;
                 setTimeout(() => this._maxElementsReached = false, 5000);

@@ -1,0 +1,32 @@
+@import "../../../../../../src/assets/variables";
+
+.configurator-wrapper {
+  position: relative;
+  max-width: 100%;
+  padding:10px;
+
+}
+
+configurator {
+  padding: 10px;
+  z-index: 500;
+  position: relative;
+  background-color: $pipeline-editor-configurator-background;
+}
+
+.configurator-footer {
+  position: absolute;
+  display: flex;
+  bottom: 10px;
+  width: 100%;
+}
+
+.configurator-body {
+  overflow-y: auto;
+  max-height: calc(95vh - 100px);
+  padding: 10px 5px 5px 5px;
+}
+
+.configurator-body::-webkit-scrollbar {
+  display: none;
+}

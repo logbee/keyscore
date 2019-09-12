@@ -1,9 +1,15 @@
 import {Injectable} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
 
-import {ParameterDescriptor, ParameterDescriptorJsonClass} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    ParameterDescriptor,
+    ParameterDescriptorJsonClass
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
 import {TextParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
-import {ExpressionParameterDescriptor, ExpressionParameterChoice} from "@/../modules/keyscore-manager-models/src/main/parameters/expression-parameter.model";
+import {
+    ExpressionParameterChoice,
+    ExpressionParameterDescriptor
+} from "@/../modules/keyscore-manager-models/src/main/parameters/expression-parameter.model";
 import {NumberParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/number-parameter.model";
 import {DecimalParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/decimal-parameter.model";
 import {FieldNameParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-parameter.model";
@@ -13,12 +19,26 @@ import {FieldNameListParameterDescriptor} from "@/../modules/keyscore-manager-mo
 import {FieldListParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
 import {ChoiceParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/choice-parameter.model";
 import {BooleanParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
-import {FieldNamePatternParameterDescriptor, PatternTypeChoice} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
+import {
+    FieldNamePatternParameterDescriptor,
+    PatternTypeChoice
+} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
 import {Descriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
-import {FilterDescriptor, FilterDescriptorWithLocales} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
-import {ParameterDescriptorWithLocales, Choice, ParameterInfoWithLocales, ParameterInfo, ChoiceWithLocales,
-    StringValidatorWithLocales,
-    StringValidator} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
+import {
+    FilterDescriptor,
+    FilterDescriptorWithLocales
+} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {
+    Choice,
+    ChoiceWithLocales,
+    ExpressionType,
+    FieldValueType,
+    ParameterDescriptorWithLocales,
+    ParameterInfo,
+    ParameterInfoWithLocales,
+    StringValidator,
+    StringValidatorWithLocales
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {TranslationMapping} from "@/../modules/keyscore-manager-models/src/main/common/Localization";
 
 @Injectable({providedIn: 'root'})
@@ -157,7 +177,8 @@ export class DeserializerService {
 
     }
 
-    private resolveInfo(settings: { descriptor: Descriptor, language: string }, info: ParameterInfoWithLocales): ParameterInfo {
+
+    public resolveInfo(settings: { descriptor: Descriptor, language: string }, info: ParameterInfoWithLocales): ParameterInfo {
         return info ? {
             displayName: info.displayName ? this.getTranslation(settings, info.displayName.id) : "",
             description: info.description ? this.getTranslation(settings, info.description.id) : ""
@@ -172,7 +193,7 @@ export class DeserializerService {
         } : null;
     }*/
 
-    private resolveChoice(settings: { descriptor: Descriptor, language: string }, choice: ChoiceWithLocales): Choice {
+    public resolveChoice(settings: { descriptor: Descriptor, language: string }, choice: ChoiceWithLocales): Choice {
         return choice ? {
             ...choice,
             displayName: choice.displayName ? this.getTranslation(settings, choice.displayName.id) : "",
@@ -180,7 +201,7 @@ export class DeserializerService {
         } : null;
     }
 
-    private resolveValidator(settings: { descriptor: Descriptor, language: string }, validator: StringValidatorWithLocales): StringValidator {
+    public resolveValidator(settings: { descriptor: Descriptor, language: string }, validator: StringValidatorWithLocales): StringValidator {
         return validator ? {
             ...validator,
             description: validator.description ? this.getTranslation(settings, validator.description.id) : ""
@@ -193,7 +214,7 @@ export class DeserializerService {
 
         if (mapping === undefined) return "";
 
-        const possibleLanguages = Array.from(mapping.translations.keys());
+        const possibleLanguages = Array.from(Object.keys(mapping.translations));
         const language = possibleLanguages.includes(settings.language) ?
             settings.language : this.selectLanguage(possibleLanguages);
 

@@ -17,10 +17,10 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
 @Component({
     selector: "configurator",
     template: `
-        <div fxFill fxLayout="column" class="configurator-wrapper">
+        <div fxFill fxLayout="column" class="configurator-wrapper mat-elevation-z8">
             <div fxLayout="row">
-                <div fxFlex="95%" fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                    <div *ngIf="!(config$|async)">
+                <div *ngIf="!(config$|async).conf">
+                    <div fxFlex="95%" fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
                         <form [formGroup]="pipelineForm">
                             <mat-form-field>
                                 <input matInput type="text" placeholder="Pipeline Name"
@@ -47,13 +47,21 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
                             </mat-form-field>
                         </form>
                     </div>
-                    <div *ngIf="(config$|async) as config">
+                </div>
+                <div *ngIf="(config$|async) as config">
+                    <div fxFlex="95%" fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
                         <h3>
-                            <p style="margin-bottom: 5px">{{config.descriptor.displayName}}</p>
-                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">{{config.uuid}}</p>
+                            <p style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</p>
+                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">
+                                {{config?.uuid}}</p>
                         </h3>
-                        <p>{{config.descriptor.description}}</p>
+                        <p>{{config?.descriptor?.description}}</p>
                         <mat-divider></mat-divider>
+                        <div class="configurator-body">
+                            <parameter-form [parameters]="parameterMap$|async"
+                                            [autoCompleteDataList]="autoCompleteOptions"
+                                            (onValueChange)="saveConfiguration($event)"></parameter-form>
+                        </div>
                     </div>
                 </div>
                 <button matTooltip="{{'CONFIGURATOR.HIDE' | translate}}" *ngIf="collapsibleButton" mat-mini-fab
@@ -62,21 +70,16 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
                     <mat-icon>chevron_right</mat-icon>
                 </button>
             </div>
-            <div fxLayout="column" fxLayoutWrap fxLayoutGap="10px" fxLayoutAlign="center">
-                <div class="configurator-body">
-                    <parameter-form [parameters]="parameterMap" [autoCompleteDataList]="autoCompleteOptions"
-                                    (onValueChange)="saveConfiguration($event)"></parameter-form>
-                </div>
-            </div>
         </div>
-    `
+    `,
+    styleUrls: ['./configurator.component.scss']
 })
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
 
-    @Input('config') set config(val: { conf: Configuration, descriptor: BlockDescriptor }) {
+    @Input('config') set config(val: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) {
         if (val) {
             this._config = val.conf;
             this.config$.next(val);
@@ -109,7 +112,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     isVisible: boolean = true;
     form: FormGroup;
     pipelineForm: FormGroup;
-    parameterMap: ParameterMap = {parameters: {}};
+    parameterMap$: Subject<ParameterMap> = new Subject();
 
     unsubscribe$: Subject<void> = new Subject();
 
@@ -121,8 +124,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
 
-        this.config$.pipe(filter(config => config.conf.ref.uuid !== this.lastID), takeUntil(this.unsubscribe$)).subscribe(config => {
-            this.lastID = config.conf.ref.uuid;
+        this.config$.pipe(takeUntil(this.unsubscribe$)).subscribe(config => {
+            //this.lastID = config.conf.ref.uuid;
             this.createParameterMap(config);
         });
 
@@ -138,10 +141,19 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     }
 
     private createParameterMap(config: { conf: Configuration, descriptor: BlockDescriptor }) {
+        console.log("CREATE PARAMETER MAP");
+        if (!config.conf) {
+            this.parameterMap$.next(null);
+            console.log("CREATE PARAMETER MAP NULL");
+            return;
+        }
         const parameterTuples: [Parameter, ParameterDescriptor][] =
             _.zip(config.conf.parameterSet.parameters, config.descriptor.parameters);
+        let parameterMap: ParameterMap = {parameters: {}};
         parameterTuples.forEach(([parameter, descriptor]) =>
-            this.parameterMap.parameters[descriptor.ref.id] = [parameter, descriptor]);
+            parameterMap.parameters[descriptor.ref.id] = [parameter, descriptor]);
+        this.parameterMap$.next(parameterMap);
+        console.log("CREATED PARAMETERMAP", parameterMap);
     }
 
     reset() {
