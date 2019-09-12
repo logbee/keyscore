@@ -36,6 +36,7 @@ dependencies {
     compile dependency.akka_cluster
     compile dependency.keycloak
 
+    runtime project(':keyscore-commons:keyscore-commons-logging')
     runtime dependency.logback
 
     testCompile project(':keyscore-test-fixtures')

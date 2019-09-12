@@ -1,16 +1,15 @@
-package io.logbee.keyscore.commons.util
+package io.logbee.keyscore.commons.logging
 
-import java.util
 
-import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.classic.{Level, LoggerContext}
-import io.logbee.keyscore.commons.util.KeyscoreLoggingLayout.{MAPPED_DIAGNOSTIC_CONTEXT_AKKA_SOURCE, MAPPED_DIAGNOSTIC_CONTEXT_AKKA_TIMESTAMP}
-import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import ch.qos.logback.classic.spi.LoggingEvent
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
-import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
+import java.util
 
+import io.logbee.keyscore.model.util.ToOption.T2OptionT
 
 @RunWith(classOf[JUnitRunner])
 class KeyscoreLoggingLayoutSpec extends FreeSpec with Matchers with MockFactory {
@@ -43,11 +42,11 @@ class KeyscoreLoggingLayoutSpec extends FreeSpec with Matchers with MockFactory 
         ),
         """#(?s)\[2019-08-29 22:01:01\.562UTC\] \[DEBUG\] i\.l\.k\.HelloWorld - Initializing Agent with FilterManager.
            #java\.lang\.RuntimeException: Something went wrong!.
-           #\s+at io\.logbee\.keyscore\.commons\.util\.KeyscoreLoggingLayoutSpec\.throwable\(KeyscoreLoggingLayoutSpec\.scala:\d+\).
-           #\s+at io\.logbee\.keyscore\.commons\.util\.KeyscoreLoggingLayoutSpec\.\$anonfun\$new\$1\(KeyscoreLoggingLayoutSpec\.scala:\d+\).*
+           #\s+at io\.logbee\.keyscore\.commons\.logging\.KeyscoreLoggingLayoutSpec\.throwable\(KeyscoreLoggingLayoutSpec\.scala:\d+\).
+           #\s+at io\.logbee\.keyscore\.commons\.logging\.KeyscoreLoggingLayoutSpec\.\$anonfun\$new\$1\(KeyscoreLoggingLayoutSpec\.scala:\d+\).*
            #caused by: java\.lang\.IllegalArgumentException: You put in the wrong thing!.
-           #\s+at io\.logbee\.keyscore\.commons\.util\.KeyscoreLoggingLayoutSpec\.throwable\(KeyscoreLoggingLayoutSpec\.scala:\d+\).
-           #\s+at io\.logbee\.keyscore\.commons\.util\.KeyscoreLoggingLayoutSpec\.\$anonfun\$new\$1\(KeyscoreLoggingLayoutSpec\.scala:\d+\).*"""
+           #\s+at io\.logbee\.keyscore\.commons\.logging\.KeyscoreLoggingLayoutSpec\.throwable\(KeyscoreLoggingLayoutSpec\.scala:\d+\).
+           #\s+at io\.logbee\.keyscore\.commons\.logging\.KeyscoreLoggingLayoutSpec\.\$anonfun\$new\$1\(KeyscoreLoggingLayoutSpec\.scala:\d+\).*"""
           .stripMargin('#').replace("\n", "").r
       )
     )
@@ -71,12 +70,12 @@ class KeyscoreLoggingLayoutSpec extends FreeSpec with Matchers with MockFactory 
     
     timestamp.foreach(event.setTimeStamp)
     event.setMDCPropertyMap(new util.HashMap[String, String]())
-    akkaTimestamp.foreach(event.getMDCPropertyMap.put(MAPPED_DIAGNOSTIC_CONTEXT_AKKA_TIMESTAMP, _))
-    akkaSource.foreach(event.getMDCPropertyMap.put(MAPPED_DIAGNOSTIC_CONTEXT_AKKA_SOURCE, _))
-    
+    akkaTimestamp.foreach(event.getMDCPropertyMap.put(KeyscoreLoggingLayout.MAPPED_DIAGNOSTIC_CONTEXT_AKKA_TIMESTAMP, _))
+    akkaSource.foreach(event.getMDCPropertyMap.put(KeyscoreLoggingLayout.MAPPED_DIAGNOSTIC_CONTEXT_AKKA_SOURCE, _))
+
     event
   }
-  
+
   def throwable(): Throwable = {
     try {
       throw new IllegalArgumentException("You put in the wrong thing!")

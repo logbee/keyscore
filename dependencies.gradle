@@ -79,6 +79,7 @@ ext {
     dependency += [
         scalapb_runtime: "com.thesamet.scalapb:scalapb-runtime_2.13:0.9.0",
         ehcache: 'org.ehcache:ehcache:3.7.1',
+        slf4j: 'org.slf4j:slf4j-api:1.7.25',
         logback: 'ch.qos.logback:logback-classic:1.2.3',
         smbj: [
             "com.hierynomus:smbj:0.9.1",

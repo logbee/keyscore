@@ -32,10 +32,19 @@ if (!isPublicationRepositoryUrlConfigured()) logger.warn("Publication tasks may 
 if (!isPublicationRepositoryUserConfigured()) logger.warn("Publication tasks may fail due to missing repository user - set 'publication.repository.user'")
 if (!isPublicationRepositoryPasswordConfigured()) logger.warn("Publication tasks may fail due to missing repository password - set 'publication.repository.password'")
 
+ext.buildDate = new Date().format('yyyy-MM-dd HH:mm:ss ZZZZ')
 ext.revision = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}()
+ext.revisionDate = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'show', '-s', '--format=%ci', 'HEAD'
         standardOutput = stdout
     }
     return stdout.toString().trim()
