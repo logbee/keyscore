@@ -16,7 +16,8 @@ import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/V
             </button>
             <mat-icon matSuffix [inline]="true" svgIcon="text-icon"></mat-icon>
         </mat-form-field>
-    `
+    `,
+    styleUrls:['../style/parameter-module-style.scss']
 })
 export class TextValueComponent implements ValueComponent{
 

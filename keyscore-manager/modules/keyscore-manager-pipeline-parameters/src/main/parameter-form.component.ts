@@ -1,4 +1,14 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewContainerRef} from "@angular/core";
+import {
+    Component,
+    EventEmitter,
+    HostBinding,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    ViewChild,
+    ViewContainerRef
+} from "@angular/core";
 import {ParameterComponentFactoryService} from "./service/parameter-component-factory.service";
 import {Parameter, ParameterMap} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {of, Subject, Subscription} from "rxjs";
@@ -8,13 +18,13 @@ import {takeUntil} from "rxjs/operators";
     selector: 'parameter-form',
     template: `
         <ng-template #formContainer></ng-template>
-    `
+    `,
+    styleUrls:['./parameter-form.component.scss']
 })
 export class ParameterFormComponent implements OnInit, OnDestroy {
+
     @Input() set parameters(val: ParameterMap) {
         this._parameters = val;
-        console.log("SET PARAMETERS",val);
-        console.log("THIS.PARAMETERS",this.parameters);
         this.createParameterComponents();
     };
 
@@ -41,7 +51,6 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
     createParameterComponents() {
         this.unsubscribe$.next();
         this.formContainer.clear();
-        console.log("CREATE PARAMETERS",this.parameters);
         if(this.parameters && this.parameters.parameters) {
             Object.entries(this.parameters.parameters).forEach(([ref, [parameter, descriptor]]) => {
                 const componentRef = this.parameterComponentFactory.createParameterComponent(descriptor.jsonClass, this.formContainer);

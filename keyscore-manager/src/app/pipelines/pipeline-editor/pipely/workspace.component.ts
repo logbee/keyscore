@@ -51,7 +51,7 @@ import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/V
                     </div>
                 </div>
 
-                <configurator  fxFlex=""
+                <configurator  fxFlex
                               [pipelineMetaData]="pipelineMetaData"
                               [config]="{
                                 conf:(selectedDraggable$|async)?.getDraggableModel().configuration,

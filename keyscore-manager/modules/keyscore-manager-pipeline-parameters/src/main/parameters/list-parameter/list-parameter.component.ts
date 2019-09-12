@@ -14,7 +14,10 @@ import {Subscription} from "rxjs";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {Parameter, ParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
-import {ListParameterDescriptor, ListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
+import {
+    ListParameterDescriptor,
+    ListParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 
 
@@ -22,13 +25,15 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
     selector: 'parameter-list',
     template: `
         <div class="parameter-list-host">
-            <div fxLayout="row-reverse" class="parameter-list-header">
+            <div fxLayout="row" fxLayoutGap="15px" class="parameter-list-header">
+                <div fxFlex="90">
+                    <ng-template #addParameterInputContainer>
+                    </ng-template>
+                </div>
                 <button mat-button mat-icon-button (click)="add(_addParameterComponentRef.instance.value.value)"
-                        fxFlexAlign="center">
+                        fxFlexAlign="center" fxFlex="10">
                     <mat-icon color="accent">add_circle_outline</mat-icon>
                 </button>
-                <ng-template #addParameterInputContainer>
-                </ng-template>
             </div>
             <mat-expansion-panel [(expanded)]="_panelExpanded">
                 <mat-expansion-panel-header [collapsedHeight]="'*'"
@@ -63,7 +68,7 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
                 allows a maximum of {{descriptor.max}} elements.</p>
         </div>
     `,
-    styleUrls: ['./list-parameter.component.scss','../../style/parameter-module-style.scss'],
+    styleUrls: ['./list-parameter.component.scss', '../../style/parameter-module-style.scss'],
     animations: [
         trigger('max-warn', [
             transition(':enter', [

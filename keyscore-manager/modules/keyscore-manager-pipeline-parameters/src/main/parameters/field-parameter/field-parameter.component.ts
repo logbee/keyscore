@@ -13,7 +13,7 @@ import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field
     selector: `parameter-field`,
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-form-field fxFlex="30">
+            <mat-form-field fxFlex="45">
                 <ks-autocomplete-input #fieldInput
                                        [value]="parameter.value?.name"
                                        [options]="autoCompleteDataList"
@@ -27,7 +27,7 @@ import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-            <div fxFlex="70">
+            <div fxFlex="45">
                 <ng-template value-host></ng-template>
             </div>
         </div>
