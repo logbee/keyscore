@@ -1,0 +1,14 @@
+apply from: rootProject.file('dependencies.gradle')
+
+dependencies {
+
+    compile dependency.scala_lang
+
+    compileOnly dependency.logback
+
+    testCompile project(':keyscore-model')
+
+    testCompile dependency.scala_test
+    testCompile dependency.junit
+    testCompile dependency.logback
+}

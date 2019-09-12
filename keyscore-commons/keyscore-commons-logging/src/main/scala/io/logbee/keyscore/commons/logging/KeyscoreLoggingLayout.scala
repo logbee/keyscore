@@ -1,11 +1,11 @@
-package io.logbee.keyscore.commons.util
+package io.logbee.keyscore.commons.logging
 
 import java.text.SimpleDateFormat
 import java.util.TimeZone
 
 import ch.qos.logback.classic.spi.{ILoggingEvent, IThrowableProxy, StackTraceElementProxy}
 import ch.qos.logback.core.LayoutBase
-import io.logbee.keyscore.commons.util.KeyscoreLoggingLayout._
+import io.logbee.keyscore.commons.logging.KeyscoreLoggingLayout.StackTraceElement
 
 import scala.annotation.tailrec
 
@@ -46,14 +46,14 @@ class KeyscoreLoggingLayout extends LayoutBase[ILoggingEvent] {
 
   override def doLayout(event: ILoggingEvent): String = {
 
-    val timestamp = Option(event.getMDCPropertyMap.get(MAPPED_DIAGNOSTIC_CONTEXT_AKKA_TIMESTAMP))
+    val timestamp = Option(event.getMDCPropertyMap.get(KeyscoreLoggingLayout.MAPPED_DIAGNOSTIC_CONTEXT_AKKA_TIMESTAMP))
       .map(timestamp => s"${dateFormat.format(event.getTimeStamp)} ${timestamp}")
       .getOrElse(s"${dateFormat.format(event.getTimeStamp)} ${timeFormat.format(event.getTimeStamp)}UTC")
 
-    val source = Option(event.getMDCPropertyMap.get(MAPPED_DIAGNOSTIC_CONTEXT_AKKA_SOURCE))
+    val source = Option(event.getMDCPropertyMap.get(KeyscoreLoggingLayout.MAPPED_DIAGNOSTIC_CONTEXT_AKKA_SOURCE))
       .map(source => s"$source ")
       .getOrElse("")
-    
+
     val throwable = Option(event.getThrowableProxy)
       .map(throwable => {
         @tailrec

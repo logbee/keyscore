@@ -1,7 +1,7 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-            <layout class="io.logbee.keyscore.commons.util.KeyscoreLoggingLayout" />
+            <layout class="io.logbee.keyscore.commons.logging.KeyscoreLoggingLayout" />
         </encoder>
     </appender>
     <logger name="akka.actor.TimerScheduler" level="info" />
