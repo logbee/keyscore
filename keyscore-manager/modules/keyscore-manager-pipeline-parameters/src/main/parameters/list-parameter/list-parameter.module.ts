@@ -8,19 +8,12 @@ import {DragDropModule} from "@angular/cdk/drag-drop";
 import {TextParameterModule} from "../text-parameter/text-parameter.module";
 import {ListParameterComponent} from "./list-parameter.component";
 import {FieldNameParameterModule} from "../field-name-parameter/field-name-parameter.module";
-import {
-    Field,
-    FieldListParameter,
-    FieldListParameterDescriptor,
-    FieldNameListParameter,
-    FieldNameListParameterDescriptor,
-    JSONCLASS_FIELDLIST_DESCR,
-    JSONCLASS_FIELDNAMELIST_DESCR,
-    JSONCLASS_TEXTLIST_DESCR,
-    TextListParameter,
-    TextListParameterDescriptor
-} from "@keyscore-manager-models";
+
 import {FieldParameterModule} from "../field-parameter/field-parameter.module";
+import {JSONCLASS_TEXTLIST_DESCR, TextListParameterDescriptor, TextListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
+import {JSONCLASS_FIELDNAMELIST_DESCR, FieldNameListParameter, FieldNameListParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
+import {JSONCLASS_FIELDLIST_DESCR, FieldListParameterDescriptor, FieldListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
+import {Field} from "@/../modules/keyscore-manager-models";
 
 @NgModule({
     imports: [

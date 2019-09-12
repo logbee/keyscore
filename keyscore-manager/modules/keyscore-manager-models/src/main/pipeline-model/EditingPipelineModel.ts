@@ -1,16 +1,13 @@
-import {Blueprint, PipelineBlueprint} from "../blueprints/Blueprint";
-import {Configuration} from "../common/Configuration";
-import {generateRef, Ref} from "../common/Ref";
-import {TextValue} from "@keyscore-manager-models";
+import {Blueprint, Configuration, generateRef, PipelineBlueprint, Ref, TextValue} from "@keyscore-manager-models";
 
-export interface EditingPipelineModel{
-    pipelineBlueprint:PipelineBlueprint;
-    blueprints:Blueprint[];
-    configurations:Configuration[];
+export interface EditingPipelineModel {
+    pipelineBlueprint: PipelineBlueprint;
+    blueprints: Blueprint[];
+    configurations: Configuration[];
 }
 
-export const generateEmptyEditingPipelineModel = (ref:Ref = generateRef()):EditingPipelineModel => {
-    return{
+export const generateEmptyEditingPipelineModel = (ref: Ref = generateRef()): EditingPipelineModel => {
+    return {
         pipelineBlueprint: {
             ref: ref,
             blueprints: [],

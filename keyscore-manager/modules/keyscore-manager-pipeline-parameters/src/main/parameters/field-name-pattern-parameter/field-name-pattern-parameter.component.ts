@@ -1,11 +1,8 @@
 import {Component} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {
-    FieldNamePatternParameter,
-    FieldNamePatternParameterDescriptor,
-    PatternType,
-    FieldNameHint
-} from "@keyscore-manager-models";
+import {FieldNamePatternParameterDescriptor, FieldNamePatternParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
+import {FieldNameHint, PatternType} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
+
 
 @Component({
     selector: 'parameter-field-name-pattern',

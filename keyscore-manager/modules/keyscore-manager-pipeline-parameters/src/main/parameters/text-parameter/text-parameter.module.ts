@@ -1,5 +1,5 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
-import {ParameterFactoryService} from "../../service/parameter-factory.service";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {TextParameterComponent} from "./text-parameter.component";
@@ -8,7 +8,7 @@ import {
     JSONCLASS_TEXT_DESCR,
     TextParameter,
     TextParameterDescriptor
-} from "../../../../../keyscore-manager-models/src/main/parameters/text-parameter.model";
+} from "@keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {StringValidatorService} from "../../service/string-validator.service";
 

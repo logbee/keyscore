@@ -1,4 +1,4 @@
-import {ParameterRef, Ref, TextRef} from "../common";
+import {ParameterRef, TextRef} from "@keyscore-manager-models";
 
 export interface StringValidatorWithLocales {
     expression: string;
@@ -35,10 +35,10 @@ export enum FieldValueType {
     Duration = 6
 }
 
-export interface NumberRange{
-    step:number;
-    start:number;
-    end:number;
+export interface NumberRange {
+    step: number;
+    start: number;
+    end: number;
 }
 
 export interface ParameterInfoWithLocales {
@@ -73,8 +73,8 @@ export interface ParameterDescriptorWithLocales {
     minSequences?: number;
     maxSequences?: number;
     fieldValueType?: FieldValueType;
-    condition?:BooleanParameterCondition;
-    supports?:PatternType[];
+    condition?: BooleanParameterCondition;
+    supports?: PatternType[];
 }
 
 
@@ -98,8 +98,8 @@ export interface Choice {
 export type ParameterGroupCondition =
     |BooleanParameterCondition
 
-export interface BooleanParameterCondition{
-    jsonClass:string;
+export interface BooleanParameterCondition {
+    jsonClass: string;
     parameter: ParameterRef;
     negate: boolean;
 }

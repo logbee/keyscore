@@ -5,7 +5,7 @@ import {MaterialModule} from "@keyscore-manager-material";
 import {BooleanParameterComponent} from "./boolean-parameter.component";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {BooleanParameter, BooleanParameterDescriptor, JSONCLASS_BOOLEAN_DESCR} from "@keyscore-manager-models";
+import {JSONCLASS_BOOLEAN_DESCR, BooleanParameterDescriptor, BooleanParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
 
 @NgModule({
     imports: [

@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
-import {ExpressionType, StringValidator} from "@keyscore-manager-models";
 import * as GlobMatch from "minimatch";
+import {StringValidator, ExpressionType} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 
 @Injectable()
 export class StringValidatorService {

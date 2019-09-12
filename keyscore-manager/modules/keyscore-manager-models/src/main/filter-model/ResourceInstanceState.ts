@@ -1,5 +1,4 @@
-import {Health} from "../common/Health";
-import {ResourceStatus} from "./ResourceStatus";
+import {Health,ResourceStatus} from "@keyscore-manager-models";
 
 export interface ResourceInstanceState {
     id: string;

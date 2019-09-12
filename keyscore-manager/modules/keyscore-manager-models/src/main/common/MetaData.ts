@@ -1,4 +1,4 @@
-import {Value} from "../dataset/Value";
+import {Value} from "@keyscore-manager-models/src/main/dataset";
 
 export interface MetaData{
     labels:Label[];

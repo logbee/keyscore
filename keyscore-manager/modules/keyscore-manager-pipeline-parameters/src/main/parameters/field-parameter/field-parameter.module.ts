@@ -6,8 +6,9 @@ import {SharedControlsModule} from "../../shared-controls/shared-controls.module
 import {FieldParameterComponent} from "./field-parameter.component";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {FieldParameter, FieldParameterDescriptor, JSONCLASS_FIELD_DESCR,Field} from "@keyscore-manager-models";
 import {ValueControlsModule} from "../../value-controls/value-controls.module";
+import {JSONCLASS_FIELD_DESCR, FieldParameterDescriptor, FieldParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {Field} from "@/../modules/keyscore-manager-models";
 
 @NgModule({
     imports: [

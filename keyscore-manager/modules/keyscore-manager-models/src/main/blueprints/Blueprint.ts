@@ -1,5 +1,4 @@
-import {Ref} from "../common/Ref";
-import {MetaData} from "../common/MetaData";
+import {MetaData, Ref} from "@keyscore-manager-models/src/main/common";
 
 export interface PipelineBlueprint {
     ref: Ref;

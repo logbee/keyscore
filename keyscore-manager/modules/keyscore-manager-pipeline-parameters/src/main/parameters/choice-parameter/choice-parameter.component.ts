@@ -1,10 +1,10 @@
 import {Component, ElementRef, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {ChoiceParameter, ChoiceParameterDescriptor} from "@keyscore-manager-models";
 import {FormControl} from "@angular/forms";
 import {Subscription} from "rxjs";
 import {animate, style, transition, trigger} from "@angular/animations";
 import * as _ from 'lodash'
+import {ChoiceParameterDescriptor, ChoiceParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/choice-parameter.model";
 
 @Component({
     selector: 'parameter-choice',

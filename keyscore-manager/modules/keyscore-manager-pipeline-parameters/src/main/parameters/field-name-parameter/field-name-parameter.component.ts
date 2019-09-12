@@ -1,10 +1,12 @@
-import {Component, ElementRef, Input, ViewChild} from "@angular/core";
+import {Component, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {FieldNameParameter, FieldNameParameterDescriptor} from "@keyscore-manager-models";
 import {StringValidatorService} from "../../service/string-validator.service";
-import {FieldNameHint} from "@keyscore-manager-models";
-import {TextParameter} from "../../../../../keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
+import {
+    FieldNameParameter,
+    FieldNameParameterDescriptor
+} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-parameter.model";
+import {FieldNameHint} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 
 @Component({
     selector: 'parameter-fieldname',

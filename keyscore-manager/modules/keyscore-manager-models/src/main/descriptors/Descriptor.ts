@@ -1,7 +1,5 @@
-import {Ref} from "../common/Ref";
-import {FilterDescriptorWithLocales} from "./FilterDescriptor";
-import {Localization} from "../common/Localization";
-import {MetaData} from "../common/MetaData";
+import {Localization, MetaData, Ref} from "@keyscore-manager-models/src/main/common";
+import {FilterDescriptorWithLocales} from "@keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 
 export interface Descriptor {
     jsonClass:string;

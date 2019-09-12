@@ -3,10 +3,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {
     Choice,
     Descriptor,
-    FieldNameParameterDescriptor,
-    FieldParameterDescriptor,
     FilterDescriptor,
-    ParameterDescriptor,
     ParameterInfo,
     ChoiceWithLocales,
     FilterDescriptorWithLocales,
@@ -14,22 +11,23 @@ import {
     ParameterInfoWithLocales,
     StringValidatorWithLocales,
     StringValidator,
-    TextParameterDescriptor,
-    ParameterDescriptorJsonClass,
-    ExpressionParameterDescriptor,
-    ExpressionParameterChoice,
-    NumberParameterDescriptor,
-    DecimalParameterDescriptor,
-    TextListParameterDescriptor,
-    FieldNameListParameterDescriptor,
-    FieldListParameterDescriptor,
-    ChoiceParameterDescriptor,
-    BooleanParameterDescriptor,
-    FieldNamePatternParameterDescriptor,
-    PatternTypeChoice,
+
     Locale,
     TranslationMapping
 } from "@keyscore-manager-models";
+import {ParameterDescriptor, ParameterDescriptorJsonClass} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
+import {TextParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
+import {ExpressionParameterDescriptor, ExpressionParameterChoice} from "@/../modules/keyscore-manager-models/src/main/parameters/expression-parameter.model";
+import {NumberParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/number-parameter.model";
+import {DecimalParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/decimal-parameter.model";
+import {FieldNameParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-parameter.model";
+import {FieldParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {TextListParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
+import {FieldNameListParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
+import {FieldListParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
+import {ChoiceParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/choice-parameter.model";
+import {BooleanParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
+import {FieldNamePatternParameterDescriptor, PatternTypeChoice} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
 
 @Injectable({providedIn: 'root'})
 export class DeserializerService {

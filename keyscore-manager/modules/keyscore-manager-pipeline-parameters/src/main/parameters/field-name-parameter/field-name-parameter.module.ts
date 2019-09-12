@@ -1,5 +1,5 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
-import {ParameterFactoryService} from "../../service/parameter-factory.service";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MaterialModule} from "@keyscore-manager-material";
@@ -9,7 +9,7 @@ import {
     FieldNameParameter,
     FieldNameParameterDescriptor,
     JSONCLASS_FIELDNAME_DESCR
-} from "../../../../../keyscore-manager-models/src/main/parameters/field-name-parameter.model";
+} from "@keyscore-manager-models/src/main/parameters/field-name-parameter.model";
 import {SharedControlsModule} from "../../shared-controls/shared-controls.module";
 
 @NgModule({

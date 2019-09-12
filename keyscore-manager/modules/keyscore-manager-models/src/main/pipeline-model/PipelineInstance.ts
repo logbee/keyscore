@@ -1,4 +1,4 @@
-import {Health} from "../common/Health";
+import {Health} from "@keyscore-manager-models";
 
 export interface PipelineInstance {
     id: string;

@@ -1,6 +1,6 @@
-import {Parameter, ParameterDescriptor} from "./parameter.model";
-import {Choice} from "./parameter-fields.model";
 import {ParameterRef} from "@keyscore-manager-models";
+import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {Choice} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 
 
 export const JSONCLASS_CHOICE_PARAM = "io.logbee.keyscore.model.configuration.ChoiceParameter";

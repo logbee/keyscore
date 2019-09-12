@@ -1,6 +1,6 @@
-import {Parameter, ParameterDescriptor} from "./parameter.model";
 import {ParameterRef} from "@keyscore-manager-models";
-import {NumberRange} from "./parameter-fields.model";
+import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {NumberRange} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 
 export const JSONCLASS_DECIMAL_PARAM = "io.logbee.keyscore.model.configuration.DecimalParameter";
 export const JSONCLASS_DECIMAL_DESCR = "io.logbee.keyscore.model.descriptor.DecimalParameterDescriptor";

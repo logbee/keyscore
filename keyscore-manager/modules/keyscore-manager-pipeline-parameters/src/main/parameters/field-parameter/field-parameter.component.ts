@@ -1,12 +1,13 @@
 import {Component, ComponentFactoryResolver, ComponentRef, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {StringValidatorService} from "../../service/string-validator.service";
-import {Field, FieldParameter, FieldParameterDescriptor} from "@keyscore-manager-models";
 import {ValueDirective} from "../../value-controls/directives/value.directive";
 import {ValueComponentRegistryService} from "../../value-controls/services/value-component-registry.service";
 import {ValueComponent} from "../../value-controls/value-component.interface";
 import {Subscription} from "rxjs";
 import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
+import {FieldParameterDescriptor, FieldParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {Field} from "@/../modules/keyscore-manager-models";
 
 @Component({
     selector: `parameter-field`,

@@ -1,7 +1,7 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
-import {TextParameter, TextParameterDescriptor} from "@keyscore-manager-models";
 import {StringValidatorService} from "../../service/string-validator.service";
+import {TextParameterDescriptor, TextParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
 
 @Component({
     selector: `parameter-text`,

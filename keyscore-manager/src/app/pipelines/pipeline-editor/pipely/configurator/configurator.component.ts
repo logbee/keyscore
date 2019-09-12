@@ -2,10 +2,11 @@ import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angula
 import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {filter} from "rxjs/operators";
-import {Parameter, ParameterDescriptor, Dataset, Configuration, ParameterMap} from "@keyscore-manager-models";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
+import {Dataset, Configuration} from "@/../modules/keyscore-manager-models";
+import {ParameterMap, Parameter, ParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
 
 
 @Component({

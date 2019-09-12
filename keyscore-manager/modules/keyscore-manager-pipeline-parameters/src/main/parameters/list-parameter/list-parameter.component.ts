@@ -9,17 +9,13 @@ import {
 } from "@angular/core";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ParameterComponent} from "../ParameterComponent";
-import {
-    Parameter,
-    ParameterDescriptor,
-    ListParameter,
-    ListParameterDescriptor
-} from "@keyscore-manager-models";
 import {Subscription} from "rxjs";
 
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
+import {Parameter, ParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
+import {ListParameterDescriptor, ListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
 
 
 @Component({
@@ -67,7 +63,7 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
                 allows a maximum of {{descriptor.max}} elements.</p>
         </div>
     `,
-    styleUrls:['./list-parameter.component.scss'],
+    styleUrls: ['./list-parameter.component.scss'],
     animations: [
         trigger('max-warn', [
             transition(':enter', [
@@ -88,6 +84,7 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 })
 export class ListParameterComponent extends ParameterComponent<ListParameterDescriptor, ListParameter> implements AfterViewInit {
 
+
     @ViewChild('addParameterInputContainer', {read: ViewContainerRef}) addParameterContainer: ViewContainerRef;
     @ViewChildren('listItemInputContainer', {read: ViewContainerRef}) listItemContainers: QueryList<ViewContainerRef>;
 
@@ -104,7 +101,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
     private _subs$$: Subscription[] = [];
     private _listItemChangeSubs$$: Subscription[] = [];
 
-    private _panelExpanded:boolean = true;
+    private _panelExpanded: boolean = true;
 
     constructor(
         private parameterComponentFactory: ParameterComponentFactoryService,

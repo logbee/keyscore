@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ParameterDescriptor, Parameter} from "@keyscore-manager-models";
+import {ParameterDescriptor, Parameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
 
 @Injectable({
     providedIn: 'root'

@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output, ViewChild} from "@angular/core";
-import {NumberRange} from "@keyscore-manager-models";
 import {MatSlider} from "@angular/material";
+import {NumberRange} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 
 @Component({
     selector: `ks-slider`,

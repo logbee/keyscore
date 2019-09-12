@@ -1,5 +1,6 @@
-import {Parameter, ParameterDescriptor} from "./parameter.model";
-import {FieldNameHint, ParameterRef, PatternType} from "@keyscore-manager-models";
+import {FieldNameHint, PatternType} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
+import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {ParameterRef} from "@keyscore-manager-models";
 
 export const JSONCLASS_FIELDNAMEPATTERN_PARAM = "io.logbee.keyscore.model.configuration.FieldNamePatternParameter";
 export const JSONCLASS_FIELDNAMEPATTERN_DESCR = "io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor";
@@ -10,7 +11,8 @@ export class PatternTypeChoice {
     private constructor(
         readonly type: PatternType,
         readonly displayName: string
-    ) {}
+    ) {
+    }
 
     public static fromPatternType(type: PatternType): PatternTypeChoice {
         switch (type) {
