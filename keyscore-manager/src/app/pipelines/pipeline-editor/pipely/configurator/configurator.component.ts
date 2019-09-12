@@ -1,12 +1,17 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
-import {BehaviorSubject, Subject, Subscription} from "rxjs";
+import {BehaviorSubject, Subject} from "rxjs";
 import {filter} from "rxjs/operators";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
-import {Dataset, Configuration} from "@/../modules/keyscore-manager-models";
-import {ParameterMap, Parameter, ParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
+import {
+    Parameter,
+    ParameterDescriptor,
+    ParameterMap
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
+import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
+import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 
 
 @Component({

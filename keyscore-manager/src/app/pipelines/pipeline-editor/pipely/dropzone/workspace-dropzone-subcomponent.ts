@@ -1,9 +1,13 @@
 import {
-    AfterViewInit, Component, ElementRef, HostBinding, HostListener, ViewChild,
+    AfterViewInit,
+    Component,
+    ElementRef,
+    HostBinding,
+    HostListener,
+    ViewChild,
     ViewContainerRef
 } from "@angular/core";
 import {DropzoneSubcomponent} from "./dropzone-subcomponent";
-import {DraggableModel} from "../models/draggable.model";
 import {Draggable} from "../models/contract";
 
 @Component({

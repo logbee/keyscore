@@ -5,7 +5,6 @@ import {TranslateModule} from "@ngx-translate/core";
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {PropagationStopModule} from "ngx-propagation-stop";
 import {ParameterFactoryService} from "./service/parameter-factory.service";
-import {MaterialModule} from "@keyscore-manager-material";
 import {TextParameterModule} from "./parameters/text-parameter/text-parameter.module";
 import {ExpressionParameterModule} from "./parameters/expression-parameter/expression-parameter.module";
 import {StringValidatorService} from "./service/string-validator.service";
@@ -18,6 +17,7 @@ import {ParameterFormComponent} from "./parameter-form.component";
 import {FieldParameterModule} from "./parameters/field-parameter/field-parameter.module";
 import {ListParameterModule} from "./parameters/list-parameter/list-parameter.module";
 import {ChoiceParameterModule} from "./parameters/choice-parameter/choice-parameter.module";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 
 @NgModule({

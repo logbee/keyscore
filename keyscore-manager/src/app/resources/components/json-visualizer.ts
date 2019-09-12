@@ -1,6 +1,7 @@
 import {Component, Input} from "@angular/core";
-import {Configuration, FilterDescriptor} from "@keyscore-manager-models";
 import {Store} from "@ngrx/store";
+import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
+import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 
 @Component({
     selector: "json-visualizer",

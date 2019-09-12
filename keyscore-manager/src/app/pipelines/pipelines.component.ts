@@ -13,10 +13,10 @@ import {
 } from "./actions/pipelines.actions";
 import {getPipelineList} from "./index";
 import {MatPaginator, MatSort} from "@angular/material";
-import {Ref} from "@keyscore-manager-models";
 import {PipelinesState} from "./reducers/pipelines.reducer";
 import {DataSourceFactory} from "../data-source/data-source-factory";
 import {PipelineDataSource} from "../data-source/pipeline-data-source";
+import {Ref} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
 
 @Component({
     selector: "keyscore-pipelines",

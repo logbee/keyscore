@@ -1,7 +1,7 @@
 import {ParameterComponent} from "../ParameterComponent";
 import {Component} from "@angular/core";
-import {ParameterRef} from "@keyscore-manager-models";
 import {NumberParameterDescriptor, NumberParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/number-parameter.model";
+import {ParameterRef} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
 
 @Component({
     selector: `parameter-number`,

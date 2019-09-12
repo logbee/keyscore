@@ -3,8 +3,9 @@ import {BehaviorSubject, combineLatest, Observable} from "rxjs";
 import {select, Store} from "@ngrx/store";
 import {DatasetDataSource} from "../../data-source/dataset-data-source";
 import {MatPaginator, MatSort} from "@angular/material";
-import {DatasetTableModel, DurationValue, TimestampValue, Value, ValueJsonClass} from "@keyscore-manager-models";
 import {getInputDatsetModels, getOutputDatasetModels} from "../index";
+import {DatasetTableModel} from "@/../modules/keyscore-manager-models/src/main/dataset/DatasetTableModel";
+import {Value, ValueJsonClass} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 
 @Component({
     selector: "data-table",

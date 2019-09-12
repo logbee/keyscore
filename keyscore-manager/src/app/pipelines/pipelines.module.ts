@@ -13,11 +13,10 @@ import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
 import {ErrorModule} from "../common/error/error.module";
 import {PipelyModule} from "./pipeline-editor/pipely/pipely.module";
-import {MaterialModule} from "@keyscore-manager-material";
 import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service";
 import {effects, reducers} from "./index";
-import {DatatableModule} from "./datatable/datatable.module";
 import {AppAuthGuard} from "../app.authguard";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent,canActivate:[AppAuthGuard]},

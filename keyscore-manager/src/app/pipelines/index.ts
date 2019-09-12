@@ -1,11 +1,11 @@
 import * as fromPipeline from "./reducers/pipelines.reducer";
-import * as fromPreview from "./reducers/preview.reducer";
-import {createFeatureSelector, createSelector, MemoizedSelector, Selector} from "@ngrx/store";
-import {PreviewState} from "./reducers/preview.reducer";
 import {PipelinesState} from "./reducers/pipelines.reducer";
+import * as fromPreview from "./reducers/preview.reducer";
+import {PreviewState} from "./reducers/preview.reducer";
+import {createFeatureSelector, createSelector, Selector} from "@ngrx/store";
 import {PipelinesEffects} from "./effects/pipelines.effects";
 import {PreviewEffects} from "./effects/preview.effects";
-import {DatasetTableModel} from "@keyscore-manager-models";
+import {DatasetTableModel} from "@/../modules/keyscore-manager-models/src/main/dataset/DatasetTableModel";
 
 export const effects = [
     PipelinesEffects,

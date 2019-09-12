@@ -3,8 +3,9 @@ import {BlockDescriptor} from "../models/block-descriptor.model";
 import {Dropzone, Workspace} from "../models/contract";
 import {DraggableFactory} from "../draggable/draggable-factory";
 import {DropzoneFactory} from "../dropzone/dropzone-factory";
-import {generateRef,JSONCLASS_PARAMETERSET} from "@keyscore-manager-models";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
+import {generateRef} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
+import {JSONCLASS_PARAMETERSET} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
+import {ParameterFactoryService} from "@/../modules/keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 
 
 @Component({

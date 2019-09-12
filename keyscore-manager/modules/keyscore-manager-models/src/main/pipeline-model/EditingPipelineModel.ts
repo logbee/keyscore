@@ -1,4 +1,7 @@
-import {Blueprint, Configuration, generateRef, PipelineBlueprint, Ref, TextValue} from "@keyscore-manager-models";
+import {Blueprint, PipelineBlueprint} from "@keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Configuration} from "@keyscore-manager-models/src/main/common/Configuration";
+import {generateRef, Ref} from "@keyscore-manager-models/src/main/common/Ref";
+import {TextValue} from "@keyscore-manager-models/src/main/dataset/Value";
 
 export interface EditingPipelineModel {
     pipelineBlueprint: PipelineBlueprint;

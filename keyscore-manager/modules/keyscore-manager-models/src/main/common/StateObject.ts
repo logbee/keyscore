@@ -1,4 +1,4 @@
-import {ResourceInstanceState} from "@keyscore-manager-models";
+import {ResourceInstanceState} from "@keyscore-manager-models/src/main/filter-model/ResourceInstanceState";
 
 export class StateObject {
 

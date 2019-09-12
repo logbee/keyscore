@@ -1,8 +1,9 @@
 import {Connection} from "./connection.model";
-import {Ref} from "@keyscore-manager-models";
-import {Category} from "@keyscore-manager-models";
-import {Icon} from "@keyscore-manager-models";
+
 import {ParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
+import {Ref} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
+import {Icon} from "@/../modules/keyscore-manager-models/src/main/descriptors/Icon";
+import {Category} from "@/../modules/keyscore-manager-models/src/main/descriptors/Category";
 
 export interface BlockDescriptor {
     ref: Ref;

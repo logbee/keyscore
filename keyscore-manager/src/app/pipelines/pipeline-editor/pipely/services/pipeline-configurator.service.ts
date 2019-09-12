@@ -1,17 +1,12 @@
 import {Injectable} from "@angular/core";
 import {Draggable} from "../models/contract";
 import {DraggableModel} from "../models/draggable.model";
-import {
-    Blueprint,
-    BlueprintJsonClass,
-    Configuration,
-    EditingPipelineModel,
-    FilterBlueprint,
-    Ref,
-    SinkBlueprint,
-    SourceBlueprint
-} from "@keyscore-manager-models";
+
 import * as _ from 'lodash';
+import {EditingPipelineModel} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
+import {Blueprint, BlueprintJsonClass, FilterBlueprint, SourceBlueprint, SinkBlueprint} from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Ref} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
+import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
 
 
 @Injectable()

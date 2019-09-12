@@ -10,8 +10,8 @@ import {AgentsEffects} from "./agents.effects";
 import {AgentsReducer} from "./agents.reducer";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
-import {MaterialModule} from "@keyscore-manager-material";
 import {AppAuthGuard} from "../app.authguard";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 export const routes: Routes = [
     {path: "", component: AgentsComponent, canActivate: [AppAuthGuard]}

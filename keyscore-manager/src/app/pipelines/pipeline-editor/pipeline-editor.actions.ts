@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {FilterDescriptor} from "@keyscore-manager-models";
+import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 
 export const REMOVE_FILTER = "[Pipelines] REMOVE_FILTER";
 export const MOVE_FILTER = "[Pipelines] MOVE_FILTER";

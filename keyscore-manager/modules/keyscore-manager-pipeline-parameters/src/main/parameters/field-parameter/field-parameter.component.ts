@@ -7,7 +7,7 @@ import {ValueComponent} from "../../value-controls/value-component.interface";
 import {Subscription} from "rxjs";
 import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
 import {FieldParameterDescriptor, FieldParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
-import {Field} from "@/../modules/keyscore-manager-models";
+import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
 
 @Component({
     selector: `parameter-field`,

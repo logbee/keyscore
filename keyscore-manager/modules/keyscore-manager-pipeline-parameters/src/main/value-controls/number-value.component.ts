@@ -1,8 +1,8 @@
 import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
 import {ValueComponent} from "./value-component.interface";
 import {FormControl} from "@angular/forms";
-import {NumberValue} from "@keyscore-manager-models";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
+import {NumberValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 
 @Component({
     selector: 'ks-number-value-input',

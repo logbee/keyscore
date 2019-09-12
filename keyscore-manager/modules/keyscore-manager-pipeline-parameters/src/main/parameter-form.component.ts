@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewContainerRef} from "@angular/core";
 import {ParameterComponentFactoryService} from "./service/parameter-component-factory.service";
-import {Parameter, ParameterMap} from "../../../keyscore-manager-models/src/main/parameters/parameter.model";
+import {Parameter, ParameterMap} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {of, Subscription} from "rxjs";
 
 @Component({

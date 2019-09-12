@@ -1,12 +1,7 @@
 import {MatTableDataSource} from "@angular/material";
 import {BehaviorSubject} from "rxjs/index";
-import {
-    DatasetTableModel,
-    DatasetTableRowModel,
-    ValueJsonClass,
-    Value
-
-} from "@keyscore-manager-models";
+import {DatasetTableRowModel, DatasetTableModel} from "@/../modules/keyscore-manager-models/src/main/dataset/DatasetTableModel";
+import {Value, ValueJsonClass} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
     readonly numberOfDataset: number = 0;

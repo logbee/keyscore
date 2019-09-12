@@ -5,23 +5,20 @@
       "@/*": [
         "./*"
       ],
-      "@keyscore-manager-models": [
-        "../modules/keyscore-manager-models/index.ts"
-      ],
       "@keyscore-manager-models/*": [
         "../modules/keyscore-manager-models/*"
       ],
-      "@keyscore-manager-material": [
-        "../modules/keyscore-manager-material/index.ts"
+      "@keyscore-manager-material/*": [
+        "../modules/keyscore-manager-material/*"
       ],
-      "@keyscore-manager-pipeline-parameters": [
-        "../modules/keyscore-manager-pipeline-parameters/index.ts"
+      "@keyscore-manager-pipeline-parameters/*": [
+        "../modules/keyscore-manager-pipeline-parameters/*"
       ],
-      "@keyscore-manager-test-fixtures": [
-        "../modules/keyscore-manager-test-fixtures/index.ts"
+      "@keyscore-manager-test-fixtures/*": [
+        "../modules/keyscore-manager-test-fixtures/*"
       ],
-      "@keyscore-manager-rest-api": [
-        "../modules/keyscore-manager-rest-api/index.ts"
+      "@keyscore-manager-rest-api/*": [
+        "../modules/keyscore-manager-rest-api/*"
       ]
     },
     "target": "es2017",

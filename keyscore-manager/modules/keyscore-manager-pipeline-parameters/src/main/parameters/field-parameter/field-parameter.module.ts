@@ -1,20 +1,22 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {MaterialModule} from "@keyscore-manager-material";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {SharedControlsModule} from "../../shared-controls/shared-controls.module";
 import {FieldParameterComponent} from "./field-parameter.component";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {ValueControlsModule} from "../../value-controls/value-controls.module";
-import {JSONCLASS_FIELD_DESCR, FieldParameterDescriptor, FieldParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
-import {Field} from "@/../modules/keyscore-manager-models";
+import {
+    FieldParameter,
+    FieldParameterDescriptor,
+    JSONCLASS_FIELD_DESCR
+} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
-        BrowserAnimationsModule,
         SharedControlsModule,
         ValueControlsModule
     ],

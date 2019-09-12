@@ -1,10 +1,10 @@
 import {Injectable} from "@angular/core";
 import {select, Store} from "@ngrx/store";
-import {AppState} from "../../../../src/app/app.component";
+import {AppState} from "@/app/app.component";
 import {HttpClient} from "@angular/common/http";
-import {AppConfig, selectAppConfig} from "../../../../src/app/app.config";
-import {Configuration} from "@keyscore-manager-models";
-import {Observable} from "rxjs/index";
+import {AppConfig, selectAppConfig} from "@/app/app.config";
+import {Observable} from "rxjs";
+import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
 
 @Injectable({
     providedIn: 'root'

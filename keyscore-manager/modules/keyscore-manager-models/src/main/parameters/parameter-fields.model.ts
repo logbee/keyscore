@@ -1,4 +1,5 @@
-import {ParameterRef, TextRef} from "@keyscore-manager-models";
+import {TextRef} from "@keyscore-manager-models/src/main/common/Localization";
+import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 export interface StringValidatorWithLocales {
     expression: string;

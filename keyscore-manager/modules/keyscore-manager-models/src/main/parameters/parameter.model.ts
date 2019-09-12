@@ -1,4 +1,4 @@
-import {ParameterRef} from "@keyscore-manager-models/src/main/common";
+import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 export abstract class ParameterDescriptor {
     public readonly jsonClass: string;

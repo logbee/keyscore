@@ -6,8 +6,12 @@ import {
     ResourcesActions
 } from "./resources.actions";
 import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {Blueprint, FilterDescriptor, Configuration, StateObject, ResourceTableModel} from "@keyscore-manager-models";
 import * as _ from "lodash";
+import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
+import {Blueprint} from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {StateObject} from "@/../modules/keyscore-manager-models/src/main/common/StateObject";
+import {ResourceTableModel} from "@/../modules/keyscore-manager-models/src/main/resources/ResourceTableModel";
 
 export class ResourceViewerState {
     public blueprints: Blueprint[];

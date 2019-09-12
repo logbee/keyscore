@@ -1,11 +1,11 @@
 import {Injectable, Type} from "@angular/core";
-import {FieldValueType} from "@keyscore-manager-models";
 import {BooleanValueComponent} from "../boolean-value.component";
 import {TextValueComponent} from "../text-value.component";
 import {TimestampValueComponent} from "../timestamp-value.component";
 import {DurationValueComponent} from "../duration-value.component";
 import {NumberValueComponent} from "../number-value.component";
 import {DecimalValueComponent} from "../decimal-value.component";
+import {FieldValueType} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 
 @Injectable({
     providedIn: 'root'

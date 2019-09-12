@@ -1,5 +1,5 @@
 import {Ref} from "@keyscore-manager-models/src/main/common/Ref";
-import {Parameter} from "../parameters/parameter.model";
+import {Parameter} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 
 export interface Configuration {
     ref: Ref;

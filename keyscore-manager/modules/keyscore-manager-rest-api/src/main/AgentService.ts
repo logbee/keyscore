@@ -1,10 +1,10 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {Agent} from "@keyscore-manager-models";
 import {AppState} from "@/app/app.component";
 import {AppConfig, selectAppConfig} from "@/app/app.config";
 import {select, Store} from "@ngrx/store";
+import {Agent} from "@/../modules/keyscore-manager-models/src/main/common/Agent";
 
 @Injectable({
     providedIn: 'root'

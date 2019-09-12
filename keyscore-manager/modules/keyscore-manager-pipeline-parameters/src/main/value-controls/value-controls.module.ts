@@ -1,7 +1,5 @@
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MaterialModule} from "@keyscore-manager-material";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {BooleanValueComponent} from "./boolean-value.component";
 import {TextValueComponent} from "./text-value.component";
@@ -19,15 +17,16 @@ import {
     decimal_icon,
     duration_icon,
     number_icon,
-    text_icon, timestamp_icon
+    text_icon,
+    timestamp_icon
 } from "../../../assets/icons/values/value-icons";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
-        BrowserAnimationsModule,
         ReactiveFormsModule,
         FormsModule,
         SharedControlsModule

@@ -1,8 +1,5 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {MaterialModule} from "@keyscore-manager-material";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import {TextParameterModule} from "../text-parameter/text-parameter.module";
@@ -10,16 +7,29 @@ import {ListParameterComponent} from "./list-parameter.component";
 import {FieldNameParameterModule} from "../field-name-parameter/field-name-parameter.module";
 
 import {FieldParameterModule} from "../field-parameter/field-parameter.module";
-import {JSONCLASS_TEXTLIST_DESCR, TextListParameterDescriptor, TextListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
-import {JSONCLASS_FIELDNAMELIST_DESCR, FieldNameListParameter, FieldNameListParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
-import {JSONCLASS_FIELDLIST_DESCR, FieldListParameterDescriptor, FieldListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
-import {Field} from "@/../modules/keyscore-manager-models";
+import {
+    JSONCLASS_TEXTLIST_DESCR,
+    TextListParameter,
+    TextListParameterDescriptor
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
+import {
+    FieldNameListParameter,
+    FieldNameListParameterDescriptor,
+    JSONCLASS_FIELDNAMELIST_DESCR
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
+import {
+    FieldListParameter,
+    FieldListParameterDescriptor,
+    JSONCLASS_FIELDLIST_DESCR
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
-        BrowserAnimationsModule,
         DragDropModule,
         TextParameterModule,
         FieldNameParameterModule,

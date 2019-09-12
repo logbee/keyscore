@@ -3,7 +3,6 @@ import {action} from '@storybook/addon-actions';
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BooleanValueComponent} from "../main/value-controls/boolean-value.component";
-import {MaterialModule} from "@keyscore-manager-material";
 import {ReactiveFormsModule} from "@angular/forms";
 import {TextValueComponent} from "../main/value-controls/text-value.component";
 import {TimestampValueComponent} from "../main/value-controls/timestamp-value.component";
@@ -11,6 +10,7 @@ import {DurationValueComponent} from "../main/value-controls/duration-value.comp
 import {SharedControlsModule} from "../main/shared-controls/shared-controls.module";
 import {NumberValueComponent} from "../main/value-controls/number-value.component";
 import {ApplicationModule} from "@angular/core";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 storiesOf('Values/BooleanValue', module)
     .addDecorator(

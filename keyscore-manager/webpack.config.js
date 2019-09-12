@@ -2,17 +2,12 @@ const path = require('path');
 const webpack = require("webpack");
 const helpers = require('./helpers');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const CircularDependencyPlugin = require('circular-dependency-plugin');
 
-let modules = [
-    './modules/keyscore-manager-material/index.ts',
-    './modules/keyscore-manager-models/index.ts',
-    './modules/keyscore-manager-pipeline-parameters/index.ts',
-    './modules/keyscore-manager-test-fixtures/index.ts'
-];
 
 module.exports = {
     entry: {
-        app: ['babel-polyfill', './src/main.ts',...modules]
+        app: ['babel-polyfill', './src/main.ts']
     },
     mode: 'development', //devtool: 'source-map', // Slows down the build
     module: {
@@ -95,6 +90,17 @@ module.exports = {
         }
     },
     plugins: [
+        new CircularDependencyPlugin({
+            // exclude detection of files based on a RegExp
+            exclude: /a\.js|node_modules/,
+            // add errors to webpack instead of warnings
+            failOnError: true,
+            // allow import cycles that include an asyncronous import,
+            // e.g. via import(/* webpackMode: "weak" */ './file.js')
+            allowAsyncCycles: false,
+            // set the current working directory for displaying module paths
+            cwd: process.cwd(),
+        }),
         new webpack.ProvidePlugin({
             "window.jQuery": "jquery"
         }),

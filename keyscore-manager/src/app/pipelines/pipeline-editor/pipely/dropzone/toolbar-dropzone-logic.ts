@@ -1,7 +1,5 @@
 import {DropzoneLogic} from "./dropzone-logic";
 import {Draggable, Dropzone} from "../models/contract";
-import {Rectangle} from "../models/rectangle";
-import {DropzoneComponent} from "../dropzone.component";
 import {DraggableModel} from "../models/draggable.model";
 
 export class ToolbarDropzoneLogic extends DropzoneLogic {

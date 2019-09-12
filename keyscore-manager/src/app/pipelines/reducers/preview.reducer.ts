@@ -1,17 +1,12 @@
 import {EXTRACT_FROM_SELECTED_BLOCK_SUCCESS, PreviewActions} from "../actions/preview.actions";
-import {
-    ChangeType,
-    Dataset,
-    DatasetTableModel,
-    DatasetTableRecordModel,
-    DatasetTableRowModel,
-    DatasetTableRowModelData,
-    Field,
-    Record,
-    ValueJsonClass
-} from "@keyscore-manager-models";
+
 
 import * as _ from "lodash";
+import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
+import {Record} from "@/../modules/keyscore-manager-models/src/main/dataset/Record";
+import {DatasetTableModel, DatasetTableRecordModel, DatasetTableRowModel, DatasetTableRowModelData, ChangeType} from "@/../modules/keyscore-manager-models/src/main/dataset/DatasetTableModel";
+import {ValueJsonClass} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
 
 export class PreviewState {
     public dummyDataset: Dataset;

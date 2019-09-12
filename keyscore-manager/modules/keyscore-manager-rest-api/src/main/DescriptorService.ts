@@ -5,9 +5,9 @@ import {HttpClient} from "@angular/common/http";
 import {AppConfig, selectAppConfig} from "@/app/app.config";
 import {Observable} from "rxjs";
 import {StringTMap} from "@/app/common/object-maps";
-import {Descriptor} from "@keyscore-manager-models";
-import {DeserializerService} from "@keyscore-manager-rest-api";
 import {map} from "rxjs/operators";
+import {DeserializerService} from "@keyscore-manager-rest-api/src/main/deserializer.service";
+import {Descriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
 
 @Injectable({
     providedIn: 'root'

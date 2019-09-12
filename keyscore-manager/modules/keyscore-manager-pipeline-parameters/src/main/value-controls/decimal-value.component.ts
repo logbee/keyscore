@@ -1,8 +1,8 @@
 import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
 import {ValueComponent} from "./value-component.interface";
 import {FormControl} from "@angular/forms";
-import {DecimalValue} from "@keyscore-manager-models";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
+import {DecimalValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 
 @Component({
     selector: 'ks-decimal-value-input',

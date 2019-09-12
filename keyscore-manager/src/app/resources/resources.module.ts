@@ -10,12 +10,12 @@ import {ResourcesEffects} from "./resources.effects";
 import {HeaderBarModule} from "../common/headerbar/headerbar.module";
 import {LoadingModule} from "../common/loading/loading.module";
 import {HealthModule} from "../common/health/health.module";
-import {MaterialModule} from "@keyscore-manager-material";
 import {StageType} from "./components/stage-type.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {NgxJsonViewerModule} from 'ngx-json-viewer'
 import {JsonVisualizer} from "./components/json-visualizer";
 import {AppAuthGuard} from "../app.authguard";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 export const routes: Routes = [
     {path:"", component: ResourcesComponent, canActivate:[AppAuthGuard]}

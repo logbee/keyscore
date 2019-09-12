@@ -21,21 +21,18 @@ import {
     LoadConfigurationsSuccessAction,
     ResolvedAllDescriptorsSuccessAction,
 } from "./resources.actions";
-import {
-    Blueprint,
-    Configuration,
-    Descriptor,
-    FilterDescriptor,
-    ResourceInstanceState
-} from "@keyscore-manager-models";
+
 import {AppState} from "../app.component";
-import {
-    BlueprintService,
-    ConfigurationService,
-    DescriptorService,
-    DeserializerService,
-    FilterControllerService
-} from "@keyscore-manager-rest-api";
+import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
+import {Descriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
+import {Blueprint} from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {FilterControllerService} from "@keyscore-manager-rest-api/src/main/FilterController.service";
+import {DescriptorService} from "@keyscore-manager-rest-api/src/main/DescriptorService";
+import {ConfigurationService} from "@keyscore-manager-rest-api/src/main/ConfigurationService";
+import {BlueprintService} from "@keyscore-manager-rest-api/src/main/BlueprintService";
+import {DeserializerService} from "@keyscore-manager-rest-api/src/main/deserializer.service";
+import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {ResourceInstanceState} from "@/../modules/keyscore-manager-models/src/main/filter-model/ResourceInstanceState";
 
 
 @Injectable()

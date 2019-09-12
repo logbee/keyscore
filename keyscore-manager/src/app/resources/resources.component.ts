@@ -3,9 +3,9 @@ import {select, Store} from "@ngrx/store";
 import {MatPaginator, MatSort} from "@angular/material";
 import {ResourcesDataSource} from "../data-source/resources-data-source";
 import {animate, state, style, transition, trigger} from "@angular/animations";
-import {ResourceTableModel} from "@keyscore-manager-models";
-import {BehaviorSubject, combineLatest, Observable} from "rxjs/index";
+import {BehaviorSubject, combineLatest, Observable} from "rxjs";
 import {selectTableModels} from "./resources.reducer";
+import {ResourceTableModel} from "@/../modules/keyscore-manager-models/src/main/resources/ResourceTableModel";
 
 @Component({
     selector: "resource-viewer",

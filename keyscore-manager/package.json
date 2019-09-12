@@ -70,6 +70,7 @@
     "angular2-template-loader": "0.6.2",
     "awesome-typescript-loader": "5.2.1",
     "babel-loader": "8.0.5",
+    "circular-dependency-plugin": "^5.2.0",
     "css-loader": "1.0.0",
     "file-loader": "2.0.0",
     "find-cache-dir": "1.0.0",

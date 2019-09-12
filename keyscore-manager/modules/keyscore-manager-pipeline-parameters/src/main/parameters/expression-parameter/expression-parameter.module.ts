@@ -1,21 +1,19 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {MaterialModule} from "@keyscore-manager-material";
 import {ExpressionParameterComponent} from "./expression-parameter.component";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {
     ExpressionParameter,
     ExpressionParameterDescriptor,
     JSONCLASS_EXPRESSION_DESCR
 } from "@keyscore-manager-models/src/main/parameters/expression-parameter.model";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 @NgModule({
     imports: [
         CommonModule,
-        MaterialModule,
-        BrowserAnimationsModule
+        MaterialModule
     ],
     declarations: [
         ExpressionParameterComponent

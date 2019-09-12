@@ -9,13 +9,15 @@ import {
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
 import {filter, share, take, takeUntil} from "rxjs/internal/operators";
-import {EditingPipelineModel, InternalPipelineConfiguration, FilterDescriptor} from "@keyscore-manager-models";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
 import {getEditingPipeline, getFilterDescriptors} from "../index";
 import {ExtractFromSelectedBlock} from "../actions/preview.actions";
 import {DraggableModel} from "./pipely/models/draggable.model";
+import {EditingPipelineModel} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
+import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {InternalPipelineConfiguration} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/InternalPipelineConfiguration";
 
 @Component({
     selector: "pipeline-editor",

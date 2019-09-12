@@ -1,9 +1,6 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {CommonModule} from "@angular/common";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {TextParameterComponent} from "./text-parameter.component";
-import {MaterialModule} from "@keyscore-manager-material";
 import {
     JSONCLASS_TEXT_DESCR,
     TextParameter,
@@ -11,11 +8,12 @@ import {
 } from "@keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
 import {StringValidatorService} from "../../service/string-validator.service";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 @NgModule({
     imports: [
         CommonModule,
-        BrowserAnimationsModule,
         MaterialModule
     ],
     declarations: [TextParameterComponent],

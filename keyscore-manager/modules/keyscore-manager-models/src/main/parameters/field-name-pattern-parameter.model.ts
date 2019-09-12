@@ -1,6 +1,6 @@
 import {FieldNameHint, PatternType} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
-import {ParameterRef} from "@keyscore-manager-models";
+import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 export const JSONCLASS_FIELDNAMEPATTERN_PARAM = "io.logbee.keyscore.model.configuration.FieldNamePatternParameter";
 export const JSONCLASS_FIELDNAMEPATTERN_DESCR = "io.logbee.keyscore.model.descriptor.FieldNamePatternParameterDescriptor";

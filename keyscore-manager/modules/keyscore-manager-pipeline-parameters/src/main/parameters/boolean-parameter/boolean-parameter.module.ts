@@ -1,16 +1,18 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MaterialModule} from "@keyscore-manager-material";
 import {BooleanParameterComponent} from "./boolean-parameter.component";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {JSONCLASS_BOOLEAN_DESCR, BooleanParameterDescriptor, BooleanParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
+import {
+    BooleanParameter,
+    BooleanParameterDescriptor,
+    JSONCLASS_BOOLEAN_DESCR
+} from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 
 @NgModule({
     imports: [
         CommonModule,
-        BrowserAnimationsModule,
         MaterialModule
     ],
     declarations: [BooleanParameterComponent],

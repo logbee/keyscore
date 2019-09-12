@@ -1,17 +1,19 @@
 import {ComponentFactoryResolver, NgModule, ViewContainerRef} from "@angular/core";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CommonModule} from "@angular/common";
-import {MaterialModule} from "@keyscore-manager-material";
 import {ChoiceParameterComponent} from "./choice-parameter.component";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {ChoiceParameter, ChoiceParameterDescriptor, JSONCLASS_CHOICE_DESCR} from "@keyscore-manager-models/src/main/parameters/choice-parameter.model";
+import {
+    ChoiceParameter,
+    ChoiceParameterDescriptor,
+    JSONCLASS_CHOICE_DESCR
+} from "@keyscore-manager-models/src/main/parameters/choice-parameter.model";
 import {ReactiveFormsModule} from "@angular/forms";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 @NgModule({
     imports:[
         CommonModule,
-        BrowserAnimationsModule,
         MaterialModule,
         ReactiveFormsModule
     ],

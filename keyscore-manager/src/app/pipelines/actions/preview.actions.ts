@@ -1,5 +1,5 @@
 import {Action} from "@ngrx/store";
-import {Dataset} from "@keyscore-manager-models";
+import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 
 export const EXTRACT_FROM_SELECTED_BLOCK = "[Preview] ExtractFromSelectedBlock";
 export const EXTRACT_FROM_SELECTED_BLOCK_SUCCESS = "[Preview] ExtractFromSelectedBlockSuccess";

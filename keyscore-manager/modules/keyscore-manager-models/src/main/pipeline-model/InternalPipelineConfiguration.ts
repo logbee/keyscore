@@ -1,4 +1,4 @@
-import {Configuration} from "@keyscore-manager-models";
+import {Configuration} from "@keyscore-manager-models/src/main/common/Configuration";
 
 export interface InternalPipelineConfiguration {
     id: string;

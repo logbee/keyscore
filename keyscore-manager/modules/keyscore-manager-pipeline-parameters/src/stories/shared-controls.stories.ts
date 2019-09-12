@@ -3,8 +3,8 @@ import {action} from '@storybook/addon-actions';
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ReactiveFormsModule} from "@angular/forms";
-import {MaterialModule} from "@keyscore-manager-material";
 import {DurationInputComponent} from "../main/shared-controls/duration-input.component";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 storiesOf('SharedControls/DurationInput', module)
     .addDecorator(

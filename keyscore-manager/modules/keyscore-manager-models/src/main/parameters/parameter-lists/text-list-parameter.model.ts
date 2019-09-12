@@ -1,9 +1,9 @@
-import {ParameterRef} from "@keyscore-manager-models";
 import {
     ListParameter,
     ListParameterDescriptor
 } from "@keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
 import {TextParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/text-parameter.model";
+import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
 
 export const JSONCLASS_TEXTLIST_PARAM = "io.logbee.keyscore.model.configuration.TextListParameter";
 export const JSONCLASS_TEXTLIST_DESCR = "io.logbee.keyscore.model.descriptor.TextListParameterDescriptor";

@@ -1,8 +1,8 @@
 import {ValueComponent} from "./value-component.interface";
 import {Component, EventEmitter, HostBinding, Input, Output, ViewChild} from "@angular/core";
-import {DurationValue} from "@keyscore-manager-models";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {DurationInputComponent} from "../shared-controls/duration-input.component";
+import {DurationValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 
 @Component({
     selector: 'ks-duration-value-input',

@@ -1,4 +1,4 @@
-import {TextRef} from "@keyscore-manager-models/src/main/common";
+import {TextRef} from "@keyscore-manager-models/src/main/common/Localization";
 
 export interface CategoryWithLocales{
     name:string;

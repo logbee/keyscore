@@ -1,20 +1,6 @@
 import {Injectable} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
-import {
-    Choice,
-    Descriptor,
-    FilterDescriptor,
-    ParameterInfo,
-    ChoiceWithLocales,
-    FilterDescriptorWithLocales,
-    ParameterDescriptorWithLocales,
-    ParameterInfoWithLocales,
-    StringValidatorWithLocales,
-    StringValidator,
 
-    Locale,
-    TranslationMapping
-} from "@keyscore-manager-models";
 import {ParameterDescriptor, ParameterDescriptorJsonClass} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
 import {TextParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {ExpressionParameterDescriptor, ExpressionParameterChoice} from "@/../modules/keyscore-manager-models/src/main/parameters/expression-parameter.model";
@@ -28,6 +14,12 @@ import {FieldListParameterDescriptor} from "@/../modules/keyscore-manager-models
 import {ChoiceParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/choice-parameter.model";
 import {BooleanParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
 import {FieldNamePatternParameterDescriptor, PatternTypeChoice} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
+import {Descriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
+import {FilterDescriptor, FilterDescriptorWithLocales} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {ParameterDescriptorWithLocales, Choice, ParameterInfoWithLocales, ParameterInfo, ChoiceWithLocales,
+    StringValidatorWithLocales,
+    StringValidator} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
+import {TranslationMapping} from "@/../modules/keyscore-manager-models/src/main/common/Localization";
 
 @Injectable({providedIn: 'root'})
 export class DeserializerService {

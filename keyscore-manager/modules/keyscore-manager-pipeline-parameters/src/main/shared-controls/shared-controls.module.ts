@@ -1,17 +1,15 @@
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MaterialModule} from "@keyscore-manager-material";
 import {AutocompleteFilterComponent} from "./autocomplete-filter.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DurationInputComponent} from "./duration-input.component";
 import {SliderInputComponent} from "./slider-input.component";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
-        BrowserAnimationsModule,
         ReactiveFormsModule,
         FormsModule
     ],

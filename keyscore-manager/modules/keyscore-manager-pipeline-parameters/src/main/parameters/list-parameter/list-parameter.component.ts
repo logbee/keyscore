@@ -13,9 +13,9 @@ import {Subscription} from "rxjs";
 
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ParameterComponentFactoryService} from "../../service/parameter-component-factory.service";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 import {Parameter, ParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
 import {ListParameterDescriptor, ListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/list-parameter.model";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 
 
 @Component({

@@ -1,11 +1,9 @@
 import {moduleMetadata, storiesOf} from "@storybook/angular";
 import {action} from '@storybook/addon-actions';
 import {ExpressionParameterComponent} from "../main/parameters/expression-parameter/expression-parameter.component";
-import {MaterialModule} from "@keyscore-manager-material";
 import {CommonModule} from "@angular/common";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {TextParameterComponent} from "../main/parameters/text-parameter/text-parameter.component";
-import {ExpressionType, FieldNameHint, FieldValueType, PatternType, TextValue} from "@keyscore-manager-models";
 import {ExpressionParameterModule} from "../main/parameters/expression-parameter/expression-parameter.module";
 import {TextParameterModule} from "../main/parameters/text-parameter/text-parameter.module";
 import {ParameterComponentFactoryService} from "../main/service/parameter-component-factory.service";
@@ -29,7 +27,6 @@ import {ValueComponentRegistryService} from "../main/value-controls/services/val
 import {FieldParameterModule} from "../main/parameters/field-parameter/field-parameter.module";
 
 import {ListParameterModule} from "../main/parameters/list-parameter/list-parameter.module";
-import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters";
 
 import {ChoiceParameterComponent} from "../main/parameters/choice-parameter/choice-parameter.component";
 import {ReactiveFormsModule} from "@angular/forms";
@@ -45,6 +42,10 @@ import {TextListParameterDescriptor, TextListParameter} from "@/../modules/keysc
 import {FieldNameListParameterDescriptor, FieldNameListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
 import {FieldListParameterDescriptor, FieldListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
 import {ChoiceParameterDescriptor, ChoiceParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/choice-parameter.model";
+import {MaterialModule} from "@keyscore-manager-material/src/main/material.module";
+import {ExpressionType, FieldNameHint, PatternType, FieldValueType} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
+import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 
 
 storiesOf('Parameters/ExpressionParameter', module)

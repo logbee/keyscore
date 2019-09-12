@@ -12,18 +12,15 @@ import {
     UPDATE_PIPELINE_POLLING,
     UPDATE_PIPELINE_SUCCESS,
 } from "../actions/pipelines.actions";
-import {
-    Descriptor,
-    EditingPipelineModel,
-    generateEmptyEditingPipelineModel,
-    Health,
-    Label,
-    Category,
-    FilterDescriptor,
-    TextValue
-} from "@keyscore-manager-models";
 import {PipelineTableModel} from "../PipelineTableModel";
 import * as _ from 'lodash';
+import {EditingPipelineModel, generateEmptyEditingPipelineModel} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
+import {Descriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
+import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {Category} from "@/../modules/keyscore-manager-models/src/main/descriptors/Category";
+import {Label} from "@/../modules/keyscore-manager-models/src/main/common/MetaData";
+import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {Health} from "@/../modules/keyscore-manager-models/src/main/common/Health";
 
 export class PipelinesState {
     public editingPipeline: EditingPipelineModel;

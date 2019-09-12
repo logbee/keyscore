@@ -23,7 +23,6 @@ import {SidemenuComponent} from "./common/sidemenu/sidemenu.component";
 import {LoadingEffects} from "./common/loading/loading.effects";
 import {ErrorEffects} from "./common/error/error.effects";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MaterialModule} from "@keyscore-manager-material";
 import {ResourcesModule} from "./resources/resources.module";
 import {EffectsModule} from "@ngrx/effects";
 import {SnackbarEffects} from "./common/snackbar/snackbar.effects";
@@ -34,6 +33,7 @@ import {AppAuthGuard} from "./app.authguard";
 import "../assets/styles.scss";
 import "../assets/global-table-styles.scss";
 import "../assets/pipely-style.scss";
+import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 
 
 const routes: Routes = [
@@ -51,7 +51,6 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 @NgModule({
     imports: [
-        BrowserModule,
         BrowserAnimationsModule,
         FormsModule,
         HttpClientModule,

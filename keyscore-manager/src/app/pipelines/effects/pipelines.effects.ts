@@ -53,24 +53,22 @@ import {
     UpdatePipelineFailureAction,
     UpdatePipelineSuccessAction,
 } from "../actions/pipelines.actions";
-import {
-    Blueprint,
-    Configuration,
-    Descriptor,
-    FilterDescriptor,
-    Health,
-    PipelineBlueprint,
-    PipelineInstance
-} from "@keyscore-manager-models";
+
 import {SnackbarOpen} from "../../common/snackbar/snackbar.actions";
-import {
-    BlueprintService,
-    ConfigurationService,
-    DescriptorService, DeserializerService,
-    FilterControllerService,
-    PipelineService
-} from "@keyscore-manager-rest-api";
+
 import {getPipelinePolling, selectIsCreating} from "../index";
+import {PipelineBlueprint, Blueprint} from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Descriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/Descriptor";
+import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
+import {PipelineInstance} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/PipelineInstance";
+import {Health} from "@/../modules/keyscore-manager-models/src/main/common/Health";
+import {BlueprintService} from "@keyscore-manager-rest-api/src/main/BlueprintService";
+import {PipelineService} from "@keyscore-manager-rest-api/src/main/PipelineService";
+import {FilterControllerService} from "@keyscore-manager-rest-api/src/main/FilterController.service";
+import {ConfigurationService} from "@keyscore-manager-rest-api/src/main/ConfigurationService";
+import {DescriptorService} from "@keyscore-manager-rest-api/src/main/DescriptorService";
+import {DeserializerService} from "@keyscore-manager-rest-api/src/main/deserializer.service";
+import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
 
 @Injectable()
 export class PipelinesEffects {

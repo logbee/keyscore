@@ -1,10 +1,8 @@
 import {DropzoneLogic} from "./dropzone-logic";
-import {Draggable, Dropzone} from "../models/contract";
-import {Rectangle} from "../models/rectangle";
+import {Draggable} from "../models/contract";
 import {DropzoneComponent} from "../dropzone.component";
 import {DraggableModel} from "../models/draggable.model";
 import {DropzoneType} from "../models/dropzone-type";
-import {computeRelativePositionToParent} from "../util/util";
 
 export class TrashDropzoneLogic extends DropzoneLogic {
 

@@ -1,9 +1,9 @@
 import {Component, EventEmitter, HostBinding, Input, OnInit, Output} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
-import {TimestampValue} from "@keyscore-manager-models";
 import * as moment from "moment-timezone";
 import {ValueComponent} from "./value-component.interface";
+import {TimestampValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 
 @Component({
     selector: 'ks-timestamp-value-input',

@@ -1,5 +1,5 @@
-import {MetaData} from "@keyscore-manager-models/src/main/common";
 import {Value} from "@keyscore-manager-models/src/main/dataset/Value";
+import {MetaData} from "@keyscore-manager-models/src/main/common/MetaData";
 
 
 export class DatasetTableModel {

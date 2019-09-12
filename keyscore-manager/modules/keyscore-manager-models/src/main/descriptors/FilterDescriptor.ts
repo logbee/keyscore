@@ -1,10 +1,11 @@
-import {Ref, TextRef} from "@keyscore-manager-models/src/main/common";
 import {Category, CategoryWithLocales} from "@keyscore-manager-models/src/main/descriptors/Category";
 import {InputDescriptor} from "@keyscore-manager-models/src/main/descriptors/InputDescriptor";
 import {OutputDescriptor} from "@keyscore-manager-models/src/main/descriptors/OutputDescriptor";
 import {Icon} from "@keyscore-manager-models/src/main/descriptors/Icon";
 import {ParameterDescriptorWithLocales} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {TextRef} from "@keyscore-manager-models/src/main/common/Localization";
+import {Ref} from "@keyscore-manager-models/src/main/common/Ref";
 
 
 export interface FilterDescriptorWithLocales{

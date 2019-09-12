@@ -1,4 +1,6 @@
-import {Blueprint, Configuration, FilterDescriptor} from "@keyscore-manager-models";
+import {Blueprint} from "@keyscore-manager-models/src/main/blueprints/Blueprint";
+import {Configuration} from "@keyscore-manager-models/src/main/common/Configuration";
+import {FilterDescriptor} from "@keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 
 export class ResourceTableModel {
     blueprint: Blueprint;

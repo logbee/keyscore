@@ -1,7 +1,7 @@
 import {ParameterComponent} from "../ParameterComponent";
 import {Component} from "@angular/core";
-import {ParameterRef} from "@keyscore-manager-models";
 import {DecimalParameterDescriptor, DecimalParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/decimal-parameter.model";
+import {ParameterRef} from "@/../modules/keyscore-manager-models/src/main/common/Ref";
 
 @Component({
     selector: ``,

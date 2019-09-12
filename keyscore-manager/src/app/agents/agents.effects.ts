@@ -19,8 +19,8 @@ import {
     RemoveCurrentAgentAction
 } from "./agents.actions";
 import {Go} from "../router/router.actions";
-import {Agent} from "@keyscore-manager-models";
-import {AgentService} from "../../../modules/keyscore-manager-rest-api/src/main/AgentService";
+import {AgentService} from "@keyscore-manager-rest-api/src/main/AgentService";
+import {Agent} from "@/../modules/keyscore-manager-models/src/main/common/Agent";
 
 @Injectable()
 export class AgentsEffects {

@@ -1,5 +1,5 @@
-import {MetaData} from "@keyscore-manager-models/src/main/common";
-import {Record} from "@keyscore-manager-models/src/main/dataset/";
+import {MetaData} from "@keyscore-manager-models/src/main/common/MetaData";
+import {Record} from "@keyscore-manager-models/src/main/dataset/Record";
 
 export interface Dataset {
    metaData: MetaData;

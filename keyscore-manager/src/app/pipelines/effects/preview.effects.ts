@@ -2,7 +2,6 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../app.component";
-import {FilterControllerService} from "@keyscore-manager-rest-api";
 import {Observable, of} from "rxjs";
 import {catchError, map, mergeMap} from "rxjs/operators";
 import {
@@ -11,7 +10,8 @@ import {
     ExtractFromSelectedBlockFailure,
     ExtractFromSelectedBlockSuccess
 } from "../actions/preview.actions";
-import {Dataset} from "@keyscore-manager-models";
+import {FilterControllerService} from "@keyscore-manager-rest-api/src/main/FilterController.service";
+import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 
 @Injectable()
 export class PreviewEffects {
