@@ -50,7 +50,11 @@ object MetricSourceLogic extends Described {
       TextRef("ids"),
       TextRef("idsDescription")
     ),
-    min = 1
+    TextParameterDescriptor("metric.source.ids.item",ParameterInfo(
+      TextRef("ids"),
+      TextRef("idsDescription")
+    )),
+    1
   )
 
   val limitParameter = NumberParameterDescriptor(

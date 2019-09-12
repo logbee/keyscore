@@ -21,6 +21,10 @@ object ConstantSourceLogic extends Described {
       displayName = TextRef("input.displayName"),
       description = TextRef("input.description")
     ),
+    descriptor = TextParameterDescriptor("input.item",ParameterInfo(
+      displayName = TextRef("input.displayName"),
+      description = TextRef("input.description")
+    )),
     min = 1,
     max = MaxValue
   )

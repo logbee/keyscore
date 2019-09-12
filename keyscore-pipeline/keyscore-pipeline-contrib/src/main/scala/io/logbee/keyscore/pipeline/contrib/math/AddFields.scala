@@ -18,7 +18,12 @@ object AddFields extends Described {
     ParameterInfo(
       displayName = TextRef("fieldnames.DisplayName"),
       description = TextRef("fieldnames.Description")
-    )
+    ),
+    FieldNameParameterDescriptor("fieldList.item",
+      ParameterInfo(
+        displayName = TextRef("fieldnames.DisplayName"),
+        description = TextRef("fieldnames.Description")
+      ), "", FieldNameHint.AbsentField)
   )
 
   val targetFieldParameter = FieldNameParameterDescriptor(
@@ -70,8 +75,8 @@ class AddFields(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
           case (result, Field(name, DecimalValue(value))) if fieldsToAdd.contains(name) => result + value
           case (result, _) => result
         }
-        .map(result => Field(targetFieldName, DecimalValue(result)))
-        .get)
+          .map(result => Field(targetFieldName, DecimalValue(result)))
+          .get)
       })))
     }
     else {

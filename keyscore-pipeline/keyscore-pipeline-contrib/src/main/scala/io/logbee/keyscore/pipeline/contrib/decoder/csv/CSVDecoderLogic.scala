@@ -5,6 +5,7 @@ import io.logbee.keyscore.model._
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.data.{Dataset, Field, Icon, Record, TextValue}
 import io.logbee.keyscore.model.descriptor.FieldNameHint.PresentField
+import io.logbee.keyscore.model.descriptor.ParameterDescriptorMessage.SealedValue.TextParameter
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
@@ -66,6 +67,10 @@ object CSVDecoderLogic extends Described {
       TextRef("csv.header.displayName"),
       TextRef("csv.header.description")
     ),
+    descriptor = TextParameterDescriptor("csv.header.item",ParameterInfo(
+      TextRef("csv.header.displayName"),
+      TextRef("csv.header.description")
+    )),
     min = 1,
     max = MaxValue
   )
