@@ -18,9 +18,9 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
     selector: "configurator",
     template: `
         <div fxFill fxLayout="column" class="configurator-wrapper mat-elevation-z8">
-            <div fxLayout="row">
-                <div *ngIf="!(config$|async).conf">
-                    <div fxFlex="95%" fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
+            <div fxLayout="row" fxFlexFill>
+                <div *ngIf="!(config$|async).conf" fxFlex>
+                    <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
                         <form [formGroup]="pipelineForm">
                             <mat-form-field>
                                 <input matInput type="text" placeholder="Pipeline Name"
@@ -48,13 +48,13 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
                         </form>
                     </div>
                 </div>
-                <div *ngIf="(config$|async) as config">
-                    <div fxFlex="95%" fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                        <h3>
-                            <p style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</p>
+                <div *ngIf="(config$|async) as config" fxFlex>
+                    <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
+                        <div>
+                            <h3 style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
                             <p style="margin-bottom: 0; font-family: monospace;font-size: small">
                                 {{config?.uuid}}</p>
-                        </h3>
+                        </div>
                         <p>{{config?.descriptor?.description}}</p>
                         <mat-divider></mat-divider>
                         <div class="configurator-body">
@@ -64,11 +64,7 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
                         </div>
                     </div>
                 </div>
-                <button matTooltip="{{'CONFIGURATOR.HIDE' | translate}}" *ngIf="collapsibleButton" mat-mini-fab
-                        color="primary"
-                        (click)="collapse()" style="margin-right: 30px;">
-                    <mat-icon>chevron_right</mat-icon>
-                </button>
+              
             </div>
         </div>
     `,
@@ -76,7 +72,6 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
 })
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
-    @Input() collapsibleButton: boolean;
     @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
 
     @Input('config') set config(val: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) {
@@ -96,7 +91,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
                     rec.fields.map(field => field.name))))));
     }
 
-    private autoCompleteOptions: string[];
+    private autoCompleteOptions: string[] = [];
 
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
@@ -138,6 +133,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         this.pipelineForm.valueChanges.subscribe(val => {
             this.onSavePipelineMetaData.emit({name: val['pipeline.name'], description: val['pipeline.description']});
         });
+
+        this.parameterMap$.subscribe(map => console.log("SUBSCRIPTION: ",map))
     }
 
     private createParameterMap(config: { conf: Configuration, descriptor: BlockDescriptor }) {
