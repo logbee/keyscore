@@ -13,6 +13,14 @@ import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {HttpClient} from "@angular/common/http";
 import {HttpLoaderFactory} from "@/app/app.module";
 import {ParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/parameter.module";
+import {
+    FieldListParameter,
+    FieldListParameterDescriptor
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
+import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
+import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {FieldParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {FieldNameHint, FieldValueType} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 
 
 storiesOf('Configurator', module)
@@ -35,7 +43,7 @@ storiesOf('Configurator', module)
             ],
             providers: []
         }))
-    .add("default", () => ({
+    .add("with two lists", () => ({
         component: ConfiguratorComponent,
         props: {
             config: {
@@ -43,7 +51,9 @@ storiesOf('Configurator', module)
                     ref: {uuid: 'testFilter'},
                     parent: null,
                     parameterSet: {
-                        parameters: [new TextListParameter({id: 'testTextList'}, ['test1', 'test2'])]
+                        parameters: [new TextListParameter({id: 'testTextList'}, ['test1', 'test2']),
+                            new FieldListParameter({id: 'testFieldList'}, [new Field('message',new TextValue('haha'))])
+                        ]
                     }
                 },
                 descriptor: {
@@ -54,7 +64,11 @@ storiesOf('Configurator', module)
                     nextConnection: null,
                     parameters: [new TextListParameterDescriptor({id: 'testTextList'}, 'Test Text List', '',
                         new TextParameterDescriptor({id: 'testItem'}, 'item', '', '', null, false),
-                        0, 0)],
+                        0, 0),
+                    new FieldListParameterDescriptor({id:'testFieldList'},'Test Field List','',
+                        new FieldParameterDescriptor({id:'testFieldItem'},'haha','','',FieldNameHint.AnyField,null,FieldValueType.Text,false),
+                        0,0)
+                    ],
                     categories: []
                 },
                 uuid: 'blablalbla-blablalbla-blalal-blalala'

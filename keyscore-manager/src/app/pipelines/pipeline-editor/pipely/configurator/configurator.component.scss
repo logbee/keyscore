@@ -2,7 +2,9 @@
 
 .configurator-wrapper {
   position: relative;
-  max-width: calc(100% - 20px);
+  width:100%;
+  min-width: 100%;
+  max-width: 100%;
   padding:10px;
 
 }
