@@ -228,4 +228,9 @@ sidemenu .mat-list-item mat-icon {
     height: 32px
 }
 
+.mat-form-field, .mat-form-field-flex {
+    width: 100% !important;
+    margin-left: 0 !important;
+}
+
 
