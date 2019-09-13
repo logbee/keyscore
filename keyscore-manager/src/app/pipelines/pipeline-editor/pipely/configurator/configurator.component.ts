@@ -107,7 +107,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     isVisible: boolean = true;
     form: FormGroup;
     pipelineForm: FormGroup;
-    parameterMap$: Subject<ParameterMap> = new Subject();
+    parameterMap$: BehaviorSubject<ParameterMap> = new BehaviorSubject<ParameterMap>(null);
 
     unsubscribe$: Subject<void> = new Subject();
 
