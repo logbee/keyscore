@@ -1,4 +1,12 @@
-import {Component, ComponentFactoryResolver, ComponentRef, Input, ViewChild} from "@angular/core";
+import {
+    AfterViewInit,
+    ChangeDetectorRef,
+    Component,
+    ComponentFactoryResolver,
+    ComponentRef,
+    Input,
+    ViewChild
+} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {StringValidatorService} from "../../service/string-validator.service";
 import {ValueDirective} from "../../value-controls/directives/value.directive";
@@ -6,14 +14,14 @@ import {ValueComponentRegistryService} from "../../value-controls/services/value
 import {ValueComponent} from "../../value-controls/value-component.interface";
 import {Subscription} from "rxjs";
 import {AutocompleteFilterComponent} from "../../shared-controls/autocomplete-filter.component";
-import {FieldParameterDescriptor, FieldParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
-import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
+import {FieldParameterDescriptor, FieldParameter} from "@keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
 
 @Component({
     selector: `parameter-field`,
     template: `
         <div fxLayout="row" fxLayoutGap="15px">
-            <mat-form-field fxFlex="45">
+            <mat-form-field fxFlex="50">
                 <ks-autocomplete-input #fieldInput
                                        [value]="parameter.value?.name"
                                        [options]="autoCompleteDataList"
@@ -27,7 +35,7 @@ import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-            <div fxFlex="45">
+            <div fxFlex="50">
                 <ng-template value-host></ng-template>
             </div>
         </div>
@@ -56,7 +64,9 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
 
     constructor(private stringValidator: StringValidatorService,
                 private valueRegistry: ValueComponentRegistryService,
-                private componentFactoryResolver: ComponentFactoryResolver) {
+                private componentFactoryResolver: ComponentFactoryResolver,
+                private changeRef: ChangeDetectorRef
+    ) {
         super();
     }
 
@@ -71,6 +81,7 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
             this.onEnter(event)
         ));
     }
+
 
     public clear() {
         this.autoCompleteComponent.value = '';
@@ -101,6 +112,7 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
             this.valueComponentInstance.instance.value = this.parameter.value.value;
         }
         this.valueComponentInstance.instance.showLabel = this.showLabel;
+        this.changeRef.detectChanges();
     }
 
     onDestroy() {

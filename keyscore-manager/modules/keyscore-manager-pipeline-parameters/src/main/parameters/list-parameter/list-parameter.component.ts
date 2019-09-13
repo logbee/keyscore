@@ -1,5 +1,5 @@
 import {
-    AfterViewInit,
+    AfterViewInit, ChangeDetectorRef,
     Component,
     ComponentRef,
     QueryList,
@@ -26,12 +26,12 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
     template: `
         <div class="parameter-list-host">
             <div fxLayout="row" fxLayoutGap="15px" class="parameter-list-header">
-                <div fxFlex="90">
+                <div fxFlex>
                     <ng-template #addParameterInputContainer>
                     </ng-template>
                 </div>
                 <button mat-button mat-icon-button (click)="add(_addParameterComponentRef.instance.value.value)"
-                        fxFlexAlign="center" fxFlex="10">
+                        fxFlexAlign="center">
                     <mat-icon color="accent">add_circle_outline</mat-icon>
                 </button>
             </div>
@@ -45,15 +45,18 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
                 </mat-expansion-panel-header>
                 <div cdkDropList (cdkDropListDropped)="drop($event)" class="parameter-list">
                     <div *ngFor="let param of _valueParameter;let i=index" cdkDrag class="parameter-list-item"
-                         fxLayout="row-reverse">
-                        <button mat-button mat-icon-button (click)="remove(i)" fxFlexAlign="center">
-                            <mat-icon color="warn">delete</mat-icon>
-                        </button>
-                        <ng-template #listItemInputContainer>
-                        </ng-template>
+                         fxLayout="row">
                         <div class="drag-handle" cdkDragHandle fxFlexAlign="center">
                             <mat-icon>drag_handle</mat-icon>
                         </div>
+                        <div fxFlex>
+                            <ng-template #listItemInputContainer>
+                            </ng-template>
+                        </div>
+                        <button mat-button mat-icon-button (click)="remove(i)" fxFlexAlign="center">
+                            <mat-icon color="warn">delete</mat-icon>
+                        </button>
+
                     </div>
                 </div>
             </mat-expansion-panel>
@@ -110,7 +113,8 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
 
     constructor(
         private parameterComponentFactory: ParameterComponentFactoryService,
-        private parameterFactory: ParameterFactoryService
+        private parameterFactory: ParameterFactoryService,
+        private changeRef:ChangeDetectorRef
     ) {
         super();
     }
@@ -124,6 +128,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
 
         this.createAddParameterComponent();
         this.updateList(this.listItemContainers);
+        this.changeRef.detectChanges();
     }
 
     itemChanged(value: Parameter, index: number) {

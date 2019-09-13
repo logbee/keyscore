@@ -1,20 +1,24 @@
 .ks-expansion-panel-title {
-    margin-left: 10px;
-    color: rgba(0, 0, 0, 0.6);
+  //margin-left: 10px;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .parameter-list-host {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    border-radius: 5px;
-    padding-top: 8px;
-    padding-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 5px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  max-width: 100%;
 }
 
 .parameter-list-host mat-expansion-panel {
-    box-shadow: none !important;
+  box-shadow: none !important;
 }
 
 .parameter-list-header {
-    margin-left: 8px;
-    margin-right: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  max-width:100%;
 }
