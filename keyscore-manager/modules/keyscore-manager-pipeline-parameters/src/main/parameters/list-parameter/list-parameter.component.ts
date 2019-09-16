@@ -177,8 +177,10 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
         this._addParameterComponentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
         this._addParameterComponentRef.instance.label = this.descriptor.displayName;
 
-        this._subs$$.push(this._addParameterComponentRef.instance.keyUpEnterEvent.subscribe(event =>
-            this.add(this._addParameterComponentRef.instance.value.value)));
+        this._subs$$.push(this._addParameterComponentRef.instance.keyUpEnterEvent.subscribe(event =>{
+            this.add(this._addParameterComponentRef.instance.value.value);
+            this._addParameterComponentRef.instance.focus(null);
+        }))
     }
 
     private updateList(containers: QueryList<ViewContainerRef>) {

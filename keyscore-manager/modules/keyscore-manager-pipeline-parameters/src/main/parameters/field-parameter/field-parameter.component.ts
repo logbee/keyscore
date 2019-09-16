@@ -89,6 +89,11 @@ export class FieldParameterComponent extends ParameterComponent<FieldParameterDe
         this.onChange();
     }
 
+    public focus(event:Event){
+        console.log("Called FOCUS in FieldParameter");
+        this.autoCompleteComponent.focus(event);
+    }
+
     private onEnter(event: Event) {
         this.keyUpEnterEvent.emit(event);
     }

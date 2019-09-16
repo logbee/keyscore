@@ -9,6 +9,7 @@ import {
 } from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @NgModule({
     imports: [

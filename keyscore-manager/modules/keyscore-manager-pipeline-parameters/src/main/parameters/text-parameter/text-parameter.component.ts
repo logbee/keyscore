@@ -49,6 +49,10 @@ export class TextParameterComponent extends ParameterComponent<TextParameterDesc
         this.onChange();
     }
 
+    public focus(event:Event){
+        this.textInputRef.nativeElement.focus();
+    }
+
     private onChange(): void {
         this.emit(this.value);
     }

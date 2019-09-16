@@ -33,6 +33,10 @@ export abstract class ParameterComponent<D, P> implements OnInit, OnDestroy {
     public clear(): void{
     }
 
+    public focus(event:Event):void{
+
+    }
+
     protected emit(parameter: P): void {
         this.emitter.emit(parameter)
     }

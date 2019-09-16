@@ -24,7 +24,6 @@ import {takeUntil} from "rxjs/operators";
 export class ParameterFormComponent implements OnInit, OnDestroy {
 
     @Input() set parameters(val: ParameterMap) {
-        console.log("Set Parameter",val);
         this._parameters = val;
         this.createParameterComponents();
     };
@@ -52,7 +51,6 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
     createParameterComponents() {
         this.unsubscribe$.next();
         this.formContainer.clear();
-        console.log("CreateParameterComponents",this.parameters);
         if(this.parameters && this.parameters.parameters) {
             Object.entries(this.parameters.parameters).forEach(([ref, [parameter, descriptor]]) => {
                 const componentRef = this.parameterComponentFactory.createParameterComponent(descriptor.jsonClass, this.formContainer);

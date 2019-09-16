@@ -61,6 +61,10 @@ export class FieldNameParameterComponent extends ParameterComponent<FieldNamePar
         this.inputFieldRef.clear();
     }
 
+    public focus(event:Event){
+        this.inputFieldRef.focus(event);
+    }
+
     private onChange(): void {
         this.emit(this.value);
     }

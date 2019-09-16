@@ -17,20 +17,22 @@ import {
                 <mat-option *ngFor="let choice of descriptor.choices;let i=index" [value]="choice.name"
                             [matTooltip]="choice.description ||null"
                             matTooltipPosition="before">
-                        <span>{{choice.displayName}}</span>
+                    <span>{{choice.displayName}}</span>
 
-                        <div @max-warn *ngIf="_showMaxError[i]" class="choice-max-error">{{descriptor.displayName}}
-                            only
-                            allows {{descriptor.max}} selections.
-                        </div>
+                    <div @max-warn *ngIf="_showMaxError[i]" class="choice-max-error" translate
+                         [translateParams]="{name:descriptor.displayName,max:descriptor.max}">
+                        PARAMETER.CHOICE_MAX_SELECTION_WARNING
+                    </div>
                 </mat-option>
             </mat-select>
             <mat-label>{{descriptor.displayName}}</mat-label>
         </mat-form-field>
-        <p class="parameter-warn" *ngIf=" descriptor.min > 1 && _selectFormControl.value.length < descriptor.min">
-            {{descriptor.displayName}} expects at least {{descriptor.min}} selections.</p>
+        <p class="parameter-warn" *ngIf=" descriptor.min > 1 && _selectFormControl.value.length < descriptor.min"
+            translate [translateParams]="{name:descriptor.displayName,min:descriptor.min}">
+            PARAMETER.CHOICE_MIN_SELECTION_WARNING    
+        </p>
     `,
-    styleUrls:['../../style/parameter-module-style.scss'],
+    styleUrls: ['../../style/parameter-module-style.scss'],
     animations: [
         trigger('max-warn', [
             transition(':enter', [
