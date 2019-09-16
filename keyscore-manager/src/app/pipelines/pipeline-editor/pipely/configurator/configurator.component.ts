@@ -18,7 +18,6 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
     selector: "configurator",
     template: `
         <div fxFill fxLayout="column" class="configurator-wrapper mat-elevation-z8">
-            <div fxLayout="row" fxFlexFill>
                 <div *ngIf="!(config$|async).conf" fxFlex>
                     <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
                         <form [formGroup]="pipelineForm">
@@ -49,23 +48,23 @@ import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dat
                     </div>
                 </div>
                 <div *ngIf="(config$|async) as config" fxFlex>
-                    <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                        <div>
-                            <h3 style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
-                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">
-                                {{config?.uuid}}</p>
+                    <ng-container *ngIf="config.conf">
+                        <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
+                            <div>
+                                <h3 style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
+                                <p style="margin-bottom: 0; font-family: monospace;font-size: small">
+                                    {{config?.uuid}}</p>
+                            </div>
+                            <p>{{config?.descriptor?.description}}</p>
+                            <mat-divider></mat-divider>
+                            <div class="configurator-body">
+                                <parameter-form [parameters]="parameterMap$|async"
+                                                [autoCompleteDataList]="autoCompleteOptions"
+                                                (onValueChange)="saveConfiguration($event)"></parameter-form>
+                            </div>
                         </div>
-                        <p>{{config?.descriptor?.description}}</p>
-                        <mat-divider></mat-divider>
-                        <div class="configurator-body">
-                            <parameter-form [parameters]="parameterMap$|async"
-                                            [autoCompleteDataList]="autoCompleteOptions"
-                                            (onValueChange)="saveConfiguration($event)"></parameter-form>
-                        </div>
-                    </div>
+                    </ng-container>
                 </div>
-              
-            </div>
         </div>
     `,
     styleUrls: ['./configurator.component.scss']
@@ -134,7 +133,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             this.onSavePipelineMetaData.emit({name: val['pipeline.name'], description: val['pipeline.description']});
         });
 
-        this.parameterMap$.subscribe(map => console.log("SUBSCRIPTION: ",map))
+        this.parameterMap$.subscribe(map => console.log("SUBSCRIPTION: ", map))
     }
 
     private createParameterMap(config: { conf: Configuration, descriptor: BlockDescriptor }) {
