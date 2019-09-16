@@ -63,7 +63,6 @@ export class PuzzleBoxComponent implements OnChanges, OnInit {
         if (this._loadedCategories.length === this.categories.length) {
             this.isLoading = false;
         }
-        console.log("LOADED CATS:", this._loadedCategories);
     }
 
 
