@@ -18,23 +18,17 @@
 }
 
 .parameter-list-warn {
+  display:inline-block;
   line-height: 1.2em;
   color: $warn;
   font-size: 75%;
-  margin-top: -12px;
+  padding-top: 0px;
+  padding-bottom: 0px;
   margin-left: 24px;
   transition: margin-top 0.2s ease-in;
 
 }
 
-.parameter-list-warn-collapsed{
-  line-height: 1.2em;
-  color: $warn;
-  font-size: 75%;
-  margin-top: 8px;
-  margin-left: 24px;
-  transition: margin-top 0.2s ease-out;
-}
 
 .parameter-warn-with-hint {
   margin-top: -1px;
@@ -177,9 +171,9 @@ mat-expansion-panel-header .mat-content {
   margin-left: 20px !important;
 }
 
-.mat-expansion-indicator {
+/*.mat-expansion-indicator {
   margin-left: 10px !important;
-}
+}*/
 
 .directive-add {
   width: 100% !important;

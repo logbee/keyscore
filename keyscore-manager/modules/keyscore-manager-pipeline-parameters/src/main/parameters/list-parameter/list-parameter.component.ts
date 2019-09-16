@@ -60,13 +60,13 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
                     </div>
                 </div>
             </mat-expansion-panel>
-            <p [ngClass]="_panelExpanded ? 'parameter-list-warn' : 'parameter-list-warn-collapsed'" *ngIf="descriptor.mandatory && !_valueParameter.length">
+            <p class="parameter-list-warn" *ngIf="descriptor.mandatory && !_valueParameter.length">
                 {{descriptor.displayName}}
                 is
                 required!</p>
-            <p [ngClass]="_panelExpanded ? 'parameter-list-warn' : 'parameter-list-warn-collapsed'" *ngIf="_valueParameter.length < descriptor.min">{{descriptor.displayName}}
+            <p class="parameter-list-warn" *ngIf="_valueParameter.length < descriptor.min">{{descriptor.displayName}}
                 needs at least {{descriptor.min}} {{descriptor.min > 1 ? 'elements' : 'element'}}.</p>
-            <p @max-warn [ngClass]="_panelExpanded ? 'parameter-list-warn' : 'parameter-list-warn-collapsed'" *ngIf="_maxElementsReached">
+            <p @max-warn class="parameter-list-warn" *ngIf="_maxElementsReached">
                 You reached the maximum number of elements. {{descriptor.displayName}}
                 allows a maximum of {{descriptor.max}} elements.</p>
         </div>
