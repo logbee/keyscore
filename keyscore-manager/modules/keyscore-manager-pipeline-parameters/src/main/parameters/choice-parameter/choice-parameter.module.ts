@@ -10,12 +10,14 @@ import {
 import {ReactiveFormsModule} from "@angular/forms";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {TranslateModule} from "@ngx-translate/core";
 
 @NgModule({
     imports:[
         CommonModule,
         MaterialModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        TranslateModule
     ],
     declarations:[
         ChoiceParameterComponent
