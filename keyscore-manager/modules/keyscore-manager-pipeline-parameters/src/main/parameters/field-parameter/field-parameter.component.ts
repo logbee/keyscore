@@ -30,7 +30,7 @@ import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
                 </ks-autocomplete-input>
                 <mat-label *ngIf="showLabel">Field Name</mat-label>
 
-                <button mat-button *ngIf="fieldInput.value" matSuffix mat-icon-button aria-label="Clear"
+                <button mat-button tabindex="-1" *ngIf="fieldInput.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="clear()">
                     <mat-icon>close</mat-icon>
                 </button>

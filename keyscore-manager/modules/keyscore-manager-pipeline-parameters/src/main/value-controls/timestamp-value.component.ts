@@ -13,7 +13,7 @@ import {TimestampValue} from "@/../modules/keyscore-manager-models/src/main/data
                 <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)"
                        step="1">
                 <mat-label *ngIf="showLabel">{{label}}</mat-label>
-                <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
+                <button mat-button tabindex="-1" *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="inputControl.setValue('');onChange( )">
                     <mat-icon>close</mat-icon>
                 </button>

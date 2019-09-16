@@ -10,7 +10,7 @@ import {NumberValue} from "@/../modules/keyscore-manager-models/src/main/dataset
         <mat-form-field>
             <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
             <mat-label *ngIf="showLabel">{{label}}</mat-label>
-            <button mat-button *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
+            <button mat-button tabindex="-1" *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputControl.setValue('');inputField.focus();onChange( )">
                 <mat-icon>close</mat-icon>
             </button>

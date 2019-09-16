@@ -10,7 +10,7 @@ import {DurationValue} from "@/../modules/keyscore-manager-models/src/main/datas
         <mat-form-field>
             <ks-duration-input #durationInput (changed)="onChange($event)" (keyUpEnter)="keyUpEnter.emit($event)"></ks-duration-input>
             <mat-label *ngIf="showLabel">{{label}}</mat-label>
-            <button mat-button *ngIf="durationInput.value" matSuffix mat-icon-button aria-label="Clear"
+            <button mat-button tabindex="-1" *ngIf="durationInput.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="clearInput()">
                 <mat-icon>close</mat-icon>
             </button>
