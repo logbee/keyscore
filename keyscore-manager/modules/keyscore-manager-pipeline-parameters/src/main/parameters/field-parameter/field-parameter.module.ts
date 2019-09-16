@@ -12,13 +12,15 @@ import {
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
+import {TranslateModule} from "@ngx-translate/core";
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
         SharedControlsModule,
-        ValueControlsModule
+        ValueControlsModule,
+        TranslateModule
     ],
     declarations: [FieldParameterComponent],
     exports: [FieldParameterComponent],

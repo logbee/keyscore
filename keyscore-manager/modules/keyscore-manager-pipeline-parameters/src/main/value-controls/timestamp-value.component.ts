@@ -12,7 +12,8 @@ import {TimestampValue} from "@/../modules/keyscore-manager-models/src/main/data
             <mat-form-field fxFlex="60">
                 <input #inputField matInput type="datetime-local" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)"
                        step="1">
-                <mat-label *ngIf="showLabel">{{label}}</mat-label>
+                <mat-label *ngIf="showLabel && label">{{label}}</mat-label>
+                <mat-label *ngIf="showLabel && !label" translate>PARAMETER.TIMESTAMP</mat-label>
                 <button mat-button tabindex="-1" *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="inputControl.setValue('');onChange( )">
                     <mat-icon>close</mat-icon>
@@ -20,7 +21,7 @@ import {TimestampValue} from "@/../modules/keyscore-manager-models/src/main/data
                 <mat-icon matSuffix [inline]="true" svgIcon="timestamp-icon"></mat-icon>
             </mat-form-field>
             <mat-form-field fxFlex="40">
-                <mat-label *ngIf="showLabel">Timezone</mat-label>
+                <mat-label *ngIf="showLabel" translate>PARAMETER.TIMEZONE</mat-label>
                 <mat-select [formControl]="selectControl" (selectionChange)="onChange()">
                     <mat-option *ngFor="let timezone of timeZones" [value]="timezone">{{timezone}}</mat-option>
                 </mat-select>
@@ -61,7 +62,7 @@ export class TimestampValueComponent implements ValueComponent {
 
     private _disabled = false;
 
-    @Input() label: string = 'Timestamp';
+    @Input() label: string;
     @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<TimestampValue> = new EventEmitter<TimestampValue>();

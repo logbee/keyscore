@@ -1,15 +1,20 @@
-import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
+import {Component, EventEmitter, HostBinding, Input, OnDestroy, Output} from "@angular/core";
 import {ValueComponent} from "./value-component.interface";
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {DecimalValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {TranslateService} from "@ngx-translate/core";
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 @Component({
     selector: 'ks-decimal-value-input',
     template: `
         <mat-form-field>
-            <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
-            <mat-label *ngIf="showLabel">{{label}}</mat-label>
+            <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()"
+                   (keyup.enter)="keyUpEnter.emit($event)">
+            <mat-label *ngIf="showLabel && label">{{label}}</mat-label>
+            <mat-label *ngIf="showLabel && !label" translate>PARAMETER.VALUE</mat-label>
             <button mat-button tabindex="-1" *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputControl.setValue('');inputField.focus();onChange( )">
                 <mat-icon>close</mat-icon>
@@ -18,7 +23,7 @@ import {DecimalValue} from "@/../modules/keyscore-manager-models/src/main/datase
         </mat-form-field>
     `
 })
-export class DecimalValueComponent implements ValueComponent{
+export class DecimalValueComponent implements ValueComponent {
 
     static nextId = 0;
 
@@ -46,16 +51,17 @@ export class DecimalValueComponent implements ValueComponent{
 
     private _disabled = false;
 
-    @Input() label: string = 'Value';
-    @Input() showLabel:boolean = true;
+    @Input() label: string;
+    @Input() showLabel: boolean = true;
 
     @Output() changed: EventEmitter<DecimalValue> = new EventEmitter();
-    @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter<Event>();
-
+    @Output() keyUpEnter: EventEmitter<Event> = new EventEmitter<Event>();
 
     onChange() {
         this.changed.emit(this.value);
     }
+
+
 
 
 }

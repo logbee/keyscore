@@ -21,6 +21,7 @@ import {
     timestamp_icon
 } from "../../../assets/icons/values/value-icons";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {TranslateModule} from "@ngx-translate/core";
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/ma
         MaterialModule,
         ReactiveFormsModule,
         FormsModule,
-        SharedControlsModule
+        SharedControlsModule,
+        TranslateModule
     ],
     declarations: [
         ValueDirective,

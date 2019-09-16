@@ -47,6 +47,18 @@
     }
   },
   "PARAMETER":{
+    "TIMEZONE":"Timezone",
+    "TIMESTAMP":"Timestamp",
+    "DURATION":"Duration",
+    "VALUE":"Value",
+    "INTEGER_WARNING":"{{name}} has to be an integer. Floating point values will be rounded.",
+    "ADDED_ELEMENTS":"Added Elements for {{name}}",
+    "LIST_MIN":"{{name}} needs at least {{min}} elements.",
+    "LIST_MAX_REACHED":"You reached the maximum number of elements. {{name}} allows a maximum of {{max}} elements.",
+    "FIELD_NAME":"Field Name",
+    "FIELD_NAME_HINT":"You should choose a {{hint}}",
+    "FULFILL_PATTERN":"Your input has to fulfill the following pattern: {{pattern}}",
+    "IS_REQUIRED":"{{name}} is required.",
     "CHOICE_MIN_SELECTION_WARNING":"{{name}} expects at least {{min}} selections.",
     "CHOICE_MAX_SELECTION_WARNING":"{{name}} only allows {{max}} selections."
   },

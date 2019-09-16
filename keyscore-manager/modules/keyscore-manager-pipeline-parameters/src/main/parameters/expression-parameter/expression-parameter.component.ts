@@ -17,7 +17,7 @@ import {ParameterRef} from "@/../modules/keyscore-manager-models/src/main/common
                 </button>
             </mat-form-field>
             <mat-form-field fxFlex>
-                <mat-label>Pattern Type</mat-label>
+                <mat-label>Pattern</mat-label>
                 <mat-select #expressionType (selectionChange)="onChange(expression.value, expressionType.value)">
                     <mat-option *ngFor="let choice of descriptor.choices" [value]="choice.name">
                         {{choice.displayName}}
@@ -25,10 +25,12 @@ import {ParameterRef} from "@/../modules/keyscore-manager-models/src/main/common
                 </mat-select>
             </mat-form-field>
         </div>
-        <p class="parameter-warn" *ngIf="descriptor.mandatory && !expression.value ">{{descriptor.displayName}} is
-            required!</p>
-        <p class="parameter-warn" *ngIf="descriptor.mandatory && !expressionType.value ">Pattern Type is
-            required!</p>
+        <p class="parameter-warn" *ngIf="descriptor.mandatory && !expression.value" translate [translateParams]="{name:descriptor.displayName}">
+            PARAMETER.IS_REQUIRED
+        </p>
+        <p class="parameter-warn" *ngIf="descriptor.mandatory && !expressionType.value" translate [translateParams]="{name:'Pattern'}">
+            PARAMETER.IS_REQUIRED
+        </p>
         
     `,
     styleUrls:['../../style/parameter-module-style.scss']

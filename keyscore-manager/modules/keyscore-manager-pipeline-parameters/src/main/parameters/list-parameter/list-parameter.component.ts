@@ -40,7 +40,9 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
                                             [expandedHeight]="'*'" class="sequence-header" fxLayout="row"
                                             fxLayoutAlign="space-between center">
                     <mat-panel-title><span
-                            class="ks-expansion-panel-title">Added Elements for {{descriptor.displayName}}</span>
+                            class="ks-expansion-panel-title" translate [translateParams]="{name:descriptor.displayName}">
+                        PARAMETER.ADDED_ELEMENTS
+                    </span>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div cdkDropList (cdkDropListDropped)="drop($event)" class="parameter-list">
@@ -53,38 +55,29 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
                             <ng-template #listItemInputContainer>
                             </ng-template>
                         </div>
-                        <button mat-button mat-icon-button (click)="remove(i)" >
+                        <button mat-button mat-icon-button (click)="remove(i)">
                             <mat-icon color="warn">delete</mat-icon>
                         </button>
 
                     </div>
                 </div>
             </mat-expansion-panel>
-            <p class="parameter-list-warn" *ngIf="descriptor.mandatory && !_valueParameter.length">
-                {{descriptor.displayName}}
-                is
-                required!</p>
-            <p class="parameter-list-warn" *ngIf="_valueParameter.length < descriptor.min">{{descriptor.displayName}}
-                needs at least {{descriptor.min}} {{descriptor.min > 1 ? 'elements' : 'element'}}.</p>
-            <p @max-warn class="parameter-list-warn" *ngIf="_maxElementsReached">
-                You reached the maximum number of elements. {{descriptor.displayName}}
-                allows a maximum of {{descriptor.max}} elements.</p>
+            <p class="parameter-list-warn" *ngIf="descriptor.mandatory && !_valueParameter.length" translate
+               [translateParams]="{name:descriptor.displayName}">PARAMETER.IS_REQUIRED</p>
+            <p class="parameter-list-warn" *ngIf="_valueParameter.length < descriptor.min" translate
+               [translateParams]="{name:descriptor.displayName,min:descriptor.min}">PARAMETER.LIST_MIN</p>
+            <p @max-warn class="parameter-list-warn" *ngIf="_maxElementsReached" translate
+               [translateParams]="{name:descriptor.displayName,max:descriptor.max}">PARAMETER.LIST_MAX_REACHED</p>
         </div>
     `,
     styleUrls: ['./list-parameter.component.scss', '../../style/parameter-module-style.scss'],
     animations: [
         trigger('max-warn', [
-            transition(':enter', [
-                style({transform: 'scale(0.5)', opacity: 0}),
-                animate('1s cubic-bezier(.8, -0.6, 0.2, 1.2)',
-                    style({transform: 'scale(1)', opacity: 1}))
-            ]),
             transition(':leave', [
-                style({transform: 'scale(1)', opacity: 1, height: '*'}),
-                animate('1s cubic-bezier(.8, 0, 0.5, 1.2)',
+                style({transform: 'translateY(0)', opacity: 1}),
+                animate('0.5s cubic-bezier(.8, 0, 0.5, 1.2)',
                     style({
-                        transform: 'scale(0.5)', opacity: 0,
-                        height: '0px', margin: '0px'
+                        transform: 'translateY(-100%)', opacity: 0
                     }))
             ])
         ])
@@ -114,7 +107,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
     constructor(
         private parameterComponentFactory: ParameterComponentFactoryService,
         private parameterFactory: ParameterFactoryService,
-        private changeRef:ChangeDetectorRef
+        private changeRef: ChangeDetectorRef
     ) {
         super();
     }
@@ -177,7 +170,7 @@ export class ListParameterComponent extends ParameterComponent<ListParameterDesc
         this._addParameterComponentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
         this._addParameterComponentRef.instance.label = this.descriptor.displayName;
 
-        this._subs$$.push(this._addParameterComponentRef.instance.keyUpEnterEvent.subscribe(event =>{
+        this._subs$$.push(this._addParameterComponentRef.instance.keyUpEnterEvent.subscribe(event => {
             this.add(this._addParameterComponentRef.instance.value.value);
             this._addParameterComponentRef.instance.focus(null);
         }))

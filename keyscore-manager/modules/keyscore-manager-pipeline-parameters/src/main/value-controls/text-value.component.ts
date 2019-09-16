@@ -1,15 +1,19 @@
-import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
+import {Component, EventEmitter, HostBinding, Input, OnDestroy, Output} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {ValueComponent} from "./value-component.interface";
 import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {TranslateService} from "@ngx-translate/core";
+import {takeUntil} from "rxjs/operators";
+import {Subject} from "rxjs";
 
 @Component({
     selector: 'ks-text-value-input',
     template: `
         <mat-form-field>
             <input #inputField matInput type="text" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
-            <mat-label *ngIf="showLabel">{{label}}</mat-label>
+            <mat-label *ngIf="showLabel && label">{{label}}</mat-label>
+            <mat-label *ngIf="showLabel && !label" translate>PARAMETER.VALUE</mat-label>
             <button mat-button tabindex="-1" *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputControl.setValue('');inputField.focus();onChange( )">
                 <mat-icon>close</mat-icon>
@@ -47,11 +51,12 @@ export class TextValueComponent implements ValueComponent{
 
     private _disabled = false;
 
-    @Input() label: string = 'Value';
+    @Input() label: string;
     @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<TextValue> = new EventEmitter<TextValue>();
     @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter<Event>();
+
 
     onChange() {
         this.changed.emit(this.value);

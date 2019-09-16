@@ -18,8 +18,9 @@ import {ParameterRef} from "@/../modules/keyscore-manager-models/src/main/common
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-            <p class="parameter-warn" *ngIf="descriptor.mandatory && !numberInput.value">{{descriptor.displayName}} is
-                required!</p>
+            <p class="parameter-warn" *ngIf="descriptor.mandatory && !numberInput.value" translate [translateParams]="{name:descriptor.displayName}">
+                PARAMETER.IS_REQUIRED
+            </p>
         </ng-template>
 
         <ng-template #range>

@@ -21,18 +21,18 @@ import {FieldNameHint} from "@/../modules/keyscore-manager-models/src/main/param
                     (click)="clear()">
                 <mat-icon>close</mat-icon>
             </button>
-            <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField && showLabel">You should choose a
-                {{descriptor.hint}}
+            <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField && showLabel" translate [translateParams]="{hint:descriptor.hint}">
+                PARAMETER.FIELD_NAME_HINT
             </mat-hint>
         </mat-form-field>
-        <p class="parameter-warn-with-hint" *ngIf="descriptor.mandatory && !inputField.value">{{descriptor.displayName}}
-            is
-            required!
+        <p [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'" *ngIf="descriptor.mandatory && !inputField.value" translate [translateParams]="{name:descriptor.displayName}">
+            PARAMETER.IS_REQUIRED
         </p>
-        <p class="parameter-warn-with-hint" *ngIf="!isValid(inputField.value) && descriptor.validator.description">
+        <p [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'" *ngIf="!isValid(inputField.value) && descriptor.validator.description">
             {{descriptor.validator.description}}</p>
-        <p class="parameter-warn-with-hint" *ngIf="!isValid(inputField.value) && !descriptor.validator.description">
-            Your Input has to fulfill the following Pattern: {{descriptor.validator.expression}}</p>
+        <p [ngClass]="(descriptor.hint !== fieldNameHint.AnyField && showLabel) ? 'parameter-warn-with-hint':'parameter-warn'" *ngIf="!isValid(inputField.value) && !descriptor.validator.description" translate [translateParams]="{pattern:descriptor.validator.expression}">
+            PARAMETER.FULFILL_PATTERN
+        </p> 
 
     `,
     styleUrls:['../../style/parameter-module-style.scss']

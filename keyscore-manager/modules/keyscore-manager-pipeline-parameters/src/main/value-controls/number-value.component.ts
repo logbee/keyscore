@@ -1,15 +1,19 @@
-import {Component, EventEmitter, HostBinding, Input, Output} from "@angular/core";
+import {Component, EventEmitter, HostBinding, Input, OnDestroy, Output} from "@angular/core";
 import {ValueComponent} from "./value-component.interface";
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {NumberValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {TranslateService} from "@ngx-translate/core";
+import {takeUntil} from "rxjs/operators";
+import {Subject} from "rxjs";
 
 @Component({
     selector: 'ks-number-value-input',
     template: `
         <mat-form-field>
             <input #inputField matInput type="number" [formControl]="inputControl" (change)="onChange()" (keyup.enter)="keyUpEnter.emit($event)">
-            <mat-label *ngIf="showLabel">{{label}}</mat-label>
+            <mat-label *ngIf="showLabel && label">{{label}}</mat-label>
+            <mat-label *ngIf="showLabel && !label" translate>PARAMETER.VALUE</mat-label>
             <button mat-button tabindex="-1" *ngIf="inputField.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="inputControl.setValue('');inputField.focus();onChange( )">
                 <mat-icon>close</mat-icon>
@@ -46,7 +50,7 @@ export class NumberValueComponent<T> implements ValueComponent{
 
     private _disabled = false;
 
-    @Input() label: string = 'Value';
+    @Input() label: string;
     @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<NumberValue> = new EventEmitter<NumberValue>();
@@ -55,6 +59,8 @@ export class NumberValueComponent<T> implements ValueComponent{
     onChange() {
         this.changed.emit(this.value);
     }
+
+
 
 
 }

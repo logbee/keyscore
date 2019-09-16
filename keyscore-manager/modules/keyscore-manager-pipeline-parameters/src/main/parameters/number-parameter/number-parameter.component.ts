@@ -19,11 +19,13 @@ import {ParameterRef} from "@/../modules/keyscore-manager-models/src/main/common
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
-            <p class="parameter-warn" *ngIf="descriptor.mandatory && !numberInput.value">{{descriptor.displayName}} is
-                required!</p>
+            <p class="parameter-warn" *ngIf="descriptor.mandatory && !numberInput.value" translate 
+               [translateParams]="{name:descriptor.displayName}">
+                PARAMETER.IS_REQUIRED
+            </p>
             <p class="parameter-warn"
-               *ngIf="!templateNumber.isInteger(+numberInput.value)">
-                {{descriptor.displayName}} hast to be be an integer. Floating point values will be rounded.
+               *ngIf="!templateNumber.isInteger(+numberInput.value)" translate [translateParams]="{name:descriptor.displayName}">
+                PARAMETER.INTEGER_WARNING
             </p>
         </ng-template>
 

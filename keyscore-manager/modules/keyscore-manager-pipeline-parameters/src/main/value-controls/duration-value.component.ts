@@ -1,15 +1,19 @@
 import {ValueComponent} from "./value-component.interface";
-import {Component, EventEmitter, HostBinding, Input, Output, ViewChild} from "@angular/core";
+import {Component, EventEmitter, HostBinding, Input, OnDestroy, Output, ViewChild} from "@angular/core";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {DurationInputComponent} from "../shared-controls/duration-input.component";
 import {DurationValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {TranslateService} from "@ngx-translate/core";
+import {takeUntil} from "rxjs/operators";
+import {Subject} from "rxjs";
 
 @Component({
     selector: 'ks-duration-value-input',
     template: `
         <mat-form-field>
             <ks-duration-input #durationInput (changed)="onChange($event)" (keyUpEnter)="keyUpEnter.emit($event)"></ks-duration-input>
-            <mat-label *ngIf="showLabel">{{label}}</mat-label>
+            <mat-label *ngIf="showLabel && label">{{label}}</mat-label>
+            <mat-label *ngIf="showLabel && !label" translate>PARAMETER.DURATION</mat-label>
             <button mat-button tabindex="-1" *ngIf="durationInput.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="clearInput()">
                 <mat-icon>close</mat-icon>
@@ -59,11 +63,12 @@ export class DurationValueComponent implements ValueComponent {
 
     private _disabled = false;
 
-    @Input() label: string = 'Duration';
+    @Input() label: string;
     @Input() showLabel:boolean = true;
 
     @Output() changed: EventEmitter<DurationValue> = new EventEmitter<DurationValue>();
     @Output() keyUpEnter:EventEmitter<Event> = new EventEmitter<Event>();
+
 
     onChange(seconds: number) {
         this._value = seconds;
@@ -75,6 +80,8 @@ export class DurationValueComponent implements ValueComponent {
         this.durationInput.focus();
         this.onChange(0);
     }
+
+
 
 
 }

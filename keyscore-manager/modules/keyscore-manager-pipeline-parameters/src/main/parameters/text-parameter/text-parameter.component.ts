@@ -18,13 +18,16 @@ import {TextParameterDescriptor, TextParameter} from "@/../modules/keyscore-mana
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
-        <p class="parameter-warn" *ngIf="descriptor.mandatory && !textInput.value">{{descriptor.displayName}} is
-            required!</p>
+        <p class="parameter-warn" *ngIf="descriptor.mandatory && !textInput.value"
+        translate [translateParams]="{name:descriptor.displayName}">
+            PARAMETER.IS_REQUIRED
+        </p>
         <p class="parameter-warn" *ngIf="!isValid(textInput.value) && descriptor.validator.description">
             {{descriptor.validator.description}}</p>
-        <p class="parameter-warn" *ngIf="!isValid(textInput.value) && !descriptor.validator.description">Your Input has
-            to fulfill the following Pattern:
-            {{descriptor.validator.expression}}</p>
+        <p class="parameter-warn" *ngIf="!isValid(textInput.value) && !descriptor.validator.description"
+        translate [translateParams]="{pattern:descriptor.validator.expression}">
+            PARAMETER.FULFILL_PATTERN
+        </p>
     `,
     styleUrls:['../../style/parameter-module-style.scss']
 

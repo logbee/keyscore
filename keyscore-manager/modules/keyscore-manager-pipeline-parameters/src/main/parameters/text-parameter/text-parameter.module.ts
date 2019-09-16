@@ -10,11 +10,13 @@ import {ParameterComponentFactoryService} from "../../service/parameter-componen
 import {StringValidatorService} from "../../service/string-validator.service";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {TranslateModule} from "@ngx-translate/core";
 
 @NgModule({
     imports: [
         CommonModule,
-        MaterialModule
+        MaterialModule,
+        TranslateModule
     ],
     declarations: [TextParameterComponent],
     entryComponents: [TextParameterComponent],

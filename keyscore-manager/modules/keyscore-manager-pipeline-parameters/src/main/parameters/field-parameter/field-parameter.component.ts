@@ -28,7 +28,7 @@ import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
                                        (change)="onChange()"
                                        (keyUpEnterEvent)="onEnter($event)">
                 </ks-autocomplete-input>
-                <mat-label *ngIf="showLabel">Field Name</mat-label>
+                <mat-label *ngIf="showLabel" translate>PARAMETER.FIELD_NAME</mat-label>
 
                 <button mat-button tabindex="-1" *ngIf="fieldInput.value" matSuffix mat-icon-button aria-label="Clear"
                         (click)="clear()">
@@ -39,12 +39,14 @@ import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
                 <ng-template value-host></ng-template>
             </div>
         </div>
-        <p class="parameter-warn" *ngIf="descriptor.mandatory && !fieldInput.value">Field Name is
-            required!</p>
+        <p class="parameter-warn" *ngIf="descriptor.mandatory && !fieldInput.value" translate [translateParams]="{name:descriptor.displayName}">
+            PARAMETER.IS_REQUIRED
+        </p>
         <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && descriptor.nameValidator.description">
             {{descriptor.nameValidator.description}}</p>
-        <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && !descriptor.nameValidator.description">Your Input
-            has to fulfill the following Pattern: {{descriptor.nameValidator.expression}}</p>
+        <p class="parameter-warn" *ngIf="!isValid(fieldInput.value) && !descriptor.nameValidator.description" translate [translateParams]="{pattern:descriptor.validator.expression}">
+            PARAMETER.FULFILL_PATTERN
+        </p>
     `,
     styleUrls:['../../style/parameter-module-style.scss']
 

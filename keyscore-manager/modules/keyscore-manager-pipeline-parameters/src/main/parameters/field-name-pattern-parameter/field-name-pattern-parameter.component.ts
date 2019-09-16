@@ -19,10 +19,12 @@ import {FieldNameHint, PatternType} from "@/../modules/keyscore-manager-models/s
                         (click)="fieldName.value='';onChange('',patternType.value);fieldName.focus($event)">
                     <mat-icon>close</mat-icon>
                 </button>
-                <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField">You should choose a {{descriptor.hint}}</mat-hint>
+                <mat-hint *ngIf="descriptor.hint !== fieldNameHint.AnyField" translate [translateParams]="{hint:descriptor.hint}">
+                    PARAMETER.FIELD_NAME_HINT
+                </mat-hint>
             </mat-form-field>
             <mat-form-field fxFlex>
-                <mat-label>Pattern Type</mat-label>
+                <mat-label>Pattern</mat-label>
                 <mat-select #patternType (selectionChange)="onChange(fieldName.value, patternType.value)">
                     <mat-option *ngFor="let pattern of descriptor.supports" [value]="pattern.type">
                         {{pattern.displayName}}
@@ -30,8 +32,10 @@ import {FieldNameHint, PatternType} from "@/../modules/keyscore-manager-models/s
                 </mat-select>
             </mat-form-field>
         </div>
-        <p class="parameter-warn-with-hint" *ngIf="descriptor.mandatory && (!fieldName.value || !patternType.value)">
-            {{descriptor.displayName}} is required!</p>`,
+        <p class="parameter-warn-with-hint" *ngIf="descriptor.mandatory && (!fieldName.value || !patternType.value)" translate [translateParams]="{name:descriptor.displayName}">
+            PARAMETER.IS_REQUIRED
+        </p>
+    `,
     styleUrls:['../../style/parameter-module-style.scss']
 
 })

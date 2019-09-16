@@ -114,7 +114,14 @@ storiesOf('Parameters/ExpressionParameter', module)
             imports: [
                 CommonModule,
                 MaterialModule,
-                BrowserAnimationsModule
+                BrowserAnimationsModule,
+                I18nModule,
+                TranslateModule.forRoot({
+                    loader:{
+                        provide:TranslateLoader,
+                        useValue:staticTranslateLoader
+                    }
+                })
                 // ExpressionParameterModule
             ],
             providers: []
@@ -140,7 +147,14 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
         imports: [
             CommonModule,
             MaterialModule,
-            BrowserAnimationsModule
+            BrowserAnimationsModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader:{
+                    provide:TranslateLoader,
+                    useValue:staticTranslateLoader
+                }
+            })
         ],
         providers: [StringValidatorService]
     })).add("default", () => ({
@@ -188,7 +202,14 @@ storiesOf('Parameters/NumberParameter', module).addDecorator(
             CommonModule,
             MaterialModule,
             BrowserAnimationsModule,
-            SharedControlsModule
+            SharedControlsModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader:{
+                    provide:TranslateLoader,
+                    useValue:staticTranslateLoader
+                }
+            })
         ],
         providers: []
     })).add("Without Range", () => ({
@@ -222,7 +243,14 @@ storiesOf('Parameters/DecimalParameter', module).addDecorator(
             CommonModule,
             MaterialModule,
             BrowserAnimationsModule,
-            SharedControlsModule
+            SharedControlsModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader:{
+                    provide:TranslateLoader,
+                    useValue:staticTranslateLoader
+                }
+            })
         ],
         providers: []
     })).add("Without Range", () => ({
@@ -275,9 +303,14 @@ storiesOf('Parameters/FieldNameParameter', module).addDecorator(
             CommonModule,
             MaterialModule,
             BrowserAnimationsModule,
-            SharedControlsModule
-
-
+            SharedControlsModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader:{
+                    provide:TranslateLoader,
+                    useValue:staticTranslateLoader
+                }
+            })
         ],
         providers: [StringValidatorService]
     })).add("Present Field Hints", () => ({
@@ -321,7 +354,14 @@ storiesOf('Parameters/FieldNamePatternParameter', module)
                 CommonModule,
                 MaterialModule,
                 BrowserAnimationsModule,
-                SharedControlsModule
+                SharedControlsModule,
+                I18nModule,
+                TranslateModule.forRoot({
+                    loader:{
+                        provide:TranslateLoader,
+                        useValue:staticTranslateLoader
+                    }
+                })
             ],
             providers: []
         }))
@@ -350,7 +390,14 @@ storiesOf('Parameters/FieldParameter', module)
                 MaterialModule,
                 BrowserAnimationsModule,
                 ValueControlsModule,
-                SharedControlsModule
+                SharedControlsModule,
+                I18nModule,
+                TranslateModule.forRoot({
+                    loader:{
+                        provide:TranslateLoader,
+                        useValue:staticTranslateLoader
+                    }
+                })
             ],
             providers: [StringValidatorService, ValueComponentRegistryService]
         }))
@@ -423,7 +470,14 @@ storiesOf('Parameters/ListParameter', module).addDecorator(
             CommonModule,
             MaterialModule,
             BrowserAnimationsModule,
-            ListParameterModule
+            ListParameterModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader:{
+                    provide:TranslateLoader,
+                    useValue:staticTranslateLoader
+                }
+            })
         ],
         providers: [ParameterComponentFactoryService, ParameterFactoryService]
     })).add("Text", () => {
@@ -527,7 +581,14 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             NumberParameterModule,
             BooleanParameterModule,
             FieldParameterModule,
-            ListParameterModule
+            ListParameterModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader:{
+                    provide:TranslateLoader,
+                    useValue:staticTranslateLoader
+                }
+            })
         ],
         providers: [
             ParameterComponentFactoryService,
