@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject} from "rxjs";
-import {filter} from "rxjs/operators";
 import {BlockDescriptor} from "../models/block-descriptor.model";
 import {takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
@@ -9,9 +8,9 @@ import {
     Parameter,
     ParameterDescriptor,
     ParameterMap
-} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
-import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
-import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {Configuration} from "@keyscore-manager-models/src/main/common/Configuration";
+import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 
 
 @Component({
@@ -95,7 +94,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
     @Output() onRevert: EventEmitter<void> = new EventEmitter();
-    @Output() onShowConfigurator: EventEmitter<boolean> = new EventEmitter();
     @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string }> = new EventEmitter();
     @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
@@ -103,15 +101,11 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     private config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor }>(undefined);
     private _config: Configuration;
 
-    isVisible: boolean = true;
     form: FormGroup;
     pipelineForm: FormGroup;
     parameterMap$: BehaviorSubject<ParameterMap> = new BehaviorSubject<ParameterMap>(null);
 
     unsubscribe$: Subject<void> = new Subject();
-
-    private lastID: string = "";
-
 
     constructor() {
     }
@@ -119,7 +113,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     public ngOnInit(): void {
 
         this.config$.pipe(takeUntil(this.unsubscribe$)).subscribe(config => {
-            //this.lastID = config.conf.ref.uuid;
             this.createParameterMap(config);
         });
 
@@ -129,18 +122,15 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             'pipeline.description': new FormControl(this.pipelineMetaData.description)
         });
 
-        this.pipelineForm.valueChanges.subscribe(val => {
+        this.pipelineForm.valueChanges.pipe(takeUntil(this.unsubscribe$)).subscribe(val => {
             this.onSavePipelineMetaData.emit({name: val['pipeline.name'], description: val['pipeline.description']});
         });
 
-        this.parameterMap$.subscribe(map => console.log("SUBSCRIPTION: ", map))
     }
 
     private createParameterMap(config: { conf: Configuration, descriptor: BlockDescriptor }) {
-        console.log("CREATE PARAMETER MAP");
         if (!config.conf) {
             this.parameterMap$.next(null);
-            console.log("CREATE PARAMETER MAP NULL");
             return;
         }
         const parameterTuples: [Parameter, ParameterDescriptor][] =
@@ -149,20 +139,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         parameterTuples.forEach(([parameter, descriptor]) =>
             parameterMap.parameters[descriptor.ref.id] = [parameter, descriptor]);
         this.parameterMap$.next(parameterMap);
-        console.log("CREATED PARAMETERMAP", parameterMap);
-    }
-
-    reset() {
-        this.config$.getValue().conf.parameterSet.parameters.forEach(parameter => {
-                this.form.controls[parameter.ref.id].setValue(parameter.value);
-            }
-        );
-        this.closeConfigurator.emit();
-    }
-
-    collapse() {
-        this.isVisible = !this.isVisible;
-        this.onShowConfigurator.emit(this.isVisible);
     }
 
 
@@ -170,7 +146,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         let configuration: Configuration = _.cloneDeep(this._config);
         let paramIndex = configuration.parameterSet.parameters.findIndex(param => param.ref.id === parameter.ref.id);
         if (paramIndex > -1) {
-            configuration.parameterSet.parameters.splice(paramIndex, 1, parameter)
+            configuration.parameterSet.parameters.splice(paramIndex, 1, parameter);
             this.onSave.emit(configuration);
         }
 
