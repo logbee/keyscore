@@ -30,23 +30,82 @@ import {ListParameterModule} from "../main/parameters/list-parameter/list-parame
 
 import {ChoiceParameterComponent} from "../main/parameters/choice-parameter/choice-parameter.component";
 import {ReactiveFormsModule} from "@angular/forms";
-import {ExpressionParameterDescriptor, ExpressionParameterChoice, ExpressionParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/expression-parameter.model";
-import {TextParameterDescriptor, TextParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
-import {NumberParameterDescriptor, NumberParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/number-parameter.model";
-import {DecimalParameterDescriptor, DecimalParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/decimal-parameter.model";
-import {BooleanParameterDescriptor, BooleanParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
-import {FieldNameParameterDescriptor, FieldNameParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-parameter.model";
-import {FieldNamePatternParameterDescriptor, PatternTypeChoice, FieldNamePatternParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
-import {FieldParameterDescriptor, FieldParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
-import {TextListParameterDescriptor, TextListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
-import {FieldNameListParameterDescriptor, FieldNameListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
-import {FieldListParameterDescriptor, FieldListParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
-import {ChoiceParameterDescriptor, ChoiceParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/choice-parameter.model";
+import {
+    ExpressionParameterDescriptor,
+    ExpressionParameterChoice,
+    ExpressionParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/expression-parameter.model";
+import {
+    TextParameterDescriptor,
+    TextParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
+import {
+    NumberParameterDescriptor,
+    NumberParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/number-parameter.model";
+import {
+    DecimalParameterDescriptor,
+    DecimalParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/decimal-parameter.model";
+import {
+    BooleanParameterDescriptor,
+    BooleanParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
+import {
+    FieldNameParameterDescriptor,
+    FieldNameParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-parameter.model";
+import {
+    FieldNamePatternParameterDescriptor,
+    PatternTypeChoice,
+    FieldNamePatternParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
+import {
+    FieldParameterDescriptor,
+    FieldParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
+import {
+    TextListParameterDescriptor,
+    TextListParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
+import {
+    FieldNameListParameterDescriptor,
+    FieldNameListParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
+import {
+    FieldListParameterDescriptor,
+    FieldListParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
+import {
+    ChoiceParameterDescriptor,
+    ChoiceParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/choice-parameter.model";
 import {MaterialModule} from "@keyscore-manager-material/src/main/material.module";
-import {ExpressionType, FieldNameHint, PatternType, FieldValueType} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
+import {
+    ExpressionType,
+    FieldNameHint,
+    PatternType,
+    FieldValueType
+} from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
+import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
+import {of} from "rxjs";
+import {NgModule} from "@angular/core";
 
+const staticTranslateLoader: TranslateLoader = {
+    getTranslation(lang: string) {
+        return of(require('../../../../public/assets/i18n/en.json'))
+    }
+};
+
+@NgModule()
+class I18nModule {
+    constructor(translate: TranslateService) {
+        translate.setDefaultLang('en');
+        translate.use('en');
+    }
+}
 
 storiesOf('Parameters/ExpressionParameter', module)
     .addDecorator(
@@ -412,7 +471,14 @@ storiesOf('Parameters/ChoiceParameter', module)
                 CommonModule,
                 MaterialModule,
                 BrowserAnimationsModule,
-                ReactiveFormsModule
+                ReactiveFormsModule,
+                I18nModule,
+                TranslateModule.forRoot({
+                    loader:{
+                        provide:TranslateLoader,
+                        useValue:staticTranslateLoader
+                    }
+                })
             ],
             providers: []
         }))

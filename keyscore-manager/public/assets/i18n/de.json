@@ -46,6 +46,11 @@
       "SETTINGS_ENABLED_DESCRIPTION": "Einstellungen"
     }
   },
+  "PARAMETER":{
+    "CHOICE_MIN_SELECTION_WARNING":"Für {{name}} müssen mindestens {{min}} Optionen gewählt werden.",
+    "CHOICE_MAX_SELECTION_WARNING":"Es dürfen maximal {{max}} Optionen für {{name}} ausgewählt werden."
+
+  },
   "AGENTSDETAILS": {
     "DETAILEDVIEW": "Detail Ansicht:",
     "AGENTID": "Agentid:",
