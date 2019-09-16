@@ -88,6 +88,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     }
 
     inspectToggle(flag: boolean) {
+        console.log("INSPECT:",flag);
         if (flag) {
             this.previewMode = true;
             this.runInspectSource$.next(true);
