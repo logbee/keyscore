@@ -22,20 +22,25 @@ import * as _ from 'lodash';
                     </button>
                 </mat-form-field>
             </div>
-            <div fxLayout="column" class="category-wrapper">
+            <div fxLayout="column" class="category-wrapper" fxLayoutAlign="start">
                 <div class="overlay" *ngIf="isLoading">
                     <div class="spinner-wrapper">
                         <mat-progress-spinner [diameter]="75" mode="indeterminate">
                         </mat-progress-spinner>
                     </div>
                 </div>
-                <ng-container *ngFor="let category of categories">
-                    <puzzle-category [workspace]="workspace"
-                                     [descriptors]="categorySeparatedDescriptors.get(category)"
-                                     [category]="category" (onDraggablesCreated)="onDraggablesCreated($event)">
-                    </puzzle-category>
-                    <mat-divider></mat-divider>
-                </ng-container>
+                <div *ngIf="this.categories.length">
+                    <ng-container *ngFor="let category of categories">
+                        <puzzle-category [workspace]="workspace"
+                                         [descriptors]="categorySeparatedDescriptors.get(category)"
+                                         [category]="category" (onDraggablesCreated)="onDraggablesCreated($event)">
+                        </puzzle-category>
+                        <mat-divider></mat-divider>
+                    </ng-container>
+                </div>
+                <div *ngIf="!this.categories.length" class="no-results-wrapper" fxLayoutAlign="center">
+                    <span translate>GENERAL.NO_RESULTS</span>
+                </div>
             </div>
         </div>
 
@@ -74,7 +79,12 @@ export class PuzzleBoxComponent implements OnChanges, OnInit {
                 this.isLoading = true;
             }),
             startWith(''),
-            map(val => this.filter(val)));
+            map(val => this.filter(val)),
+            tap(res => {
+                if (!res.length) {
+                    this.isLoading = false;
+                }
+            }));
 
         this.filteredDescriptors$.pipe(takeUntil(this.unsubscribe$)).subscribe(descriptors => {
             this.separateCategories(descriptors);

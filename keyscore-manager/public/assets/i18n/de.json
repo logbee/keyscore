@@ -21,7 +21,9 @@
     "SINK": "Senke",
     "MERGE": "Fusionierungsblock",
     "BRANCH": "Verzweigungsblock",
-    "LOGOUT": "Logout"
+    "LOGOUT": "Logout",
+    "NO_RESULTS":"Es wurden keine Ergebnisse für Ihre Suche gefunden."
+
   },
   "APPCOMPONENT": {
     "AGENTS": "Agenten",

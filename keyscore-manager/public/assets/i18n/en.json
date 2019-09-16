@@ -21,7 +21,8 @@
     "SINK": "Sink",
     "MERGE": "Merge Block",
     "BRANCH": "Branch Block",
-    "LOGOUT": "Logout"
+    "LOGOUT": "Logout",
+    "NO_RESULTS":"Your search returned no results."
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",
