@@ -27,7 +27,12 @@ import {share, takeUntil, tap} from "rxjs/operators";
 
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
 import {EditingPipelineModel} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
-import {BlueprintJsonClass, Blueprint, FilterBlueprint, SinkBlueprint} from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
+import {
+    BlueprintJsonClass,
+    Blueprint,
+    FilterBlueprint,
+    SinkBlueprint
+} from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
 import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
 import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 
@@ -51,7 +56,7 @@ import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/V
                     </div>
                 </div>
 
-                <configurator  fxFlex
+                <configurator fxFlex
                               [pipelineMetaData]="pipelineMetaData"
                               [config]="{
                                 conf:(selectedDraggable$|async)?.getDraggableModel().configuration,
@@ -147,7 +152,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
             this.onSelectBlock.emit(selected.getDraggableModel().blueprintRef.uuid);
         } else if (this.isInspecting) {
             let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
-            this.onSelectBlock.emit(sink.ref.uuid);
+            if (sink) {
+                this.onSelectBlock.emit(sink.ref.uuid);
+            }
         }
     }
 
@@ -374,10 +381,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
             this.selectBlock(this.selectedDraggableSource.getValue());
             if (!this.selectedBlockForDataTable$) {
                 let sink = this.pipeline.blueprints.find(blueprint => blueprint.jsonClass === BlueprintJsonClass.SinkBlueprint);
-                if (!this.selectedDraggableSource.getValue()) {
-                    this.selectedBlockForDataTable$ = new BehaviorSubject<string>(sink.ref.uuid);
-                } else {
-                    this.selectedBlockForDataTable$ = new BehaviorSubject<string>(this.selectedDraggableSource.getValue().getDraggableModel().blueprintRef.uuid);
+                if (sink) {
+                    if (!this.selectedDraggableSource.getValue()) {
+                        this.selectedBlockForDataTable$ = new BehaviorSubject<string>(sink.ref.uuid);
+                    } else {
+                        this.selectedBlockForDataTable$ = new BehaviorSubject<string>(this.selectedDraggableSource.getValue().getDraggableModel().blueprintRef.uuid);
+                    }
                 }
             }
         });
