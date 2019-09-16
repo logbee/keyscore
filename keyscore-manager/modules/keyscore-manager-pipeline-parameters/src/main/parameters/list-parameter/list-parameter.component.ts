@@ -45,15 +45,15 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
                 </mat-expansion-panel-header>
                 <div cdkDropList (cdkDropListDropped)="drop($event)" class="parameter-list">
                     <div *ngFor="let param of _valueParameter;let i=index" cdkDrag class="parameter-list-item"
-                         fxLayout="row">
-                        <div class="drag-handle" cdkDragHandle fxFlexAlign="center">
+                         fxLayout="row" fxLayoutAlign="space-around center">
+                        <div class="drag-handle" cdkDragHandle>
                             <mat-icon>drag_handle</mat-icon>
                         </div>
                         <div fxFlex>
                             <ng-template #listItemInputContainer>
                             </ng-template>
                         </div>
-                        <button mat-button mat-icon-button (click)="remove(i)" fxFlexAlign="center">
+                        <button mat-button mat-icon-button (click)="remove(i)" >
                             <mat-icon color="warn">delete</mat-icon>
                         </button>
 

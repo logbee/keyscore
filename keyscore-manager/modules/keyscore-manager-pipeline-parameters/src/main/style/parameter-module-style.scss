@@ -15,6 +15,7 @@
   line-height: 1.2em;
   color: $warn;
   font-size: 75%;
+  animation: slide-in 0.4s;
 }
 
 .parameter-list-warn {
@@ -26,14 +27,15 @@
   padding-bottom: 0px;
   margin-left: 24px;
   transition: margin-top 0.2s ease-in;
-
+  animation: slide-in 0.7s;
 }
-
 
 .parameter-warn-with-hint {
   margin-top: -1px;
   color: $warn;
   font-size: 75%;
+  animation: slide-in 0.4s;
+
 }
 
 .choice-max-error {
@@ -110,6 +112,7 @@
   0 8px 10px 1px rgba(0, 0, 0, 0.14),
   0 3px 14px 2px rgba(0, 0, 0, 0.12);
   padding: 10px;
+  background-color: white;
 }
 
 .cdk-drag-preview parameter-text {
@@ -184,3 +187,15 @@ mat-expansion-panel-header .mat-content {
 .directive-add:hover {
   background-color: $accent-transparent;
 }
+
+@keyframes slide-in {
+  0% {
+    transform:translateY(-100%);
+    opacity: 0;
+  }
+  100%{
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
