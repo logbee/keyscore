@@ -7,20 +7,17 @@ trait PathWatcher {
    * Determines if files have been changed in this path and executes the implemented action for it.
    */
   def processChanges(): Unit
-  
-  /**
-   * Notifies this PathWatcher that its path has been deleted and allows it to react to that scenario.
-   */
-  def pathDeleted(): Unit
-  
-  /**
-   * This method is called before a PathWatcher is destroyed.
-   * Do cleanup tasks in here.
-   */
-  def tearDown(): Unit
 }
 
 
-trait BaseDirWatcher extends PathWatcher
+trait BaseDirWatcher extends PathWatcher {
+  def pathDeleted(): Unit
 
-trait FileEventHandler extends PathWatcher
+  def tearDown(): Unit
+}
+
+trait FileEventHandler extends PathWatcher {
+  def pathDeleted(): Unit
+
+  def tearDown(): Unit
+}

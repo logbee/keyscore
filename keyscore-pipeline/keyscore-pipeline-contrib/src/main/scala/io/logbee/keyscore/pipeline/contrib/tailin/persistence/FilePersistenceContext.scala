@@ -1,22 +1,18 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import java.io.File
-import java.io.FileWriter
+import java.io.{File, FileWriter}
+
+import com.typesafe.config.Config
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext.Configuration
+import org.json4s.native.JsonMethods.parse
+import org.json4s.native.Serialization.write
+import org.json4s.{DefaultFormats, JValue, jvalue2extractable, jvalue2monadic, string2JsonInput}
 
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
 
-import org.json4s.DefaultFormats
-import org.json4s.JValue
-import org.json4s.jvalue2extractable
-import org.json4s.jvalue2monadic
-import org.json4s.native.JsonMethods.parse
-import org.json4s.native.Serialization.write
-import org.json4s.string2JsonInput
-
-
-class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
+class FilePersistenceContext private (configuration: Configuration) extends PersistenceContext {
   
   implicit val formats = DefaultFormats
   
@@ -24,7 +20,7 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
   
   private def ensureJsonIsLoaded(): Unit = {
     if (json == null) {
-      json = parse(Source.fromFile(persistenceFile).mkString)
+      json = parse(Source.fromFile(configuration.persistenceFile).mkString)
     }
   }
 
@@ -35,7 +31,7 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
     
     json = json.merge(parse(write(key -> value)))
     
-    writeJsonToFile(json, persistenceFile)
+    writeJsonToFile(json, configuration.persistenceFile)
   }
   
   
@@ -70,7 +66,7 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
       case _ => false
     }
     
-    writeJsonToFile(json, persistenceFile)
+    writeJsonToFile(json, configuration.persistenceFile)
   }
   
   
@@ -97,3 +93,21 @@ class FilePersistenceContext(persistenceFile: File) extends PersistenceContext {
   }
 }
 
+object FilePersistenceContext {
+
+  object Configuration {
+    def apply(config: Config): Configuration = {
+      Configuration(new File(config.getString("persistence-file")))
+    }
+  }
+  case class Configuration private (persistenceFile: File)
+
+
+  def apply(configuration: Configuration): FilePersistenceContext = {
+
+    configuration.persistenceFile.getParentFile.mkdirs()
+    configuration.persistenceFile.createNewFile()
+
+    new FilePersistenceContext(configuration)
+  }
+}

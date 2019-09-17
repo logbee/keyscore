@@ -1,15 +1,17 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file
 
-case class DirChanges(
-  newlyCreatedDirs: Set[_ <: DirHandle],
-  newlyCreatedFiles: Set[_ <: FileHandle],
-  deletedPaths: Set[_ <: PathHandle],
-  potentiallyModifiedDirs: Set[_ <: DirHandle],
-  potentiallyModifiedFiles: Set[_ <: FileHandle],
+case class DirChanges[D <: DirHandle[D, F], F <: FileHandle](
+   newlyCreatedDirs: Seq[D],
+   newlyCreatedFiles: Seq[F],
+   deletedPaths: Seq[_ <: PathHandle],
+   potentiallyModifiedDirs: Seq[D],
+   potentiallyModifiedFiles: Seq[F],
 )
 
-abstract class DirChangeListener(dir: DirHandle) {
-  def getChanges: DirChanges
+abstract class DirChangeListener[D <: DirHandle[D, F],
+                                 F <: FileHandle]
+                                 (dir: D) {
+  def getChanges: DirChanges[D, F]
   
   def tearDown(): Unit
 }

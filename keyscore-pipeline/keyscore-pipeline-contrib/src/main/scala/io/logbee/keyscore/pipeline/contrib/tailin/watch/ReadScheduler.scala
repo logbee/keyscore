@@ -1,32 +1,54 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{ReadPersistence, ReadSchedule, ReadScheduleItem}
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
+import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper.ListRotatedFilesException
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadScheduler.FileInfo
+import org.slf4j.LoggerFactory
 
+import scala.util.{Failure, Success}
+
+object ReadScheduler {
+  case class FileInfo(file: FileHandle, name: String, lastModified: Long, length: Long)
+}
 
 class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersistence: ReadPersistence, readSchedule: ReadSchedule) extends FileEventHandler {
-  
+  private lazy val log = LoggerFactory.getLogger(classOf[ReadScheduler])
+
   private var previouslyScheduled = readPersistence.getCompletedRead(baseFile)
-  
-  
+
   def processChanges(): Unit = {
     
-    //getFilesToRead also returns files which have lastModified == previousReadTimestamp, as multiple files may have the same lastModified-time
-    //and this helps to simplify the code, because then we know to not continue reading at the previousReadPosition in the next file
-    val filesToRead = RotationHelper.getRotationFilesToRead(baseFile, rotationPattern, previouslyScheduled)
-    
-    
-    var filesToSchedule = filesToRead
+    val (baseFileWithInfo, filesToRead) = baseFile.open {
+      case Success(openBaseFile) =>
+        val baseFileWithInfo = FileInfo(baseFile, openBaseFile.name, openBaseFile.lastModified, openBaseFile.length)
+        (
+          baseFileWithInfo,
+          try {
+            RotationHelper.getRotationFilesToRead(openBaseFile, baseFileWithInfo, rotationPattern, previouslyScheduled)
+          }
+          catch {
+            case ListRotatedFilesException(_, _) => return
+          }
+        )
+      case Failure(ex) =>
+        log.error(s"Failed to open base file: $baseFile", ex)
+        return
+    }
+
     //baseFile can still be written to, meaning its lastModified-timestamp could change at any point in the future
     //therefore, if files share their lastModified-timestamp with the baseFile,
     //the 'newest' file (lowest or no rotation-index in file-name) with this shared lastModified-timestamp could still change.
     //We rely on this to not change anymore to be able to differentiate them (via another index - the number of newerFilesWithSharedLastModified).
-    if (filesToRead.count(_.lastModified == baseFile.lastModified) > 1) {
-      filesToSchedule = filesToSchedule.filter(_.lastModified != baseFile.lastModified)
+    val filesToSchedule = {
+      val filtered = filesToRead.filter(_.lastModified != baseFileWithInfo.lastModified)
+
+      if (filesToRead.length - filtered.length > 1)
+        filtered
+      else
+        filesToRead
     }
     
     if (filesToSchedule.isEmpty)
@@ -35,14 +57,11 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
     
     //check for files which have the same lastModified-time (which we need to differentiate in order to tell them apart)
     val filesToScheduleGroupedByLastModified = filesToSchedule
-                                                 .groupBy(file => file.lastModified) //convert to map lastModified -> Array[File]
+                                                 .groupBy(_.lastModified) //convert to map lastModified -> Array[File]
                                                  .toSeq.sortBy(_._1) //convert to list of tuples (lastModified, Array[File]) and sort it by lastModified-time
     
     
-    
-    
-    
-    
+
     //do the scheduling
     var startPos = previouslyScheduled.previousReadPosition
     
@@ -66,16 +85,10 @@ class ReadScheduler(baseFile: FileHandle, rotationPattern: String, readPersisten
         }
     }
   }
-  
-  
-  def pathDeleted(): Unit = {
-    tearDown()
-  } //TODO delete entries from file or somehow tell fileReader to teardown (FileReader should probably finish reading out rotated files, if those haven't been deleted yet, before it does so)
-                               //in general, FileReader should have a mechanism of dealing with missing files, too.
-  
-  def tearDown(): Unit = {
-    baseFile.tearDown()
-  }
+
+  override def pathDeleted(): Unit = tearDown()
+
+  override def tearDown(): Unit = {}
 }
 
 

@@ -1,17 +1,14 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import java.io.File
-import java.nio.file.FileSystems
-import java.nio.file.Paths
+import java.nio.file.{FileSystems, Paths}
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirHandle, FileHandle}
 import org.slf4j.LoggerFactory
 
 
 object FileMatchPattern {
   
-  def extractInvariableDir(filePattern: String): Option[String] = {
+  def extractInvariableDir(filePattern: String, pathSeparator: String): Option[String] = {
     
     val variableIndex = findFirstVariableIndex(filePattern)
     
@@ -19,39 +16,35 @@ object FileMatchPattern {
     if (variableIndex != -1) { //if the filePattern contains a variable part
       invariableString = filePattern.substring(0, variableIndex)
     }
-    
-    
-    val lastSlashIndex = invariableString.lastIndexOf(File.separator) + 1
+
+    val lastSlashIndex = invariableString.lastIndexOf(pathSeparator) + 1
     
     if (lastSlashIndex == -1) {
       None
     }
     else {
       var result = invariableString.substring(0, lastSlashIndex)
-      if (result.endsWith("/") == false) {
-        result += "/"
+      if (result.endsWith(pathSeparator) == false) {
+        result += pathSeparator
       }
       Some(result)
     }
   }
-  
-  
+
   def findFirstVariableIndex(filePattern: String): Int = {
     
     def ifMinusOneThenMax(index: Integer): Integer = {
       if (index > -1) index else Integer.MAX_VALUE
     }
     
-    var asteriskIndex = ifMinusOneThenMax(filePattern.indexOf('*'))
-		var questionmarkIndex = ifMinusOneThenMax(filePattern.indexOf('?'))
-  	var bracketIndex = ifMinusOneThenMax(filePattern.indexOf('[')) //glob supports patterns like [ab] and [a-z]
+    val asteriskIndex = ifMinusOneThenMax(filePattern.indexOf('*'))
+		val questionmarkIndex = ifMinusOneThenMax(filePattern.indexOf('?'))
+  	val bracketIndex = ifMinusOneThenMax(filePattern.indexOf('[')) //glob supports patterns like [ab] and [a-z]
     
-  	var firstIndex = Math.min(Math.min(asteriskIndex, questionmarkIndex), bracketIndex) //find smallest
+  	val firstIndex = Math.min(Math.min(asteriskIndex, questionmarkIndex), bracketIndex) //find smallest
   	
   	if (firstIndex == Integer.MAX_VALUE) -1 else firstIndex //if none were found, return -1
   }
-  
-  
   
   /**
    * Returns a transformed version of the given path that looks like a Unix-path.
@@ -68,16 +61,19 @@ object FileMatchPattern {
     if (_fullFilePattern.matches("[A-Z]:.*")) {
       _fullFilePattern = _fullFilePattern.substring(2) //cut off "C:" or similar from Windows paths
     }
-    
+
+    if (_fullFilePattern.charAt(0) != '/') {
+      _fullFilePattern = "/" + _fullFilePattern
+    }
+
     _fullFilePattern
   }
 }
 
-
-class FileMatchPattern(fullFilePattern: String, exclusionPattern: String = "") {
+class FileMatchPattern[D <: DirHandle[D, F], F <: FileHandle](fullFilePattern: String, exclusionPattern: String = "") {
   import FileMatchPattern.getUnixLikePath
   
-  private lazy val log = LoggerFactory.getLogger(classOf[FileMatchPattern])
+  private lazy val log = LoggerFactory.getLogger(classOf[FileMatchPattern[D, F]])
   
   val filePattern = {
     getUnixLikePath(
@@ -90,8 +86,7 @@ class FileMatchPattern(fullFilePattern: String, exclusionPattern: String = "") {
       }
     )
   }
-  
-  
+
   private val fileMatcher = FileSystems.getDefault.getPathMatcher("glob:" + filePattern)
   private val exclusionMatcher = FileSystems.getDefault.getPathMatcher("glob:" + getUnixLikePath(exclusionPattern))
   
@@ -101,13 +96,14 @@ class FileMatchPattern(fullFilePattern: String, exclusionPattern: String = "") {
     if (exclusionMatcher.matches(path))
       return false
     
-    log.debug("Matching '{}' against '{}' and it matches{}.", path, filePattern, if (matches) "" else " not")
+    log.debug("File '{}' {} '{}'.", path, if (matches) "matches" else "does not match", filePattern)
     
     matches
   }
-  
-  
-  def isSuperDir(dir: DirHandle): Boolean = {
+
+  def isSuperDir(dir: DirHandle[D, F]): Boolean = {
+
+    val dirPath = Paths.get(getUnixLikePath(dir.absolutePath))
 
     val matches = {
       var tmpPattern = filePattern
@@ -115,13 +111,11 @@ class FileMatchPattern(fullFilePattern: String, exclusionPattern: String = "") {
         tmpPattern = tmpPattern.substring(0, tmpPattern.length - 1)
       }
 
-
       var sections = tmpPattern.split('/').filterNot(_.isEmpty)
       if (sections.last.contains("**") == false) {
         sections = sections.dropRight(1) //drop the file-part (unnecessary to check and causes problems when it's "*")
       }
       
-      val dirPath = Paths.get(getUnixLikePath(dir.absolutePath))
       for (i <- 0 to sections.length) {
         val dirPattern = sections.foldLeft("")((a: String, b: String) => a + "/" + b)
         
@@ -136,7 +130,7 @@ class FileMatchPattern(fullFilePattern: String, exclusionPattern: String = "") {
       false
     }
     
-    log.debug("Checking if '{}' is a potential super-dir for files matched by '{}' and it is{}.", getUnixLikePath(dir.absolutePath), getUnixLikePath(filePattern), if (matches) "" else " not")
+    log.debug("'{}' is{} a potential super-dir for files matched by '{}'.", dirPath, if (matches) "" else " not", getUnixLikePath(filePattern))
     
     matches
   }

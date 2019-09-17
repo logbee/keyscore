@@ -1,9 +1,9 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
 import scala.collection.mutable.Queue
-
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
 
 
 case class FileReadData(string: String,
@@ -14,15 +14,14 @@ case class FileReadData(string: String,
                         readTimestamp: Long,
                         newerFilesWithSharedLastModified: Int)
 
-
 class SendBuffer(fileReaderManager: FileReaderManager, readPersistence: ReadPersistence) {
+
   private var buffer: Queue[FileReadData] = Queue.empty
-  
-  
+
   def getNextElement: Option[FileReadData] = {
-    
+
     ensureFilledIfPossible()
-    
+
     if (buffer.isEmpty) {
       None
     }
@@ -30,16 +29,14 @@ class SendBuffer(fileReaderManager: FileReaderManager, readPersistence: ReadPers
       Some(buffer.dequeue())
     }
   }
-  
-  
+
   def isEmpty: Boolean = {
     
     ensureFilledIfPossible()
     
     buffer.isEmpty
   }
-  
-  
+
   private def ensureFilledIfPossible() = {
     
     if (buffer.size <= 1) { //TODO make this asynchronous, with enough buffer size to not likely run into delays

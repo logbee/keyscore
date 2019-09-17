@@ -1,44 +1,29 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 
-import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
-import org.scalatest.Matchers
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
 import java.nio.ByteBuffer
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import java.nio.charset.StandardCharsets
-import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile.localFile2File
-import org.scalactic.source.Position.apply
+
+import io.logbee.keyscore.pipeline.contrib.tailin.file.local.LocalFile.OpenLocalFile
+import io.logbee.keyscore.pipeline.contrib.tailin.util.{SpecWithTempDir, TestUtil}
+import org.junit.runner.RunWith
+import org.scalatest.Matchers
+import org.scalatest.junit.JUnitRunner
+
+import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class LocalFileSpec extends SpecWithTempDir with Matchers {
   
-  val charset = StandardCharsets.UTF_8
-  
-  
-  def withLocalFile(fileName: String, content: ByteBuffer, testCode: LocalFile => Any) = {
-    
-    val localFile = TestUtil.createFile(watchDir, fileName, charset.decode(content).toString)
-    
-    try {
-      testCode(localFile)
-    }
-    finally {
-      if (localFile != null) {
-        localFile.delete()
-      }
-    }
-  }
-  
+  implicit val charset = StandardCharsets.UTF_8
   
   
   "A LocalFile should" - {
     "return correct metadata" in {
       
       val fileName = "localFile.txt"
-      val content = charset.encode("fileContent")
+      val content = "fileContent"
       
-      withLocalFile(fileName, content, {
+      TestUtil.withOpenLocalFile(watchDir, fileName, content) {
         localFile =>
           localFile.name shouldBe fileName
           
@@ -50,8 +35,8 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
           assert(localFile.lastModified >= currentTime - 3 * 1000)
           assert(localFile.lastModified <= currentTime)
           
-          localFile.length shouldBe content.limit
-      })
+          localFile.length shouldBe charset.encode(content).limit
+      }
     }
     
     
@@ -59,64 +44,73 @@ class LocalFileSpec extends SpecWithTempDir with Matchers {
       
       val fileName = "localFile.txt"
       
-      withLocalFile(fileName, charset.encode("fileContent"), {
-        localFile =>
-          val rotFile1 = TestUtil.createFile(watchDir, fileName + ".1", "fileContent1")
-          val rotFile2 = TestUtil.createFile(watchDir, fileName + ".2", "fileContent22")
-          
-          val rotationPattern = fileName + ".[1-5]"
-          
-          localFile.listRotatedFiles(rotationPattern) should contain allOf(rotFile1, rotFile2)
-      })
+      TestUtil.withOpenLocalFile(watchDir, fileName, "fileContent") { localFile =>
+        TestUtil.withOpenLocalFile(watchDir, fileName + ".1", "fileContent1") { rotFile1 =>
+          TestUtil.withOpenLocalFile(watchDir, fileName + ".2", "fileContent22") { rotFile2 =>
+            val rotationPattern = fileName + ".[1-5]"
+
+            var expectation = Seq(rotFile1, rotFile2)
+            localFile.listRotatedFiles(rotationPattern).foreach(_.open {
+              case Success(file: OpenLocalFile) =>
+                expectation should contain oneElementOf Seq(file)
+                expectation = expectation.filterNot(_ == file)
+              case Success(_) => fail()
+              case Failure(ex) => throw ex
+            })
+          }
+        }
+      }
     }
     
     
     "read its content into a buffer" in {
       
-      val content = charset.encode("fileContent")
+      val content = "fileContent"
+      val encodedContent = charset.encode(content)
       
-      withLocalFile("localFile.txt", content, {
+      TestUtil.withOpenLocalFile(watchDir, "localFile.txt", content) {
         localFile =>
-          val buffer = ByteBuffer.allocate(content.limit)
+          val buffer = ByteBuffer.allocate(encodedContent.limit)
           
           localFile.read(buffer, offset=0)
           
-          buffer shouldBe content
-      })
+          new String(buffer.array()) shouldBe new String(encodedContent.array()).trim
+      }
     }
     
     
     "read its content from an offset into a buffer" in {
       
-      val content = charset.encode("fileContent")
+      val content = "fileContent"
+      val encodedContent = charset.encode(content)
       
-      withLocalFile("localFile.txt", content, {
+      TestUtil.withOpenLocalFile(watchDir, "localFile.txt", content) {
         localFile =>
-          val fileLength = content.limit
+          val fileLength = encodedContent.limit
           val offset = fileLength / 2
           
           val buffer = ByteBuffer.allocate(fileLength - offset)
           
           localFile.read(buffer, offset)
           
-          buffer.array shouldBe content.array
+          buffer.array shouldBe encodedContent.array
                                   .drop(offset)
-                                  .dropRight(content.capacity - content.limit) //the resulting array has 0s from the buffer's limit to the end, which we drop here
-      })
+                                  .dropRight(encodedContent.capacity - encodedContent.limit) //the resulting array has 0s from the buffer's limit to the end, which we drop here
+      }
     }
 
 
     "should delete itself" in {
 
-      val content = charset.encode("fileContent")
+      val content = "fileContent"
 
-      withLocalFile("localFile.txt", content, { localFile =>
+      TestUtil.withOpenLocalFile(watchDir, "localFile.txt", content) { localFile =>
         localFile.lastModified should not equal 0
 
         localFile.delete()
 
         localFile.lastModified shouldEqual 0
-      })
+      }
     }
   }
 }

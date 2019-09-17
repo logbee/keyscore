@@ -5,15 +5,13 @@ import java.nio.ByteBuffer
 import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle, FileHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle, FileHandle, OpenDirHandle, OpenFileHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil.{OpenableMockDirHandle, OpenableMockFileHandle}
 import org.scalamock.scalatest.MockFactory
 
 @RunWith(classOf[JUnitRunner])
 class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll with MockFactory {
-  
-  
-  
-  
+
   "A FileMatchPattern" - {
     
     case class TestSetup(filePattern: String,
@@ -46,7 +44,7 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
                   expectedFixedPath  = "/test/",
                   expectedVariableIndex = 6),
                   
-//        TestSetup(filePattern        = "/test**/tailin.csv", //TODO do we support this? What should it do?
+//        TestSetup(filePattern        = "/test**/tailin.csv", //not supported
 //                  expectedFixedPath  = "/",
 //                  expectedVariableIndex = 5),
 //                  
@@ -91,7 +89,7 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
         
         s"${testSetup.filePattern} has fixed parent-dir: ${testSetup.expectedFixedPath}" in
         {
-          val result = FileMatchPattern.extractInvariableDir(testSetup.filePattern)
+          val result = FileMatchPattern.extractInvariableDir(testSetup.filePattern, "/")
           
           result shouldBe Some(testSetup.expectedFixedPath)
         }
@@ -136,7 +134,8 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
           val patternString = test._1
           val matchPattern = new FileMatchPattern(patternString)
           
-          val file = fileHandleReturningAbsolutePath(test._2)
+          val openFileHandle = mock[OpenFileHandle]
+          val file = new OpenableMockFileHandle(test._2, openFileHandle)
           
           matchPattern.matches(file) shouldBe true
         }
@@ -150,6 +149,10 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
                                              "/path/to/test/log.txt"),
                               SuperPathSetup("/path/to//",
                                              "/path/to/test/log.txt"),
+                              SuperPathSetup("/path/to/test/",
+                                             "/path/*/*/log.txt"),
+                              SuperPathSetup("path/to/test/",
+                                             "path/*/*/log.txt"),
                               SuperPathSetup("C:\\path\\to",
                                              "C:\\path\\to\\test\\log.txt"),
                               SuperPathSetup("\\\\hostname\\share\\path\\to",
@@ -158,11 +161,13 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
     
     superPathSetups.foreach { testSetup =>
       s"should determine that '${testSetup.dirPath}' is a super-directory of '${testSetup.patternString}'" in {
-        val matchPattern = new FileMatchPattern(testSetup.patternString)
+        val matchPattern = new FileMatchPattern[OpenableMockDirHandle, OpenableMockFileHandle](testSetup.patternString)
 
-        val dir = dirHandleReturningAbsolutePath(testSetup.dirPath)
+        val openDirHandle = mock[OpenDirHandle[OpenableMockDirHandle, OpenableMockFileHandle]]
+        val dir = new OpenableMockDirHandle(openDirHandle)
+        (openDirHandle.absolutePath _).expects().returning(testSetup.dirPath)
 
-        matchPattern.isSuperDir(dir) shouldBe true
+        assert(matchPattern.isSuperDir(dir))
       }
     }
     
@@ -172,48 +177,16 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
       
       val matchPattern = new FileMatchPattern(patternString, exclusionPatternString)
       
-      //these are essentially mocked objects, providing absolutePath
-      val fileMatchesInclusionOnly = fileHandleReturningAbsolutePath("/path/to/test/log.txt")
-      val fileMatchesInclusionAndExclusion = fileHandleReturningAbsolutePath("/path/to/test/log.txt_uploaded")
+      val openFileMatchesInclusionOnly = mock[OpenFileHandle]
+      val absolutePath1 = "/path/to/test/log.txt"
+      val fileMatchesInclusionOnly = new OpenableMockFileHandle(absolutePath1, openFileMatchesInclusionOnly)
+
+      val openFileMatchesInclusionAndExclusion = mock[OpenFileHandle]
+      val absolutePath2 = "/path/to/test/log.txt_uploaded"
+      val fileMatchesInclusionAndExclusion = new OpenableMockFileHandle(absolutePath2, openFileMatchesInclusionAndExclusion)
       
       matchPattern.matches(fileMatchesInclusionOnly) shouldBe true
       matchPattern.matches(fileMatchesInclusionAndExclusion) shouldBe false
-    }
-  }
-
-
-  /**
-    * Basically a mock object which provides the given absolutePath.
-    * (absolutePath is a val, so cannot be mocked.)
-    */
-  private def fileHandleReturningAbsolutePath(_absolutePath: String): FileHandle = {
-    new FileHandle() {
-      override val absolutePath: String = _absolutePath
-      
-      override val name: String = "name"
-      override val parent: String = "parent"
-      override def listRotatedFiles(rotationPattern: String): Seq[_ <: FileHandle] = ???
-      override def length: Long = ???
-      override def lastModified: Long = ???
-      override def read(buffer: ByteBuffer, offset: Long): Int = ???
-      override def delete(): Unit = ???
-      override def move(newPath: String): Unit = ???
-      override def tearDown(): Unit = ???
-    }
-  }
-  
-  
-  /**
-    * Basically a mock object which provides the given absolutePath.
-    * (absolutePath is a val, so cannot be mocked.)
-    */
-  private def dirHandleReturningAbsolutePath(_absolutePath: String): DirHandle = {
-    new DirHandle() {
-      override val absolutePath: String = _absolutePath
-      
-      override def listDirsAndFiles: (Set[_ <: DirHandle], Set[_ <: FileHandle]) = ???
-      override def getDirChangeListener(): DirChangeListener = ???
-      override def tearDown(): Unit = ???
     }
   }
 }

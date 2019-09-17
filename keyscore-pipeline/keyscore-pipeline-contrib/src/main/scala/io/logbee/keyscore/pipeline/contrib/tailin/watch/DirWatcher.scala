@@ -1,93 +1,82 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import com.hierynomus.mserref.NtStatus
-import com.hierynomus.mssmb2.SMBApiException
-
-import scala.collection.mutable
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChanges, DirHandle, FileHandle, PathHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.DirHandle
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirNotOpenableException, FileHandle, PathHandle}
 import org.slf4j.LoggerFactory
 
+import scala.collection.mutable
 import scala.language.existentials
+import scala.util.{Failure, Success}
 
 
-object WatchDirNotFoundException {
-  def unapply(watchDirNotFoundException: WatchDirNotFoundException): Option[DirHandle] = Some(watchDirNotFoundException.watchDir)
-}
-class WatchDirNotFoundException(val watchDir: DirHandle) extends Exception
+case class WatchDirNotFoundException() extends Exception
 
 
-class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherProvider: WatcherProvider) extends BaseDirWatcher {
+class DirWatcher[D <: DirHandle[D, F], F <: FileHandle](watchDir: DirHandle[D, F], matchPattern: FileMatchPattern[D, F], watcherProvider: WatcherProvider[D, F]) extends BaseDirWatcher {
   
-  private lazy val log = LoggerFactory.getLogger(classOf[DirWatcher])
-  log.debug("Initializing DirWatcher for directory '{}'", watchDir.absolutePath)
+  private lazy val log = LoggerFactory.getLogger(classOf[DirWatcher[D, F]])
+  log.debug("Initializing DirWatcher for {}", watchDir.toString)
   
-  private val subDirWatchers = mutable.Map.empty[DirHandle, BaseDirWatcher]
+  private val subDirWatchers = mutable.Map.empty[DirHandle[D, F], BaseDirWatcher]
   private val subFileEventHandlers = mutable.Map.empty[FileHandle, FileEventHandler]
   
   
   //recursive setup
-  val (initialSubDirs, initialSubFiles) = watchDir.listDirsAndFiles
+  val (initialSubDirs, initialSubFiles): (Seq[_ <: DirHandle[D, F]], Seq[_ <: FileHandle]) = watchDir.open {
+    case Success(watchDir) => watchDir.listDirsAndFiles
+    case Failure(ex) =>
+      val message = s"Could not open $watchDir when initializing DirWatcher."
+      log.error(message)
+      throw DirNotOpenableException(message, ex)
+  }
   initialSubDirs.foreach(addSubDirWatcher(_))
   initialSubFiles.foreach(addSubFileEventHandler(_))
   
   
-  
-  private def doForEachPathHandler(paths: Set[_ <: PathHandle], func: PathWatcher => Unit): Unit = {
-    paths.foreach {
-      _ match {
-        case dir: DirHandle => subDirWatchers.get(dir).foreach(func(_))
-        case file: FileHandle => subFileEventHandlers.get(file).foreach(func(_))
-      }
-    }
-  }
-  
-  
-  
-  
+
   val dirChangeListener = watchDir.getDirChangeListener()
   
-  @throws(classOf[WatchDirNotFoundException])
+  @throws[WatchDirNotFoundException]
   def processChanges(): Unit = {
     
     val changes = dirChangeListener.getChanges
     
-    try {
-      doForEachPathHandler(changes.potentiallyModifiedDirs, _.processChanges())
+
+    changes.newlyCreatedDirs.foreach(addSubDirWatcher(_))
+    changes.newlyCreatedFiles.foreach(addSubFileEventHandler(_))
+
+
+    changes.potentiallyModifiedDirs.foreach { subDir =>
+      try {
+        subDirWatchers.get(subDir).foreach(_.processChanges())
+      }
+      catch {
+        case WatchDirNotFoundException() =>
+          subDirWatchers.remove(subDir)
+      }
     }
-    catch {
-      case WatchDirNotFoundException(subDir) =>
-        subDirWatchers.remove(subDir).foreach(_.pathDeleted())
-        subDir.tearDown()
+
+
+    changes.potentiallyModifiedFiles.foreach { subFile =>
+      subFileEventHandlers.get(subFile).foreach(_.processChanges())
     }
     
     
     changes.deletedPaths.foreach {
-      _ match {
-        case dir: DirHandle => {
-          subDirWatchers.remove(dir).foreach(_.pathDeleted())
-          dir.tearDown()
-        }
-        case file: FileHandle => {
-          subFileEventHandlers.remove(file).foreach(_.pathDeleted())
-          file.tearDown()
-        }
+      case dir: DirHandle[D, F] => {
+        subDirWatchers.remove(dir).foreach(_.pathDeleted())
+      }
+      case file: FileHandle => {
+        subFileEventHandlers.remove(file).foreach(_.pathDeleted())
       }
     }
-    
-    
-    changes.newlyCreatedDirs.foreach(addSubDirWatcher(_))
-    changes.newlyCreatedFiles.foreach(addSubFileEventHandler(_))
-    
-    
-    doForEachPathHandler(changes.potentiallyModifiedFiles, _.processChanges())
   }
   
   
   
-  private def addSubDirWatcher(subDir: DirHandle): Unit = {
+  private def addSubDirWatcher(subDir: DirHandle[D, F]): Unit = {
     
     if (matchPattern.isSuperDir(subDir)) {
-      
       val subDirWatcher = watcherProvider.createDirWatcher(
         watchDir = subDir,
         matchPattern
@@ -113,25 +102,7 @@ class DirWatcher(watchDir: DirHandle, matchPattern: FileMatchPattern, watcherPro
   }
   
   
-  
-  def pathDeleted(): Unit = {
-    tearDown()
-  }
-  
-  
-  
-  override def tearDown(): Unit = {
-    
-    //call tearDown on all watchers attached to this
-    subDirWatchers.foreach {
-      case (_, subDirWatcher) => subDirWatcher.tearDown()
-    }
-    subFileEventHandlers.foreach {
-      case (_, subFileEventHandlers) => subFileEventHandlers.tearDown()
-    }
-    
-    
-    dirChangeListener.tearDown()
-    watchDir.tearDown()
-  }
+  def pathDeleted(): Unit = tearDown()
+
+  override def tearDown(): Unit = dirChangeListener.tearDown()
 }
