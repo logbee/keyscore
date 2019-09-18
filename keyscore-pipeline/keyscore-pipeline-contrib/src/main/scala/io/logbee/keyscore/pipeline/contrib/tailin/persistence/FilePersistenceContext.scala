@@ -7,6 +7,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceCon
 import org.json4s.native.JsonMethods.parse
 import org.json4s.native.Serialization.write
 import org.json4s.{DefaultFormats, JValue, jvalue2extractable, jvalue2monadic, string2JsonInput}
+import org.slf4j.LoggerFactory
 
 import scala.io.Source
 import scala.reflect.ClassTag
@@ -19,7 +20,7 @@ class FilePersistenceContext private (configuration: Configuration) extends Pers
   private var json: JValue = null
   
   private def ensureJsonIsLoaded(): Unit = {
-    if (json == null) {
+    if (json == null && configuration.enabled) {
       json = parse(Source.fromFile(configuration.persistenceFile).mkString)
     }
   }
@@ -74,40 +75,49 @@ class FilePersistenceContext private (configuration: Configuration) extends Pers
   
   private def writeJsonToFile(json: JValue, file: File): Unit = {
     
-    if (json == null) {
-      throw new IllegalStateException("Couldn't write JSON to file, because it was not loaded.")
-    }
-    
-    var output: FileWriter = null
-    try {
-      output = new FileWriter(file, false)
-      write(json, output)
+    if (configuration.enabled) {
+      if (json == null) {
+        throw new IllegalStateException("Couldn't write JSON to file, because it was not loaded.")
+      }
       
-      output.flush()
-    }
-    finally {
-      if (output != null) {
-        output.close()
+      var output: FileWriter = null
+      try {
+        output = new FileWriter(file, false)
+        write(json, output)
+        
+        output.flush()
+      }
+      finally {
+        if (output != null) {
+          output.close()
+        }
       }
     }
   }
 }
 
 object FilePersistenceContext {
-
+  private lazy val log = LoggerFactory.getLogger(FilePersistenceContext.getClass)
+  
   object Configuration {
     def apply(config: Config): Configuration = {
-      Configuration(new File(config.getString("persistence-file")))
+      Configuration(
+        enabled = config.getBoolean("enabled"),
+        persistenceFile = new File(config.getString("persistence-file")),
+      )
     }
   }
-  case class Configuration private (persistenceFile: File)
-
-
+  case class Configuration private (enabled: Boolean, persistenceFile: File)
+  
+  
   def apply(configuration: Configuration): FilePersistenceContext = {
-
-    configuration.persistenceFile.getParentFile.mkdirs()
-    configuration.persistenceFile.createNewFile()
-
+    
+    if (configuration.enabled) {
+      configuration.persistenceFile.getParentFile.mkdirs()
+      val created = configuration.persistenceFile.createNewFile()
+      log.debug("{} persistence file at {}", if (created) "Created" else "Found", configuration.persistenceFile.getAbsolutePath)
+    }
+    
     new FilePersistenceContext(configuration)
   }
 }
