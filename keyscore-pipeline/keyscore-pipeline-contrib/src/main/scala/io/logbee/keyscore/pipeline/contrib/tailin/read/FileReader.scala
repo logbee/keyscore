@@ -50,7 +50,7 @@ object FileReader {
 /**
  * @param rotationPattern Glob-pattern for the file-name of rotated files. If an empty string or null is passed, no rotated files are matched.
  */
-class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode, fileCompleteActions: Seq[FileHandle => Unit]) {
+class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize: Int, charset: Charset, readMode: ReadMode, firstLinePattern: String = ".*", fileCompleteActions: Seq[FileHandle => Unit]) {
   
   import FileReader.{BytePos, CharPos}
   
@@ -64,7 +64,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
   
   private val byteBuffer = ByteBuffer.allocate(byteBufferSize)
 
-  private var leftOverFromPreviousBuffer = ""
+  private var readDataToCallback = ""
 
   def read(callback: FileReadData => Unit, readScheduleItem: ReadScheduleItem): Unit = {
 
@@ -136,12 +136,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
     var completedBytePositionWithinBuffer = BytePos(0)
 
     readMode match {
-
-      case ReadMode.File =>
-        //do nothing here (read out rest of buffer below)
-        charBuffer.position(0)
-
-      case ReadMode.Line =>
+      case ReadMode.Line | ReadMode.MultiLine => {
 
         var completedCharPositionWithinBuffer = CharPos(0)
 
@@ -153,67 +148,88 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
 
             charBuffer.position(charBuffer.position - 1)
 
-            val firstNewlineWithinBuffer = CharPos(charBuffer.position)
+            val firstNewline = CharPos(charBuffer.position)
 
-            val endOfNewlines: CharPos = CharBufferUtil.getStartOfNextLine(charBuffer, firstNewlineWithinBuffer)
-            val stringWithNewlines = CharBufferUtil.getBufferSectionAsString(charBuffer, completedCharPositionWithinBuffer, endOfNewlines - completedCharPositionWithinBuffer)
-            val string = stringWithNewlines.substring(0, (firstNewlineWithinBuffer - completedCharPositionWithinBuffer).value)
+            val endOfNewlines: CharPos = CharBufferUtil.getStartOfNextLine(charBuffer, firstNewline)
+            val stringWithNewlines = CharBufferUtil.getBufferSectionAsString(charBuffer, completedCharPositionWithinBuffer, endOfNewlines)
+            val string = stringWithNewlines.substring(0, (firstNewline - completedCharPositionWithinBuffer).value)
 
             completedCharPositionWithinBuffer += CharPos(stringWithNewlines.length)
-            completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
+            
 
-            doCallback(
-              callback,
-              string,
-              bufferStartPositionInFile + completedBytePositionWithinBuffer,
-              readScheduleItem,
-              absolutePath,
-            )
 
+            readMode match {
+              case ReadMode.Line => {
+                readDataToCallback += string
+                completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
+                doCallback(
+                  callback,
+                  bufferStartPositionInFile + completedBytePositionWithinBuffer,
+                  readScheduleItem,
+                  absolutePath,
+                )
+              }
+              case ReadMode.MultiLine => {
+                if (string.matches(firstLinePattern)) {
+                  doCallback( //callback the previously read lines
+                    callback,
+                    bufferStartPositionInFile + completedBytePositionWithinBuffer,
+                    readScheduleItem,
+                    absolutePath,
+                  )
+                }
+                readDataToCallback += stringWithNewlines
+                completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
+              }
+            }
+            
             charBuffer.position(endOfNewlines.value)
           }
         }
 
         //if end of buffer reached without finding another newline
         charBuffer.position(completedCharPositionWithinBuffer.value) //reset to the previous written position, so that the rest of the buffer can be read out
+      }
+      case ReadMode.File => {
+        //do nothing here (read out rest of buffer below)
+        charBuffer.position(0)
+      }
     }
 
     //read out rest of buffer
-    val remainingNumberOfCharsInBuffer = CharPos(charBuffer.limit - charBuffer.position)
-
-    if (remainingNumberOfCharsInBuffer.value > 0) {
-      val string = CharBufferUtil.getBufferSectionAsString(charBuffer, CharPos(charBuffer.position), remainingNumberOfCharsInBuffer)
+    if (charBuffer.limit - charBuffer.position > 0) {
+      val string = CharBufferUtil.getBufferSectionAsString(charBuffer, CharPos(charBuffer.position), CharPos(charBuffer.limit))
       completedBytePositionWithinBuffer += BytePos(charset.encode(string).limit)
-
-      if (bufferStartPositionInFile + completedBytePositionWithinBuffer == BytePos(readScheduleItem.endPos)) { //completed reading
+      
+      readDataToCallback += string
+    }
+    
+    if (bufferStartPositionInFile + completedBytePositionWithinBuffer == BytePos(readScheduleItem.endPos)) { //completed reading
         doCallback(
           callback,
-          string,
           BytePos(readScheduleItem.endPos),
           readScheduleItem,
           absolutePath,
         )
       }
-      else { //not yet completed reading, i.e. another buffer is going to get filled and will continue where this one ended
-        leftOverFromPreviousBuffer += string //store the remaining bytes, to be written later
-      }
-    }
+    
 
     if (bufferStartPositionInFile + completedBytePositionWithinBuffer == BytePos(fileLength))
       fileCompleteActions.foreach(action => action(fileToRead))
   }
 
-  private def doCallback(callback: FileReadData => Unit, string: String, readEndPos: BytePos, readScheduleItem: ReadScheduleItem, absolutePath: String): Unit = {
-    
-    val fileReadData = FileReadData(string=leftOverFromPreviousBuffer + string,
-                                    baseFile=null,
-                                    physicalFile=absolutePath,
-                                    readEndPos=readEndPos.value,
-                                    writeTimestamp=readScheduleItem.lastModified,
-                                    readTimestamp=System.currentTimeMillis,
-                                    newerFilesWithSharedLastModified=readScheduleItem.newerFilesWithSharedLastModified)
-    
-    callback(fileReadData)
-    leftOverFromPreviousBuffer = ""
+  private def doCallback(callback: FileReadData => Unit, readEndPos: BytePos, readScheduleItem: ReadScheduleItem, absolutePath: String): Unit = {
+    if (readDataToCallback.isEmpty == false) {
+      val fileReadData = FileReadData(string=readDataToCallback,
+                                      baseFile=null,
+                                      physicalFile=absolutePath,
+                                      readEndPos=readEndPos.value,
+                                      writeTimestamp=readScheduleItem.lastModified,
+                                      readTimestamp=System.currentTimeMillis,
+                                      newerFilesWithSharedLastModified=readScheduleItem.newerFilesWithSharedLastModified)
+      
+      callback(fileReadData)
+      readDataToCallback = ""
+    }
   }
 }

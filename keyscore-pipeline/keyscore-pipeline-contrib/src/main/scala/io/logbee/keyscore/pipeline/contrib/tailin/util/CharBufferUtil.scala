@@ -5,12 +5,14 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.CharPos
 
 object CharBufferUtil {
   
-  def getBufferSectionAsString(buffer: CharBuffer, position: CharPos, length: CharPos): String = {
+  def getBufferSectionAsString(buffer: CharBuffer, startPos: CharPos, endPos: CharPos): String = {
+    
+    val length = endPos - startPos
     
     val tmpPos = buffer.position()
-    buffer.position(position.value)
+    buffer.position(startPos.value)
     
-    var array = new Array[Char](length.value)
+    val array = new Array[Char](length.value)
     buffer.get(array, 0, length.value)
     val returnString = new String(array)
     

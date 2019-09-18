@@ -21,7 +21,7 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.commons.CommonCategories
 import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.tailin.SmbSourceLogic.Poll
+import io.logbee.keyscore.pipeline.contrib.tailin.SmbFileSourceLogic.Poll
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.{SmbDir, SmbFile}
 import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirNotOpenableException, FileHandle}
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RAMPersistenceContext, ReadPersistence, ReadSchedule}
@@ -32,7 +32,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMat
 import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success}
 
-object SmbSourceLogic extends Described {
+object SmbFileSourceLogic extends Described {
   
   val hostName = TextParameterDescriptor(
     ref = "source.smb.hostName",
@@ -102,7 +102,7 @@ object SmbSourceLogic extends Described {
   override def describe = Descriptor(
     ref = "3bbf4f3e-6131-4b20-944d-0686d6f6f539",
     describes = SourceDescriptor(
-      name = classOf[SmbSourceLogic].getName,
+      name = classOf[SmbFileSourceLogic].getName,
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.SOURCE, Category("File"), Category("SMB")),
@@ -112,19 +112,21 @@ object SmbSourceLogic extends Described {
         domainName,
         loginName,
         password,
-        TailinSourceLogic.filePattern,
-        TailinSourceLogic.readMode,
-        TailinSourceLogic.fieldName,
-        TailinSourceLogic.encoding,
-        TailinSourceLogic.rotationPattern,
-        TailinSourceLogic.onComplete,
-        TailinSourceLogic.renameOnComplete_string,
-        TailinSourceLogic.renameOnComplete_append,
+        LocalFileSourceLogic.filePattern,
+        LocalFileSourceLogic.readMode,
+        LocalFileSourceLogic.firstLinePattern,
+        LocalFileSourceLogic.fieldName,
+        LocalFileSourceLogic.encoding,
+        LocalFileSourceLogic.rotationPattern,
+        LocalFileSourceLogic.postReadFileAction,
+        LocalFileSourceLogic.renamePostReadFileAction_string,
+        LocalFileSourceLogic.renamePostReadFileAction_append,
+        LocalFileSourceLogic.persistenceEnabled,
       ),
-      icon = Icon.fromClass(classOf[SmbSourceLogic])
+      icon = Icon.fromClass(classOf[SmbFileSourceLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.tailin.SmbSourceLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.tailin.SmbFileSourceLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
@@ -149,69 +151,77 @@ object SmbSourceLogic extends Described {
   private case object Poll
 }
 
-class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
+class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
   
-  private val config = SmbSourceLogic.Configuration(system.settings.config)
+  private val config = SmbFileSourceLogic.Configuration(system.settings.config)
   
-  private var hostName = SmbSourceLogic.hostName.defaultValue
-  private var shareName = SmbSourceLogic.shareName.defaultValue
-  private var domainName = SmbSourceLogic.domainName.defaultValue
-  private var loginName = SmbSourceLogic.loginName.defaultValue
-  private var password = SmbSourceLogic.password.defaultValue
+  private var hostName = SmbFileSourceLogic.hostName.defaultValue
+  private var shareName = SmbFileSourceLogic.shareName.defaultValue
+  private var domainName = SmbFileSourceLogic.domainName.defaultValue
+  private var loginName = SmbFileSourceLogic.loginName.defaultValue
+  private var password = SmbFileSourceLogic.password.defaultValue
   
-  //like local TailinSourceLogic
-  private var filePattern = TailinSourceLogic.filePattern.defaultValue
+  //like LocalFileSourceLogic
+  private var filePattern = LocalFileSourceLogic.filePattern.defaultValue
   private var readMode = ReadMode.Line.toString
-  private var fieldName = TailinSourceLogic.fieldName.defaultValue
+  private var firstLinePattern = LocalFileSourceLogic.firstLinePattern.defaultValue
+  private var fieldName = LocalFileSourceLogic.fieldName.defaultValue
   private var encoding = StandardCharsets.UTF_8.toString
-  private var rotationPattern = TailinSourceLogic.rotationPattern.defaultValue
+  private var rotationPattern = LocalFileSourceLogic.rotationPattern.defaultValue
   private var postFileReadAction = PostReadFileAction.None.toString
-  private var renameOnComplete_string = TailinSourceLogic.renameOnComplete_string.defaultValue
-  private var renameOnComplete_append = TailinSourceLogic.RenameAppend.After.toString
+  private var renamePostReadFileAction_string = LocalFileSourceLogic.renamePostReadFileAction_string.defaultValue
+  private var renamePostReadFileAction_append = LocalFileSourceLogic.RenameAppend.After.toString
+  private var persistenceEnabled = LocalFileSourceLogic.persistenceEnabled.defaultValue
 
-  var connection: Connection = null
-  var share: DiskShare = null
+  var connection: Connection = _
+  var share: DiskShare = _
 
   var dirWatcher: BaseDirWatcher = _
   
-  var sendBuffer: SendBuffer = null
-  var readPersistence: ReadPersistence = null
+  var sendBuffer: SendBuffer = _
+  var readPersistence: ReadPersistence = _
   
-  var baseDirString: String = null
-  var smbFilePattern: FileMatchPattern[SmbDir, SmbFile] = null
+  var baseDirString: String = _
+  var smbFilePattern: FileMatchPattern[SmbDir, SmbFile] = _
   
-  val bufferSize = config.readBufferSize
-
-  var readSchedulerProvider: WatcherProvider[SmbDir, SmbFile] = null
-  var baseDir: SmbDir = null
+  var readSchedulerProvider: WatcherProvider[SmbDir, SmbFile] = _
+  var baseDir: SmbDir = _
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
   
   override def configure(configuration: Configuration): Unit = {
-    hostName = configuration.getValueOrDefault(SmbSourceLogic.hostName, hostName)
-		shareName = configuration.getValueOrDefault(SmbSourceLogic.shareName, shareName)
-		domainName = configuration.getValueOrDefault(SmbSourceLogic.domainName, domainName)
-		loginName = configuration.getValueOrDefault(SmbSourceLogic.loginName, loginName)
-		password = configuration.getValueOrDefault(SmbSourceLogic.password, password)
+    hostName = configuration.getValueOrDefault(SmbFileSourceLogic.hostName, hostName)
+		shareName = configuration.getValueOrDefault(SmbFileSourceLogic.shareName, shareName)
+		domainName = configuration.getValueOrDefault(SmbFileSourceLogic.domainName, domainName)
+		loginName = configuration.getValueOrDefault(SmbFileSourceLogic.loginName, loginName)
+		password = configuration.getValueOrDefault(SmbFileSourceLogic.password, password)
     
-		//like local TailinSourceLogic
-    filePattern = configuration.getValueOrDefault(TailinSourceLogic.filePattern, filePattern)
-    readMode = configuration.getValueOrDefault(TailinSourceLogic.readMode, readMode)
-    fieldName = configuration.getValueOrDefault(TailinSourceLogic.fieldName, fieldName)
-    encoding = configuration.getValueOrDefault(TailinSourceLogic.encoding, encoding)
-    rotationPattern = configuration.getValueOrDefault(TailinSourceLogic.rotationPattern, rotationPattern)
-    postFileReadAction = configuration.getValueOrDefault(TailinSourceLogic.onComplete, postFileReadAction)
-    renameOnComplete_string = configuration.getValueOrDefault(TailinSourceLogic.renameOnComplete_string, renameOnComplete_string)
-    renameOnComplete_append = configuration.getValueOrDefault(TailinSourceLogic.renameOnComplete_append, renameOnComplete_append)
+		//like LocalFileSourceLogic
+    filePattern = configuration.getValueOrDefault(LocalFileSourceLogic.filePattern, filePattern)
+    readMode = configuration.getValueOrDefault(LocalFileSourceLogic.readMode, readMode)
+    firstLinePattern = configuration.getValueOrDefault(LocalFileSourceLogic.firstLinePattern, firstLinePattern)
+    fieldName = configuration.getValueOrDefault(LocalFileSourceLogic.fieldName, fieldName)
+    encoding = configuration.getValueOrDefault(LocalFileSourceLogic.encoding, encoding)
+    rotationPattern = configuration.getValueOrDefault(LocalFileSourceLogic.rotationPattern, rotationPattern)
+    postFileReadAction = configuration.getValueOrDefault(LocalFileSourceLogic.postReadFileAction, postFileReadAction)
+    renamePostReadFileAction_string = configuration.getValueOrDefault(LocalFileSourceLogic.renamePostReadFileAction_string, renamePostReadFileAction_string)
+    renamePostReadFileAction_append = configuration.getValueOrDefault(LocalFileSourceLogic.renamePostReadFileAction_append, renamePostReadFileAction_append)
+    persistenceEnabled = configuration.getValueOrDefault(LocalFileSourceLogic.persistenceEnabled, persistenceEnabled)
 
     readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
-                                          committedPersistence = FilePersistenceContext(FilePersistenceContext.Configuration(config.filePersistenceConfig)))
+                                          committedPersistence = FilePersistenceContext(
+                                            FilePersistenceContext.Configuration(
+                                              config.filePersistenceConfig,
+                                              persistenceEnabled,
+                                              s"${classOf[SmbFileSourceLogic].getSimpleName}-${parameters.uuid}.json"
+                                            )
+                                          ))
 
     var exclusionPattern = ""
 
-    import TailinSourceLogic.RenameAppend
+    import LocalFileSourceLogic.RenameAppend
     val postFileReadActions: Seq[FileHandle => Unit] =
       if (postFileReadAction.isEmpty)
         Seq.empty
@@ -226,14 +236,14 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
           
           case PostReadFileAction.Rename =>
             
-            if (renameOnComplete_append.isEmpty) {
+            if (renamePostReadFileAction_append.isEmpty) {
               val message = "When 'Rename' is selected as Post Read File Action, you need to specify whether the string should be appended before or after the file name."
               log.error(message)
               fail(out, new IllegalArgumentException(message))
               return
             }
             
-            (RenameAppend.withName(renameOnComplete_append), renameOnComplete_string) match {
+            (RenameAppend.withName(renamePostReadFileAction_append), renamePostReadFileAction_string) match {
               case (_, "") | (_, null) => Seq.empty
               case (RenameAppend.Before, string) => {
                 exclusionPattern = "**/" + string + "*"
@@ -281,7 +291,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
     }
     
     val readSchedule = new ReadSchedule()
-    val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.fromString(readMode), postFileReadActions)
+    val fileReaderProvider = new FileReaderProvider(rotationPattern, config.readBufferSize, Charset.forName(encoding), ReadMode.fromString(readMode), firstLinePattern, postFileReadActions)
     
     val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
     sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
@@ -362,7 +372,7 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
         scheduleOnce(timerKey = Poll, config.pollInterval)
       }
       catch {
-        case ex: WatchDirNotFoundException => setupSmbBaseDir()
+        case _: WatchDirNotFoundException => setupSmbBaseDir()
       }
     }
   }

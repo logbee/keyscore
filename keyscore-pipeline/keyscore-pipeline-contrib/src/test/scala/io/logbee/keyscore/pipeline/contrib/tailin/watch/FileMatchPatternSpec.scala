@@ -1,13 +1,11 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
-import java.nio.ByteBuffer
-
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{OpenDirHandle, OpenFileHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil.{OpenableMockDirHandle, OpenableMockFileHandle}
 import org.junit.runner.RunWith
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterAll, FreeSpec, Matchers}
 import org.scalatestplus.junit.JUnitRunner
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle, FileHandle, OpenDirHandle, OpenFileHandle}
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil.{OpenableMockDirHandle, OpenableMockFileHandle}
-import org.scalamock.scalatest.MockFactory
 
 @RunWith(classOf[JUnitRunner])
 class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll with MockFactory {
@@ -20,63 +18,63 @@ class FileMatchPatternSpec extends FreeSpec with Matchers with BeforeAndAfterAll
                         )
     
     val testSetups = Seq(
-        TestSetup(filePattern        = "/test/tailin.csv",
+        TestSetup(filePattern        = "/test/file.csv",
                   expectedFixedPath  = "/test/",
                   expectedVariableIndex = -1),
         
-        TestSetup(filePattern        = "/**/tailin.csv",
+        TestSetup(filePattern        = "/**/file.csv",
                   expectedFixedPath  = "/",
                   expectedVariableIndex = 1),
         
-        TestSetup(filePattern        = "/test/**/tailin.csv",
+        TestSetup(filePattern        = "/test/**/file.csv",
                   expectedFixedPath  = "/test/",
                   expectedVariableIndex = 6),
                   
-        TestSetup(filePattern        = "/test/**/foo/**/tailin.csv",
+        TestSetup(filePattern        = "/test/**/foo/**/file.csv",
                   expectedFixedPath  = "/test/",
                   expectedVariableIndex = 6),
                   
-        TestSetup(filePattern        = "/test/*/tailin.csv",
+        TestSetup(filePattern        = "/test/*/file.csv",
                   expectedFixedPath  = "/test/",
                   expectedVariableIndex = 6),
                   
-        TestSetup(filePattern        = "/test/*tailin.csv",
+        TestSetup(filePattern        = "/test/*file.csv",
                   expectedFixedPath  = "/test/",
                   expectedVariableIndex = 6),
                   
-//        TestSetup(filePattern        = "/test**/tailin.csv", //not supported
+//        TestSetup(filePattern        = "/test**/file.csv", //not supported
 //                  expectedFixedPath  = "/",
 //                  expectedVariableIndex = 5),
 //                  
-//        TestSetup(filePattern        = "/test/**tailin.csv", //not supported
+//        TestSetup(filePattern        = "/test/**file.csv", //not supported
 //                  expectedFixedPath  = "/",
 //                  expectedVariableIndex = 6),
                   
-        TestSetup(filePattern        = "/test*/tailin.csv",
+        TestSetup(filePattern        = "/test*/file.csv",
                   expectedFixedPath  = "/",
                   expectedVariableIndex = 5),
                   
-        TestSetup(filePattern        = "/test?/tailin.csv",
+        TestSetup(filePattern        = "/test?/file.csv",
                   expectedFixedPath  = "/",
                   expectedVariableIndex = 5),
                   
-        TestSetup(filePattern        = "/tes*/tailin.csv",
+        TestSetup(filePattern        = "/tes*/file.csv",
                   expectedFixedPath  = "/",
                   expectedVariableIndex = 4),
                   
-        TestSetup(filePattern        = "/tes[a,t]/tailin.csv",
+        TestSetup(filePattern        = "/tes[a,t]/file.csv",
                   expectedFixedPath  = "/",
                   expectedVariableIndex = 4),
                   
-        TestSetup(filePattern        = "/tes[a-zA-Z]/tailin.csv",
+        TestSetup(filePattern        = "/tes[a-zA-Z]/file.csv",
                   expectedFixedPath  = "/",
                   expectedVariableIndex = 4),
                   
-        TestSetup(filePattern        = "/te*t/tailin.csv",
+        TestSetup(filePattern        = "/te*t/file.csv",
                   expectedFixedPath  = "/",
                   expectedVariableIndex = 3),
                   
-        TestSetup(filePattern        = "/*est/tailin.csv",
+        TestSetup(filePattern        = "/*est/file.csv",
                   expectedFixedPath  = "/",
                   expectedVariableIndex = 1),
       )

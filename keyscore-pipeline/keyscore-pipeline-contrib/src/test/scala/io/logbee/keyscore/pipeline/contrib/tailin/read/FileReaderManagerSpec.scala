@@ -44,7 +44,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
 
         (fileReaderProvider.create _)
           .expects(logFile3.file)
-          .returning(new FileReader(logFile3.file, rotationPattern="", byteBufferSize=1024, charset=charset, readMode=ReadMode.Line, fileCompleteActions))
+          .returning(new FileReader(logFile3.file, rotationPattern="", byteBufferSize=1024, charset=charset, readMode=ReadMode.Line, fileCompleteActions = fileCompleteActions))
 
 
         callback expects where {
@@ -87,7 +87,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
                                     byteBufferSize=1024,
                                     charset=StandardCharsets.UTF_8,
                                     readMode=ReadMode.Line,
-                                    fileCompleteActions))
+                                    fileCompleteActions = fileCompleteActions))
 
 
         callback expects where {
@@ -118,7 +118,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
 
         (fileReaderProvider.create _)
           .expects(logFile2.file)
-          .returning(new FileReader(logFile2.file, rotationPattern, byteBufferSize=1024, charset=charset, readMode=ReadMode.Line, fileCompleteActions))
+          .returning(new FileReader(logFile2.file, rotationPattern, byteBufferSize=1024, charset=charset, readMode=ReadMode.Line, fileCompleteActions = fileCompleteActions))
 
 
         callback expects where {
@@ -171,7 +171,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
                                     byteBufferSize=1024,
                                     charset=charset,
                                     readMode=ReadMode.Line,
-                                    fileCompleteActions))
+                                    fileCompleteActions = fileCompleteActions))
 
         callback expects where {
           calledBackDataIsSimilarTo(

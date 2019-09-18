@@ -21,7 +21,11 @@ class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with Para
 
     val persistenceFile = watchDir.resolve("storage/persistence.json").toFile
 
-    val config = ConfigFactory.parseString(s"""persistence-file: "${persistenceFile.getPath}"""")
+    val config = ConfigFactory.parseString(
+      s"""
+         |enabled: "true",
+         |persistence-file: "${persistenceFile.getPath}",
+         |""".stripMargin)
 
     val filePersistenceContext = FilePersistenceContext(FilePersistenceContext.Configuration(config))
   }

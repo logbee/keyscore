@@ -27,7 +27,7 @@ import org.scalatestplus.junit.JUnitRunner
 import scala.concurrent.duration.DurationInt
 
 @RunWith(classOf[JUnitRunner])
-class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class LocalFileSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   implicit val defaultPatience = PatienceConfig(timeout = Span(2, Seconds), interval = Span(500, Millis))
   val expectNextTimeout = 10.seconds
@@ -55,7 +55,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
   }
 
 
-  "A TailinSource" - {
+  "A LocalFileSource" - {
     
     case class FileWithContent(path: String, lines: Seq[String])
 
@@ -71,22 +71,22 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     val testSetups = Seq(
         
       TestSetup( //line-wise
-          files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmno"))),
-          filePattern = "tailin.csv",
+          files = Seq(FileWithContent(path="file.csv", lines=Seq("abcde", "fghij", "klmno"))),
+          filePattern = "file.csv",
           readMode = ReadMode.Line,
           expectedData = Seq("abcde", "fghij", "klmno"),
       ),
       TestSetup( //file-wise
-          files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde\n", "fghij\n", "klmno\n"))),
-          filePattern = "tailin.csv",
+          files = Seq(FileWithContent(path="file.csv", lines=Seq("abcde\n", "fghij\n", "klmno\n"))),
+          filePattern = "file.csv",
           readMode = ReadMode.File,
           expectedData = Seq("abcde\n", "fghij\n", "klmno\n"),
       ),
 
       //test UTF-16 Little Endian and Big Endian separately, as just "UTF_16" causes the BufferedWriter in the test to write a Byte Order Mark (BOM) before each string that gets appended to the file (therefore failing tests where a file is written to multiple times)
       TestSetup(
-          files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmnö"))),
-          filePattern = "tailin.csv",
+          files = Seq(FileWithContent(path="file.csv", lines=Seq("abcde", "fghij", "klmnö"))),
+          filePattern = "file.csv",
           readMode = ReadMode.Line,
           encoding = StandardCharsets.UTF_16LE, /*16BE*/
           expectedData = Seq("abcde", "fghij", "klmnö"),
@@ -103,26 +103,26 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         $rotationPatternDescription
       """ - {
 
-        trait DefaultTailinSourceValues {
+        trait DefaultLocalFileSourceValues {
 
           val context = StageContext(system, executionContext)
 
           implicit val charset = testSetup.encoding
 
           val configuration = Configuration(
-            TextParameter(  TailinSourceLogic.filePattern.ref,     s"$watchDir/${testSetup.filePattern}"),
-            ChoiceParameter(TailinSourceLogic.readMode.ref,        testSetup.readMode.toString),
-            ChoiceParameter(TailinSourceLogic.encoding.ref,        testSetup.encoding.toString),
-            TextParameter(  TailinSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
-            TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
+            TextParameter(  LocalFileSourceLogic.filePattern.ref,     s"$watchDir/${testSetup.filePattern}"),
+            ChoiceParameter(LocalFileSourceLogic.readMode.ref,        testSetup.readMode.toString),
+            ChoiceParameter(LocalFileSourceLogic.encoding.ref,        testSetup.encoding.toString),
+            TextParameter(  LocalFileSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
+            TextParameter(  LocalFileSourceLogic.fieldName.ref,       "output"),
           )
 
-          val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
+          val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new LocalFileSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
           val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), provider)
           val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
         }
 
-        "should push one available string for one available pull" in new DefaultTailinSourceValues {
+        "should push one available string for one available pull" in new DefaultLocalFileSourceValues {
           whenReady(sourceFuture) { _ =>
             TestUtil.withOpenLocalFile(watchDir, testSetup.files.head.path, testSetup.files.head.lines.head) { file =>
 
@@ -141,9 +141,9 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
                "when it has to wait for pulls (buffering)"
              else
                "when pulls are made as it reads the data"
-            ) in new DefaultTailinSourceValues {
+            ) in new DefaultLocalFileSourceValues {
               whenReady(sourceFuture) { _ =>
-                TestUtil.withOpenLocalFile(watchDir, "tailin.csv", "") { file =>
+                TestUtil.withOpenLocalFile(watchDir, "file.csv", "") { file =>
 
                   val texts = testSetup.files.head.lines
 
@@ -177,9 +177,9 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         }
 
         "should push multiple strings that become available in a delayed manner for multiple delayed pulls" in
-        new DefaultTailinSourceValues {
+        new DefaultLocalFileSourceValues {
           whenReady(sourceFuture) { _ =>
-            TestUtil.withOpenLocalFile(watchDir, "tailin.csv", "") { file =>
+            TestUtil.withOpenLocalFile(watchDir, "file.csv", "") { file =>
 
               val texts = testSetup.files.head.lines
 
@@ -199,9 +199,9 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
         }
 
         "should wait for strings to become available, if no strings are available when it gets pulled" in
-        new DefaultTailinSourceValues {
+        new DefaultLocalFileSourceValues {
           whenReady(sourceFuture) { _ =>
-            TestUtil.withOpenLocalFile(watchDir, "tailin.csv", "") { file =>
+            TestUtil.withOpenLocalFile(watchDir, "file.csv", "") { file =>
 
               sink.request(1)
 
@@ -232,14 +232,14 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
       implicit val charset = StandardCharsets.UTF_8
 
       val configuration = Configuration(
-        TextParameter(  TailinSourceLogic.filePattern.ref,     s"$watchDir/tailin.csv"),
-        ChoiceParameter(TailinSourceLogic.readMode.ref,        ReadMode.Line.toString),
-        ChoiceParameter(TailinSourceLogic.encoding.ref,        charset.toString),
-        TextParameter(  TailinSourceLogic.rotationPattern.ref, "tailin.csv.[1-5]"),
-        TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
+        TextParameter(  LocalFileSourceLogic.filePattern.ref,     s"$watchDir/file.csv"),
+        ChoiceParameter(LocalFileSourceLogic.readMode.ref,        ReadMode.Line.toString),
+        ChoiceParameter(LocalFileSourceLogic.encoding.ref,        charset.toString),
+        TextParameter(  LocalFileSourceLogic.rotationPattern.ref, "file.csv.[1-5]"),
+        TextParameter(  LocalFileSourceLogic.fieldName.ref,       "output"),
       )
 
-      val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new TailinSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
+      val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new LocalFileSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
       val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), provider)
       val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
     }
@@ -250,11 +250,11 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     new DefaultSource {
       whenReady(sourceFuture) { _ =>
         val sharedLastModified = 1234567890
-        TestUtil.withOpenLocalFile(watchDir, "tailin.csv", "0") { baseFile =>
+        TestUtil.withOpenLocalFile(watchDir, "file.csv", "0") { baseFile =>
           baseFile.setLastModified(sharedLastModified)
-          TestUtil.withOpenLocalFile(watchDir, "tailin.csv.1", "11") { file1 =>
+          TestUtil.withOpenLocalFile(watchDir, "file.csv.1", "11") { file1 =>
             file1.setLastModified(sharedLastModified)
-            TestUtil.withOpenLocalFile(watchDir, "tailin.csv.2", "222") { file2 =>
+            TestUtil.withOpenLocalFile(watchDir, "file.csv.2", "222") { file2 =>
               file2.setLastModified(sharedLastModified)
 
               sink.request(1)
@@ -277,7 +277,7 @@ class TailinSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfter w
     "should push realistic log data with rotation" ignore //TODO doesn't work yet. Probably some problem in the way ReadScheduler deals with rotated files.
     new DefaultSource {
       whenReady(sourceFuture) { _ =>
-        TestUtil.withOpenLocalFile(watchDir, "tailin.csv") { logFile =>
+        TestUtil.withOpenLocalFile(watchDir, "file.csv") { logFile =>
           val numberOfLines = 30
           val slf4j_rotatePattern = logFile.name + ".%i"
 

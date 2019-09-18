@@ -14,11 +14,11 @@ import org.scalatestplus.junit.JUnitRunner
 class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory with ParallelTestExecution {
   
   val defaultBufferSize = 1024
-
+  
   "A FileReader" - {
     val newerFilesWithSharedLastModified = 0
     val fileCompleteActions = Seq()
-
+    
     val charsetNames = Seq("UTF-8", "UTF-16LE", "UTF-32", "ISO-8859-1", "Windows-1252") //test with either "UTF-16LE" or "UTF-16BE", not "UTF-16". Otherwise our test setup writes a BOM with every string written to file.
     charsetNames.foreach {
       charsetName => {
@@ -39,7 +39,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 val line1 = "Line1"
                 logFile = writeStringToFile(logFile, line1)
 
-                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions)
+                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions = fileCompleteActions)
 
                 val mockCallback = mockFunction[FileReadData, Unit]
 
@@ -56,18 +56,18 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                     )
                   )
                 }
-
+                
                 fileReader.read(mockCallback, ReadScheduleItem(logFile.file, 0, logFile.length(), logFile.lastModified, newerFilesWithSharedLastModified))
               }
-
-
+              
+              
               "if the file contains only one line of text with a newline at the end" in
               new LogFile {
                 val line1 = "Line1"
                 val text = line1 + "\n"
                 logFile = writeStringToFile(logFile, text)
 
-                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions)
+                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions = fileCompleteActions)
 
                 val mockCallback = mockFunction[FileReadData, Unit]
 
@@ -98,7 +98,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 val text = line1 + newline + line2 + newline + line3
                 logFile = writeStringToFile(logFile, text)
 
-                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions)
+                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions = fileCompleteActions)
 
                 val mockCallback = mockFunction[FileReadData, Unit]
 
@@ -158,7 +158,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 val text = line1 + newline + line3
                 logFile = writeStringToFile(logFile, text)
 
-                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions)
+                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions = fileCompleteActions)
 
                 val mockCallback = mockFunction[FileReadData, Unit]
 
@@ -203,7 +203,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 val text = line1 + newline + line2
                 logFile = writeStringToFile(logFile, text)
 
-                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions)
+                val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, lineReadMode, fileCompleteActions = fileCompleteActions)
 
                 val mockCallback = mockFunction[FileReadData, Unit]
 
@@ -252,7 +252,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
 
                 val _bufferSize = byteLen(text) / 2
 
-                val fileReader = new FileReader(logFile.file, null, _bufferSize, charset, lineReadMode, fileCompleteActions)
+                val fileReader = new FileReader(logFile.file, null, _bufferSize, charset, lineReadMode, fileCompleteActions = fileCompleteActions)
 
                 val mockCallback = mockFunction[FileReadData, Unit]
 
@@ -314,7 +314,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
 
                 val _bufferSize = byteLen(line1) / 2
 
-                val fileReader = new FileReader(logFile.file, null, _bufferSize, charset, lineReadMode, fileCompleteActions)
+                val fileReader = new FileReader(logFile.file, null, _bufferSize, charset, lineReadMode, fileCompleteActions = fileCompleteActions)
 
                 val mockCallback = mockFunction[FileReadData, Unit]
 
@@ -365,7 +365,56 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 fileReader.read(mockCallback, ReadScheduleItem(logFile.file, 0, byteLen(text), logFile.lastModified, newerFilesWithSharedLastModified))
               }
             }
+            
+            "in blocks of multiple lines, if multi-line reading is active" in
+            new LogFile {
+              val line1 = "Line1"
+              val line2 = "Line2"
+              val line3 = "Line3"
+              val newline = "\n"
+              val multiLineText1 = line1 + newline + line2 + newline + line3 + newline
+              val multiLineText2 = line1 + newline + line2 + newline + line3 + newline
+              val text = multiLineText1 + multiLineText2
+              logFile = writeStringToFile(logFile, text)
+              
+              val readMode = ReadMode.MultiLine
+              val firstLinePattern = ".*" + line1 + ".*"
+              val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, readMode, firstLinePattern, fileCompleteActions = fileCompleteActions)
+              
+              val mockCallback = mockFunction[FileReadData, Unit]
+              
+              mockCallback expects where {
+                calledBackDataIsSimilarTo(
 
+                  FileReadData(
+                    string=multiLineText1,
+                    baseFile=null,
+                    physicalFile=logFile.absolutePath,
+                    readEndPos=byteLen(multiLineText1),
+                    writeTimestamp=logFile.lastModified,
+                    readTimestamp = -1,
+                    newerFilesWithSharedLastModified
+                  )
+                )
+              }
+
+              mockCallback expects where {
+                calledBackDataIsSimilarTo(
+
+                  FileReadData(
+                    string=multiLineText2,
+                    baseFile=null,
+                    physicalFile=logFile.absolutePath,
+                    readEndPos=byteLen(text),
+                    writeTimestamp=logFile.lastModified,
+                    readTimestamp = -1,
+                    newerFilesWithSharedLastModified
+                  )
+                )
+              }
+              fileReader.read(mockCallback, ReadScheduleItem(logFile.file, 0, byteLen(text), logFile.lastModified, newerFilesWithSharedLastModified))
+            }
+            
             "in whole, if file-wise reading is active" in
             new LogFile {
               val _readMode = ReadMode.File
@@ -378,7 +427,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
 
               logFile = writeStringToFile(logFile, text)
 
-              val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, _readMode, fileCompleteActions)
+              val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, _readMode, fileCompleteActions = fileCompleteActions)
 
               val mockCallback = mockFunction[FileReadData, Unit]
 
@@ -405,7 +454,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
             val _readMode = ReadMode.File
             val fileCompleteAction = mockFunction[FileHandle, Unit]
             val _fileCompleteActions = Seq(fileCompleteAction)
-            val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, _readMode, _fileCompleteActions)
+            val fileReader = new FileReader(logFile.file, null, defaultBufferSize, charset, _readMode, fileCompleteActions = _fileCompleteActions)
 
             val mockCallback = mockFunction[FileReadData, Unit]
             mockCallback expects *

@@ -25,7 +25,7 @@ import scala.concurrent.duration._
 /*
   * TODO Does not work yet. Potentially replace this with a Citrus test or similar.
   */
-class Manual_SmbSourceLogicSpec extends Manual_SpecWithSmbShare with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext with ParallelTestExecution {
+class Manual_SmbFileSourceLogicSpec extends Manual_SpecWithSmbShare with Matchers with BeforeAndAfter with BeforeAndAfterAll with ScalaFutures with TestSystemWithMaterializerAndExecutionContext with ParallelTestExecution {
   
   
   val connection = client.connect(hostName)
@@ -60,7 +60,7 @@ class Manual_SmbSourceLogicSpec extends Manual_SpecWithSmbShare with Matchers wi
   }
   
 
-  "An SmbSource" - {
+  "An SmbFileSource" - {
     
     case class FileWithContent(path: String, lines: Seq[String])
 
@@ -74,8 +74,8 @@ class Manual_SmbSourceLogicSpec extends Manual_SpecWithSmbShare with Matchers wi
     )
     
     val testSetup = TestSetup( //line-wise
-        files = Seq(FileWithContent(path="tailin.csv", lines=Seq("abcde", "fghij", "klmno"))),
-        filePattern = "tailin.csv",
+        files = Seq(FileWithContent(path="file.csv", lines=Seq("abcde", "fghij", "klmno"))),
+        filePattern = "file.csv",
         readMode = ReadMode.Line,
         expectedData = Seq("abcde", "fghij", "klmno"),
     )
@@ -88,30 +88,30 @@ class Manual_SmbSourceLogicSpec extends Manual_SpecWithSmbShare with Matchers wi
       rotationPattern: "${testSetup.rotationPattern}"
     """ - {
 
-      trait DefaultSmbSourceValues {
+      trait DefaultSmbFileSourceValues {
 
         val context = StageContext(system, executionContext)
 
         val configuration = Configuration(
-          TextParameter(  SmbSourceLogic.hostName.ref,           hostName),
-          TextParameter(  SmbSourceLogic.shareName.ref,          shareName),
-          TextParameter(  SmbSourceLogic.domainName.ref,         domain),
-          TextParameter(  SmbSourceLogic.loginName.ref,          userName),
-          TextParameter(  SmbSourceLogic.password.ref,           password),
+          TextParameter(  SmbFileSourceLogic.hostName.ref,           hostName),
+          TextParameter(  SmbFileSourceLogic.shareName.ref,          shareName),
+          TextParameter(  SmbFileSourceLogic.domainName.ref,         domain),
+          TextParameter(  SmbFileSourceLogic.loginName.ref,          userName),
+          TextParameter(  SmbFileSourceLogic.password.ref,           password),
           
-          TextParameter(  TailinSourceLogic.filePattern.ref,     s"$watchDir\\${testSetup.filePattern}"),
-          ChoiceParameter(TailinSourceLogic.readMode.ref,        testSetup.readMode.toString),
-          ChoiceParameter(TailinSourceLogic.encoding.ref,        testSetup.encoding.toString),
-          TextParameter(  TailinSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
-          TextParameter(  TailinSourceLogic.fieldName.ref,       "output"),
+          TextParameter(  LocalFileSourceLogic.filePattern.ref,     s"$watchDir\\${testSetup.filePattern}"),
+          ChoiceParameter(LocalFileSourceLogic.readMode.ref,        testSetup.readMode.toString),
+          ChoiceParameter(LocalFileSourceLogic.encoding.ref,        testSetup.encoding.toString),
+          TextParameter(  LocalFileSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
+          TextParameter(  LocalFileSourceLogic.fieldName.ref,       "output"),
         )
 
-        val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new SmbSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
+        val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new SmbFileSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
         val sourceStage = new SourceStage(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), provider)
         val (sourceFuture, sink) = Source.fromGraph(sourceStage).toMat(TestSink.probe[Dataset])(Keep.both).run()
       }
 
-      "should push one available string for one available pull" in new DefaultSmbSourceValues {
+      "should push one available string for one available pull" in new DefaultSmbFileSourceValues {
         
         withSmbFile(watchDir + testSetup.files.head.path, testSetup.encoding.encode(testSetup.files.head.lines.head), { _ =>
           sink.request(1)
