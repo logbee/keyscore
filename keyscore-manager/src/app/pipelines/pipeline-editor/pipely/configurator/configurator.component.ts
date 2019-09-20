@@ -21,27 +21,19 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
                     <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
                         <form [formGroup]="pipelineForm">
                             <mat-form-field>
-                                <input matInput type="text" placeholder="Pipeline Name"
+                                <input #pipelineName matInput type="text" placeholder="Pipeline Name"
                                        formControlName="pipeline.name"
                                        id="pipeline.name">
                                 <mat-label>{{'CONFIGURATOR.PIPELINE_NAME' | translate}}</mat-label>
 
-                                <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear"
-                                        (click)="value=''">
-                                    <mat-icon>close</mat-icon>
-                                </button>
                             </mat-form-field>
 
                             <mat-form-field>
-                                <textarea matInput type="text" placeholder="Pipeline Description"
+                                <textarea #pipelineDescription matInput type="text" placeholder="Pipeline Description"
                                           formControlName="pipeline.description"
                                           id="pipeline.description"></textarea>
                                 <mat-label>{{'CONFIGURATOR.PIPELINE_DESCRIPTION' | translate}}</mat-label>
-
-                                <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear"
-                                        (click)="value=''">
-                                    <mat-icon>close</mat-icon>
-                                </button>
+                                
                             </mat-form-field>
                         </form>
                     </div>
@@ -98,7 +90,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
 
-    private config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor }>(undefined);
+    private config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor,uuid:string }>(undefined);
     private _config: Configuration;
 
     form: FormGroup;
@@ -148,6 +140,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         if (paramIndex > -1) {
             configuration.parameterSet.parameters.splice(paramIndex, 1, parameter);
             this.onSave.emit(configuration);
+            console.log("TSCHAKA:" ,configuration)
         }
 
     }
