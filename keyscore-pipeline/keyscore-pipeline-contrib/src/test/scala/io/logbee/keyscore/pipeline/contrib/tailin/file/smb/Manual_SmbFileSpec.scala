@@ -4,8 +4,8 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 import com.hierynomus.mssmb2.SMBApiException
-import org.scalatest.Matchers
 import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
+import org.scalatest.Matchers
 
 
 class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
@@ -19,19 +19,22 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
       val fileName = "smbTestFile.txt"
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile(fileName, content, {
-        smbFile =>
-          smbFile.name shouldBe fileName
-          smbFile.absolutePath shouldBe s"\\\\$hostName\\$shareName\\$fileName"
-          smbFile.parent shouldBe s"\\\\$hostName\\$shareName\\"
-          
-          //the lastModified-time should be roughly around the current time (the server's system time may be different or it may take a moment to create the file)
-          val currentTime = System.currentTimeMillis
-          assert(smbFile.lastModified >= currentTime - 5 * 60 * 1000)
-          assert(smbFile.lastModified <= currentTime + 5 * 60 * 1000)
-          
-          
-          smbFile.length shouldBe content.limit
+      withSmbFile(s"\\\\$hostName\\$shareName\\$fileName", content, { smbFile =>
+        smbFile.absolutePath shouldBe s"\\\\$hostName\\$shareName\\$fileName"
+      })
+      
+      withOpenSmbFile(s"\\\\$hostName\\$shareName\\$fileName", content, { smbFile =>
+        smbFile.name shouldBe fileName
+        smbFile.absolutePath shouldBe s"\\\\$hostName\\$shareName\\$fileName"
+        smbFile.parent shouldBe s"\\\\$hostName\\$shareName\\"
+
+        //the lastModified-time should be roughly around the current time (the server's system time may be different or it may take a moment to create the file)
+        val currentTime = System.currentTimeMillis
+        assert(smbFile.lastModified >= currentTime - 5 * 60 * 1000)
+        assert(smbFile.lastModified <= currentTime + 5 * 60 * 1000)
+
+
+        smbFile.length shouldBe content.limit
       })
     }
     
@@ -43,9 +46,9 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
       val fileName = "smbTestFile.txt"
       
       withSmbDir(dir, { _ =>
-        withSmbFile(dir + "\\" + fileName, charset.encode("base file"), { smbFile =>
-          withSmbFile(dir + "\\" + fileName + ".1", charset.encode("rotated file 1"), { rotFile1 =>
-            withSmbFile(dir + "\\" + fileName + ".2", charset.encode("rotated file 22"), { rotFile2 =>
+        withOpenSmbFile(dir + "\\" + fileName, charset.encode("base file"), { smbFile =>
+          withOpenSmbFile(dir + "\\" + fileName + ".1", charset.encode("rotated file 1"), { rotFile1 =>
+            withOpenSmbFile(dir + "\\" + fileName + ".2", charset.encode("rotated file 22"), { rotFile2 =>
               
               val rotationPattern = fileName + ".[1-5]"
               
@@ -62,13 +65,12 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
       
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile("smbTestFile.txt", content, {
-        smbFile =>
-          val buffer = ByteBuffer.allocate(content.limit)
-          
-          smbFile.read(buffer, offset=0)
-          
-          buffer shouldBe content
+      withOpenSmbFile(s"\\\\$hostName\\$shareName\\smbTestFile.txt", content, { smbFile =>
+        val buffer = ByteBuffer.allocate(content.limit)
+
+        smbFile.read(buffer, offset=0)
+
+        buffer shouldBe content
       })
     }
     
@@ -77,7 +79,7 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
       
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile("smbTestFile.txt", content, {
+      withOpenSmbFile(s"\\\\$hostName\\$shareName\\smbTestFile.txt", content, {
         smbFile =>
           val fileLength = content.limit
           val offset = fileLength / 2
@@ -97,11 +99,11 @@ class Manual_SmbFileSpec extends Manual_SpecWithSmbShare with Matchers {
       
       val content = charset.encode("Hellö Wörld")
       
-      withSmbFile("smbTestFile.txt", content, { smbFile =>
+      withSmbFile(s"\\\\$hostName\\$shareName\\smbTestFile.txt", content, { smbFile =>
         smbFile.delete()
         
         assertThrows[SMBApiException] {
-          smbFile.lastModified
+          smbFile.open(_.foreach(_.lastModified))
         }
       })
     }

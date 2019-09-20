@@ -2,14 +2,28 @@ package io.logbee.keyscore.pipeline.contrib.tailin.file.local
 
 import java.nio.file.{ClosedWatchServiceException, FileSystems, Files, Path, Paths, StandardWatchEventKinds, WatchEvent, WatchKey, WatchService}
 
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirChanges, DirHandle, FileHandle, PathHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirChanges, DirHandle, DirNotOpenableException, FileHandle, OpenPathHandle, PathHandle}
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.WatchDirNotFoundException
+import org.slf4j.LoggerFactory
 
 import scala.jdk.javaapi.CollectionConverters
+import scala.util.{Failure, Success}
 
-class LocalDirChangeListener(dir: LocalDir) extends DirChangeListener(dir) {
+class LocalDirChangeListener(dir: LocalDir) extends DirChangeListener[LocalDir, LocalFile](dir) {
+
+  private lazy val log = LoggerFactory.getLogger(classOf[LocalDirChangeListener])
   
   val dirPath = Paths.get(dir.absolutePath)
   
+  var (potentiallyModifiedDirs, _) = dir.open {
+    case Success(dir) => dir.listDirsAndFiles
+
+    case Failure(ex) =>
+      val message = s"Failed to open: $dir"
+      log.error(message, ex)
+      throw DirNotOpenableException(message, ex)
+  }
+
   private var watchService: WatchService = _
   private var watchKey: WatchKey = _
   
@@ -24,18 +38,8 @@ class LocalDirChangeListener(dir: LocalDir) extends DirChangeListener(dir) {
   
   
   
-  
-  override def getChanges: DirChanges = {
-    
-    if (Files.isDirectory(dirPath) == false) {
-      return DirChanges(Set.empty,
-                        Set.empty,
-                        Set.empty,
-                        Set.empty,
-                        Set.empty,
-                       )
-    }
-    
+  @throws[WatchDirNotFoundException]
+  override def getChanges: DirChanges[LocalDir, LocalFile] = {
     
     if (watchService == null || watchKey == null) {
       watchService = FileSystems.getDefault.newWatchService()
@@ -47,11 +51,10 @@ class LocalDirChangeListener(dir: LocalDir) extends DirChangeListener(dir) {
     }
     
     
-    var newlyCreatedDirs: Set[DirHandle] = Set.empty
-    var newlyCreatedFiles: Set[FileHandle] = Set.empty
-    var deletedPaths: Set[PathHandle] = Set.empty
-    val (potentiallyModifiedDirs, _) = dir.listDirsAndFiles
-    var potentiallyModifiedFiles: Set[FileHandle] = Set.empty
+    var newlyCreatedDirs: Seq[LocalDir] = Seq.empty
+    var newlyCreatedFiles: Seq[LocalFile] = Seq.empty
+    var deletedPaths: Seq[PathHandle] = Seq.empty
+    var potentiallyModifiedFiles: Seq[LocalFile] = Seq.empty
     
     
     var key: Option[WatchKey] = None
@@ -61,7 +64,8 @@ class LocalDirChangeListener(dir: LocalDir) extends DirChangeListener(dir) {
     catch {
       case e: ClosedWatchServiceException =>
         if (dirPath.toFile.isDirectory == false) {
-          tearDown() //TODO is this correct?
+          tearDown()
+          throw WatchDirNotFoundException()
         }
     }
     
@@ -74,18 +78,18 @@ class LocalDirChangeListener(dir: LocalDir) extends DirChangeListener(dir) {
         
         case StandardWatchEventKinds.ENTRY_CREATE => {
           if (Files.isDirectory(path)) {
-            newlyCreatedDirs = newlyCreatedDirs + new LocalDir(path)
+            newlyCreatedDirs = newlyCreatedDirs :+ LocalDir(path)
           } else if (Files.isRegularFile(path)) {
-            newlyCreatedFiles = newlyCreatedFiles + new LocalFile(path.toFile) //TODO is .toFile here okay? (transforms non-existent paths to append just the path to the current working directory)
+            newlyCreatedFiles = newlyCreatedFiles :+ LocalFile(path.toFile)
           }
         }
         
         case StandardWatchEventKinds.ENTRY_DELETE => {
-          deletedPaths = deletedPaths + new LocalDir(path) //not actually necessarily a dir, we just need it to be some instance of PathHandle
+          deletedPaths = deletedPaths :+ LocalDir(path) //not actually necessarily a dir, we just need it to be some instance of PathHandle
         }
         
         case StandardWatchEventKinds.ENTRY_MODIFY => { //renaming a file does not trigger this (on Linux+tmpfs at least)
-          potentiallyModifiedFiles = potentiallyModifiedFiles + new LocalFile(path.toFile)
+          potentiallyModifiedFiles = potentiallyModifiedFiles :+ LocalFile(path.toFile)
         }
       }
       
@@ -93,17 +97,23 @@ class LocalDirChangeListener(dir: LocalDir) extends DirChangeListener(dir) {
       val valid: Boolean = key.reset()
       if (!valid) { //directory no longer accessible
         tearDown()
+        throw WatchDirNotFoundException()
       }
     })
     
     
     
-    DirChanges(newlyCreatedDirs,
-               newlyCreatedFiles,
-               deletedPaths,
-               potentiallyModifiedDirs,
-               potentiallyModifiedFiles,
-              )
+    val changes = DirChanges(
+      newlyCreatedDirs,
+      newlyCreatedFiles,
+      deletedPaths,
+      potentiallyModifiedDirs,
+      potentiallyModifiedFiles,
+    )
+
+    potentiallyModifiedDirs = potentiallyModifiedDirs ++ newlyCreatedDirs
+
+    changes
   }
   
   

@@ -1,7 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
-import io.logbee.keyscore.pipeline.contrib.tailin.util.TestUtil
+import com.typesafe.config.ConfigFactory
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
 import org.scalatest.{Matchers, ParallelTestExecution}
 
 import scala.reflect.runtime.universe.typeTag
@@ -19,12 +19,11 @@ class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with Para
 
   trait PersistenceFile {
 
-    val persistenceFile = watchDir.resolve("persistence.json").toFile
+    val persistenceFile = watchDir.resolve("storage/persistence.json").toFile
 
-    persistenceFile.createNewFile()
-    TestUtil.waitForFileToExist(persistenceFile)
+    val config = ConfigFactory.parseString(s"""persistence-file: "${persistenceFile.getPath}"""")
 
-    val filePersistenceContext = new FilePersistenceContext(persistenceFile)
+    val filePersistenceContext = FilePersistenceContext(FilePersistenceContext.Configuration(config))
   }
 
   "A FilePersistenceContext" - {

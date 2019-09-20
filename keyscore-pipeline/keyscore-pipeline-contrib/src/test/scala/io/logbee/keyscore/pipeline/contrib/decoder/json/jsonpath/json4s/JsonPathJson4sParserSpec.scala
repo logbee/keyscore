@@ -51,6 +51,16 @@ class JsonPathJson4sParserSpec extends FreeSpec with Matchers {
         |        }
         |      }
         |    ]
+        |  },
+        |  "sensors": {
+        |     "0": {
+        |       "name": "a1",
+        |       "id": 3
+        |     },
+        |     "1": {
+        |       "name": "a2",
+        |       "id": 35
+        |     }
         |  }
         |}
       """.stripMargin)
@@ -119,15 +129,26 @@ class JsonPathJson4sParserSpec extends FreeSpec with Matchers {
           JString("a1"),
           JString("a2")))),
 
-//  TODO: Wildcard is currently not supported.
-//      Fixture(
-//        title = "wildcard elements recursively",
-//        jsonpath = "$.device.*.name",
-//        expectation = JArray(List(
-//          JString("robot"),
-//          JString("a1"),
-//          JString("a2"),
-//          JString("a1")))),
+      Fixture(
+        title = "wildcard elements",
+        jsonpath = "$.sensors.*",
+        expectation = JArray(List(
+          JObject(
+            ("name", JString("a1")),
+            ("id", JInt(3))
+          ),
+          JObject(
+            ("name", JString("a2")),
+            ("id", JInt(35))
+          ),
+        ))
+      ),
+
+      Fixture(
+        title = "wildcard sub-elements",
+        jsonpath = "$.sensors.*.name",
+        expectation = JArray(List(JString("a1"), JString("a2")))
+      )
     )
 
     .foreach { case Fixture(title, jsonpath, expectation) =>

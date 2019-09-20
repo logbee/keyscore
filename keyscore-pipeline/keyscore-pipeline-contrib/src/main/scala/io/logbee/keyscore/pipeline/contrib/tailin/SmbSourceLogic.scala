@@ -1,6 +1,5 @@
 package io.logbee.keyscore.pipeline.contrib.tailin
 
-import java.io.File
 import java.nio.charset.{Charset, StandardCharsets}
 import java.time.Duration
 
@@ -22,13 +21,16 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.commons.CommonCategories
 import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.SmbDir
+import io.logbee.keyscore.pipeline.contrib.tailin.SmbSourceLogic.Poll
+import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.{SmbDir, SmbFile}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirNotOpenableException, FileHandle}
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RAMPersistenceContext, ReadPersistence, ReadSchedule}
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read._
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatchDirNotFoundException, WatcherProvider}
 
 import scala.concurrent.duration.FiniteDuration
+import scala.util.{Failure, Success}
 
 object SmbSourceLogic extends Described {
   
@@ -44,8 +46,7 @@ object SmbSourceLogic extends Described {
     defaultValue = "",
     mandatory = true,
   )
-  
-  
+
   val shareName = TextParameterDescriptor(
     ref = "source.smb.shareName",
     info = ParameterInfo(
@@ -58,8 +59,7 @@ object SmbSourceLogic extends Described {
     defaultValue = "",
     mandatory = true,
   )
-  
-  
+
   val domainName = TextParameterDescriptor(
     ref = "source.smb.domainName",
     info = ParameterInfo(
@@ -72,8 +72,7 @@ object SmbSourceLogic extends Described {
     defaultValue = "",
     mandatory = false,
   )
-  
-  
+
   val loginName = TextParameterDescriptor(
     ref = "source.smb.loginName",
     info = ParameterInfo(
@@ -86,8 +85,7 @@ object SmbSourceLogic extends Described {
     defaultValue = "",
     mandatory = false,
   )
-  
-  
+
   val password = TextParameterDescriptor(
     ref = "source.smb.password",
     info = ParameterInfo(
@@ -100,8 +98,7 @@ object SmbSourceLogic extends Described {
     defaultValue = "",
     mandatory = false,
   )
-  
-  
+
   override def describe = Descriptor(
     ref = "3bbf4f3e-6131-4b20-944d-0686d6f6f539",
     describes = SourceDescriptor(
@@ -131,8 +128,7 @@ object SmbSourceLogic extends Described {
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
-  
-  
+
   object Configuration {
     import scala.language.implicitConversions
     private implicit def convertDuration(duration: Duration): FiniteDuration = scala.concurrent.duration.Duration.fromNanos(duration.toNanos)
@@ -140,7 +136,7 @@ object SmbSourceLogic extends Described {
     def apply(config: Config): Configuration = {
       val sub = config.getConfig("keyscore.smb-source")
       new Configuration(
-        persistenceFile = sub.getString("persistence-file"),
+        filePersistenceConfig = sub.getConfig("file-persistence-context"),
         pollInterval = sub.getDuration("poll-interval"),
         connectRetryInterval = sub.getDuration("connect-retry-interval"),
         baseDirNotFoundRetryInterval = sub.getDuration("base-dir-not-found-retry-interval"),
@@ -148,7 +144,9 @@ object SmbSourceLogic extends Described {
       )
     }
   }
-  case class Configuration(persistenceFile: String, pollInterval: FiniteDuration, connectRetryInterval: FiniteDuration, baseDirNotFoundRetryInterval: FiniteDuration, readBufferSize: Int)
+  case class Configuration(filePersistenceConfig: Config, pollInterval: FiniteDuration, connectRetryInterval: FiniteDuration, baseDirNotFoundRetryInterval: FiniteDuration, readBufferSize: Int)
+
+  private case object Poll
 }
 
 class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) extends SourceLogic(parameters, shape) {
@@ -163,39 +161,30 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
   
   //like local TailinSourceLogic
   private var filePattern = TailinSourceLogic.filePattern.defaultValue
-  private var readMode = ReadMode.LINE.toString
+  private var readMode = ReadMode.Line.toString
   private var fieldName = TailinSourceLogic.fieldName.defaultValue
   private var encoding = StandardCharsets.UTF_8.toString
   private var rotationPattern = TailinSourceLogic.rotationPattern.defaultValue
-  private var onComplete = TailinSourceLogic.OnComplete.None.toString
+  private var postFileReadAction = PostReadFileAction.None.toString
   private var renameOnComplete_string = TailinSourceLogic.renameOnComplete_string.defaultValue
   private var renameOnComplete_append = TailinSourceLogic.RenameAppend.After.toString
-  
-  
-  private val persistenceFile = config.persistenceFile
-  
-  
-  
-  
+
   var connection: Connection = null
   var share: DiskShare = null
-  
-  
+
   var dirWatcher: BaseDirWatcher = _
   
   var sendBuffer: SendBuffer = null
   var readPersistence: ReadPersistence = null
   
   var baseDirString: String = null
-  var smbFilePattern: FileMatchPattern = null
+  var smbFilePattern: FileMatchPattern[SmbDir, SmbFile] = null
   
   val bufferSize = config.readBufferSize
-  
-  
-  var readSchedulerProvider: WatcherProvider = null
+
+  var readSchedulerProvider: WatcherProvider[SmbDir, SmbFile] = null
   var baseDir: SmbDir = null
-  
-  
+
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
   }
@@ -213,72 +202,73 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
     fieldName = configuration.getValueOrDefault(TailinSourceLogic.fieldName, fieldName)
     encoding = configuration.getValueOrDefault(TailinSourceLogic.encoding, encoding)
     rotationPattern = configuration.getValueOrDefault(TailinSourceLogic.rotationPattern, rotationPattern)
-    onComplete = configuration.getValueOrDefault(TailinSourceLogic.onComplete, onComplete)
+    postFileReadAction = configuration.getValueOrDefault(TailinSourceLogic.onComplete, postFileReadAction)
     renameOnComplete_string = configuration.getValueOrDefault(TailinSourceLogic.renameOnComplete_string, renameOnComplete_string)
     renameOnComplete_append = configuration.getValueOrDefault(TailinSourceLogic.renameOnComplete_append, renameOnComplete_append)
-    
-    
-    val _persistenceFile = new File(persistenceFile)
-    _persistenceFile.createNewFile()
-    
-    for (i <- 1 to 50) {
-      if (_persistenceFile.exists == false) {
-        Thread.sleep(100)
-      }
-    }
-    
+
     readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
-                                          committedPersistence = new FilePersistenceContext(_persistenceFile))
-    
-    
+                                          committedPersistence = FilePersistenceContext(FilePersistenceContext.Configuration(config.filePersistenceConfig)))
+
     var exclusionPattern = ""
-    
-    import TailinSourceLogic.OnComplete
+
     import TailinSourceLogic.RenameAppend
-    val fileCompleteActions: Seq[FileHandle => Unit] =
-      OnComplete.withName(onComplete) match {
-        case OnComplete.None => Seq.empty
-        case OnComplete.Delete => Seq(_.delete())
-        case OnComplete.Rename =>
+    val postFileReadActions: Seq[FileHandle => Unit] =
+      if (postFileReadAction.isEmpty)
+        Seq.empty
+      else {
+        PostReadFileAction.fromString(postFileReadAction) match {
+          case PostReadFileAction.None => Seq.empty
           
-          if (renameOnComplete_append.isEmpty) {
-            val message = "When 'Rename' is selected as Post Read File Action, you need to specify whether the string should be appended before or after the file name."
-            log.error(message)
-            fail(out, new IllegalArgumentException(message))
-            return
-          }
+          case PostReadFileAction.Delete => Seq(file => file.delete() match {
+            case Success(_) => log.debug(s"Deleted file '${file.absolutePath}'")
+            case Failure(ex) => log.error(ex, "Could not delete file '{}': {}", file)
+          })
           
-          (RenameAppend.withName(renameOnComplete_append), renameOnComplete_string) match {
-            case (_, "") | (_, null) => Seq.empty
-            case (RenameAppend.Before, string) => {
-              exclusionPattern = "**/" + string + "*"
-              
-              Seq(file => file.move(file.parent + string + file.name))
+          case PostReadFileAction.Rename =>
+            
+            if (renameOnComplete_append.isEmpty) {
+              val message = "When 'Rename' is selected as Post Read File Action, you need to specify whether the string should be appended before or after the file name."
+              log.error(message)
+              fail(out, new IllegalArgumentException(message))
+              return
             }
-            case (RenameAppend.After, string) => {
-              exclusionPattern = "**/*" + string
-              
-              Seq(file => file.move(file.parent + file.name + string))
+            
+            (RenameAppend.withName(renameOnComplete_append), renameOnComplete_string) match {
+              case (_, "") | (_, null) => Seq.empty
+              case (RenameAppend.Before, string) => {
+                exclusionPattern = "**/" + string + "*"
+
+                Seq(file => file.open {
+                  case Success(openFile) => file.move(openFile.parent + string + openFile.name)
+                  case Failure(ex) => log.error(ex, "Could not rename file '{}': {}", file)
+                })
+              }
+              case (RenameAppend.After, string) => {
+                exclusionPattern = "**/*" + string
+
+                Seq(file => file.open {
+                  case Success(openFile) => file.move(openFile.parent + openFile.name + string)
+                  case Failure(ex) => log.error(ex, "Could not rename file '{}': {}", file)
+                })
+              }
+              case (_, _) => Seq.empty
             }
-            case (_, _) => Seq.empty
-          }
-    }
-    
-    
-    
-    var filePatternWithoutLeadingSlashes = filePattern
+        }
+      }
+
+    var filePatternWithoutLeadingSlashes = filePattern.replace('/', '\\') //transform any forward slashes to backward slashes -> SMB/Windows paths cannot contain forward slashes, so this should be safe
     while (filePatternWithoutLeadingSlashes.startsWith("/") || filePatternWithoutLeadingSlashes.startsWith("\\")) {
       filePatternWithoutLeadingSlashes = filePatternWithoutLeadingSlashes.substring(1)
     }
     
-    smbFilePattern = new FileMatchPattern(s"\\\\$hostName\\$shareName\\$filePatternWithoutLeadingSlashes",
-                                        s"\\\\$hostName\\$shareName\\$exclusionPattern")
-    
-    
-    
-    
+        val absoluteFilePattern = s"\\\\$hostName\\$shareName\\$filePatternWithoutLeadingSlashes"
+    val absoluteExclusionPattern = s"\\\\$hostName\\$shareName\\$exclusionPattern"
+     
+    smbFilePattern = new FileMatchPattern[SmbDir, SmbFile](absoluteFilePattern,
+                                                           absoluteExclusionPattern)
+
     //start the first DirWatcher at the deepest level where no new sibling-directories can match the filePattern in the future
-    FileMatchPattern.extractInvariableDir(filePatternWithoutLeadingSlashes) match {
+    FileMatchPattern.extractInvariableDir(absoluteFilePattern, "\\") match {
       case None =>
         val message = "Could not parse the specified file pattern or could not find suitable parent directory to observe."
         log.error(message)
@@ -290,11 +280,8 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
         log.debug("Selecting '{}' as base directory to start the first DirWatcher in.", baseDirString)
     }
     
-    
-    
-    
     val readSchedule = new ReadSchedule()
-    val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.withName(readMode), fileCompleteActions)
+    val fileReaderProvider = new FileReaderProvider(rotationPattern, bufferSize, Charset.forName(encoding), ReadMode.fromString(readMode), postFileReadActions)
     
     val fileReaderManager = new FileReaderManager(fileReaderProvider, readSchedule, readPersistence, rotationPattern)
     sendBuffer = new SendBuffer(fileReaderManager, readPersistence)
@@ -302,14 +289,9 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
     readSchedulerProvider = new WatcherProvider(readSchedule, rotationPattern, readPersistence)
   }
   
-  
-  
   override def postStop(): Unit = {
-    
-    if (dirWatcher != null) {
-      dirWatcher.tearDown()
-    }
-    
+    log.info("SMB source is stopping.")
+
     if (share != null) {
       share.close()
     }
@@ -318,105 +300,85 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
       connection.close()
     }
   }
-  
-  
-  case class Poll()
-  
+
   override def onTimer(timerKey: Any): Unit = {
     
     timerKey match {
-      case Poll() => onPull()
+      case Poll => onPull()
     }
   }
-  
-  
+
   private def doPush(): Unit = {
     val fileReadDataOpt = sendBuffer.getNextElement
     
     fileReadDataOpt match {
+
       case None =>
-        scheduleOnce(timerKey = Poll(), config.pollInterval)
+        scheduleOnce(timerKey = Poll, config.pollInterval)
+
       case Some(fileReadData) =>
-      
-      
-      val outData = Dataset(
-        records = List(Record(
-          fields = List(
-            Field(fieldName, TextValue(fileReadData.string)),
-            Field("smb.path", TextValue(fileReadData.baseFile.absolutePath)),
-            Field("smb.write_timestamp", NumberValue(fileReadData.writeTimestamp)),
-          )
-        ))
-      )
-      
-      
-      push(out, outData)
-      readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp, fileReadData.newerFilesWithSharedLastModified))
+        val outData = Dataset(
+          records = List(Record(
+            fields = List(
+              Field(fieldName, TextValue(fileReadData.string)),
+              Field("file.path", TextValue(fileReadData.baseFile.absolutePath)),
+              Field("file.modified-timestamp", NumberValue(fileReadData.writeTimestamp)),
+            )
+          ))
+        )
+        push(out, outData)
+        readPersistence.commitRead(fileReadData.baseFile, FileReadRecord(fileReadData.readEndPos, fileReadData.writeTimestamp, fileReadData.newerFilesWithSharedLastModified))
     }
   }
-  
-  
-  
+
   override def onPull(): Unit = {
-    
-    if (connection == null || connection.isConnected == false) {
+
+    if (connectionNotReady) {
       setupConnection()
       return
     }
-    
-    
-    if (share == null || share.isConnected == false) {
+
+    if (shareNotReady) {
       setupShare()
       return
     }
-    
-    
+
     if (baseDir == null) {
       setupSmbBaseDir()
       return
     }
-    
-    
+
     if (dirWatcher == null) {
       setupDirWatcher()
       return
     }
-    
-    
-    
-    
+
     if (!sendBuffer.isEmpty) {
       doPush()
     }
     else {
       try {
         dirWatcher.processChanges()
+        scheduleOnce(timerKey = Poll, config.pollInterval)
       }
       catch {
-        case ex: WatchDirNotFoundException =>
-          setupSmbBaseDir()
-          return
+        case ex: WatchDirNotFoundException => setupSmbBaseDir()
       }
-      scheduleOnce(timerKey = Poll(), config.pollInterval)
     }
   }
-  
-  
+
   private def setupConnection(): Unit = {
     val client = new SMBClient()
     try {
       connection = client.connect(hostName)
+      onPull()
     }
     catch {
       case ex: Throwable =>
-        log.error("Could not connect: '{}'. Retrying in {}.", ex, config.connectRetryInterval)
-        scheduleOnce(Poll(), config.connectRetryInterval)
-        return
+        log.error(ex, "Could not connect: '{}'. Retrying in {}.", config.connectRetryInterval)
+        scheduleOnce(Poll, config.connectRetryInterval)
     }
-    
-    onPull()
   }
-  
   
   private def setupShare(): Unit = {
     val authContext = new AuthenticationContext(loginName, password.toCharArray, domainName)
@@ -424,57 +386,59 @@ class SmbSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset]) e
     var session: Session = null
     try {
       session = connection.authenticate(authContext)
+      share = session.connectShare(shareName).asInstanceOf[DiskShare]
+      onPull()
     }
     catch {
       case ex: SMBApiException =>
         if (ex.getStatus == NtStatus.STATUS_LOGON_FAILURE) {
-          log.error("Could not authenticate for user '{}'.", loginName)
+          log.error(ex, "Could not authenticate for user '{}'.", loginName)
           fail(out, ex)
-          return
+        }
+        else if (ex.getStatus == NtStatus.STATUS_BAD_NETWORK_NAME) {
+          log.error(ex, "Could not find share with name '{}'", shareName)
+          fail(out, ex)
         }
     }
-    
-    try {
-      share = session.connectShare(shareName).asInstanceOf[DiskShare]
-    }
-    catch {
-      case ex: SMBApiException =>
-        if (ex.getStatus == NtStatus.STATUS_BAD_NETWORK_NAME) {
-          log.error("Could not find share with name '{}'", shareName)
-          fail(out, ex)
-          return
-        }
-    }
-    
-    onPull()
   }
-  
-  
+
   private def setupSmbBaseDir(): Unit = {
     
     try {
-      baseDir = new SmbDir(baseDirString, share)
+      baseDir = SmbDir(baseDirString, share)
+      onPull()
     }
     catch {
       case ex: SMBApiException =>
         if (ex.getStatus == NtStatus.STATUS_OBJECT_NAME_NOT_FOUND
          || ex.getStatus == NtStatus.STATUS_OBJECT_PATH_NOT_FOUND) { //occurs when not even the parent directory exists
-          log.error(s"The determined base directory '{}' does not exist. Retrying in {}.", baseDirString, config.baseDirNotFoundRetryInterval)
-          scheduleOnce(Poll(), config.baseDirNotFoundRetryInterval)
-          return
+          log.error(ex, s"The determined base directory '$baseDirString' does not exist. Retrying in ${config.baseDirNotFoundRetryInterval}.")
         }
-        else throw ex
+        else {
+          log.error(ex, s"Error while trying to open the determined base directory '$baseDirString'. Retrying in ${config.baseDirNotFoundRetryInterval}.")
+        }
+
+        scheduleOnce(Poll, config.baseDirNotFoundRetryInterval)
     }
-    
-    
-    onPull()
   }
-  
-  
+
   private def setupDirWatcher(): Unit = {
-    
-    dirWatcher = readSchedulerProvider.createDirWatcher(baseDir, smbFilePattern)
-    
-    onPull()
+    try {
+      dirWatcher = readSchedulerProvider.createDirWatcher(baseDir, smbFilePattern)
+      onPull()
+    }
+    catch {
+      case ex: DirNotOpenableException =>
+        log.error(ex, s"The determined base directory '$baseDirString' does not exist. Retrying in ${config.baseDirNotFoundRetryInterval}.")
+        scheduleOnce(Poll, config.baseDirNotFoundRetryInterval)
+    }
+  }
+
+  private def connectionNotReady: Boolean = {
+    connection == null || !connection.isConnected
+  }
+
+  private def shareNotReady: Boolean = {
+    share == null || !share.isConnected
   }
 }

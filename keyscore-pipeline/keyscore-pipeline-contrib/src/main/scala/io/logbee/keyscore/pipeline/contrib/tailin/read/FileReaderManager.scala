@@ -4,14 +4,19 @@ import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadSchedule
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
+import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadScheduler.FileInfo
+import org.slf4j.LoggerFactory
+
+import scala.util.{Failure, Success}
 
 
 class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: ReadSchedule, readPersistence: ReadPersistence, rotationPattern: String) {
-  
+  private lazy val log = LoggerFactory.getLogger(classOf[FileReaderManager])
+
   private val fileReaders = Map[FileHandle, FileReader]()
   
   private def getFileReader(fileToRead: FileHandle): FileReader = {
-    var fileReaderOpt = fileReaders.get(fileToRead)
+    val fileReaderOpt = fileReaders.get(fileToRead)
     
     var fileReader: FileReader = null
     if (fileReaderOpt.isDefined) {
@@ -26,7 +31,7 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
   }
   
   
-  def getNextString(callback: FileReadData => Unit) = {
+  def getNextString(callback: FileReadData => Unit): Unit = {
     
     readSchedule.dequeue() match {
       case None => //if no reads scheduled
@@ -38,16 +43,22 @@ class FileReaderManager(fileReaderProvider: FileReaderProvider, readSchedule: Re
         
         val completedRead = readPersistence.getCompletedRead(baseFile)
         
-        
-        val fileToRead = RotationHelper.getRotationFilesToRead(baseFile, rotationPattern, completedRead).head
-        
-        
+        val fileToRead = baseFile.open {
+          case Success(openBaseFile) =>
+            val baseFileWithInfo = FileInfo(baseFile, openBaseFile.name, openBaseFile.lastModified, openBaseFile.length)
+            RotationHelper.getRotationFilesToRead(openBaseFile, baseFileWithInfo, rotationPattern, completedRead).head
+
+          case Failure(ex) =>
+            log.error("Could not retrieve information about file that was scheduled to read.", ex)
+            return
+        }
+
         val callback2: FileReadData => Unit =
           fileReadData => {
             callback(fileReadData.copy(baseFile=baseFile)) //fileReader doesn't know what the baseFile is
           }
         
-        getFileReader(fileToRead).read(callback2, readScheduleItem)
+        getFileReader(fileToRead.file).read(callback2, readScheduleItem)
     }
   }
 }

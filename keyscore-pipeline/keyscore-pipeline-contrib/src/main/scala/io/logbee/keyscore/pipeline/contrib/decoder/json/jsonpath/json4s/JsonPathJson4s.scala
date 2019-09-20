@@ -10,8 +10,6 @@ import scala.language.implicitConversions
 
 object JsonPathJson4s {
 
-  implicit def JValue2Selectable(value: JValue): Selectable[JValue] = (jsonPath: JsonPath) => jsonPath.parse(value)
-
   implicit object Parser extends ParserLike[JValue] {
     override def parse(in: JValue, jsonpath: JsonPath): JValue = {
       @tailrec def parse(in: JValue, tokens: List[Token]): JValue = {
@@ -22,8 +20,8 @@ object JsonPathJson4s {
           case (jvalue: JValue, RootToken() :: tail) =>
             parse(jvalue, tail)
 
-          case (JObject(obj), WildcardToken() :: NodeToken(name) :: tail) =>
-            throw JsonPathParserException("Unsupported WildcardToken")
+          case (JObject(elements), WildcardToken() :: tail) =>
+            parse(JArray(elements.map(_._2)), tail)
 
           case (JArray(array), IndexToken(Some(start), None) :: tail) if start < 0 =>
             parse(array(array.size + start), tail)
@@ -53,4 +51,6 @@ object JsonPathJson4s {
       parse(in, jsonpath.tokens)
     }
   }
+
+  implicit def JValue2Selectable(value: JValue): Selectable[JValue] = (jsonPath: JsonPath) => jsonPath.parse(value)
 }

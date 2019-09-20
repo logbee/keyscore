@@ -6,65 +6,93 @@ import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.mserref.NtStatus
 import com.hierynomus.msfscc.FileAttributes
 import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation
-import com.hierynomus.mssmb2.SMB2CreateDisposition
-import com.hierynomus.mssmb2.SMB2CreateOptions
-import com.hierynomus.mssmb2.SMB2ShareAccess
-import com.hierynomus.mssmb2.SMBApiException
-import com.hierynomus.smbj.common.SmbPath
-import com.hierynomus.smbj.share.Directory
-import com.hierynomus.smbj.share.DiskShare
-import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle}
+import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2CreateOptions, SMB2ShareAccess, SMBApiException}
+import com.hierynomus.smbj.share.{Directory, DiskShare}
+import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirChangeListener, DirHandle, DirNotOpenableException, OpenDirHandle}
 import org.slf4j.LoggerFactory
 
 import scala.jdk.javaapi.CollectionConverters
+import scala.util.{Failure, Success, Try}
 
 
-class SmbDir(path: String, share: DiskShare) extends DirHandle {
-
+class SmbDir private (path: String, share: DiskShare) extends DirHandle[SmbDir, SmbFile] {
   private lazy val log = LoggerFactory.getLogger(classOf[SmbDir])
+  
+  @throws[DirNotOpenableException]
+  override def open[T](func: Try[OpenDirHandle[SmbDir, SmbFile]] => T): T = SmbDir.open(path, share)(func)
+  
+  override def getDirChangeListener(): DirChangeListener[SmbDir, SmbFile] = new SmbDirChangeListener(this)
+  
+  private val _absolutePath = SmbUtil.absolutePath(path)(share)
+  override def absolutePath = _absolutePath
+  
+  def canEqual(other: Any): Boolean = other.isInstanceOf[SmbDir]
+  
+  override def equals(other: Any): Boolean = other match {
+    case that: SmbDir =>
+      (that canEqual this) &&
+        absolutePath == that.absolutePath
+    case _ => false
+  }
+  
+  override def hashCode(): Int = {
+    val state = Seq(absolutePath)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+  
+  override def toString = s"SmbDir($absolutePath)"
+}
 
-
-  private def withDir[T](func: Directory => T): T = {
-    var dir: Directory = null
-
+object SmbDir {
+  private lazy val log = LoggerFactory.getLogger(classOf[SmbDir])
+  
+  def apply(path: String, share: DiskShare): SmbDir = {
+    open(path, share) {
+      case Success(dir) => new SmbDir(dir.absolutePath, share)
+      case Failure(ex) => throw ex
+    }
+  }
+  
+  
+  @throws[DirNotOpenableException]
+  private def open[T](path: String, share: DiskShare)(func: Try[OpenDirHandle[SmbDir, SmbFile]] => T): T = {
+    var smbDir: Directory = null
+    
     try {
-      dir = share.openDirectory(
-        path,
-        EnumSet.of(AccessMask.GENERIC_ALL),
+      smbDir = share.openDirectory(
+        if (path == "/" || path == "\\") "" else SmbUtil.relativePath(path)(share),
+        EnumSet.of(AccessMask.GENERIC_READ),
         EnumSet.of(FileAttributes.FILE_ATTRIBUTE_DIRECTORY),
         SMB2ShareAccess.ALL,
         SMB2CreateDisposition.FILE_OPEN,
         EnumSet.noneOf(classOf[SMB2CreateOptions])
       )
 
-      func(dir)
+      func(Success(new OpenSmbDir(smbDir, share)))
+    }
+    catch {
+      case ex: Throwable =>
+        func(Failure(ex))
     }
     finally {
-      if (dir != null)
-        dir.close()
+      if (smbDir != null)
+        smbDir.close()
     }
   }
   
   
-  override val absolutePath: String = withDir(_.getFileName)
-  
-  /**
-   * \\hostname\share\path\to\ -> path\to\
-   */
-  private val pathWithinShare: String = SmbPath.parse(absolutePath).getPath
-  
-  
-  
-  
-  private def isDirectory(fileIdBothDirectoryInformation: FileIdBothDirectoryInformation): Boolean = {
-    import com.hierynomus.msfscc.FileAttributes._
-    (fileIdBothDirectoryInformation.getFileAttributes & FILE_ATTRIBUTE_DIRECTORY.getValue) == FILE_ATTRIBUTE_DIRECTORY.getValue
-  }
-  
-  
-  override def listDirsAndFiles: (Set[SmbDir], Set[SmbFile]) = {
-    withDir(dir => {
-
+  class OpenSmbDir private[SmbDir] (dir: Directory, share: DiskShare) extends OpenDirHandle[SmbDir, SmbFile] {
+    
+    private lazy val log = LoggerFactory.getLogger(classOf[SmbDir])
+    
+    override val absolutePath: String = SmbUtil.absolutePath(dir.getFileName)(share)
+    
+    private def isDirectory(fileIdBothDirectoryInformation: FileIdBothDirectoryInformation): Boolean = {
+      import com.hierynomus.msfscc.FileAttributes._
+      (fileIdBothDirectoryInformation.getFileAttributes & FILE_ATTRIBUTE_DIRECTORY.getValue) == FILE_ATTRIBUTE_DIRECTORY.getValue
+    }
+    
+    override def listDirsAndFiles: (Seq[SmbDir], Seq[SmbFile]) = {
       val subPaths = CollectionConverters.asScala(dir.list).toSet
         .filterNot(subPath =>
              subPath.getFileName.endsWith("\\.")
@@ -73,15 +101,15 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
           || subPath.getFileName.equals("..")
         )
       
-      var dirs: Set[SmbDir] = Set.empty
-      var files: Set[SmbFile] = Set.empty
+      var dirs: Seq[SmbDir] = Seq.empty
+      var files: Seq[SmbFile] = Seq.empty
       
       subPaths.foreach { subPath =>
         try {
           if (isDirectory(subPath)) {
-            dirs = dirs + new SmbDir(pathWithinShare + subPath.getFileName + "\\", share)
+            dirs = dirs :+ SmbDir(absolutePath + subPath.getFileName + "\\", share)
           } else {
-            files = files + new SmbFile(pathWithinShare + subPath.getFileName, share)
+            files = files :+ SmbFile(absolutePath + subPath.getFileName, share)
           }
         }
         catch {
@@ -96,43 +124,35 @@ class SmbDir(path: String, share: DiskShare) extends DirHandle {
                 log.debug("Listed dir which does not exist.")
                 
               case _ =>
-                log.error("Uncaught SMBApiException while listing files and dirs: " + smbException.getMessage)
+                log.error("SMBApiException while listing files and dirs.", smbException)
                 throw smbException
             }
             
           case otherException: Throwable =>
-            log.error("Uncaught exception while listing files and dirs: " + otherException.getMessage)
+            log.error("Uncaught exception while listing files and dirs: ", otherException)
             throw otherException
         }
       }
       
       (dirs, files)
-    })
-  }
-
-
-  override def getDirChangeListener(): DirChangeListener = new SmbDirChangeListener(this)
+    }
   
   
-  override def tearDown(): Unit = {}
-  
-  
-  def canEqual(other: Any): Boolean = other.isInstanceOf[SmbDir]
-  
-  override def equals(other: Any): Boolean = other match {
-    case that: SmbDir =>
-      (that canEqual this) &&
-        this.absolutePath.equals(that.absolutePath)// &&
-//        this.share.getSmbPath.equals(that.share.getSmbPath)
-    case _ => false
-  }
-  
-  override def hashCode(): Int = {
-    val state = Seq(this.absolutePath/*, this.share*/)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
-  
-  override def toString: String = {
-    absolutePath
+    def canEqual(other: Any): Boolean = other.isInstanceOf[OpenSmbDir]
+    
+    override def equals(other: Any): Boolean = other match {
+      case that: OpenSmbDir =>
+        (that canEqual this) &&
+          this.absolutePath.equals(that.absolutePath)// &&
+  //        this.share.getSmbPath.equals(that.share.getSmbPath)
+      case _ => false
+    }
+    
+    override def hashCode(): Int = {
+      val state = Seq(this.absolutePath/*, this.share*/)
+      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    }
+    
+    override def toString = s"OpenSmbDir($absolutePath)"
   }
 }

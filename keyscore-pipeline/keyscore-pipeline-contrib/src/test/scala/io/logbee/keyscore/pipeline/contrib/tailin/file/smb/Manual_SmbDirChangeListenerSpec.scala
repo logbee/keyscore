@@ -9,7 +9,7 @@ import org.scalatest.Matchers
 class Manual_SmbDirChangeListenerSpec extends Manual_SpecWithSmbShare with Matchers {
   
   val charset = StandardCharsets.UTF_8
-  val emptyDirChanges = DirChanges(Set[SmbDir](), Set[SmbFile](), Set[PathHandle](), Set[SmbDir](), Set[SmbFile]())
+  val emptyDirChanges = DirChanges(Seq[SmbDir](), Seq[SmbFile](), Seq[PathHandle](), Seq[SmbDir](), Seq[SmbFile]())
   val dirName = "testDir\\"
   
   "An SmbDirChangeListener should" - {
@@ -28,7 +28,7 @@ class Manual_SmbDirChangeListenerSpec extends Manual_SpecWithSmbShare with Match
           val dir2Name = "testDir2\\"
           
           withSmbDir(dirName + dir2Name, { smbDir =>
-            dirChangeListener.getChanges shouldEqual emptyDirChanges.copy(newlyCreatedDirs = Set(smbDir))
+            dirChangeListener.getChanges shouldEqual emptyDirChanges.copy(newlyCreatedDirs = Seq(smbDir))
           })
         })
       }
@@ -40,7 +40,7 @@ class Manual_SmbDirChangeListenerSpec extends Manual_SpecWithSmbShare with Match
           val fileName = "testFile"
           
           withSmbFile(dirName + fileName, charset.encode("test file"), { smbFile =>
-            dirChangeListener.getChanges shouldEqual emptyDirChanges.copy(newlyCreatedFiles = Set(smbFile))
+            dirChangeListener.getChanges shouldEqual emptyDirChanges.copy(newlyCreatedFiles = Seq(smbFile))
           })
         })
       }
