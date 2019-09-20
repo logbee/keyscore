@@ -125,7 +125,6 @@ module.exports = {
         quiet: false,
         noInfo: false,
         historyApiFallback: true,
-        watchContentBase: true,
-        open: true
+        watchContentBase: true
     }
 };
