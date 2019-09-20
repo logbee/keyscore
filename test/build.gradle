@@ -32,6 +32,7 @@ dependencies {
 
     testCompile "com.dimafeng:testcontainers-scala_2.13:0.30.0"
 
+    testRuntime project(':keyscore-commons:keyscore-commons-logging')
 }
 
 task removeContainerNetwork(type: DockerRemoveNetwork) {
