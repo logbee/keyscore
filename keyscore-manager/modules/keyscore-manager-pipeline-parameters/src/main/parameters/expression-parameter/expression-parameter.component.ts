@@ -18,7 +18,7 @@ import {ParameterRef} from "@/../modules/keyscore-manager-models/src/main/common
             </mat-form-field>
             <mat-form-field fxFlex>
                 <mat-label>Pattern</mat-label>
-                <mat-select #expressionType (selectionChange)="onChange(expression.value, expressionType.value)">
+                <mat-select #expressionType (selectionChange)="onChange(expression.value, expressionType.value)" [value]="parameter.choice">
                     <mat-option *ngFor="let choice of descriptor.choices" [value]="choice.name">
                         {{choice.displayName}}
                     </mat-option>

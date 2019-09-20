@@ -35,7 +35,7 @@ export class ExpressionParameter extends Parameter {
     constructor(
         readonly ref: ParameterRef,
         readonly value: string,
-        readonly expressionType: string
+        readonly choice: string
     ) {
         super(ref, value);
     }

@@ -126,7 +126,7 @@ storiesOf('Parameters/ExpressionParameter', module)
             ],
             providers: []
         }))
-    .add("default", () => ({
+    .add("3 choices", () => ({
         component: ExpressionParameterComponent,
         props: {
             descriptor: new ExpressionParameterDescriptor({id: "myexpression"},
@@ -139,7 +139,18 @@ storiesOf('Parameters/ExpressionParameter', module)
             parameter: new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"),
             emitter: action('Value Change')
         }
-    }));
+    })).add("one choice", () => ({
+    component: ExpressionParameterComponent,
+    props: {
+        descriptor: new ExpressionParameterDescriptor({id: "myexpression"},
+            "Field Pattern", "", "", true, [
+                new ExpressionParameterChoice("expression.regex", "RegEx", ""),
+            ])
+        ,
+        parameter: new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"),
+        emitter: action('Value Change')
+    }
+}));
 
 storiesOf('Parameters/TextParameter', module).addDecorator(
     moduleMetadata({
