@@ -19,15 +19,21 @@ class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with Para
 
   trait PersistenceFile {
 
-    val persistenceFile = watchDir.resolve("storage/persistence.json").toFile
+    val persistenceDir = watchDir.resolve("storage/").toFile
 
     val config = ConfigFactory.parseString(
       s"""
          |enabled: "true",
-         |persistence-file: "${persistenceFile.getPath}",
+         |persistence-dir: "${persistenceDir.getPath}",
          |""".stripMargin)
 
-    val filePersistenceContext = FilePersistenceContext(FilePersistenceContext.Configuration(config))
+    val filePersistenceContext = FilePersistenceContext(
+      FilePersistenceContext.Configuration(
+        config,
+        userEnabled=true,
+        "persistence.json",
+      )
+    )
   }
 
   "A FilePersistenceContext" - {
@@ -80,6 +86,17 @@ class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with Para
         loaded1 shouldBe Some(value1)
         loaded2 shouldBe Some(value2)
       }
+    }
+
+    "should write and find keys with common prefix" in new PersistenceFile {
+
+      filePersistenceContext.store("One", "1")
+      filePersistenceContext.store("OneTwo", "12")
+      filePersistenceContext.store("Two", 2)
+
+      val keys = filePersistenceContext.findKeysWithPrefix("One")
+
+      keys should contain allOf ("One", "OneTwo")
     }
 
     "should return None," - {

@@ -50,6 +50,19 @@ class FilePersistenceContext private (configuration: Configuration) extends Pers
     value.extractOpt[T]
   }
   
+
+  def findKeysWithPrefix(keyPrefix: String): List[String] = {
+    ensureJsonIsLoaded()
+
+    val values = json.filterField {
+      case (key, _) => key.startsWith(keyPrefix)
+      case _ => false
+    }
+
+    values.map(_._1)
+  }
+
+
   def remove(key: String): Unit = {
     
     ensureJsonIsLoaded()
