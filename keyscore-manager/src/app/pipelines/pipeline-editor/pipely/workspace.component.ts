@@ -35,6 +35,7 @@ import {
 } from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
 import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
 import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import { Dataset } from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 
 
 @Component({
@@ -49,10 +50,11 @@ import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/V
                         <puzzle-box *ngIf="!isInspecting; else datasetTable" class="top-shadow" [workspace]="this"
                                     [descriptors]="blockDescriptors$|async"></puzzle-box>
                         <ng-template #datasetTable>
-                            <data-table [selectedBlock]="selectedBlockForDataTable$|async"
-                                        class="top-shadow"></data-table>
+                            <data-preview [selectedBlock]="selectedBlockForDataTable$|async"
+                                          [outputDatasets]="outputDatasets"
+                                          [inputDatasets]="inputDatasets"
+                                        class="top-shadow"></data-preview>
                         </ng-template>
-
                     </div>
                 </div>
 
@@ -86,6 +88,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     @Input() saveTrigger$: Observable<void>;
     @Input() inspectTrigger$: Observable<void>;
 
+    @Input('inputDatasets')
+    private inputDatasets: Map<string, Dataset[]>;
+
+    @Input('outputDatasets')
+    private outputDatasets: Map<string, Dataset[]>;
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;

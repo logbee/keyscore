@@ -12,12 +12,13 @@ import {filter, share, take, takeUntil} from "rxjs/internal/operators";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
-import {getEditingPipeline, getFilterDescriptors} from "../index";
+import {getEditingPipeline, getFilterDescriptors, getInputDatasetMap, getOutputDatasetMap} from "../index";
 import {ExtractFromSelectedBlock} from "../actions/preview.actions";
 import {DraggableModel} from "./pipely/models/draggable.model";
 import {EditingPipelineModel} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
 import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 import {InternalPipelineConfiguration} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/InternalPipelineConfiguration";
+import { Dataset } from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 
 @Component({
     selector: "pipeline-editor",
@@ -46,6 +47,8 @@ import {InternalPipelineConfiguration} from "@/../modules/keyscore-manager-model
                               [inspectTrigger$]="runInspect$"
                               [pipeline]="(pipeline$ | async)"
                               [blockDescriptors]="blockDescriptorSource$|async"
+                              [inputDatasets]="inputDatasets$|async"
+                              [outputDatasets]="outputDatasets$|async"
                               (onUpdatePipeline)="updatePipeline($event)"
                               (onRunPipeline)="runPipeline($event)"
                               (onSelectBlock)="selectBlock($event)"
@@ -82,9 +85,12 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     private selectedBlockId: string;
     private amount: number = 10;
     private previewMode: boolean = false;
-
+    private outputDatasets$: Observable<Map<string, Dataset[]>>;
+    private inputDatasets$: Observable<Map<string, Dataset[]>>;
 
     constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
+        this.outputDatasets$ = this.store.pipe(select(getOutputDatasetMap));
+        this.inputDatasets$ = this.store.pipe(select(getInputDatasetMap));
     }
 
     inspectToggle(flag: boolean) {
@@ -159,7 +165,4 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         return draggable.blockDescriptor.nextConnection === undefined;
     }
 
-    public doSomething() {
-
-    }
 }

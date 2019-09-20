@@ -10,14 +10,14 @@ import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field
 
 export class PreviewState {
     public dummyDataset: Dataset;
-    public outputDatasetModelMap: Map<string, DatasetTableModel[]>;
-    public inputDatasetModelMap: Map<string, DatasetTableModel[]>;
+    public outputDatasetsMap: Map<string, Dataset[]>;
+    public inputDatasetsMap: Map<string, Dataset[]>;
     public selectedBlock: string;
 }
 
 export const initalPreviewState: PreviewState = {
-    outputDatasetModelMap: new Map<string, DatasetTableModel[]>(),
-    inputDatasetModelMap: new Map<string, DatasetTableModel[]>(),
+    outputDatasetsMap: new Map<string, Dataset[]>(),
+    inputDatasetsMap: new Map<string, Dataset[]>(),
     dummyDataset: {
         metaData: {labels: []},
         records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
@@ -31,50 +31,15 @@ export function PreviewReducer(state: PreviewState = initalPreviewState, action:
         case EXTRACT_FROM_SELECTED_BLOCK_SUCCESS:
             if (action.where == "after") {
                 if (action.extractedDatsets.length !== 0) {
-                    const models: DatasetTableModel[] = [];
-                    action.extractedDatsets.forEach((dataset) => {
-                        let model = createDatasetTableModel(dataset, result.dummyDataset);
-                        models.push(model)
-                    });
-                    result.outputDatasetModelMap.set(action.blockId, models);
+                    result.outputDatasetsMap.set(action.blockId, action.extractedDatsets);
                 }
             } else if (action.where == "before") {
                 if (action.extractedDatsets.length !== 0) {
-                    const models: DatasetTableModel[] = [];
-                    action.extractedDatsets.forEach((dataset) => {
-                        let model = createDatasetTableModel(dataset, result.dummyDataset);
-                        models.push(model)
-                    });
-                    result.inputDatasetModelMap.set(action.blockId, models);
+                    result.inputDatasetsMap.set(action.blockId, action.extractedDatsets);
                 }
             }
             return result;
         default:
             return result;
     }
-}
-
-function createDatasetTableModel(inputDataset: Dataset, outputDataset: Dataset): DatasetTableModel {
-    const recordModels = inputDataset.records.map(record => {
-        const fieldnames = record.fields.map(field => field.name);
-        const datsetTableRowModels = fieldnames.map(name => {
-            return createDatasetTableRowModel(findFieldByName(name, record));
-        });
-        return new DatasetTableRecordModel(datsetTableRowModels)
-    });
-
-    return new DatasetTableModel(inputDataset.metaData, outputDataset.metaData, recordModels)
-}
-
-function createDatasetTableRowModel(field: Field): DatasetTableRowModel {
-    let datamodel: DatasetTableRowModelData;
-
-    datamodel = new DatasetTableRowModelData(field.name, field.value.jsonClass, field.value, ChangeType.Unchanged);
-
-    return new DatasetTableRowModel(datamodel, datamodel);
-}
-
-//TODO: Breaks when there are two fields with the same name !
-function findFieldByName(name: string, record: Record): Field {
-    return record.fields.find(field => field.name === name);
 }

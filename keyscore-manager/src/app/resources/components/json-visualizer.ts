@@ -33,7 +33,7 @@ export class JsonVisualizer {
     @Input() private descriptor: FilterDescriptor;
     @Input()private configuration: Configuration;
 
-    constructor(private store: Store<any>) {
+    constructor() {
     }
 
     copy(which: string) {

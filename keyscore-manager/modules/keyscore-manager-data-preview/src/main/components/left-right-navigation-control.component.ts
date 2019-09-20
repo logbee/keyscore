@@ -28,6 +28,7 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 
 export class LeftToRightNavigationControl {
+
     @Input() public index: number;
     @Input() public length: number = 0;
     @Input() public label: string;

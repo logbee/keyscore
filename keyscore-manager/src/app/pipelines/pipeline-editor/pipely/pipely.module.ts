@@ -16,9 +16,9 @@ import {PuzzleCategoryComponent} from "./puzzle-box/puzzle-category.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {PipelineConfiguratorService} from "./services/pipeline-configurator.service";
 import {ConfiguratorModule} from "./configurator/configurator.module";
-import {DatatableModule} from "../../datatable/datatable.module";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 import {ParameterModule} from "@/../modules/keyscore-manager-pipeline-parameters/src/main/parameter.module";
+import {DataPreviewModule} from "@keyscore-manager-data-preview/src/main/data-preview.module";
 
 
 @NgModule({
@@ -30,7 +30,7 @@ import {ParameterModule} from "@/../modules/keyscore-manager-pipeline-parameters
         ReactiveFormsModule,
         ConfiguratorModule,
         FormsModule,
-        DatatableModule
+        DataPreviewModule
     ],
     declarations: [
         WorkspaceComponent,

@@ -1,18 +1,16 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
-import {BehaviorSubject, combineLatest, Observable} from "rxjs";
-import {select, Store} from "@ngrx/store";
-import {DatasetDataSource} from "../../data-source/dataset-data-source";
+import {BehaviorSubject, combineLatest} from "rxjs";
+import {DatasetDataSource} from "../dataset-data-source";
 import {MatPaginator, MatSort} from "@angular/material";
-import {getInputDatsetModels, getOutputDatasetModels} from "../index";
-import {DatasetTableModel} from "@/../modules/keyscore-manager-models/src/main/dataset/DatasetTableModel";
-import {Value, ValueJsonClass} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {Value, ValueJsonClass} from "@keyscore-manager-models/src/main/dataset/Value";
+import { Dataset } from "@keyscore-manager-models/src/main/dataset/Dataset";
 
 @Component({
-    selector: "data-table",
+    selector: "data-preview",
     template: `
         <!--Search Field-->
         <div fxLayout="column" fxLayoutGap="15px">
-            <div fxLayout="row"  fxFlex="70">
+            <div fxLayout="row" fxFlex="70">
                 <mat-form-field fxFlex="33">
                     <input matInput (keyup)="applyFilterPattern($event.target.value)"
                            placeholder="{{'GENERAL.SEARCH' | translate}}">
@@ -21,26 +19,27 @@ import {Value, ValueJsonClass} from "@/../modules/keyscore-manager-models/src/ma
                     </button>
                 </mat-form-field>
                 <!--Datasets-->
-                <left-right-control class="control"  fxFlex="15" [index]="datasetIndex.getValue()"
-                                                 [length]="dataSource$.getValue().getNumberOfDatsets()"
-                                                 [label]="datasetLabel"
-                                                 (counterEvent)="updateDatasetCounter($event)">
+                <left-right-control class="control" fxFlex="15" 
+                                    [index]="datasetIndex.getValue()"
+                                    [length]="dataSource$.getValue().getNumberOfDatsets()"
+                                    [label]= labelDatasets
+                                    (counterEvent)="updateDatasetCounter($event)">
                 </left-right-control>
                 <!--Records-->
-                <left-right-control  class="control" fxFlex
-                                     [index]="recordsIndex.getValue()"
-                                     [length]="dataSource$.getValue().getNumberOfRecords()"
-                                     [label]="recordLabel"
-                                     (counterEvent)="updateRecordCounter($event)">
+                <left-right-control class="control" fxFlex
+                                    [index]="recordsIndex.getValue()"
+                                    [length]="dataSource$.getValue().getNumberOfRecords()"
+                                    [label]= labelRecords
+                                    (counterEvent)="updateRecordCounter($event)">
                 </left-right-control>
 
-                <button class="switch" mat-raised-button   color="primary"
+                <button class="switch" mat-raised-button color="primary"
                         [matTooltip]="where === 'after' ? 'Datasets after the transformation.' : 'Datasets before the transformation.'"
                         (click)="switch()">
-                        {{ where === "before" ? ('DATATABLE.INSWITCH' | translate) : ('DATATABLE.OUTSWITCH' | translate)}}
+                    {{ where === "before" ? ('DATATABLE.INSWITCH' | translate) : ('DATATABLE.OUTSWITCH' | translate)}}
                 </button>
             </div>
-            
+
 
             <table fxFlex="75" mat-table matSort [dataSource]="dataSource$.getValue()" class="table-position">
                 <ng-container matColumnDef="fields">
@@ -74,62 +73,62 @@ import {Value, ValueJsonClass} from "@/../modules/keyscore-manager-models/src/ma
             </table>
         </div>
     `,
-    styleUrls:['data-preview-table.scss']
+    styleUrls:['./data-preview.component.scss']
 })
 
-export class DatatableComponent implements OnInit {
-    private dataSource$: BehaviorSubject<DatasetDataSource> = new BehaviorSubject<DatasetDataSource>(new DatasetDataSource(new Map(), 0, 0, ""));
-    private selectedModels$: BehaviorSubject<Map<string, DatasetTableModel[]>> = new BehaviorSubject<Map<string, DatasetTableModel[]>>(undefined);
+export class DataPreviewComponent implements OnInit {
 
-    private outputDatasetTableModels$: Observable<Map<string, DatasetTableModel[]> >= this.store.pipe(select(getOutputDatasetModels));
-    private outputDatasetTableModels: Map<string, DatasetTableModel[]>;
-
-    private inputDatasetTableModels$: Observable<Map<string, DatasetTableModel[]>> = this.store.pipe(select(getInputDatsetModels));
-    private inputDatasetTableModels: Map<string, DatasetTableModel[]>;
-
-    private datasetIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-
-    private recordsIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-    private displayedColumns: string[] = ['jsonClass', 'fields', 'outValues'];
-    private currentDataset: DatasetTableModel;
-
-    private where: string = "after";
-    private datasetLabel: string = "Datasets";
-    private recordLabel: string = "Records";
-
+    //Currently selected Block's uuid
     @Input('selectedBlock') set selectedBlock(selectedBlock: string) {
         this.selectedBlock$.next(selectedBlock);
     };
+
+    //BehaviourSubject for selectedBlock's uuid
     private selectedBlock$ = new BehaviorSubject<string>("");
 
+
+    @Input('inputDatasets') set inputTableModels(value: Map<string, Dataset[]>) {
+        this.selectedModels$.next(value);
+        this.inputDatasets = value;
+        // console.log("InputDatasets input:" + JSON.stringify(this.inputDatasets));
+        // console.log("OutDatasets output:" + JSON.stringify(this.outputDatasets));
+    }
+
+    private inputDatasets: Map<string, Dataset[]>;
+
+    @Input('outputDatasets')
+    private outputDatasets: Map<string, Dataset[]>;
+
+    // Behaviour Subject for selected TableModels; Input for creating the datasource
+    private selectedModels$: BehaviorSubject<Map<string, Dataset[]>> = new BehaviorSubject<Map<string, Dataset[]>>(undefined);
+    // datasetIndex indicates which Dataset to display
+    private datasetIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+    // datasetIndex indicates which Record to display
+    private recordsIndex: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+    // specifying the visible columns
+    private displayedColumns: string[] = ['jsonClass', 'fields', 'outValues'];
+    // indicating if in or outputdatasets are required default value is after
+    private where: string = "after";
+    //Labels
+    private labelDatasets = "Datasets";
+    private labelRecords = "Records";
+
+    //Angular Material DataTable
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
-
-    constructor(private store: Store<any>) {
-
-    }
+    //Initializing empty Datasource
+    private dataSource$: BehaviorSubject<DatasetDataSource> = new BehaviorSubject<DatasetDataSource>(new DatasetDataSource(new Map(), 0, 0, "", ""));
 
     ngOnInit() {
-        this.outputDatasetTableModels$.subscribe(models => {
-            this.outputDatasetTableModels = models;
-            this.currentDataset = this.outputDatasetTableModels[this.datasetIndex.getValue()];
-            this.selectedModels$.next(this.outputDatasetTableModels);
-            console.log("selcetedModels changed to output")
-        });
+        this.selectedModels$.next(this.outputDatasets);
 
-        this.inputDatasetTableModels$.subscribe(models => {
-            this.inputDatasetTableModels = models;
-        });
-
-        combineLatest(this.selectedModels$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable(), this.selectedBlock$).subscribe(([datasetTableModels, index, recordsIndex, selectedBlock]) => {
-            this.dataSource$.next(new DatasetDataSource(datasetTableModels, index, recordsIndex, selectedBlock));
+        combineLatest(this.selectedModels$, this.datasetIndex.asObservable(), this.recordsIndex.asObservable(), this.selectedBlock$).subscribe(([datasets, index, recordsIndex, selectedBlock]) => {
+            this.dataSource$.next(new DatasetDataSource(datasets, index, recordsIndex, selectedBlock, this.where));
             this.dataSource$.getValue().paginator = this.paginator;
             this.dataSource$.getValue().sort = this.sort;
         });
     }
-
-
 
     applyFilter(filterValue: string) {
         this.dataSource$.getValue().filter = filterValue;
@@ -148,7 +147,7 @@ export class DatatableComponent implements OnInit {
 
     private accessFieldValues(valueObject: Value): any {
         if (!valueObject) {
-            return "No extractedDatsets yet!"
+            return "No values to access!"
         } else {
             switch (valueObject.jsonClass) {
                 case ValueJsonClass.BooleanValue:
@@ -174,17 +173,15 @@ export class DatatableComponent implements OnInit {
             this.dataSource$.getValue().paginator.firstPage()
         }
     }
+
+    // TODO: Redo
     switch() {
         if (this.where === "before") {
-            this.selectedModels$.next(this.outputDatasetTableModels);
-            console.log("selcetedModels changed to input");
+            this.selectedModels$.next(this.outputDatasets);
             this.where = "after";
         } else if (this.where === "after") {
-            this.selectedModels$.next(this.inputDatasetTableModels);
-            console.log("selcetedModels changed to output by switch method");
+            this.selectedModels$.next(this.inputDatasets);
             this.where = "before";
         }
     }
-
-
 }

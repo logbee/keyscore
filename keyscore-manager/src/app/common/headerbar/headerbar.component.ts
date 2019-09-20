@@ -35,10 +35,10 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
                                 (click)="add()" matTooltip="{{'HEADER_BAR.ADD' | translate}}" matTooltipPosition="below">
                             <mat-icon>add_circle</mat-icon>
                         </button>
-                        <!--<button class="mat-white-stroked-button" disabled="true" mat-stroked-button *ngIf="this.showInspect" (click)="triggeredOnInspect()"
+                        <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showInspect" (click)="triggeredOnInspect()"
                                 matTooltip="{{'HEADER_BAR.PREVIEW' | translate}}" matTooltipPosition="below">
                             <mat-icon>data_usage</mat-icon>
-                        </button>--> 
+                        </button> 
                     </div>
                 </div>
                 <mat-progress-bar class="progress-bar-header" *ngIf="isLoading" mode="indeterminate"

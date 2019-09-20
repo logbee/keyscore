@@ -5,7 +5,7 @@ import {PreviewState} from "./reducers/preview.reducer";
 import {createFeatureSelector, createSelector, Selector} from "@ngrx/store";
 import {PipelinesEffects} from "./effects/pipelines.effects";
 import {PreviewEffects} from "./effects/preview.effects";
-import {DatasetTableModel} from "@/../modules/keyscore-manager-models/src/main/dataset/DatasetTableModel";
+import { Dataset } from "@keyscore-manager-models/src/main/dataset/Dataset";
 
 export const effects = [
     PipelinesEffects,
@@ -33,8 +33,8 @@ export const selectPipelineState = createSelector(
 );
 
 // PreviewSelectors
-export const getOutputDatasetModels: Selector<PreviewState, Map<string, DatasetTableModel[]>> = createSelector(selectPreviewState, (state: PreviewState) => state.outputDatasetModelMap);
-export const getInputDatsetModels: Selector<PreviewState, Map<string, DatasetTableModel[]>> = createSelector(selectPreviewState, (state: PreviewState) => state.inputDatasetModelMap);
+export const getOutputDatasetMap: Selector<PreviewState, Map<string, Dataset[]>> = createSelector(selectPreviewState, (state: PreviewState) => state.outputDatasetsMap);
+export const getInputDatasetMap: Selector<PreviewState, Map<string, Dataset[]>> = createSelector(selectPreviewState, (state: PreviewState) => state.inputDatasetsMap);
 export const getSelectedBlock: Selector<PreviewState, string> = createSelector(selectPreviewState, (state: PreviewState) => state.selectedBlock);
 
 

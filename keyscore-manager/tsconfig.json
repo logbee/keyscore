@@ -19,6 +19,9 @@
       ],
       "@keyscore-manager-rest-api/*": [
         "../modules/keyscore-manager-rest-api/*"
+      ],
+      "@keyscore-manager-data-preview/*": [
+        "../modules/keyscore-manager-data-preview/*"
       ]
     },
     "target": "es2017",
