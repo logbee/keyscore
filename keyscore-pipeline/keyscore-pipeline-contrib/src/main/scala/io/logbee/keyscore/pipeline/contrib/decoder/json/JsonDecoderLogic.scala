@@ -81,23 +81,29 @@ class JsonDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
         val sourceField = record.fields.find(sourceFieldName == _.name)
 
         if (sourceField.isDefined && sourceField.get.isTextField) {
-          result ++= (parse(sourceField.get.toTextField.value) match {
-            case obj @ JObject(_) => List(Record(JsonDecoderUtil.extract(obj, List.empty, List.empty)))
-            case JArray(arr) => arr.map(obj => Record(JsonDecoderUtil.extract(obj, List.empty, List.empty)))
-            case _ => List.empty
-          })
-
-          if (removeSourceField) {
-
-            val remainingFields = record.fields.filter(sourceFieldName != _.name )
-
-            if (remainingFields.nonEmpty) {
-
-              result += Record(remainingFields)
+          try {
+            result ++= (parse(sourceField.get.toTextField.value) match {
+              case obj @ JObject(_) => List(Record(JsonDecoderUtil.extract(obj, List.empty, List.empty)))
+              case JArray(arr) => arr.map(obj => Record(JsonDecoderUtil.extract(obj, List.empty, List.empty)))
+              case _ => List.empty
+            })
+  
+            if (removeSourceField) {
+  
+              val remainingFields = record.fields.filter(sourceFieldName != _.name )
+  
+              if (remainingFields.nonEmpty) {
+  
+                result += Record(remainingFields)
+              }
+            }
+            else {
+              result += record
             }
           }
-          else {
-            result += record
+          catch {
+            case ex: Throwable =>
+              log.error(ex, "Failed to decode.")
           }
         }
 
