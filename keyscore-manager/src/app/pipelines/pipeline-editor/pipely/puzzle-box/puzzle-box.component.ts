@@ -14,7 +14,7 @@ import * as _ from 'lodash';
                 <mat-form-field>
                     <input #searchInput matInput placeholder="search" [formControl]="searchFormControl"/>
                     <button mat-button *ngIf="searchInput.value" matSuffix mat-icon-button aria-label="Clear"
-                            (click)="searchInput.value=''">
+                            (click)="searchFormControl.setValue('')">
                         <mat-icon>close</mat-icon>
                     </button>
                     <button mat-button mat-icon-button matPrefix disabled>
