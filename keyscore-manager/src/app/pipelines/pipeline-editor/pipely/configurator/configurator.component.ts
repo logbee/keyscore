@@ -17,45 +17,45 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
     selector: "configurator",
     template: `
         <div fxFill fxLayout="column" class="configurator-wrapper mat-elevation-z8">
-                <div *ngIf="!(config$|async).conf" fxFlex>
-                    <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                        <form [formGroup]="pipelineForm">
-                            <mat-form-field>
-                                <input #pipelineName matInput type="text" placeholder="Pipeline Name"
-                                       formControlName="pipeline.name"
-                                       id="pipeline.name">
-                                <mat-label>{{'CONFIGURATOR.PIPELINE_NAME' | translate}}</mat-label>
+            <div *ngIf="!(config$|async).conf" fxFlex>
+                <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
+                    <form [formGroup]="pipelineForm">
+                        <mat-form-field>
+                            <input #pipelineName matInput type="text" placeholder="Pipeline Name"
+                                   formControlName="pipeline.name"
+                                   id="pipeline.name">
+                            <mat-label>{{'CONFIGURATOR.PIPELINE_NAME' | translate}}</mat-label>
 
-                            </mat-form-field>
+                        </mat-form-field>
 
-                            <mat-form-field>
+                        <mat-form-field>
                                 <textarea #pipelineDescription matInput type="text" placeholder="Pipeline Description"
                                           formControlName="pipeline.description"
                                           id="pipeline.description"></textarea>
-                                <mat-label>{{'CONFIGURATOR.PIPELINE_DESCRIPTION' | translate}}</mat-label>
-                                
-                            </mat-form-field>
-                        </form>
-                    </div>
+                            <mat-label>{{'CONFIGURATOR.PIPELINE_DESCRIPTION' | translate}}</mat-label>
+
+                        </mat-form-field>
+                    </form>
                 </div>
-                <div *ngIf="(config$|async) as config" fxFlex>
-                    <ng-container *ngIf="config.conf">
-                        <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
-                            <div>
-                                <h3 style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
-                                <p style="margin-bottom: 0; font-family: monospace;font-size: small">
-                                    {{config?.uuid}}</p>
-                            </div>
-                            <p>{{config?.descriptor?.description}}</p>
-                            <mat-divider></mat-divider>
-                            <div class="configurator-body">
-                                <parameter-form [parameters]="parameterMap$|async"
-                                                [autoCompleteDataList]="autoCompleteOptions"
-                                                (onValueChange)="saveConfiguration($event)"></parameter-form>
-                            </div>
+            </div>
+            <div *ngIf="(config$|async) as config" fxFlex>
+                <ng-container *ngIf="config.conf">
+                    <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
+                        <div>
+                            <h3 style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
+                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">
+                                {{config?.uuid}}</p>
                         </div>
-                    </ng-container>
-                </div>
+                        <p>{{config?.descriptor?.description}}</p>
+                        <mat-divider></mat-divider>
+                        <div class="configurator-body">
+                            <parameter-form [config]="parameterMap$|async"
+                                            [autoCompleteDataList]="autoCompleteOptions"
+                                            (onValueChange)="saveConfiguration($event)"></parameter-form>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
         </div>
     `,
     styleUrls: ['./configurator.component.scss']
@@ -90,12 +90,12 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
 
-    private config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor,uuid:string }>(undefined);
+    private config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor, uuid: string }>(undefined);
     private _config: Configuration;
 
     form: FormGroup;
     pipelineForm: FormGroup;
-    parameterMap$: BehaviorSubject<ParameterMap> = new BehaviorSubject<ParameterMap>(null);
+    parameterMap$: BehaviorSubject<{ id: string, parameters: ParameterMap }> = new BehaviorSubject(null);
 
     unsubscribe$: Subject<void> = new Subject();
 
@@ -120,7 +120,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     }
 
-    private createParameterMap(config: { conf: Configuration, descriptor: BlockDescriptor }) {
+    private createParameterMap(config: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) {
         if (!config.conf) {
             this.parameterMap$.next(null);
             return;
@@ -130,7 +130,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         let parameterMap: ParameterMap = {parameters: {}};
         parameterTuples.forEach(([parameter, descriptor]) =>
             parameterMap.parameters[descriptor.ref.id] = [parameter, descriptor]);
-        this.parameterMap$.next(parameterMap);
+
+        this.parameterMap$.next({id: config.uuid, parameters: parameterMap});
     }
 
 
@@ -140,7 +141,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         if (paramIndex > -1) {
             configuration.parameterSet.parameters.splice(paramIndex, 1, parameter);
             this.onSave.emit(configuration);
-            console.log("TSCHAKA:" ,configuration)
+            console.log("TSCHAKA:", configuration)
         }
 
     }

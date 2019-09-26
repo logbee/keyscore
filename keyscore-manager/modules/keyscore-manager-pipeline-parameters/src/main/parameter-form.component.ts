@@ -1,7 +1,7 @@
 import {
+    ChangeDetectionStrategy, ChangeDetectorRef,
     Component,
     EventEmitter,
-    HostBinding,
     Input,
     OnDestroy,
     OnInit,
@@ -10,8 +10,12 @@ import {
     ViewContainerRef
 } from "@angular/core";
 import {ParameterComponentFactoryService} from "./service/parameter-component-factory.service";
-import {Parameter, ParameterMap} from "@keyscore-manager-models/src/main/parameters/parameter.model";
-import {of, Subject, Subscription} from "rxjs";
+import {
+    Parameter,
+    ParameterDescriptor,
+    ParameterMap
+} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
 @Component({
@@ -19,20 +23,37 @@ import {takeUntil} from "rxjs/operators";
     template: `
         <ng-template #formContainer></ng-template>
     `,
-    styleUrls:['./parameter-form.component.scss']
+    styleUrls: ['./parameter-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ParameterFormComponent implements OnInit, OnDestroy {
 
-    @Input() set parameters(val: ParameterMap) {
-        this._parameters = val;
-        this.createParameterComponents();
+    @Input() set config(conf: { id: string, parameters: ParameterMap }) {
+        if (!this._conf || conf.id != this._conf.id) {
+            this.createParameterComponents(conf.parameters);
+        } else if (this._conf) {
+            let parametersToAdd: ParameterMap = {parameters: {}};
+            const _parametersKeys = Array.from(Object.keys(this._conf.parameters.parameters));
+            Object.entries(conf.parameters.parameters).forEach(([ref, [parameter, descriptor]]) => {
+                if (!_parametersKeys.includes(ref)) {
+                    parametersToAdd.parameters[ref] = [parameter, descriptor];
+                }
+            });
+            this.createParameterComponents(
+                parametersToAdd,
+                Object.keys(parametersToAdd.parameters).length === Object.keys(conf.parameters.parameters).length
+            );
+        }
+        this._conf = conf;
+        this.cd.markForCheck();
     };
 
-    get parameters(): ParameterMap {
-        return this._parameters;
+    get config(): { id: string, parameters: ParameterMap } {
+        return this._conf;
     }
 
-    private _parameters: ParameterMap;
+    private _conf: { id: string, parameters: ParameterMap };
+
     @Input() autoCompleteDataList: string[] = [];
 
     @Output() onValueChange: EventEmitter<Parameter> = new EventEmitter();
@@ -41,28 +62,34 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
 
     private unsubscribe$: Subject<void> = new Subject<void>();
 
-    constructor(private parameterComponentFactory: ParameterComponentFactoryService) {
+    constructor(private parameterComponentFactory: ParameterComponentFactoryService, private cd: ChangeDetectorRef) {
     }
 
     ngOnInit() {
 
     }
 
-    createParameterComponents() {
-        this.unsubscribe$.next();
-        this.formContainer.clear();
-        if(this.parameters && this.parameters.parameters) {
-            Object.entries(this.parameters.parameters).forEach(([ref, [parameter, descriptor]]) => {
-                const componentRef = this.parameterComponentFactory.createParameterComponent(descriptor.jsonClass, this.formContainer);
-                componentRef.instance.parameter = parameter;
-                componentRef.instance.descriptor = descriptor;
-                componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
+    createParameterComponents(parameters: ParameterMap, clearContainer: boolean = true) {
 
-                componentRef.instance.emitter.pipe(takeUntil(this.unsubscribe$)).subscribe(parameter =>
-                    this.onValueChange.emit(parameter));
-
+        if (clearContainer) {
+            this.unsubscribe$.next();
+            this.formContainer.clear();
+        }
+        if (parameters && parameters.parameters) {
+            Object.entries(parameters.parameters).forEach(([ref, [parameter, descriptor]]) => {
+                this.createParameterComponent(parameter, descriptor);
             })
         }
+    }
+
+    createParameterComponent(parameter: Parameter, descriptor: ParameterDescriptor) {
+        const componentRef = this.parameterComponentFactory.createParameterComponent(descriptor.jsonClass, this.formContainer);
+        componentRef.instance.parameter = parameter;
+        componentRef.instance.descriptor = descriptor;
+        componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
+
+        componentRef.instance.emitter.pipe(takeUntil(this.unsubscribe$)).subscribe(parameter =>
+            this.onValueChange.emit(parameter));
     }
 
     ngOnDestroy() {

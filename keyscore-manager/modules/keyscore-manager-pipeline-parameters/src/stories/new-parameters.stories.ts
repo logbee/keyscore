@@ -117,9 +117,9 @@ storiesOf('Parameters/ExpressionParameter', module)
                 BrowserAnimationsModule,
                 I18nModule,
                 TranslateModule.forRoot({
-                    loader:{
-                        provide:TranslateLoader,
-                        useValue:staticTranslateLoader
+                    loader: {
+                        provide: TranslateLoader,
+                        useValue: staticTranslateLoader
                     }
                 })
                 // ExpressionParameterModule
@@ -161,9 +161,9 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
             BrowserAnimationsModule,
             I18nModule,
             TranslateModule.forRoot({
-                loader:{
-                    provide:TranslateLoader,
-                    useValue:staticTranslateLoader
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
                 }
             })
         ],
@@ -216,9 +216,9 @@ storiesOf('Parameters/NumberParameter', module).addDecorator(
             SharedControlsModule,
             I18nModule,
             TranslateModule.forRoot({
-                loader:{
-                    provide:TranslateLoader,
-                    useValue:staticTranslateLoader
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
                 }
             })
         ],
@@ -257,9 +257,9 @@ storiesOf('Parameters/DecimalParameter', module).addDecorator(
             SharedControlsModule,
             I18nModule,
             TranslateModule.forRoot({
-                loader:{
-                    provide:TranslateLoader,
-                    useValue:staticTranslateLoader
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
                 }
             })
         ],
@@ -317,9 +317,9 @@ storiesOf('Parameters/FieldNameParameter', module).addDecorator(
             SharedControlsModule,
             I18nModule,
             TranslateModule.forRoot({
-                loader:{
-                    provide:TranslateLoader,
-                    useValue:staticTranslateLoader
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
                 }
             })
         ],
@@ -368,9 +368,9 @@ storiesOf('Parameters/FieldNamePatternParameter', module)
                 SharedControlsModule,
                 I18nModule,
                 TranslateModule.forRoot({
-                    loader:{
-                        provide:TranslateLoader,
-                        useValue:staticTranslateLoader
+                    loader: {
+                        provide: TranslateLoader,
+                        useValue: staticTranslateLoader
                     }
                 })
             ],
@@ -404,9 +404,9 @@ storiesOf('Parameters/FieldParameter', module)
                 SharedControlsModule,
                 I18nModule,
                 TranslateModule.forRoot({
-                    loader:{
-                        provide:TranslateLoader,
-                        useValue:staticTranslateLoader
+                    loader: {
+                        provide: TranslateLoader,
+                        useValue: staticTranslateLoader
                     }
                 })
             ],
@@ -484,9 +484,9 @@ storiesOf('Parameters/ListParameter', module).addDecorator(
             ListParameterModule,
             I18nModule,
             TranslateModule.forRoot({
-                loader:{
-                    provide:TranslateLoader,
-                    useValue:staticTranslateLoader
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
                 }
             })
         ],
@@ -539,9 +539,9 @@ storiesOf('Parameters/ChoiceParameter', module)
                 ReactiveFormsModule,
                 I18nModule,
                 TranslateModule.forRoot({
-                    loader:{
-                        provide:TranslateLoader,
-                        useValue:staticTranslateLoader
+                    loader: {
+                        provide: TranslateLoader,
+                        useValue: staticTranslateLoader
                     }
                 })
             ],
@@ -595,9 +595,9 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             ListParameterModule,
             I18nModule,
             TranslateModule.forRoot({
-                loader:{
-                    provide:TranslateLoader,
-                    useValue:staticTranslateLoader
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
                 }
             })
         ],
@@ -608,41 +608,44 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
     })).add("default", () => ({
     component: ParameterFormComponent,
     props: {
-        parameters: {
-            refs: ['expressionParameter', 'textParameter', 'numberParameter', 'booleanParameter', 'fieldParameter', 'textListParameter'],
+        config: {
+            id: 'testID',
             parameters: {
-                'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
-                    new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
-                        "", "", true, [
-                            new ExpressionParameterChoice("expression.regex", "RegEx", ""),
-                            new ExpressionParameterChoice("expression.grok", "Grok", ""),
-                            new ExpressionParameterChoice("expression.glob", "Glob", "")
-                        ])],
-                'textParameter': [
-                    new TextParameter({id: 'textParameter'}, "initialValue"),
-                    new TextParameterDescriptor({id: 'textParameter'}, "Text Parameter",
-                        "", "", null, true)],
-                'numberParameter': [new NumberParameter({id: "numberParameter"}, 0),
-                    new NumberParameterDescriptor({id: "numberParameter"},
-                        "Number Parameter", "My number parameter",
-                        0,
-                        {start: 0, end: 10, step: 2}, false)],
-                'booleanParameter': [new BooleanParameter({id: "booleanParameter"}, false),
-                    new BooleanParameterDescriptor({id: "booleanParameter"}, "Boolean Parameter",
-                        "My boolean Parameter", false, true)],
-                'fieldParameter': [new FieldParameter({id: "fieldParameter"}, null),
-                    new FieldParameterDescriptor({id: "fieldParameter"},
-                        "Field", "", "", FieldNameHint.AnyField, null,
-                        FieldValueType.Timestamp, true)],
-                'textListParameter': [
-                    new TextListParameter({id: 'textListParameter'}, ['init1', 'init2']),
-                    new TextListParameterDescriptor({id: 'textListParameter'}, 'Text List',
-                        'A text list', new TextParameterDescriptor({id: 'textParameterInList'},
-                            'message', '', 'default', null, false), 2, 6)
-                ]
+                refs: ['expressionParameter', 'textParameter', 'numberParameter', 'booleanParameter', 'fieldParameter', 'textListParameter'],
+                parameters: {
+                    'expressionParameter': [new ExpressionParameter({id: 'textParameter'}, 'initialValue', 'regex'),
+                        new ExpressionParameterDescriptor({id: "expressionParameter"}, "Field Pattern",
+                            "", "", true, [
+                                new ExpressionParameterChoice("expression.regex", "RegEx", ""),
+                                new ExpressionParameterChoice("expression.grok", "Grok", ""),
+                                new ExpressionParameterChoice("expression.glob", "Glob", "")
+                            ])],
+                    'textParameter': [
+                        new TextParameter({id: 'textParameter'}, "initialValue"),
+                        new TextParameterDescriptor({id: 'textParameter'}, "Text Parameter",
+                            "", "", null, true)],
+                    'numberParameter': [new NumberParameter({id: "numberParameter"}, 0),
+                        new NumberParameterDescriptor({id: "numberParameter"},
+                            "Number Parameter", "My number parameter",
+                            0,
+                            {start: 0, end: 10, step: 2}, false)],
+                    'booleanParameter': [new BooleanParameter({id: "booleanParameter"}, false),
+                        new BooleanParameterDescriptor({id: "booleanParameter"}, "Boolean Parameter",
+                            "My boolean Parameter", false, true)],
+                    'fieldParameter': [new FieldParameter({id: "fieldParameter"}, null),
+                        new FieldParameterDescriptor({id: "fieldParameter"},
+                            "Field", "", "", FieldNameHint.AnyField, null,
+                            FieldValueType.Timestamp, true)],
+                    'textListParameter': [
+                        new TextListParameter({id: 'textListParameter'}, ['init1', 'init2']),
+                        new TextListParameterDescriptor({id: 'textListParameter'}, 'Text List',
+                            'A text list', new TextParameterDescriptor({id: 'textParameterInList'},
+                                'message', '', 'default', null, false), 2, 6)
+                    ]
+                }
             },
-            autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time']
         },
+        autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time'],
         onValueChange: action('Value changed')
 
     }

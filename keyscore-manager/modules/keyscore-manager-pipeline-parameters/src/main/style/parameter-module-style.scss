@@ -15,7 +15,7 @@
   line-height: 1.2em;
   color: $warn;
   font-size: 75%;
-  //animation: slide-in 0.4s;
+  animation: slide-in 0.4s;
 }
 
 .parameter-list-warn {
@@ -27,12 +27,14 @@
   padding-bottom: 0px;
   margin-left: 24px;
   transition: margin-top 0.2s ease-in;
+  animation: slide-in 0.7s;
 }
 
 .parameter-warn-with-hint {
   margin-top: -1px;
   color: $warn;
   font-size: 75%;
+  animation: slide-in 0.4s;
 
 }
 
@@ -60,13 +62,16 @@
 }
 
 
+/*.mat-form-field-infix {
+  width: 45% !important;
+}*/
+
 .mat-chip {
   word-break: break-all;
 }
 
 .field-directive-sequence {
   max-width: 100%;
-  //border: solid 1px #ccc;
   background: $pipeline-editor-configurator-background;
   border-radius: 4px;
   overflow: hidden;
@@ -74,6 +79,7 @@
 
 .field-directives-box {
   border: solid 1px #ccc;
+  //border-bottom: solid 1px #ccc;
   color: rgba(0, 0, 0, 0.87);
   box-sizing: border-box;
   cursor: move;
