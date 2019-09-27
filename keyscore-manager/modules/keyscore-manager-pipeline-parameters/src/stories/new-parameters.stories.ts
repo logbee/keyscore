@@ -92,6 +92,11 @@ import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src
 import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {of} from "rxjs";
 import {NgModule} from "@angular/core";
+import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.component";
+import {
+    ParameterGroup,
+    ParameterGroupDescriptor
+} from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
@@ -575,6 +580,41 @@ storiesOf('Parameters/ChoiceParameter', module)
             ])
         ,
         parameter: new ChoiceParameter({id: "choiceParameter"}, ""),
+        emitter: action('Value Change')
+    }
+}));
+
+storiesOf('Parameters/ParameterGroup', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule,
+            TextParameterModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
+                }
+            })
+        ],
+        providers: [
+            ParameterComponentFactoryService,
+            StringValidatorService
+        ]
+    })).add('default', () => ({
+    component: ParameterGroupComponent,
+    props: {
+        descriptor: new ParameterGroupDescriptor({id: 'testGroup'}, 'Group', '', null, [
+            new TextParameterDescriptor({id: 'groupText'}, 'GroupText', '', '', null, true),
+            new TextParameterDescriptor({id: 'groupText2'}, 'GroupText2', '', '', null, false),
+        ]),
+        parameter: new ParameterGroup({id: 'testGroup'}, [
+            new TextParameter({id: 'groupText'}, ''),
+            new TextParameter({id: 'groupText2'}, 'init text'),
+        ]),
         emitter: action('Value Change')
     }
 }));
