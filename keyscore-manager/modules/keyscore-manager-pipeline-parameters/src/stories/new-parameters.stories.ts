@@ -40,6 +40,10 @@ import {
     TextParameter
 } from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {
+    PasswordParameterDescriptor,
+    PasswordParameter
+} from "@/../modules/keyscore-manager-models/src/main/parameters/password-parameter.model";
+import {
     NumberParameterDescriptor,
     NumberParameter
 } from "@/../modules/keyscore-manager-models/src/main/parameters/number-parameter.model";
@@ -97,6 +101,8 @@ import {
     ParameterGroup,
     ParameterGroupDescriptor
 } from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
+import {PasswordParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/password-parameter/password-parameter.component";
+import {MatButtonToggleModule} from "@angular/material/button-toggle";
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
@@ -210,6 +216,34 @@ storiesOf('Parameters/TextParameter', module).addDecorator(
         emitter: action('Value Change')
     }
 }));
+
+storiesOf('Parameters/PasswordParameter', module).addDecorator(
+    moduleMetadata({
+        declarations: [],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
+                }
+            })
+        ],
+        providers: [StringValidatorService]
+    }))
+    .add("default", () => ({
+        component: PasswordParameterComponent,
+        props: {
+            descriptor: new PasswordParameterDescriptor({id: "mypassword"},
+                "Password", "", "", null, 8, 12, true)
+            ,
+            parameter: new PasswordParameter({id: "mypassword"}, "changeme",),
+            emitter: action('Value Change')
+        }
+    }));
 
 storiesOf('Parameters/NumberParameter', module).addDecorator(
     moduleMetadata({

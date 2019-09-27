@@ -1,7 +1,10 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
+import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {ParameterComponent} from "../ParameterComponent";
 import {StringValidatorService} from "../../service/string-validator.service";
-import {TextParameterDescriptor, TextParameter} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
+import {
+    TextParameter,
+    TextParameterDescriptor
+} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
 
 @Component({
     selector: `parameter-text`,
@@ -12,7 +15,6 @@ import {TextParameterDescriptor, TextParameter} from "@/../modules/keyscore-mana
                    (keyup.enter)="onEnter($event)"
                    [value]="parameter.value">
             <mat-label *ngIf="showLabel">{{label || descriptor.displayName}}</mat-label>
-
             <button mat-button *ngIf="textInput.value" matSuffix mat-icon-button aria-label="Clear"
                     (click)="clear()">
                 <mat-icon>close</mat-icon>
@@ -30,18 +32,17 @@ import {TextParameterDescriptor, TextParameter} from "@/../modules/keyscore-mana
         </p>
     `,
     styleUrls:['../../style/parameter-module-style.scss']
-
-
 })
 export class TextParameterComponent extends ParameterComponent<TextParameterDescriptor, TextParameter> {
+
     @Input() showLabel: boolean = true;
+
     @Input()
     get value():TextParameter{
         return new TextParameter(this.descriptor.ref,this.textInputRef.nativeElement.value);
     }
 
     @ViewChild('textInput') textInputRef:ElementRef;
-
 
     constructor(private stringValidator: StringValidatorService) {
         super();
@@ -60,7 +61,7 @@ export class TextParameterComponent extends ParameterComponent<TextParameterDesc
         this.emit(this.value);
     }
 
-    private onEnter(event:Event): void{
+    private onEnter(event:Event): void {
         this.keyUpEnterEvent.emit(event);
     }
 
@@ -70,5 +71,4 @@ export class TextParameterComponent extends ParameterComponent<TextParameterDesc
         }
         return this.stringValidator.validate(value, this.descriptor.validator);
     }
-
 }
