@@ -131,7 +131,7 @@ storiesOf('Parameters/ExpressionParameter', module)
             ],
             providers: []
         }))
-    .add("3 choices", () => ({
+    .add("with three expression types", () => ({
         component: ExpressionParameterComponent,
         props: {
             descriptor: new ExpressionParameterDescriptor({id: "myexpression"},
@@ -144,7 +144,7 @@ storiesOf('Parameters/ExpressionParameter', module)
             parameter: new ExpressionParameter({id: "myexpression"}, "Hello World", "regex"),
             emitter: action('Value Change')
         }
-    })).add("one choice", () => ({
+    })).add("with one expression type", () => ({
     component: ExpressionParameterComponent,
     props: {
         descriptor: new ExpressionParameterDescriptor({id: "myexpression"},

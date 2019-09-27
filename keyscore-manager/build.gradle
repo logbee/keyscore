@@ -66,10 +66,9 @@ task serve(type: NodeTask, dependsOn: npmInstall) {
 }
 
 task storybook(type: NpmTask) {
+    group = 'Storybook'
     args = ['run', 'storybook']
 }
-
-task onceUponATimeInKeyscore(dependsOn: storybook) {}
 
 task createDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
