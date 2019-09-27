@@ -7,7 +7,7 @@ keyscore-extensions:    io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLog
                         io.logbee.keyscore.pipeline.contrib.LoggerLogic,
                         io.logbee.keyscore.pipeline.contrib.MetricSourceLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.AddFieldsLogic,
-                        io.logbee.keyscore.pipeline.contrib.filter.GrokLogic,
+                        io.logbee.keyscore.pipeline.contrib.filter.PatternExtractorLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.RemoveFieldsLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.RetainFieldsLogic,
                         io.logbee.keyscore.pipeline.contrib.filter.DropOversizedRecordLogic,

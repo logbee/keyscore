@@ -11,19 +11,19 @@ import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.commons.CommonCategories
 import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATION
-import io.logbee.keyscore.pipeline.contrib.filter.GrokLogic.fieldNamesParameter
+import io.logbee.keyscore.pipeline.contrib.filter.PatternExtractorLogic.fieldNamesParameter
 
 import scala.Int.MaxValue
 import scala.collection.mutable
 import scala.util.matching.Regex
 
-object GrokLogic extends Described {
+object PatternExtractorLogic extends Described {
 
   val fieldNamesParameter = FieldNameListParameterDescriptor(
     ref = "grok.fieldNames",
     info = ParameterInfo(
-      displayName = TextRef("grok.fieldNames.displayName"),
-      description = TextRef("grok.fieldNames.description")
+      displayName = TextRef("pattern-extractor.fieldNames.displayName"),
+      description = TextRef("pattern-extractor.fieldNames.description")
     ),
     descriptor = FieldNameParameterDescriptor(
       hint = PresentField
@@ -35,14 +35,14 @@ object GrokLogic extends Described {
   val patternParameter = ExpressionParameterDescriptor(
     ref = "grok.pattern",
     info = ParameterInfo(
-      displayName = TextRef("grok.pattern.displayName"),
-      description = TextRef("grok.pattern.description")
+      displayName = TextRef("pattern-extractor.pattern.displayName"),
+      description = TextRef("pattern-extractor.pattern.description")
     ),
     choices = Seq(
       Choice(
-        name = "GROK",
-        displayName = TextRef("grok.pattern.displayName"),
-        description = TextRef("grok.pattern.description")
+        name = "pattern-extractor",
+        displayName = TextRef("pattern-extractor.pattern.named-capture.displayName"),
+        description = TextRef("pattern-extractor.pattern.named-capture.description")
       )
     ),
     mandatory = true
@@ -51,8 +51,8 @@ object GrokLogic extends Described {
   val autoDetectParameter = BooleanParameterDescriptor(
     ref = "grok.autodetect",
     info = ParameterInfo(
-      displayName = TextRef("grok.autodetect.displayName"),
-      description = TextRef("grok.autodetect.description")
+      displayName = TextRef("pattern-extractor.autodetect.displayName"),
+      description = TextRef("pattern-extractor.autodetect.description")
     ),
     defaultValue = false,
     mandatory = true
@@ -61,23 +61,23 @@ object GrokLogic extends Described {
   override def describe = Descriptor(
     ref = "8912a691-e982-4680-8fc7-fea6803fcef0",
     describes = FilterDescriptor(
-      name = classOf[GrokLogic].getName,
-      displayName = TextRef("displayName"),
-      description = TextRef("description"),
+      name = classOf[PatternExtractorLogic].getName,
+      displayName = TextRef("pattern-extractor.displayName"),
+      description = TextRef("pattern-extractor.description"),
       categories = Seq(CommonCategories.DATA_EXTRACTION),
       parameters = Seq(fieldNamesParameter, patternParameter, autoDetectParameter),
-      icon = Icon.fromClass(classOf[GrokLogic])
+      icon = Icon.fromClass(classOf[PatternExtractorLogic])
     ),
     localization = Localization.fromResourceBundle(
-      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.GrokLogic",
+      bundleName = "io.logbee.keyscore.pipeline.contrib.filter.PatternExtractorLogic",
       Locale.ENGLISH, Locale.GERMAN
     ) ++ CATEGORY_LOCALIZATION
   )
 }
 
-class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
+class PatternExtractorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
 
-  private val GROK_PATTERN: Regex = "\\(\\?<(\\w*)>".r
+  private val CAPTURE_GROUPS_PATTERN: Regex = "\\(\\?<(\\w*)>".r
   private val NUMBER_PATTERN: Regex = "^[+-]?[\\d]+$".r
   private val DECIMAL_PATTERN: Regex = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$".r
   private val BOOLEAN_PATTERN: Regex = "^[Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]$".r
@@ -85,7 +85,7 @@ class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
   private var fieldNames = Seq.empty[String]
   private var pattern = ""
   private var regex: Regex = "".r
-  private var autoDetect = GrokLogic.autoDetectParameter.defaultValue
+  private var autoDetect = PatternExtractorLogic.autoDetectParameter.defaultValue
 
   override def initialize(configuration: Configuration): Unit = {
     configure(configuration)
@@ -94,20 +94,20 @@ class GrokLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
   override def configure(configuration: Configuration): Unit = {
 
     fieldNames = configuration.getValueOrDefault(fieldNamesParameter, fieldNames)
-    pattern = configuration.getValueOrDefault(GrokLogic.patternParameter, pattern)
-    autoDetect = configuration.getValueOrDefault(GrokLogic.autoDetectParameter, autoDetect)
-    regex = pattern.r(GROK_PATTERN.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
+    pattern = configuration.getValueOrDefault(PatternExtractorLogic.patternParameter, pattern)
+    autoDetect = configuration.getValueOrDefault(PatternExtractorLogic.autoDetectParameter, autoDetect)
+    regex = pattern.r(CAPTURE_GROUPS_PATTERN.findAllMatchIn(pattern).map(_.group(1)).toSeq: _*)
   }
 
   override def onPush(): Unit = {
-    push(out, grok(grab(in)))
+    push(out, capture(grab(in)))
   }
 
   override def onPull(): Unit = {
     pull(in)
   }
 
-  private def grok(dataset: Dataset): Dataset = {
+  private def capture(dataset: Dataset): Dataset = {
 
     Dataset(dataset.metadata, dataset.records.map(record => {
       val fields = mutable.ListBuffer[Field]() ++= record.fields

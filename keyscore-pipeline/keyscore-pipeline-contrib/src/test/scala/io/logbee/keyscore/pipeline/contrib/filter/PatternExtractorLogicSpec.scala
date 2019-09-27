@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.filter
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor.ToParameterRef.toRef
-import io.logbee.keyscore.pipeline.contrib.filter.GrokLogic.{autoDetectParameter, fieldNamesParameter, patternParameter}
+import io.logbee.keyscore.pipeline.contrib.filter.PatternExtractorLogic.{autoDetectParameter, fieldNamesParameter, patternParameter}
 import io.logbee.keyscore.pipeline.testkit.TestStreamForFilter
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
@@ -14,7 +14,7 @@ import org.scalatestplus.junit.JUnitRunner
 import scala.language.postfixOps
 
 @RunWith(classOf[JUnitRunner])
-class GrokLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
+class PatternExtractorLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
 
   "A GrokFilter" - {
 
@@ -67,14 +67,14 @@ class GrokLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSy
       )
     ).foreach{ case Fixture(sample, expectation, configuration, title) =>
 
-      s"$title" in new TestStreamForFilter[GrokLogic](configuration) {
+      s"$title" in new TestStreamForFilter[PatternExtractorLogic](configuration) {
         source.sendNext(sample)
         sink.requestNext() shouldBe expectation
       }
     }
 
-    "should return a Descriptor" in new TestStreamForFilter[GrokLogic]() {
-      GrokLogic.describe should not be null
+    "should return a Descriptor" in new TestStreamForFilter[PatternExtractorLogic]() {
+      PatternExtractorLogic.describe should not be null
     }
   }
 }
