@@ -45,9 +45,11 @@ export class ExpressionParameterComponent extends ParameterComponent<ExpressionP
     }
 
     private onExpressionTypeChanged(value: ExpressionParameterChoice): void {
-        const parameter = new ExpressionParameter(this.ref, this.value.value, value.name);
-        this.currentChoice = value;
-        this.emit(parameter)
+        if (this.currentChoice != value) {
+            const parameter = new ExpressionParameter(this.ref, this.value.value, value.name);
+            this.currentChoice = value;
+            this.emit(parameter)
+        }
     }
 
     private static findChoice(choices: ExpressionParameterChoice[], name: string): ExpressionParameterChoice {
