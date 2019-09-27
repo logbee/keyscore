@@ -18,6 +18,7 @@ import {FieldParameterModule} from "./parameters/field-parameter/field-parameter
 import {ListParameterModule} from "./parameters/list-parameter/list-parameter.module";
 import {ChoiceParameterModule} from "./parameters/choice-parameter/choice-parameter.module";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.module";
 
 
 @NgModule({
@@ -38,7 +39,8 @@ import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/ma
         BooleanParameterModule,
         FieldParameterModule,
         ListParameterModule,
-        ChoiceParameterModule
+        ChoiceParameterModule,
+        ParameterGroupModule
     ],
     declarations: [
         ParameterFormComponent
@@ -48,7 +50,6 @@ import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/ma
         ParameterFormComponent
     ],
     providers: [
-        ParameterFactoryService,
         StringValidatorService
     ]
 })
