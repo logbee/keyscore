@@ -37,5 +37,6 @@ export enum ParameterDescriptorJsonClass{
     FieldParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldParameterDescriptor",
     FieldListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldListParameterDescriptor",
     FieldNameListParameterDescriptor = "io.logbee.keyscore.model.descriptor.FieldNameListParameterDescriptor",
-    TextListParameterDescriptor = "io.logbee.keyscore.model.descriptor.TextListParameterDescriptor"
+    TextListParameterDescriptor = "io.logbee.keyscore.model.descriptor.TextListParameterDescriptor",
+    ParameterGroupDescriptor = "io.logbee.keyscore.model.descriptor.ParameterGroupDescriptor",
 }

@@ -1,5 +1,6 @@
 import {TextRef} from "@keyscore-manager-models/src/main/common/Localization";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
+import {ParameterGroupCondition} from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
 
 export interface StringValidatorWithLocales {
     expression: string;
@@ -74,7 +75,7 @@ export interface ParameterDescriptorWithLocales {
     minSequences?: number;
     maxSequences?: number;
     fieldValueType?: FieldValueType;
-    condition?: BooleanParameterCondition;
+    condition?: ParameterGroupCondition;
     supports?: PatternType[];
 }
 
@@ -96,14 +97,6 @@ export interface Choice {
     description: string;
 }
 
-export type ParameterGroupCondition =
-    |BooleanParameterCondition
-
-export interface BooleanParameterCondition {
-    jsonClass: string;
-    parameter: ParameterRef;
-    negate: boolean;
-}
 
 
 

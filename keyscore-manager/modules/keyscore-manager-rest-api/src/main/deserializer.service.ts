@@ -40,6 +40,11 @@ import {
     StringValidatorWithLocales
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {TranslationMapping} from "@/../modules/keyscore-manager-models/src/main/common/Localization";
+import {
+    BooleanParameterCondition, IParameterGroupCondition,
+    ParameterGroupCondition, ParameterGroupConditionJsonClass,
+    ParameterGroupDescriptor
+} from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
 
 @Injectable({providedIn: 'root'})
 export class DeserializerService {
@@ -88,8 +93,7 @@ export class DeserializerService {
                 ...resolvedDescriptor,
                 icon: descriptor.describes.icon
             };
-        }
-        else {
+        } else {
             return resolvedDescriptor;
 
         }
@@ -169,12 +173,28 @@ export class DeserializerService {
             case ParameterDescriptorJsonClass.FieldNamePatternParameterDescriptor:
                 const supports = parameterDescriptor.supports.map(pattern => PatternTypeChoice.fromPatternType(pattern));
                 return new FieldNamePatternParameterDescriptor(base.ref, base.info.displayName, base.info.description, parameterDescriptor.defaultValue, parameterDescriptor.hint, supports, parameterDescriptor.mandatory);
+            case ParameterDescriptorJsonClass.ParameterGroupDescriptor: {
+                const parameterDescriptors =
+                    parameterDescriptor.parameters.map(descriptor => this.resolveParameterDescriptor(settings, descriptor));
+                const condition = this.deserializeParameterGroupCondition(parameterDescriptor.condition);
+                return new ParameterGroupDescriptor(base.ref, base.info.displayName, base.info.description, condition, parameterDescriptors);
+            }
             default:
                 return null;
 
 
         }
 
+    }
+
+    public deserializeParameterGroupCondition(groupCondition: IParameterGroupCondition) {
+        switch (groupCondition.jsonClass) {
+            case ParameterGroupConditionJsonClass.BooleanCondition: {
+                return new BooleanParameterCondition(groupCondition.parameter, groupCondition.negate);
+            }
+            default:
+                return null;
+        }
     }
 
 
