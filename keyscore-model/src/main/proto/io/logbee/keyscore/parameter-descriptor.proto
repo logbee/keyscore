@@ -40,6 +40,7 @@ message ParameterDescriptor {
         FieldNameListParameterDescriptor fieldNameListParameter = 12;
         FieldListParameterDescriptor fieldListParameter = 13;
         FieldDirectiveSequenceParameterDescriptor fieldDirectiveSequenceParameter = 14;
+        PasswordParameterDescriptor passwordParameter = 15;
     }
 }
 
@@ -61,6 +62,18 @@ message TextParameterDescriptor {
     bool mandatory = 5;
 }
 // end::TextParameterDescriptor[]
+
+// tag::PasswordParameterDescriptor[]
+message PasswordParameterDescriptor {
+    ParameterRef ref = 1 [(scalapb.field).no_box = true];
+    ParameterInfo info = 2;
+    string defaultValue = 3;
+    StringValidator validator = 4;
+    sint32 minLength = 5;
+    sint32 maxLength = 6;
+    bool mandatory = 7;
+}
+// end::PasswordParameterDescriptor[]
 
 // tag::ExpressionParameterDescriptor[]
 message ExpressionParameterDescriptor {

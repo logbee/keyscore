@@ -202,7 +202,7 @@ https://en.wikipedia.org/wiki/Base64[Base64] or not.
 - If a user should be able enter simple text.
 
 ==== When NOT to use ====
-- If the user should enter a password.
+- If the user should enter a password. Prefer <<Password Parameter>>.
 - If the user should enter just simple numbers. Prefer <<Number Parameter>> / <<Decimal Parameter>>
 - If the user should enter multiple independent strings used to configure the same block behaviour. Prefer <<Text-List Parameter>>
 
@@ -210,6 +210,20 @@ https://en.wikipedia.org/wiki/Base64[Base64] or not.
 [source]
 ----
 include::{descriptors_base}/parameter-descriptor.proto[tags=TextParameterDescriptor]
+----
+
+=== Password Parameter ===
+
+==== When to use ====
+- If a user should be able enter a secret.
+
+==== When NOT to use ====
+- If the user should enter arbitrary text. Prefer <<Text Parameter>>.
+
+==== Specification ====
+[source]
+----
+include::{descriptors_base}/parameter-descriptor.proto[tags=PasswordParameterDescriptor]
 ----
 
 === Expression Parameter ===
