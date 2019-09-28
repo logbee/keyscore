@@ -98,5 +98,11 @@ export class AppComponent {
         this.matIconRegistry.addSvgIcon('resources-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/menu/resources.svg'));
         this.matIconRegistry.addSvgIcon('expand-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/chevron-right-round.svg'));
         this.matIconRegistry.addSvgIcon('collapse-nav', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/chevron-left-round.svg'));
+
+        // Custom Maturity Icons
+        this.matIconRegistry.addSvgIcon('maturity-official', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/maturity-official.svg'));
+        this.matIconRegistry.addSvgIcon('maturity-stable', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/maturity-stable.svg'));
+        this.matIconRegistry.addSvgIcon('maturity-development', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/maturity-development.svg'));
+        this.matIconRegistry.addSvgIcon('maturity-experimental', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/maturity-experimental.svg'));
     }
 }
