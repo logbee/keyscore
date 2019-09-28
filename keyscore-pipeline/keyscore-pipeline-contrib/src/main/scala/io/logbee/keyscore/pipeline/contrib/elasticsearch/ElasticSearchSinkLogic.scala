@@ -30,7 +30,10 @@ object ElasticSearchSinkLogic extends Described {
 
   val hostParameter = TextParameterDescriptor(
     "elastic.host",
-    ParameterInfo(TextRef("host"), TextRef("hostDescription")),
+    ParameterInfo(
+      displayName = TextRef("elastic.host.displayName"),
+      description = TextRef("elastic.host.description")
+    ),
     validator = StringValidator(
       expression = """^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$""",
     ),
@@ -40,7 +43,10 @@ object ElasticSearchSinkLogic extends Described {
 
   val portParameter = NumberParameterDescriptor(
     "elastic.port",
-    ParameterInfo(TextRef("port"), TextRef("portDescription")),
+    ParameterInfo(
+      displayName = TextRef("elastic.port.displayName"),
+      description = TextRef("elastic.port.description")
+    ),
     defaultValue = 9200,
     range = NumberRange(1, 0, 65535),
     mandatory = true
@@ -48,19 +54,55 @@ object ElasticSearchSinkLogic extends Described {
 
   val indexParameter = TextParameterDescriptor(
     "elastic.index",
-    ParameterInfo(TextRef("index"), TextRef("indexDescription")),
+    ParameterInfo(
+      displayName = TextRef("elastic.index.displayName"),
+      description = TextRef("elastic.index.description")
+    ),
     defaultValue = "doc",
     mandatory = true
+  )
+
+  val authenticationRequiredParameter = BooleanParameterDescriptor(
+    ref = "elastic.authentication.required",
+    ParameterInfo(
+      displayName = TextRef("elastic.authentication.required.displayName"),
+      description = TextRef("elastic.authentication.required.description")
+    ),
+    defaultValue = false,
+  )
+
+  val authenticationUserParameter = TextParameterDescriptor(
+    ref = "elastic.authentication.user",
+    ParameterInfo(
+      displayName = TextRef("elastic.authentication.username.displayName"),
+      description = TextRef("elastic.authentication.username.description")
+    ),
+  )
+
+  val authenticationPasswordParameter = PasswordParameterDescriptor(
+    ref = "elastic.authentication.password",
+    ParameterInfo(
+      displayName = TextRef("elastic.authentication.password.displayName"),
+      description = TextRef("elastic.authentication.password.description")
+    ),
+    maxLength = Int.MaxValue
   )
 
   override def describe = Descriptor(
     ref = "6693c39e-6261-11e8-adc0-fa7ae01bbebc",
     describes = SinkDescriptor(
       name = classOf[ElasticSearchSinkLogic].getName,
-      displayName = TextRef("displayName"),
-      description = TextRef("description"),
+      displayName = TextRef("elastic.displayName"),
+      description = TextRef("elastic.description"),
       categories = Seq(CommonCategories.SINK, Category("Elasticsearch")),
-      parameters = Seq(hostParameter, portParameter, indexParameter),
+      parameters = Seq(
+        hostParameter,
+        portParameter,
+        indexParameter,
+        authenticationRequiredParameter,
+        authenticationUserParameter,
+        authenticationPasswordParameter
+      ),
       icon = Icon.fromClass(classOf[ElasticSearchSinkLogic])
     ),
     localization = Localization.fromResourceBundle(
