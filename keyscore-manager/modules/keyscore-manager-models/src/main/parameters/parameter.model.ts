@@ -29,6 +29,7 @@ export enum ParameterDescriptorJsonClass{
     BooleanParameterDescriptor = "io.logbee.keyscore.model.descriptor.BooleanParameterDescriptor",
     NumberParameterDescriptor = "io.logbee.keyscore.model.descriptor.NumberParameterDescriptor",
     TextParameterDescriptor = "io.logbee.keyscore.model.descriptor.TextParameterDescriptor",
+    PasswordParameterDescriptor = "io.logbee.keyscore.model.descriptor.PasswordParameterDescriptor",
     ChoiceParameterDescriptor = "io.logbee.keyscore.model.descriptor.ChoiceParameterDescriptor",
     DecimalParameterDescriptor = "io.logbee.keyscore.model.descriptor.DecimalParameterDescriptor",
     ExpressionParameterDescriptor = "io.logbee.keyscore.model.descriptor.ExpressionParameterDescriptor",

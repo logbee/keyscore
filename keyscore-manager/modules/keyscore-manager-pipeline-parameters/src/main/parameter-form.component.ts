@@ -96,6 +96,4 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
     }
-
-
 }

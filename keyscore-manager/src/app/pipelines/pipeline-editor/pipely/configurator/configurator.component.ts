@@ -134,16 +134,13 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         this.parameterMap$.next({id: config.uuid, parameters: parameterMap});
     }
 
-
     saveConfiguration(parameter: Parameter) {
         let configuration: Configuration = _.cloneDeep(this._config);
         let paramIndex = configuration.parameterSet.parameters.findIndex(param => param.ref.id === parameter.ref.id);
         if (paramIndex > -1) {
             configuration.parameterSet.parameters.splice(paramIndex, 1, parameter);
             this.onSave.emit(configuration);
-            console.log("TSCHAKA:", configuration)
         }
-
     }
 
     ngOnDestroy(): void {

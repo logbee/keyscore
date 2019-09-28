@@ -20,11 +20,9 @@ import {template} from "@angular-devkit/core";
         </div>
         
     `
-
-
 })
-
 export class PuzzleCategoryComponent implements OnInit {
+
     @Input() category: string;
 
     @Input() set descriptors(val: BlockDescriptor[]) {
@@ -45,8 +43,8 @@ export class PuzzleCategoryComponent implements OnInit {
     @Output() onInit:EventEmitter<void> = new EventEmitter();
 
     @ViewChild("blockContainer", {read: ViewContainerRef}) blockContainer: ViewContainerRef;
-    private toolbarDropzone: Dropzone;
 
+    private toolbarDropzone: Dropzone;
 
     constructor(private dropzoneFactory: DropzoneFactory, private draggableFactory: DraggableFactory, private parameterFactory: ParameterFactoryService) {
         this.onInit.emit();
@@ -87,5 +85,4 @@ export class PuzzleCategoryComponent implements OnInit {
         });
         this.onDraggablesCreated.emit(this.category);
     }
-
 }

@@ -6,6 +6,7 @@ import {
     ParameterDescriptorJsonClass
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter.model";
 import {TextParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
+import {PasswordParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/password-parameter.model";
 import {
     ExpressionParameterChoice,
     ExpressionParameterDescriptor
@@ -31,8 +32,6 @@ import {
 import {
     Choice,
     ChoiceWithLocales,
-    ExpressionType,
-    FieldValueType,
     ParameterDescriptorWithLocales,
     ParameterInfo,
     ParameterInfoWithLocales,
@@ -41,8 +40,9 @@ import {
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {TranslationMapping} from "@/../modules/keyscore-manager-models/src/main/common/Localization";
 import {
-    BooleanParameterCondition, IParameterGroupCondition,
-    ParameterGroupCondition, ParameterGroupConditionJsonClass,
+    BooleanParameterCondition,
+    IParameterGroupCondition,
+    ParameterGroupConditionJsonClass,
     ParameterGroupDescriptor
 } from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
 
@@ -99,7 +99,6 @@ export class DeserializerService {
         }
     }
 
-
     private resolveParameterDescriptor(settings: { descriptor: Descriptor, language: string }, parameterDescriptor: ParameterDescriptorWithLocales): ParameterDescriptor {
         let base = {
             ref: parameterDescriptor.ref,
@@ -115,6 +114,18 @@ export class DeserializerService {
                     parameterDescriptor.defaultValue,
                     this.resolveValidator(settings, parameterDescriptor.validator),
                     parameterDescriptor.mandatory);
+            }
+            case ParameterDescriptorJsonClass.PasswordParameterDescriptor: {
+                return new PasswordParameterDescriptor(
+                    base.ref,
+                    base.info.displayName,
+                    base.info.description,
+                    parameterDescriptor.defaultValue,
+                    this.resolveValidator(settings, parameterDescriptor.validator),
+                    parameterDescriptor.minLength,
+                    parameterDescriptor.maxLength,
+                    parameterDescriptor.mandatory
+                )
             }
             case ParameterDescriptorJsonClass.ExpressionParameterDescriptor: {
                 const choices = parameterDescriptor.choices.map(choice => this.resolveChoice(settings, choice)).map(choice => new ExpressionParameterChoice(choice.name, choice.displayName, choice.description));
@@ -180,9 +191,7 @@ export class DeserializerService {
                 return new ParameterGroupDescriptor(base.ref, base.info.displayName, base.info.description, condition, parameterDescriptors);
             }
             default:
-                return null;
-
-
+                throw Error("Failed to resolve ParameterDescriptor: " + parameterDescriptor.jsonClass);
         }
 
     }
@@ -196,7 +205,6 @@ export class DeserializerService {
                 return null;
         }
     }
-
 
     public resolveInfo(settings: { descriptor: Descriptor, language: string }, info: ParameterInfoWithLocales): ParameterInfo {
         return info ? {
@@ -238,9 +246,6 @@ export class DeserializerService {
         const language = possibleLanguages.includes(settings.language) ?
             settings.language : this.selectLanguage(possibleLanguages);
 
-
         return settings.descriptor.localization.mapping[key].translations[language];
-
-
     }
 }

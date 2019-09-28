@@ -77,6 +77,8 @@ export interface ParameterDescriptorWithLocales {
     fieldValueType?: FieldValueType;
     condition?: ParameterGroupCondition;
     supports?: PatternType[];
+    minLength?: number,
+    maxLength?: number
 }
 
 

@@ -19,6 +19,7 @@ import {ListParameterModule} from "./parameters/list-parameter/list-parameter.mo
 import {ChoiceParameterModule} from "./parameters/choice-parameter/choice-parameter.module";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.module";
+import {PasswordParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/password-parameter/password-parameter.module";
 
 
 @NgModule({
@@ -32,6 +33,7 @@ import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/ma
         PropagationStopModule,
         ExpressionParameterModule,
         TextParameterModule,
+        PasswordParameterModule,
         NumberParameterModule,
         DecimalParameterModule,
         FieldNamePatternParameterModule,
@@ -44,7 +46,6 @@ import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/ma
     ],
     declarations: [
         ParameterFormComponent
-
     ],
     exports: [
         ParameterFormComponent
