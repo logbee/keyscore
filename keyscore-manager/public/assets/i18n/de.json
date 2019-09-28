@@ -62,8 +62,9 @@
     "FULFILL_PATTERN":"Ihre Eingabe muss das folgende Pattern erfüllen: {{pattern}}",
     "IS_REQUIRED":"{{name}} muss ausgefüllt werden.",
     "CHOICE_MIN_SELECTION_WARNING":"Für {{name}} müssen mindestens {{min}} Optionen gewählt werden.",
-    "CHOICE_MAX_SELECTION_WARNING":"Es dürfen maximal {{max}} Optionen für {{name}} ausgewählt werden."
-
+    "CHOICE_MAX_SELECTION_WARNING":"Es dürfen maximal {{max}} Optionen für {{name}} ausgewählt werden.",
+    "PASSWORD_LENGTH_TOO_LONG": "Passwort darf nicht mehr als {{value}} Zeichen enthalten.",
+    "PASSWORD_LENGTH_TOO_SHORT": "Passwort muss mindestens {{value}} Zeichen lang sein."
   },
   "AGENTSDETAILS": {
     "DETAILEDVIEW": "Detail Ansicht:",

@@ -12,6 +12,7 @@ import {
         <mat-form-field>
             <input #passwordInput matInput [type]="isPasswordVisible ? 'text' : 'password'"
                    (change)="onChange()"
+                   (keyup)="validate()"
                    (keyup.enter)="onEnter($event)"
                    [value]="parameter.value">
             <mat-label *ngIf="showLabel">{{label || descriptor.displayName}}</mat-label>
@@ -25,16 +26,20 @@ import {
                 <mat-icon>remove_red_eye</mat-icon>
             </button>
         </mat-form-field>
-        <p class="parameter-warn" *ngIf="descriptor.mandatory && !passwordInput.value"
-           translate [translateParams]="{name:descriptor.displayName}">
-            PARAMETER.IS_REQUIRED
-        </p>
-        <p class="parameter-warn" *ngIf="!isValid(passwordInput.value) && descriptor.validator.description">
-            {{descriptor.validator.description}}</p>
-        <p class="parameter-warn" *ngIf="!isValid(passwordInput.value) && !descriptor.validator.description"
-           translate [translateParams]="{pattern:descriptor.validator.expression}">
-            PARAMETER.FULFILL_PATTERN
-        </p>
+        <div [ngSwitch]="this.warning">
+            <p *ngSwitchCase="'WARNING_MANDATORY_BUT_EMPTY'" class="parameter-warn" translate [translateParams]="{name:descriptor.displayName}">
+                PARAMETER.IS_REQUIRED
+            </p>
+            <p *ngSwitchCase="'WARNING_TOO_SHORT'" class="parameter-warn" translate [translateParams]="{value:descriptor.minLength}">
+                PARAMETER.PASSWORD_LENGTH_TOO_SHORT
+            </p>
+            <p *ngSwitchCase="'WARNING_TOO_LONG'" class="parameter-warn" translate [translateParams]="{value:descriptor.maxLength}">
+                PARAMETER.PASSWORD_LENGTH_TOO_LONG
+            </p>
+            <p *ngSwitchCase="'WARNING_INVALID'" class="parameter-warn" translate [translateParams]="{pattern:descriptor.validator.expression}">
+                PARAMETER.FULFILL_PATTERN
+            </p>
+        </div>
     `,
     styleUrls:['../../style/parameter-module-style.scss']
 })
@@ -50,6 +55,7 @@ export class PasswordParameterComponent extends ParameterComponent<PasswordParam
     @ViewChild('passwordInput') passwordInputRef:ElementRef;
 
     private isPasswordVisible: boolean = false;
+    private warning: string = null;
 
     constructor(private stringValidator: StringValidatorService) {
         super();
@@ -65,18 +71,13 @@ export class PasswordParameterComponent extends ParameterComponent<PasswordParam
     }
 
     private onChange(): void {
-        this.emit(this.value);
+        if (this.validate()) {
+            this.emit(this.value);
+        }
     }
 
     private onEnter(event:Event): void {
         this.keyUpEnterEvent.emit(event);
-    }
-
-    private isValid(value: string): boolean {
-        if (!this.descriptor.validator) {
-            return true;
-        }
-        return this.stringValidator.validate(value, this.descriptor.validator);
     }
 
     private showPassword(): void {
@@ -85,5 +86,52 @@ export class PasswordParameterComponent extends ParameterComponent<PasswordParam
 
     private hidePassword(): void {
         this.isPasswordVisible = false;
+    }
+
+    private validate(): boolean {
+
+        if (this.isMandatoryButEmpty()) {
+            this.warning = "WARNING_MANDATORY_BUT_EMPTY";
+            return false;
+        }
+
+        if (this.isTooShort()) {
+            this.warning = "WARNING_TOO_SHORT";
+            return false;
+        }
+
+        if (this.isTooLong()) {
+            this.warning = "WARNING_TOO_LONG";
+            return false;
+        }
+
+        if (this.isInvalid()) {
+            this.warning = "WARNING_INVALID";
+            return false;
+        }
+
+        this.warning = null;
+        return true;
+    }
+
+    private isMandatoryButEmpty(): boolean {
+        return this.descriptor.mandatory && (!this.value.value || this.value.value.length < 1)
+    }
+
+    private isTooShort(): boolean {
+        return this.value.value.length < this.descriptor.minLength;
+    }
+
+    private isTooLong(): boolean {
+        return this.value.value.length > this.descriptor.maxLength;
+    }
+
+    private isInvalid(): boolean {
+
+        if (!this.descriptor.validator) {
+            return false;
+        }
+
+        return !this.stringValidator.validate(this.value.value, this.descriptor.validator);
     }
 }

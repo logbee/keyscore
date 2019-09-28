@@ -61,7 +61,9 @@
     "FULFILL_PATTERN":"Your input has to fulfill the following pattern: {{pattern}}",
     "IS_REQUIRED":"{{name}} is required.",
     "CHOICE_MIN_SELECTION_WARNING":"{{name}} expects at least {{min}} selections.",
-    "CHOICE_MAX_SELECTION_WARNING":"{{name}} only allows {{max}} selections."
+    "CHOICE_MAX_SELECTION_WARNING":"{{name}} only allows {{max}} selections.",
+    "PASSWORD_LENGTH_TOO_LONG": "Password is longer than {{value}} characters.",
+    "PASSWORD_LENGTH_TOO_SHORT": "Password has to have at least {{value}} characters."
   },
   "AGENTSDETAILS": {
     "DETAILEDVIEW": "Detailed View:",
