@@ -29,6 +29,7 @@ import {
 } from '@angular/material';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {HttpClientModule} from "@angular/common/http";
+import {NgxMatSelectSearchModule} from "ngx-mat-select-search";
 
 
 @NgModule({
@@ -61,7 +62,9 @@ import {HttpClientModule} from "@angular/common/http";
         MatProgressBarModule,
         MatProgressSpinnerModule,
         MatExpansionModule,
-        MatSliderModule
+        MatSliderModule,
+        NgxMatSelectSearchModule
+
     ],
     exports: [
         MatButtonModule,
@@ -92,7 +95,8 @@ import {HttpClientModule} from "@angular/common/http";
         MatSnackBarModule,
         MatProgressBarModule,
         MatExpansionModule,
-        MatSliderModule
+        MatSliderModule,
+        NgxMatSelectSearchModule
 
     ]
 })

@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from "@angular/core";
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
-import {BehaviorSubject, Subject} from "rxjs";
+import {BehaviorSubject, Observable, ReplaySubject, Subject} from "rxjs";
 import {BlockDescriptor} from "../models/block-descriptor.model";
-import {takeUntil} from "rxjs/internal/operators";
+import {map, mapTo, startWith, take, takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
 import {
     Parameter,
@@ -12,6 +12,7 @@ import {
 import {Configuration} from "@keyscore-manager-models/src/main/common/Configuration";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
+import {MatSelect} from "@angular/material";
 
 
 @Component({
@@ -38,10 +39,14 @@ import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
                         </mat-form-field>
 
                         <mat-form-field>
-                            <mat-select formControlName="pipeline.selectedAgent">
-                                <mat-option [value]="">None</mat-option>
-                                <mat-option *ngFor="let agent of agents" [value]="agent.id">
-                                    {{agent.name}}
+                            <mat-select formControlName="pipeline.selectedAgent" #agentSelect>
+                                <mat-option>
+                                    <ngx-mat-select-search
+                                            [formControl]="filteredAgentsControl"></ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="" *ngIf="!filteredAgentsControl.value">None</mat-option>
+                                <mat-option *ngFor="let agent of filteredAgents$ | async" [value]="agent.id">
+                                    {{agent.name}} (host: {{agent.host}}, id: {{agent.id}})
                                 </mat-option>
                             </mat-select>
                             <mat-label>{{'CONFIGURATOR.SELECTED_AGENT' | translate}}</mat-label>
@@ -113,6 +118,10 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     form: FormGroup;
     pipelineForm: FormGroup;
+
+    filteredAgentsControl: FormControl = new FormControl();
+    filteredAgents$: Observable<Agent[]>;
+
     parameterMap$: BehaviorSubject<{ id: string, parameters: ParameterMap }> = new BehaviorSubject(null);
 
     unsubscribe$: Subject<void> = new Subject();
@@ -141,6 +150,22 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             });
         });
 
+        this.filteredAgents$ = this.filteredAgentsControl.valueChanges.pipe(startWith(''), map(val => this.filterAgents(val)), takeUntil(this.unsubscribe$))
+
+
+    }
+
+
+    private filterAgents(val: string): Agent[] {
+        if (!this.agents || !this.agents.length) return [];
+        if (!val) return this.agents;
+
+        const resultAgents = _.cloneDeep(this.agents);
+        const searchValue = val.toLowerCase();
+        return resultAgents.filter(agent =>
+            agent.id.toLowerCase().includes(searchValue) ||
+            agent.name.toLowerCase().includes(searchValue) ||
+            agent.host.toLowerCase().includes(searchValue))
     }
 
     private createParameterMap(config: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) {

@@ -14,6 +14,7 @@ import {ParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/pa
         ParameterModule,
         ReactiveFormsModule,
         FormsModule
+
     ],
     declarations: [
         ConfiguratorComponent

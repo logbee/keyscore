@@ -32,6 +32,7 @@ body{
     margin-left: 10px;
 }
 
+
 /*-------------FilterChooser-----------*/
 .modal-lg {
     max-width: 80% !important;
@@ -231,6 +232,11 @@ sidemenu .mat-list-item mat-icon {
 .mat-form-field, .mat-form-field-flex {
     width: 100% !important;
     margin-left: 0 !important;
+}
+
+.mat-select-panel{
+    width:auto !important;
+    max-width: 80% !important;
 }
 
 
