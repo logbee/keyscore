@@ -10,6 +10,7 @@ import {
     ParameterMap
 } from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {Configuration} from "@keyscore-manager-models/src/main/common/Configuration";
+import {Maturity} from "@keyscore-manager-models/src/main/descriptors/Maturity";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {MatSelect} from "@angular/material";
@@ -59,9 +60,12 @@ import {MatSelect} from "@angular/material";
                 <ng-container *ngIf="config.conf">
                     <div fxLayout="column" fxLayoutGap="15px" fxLayoutAlign="start">
                         <div>
-                            <h3 style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
-                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">
-                                {{config?.uuid}}</p>
+                            <div>
+                                <h3 fxFlex style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
+                                <mat-icon *ngIf="showMaturityIcon(config?.descriptor.maturity)" [svgIcon]="maturityIconNameOf(config?.descriptor.maturity)" matTooltip="{{maturityTooltipOf(config?.descriptor.maturity) | translate}}">
+                                </mat-icon>
+                            </div>
+                            <p style="margin-bottom: 0; font-family: monospace;font-size: small">{{config?.uuid}}</p>
                         </div>
                         <p>{{config?.descriptor?.description}}</p>
                         <mat-divider></mat-divider>
@@ -194,5 +198,19 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
+    }
+
+    private showMaturityIcon(maturity: Maturity): boolean {
+        return maturity && maturity != Maturity.None
+    }
+
+    private maturityIconNameOf(maturity: Maturity): string {
+        return "maturity-" + maturity.toString().toLowerCase();
+    }
+
+    private maturityTooltipOf(maturity: Maturity): string {
+        const x = "MATURITY." + maturity.toString().toUpperCase();
+        console.error(x);
+        return x;
     }
 }

@@ -34,8 +34,8 @@ import "../assets/styles.scss";
 import "../assets/global-table-styles.scss";
 import "../assets/pipely-style.scss";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {IconModule} from "./icon.module"
 import {AgentsEffects} from "@/app/agents/agents.effects";
-
 
 const routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
@@ -73,7 +73,8 @@ export function HttpLoaderFactory(http: HttpClient) {
         }),
         HeaderBarModule,
         MaterialModule,
-        KeycloakAngularModule
+        KeycloakAngularModule,
+        IconModule
     ],
     declarations: [
         AppComponent,

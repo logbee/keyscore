@@ -21,7 +21,7 @@ import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field
 import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {FieldParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
 import {FieldNameHint, FieldValueType} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
-
+import {IconModule} from "@/app/icon.module";
 
 storiesOf('Configurator', module)
     .addDecorator(
@@ -33,6 +33,7 @@ storiesOf('Configurator', module)
                 BrowserAnimationsModule,
                 ReactiveFormsModule,
                 ParameterModule,
+                IconModule,
                 TranslateModule.forRoot({
                     loader: {
                         provide: TranslateLoader,
@@ -69,9 +70,10 @@ storiesOf('Configurator', module)
                         new FieldParameterDescriptor({id:'testFieldItem'},'haha','','',FieldNameHint.AnyField,null,FieldValueType.Text,false),
                         0,0)
                     ],
-                    categories: []
+                    categories: [],
+                    maturity: "Official"
                 },
-                uuid: 'blablalbla-blablalbla-blalal-blalala'
+                uuid: '18e8cec1-3500-4de3-965a-deea215a24c4'
             }
         }
     }));

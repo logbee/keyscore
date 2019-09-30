@@ -167,5 +167,12 @@
     "ADD": "Create a new Pipeline.",
     "PREVIEW": "Data Preview / Pipeline Creation",
     "TIMER": "Interval for automatic data reload."
+  },
+  "MATURITY": {
+    "NONE": "Maturity: Unknown",
+    "EXPERIMENTAL": "Maturity: Experimental",
+    "DEVELOPMENT": "Maturity: Development",
+    "STABLE": "Maturity: Stable",
+    "OFFICIAL": "Maturity: Official"
   }
 }

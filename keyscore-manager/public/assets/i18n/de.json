@@ -23,7 +23,6 @@
     "BRANCH": "Verzweigungsblock",
     "LOGOUT": "Logout",
     "NO_RESULTS":"Es wurden keine Ergebnisse für Ihre Suche gefunden."
-
   },
   "APPCOMPONENT": {
     "AGENTS": "Agenten",
@@ -165,5 +164,12 @@
     "ADD": "Erstelle eine neue Pipeline.",
     "PREVIEW": "Datenvorschau / Pipeline-Erstellung",
     "TIMER": "Intervall für das automatische Neuladen der Daten."
+  },
+  "MATURITY": {
+    "NONE": "Ausgereiftheit: Unbekannt",
+    "EXPERIMENTAL": "Ausgereiftheit: Experimentell",
+    "DEVELOPMENT": "Ausgereiftheit: Entwicklungstand",
+    "STABLE": "Ausgereiftheit: Stabil",
+    "OFFICIAL": "Ausgereiftheit: Offiziell"
   }
 }
