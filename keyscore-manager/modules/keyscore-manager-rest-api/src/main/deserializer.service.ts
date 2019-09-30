@@ -85,7 +85,8 @@ export class DeserializerService {
             displayName: displayName,
             description: description,
             categories: categories,
-            parameters: resolvedParameters
+            parameters: resolvedParameters,
+            maturity: filterDescriptor.maturity
         };
 
         if (descriptor.describes.icon) {

@@ -6,6 +6,7 @@ import {ParameterDescriptorWithLocales} from "@keyscore-manager-models/src/main/
 import {ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {TextRef} from "@keyscore-manager-models/src/main/common/Localization";
 import {Ref} from "@keyscore-manager-models/src/main/common/Ref";
+import {Maturity} from "@keyscore-manager-models/src/main/descriptors/Maturity";
 
 
 export interface FilterDescriptorWithLocales{
@@ -18,6 +19,7 @@ export interface FilterDescriptorWithLocales{
     in?:InputDescriptor;
     out?:OutputDescriptor;
     icon?:Icon;
+    maturity?: Maturity
 }
 
 export enum FilterDescriptorJsonClass{
@@ -37,4 +39,5 @@ export interface FilterDescriptor{
     in?:InputDescriptor;
     out?:OutputDescriptor;
     icon?:Icon;
+    maturity?: Maturity
 }

@@ -21,8 +21,8 @@ export class PipelyKeyscoreAdapter {
             previousConnection:previousConnection,
             nextConnection:nextConnection,
             parameters:descriptor.parameters,
-            categories:descriptor.categories
-
+            categories:descriptor.categories,
+            maturity: descriptor.maturity
         };
         if(descriptor.icon){
             return{

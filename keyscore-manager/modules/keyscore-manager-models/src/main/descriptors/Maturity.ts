@@ -1,7 +1,8 @@
 
 export enum Maturity{
-    MaturityExperimental = "",
-    MaturityOfficial = "",
-    MaturityStable = "",
-    MaturityDevelopment = ""
+    None = "None",
+    Experimental = "Experimental",
+    Official = "Official",
+    Stable = "Stable",
+    Development = "Development"
 }
