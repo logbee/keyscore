@@ -17,6 +17,8 @@ import {PipelyKeyscoreAdapter} from "../services/pipely-keyscore-adapter.service
 import {effects, reducers} from "./index";
 import {AppAuthGuard} from "../app.authguard";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {AgentsEffects} from "@/app/agents/agents.effects";
+import {AgentsReducer} from "@/app/agents/agents.reducer";
 
 export const routes: Routes = [
     {path: "", component: PipelinesComponent,canActivate:[AppAuthGuard]},
@@ -36,8 +38,8 @@ export const routesWithoutAuth: Routes = [
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(routes),
-        StoreModule.forFeature("state", reducers),
-        EffectsModule.forFeature(effects),
+        StoreModule.forFeature("state", {...reducers}),
+        EffectsModule.forFeature([...effects,AgentsEffects]),
         TranslateModule,
         HeaderBarModule,
         LoadingModule,

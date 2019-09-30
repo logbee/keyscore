@@ -108,6 +108,7 @@
   "CONFIGURATOR": {
     "PIPELINE_NAME": "Pipeline Name",
     "PIPELINE_DESCRIPTION": "Pipeline Beschreibung",
+    "SELECTED_AGENT": "Dedizierter Agent",
     "HIDE": "Konfiguration verbergen.",
     "SHOW": "Konfiguration einblenden."
   },

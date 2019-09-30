@@ -34,6 +34,7 @@ import "../assets/styles.scss";
 import "../assets/global-table-styles.scss";
 import "../assets/pipely-style.scss";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
+import {AgentsEffects} from "@/app/agents/agents.effects";
 
 
 const routes: Routes = [

@@ -11,6 +11,7 @@ import {ErrorState} from "./common/error/error.reducer";
 import {SnackbarState} from "./common/snackbar/snackbar.reducer";
 import {DomSanitizer} from "@angular/platform-browser";
 import {MatIconRegistry} from "@angular/material";
+import {AgentsState} from "@/app/agents/agents.reducer";
 
 export interface AppState {
     config: AppConfig;
@@ -19,6 +20,7 @@ export interface AppState {
     menu: MenuState;
     error: ErrorState;
     snackbar: SnackbarState;
+    agents:AgentsState
 }
 
 @Component({

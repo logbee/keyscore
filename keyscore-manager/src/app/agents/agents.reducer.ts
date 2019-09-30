@@ -9,7 +9,7 @@ import {
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 import {Agent} from "@/../modules/keyscore-manager-models/src/main/common/Agent";
 
-export class AgentsState {
+export interface AgentsState {
     agents: Agent[];
     currentAgentid: string;
 }

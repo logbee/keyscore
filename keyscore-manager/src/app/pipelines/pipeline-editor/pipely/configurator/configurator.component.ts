@@ -11,6 +11,7 @@ import {
 } from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {Configuration} from "@keyscore-manager-models/src/main/common/Configuration";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
+import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 
 
 @Component({
@@ -35,6 +36,17 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
                             <mat-label>{{'CONFIGURATOR.PIPELINE_DESCRIPTION' | translate}}</mat-label>
 
                         </mat-form-field>
+
+                        <mat-form-field>
+                            <mat-select formControlName="pipeline.selectedAgent">
+                                <mat-option [value]="">None</mat-option>
+                                <mat-option *ngFor="let agent of agents" [value]="agent.id">
+                                    {{agent.name}}
+                                </mat-option>
+                            </mat-select>
+                            <mat-label>{{'CONFIGURATOR.SELECTED_AGENT' | translate}}</mat-label>
+                        </mat-form-field>
+
                     </form>
                 </div>
             </div>
@@ -62,7 +74,13 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 })
 
 export class ConfiguratorComponent implements OnInit, OnDestroy {
-    @Input() pipelineMetaData: { name: string, description: string } = {name: "", description: ""};
+    @Input() pipelineMetaData: { name: string, description: string, selectedAgent: string } = {
+        name: "",
+        description: "",
+        selectedAgent: ""
+    };
+
+    @Input() agents: Agent[];
 
     @Input('config') set config(val: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) {
         if (val) {
@@ -86,7 +104,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() closeConfigurator: EventEmitter<void> = new EventEmitter();
     @Output() onSave: EventEmitter<Configuration> = new EventEmitter();
     @Output() onRevert: EventEmitter<void> = new EventEmitter();
-    @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string }> = new EventEmitter();
+    @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string, selectedAgent: string }> = new EventEmitter();
     @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
 
@@ -111,11 +129,16 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
         this.pipelineForm = new FormGroup({
             'pipeline.name': new FormControl(this.pipelineMetaData.name),
-            'pipeline.description': new FormControl(this.pipelineMetaData.description)
+            'pipeline.description': new FormControl(this.pipelineMetaData.description),
+            'pipeline.selectedAgent': new FormControl(this.pipelineMetaData.selectedAgent)
         });
 
         this.pipelineForm.valueChanges.pipe(takeUntil(this.unsubscribe$)).subscribe(val => {
-            this.onSavePipelineMetaData.emit({name: val['pipeline.name'], description: val['pipeline.description']});
+            this.onSavePipelineMetaData.emit({
+                name: val['pipeline.name'],
+                description: val['pipeline.description'],
+                selectedAgent: val['pipeline.selectedAgent']
+            });
         });
 
     }

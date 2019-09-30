@@ -35,7 +35,8 @@ import {
 } from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
 import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
 import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
-import { Dataset } from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
+import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
+import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 
 
 @Component({
@@ -53,13 +54,14 @@ import { Dataset } from "@/../modules/keyscore-manager-models/src/main/dataset/D
                             <data-preview [selectedBlock]="selectedBlockForDataTable$|async"
                                           [outputDatasets]="outputDatasets"
                                           [inputDatasets]="inputDatasets"
-                                        class="top-shadow"></data-preview>
+                                          class="top-shadow"></data-preview>
                         </ng-template>
                     </div>
                 </div>
 
                 <configurator fxFlex
                               [pipelineMetaData]="pipelineMetaData"
+                              [agents]="agents"
                               [config]="{
                                 conf:(selectedDraggable$|async)?.getDraggableModel().configuration,
                                 descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor,
@@ -75,6 +77,7 @@ import { Dataset } from "@/../modules/keyscore-manager-models/src/main/dataset/D
 
 export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Workspace {
     @Input() pipeline: EditingPipelineModel;
+    @Input() agents: Agent[];
 
     @Input('blockDescriptors') set blockDescriptors(descriptors: BlockDescriptor[]) {
         this.blockDescriptors$.next(descriptors)
@@ -119,7 +122,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     private selectedDraggable$: Observable<Draggable> = this.selectedDraggableSource.asObservable().pipe(share());
     private selectedDraggable: Draggable;
     private selectedBlockForDataTable$: BehaviorSubject<string>;
-    private pipelineMetaData: { name: string, description: string };
+    private pipelineMetaData: { name: string, description: string, selectedAgent: string };
 
     private mouseDownStart: { x: number, y: number } = {x: -1, y: -1};
 
@@ -311,9 +314,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         this.selectedDraggable.getDraggableModel().configuration = configuration;
     }
 
-    private savePipelineMetaData(metaData: { name: string, description: string }) {
-        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue) = new TextValue(metaData.name);
-        (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue) = new TextValue(metaData.description);
+    private savePipelineMetaData(metaData: { name: string, description: string, selectedAgent: string }) {
+        this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value = new TextValue(metaData.name);
+        this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value = new TextValue(metaData.description);
+        this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.selectedAgent').value = new TextValue(metaData.selectedAgent);
     }
 
     addDropzone(dropzone: Dropzone) {
@@ -412,7 +416,16 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
         this.buildEditPipeline();
         let pipelineName = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value as TextValue).value;
         let pipelineDescription = (this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value as TextValue).value;
-        this.pipelineMetaData = {name: pipelineName, description: pipelineDescription};
+        const selectedAgentLabel = this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.selectedAgent');
+        let pipelineSelectedAgent = "";
+        if (selectedAgentLabel) {
+            pipelineSelectedAgent = (selectedAgentLabel.value as TextValue).value;
+        }
+        this.pipelineMetaData = {
+            name: pipelineName,
+            description: pipelineDescription,
+            selectedAgent: pipelineSelectedAgent
+        };
 
 
     }

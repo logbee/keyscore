@@ -19,6 +19,9 @@ import {EditingPipelineModel} from "@/../modules/keyscore-manager-models/src/mai
 import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 import {InternalPipelineConfiguration} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/InternalPipelineConfiguration";
 import { Dataset } from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
+import {LoadAgentsAction} from "@/app/agents/agents.actions";
+import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
+import {getAgents} from "@/app/agents/agents.reducer";
 
 @Component({
     selector: "pipeline-editor",
@@ -45,6 +48,7 @@ import { Dataset } from "@/../modules/keyscore-manager-models/src/main/dataset/D
             <pipely-workspace [runTrigger$]="runPipeline$"
                               [saveTrigger$]="savePipeline$"
                               [inspectTrigger$]="runInspect$"
+                              [agents]="agents$ | async"
                               [pipeline]="(pipeline$ | async)"
                               [blockDescriptors]="blockDescriptorSource$|async"
                               [inputDatasets]="inputDatasets$|async"
@@ -87,6 +91,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     private previewMode: boolean = false;
     private outputDatasets$: Observable<Map<string, Dataset[]>>;
     private inputDatasets$: Observable<Map<string, Dataset[]>>;
+    private agents$: Observable<Agent[]>;
 
     constructor(private store: Store<any>, private location: Location, private pipelyAdapter: PipelyKeyscoreAdapter) {
         this.outputDatasets$ = this.store.pipe(select(getOutputDatasetMap));
@@ -108,10 +113,12 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.showBigLoadingViewOnLoading = true;
 
         this.store.dispatch(new LoadFilterDescriptorsAction());
+        this.store.dispatch(new LoadAgentsAction());
 
         this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors), takeUntil(this.alive));
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing), share());
         this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive));
+        this.agents$ = this.store.pipe(select(getAgents),takeUntil(this.alive));
 
         this.pipeline$.subscribe(pipe => {
             this.storeEditingPipeline = pipe;
@@ -134,6 +141,7 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
 
     public ngOnDestroy() {
         this.alive.next();
+        this.alive.complete();
     }
 
     public stopPipeline(pipeline: EditingPipelineModel) {

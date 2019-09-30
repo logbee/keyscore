@@ -31,7 +31,7 @@ export class AgentsEffects {
             if (this.handleNavigation(regex, action as RouterNavigationAction)) {
                 return of(new LoadAgentsAction());
             }
-            return of({type:'NOOP'});
+            return of({type: 'NOOP'});
         })
     );
 
@@ -44,7 +44,7 @@ export class AgentsEffects {
                         this.getAgentIdfromRouterAction(action as RouterNavigationAction)
                     ));
                 }
-                return of({type:'NOOP'});
+                return of({type: 'NOOP'});
             }
         ));
 
@@ -62,16 +62,11 @@ export class AgentsEffects {
 
     @Effect() public loadAgents$: Observable<Action> = this.actions$.pipe(
         ofType(LOAD_AGENTS),
-        mergeMap((_) => {
-            try {
-                return this.agentService.loadAgents().pipe(
-                        map((data) => new LoadAgentsSuccessAction((data as Agent[]))),
-                        catchError((cause: any) => of(new LoadAgentsFailureAction(cause)))
-                )
-            } catch (exception) {
-                return of(new LoadAgentsFailureAction(exception));
-            }
-        })
+        mergeMap((_) =>
+            this.agentService.loadAgents().pipe(
+                map((data) => new LoadAgentsSuccessAction((data as Agent[]))),
+                catchError((cause: any) => of(new LoadAgentsFailureAction(cause))))
+        )
     );
 
     @Effect() public redirectOnRemoveAgent$: Observable<Action> = this.actions$.pipe(

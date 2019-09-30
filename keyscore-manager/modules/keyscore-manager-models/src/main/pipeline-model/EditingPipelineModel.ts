@@ -21,6 +21,9 @@ export const generateEmptyEditingPipelineModel = (ref: Ref = generateRef()): Edi
                 }, {
                     name: "pipeline.description",
                     value: new TextValue('Your new Pipeline')
+                }, {
+                    name: "pipeline.selectedAgent",
+                    value: new TextValue("")
                 }
                 ]
             }

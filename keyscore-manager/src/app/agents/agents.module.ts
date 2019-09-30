@@ -23,7 +23,6 @@ export const routes: Routes = [
         CommonModule,
         FormsModule,
         RouterModule.forChild(routes),
-        StoreModule.forFeature("agents", AgentsReducer),
         EffectsModule.forFeature([AgentsEffects]),
         TranslateModule,
         HeaderBarModule,
