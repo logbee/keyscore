@@ -166,10 +166,11 @@
     "TIMER": "Intervall für das automatische Neuladen der Daten."
   },
   "MATURITY": {
-    "NONE": "Ausgereiftheit: Unbekannt",
+    "NONE": "Ausgereiftheit: Undefiniert",
     "EXPERIMENTAL": "Ausgereiftheit: Experimentell",
     "DEVELOPMENT": "Ausgereiftheit: Entwicklungstand",
     "STABLE": "Ausgereiftheit: Stabil",
-    "OFFICIAL": "Ausgereiftheit: Offiziell"
+    "OFFICIAL": "Ausgereiftheit: Offiziell",
+    "DEPRECATED": "Ausgereiftheit: Veraltet"
   }
 }

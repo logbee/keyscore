@@ -169,10 +169,11 @@
     "TIMER": "Interval for automatic data reload."
   },
   "MATURITY": {
-    "NONE": "Maturity: Unknown",
+    "NONE": "Maturity: Undefined",
     "EXPERIMENTAL": "Maturity: Experimental",
     "DEVELOPMENT": "Maturity: Development",
     "STABLE": "Maturity: Stable",
-    "OFFICIAL": "Maturity: Official"
+    "OFFICIAL": "Maturity: Official",
+    "DEPRECATED": "Maturity: Deprecated"
   }
 }

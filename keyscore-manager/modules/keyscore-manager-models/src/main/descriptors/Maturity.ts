@@ -4,5 +4,6 @@ export enum Maturity{
     Experimental = "Experimental",
     Development = "Development",
     Stable = "Stable",
-    Official = "Official"
+    Official = "Official",
+    Deprecated = "Deprecated"
 }

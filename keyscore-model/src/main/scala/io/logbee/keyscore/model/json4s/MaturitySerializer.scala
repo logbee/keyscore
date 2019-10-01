@@ -7,10 +7,11 @@ import org.json4s.JsonAST.{JNull, JString}
 case object MaturitySerializer extends CustomSerializer[Maturity](format => ( {
   case JString(maturity) => maturity match {
     case "None" => Maturity.None
-    case "Official" => Maturity.Official
-    case "Stable" => Maturity.Stable
-    case "Development" => Maturity.Development
     case "Experimental" => Maturity.Experimental
+    case "Development" => Maturity.Development
+    case "Stable" => Maturity.Stable
+    case "Official" => Maturity.Official
+    case "Deprecated" => Maturity.Deprecated
   }
   case JNull => Maturity.None
 }, {

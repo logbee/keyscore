@@ -121,10 +121,11 @@ message Category {
 // tag::Maturity[]
 enum Maturity {
     None = 0;
-    Official = 1;
-    Stable = 2;
-    Development = 3;
-    Experimental = 4;
+    Experimental = 1;
+    Development = 2;
+    Stable = 3;
+    Official = 4;
+    Deprecated = 5;
 }
 // end::Maturity[]
 
