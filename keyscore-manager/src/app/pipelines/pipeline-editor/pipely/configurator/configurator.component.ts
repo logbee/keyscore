@@ -209,8 +209,6 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     }
 
     private maturityTooltipOf(maturity: Maturity): string {
-        const x = "MATURITY." + maturity.toString().toUpperCase();
-        console.error(x);
-        return x;
+        return "MATURITY." + maturity.toString().toUpperCase();
     }
 }
