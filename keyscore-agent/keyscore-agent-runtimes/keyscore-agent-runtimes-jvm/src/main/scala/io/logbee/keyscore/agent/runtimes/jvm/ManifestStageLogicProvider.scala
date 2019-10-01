@@ -54,7 +54,7 @@ class ManifestStageLogicProvider(manifestFinder: ManifestFinder) extends Actor w
             log.error(exception, s"Failed to load class: $classname")
             None
         })
-        .flatMap(clazz => Try(filterLoader.loadDescriptors(clazz)) match {
+        .flatMap(clazz => Try(filterLoader.loadDescriptor(clazz)) match {
           case Success(descriptor) => Some(descriptor.ref -> (descriptor -> clazz))
           case Failure(exception) =>
             log.error(exception, s"Failed to load descriptor for class: $clazz")

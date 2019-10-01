@@ -3,7 +3,7 @@ package io.logbee.keyscore.agent.runtimes.jvm
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.descriptor.Descriptor
 
-class LoadFilterDescriptorException extends RuntimeException {}
+class LoadFilterDescriptorException(message: String, cause: Throwable = null) extends RuntimeException(message, cause) {}
 
 /**
   * The '''FilterLoader''' returns a `Descriptor` for a given Class.
@@ -16,14 +16,21 @@ class FilterLoader {
 
   private val runtimeMirror = ru.runtimeMirror(getClass.getClassLoader)
 
-  def loadDescriptors(clazz: Class[_]): Descriptor = {
-    val moduleSymbol = runtimeMirror.reflectModule(runtimeMirror.staticModule(clazz.getName))
+  def loadDescriptor(clazz: Class[_]): Descriptor = {
 
-    moduleSymbol.instance match {
-      case describable: Described =>
-        describable.describe
-      case _ =>
-        throw new LoadFilterDescriptorException
+    try {
+
+      val moduleSymbol = runtimeMirror.reflectModule(runtimeMirror.staticModule(clazz.getName))
+
+      moduleSymbol.instance match {
+        case describable: Described =>
+          describable.describe
+        case _ =>
+          throw new LoadFilterDescriptorException(s"Class '${clazz.getName}' does not implement '${classOf[Described].getName}'.")
+      }
+    }
+    catch {
+      case e: Throwable => throw new LoadFilterDescriptorException(s"Failed to load Descriptor of class '${clazz.getName}'.", e)
     }
   }
 }
