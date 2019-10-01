@@ -123,7 +123,8 @@ object SmbFileSourceLogic extends Described {
         LocalFileSourceLogic.renamePostReadFileAction_append,
         LocalFileSourceLogic.persistenceEnabled,
       ),
-      icon = Icon.fromClass(classOf[SmbFileSourceLogic])
+      icon = Icon.fromClass(classOf[SmbFileSourceLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.tailin.SmbFileSourceLogic",

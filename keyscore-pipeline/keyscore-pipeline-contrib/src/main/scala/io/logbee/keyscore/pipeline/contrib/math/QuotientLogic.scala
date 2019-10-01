@@ -57,7 +57,8 @@ object QuotientLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
       parameters = List(xFieldNameParameter, yFieldNameParameter, targetFieldNameParameter),
-      icon = Icon.fromClass(classOf[QuotientLogic])
+      icon = Icon.fromClass(classOf[QuotientLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.math.QuotientLogic",

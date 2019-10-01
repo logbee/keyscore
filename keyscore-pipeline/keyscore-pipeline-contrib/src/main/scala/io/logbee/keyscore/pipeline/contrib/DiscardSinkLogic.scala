@@ -40,7 +40,8 @@ object DiscardSinkLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.SINK, CommonCategories.DEBUG),
       parameters = Seq(intervalParameter),
-      icon = Icon.fromClass(classOf[DiscardSinkLogic])
+      icon = Icon.fromClass(classOf[DiscardSinkLogic]),
+      maturity = Maturity.Official
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.DiscardSinkLogic",

@@ -115,7 +115,8 @@ object KafkaSourceLogic extends Described {
         topicParameter,
         fieldNameParameter
       ),
-      icon = Icon.fromClass(classOf[KafkaSourceLogic])
+      icon = Icon.fromClass(classOf[KafkaSourceLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLogic",

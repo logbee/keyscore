@@ -38,7 +38,8 @@ object DropRecordsLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
       parameters = Seq(fieldNamesParameter),
-      icon = Icon.fromClass(classOf[DropRecordsLogic])
+      icon = Icon.fromClass(classOf[DropRecordsLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DropRecords",

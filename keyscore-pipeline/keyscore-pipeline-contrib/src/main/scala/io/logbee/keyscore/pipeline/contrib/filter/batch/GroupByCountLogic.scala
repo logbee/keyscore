@@ -36,7 +36,8 @@ object GroupByCountLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
       parameters = Seq(amountParameter),
-      icon = Icon.fromClass(classOf[GroupByCountLogic])
+      icon = Icon.fromClass(classOf[GroupByCountLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.GroupByCountLogic",

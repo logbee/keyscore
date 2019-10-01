@@ -100,9 +100,9 @@ object MetricSourceLogic extends Described {
         limitParameter,
         earliestParameter,
         latestParameter
-      )
-      //      ,
-      //      icon = Icon.fromClass(classOf[MetricSourceLogic])
+      ),
+//      icon = Icon.fromClass(classOf[MetricSourceLogic]),
+      maturity = Maturity.Experimental
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.MetricSourceLogic",

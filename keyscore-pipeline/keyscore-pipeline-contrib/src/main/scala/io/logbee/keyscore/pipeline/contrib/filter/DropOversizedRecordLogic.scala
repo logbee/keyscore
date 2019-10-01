@@ -35,6 +35,7 @@ object DropOversizedRecordLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
       parameters = Seq(fieldLimitParameter),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.DropOversizedRecordLogic",

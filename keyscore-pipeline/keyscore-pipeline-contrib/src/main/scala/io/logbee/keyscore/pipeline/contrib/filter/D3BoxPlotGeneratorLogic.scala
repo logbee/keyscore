@@ -48,7 +48,8 @@ object D3BoxPlotGeneratorLogic extends Described {
           groupIdentifierParameter,
           itemIdentifierParameter
         ),
-        icon = Icon.fromClass(classOf[D3BoxPlotGeneratorLogic])
+        icon = Icon.fromClass(classOf[D3BoxPlotGeneratorLogic]),
+        maturity = Maturity.Experimental
       ),
       localization = Localization.fromResourceBundle(
         bundleName = "io.logbee.keyscore.pipeline.contrib.filter.D3BoxPlotGenerator",

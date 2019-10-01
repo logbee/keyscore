@@ -57,7 +57,8 @@ object DifferentialQuotientLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
       parameters = List(xFieldNameParameter, yFieldNameParameter, targetFieldNameParameter),
-      icon = Icon.fromClass(classOf[DifferentialQuotientLogic])
+      icon = Icon.fromClass(classOf[DifferentialQuotientLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.math.DifferentialQuotientLogic",

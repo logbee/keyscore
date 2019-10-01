@@ -60,6 +60,7 @@ object JsonPathJsonExtractorLogic extends Described {
       description = TextRef("description"),
       categories = Seq(DECODING, JSON),
       parameters = Seq(jsonpathParameter, sourceFieldNameParameter, removeSourceFieldParameter),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.json.JsonPathJsonExtractorLogic",

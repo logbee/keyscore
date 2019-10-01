@@ -103,7 +103,8 @@ object ElasticSearchSinkLogic extends Described {
         authenticationUserParameter,
         authenticationPasswordParameter
       ),
-      icon = Icon.fromClass(classOf[ElasticSearchSinkLogic])
+      icon = Icon.fromClass(classOf[ElasticSearchSinkLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.elasticsearch.ElasticSearchSinkLogic",

@@ -146,7 +146,7 @@ object TextMutatorLogic extends Described {
       categories = Seq(FIELDS),
       parameters = Seq(directiveSequence),
       maturity = Experimental,
-      icon = Icon.fromClass(classOf[TextMutatorLogic])
+      icon = Icon.fromClass(classOf[TextMutatorLogic]),
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.textmutator.TextMutatorLogic",

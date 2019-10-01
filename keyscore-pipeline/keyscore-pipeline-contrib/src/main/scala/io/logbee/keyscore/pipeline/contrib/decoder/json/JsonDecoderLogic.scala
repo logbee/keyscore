@@ -47,7 +47,8 @@ object JsonDecoderLogic extends Described {
       description = TextRef("description"),
       categories = Seq(DECODING, JSON),
       parameters = Seq(sourceFieldNameParameter, removeSourceFieldParameter),
-      icon = Icon.fromClass(classOf[JsonDecoderLogic])
+      icon = Icon.fromClass(classOf[JsonDecoderLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.json.JsonDecoder",

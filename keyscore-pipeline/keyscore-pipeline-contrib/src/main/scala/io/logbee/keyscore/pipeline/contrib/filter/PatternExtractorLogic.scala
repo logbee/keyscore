@@ -66,7 +66,8 @@ object PatternExtractorLogic extends Described {
       description = TextRef("pattern-extractor.description"),
       categories = Seq(CommonCategories.DATA_EXTRACTION),
       parameters = Seq(fieldNamesParameter, patternParameter, autoDetectParameter),
-      icon = Icon.fromClass(classOf[PatternExtractorLogic])
+      icon = Icon.fromClass(classOf[PatternExtractorLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.PatternExtractorLogic",

@@ -32,3 +32,4 @@ keyscore-extensions:    io.logbee.keyscore.pipeline.contrib.kafka.KafkaSourceLog
                         io.logbee.keyscore.pipeline.contrib.decoder.json.JsonPathJsonExtractorLogic,
                         io.logbee.keyscore.pipeline.contrib.tailin.LocalFileSourceLogic,
                         io.logbee.keyscore.pipeline.contrib.tailin.SmbFileSourceLogic,
+                        io.logbee.keyscore.pipeline.contrib.filter.ToTimestampValueLogic,

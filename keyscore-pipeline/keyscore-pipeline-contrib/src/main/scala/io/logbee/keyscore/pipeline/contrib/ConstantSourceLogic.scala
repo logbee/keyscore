@@ -48,7 +48,8 @@ object ConstantSourceLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.DEBUG, CommonCategories.SOURCE),
       parameters = Seq(inputParameter, fieldNameParameter),
-      icon = Icon.fromClass(classOf[ConstantSourceLogic])
+      icon = Icon.fromClass(classOf[ConstantSourceLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.ConstantSourceLogic",

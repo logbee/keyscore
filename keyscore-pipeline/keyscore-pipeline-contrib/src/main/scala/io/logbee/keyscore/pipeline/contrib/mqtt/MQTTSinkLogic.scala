@@ -55,7 +55,8 @@ object MQTTSinkLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.SINK, Category("MQTT")),
       parameters = Seq(brokerParameter, topicParameter, fieldNameParameter),
-      icon = Icon.fromClass(classOf[MQTTSinkLogic])
+      icon = Icon.fromClass(classOf[MQTTSinkLogic]),
+      maturity = Maturity.Experimental
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.mqtt.MQTTSinkLogic",

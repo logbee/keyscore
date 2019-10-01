@@ -59,7 +59,8 @@ object JsonEncoderLogic extends Described {
       description = TextRef("jsonEncoder.description"),
       categories = Seq(ENCODING, JSON),
       parameters = Seq(fieldNameParameter, batchStrategyParameter),
-      icon = Icon.fromClass(classOf[JsonEncoderLogic])
+      icon = Icon.fromClass(classOf[JsonEncoderLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.encoder.json.JsonEncoder",

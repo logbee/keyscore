@@ -41,7 +41,8 @@ object RemoveFieldsLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP, CommonCategories.FIELDS),
       parameters = Seq(fieldsToRemoveParameter),
-      icon = Icon.fromClass(classOf[RemoveFieldsLogic])
+      icon = Icon.fromClass(classOf[RemoveFieldsLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RemoveFields",

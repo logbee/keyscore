@@ -64,7 +64,8 @@ object FingerprintLogic extends Described {
         recomputeParameter,
         encodingParameter
       ),
-      icon = Icon.fromClass(classOf[FingerprintLogic])
+      icon = Icon.fromClass(classOf[FingerprintLogic]),
+      maturity = Maturity.Official
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.Fingerprint",

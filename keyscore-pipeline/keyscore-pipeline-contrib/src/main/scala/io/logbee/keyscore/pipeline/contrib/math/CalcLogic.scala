@@ -38,7 +38,8 @@ object CalcLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
       parameters = Seq(expressionParameter, resultFieldNameParameter),
-      icon = Icon.fromClass(classOf[CalcLogic])
+      icon = Icon.fromClass(classOf[CalcLogic]),
+      maturity = Maturity.Experimental
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.math.CalcLogic",

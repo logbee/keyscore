@@ -38,7 +38,8 @@ object SpreaderLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
-      parameters = List(fieldNamesParameter)
+      parameters = List(fieldNamesParameter),
+      maturity = Maturity.Stable
     ),
     localization = Option(Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.SpreaderLogic",

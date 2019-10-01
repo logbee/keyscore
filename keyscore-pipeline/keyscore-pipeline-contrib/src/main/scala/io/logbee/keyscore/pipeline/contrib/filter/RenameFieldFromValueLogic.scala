@@ -43,7 +43,8 @@ object RenameFieldFromValueLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.FIELDS),
       parameters = Seq(sourceFieldNameParameter, targetFieldNameParameter),
-      icon = Icon.fromClass(classOf[RenameFieldFromValueLogic])
+      icon = Icon.fromClass(classOf[RenameFieldFromValueLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RenameFieldFromValueLogic",

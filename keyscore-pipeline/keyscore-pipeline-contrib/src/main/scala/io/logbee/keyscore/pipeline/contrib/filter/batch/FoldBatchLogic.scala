@@ -45,7 +45,8 @@ object FoldBatchLogic extends Described {
       description = TextRef("foldBatch.description"),
       categories = Seq(CommonCategories.BATCH_COMPOSITION),
       parameters = Seq(orderParameter),
-      icon = Icon.fromClass(classOf[FoldBatchLogic])
+      icon = Icon.fromClass(classOf[FoldBatchLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.batch.FoldBatchLogic",

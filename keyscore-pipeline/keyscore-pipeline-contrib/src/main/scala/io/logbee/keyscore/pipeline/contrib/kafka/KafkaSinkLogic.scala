@@ -96,7 +96,8 @@ object KafkaSinkLogic extends Described {
         fieldNameParameter,
         maxMessageSizeParameter
       ),
-      icon = Icon.fromClass(classOf[KafkaSinkLogic])
+      icon = Icon.fromClass(classOf[KafkaSinkLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.kafka.KafkaSinkLogic",

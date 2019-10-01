@@ -79,7 +79,8 @@ object LoggerLogic extends Described {
       description = TextRef("logger.description"),
       categories = Seq(CommonCategories.DEBUG),
       parameters = Seq(levelParameter, formatParameter),
-      icon = Icon.fromClass(classOf[LoggerLogic])
+      icon = Icon.fromClass(classOf[LoggerLogic]),
+      maturity = Maturity.Official
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.LoggerLogic",

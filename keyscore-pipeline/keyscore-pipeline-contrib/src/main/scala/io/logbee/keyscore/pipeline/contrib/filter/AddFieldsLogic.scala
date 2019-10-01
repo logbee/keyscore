@@ -33,7 +33,8 @@ object AddFieldsLogic extends Described {
         description = TextRef("description"),
         categories = Seq(CommonCategories.AUGMENT, CommonCategories.FIELDS),
         parameters = Seq(fieldListParameter),
-        icon = Icon.fromClass(classOf[AddFieldsLogic])
+        icon = Icon.fromClass(classOf[AddFieldsLogic]),
+        maturity = Maturity.Official
       ),
       localization = Localization.fromResourceBundle(
         bundleName = "io.logbee.keyscore.pipeline.contrib.filter.AddFields",

@@ -52,7 +52,7 @@ object GreedyJsonExtractorLogic extends Described {
       categories = Seq(DECODING, JSON),
       parameters = Seq(fieldNameParameter, prefixParameter, removeFieldParameter),
       maturity = Experimental,
-      icon = Icon.fromClass(classOf[GreedyJsonExtractorLogic])
+      icon = Icon.fromClass(classOf[GreedyJsonExtractorLogic]),
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.json.GreedyJsonExtractor",

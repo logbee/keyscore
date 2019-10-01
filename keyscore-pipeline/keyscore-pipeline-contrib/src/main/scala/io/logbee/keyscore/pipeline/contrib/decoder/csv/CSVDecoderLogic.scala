@@ -99,7 +99,8 @@ object CSVDecoderLogic extends Described {
         headerParameter,
         removeSourceFieldParameter
       ),
-      icon = Icon.fromClass(classOf[CSVDecoderLogic])
+      icon = Icon.fromClass(classOf[CSVDecoderLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.decoder.csv.CSVDecoder",

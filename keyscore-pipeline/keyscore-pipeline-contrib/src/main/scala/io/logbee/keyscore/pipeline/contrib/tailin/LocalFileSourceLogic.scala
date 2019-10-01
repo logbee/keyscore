@@ -233,7 +233,8 @@ object LocalFileSourceLogic extends Described {
         renamePostReadFileAction_append,
         persistenceEnabled,
       ),
-      icon = Icon.fromClass(classOf[LocalFileSourceLogic])
+      icon = Icon.fromClass(classOf[LocalFileSourceLogic]),
+      maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.tailin.LocalFileSourceLogic",

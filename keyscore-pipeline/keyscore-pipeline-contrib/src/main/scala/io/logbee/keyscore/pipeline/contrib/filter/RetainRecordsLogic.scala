@@ -47,7 +47,8 @@ object RetainRecordsLogic extends Described {
       description = TextRef("description"),
       categories = Seq(CommonCategories.REMOVE_DROP),
       parameters = Seq(fieldNamesParameter, discardEmptyDatasetsParameter),
-      icon = Icon.fromClass(classOf[RetainRecordsLogic])
+      icon = Icon.fromClass(classOf[RetainRecordsLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.filter.RetainRecords",

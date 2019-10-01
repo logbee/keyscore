@@ -69,7 +69,8 @@ object ThrottleLogic extends Described {
       description = TextRef("throttle.description"),
       categories = Seq(CommonCategories.FLOW),
       parameters = Seq(datasetsParameter, timeUnitParameter),
-      icon = Icon.fromClass(classOf[ThrottleLogic])
+      icon = Icon.fromClass(classOf[ThrottleLogic]),
+      maturity = Maturity.Stable
     ),
     localization = Localization.fromResourceBundle(
       bundleName = "io.logbee.keyscore.pipeline.contrib.flow.ThrottleLogic",
