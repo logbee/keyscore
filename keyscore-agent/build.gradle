@@ -1,3 +1,7 @@
+plugins {
+    id "de.inetsoftware.setupbuilder" version "4.8.6"
+}
+
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
@@ -5,6 +9,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.inet.gradle.setup.unix.deb.Deb
 
 apply from: rootProject.file('dependencies.gradle')
 
@@ -185,4 +190,26 @@ task pushDockerImage(type: DockerPushImage) {
     dependsOn buildDockerImage
     imageName = dockerImageName
     tag = version
+}
+
+task createDebianPackage(type: Deb) {
+    setupBuilder {
+        vendor          = "logbee"
+        copyright       = "Copyright 2019 logbee"
+        description     = "The mighty Agent of Keyscore"
+
+        version         = "0.3.0-alpha.7"
+        application     = "Keyscore Agent"
+        appIdentifier   = "keyscore-agent"
+
+        mainClass       = "com.logbee.keyscore.agent.app.AgentApplication"
+
+        mainJar         = "keyscore-agent-0.3.0-alpha.7.jar"
+
+        from(project.tasks['installDist'])
+
+        installationRoot = "/usr/share/keyscore/keyscore-agent"
+
+        homepage = "https://github.com/logbee/keyscore"
+    }
 }
