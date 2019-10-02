@@ -5,15 +5,16 @@ import java.time.ZoneId
 import akka.stream.FlowShape
 import io.logbee.keyscore.model.Described
 import io.logbee.keyscore.model.configuration.Configuration
-import io.logbee.keyscore.model.data.{Dataset, Field, TextValue}
+import io.logbee.keyscore.model.data.{Dataset, Field, NumberValue, TextValue}
 import io.logbee.keyscore.model.descriptor.FieldNameHint.PresentField
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.Locale.ENGLISH
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef, TranslationMapping}
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
+import io.logbee.keyscore.pipeline.api.directive.FieldDirective
 import io.logbee.keyscore.pipeline.api.{FilterLogic, LogicParameters}
 import io.logbee.keyscore.pipeline.commons.CommonCategories
-import io.logbee.keyscore.pipeline.contrib.filter.textmutator.ToTimestampDirective
+import io.logbee.keyscore.pipeline.contrib.filter.textmutator.{NumberToTimestampDirective, TextToTimestampDirective}
 
 import scala.io.Source
 import scala.jdk.javaapi.CollectionConverters._
@@ -32,7 +33,11 @@ object ToTimestampValueLogic extends Described {
     mandatory = true
   )
 
-  val sourceFieldType = ChoiceParameterDescriptor(
+  val Text = "TEXT"
+  val NumberSeconds = "NUMBER_SECONDS"
+  val NumberMillis = "NUMBER_MILLIS"
+
+  val sourceFieldTypeParameter = ChoiceParameterDescriptor(
     ref = "sourceFieldType",
     info = ParameterInfo(
       displayName = TextRef("sourceFieldType.displayName"),
@@ -42,17 +47,17 @@ object ToTimestampValueLogic extends Described {
     max = 1,
     choices = Seq(
       Choice(
-        name = "TEXT",
+        name = Text,
         displayName = TextRef("sourceFieldType.text.displayName"),
         description = TextRef("sourceFieldType.text.description")
       ),
       Choice(
-        name = "NUMBER_SECONDS",
+        name = NumberSeconds,
         displayName = TextRef("sourceFieldType.number-seconds.displayName"),
         description = TextRef("sourceFieldType.number-seconds.description")
       ),
       Choice(
-        name = "NUMBER_MILLIS",
+        name = NumberMillis,
         displayName = TextRef("sourceFieldType.number-millis.displayName"),
         description = TextRef("sourceFieldType.number-millis.description")
       )
@@ -98,7 +103,7 @@ object ToTimestampValueLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.FIELDS, CommonCategories.CONVERSION),
-      parameters = Seq(sourceFieldNameParameter, formatParameter, sourceTimeZoneParameter),
+      parameters = Seq(sourceFieldNameParameter, sourceFieldTypeParameter, formatParameter, sourceTimeZoneParameter),
       maturity = Maturity.Development
     ),
     localization = Localization.fromResourceBundle(
@@ -117,35 +122,52 @@ object ToTimestampValueLogic extends Described {
 }
 
 class ToTimestampValueLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset]) extends FilterLogic(parameters, shape) {
-  
+
   private var sourceFieldName = ToTimestampValueLogic.sourceFieldNameParameter.defaultValue
+  private var sourceFieldType = ToTimestampValueLogic.Text
   private var format = ToTimestampValueLogic.formatParameter.defaultValue
   private var sourceTimeZone = "UTC"
   
-  private var toTimestampDirective = ToTimestampDirective(format)
+  private var directive: Option[FieldDirective] = None
   
   override def initialize(configuration: Configuration): Unit = configure(configuration)
 
   override def configure(configuration: Configuration): Unit = {
     sourceFieldName = configuration.getValueOrDefault(ToTimestampValueLogic.sourceFieldNameParameter, sourceFieldName)
-    
+    sourceFieldType = configuration.getValueOrDefault(ToTimestampValueLogic.sourceFieldTypeParameter, sourceFieldType)
     format = configuration.getValueOrDefault(ToTimestampValueLogic.formatParameter, format)
     sourceTimeZone = configuration.getValueOrDefault(ToTimestampValueLogic.sourceTimeZoneParameter, sourceTimeZone)
-    
-    toTimestampDirective = ToTimestampDirective(format, Some(ZoneId.of(sourceTimeZone)))
+
+    directive = sourceFieldType match {
+      case ToTimestampValueLogic.Text => Some(TextToTimestampDirective(format, Some(ZoneId.of(sourceTimeZone))))
+      case ToTimestampValueLogic.NumberSeconds => Some(NumberToTimestampDirective(NumberToTimestampDirective.Seconds, Some(ZoneId.of(sourceTimeZone))))
+      case ToTimestampValueLogic.NumberMillis => Some(NumberToTimestampDirective(NumberToTimestampDirective.Millis, Some(ZoneId.of(sourceTimeZone))))
+      case _ => None
+    }
   }
 
   override def onPush(): Unit = {
+
     val dataset = grab(in)
-    
-    val fieldName = sourceFieldName
-    
-    push(out, dataset.withRecords(dataset.records.map(record => {
-      record.update(_.fields := record.fields.map {
-        case field@Field(`fieldName`, TextValue(_)) => toTimestampDirective.invoke(field)
-        case field@Field(_, _) => field
-      })
-    })))
+
+    directive match {
+      case Some(directive) =>
+        val fieldName = sourceFieldName
+        push(out, dataset.withRecords(dataset.records.map(record => {
+          record.update(_.fields := record.fields.map {
+            case field@Field(`fieldName`, TextValue(_)) if sourceFieldType == ToTimestampValueLogic.Text =>
+              directive.invoke(field)
+            case field@Field(`fieldName`, NumberValue(_)) if sourceFieldType == ToTimestampValueLogic.NumberSeconds =>
+              directive.invoke(field)
+            case field@Field(`fieldName`, NumberValue(_)) if sourceFieldType == ToTimestampValueLogic.NumberMillis =>
+              directive.invoke(field)
+            case field@Field(_, _) =>
+              field
+          })
+        })))
+      case _ =>
+        push(out, dataset)
+    }
   }
 
   override def onPull(): Unit = pull(in)

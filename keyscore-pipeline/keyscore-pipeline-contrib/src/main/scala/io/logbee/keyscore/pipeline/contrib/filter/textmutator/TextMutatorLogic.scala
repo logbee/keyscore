@@ -171,7 +171,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
         val directives = sequenceConfiguration.directives.foldLeft(Seq.empty[FieldDirective]) {
           case (result, DirectiveConfiguration(toTimestampDirective.ref, instance, parameters)) =>
             val timestampPattern = parameters.getValueOrDefault(TextMutatorLogic.toTimestampPattern, "")
-            result :+ ToTimestampDirective(timestampPattern)
+            result :+ TextToTimestampDirective(timestampPattern)
           case (result, DirectiveConfiguration(findAndReplaceDirective.ref, instance, parameters)) =>
             val findPattern = parameters.getValueOrDefault(TextMutatorLogic.findPattern, "")
             val replacePattern = parameters.getValueOrDefault(TextMutatorLogic.replacePattern, "")

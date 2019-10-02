@@ -6,7 +6,7 @@ import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import io.logbee.keyscore.model.data.{Field, TextValue, TimestampValue}
 import io.logbee.keyscore.pipeline.api.directive.FieldDirective
 
-case class ToTimestampDirective(pattern: String, sourceTimeZone: Option[ZoneId] = None) extends FieldDirective {
+case class TextToTimestampDirective(pattern: String, sourceTimeZone: Option[ZoneId] = None) extends FieldDirective {
   def invoke(field: Field): Field = {
     val format = DateTimeFormatter.ofPattern(pattern)
     field match {

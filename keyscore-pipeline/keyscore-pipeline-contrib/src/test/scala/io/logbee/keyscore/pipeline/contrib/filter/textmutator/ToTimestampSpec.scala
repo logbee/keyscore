@@ -14,13 +14,13 @@ class ToTimestampSpec  extends FreeSpec with Matchers {
     ("yyyy-MM-dd'T'HH:mm:ss", "2019-02-15T17:52:14", TimestampValue(1550253134))
   )
 
-  "A ToTimestampDirective" - {
+  "A TextToTimestampDirective" - {
 
     samples.foreach { case (pattern, sample, expectedValue) =>
 
       s"should convert $sample to $expectedValue given $pattern" in {
 
-        val directive = ToTimestampDirective(pattern)
+        val directive = TextToTimestampDirective(pattern)
         val field = Field("timestamp", TextValue(sample))
 
         directive.invoke(field) shouldBe Field("timestamp", expectedValue)
