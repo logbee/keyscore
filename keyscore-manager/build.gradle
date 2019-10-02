@@ -6,6 +6,7 @@ buildscript {
     }
     dependencies {
         classpath "com.github.node-gradle:gradle-node-plugin:1.5.1"
+        classpath "gradle.plugin.de.inetsoftware:SetupBuilder:4.8.6"
     }
 }
 
@@ -16,8 +17,10 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.inet.gradle.setup.unix.deb.Deb
 
 apply plugin: 'com.github.node-gradle.node'
+apply plugin: "de.inetsoftware.setupbuilder"
 
 ext {
     dockerImageName = "$dockerImageHost/$dockerImageNamespace/${project.name}"
@@ -119,4 +122,26 @@ clean {
 
 task cleanAll(type: Delete, dependsOn: clean) {
     delete 'node_modules', 'package-lock.json'
+}
+
+task createDebianPackage(type: Deb) {
+    setupBuilder {
+        vendor          = "logbee"
+        copyright       = "Copyright 2019 logbee"
+        description     = "The pretty Manager of Keyscore"
+
+        version         = "0.3.0-alpha.7"
+        application     = "Keyscore Manager"
+        appIdentifier   = "keyscore-manager"
+
+        mainClass       = "com.logbee.keyscore.manager.main"
+
+        mainJar         = "keyscore-manager-0.3.0-alpha.7.jar"
+
+        from(project.tasks['installDist'])
+
+        installationRoot = "/usr/share/keyscore/keyscore-manager"
+
+        homepage = "https://github.com/logbee/keyscore"
+    }
 }
