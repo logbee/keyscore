@@ -1,7 +1,3 @@
-plugins {
-    id "de.inetsoftware.setupbuilder" version "4.8.6"
-}
-
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
@@ -52,6 +48,8 @@ dependencies {
 
     testCompile dependency.junit
 }
+
+apply plugin: "de.inetsoftware.setupbuilder"
 
 jar {
     exclude('**/.keep')
