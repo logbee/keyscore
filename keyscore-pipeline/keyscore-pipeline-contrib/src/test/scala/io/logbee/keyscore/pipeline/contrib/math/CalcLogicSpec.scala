@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.math
 
 import io.logbee.keyscore.model.configuration._
 import io.logbee.keyscore.model.data._
-import io.logbee.keyscore.pipeline.contrib.math.CalcLogic.expressionParameter
+import io.logbee.keyscore.pipeline.contrib.math.CalcLogic.{NumberResult, expressionParameter, resultFieldTypeParameter}
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -90,6 +90,24 @@ class CalcLogicSpec extends FreeSpec with Matchers with ScalaFutures with MockFa
               sink.requestNext() shouldBe sample
             }
           }
+        }
+      }
+    }
+
+    "when configured to store the result as integer" - {
+
+      val configuration = Configuration(
+        TextParameter(expressionParameter.ref, "a + b"),
+        ChoiceParameter(resultFieldTypeParameter.ref, NumberResult)
+      )
+
+      "should create an NumberValue" in new TestStreamForFilter[CalcLogic](configuration) {
+
+        whenReady(filterFuture) { _ =>
+
+          source.sendNext(sample1)
+
+          sink.requestNext() shouldBe sample1.update(_.records := List(sample1.records.head.update(_.fields :+= Field("result", NumberValue(10)))))
         }
       }
     }

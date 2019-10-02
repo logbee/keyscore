@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ToTimestampSpec  extends FreeSpec with Matchers {
+class TextToTimestampDirectiveSpec  extends FreeSpec with Matchers {
 
   val samples = Seq(
     ("yyyy-MM-dd HH:mm:ss", "2019-02-15 17:52:14", TimestampValue(1550253134)),

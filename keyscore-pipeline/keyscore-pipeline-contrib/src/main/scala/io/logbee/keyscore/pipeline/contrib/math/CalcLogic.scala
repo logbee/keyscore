@@ -17,16 +17,44 @@ object CalcLogic extends Described {
   val expressionParameter = TextParameterDescriptor(
     ParameterRef("expression"),
     ParameterInfo(
-      displayName = TextRef("expression.DisplayName"),
-      description = TextRef("expression.Description")
+      displayName = TextRef("expression.displayName"),
+      description = TextRef("expression.description"),
+      importance = Importance.High
     )
   )
 
   val resultFieldNameParameter = FieldNameParameterDescriptor(
-    ParameterRef("resultFieldName"),
-    ParameterInfo(
-      displayName = TextRef("resultFieldName.DisplayName"),
-      description = TextRef("resultFieldName.Description")
+    ref = ParameterRef("resultFieldName"),
+    info = ParameterInfo(
+      displayName = TextRef("resultFieldName.displayName"),
+      description = TextRef("resultFieldName.description"),
+      importance = Importance.Higher
+    )
+  )
+
+  val DecimalResult = "DECIMAL_RESULT"
+  val NumberResult = "NUMBER_RESULT"
+
+  val resultFieldTypeParameter = ChoiceParameterDescriptor(
+    ref = "resultFieldType",
+    info = ParameterInfo(
+      displayName = TextRef("resultFieldType.displayName"),
+      description = TextRef("resultFieldType.description"),
+      importance = Importance.Lower
+    ),
+    min = 1,
+    max = 1,
+    choices = Seq(
+      Choice(
+        name = DecimalResult,
+        displayName = TextRef("resultFieldType.decimal-result.displayName"),
+        description = TextRef("resultFieldType.decimal-result.description")
+      ),
+      Choice(
+        name = NumberResult,
+        displayName = TextRef("resultFieldType.number-result.displayName"),
+        description = TextRef("resultFieldType.number-result.description")
+      )
     )
   )
 
@@ -37,7 +65,7 @@ object CalcLogic extends Described {
       displayName = TextRef("displayName"),
       description = TextRef("description"),
       categories = Seq(CommonCategories.MATH),
-      parameters = Seq(expressionParameter, resultFieldNameParameter),
+      parameters = Seq(expressionParameter, resultFieldNameParameter, resultFieldTypeParameter),
       icon = Icon.fromClass(classOf[CalcLogic]),
       maturity = Maturity.Experimental
     ),
@@ -51,12 +79,14 @@ class CalcLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
 
   private var expression = ""
   private var resultFieldName = "result"
+  private var resultType = CalcLogic.DecimalResult
 
   override def initialize(configuration: Configuration): Unit = configure(configuration)
 
   override def configure(configuration: Configuration): Unit = {
     expression = configuration.getValueOrDefault(CalcLogic.expressionParameter, expression)
     resultFieldName = configuration.getValueOrDefault(CalcLogic.resultFieldNameParameter, resultFieldName)
+    resultType = configuration.getValueOrDefault(CalcLogic.resultFieldTypeParameter, resultType)
   }
 
   override def onPush(): Unit = {
@@ -77,7 +107,7 @@ class CalcLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
         }
         try {
           val result = jep.evaluate(jep.parse(expression))
-          record.update(_.fields :+= Field(resultFieldName, DecimalValue(s"$result".toDouble)))
+          record.update(_.fields :+= Field(resultFieldName, toValue(result)))
         } catch {
           case _ : Throwable => record
         }
@@ -90,5 +120,14 @@ class CalcLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dataset])
 
   override def onPull(): Unit = {
     pull(in)
+  }
+
+  private def toValue(result: AnyRef): Value = {
+    resultType match {
+      case CalcLogic.DecimalResult =>
+        DecimalValue(s"$result".toDouble)
+      case CalcLogic.NumberResult =>
+        NumberValue(s"$result".toDouble.toLong)
+    }
   }
 }
