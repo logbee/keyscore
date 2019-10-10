@@ -17,7 +17,7 @@ import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATIO
 import io.logbee.keyscore.pipeline.contrib.tailin.LocalFileSourceLogic.Poll
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.{LocalDir, LocalFile}
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RAMPersistenceContext, ReadPersistence, ReadSchedule}
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RamPersistenceContext, ReadPersistence, ReadSchedule}
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read._
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatcherProvider}
@@ -304,12 +304,12 @@ class LocalFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Datas
 
     val baseDir = Paths.get(invariableString.get)
 
-    readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
+    readPersistence = new ReadPersistence(completedPersistence = new RamPersistenceContext(),
                                           committedPersistence = FilePersistenceContext(
                                             FilePersistenceContext.Configuration(
                                               config.filePersistenceConfig,
                                               persistenceEnabled,
-                                              s"${classOf[LocalFileSourceLogic].getSimpleName}-${parameters.uuid}.json"
+                                              s"${classOf[LocalFileSourceLogic].getSimpleName}-${parameters.uuid}"
                                             )
                                           ))
 
@@ -401,7 +401,7 @@ class LocalFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Datas
             fields = List(
               Field(fieldName, TextValue(fileReadData.string)),
               Field("file.path", TextValue(fileReadData.baseFile.absolutePath)),
-              Field("file.modified-timestamp", NumberValue(fileReadData.writeTimestamp)),
+              Field("file.modified-timestamp", TimestampValue(fileReadData.writeTimestamp / 1000, (fileReadData.writeTimestamp % 1000 * 1000000).asInstanceOf[Int])),
             )
           ))
         )

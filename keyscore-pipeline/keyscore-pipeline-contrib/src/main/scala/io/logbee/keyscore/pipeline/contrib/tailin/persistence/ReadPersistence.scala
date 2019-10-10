@@ -6,16 +6,16 @@ import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
 import scala.reflect.runtime.universe.typeTag
 
 
-class ReadPersistence(completedPersistence: PersistenceContext, committedPersistence: PersistenceContext) {
+class ReadPersistence(completedPersistence: PersistenceContext[String, FileReadRecord], committedPersistence: PersistenceContext[String, FileReadRecord]) {
 
   def getCompletedRead(baseFile: FileHandle): FileReadRecord = {
     val absolutePath = baseFile.absolutePath
 
-    completedPersistence.load[FileReadRecord](absolutePath) match {
+    completedPersistence.load(absolutePath) match {
       case Some(readPersistenceContextEntry) => readPersistenceContextEntry
         
       case None => //if no completed, uncommitted reads have been persisted
-        committedPersistence.load[FileReadRecord](absolutePath) match {
+        committedPersistence.load(absolutePath) match {
           case Some(commitPersistenceContextEntry) => commitPersistenceContextEntry
             
           case None => //if nothing is found in neither the completed nor the committed entries
@@ -28,9 +28,9 @@ class ReadPersistence(completedPersistence: PersistenceContext, committedPersist
   def completeRead(baseFile: FileHandle, fileReadRecord: FileReadRecord): Unit = {
     val absolutePath = baseFile.absolutePath
 
-    completedPersistence.load[FileReadRecord](absolutePath)(typeTag[FileReadRecord]) match {
+    completedPersistence.load(absolutePath) match {
       case Some(readPersistenceEntry) =>
-        if (readPersistenceEntry.previousReadTimestamp < fileReadRecord.previousReadTimestamp) {
+        if (readPersistenceEntry.previousReadTimestamp <= fileReadRecord.previousReadTimestamp) {
           completedPersistence.store(absolutePath, fileReadRecord)
         }
         
@@ -45,9 +45,9 @@ class ReadPersistence(completedPersistence: PersistenceContext, committedPersist
     val absolutePath = baseFile.absolutePath
 
     { //check if the timestamp to commit is for some reason newer than the timestamp of the last completed read
-      completedPersistence.load[FileReadRecord](absolutePath)(typeTag[FileReadRecord]) match {
+      completedPersistence.load(absolutePath) match {
         case Some(readPersistenceEntry) =>
-          if (readPersistenceEntry.previousReadTimestamp < fileReadRecord.previousReadTimestamp) {
+          if (readPersistenceEntry.previousReadTimestamp <= fileReadRecord.previousReadTimestamp) {
             completedPersistence.store(absolutePath, fileReadRecord)
           }
           
@@ -58,9 +58,9 @@ class ReadPersistence(completedPersistence: PersistenceContext, committedPersist
     
     
     //make sure the entry to commit is actually newer than the entry we currently have committed
-    committedPersistence.load[FileReadRecord](absolutePath)(typeTag[FileReadRecord]) match {
+    committedPersistence.load(absolutePath) match {
       case Some(commitPersistenceEntry) =>
-        if (commitPersistenceEntry.previousReadTimestamp < fileReadRecord.previousReadTimestamp) {
+        if (commitPersistenceEntry.previousReadTimestamp <= fileReadRecord.previousReadTimestamp) {
           committedPersistence.store(absolutePath, fileReadRecord)
         }
         

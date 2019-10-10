@@ -24,7 +24,7 @@ import io.logbee.keyscore.pipeline.commons.CommonCategories.CATEGORY_LOCALIZATIO
 import io.logbee.keyscore.pipeline.contrib.tailin.SmbFileSourceLogic.Poll
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.{SmbDir, SmbFile}
 import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirNotOpenableException, FileHandle}
-import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RAMPersistenceContext, ReadPersistence, ReadSchedule}
+import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RamPersistenceContext, ReadPersistence, ReadSchedule}
 import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read._
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatchDirNotFoundException, WatcherProvider}
@@ -211,12 +211,12 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
     renamePostReadFileAction_append = configuration.getValueOrDefault(LocalFileSourceLogic.renamePostReadFileAction_append, renamePostReadFileAction_append)
     persistenceEnabled = configuration.getValueOrDefault(LocalFileSourceLogic.persistenceEnabled, persistenceEnabled)
 
-    readPersistence = new ReadPersistence(completedPersistence = new RAMPersistenceContext(),
+    readPersistence = new ReadPersistence(completedPersistence = new RamPersistenceContext(),
                                           committedPersistence = FilePersistenceContext(
                                             FilePersistenceContext.Configuration(
                                               config.filePersistenceConfig,
                                               persistenceEnabled,
-                                              s"${classOf[SmbFileSourceLogic].getSimpleName}-${parameters.uuid}.json"
+                                              s"${classOf[SmbFileSourceLogic].getSimpleName}-${parameters.uuid}"
                                             )
                                           ))
 
@@ -333,7 +333,7 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
             fields = List(
               Field(fieldName, TextValue(fileReadData.string)),
               Field("file.path", TextValue(fileReadData.baseFile.absolutePath)),
-              Field("file.modified-timestamp", NumberValue(fileReadData.writeTimestamp)),
+              Field("file.modified-timestamp", TimestampValue(fileReadData.writeTimestamp / 1000, (fileReadData.writeTimestamp % 1000 * 1000000).asInstanceOf[Int])),
             )
           ))
         )

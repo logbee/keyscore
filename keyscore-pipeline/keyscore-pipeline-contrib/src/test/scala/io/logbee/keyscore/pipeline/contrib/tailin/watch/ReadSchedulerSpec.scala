@@ -15,19 +15,19 @@ class ReadSchedulerSpec extends SpecWithRotateFiles with Matchers with MockFacto
 
   trait PersistenceContextWithoutTimestamp extends LogFile {
     
-    val persistenceContextWithoutTimestamp = mock[PersistenceContext]
-    (persistenceContextWithoutTimestamp.load[FileReadRecord](_: String)(_: TypeTag[FileReadRecord]))
-      .expects(logFile.absolutePath, typeTag[FileReadRecord])
+    val persistenceContextWithoutTimestamp = mock[PersistenceContext[String, FileReadRecord]]
+    (persistenceContextWithoutTimestamp.load(_: String))
+      .expects(logFile.absolutePath)
       .returning(Some(FileReadRecord(previousReadPosition = 0, previousReadTimestamp = 0, newerFilesWithSharedLastModified = 0)))
   }
   
   
   trait PersistenceContextWithTimestamp extends RotateFiles {
     
-    val persistenceContextWithTimestamp = mock[PersistenceContext]
+    val persistenceContextWithTimestamp = mock[PersistenceContext[String, FileReadRecord]]
     
-    (persistenceContextWithTimestamp.load[FileReadRecord](_: String)(_: TypeTag[FileReadRecord]))
-      .expects(logFile.absolutePath, typeTag[FileReadRecord])
+    (persistenceContextWithTimestamp.load(_: String))
+      .expects(logFile.absolutePath)
       .returning(Some(FileReadRecord(previousReadPosition, previousReadTimestamp, newerFilesWithSharedLastModified = 0)))
   }
   

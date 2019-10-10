@@ -204,17 +204,18 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
       readDataToCallback += string
     }
     
-    if (bufferStartPositionInFile + completedBytePositionWithinBuffer == BytePos(readScheduleItem.endPos)) { //completed reading
-        doCallback(
-          callback,
-          BytePos(readScheduleItem.endPos),
-          readScheduleItem,
-          absolutePath,
-        )
-      }
+    val completedPositionInFile = bufferStartPositionInFile + completedBytePositionWithinBuffer
+    if (completedPositionInFile == BytePos(readScheduleItem.endPos)) { //completed reading
+      doCallback(
+        callback,
+        completedPositionInFile,
+        readScheduleItem,
+        absolutePath,
+      )
+    }
     
 
-    if (bufferStartPositionInFile + completedBytePositionWithinBuffer == BytePos(fileLength))
+    if (completedPositionInFile == BytePos(fileLength))
       fileCompleteActions.foreach(action => action(fileToRead))
   }
 
