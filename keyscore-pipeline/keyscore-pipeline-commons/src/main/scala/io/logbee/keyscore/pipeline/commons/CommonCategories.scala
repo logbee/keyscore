@@ -12,6 +12,7 @@ object CommonCategories {
   val DEBUG = Category("contrib.debug", TextRef("contrib.category.debug.displayName"))
   val FIELDS = Category("contrib.fields", TextRef("contrib.category.fields.displayName"))
   val JSON = Category("contrib.json", TextRef("contrib.category.json.displayName"))
+  val XML = Category("contrib.xml", TextRef("contrib.category.xml.displayName"))
   val CSV = Category("contrib.csv", TextRef("contrib.category.csv.displayName"))
   val MATH = Category("contrib.math", TextRef("contrib.category.math.displayName"))
   val REMOVE_DROP = Category("contrib.remove-drop", TextRef("contrib.category.remove-drop.displayName"))
@@ -52,6 +53,10 @@ object CommonCategories {
       JSON.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "JSON",
         GERMAN -> "JSON"
+      )),
+      XML.displayName.get -> TranslationMapping(Map(
+        ENGLISH -> "XML",
+        GERMAN -> "XML"
       )),
       CSV.displayName.get -> TranslationMapping(Map(
         ENGLISH -> "CSV",

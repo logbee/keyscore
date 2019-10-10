@@ -12,7 +12,7 @@ import io.logbee.keyscore.model.data.Importance.High
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
-import io.logbee.keyscore.model.metrics.{CounterMetricDescriptor, NumberGaugeMetricDescriptor}
+import io.logbee.keyscore.model.metrics.NumberGaugeMetricDescriptor
 import io.logbee.keyscore.model.util.ToOption.T2OptionT
 import io.logbee.keyscore.pipeline.api.{LogicParameters, SourceLogic}
 import io.logbee.keyscore.pipeline.commons.CommonCategories
