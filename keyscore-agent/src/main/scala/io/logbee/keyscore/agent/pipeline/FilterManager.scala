@@ -10,7 +10,7 @@ import io.logbee.keyscore.commons.util.StartUpWatch.Ready
 import io.logbee.keyscore.model.blueprint.BlueprintRef
 import io.logbee.keyscore.model.configuration.Configuration
 import io.logbee.keyscore.model.conversion.UUIDConversion._
-import io.logbee.keyscore.model.descriptor.{Descriptor, DescriptorRef}
+import io.logbee.keyscore.model.descriptor.{BranchDescriptor, Descriptor, DescriptorRef, FilterDescriptor, MergeDescriptor, SinkDescriptor, SourceDescriptor}
 import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api._
 import io.logbee.keyscore.pipeline.api.stage._
@@ -79,7 +79,15 @@ class FilterManager(providers: List[typed.ActorRef[StageLogicProviderRequest]]) 
     case LoadSuccess(descriptors, provider) =>
       descriptors.foreach(descriptor => {
         this.descriptors.put(descriptor.ref, Registration(descriptor, provider))
-        log.debug("Loaded descriptor <{}> provided by: {}", descriptor.ref.uuid, provider)
+        val (kind, name) = descriptor.describes match {
+          case descriptor: SourceDescriptor => ("SourceDescriptor", descriptor.name)
+          case descriptor: FilterDescriptor => ("FilterDescriptor", descriptor.name)
+          case descriptor: SinkDescriptor => ("SinkDescriptor", descriptor.name)
+          case descriptor: BranchDescriptor => ("BranchDescriptor", descriptor.name)
+          case descriptor: MergeDescriptor => ("MergeDescriptor", descriptor.name)
+          case _ => ("<unknown>", "<unknown>")
+        }
+        log.debug("{} '{}' <{}> loaded by {}.", kind, name, descriptor.ref.uuid, provider.path.name)
       })
 
     case RequestDescriptors =>
