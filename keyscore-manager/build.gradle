@@ -49,6 +49,21 @@ task copyResources(type: Copy) {
     into "$buildDir/resources/"
 }
 
+task manifest() {
+    def manifestFile = new File(buildDir, "tmp/MANIFEST.MF")
+    doLast {
+        manifestFile.text =
+        """|Implementation-Title: ${project.name},
+           |Implementation-Version: $version,
+           |Implementation-Revision: $revision,
+           |Implementation-Revision-Date: $revisionDate,
+           |Implementation-Build-Date: $buildDate,
+           |Implementation-Vendor: 'logbee.io'
+           |""".stripMargin()
+    }
+    outputs.file(manifestFile)
+}
+
 distributions {
     main {
         contents {
@@ -58,6 +73,7 @@ distributions {
                 from('build/webpack/')
                 from(copyResources.outputs)
                 from(webpack)
+                from(manifest)
             }
         }
     }
@@ -78,6 +94,7 @@ task createDockerfile(type: Dockerfile) {
     instruction { 'COPY conf/nginx.conf /etc/nginx/nginx.conf' }
     instruction { 'COPY docker/docker-entrypoint.sh /docker-entrypoint.sh' }
     instruction { 'COPY build/install/keyscore-manager/web-content /usr/share/nginx/html/' }
+    instruction { 'COPY build/tmp/MANIFEST.MF /usr/share/nginx/html/' }
     instruction { "CMD /docker-entrypoint.sh" }
     instruction { 'EXPOSE 80' }
 }
