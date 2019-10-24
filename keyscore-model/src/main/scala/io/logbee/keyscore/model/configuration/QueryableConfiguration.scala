@@ -12,6 +12,7 @@ trait QueryableConfiguration {
   private def parameterMapping: Map[String, Any] = parameterSet.parameters.foldLeft(mutable.HashMap.empty[String, Any]) {
       case (result, parameter: BooleanParameter) => result += (parameter.ref.id -> parameter.value)
       case (result, parameter: TextParameter) => result += (parameter.ref.id -> parameter.value)
+      case (result, parameter: PasswordParameter) => result += (parameter.ref.id -> parameter.value)
       case (result, parameter: ExpressionParameter) => result += (parameter.ref.id -> parameter.value)
       case (result, parameter: NumberParameter) => result += (parameter.ref.id -> parameter.value)
       case (result, parameter: DecimalParameter) => result += (parameter.ref.id -> parameter.value)
@@ -53,6 +54,11 @@ trait QueryableConfiguration {
   }
 
   def findValue(descriptor: TextParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
+    case Some(value: String) => Option(value)
+    case _ => None
+  }
+
+  def findValue(descriptor: PasswordParameterDescriptor): Option[String] = parameterMapping.get(descriptor.ref.id) match {
     case Some(value: String) => Option(value)
     case _ => None
   }
@@ -109,6 +115,8 @@ trait QueryableConfiguration {
   def getValueOrDefault(descriptor: DecimalParameterDescriptor, default: Double): Double = findValue(descriptor).getOrElse(default)
 
   def getValueOrDefault(descriptor: TextParameterDescriptor, default: String): String = findValue(descriptor).getOrElse(default)
+
+  def getValueOrDefault(descriptor: PasswordParameterDescriptor, default: String): String = findValue(descriptor).getOrElse(default)
 
   def getValueOrDefault(descriptor: ExpressionParameterDescriptor, default: String): String = findValue(descriptor).getOrElse(default)
 
