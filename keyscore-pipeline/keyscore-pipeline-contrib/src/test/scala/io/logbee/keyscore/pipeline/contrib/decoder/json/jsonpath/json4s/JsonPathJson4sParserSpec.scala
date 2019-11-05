@@ -52,15 +52,17 @@ class JsonPathJson4sParserSpec extends FreeSpec with Matchers {
         |      }
         |    ]
         |  },
-        |  "sensors": {
-        |     "0": {
-        |       "name": "a1",
-        |       "id": 3
-        |     },
-        |     "1": {
-        |       "name": "a2",
-        |       "id": 35
-        |     }
+        |  "hardware": {
+        |    "sensors": {
+        |       "0": {
+        |         "name": "a1",
+        |         "id": 3
+        |       },
+        |       "1": {
+        |         "name": "a2",
+        |         "id": 35
+        |       }
+        |    }
         |  }
         |}
       """.stripMargin)
@@ -131,7 +133,7 @@ class JsonPathJson4sParserSpec extends FreeSpec with Matchers {
 
       Fixture(
         title = "wildcard elements",
-        jsonpath = "$.sensors.*",
+        jsonpath = "$.hardware.sensors.*",
         expectation = JArray(List(
           JObject(
             ("name", JString("a1")),
@@ -146,7 +148,7 @@ class JsonPathJson4sParserSpec extends FreeSpec with Matchers {
 
       Fixture(
         title = "wildcard sub-elements",
-        jsonpath = "$.sensors.*.name",
+        jsonpath = "$.hardware.sensors.*.name",
         expectation = JArray(List(JString("a1"), JString("a2")))
       )
     )

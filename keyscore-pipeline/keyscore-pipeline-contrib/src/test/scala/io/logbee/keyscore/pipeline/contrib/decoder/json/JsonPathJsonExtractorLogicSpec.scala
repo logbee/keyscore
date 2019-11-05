@@ -20,44 +20,76 @@ class JsonPathJsonExtractorLogicSpec extends FreeSpec with Matchers with ScalaFu
       scala.io.Source.fromInputStream(stream).mkString
     }
 
-    "when configured to extract 'device.temperatures.data' from rawJson" - {
-
-      val configuration = Configuration(
-        TextParameter(JsonPathJsonExtractorLogic.sourceFieldNameParameter, "rawJson"),
-        TextParameter(JsonPathJsonExtractorLogic.jsonpathParameter, "$.device.temperatures.data")
-      )
-
-      "should extract the data as recods" in new TestStreamForFilter[JsonPathJsonExtractorLogic](configuration) {
-
-        whenReady(filterFuture) { _ =>
-
-          val sample = Dataset(Record(
-            Field("rawJson", TextValue(plainJson))
-          ))
-
-          sink.request(1)
-          source.sendNext(sample)
-
-          val dataset = sink.requestNext()
-          dataset.records should contain only (
-            Record(
-              Field("rawJson", TextValue(plainJson))
-            ),
-            Record(
-              Field("time", NumberValue(1)),
-              Field("temperature", NumberValue(5)),
-            ),
-            Record(
-              Field("time", NumberValue(3)),
-              Field("temperature", NumberValue(7)),
-            ),
-            Record(
-              Field("time", NumberValue(7)),
-              Field("temperature", NumberValue(15))
-            )
+    Seq(
+      Fixture(
+        title = "should extract the three temperatures as records beside the raw-data",
+        expression = "$.device.temperatures.data",
+        sample = plainJson,
+        configuration = Configuration(
+          TextParameter(JsonPathJsonExtractorLogic.sourceFieldNameParameter, "sample"),
+          TextParameter(JsonPathJsonExtractorLogic.jsonpathParameter, "$.device.temperatures.data")
+        ),
+        expectation = Dataset(
+          Record(
+            Field("sample", TextValue(plainJson))
+          ),
+          Record(
+            Field("time", NumberValue(1)),
+            Field("temperature", NumberValue(5)),
+          ),
+          Record(
+            Field("time", NumberValue(3)),
+            Field("temperature", NumberValue(7)),
+          ),
+          Record(
+            Field("time", NumberValue(7)),
+            Field("temperature", NumberValue(15))
           )
+        )
+      ),
+      Fixture(
+        title = "should extract two records beside the raw-data",
+        expression = "$.device.hardware.sensors.*",
+        sample = plainJson,
+        configuration = Configuration(
+          TextParameter(JsonPathJsonExtractorLogic.sourceFieldNameParameter, "sample"),
+          TextParameter(JsonPathJsonExtractorLogic.jsonpathParameter, "$.device.hardware.sensors.*")
+        ),
+        expectation = Dataset(
+          Record(
+            Field("sample", TextValue(plainJson))
+          ),
+          Record(
+            Field("name", TextValue("a1")),
+            Field("id", NumberValue(3)),
+          ),
+          Record(
+            Field("name", TextValue("a2")),
+            Field("id", NumberValue(35)),
+          )
+        )
+      )
+    ).foreach {
+      case Fixture(title, expression, configuration, sample, expectation) =>
+        s"when configured with '$expression'" - {
+
+          s"$title" in new TestStreamForFilter[JsonPathJsonExtractorLogic](configuration) {
+
+            whenReady(filterFuture) { _ =>
+
+              val sampleDataset = Dataset(Record(
+                Field("sample", TextValue(sample))
+              ))
+
+              sink.request(1)
+              source.sendNext(sampleDataset)
+
+              val result = sink.requestNext()
+
+              result shouldBe expectation
+            }
+          }
         }
-      }
     }
 
     "when configured to remove the source field" - {
@@ -84,9 +116,11 @@ class JsonPathJsonExtractorLogicSpec extends FreeSpec with Matchers with ScalaFu
             Record(
               Field("name", TextValue("robot"))
             )
-            )
+          )
         }
       }
     }
   }
+
+  case class Fixture(title: String, expression: String, configuration: Configuration, sample: String, expectation: Dataset)
 }
