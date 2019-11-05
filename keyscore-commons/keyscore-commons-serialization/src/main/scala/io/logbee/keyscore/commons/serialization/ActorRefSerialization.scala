@@ -1,8 +1,9 @@
-package io.logbee.keyscore.commons.actor
+package io.logbee.keyscore.commons.serialization
 
 import akka.actor.typed.scaladsl.adapter._
 import akka.actor.{ActorRef, ExtendedActorSystem, typed}
 import akka.serialization.Serialization.serializedActorPath
+
 
 trait ActorRefSerialization {
 

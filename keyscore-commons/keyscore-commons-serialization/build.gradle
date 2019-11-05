@@ -1,0 +1,7 @@
+apply from: rootProject.file('dependencies.gradle')
+
+dependencies {
+
+    compile dependency.scala_lang
+    compile dependency.akka_actor
+}

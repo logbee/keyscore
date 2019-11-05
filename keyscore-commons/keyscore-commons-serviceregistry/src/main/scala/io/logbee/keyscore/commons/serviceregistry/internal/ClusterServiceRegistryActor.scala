@@ -8,6 +8,7 @@ import com.typesafe.config.Config
 import io.logbee.keyscore.commons.serviceregistry.ServiceRegistry.Registrar._
 import io.logbee.keyscore.commons.serviceregistry.ServiceRegistry.ServiceKey
 
+import scala.concurrent.duration.Duration.fromNanos
 import scala.language.implicitConversions
 
 class ClusterServiceRegistryActor extends Actor with ActorLogging {
@@ -102,8 +103,6 @@ object ClusterServiceRegistryActor {
 
   private object Configuration {
 
-    import io.logbee.keyscore.model.util.ToFiniteDuration.asFiniteDuration
-
     def apply(config: Config): Configuration = {
 
       val registryConfig = config.getConfig("keyscore.service-registry")
@@ -116,13 +115,13 @@ object ClusterServiceRegistryActor {
       Configuration(
         readConsistency = replicationConfig.getString("read-consistency") match {
           case "local" => Replicator.ReadLocal
-          case "majority" => Replicator.ReadMajority(readTimeout)
-          case "all" => Replicator.ReadAll(readTimeout)
+          case "majority" => Replicator.ReadMajority(fromNanos(readTimeout.toNanos))
+          case "all" => Replicator.ReadAll(fromNanos(readTimeout.toNanos))
         },
         writeConsistency = replicationConfig.getString("write-consistency") match {
           case "local" => Replicator.WriteLocal
-          case "majority" => Replicator.WriteMajority(writeTimeout)
-          case "all" => Replicator.WriteAll(writeTimeout)
+          case "majority" => Replicator.WriteMajority(fromNanos(writeTimeout.toNanos))
+          case "all" => Replicator.WriteAll(fromNanos(writeTimeout.toNanos))
         },
         keyPrefix = registryConfig.getString("key-prefix")
       )

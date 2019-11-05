@@ -113,6 +113,7 @@ configure ([
     project(':keyscore-frontier'),
     project(':keyscore-commons'),
     project(':keyscore-commons:keyscore-commons-logging'),
+    project(':keyscore-commons:keyscore-commons-serialization'),
     project(':keyscore-commons:keyscore-commons-serviceregistry'),
     project(':keyscore-model'),
     project(':keyscore-pipeline:keyscore-pipeline-api'),

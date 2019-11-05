@@ -4,7 +4,7 @@ import java.io.NotSerializableException
 
 import akka.actor.ExtendedActorSystem
 import akka.serialization.SerializerWithStringManifest
-import io.logbee.keyscore.commons.actor.ActorRefSerialization
+import io.logbee.keyscore.commons.serialization.ActorRefSerialization
 import io.logbee.keyscore.commons.serviceregistry.ServiceRegistry.Registrar._
 import io.logbee.keyscore.commons.serviceregistry.ServiceRegistry.ServiceKey
 
