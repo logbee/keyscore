@@ -1,8 +1,7 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {FormControl, FormGroup} from "@angular/forms";
-import {BehaviorSubject, Observable, ReplaySubject, Subject} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {BlockDescriptor} from "../models/block-descriptor.model";
-import {map, mapTo, startWith, take, takeUntil} from "rxjs/internal/operators";
 import * as _ from "lodash";
 import {
     Parameter,
@@ -13,7 +12,8 @@ import {Configuration} from "@keyscore-manager-models/src/main/common/Configurat
 import {Maturity} from "@keyscore-manager-models/src/main/descriptors/Maturity";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
-import {MatSelect} from "@angular/material";
+import {map, startWith, takeUntil} from "rxjs/operators";
+import {ParameterFormComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameter-form.component"
 
 
 @Component({
@@ -38,6 +38,8 @@ import {MatSelect} from "@angular/material";
                             <mat-label>{{'CONFIGURATOR.PIPELINE_DESCRIPTION' | translate}}</mat-label>
 
                         </mat-form-field>
+<!--
+    TODO: Implemented a feature-toggle to enable/disable this component.
 
                         <mat-form-field>
                             <mat-select formControlName="pipeline.selectedAgent" #agentSelect>
@@ -47,12 +49,12 @@ import {MatSelect} from "@angular/material";
                                 </mat-option>
                                 <mat-option [value]="" *ngIf="!filteredAgentsControl.value">None</mat-option>
                                 <mat-option *ngFor="let agent of filteredAgents$ | async" [value]="agent.id">
-                                    {{agent.name}} (host: {{agent.host}}, id: {{agent.id}})
+                                    {{agent.name}}
                                 </mat-option>
                             </mat-select>
                             <mat-label>{{'CONFIGURATOR.SELECTED_AGENT' | translate}}</mat-label>
                         </mat-form-field>
-
+-->
                     </form>
                 </div>
             </div>
@@ -62,7 +64,9 @@ import {MatSelect} from "@angular/material";
                         <div>
                             <div>
                                 <h3 fxFlex style="margin-bottom: 5px">{{config?.descriptor?.displayName}}</h3>
-                                <mat-icon *ngIf="showMaturityIcon(config?.descriptor.maturity)" [svgIcon]="maturityIconNameOf(config?.descriptor.maturity)" matTooltip="{{maturityTooltipOf(config?.descriptor.maturity) | translate}}">
+                                <mat-icon *ngIf="showMaturityIcon(config?.descriptor.maturity)"
+                                          [svgIcon]="maturityIconNameOf(config?.descriptor.maturity)"
+                                          matTooltip="{{maturityTooltipOf(config?.descriptor.maturity) | translate}}">
                                 </mat-icon>
                             </div>
                             <p style="margin-bottom: 0; font-family: monospace;font-size: small">{{config?.uuid}}</p>
@@ -70,7 +74,7 @@ import {MatSelect} from "@angular/material";
                         <p>{{config?.descriptor?.description}}</p>
                         <mat-divider></mat-divider>
                         <div class="configurator-body">
-                            <parameter-form [config]="parameterMap$|async"
+                            <parameter-form #parameterForm [config]="parameterMap$|async"
                                             [autoCompleteDataList]="autoCompleteOptions"
                                             (onValueChange)="saveConfiguration($event)"></parameter-form>
                         </div>
@@ -93,6 +97,9 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     @Input('config') set config(val: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) {
         if (val) {
+            if(this.parameterForm){
+                this.parameterForm.triggerInputChangeDetection();
+            }
             this._config = val.conf;
             this.config$.next(val);
         } else {
@@ -105,7 +112,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
         this.autoCompleteOptions = Array.from(
             new Set([].concat.apply(data.map(data =>
                 data.records.map(rec =>
-                    rec.fields.map(field => field.name))))));
+                    rec.fields.map(field => field.name)))))) as string[];
     }
 
     private autoCompleteOptions: string[] = [];
@@ -116,6 +123,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     @Output() onSavePipelineMetaData: EventEmitter<{ name: string, description: string, selectedAgent: string }> = new EventEmitter();
     @Output() onOverwriteConfiguration: EventEmitter<void> = new EventEmitter();
 
+    @ViewChild('parameterForm') parameterForm: ParameterFormComponent;
 
     private config$ = new BehaviorSubject<{ conf: Configuration, descriptor: BlockDescriptor, uuid: string }>(undefined);
     private _config: Configuration;
@@ -135,7 +143,7 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
 
-        this.config$.pipe(takeUntil(this.unsubscribe$)).subscribe(config => {
+        this.config$.pipe(takeUntil(this.unsubscribe$)).subscribe((config: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) => {
             this.createParameterMap(config);
         });
 
@@ -154,7 +162,11 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
             });
         });
 
-        this.filteredAgents$ = this.filteredAgentsControl.valueChanges.pipe(startWith(''), map(val => this.filterAgents(val)), takeUntil(this.unsubscribe$))
+        this.filteredAgents$ = this.filteredAgentsControl.valueChanges.pipe(
+            startWith(''),
+            map((val: string) => this.filterAgents(val)),
+            takeUntil(this.unsubscribe$)
+        )
 
 
     }

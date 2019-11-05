@@ -91,7 +91,9 @@
     "OUTSWITCH": "OUTPUT",
     "INOUT_TOOLTIP": "Zeige Nachrichten vor und nach der Bearbeitung durch den Block.",
     "FIELDS": "Felder",
-    "DATASETS": "Nachrichten"
+    "DATASETS": "Nachrichten",
+    "VALUES": "Werte"
+
   },
   "VIEWPRESET": {
     "PRESET_IN": "Zeige nur Ausgangswerte.",

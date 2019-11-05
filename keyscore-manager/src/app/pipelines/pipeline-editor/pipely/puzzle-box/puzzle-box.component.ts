@@ -12,7 +12,7 @@ import * as _ from 'lodash';
         <div fxLayout="column">
             <div class="puzzle-search-field mat-elevation-z2">
                 <mat-form-field>
-                    <input #searchInput matInput placeholder="search" [formControl]="searchFormControl"/>
+                    <input #searchInput matInput placeholder="Search" [formControl]="searchFormControl"/>
                     <button mat-button *ngIf="searchInput.value" matSuffix mat-icon-button aria-label="Clear"
                             (click)="searchFormControl.setValue('')">
                         <mat-icon>close</mat-icon>

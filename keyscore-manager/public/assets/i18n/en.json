@@ -91,7 +91,8 @@
     "OUTSWITCH": "OUTPUT",
     "INOUT_TOOLTIP": "Show datasets before and after they where processed by the block.",
     "FIELDS": "Fields",
-    "DATASETS": "Datasets"
+    "DATASETS": "Datasets",
+    "VALUES": "Values"
   },
   "VIEWPRESET": {
     "PRESET_IN": "View Input values only.",

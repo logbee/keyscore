@@ -1,11 +1,11 @@
 import {
     ChangeDetectionStrategy, ChangeDetectorRef,
-    Component,
+    Component, ElementRef,
     EventEmitter,
     Input,
     OnDestroy,
     OnInit,
-    Output,
+    Output, Renderer, Renderer2,
     ViewChild,
     ViewContainerRef
 } from "@angular/core";
@@ -17,6 +17,7 @@ import {
 } from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
+import {ParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/ParameterComponent";
 
 @Component({
     selector: 'parameter-form',
@@ -62,7 +63,9 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
 
     private unsubscribe$: Subject<void> = new Subject<void>();
 
-    constructor(private parameterComponentFactory: ParameterComponentFactoryService, private cd: ChangeDetectorRef) {
+    private parameterComponents: ParameterComponent<ParameterDescriptor, Parameter>[] = [];
+
+    constructor(private parameterComponentFactory: ParameterComponentFactoryService, private cd: ChangeDetectorRef, private renderer: Renderer2, private elem: ElementRef) {
     }
 
     ngOnInit() {
@@ -88,12 +91,24 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
         componentRef.instance.descriptor = descriptor;
         componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
 
-        componentRef.instance.emitter.pipe(takeUntil(this.unsubscribe$)).subscribe(parameter =>
-            this.onValueChange.emit(parameter));
+        componentRef.instance.emitter.pipe(takeUntil(this.unsubscribe$)).subscribe((parameter: Parameter) => {
+                this.onValueChange.emit(parameter);
+            }
+        );
+
+        this.parameterComponents.push(componentRef.instance);
     }
 
     ngOnDestroy() {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
+    }
+
+    public triggerInputChangeDetection() {
+        let inputs = this.elem.nativeElement.querySelectorAll('input');
+        inputs.forEach(input => {
+                input.blur();
+
+        })
     }
 }

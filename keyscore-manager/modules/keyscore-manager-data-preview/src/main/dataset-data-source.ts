@@ -1,36 +1,89 @@
 import {MatTableDataSource} from "@angular/material";
 import {BehaviorSubject} from "rxjs/index";
-import {DatasetTableRowModel, DatasetTableModel, DatasetTableRecordModel, DatasetTableRowModelData, ChangeType} from "@keyscore-manager-models/src/main/dataset/DatasetTableModel";
+import {
+    DatasetTableRowModel,
+    DatasetTableModel,
+    DatasetTableRecordModel,
+    DatasetTableRowModelData,
+    ChangeType
+} from "@keyscore-manager-models/src/main/dataset/DatasetTableModel";
 import {Value, ValueJsonClass} from "@keyscore-manager-models/src/main/dataset/Value";
-import { Dataset } from "@keyscore-manager-models/src/main/dataset/Dataset";
-import { Field } from "@keyscore-manager-models/src/main/dataset/Field";
-import { Record } from "@keyscore-manager-models/src/main/dataset/Record";
+import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
+import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
+import {Record} from "@keyscore-manager-models/src/main/dataset/Record";
 
 export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> {
-    readonly numberOfDataset: number = 0;
-    readonly numberOfRecords: number = 0;
+
     dummyDataset: Dataset = {
         metaData: {labels: []},
         records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
     };
-    results: DatasetTableModel[] = [];
 
+    set datasets(val: Dataset[]) {
+        if (val) {
+            this._datasetTableModels = [];
 
-    constructor(datasets: Map<string, Dataset[]>, index: number, recordsIndex: number, selectedBlock: string, where: string) {
-        super();
-        if (datasets.get(selectedBlock) != undefined) {
-            datasets.get(selectedBlock).forEach(dataset => {
-                let model: DatasetTableModel = null;
-                model = this.createDatasetTableModel(dataset, this.dummyDataset);
-                this.results.push(model)
+            val.forEach(dataset => {
+                const model = this.createDatasetTableModel(dataset, this.dummyDataset);
+                this._datasetTableModels.push(model);
             });
+            if (!this.datasetIndex || !(this._datasetTableModels && this._datasetTableModels[this.datasetIndex])) {
+                this.datasetIndex = 0;
+            } else {
+                this.datasetIndex = this.datasetIndex;
+            }
         }
+    }
 
-        if (this.results && this.results[index]) {
-            this.numberOfDataset = this.results.length;
-            this.numberOfRecords = this.results[index].records.length;
-            this.data = this.results[index].records[recordsIndex].rows;
+    set datasetIndex(val: number) {
+        this._datasetIndex = val;
+        console.log(`Set dataset index: recordsIndex = ${this.recordsIndex} | datasetIndex = ${this.datasetIndex} | tableModels = ${this._datasetTableModels}`);
+        if (!this.recordsIndex || !(this._datasetTableModels && this._datasetTableModels[this.datasetIndex] && this._datasetTableModels[this.datasetIndex].records[this.recordsIndex])) {
+            this.recordsIndex = 0;
+        } else {
+            this.recordsIndex = this.recordsIndex;
         }
+    }
+
+    get datasetIndex(): number {
+        return this._datasetIndex;
+    }
+
+    set recordsIndex(val: number) {
+        this._recordsIndex = val;
+        this.updateData();
+    }
+
+    get recordsIndex(): number {
+        return this._recordsIndex;
+    }
+
+    private _recordsIndex: number;
+
+    private _datasetIndex: number;
+
+    private _datasetTableModels: DatasetTableModel[] = [];
+
+
+    get numberOfDatasets(): number {
+        if (!this._datasetTableModels) return 0;
+
+        return this._datasetTableModels.length;
+
+    }
+
+    get numberOfRecords(): number {
+        if (!(this._datasetTableModels && this._datasetTableModels[this.datasetIndex])) return 0;
+
+        return this._datasetTableModels[this.datasetIndex].records.length;
+
+    }
+
+    constructor(datasets: Dataset[]) {
+        super();
+        this.datasets = datasets;
+
+
         this.filterPredicate = (datasetModel: DatasetTableRowModel, filter: string) => {
             let searchString = filter.trim();
             return this.filterAccessingRules(datasetModel, searchString);
@@ -51,19 +104,17 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     }
 
     connect(): BehaviorSubject<DatasetTableRowModel[]> {
-        return super.connect()
+        return super.connect();
     }
 
     disconnect() {
-
+        super.disconnect();
     }
 
-    public getNumberOfDatsets() {
-        return this.numberOfDataset;
-    }
-
-    public getNumberOfRecords() {
-        return this.numberOfRecords;
+    private updateData() {
+        if (this._datasetTableModels && this._datasetTableModels[this.datasetIndex]) {
+            this.data = this._datasetTableModels[this.datasetIndex].records[this.recordsIndex].rows;
+        }
     }
 
     private filterAccessingRules(datasetModel: DatasetTableRowModel, searchString) {
@@ -72,8 +123,9 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
         return this.checkFilterMatch(input, searchString.toUpperCase()) ||
             this.checkFilterMatch(input, searchString.toLowerCase()) ||
             this.checkFilterMatch(output, searchString.toUpperCase() ||
-            this.checkFilterMatch(output, searchString.toLowerCase()))
+                this.checkFilterMatch(output, searchString.toLowerCase()))
     }
+
     private accessFieldValues(valueObject: Value): any {
         if (!valueObject) {
             return "No extracted datasets yet!"
@@ -99,6 +151,7 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     private checkFilterMatch(model, searchString) {
         return model.name.includes(searchString) || model.value.jsonClass.includes(searchString) || this.accessFieldValues(model.value).includes(searchString);
     }
+
     private createDatasetTableModel(inputDataset: Dataset, outputDataset: Dataset): DatasetTableModel {
         const recordModels = inputDataset.records.map(record => {
             const fieldnames = record.fields.map(field => field.name);

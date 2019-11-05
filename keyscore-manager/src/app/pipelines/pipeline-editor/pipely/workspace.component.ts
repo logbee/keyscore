@@ -37,6 +37,7 @@ import {Configuration} from "@/../modules/keyscore-manager-models/src/main/commo
 import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
+import {Label} from "@keyscore-manager-models/src/main/common/MetaData"
 
 
 @Component({
@@ -311,13 +312,34 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     }
 
     private saveConfiguration(configuration: Configuration) {
-        this.selectedDraggable.getDraggableModel().configuration = configuration;
+        let stack:Draggable[] = [];
+        stack.push(...this.draggables);
+        let draggable:Draggable;
+        while(stack.length > 0){
+            draggable = stack.pop();
+            if(draggable.getDraggableModel().configuration.ref.uuid === configuration.ref.uuid){
+                draggable.getDraggableModel().configuration = configuration;
+                return;
+            } else if(draggable.getNext()){
+                stack.push(draggable.getNext());
+            }
+        }
     }
 
     private savePipelineMetaData(metaData: { name: string, description: string, selectedAgent: string }) {
-        this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.name').value = new TextValue(metaData.name);
-        this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.description').value = new TextValue(metaData.description);
-        this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === 'pipeline.selectedAgent').value = new TextValue(metaData.selectedAgent);
+
+        this.setPipelineMetaData("pipeline.name", metaData.name);
+        this.setPipelineMetaData("pipeline.description", metaData.description);
+        this.setPipelineMetaData("pipeline.selectedAgent", metaData.selectedAgent);
+    }
+
+    private setPipelineMetaData(name: string, value: string) {
+        const label = this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === name);
+        if (label) {
+            label.value = new TextValue(value)
+        } else {
+            this.pipeline.pipelineBlueprint.metadata.labels.push({name: name, value: new TextValue(value)})
+        }
     }
 
     addDropzone(dropzone: Dropzone) {

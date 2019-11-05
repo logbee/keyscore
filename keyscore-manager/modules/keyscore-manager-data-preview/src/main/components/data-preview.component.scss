@@ -1,7 +1,10 @@
+@import "../../../../keyscore-manager-material/src/main/style/variables";
+
 th.mat-header-cell.text-padding {
-  padding-left: 15px!important;
+  padding-left: 15px !important;
 
 }
+
 td.mat-cell.cell-border {
   border-left: 2px solid rgba(128, 128, 128, 0.76) !important;
   padding-left: 15px;
@@ -24,8 +27,7 @@ mat-form-field {
 }
 
 .control {
-  padding-left: 15px;
-  margin-top: 15px;
+  margin-bottom: 16px;
 
 }
 
@@ -34,3 +36,15 @@ mat-form-field {
   margin-top: 15px !important;
 
 }
+
+.no-results-wrapper {
+  padding-top: 15vh;
+  color: rgba(0, 0, 0, 0.38);
+  font-size: 1.4em;
+}
+
+.data-preview-wrapper {
+  padding: 16px 16px 0;
+}
+
+

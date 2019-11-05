@@ -10,41 +10,110 @@ import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {of} from "rxjs";
 import {NgModule} from "@angular/core";
-// import {
-//     ChangeType,
-//     Dataset,
-//     DatasetTableModel,
-//     DatasetTableRecordModel,
-//     DatasetTableRowModel,
-//     DatasetTableRowModelData,
-//     ValueJsonClass
-// } from "../../build/keyscore-manager-models";
-//
 
-// const exampleDataset: Dataset = {
-//     metaData: null,
-//     records: [
-//         {
-//             fields: [
-//                 {
-//                     name: "message",
-//                     value: {
-//                         jsonClass: ValueJsonClass.TextValue,
-//                         value: "testValue1"
-//                     }
-//                 },
-//                 {
-//                     name: "measurement",
-//                     value: {
-//                         jsonClass: ValueJsonClass.TextValue,
-//                         value: "125.265"
-//                     }
-//                 }
-//             ]
-//         }
-//     ]
-// };
-//
+import {ValueJsonClass} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
+
+
+const exampleDataset: Dataset = {
+    metaData: null,
+    records: [
+        {
+            fields: [
+                {
+                    name: "message",
+                    value: {
+                        jsonClass: ValueJsonClass.TextValue,
+                        value: "testValue0"
+                    }
+                },
+                {
+                    name: "measurement",
+                    value: {
+                        jsonClass: ValueJsonClass.TextValue,
+                        value: "25.265"
+                    }
+                }
+            ]
+        },
+        {
+            fields: [
+                {
+                    name: "message1",
+                    value: {
+                        jsonClass: ValueJsonClass.TextValue,
+                        value: "testValue1"
+                    }
+                },
+                {
+                    name: "measurement1",
+                    value: {
+                        jsonClass: ValueJsonClass.TextValue,
+                        value: "125.265"
+                    }
+                }
+            ]
+        }
+    ]
+};
+
+const exampleDataset2: Dataset = {
+    ...exampleDataset,
+    records: [exampleDataset.records[0]]
+};
+
+const exampleDataset3: Dataset = {
+    metaData: null,
+    records: [
+        {
+            fields: [
+                {
+                    name: "haha",
+                    value: {
+                        jsonClass: ValueJsonClass.TextValue,
+                        value: "blubb"
+                    }
+                },
+                {
+                    name: "measurementXY",
+                    value: {
+                        jsonClass: ValueJsonClass.TextValue,
+                        value: "2545.265"
+                    }
+                }
+            ]
+        },
+        {
+            fields: [
+                {
+                    name: "message13434",
+                    value: {
+                        jsonClass: ValueJsonClass.TextValue,
+                        value: "testValue1123123123"
+                    }
+                },
+                {
+                    name: "measurement1342",
+                    value: {
+                        jsonClass: ValueJsonClass.TextValue,
+                        value: "111125.265"
+                    }
+                }
+            ]
+        }
+    ]
+};
+
+let mapIn = new Map([
+    ["test1", [exampleDataset, exampleDataset2,exampleDataset3]],
+    ["test2", []],
+    ["test3", [exampleDataset]]
+]);
+let mapOut = new Map([
+    ["test1", [exampleDataset2,exampleDataset3]],
+    ["test2", []],
+    ["test3", [exampleDataset]]
+]);
 
 
 
@@ -53,12 +122,13 @@ export function HttpLoaderFactory(http: HttpClient) {
 }
 
 const staticTranslateLoader: TranslateLoader = {
-    getTranslation(lang:string) {
+    getTranslation(lang: string) {
         return of(require('../../../../public/assets/i18n/en.json'))
     }
 };
+
 @NgModule()
-class I18nModule{
+class I18nModule {
     constructor(translate: TranslateService) {
         translate.setDefaultLang('en');
         translate.use('en')
@@ -67,7 +137,7 @@ class I18nModule{
 
 storiesOf('DataPreview', module).addDecorator(
     moduleMetadata({
-        declarations: [DataPreviewComponent,LeftToRightNavigationControl,ValueType],
+        declarations: [DataPreviewComponent, LeftToRightNavigationControl, ValueType],
         imports: [
             I18nModule,
             BrowserAnimationsModule,
@@ -83,11 +153,18 @@ storiesOf('DataPreview', module).addDecorator(
                 }
             }),]
     }))
-    .add("Basic data preview", () => ({
+    .add("Basic data preview with datasets", () => ({
+        component: DataPreviewComponent,
+        props: {
+            selectedBlock: "test1",
+            inputDatasets: mapIn,
+            outputDatasets: mapOut
+        }
+    })).add("Data preview without datasets", () => ({
     component: DataPreviewComponent,
     props: {
-        selectedBlock: "test",
-        // inputTableModels: new Map<string, DatasetTableModel>().set("test", tableModels),
-        // outputTableModels: new Map<string, DatasetTableModel>().set("test", tableModels)
+        selectedBlock: "test2",
+        inputDatasets: mapIn,
+        outputDatasets: mapIn
     }
 }));

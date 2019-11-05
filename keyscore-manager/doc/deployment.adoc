@@ -81,3 +81,7 @@ include::{root_doc}/docker.adoc[tags=docker-tiny-note]
 ----
 include::{config_dir}/nginx.conf[]
 ----
+
+== Keycloak ==
+
+include::{root_doc}/keycloak-configuration.adoc[tags=keycloak-keyscore-manager]

@@ -239,4 +239,22 @@ sidemenu .mat-list-item mat-icon {
     max-width: 80% !important;
 }
 
+/* Custom mat-slide-toggle with colored unchecked state*/
+mat-slide-toggle.mat-colored-always.mat-primary:not(.mat-checked):not(.mat-disabled) .mat-slide-toggle-bar {
+    background-color: rgba($primary,0.54);
+}
+
+mat-slide-toggle.mat-colored-always.mat-accent:not(.mat-checked):not(.mat-disabled) .mat-slide-toggle-bar {
+    background-color: rgba($accent,0.54);
+
+}
+
+mat-slide-toggle.mat-colored-always.mat-primary:not(.mat-checked):not(.mat-disabled) .mat-slide-toggle-thumb {
+    background-color: $primary;
+}
+
+mat-slide-toggle.mat-colored-always.mat-accent:not(.mat-checked):not(.mat-disabled) .mat-slide-toggle-thumb {
+    background-color: $accent;
+}
+
 
