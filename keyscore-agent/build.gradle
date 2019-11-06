@@ -209,10 +209,13 @@ task createDebianPackage(type: Deb) {
 
         from(project.tasks['installDist'])
         from("$project.gradle.gradleUserHomeDir/jdk")
+        from('src/launcher/debian_post_install.sh')
 
         installationRoot = "/usr/share/keyscore/keyscore-agent"
 
         homepage = "https://github.com/logbee/keyscore"
+
+        postinst = '/usr/share/keyscore/keyscore-agent/debian_post_install.sh'
     }
 }
 
