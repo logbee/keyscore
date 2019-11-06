@@ -208,6 +208,7 @@ task createDebianPackage(type: Deb) {
         mainJar         = "keyscore-agent-0.3.0-alpha.7.jar"
 
         from(project.tasks['installDist'])
+        from("$project.gradle.gradleUserHomeDir/jdk")
 
         installationRoot = "/usr/share/keyscore/keyscore-agent"
 
@@ -217,12 +218,27 @@ task createDebianPackage(type: Deb) {
 
 task downloadJDK(type: Download) {
     src 'https://cdn.azul.com/zulu/bin/zulu8.40.0.25-ca-jdk8.0.222-linux_x64.tar.gz'
-    dest project.gradle.gradleUserHomeDir
+    dest new File(project.gradle.gradleUserHomeDir, 'jdk8.tar.gz')
     overwrite false
 }
 
 task verifyJDK(type: Verify, dependsOn: downloadJDK) {
-    src new File(downloadJDK.dest, 'zulu8.40.0.25-ca-jdk8.0.222-linux_x64.tar.gz')
+    src downloadJDK.dest
     algorithm 'SHA-256'
     checksum '7dcbd34462cdceadc323818d08dc0b28a369fcc7408ff0acf55720758036839b'
 }
+
+task unpackJDK(dependsOn: verifyJDK) {
+    doLast {
+        copy {
+            from tarTree(downloadJDK.dest)
+            into project.gradle.gradleUserHomeDir
+        }
+        copy {
+            from("$project.gradle.gradleUserHomeDir/zulu8.40.0.25-ca-jdk8.0.222-linux_x64")
+            into("$project.gradle.gradleUserHomeDir/jdk/jdk8")
+        }
+        delete "$project.gradle.gradleUserHomeDir/zulu8.40.0.25-ca-jdk8.0.222-linux_x64"
+    }
+}
+
