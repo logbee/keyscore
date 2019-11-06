@@ -210,6 +210,7 @@ task createDebianPackage(type: Deb) {
         from(project.tasks['installDist'])
         from("$project.gradle.gradleUserHomeDir/jdk")
         from('src/launcher/debian_post_install.sh')
+        from('src/scripts/ks_agent.service')
 
         installationRoot = "/usr/share/keyscore/keyscore-agent"
 

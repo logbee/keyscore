@@ -1,0 +1,10 @@
+[Unit]
+Description=Keyscore Agent
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=root
+ExecStart=/usr/bin/env bash /usr/share/keyscore/keyscore-agent/keyscore-agent
