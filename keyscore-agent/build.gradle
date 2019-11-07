@@ -193,33 +193,6 @@ task pushDockerImage(type: DockerPushImage) {
     tag = version
 }
 
-task createDebianPackage(type: Deb) {
-    setupBuilder {
-        vendor          = "logbee"
-        copyright       = "Copyright 2019 logbee"
-        description     = "The mighty Agent of Keyscore"
-
-        version         = "0.3.0-alpha.7"
-        application     = "Keyscore Agent"
-        appIdentifier   = "keyscore-agent"
-
-        mainClass       = "com.logbee.keyscore.agent.app.AgentApplication"
-
-        mainJar         = "keyscore-agent-0.3.0-alpha.7.jar"
-
-        from(project.tasks['installDist'])
-        from("$project.gradle.gradleUserHomeDir/jdk")
-        from('src/launcher/debian_post_install.sh')
-        from('src/scripts/ks_agent.service')
-
-        installationRoot = "/usr/share/keyscore/keyscore-agent"
-
-        homepage = "https://github.com/logbee/keyscore"
-
-        postinst = '/usr/share/keyscore/keyscore-agent/debian_post_install.sh'
-    }
-}
-
 task downloadJDK(type: Download) {
     src 'https://cdn.azul.com/zulu/bin/zulu8.40.0.25-ca-jdk8.0.222-linux_x64.tar.gz'
     dest new File(project.gradle.gradleUserHomeDir, 'jdk8.tar.gz')
@@ -246,3 +219,29 @@ task unpackJDK(dependsOn: verifyJDK) {
     }
 }
 
+task createDebianPackage(type: Deb) {
+    setupBuilder {
+        vendor          = "logbee"
+        copyright       = "Copyright 2019 logbee"
+        description     = "The mighty Agent of Keyscore"
+
+        version         = "0.3.0-alpha.7"
+        application     = "Keyscore Agent"
+        appIdentifier   = "keyscore-agent"
+
+        mainClass       = "com.logbee.keyscore.agent.app.AgentApplication"
+
+        mainJar         = "keyscore-agent-0.3.0-alpha.7.jar"
+
+        from(project.tasks['installDist'])
+        from("$project.gradle.gradleUserHomeDir/jdk")
+        from('src/launcher/debian_post_install.sh')
+        from('src/scripts/ks_agent.service')
+
+        installationRoot = "/usr/share/keyscore/keyscore-agent"
+
+        homepage = "https://github.com/logbee/keyscore"
+
+        postinst = '/usr/share/keyscore/keyscore-agent/debian_post_install.sh'
+    }
+}

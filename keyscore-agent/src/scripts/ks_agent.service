@@ -8,3 +8,6 @@ Restart=always
 RestartSec=10
 User=root
 ExecStart=/usr/bin/env bash /usr/share/keyscore/keyscore-agent/keyscore-agent
+
+[Install]
+WantedBy=multi-user.target
