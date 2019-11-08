@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# 1. Make jdk accessible
 /bin/chmod -R 755 /usr/share/keyscore/keyscore-agent/jdk8
 
+# 2. Edit start script for the keyscore-agent
 /bin/sed -i 's_CMD="java_CMD="/usr/share/keyscore/keyscore-agent/jdk8/bin/java_g' /usr/share/keyscore/keyscore-agent/keyscore-agent
+
+# 3.1 Place the keyscore-agent service
+cp /usr/share/keyscore/keyscore-agent/ks_agent.service /etc/systemd/system/
+# 3.2 Enable service
+systemctl enable ks_agent
+# 3.3 Start service
+systemctl start ks_agent
