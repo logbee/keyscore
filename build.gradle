@@ -1,5 +1,7 @@
 import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
 import com.bmuschko.gradle.docker.tasks.network.DockerInspectNetwork
+import de.undercouch.gradle.tasks.download.Download
+import de.undercouch.gradle.tasks.download.Verify
 import org.apache.tools.ant.filters.EscapeUnicode
 
 buildscript {
@@ -25,6 +27,7 @@ buildscript {
 apply plugin: 'idea'
 apply plugin: 'distribution'
 apply plugin: 'com.bmuschko.docker-remote-api'
+apply plugin: "de.undercouch.download"
 
 ext {
     dockerRegistryUser = getBuildPropertyValue("logbee.quay.user")
@@ -340,6 +343,32 @@ task createContainerNetwork(type: DockerCreateNetwork) {
         setupDockerNetwork.createNetwork
     }
     networkId = project.properties['containerNetwork']
+}
+
+task downloadJDK(type: Download) {
+    src 'https://cdn.azul.com/zulu/bin/zulu8.40.0.25-ca-jdk8.0.222-linux_x64.tar.gz'
+    dest new File(project.gradle.gradleUserHomeDir, 'jdk8.tar.gz')
+    overwrite false
+}
+
+task verifyJDK(type: Verify, dependsOn: downloadJDK) {
+    src downloadJDK.dest
+    algorithm 'SHA-256'
+    checksum '7dcbd34462cdceadc323818d08dc0b28a369fcc7408ff0acf55720758036839b'
+}
+
+task unpackJDK(dependsOn: verifyJDK) {
+    doLast {
+        copy {
+            from tarTree(downloadJDK.dest)
+            into project.gradle.gradleUserHomeDir
+        }
+        copy {
+            from("$project.gradle.gradleUserHomeDir/zulu8.40.0.25-ca-jdk8.0.222-linux_x64")
+            into("$project.gradle.gradleUserHomeDir/jdk/jdk8")
+        }
+        delete "$project.gradle.gradleUserHomeDir/zulu8.40.0.25-ca-jdk8.0.222-linux_x64"
+    }
 }
 
 private def isDockerRegistryUserConfigured() {
