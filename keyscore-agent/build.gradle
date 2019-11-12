@@ -208,7 +208,8 @@ task createDebianPackage(type: Deb, dependsOn: [':unpackJDK', project.tasks['ins
 
         from(project.tasks['installDist'])
         from("$project.gradle.gradleUserHomeDir/jdk")
-        from('src/launcher/debian_post_install.sh')
+        from('src/scripts/debian_post_install.sh')
+        from('src/scripts/debian_pre_removal.sh')
         from('src/scripts/ks_agent.service')
 
         installationRoot = "/usr/share/keyscore/keyscore-agent"
@@ -216,5 +217,6 @@ task createDebianPackage(type: Deb, dependsOn: [':unpackJDK', project.tasks['ins
         homepage = "https://github.com/logbee/keyscore"
 
         postinst = '/usr/share/keyscore/keyscore-agent/debian_post_install.sh'
+        prerm = '/usr/share/keyscore/keyscore-agent/debian_pre_removal.sh'
     }
 }
