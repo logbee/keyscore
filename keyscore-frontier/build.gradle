@@ -234,7 +234,7 @@ task pushDockerImage(type: DockerPushImage) {
     tag = version
 }
 
-task createDebianPackage(type: Deb) {
+task createDebianPackage(type: Deb, dependsOn: [':unpackJDK', project.tasks['installDist']]) {
     setupBuilder {
         vendor          = "logbee"
         copyright       = "Copyright 2019 logbee"
@@ -249,9 +249,16 @@ task createDebianPackage(type: Deb) {
         mainJar         = "keyscore-frontier-0.3.0-alpha.7.jar"
 
         from(project.tasks['installDist'])
+        from("$project.gradle.gradleUserHomeDir/jdk")
+        from('src/scripts/debian_post_install.sh')
+        from('src/scripts/debian_pre_removal.sh')
+        from('src/scripts/ks_frontier.service')
 
         installationRoot = "/usr/share/keyscore/keyscore-frontier"
 
         homepage = "https://github.com/logbee/keyscore"
+
+        postinst = '/usr/share/keyscore/keyscore-frontier/debian_post_install.sh'
+        prerm = '/usr/share/keyscore/keyscore-frontier/debian_pre_removal.sh'
     }
 }

@@ -1,0 +1,13 @@
+[Unit]
+Description=Keyscore Frontier
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=root
+ExecStart=/usr/bin/env bash /usr/share/keyscore/keyscore-frontier/keyscore-frontier
+
+[Install]
+WantedBy=multi-user.target
