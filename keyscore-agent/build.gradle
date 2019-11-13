@@ -6,8 +6,6 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.inet.gradle.setup.unix.deb.Deb
-import de.undercouch.gradle.tasks.download.Download
-import de.undercouch.gradle.tasks.download.Verify
 
 apply from: rootProject.file('dependencies.gradle')
 
@@ -94,11 +92,13 @@ distributions {
     }
 }
 
-task buildDockerfile(type: Dockerfile) {
+task buildDockerfile(type: Dockerfile, dependsOn: 'createDebianPackage') {
     destFile = project.file("$buildDir/tmp/Dockerfile")
-    from 'quay.io/logbee/openjdk-8-jre:8u222'
-    instruction { "COPY build/install/ /opt/" }
-    instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
+    from 'quay.io/logbee/docker-buster-slim:latest'
+    def deb = "keyscore-agent-${project.findProperty('agentVersion')}.deb"
+    instruction { "COPY build/distributions/$deb /tmp/" }
+    instruction { "CMD dpkg -i /tmp/$deb" }
+    instruction { "CMD /usr/share/keyscore/keyscore-agent/keyscore-agent" }
 }
 
 task buildRaspbianDockerfile(type: Dockerfile) {
@@ -198,13 +198,13 @@ task createDebianPackage(type: Deb, dependsOn: [':unpackJDK', project.tasks['ins
         copyright       = "Copyright 2019 logbee"
         description     = "The mighty Agent of Keyscore"
 
-        version         = "0.3.0-alpha.7"
+        version         = project.findProperty('agentVersion')
         application     = "Keyscore Agent"
         appIdentifier   = "keyscore-agent"
 
         mainClass       = "com.logbee.keyscore.agent.app.AgentApplication"
 
-        mainJar         = "keyscore-agent-0.3.0-alpha.7.jar"
+        mainJar         = "keyscore-agent-${project.findProperty('agentVersion')}.jar"
 
         from(project.tasks['installDist'])
         from("$project.gradle.gradleUserHomeDir/jdk")
