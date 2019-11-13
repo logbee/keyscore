@@ -97,7 +97,7 @@ task buildDockerfile(type: Dockerfile, dependsOn: 'createDebianPackage') {
     from 'quay.io/logbee/docker-buster-slim:latest'
     def deb = "keyscore-agent-${project.findProperty('agentVersion')}.deb"
     instruction { "COPY build/distributions/$deb /tmp/" }
-    instruction { "CMD dpkg -i /tmp/$deb" }
+    instruction { "RUN /usr/bin/dpkg -i /tmp/$deb && rm /tmp/$deb" }
     instruction { "CMD /usr/share/keyscore/keyscore-agent/keyscore-agent" }
 }
 
