@@ -1,5 +1,5 @@
 import {MatTableDataSource} from "@angular/material";
-import {BehaviorSubject} from "rxjs/index";
+import {BehaviorSubject} from "rxjs";
 import {
     DatasetTableRowModel,
     DatasetTableModel,
@@ -76,7 +76,6 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
         if (!(this._datasetTableModels && this._datasetTableModels[this.datasetIndex])) return 0;
 
         return this._datasetTableModels[this.datasetIndex].records.length;
-
     }
 
     constructor(datasets: Dataset[]) {
@@ -114,6 +113,8 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     private updateData() {
         if (this._datasetTableModels && this._datasetTableModels[this.datasetIndex]) {
             this.data = this._datasetTableModels[this.datasetIndex].records[this.recordsIndex].rows;
+        } else {
+            this.data = [];
         }
     }
 
@@ -165,9 +166,7 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
     }
 
     private createDatasetTableRowModel(field: Field): DatasetTableRowModel {
-        let datamodel: DatasetTableRowModelData;
-
-        datamodel = new DatasetTableRowModelData(field.name, field.value.jsonClass, field.value, ChangeType.Unchanged);
+        const datamodel = new DatasetTableRowModelData(field.name, field.value.jsonClass, field.value, ChangeType.Unchanged);
 
         return new DatasetTableRowModel(datamodel, datamodel);
     }

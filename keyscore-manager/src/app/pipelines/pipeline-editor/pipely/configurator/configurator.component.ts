@@ -38,10 +38,8 @@ import {ParameterFormComponent} from "@keyscore-manager-pipeline-parameters/src/
                             <mat-label>{{'CONFIGURATOR.PIPELINE_DESCRIPTION' | translate}}</mat-label>
 
                         </mat-form-field>
-<!--
-    TODO: Implemented a feature-toggle to enable/disable this component.
 
-                        <mat-form-field>
+                        <mat-form-field *ngIf="enableSelectAgent">
                             <mat-select formControlName="pipeline.selectedAgent" #agentSelect>
                                 <mat-option>
                                     <ngx-mat-select-search
@@ -54,7 +52,7 @@ import {ParameterFormComponent} from "@keyscore-manager-pipeline-parameters/src/
                             </mat-select>
                             <mat-label>{{'CONFIGURATOR.SELECTED_AGENT' | translate}}</mat-label>
                         </mat-form-field>
--->
+
                     </form>
                 </div>
             </div>
@@ -94,6 +92,8 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
     };
 
     @Input() agents: Agent[];
+
+    @Input() enableSelectAgent:boolean;
 
     @Input('config') set config(val: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) {
         if (val) {

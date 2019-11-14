@@ -18,6 +18,9 @@ import {
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 import {ParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/ParameterComponent";
+import {ParameterDescriptorJsonClass} from '@keyscore-manager-models/src/main/parameters/parameter.model'
+import {ParameterGroupDescriptor} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
+import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.component";
 
 @Component({
     selector: 'parameter-form',
@@ -63,7 +66,7 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
 
     private unsubscribe$: Subject<void> = new Subject<void>();
 
-    private parameterComponents: ParameterComponent<ParameterDescriptor, Parameter>[] = [];
+    private parameterComponents: Map<string, ParameterComponent<ParameterDescriptor, Parameter>> = new Map();
 
     constructor(private parameterComponentFactory: ParameterComponentFactoryService, private cd: ChangeDetectorRef, private renderer: Renderer2, private elem: ElementRef) {
     }
@@ -86,6 +89,20 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
     }
 
     createParameterComponent(parameter: Parameter, descriptor: ParameterDescriptor) {
+        if (descriptor.jsonClass === ParameterDescriptorJsonClass.ParameterGroupDescriptor) {
+            const groupDescriptor: ParameterGroupDescriptor = descriptor as ParameterGroupDescriptor;
+            if (groupDescriptor.condition) {
+                setTimeout(() => {
+                    const groupComponent = this.parameterComponents.get(groupDescriptor.ref.id);
+                    const conditionComponent = this.parameterComponents.get(groupDescriptor.condition.parameter.id);
+                    if (!groupComponent || !conditionComponent) return;
+                    conditionComponent.emitter.pipe(takeUntil(this.unsubscribe$)).subscribe((parameter: Parameter) => {
+                        (groupComponent as ParameterGroupComponent).conditionInput = parameter;
+                    });
+                }, 0)
+            }
+        }
+
         const componentRef = this.parameterComponentFactory.createParameterComponent(descriptor.jsonClass, this.formContainer);
         componentRef.instance.parameter = parameter;
         componentRef.instance.descriptor = descriptor;
@@ -96,7 +113,7 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
             }
         );
 
-        this.parameterComponents.push(componentRef.instance);
+        this.parameterComponents.set(descriptor.ref.id, componentRef.instance);
     }
 
     ngOnDestroy() {
@@ -107,7 +124,7 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
     public triggerInputChangeDetection() {
         let inputs = this.elem.nativeElement.querySelectorAll('input');
         inputs.forEach(input => {
-                input.blur();
+            input.blur();
 
         })
     }

@@ -5,7 +5,7 @@ import {PreviewState} from "./reducers/preview.reducer";
 import {createFeatureSelector, createSelector, Selector} from "@ngrx/store";
 import {PipelinesEffects} from "./effects/pipelines.effects";
 import {PreviewEffects} from "./effects/preview.effects";
-import { Dataset } from "@keyscore-manager-models/src/main/dataset/Dataset";
+import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 
 export const effects = [
     PipelinesEffects,
@@ -33,10 +33,14 @@ export const selectPipelineState = createSelector(
 );
 
 // PreviewSelectors
-export const getOutputDatasetMap: Selector<PreviewState, Map<string, Dataset[]>> = createSelector(selectPreviewState, (state: PreviewState) => state.outputDatasetsMap);
-export const getInputDatasetMap: Selector<PreviewState, Map<string, Dataset[]>> = createSelector(selectPreviewState, (state: PreviewState) => state.inputDatasetsMap);
-export const getSelectedBlock: Selector<PreviewState, string> = createSelector(selectPreviewState, (state: PreviewState) => state.selectedBlock);
-
+export const getOutputDatasetMap = createSelector(selectPreviewState, (state: PreviewState) => state.outputDatasetsMap);
+export const getInputDatasetMap = createSelector(selectPreviewState, (state: PreviewState) => state.inputDatasetsMap);
+export const getSelectedBlock = createSelector(selectPreviewState, (state: PreviewState) => state.selectedBlock);
+export const getIsLoadingDatasetsAfter = createSelector(selectPreviewState, (state: PreviewState) => state.isLoadingDatasetsAfter);
+export const getIsLoadingDatasetsBefore = createSelector(selectPreviewState, (state: PreviewState) => state.isLoadingDatasetsBefore);
+export const getLoadingErrorAfter = createSelector(selectPreviewState, (state: PreviewState) => state.loadingErrorAfter);
+export const getLoadingErrorBefore = createSelector(selectPreviewState, (state: PreviewState) => state.loadingErrorBefore);
+export const isPreviewVisible = createSelector(selectPreviewState, (state: PreviewState) => state.previewVisible);
 
 // Pipeline Selectors
 export const getPipelineList = createSelector(selectPipelineState, (state: PipelinesState) => state.pipelineList);

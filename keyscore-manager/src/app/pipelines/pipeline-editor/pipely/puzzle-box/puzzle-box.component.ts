@@ -10,9 +10,9 @@ import * as _ from 'lodash';
     selector: "puzzle-box",
     template: `
         <div fxLayout="column">
-            <div class="puzzle-search-field mat-elevation-z2">
+            <div class="puzzle-search-field">
                 <mat-form-field>
-                    <input #searchInput matInput placeholder="Search" [formControl]="searchFormControl"/>
+                    <input #searchInput matInput placeholder="{{'GENERAL.TO_SEARCH' | translate}}" [formControl]="searchFormControl"/>
                     <button mat-button *ngIf="searchInput.value" matSuffix mat-icon-button aria-label="Clear"
                             (click)="searchFormControl.setValue('')">
                         <mat-icon>close</mat-icon>

@@ -5,23 +5,34 @@ import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {isSpinnerShowing} from "../../common/loading/loading.reducer";
 import {
     LoadFilterDescriptorsAction,
-    ResetPipelineAction, StopPipelineAction,
+    ResetPipelineAction,
+    StopPipelineAction,
     UpdatePipelineAction
 } from "../actions/pipelines.actions";
-import {filter, share, take, takeUntil} from "rxjs/internal/operators";
+import {share, takeUntil} from "rxjs/internal/operators";
 import {PipelyKeyscoreAdapter} from "../../services/pipely-keyscore-adapter.service";
 import {BlockDescriptor} from "./pipely/models/block-descriptor.model";
 import {isError, selectErrorMessage, selectHttpErrorCode} from "../../common/error/error.reducer";
-import {getEditingPipeline, getFilterDescriptors, getInputDatasetMap, getOutputDatasetMap} from "../index";
-import {ExtractFromSelectedBlock} from "../actions/preview.actions";
+import {
+    getEditingPipeline,
+    getFilterDescriptors,
+    getInputDatasetMap,
+    getIsLoadingDatasetsAfter,
+    getIsLoadingDatasetsBefore,
+    getLoadingErrorAfter,
+    getLoadingErrorBefore,
+    getOutputDatasetMap
+} from "../index";
+import {DataPreviewToggleView, ExtractFromSelectedBlock} from "../actions/preview.actions";
 import {DraggableModel} from "./pipely/models/draggable.model";
 import {EditingPipelineModel} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/EditingPipelineModel";
 import {FilterDescriptor} from "@/../modules/keyscore-manager-models/src/main/descriptors/FilterDescriptor";
 import {InternalPipelineConfiguration} from "@/../modules/keyscore-manager-models/src/main/pipeline-model/InternalPipelineConfiguration";
-import { Dataset } from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
+import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 import {LoadAgentsAction} from "@/app/agents/agents.actions";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {getAgents} from "@/app/agents/agents.reducer";
+import {AppConfig, selectAppConfig} from "@/app/app.config";
 
 @Component({
     selector: "pipeline-editor",
@@ -53,6 +64,11 @@ import {getAgents} from "@/app/agents/agents.reducer";
                               [blockDescriptors]="blockDescriptorSource$|async"
                               [inputDatasets]="inputDatasets$|async"
                               [outputDatasets]="outputDatasets$|async"
+                              [isLoadingDatasetsAfter]="isLoadingDatasetsAfter$|async"
+                              [isLoadingDatasetsBefore]="isLoadingDatasetsBefore$|async"
+                              [loadingDatasetsErrorAfter]="loadingDatasetsErrorAfter$|async"
+                              [loadingDatasetsErrorBefore]="loadingDatasetsErrorBefore$|async"
+                              [applicationConf]="applicationConf$|async"
                               (onUpdatePipeline)="updatePipeline($event)"
                               (onRunPipeline)="runPipeline($event)"
                               (onSelectBlock)="selectBlock($event)"
@@ -85,6 +101,13 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     public errorStatus$: Observable<string>;
     public errorMessage$: Observable<string>;
 
+    public isLoadingDatasetsAfter$: Observable<boolean>;
+    public loadingDatasetsErrorAfter$: Observable<boolean>;
+    public isLoadingDatasetsBefore$: Observable<boolean>;
+    public loadingDatasetsErrorBefore$: Observable<boolean>;
+
+    public applicationConf$:Observable<AppConfig>;
+
     private showBigLoadingViewOnLoading = true;
     private selectedBlockId: string;
     private amount: number = 10;
@@ -99,13 +122,16 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     }
 
     inspectToggle(flag: boolean) {
-        console.log("INSPECT:",flag);
+        console.log("INSPECT:", flag);
         if (flag) {
             this.previewMode = true;
             this.runInspectSource$.next(true);
+            this.store.dispatch(new DataPreviewToggleView(true));
+
         } else {
             this.runInspectSource$.next(false);
             this.previewMode = false;
+            this.store.dispatch(new DataPreviewToggleView(false));
         }
     }
 
@@ -118,7 +144,9 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.filterDescriptors$ = this.store.pipe(select(getFilterDescriptors), takeUntil(this.alive));
         this.isLoading$ = this.store.pipe(select(isSpinnerShowing), share());
         this.pipeline$ = this.store.pipe(select(getEditingPipeline), takeUntil(this.alive));
-        this.agents$ = this.store.pipe(select(getAgents),takeUntil(this.alive));
+        this.agents$ = this.store.pipe(select(getAgents), takeUntil(this.alive));
+
+        this.applicationConf$ = this.store.pipe(select(selectAppConfig));
 
         this.pipeline$.subscribe(pipe => {
             this.storeEditingPipeline = pipe;
@@ -132,6 +160,11 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
         this.errorState$ = this.store.pipe(select(isError));
         this.errorStatus$ = this.store.pipe(select(selectHttpErrorCode));
         this.errorMessage$ = this.store.pipe(select(selectErrorMessage));
+
+        this.isLoadingDatasetsAfter$ = this.store.pipe(select(getIsLoadingDatasetsAfter));
+        this.loadingDatasetsErrorAfter$ = this.store.pipe(select(getLoadingErrorAfter));
+        this.isLoadingDatasetsBefore$ = this.store.pipe(select(getIsLoadingDatasetsBefore));
+        this.loadingDatasetsErrorBefore$ = this.store.pipe(select(getLoadingErrorBefore));
     }
 
     public triggerDataSourceCreation() {
@@ -165,8 +198,8 @@ export class PipelineEditorComponent implements OnInit, OnDestroy {
     }
 
     public selectBlock(selectedBlockId: string) {
-            this.selectedBlockId = selectedBlockId;
-            this.triggerDataSourceCreation()
+        this.selectedBlockId = selectedBlockId;
+        this.triggerDataSourceCreation()
     }
 
     public isSink(draggable: DraggableModel) {

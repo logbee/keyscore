@@ -99,10 +99,12 @@ import {NgModule} from "@angular/core";
 import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.component";
 import {
     ParameterGroup,
-    ParameterGroupDescriptor
+    ParameterGroupDescriptor,
+    BooleanParameterCondition
 } from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
 import {PasswordParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/password-parameter/password-parameter.component";
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
+import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.module";
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
@@ -667,6 +669,7 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
             BooleanParameterModule,
             FieldParameterModule,
             ListParameterModule,
+            ParameterGroupModule,
             I18nModule,
             TranslateModule.forRoot({
                 loader: {
@@ -706,6 +709,11 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
                     'booleanParameter': [new BooleanParameter({id: "booleanParameter"}, false),
                         new BooleanParameterDescriptor({id: "booleanParameter"}, "Boolean Parameter",
                             "My boolean Parameter", false, true)],
+                    'groupParameter':[
+                        new ParameterGroup({id:'group'},[]),
+                        new ParameterGroupDescriptor({id:'group'},'Group','',new BooleanParameterCondition({id:'booleanParameter'},false),
+                            [new TextParameterDescriptor({id: 'textParameterGroup'}, "Text Parameter", "", "", null, true)])
+                    ],
                     'fieldParameter': [new FieldParameter({id: "fieldParameter"}, null),
                         new FieldParameterDescriptor({id: "fieldParameter"},
                             "Field", "", "", FieldNameHint.AnyField, null,

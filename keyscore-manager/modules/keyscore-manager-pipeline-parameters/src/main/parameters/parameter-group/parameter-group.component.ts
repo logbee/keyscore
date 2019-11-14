@@ -1,9 +1,12 @@
-import {Component, ViewChild, ViewContainerRef} from "@angular/core";
+import {Component, Input, ViewChild, ViewContainerRef} from "@angular/core";
 import {ParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/ParameterComponent";
 import {
     ParameterGroup,
-    ParameterGroupDescriptor
+    ParameterGroupDescriptor,
+    ParameterGroupConditionJsonClass,
+    BooleanParameterCondition
 } from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
+import {BooleanParameter} from '@keyscore-manager-models/src/main/parameters/boolean-parameter.model'
 import {ParameterComponentFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-component-factory.service";
 import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {Subject} from "rxjs";
@@ -13,7 +16,7 @@ import * as _ from 'lodash';
 @Component({
     selector: 'parameter-group',
     template: `
-        <div class="group-wrapper">
+        <div class="group-wrapper" *ngIf="_isVisible">
             <span class="group-label">{{descriptor.displayName}}</span>
             <ng-template #groupContainer></ng-template>
         </div>
@@ -22,6 +25,13 @@ import * as _ from 'lodash';
     styleUrls: ['../../style/parameter-module-style.scss', './parameter-group.component.scss']
 })
 export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDescriptor, ParameterGroup> {
+
+    @Input() set conditionInput(val: Parameter) {
+        this._isVisible = this.checkCondition(val);
+    };
+
+    private _isVisible: boolean = false;
+
 
     @ViewChild('groupContainer', {read: ViewContainerRef}) groupContainer: ViewContainerRef;
 
@@ -61,6 +71,18 @@ export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDe
 
     onChange(parameter: ParameterGroup) {
         this.emitter.emit(parameter);
+    }
+
+    private checkCondition(conditionValue: Parameter): boolean {
+        if (!this.descriptor.condition) return true;
+        switch (this.descriptor.condition.jsonClass) {
+            case(ParameterGroupConditionJsonClass.BooleanCondition): {
+                const param = (conditionValue as BooleanParameter);
+                return (this.descriptor.condition as BooleanParameterCondition).negate ? !param.value : param.value;
+            }
+            default:
+                return;
+        }
     }
 
 }

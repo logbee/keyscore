@@ -38,6 +38,7 @@ import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/V
 import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {Label} from "@keyscore-manager-models/src/main/common/MetaData"
+import {AppConfig} from "@/app/app.config";
 
 
 @Component({
@@ -55,6 +56,10 @@ import {Label} from "@keyscore-manager-models/src/main/common/MetaData"
                             <data-preview [selectedBlock]="selectedBlockForDataTable$|async"
                                           [outputDatasets]="outputDatasets"
                                           [inputDatasets]="inputDatasets"
+                                          [isLoadingDatasetsAfter]="isLoadingDatasetsAfter$|async"
+                                          [isLoadingDatasetsBefore]="isLoadingDatasetsBefore$|async"
+                                          [loadingErrorAfter]="loadingDatasetsErrorAfter$|async"
+                                          [loadingErrorBefore]="loadingDatasetsErrorBefore$|async"
                                           class="top-shadow"></data-preview>
                         </ng-template>
                     </div>
@@ -67,6 +72,7 @@ import {Label} from "@keyscore-manager-models/src/main/common/MetaData"
                                 conf:(selectedDraggable$|async)?.getDraggableModel().configuration,
                                 descriptor:(selectedDraggable$|async)?.getDraggableModel().blockDescriptor,
                                 uuid:(selectedDraggable$|async)?.getDraggableModel().blueprintRef.uuid}"
+                              [enableSelectAgent]="applicationConf.getBoolean('keyscore.manager.features.pipeline-editor-agent-selection')"
                               (onSave)="saveConfiguration($event)"
                               (onSavePipelineMetaData)="savePipelineMetaData($event)">
                 </configurator>
@@ -95,8 +101,35 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     @Input('inputDatasets')
     private inputDatasets: Map<string, Dataset[]>;
 
+
     @Input('outputDatasets')
     private outputDatasets: Map<string, Dataset[]>;
+
+    @Input() set isLoadingDatasetsAfter(val: boolean) {
+        this.isLoadingDatasetsAfter$.next(val);
+    }
+
+    isLoadingDatasetsAfter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+    @Input() set loadingDatasetsErrorAfter(val: boolean) {
+        this.loadingDatasetsErrorAfter$.next(val);
+    }
+
+    loadingDatasetsErrorAfter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+    @Input() set isLoadingDatasetsBefore(val: boolean) {
+        this.isLoadingDatasetsBefore$.next(val);
+    }
+
+    isLoadingDatasetsBefore$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+    @Input() set loadingDatasetsErrorBefore(val: boolean) {
+        this.loadingDatasetsErrorBefore$.next(val);
+    }
+
+    loadingDatasetsErrorBefore$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+    @Input() applicationConf: AppConfig;
 
     @ViewChild("workspaceContainer", {read: ViewContainerRef}) workspaceContainer: ViewContainerRef;
     @ViewChild("workspace", {read: ViewContainerRef}) mirrorContainer: ViewContainerRef;
@@ -312,15 +345,15 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     }
 
     private saveConfiguration(configuration: Configuration) {
-        let stack:Draggable[] = [];
+        let stack: Draggable[] = [];
         stack.push(...this.draggables);
-        let draggable:Draggable;
-        while(stack.length > 0){
+        let draggable: Draggable;
+        while (stack.length > 0) {
             draggable = stack.pop();
-            if(draggable.getDraggableModel().configuration.ref.uuid === configuration.ref.uuid){
+            if (draggable.getDraggableModel().configuration.ref.uuid === configuration.ref.uuid) {
                 draggable.getDraggableModel().configuration = configuration;
                 return;
-            } else if(draggable.getNext()){
+            } else if (draggable.getNext()) {
                 stack.push(draggable.getNext());
             }
         }

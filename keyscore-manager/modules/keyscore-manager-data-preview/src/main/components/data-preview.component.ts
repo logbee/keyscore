@@ -1,20 +1,24 @@
-import {Component, Input, OnInit, ViewChild} from "@angular/core";
-import {BehaviorSubject} from "rxjs";
+import {Component, Input, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {BehaviorSubject, combineLatest, Observable} from "rxjs";
 import {DatasetDataSource} from "../dataset-data-source";
 import {MatSort} from "@angular/material";
 import {Value, ValueJsonClass} from "@keyscore-manager-models/src/main/dataset/Value";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
+import {map, share} from "rxjs/operators";
 
 @Component({
     selector: "data-preview",
     template: `
         <!--Search Field-->
         <div class="data-preview-wrapper" fxLayout="column">
-            <div fxLayout="row" fxLayoutAlign="space-between center" fxFlex>
+            <mat-progress-bar mode="indeterminate"
+                              *ngIf="(isLoadingDatasets$|async) && dataSource.numberOfDatasets && (!(loadingError$|async))"
+                              class="progress"></mat-progress-bar>
+            <div fxLayout="row" fxLayoutAlign="space-between start">
                 <div fxLayout="row" fxLayoutGap="15px" fxFlex fxLayoutAlign="start center">
                     <mat-form-field fxFlex="33">
                         <input matInput (keyup)="applyFilterPattern($event.target.value)"
-                               placeholder="{{'GENERAL.SEARCH' | translate}}">
+                               placeholder="{{'GENERAL.TO_SEARCH' | translate}}">
                         <button mat-button matSuffix mat-icon-button aria-label="Search">
                             <mat-icon>search</mat-icon>
                         </button>
@@ -36,7 +40,7 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
                     </left-right-control>
                 </div>
 
-                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="15px">
+                <div fxLayout="row" fxFlexAlign="center" fxLayoutAlign="start center" fxLayoutGap="15px">
                     <span style="font-size: small">
                         {{ ('DATATABLE.INSWITCH' | translate) }}
                     </span>
@@ -51,7 +55,16 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
                 </div>
             </div>
 
-            <ng-container *ngIf="(dataAvailable|async); else banner">
+            <ng-container>
+                <div class="overlay"
+                     *ngIf="(isLoadingDatasets$|async) && (!dataSource.numberOfDatasets || (loadingError$|async))">
+                    <div class="spinner-wrapper">
+                        <mat-progress-spinner [diameter]="75" mode="indeterminate">
+                        </mat-progress-spinner>
+                        <span *ngIf="loadingError$|async" translate>DATATABLE.EXTRACT_ERROR</span>
+                    </div>
+
+                </div>
                 <table fxFlex="75" mat-table matSort [dataSource]="dataSource" class="table-position">
                     <ng-container matColumnDef="fields">
                         <th class="text-padding" mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -90,6 +103,7 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
                 <span translate>GENERAL.NO_RESULTS</span>
             </div>
         </ng-template>
+
     `,
     styleUrls: ['./data-preview.component.scss']
 })
@@ -131,9 +145,49 @@ export class DataPreviewComponent implements OnInit {
 
     private _allDatasets: Map<'after' | 'before', Map<string, Dataset[]>> = new Map();
 
+    @Input() set isLoadingDatasetsAfter(val: boolean) {
+        this.isLoadingDatasetsAfter$.next(val);
+    }
 
-    //Behaviour Subject indicating if data for block can be shown
-    private dataAvailable: BehaviorSubject<Boolean> = new BehaviorSubject<Boolean>(true);
+    @Input() set loadingErrorAfter(val: boolean) {
+        this.loadingErrorAfter$.next(val);
+        if (this.where === 'after') {
+            this._allDatasets = new Map();
+            this.dataSource.datasets = [];
+        }
+    }
+
+    @Input() set isLoadingDatasetsBefore(val: boolean) {
+        this.isLoadingDatasetsBefore$.next(val);
+    }
+
+    @Input() set loadingErrorBefore(val: boolean) {
+        this.loadingErrorBefore$.next(val);
+        if (this.where === "before") {
+            this._allDatasets = new Map();
+            this.dataSource.datasets = [];
+        }
+    }
+
+
+    isLoadingDatasetsAfter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    loadingErrorAfter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+    isLoadingDatasetsBefore$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    loadingErrorBefore$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+    inputOutputToggled$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+
+    loadingError$: Observable<boolean> =
+        combineLatest([this.loadingErrorBefore$, this.loadingErrorAfter$, this.inputOutputToggled$])
+            .pipe(
+                map(([beforeError, afterError, _]) => this.where === 'after' ? afterError : beforeError)
+            );
+    isLoadingDatasets$: Observable<boolean> =
+        combineLatest([this.isLoadingDatasetsBefore$, this.isLoadingDatasetsAfter$, this.inputOutputToggled$])
+            .pipe(
+                map(([beforeIsLoading, afterIsLoading, _]) => this.where === 'after' ? afterIsLoading : beforeIsLoading)
+            );
 
     // specifying the visible columns
     private displayedColumns: string[] = ['jsonClass', 'fields', 'outValues'];
@@ -192,5 +246,6 @@ export class DataPreviewComponent implements OnInit {
             this.where = "before";
         }
         this.dataSource.datasets = this._allDatasets.get(this.where).get(this.selectedBlock);
+        this.inputOutputToggled$.next(true);
     }
 }

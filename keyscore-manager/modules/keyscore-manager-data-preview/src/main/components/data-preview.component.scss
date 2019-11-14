@@ -44,7 +44,39 @@ mat-form-field {
 }
 
 .data-preview-wrapper {
+  position: relative;
   padding: 16px 16px 0;
+  height: 100%;
 }
 
 
+.overlay {
+  position: absolute;
+  z-index: 1002;
+  background-color: rgba(255, 255, 255, 0.8);
+  left: -16px;
+  top: -16px;
+  width: calc(100% + 16px);
+  height: calc(100% + 16px);
+}
+
+.spinner-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: calc(22.5vh - 37.5px);
+  font-size: 1.4em;
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.spinner-wrapper > span {
+  margin-top: 15px;
+}
+
+.progress {
+  position: relative;
+  top: -16px;
+  left: -16px;
+  width: calc(100% + 32px);
+}

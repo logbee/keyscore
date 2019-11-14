@@ -17,6 +17,7 @@
     "EXPAND": "Ausklappen",
     "FILTER": "Filter",
     "SEARCH": "Suche",
+    "TO_SEARCH": "suchen",
     "SOURCE": "Quelle",
     "SINK": "Senke",
     "MERGE": "Fusionierungsblock",
@@ -92,7 +93,9 @@
     "INOUT_TOOLTIP": "Zeige Nachrichten vor und nach der Bearbeitung durch den Block.",
     "FIELDS": "Felder",
     "DATASETS": "Nachrichten",
-    "VALUES": "Werte"
+    "VALUES": "Werte",
+    "EXTRACT_ERROR": "Es konnten keine Daten geladen werden. Wir versuchen es erneut."
+
 
   },
   "VIEWPRESET": {

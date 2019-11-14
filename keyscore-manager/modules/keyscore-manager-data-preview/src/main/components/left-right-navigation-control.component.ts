@@ -41,7 +41,9 @@ export class LeftToRightNavigationControl implements OnInit {
 
     @Input() set length(val: number) {
         this._length = val;
-        if (this.length > 0 && this.index === 0) {
+        if (this.length === 0) {
+            this.index = 0;
+        } else if (this.length > 0 && this.index === 0) {
             this.index = 1;
         }
     }
@@ -67,11 +69,11 @@ export class LeftToRightNavigationControl implements OnInit {
 
         if (this.index == this.length) {
             this.index = 1;
-            this.emitCounter(this.index);
         } else {
             this.index += 1;
-            this.emitCounter(this.index)
         }
+
+        this.emitCounter(this.index)
     }
 
     navigateToLeft() {
@@ -79,11 +81,11 @@ export class LeftToRightNavigationControl implements OnInit {
 
         if (this.index == 1) {
             this.index = this.length;
-            this.emitCounter(this.index);
         } else {
             this.index -= 1;
-            this.emitCounter(this.index)
         }
+
+        this.emitCounter(this.index)
     }
 
     private emitCounter(index: number) {
