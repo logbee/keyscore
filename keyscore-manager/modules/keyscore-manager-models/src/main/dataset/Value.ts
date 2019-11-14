@@ -8,10 +8,9 @@ export enum ValueJsonClass {
     NumberValue = "io.logbee.keyscore.model.data.NumberValue",
     DecimalValue = "io.logbee.keyscore.model.data.DecimalValue",
     TimestampValue = "io.logbee.keyscore.model.data.TimestampValue",
-    DurationValue = "io.logbee.keyscore.model.data.DurationValue"
-
+    DurationValue = "io.logbee.keyscore.model.data.DurationValue",
+    BinaryValue = "io.logbee.keyscore.model.data.BinaryValue"
 }
-
 
 export class BooleanValue implements ValueI {
     readonly jsonClass = ValueJsonClass.BooleanValue;
@@ -21,7 +20,6 @@ export class BooleanValue implements ValueI {
     ) {
     }
 }
-
 
 export class TextValue implements ValueI {
     readonly jsonClass = ValueJsonClass.TextValue;
@@ -73,9 +71,20 @@ export class DurationValue implements ValueI {
     }
 }
 
+export class BinaryValue implements ValueI {
+    readonly jsonClass = ValueJsonClass.BinaryValue;
+
+    constructor(
+        readonly value: Uint8Array,
+        readonly byteOrder: string
+    ) {
+    }
+}
+
 export type Value = BooleanValue
     | TextValue
     | NumberValue
     | DecimalValue
     | TimestampValue
-    | DurationValue;
+    | DurationValue
+    | BinaryValue;

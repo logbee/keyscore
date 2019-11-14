@@ -45,6 +45,7 @@ message Value {
         TimestampValue timestamp = 5;
         DurationValue duration = 6;
         HealthValue health = 7;
+        BinaryValue binary = 8;
     }
 }
 
@@ -91,6 +92,12 @@ message HealthValue {
     Health value = 1;
 }
 
+message BinaryValue {
+    option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.BinaryValueConversion";
+    bytes value = 1;
+    ByteOrder byteOrder = 2;
+}
+
 enum Health {
     Gray = 0;
     Green = 1;
@@ -106,6 +113,7 @@ enum FieldValueType {
     Text = 4;
     Timestamp = 5;
     Duration = 6;
+    Binary = 7;
 }
 
 enum Importance {
@@ -131,4 +139,9 @@ enum IconFormat {
 enum IconEncoding {
     RAW = 0;
     Base64 = 1;
+}
+
+enum ByteOrder  {
+    BigEndian = 0;
+    LittleEndian = 1;
 }
