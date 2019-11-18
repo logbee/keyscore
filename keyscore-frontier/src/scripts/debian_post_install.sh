@@ -6,9 +6,13 @@
 # 2. Edit start script for the keyscore-frontier
 /bin/sed -i 's_CMD="java_CMD="/usr/share/keyscore/keyscore-frontier/jdk8/bin/java_g' /usr/share/keyscore/keyscore-frontier/bin/keyscore-frontier
 
-# 3.1 Place the keyscore-frontier service
-cp /usr/share/keyscore/keyscore-frontier/scripts/ks_frontier.service /etc/systemd/system/
-# 3.2 Enable service
-systemctl enable ks_frontier
-# 3.3 Start service
-systemctl start ks_frontier
+SYSTEMD="/usr/lib/systemd/"
+if [ -d $SYSTEMD ]
+  then
+  # 3.1 Place the keyscore-frontier service
+  cp /usr/share/keyscore/keyscore-frontier/scripts/ks_frontier.service /etc/systemd/system/
+  # 3.2 Enable service
+  systemctl enable ks_frontier
+  # 3.3 Start service
+  systemctl start ks_frontier
+fi
