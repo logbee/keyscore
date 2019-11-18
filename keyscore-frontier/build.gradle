@@ -6,8 +6,6 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
-import com.netflix.gradle.plugins.deb.Deb
-
 import io.logbee.gradle.scalapb.ScalaPBPlugin
 
 apply plugin: ScalaPBPlugin
@@ -49,7 +47,7 @@ dependencies {
     testCompile dependency.junit
 }
 
-apply plugin: "nebula.deb"
+apply plugin: 'nebula.ospackage'
 
 jar {
     exclude('**/.keep')
@@ -83,10 +81,64 @@ distributions {
     }
 }
 
-task buildDockerfile(type: Dockerfile, dependsOn: 'createDebianPackage') {
+
+/**
+ * Creates buildDeb and buildRpm
+ */
+ospackage {
+    packageName         = 'keyscore-frontier'
+    packageDescription  = 'The holy Frontier of Keyscore'
+    maintainer          = 'mlandth'
+    vendor              = 'logbee'
+    url                 = 'https://github.com/logbee/keyscore'
+
+    os                  = 'LINUX' // only applied to RPM
+
+    //scripts
+    postInstall file('src/scripts/debian_post_install.sh')
+    preUninstall file('src/scripts/debian_pre_removal.sh')
+
+    //install location
+    into '/usr/share/keyscore/keyscore-frontier'
+
+    //source files
+    from(project.tasks['installDist']) {
+        into 'bin'
+    }
+
+    from('src/scripts') {
+        into 'scripts'
+    }
+
+    from("$project.gradle.gradleUserHomeDir/jdk")
+}
+
+buildDeb {
+    dependsOn {
+        ':unpackJDK'
+        project.tasks['installDist']
+    }
+    version = project.findProperty('debVersion')
+    release = project.findProperty('debRelease')
+    arch    = 'amd64' //default = all
+}
+
+buildRpm {
+    dependsOn {
+        ':unpackJDK'
+        project.tasks['installDist']
+    }
+    version = project.findProperty('rpmVersion')
+    release = project.findProperty('rpmRelease')
+    epoch   = 0 //default = 0
+    arch    = 'X86_64' //(String) default = NOARCH
+}
+
+//TODO dependsOn buildDeb
+task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'quay.io/logbee/docker-buster-slim:latest'
-    def deb = "keyscore-frontier_${project.findProperty('frontierVersion')}-${project.findProperty('debianRelease')}_all.deb"
+    def deb = "keyscore-frontier_${project.findProperty('debVersion')}-${project.findProperty('debRelease')}_amd64.deb"
     instruction { "COPY build/distributions/$deb /tmp/" }
     instruction { "RUN /usr/bin/dpkg -i /tmp/$deb && rm /tmp/$deb" }
     instruction { "CMD /usr/share/keyscore/keyscore-frontier/bin/keyscore-frontier" }
@@ -234,31 +286,4 @@ task pushDockerImage(type: DockerPushImage) {
     dependsOn buildDockerImage
     imageName = dockerImageName
     tag = version
-}
-
-task createDebianPackage(type: Deb, dependsOn: [':unpackJDK', project.tasks['installDist']]) {
-    version             = project.findProperty('frontierVersion')
-    release             = project.findProperty('debianRelease')
-    packageDescription  = 'The holy Frontier of Keyscore'
-    maintainer          = 'mlandth'
-    vendor              = 'logbee'
-    url                 = 'https://github.com/logbee/keyscore'
-
-    //scripts
-    postInstall file('src/scripts/debian_post_install.sh')
-    preUninstall file('src/scripts/debian_pre_removal.sh')
-
-    //install location
-    into '/usr/share/keyscore/keyscore-frontier'
-
-    //source files
-    from(project.tasks['installDist']) {
-        into 'bin'
-    }
-
-    from('src/scripts') {
-        into 'scripts'
-    }
-
-    from("$project.gradle.gradleUserHomeDir/jdk")
 }

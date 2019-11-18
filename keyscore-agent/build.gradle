@@ -127,26 +127,27 @@ buildDeb {
         ':unpackJDK'
         project.tasks['installDist']
     }
-    version = project.findProperty('agentVersion')
+    version = project.findProperty('debVersion')
     release = project.findProperty('debRelease')
+    arch    = 'amd64' //default = all
 }
 
-//TODO
 buildRpm {
     dependsOn {
         ':unpackJDK'
         project.tasks['installDist']
     }
-    version = '0.3.0.alpha.7' // may not contain '-' (dash)
+    version = project.findProperty('rpmVersion')
     release = project.findProperty('rpmRelease')
     epoch   = 0 //default = 0
-    arch    = 'X86_64' //(String) default = NOARCH
+    arch    = 'X86_64' //? default = NOARCH
 }
 
-task buildDockerfile(type: Dockerfile, dependsOn: 'buildDeb') {
+//TODO dependsOn buildDeb
+task buildDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'quay.io/logbee/docker-buster-slim:latest'
-    def deb = "keyscore-agent_${project.findProperty('agentVersion')}-${project.findProperty('debRelease')}_all.deb"
+    def deb = "keyscore-agent_${project.findProperty('debVersion')}-${project.findProperty('debRelease')}_amd64.deb"
     instruction { "COPY build/distributions/$deb /tmp/" }
     instruction { "RUN /usr/bin/dpkg -i /tmp/$deb && rm /tmp/$deb" }
     instruction { "CMD /usr/share/keyscore/keyscore-agent/bin/keyscore-agent" }
