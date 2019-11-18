@@ -143,8 +143,7 @@ buildRpm {
     arch    = 'X86_64' //? default = NOARCH
 }
 
-//TODO dependsOn buildDeb
-task buildDockerfile(type: Dockerfile) {
+task buildDockerfile(type: Dockerfile, dependsOn: 'buildDeb') {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'quay.io/logbee/docker-buster-slim:latest'
     def deb = "keyscore-agent_${project.findProperty('debVersion')}-${project.findProperty('debRelease')}_amd64.deb"
