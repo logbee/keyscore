@@ -5,7 +5,6 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.netflix.gradle.plugins.deb.Deb
 
 apply from: rootProject.file('dependencies.gradle')
 
@@ -62,7 +61,7 @@ dependencies {
     testOutput sourceSets.test.output
 }
 
-apply plugin: "nebula.deb"
+apply plugin: 'nebula.ospackage'
 
 jar {
     exclude('**/.keep')
@@ -92,10 +91,62 @@ distributions {
     }
 }
 
-task buildDockerfile(type: Dockerfile, dependsOn: 'createDebianPackage') {
+/**
+ * Creates buildDeb and buildRpm
+ */
+ospackage {
+    packageName         = 'keyscore-agent'
+    packageDescription  = 'The mighty Agent of Keyscore'
+    maintainer          = 'mlandth'
+    vendor              = 'logbee'
+    url                 = 'https://github.com/logbee/keyscore'
+
+    os                  = 'LINUX' // only applied to RPM
+
+    //scripts
+    postInstall file('src/scripts/debian_post_install.sh')
+    preUninstall file('src/scripts/debian_pre_removal.sh')
+
+    //install location
+    into '/usr/share/keyscore/keyscore-agent'
+
+    //source files
+    from(project.tasks['installDist']) {
+        into 'bin'
+    }
+
+    from('src/scripts') {
+        into 'scripts'
+    }
+
+    from("$project.gradle.gradleUserHomeDir/jdk")
+}
+
+buildDeb {
+    dependsOn {
+        ':unpackJDK'
+        project.tasks['installDist']
+    }
+    version = project.findProperty('agentVersion')
+    release = project.findProperty('debRelease')
+}
+
+//TODO
+buildRpm {
+    dependsOn {
+        ':unpackJDK'
+        project.tasks['installDist']
+    }
+    version = '0.3.0.alpha.7' // may not contain '-' (dash)
+    release = project.findProperty('rpmRelease')
+    epoch   = 0 //default = 0
+    arch    = 'X86_64' //(String) default = NOARCH
+}
+
+task buildDockerfile(type: Dockerfile, dependsOn: 'buildDeb') {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'quay.io/logbee/docker-buster-slim:latest'
-    def deb = "keyscore-agent_${project.findProperty('agentVersion')}-${project.findProperty('debianRelease')}_all.deb"
+    def deb = "keyscore-agent_${project.findProperty('agentVersion')}-${project.findProperty('debRelease')}_all.deb"
     instruction { "COPY build/distributions/$deb /tmp/" }
     instruction { "RUN /usr/bin/dpkg -i /tmp/$deb && rm /tmp/$deb" }
     instruction { "CMD /usr/share/keyscore/keyscore-agent/bin/keyscore-agent" }
@@ -190,31 +241,4 @@ task pushDockerImage(type: DockerPushImage) {
     dependsOn buildDockerImage
     imageName = dockerImageName
     tag = version
-}
-
-task createDebianPackage(type: Deb, dependsOn: [':unpackJDK', project.tasks['installDist']]) {
-    version             = project.findProperty('agentVersion')
-    release             = project.findProperty('debianRelease')
-    packageDescription  = 'The mighty Agent of Keyscore'
-    maintainer          = 'mlandth'
-    vendor              = 'logbee'
-    url                 = 'https://github.com/logbee/keyscore'
-
-    //scripts
-    postInstall file('src/scripts/debian_post_install.sh')
-    preUninstall file('src/scripts/debian_pre_removal.sh')
-
-    //install location
-    into '/usr/share/keyscore/keyscore-agent'
-
-    //source files
-    from(project.tasks['installDist']) {
-        into 'bin'
-    }
-
-    from('src/scripts') {
-        into 'scripts'
-    }
-
-    from("$project.gradle.gradleUserHomeDir/jdk")
 }
