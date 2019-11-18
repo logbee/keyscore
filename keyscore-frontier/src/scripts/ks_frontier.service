@@ -7,7 +7,7 @@ Type=simple
 Restart=always
 RestartSec=10
 User=root
-ExecStart=/usr/bin/env bash /usr/share/keyscore/keyscore-frontier/keyscore-frontier
+ExecStart=/usr/bin/env bash /usr/share/keyscore/keyscore-frontier/bin/keyscore-frontier
 
 [Install]
 WantedBy=multi-user.target

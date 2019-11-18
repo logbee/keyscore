@@ -190,7 +190,7 @@ task pushDockerImage(type: DockerPushImage) {
     tag = version
 }
 
-task createDebianPackage(type: Deb) {
+task createDebianPackage(type: Deb, dependsOn: [':unpackJDK', project.tasks['installDist']]) {
     version             = project.findProperty('agentVersion')
     release             = 1
     packageDescription  = 'The mighty Agent of Keyscore'
@@ -215,5 +215,4 @@ task createDebianPackage(type: Deb) {
     }
 
     from("$project.gradle.gradleUserHomeDir/jdk")
-
 }
