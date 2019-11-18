@@ -5,7 +5,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.inet.gradle.setup.unix.deb.Deb
+import com.netflix.gradle.plugins.deb.Deb
 
 apply from: rootProject.file('dependencies.gradle')
 
@@ -62,7 +62,7 @@ dependencies {
     testOutput sourceSets.test.output
 }
 
-apply plugin: "de.inetsoftware.setupbuilder"
+apply plugin: "nebula.deb"
 
 jar {
     exclude('**/.keep')
@@ -190,31 +190,30 @@ task pushDockerImage(type: DockerPushImage) {
     tag = version
 }
 
-task createDebianPackage(type: Deb, dependsOn: [':unpackJDK', project.tasks['installDist']]) {
-    setupBuilder {
-        vendor          = "logbee"
-        copyright       = "Copyright 2019 logbee"
-        description     = "The mighty Agent of Keyscore"
+task createDebianPackage(type: Deb) {
+    version             = project.findProperty('agentVersion')
+    release             = 1
+    packageDescription  = 'The mighty Agent of Keyscore'
+    maintainer          = 'mlandth'
+    vendor              = 'logbee'
+    url                 = 'https://github.com/logbee/keyscore'
 
-        version         = project.findProperty('agentVersion')
-        application     = "Keyscore Agent"
-        appIdentifier   = "keyscore-agent"
+    //scripts
+    postInstall file('src/scripts/debian_post_install.sh')
+    preUninstall file('src/scripts/debian_pre_removal.sh')
 
-        mainClass       = "com.logbee.keyscore.agent.app.AgentApplication"
+    //install location
+    into '/usr/share/keyscore/keyscore-agent'
 
-        mainJar         = "keyscore-agent-${project.findProperty('agentVersion')}.jar"
-
-        from(project.tasks['installDist'])
-        from("$project.gradle.gradleUserHomeDir/jdk")
-        from('src/scripts/debian_post_install.sh')
-        from('src/scripts/debian_pre_removal.sh')
-        from('src/scripts/ks_agent.service')
-
-        installationRoot = "/usr/share/keyscore/keyscore-agent"
-
-        homepage = "https://github.com/logbee/keyscore"
-
-        postinst = '/usr/share/keyscore/keyscore-agent/debian_post_install.sh'
-        prerm = '/usr/share/keyscore/keyscore-agent/debian_pre_removal.sh'
+    //source files
+    from(project.tasks['installDist']) {
+        into 'bin'
     }
+
+    from('src/scripts') {
+        into 'scripts'
+    }
+
+    from("$project.gradle.gradleUserHomeDir/jdk")
+
 }

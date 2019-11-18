@@ -11,3 +11,6 @@ if [ -d $SYSTEMD ]
     #1.3 Remove service
     rm /etc/systemd/system/ks_agent.service
 fi
+
+#2 Remove extensions
+rm -rf /usr/share/keyscore/keyscore-agent/bin/extensions
