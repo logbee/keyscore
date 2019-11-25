@@ -148,7 +148,7 @@ task pullManagerImage(type: DockerPullImage) {
 }
 
 task createFrontierContainer(type: DockerCreateContainer) {
-    dependsOn ['pullFrontierImage']
+    dependsOn = ['removeFrontierContainer', 'pullFrontierImage']
     containerName = "keyscore-frontier"
     targetImageId { pullFrontierImage.getImageId() }
     portBindings = ['2551:2551', '4711:4711']
@@ -165,7 +165,7 @@ task createFrontierContainer(type: DockerCreateContainer) {
 }
 
 task createAgentContainer(type: DockerCreateContainer) {
-    dependsOn ['pullAgentImage']
+    dependsOn = ['removeAgentContainer', 'pullAgentImage']
     containerName = "keyscore-agent"
     targetImageId { pullAgentImage.getImageId() }
     portBindings = ['3551:3551']
@@ -181,7 +181,7 @@ task createAgentContainer(type: DockerCreateContainer) {
 }
 
 task createManagerContainer(type: DockerCreateContainer) {
-    dependsOn ['pullManagerImage']
+    dependsOn = ['removeManagerContainer', 'pullManagerImage']
     containerName = "keyscore-manager"
     targetImageId { pullManagerImage.getImageId() }
     portBindings = ['8080:80']
