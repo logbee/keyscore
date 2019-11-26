@@ -124,8 +124,7 @@ ospackage {
 
 buildDeb {
     dependsOn {
-        ':unpackJDK'
-        project.tasks['installDist']
+        [':unpackJDK', project.tasks['installDist']]
     }
     version = project.findProperty('debVersion')
     release = project.findProperty('debRelease')
@@ -134,8 +133,7 @@ buildDeb {
 
 buildRpm {
     dependsOn {
-        ':unpackJDK'
-        project.tasks['installDist']
+        [':unpackJDK', project.tasks['installDist']]
     }
     version = project.findProperty('rpmVersion')
     release = project.findProperty('rpmRelease')
