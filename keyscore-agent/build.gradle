@@ -66,14 +66,16 @@ apply plugin: 'nebula.ospackage'
 jar {
     exclude('**/.keep')
     manifest.attributes([
-        'Main-Class'                   : mainClass,
-        'Implementation-Title'         : project.name,
-        'Implementation-Version'       : version,
-        'Implementation-Revision'      : revision,
-        'Implementation-Revision-Date' : revisionDate,
-        'Implementation-Build-Date'    : buildDate,
-        'Implementation-Vendor'        : 'logbee.io',
-        'Class-Path'                   : (configurations.runtime + configurations.compile).collect { "libs/" + it.getName() }.join(' ')
+            'Main-Class'                  : mainClass,
+            'Implementation-Title'        : project.name,
+            'Implementation-Version'      : version,
+            'Implementation-Revision'     : revision,
+            'Implementation-Revision-Date': revisionDate,
+            'Implementation-Build-Date'   : buildDate,
+            'Implementation-Vendor'       : 'logbee.io',
+            'Class-Path'                  : (configurations.runtime + configurations.compile).collect {
+                "libs/" + it.getName()
+            }.join(' ')
     ])
 }
 
@@ -91,17 +93,32 @@ distributions {
     }
 }
 
+ext.compv = { p1 ->
+    def result = version
+
+    switch (p1) {
+        case "deb":
+            break
+        case "rpm":
+            // ugly
+            result = result.replace("-alpha.", ".a").replace("-beta.", ".b")
+            break
+    }
+
+    return result
+}
+
 /**
  * Creates buildDeb and buildRpm
  */
 ospackage {
-    packageName         = 'keyscore-agent'
-    packageDescription  = 'The mighty Agent of Keyscore'
-    maintainer          = 'mlandth'
-    vendor              = 'logbee'
-    url                 = 'https://github.com/logbee/keyscore'
+    packageName = 'keyscore-agent'
+    packageDescription = 'The mighty Agent of Keyscore'
+    maintainer = 'mlandth'
+    vendor = 'logbee'
+    url = 'https://github.com/logbee/keyscore'
 
-    os                  = 'LINUX' // only applied to RPM
+    os = 'LINUX' // only applied to RPM
 
     //scripts
     postInstall file('src/scripts/debian_post_install.sh')
@@ -126,25 +143,25 @@ buildDeb {
     dependsOn {
         [':unpackJDK', project.tasks['installDist']]
     }
-    version = project.findProperty('debVersion')
+    version = compv("deb")
     release = project.findProperty('debRelease')
-    arch    = 'amd64' //default = all
+    arch = 'amd64' //default = all
 }
 
 buildRpm {
     dependsOn {
         [':unpackJDK', project.tasks['installDist']]
     }
-    version = project.findProperty('rpmVersion')
+    version = compv("rpm")
     release = project.findProperty('rpmRelease')
-    epoch   = 0 //default = 0
-    arch    = 'X86_64' //? default = NOARCH
+    epoch = 0 //default = 0
+    arch = 'X86_64' //? default = NOARCH
 }
 
 task buildDockerfile(type: Dockerfile, dependsOn: 'buildDeb') {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'quay.io/logbee/docker-buster-slim:latest'
-    def deb = "keyscore-agent_${project.findProperty('debVersion')}-${project.findProperty('debRelease')}_amd64.deb"
+    def deb = "keyscore-agent_${compv("deb")}-${project.findProperty('debRelease')}_amd64.deb"
     instruction { "COPY build/distributions/$deb /tmp/" }
     instruction { "RUN /usr/bin/dpkg -i /tmp/$deb && rm /tmp/$deb" }
     instruction { "CMD /usr/share/keyscore/keyscore-agent/bin/keyscore-agent" }
@@ -153,10 +170,10 @@ task buildDockerfile(type: Dockerfile, dependsOn: 'buildDeb') {
 task buildRaspbianDockerfile(type: Dockerfile) {
     destFile = project.file("$buildDir/tmp/RaspbianDockerfile")
     from 'balenalib/raspberrypi3-alpine-openjdk' //TODO alpine?
-    instruction { "RUN [ \"cross-build-start\" ]"}
+    instruction { "RUN [ \"cross-build-start\" ]" }
     instruction { "COPY build/install/ /opt/" }
     instruction { "CMD /opt/keyscore-agent/keyscore-agent" }
-    instruction { "RUN [ \"cross-build-end\" ]"}
+    instruction { "RUN [ \"cross-build-end\" ]" }
 }
 
 ["", "Raspbian"].each { arch ->
@@ -166,8 +183,7 @@ task buildRaspbianDockerfile(type: Dockerfile) {
         dockerFile = dockerfileTask.destFile
         if (arch.isEmpty()) {
             tag = "$dockerImageName:$version"
-        }
-        else {
+        } else {
             tag = "$dockerImageName:${arch.toLowerCase()}-$version"
         }
     }
@@ -180,16 +196,16 @@ task createDockerContainer(type: DockerCreateContainer) {
     portBindings = ['3551:3551']
     hostName = project.name
     env = [
-        'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
-        'KEYSCORE_REMOTE_HOST=keyscore-agent',
-        'KEYSCORE_REMOTE_PORT=0',
-        'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
+            'KEYSCORE_CLUSTER_SEED_NODE_HOST=keyscore-frontier',
+            'KEYSCORE_REMOTE_HOST=keyscore-agent',
+            'KEYSCORE_REMOTE_PORT=0',
+            'KEYSCORE_REMOTE_BIND_HOST=0.0.0.0'
     ]
     network = project.findProperty('containerNetwork') ?: 'host'
 }
 
 task startDockerContainer(type: DockerStartContainer) {
-    dependsOn = ['createDockerContainer',':setupDockerNetwork']
+    dependsOn = ['createDockerContainer', ':setupDockerNetwork']
     targetContainerId { createDockerContainer.containerName }
 }
 

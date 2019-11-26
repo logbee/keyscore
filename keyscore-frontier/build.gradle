@@ -81,6 +81,20 @@ distributions {
     }
 }
 
+ext.compv = { p1 ->
+    def result = version
+
+    switch (p1) {
+        case "deb":
+            break
+        case "rpm":
+            // ugly
+            result = result.replace("-alpha.", ".a").replace("-beta.", ".b")
+            break
+    }
+
+    return result
+}
 
 /**
  * Creates buildDeb and buildRpm
@@ -117,7 +131,7 @@ buildDeb {
     dependsOn {
         [':unpackJDK', project.tasks['installDist']]
     }
-    version = project.findProperty('debVersion')
+    version = compv("deb")
     release = project.findProperty('debRelease')
     arch    = 'amd64' //default = all
 }
@@ -126,7 +140,7 @@ buildRpm {
     dependsOn {
         [':unpackJDK', project.tasks['installDist']]
     }
-    version = project.findProperty('rpmVersion')
+    version = compv("rpm")
     release = project.findProperty('rpmRelease')
     epoch   = 0 //default = 0
     arch    = 'X86_64' //(String) default = NOARCH
@@ -136,7 +150,7 @@ buildRpm {
 task buildDockerfile(type: Dockerfile, dependsOn: 'buildDeb') {
     destFile = project.file("$buildDir/tmp/Dockerfile")
     from 'quay.io/logbee/docker-buster-slim:latest'
-    def deb = "keyscore-frontier_${project.findProperty('debVersion')}-${project.findProperty('debRelease')}_amd64.deb"
+    def deb = "keyscore-frontier_${compv("deb")}-${project.findProperty('debRelease')}_amd64.deb"
     instruction { "COPY build/distributions/$deb /tmp/" }
     instruction { "RUN /usr/bin/dpkg -i /tmp/$deb && rm /tmp/$deb" }
     instruction { "CMD /usr/share/keyscore/keyscore-frontier/bin/keyscore-frontier" }
