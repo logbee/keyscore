@@ -96,7 +96,7 @@ class JsonPathJsonExtractorLogic(parameters: LogicParameters, shape: FlowShape[D
       val originFields = if (removeSourceField) record.fields.filterNot(_.name == sourceFieldName) else record.fields
 
       record.fields.find(sourceFieldName == _.name) match {
-        case Some(Field(_, TextValue(value))) =>
+        case Some(Field(_, TextValue(value, _))) =>
           parse(value).select(jsonPath) match {
             case JArray(array) => (result += Record(originFields)) ++ array.map(node => Record(extract(node)))
             case JObject(obj) => (result += Record(originFields)) ++ obj.map(kv => Record(extract(kv._2, List(kv._1))))

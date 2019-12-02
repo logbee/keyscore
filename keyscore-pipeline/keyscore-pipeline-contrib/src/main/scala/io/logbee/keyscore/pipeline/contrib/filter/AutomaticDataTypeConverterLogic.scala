@@ -53,7 +53,7 @@ class AutomaticDataTypeConverterLogic(parameters: LogicParameters, shape: FlowSh
 
     push(out, dataset.update(_.records := dataset.records.map { record =>
       record.update(_.fields := record.fields.map {
-        case field@Field(name, TextValue(value)) =>
+        case field@Field(name, TextValue(value, _)) =>
           Try(value match {
             case value@BOOLEAN_PATTERN(_*) => Field(name, BooleanValue(value.toBoolean))
             case value@NUMBER_PATTERN(_*) => Field(name, NumberValue(value.toLong))

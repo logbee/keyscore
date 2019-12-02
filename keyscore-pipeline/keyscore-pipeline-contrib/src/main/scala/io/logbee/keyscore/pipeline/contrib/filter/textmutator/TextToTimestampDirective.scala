@@ -10,7 +10,7 @@ case class TextToTimestampDirective(pattern: String, sourceTimeZone: Option[Zone
   def invoke(field: Field): Field = {
     val format = DateTimeFormatter.ofPattern(pattern)
     field match {
-      case Field(name, TextValue(value)) =>
+      case Field(name, TextValue(value, _)) =>
         var date: Instant = null
         try {
           val parsedDateTime = LocalDateTime.parse(value, format)

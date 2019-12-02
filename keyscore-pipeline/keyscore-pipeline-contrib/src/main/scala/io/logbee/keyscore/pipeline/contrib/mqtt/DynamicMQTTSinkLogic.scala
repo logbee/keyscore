@@ -91,11 +91,11 @@ class DynamicMQTTSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset
     grab(in).records
       .foreach(record => {
         record.fields.find(field => brokerFieldName == field.name) match {
-          case Some(Field(_, broker@TextValue(_))) =>
+          case Some(Field(_, broker@TextValue(_, _))) =>
             record.fields.find(field => topicFieldName == field.name) match {
-              case Some(Field(_, topic@TextValue(_))) =>
+              case Some(Field(_, topic@TextValue(_, _))) =>
                 record.fields.find(field => dataFieldName == field.name) match {
-                  case Some(Field(_, data@TextValue(_))) =>
+                  case Some(Field(_, data@TextValue(_, _))) =>
                     pushDataset(broker, topic, data)
                   case _ =>
                     log.debug(s"Couldn't find field with name $dataFieldName")

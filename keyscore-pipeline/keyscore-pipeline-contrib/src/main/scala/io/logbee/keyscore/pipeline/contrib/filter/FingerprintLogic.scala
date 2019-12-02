@@ -104,10 +104,10 @@ class FingerprintLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
         .foldLeft((mutable.HashSet.empty[Field], Option[String](null), digest)) {
 
-          case ((result, _, digest), Field(`name`, TextValue(_))) if recompute =>
+          case ((result, _, digest), Field(`name`, TextValue(_, _))) if recompute =>
             (result, None, digest)
 
-          case ((result, _, digest), Field(`name`, TextValue(fingerprint))) =>
+          case ((result, _, digest), Field(`name`, TextValue(fingerprint, _))) =>
             (result, Some(fingerprint), digest)
 
           case ((result, fingerprint, digest), field) =>

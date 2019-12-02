@@ -201,7 +201,7 @@ class KafkaSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) ext
 
     val messages = dataset.records.foldLeft(mutable.ListBuffer.empty[(ProducerMessage.Message[Array[Byte], String, Promise[Unit]], Future[Unit])]) { case (result, record) =>
       record.fields.find(field => fieldName == field.name) match {
-        case Some(Field(_, textValue @ TextValue(_))) =>
+        case Some(Field(_, textValue @ TextValue(_, _))) =>
           if (textValue.serializedSize <= maxMessageSizeBytes) {
             val promise = Promise[Unit]
             result += ((ProducerMessage.Message(new ProducerRecord[Array[Byte], String](topic, textValue.value), promise), promise.future))

@@ -115,7 +115,7 @@ class JsonEncoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
 
   private def toMap(fields: List[Field]): Map[String, Any] = {
     fields.map(field => (field.name, field.value)).foldLeft(Map.empty[String, Any]) {
-      case (map, (name, TextValue(value))) => map + (name -> value)
+      case (map, (name, TextValue(value, _))) => map + (name -> value)
       case (map, (name, NumberValue(value))) => map + (name -> value)
       case (map, (name, DecimalValue(value))) => map + (name -> value)
       case (map, (name, value: TimestampValue)) => map + (name -> Timestamps.toString(value))

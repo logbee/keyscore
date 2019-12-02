@@ -22,7 +22,7 @@ object DefaultDataIndex {
 
     def byField(name: String)(record: Record): Set[Attribute[_]] = {
       record.fields.foreach {
-        case Field(`name`, TextValue(value)) => return Set(Attribute(Name(name), Some(value)))
+        case Field(`name`, TextValue(value, _)) => return Set(Attribute(Name(name), Some(value)))
         case _ =>
       }
 
@@ -46,7 +46,7 @@ object DefaultDataIndex {
 
       if(fieldA.isDefined && fieldB.isDefined) {
         (fieldA.get.value, fieldB.get.value) match {
-          case (TextValue(valueA), TextValue(valueB)) => valueA.compareTo(valueB)
+          case (TextValue(valueA, _), TextValue(valueB, _)) => valueA.compareTo(valueB)
           case (BooleanValue(valueA), BooleanValue(valueB)) => valueA.compareTo(valueB)
           case (DecimalValue(valueA), DecimalValue(valueB)) => valueA.compareTo(valueB)
           case (NumberValue(valueA), NumberValue(valueB)) => valueA.compareTo(valueB)

@@ -101,7 +101,7 @@ class MQTTSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) exte
     grab(in).records
       .foreach(record => {
         record.fields.find(field => fieldName == field.name) match {
-          case Some(Field(_, textValue @ TextValue(_))) =>
+          case Some(Field(_, textValue @ TextValue(_, _))) =>
             try {
               val message = new MqttMessage(textValue.value.getBytes())
               msgTopic.publish(message)

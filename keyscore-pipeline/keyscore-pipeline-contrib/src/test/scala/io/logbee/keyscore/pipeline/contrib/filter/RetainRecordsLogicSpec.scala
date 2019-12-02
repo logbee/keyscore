@@ -43,7 +43,7 @@ class RetainRecordsLogicSpec extends FreeSpec with Matchers with ScalaFutures wi
 
         actual.records should have size 1
 
-        inside(actual.records.head.fields.head) { case Field("message", TextValue(value)) =>
+        inside(actual.records.head.fields.head) { case Field("message", TextValue(value, _)) =>
           value shouldBe "Keep me!"
         }
       }

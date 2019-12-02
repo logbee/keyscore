@@ -67,6 +67,7 @@ message DecimalValue {
 message TextValue {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.TextValueConversion";
     string value = 1;
+    MimeType mimetype = 2;
 }
 
 message TimestampValue {
@@ -95,7 +96,12 @@ message HealthValue {
 message BinaryValue {
     option (scalapb.message).companion_extends = "io.logbee.keyscore.model.conversion.BinaryValueConversion";
     bytes value = 1;
-    ByteOrder byteOrder = 2;
+    MimeType mimetype = 2;
+}
+
+message MimeType {
+    string primary = 1;
+    string sub = 2;
 }
 
 enum Health {

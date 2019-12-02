@@ -166,7 +166,7 @@ class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
 
     records.map(record => record.update(_.fields := record.fields.foldLeft(mutable.ListBuffer.empty[Field]) {
 
-      case (fields, source @ Field(`fieldName`, TextValue(line))) =>
+      case (fields, source @ Field(`fieldName`, TextValue(line, _))) =>
 
         fields ++= headerList.zip(line.split(delimiter)).map {
           case (name, value) => Field(name, TextValue(value))
@@ -187,7 +187,7 @@ class CSVDecoderLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Dat
 
     records.flatMap(record => {
       record.fields.find(field => fieldName.equals(field.name) && field.value.isInstanceOf[TextValue]) match {
-        case Some(source @ Field(_, TextValue(content))) =>
+        case Some(source @ Field(_, TextValue(content, _))) =>
           val lines = content.lines.toList
           val header = lines.head.split(delimiter)
           val parsed = lines.tail.map(_.split(delimiter).zip(header).map { case (value, name) => Field(name, TextValue(value)) }).map(Record(_:_*))

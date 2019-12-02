@@ -207,7 +207,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
         case (records, (record, sequences)) =>
           records += sequences.foldLeft(record) { case (record, sequence) =>
             record.update(_.fields := record.fields.foldLeft(mutable.ListBuffer.empty[Field]) {
-              case (fields, field @ Field(fieldName, TextValue(_))) if sequence.fieldNamePattern.matches(fieldName) =>
+              case (fields, field @ Field(fieldName, TextValue(_, _))) if sequence.fieldNamePattern.matches(fieldName) =>
                 val mutated = sequence.directives.foldLeft(field) { case (field, directive) =>
                   directive.invoke(field)
                 }

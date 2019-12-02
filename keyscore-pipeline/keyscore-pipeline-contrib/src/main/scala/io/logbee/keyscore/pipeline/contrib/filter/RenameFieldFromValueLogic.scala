@@ -80,7 +80,7 @@ class RenameFieldFromValueLogic(parameters: LogicParameters, shape: FlowShape[Da
         case (result, record) =>
 
           val sourceAndTarget = record.fields.foldLeft(pair) {
-            case (fields, Field(`sourceFieldName`, value @ TextValue(_))) => (Option(TextField(sourceFieldName, value)), fields._2)
+            case (fields, Field(`sourceFieldName`, value @ TextValue(_, _))) => (Option(TextField(sourceFieldName, value)), fields._2)
             case (fields, field @ Field(`targetFieldName`, _)) => (fields._1, Option(field))
             case (fields, _) => fields
           }

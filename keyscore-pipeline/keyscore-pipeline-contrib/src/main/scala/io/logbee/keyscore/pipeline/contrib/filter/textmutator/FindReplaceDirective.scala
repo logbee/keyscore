@@ -6,7 +6,7 @@ import io.logbee.keyscore.pipeline.api.directive.FieldDirective
 case class FindReplaceDirective(find: String, replace: String) extends FieldDirective {
   def invoke(field: Field): Field = {
      field match{
-       case Field(name, TextValue(value)) =>
+       case Field(name, TextValue(value, _)) =>
          Field(name,TextValue(value.replace(find,replace)))
        case _ => field
      }
