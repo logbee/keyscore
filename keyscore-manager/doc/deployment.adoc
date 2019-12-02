@@ -34,7 +34,7 @@ change the Manager's `application.conf`
 .Running the Manager as Docker container.
 ----
 docker run --publish 8080:80 \
-           quay.io/logbee/keyscore-manager:0.3.0-alpha.7
+           quay.io/logbee/keyscore-manager:0.3.0-alpha.8
 ----
 
 == Zip Distribution ==
