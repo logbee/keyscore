@@ -121,7 +121,7 @@ class SpecWithRotateFiles extends FreeSpec with MockFactory {
   
   def calledBackDataIsSimilarTo(expected: FileReadData): FileReadData => Boolean = {
     actual: FileReadData => {
-      expected.string == actual.string &&
+      expected.readData == actual.readData &&
       Option(expected.baseFile).equals(Option(actual.baseFile)) &&
       Option(expected.physicalFile).equals(Option(actual.physicalFile)) &&
       expected.readEndPos == actual.readEndPos &&

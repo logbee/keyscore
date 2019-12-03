@@ -18,7 +18,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.LocalFileSourceLogic.Poll
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.file.local.{LocalDir, LocalFile}
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RamPersistenceContext, ReadPersistence, ReadSchedule}
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read._
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatcherProvider}
 
@@ -399,7 +399,7 @@ class LocalFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Datas
         val outData = Dataset(
           records = List(Record(
             fields = List(
-              Field(fieldName, TextValue(fileReadData.string)),
+              Field(fieldName, TextValue(fileReadData.readData)),
               Field("file.path", TextValue(fileReadData.baseFile.absolutePath)),
               Field("file.modified-timestamp", TimestampValue(fileReadData.writeTimestamp / 1000, (fileReadData.writeTimestamp % 1000 * 1000000).asInstanceOf[Int])),
             )
@@ -428,6 +428,6 @@ class LocalFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Datas
   }
 
   override def postStop(): Unit = {
-    log.info("Tailin source is stopping.")
+    log.info(s"${classOf[LocalFileSourceLogic].getSimpleName} is stopping.")
   }
 }

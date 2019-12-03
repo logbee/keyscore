@@ -2,12 +2,11 @@ package io.logbee.keyscore.pipeline.contrib.tailin.read
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadPersistence
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
 
 import scala.collection.mutable
 
 
-case class FileReadData(string: String,
+case class FileReadData(readData: String,
                         baseFile: FileHandle,
                         physicalFile: String,
                         readEndPos: Long,

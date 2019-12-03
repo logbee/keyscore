@@ -16,7 +16,6 @@ import scala.Int.MaxValue
 import scala.io.Source
 
 
-@RunWith(classOf[JUnitRunner])
 class DescriptorSpec extends FreeSpec with Matchers {
 
   import io.logbee.keyscore.model.util.ToOption._
@@ -55,15 +54,15 @@ class DescriptorSpec extends FreeSpec with Matchers {
       val directiveDescriptor = FieldDirectiveDescriptor(
         ref = DirectiveRef("dea6e8a9-7bf9-4af5-a049-fc9a567ab3b4"),
         info = ParameterInfo(
-          displayName = "directive.displayName",
-          description = "directive.description"
+          displayName = TextRef("directive.displayName"),
+          description = TextRef("directive.description")
         ),
         parameters = Seq(
           TextParameterDescriptor(
             ref = "directive.pattern",
             info = ParameterInfo(
-              displayName = "directive.pattern.displayName",
-              description = "directive.pattern.description"
+              displayName = TextRef("directive.pattern.displayName"),
+              description = TextRef("directive.pattern.description")
             ),
             mandatory = true
           )
@@ -73,8 +72,8 @@ class DescriptorSpec extends FreeSpec with Matchers {
       val directiveSequenceParameter = FieldDirectiveSequenceParameterDescriptor(
         ref = "directiveSequence",
         info = ParameterInfo(
-          displayName = "directiveSequence.displayName",
-          description = "directiveSequence.description"
+          displayName = TextRef("directiveSequence.displayName"),
+          description = TextRef("directiveSequence.description")
         ),
         fieldTypes = Seq(Text),
         parameters = Seq(textParameter),
@@ -94,7 +93,7 @@ class DescriptorSpec extends FreeSpec with Matchers {
             ParameterGroupDescriptor(condition = BooleanParameterCondition(booleanParameterRef, negate = true), parameters = Seq(
               patternParameter, directiveSequenceParameter,
               FieldNameListParameterDescriptor("ff543cab-15bf-114a-47a1-ce1f065e5513",
-                ParameterInfo("listParameterDisplayName", "listParameterDescription"),
+                ParameterInfo(TextRef("listParameterDisplayName"), TextRef("listParameterDescription")),
                 FieldNameParameterDescriptor(hint = PresentField, validator = StringValidator("^_.*")),
                 min = 1, max = Int.MaxValue)
             ))

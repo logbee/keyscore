@@ -7,7 +7,7 @@ import io.logbee.keyscore.model.data.{Field, TextValue, TimestampValue}
 import io.logbee.keyscore.pipeline.api.directive.FieldDirective
 
 case class TextToTimestampDirective(pattern: String, sourceTimeZone: Option[ZoneId] = None) extends FieldDirective {
-  def invoke(field: Field): Field = {
+  override def invoke(field: Field): Seq[Field] = {
     val format = DateTimeFormatter.ofPattern(pattern)
     field match {
       case Field(name, TextValue(value, _)) =>
@@ -31,19 +31,19 @@ case class TextToTimestampDirective(pattern: String, sourceTimeZone: Option[Zone
           }
         } catch {
           case _: DateTimeParseException =>
-            return field
+            return Seq(field)
         }
 
         if (date != null) {
           val seconds = date.getEpochSecond
           val nanos = date.getNano
-          return Field(name, TimestampValue(seconds, nanos))
+          return Seq(Field(name, TimestampValue(seconds, nanos)))
         }
         else {
-          field
+          Seq(field)
         }
       case _ =>
-        field
+        Seq(field)
     }
   }
 }

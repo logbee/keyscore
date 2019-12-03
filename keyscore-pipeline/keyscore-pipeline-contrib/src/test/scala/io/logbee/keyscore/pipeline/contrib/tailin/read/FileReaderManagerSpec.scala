@@ -3,7 +3,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.read
 import java.nio.charset.StandardCharsets
 
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{ReadPersistence, ReadSchedule, ReadScheduleItem}
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -50,7 +50,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
         callback expects where {
           calledBackDataIsSimilarTo(
             FileReadData(
-              string = logFile3.content().substring(previousReadPosition),
+              readData = logFile3.content().substring(previousReadPosition),
               baseFile = logFile.file,
               physicalFile = logFile3.absolutePath,
               readEndPos = logFile3.length(),
@@ -93,7 +93,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
         callback expects where {
           calledBackDataIsSimilarTo(
             FileReadData(
-              string = logFile3.content().substring(previousReadPosition),
+              readData = logFile3.content().substring(previousReadPosition),
               baseFile = logFile.file,
               physicalFile = logFile3.absolutePath,
               readEndPos = logFile3.length(),
@@ -124,7 +124,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
         callback expects where {
           calledBackDataIsSimilarTo(
             FileReadData(
-              string = logFile2.content(),
+              readData = logFile2.content(),
               baseFile = logFile.file,
               physicalFile = logFile2.absolutePath,
               readEndPos = logFile2.length(),
@@ -176,7 +176,7 @@ class FileReaderManagerSpec extends SpecWithRotateFiles with Matchers with MockF
         callback expects where {
           calledBackDataIsSimilarTo(
             FileReadData(
-              string=oldLogFile3.content().substring(previousReadPosition),
+              readData=oldLogFile3.content().substring(previousReadPosition),
               baseFile=logFile.file,
               physicalFile=logFile4.absolutePath,
               readEndPos=oldLogFile3.length(),

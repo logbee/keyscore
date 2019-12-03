@@ -1,7 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.read
 
-import java.nio.{ByteBuffer, CharBuffer}
 import java.nio.charset.{CharacterCodingException, Charset, CodingErrorAction}
+import java.nio.{ByteBuffer, CharBuffer}
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.ReadScheduleItem
@@ -43,8 +43,6 @@ object FileReader {
       CharPos(this.value - other.value)
     }
   }
-
-  case class FileReadRecord(previousReadPosition: Long, previousReadTimestamp: Long, newerFilesWithSharedLastModified: Int)
 }
 
 /**
@@ -181,6 +179,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
                 readDataToCallback += stringWithNewlines
                 completedBytePositionWithinBuffer += BytePos(charset.encode(stringWithNewlines).limit)
               }
+              case ReadMode.File => ??? //match-case above should never allow this to be triggered
             }
             
             charBuffer.position(endOfNewlines.value)
@@ -221,7 +220,7 @@ class FileReader(fileToRead: FileHandle, rotationPattern: String, byteBufferSize
 
   private def doCallback(callback: FileReadData => Unit, readEndPos: BytePos, readScheduleItem: ReadScheduleItem, absolutePath: String): Unit = {
     if (readDataToCallback.isEmpty == false) {
-      val fileReadData = FileReadData(string=readDataToCallback,
+      val fileReadData = FileReadData(readData=readDataToCallback,
                                       baseFile=null,
                                       physicalFile=absolutePath,
                                       readEndPos=readEndPos.value,

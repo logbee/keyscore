@@ -163,7 +163,7 @@ class ElasticSearchSinkLogic(parameters: LogicParameters, shape: SinkShape[Datas
             }
         })
 
-        HttpRequest(POST, uri = s"/$elasticIndex/_doc/${fields.hashCode().base64()}/", entity = HttpEntity(`application/json`, write(fields))) -> Promise[HttpResponse]
+        HttpRequest(POST, uri = s"/$elasticIndex/_doc/${fields.hashCode().base64}/", entity = HttpEntity(`application/json`, write(fields))) -> Promise[HttpResponse]
       })
       .foreach({
         case tuple @ (_, promise) =>

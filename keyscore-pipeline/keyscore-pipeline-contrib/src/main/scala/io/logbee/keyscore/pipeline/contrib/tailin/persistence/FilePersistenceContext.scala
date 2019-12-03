@@ -5,7 +5,7 @@ import java.nio.file.Paths
 
 import com.typesafe.config.Config
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext.{Configuration, PersistenceFormat}
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization._
 import org.slf4j.LoggerFactory
@@ -17,26 +17,31 @@ class FilePersistenceContext private(configuration: Configuration) extends Persi
   private implicit val formats = DefaultFormats
 
 
-  private val ramPersistenceContext = new RamPersistenceContext[Int, PersistenceFormat]
+  private val ramPersistenceContext = new RamPersistenceContext[String, PersistenceFormat]
 
   //load all previously persisted records into RAM
   if (configuration.enabled) {
     configuration.persistenceDir.listFiles.foreach { file =>
 
-      val loaded = read[PersistenceFormat](Source.fromFile(file).mkString)
-
-      ramPersistenceContext.store(loaded.path.hashCode, PersistenceFormat(file.getAbsolutePath, loaded.fileReadRecord))
+      try {
+        val loaded = read[PersistenceFormat](Source.fromFile(file).mkString)
+        ramPersistenceContext.store(uniqueId(loaded.path), PersistenceFormat(file.getAbsolutePath, loaded.fileReadRecord))
+      }
+      catch {
+        case exception: Throwable =>
+          log.error(s"Failed to read persistence from file: ${file.getAbsolutePath}", exception)
+      }
     }
   }
 
   override def store(absolutePath: String, fileReadRecord: FileReadRecord): Unit = {
 
-    val hashedKey = absolutePath.hashCode
+    val uniqueIdFromPath = uniqueId(absolutePath)
 
-    ramPersistenceContext.store(hashedKey, PersistenceFormat(absolutePath, fileReadRecord))
+    ramPersistenceContext.store(uniqueIdFromPath, PersistenceFormat(absolutePath, fileReadRecord))
 
     if (configuration.enabled) {
-      val persistenceFile = configuration.persistenceDir.toPath.resolve(hashedKey.toString + ".json").toFile
+      val persistenceFile = configuration.persistenceDir.toPath.resolve(uniqueIdFromPath + ".json").toFile
       persistenceFile.createNewFile()
 
       val jsonFormat = PersistenceFormat(absolutePath, fileReadRecord)
@@ -58,17 +63,22 @@ class FilePersistenceContext private(configuration: Configuration) extends Persi
   }
 
   override def load(key: String): Option[FileReadRecord] = {
-    ramPersistenceContext.load(key.hashCode).map(_.fileReadRecord)
+    ramPersistenceContext.load(uniqueId(key)).map(_.fileReadRecord)
   }
 
   override def remove(key: String): Unit = {
-    ramPersistenceContext.remove(key.hashCode)
+    ramPersistenceContext.remove(uniqueId(key))
 
     if (configuration.enabled) {
-      val persistenceFile = configuration.persistenceDir.toPath.resolve(key.hashCode.toString).toFile
+      val persistenceFile = configuration.persistenceDir.toPath.resolve(uniqueId(key)).toFile
       persistenceFile.delete()
     }
   }
+
+  import io.logbee.keyscore.model.util.Hashing._
+  import io.logbee.keyscore.model.util.Hex.toHexable
+
+  private def uniqueId(value: String): String = value.md5.toHex
 }
 
 object FilePersistenceContext {

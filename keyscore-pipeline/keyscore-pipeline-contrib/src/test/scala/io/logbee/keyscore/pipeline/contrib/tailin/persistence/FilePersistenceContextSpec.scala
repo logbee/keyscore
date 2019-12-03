@@ -1,8 +1,12 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
+import java.io.File
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
+
 import com.typesafe.config.ConfigFactory
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.FilePersistenceContext.PersistenceFormat
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithTempDir
 import org.junit.runner.RunWith
 import org.scalatest.{Matchers, ParallelTestExecution}
@@ -145,6 +149,29 @@ class FilePersistenceContextSpec extends SpecWithTempDir with Matchers with Para
         loaded1 shouldBe Some(value1)
         loaded2 shouldBe None
       }
+    }
+
+    "should not raise an Exception when the file persistence file is corrupted" in {
+
+      val persistenceDir = watchDir.resolve("storage/").toFile
+      val storage = new File(persistenceDir, "persistence")
+      storage.mkdirs()
+
+      Files.write(new File(storage, "test-file.json").toPath, "{}".getBytes(StandardCharsets.UTF_8))
+
+      val config = ConfigFactory.parseString(
+        s"""
+           |enabled: "true",
+           |persistence-dir: "${persistenceDir.getPath}",
+           |""".stripMargin)
+
+      val filePersistenceContext = FilePersistenceContext(
+        FilePersistenceContext.Configuration(
+          config,
+          userEnabled=true,
+          "persistence",
+        )
+      )
     }
   }
 }

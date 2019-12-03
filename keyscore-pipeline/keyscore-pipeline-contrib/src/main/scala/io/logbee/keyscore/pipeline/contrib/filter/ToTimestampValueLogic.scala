@@ -156,11 +156,11 @@ class ToTimestampValueLogic(parameters: LogicParameters, shape: FlowShape[Datase
         push(out, dataset.withRecords(dataset.records.map(record => {
           record.update(_.fields := record.fields.map {
             case field@Field(`fieldName`, TextValue(_, _)) if sourceFieldType == ToTimestampValueLogic.Text =>
-              directive.invoke(field)
+              directive.invoke(field)(0)
             case field@Field(`fieldName`, NumberValue(_)) if sourceFieldType == ToTimestampValueLogic.NumberSeconds =>
-              directive.invoke(field)
+              directive.invoke(field)(0)
             case field@Field(`fieldName`, NumberValue(_)) if sourceFieldType == ToTimestampValueLogic.NumberMillis =>
-              directive.invoke(field)
+              directive.invoke(field)(0)
             case field@Field(_, _) =>
               field
           })

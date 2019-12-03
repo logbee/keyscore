@@ -17,8 +17,8 @@ object GreedyJsonExtractorLogic extends Described {
   val fieldNameParameter = FieldNameParameterDescriptor(
     ref = "fieldname",
     info = ParameterInfo(
-      displayName = "fieldName.displayName",
-      description = "fieldName.description"
+      displayName = TextRef("fieldName.displayName"),
+      description = TextRef("fieldName.description")
     ),
     mandatory = true
   )
@@ -26,8 +26,8 @@ object GreedyJsonExtractorLogic extends Described {
   val prefixParameter = TextParameterDescriptor(
     ref = "prefix",
     info = ParameterInfo(
-      displayName = "prefix.displayName",
-      description = "prefix.description"
+      displayName = TextRef("prefix.displayName"),
+      description = TextRef("prefix.description")
     ),
     mandatory = false,
     defaultValue = "greedy"

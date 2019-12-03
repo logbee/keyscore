@@ -23,7 +23,7 @@ object DiscardSinkLogic extends Described {
       displayName = TextRef("drain.interval.displayName"),
       description = TextRef("drain.interval.description")
     ),
-    defaultValue = 0,
+    defaultValue = 1000,
     range = NumberRange(
       step = 1,
       start = 0,
@@ -51,7 +51,7 @@ object DiscardSinkLogic extends Described {
 
 class DiscardSinkLogic(parameters: LogicParameters, shape: SinkShape[Dataset]) extends SinkLogic(parameters, shape) {
 
-  private var interval: FiniteDuration = 0 seconds
+  private var interval: FiniteDuration = 1 seconds
 
   private val pullAsync: AsyncCallback[Unit] = getAsyncCallback(_ => {
     pull(in)

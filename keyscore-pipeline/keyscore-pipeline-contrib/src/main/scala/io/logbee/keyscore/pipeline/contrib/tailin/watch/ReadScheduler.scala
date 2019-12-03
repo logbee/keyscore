@@ -2,7 +2,7 @@ package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{ReadPersistence, ReadSchedule, ReadScheduleItem}
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper
 import io.logbee.keyscore.pipeline.contrib.tailin.util.RotationHelper.ListRotatedFilesException
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadScheduler.FileInfo

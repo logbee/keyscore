@@ -1,7 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.persistence
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.FileHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 
 import scala.reflect.runtime.universe.typeTag
 

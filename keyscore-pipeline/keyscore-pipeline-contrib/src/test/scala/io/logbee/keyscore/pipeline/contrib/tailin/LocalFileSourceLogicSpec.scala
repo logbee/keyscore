@@ -9,7 +9,7 @@ import akka.stream.SourceShape
 import akka.stream.scaladsl.{Keep, Source}
 import akka.stream.testkit.scaladsl.TestSink
 import akka.testkit.TestKit
-import io.logbee.keyscore.model.configuration.{ChoiceParameter, Configuration, TextParameter}
+import io.logbee.keyscore.model.configuration.{ChoiceParameter, Configuration, FieldNameParameter, TextParameter}
 import io.logbee.keyscore.model.data.{Dataset, TextValue}
 import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.LogicParameters
@@ -114,7 +114,7 @@ class LocalFileSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfte
             ChoiceParameter(LocalFileSourceLogic.readMode.ref,        testSetup.readMode.toString),
             ChoiceParameter(LocalFileSourceLogic.encoding.ref,        testSetup.encoding.toString),
             TextParameter(  LocalFileSourceLogic.rotationPattern.ref, testSetup.rotationPattern),
-            TextParameter(  LocalFileSourceLogic.fieldName.ref,       "output"),
+            FieldNameParameter(  LocalFileSourceLogic.fieldName.ref,  "output"),
           )
 
           val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new LocalFileSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)
@@ -236,7 +236,7 @@ class LocalFileSourceLogicSpec extends FreeSpec with Matchers with BeforeAndAfte
         ChoiceParameter(LocalFileSourceLogic.readMode.ref,        ReadMode.Line.toString),
         ChoiceParameter(LocalFileSourceLogic.encoding.ref,        charset.toString),
         TextParameter(  LocalFileSourceLogic.rotationPattern.ref, "file.csv.[1-5]"),
-        TextParameter(  LocalFileSourceLogic.fieldName.ref,       "output"),
+        FieldNameParameter(  LocalFileSourceLogic.fieldName.ref,  "output"),
       )
 
       val provider = (parameters: LogicParameters, shape: SourceShape[Dataset]) => new LocalFileSourceLogic(LogicParameters(UUID.randomUUID, StageSupervisor.noop, context, configuration), shape)

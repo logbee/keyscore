@@ -27,8 +27,8 @@ object TextMutatorLogic extends Described {
   val findPattern = TextParameterDescriptor(
     ref = "textmutator.findAndReplaceDirective.find",
     info = ParameterInfo(
-      displayName = "textmutator.findAndReplaceDirective.find.displayName",
-      description = "textmutator.findAndReplaceDirective.find.description"
+      displayName = TextRef("textmutator.findAndReplaceDirective.find.displayName"),
+      description = TextRef("textmutator.findAndReplaceDirective.find.description")
     ),
     mandatory = true
   )
@@ -36,8 +36,8 @@ object TextMutatorLogic extends Described {
   val replacePattern = TextParameterDescriptor(
     ref = "textmutator.findAndReplaceDirective.replace",
     info = ParameterInfo(
-      displayName = "textmutator.findAndReplaceDirective.replace.displayName",
-      description = "textmutator.findAndReplaceDirective.replace.description"
+      displayName = TextRef("textmutator.findAndReplaceDirective.replace.displayName"),
+      description = TextRef("textmutator.findAndReplaceDirective.replace.description")
     ),
     mandatory = true
   )
@@ -45,8 +45,8 @@ object TextMutatorLogic extends Described {
   val toTimestampPattern = TextParameterDescriptor(
     ref = "textmutator.toTimestampDirective.pattern",
     info = ParameterInfo(
-      displayName = "textmutator.toTimestampDirective.pattern.displayName",
-      description = "textmutator.toTimestampDirective.pattern.description"
+      displayName = TextRef("textmutator.toTimestampDirective.pattern.displayName"),
+      description = TextRef("textmutator.toTimestampDirective.pattern.description")
     ),
     mandatory = true
   )
@@ -54,16 +54,16 @@ object TextMutatorLogic extends Described {
   val trimDirective = FieldDirectiveDescriptor(
     ref = DirectiveRef("ab31ce5f-d582-48e6-9a76-80436a733678"),
     info = ParameterInfo(
-      displayName = "textmutator.trimDirective.displayName",
-      description = "textmutator.trimDirective.description"
+      displayName = TextRef("textmutator.trimDirective.displayName"),
+      description = TextRef("textmutator.trimDirective.description")
     ),
   )
 
   val findAndReplaceDirective = FieldDirectiveDescriptor(
     ref = DirectiveRef("dea6e8a9-7bf9-4af5-a049-fc9a567ab3b4"),
     info = ParameterInfo(
-      displayName = "textmutator.findAndReplaceDirective.displayName",
-      description = "textmutator.findAndReplaceDirective.description"
+      displayName = TextRef("textmutator.findAndReplaceDirective.displayName"),
+      description = TextRef("textmutator.findAndReplaceDirective.description")
     ),
     parameters = Seq(
       findPattern,
@@ -74,8 +74,8 @@ object TextMutatorLogic extends Described {
   val toTimestampDirective = FieldDirectiveDescriptor(
     ref = DirectiveRef("e5666f54-abda-4cb6-87ba-5ad4fe96b6a3"),
     info = ParameterInfo(
-      displayName = "textmutator.toTimestampDirective.displayName",
-      description = "textmutator.toTimestampDirective.description"
+      displayName = TextRef("textmutator.toTimestampDirective.displayName"),
+      description = TextRef("textmutator.toTimestampDirective.description")
     ),
     parameters = Seq(
       toTimestampPattern
@@ -85,8 +85,8 @@ object TextMutatorLogic extends Described {
   val fieldNamePatternParameter = FieldNamePatternParameterDescriptor(
     ref = "textmutator.fieldName",
     info = ParameterInfo(
-      displayName = "textmutator.fieldName.displayName",
-      description = "textmutator.fieldName.description"
+      displayName = TextRef("textmutator.fieldName.displayName"),
+      description = TextRef("textmutator.fieldName.description")
     ),
     hint = PresentField,
     supports = Seq(PatternType.RegEx),
@@ -96,8 +96,8 @@ object TextMutatorLogic extends Described {
   val sequenceInplaceParameter = BooleanParameterDescriptor(
     ref = "textmutator.directiveSequence.inplace",
     info = ParameterInfo(
-      displayName = "textmutator.sequenceInplaceParameter.displayName",
-      description = "textmutator.sequenceInplaceParameter.description"
+      displayName = TextRef("textmutator.sequenceInplaceParameter.displayName"),
+      description = TextRef("textmutator.sequenceInplaceParameter.description")
     ),
     defaultValue = true,
   )
@@ -105,8 +105,8 @@ object TextMutatorLogic extends Described {
   val mutatedFieldName = FieldNameParameterDescriptor(
     ref = "textmutator.directiveSequence.mutatedFieldName",
     info = ParameterInfo(
-      displayName = "textmutator.mutatedFieldName.displayName",
-      description = "textmutator.mutatedFieldName.description"
+      displayName = TextRef("textmutator.mutatedFieldName.displayName"),
+      description = TextRef("textmutator.mutatedFieldName.description")
     ),
   )
 
@@ -119,8 +119,8 @@ object TextMutatorLogic extends Described {
   val directiveSequence = FieldDirectiveSequenceParameterDescriptor(
     ref = "textmutator.directiveSequence",
     info = ParameterInfo(
-      displayName = "textmutator.directiveSequence.displayName",
-      description = "textmutator.directiveSequence.description"
+      displayName = TextRef("textmutator.directiveSequence.displayName"),
+      description = TextRef("textmutator.directiveSequence.description")
     ),
     fieldTypes = Seq(Text),
     parameters = Seq(
@@ -209,7 +209,7 @@ class TextMutatorLogic(parameters: LogicParameters, shape: FlowShape[Dataset, Da
             record.update(_.fields := record.fields.foldLeft(mutable.ListBuffer.empty[Field]) {
               case (fields, field @ Field(fieldName, TextValue(_, _))) if sequence.fieldNamePattern.matches(fieldName) =>
                 val mutated = sequence.directives.foldLeft(field) { case (field, directive) =>
-                  directive.invoke(field)
+                  directive.invoke(field)(0)
                 }
                 if (sequence.inplace) {
                   fields += mutated.withName(fieldName)

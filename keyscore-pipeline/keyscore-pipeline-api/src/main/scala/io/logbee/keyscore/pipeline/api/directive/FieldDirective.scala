@@ -4,5 +4,5 @@ import io.logbee.keyscore.model.data.Field
 
 trait FieldDirective {
 
-  def invoke(field: Field): Field
+  def invoke(field: Field): Seq[Field]
 }

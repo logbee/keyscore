@@ -20,8 +20,8 @@ object GroupByValueLogic extends Described {
   val fieldNameParameter = FieldNameParameterDescriptor(
     ref = "combineByValue.fieldName",
     info = ParameterInfo(
-      displayName = "fieldName.displayName",
-      description = "fieldName.description"
+      displayName = TextRef("fieldName.displayName"),
+      description = TextRef("fieldName.description")
     ),
     hint = FieldNameHint.PresentField,
     mandatory = true
@@ -30,8 +30,8 @@ object GroupByValueLogic extends Described {
   val timeWindowActiveParameter = BooleanParameterDescriptor(
     ref = "combineByValue.timeWindowActive",
     info = ParameterInfo(
-      displayName = "timeWindowActive.displayName",
-      description = "timeWindowActive.description"
+      displayName = TextRef("timeWindowActive.displayName"),
+      description = TextRef("timeWindowActive.description")
     ),
     mandatory = true
   )
@@ -39,8 +39,8 @@ object GroupByValueLogic extends Described {
   val timeWindowMillisParameter = NumberParameterDescriptor(
     ref = "combineByValue.timeWindowMillis",
     info = ParameterInfo(
-      displayName = "timeWindowMillis.displayName",
-      description = "timeWindowMillis.description"
+      displayName = TextRef("timeWindowMillis.displayName"),
+      description = TextRef("timeWindowMillis.description")
     ),
     mandatory = true
   )
@@ -48,8 +48,8 @@ object GroupByValueLogic extends Described {
   val maxNumberOfGroupsParameter = NumberParameterDescriptor(
     ref = "combineByValue.maxNumberOfGroups",
     info = ParameterInfo(
-      displayName = "maxNumberOfGroups.displayName",
-      description = "maxNumberOfGroups.description"
+      displayName = TextRef("maxNumberOfGroups.displayName"),
+      description = TextRef("maxNumberOfGroups.description")
     ),
     mandatory = true
   )

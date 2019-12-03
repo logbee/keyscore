@@ -25,7 +25,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.SmbFileSourceLogic.Poll
 import io.logbee.keyscore.pipeline.contrib.tailin.file.smb.{SmbDir, SmbFile}
 import io.logbee.keyscore.pipeline.contrib.tailin.file.{DirNotOpenableException, FileHandle}
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{FilePersistenceContext, RamPersistenceContext, ReadPersistence, ReadSchedule}
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.read._
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.{BaseDirWatcher, FileMatchPattern, WatchDirNotFoundException, WatcherProvider}
 
@@ -301,7 +301,7 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
   }
   
   override def postStop(): Unit = {
-    log.info("SMB source is stopping.")
+    log.info(s"${classOf[SmbFileSourceLogic].getSimpleName} is stopping.")
 
     if (share != null) {
       share.close()
@@ -331,7 +331,7 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
         val outData = Dataset(
           records = List(Record(
             fields = List(
-              Field(fieldName, TextValue(fileReadData.string)),
+              Field(fieldName, TextValue(fileReadData.readData)),
               Field("file.path", TextValue(fileReadData.baseFile.absolutePath)),
               Field("file.modified-timestamp", TimestampValue(fileReadData.writeTimestamp / 1000, (fileReadData.writeTimestamp % 1000 * 1000000).asInstanceOf[Int])),
             )

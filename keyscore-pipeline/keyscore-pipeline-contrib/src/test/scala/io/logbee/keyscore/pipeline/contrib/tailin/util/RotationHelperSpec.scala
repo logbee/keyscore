@@ -1,6 +1,6 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadScheduler.FileInfo
 import org.junit.runner.RunWith
 import org.scalatest.Matchers

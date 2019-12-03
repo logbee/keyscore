@@ -46,7 +46,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 mockCallback expects where {
                   calledBackDataIsSimilarTo(
                     FileReadData(
-                      string=line1,
+                      readData=line1,
                       baseFile=null,
                       physicalFile=logFile.absolutePath,
                       readEndPos=logFile.length(),
@@ -74,7 +74,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 mockCallback expects where {
                   calledBackDataIsSimilarTo(
                     FileReadData(
-                      string=line1,
+                      readData=line1,
                       baseFile=null,
                       physicalFile=logFile.absolutePath,
                       readEndPos=byteLen(text),
@@ -107,7 +107,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                     calledBackDataIsSimilarTo(
 
                       FileReadData(
-                        string=line1,
+                        readData=line1,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline),
@@ -121,7 +121,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line2,
+                        readData=line2,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline + line2 + newline),
@@ -135,7 +135,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line3,
+                        readData=line3,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline + line2 + newline + line3),
@@ -166,7 +166,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line1,
+                        readData=line1,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline),
@@ -180,7 +180,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line3,
+                        readData=line3,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline + line3),
@@ -211,7 +211,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line1,
+                        readData=line1,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline),
@@ -225,7 +225,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line2,
+                        readData=line2,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline + line2),
@@ -260,7 +260,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line1,
+                        readData=line1,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline),
@@ -273,7 +273,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line2,
+                        readData=line2,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline + line2 + newline),
@@ -287,7 +287,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line3,
+                        readData=line3,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline + line2 + newline + line3),
@@ -322,7 +322,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line1,
+                        readData=line1,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline),
@@ -336,7 +336,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line2,
+                        readData=line2,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline + line2 + newline),
@@ -350,7 +350,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                   mockCallback expects where {
                     calledBackDataIsSimilarTo(
                       FileReadData(
-                        string=line3,
+                        readData=line3,
                         baseFile=null,
                         physicalFile=logFile.absolutePath,
                         readEndPos=byteLen(line1 + newline + line2 + newline + line3),
@@ -387,7 +387,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 calledBackDataIsSimilarTo(
 
                   FileReadData(
-                    string=multiLineText1,
+                    readData=multiLineText1,
                     baseFile=null,
                     physicalFile=logFile.absolutePath,
                     readEndPos=byteLen(multiLineText1),
@@ -402,7 +402,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
                 calledBackDataIsSimilarTo(
 
                   FileReadData(
-                    string=multiLineText2,
+                    readData=multiLineText2,
                     baseFile=null,
                     physicalFile=logFile.absolutePath,
                     readEndPos=byteLen(text),
@@ -434,7 +434,7 @@ class FileReaderSpec extends SpecWithRotateFiles with Matchers with MockFactory 
               mockCallback expects where {
                 calledBackDataIsSimilarTo(
                   FileReadData(
-                    string=text,
+                    readData=text,
                     baseFile=null,
                     physicalFile=logFile.absolutePath,
                     readEndPos=byteLen(text),

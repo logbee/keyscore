@@ -1,7 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.util
 
 import io.logbee.keyscore.pipeline.contrib.tailin.file.OpenFileHandle
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.watch.ReadScheduler.FileInfo
 import org.slf4j.LoggerFactory
 

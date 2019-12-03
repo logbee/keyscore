@@ -12,11 +12,11 @@ object Hashing {
   implicit def toHashable(data: UUID): Hashable = new Hashable(data.toString)
 
   class Hashable(data: String) {
-    def md5(): String = {
+    def md5: String = {
       MessageDigest.getInstance("MD5").digest(data.getBytes).map(_.toChar).mkString
     }
 
-    def base64(): String = {
+    def base64: String = {
       Base64.getEncoder.encodeToString(data.getBytes)
     }
   }

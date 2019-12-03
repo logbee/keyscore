@@ -14,7 +14,7 @@ object NumberToTimestampDirective {
 
 case class NumberToTimestampDirective(unit: NumberToTimestampDirective.Unit, sourceTimeZone: Option[ZoneId] = None) extends FieldDirective {
 
-  def invoke(field: Field): Field = {
+  def invoke(field: Field): Seq[Field] = {
 
     field match {
 
@@ -26,10 +26,9 @@ case class NumberToTimestampDirective(unit: NumberToTimestampDirective.Unit, sou
           case _ => Instant.ofEpochSecond(value)
         }
 
-        Field(name, TimestampValue(instant.getEpochSecond, instant.getNano))
+        Seq(Field(name, TimestampValue(instant.getEpochSecond, instant.getNano)))
 
-      case _ =>
-        field
+      case _ => Seq(field)
     }
   }
 }

@@ -1,7 +1,7 @@
 package io.logbee.keyscore.pipeline.contrib.tailin.watch
 
 import io.logbee.keyscore.pipeline.contrib.tailin.persistence.{PersistenceContext, ReadPersistence, ReadSchedule, ReadScheduleItem}
-import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReader.FileReadRecord
+import io.logbee.keyscore.pipeline.contrib.tailin.read.FileReadRecord
 import io.logbee.keyscore.pipeline.contrib.tailin.util.SpecWithRotateFiles
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory

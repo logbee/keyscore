@@ -23,8 +23,8 @@ object RemoveFieldsLogic extends Described {
   val fieldsToRemoveParameter = FieldNameListParameterDescriptor(
     ref = "removeFields.fieldsToRemove",
     info = ParameterInfo(
-      displayName = "fieldsToRemoveName",
-      description = "fieldsToRemoveDescription"
+      displayName = TextRef("fieldsToRemoveName"),
+      description = TextRef("fieldsToRemoveDescription")
     ),
     descriptor = FieldNameParameterDescriptor(
       hint = PresentField

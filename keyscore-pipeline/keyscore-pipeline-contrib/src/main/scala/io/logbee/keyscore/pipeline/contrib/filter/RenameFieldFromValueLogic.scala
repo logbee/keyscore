@@ -18,8 +18,8 @@ object RenameFieldFromValueLogic extends Described {
   val sourceFieldNameParameter = FieldNameParameterDescriptor(
     ref = "renameFieldFromValue.sourceFieldName",
     info = ParameterInfo(
-      displayName = "sourceFieldName.displayName",
-      description = "sourceFieldName.description"
+      displayName = TextRef("sourceFieldName.displayName"),
+      description = TextRef("sourceFieldName.description")
     ),
     hint = FieldNameHint.PresentField,
     mandatory = true
@@ -28,8 +28,8 @@ object RenameFieldFromValueLogic extends Described {
   val targetFieldNameParameter = FieldNameParameterDescriptor(
     ref = "renameFieldFromValue.targetFieldName",
     info = ParameterInfo(
-      displayName = "targetFieldName.displayName",
-      description = "targetFieldName.description"
+      displayName = TextRef("targetFieldName.displayName"),
+      description = TextRef("targetFieldName.description")
     ),
     hint = FieldNameHint.PresentField,
     mandatory = true
