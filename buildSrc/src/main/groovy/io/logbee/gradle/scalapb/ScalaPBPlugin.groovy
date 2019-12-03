@@ -3,7 +3,9 @@ package io.logbee.gradle.scalapb
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.SourceSet
 import org.gradle.plugins.ide.idea.IdeaPlugin
 
@@ -11,10 +13,12 @@ import javax.inject.Inject
 
 class ScalaPBPlugin implements Plugin<Project> {
 
-    private FileResolver fileResolver
+    private final FileResolver fileResolver
+    private final ObjectFactory objectFactory
 
     @Inject
-    ScalaPBPlugin(FileResolver fileResolver) {
+    ScalaPBPlugin(ObjectFactory objectFactory, FileResolver fileResolver) {
+        this.objectFactory = objectFactory
         this.fileResolver = fileResolver
     }
 
@@ -23,7 +27,12 @@ class ScalaPBPlugin implements Plugin<Project> {
         project.extensions.create("scalapb", ScalaPBPluginExtension.class)
 
         project.getSourceSets().all { sourceSet ->
-            sourceSet.extensions.create('proto', ScalaPBSourceDirectorySet, sourceSet.name, fileResolver)
+
+            SourceDirectorySet sourceDirectory = objectFactory.sourceDirectorySet(sourceSet.name, String.format("%s ScalaPB source", sourceSet.name))
+            sourceDirectory.srcDir("src/${sourceSet.name}/proto")
+            sourceDirectory.getFilter().include("**/*.proto");
+
+            sourceSet.extensions.add('proto', sourceDirectory)
         }
 
         project.getSourceSets().each { sourceSet ->
