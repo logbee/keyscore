@@ -17,13 +17,13 @@ export const generateEmptyEditingPipelineModel = (ref: Ref = generateRef()): Edi
             metadata: {
                 labels: [{
                     name: "pipeline.name",
-                    value: new TextValue('New Pipeline')
+                    value: new TextValue('New Pipeline', null)
                 }, {
                     name: "pipeline.description",
-                    value: new TextValue('Your new Pipeline')
+                    value: new TextValue('Your new Pipeline', null)
                 }, {
                     name: "pipeline.selectedAgent",
-                    value: new TextValue("")
+                    value: new TextValue("", null)
                 }
                 ]
             }

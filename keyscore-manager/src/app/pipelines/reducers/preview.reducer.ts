@@ -28,7 +28,7 @@ export const initalPreviewState: PreviewState = {
     inputDatasetsMap: new Map<string, Dataset[]>(),
     dummyDataset: {
         metaData: {labels: []},
-        records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
+        records: [{fields: [{name: "dummy", value: { jsonClass: ValueJsonClass.TextValue, value: "dummy", mimetype: { primary: "text", sub: "plain" }}}]}]
     },
     selectedBlock: "default",
     isLoadingDatasetsAfter: false,

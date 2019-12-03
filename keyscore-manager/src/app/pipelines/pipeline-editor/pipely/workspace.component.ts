@@ -34,7 +34,7 @@ import {
     SinkBlueprint
 } from "@/../modules/keyscore-manager-models/src/main/blueprints/Blueprint";
 import {Configuration} from "@/../modules/keyscore-manager-models/src/main/common/Configuration";
-import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {TextValue, MimeType} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {Dataset} from "@/../modules/keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {Label} from "@keyscore-manager-models/src/main/common/MetaData"
@@ -369,9 +369,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy, AfterViewInit, Wor
     private setPipelineMetaData(name: string, value: string) {
         const label = this.pipeline.pipelineBlueprint.metadata.labels.find(l => l.name === name);
         if (label) {
-            label.value = new TextValue(value)
+            label.value = new TextValue(value, new MimeType("text", "plain"))
         } else {
-            this.pipeline.pipelineBlueprint.metadata.labels.push({name: name, value: new TextValue(value)})
+            this.pipeline.pipelineBlueprint.metadata.labels.push({name: name, value: new TextValue(value, MimeType.TEXT_PLAIN)})
         }
     }
 

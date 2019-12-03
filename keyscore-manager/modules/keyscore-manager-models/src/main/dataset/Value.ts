@@ -25,7 +25,8 @@ export class TextValue implements ValueI {
     readonly jsonClass = ValueJsonClass.TextValue;
 
     constructor(
-        readonly value: string
+        readonly value: string,
+        readonly mimetype: MimeType
     ) {
     }
 }
@@ -76,9 +77,16 @@ export class BinaryValue implements ValueI {
 
     constructor(
         readonly value: Uint8Array,
-        readonly byteOrder: string
+        readonly mimetype: MimeType
     ) {
     }
+}
+
+export class MimeType {
+    static readonly TEXT_PLAIN = new MimeType("text", "plain");
+    static readonly APPLICATION_JSON = new MimeType("application", "json");
+
+    constructor(readonly primary: string, readonly sub: string) {}
 }
 
 export type Value = BooleanValue

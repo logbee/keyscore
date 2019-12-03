@@ -18,7 +18,7 @@ import {
     FieldListParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
 import {Field} from "@/../modules/keyscore-manager-models/src/main/dataset/Field";
-import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {TextValue, MimeType} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {FieldParameterDescriptor} from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
 import {FieldNameHint, FieldValueType} from "@keyscore-manager-models/src/main/parameters/parameter-fields.model";
 import {IconModule} from "@/app/icon.module";
@@ -53,7 +53,7 @@ storiesOf('Configurator', module)
                     parent: null,
                     parameterSet: {
                         parameters: [new TextListParameter({id: 'testTextList'}, ['test1', 'test2']),
-                            new FieldListParameter({id: 'testFieldList'}, [new Field('message',new TextValue('haha'))])
+                            new FieldListParameter({id: 'testFieldList'}, [new Field('message',new TextValue('haha', new MimeType("text", "plain")))])
                         ]
                     }
                 },

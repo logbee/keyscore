@@ -2,7 +2,7 @@ import {Component, EventEmitter, HostBinding, Input, OnDestroy, Output} from "@a
 import {FormControl} from "@angular/forms";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {ValueComponent} from "./value-component.interface";
-import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {TextValue, MimeType} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {TranslateService} from "@ngx-translate/core";
 import {takeUntil} from "rxjs/operators";
 import {Subject} from "rxjs";
@@ -32,7 +32,7 @@ export class TextValueComponent implements ValueComponent{
 
     @Input()
     get value(): TextValue {
-        return new TextValue(this.inputControl.value);
+        return new TextValue(this.inputControl.value, new MimeType("", ""));
     }
 
     set value(val: TextValue) {

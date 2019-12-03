@@ -91,7 +91,7 @@ import {
     PatternType,
     FieldValueType
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
-import {TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {TextValue, MimeType} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {of} from "rxjs";
@@ -481,7 +481,7 @@ storiesOf('Parameters/FieldParameter', module)
         ,
         parameter: new FieldParameter({id: "myFieldParameter"}, {
             name: "message",
-            value: new TextValue("initial value")
+            value: new TextValue("initial value", MimeType.TEXT_PLAIN)
         }),
         emitter: action('Value Change')
     }

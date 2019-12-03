@@ -24,14 +24,16 @@ const exampleDataset: Dataset = {
                     name: "message",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "testValue0"
+                        value: "{ 'name': 'elmar' }",
+                        mimetype: { primary: "application", sub: "json" }
                     }
                 },
                 {
                     name: "measurement",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "25.265"
+                        value: "25.265",
+                        mimetype: { primary: "text", sub: "plain" }
                     }
                 }
             ]
@@ -42,14 +44,16 @@ const exampleDataset: Dataset = {
                     name: "message1",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "testValue1"
+                        value: "testValue1",
+                        mimetype: { primary: "text", sub: "plain" }
                     }
                 },
                 {
                     name: "measurement1",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "125.265"
+                        value: "125.265",
+                        mimetype: { primary: "text", sub: "plain" }
                     }
                 }
             ]
@@ -71,14 +75,16 @@ const exampleDataset3: Dataset = {
                     name: "haha",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "blubb"
+                        value: "blubb",
+                        mimetype: { primary: "text", sub: "plain" }
                     }
                 },
                 {
                     name: "measurementXY",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "2545.265"
+                        value: "2545.265",
+                        mimetype: { primary: "text", sub: "plain" }
                     }
                 }
             ]
@@ -89,14 +95,16 @@ const exampleDataset3: Dataset = {
                     name: "message13434",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "testValue1123123123"
+                        value: "testValue1123123123",
+                        mimetype: { primary: "text", sub: "plain" }
                     }
                 },
                 {
                     name: "measurement1342",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "111125.265"
+                        value: "111125.265",
+                        mimetype: { primary: "text", sub: "plain" }
                     }
                 }
             ]

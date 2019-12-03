@@ -88,7 +88,7 @@ import {map, share} from "rxjs/operators";
                             Type
                         </th>
                         <td mat-cell class="text-padding" *matCellDef="let row">
-                            <value-type [type]="row.input.value.jsonClass"></value-type>
+                            <value-type [value]="row.input.value"></value-type>
                         </td>
                     </ng-container>
 

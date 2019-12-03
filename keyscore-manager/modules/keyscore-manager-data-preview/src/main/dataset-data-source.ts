@@ -7,7 +7,7 @@ import {
     DatasetTableRowModelData,
     ChangeType
 } from "@keyscore-manager-models/src/main/dataset/DatasetTableModel";
-import {Value, ValueJsonClass} from "@keyscore-manager-models/src/main/dataset/Value";
+import {Value, ValueJsonClass, MimeType} from "@keyscore-manager-models/src/main/dataset/Value";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
 import {Record} from "@keyscore-manager-models/src/main/dataset/Record";
@@ -16,7 +16,7 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
 
     dummyDataset: Dataset = {
         metaData: {labels: []},
-        records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy"}}]}]
+        records: [{fields: [{name: "dummy", value: {jsonClass: ValueJsonClass.TextValue, value: "dummy", mimetype: MimeType.TEXT_PLAIN}}]}]
     };
 
     set datasets(val: Dataset[]) {
