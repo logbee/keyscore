@@ -23,7 +23,9 @@
     "MERGE": "Fusionierungsblock",
     "BRANCH": "Verzweigungsblock",
     "LOGOUT": "Logout",
-    "NO_RESULTS":"Es wurden keine Ergebnisse für Ihre Suche gefunden."
+    "NO_RESULTS":"Es wurden keine Ergebnisse für Ihre Suche gefunden.",
+    "UNAUTHORIZED": "Sie sind nicht autorisiert, diese Seite zu sehen.",
+    "CONTACT_ADMIN": "Für weitere Informationen, kontaktieren Sie bitte ihren System-Administrator."
   },
   "APPCOMPONENT": {
     "AGENTS": "Agenten",

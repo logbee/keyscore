@@ -653,6 +653,19 @@ storiesOf('Parameters/ParameterGroup', module).addDecorator(
         ]),
         emitter: action('Value Change')
     }
+})).add('without display name', () => ({
+    component: ParameterGroupComponent,
+    props: {
+        descriptor: new ParameterGroupDescriptor({id: 'testGroup'}, '', '', null, [
+            new TextParameterDescriptor({id: 'groupText'}, 'GroupText', '', '', null, true),
+            new TextParameterDescriptor({id: 'groupText2'}, 'GroupText2', '', '', null, false),
+        ]),
+        parameter: new ParameterGroup({id: 'testGroup'}, [
+            new TextParameter({id: 'groupText'}, ''),
+            new TextParameter({id: 'groupText2'}, 'init text'),
+        ]),
+        emitter: action('Value Change')
+    }
 }));
 
 
@@ -710,9 +723,17 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
                         new BooleanParameterDescriptor({id: "booleanParameter"}, "Boolean Parameter",
                             "My boolean Parameter", false, true)],
                     'groupParameter':[
-                        new ParameterGroup({id:'group'},[]),
+                        new ParameterGroup({id:'group'},[
+                            new TextParameter({id:'textParameterGroup'},'ein text'),
+                            new TextParameter({id:'textParameterGroup2'},'ein text1'),
+                            new TextParameter({id:'textParameterGroup3'},'ein text2')
+                        ]),
                         new ParameterGroupDescriptor({id:'group'},'Group','',new BooleanParameterCondition({id:'booleanParameter'},false),
-                            [new TextParameterDescriptor({id: 'textParameterGroup'}, "Text Parameter", "", "", null, true)])
+                            [
+                                new TextParameterDescriptor({id: 'textParameterGroup'}, "Text Parameter", "", "", null, true),
+                                new TextParameterDescriptor({id: 'textParameterGroup2'}, "Text Parameter", "", "", null, true),
+                                new TextParameterDescriptor({id: 'textParameterGroup3'}, "Text Parameter", "", "", null, true)
+                            ])
                     ],
                     'fieldParameter': [new FieldParameter({id: "fieldParameter"}, null),
                         new FieldParameterDescriptor({id: "fieldParameter"},

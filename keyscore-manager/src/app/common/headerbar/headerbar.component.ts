@@ -7,7 +7,7 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
             <div id="header-bar" fxLayout="row" fxLayoutAlign="space-between center">
                 <span class="title">{{title}}</span>
                 <div class="header-button-wrapper" fxLayout="row" fxLayoutAlign="space-between center"
-                     fxLayoutGap="50px">
+                     fxLayoutGap="30px">
                     <div class="danger-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
                          fxLayoutGap="10px">
                         <button mat-stroked-button class="mat-error-stroked-button" *ngIf="this.showDelete"
@@ -17,27 +17,31 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
                     </div>
                     <div class="default-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
                          fxLayoutGap="10px">
-                        <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showManualReload"
-                                (click)="reload()" matTooltip="{{'HEADER_BAR.MANUEL_RELOAD' | translate}}" matTooltipPosition="below">
-                            <mat-icon>autorenew</mat-icon>
-                        </button>
-                        <button class="mat-success-stroked-button" mat-stroked-button *ngIf="this.showSave"
+                        <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showSave"
                                 (click)="save()" matTooltip="{{'HEADER_BAR.SAVE' | translate}}" matTooltipPosition="below">
                             <mat-icon>save</mat-icon>
                         </button>
                         <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showRun"
                                 (click)="run()" matTooltip="{{'HEADER_BAR.RUN' | translate}}" matTooltipPosition="below">
-                            <mat-icon>play_circle_outline</mat-icon>
+                            <mat-icon>play_arrow</mat-icon>
+                        </button>
+                    </div>
+                    <div class="default-buttons-wrapper" fxLayout="row" fxLayoutAlign="space-around center"
+                         fxLayoutGap="10px">
+                         <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showManualReload"
+                                (click)="reload()" matTooltip="{{'HEADER_BAR.MANUEL_RELOAD' | translate}}" matTooltipPosition="below">
+                            <mat-icon>autorenew</mat-icon>
                         </button>
                         <refresh-time *ngIf="this.showRefresh" [refreshTime]="this.showRefresh"
                                       (update)="updateRefreshTime($event)"></refresh-time>
                         <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showAdd"
                                 (click)="add()" matTooltip="{{'HEADER_BAR.ADD' | translate}}" matTooltipPosition="below">
-                            <mat-icon>add_circle</mat-icon>
+                            <mat-icon>add</mat-icon>
                         </button>
+                        
                         <button class="mat-white-stroked-button" mat-stroked-button *ngIf="this.showInspect" (click)="triggeredOnInspect()"
                                 matTooltip="{{'HEADER_BAR.PREVIEW' | translate}}" matTooltipPosition="below">
-                            <mat-icon>data_usage</mat-icon>
+                            <mat-icon>visibility</mat-icon>
                         </button> 
                     </div>
                 </div>

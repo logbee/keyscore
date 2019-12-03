@@ -1,10 +1,9 @@
 import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {APP_INITIALIZER, Injector, NgModule} from "@angular/core";
+import {APP_INITIALIZER, NgModule} from "@angular/core";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {BrowserModule} from "@angular/platform-browser";
-import {Router, RouterModule, Routes} from "@angular/router";
+import {RouterModule, Routes} from "@angular/router";
 
-import {Store, StoreModule} from "@ngrx/store";
+import {StoreModule} from "@ngrx/store";
 import {StoreRouterConnectingModule} from "@ngrx/router-store";
 import {StoreDevtoolsModule} from "@ngrx/store-devtools";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
@@ -35,15 +34,16 @@ import "../assets/global-table-styles.scss";
 import "../assets/pipely-style.scss";
 import {MaterialModule} from "@/../modules/keyscore-manager-material/src/main/material.module";
 import {IconModule} from "./icon.module"
-import {AgentsEffects} from "@/app/agents/agents.effects";
+import {UnauthorizedComponent} from "@/app/common/unauthorized/unauthorized.component";
 
-const routes: Routes = [
+let routes: Routes = [
     {path: "", redirectTo: "/dashboard", pathMatch: "full"},
     {path: "dashboard", component: DashboardComponent, canActivate:[AppAuthGuard]},
     {path: "agent", loadChildren: () => AgentsModule},
     {path: "pipelines", loadChildren: () => PipelinesModule},
     {path: "settings", component: SettingsComponent, canActivate:[AppAuthGuard]},
-    {path: "resources", loadChildren: () => ResourcesModule}
+    {path: "resources", loadChildren: () => ResourcesModule},
+    {path: "unauthorized", component: UnauthorizedComponent}
 ];
 
 export function HttpLoaderFactory(http: HttpClient) {
@@ -80,7 +80,8 @@ export function HttpLoaderFactory(http: HttpClient) {
         AppComponent,
         DashboardComponent,
         SettingsComponent,
-        SidemenuComponent
+        SidemenuComponent,
+        UnauthorizedComponent
     ],
     providers: [
         AppConfigLoader,
@@ -96,12 +97,12 @@ export function HttpLoaderFactory(http: HttpClient) {
 
     ],
     entryComponents: [
-        SettingsComponent
+        SettingsComponent,
+        UnauthorizedComponent
     ],
     bootstrap: [
         AppComponent
     ]
 })
 export class AppModule {
-
 }

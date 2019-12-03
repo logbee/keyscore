@@ -21,10 +21,6 @@ export const routes: Routes = [
     {path:"", component: ResourcesComponent, canActivate:[AppAuthGuard]}
 ];
 
-export const routesWithoutAuth: Routes = [
-    {path:"", component: ResourcesComponent}
-];
-
 @NgModule({
     imports:[
         CommonModule,

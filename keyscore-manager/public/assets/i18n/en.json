@@ -23,7 +23,9 @@
     "MERGE": "Merge Block",
     "BRANCH": "Branch Block",
     "LOGOUT": "Logout",
-    "NO_RESULTS":"Your search returned no results."
+    "NO_RESULTS":"Your search returned no results.",
+    "UNAUTHORIZED": "You are not authorized to access this page.",
+    "CONTACT_ADMIN": "For further information, please contact your system administrator."
   },
   "APPCOMPONENT": {
     "AGENTS": "Agents",

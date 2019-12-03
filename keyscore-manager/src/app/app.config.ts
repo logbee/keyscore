@@ -88,6 +88,10 @@ export class AppConfig {
         return this.resolveValue(key.split("."), this.configuration) as T;
     }
 
+    public getArray<T>(key:string): T[] {
+        return this.resolveValue(key.split("."), this.configuration) as T[];
+    }
+
     private resolveValue(keys: string[], config: any): any {
         if (keys.length === 1) {
             return config[keys[0]];

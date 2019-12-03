@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {KeycloakAuthGuard, KeycloakService} from "keycloak-angular";
+import {KeycloakService} from "keycloak-angular";
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from "@angular/router";
 import {select, Store} from "@ngrx/store";
 import {AppState} from "./app.component";
@@ -16,7 +16,7 @@ export class AppAuthGuard implements CanActivate {
         let isAuth: boolean = false;
         this.store.pipe(select(selectAppConfig), take(1)).subscribe(conf => {
                 if (conf) {
-                    isAuth = conf.getBoolean("keyscore.keycloak.active")
+                    isAuth = conf.getBoolean("keyscore.keycloak.enabled")
                 }
             }
         );
@@ -27,7 +27,16 @@ export class AppAuthGuard implements CanActivate {
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
         if(this.keycloakAuthGuard) {
-            return this.keycloakAuthGuard.canActivate(route, state);
+            return this.keycloakAuthGuard.canActivate(route, state).then((isAuthorized) => {
+                if (isAuthorized) {
+                    return true;
+                }
+                else {
+                    this.router.navigateByUrl('/unauthorized');
+                    console.warn("Unauthorized user.");
+                    return false;
+                }
+            })
         } else {
             return new Promise<boolean>((resolve,reject) => resolve(true));
         }

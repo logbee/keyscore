@@ -9,11 +9,13 @@ import {
     ParameterGroupDescriptor
 } from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
 import {Parameter} from "@keyscore-manager-models/src/main/parameters/parameter.model";
+import {MaterialModule} from '@keyscore-manager-material/src/main/material.module'
 
 @NgModule({
     imports: [
         CommonModule,
-        TranslateModule
+        TranslateModule,
+        MaterialModule
     ],
     declarations: [
         ParameterGroupComponent

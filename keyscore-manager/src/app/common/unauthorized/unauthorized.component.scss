@@ -1,0 +1,52 @@
+@import '../../../assets/variables';
+@import url("https://fonts.googleapis.com/css?family=Bungee");
+
+/*.wrapper {
+  color: white;
+  background-color: rgba($keyscore-blue,0.95);
+}*/
+
+.message-header {
+  font-size: 22px;
+}
+
+.message-sub {
+  font-size: 18px;
+}
+
+
+.wrapper {
+  background-color:rgba(54,88,128,0.98);
+  color: white;
+  font-family: "Bungee", cursive !important;
+  text-align: center;
+}
+
+h1,h2{
+  font-family: "Roboto", cursive
+}
+a {
+  color: #2aa7cc;
+  text-decoration: none;
+}
+a:hover {
+  color: white;
+}
+svg {
+  width: 50vw;
+}
+.lightblue {
+  fill: #4f7eb5;
+}
+.eye {
+  cx: calc(115px + 30px * var(--mouse-x));
+  cy: calc(50px + 30px * var(--mouse-y));
+}
+#eye-wrap {
+  overflow: hidden;
+}
+.error-text {
+  font-size: 120px;
+}
+
+

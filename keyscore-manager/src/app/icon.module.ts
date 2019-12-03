@@ -35,5 +35,9 @@ export class IconModule {
         this.matIconRegistry.addSvgIcon('maturity-stable', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/maturity-stable.svg'));
         this.matIconRegistry.addSvgIcon('maturity-development', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/maturity-development.svg'));
         this.matIconRegistry.addSvgIcon('maturity-experimental', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/misc/maturity-experimental.svg'));
+
+        //Language Flags
+        this.matIconRegistry.addSvgIcon('lang-de',this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/flags/de.svg'));
+        this.matIconRegistry.addSvgIcon('lang-en',this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/images/flags/en.svg'));
     }
 }

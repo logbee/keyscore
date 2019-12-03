@@ -1,7 +1,7 @@
 import {Component, ViewChild, ViewContainerRef} from "@angular/core";
-import {Store} from "@ngrx/store";
+import {select, Store} from "@ngrx/store";
 import {TranslateService} from "@ngx-translate/core";
-import {AppConfig} from "./app.config";
+import {AppConfig, selectAppConfig} from "./app.config";
 import {LoadFilterDescriptorsAction} from "./pipelines/actions/pipelines.actions";
 import {SettingsState} from "./settings/settings.model";
 import {MenuState} from "./common/sidemenu/sidemenu.reducer";
@@ -12,6 +12,8 @@ import {SnackbarState} from "./common/snackbar/snackbar.reducer";
 import {DomSanitizer} from "@angular/platform-browser";
 import {MatIconRegistry} from "@angular/material";
 import {AgentsState} from "@/app/agents/agents.reducer";
+import {Router} from "@angular/router";
+import {take} from "rxjs/operators";
 
 export interface AppState {
     config: AppConfig;
@@ -30,7 +32,8 @@ export interface AppState {
             <mat-sidenav-container class="sidenav-container" autosize>
                 <mat-sidenav mode="side" class="main-drawer" opened="true">
                     <sidemenu (toggleSidebar)="toggleMenu()"
-                              (updateLanguage)="setLanguage($event)"></sidemenu>
+                              (updateLanguage)="setLanguage($event)"
+                    ></sidemenu>
                 </mat-sidenav>
 
                 <div id="modal">
@@ -58,8 +61,10 @@ export class AppComponent {
     constructor(private store: Store<any>,
                 private translate: TranslateService,
                 private matIconRegistry: MatIconRegistry,
-                private domSanitizer: DomSanitizer) {
-        this.store = store;
+                private domSanitizer: DomSanitizer,
+                private router:Router) {
+
+        this.addPermittedRolesToRoutes();
     }
 
     public setLanguage(language: string) {
@@ -70,5 +75,18 @@ export class AppComponent {
 
     public toggleMenu() {
         this.store.dispatch(new ToggleMenuAction());
+    }
+
+    private addPermittedRolesToRoutes() {
+        let roles: string[];
+        this.store.pipe(select(selectAppConfig), take(1)).subscribe(conf =>
+            roles = conf.getArray("keyscore.keycloak.roles")
+        );
+
+        const data = {roles: roles};
+
+        this.router.config.forEach(route => {
+            route.data = data;
+        });
     }
 }
