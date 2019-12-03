@@ -86,7 +86,7 @@ object SmbFileSourceLogic extends Described {
     mandatory = false,
   )
 
-  val password = TextParameterDescriptor(
+  val password = PasswordParameterDescriptor(
     ref = "source.smb.password",
     info = ParameterInfo(
       displayName = TextRef("password"),
