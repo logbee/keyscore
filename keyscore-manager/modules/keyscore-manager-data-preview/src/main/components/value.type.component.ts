@@ -44,33 +44,29 @@ export class ValueType {
     }
 
     public getToolTip(): string {
-        switch (this.type) {
+        switch (this._value.jsonClass) {
             case ValueJsonClass.BooleanValue:
                 return "Boolean";
             case ValueJsonClass.NumberValue:
                 return "Number";
             case ValueJsonClass.DecimalValue:
                 return "Decimal";
-            case ValueJsonClass.TextValue: {
-                const mimetype = (this._value as TextValue).mimetype;
-                if (mimetype) {
-                    return mimetype.primary + "/" + mimetype.sub
+            case ValueJsonClass.TextValue:
+                if (this._value.mimetype) {
+                    return this._value.mimetype.primary + "/" + this._value.mimetype.sub
                 } else {
                     return "Text"
                 }
-            }
             case ValueJsonClass.TimestampValue:
                 return "Timestamp";
             case ValueJsonClass.DurationValue:
                 return "Duration";
-            case ValueJsonClass.BinaryValue: {
-                const mimetype = (this._value as BinaryValue).mimetype;
-                if (mimetype) {
-                    return mimetype.primary + "/" + mimetype.sub
+            case ValueJsonClass.BinaryValue:
+                if (this._value.mimetype) {
+                    return this._value.mimetype.primary + "/" + this._value.mimetype.sub
                 } else {
                     return "Binary"
                 }
-            }
         }
 
         return "";

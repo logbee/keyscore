@@ -21,7 +21,7 @@ const exampleDataset: Dataset = {
         {
             fields: [
                 {
-                    name: "message",
+                    name: "user",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
                         value: "{ 'name': 'elmar' }",
@@ -29,11 +29,18 @@ const exampleDataset: Dataset = {
                     }
                 },
                 {
-                    name: "measurement",
+                    name: "pin",
                     value: {
-                        jsonClass: ValueJsonClass.TextValue,
-                        value: "25.265",
-                        mimetype: { primary: "text", sub: "plain" }
+                        jsonClass: ValueJsonClass.NumberValue,
+                        value: 1234,
+                    }
+                },
+                {
+                    name: "picture",
+                    value: {
+                        jsonClass: ValueJsonClass.BinaryValue,
+                        value: new Uint8Array(0),
+                        mimetype: { primary: "image", sub: "jpeg" }
                     }
                 }
             ]
@@ -41,7 +48,7 @@ const exampleDataset: Dataset = {
         {
             fields: [
                 {
-                    name: "message1",
+                    name: "message",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
                         value: "testValue1",
@@ -49,11 +56,10 @@ const exampleDataset: Dataset = {
                     }
                 },
                 {
-                    name: "measurement1",
+                    name: "condition",
                     value: {
-                        jsonClass: ValueJsonClass.TextValue,
-                        value: "125.265",
-                        mimetype: { primary: "text", sub: "plain" }
+                        jsonClass: ValueJsonClass.BooleanValue,
+                        value: true,
                     }
                 }
             ]
@@ -72,19 +78,18 @@ const exampleDataset3: Dataset = {
         {
             fields: [
                 {
-                    name: "haha",
+                    name: "message",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "blubb",
-                        mimetype: { primary: "text", sub: "plain" }
+                        value: "The weather is cloudy.",
+                        mimetype: null
                     }
                 },
                 {
-                    name: "measurementXY",
+                    name: "temperature",
                     value: {
-                        jsonClass: ValueJsonClass.TextValue,
-                        value: "2545.265",
-                        mimetype: { primary: "text", sub: "plain" }
+                        jsonClass: ValueJsonClass.DecimalValue,
+                        value: 11.5,
                     }
                 }
             ]
@@ -92,19 +97,18 @@ const exampleDataset3: Dataset = {
         {
             fields: [
                 {
-                    name: "message13434",
+                    name: "message",
                     value: {
                         jsonClass: ValueJsonClass.TextValue,
-                        value: "testValue1123123123",
+                        value: "It's a sunny day.",
                         mimetype: { primary: "text", sub: "plain" }
                     }
                 },
                 {
-                    name: "measurement1342",
+                    name: "temperature",
                     value: {
-                        jsonClass: ValueJsonClass.TextValue,
-                        value: "111125.265",
-                        mimetype: { primary: "text", sub: "plain" }
+                        jsonClass: ValueJsonClass.DecimalValue,
+                        value: 42.73,
                     }
                 }
             ]
