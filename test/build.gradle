@@ -30,8 +30,6 @@ dependencies {
     testCompile project(path: ':keyscore-agent', configuration: 'testOutput')
     testCompile project(':keyscore-test-fixtures')
 
-    testCompile "com.dimafeng:testcontainers-scala_2.13:0.30.0"
-
     testRuntime project(':keyscore-commons:keyscore-commons-logging')
 }
 

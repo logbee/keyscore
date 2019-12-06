@@ -50,8 +50,6 @@ dependencies {
     testCompile project(':keyscore-pipeline:keyscore-pipeline-contrib')
     testCompile project(':keyscore-frontier')
 
-    testCompile "com.dimafeng:testcontainers-scala_2.13:0.30.0"
-
     testCompile dependency.scala_test
     testCompile dependency.akka_testkit
 
