@@ -1,13 +1,13 @@
 package io.logbee.keyscore.pipeline.contrib
 
 import io.logbee.keyscore.model.configuration._
-import io.logbee.keyscore.model.data.{Field, TextValue}
+import io.logbee.keyscore.model.data.{Field, MimeType, TextValue}
 import io.logbee.keyscore.pipeline.testkit.TestStreamForSource
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FreeSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ConstantSourceLogicSpec extends FreeSpec with Matchers with ScalaFutures with TestSystemWithMaterializerAndExecutionContext {
@@ -31,15 +31,15 @@ class ConstantSourceLogicSpec extends FreeSpec with Matchers with ScalaFutures w
 
         var record = sink.requestNext().records.head
 
-        record.fields should contain only Field("input", TextValue("Hello World"))
+        record.fields should contain only Field("input", TextValue("Hello World",Some(MimeType("text","plain"))))
 
         record = sink.requestNext().records.head
 
-        record.fields should contain only Field("input", TextValue("Bye Bye"))
+        record.fields should contain only Field("input", TextValue("Bye Bye",Some(MimeType("text","plain"))))
 
         record = sink.requestNext().records.head
 
-        record.fields should contain only Field("input", TextValue("Hello World"))
+        record.fields should contain only Field("input", TextValue("Hello World",Some(MimeType("text","plain"))))
       }
     }
   }
