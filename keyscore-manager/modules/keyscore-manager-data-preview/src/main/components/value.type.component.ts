@@ -53,7 +53,7 @@ export class ValueType {
                 return "Decimal";
             case ValueJsonClass.TextValue:
                 if (this._value.mimetype) {
-                    return this._value.mimetype.primary + "/" + this._value.mimetype.sub
+                    return "Text: " + this._value.mimetype.primary + "/" + this._value.mimetype.sub
                 } else {
                     return "Text"
                 }
@@ -63,7 +63,7 @@ export class ValueType {
                 return "Duration";
             case ValueJsonClass.BinaryValue:
                 if (this._value.mimetype) {
-                    return this._value.mimetype.primary + "/" + this._value.mimetype.sub
+                    return "Binary: " + this._value.mimetype.primary + "/" + this._value.mimetype.sub
                 } else {
                     return "Binary"
                 }

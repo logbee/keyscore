@@ -1,10 +1,10 @@
-import {Component, Input, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import {BehaviorSubject, combineLatest, Observable} from "rxjs";
 import {DatasetDataSource} from "../dataset-data-source";
 import {MatSort} from "@angular/material";
 import {Value, ValueJsonClass} from "@keyscore-manager-models/src/main/dataset/Value";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
-import {map, share} from "rxjs/operators";
+import {map} from "rxjs/operators";
 
 @Component({
     selector: "data-preview",
@@ -228,6 +228,8 @@ export class DataPreviewComponent implements OnInit {
                 case ValueJsonClass.DurationValue: {
                     return valueObject.seconds.toString();
                 }
+                case ValueJsonClass.BinaryValue:
+                    return valueObject.value;
                 default: {
                     return "Unknown Type";
                 }

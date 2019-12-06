@@ -1,13 +1,13 @@
 import {MatTableDataSource} from "@angular/material";
 import {BehaviorSubject} from "rxjs";
 import {
-    DatasetTableRowModel,
+    ChangeType,
     DatasetTableModel,
     DatasetTableRecordModel,
-    DatasetTableRowModelData,
-    ChangeType
+    DatasetTableRowModel,
+    DatasetTableRowModelData
 } from "@keyscore-manager-models/src/main/dataset/DatasetTableModel";
-import {Value, ValueJsonClass, MimeType} from "@keyscore-manager-models/src/main/dataset/Value";
+import {MimeType, Value, ValueJsonClass} from "@keyscore-manager-models/src/main/dataset/Value";
 import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 import {Field} from "@keyscore-manager-models/src/main/dataset/Field";
 import {Record} from "@keyscore-manager-models/src/main/dataset/Record";
@@ -142,6 +142,8 @@ export class DatasetDataSource extends MatTableDataSource<DatasetTableRowModel> 
                 case ValueJsonClass.DurationValue: {
                     return valueObject.seconds.toString();
                 }
+                case ValueJsonClass.BinaryValue:
+                    return valueObject.value;
                 default: {
                     return "Unknown Type";
                 }
