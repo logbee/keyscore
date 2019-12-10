@@ -11,7 +11,8 @@ import io.logbee.keyscore.frontier.auth.AuthorizationHandler
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager._
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
 import io.logbee.keyscore.frontier.route.RouteImplicits
-import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
+import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
+import io.logbee.keyscore.model.configuration.Configuration
 
 /**
   * The '''PipelineRoute''' holds the REST route for all `Pipelines`.<br><br>
@@ -21,6 +22,8 @@ import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint}
   * @todo Implement Route for Updating Pipelines
   */
 trait PipelineRoute extends RouteImplicits with AuthorizationHandler {
+
+  case class MarshallablePipeline(pipeline: PipelineBlueprint, blueprints: List[SealedBlueprint], configurations: List[Configuration])
 
   def pipelineRoute(clusterPipelineManager: ActorRef, blueprintManager: ActorRef): Route = {
     pathPrefix("pipeline") {
@@ -96,6 +99,22 @@ trait PipelineRoute extends RouteImplicits with AuthorizationHandler {
                 case _ => complete(StatusCodes.InternalServerError)
               }
             }
+          }
+        } ~
+        pathPrefix(JavaUUID) { id =>
+          get {
+            onSuccess(clusterPipelineManager ? ExportPipelineRequest(id)) {
+              case ExportPipelineResponse(pipeline, blueprints, configurations) =>
+                complete(StatusCodes.OK, MarshallablePipeline(pipeline, blueprints, configurations))
+              case ExportPipelineNotFoundResponse(id) =>
+                complete(StatusCodes.NotFound, id)
+              case _ =>
+                log.error("Failed to export pipeline <{}>.", id)
+                complete(StatusCodes.ServerError)
+            }
+          } ~
+          post {
+            complete(StatusCodes.NotImplemented)
           }
         }
       }
