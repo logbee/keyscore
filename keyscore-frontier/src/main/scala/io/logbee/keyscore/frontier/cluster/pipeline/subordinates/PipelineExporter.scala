@@ -8,16 +8,24 @@ import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import io.logbee.keyscore.commons.cluster.resources.BlueprintMessages.{GetBlueprintRequest, GetBlueprintResponse, GetPipelineBlueprintRequest, GetPipelineBlueprintResponse}
 import io.logbee.keyscore.commons.cluster.resources.ConfigurationMessages.{GetConfigurationRequest, GetConfigurationSuccess}
-import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager.{ExportPipelineFailureResponse, ExportPipelineNotFoundResponse, ExportPipelineResponse}
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, BranchBlueprint, FilterBlueprint, MergeBlueprint, PipelineBlueprint, SealedBlueprint, SinkBlueprint, SourceBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration
 
 object PipelineExporter {
 
-  def export(id: UUID, blueprintManager: actor.ActorRef, configurationManager: actor.ActorRef, replayTo: actor.ActorRef)(implicit context: ActorContext): Unit = {
+  case class ExportPipelineRequest(id: UUID)
+
+  case class ExportPipelineResponse(pipeline: PipelineBlueprint, blueprints: List[SealedBlueprint], configurations: List[Configuration])
+
+  case class ExportPipelineNotFoundResponse(id: UUID)
+
+  case class ExportPipelineFailureResponse()
+
+  def exportPipeline(id: UUID, blueprintManager: actor.ActorRef, configurationManager: actor.ActorRef, replayTo: actor.ActorRef)(implicit parent: ActorContext): Unit = {
+
     import akka.actor.typed.scaladsl.adapter._
 
-    context.spawnAnonymous(Behaviors.setup[AnyRef]( context => {
+    parent.spawnAnonymous(Behaviors.setup[AnyRef]( context => {
 
       val self = context.self.toUntyped
 
@@ -58,12 +66,12 @@ object PipelineExporter {
                   export(pipeline, blueprints, configurations :+ configuration)
 
                 case _ =>
-                  replayTo tell (ExportPipelineFailureResponse(), context.self.toUntyped)
+                  replayTo tell (ExportPipelineFailureResponse(), parent.self)
                   Behaviors.stopped
               }
             }
             else {
-              replayTo tell (ExportPipelineResponse(pipeline, blueprints, configurations), context.self.toUntyped)
+              replayTo tell (ExportPipelineResponse(pipeline, blueprints, configurations), parent.self)
               Behaviors.stopped
             }
           }
@@ -71,11 +79,11 @@ object PipelineExporter {
           export(pipelineBlueprint, List.empty, List.empty)
 
         case GetPipelineBlueprintResponse(None) =>
-          replayTo tell (ExportPipelineNotFoundResponse(id), context.self.toUntyped)
+          replayTo tell (ExportPipelineNotFoundResponse(id), parent.self)
           Behaviors.stopped
 
         case _ =>
-          replayTo tell (ExportPipelineFailureResponse(), context.self.toUntyped)
+          replayTo tell (ExportPipelineFailureResponse(), parent.self)
           Behaviors.stopped
       }
     }))

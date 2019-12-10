@@ -10,7 +10,10 @@ import io.logbee.keyscore.commons.pipeline._
 import io.logbee.keyscore.frontier.auth.AuthorizationHandler
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager._
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.{BlueprintResolveFailure, NoAvailableAgents, PipelineDeployed}
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineExporter.{ExportPipelineNotFoundResponse, ExportPipelineRequest, ExportPipelineResponse}
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineImporter.{ImportPipelineConflictResponse, ImportPipelineRequest, ImportPipelineSuccessResponse}
 import io.logbee.keyscore.frontier.route.RouteImplicits
+import io.logbee.keyscore.frontier.route.routes.PipelineRoute.MarshallablePipeline
 import io.logbee.keyscore.model.blueprint.{BlueprintRef, PipelineBlueprint, SealedBlueprint}
 import io.logbee.keyscore.model.configuration.Configuration
 
@@ -22,8 +25,6 @@ import io.logbee.keyscore.model.configuration.Configuration
   * @todo Implement Route for Updating Pipelines
   */
 trait PipelineRoute extends RouteImplicits with AuthorizationHandler {
-
-  case class MarshallablePipeline(pipeline: PipelineBlueprint, blueprints: List[SealedBlueprint], configurations: List[Configuration])
 
   def pipelineRoute(clusterPipelineManager: ActorRef, blueprintManager: ActorRef): Route = {
     pathPrefix("pipeline") {
@@ -101,23 +102,35 @@ trait PipelineRoute extends RouteImplicits with AuthorizationHandler {
             }
           }
         } ~
-        pathPrefix(JavaUUID) { id =>
-          get {
+        get {
+          pathPrefix(JavaUUID) { id =>
             onSuccess(clusterPipelineManager ? ExportPipelineRequest(id)) {
               case ExportPipelineResponse(pipeline, blueprints, configurations) =>
                 complete(StatusCodes.OK, MarshallablePipeline(pipeline, blueprints, configurations))
               case ExportPipelineNotFoundResponse(id) =>
                 complete(StatusCodes.NotFound, id)
               case _ =>
-                log.error("Failed to export pipeline <{}>.", id)
-                complete(StatusCodes.ServerError)
+                complete(StatusCodes.InternalServerError)
             }
-          } ~
-          post {
-            complete(StatusCodes.NotImplemented)
+          }
+        } ~
+        post {
+          entity(as[MarshallablePipeline]) { pipeline =>
+            onSuccess(clusterPipelineManager ? ImportPipelineRequest(pipeline.pipeline, pipeline.blueprints, pipeline.configurations)) {
+              case ImportPipelineSuccessResponse(id) =>
+                complete(StatusCodes.OK, id)
+              case ImportPipelineConflictResponse(id) =>
+                complete(StatusCodes.Conflict, id)
+              case _ =>
+                complete(StatusCodes.InternalServerError)
+            }
           }
         }
       }
     }
   }
+}
+
+object PipelineRoute {
+  case class MarshallablePipeline(pipeline: PipelineBlueprint, blueprints: List[SealedBlueprint], configurations: List[Configuration])
 }

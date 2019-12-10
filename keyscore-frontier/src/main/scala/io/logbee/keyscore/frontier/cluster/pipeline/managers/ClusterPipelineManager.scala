@@ -20,8 +20,10 @@ import io.logbee.keyscore.commons.util.ServiceDiscovery.discover
 import io.logbee.keyscore.frontier.cluster.pipeline.collectors.{PipelineBlueprintCollector, PipelineInstanceCollector}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.AgentStatsManager.{GetAvailableAgentsRequest, GetAvailableAgentsResponse}
 import io.logbee.keyscore.frontier.cluster.pipeline.managers.ClusterPipelineManager._
-import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.{PipelineDeployer, PipelineExporter}
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.{PipelineDeployer, PipelineExporter, PipelineImporter}
 import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineDeployer.CreatePipelineRequest
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineExporter.ExportPipelineRequest
+import io.logbee.keyscore.frontier.cluster.pipeline.subordinates.PipelineImporter.ImportPipelineRequest
 import io.logbee.keyscore.model.blueprint._
 import io.logbee.keyscore.model.configuration.Configuration
 
@@ -50,14 +52,6 @@ object ClusterPipelineManager {
   case class StopPipelineSuccess(id: String)
 
   case object StopAllPipelines
-
-  case class ExportPipelineRequest(id: UUID)
-
-  case class ExportPipelineResponse(pipeline: PipelineBlueprint, blueprints: List[SealedBlueprint], configurations: List[Configuration])
-
-  case class ExportPipelineNotFoundResponse(id: UUID)
-
-  case class ExportPipelineFailureResponse()
 
   case object InitCPM
 
@@ -184,7 +178,23 @@ class ClusterPipelineManager(clusterAgentManager: ActorRef, localPipelineManager
           log.error(e, message = s"Failed to request existing blueprints: $e")
       }
 
-    case ExportPipelineRequest(id) => PipelineExporter.export(id, blueprintManager, configurationManager, sender)
+    case ExportPipelineRequest(id) =>
+      PipelineExporter.exportPipeline(
+        id,
+        blueprintManager,
+        configurationManager,
+        sender
+      )
+
+    case ImportPipelineRequest(pipeline, blueprints, configurations) =>
+      PipelineImporter.importPipeline(
+        pipeline,
+        blueprints,
+        configurations,
+        blueprintManager,
+        configurationManager,
+        sender
+      )
   }
 
   private def forwardToLocalPipelineManagerOfAvailableAgents(sender: ActorRef, message: Any): Unit = {
