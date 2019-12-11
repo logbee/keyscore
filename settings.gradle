@@ -1,3 +1,5 @@
+rootProject.name = 'keyscore'
+
 include 'keyscore-agent'
 include 'keyscore-agent:keyscore-agent-runtimes-api'
 project(':keyscore-agent:keyscore-agent-runtimes-api').projectDir = new File(project(':keyscore-agent').projectDir, "keyscore-agent-runtimes/keyscore-agent-runtimes-api")

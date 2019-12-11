@@ -10,7 +10,7 @@ import akka.stream.testkit.scaladsl.TestSink
 import akka.testkit.TestKit
 import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.share.DiskShare
-import io.logbee.keyscore.model.configuration.{ChoiceParameter, Configuration, TextParameter}
+import io.logbee.keyscore.model.configuration.{BooleanParameter, ChoiceParameter, Configuration, GroupParameter, ParameterSet, TextParameter}
 import io.logbee.keyscore.model.data.{Dataset, TextValue}
 import io.logbee.keyscore.model.pipeline.StageSupervisor
 import io.logbee.keyscore.pipeline.api.LogicParameters
@@ -20,6 +20,7 @@ import io.logbee.keyscore.pipeline.contrib.tailin.util.Manual_SpecWithSmbShare
 import io.logbee.keyscore.test.fixtures.TestSystemWithMaterializerAndExecutionContext
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
+
 import scala.concurrent.duration._
 
 /*
@@ -93,12 +94,14 @@ class Manual_SmbFileSourceLogicSpec extends Manual_SpecWithSmbShare with Matcher
         val context = StageContext(system, executionContext)
 
         val configuration = Configuration(
-          TextParameter(  SmbFileSourceLogic.hostName.ref,           hostName),
-          TextParameter(  SmbFileSourceLogic.shareName.ref,          shareName),
-          TextParameter(  SmbFileSourceLogic.domainName.ref,         domain),
-          TextParameter(  SmbFileSourceLogic.loginName.ref,          userName),
-          TextParameter(  SmbFileSourceLogic.password.ref,           password),
-          
+          TextParameter(   SmbFileSourceLogic.hostName.ref,        hostName),
+          TextParameter(   SmbFileSourceLogic.shareName.ref,       shareName),
+          TextParameter(   SmbFileSourceLogic.domainName.ref,      domain),
+          BooleanParameter(SmbFileSourceLogic.enableAuth.ref,      true),
+          GroupParameter(  SmbFileSourceLogic.authGroup.ref,       Some(ParameterSet(Seq(
+            TextParameter(   SmbFileSourceLogic.loginName.ref,       userName),
+            TextParameter(   SmbFileSourceLogic.password.ref,        password),
+          )))),
           TextParameter(  LocalFileSourceLogic.filePattern.ref,     s"$watchDir\\${testSetup.filePattern}"),
           ChoiceParameter(LocalFileSourceLogic.readMode.ref,        testSetup.readMode.toString),
           ChoiceParameter(LocalFileSourceLogic.encoding.ref,        testSetup.encoding.toString),

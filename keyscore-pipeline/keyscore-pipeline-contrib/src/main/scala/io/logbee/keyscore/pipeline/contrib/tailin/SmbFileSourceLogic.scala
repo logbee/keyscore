@@ -13,7 +13,7 @@ import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
 import com.typesafe.config.Config
 import io.logbee.keyscore.model.Described
-import io.logbee.keyscore.model.configuration.Configuration
+import io.logbee.keyscore.model.configuration.{Configuration, ParameterSet}
 import io.logbee.keyscore.model.data._
 import io.logbee.keyscore.model.descriptor._
 import io.logbee.keyscore.model.localization.{Locale, Localization, TextRef}
@@ -99,6 +99,29 @@ object SmbFileSourceLogic extends Described {
     mandatory = false,
   )
 
+  val enableAuth = BooleanParameterDescriptor(
+    ref = "source.smb.enableAuth",
+    info = ParameterInfo(
+      displayName = TextRef("enableAuth.displayName"),
+      description = TextRef("enableAuth.description")
+    ),
+    defaultValue = false
+  )
+
+  val groupCondition = BooleanParameterCondition(
+    parameter = enableAuth.ref
+  )
+
+  val authGroup = ParameterGroupDescriptor(
+    ref = "source.smb.authGroup",
+    info = ParameterInfo(
+      displayName = TextRef("authGroup.displayName"),
+      description = TextRef("authGroup.description")
+    ),
+    condition = groupCondition,
+    parameters = Seq(loginName,password)
+  )
+
   override def describe = Descriptor(
     ref = "3bbf4f3e-6131-4b20-944d-0686d6f6f539",
     describes = SourceDescriptor(
@@ -110,8 +133,8 @@ object SmbFileSourceLogic extends Described {
         hostName,
         shareName,
         domainName,
-        loginName,
-        password,
+        enableAuth,
+        authGroup,
         LocalFileSourceLogic.filePattern,
         LocalFileSourceLogic.readMode,
         LocalFileSourceLogic.firstLinePattern,
@@ -161,7 +184,8 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
   private var domainName = SmbFileSourceLogic.domainName.defaultValue
   private var loginName = SmbFileSourceLogic.loginName.defaultValue
   private var password = SmbFileSourceLogic.password.defaultValue
-  
+  private var authenticationEnabled = SmbFileSourceLogic.enableAuth.defaultValue
+
   //like LocalFileSourceLogic
   private var filePattern = LocalFileSourceLogic.filePattern.defaultValue
   private var readMode = ReadMode.Line.toString
@@ -196,9 +220,20 @@ class SmbFileSourceLogic(parameters: LogicParameters, shape: SourceShape[Dataset
     hostName = configuration.getValueOrDefault(SmbFileSourceLogic.hostName, hostName)
 		shareName = configuration.getValueOrDefault(SmbFileSourceLogic.shareName, shareName)
 		domainName = configuration.getValueOrDefault(SmbFileSourceLogic.domainName, domainName)
-		loginName = configuration.getValueOrDefault(SmbFileSourceLogic.loginName, loginName)
-		password = configuration.getValueOrDefault(SmbFileSourceLogic.password, password)
-    
+
+    authenticationEnabled = configuration.getValueOrDefault(SmbFileSourceLogic.enableAuth, authenticationEnabled)
+
+    configuration.findValue(SmbFileSourceLogic.authGroup) match {
+
+      case Some(configuration: ParameterSet) if authenticationEnabled =>
+        loginName = configuration.getValueOrDefault(SmbFileSourceLogic.loginName, loginName)
+        password = configuration.getValueOrDefault(SmbFileSourceLogic.password, password)
+
+      case _ =>
+        loginName = ""
+        password = ""
+    }
+
 		//like LocalFileSourceLogic
     filePattern = configuration.getValueOrDefault(LocalFileSourceLogic.filePattern, filePattern)
     readMode = configuration.getValueOrDefault(LocalFileSourceLogic.readMode, readMode)

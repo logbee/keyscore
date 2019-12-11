@@ -1,5 +1,9 @@
 @import '../../../assets/variables';
-@import url("https://fonts.googleapis.com/css?family=Bungee");
+
+@font-face {
+  font-family: Bungee;
+  src: url("/assets/fonts/Bungee/Bungee-Regular.ttf") format("truetype");
+}
 
 /*.wrapper {
   color: white;

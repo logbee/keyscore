@@ -1,0 +1,13 @@
+.directive-wrapper{
+  width:100%;
+}
+
+.directive-header {
+  &[aria-disabled='true'] {
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
+}
+
+.directive-title {
+  justify-content: center;
+}

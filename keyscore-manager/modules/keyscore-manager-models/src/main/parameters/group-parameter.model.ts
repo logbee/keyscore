@@ -1,7 +1,8 @@
 import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {ParameterRef} from "@keyscore-manager-models/src/main/common/Ref";
+import {ParameterSet} from "@keyscore-manager-models/src/main/common/Configuration";
 
-export const JSONCLASS_GROUP_PARAM = "io.logbee.keyscore.model.configuration.ParameterGroup";
+export const JSONCLASS_GROUP_PARAM = "io.logbee.keyscore.model.configuration.GroupParameter";
 export const JSONCLASS_GROUP_DESCR = "io.logbee.keyscore.model.descriptor.ParameterGroupDescriptor";
 
 export enum ParameterGroupConditionJsonClass{
@@ -54,7 +55,7 @@ export class ParameterGroup extends Parameter {
 
     constructor(
         readonly ref: ParameterRef,
-        readonly value: Parameter[]
+        readonly value: ParameterSet
     ) {
         super(ref, value);
     }

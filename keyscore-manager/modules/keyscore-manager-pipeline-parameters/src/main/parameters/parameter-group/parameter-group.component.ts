@@ -9,57 +9,53 @@ import {
 import {BooleanParameter} from '@keyscore-manager-models/src/main/parameters/boolean-parameter.model'
 import {ParameterComponentFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-component-factory.service";
 import {Parameter, ParameterDescriptor} from "@keyscore-manager-models/src/main/parameters/parameter.model";
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
+import {filter, share, take, takeUntil} from "rxjs/operators";
 import * as _ from 'lodash';
+import {ParameterSet} from "@keyscore-manager-models/src/main/common/Configuration";
 
 @Component({
     selector: 'parameter-group',
     template: `
-        <div class="group-wrapper" *ngIf="_isVisible" [class.without-name]="!descriptor.displayName">
+
+        <div class="group-wrapper" *ngIf="(visible$|async) as visible" [class.without-name]="!descriptor.displayName">
             <span *ngIf="descriptor.displayName" class="group-label">{{descriptor.displayName}}</span>
             <ng-template #groupContainer></ng-template>
         </div>
     `,
     styleUrls: ['../../style/parameter-module-style.scss', './parameter-group.component.scss']
 })
-export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDescriptor, ParameterGroup> implements AfterViewInit {
+export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDescriptor, ParameterGroup> {
 
     @Input() set conditionInput(val: Parameter) {
-        this._isVisible = this.checkCondition(val);
-        setTimeout(() => {
-            if (this._isVisible) {
-                this.createParameterComponents(this.parameter.value);
-            }
-        }, 0);
+        this._isVisible.next(this.checkCondition(val));
     };
 
-    private _isVisible: boolean = false;
+    private _isVisible: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
+    private visible$: Observable<boolean> = this._isVisible.asObservable().pipe(share<boolean>());
 
     @ViewChild('groupContainer', {read: ViewContainerRef}) groupContainer: ViewContainerRef;
 
     private unsubscribe$: Subject<void> = new Subject();
 
-    constructor(private parameterComponentFactory: ParameterComponentFactoryService,private cd:ChangeDetectorRef) {
+    constructor(private parameterComponentFactory: ParameterComponentFactoryService, private cd: ChangeDetectorRef) {
         super();
     }
 
     protected onInit(): void {
+        this.visible$.pipe(filter<boolean>(val => val), takeUntil(this.unsubscribe$)).subscribe(_ => {
+            setTimeout(() => {
+                this.createParameterComponents(this.parameter.value.parameters)
+            }, 0)
+        });
         if (!this.descriptor.condition) {
-            this._isVisible = true;
+            this._isVisible.next(true);
         }
 
-    }
-
-    ngAfterViewInit() {
-        if (this._isVisible) {
-            this.createParameterComponents(this.parameter.value);
-        }
     }
 
     createParameterComponents(parameters: Parameter[]) {
-        console.log("Create Components for: ", parameters);
         this.groupContainer.clear();
         parameters.forEach(param => {
             const descriptor = this.descriptor.parameters.find(descr => descr.ref.id === param.ref.id);
@@ -75,17 +71,18 @@ export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDe
         componentRef.instance.descriptor = descriptor;
         componentRef.instance.autoCompleteDataList = this.autoCompleteDataList;
 
-        componentRef.instance.emitter.pipe(takeUntil(this.unsubscribe$)).subscribe((compParameter: Parameter) => {
-            const groupParams: Parameter[] = _.cloneDeep(this.parameter.value);
-            const parameterIndex = groupParams.findIndex(param => param.ref.id === compParameter.ref.id);
+        componentRef.instance.emitter.pipe(takeUntil(this.unsubscribe$)).subscribe((componentParameter: Parameter) => {
+            const groupParams: ParameterSet = _.cloneDeep(this.parameter.value);
+            const parameterIndex = groupParams.parameters.findIndex(param => param.ref.id === componentParameter.ref.id);
             if (parameterIndex > -1) {
-                groupParams.splice(parameterIndex, 1, compParameter);
+                groupParams.parameters.splice(parameterIndex, 1, componentParameter);
                 this.onChange(new ParameterGroup(this.parameter.ref, groupParams));
             }
         })
     }
 
     onChange(parameter: ParameterGroup) {
+        this.parameter = parameter;
         this.emitter.emit(parameter);
     }
 
@@ -94,11 +91,16 @@ export class ParameterGroupComponent extends ParameterComponent<ParameterGroupDe
         switch (this.descriptor.condition.jsonClass) {
             case ParameterGroupConditionJsonClass.BooleanCondition : {
                 const param = (conditionValue as BooleanParameter);
-                return (this.descriptor.condition as BooleanParameterCondition).negate ? !param.value : param.value;
+                return (this.descriptor.condition as BooleanParameterCondition).negate != param.value;
             }
             default:
                 return;
         }
     }
 
+    protected onDestroy(): void {
+        super.onDestroy();
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
+    }
 }

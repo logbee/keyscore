@@ -1,6 +1,6 @@
 package io.logbee.keyscore.frontier.cluster.pipeline.managers
 
-import java.util.UUID
+`import java.util.UUID
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors

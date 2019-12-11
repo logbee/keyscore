@@ -1,0 +1,13 @@
+@import '../../../../../../../src/assets/variables';
+
+.add-directive-wrapper {
+  border: 1px dashed $accent;
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 8px 0;
+
+  &:hover {
+    background-color: rgba($accent, 0.05);
+  }
+}
+

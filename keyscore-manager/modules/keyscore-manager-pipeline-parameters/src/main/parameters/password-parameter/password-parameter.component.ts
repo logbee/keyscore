@@ -16,43 +16,48 @@ import {
                    (keyup.enter)="onEnter($event)"
                    [value]="parameter.value">
             <mat-label *ngIf="showLabel">{{label || descriptor.displayName}}</mat-label>
-            <button *ngIf="passwordInput.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="clear()">
+            <button *ngIf="passwordInput.value" mat-button matSuffix mat-icon-button aria-label="Clear"
+                    (click)="clear()">
                 <mat-icon>close</mat-icon>
             </button>
             <button *ngIf="passwordInput.value" mat-button matSuffix mat-icon-button aria-label="Show-Hide-Password"
-                (mousedown)="showPassword()"
-                (mouseup)="hidePassword()"
-                (mouseout)="hidePassword()">
+                    (mousedown)="showPassword()"
+                    (mouseup)="hidePassword()"
+                    (mouseout)="hidePassword()">
                 <mat-icon>remove_red_eye</mat-icon>
             </button>
         </mat-form-field>
         <div [ngSwitch]="this.warning">
-            <p *ngSwitchCase="'WARNING_MANDATORY_BUT_EMPTY'" class="parameter-warn" translate [translateParams]="{name:descriptor.displayName}">
+            <p *ngSwitchCase="'WARNING_MANDATORY_BUT_EMPTY'" class="parameter-warn" translate
+               [translateParams]="{name:descriptor.displayName}">
                 PARAMETER.IS_REQUIRED
             </p>
-            <p *ngSwitchCase="'WARNING_TOO_SHORT'" class="parameter-warn" translate [translateParams]="{value:descriptor.minLength}">
+            <p *ngSwitchCase="'WARNING_TOO_SHORT'" class="parameter-warn" translate
+               [translateParams]="{value:descriptor.minLength}">
                 PARAMETER.PASSWORD_LENGTH_TOO_SHORT
             </p>
-            <p *ngSwitchCase="'WARNING_TOO_LONG'" class="parameter-warn" translate [translateParams]="{value:descriptor.maxLength}">
+            <p *ngSwitchCase="'WARNING_TOO_LONG'" class="parameter-warn" translate
+               [translateParams]="{value:descriptor.maxLength}">
                 PARAMETER.PASSWORD_LENGTH_TOO_LONG
             </p>
-            <p *ngSwitchCase="'WARNING_INVALID'" class="parameter-warn" translate [translateParams]="{pattern:descriptor.validator.expression}">
+            <p *ngSwitchCase="'WARNING_INVALID'" class="parameter-warn" translate
+               [translateParams]="{pattern:descriptor.validator.expression}">
                 PARAMETER.FULFILL_PATTERN
             </p>
         </div>
     `,
-    styleUrls:['../../style/parameter-module-style.scss']
+    styleUrls: ['../../style/parameter-module-style.scss']
 })
 export class PasswordParameterComponent extends ParameterComponent<PasswordParameterDescriptor, PasswordParameter> {
 
     @Input() showLabel: boolean = true;
 
     @Input()
-    get value():PasswordParameter{
-        return new PasswordParameter(this.descriptor.ref,this.passwordInputRef.nativeElement.value);
+    get value(): PasswordParameter {
+        return new PasswordParameter(this.descriptor.ref, this.passwordInputRef.nativeElement.value);
     }
 
-    @ViewChild('passwordInput') passwordInputRef:ElementRef;
+    @ViewChild('passwordInput') passwordInputRef: ElementRef;
 
     private isPasswordVisible: boolean = false;
     private warning: string = null;
@@ -61,12 +66,12 @@ export class PasswordParameterComponent extends ParameterComponent<PasswordParam
         super();
     }
 
-    public clear(){
-        this.passwordInputRef.nativeElement.value="";
+    public clear() {
+        this.passwordInputRef.nativeElement.value = "";
         this.onChange();
     }
 
-    public focus(event:Event){
+    public focus(event: Event) {
         this.passwordInputRef.nativeElement.focus();
     }
 
@@ -76,7 +81,7 @@ export class PasswordParameterComponent extends ParameterComponent<PasswordParam
         }
     }
 
-    private onEnter(event:Event): void {
+    private onEnter(event: Event): void {
         this.keyUpEnterEvent.emit(event);
     }
 
@@ -123,6 +128,7 @@ export class PasswordParameterComponent extends ParameterComponent<PasswordParam
     }
 
     private isTooLong(): boolean {
+        if (this.descriptor.maxLength === 0) return false;
         return this.value.value.length > this.descriptor.maxLength;
     }
 

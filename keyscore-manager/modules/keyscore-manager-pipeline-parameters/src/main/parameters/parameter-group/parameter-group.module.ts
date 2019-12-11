@@ -10,6 +10,7 @@ import {
 } from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
 import {Parameter} from "@keyscore-manager-models/src/main/parameters/parameter.model";
 import {MaterialModule} from '@keyscore-manager-material/src/main/material.module'
+import {ParameterSet} from "@keyscore-manager-models/src/main/common/Configuration";
 
 @NgModule({
     imports: [
@@ -29,7 +30,10 @@ import {MaterialModule} from '@keyscore-manager-material/src/main/material.modul
 })
 export class ParameterGroupModule {
     constructor(private factory: ParameterFactoryService, private componentFactory: ParameterComponentFactoryService, private resolver: ComponentFactoryResolver) {
-        this.factory.register(JSONCLASS_GROUP_DESCR, (descriptor: ParameterGroupDescriptor, value: Parameter[] = []) => {
+        this.factory.register(JSONCLASS_GROUP_DESCR, (descriptor: ParameterGroupDescriptor, value: ParameterSet = {parameters: []}) => {
+            if (!value.parameters.length) {
+                descriptor.parameters.forEach(descriptor => value.parameters.push(this.factory.parameterDescriptorToParameter(descriptor)))
+            }
             return new ParameterGroup(descriptor.ref, value);
         });
 

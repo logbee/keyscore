@@ -31,80 +31,88 @@ import {ListParameterModule} from "../main/parameters/list-parameter/list-parame
 import {ChoiceParameterComponent} from "../main/parameters/choice-parameter/choice-parameter.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {
-    ExpressionParameterDescriptor,
+    ExpressionParameter,
     ExpressionParameterChoice,
-    ExpressionParameter
+    ExpressionParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/expression-parameter.model";
 import {
-    TextParameterDescriptor,
-    TextParameter
+    TextParameter,
+    TextParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/text-parameter.model";
 import {
-    PasswordParameterDescriptor,
-    PasswordParameter
+    PasswordParameter,
+    PasswordParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/password-parameter.model";
 import {
-    NumberParameterDescriptor,
-    NumberParameter
+    NumberParameter,
+    NumberParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/number-parameter.model";
 import {
-    DecimalParameterDescriptor,
-    DecimalParameter
+    DecimalParameter,
+    DecimalParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/decimal-parameter.model";
 import {
-    BooleanParameterDescriptor,
-    BooleanParameter
+    BooleanParameter,
+    BooleanParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/boolean-parameter.model";
 import {
-    FieldNameParameterDescriptor,
-    FieldNameParameter
+    FieldNameParameter,
+    FieldNameParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-parameter.model";
 import {
+    FieldNamePatternParameter,
     FieldNamePatternParameterDescriptor,
-    PatternTypeChoice,
-    FieldNamePatternParameter
+    PatternTypeChoice
 } from "@/../modules/keyscore-manager-models/src/main/parameters/field-name-pattern-parameter.model";
 import {
-    FieldParameterDescriptor,
-    FieldParameter
+    FieldParameter,
+    FieldParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/field-parameter.model";
 import {
-    TextListParameterDescriptor,
-    TextListParameter
+    TextListParameter,
+    TextListParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/text-list-parameter.model";
 import {
-    FieldNameListParameterDescriptor,
-    FieldNameListParameter
+    FieldNameListParameter,
+    FieldNameListParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-name-list-parameter.model";
 import {
-    FieldListParameterDescriptor,
-    FieldListParameter
+    FieldListParameter,
+    FieldListParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-lists/field-list-parameter.model";
 import {
-    ChoiceParameterDescriptor,
-    ChoiceParameter
+    ChoiceParameter,
+    ChoiceParameterDescriptor
 } from "@/../modules/keyscore-manager-models/src/main/parameters/choice-parameter.model";
 import {MaterialModule} from "@keyscore-manager-material/src/main/material.module";
 import {
     ExpressionType,
     FieldNameHint,
-    PatternType,
-    FieldValueType
+    FieldValueType,
+    PatternType
 } from "@/../modules/keyscore-manager-models/src/main/parameters/parameter-fields.model";
-import {TextValue, MimeType} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
+import {MimeType, TextValue} from "@/../modules/keyscore-manager-models/src/main/dataset/Value";
 import {ParameterFactoryService} from "@keyscore-manager-pipeline-parameters/src/main/service/parameter-factory.service";
 import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {of} from "rxjs";
 import {NgModule} from "@angular/core";
 import {ParameterGroupComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.component";
 import {
+    BooleanParameterCondition,
     ParameterGroup,
-    ParameterGroupDescriptor,
-    BooleanParameterCondition
+    ParameterGroupDescriptor
 } from "@keyscore-manager-models/src/main/parameters/group-parameter.model";
 import {PasswordParameterComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/password-parameter/password-parameter.component";
-import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import {ParameterGroupModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/parameter-group/parameter-group.module";
+import {DirectiveComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/directive/directive.component";
+import {
+    FieldDirectiveDescriptor,
+    FieldDirectiveSequenceParameterDescriptor
+} from '@keyscore-manager-models/src/main/parameters/directive.model'
+import {DirectiveSequenceComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/directive-sequence/directive-sequence.component";
+import {FieldNameParameterModule} from "@keyscore-manager-pipeline-parameters/src/main/parameters/field-name-parameter/field-name-parameter.module";
+import {DragDropModule} from "@angular/cdk/drag-drop";
+import {AddDirectiveComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameters/directive-sequence-parameter/add-directive/add-directive.component";
 
 const staticTranslateLoader: TranslateLoader = {
     getTranslation(lang: string) {
@@ -647,10 +655,13 @@ storiesOf('Parameters/ParameterGroup', module).addDecorator(
             new TextParameterDescriptor({id: 'groupText'}, 'GroupText', '', '', null, true),
             new TextParameterDescriptor({id: 'groupText2'}, 'GroupText2', '', '', null, false),
         ]),
-        parameter: new ParameterGroup({id: 'testGroup'}, [
-            new TextParameter({id: 'groupText'}, ''),
-            new TextParameter({id: 'groupText2'}, 'init text'),
-        ]),
+        parameter: new ParameterGroup({id: 'testGroup'}, {
+            parameters: [
+                new TextParameter({id: 'groupText'}, '')
+                ,
+                new TextParameter({id: 'groupText2'}, 'init text'),
+            ]
+        }),
         emitter: action('Value Change')
     }
 })).add('without display name', () => ({
@@ -660,14 +671,164 @@ storiesOf('Parameters/ParameterGroup', module).addDecorator(
             new TextParameterDescriptor({id: 'groupText'}, 'GroupText', '', '', null, true),
             new TextParameterDescriptor({id: 'groupText2'}, 'GroupText2', '', '', null, false),
         ]),
-        parameter: new ParameterGroup({id: 'testGroup'}, [
-            new TextParameter({id: 'groupText'}, ''),
-            new TextParameter({id: 'groupText2'}, 'init text'),
-        ]),
+        parameter: new ParameterGroup({id: 'testGroup'}, {
+            parameters:
+                [
+                    new TextParameter({id: 'groupText'}, ''),
+                    new TextParameter({id: 'groupText2'}, 'init text')
+                ]
+        }),
         emitter: action('Value Change')
+    }
+}))
+;
+
+storiesOf('Parameters/Directives/DirectiveComponent', module).addDecorator(
+    moduleMetadata({
+        declarations: [DirectiveComponent],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            BrowserAnimationsModule,
+            TextParameterModule,
+        ],
+        providers: [
+            ParameterComponentFactoryService,
+            StringValidatorService
+        ]
+    })).add('with Parameter', () => ({
+    component: DirectiveComponent,
+    props: {
+        descriptor: new FieldDirectiveDescriptor(
+            {uuid: 'testID'},
+            'Trim Directive',
+            'A description to explain something',
+            [
+                new TextParameterDescriptor({id: 'textParameter'}, 'text', '', '', null, false)
+            ],
+            null
+        ),
+        configuration: {
+            ref: {uuid: 'testID'},
+            instance: {uuid: 'instanceID'},
+            parameters: {
+                parameters: [
+                    new TextParameter({id: 'textParameter'}, '')
+                ]
+            }
+        },
+        onChange: action('Configuration Change'),
+        onDelete: action('Delete')
+    }
+})).add('without Parameter', () => ({
+    component: DirectiveComponent,
+    props: {
+        descriptor: new FieldDirectiveDescriptor(
+            {uuid: 'testID'},
+            'Trim Directive',
+            'A description to explain something',
+            [],
+            null
+        ),
+        configuration: {
+            ref: {uuid: 'testID'},
+            instance: {uuid: 'instanceID'},
+            parameters: {
+                parameters: []
+            }
+        },
+        onChange: action('Configuration Change'),
+        onDelete: action('Delete')
     }
 }));
 
+storiesOf('Parameters/Directives/DirectiveSequenceComponent', module).addDecorator(
+    moduleMetadata({
+        declarations: [DirectiveComponent, DirectiveSequenceComponent],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            DragDropModule,
+            BrowserAnimationsModule,
+            TextParameterModule,
+            FieldNameParameterModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
+                }
+            })
+        ],
+        providers: [
+            ParameterComponentFactoryService,
+            StringValidatorService
+        ]
+    })).add('with Parameter', () => ({
+    component: DirectiveSequenceComponent,
+    props: {
+        descriptor: new FieldDirectiveSequenceParameterDescriptor(
+            {id: 'sequenceParameter'},
+            'Directives',
+            '',
+            null,
+            [new FieldNameParameterDescriptor({id: 'fieldName'}, 'Fieldname', '', '', FieldNameHint.PresentField, null, true)],
+            [new FieldDirectiveDescriptor({uuid: 'trimDirective'}, 'Trim', 'Trims something', [], null)],
+            0, 0
+        ),
+        sequence:
+            {
+                id: 'sequence1',
+                parameters: {parameters: [new FieldNameParameter({id: 'fieldName'}, '')]},
+                directives: [{
+                    ref: {uuid: 'trimDirective'},
+                    instance: {uuid: 'firstInstance'},
+                    parameters: {parameters: []}
+                }, {
+                    ref: {uuid: 'trimDirective'},
+                    instance: {uuid: 'firstInstance1'},
+                    parameters: {parameters: []}
+                }]
+            },
+        autoCompleteDataList: ['message', 'robo_time', 'logbee_time']
+
+    }
+}));
+
+storiesOf('Parameters/Directives/AddDirectiveComponent', module).addDecorator(
+    moduleMetadata({
+        declarations: [AddDirectiveComponent],
+        imports: [
+            CommonModule,
+            MaterialModule,
+            DragDropModule,
+            BrowserAnimationsModule,
+            TextParameterModule,
+            FieldNameParameterModule,
+            I18nModule,
+            TranslateModule.forRoot({
+                loader: {
+                    provide: TranslateLoader,
+                    useValue: staticTranslateLoader
+                }
+            })
+        ],
+        providers: [
+            ParameterComponentFactoryService,
+            StringValidatorService
+        ]
+    })).add('with Menu', () => ({
+    component: AddDirectiveComponent,
+    props: {
+        itemsToAdd: [{id: 'id0', name: 'Trim',description:'A directive description'}, {id: 'id1', name: 'Split'}],
+        onAdd: action('Add')
+    }
+})).add('without menu', () => ({
+    component: AddDirectiveComponent,
+    props: {
+        onAdd: action('Add')
+    }
+}));
 
 storiesOf('Parameters/ParameterForm', module).addDecorator(
     moduleMetadata({
@@ -722,13 +883,15 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
                     'booleanParameter': [new BooleanParameter({id: "booleanParameter"}, false),
                         new BooleanParameterDescriptor({id: "booleanParameter"}, "Boolean Parameter",
                             "My boolean Parameter", false, true)],
-                    'groupParameter':[
-                        new ParameterGroup({id:'group'},[
-                            new TextParameter({id:'textParameterGroup'},'ein text'),
-                            new TextParameter({id:'textParameterGroup2'},'ein text1'),
-                            new TextParameter({id:'textParameterGroup3'},'ein text2')
-                        ]),
-                        new ParameterGroupDescriptor({id:'group'},'Group','',new BooleanParameterCondition({id:'booleanParameter'},false),
+                    'groupParameter': [
+                        new ParameterGroup({id: 'group'}, {
+                            parameters: [
+                                new TextParameter({id: 'textParameterGroup'}, 'ein text'),
+                                new TextParameter({id: 'textParameterGroup2'}, 'ein text1'),
+                                new TextParameter({id: 'textParameterGroup3'}, 'ein text2')
+                            ]
+                        }),
+                        new ParameterGroupDescriptor({id: 'group'}, 'Group', '', new BooleanParameterCondition({id: 'booleanParameter'}, false),
                             [
                                 new TextParameterDescriptor({id: 'textParameterGroup'}, "Text Parameter", "", "", null, true),
                                 new TextParameterDescriptor({id: 'textParameterGroup2'}, "Text Parameter", "", "", null, true),
@@ -750,6 +913,5 @@ storiesOf('Parameters/ParameterForm', module).addDecorator(
         },
         autoCompleteDataList: ['message', 'timestamp', 'robo_time', 'logbee_time'],
         onValueChange: action('Value changed')
-
     }
 }));

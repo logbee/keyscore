@@ -42,6 +42,7 @@ import {PasswordParameterModule} from "@keyscore-manager-pipeline-parameters/src
         FieldParameterModule,
         ListParameterModule,
         ChoiceParameterModule,
+        /*Import ParameterGroupModule as last module because initialisation might depend on the other ParameterModules*/
         ParameterGroupModule
     ],
     declarations: [

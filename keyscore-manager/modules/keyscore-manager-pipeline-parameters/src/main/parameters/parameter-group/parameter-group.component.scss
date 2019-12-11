@@ -12,7 +12,6 @@
   }
 }
 
-
 /*.group-divider{
   margin-top:8px;
   margin-bottom: 8px;
@@ -21,7 +20,7 @@
 .group-label{
   position:relative;
   padding:0 4px;
-  top:calc(-1 * ((1em / 2) + 2px));
-  background-color:white;
+  top:calc(-1 * ((1em / 2) + 4px));
+  background-color:rgba(255,255,255,0.50);
   color:rgba(0,0,0,0.5);
 }

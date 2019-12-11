@@ -14,7 +14,7 @@ import {Dataset} from "@keyscore-manager-models/src/main/dataset/Dataset";
 import {Agent} from "@keyscore-manager-models/src/main/common/Agent";
 import {map, startWith, takeUntil} from "rxjs/operators";
 import {ParameterFormComponent} from "@keyscore-manager-pipeline-parameters/src/main/parameter-form.component"
-
+import {JSONCLASS_GROUP_PARAM} from '@keyscore-manager-models/src/main/parameters/group-parameter.model'
 
 @Component({
     selector: "configurator",
@@ -93,11 +93,11 @@ export class ConfiguratorComponent implements OnInit, OnDestroy {
 
     @Input() agents: Agent[];
 
-    @Input() enableSelectAgent:boolean;
+    @Input() enableSelectAgent: boolean;
 
     @Input('config') set config(val: { conf: Configuration, descriptor: BlockDescriptor, uuid: string }) {
         if (val) {
-            if(this.parameterForm){
+            if (this.parameterForm) {
                 this.parameterForm.triggerInputChangeDetection();
             }
             this._config = val.conf;

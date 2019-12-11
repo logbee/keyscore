@@ -95,6 +95,7 @@ export class ParameterFormComponent implements OnInit, OnDestroy {
                 setTimeout(() => {
                     const groupComponent = this.parameterComponents.get(groupDescriptor.ref.id);
                     const conditionComponent = this.parameterComponents.get(groupDescriptor.condition.parameter.id);
+                    (groupComponent as ParameterGroupComponent).conditionInput = conditionComponent.value;
                     if (!groupComponent || !conditionComponent) return;
                     conditionComponent.emitter.pipe(takeUntil(this.unsubscribe$)).subscribe((parameter: Parameter) => {
                         (groupComponent as ParameterGroupComponent).conditionInput = parameter;

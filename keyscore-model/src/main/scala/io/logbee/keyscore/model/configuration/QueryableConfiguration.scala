@@ -10,23 +10,24 @@ trait QueryableConfiguration {
   this: Configuration =>
 
   private def parameterMapping: Map[String, Any] = parameterSet.parameters.foldLeft(mutable.HashMap.empty[String, Any]) {
-      case (result, parameter: BooleanParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: TextParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: PasswordParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: ExpressionParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: NumberParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: DecimalParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldNameParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldNamePatternParameter) => result += (parameter.ref.id -> parameter)
-      case (result, parameter: FieldParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: TextListParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldNameListParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldListParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: ChoiceParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: FieldDirectiveSequenceParameter) => result += (parameter.ref.id -> parameter.value)
-      case (result, parameter: DirectiveConfiguration) => result += (parameter.ref.uuid -> parameter.parameters)
-      case (result, _) => result
-    }.toMap
+    case (result, parameter: BooleanParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: TextParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: PasswordParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: ExpressionParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: NumberParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: DecimalParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: FieldNameParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: FieldNamePatternParameter) => result += (parameter.ref.id -> parameter)
+    case (result, parameter: FieldParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: TextListParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: FieldNameListParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: FieldListParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: ChoiceParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: GroupParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: FieldDirectiveSequenceParameter) => result += (parameter.ref.id -> parameter.value)
+    case (result, parameter: DirectiveConfiguration) => result += (parameter.ref.uuid -> parameter.parameters)
+    case (result, _) => result
+  }.toMap
 
   def findBooleanValue(ref: ParameterRef): Option[Boolean] = parameterMapping.get(ref.id) match {
     case Some(value: Boolean) => Some(value)
@@ -103,6 +104,11 @@ trait QueryableConfiguration {
     case _ => None
   }
 
+  def findValue(descriptor: ParameterGroupDescriptor): Option[ParameterSet] = parameterMapping.get(descriptor.ref.id) match {
+    case Some(Some(value: ParameterSet)) => Option(value)
+    case _ => None
+  }
+
   def findValue(descriptor: FieldDirectiveSequenceParameterDescriptor): Option[Seq[FieldDirectiveSequenceConfiguration]] = parameterMapping.get(descriptor.ref.id) match {
     case Some(value: Seq[FieldDirectiveSequenceConfiguration]) => Option(value)
     case _ => None
@@ -131,6 +137,8 @@ trait QueryableConfiguration {
   def getValueOrDefault(descriptor: FieldListParameterDescriptor, default: Seq[Field]): Seq[Field] = findValue(descriptor).getOrElse(default)
 
   def getValueOrDefault(descriptor: ChoiceParameterDescriptor, default: String): String = findValue(descriptor).getOrElse(default)
+
+  def getValueOrDefault(descriptor: ParameterGroupDescriptor, default: ParameterSet): ParameterSet = findValue(descriptor).getOrElse(default)
 
   def getValueOrDefault(descriptor: FieldDirectiveSequenceParameterDescriptor, default: Seq[FieldDirectiveSequenceConfiguration]): Seq[FieldDirectiveSequenceConfiguration] = {
     findValue(descriptor).getOrElse(default)
